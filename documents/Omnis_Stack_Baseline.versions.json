@@ -1,0 +1,2280 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-09-25T07:00:09.121772+00:00",
+  "status": "PARTIAL_WITH_EXPLICIT_PROXY_SECURITY_BLOCKER",
+  "scope": "planning_and_disposable_dependency_probes_not_application",
+  "runtimes": {
+    "node": {
+      "selected": "24.21.0",
+      "channel": "Active LTS Krypton",
+      "bundled_npm": "11.19.0",
+      "latest_current_observed": "26.10.0",
+      "latest_npm_observed": "12.1.0",
+      "eol": "2028-04-30",
+      "maintenance_start": "2026-10-20"
+    },
+    "python_api": {
+      "selected": "3.13.15",
+      "implementation": "CPython normal GIL build, not free-threaded",
+      "latest_stable_observed": "3.14.7",
+      "planned_last_bugfix": "3.13.16 on 2026-10-06; not a currently published pin",
+      "security_support_until": "2029-10"
+    },
+    "uv": {
+      "selected": "0.12.19",
+      "source": "https://pypi.org/pypi/uv/json"
+    },
+    "postgresql": {
+      "selected": "18.6",
+      "major": 18,
+      "supported_until": "2030-11-14",
+      "prerelease_not_selected": "19beta4",
+      "image_tag": "postgres:18.6-bookworm"
+    },
+    "hermes": {
+      "version": "0.21.5",
+      "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "policy": "unchanged; separate controlled runtime environment"
+    }
+  },
+  "frontend_runtime": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router": "8.4.0",
+    "@tanstack/react-query": "5.103.2",
+    "radix-ui": "1.6.7"
+  },
+  "frontend_build": {
+    "typescript": "5.9.3",
+    "vite": "8.3.1",
+    "@vitejs/plugin-react": "6.1.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "24.13.6",
+    "openapi-typescript": "7.13.0"
+  },
+  "frontend_tests": {
+    "vitest": "4.1.11",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/user-event": "14.6.7",
+    "jsdom": "30.1.1",
+    "@playwright/test": "1.63.0"
+  },
+  "api_runtime": {
+    "fastapi": "0.141.1",
+    "pydantic": "2.13.5",
+    "SQLAlchemy": "2.0.54",
+    "alembic": "1.20.0",
+    "uvicorn": "0.54.0",
+    "httpx": "0.28.1",
+    "cryptography": "50.0.1",
+    "psycopg[binary]": "3.3.6",
+    "greenlet": "3.5.6"
+  },
+  "api_tests": {
+    "pytest": "9.1.1",
+    "pytest-asyncio": "1.4.0"
+  },
+  "parsers_at_recon_gate": {
+    "defusedxml": "0.7.1",
+    "PyYAML": "6.0.3",
+    "openapi-spec-validator": "0.9.0",
+    "json": "Python stdlib; no package",
+    "enabled_openapi_subset": "3.0 and 3.1 only initially; reject/mark unsupported 2.0 and 3.2 despite validator support; no automatic network or filesystem external-ref resolution"
+  },
+  "browser_executor_separate": {
+    "python_playwright": "1.63.0",
+    "test_driver_npm": "@playwright/test@1.63.0",
+    "test_image": "mcr.microsoft.com/playwright:v1.63.0-noble",
+    "executor_base_candidate": "mcr.microsoft.com/playwright/python:v1.63.0-noble",
+    "note": "Images contain browsers/system libraries but not the application package. Exact bundled Python/Node executables and hardened target-executor suitability still require verification. Do not assume the API Python pin is the image interpreter."
+  },
+  "proxy_candidate": {
+    "python_candidate": "3.13.15",
+    "pins": {
+      "mitmproxy": "12.2.3",
+      "cryptography": "48.0.1",
+      "pyOpenSSL": "26.2.0",
+      "mitmproxy-rs": "0.12.11"
+    },
+    "invocation": "mitmdump entry point provided by mitmproxy; do not seek a separate mitmdump PyPI package",
+    "status": "REJECTED_FOR_TARGET_USE_DUE_TO_KNOWN_ADVISORIES",
+    "explicit_conflict": "API cryptography==50.0.1 conflicts with mitmproxy cryptography<=48.1. pyOpenSSL 26.3/26.4 need cryptography>=49, so pin compatible 26.2.0 only inside proxy env. Never downgrade API to satisfy proxy.",
+    "no_forced_override": true,
+    "affected_dependencies": [
+      "cryptography",
+      "h2",
+      "msgpack",
+      "tornado"
+    ]
+  },
+  "optional_docs": {
+    "@google/design.md": "0.4.0",
+    "scope": "local locked dev/docs dependency only if DESIGN.md adopted; alpha spec; no Tailwind requirement; no runtime dependency; contrast lint is not WCAG compliance"
+  },
+  "images": {
+    "postgres:18.6-bookworm": {
+      "registry_index_digest": "sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+      "platform_manifests": [
+        {
+          "architecture": "amd64",
+          "os": "linux",
+          "digest": "sha256:9e73daeb439141c2b11eea2463f5f1a3b269fd90d897b41cddb7cb440f21aa5d"
+        },
+        {
+          "architecture": "ppc64le",
+          "os": "linux",
+          "digest": "sha256:19aa0913953775d97bf80d04c214b1536a6cf7a61bc943bd7f19797b38d52623"
+        },
+        {
+          "architecture": "386",
+          "os": "linux",
+          "digest": "sha256:6b6d33bcc3ea5c47272989a43e014ae59c630a3d7d6d585e438e67e47f268ea3"
+        },
+        {
+          "architecture": "arm",
+          "os": "linux",
+          "digest": "sha256:cf3b7a8905e836924f254b3350839b252c9a21b3bca5ee2773076d40349f9479"
+        },
+        {
+          "architecture": "arm64",
+          "os": "linux",
+          "digest": "sha256:4c6516b5d6dfd96a6888541396f76545a63290be0aec2542547d7bcdd7515e28"
+        }
+      ],
+      "source_url": "https://hub.docker.com/v2/repositories/library/postgres/tags/18.6-bookworm",
+      "status": "registry metadata only; not pulled or run"
+    },
+    "node:24.21.0-bookworm-slim": {
+      "registry_index_digest": "sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6",
+      "platform_manifests": [
+        {
+          "architecture": "amd64",
+          "os": "linux",
+          "digest": "sha256:5cbc7caba8c2c0f0bca675d1b61b9f2857e1cf1853c6164ee9dd409501a936e7"
+        },
+        {
+          "architecture": "ppc64le",
+          "os": "linux",
+          "digest": "sha256:416b98170fe691cb97f8462baca6d83fcb951cc510175779ae0833b510ee287c"
+        },
+        {
+          "architecture": "arm64",
+          "os": "linux",
+          "digest": "sha256:24b8bc17702002d2ed0c1da9ad66c3ee507cc279d0856726662ff2b6fc35c149"
+        }
+      ],
+      "source_url": "https://hub.docker.com/v2/repositories/library/node/tags/24.21.0-bookworm-slim",
+      "status": "registry metadata only; not pulled or run"
+    },
+    "python:3.13.15-slim-bookworm": {
+      "registry_index_digest": "sha256:2325bb286ec344af3e5898cc224b5844e2707ac6e26b1632516fd3edc84a5e26",
+      "platform_manifests": [
+        {
+          "architecture": "amd64",
+          "os": "linux",
+          "digest": "sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a"
+        },
+        {
+          "architecture": "ppc64le",
+          "os": "linux",
+          "digest": "sha256:429fbcdb0c10f0b5563cd36a6e98c4b1bd5709cdfb123b3793c4bac38af4afe3"
+        },
+        {
+          "architecture": "386",
+          "os": "linux",
+          "digest": "sha256:eb48b49c9f01bf1feb17df271d5de60a0956a4cde662de79dfb0fabccb357be7"
+        },
+        {
+          "architecture": "arm",
+          "os": "linux",
+          "digest": "sha256:2a2cbba317961da2fade7765862b8f465b04c205914fc419b9404e16443062f1"
+        },
+        {
+          "architecture": "arm64",
+          "os": "linux",
+          "digest": "sha256:ad4c34ff79289506e235b40dce75d629e25f226b597a2455804220f037e07531"
+        }
+      ],
+      "source_url": "https://hub.docker.com/v2/repositories/library/python/tags/3.13.15-slim-bookworm",
+      "status": "registry metadata only; not pulled or run"
+    },
+    "mcr.microsoft.com/playwright:v1.63.0-noble": {
+      "registry_index_digest": "sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27",
+      "platform_manifests": [
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 1644,
+          "digest": "sha256:bc6ab0d6d44ff4826e4cb8c1e6d801e185bfc42bb0753f8e2a30efc70db054c7",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 1644,
+          "digest": "sha256:a0f4498920a5dbac63196d9140ed738ef00470f27e2e74029abd8850b7bd5717",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ],
+      "source_url": "https://mcr.microsoft.com/v2/playwright/manifests/v1.63.0-noble",
+      "status": "manifest fetched with OCI/Docker Accept header; not pulled or run"
+    },
+    "mcr.microsoft.com/playwright/python:v1.63.0-noble": {
+      "registry_index_digest": "sha256:72bd171a9ffc2b4b59532aaa6210e21014d07093120dc25528870c0b840da1f0",
+      "platform_manifests": [
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 1062,
+          "digest": "sha256:96b39581c89131729a7ecb8d532314af54c7f9bcc7a61fe15c7a9e77602acf59",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 1062,
+          "digest": "sha256:832286ebbc124bd50c914b27cf2f88fb88d4e261f84f578060191c4daa9c68ac",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux"
+          }
+        }
+      ],
+      "source_url": "https://mcr.microsoft.com/v2/playwright/python/manifests/v1.63.0-noble",
+      "status": "manifest fetched with OCI/Docker Accept header; not pulled or run"
+    }
+  },
+  "resolved_api": [
+    [
+      "alembic",
+      "1.20.0"
+    ],
+    [
+      "annotated-doc",
+      "0.0.5"
+    ],
+    [
+      "annotated-types",
+      "0.8.0"
+    ],
+    [
+      "anyio",
+      "4.15.1"
+    ],
+    [
+      "certifi",
+      "2026.7.22"
+    ],
+    [
+      "cffi",
+      "2.1.1"
+    ],
+    [
+      "click",
+      "8.5.0"
+    ],
+    [
+      "cryptography",
+      "50.0.1"
+    ],
+    [
+      "fastapi",
+      "0.141.1"
+    ],
+    [
+      "greenlet",
+      "3.5.6"
+    ],
+    [
+      "h11",
+      "0.16.0"
+    ],
+    [
+      "httpcore",
+      "1.0.9"
+    ],
+    [
+      "httpx",
+      "0.28.1"
+    ],
+    [
+      "idna",
+      "3.20"
+    ],
+    [
+      "iniconfig",
+      "2.3.0"
+    ],
+    [
+      "mako",
+      "1.4.3"
+    ],
+    [
+      "markupsafe",
+      "3.0.3"
+    ],
+    [
+      "packaging",
+      "26.3"
+    ],
+    [
+      "pluggy",
+      "1.6.0"
+    ],
+    [
+      "psycopg",
+      "3.3.6"
+    ],
+    [
+      "psycopg-binary",
+      "3.3.6"
+    ],
+    [
+      "pycparser",
+      "3.0"
+    ],
+    [
+      "pydantic",
+      "2.13.5"
+    ],
+    [
+      "pydantic-core",
+      "2.46.5"
+    ],
+    [
+      "pygments",
+      "2.21.0"
+    ],
+    [
+      "pytest",
+      "9.1.1"
+    ],
+    [
+      "pytest-asyncio",
+      "1.4.0"
+    ],
+    [
+      "sqlalchemy",
+      "2.0.54"
+    ],
+    [
+      "starlette",
+      "1.7.0"
+    ],
+    [
+      "typing-extensions",
+      "4.16.0"
+    ],
+    [
+      "typing-inspection",
+      "0.4.4"
+    ],
+    [
+      "uvicorn",
+      "0.54.0"
+    ]
+  ],
+  "resolved_proxy_rejected": [
+    [
+      "aioquic",
+      "1.2.0"
+    ],
+    [
+      "argon2-cffi",
+      "25.1.0"
+    ],
+    [
+      "argon2-cffi-bindings",
+      "26.1.0"
+    ],
+    [
+      "asgiref",
+      "3.11.1"
+    ],
+    [
+      "attrs",
+      "26.1.0"
+    ],
+    [
+      "bcrypt",
+      "5.0.0"
+    ],
+    [
+      "blinker",
+      "1.9.0"
+    ],
+    [
+      "brotli",
+      "1.2.0"
+    ],
+    [
+      "certifi",
+      "2026.7.22"
+    ],
+    [
+      "cffi",
+      "2.1.1"
+    ],
+    [
+      "click",
+      "8.5.0"
+    ],
+    [
+      "cryptography",
+      "48.0.1"
+    ],
+    [
+      "flask",
+      "3.1.3"
+    ],
+    [
+      "h11",
+      "0.16.0"
+    ],
+    [
+      "h2",
+      "4.3.0"
+    ],
+    [
+      "hpack",
+      "4.2.0"
+    ],
+    [
+      "hyperframe",
+      "6.1.0"
+    ],
+    [
+      "itsdangerous",
+      "2.2.0"
+    ],
+    [
+      "jinja2",
+      "3.1.6"
+    ],
+    [
+      "kaitaistruct",
+      "0.11"
+    ],
+    [
+      "ldap3",
+      "2.9.1"
+    ],
+    [
+      "markupsafe",
+      "3.0.3"
+    ],
+    [
+      "mitmproxy",
+      "12.2.3"
+    ],
+    [
+      "mitmproxy-linux",
+      "0.12.11"
+    ],
+    [
+      "mitmproxy-rs",
+      "0.12.11"
+    ],
+    [
+      "msgpack",
+      "1.1.2"
+    ],
+    [
+      "publicsuffix2",
+      "2.20191221"
+    ],
+    [
+      "pyasn1",
+      "0.6.4"
+    ],
+    [
+      "pycparser",
+      "3.0"
+    ],
+    [
+      "pylsqpack",
+      "0.3.24"
+    ],
+    [
+      "pyopenssl",
+      "26.2.0"
+    ],
+    [
+      "pyparsing",
+      "3.3.2"
+    ],
+    [
+      "pyperclip",
+      "1.11.0"
+    ],
+    [
+      "ruamel-yaml",
+      "0.19.1"
+    ],
+    [
+      "service-identity",
+      "26.1.0"
+    ],
+    [
+      "sortedcontainers",
+      "2.4.0"
+    ],
+    [
+      "tornado",
+      "6.5.5"
+    ],
+    [
+      "urwid",
+      "3.0.5"
+    ],
+    [
+      "wcwidth",
+      "0.9.1"
+    ],
+    [
+      "werkzeug",
+      "3.1.8"
+    ],
+    [
+      "wsproto",
+      "1.3.2"
+    ],
+    [
+      "zstandard",
+      "0.25.0"
+    ]
+  ],
+  "advisory_metadata": [
+    {
+      "name": "aioquic",
+      "version": "1.2.0",
+      "url": "https://pypi.org/pypi/aioquic/1.2.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "alembic",
+      "version": "1.20.0",
+      "url": "https://pypi.org/pypi/alembic/1.20.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.5",
+      "url": "https://pypi.org/pypi/annotated-doc/0.0.5/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.8.0",
+      "url": "https://pypi.org/pypi/annotated-types/0.8.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1",
+      "url": "https://pypi.org/pypi/anyio/4.15.1/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "argon2-cffi",
+      "version": "25.1.0",
+      "url": "https://pypi.org/pypi/argon2-cffi/25.1.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "argon2-cffi-bindings",
+      "version": "26.1.0",
+      "url": "https://pypi.org/pypi/argon2-cffi-bindings/26.1.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "asgiref",
+      "version": "3.11.1",
+      "url": "https://pypi.org/pypi/asgiref/3.11.1/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0",
+      "url": "https://pypi.org/pypi/attrs/26.1.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "bcrypt",
+      "version": "5.0.0",
+      "url": "https://pypi.org/pypi/bcrypt/5.0.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "blinker",
+      "version": "1.9.0",
+      "url": "https://pypi.org/pypi/blinker/1.9.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "brotli",
+      "version": "1.2.0",
+      "url": "https://pypi.org/pypi/brotli/1.2.0/json",
+      "requires_python": null,
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22",
+      "url": "https://pypi.org/pypi/certifi/2026.7.22/json",
+      "requires_python": ">=3.7",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "url": "https://pypi.org/pypi/cffi/2.1.1/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "url": "https://pypi.org/pypi/click/8.5.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "cryptography",
+      "version": "48.0.1",
+      "url": "https://pypi.org/pypi/cryptography/48.0.1/json",
+      "requires_python": "!=3.9.0,!=3.9.1,>=3.9",
+      "yanked": false,
+      "vulnerabilities": [
+        {
+          "aliases": [
+            "CVE-2026-69248",
+            "PYSEC-2026-3554"
+          ],
+          "fixed_in": [
+            "49.0.0"
+          ],
+          "id": "GHSA-m2h6-j472-rp4c",
+          "link": "https://osv.dev/vulnerability/GHSA-m2h6-j472-rp4c",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-69247",
+            "PYSEC-2026-3552"
+          ],
+          "fixed_in": [
+            "50.0.0"
+          ],
+          "id": "GHSA-g6cj-pr64-35w5",
+          "link": "https://osv.dev/vulnerability/GHSA-g6cj-pr64-35w5",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-69249",
+            "PYSEC-2026-3553"
+          ],
+          "fixed_in": [
+            "49.0.0"
+          ],
+          "id": "GHSA-jwv3-5hgf-82ww",
+          "link": "https://osv.dev/vulnerability/GHSA-jwv3-5hgf-82ww",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-69247",
+            "GHSA-g6cj-pr64-35w5"
+          ],
+          "fixed_in": [
+            "50.0.0"
+          ],
+          "id": "PYSEC-2026-3552",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3552",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-69249",
+            "GHSA-jwv3-5hgf-82ww"
+          ],
+          "fixed_in": [
+            "49.0.0"
+          ],
+          "id": "PYSEC-2026-3553",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3553",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-69248",
+            "GHSA-m2h6-j472-rp4c"
+          ],
+          "fixed_in": [
+            "49.0.0"
+          ],
+          "id": "PYSEC-2026-3554",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3554",
+          "withdrawn": null
+        }
+      ]
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.1",
+      "url": "https://pypi.org/pypi/cryptography/50.0.1/json",
+      "requires_python": "!=3.9.0,!=3.9.1,>=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "fastapi",
+      "version": "0.141.1",
+      "url": "https://pypi.org/pypi/fastapi/0.141.1/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "flask",
+      "version": "3.1.3",
+      "url": "https://pypi.org/pypi/flask/3.1.3/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "greenlet",
+      "version": "3.5.6",
+      "url": "https://pypi.org/pypi/greenlet/3.5.6/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "url": "https://pypi.org/pypi/h11/0.16.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "h2",
+      "version": "4.3.0",
+      "url": "https://pypi.org/pypi/h2/4.3.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": [
+        {
+          "aliases": [
+            "CVE-2026-71554",
+            "PYSEC-2026-3628"
+          ],
+          "fixed_in": [
+            "4.4.1"
+          ],
+          "id": "GHSA-6hr6-w5qg-qmwg",
+          "link": "https://osv.dev/vulnerability/GHSA-6hr6-w5qg-qmwg",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-71554",
+            "GHSA-6hr6-w5qg-qmwg"
+          ],
+          "fixed_in": [
+            "4.4.1"
+          ],
+          "id": "PYSEC-2026-3628",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3628",
+          "withdrawn": null
+        }
+      ]
+    },
+    {
+      "name": "hpack",
+      "version": "4.2.0",
+      "url": "https://pypi.org/pypi/hpack/4.2.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "url": "https://pypi.org/pypi/httpcore/1.0.9/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "url": "https://pypi.org/pypi/httpx/0.28.1/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "hyperframe",
+      "version": "6.1.0",
+      "url": "https://pypi.org/pypi/hyperframe/6.1.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "idna",
+      "version": "3.20",
+      "url": "https://pypi.org/pypi/idna/3.20/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "url": "https://pypi.org/pypi/iniconfig/2.3.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "url": "https://pypi.org/pypi/itsdangerous/2.2.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6",
+      "url": "https://pypi.org/pypi/jinja2/3.1.6/json",
+      "requires_python": ">=3.7",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "kaitaistruct",
+      "version": "0.11",
+      "url": "https://pypi.org/pypi/kaitaistruct/0.11/json",
+      "requires_python": "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "ldap3",
+      "version": "2.9.1",
+      "url": "https://pypi.org/pypi/ldap3/2.9.1/json",
+      "requires_python": "",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "mako",
+      "version": "1.4.3",
+      "url": "https://pypi.org/pypi/mako/1.4.3/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.3",
+      "url": "https://pypi.org/pypi/markupsafe/3.0.3/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "mitmproxy",
+      "version": "12.2.3",
+      "url": "https://pypi.org/pypi/mitmproxy/12.2.3/json",
+      "requires_python": ">=3.12",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "mitmproxy-linux",
+      "version": "0.12.11",
+      "url": "https://pypi.org/pypi/mitmproxy-linux/0.12.11/json",
+      "requires_python": ">=3.12",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "mitmproxy-rs",
+      "version": "0.12.11",
+      "url": "https://pypi.org/pypi/mitmproxy-rs/0.12.11/json",
+      "requires_python": ">=3.12",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "msgpack",
+      "version": "1.1.2",
+      "url": "https://pypi.org/pypi/msgpack/1.1.2/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": [
+        {
+          "aliases": [
+            "CVE-2026-57585",
+            "PYSEC-2026-3625"
+          ],
+          "fixed_in": [
+            "1.2.1"
+          ],
+          "id": "GHSA-6v7p-g79w-8964",
+          "link": "https://osv.dev/vulnerability/GHSA-6v7p-g79w-8964",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-57585",
+            "GHSA-6v7p-g79w-8964"
+          ],
+          "fixed_in": [
+            "1.2.1"
+          ],
+          "id": "PYSEC-2026-3625",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3625",
+          "withdrawn": null
+        }
+      ]
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "url": "https://pypi.org/pypi/packaging/26.3/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "url": "https://pypi.org/pypi/pluggy/1.6.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "psycopg",
+      "version": "3.3.6",
+      "url": "https://pypi.org/pypi/psycopg/3.3.6/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "psycopg-binary",
+      "version": "3.3.6",
+      "url": "https://pypi.org/pypi/psycopg-binary/3.3.6/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "publicsuffix2",
+      "version": "2.20191221",
+      "url": "https://pypi.org/pypi/publicsuffix2/2.20191221/json",
+      "requires_python": "",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pyasn1",
+      "version": "0.6.4",
+      "url": "https://pypi.org/pypi/pyasn1/0.6.4/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0",
+      "url": "https://pypi.org/pypi/pycparser/3.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.5",
+      "url": "https://pypi.org/pypi/pydantic/2.13.5/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pydantic-core",
+      "version": "2.46.5",
+      "url": "https://pypi.org/pypi/pydantic-core/2.46.5/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pygments",
+      "version": "2.21.0",
+      "url": "https://pypi.org/pypi/pygments/2.21.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pylsqpack",
+      "version": "0.3.24",
+      "url": "https://pypi.org/pypi/pylsqpack/0.3.24/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pyopenssl",
+      "version": "26.2.0",
+      "url": "https://pypi.org/pypi/pyopenssl/26.2.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.2",
+      "url": "https://pypi.org/pypi/pyparsing/3.3.2/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pyperclip",
+      "version": "1.11.0",
+      "url": "https://pypi.org/pypi/pyperclip/1.11.0/json",
+      "requires_python": null,
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1",
+      "url": "https://pypi.org/pypi/pytest/9.1.1/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.4.0",
+      "url": "https://pypi.org/pypi/pytest-asyncio/1.4.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "ruamel-yaml",
+      "version": "0.19.1",
+      "url": "https://pypi.org/pypi/ruamel-yaml/0.19.1/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "service-identity",
+      "version": "26.1.0",
+      "url": "https://pypi.org/pypi/service-identity/26.1.0/json",
+      "requires_python": ">=3.8",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "sortedcontainers",
+      "version": "2.4.0",
+      "url": "https://pypi.org/pypi/sortedcontainers/2.4.0/json",
+      "requires_python": "",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "sqlalchemy",
+      "version": "2.0.54",
+      "url": "https://pypi.org/pypi/sqlalchemy/2.0.54/json",
+      "requires_python": ">=3.7",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "starlette",
+      "version": "1.7.0",
+      "url": "https://pypi.org/pypi/starlette/1.7.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "tornado",
+      "version": "6.5.5",
+      "url": "https://pypi.org/pypi/tornado/6.5.5/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": [
+        {
+          "aliases": [
+            "CVE-2026-49854",
+            "PYSEC-2026-3388"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "GHSA-cx3h-4qpv-8hc9",
+          "link": "https://osv.dev/vulnerability/GHSA-cx3h-4qpv-8hc9",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-49853",
+            "PYSEC-2026-3387"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "GHSA-3x9g-8vmp-wqvf",
+          "link": "https://osv.dev/vulnerability/GHSA-3x9g-8vmp-wqvf",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-49855",
+            "PYSEC-2026-3389"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "GHSA-mgf9-4vpg-hj56",
+          "link": "https://osv.dev/vulnerability/GHSA-mgf9-4vpg-hj56",
+          "withdrawn": null
+        },
+        {
+          "aliases": [],
+          "fixed_in": [
+            "6.5.7"
+          ],
+          "id": "GHSA-pw6j-qg29-8w7f",
+          "link": "https://osv.dev/vulnerability/GHSA-pw6j-qg29-8w7f",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-49853",
+            "GHSA-3x9g-8vmp-wqvf"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "PYSEC-2026-3387",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3387",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-49854",
+            "GHSA-cx3h-4qpv-8hc9"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "PYSEC-2026-3388",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3388",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-49855",
+            "GHSA-mgf9-4vpg-hj56"
+          ],
+          "fixed_in": [
+            "6.5.6"
+          ],
+          "id": "PYSEC-2026-3389",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3389",
+          "withdrawn": null
+        },
+        {
+          "aliases": [],
+          "fixed_in": [
+            "6.5.8"
+          ],
+          "id": "GHSA-wwv5-g3v4-889x",
+          "link": "https://osv.dev/vulnerability/GHSA-wwv5-g3v4-889x",
+          "withdrawn": null
+        },
+        {
+          "aliases": [],
+          "fixed_in": [
+            "6.5.8"
+          ],
+          "id": "GHSA-8423-8fgw-73vq",
+          "link": "https://osv.dev/vulnerability/GHSA-8423-8fgw-73vq",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-82397"
+          ],
+          "fixed_in": [
+            "6.5.8"
+          ],
+          "id": "GHSA-mpf4-983q-p7j4",
+          "link": "https://osv.dev/vulnerability/GHSA-mpf4-983q-p7j4",
+          "withdrawn": null
+        },
+        {
+          "aliases": [
+            "CVE-2026-82397",
+            "GHSA-mpf4-983q-p7j4"
+          ],
+          "fixed_in": [
+            "6.5.8"
+          ],
+          "id": "PYSEC-2026-3928",
+          "link": "https://osv.dev/vulnerability/PYSEC-2026-3928",
+          "withdrawn": null
+        }
+      ]
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "url": "https://pypi.org/pypi/typing-extensions/4.16.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.4",
+      "url": "https://pypi.org/pypi/typing-inspection/0.4.4/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "urwid",
+      "version": "3.0.5",
+      "url": "https://pypi.org/pypi/urwid/3.0.5/json",
+      "requires_python": ">=3.9.0",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0",
+      "url": "https://pypi.org/pypi/uvicorn/0.54.0/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.9.1",
+      "url": "https://pypi.org/pypi/wcwidth/0.9.1/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "werkzeug",
+      "version": "3.1.8",
+      "url": "https://pypi.org/pypi/werkzeug/3.1.8/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "wsproto",
+      "version": "1.3.2",
+      "url": "https://pypi.org/pypi/wsproto/1.3.2/json",
+      "requires_python": ">=3.10",
+      "yanked": false,
+      "vulnerabilities": []
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0",
+      "url": "https://pypi.org/pypi/zstandard/0.25.0/json",
+      "requires_python": ">=3.9",
+      "yanked": false,
+      "vulnerabilities": []
+    }
+  ],
+  "latest_not_selected": {
+    "typescript": {
+      "selected": "5.9.3",
+      "latest": "7.0.2",
+      "why": "openapi-typescript 7.13.0 declares TypeScript ^5.x; no --force/--legacy-peer-deps"
+    },
+    "SQLAlchemy": {
+      "selected": "2.0.54",
+      "latest": "2.1.0",
+      "why": "2.1.0 released 2026-09-24; choose maintained 2.0 for first slice, reassess before maintenance EOL; not a permanent freeze"
+    },
+    "npm": {
+      "selected": "11.19.0",
+      "latest": "12.1.0",
+      "why": "use exact version bundled with Node 24.21.0"
+    },
+    "@types/node": {
+      "selected": "24.13.6",
+      "latest": "26.6.2",
+      "why": "match runtime major 24"
+    },
+    "vitest": {
+      "selected": "4.1.11",
+      "latest": "5.0.1",
+      "why": "Actual strict typecheck TS2428 with jest-dom7 + Vitest5. Retested 4.1.11 successfully."
+    }
+  },
+  "database_mode": "SQLAlchemy asyncio + psycopg; no blocking I/O in event loop",
+  "docker_host_observed": {
+    "engine": "27.5.1+dfsg4",
+    "compose": "2.32.4-3",
+    "status": "OBSERVED_ONLY_NOT_DEPLOYMENT_CERTIFIED"
+  },
+  "remaining_gates": [
+    "patched/upstream-safe proxy with HTTPS confinement proof",
+    "exact native Hermes child binding/lineage/wake tests",
+    "database connection and migrations",
+    "browser executor image hardening",
+    "provider consent and live account tests",
+    "generated final project lockfiles/SBOM/licenses"
+  ],
+  "npm_metadata": {
+    "@playwright/test": {
+      "name": "@playwright/test",
+      "version": "1.63.0",
+      "engines": {
+        "node": ">=20"
+      },
+      "dependencies": {
+        "playwright": "1.63.0"
+      },
+      "dist": {
+        "shasum": "808020c46e8b6b91f9d628cd0ebcbb32bdfd8b6c",
+        "tarball": "https://registry.npmjs.org/@playwright/test/-/test-1.63.0.tgz",
+        "fileCount": 11,
+        "integrity": "sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==",
+        "signatures": [
+          {
+            "sig": "MEYCIQDUH4a4V6wkW8vZKOHi60EtVScpadXG/qpWxl0HkScehwIhALwx8bC8oCgXeZQI6mjJ+bZJAjZIowIiLS5jEK8g5md0",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDbceOr8IFZs4Y1etJqfQV6K1O4zduy8yn9ngl8996WfwIgcNc6YXDqCpPA781bx9peX5wboqICx5KngcccBzk7Vq0=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@playwright%2ftest@1.63.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 28544
+      },
+      "source_url": "https://registry.npmjs.org/@playwright%2Ftest/latest"
+    },
+    "vitest": {
+      "name": "vitest",
+      "version": "4.1.11",
+      "engines": {
+        "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+      },
+      "peerDependencies": {
+        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+        "jsdom": "*",
+        "happy-dom": "*",
+        "@vitest/ui": "4.1.11",
+        "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+        "@edge-runtime/vm": "*",
+        "@opentelemetry/api": "^1.9.0",
+        "@vitest/coverage-v8": "4.1.11",
+        "@vitest/browser-preview": "4.1.11",
+        "@vitest/coverage-istanbul": "4.1.11",
+        "@vitest/browser-playwright": "4.1.11",
+        "@vitest/browser-webdriverio": "4.1.11"
+      },
+      "peerDependenciesMeta": {
+        "vite": {
+          "optional": false
+        },
+        "jsdom": {
+          "optional": true
+        },
+        "happy-dom": {
+          "optional": true
+        },
+        "@vitest/ui": {
+          "optional": true
+        },
+        "@types/node": {
+          "optional": true
+        },
+        "@edge-runtime/vm": {
+          "optional": true
+        },
+        "@opentelemetry/api": {
+          "optional": true
+        },
+        "@vitest/coverage-v8": {
+          "optional": true
+        },
+        "@vitest/browser-preview": {
+          "optional": true
+        },
+        "@vitest/coverage-istanbul": {
+          "optional": true
+        },
+        "@vitest/browser-playwright": {
+          "optional": true
+        },
+        "@vitest/browser-webdriverio": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "obug": "^2.1.1",
+        "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+        "pathe": "^2.0.3",
+        "std-env": "^4.0.0-rc.1",
+        "tinyexec": "^1.0.2",
+        "picomatch": "^4.0.3",
+        "tinybench": "^2.9.0",
+        "tinyglobby": "^0.2.15",
+        "@vitest/spy": "4.1.11",
+        "expect-type": "^1.3.0",
+        "tinyrainbow": "^3.1.0",
+        "magic-string": "^0.30.21",
+        "@vitest/utils": "4.1.11",
+        "@vitest/expect": "4.1.11",
+        "@vitest/mocker": "4.1.11",
+        "@vitest/runner": "4.1.11",
+        "es-module-lexer": "^2.0.0",
+        "@vitest/snapshot": "4.1.11",
+        "why-is-node-running": "^2.3.0",
+        "@vitest/pretty-format": "4.1.11"
+      },
+      "dist": {
+        "shasum": "1653c1521ae917f960d9b21877797c47dfd8bf21",
+        "tarball": "https://registry.npmjs.org/vitest/-/vitest-4.1.11.tgz",
+        "fileCount": 114,
+        "integrity": "sha512-fhACrNXUidIbGSBr5FlbuBkO7VWC1ZyLl0DO4CU2DrQoAPxX84Ysxs+HeGQpii5lZWV1Q4gBZTTu49mF+A6Edw==",
+        "signatures": [
+          {
+            "sig": "MEUCIBSU996mnW6tNJuA1U7CRmR/Ukpn/bd/zIY/j5QMSIkrAiEA533Mf1NVfToeCZQA9EXozqd37DRbe6ZzDbSFdgHQNVo=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/vitest@4.1.11",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 1909160
+      },
+      "source_url": "https://registry.npmjs.org/vitest/4.1.11"
+    },
+    "@testing-library/jest-dom": {
+      "name": "@testing-library/jest-dom",
+      "version": "7.0.1",
+      "engines": {
+        "npm": ">=6",
+        "node": ">=22",
+        "yarn": ">=1"
+      },
+      "peerDependencies": {
+        "vitest": ">= 0.32",
+        "@testing-library/dom": ">=10 <11"
+      },
+      "peerDependenciesMeta": {
+        "vitest": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "redent": "^3.0.0",
+        "aria-query": "^5.0.0",
+        "css.escape": "^1.5.1",
+        "picocolors": "^1.1.1",
+        "@adobe/css-tools": "^4.4.0",
+        "dom-accessibility-api": "^0.6.3"
+      },
+      "dist": {
+        "shasum": "649a9a8b2039f28d29f9f7a46eba9a8b727f811e",
+        "tarball": "https://registry.npmjs.org/@testing-library/jest-dom/-/jest-dom-7.0.1.tgz",
+        "fileCount": 38,
+        "integrity": "sha512-oMDTC3oA+6CXSO2JZnvOI7CA6oVub6kij5ggk9ohwye5slmkwxYDXcPOVxgMw/RQlticjtO0C1RZkR97HgrWMw==",
+        "signatures": [
+          {
+            "sig": "MEYCIQCzyuEIbcUDoNxYssP2CnKEKiNGB0IHdliVyZ+8e4lfqAIhAN2tPUDHtQynzX3Z+3Cl/S5ifqFCrzoHjGuKIlLhjuBQ",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIHoXRk2t3UFriZP28/Ni5lh8BKbf3V0swzROhNJRhWfkAiEA2/tjyT0m99/debaF30TJXQV30RiPDWtGaqVRwnT1/vk=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@testing-library%2fjest-dom@7.0.1",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 331873
+      },
+      "source_url": "https://registry.npmjs.org/@testing-library%2Fjest-dom/latest"
+    },
+    "@testing-library/dom": {
+      "name": "@testing-library/dom",
+      "version": "10.4.2",
+      "engines": {
+        "node": ">=18"
+      },
+      "dependencies": {
+        "lz-string": "^1.5.0",
+        "aria-query": "5.3.0",
+        "picocolors": "1.1.1",
+        "pretty-format": "^27.0.2",
+        "@babel/runtime": "^7.12.5",
+        "@babel/code-frame": "^7.10.4",
+        "@types/aria-query": "^5.0.1",
+        "dom-accessibility-api": "^0.5.9"
+      },
+      "dist": {
+        "shasum": "e996827c4e5e1f13589527293b4b3958de2f709f",
+        "tarball": "https://registry.npmjs.org/@testing-library/dom/-/dom-10.4.2.tgz",
+        "fileCount": 51,
+        "integrity": "sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==",
+        "signatures": [
+          {
+            "sig": "MEUCIQDwekyJ6YIezapxd2r5/0KXPgY0hEpIwmVoKR/MmHbfYQIgJ2YBX2/+qYCnv/rAqsAh02hf0AG/Hm1e8aDN8/UozU4=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEQCIA0Eh3vKw9aMKKjtRoFXTHjCbHPK3bswsXxp0148ASxvAiBxys97bHy/ZVubr5nlKvOQ63nF3KnnWITzTeSuLiUhTg==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@testing-library%2fdom@10.4.2",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 2467302
+      },
+      "source_url": "https://registry.npmjs.org/@testing-library%2Fdom/latest"
+    },
+    "@vitejs/plugin-react": {
+      "name": "@vitejs/plugin-react",
+      "version": "6.1.1",
+      "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+      },
+      "peerDependencies": {
+        "vite": "^8.0.0",
+        "oxc-transform-react": "^0.145.0",
+        "@rolldown/plugin-babel": "^0.1.7 || ^0.2.0",
+        "babel-plugin-react-compiler": "^1.0.0"
+      },
+      "peerDependenciesMeta": {
+        "oxc-transform-react": {
+          "optional": true
+        },
+        "@rolldown/plugin-babel": {
+          "optional": true
+        },
+        "babel-plugin-react-compiler": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "@rolldown/pluginutils": "^1.0.1"
+      },
+      "dist": {
+        "shasum": "47fa1a2f956e88eaf778ebf65ddce8e2b36597e7",
+        "tarball": "https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-6.1.1.tgz",
+        "fileCount": 8,
+        "integrity": "sha512-yxLaQV9gkhS8ezJqCM6+ndU7mDY6gqAg75NQ+0IjwEI8IYOmQCgkRwHKVSfWXW076DsqMo0Dk+0FK1U+M5RgFw==",
+        "signatures": [
+          {
+            "sig": "MEYCIQCCDs+BOI/pnrDk0PtKhiTDlFQorN5YqiwD6uDJPg9CVgIhAP8PxXb0GsxHqX4PSfdgbcSZFkJrzXW5Zcm9eg2AkP7N",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIAW6F+OGCYaeSPFK9eNCgKWJFsd4DzUC3fcwTNb7tOf2AiEA1PaFKG2Xj/ldr2RWWKBsDKKCJ+eKSfIIJ8OSsSQFfk8=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@vitejs%2fplugin-react@6.1.1",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 44804
+      },
+      "source_url": "https://registry.npmjs.org/@vitejs%2Fplugin-react/latest"
+    },
+    "@testing-library/user-event": {
+      "name": "@testing-library/user-event",
+      "version": "14.6.7",
+      "engines": {
+        "npm": ">=6",
+        "node": ">=12"
+      },
+      "peerDependencies": {
+        "@testing-library/dom": ">=7.21.4"
+      },
+      "dependencies": {},
+      "dist": {
+        "shasum": "c453ccfcaffed110cc79048ed18fccb0f4224f3b",
+        "tarball": "https://registry.npmjs.org/@testing-library/user-event/-/user-event-14.6.7.tgz",
+        "fileCount": 308,
+        "integrity": "sha512-MPCpX8bxe8zS+JmmTwLp8jd0dy1rAm60Te/SL8JrQM3qvQJcBOs1d7IefJMyZzqM3EWBrDn/LWDt1BCGu4ASfg==",
+        "signatures": [
+          {
+            "sig": "MEQCIC9kBc+A0w1nnXgZSuqh1hJUKJUmpNIbh6smGRibRM+UAiBI1407L2TVKxJSz3Uh7zKf9fHd1UfU5ZlqrybpXoeZMg==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDSNDiB0TEpTZelmx1k9kOP9ATP0ARorEwj8fHvq84SOgIgQcS6kgxiVYq70tj5kGHX52YzqO9pKdA2MPhxL8P/8Rc=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@testing-library%2fuser-event@14.6.7",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 437525
+      },
+      "source_url": "https://registry.npmjs.org/@testing-library%2Fuser-event/latest"
+    },
+    "vite": {
+      "name": "vite",
+      "version": "8.3.1",
+      "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+      },
+      "peerDependencies": {
+        "tsx": "^4.8.1",
+        "jiti": ">=1.21.0",
+        "less": "^4.0.0",
+        "sass": "^1.70.0",
+        "yaml": "^2.4.2",
+        "stylus": ">=0.54.8",
+        "terser": "^5.16.0",
+        "esbuild": "^0.27.0 || ^0.28.0",
+        "sugarss": "^5.0.0",
+        "@types/node": "^20.19.0 || >=22.12.0",
+        "sass-embedded": "^1.70.0",
+        "@vitejs/devtools": "^0.7.1"
+      },
+      "peerDependenciesMeta": {
+        "tsx": {
+          "optional": true
+        },
+        "jiti": {
+          "optional": true
+        },
+        "less": {
+          "optional": true
+        },
+        "sass": {
+          "optional": true
+        },
+        "yaml": {
+          "optional": true
+        },
+        "stylus": {
+          "optional": true
+        },
+        "terser": {
+          "optional": true
+        },
+        "esbuild": {
+          "optional": true
+        },
+        "sugarss": {
+          "optional": true
+        },
+        "@types/node": {
+          "optional": true
+        },
+        "sass-embedded": {
+          "optional": true
+        },
+        "@vitejs/devtools": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "postcss": "^8.5.28",
+        "rolldown": "~1.2.9",
+        "picomatch": "^4.0.7",
+        "tinyglobby": "^0.2.17",
+        "lightningcss": "^1.33.0"
+      },
+      "dist": {
+        "shasum": "aa1099a4ccaf104a8c32492951497fa1781d9fce",
+        "tarball": "https://registry.npmjs.org/vite/-/vite-8.3.1.tgz",
+        "fileCount": 37,
+        "integrity": "sha512-/bvH9E9tmCXRGp2uXY3WbOldqpTwFkbha/8ANaEQ6VkxhH60KyqLwgZq6lG2y+4uT55x9+9eUHMpQ7uGnOCKjA==",
+        "signatures": [
+          {
+            "sig": "MEQCIFCSTBguqp+xbAC2qZmuUSij49FgljuCRTTeyL1XkpnNAiAGifXtIBjTCgh++fODfr9E6/28L4ATJDBkR1m9NF7InQ==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIFn8kwCcxORlWzME11H1Qc7ie0cw9EpEMET51ewNZePrAiEAmqhogJZs3JnbI7D50IkJMkxc7cUC/QWJXk+lQp4yjpU=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/vite@8.3.1",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 2375009
+      },
+      "source_url": "https://registry.npmjs.org/vite/latest"
+    },
+    "@types/node": {
+      "name": "@types/node",
+      "version": "24.13.6",
+      "peerDependencies": {},
+      "dependencies": {
+        "undici-types": "~7.18.0"
+      },
+      "dist": {
+        "shasum": "30ba2d8aae3c321fd170fe52a915231a67a4875c",
+        "tarball": "https://registry.npmjs.org/@types/node/-/node-24.13.6.tgz",
+        "fileCount": 88,
+        "integrity": "sha512-SGrw/h3KPFshy3OE6ZL53LMBG5vGQQ8/gIpiqz/kRZhPJ7HgwCEs8LBuNtWLa8dvGZVpSF7+Bf+c11HUrCb/yg==",
+        "signatures": [
+          {
+            "sig": "MEUCIDYM4CKJizybOF0u8ZwcEsRzdJx+LPfU5drDHa+FhXG1AiEArxWTOFBi55nFiQb+8G+jpv2eWsfOCNT1ZrdZibdu3tQ=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+            "sig": "MEYCIQDsrOeraNMC/eAvVrTeVM/ZkIh8OkuLJ9e/q/PeERWFwgIhAMW2qKAEtJgqBZjq0VV/v1XqZyRumyHnSGrQgHjpI4G7"
+          }
+        ],
+        "unpackedSize": 2543069
+      },
+      "source_url": "https://registry.npmjs.org/@types%2Fnode"
+    },
+    "react-dom": {
+      "name": "react-dom",
+      "version": "19.3.0",
+      "peerDependencies": {
+        "react": "^19.3.0"
+      },
+      "dependencies": {
+        "scheduler": "^0.28.0"
+      },
+      "dist": {
+        "shasum": "a0ff19161d7f4e9be5469a07278b0c06e00f9001",
+        "tarball": "https://registry.npmjs.org/react-dom/-/react-dom-19.3.0.tgz",
+        "fileCount": 43,
+        "integrity": "sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==",
+        "signatures": [
+          {
+            "sig": "MEUCIQDl7gfoVlOoqKLgPU325X6EcrNHIYuFJJX0R9PHDs9KygIgAQaRzlBCG57IDn6XBjaOL/adBCuf/oiguaTixpmBBjw=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIBJlBwP9e+XpqYfXpAJxCFTZ2i9tt8XCm9JYmuFMXsm1AiEAi9g3MN8fg6vModu7alAeUKmJ6iWO6untLGlvHfX1mb4=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/react-dom@19.3.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 8063782
+      },
+      "source_url": "https://registry.npmjs.org/react-dom/latest"
+    },
+    "jsdom": {
+      "name": "jsdom",
+      "version": "30.1.1",
+      "engines": {
+        "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+      },
+      "peerDependencies": {
+        "canvas": "^3.2.3"
+      },
+      "peerDependenciesMeta": {
+        "canvas": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "saxes": "^6.0.0",
+        "parse5": "^8.0.1",
+        "undici": "^8.10.2",
+        "css-tree": "^3.2.1",
+        "data-urls": "^7.0.0",
+        "lru-cache": "^11.5.2",
+        "decimal.js": "^10.6.0",
+        "whatwg-url": "^17.1.1",
+        "tough-cookie": "^6.0.2",
+        "@exodus/bytes": "^1.15.1",
+        "whatwg-mimetype": "^5.0.0",
+        "w3c-xmlserializer": "^6.0.0",
+        "webidl-conversions": "^8.0.1",
+        "xml-name-validator": "^5.0.0",
+        "@bramus/specificity": "^2.4.2",
+        "@asamuzakjp/css-color": "^7.0.0",
+        "html-encoding-sniffer": "^7.0.0",
+        "@asamuzakjp/dom-selector": "^9.2.1",
+        "is-potential-custom-element-name": "^1.0.1",
+        "@csstools/css-syntax-patches-for-csstree": "^1.1.13"
+      },
+      "dist": {
+        "shasum": "cf8b82ce71ac29a0bf1ab219a6d2894bce62dbdb",
+        "tarball": "https://registry.npmjs.org/jsdom/-/jsdom-30.1.1.tgz",
+        "fileCount": 665,
+        "integrity": "sha512-FahmoPK5vbPc+jxV1iErMHmAZypCZ942NHF4+qqaWAuvaKKTBZxawnmAtrbGWLU7MtlxfqIP0qw6aSI+aWGtLg==",
+        "signatures": [
+          {
+            "sig": "MEUCIQCZNa6DjPKz2IsSI+dXpme6+0ZUxGxgOT1eWCAOgtF+gQIgA9NbpshfIB1q0QwCuT0G5ZHRYcZxyth2iGj/xQbt/ug=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQC0GXpaww4g4XSC1zpFeoya7UgAu2k3Pn+/7giC3+T03QIgZm8Wd/q5XmhEc1Xb6ENGvNPY1Ex7lMKJk/Gc9Rr6xQI=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/jsdom@30.1.1",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 7142894
+      },
+      "source_url": "https://registry.npmjs.org/jsdom/latest"
+    },
+    "react": {
+      "name": "react",
+      "version": "19.3.0",
+      "engines": {
+        "node": ">=0.10.0"
+      },
+      "dist": {
+        "shasum": "e20aa3a14687075ce863351b5878b0608c3fbfb2",
+        "tarball": "https://registry.npmjs.org/react/-/react-19.3.0.tgz",
+        "fileCount": 27,
+        "integrity": "sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==",
+        "signatures": [
+          {
+            "sig": "MEUCIALru2uJjzTwQTeh/ax6FRZSyVBDySuUEr4k+TiaANpDAiEAgJVCX1upjcvo4FzKCrJW9vcVnWVJwMbuM4Wsc4UM61o=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEYCIQCLRI5uegHedldoJjX7BioMz8AnR5jZmFZB2+1PMyrFagIhAMlHH0dBWncX0Nq4vSqkVKZtP7Jolgae2aodnOtIRrQK",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/react@19.3.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 178663
+      },
+      "source_url": "https://registry.npmjs.org/react/latest"
+    },
+    "openapi-typescript": {
+      "name": "openapi-typescript",
+      "version": "7.13.0",
+      "peerDependencies": {
+        "typescript": "^5.x"
+      },
+      "dependencies": {
+        "parse-json": "^8.3.0",
+        "ansi-colors": "^4.1.3",
+        "change-case": "^5.4.4",
+        "yargs-parser": "^21.1.1",
+        "supports-color": "^10.2.2",
+        "@redocly/openapi-core": "^1.34.6"
+      },
+      "dist": {
+        "shasum": "5d0dc5e95d648fba85b15351a0b91c5815d8360b",
+        "tarball": "https://registry.npmjs.org/openapi-typescript/-/openapi-typescript-7.13.0.tgz",
+        "fileCount": 105,
+        "integrity": "sha512-EFP392gcqXS7ntPvbhBzbF8TyBA+baIYEm791Hy5YkjDYKTnk/Tn5OQeKm5BIZvJihpp8Zzr4hzx0Irde1LNGQ==",
+        "signatures": [
+          {
+            "sig": "MEUCIQCDYOL27GnQ77WQxfUr0Mn7uSv4jntiiuFSzpdV64kvDgIgPh/OSHJp6s6mo5LwPzQE3yfGItLEwV2Bhvp86n3Ndfo=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/openapi-typescript@7.13.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 878193
+      },
+      "source_url": "https://registry.npmjs.org/openapi-typescript/latest"
+    },
+    "@testing-library/react": {
+      "name": "@testing-library/react",
+      "version": "16.3.3",
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "react": "^18.0.0 || ^19.0.0",
+        "react-dom": "^18.0.0 || ^19.0.0",
+        "@types/react": "^18.0.0 || ^19.0.0",
+        "@types/react-dom": "^18.0.0 || ^19.0.0",
+        "@testing-library/dom": "^10.0.0"
+      },
+      "peerDependenciesMeta": {
+        "@types/react": {
+          "optional": true
+        },
+        "@types/react-dom": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "@babel/runtime": "^7.12.5"
+      },
+      "dist": {
+        "shasum": "426907e7716f37038dab8aa69d8f0459f9ec24b2",
+        "tarball": "https://registry.npmjs.org/@testing-library/react/-/react-16.3.3.tgz",
+        "fileCount": 25,
+        "integrity": "sha512-Uo193NgQbPMz6lrrhtRQQFcMC6Re/ELLFbbuVL30WDlZxlpZf9/lMHTAVxPRLw1q1iu9OJmR1c2BLiENRstdBg==",
+        "signatures": [
+          {
+            "sig": "MEUCIBXgv4RYkD8FS884CnBEcu4mj7HIGC8IkYQnTNkssAlEAiEA6tawtwNhaLIG/JWLinZ70o85BoLMrqmYDCaDxdj6t+g=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQCJmLvhAHmLXy5qKt1yZWjH1qF48t2mpFRj6eVLDTOL5QIgbl1S73pztHB8Aq3O+CxXRIta0RurGLH8pCsmqbxMOJY=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@testing-library%2freact@16.3.3",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 339581
+      },
+      "source_url": "https://registry.npmjs.org/@testing-library%2Freact/latest"
+    },
+    "@tanstack/react-query": {
+      "name": "@tanstack/react-query",
+      "version": "5.103.2",
+      "peerDependencies": {
+        "react": "^18 || ^19"
+      },
+      "dependencies": {
+        "@tanstack/query-core": "5.103.2"
+      },
+      "dist": {
+        "shasum": "1d063909424ecf259fd88f974a4ecafe32edcfed",
+        "tarball": "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.103.2.tgz",
+        "fileCount": 415,
+        "integrity": "sha512-B+fWiYZBc+0uUD5zDZAeLw9dKj7XEsdnuu6zRZ+no6LNKpeE3P3bJ+N6HINjcIlWR6fW3vUoTneEaGa2V6ehqw==",
+        "signatures": [
+          {
+            "sig": "MEUCIQDlR1yDy+CC1Cicah4XJmyav8TAM1qCCS2O6twTX+DR3gIgMKbRA937WH28VznO2tpQ/qmuNc/sKioBfMnJi9ZZOGw=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIDIcJ4F5iw39iGJYv+nHRS7ZB4SSGcOUfPsSokDrckNsAiEAj9YAyPCwnp32nRwnOkW+FJnmEuocNLs4OnhmvrSkZ94=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@tanstack%2freact-query@5.103.2",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 1732813
+      },
+      "source_url": "https://registry.npmjs.org/@tanstack%2Freact-query/latest"
+    },
+    "typescript": {
+      "name": "typescript",
+      "version": "5.9.3",
+      "engines": {
+        "node": ">=14.17"
+      },
+      "dist": {
+        "shasum": "5b4f59e15310ab17a216f5d6cf53ee476ede670f",
+        "tarball": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+        "fileCount": 132,
+        "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+        "signatures": [
+          {
+            "sig": "MEYCIQC5ifNi1il+zAZC19ov+Q5oSrhOwlpOpghAaAAXYA0RpAIhAKdcZ6pMNZGuprpke8Zi3OPB1zol9c88KVW+apJNVjTy",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 23625066
+      },
+      "source_url": "https://registry.npmjs.org/typescript"
+    },
+    "react-router": {
+      "name": "react-router",
+      "version": "8.4.0",
+      "engines": {
+        "node": ">=22.22.0"
+      },
+      "peerDependencies": {
+        "react": ">=19.2.7",
+        "react-dom": ">=19.2.7"
+      },
+      "peerDependenciesMeta": {
+        "react-dom": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "cookie-es": "^3.1.1",
+        "@remix-run/route-pattern": "^0.22.1"
+      },
+      "dist": {
+        "shasum": "fa3c0ba58555cfb120a9ed8042518e374000fb4b",
+        "tarball": "https://registry.npmjs.org/react-router/-/react-router-8.4.0.tgz",
+        "fileCount": 336,
+        "integrity": "sha512-JtydAkBvU9UTEe5qNC+POhu+ZBNM7rlKY2IegwXc7Idj7xfRG16x5RZrw3mju+XlqBxfvb2ky9P3jUp9WyWC1g==",
+        "signatures": [
+          {
+            "sig": "MEQCIA9xpWfgQPiVmDZUFTlJqsFsH14P0nZwziCduViEUDByAiBTqJrfRJzbSXAcsYSECbw1daUEykQRx6/tW0obd3I06g==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDMwxkSfM2dfw06CWsT7WorkjpEdMzavv+aygTsslXczQIgG/guMkwc9uuoopELYm24qvUBehE4aTPHWZDzjl+mu+8=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/react-router@8.4.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 2856262
+      },
+      "source_url": "https://registry.npmjs.org/react-router/latest"
+    },
+    "@types/react-dom": {
+      "name": "@types/react-dom",
+      "version": "19.3.0",
+      "peerDependencies": {
+        "@types/react": "^19.3.0"
+      },
+      "dependencies": {},
+      "dist": {
+        "shasum": "90294a9266efd928a5266f2110d60d5dba5015d2",
+        "tarball": "https://registry.npmjs.org/@types/react-dom/-/react-dom-19.3.0.tgz",
+        "fileCount": 19,
+        "integrity": "sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==",
+        "signatures": [
+          {
+            "sig": "MEYCIQDeggFlao9be7yHQ/b9bEJ/aNUgA9ewpLiMScDNunzitAIhAKh8Ct2ZYAjnfZI/KeuIMkZ0Qz2vlOS1C1PkdT2UacvQ",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEYCIQDfRDroOzjwBEz1yqXRbBWKCYOt7p/DKB+WIMPoMWCfUAIhAMPChj/cPQOALZVIGvV0h+QYQERrlQ5RJZb3dptWvQFV",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 32862
+      },
+      "source_url": "https://registry.npmjs.org/@types%2Freact-dom/latest"
+    },
+    "@types/react": {
+      "name": "@types/react",
+      "version": "19.3.0",
+      "peerDependencies": {},
+      "dependencies": {
+        "csstype": "^3.2.2"
+      },
+      "dist": {
+        "shasum": "3b3ce8d8c1627fb5ccd4dadd57ef445c5a153b77",
+        "tarball": "https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz",
+        "fileCount": 18,
+        "integrity": "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==",
+        "signatures": [
+          {
+            "sig": "MEQCICO9E9W9sN+6oHDGno2fJYJ8YEsNOa01MoJJmauunAjGAiAVusL8FBYYoRgnVrnz0RY2KMSjP1OlJ7GunY0YhIr0GA==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEYCIQCG/2kbQCjMBz9wJNsFnPRUQFtQzxGIbkrwTxQ3ZYlQrwIhAKZAxRpE46wtsHz27OGDgRmXLV83Q5GivNToLaMzF7Q2",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 408108
+      },
+      "source_url": "https://registry.npmjs.org/@types%2Freact/latest"
+    },
+    "radix-ui": {
+      "name": "radix-ui",
+      "version": "1.6.7",
+      "peerDependencies": {
+        "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc",
+        "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc",
+        "@types/react": "*",
+        "@types/react-dom": "*"
+      },
+      "peerDependenciesMeta": {
+        "@types/react": {
+          "optional": true
+        },
+        "@types/react-dom": {
+          "optional": true
+        }
+      },
+      "dependencies": {
+        "@radix-ui/primitive": "1.1.7",
+        "@radix-ui/react-form": "0.1.16",
+        "@radix-ui/react-menu": "2.1.24",
+        "@radix-ui/react-slot": "1.3.3",
+        "@radix-ui/react-tabs": "1.1.21",
+        "@radix-ui/react-arrow": "1.1.15",
+        "@radix-ui/react-label": "2.1.15",
+        "@radix-ui/react-toast": "1.2.23",
+        "@radix-ui/react-avatar": "1.2.6",
+        "@radix-ui/react-dialog": "1.1.23",
+        "@radix-ui/react-popper": "1.3.7",
+        "@radix-ui/react-portal": "1.1.17",
+        "@radix-ui/react-select": "2.3.7",
+        "@radix-ui/react-slider": "1.4.7",
+        "@radix-ui/react-switch": "1.3.7",
+        "@radix-ui/react-toggle": "1.1.18",
+        "@radix-ui/react-context": "1.2.2",
+        "@radix-ui/react-menubar": "1.1.24",
+        "@radix-ui/react-popover": "1.1.23",
+        "@radix-ui/react-toolbar": "1.1.19",
+        "@radix-ui/react-tooltip": "1.2.16",
+        "@radix-ui/react-checkbox": "1.3.11",
+        "@radix-ui/react-presence": "1.1.10",
+        "@radix-ui/react-progress": "1.1.16",
+        "@radix-ui/react-use-size": "1.1.4",
+        "@radix-ui/react-accordion": "1.2.20",
+        "@radix-ui/react-direction": "1.1.4",
+        "@radix-ui/react-primitive": "2.1.10",
+        "@radix-ui/react-separator": "1.1.15",
+        "@radix-ui/react-collection": "1.1.15",
+        "@radix-ui/react-hover-card": "1.1.23",
+        "@radix-ui/react-collapsible": "1.1.20",
+        "@radix-ui/react-focus-scope": "1.1.16",
+        "@radix-ui/react-radio-group": "1.4.7",
+        "@radix-ui/react-scroll-area": "1.2.18",
+        "@radix-ui/react-alert-dialog": "1.1.23",
+        "@radix-ui/react-aspect-ratio": "1.1.15",
+        "@radix-ui/react-compose-refs": "1.1.5",
+        "@radix-ui/react-context-menu": "2.3.7",
+        "@radix-ui/react-focus-guards": "1.1.6",
+        "@radix-ui/react-roving-focus": "1.1.19",
+        "@radix-ui/react-toggle-group": "1.1.19",
+        "@radix-ui/react-dropdown-menu": "2.1.24",
+        "@radix-ui/react-accessible-icon": "1.1.15",
+        "@radix-ui/react-navigation-menu": "1.2.22",
+        "@radix-ui/react-use-is-hydrated": "0.1.3",
+        "@radix-ui/react-visually-hidden": "1.2.11",
+        "@radix-ui/react-use-callback-ref": "1.1.4",
+        "@radix-ui/react-use-effect-event": "0.0.5",
+        "@radix-ui/react-dismissable-layer": "1.1.19",
+        "@radix-ui/react-use-layout-effect": "1.1.4",
+        "@radix-ui/react-use-escape-keydown": "1.1.5",
+        "@radix-ui/react-password-toggle-field": "0.1.11",
+        "@radix-ui/react-use-controllable-state": "1.2.6",
+        "@radix-ui/react-one-time-password-field": "0.1.16"
+      },
+      "dist": {
+        "shasum": "0a40f1b1a70a7aee9c4faa691d03361f53f881f0",
+        "tarball": "https://registry.npmjs.org/radix-ui/-/radix-ui-1.6.7.tgz",
+        "fileCount": 262,
+        "integrity": "sha512-QBdhh1arIEUvPC0dQ5+nwWAxt7+N+oP/9jPwjJkGFoSk/sqxg32gJtSXGtFh8frAIcS6oC9cx2Q+7KYCQLOAeA==",
+        "signatures": [
+          {
+            "sig": "MEUCIQD0wd/WoHYwgmfoP532TAgwi3loPqJX4Kd1PpmxyS/qdwIgO3FedI24n36ajvbWN6JVIj5ryV4jtnRhFqytZnG3r3U=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEYCIQDdmnkXY6KYCJK/KyxWpn4+mC1CuNJYWDg/CvSqvCxERQIhAKNIsrC8XNtJdAYnNctHdZlMDtdZavPMlIlpMg2guqFk",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/radix-ui@1.6.7",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 105561
+      },
+      "source_url": "https://registry.npmjs.org/radix-ui/latest"
+    }
+  },
+  "probe_evidence": "verification/stack-probe.json"
+}

@@ -1,0 +1,31 @@
+{
+  "scope": "Hermes active default profile; no other profile modified",
+  "profile_files_committed": false,
+  "changes": [
+    {
+      "key": "skills.trusted_project_dirs",
+      "before": "Omnis checkout absent; all existing entries preserved",
+      "after": "Omnis checkout trusted",
+      "apply": "hermes skills trust <checkout-root>",
+      "rollback": "hermes skills untrust <checkout-root>",
+      "verification": "Installed native is_project_root_trusted returned true; fresh repo-bound process discovered and read all six initial project skills."
+    },
+    {
+      "key": "agent.verify_on_stop",
+      "before_raw": null,
+      "before_effective": false,
+      "after": true,
+      "apply": "hermes config set agent.verify_on_stop true",
+      "rollback": "hermes config unset agent.verify_on_stop",
+      "verification": "CLI readback true; installed native verify_on_stop_enabled returned true; guard actually requested missing-evidence verification in this session."
+    }
+  ],
+  "unchanged": ["model/provider/credentials", "approval policy", "delegation limits", "global SOUL.md", "checkpoints configuration", "other profiles"],
+  "limits": [
+    "verify_on_stop is a bounded follow-up, not a test runner, hard commit enforcement or guarantee of correctness.",
+    "The guard did not recognize unittest discovery as a canonical project command; focused ad-hoc verification was run separately.",
+    "An initially refused temporary script write was followed by an empty script run. Its exit 0 is discarded, not evidence. The script was rewritten after readback and rerun with asserted behavior and explicit PASS output.",
+    "New project skill discovery needs a session bound to the checkout. Shell cwd alone is insufficient if TERMINAL_CWD still points to the home directory.",
+    "Git revert cannot undo profile settings. Execute the listed inverse commands only if the current values still belong to this setup."
+  ]
+}

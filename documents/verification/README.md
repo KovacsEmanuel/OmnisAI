@@ -64,4 +64,4 @@ npm exec --yes --package=@google/design.md@0.4.0 -- designmd lint DESIGN.md
 npm exec --yes --package=@google/design.md@0.4.0 -- designmd export --format dtcg DESIGN.md
 ```
 
-Exportul DTCG versionat este `documents/Omnis_Design.tokens.json`. Prototipul HTML este self-contained cu `connect-src 'none'` și `form-action 'none'`; datele sunt DEMO. Browser verification a documentelor/prototipului nu este un test al viitoarei aplicații.
+Exportul DTCG versionat este `documents/Omnis_Design.tokens.json`. Pachetul prototipului HTML + `documents/assets/` este offline, cu `connect-src 'none'` și `form-action 'none'`; datele sunt DEMO. Geist/Geist Mono sunt vendorizate în CSS ca fonturi data-URI, cu OFL și checksums în `assets/`; nu există cereri către font CDN la afișare. Browser verification a documentelor/prototipului nu este un test al viitoarei aplicații.

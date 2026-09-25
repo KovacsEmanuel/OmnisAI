@@ -516,6 +516,16 @@ def check_simulation_controls_are_separate(page):
     assert 'CONFIRMED' in page.locator('#finding-verdict').inner_text()
 
 
+def check_reference_fonts_are_local(page):
+    result = page.evaluate('''async () => {
+        await document.fonts.ready;
+        return {family: getComputedStyle(document.body).fontFamily,
+            loaded: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family)};
+    }''')
+    assert 'Geist' in result['family'], 'reference typography must be used, not merely the palette'
+    assert 'Geist' in result['loaded'] and 'Geist Mono' in result['loaded'], result
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
@@ -526,7 +536,7 @@ REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, che
                check_finding_return_scroll, check_zoom_and_media,
                check_dashboard_engagement_settings_separation,
                check_navigation_context_regressions, check_simulation_controls_are_separate,
-               check_generated_document_csp]
+               check_reference_fonts_are_local, check_generated_document_csp]
 
 
 def main():

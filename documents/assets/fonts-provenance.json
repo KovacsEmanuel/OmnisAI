@@ -1,0 +1,36 @@
+{
+  "scope": "Offline prototype typography; no runtime CDN calls",
+  "css_source": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap",
+  "font_blobs": [
+    {
+      "subset": "latin-ext",
+      "url": "https://fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwSGFWfOw.woff2",
+      "sha256": "824f485b5d26e2f2da3c2b236132ece1bc8e4e43373452950bb0e40548b4313f",
+      "bytes": 16512
+    },
+    {
+      "subset": "latin",
+      "url": "https://fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwcGFU.woff2",
+      "sha256": "19f9c92546aa300c312235e3125af1b81394d8db9a4bc4a425cd5b641d2d54e1",
+      "bytes": 29400
+    },
+    {
+      "subset": "latin-ext",
+      "url": "https://fonts.gstatic.com/s/geistmono/v6/or3nQ6H-1_WfwkMZI_qYFrkdmgPn.woff2",
+      "sha256": "1a189eb997c3e2ece68373e387afaec9e8617424186c4b1ab3cff7c54ba6223b",
+      "bytes": 14696
+    },
+    {
+      "subset": "latin",
+      "url": "https://fonts.gstatic.com/s/geistmono/v6/or3nQ6H-1_WfwkMZI_qYFrcdmg.woff2",
+      "sha256": "684ad5b531f81d43c1e8c7038262d5db7cdc1f68006e04d6c7769efa8d33c8cc",
+      "bytes": 23128
+    }
+  ],
+  "license_sources": [
+    "https://raw.githubusercontent.com/google/fonts/main/ofl/geist/OFL.txt",
+    "https://raw.githubusercontent.com/google/fonts/main/ofl/geistmono/OFL.txt"
+  ],
+  "license_sha256": "1781d2806a07d91c4edf4740b88449fab7d0eadad53f7c351b94cd4d4eb8c00f",
+  "generated_css_sha256": "3f22bbcb01e7bc8e7f6bd3f40ac44a951fbc0c665dbfe9275788e2ccc41ffa0c"
+}

@@ -24,28 +24,28 @@ colors:
   infoBg: "#202930"
 typography:
   h1:
-    fontFamily: "Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 1.75rem
     fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.02em"
   h2:
-    fontFamily: "Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 1.25rem
     fontWeight: 600
     lineHeight: 1.4
   body-md:
-    fontFamily: "Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 0.875rem
     fontWeight: 400
     lineHeight: 1.55
   label:
-    fontFamily: "Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 0.8125rem
     fontWeight: 600
     lineHeight: 1.45
   code:
-    fontFamily: "Liberation Mono, Consolas, monospace"
+    fontFamily: "Geist Mono, Liberation Mono, Consolas, monospace"
     fontSize: 0.8125rem
     fontWeight: 400
     lineHeight: 1.6
@@ -135,7 +135,7 @@ Nicio informație esențială nu folosește opacitate redusă în loc de contras
 
 ## Typography
 
-Fonturile de sistem sunt o alegere deliberată: citire offline, compatibilitate cu Linux/Windows și fără requesturi externe din consola de securitate. Nu adăugăm o dependență CDN pentru identitate vizuală. Sans pentru operațiuni, mono numai pentru URL, ID, metodă HTTP, hash și fragmente de evidence. Numerele tabelare sunt activate în coloanele cantitative.
+Geist și Geist Mono urmează tipografia referinței. Prototipul include local subseturile Latin/Latin-ext în `documents/assets/prototype-fonts.css`, cu SIL OFL 1.1 și proveniență/checksums alături; browserul nu cere fonturi unui CDN. Fonturile de sistem rămân fallback. Sans pentru operațiuni, mono pentru URL, ID, metodă HTTP, hash și evidence. Numere tabelare în coloanele cantitative. Licența aparține autorilor fontului, nu produsului Omnis.
 
 Body desktop 14px, mobil/form input 16px; metadata minimum 12px, dar nu pentru erori sau instrucțiuni esențiale. Titlurile produsului sunt 28/20px, fără hero de 64px. Print minimum 12pt. Zoom 200% nu ascunde Stop sau acțiunile formularului.
 

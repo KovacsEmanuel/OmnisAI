@@ -277,7 +277,7 @@
     "h1": {
       "$type": "typography",
       "$value": {
-        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
         "fontSize": {
           "value": 1.75,
           "unit": "rem"
@@ -292,7 +292,7 @@
     "h2": {
       "$type": "typography",
       "$value": {
-        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
         "fontSize": {
           "value": 1.25,
           "unit": "rem"
@@ -303,7 +303,7 @@
     "body-md": {
       "$type": "typography",
       "$value": {
-        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
         "fontSize": {
           "value": 0.875,
           "unit": "rem"
@@ -314,7 +314,7 @@
     "label": {
       "$type": "typography",
       "$value": {
-        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
         "fontSize": {
           "value": 0.8125,
           "unit": "rem"
@@ -325,7 +325,7 @@
     "code": {
       "$type": "typography",
       "$value": {
-        "fontFamily": "Liberation Mono, Consolas, monospace",
+        "fontFamily": "Geist Mono, Liberation Mono, Consolas, monospace",
         "fontSize": {
           "value": 0.8125,
           "unit": "rem"

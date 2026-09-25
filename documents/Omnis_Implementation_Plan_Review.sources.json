@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 6,
+      "url": "https://help.aikido.dev/pentests/safety-measures",
+      "title": "Safety Measures | Aikido",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Note: Requests containing static files or that are part of developer tool platforms are automatically accessible, but will not be attacked.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "url": "https://xbow.com/platform",
+      "title": "AI Penetration Testing Platform | Continuous Offensive Security &amp; Testing | XBOW",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Autonomous agents are short-lived, focused attack workers, retired after each mission to avoid bias.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration",
+      "title": "Programmatic Integration | Hermes Agent",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Custom hosts that want fine-grained control of sessions, slash commands, approvals, and streaming events",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/observer-hooks",
+      "title": "Observer Hooks | Hermes Agent",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Hook callbacks are fail-open. Hermes catches callback exceptions, logs a\nwarning, and keeps the agent loop running.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation",
+      "title": "Subagent Delegation | Hermes Agent",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "The delegate_task tool spawns child AIAgent instances with isolated context, inherited tool access, and their own terminal sessions.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "url": "https://help.aikido.dev/pentests/configure-a-pentest/setting-up-authenticated-testing",
+      "title": "Setting Up Test Users",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "With single-use or rotating refresh tokens, the first agent's refresh consumes the token.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "url": "https://help.aikido.dev/pentests/configure-a-pentest/leveraging-code-and-documentation",
+      "title": "Leveraging Code and Documentation",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "**User Role Definitions:** A list of supported roles (e.g., Admin vs. Viewer) and their specific constraints.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "url": "https://help.aikido.dev/pentests/prepare-a-pentest/why-use-a-testing-environment",
+      "title": "Why Use a Testing Environment",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "A preview URL isn't enough if it still uses your production database or live keys",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "url": "https://playwright.dev/python/docs/network",
+      "title": "Network | Playwright Python",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "If you're using Playwright's native browser_context.route() and page.route(), and it appears network events are missing, disable Service Workers by setting service_workers to 'block'.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "url": "https://help.aikido.dev/pentests/coverage-and-findings/understanding-pentest-coverage",
+      "title": "Understanding Pentest Coverage",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Coverage does **not** measure pentest quality.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/relay-shared-metrics",
+      "title": "Relay Shared Metrics | Hermes Agent",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Enabling a\nseparately configured rich-observability or dynamic plugin can create a\ndifferent data path and requires its own policy review.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/egress/network-isolation",
+      "title": "Network Egress Isolation (Docker) | Hermes Agent",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "When running Hermes inside Docker, the default network_mode: host gives the\nagent process unrestricted outbound network access.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "url": "https://raw.githubusercontent.com/OWASP/wstg/v4.2/document/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References.md",
+      "title": "https://raw.githubusercontent.com/OWASP/wstg/v4.2/document/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References.md",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "The best way to test for direct object references would be by having at least two (often more) users to cover different owned objects and functions.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "url": "https://docs.xbow.com/console/guidance/protecting-assets",
+      "title": "XBOW docs - Protecting assets during XBOW testing",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "XBOW also monitors the asset’s health during the assessment and automatically throttles or pauses testing if the asset struggles.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "url": "https://docs.xbow.com/console/reference/scope-configuration",
+      "title": "XBOW docs - Scope configuration",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Blocked: Do not access or test. Use this only for domains that should never be accessed. Any domain not explicitly listed in the scope is treated as blocked.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "url": "https://docs.xbow.com/console/how-to/provide-asset-context",
+      "title": "XBOW docs - Provide XBOW with context to guide testing",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Define preconditions required by specific endpoints, that is, what conditions must be met before attacking a specific endpoint, for example: authentication state, required parameters, or setup steps.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "url": "https://docs.xbow.com/console/how-to/validate-with-canaries",
+      "title": "XBOW docs - Validate results with canary tokens",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "When an assessment starts, the only information passed to the test coordinator is the location of the canary token and the SHA256 of the GUID.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "url": "https://docs.xbow.com/console/how-to/explore-and-fix-results",
+      "title": "XBOW docs - Explore and fix XBOW results",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "After fixing vulnerabilities, you can retest to verify the fixes are comprehensive.",
+          "added": "2026-09-25"
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,10 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 **Stare:** baseline de implementare pregătit; aplicația nu este implementată. Au fost executate probe izolate de dependențe și verificări ale documentelor/prototipului, nu scanări sau integrarea live Hermes.
 
+## Reguli de dezvoltare
+
+[AGENTS.md](AGENTS.md) fixează regula de commit după fiecare schimbare coerentă, verificarea, review-ul și rollbackul. **Direcția vizuală actuală nu este acceptată**; redesignul începe de la referința pe care o va furniza utilizatorul. Prototipul rămâne o probă tehnică, nu un design aprobat.
+
 ## Începe aici
 
 - **[Plan de implementare v2 — HTML](documents/Omnis_Implementation_Plan.html)** · [Markdown](documents/Omnis_Implementation_Plan.md)

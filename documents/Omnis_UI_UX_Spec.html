@@ -21,30 +21,84 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Surface primar: Operate; secundar: Inspect.</strong> Păstrăm negrul cald, textul ivory/taupe, accentele nisipii, navigarea globală compactă deasupra contextului engagementului, subtabs și panouri cu contur dublu discret. Nu preluăm hero-ul, statistici fără sursă, procente de confidence/precision inventate, animațiile și fonturile remote. Contrastul informației esențiale și țintele de 44px au prioritate față de microtextul din template.</p>
 <p>Adaptări obligatorii:</p>
 <ul>
-<li>Cockpit: context/run/Stop persistent, decizii pentru operator, findings accesibile direct, lucru activ și Brain stream într-o compoziție asimetrică. Fără sidebar permanent care consumă spațiul central; drawer pe mobil păstrează Stop echivalent.</li>
+<li>Trei suprafețe distincte: <strong>Dashboard central</strong>, <strong>Engagement</strong> și <strong>Settings</strong>, conform separării Home/cockpit/settings din referință. Overview-ul engagementului rezumă findings/taskuri/context și ultima decizie; <strong>Brain stream complet are propriul tab</strong>, nu ocupă jumătate din fiecare dashboard. Fără sidebar permanent; drawer pe mobil păstrează scope-ul și Stop echivalent.</li>
 <li>Fără brain graph, canvas de noduri sau panouri plutitoare draggable. Brain stream: evenimente și decizii scurte, actor/task, motiv rezumat, rezultat și link către obiect/dovadă. Nu expune chain-of-thought și nu deduce starea runului din conversație.</li>
 <li>Fără council, jurori, voturi sau buton de confirmare manuală a unui finding. Investigator → validator separat → verdict persistent admis de serviciul probatoriu, pe oracle/controale/evidence. Validatorul nu este un vot LLM suficient pentru CONFIRMED.</li>
 <li>Findings confirmate separate de candidates/inconclusive. Detaliu deschis din listă: impact, severitate motivată, precondiții, reproducere, evidence redactate, controale, decizia validatorului, limite, remediere și retest. Lipsa actuală a dovezilor nu rescrie verdictul istoric.</li>
 </ul>
-<p><strong>Contractul feliei:</strong> adaptăm prototipul existent, cu cockpit și finding detail reprezentative; celelalte ecrane rămân probe funcționale, nu redesign complet aprobat. Fișiere admise: prototip, testele sale, DESIGN/tokenuri, această specificație și indexurile/probele aferente. Fără frontend/backend de produs, noi dependențe UI, conturi, date reale sau trafic target. Nu creăm un baseline concurent.</p>
-<p><strong>Acceptare tehnică:</strong> navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow de pagină la 320/390/1024/1280/1440; screenshoturi inspectate, inclusiv detaliu; zero requesturi externe. Verificare: <code>python tests/documentation/browser_check.py --include-documents --output &lt;scratch&gt;/browser-check.json</code>, <code>python scripts/render_docs.py --check</code>, <code>python -m unittest discover -s tests/documentation -v</code>, plus lint/export tokenuri. Baseline înainte de schimbare: 95 checks browser, 16 teste documentare trecute, zero erori JS/requesturi externe.</p>
-<p>Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală și acordul de implementare rămân ale utilizatorului. După această iterație se stabilește în arhitectura/planul existente structura fișierelor și pornirea prin executabilul <code>omnis</code>, nu se începe scaffoldul.</p>
+<p><strong>Contractul reordonării:</strong> corectăm placementul în prototipul existent: Dashboard este intrarea, engagementul și Settings au contexte/navigații proprii, iar UI de produs nu se confundă cu uneltele de simulare ale machetei. Finding detail păstrează contractele deja demonstrate. Fișiere admise: prototip, testele sale, DESIGN, această specificație și probele aferente. Fără capabilități noi, frontend/backend de produs, dependențe, conturi, date reale sau trafic target. Nu creăm un baseline concurent.</p>
+<p><strong>Acceptare tehnică:</strong> Dashboard/Engagement/Settings au scope și selecție de navigare distincte; Skills/Runtime nu sunt taburi ale engagementului; new setup este separat de setupul contextului selectat. Navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow la 320/390/1024/1280/1440; screenshoturi inspectate și zero requesturi externe. Verificare: <code>python tests/documentation/browser_check.py --include-documents --output &lt;scratch&gt;/browser-check.json</code>, <code>python scripts/render_docs.py --check</code>, <code>python -m unittest discover -s tests/documentation -v</code>. Baseline al acestei reordonări: 101 checks browser trecute, zero erori JS/requesturi externe. Tokenurile de culoare rămân neschimbate.</p>
+<p>Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală și acordul de implementare rămân ale utilizatorului. Structura fișierelor și contractul <code>omnis</code> există în arhitectură/plan; această iterație nu le extinde și nu începe scaffoldul.</p>
+<h3 id="provenienta-elementelor-nu-functii-aprobate-implicit">Proveniența elementelor, nu funcții aprobate implicit</h3>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Sursă</th>
+<th>Tratament în această propunere</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard central separat de engagement și Settings</td>
+<td>Home/cockpit/settings din referință + corecția explicită a utilizatorului</td>
+<td>Intrare globală, navigație contextuală numai în suprafața potrivită</td>
+</tr>
+<tr>
+<td>Brain stream fără graph; validator fără council</td>
+<td>Cererea explicită a utilizatorului</td>
+<td>Tab propriu în engagement; verdict și dovezi în finding detail</td>
+</tr>
+<tr>
+<td>Providers/Skills/Runtime, approvals, scope/auth, retest</td>
+<td>Contractele existente din baseline, nu funcții inventate în această reordonare</td>
+<td>Settings sau detaliul obiectului; nu scurtături tehnice în nav engagement</td>
+</tr>
+<tr>
+<td>Skills/Runtime în taburile engagementului; stream complet în Overview</td>
+<td>Alegeri ale adaptării precedente, neacceptate vizual</td>
+<td>Eliminate din aceste poziții</td>
+</tr>
+<tr>
+<td>Invoice lab, Alice/Bob, ruta facturii, evenimentele și findingul exemplu</td>
+<td>Copy/fixture creat pentru machetă</td>
+<td>Date sintetice, nu cerințe noi aprobate și nu rezultate reale</td>
+</tr>
+<tr>
+<td>Butoane/selectoare „Preview”, simularea ACK și evidence-state</td>
+<td>Instrumente pentru verificarea prototipului</td>
+<td>Nu sunt funcții de produs; se disting de suprafața de operare</td>
+</tr>
+<tr>
+<td>Council, graf, chains, multiple runuri active, procente/precision/costuri din template</td>
+<td>Conținut al referinței care nu definește Omnis</td>
+<td>Nu este importat ca funcționalitate sau telemetrie</td>
+</tr>
+</tbody>
+</table></div>
 <h2 id="1-anatomia-consolei">1. Anatomia consolei</h2>
-<pre><code class="language-text">                  ( Omnis | Engagements · Workspace · Settings )
-┌ engagement / target / exact run ───────── run + sync ─ Pause · Stop ┐
-│ Overview · Findings · Target map · Investigations · Reports · Setup │
-├─────────────────────────────────────────────────────────────────────┤
-│ heading / action + scope snapshot / identity / budget state         │
-├───────────────────────────────────────┬─────────────────────────────┤
-│ Needs your attention                  │ Brain stream                │
-│ Confirmed findings → inspect          │ actor filter / event cursor │
-│ Active / blocked tasks                │ short decision + result     │
-│ Coverage &amp; limitations → Map          │ link → task / finding       │
-└───────────────────────────────────────┴─────────────────────────────┘
-                centered workspace · maximum 1280px
+<pre><code class="language-text">Global: Omnis | Dashboard · Engagement · Settings
+
+Dashboard
+  overview + creare nouă
+  listă/carduri de engagement + atenție → cazul sursă
+
+Engagement / Invoice lab
+  țintă + run / Pause · Stop
+  Overview · Findings · Brain stream · Map · Investigations · Reports · Setup
+  Overview: findings/taskuri | context/ultima decizie
+  Brain stream: log complet separat, numai pentru acest engagement
+
+Settings
+  Providers · Skills · Runtime &amp; data
+  configurare, fără taburile sau rezultatele engagementului
+
+În afara engagementului: control compact și explicit al runului activ.
+Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </code></pre>
-<p>Navigare în două niveluri: global sus (Engagements, Workspace, Settings), apoi contextul engagementului. Pe mobil, navigarea contextuală și Settings intră în drawer. Nu există agent, council sau graf ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată workerii în contextul taskurilor, nu o pagină de avataruri. În prototip, Skills/Runtime rămân scurtături tehnice; în produs sunt sub Settings.</p>
+<p>Navigarea globală selectează <strong>Dashboard / Engagement / Settings</strong>. Dashboard este landing-ul, cu creare și selecție de engagement; nu afișează taburile unei ținte. Engagement are breadcrumb înapoi, țintă/run și taburi proprii. Settings are numai Providers/Skills/Runtime &amp; data; Skills și Runtime nu apar în nav engagement. Selecția globală rămâne Engagement pe toate paginile lui și Settings pe toate subpaginile de configurare. Pe mobil, drawerul afișează grupul contextual corect, nu lista tuturor paginilor la același nivel.</p>
 <p>Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.</p>
+<p>În Dashboard și Settings, acest control este o bandă compactă cu <strong>numele/ID-ul runului pe care îl controlează</strong>, nu antetul complet și taburile engagementului. Este control de siguranță, nu o amestecare a rezultatelor celor două contexte. Deschiderea unui engagement nu schimbă sau pornește runul. Crearea nouă (<code>#new-engagement</code> în demo) folosește cadrul global; Setup din engagement păstrează cadrul lui.</p>
 <p><strong>Intrare în produsul instalat:</strong> comanda <code>omnis</code> pornește serviciile în fundal și deschide dashboardul după readiness; pairingul este cerut dacă nu există sesiune UI validă. „Dashboard ready” nu înseamnă provider gata sau assessment pornit. Settings/Overview explică gates lipsă; nu apare un run RUNNING după simpla deschidere. Închiderea tabului nu oprește serviciile. Stop din UI oprește runul; <code>omnis stop</code> oprește și instanța, păstrând datele. Contractul complet și probele încă neîncepute sunt în arhitectură §4.1–4.5; acest bootstrap nu este simulat ca autentificare reală în prototip.</p>
 <h2 id="2-route-map-si-placement">2. Route map și placement</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
@@ -62,9 +116,9 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>Cod din terminal, unic/expirabil; fără secret în URL, fără acces la date înaintea autentificării</td>
 </tr>
 <tr>
-<td><code>/engagements</code></td>
-<td>Tabel: nume, țintă, status, ultima actualizare; search și filtru</td>
-<td>New engagement sus-dreapta; empty cu un singur CTA</td>
+<td><code>/engagements</code> — Dashboard / home</td>
+<td>Overview global: creare engagement, listă/carduri și atenție legată de cazul sursă</td>
+<td>Deschide engagementul; fără findings/detail/stream complet sau taburi de țintă globale</td>
 </tr>
 <tr>
 <td><code>/engagements/new</code></td>
@@ -78,8 +132,13 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td><code>/engagements/:id/overview</code></td>
-<td>Context compact, blocaje/aprobări, findings și taskuri; Brain stream lateral</td>
-<td>Preflight/Start sau Pause/Stop; stream cu actor/cursor/motiv/rezultat/link; fără KPI decorativi</td>
+<td>Atenție compactă, rezumat findings/taskuri, context și ultima decizie</td>
+<td>Deschide obiectul sau tabul lui; nu înghesuie întreg streamul aici</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/stream</code></td>
+<td>Brain stream: actor/cursor/motiv/rezultat/link și filtru</td>
+<td>Contextul acestui engagement; fără graph/council sau control global de modele</td>
 </tr>
 <tr>
 <td><code>/engagements/:id/map?tab=surfaces</code></td>
@@ -227,7 +286,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Toate controalele au label/accessible name; tab order natural și skip link. Nu shortcut global cu o singură literă pentru Stop sau alte efecte.</li>
 <li>Dialoguri/drawers cu focus containment, Esc și restore; erori form cu summary focus. Live region polite agregat, nu spam la fiecare eveniment.</li>
 <li>Touch targets minimum 44px; niciun text esențial sub 14px desktop/16px form mobil; nu tabele gigantice înghesuite pe mobil.</li>
-<li>Container maximum 1280px fără sidebar permanent. Cockpit două coloane la ≥1024, stack sub 1024. Map: ≥1440 inspector lateral; 1024–1439 inspector sub tabel; &lt;1024 nav drawer și detaliu full-width. La 320/390 controalele rămân accesibile, cu scroll local etichetat pentru tabele.</li>
+<li>Container maximum 1180px fără sidebar permanent. Dashboard și Overview în două coloane la ≥1024, stack sub 1024; Brain stream este separat. Map: ≥1440 inspector lateral; 1024–1439 inspector sub tabel; &lt;1024 nav drawer contextual și detaliu full-width. La 320/390 controalele rămân accesibile, cu scroll local etichetat pentru tabele.</li>
 <li>Zoom 200%, prefers-reduced-motion și high contrast/forced colors verificate pe fluxurile de bază. Statusurile au text, nu doar nuanță.</li>
 <li>Raport print A4, text minimum 12pt, referințe la evidence lizibile, fără sidebar/acțiuni de aplicație.</li>
 </ul>
@@ -246,5 +305,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>U10</strong> DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.</p>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>03846261f4d1de47e3deeff672dedcf70495302b3523a4e5481a19a826de7fd0</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>c64760b719692d900fb2c248b94fb074b57b8583db3de3447854a861e44c65ea</code>.</p></footer>
 </main></div></body></html>

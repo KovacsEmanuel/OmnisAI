@@ -13,7 +13,7 @@ from playwright.sync_api import Error as PlaywrightError, expect, sync_playwrigh
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "documents"
-VIEWS = ["engagements", "overview", "map", "investigations", "findings", "reports", "setup", "providers", "skills", "runtime"]
+VIEWS = ["dashboard", "overview", "stream", "map", "investigations", "findings", "reports", "setup", "providers", "skills", "runtime"]
 
 
 def assert_overlay_stop(page, overlay):
@@ -37,7 +37,7 @@ def check_drawer_stop(page):
 
 def check_approval_stop(page):
     page.evaluate("showView('overview', false)")
-    page.locator('#approval-open').click()
+    page.locator('#approval-open-inline').click()
     expect(page.locator('[data-close="approval-dialog"]')).to_be_focused()
     assert_overlay_stop(page, '#approval-dialog')
 
@@ -277,7 +277,10 @@ def check_empty_error_previews(page):
 def check_cockpit_stream(page):
     page.goto((DOCS / 'Omnis_UI_Prototype.html').as_uri())
     page.reload()
+    expect(page.locator('[data-page="dashboard"]')).to_be_visible()
+    page.get_by_role('button', name='Open engagement', exact=True).click()
     expect(page.locator('[data-page="overview"]')).to_be_visible()
+    page.locator('#engagement-nav [data-view="stream"]').click()
     expect(page.get_by_role('heading', name='Brain stream', exact=True)).to_be_visible()
     stream = page.locator('#brain-stream')
     assert stream.locator('[data-actor]:visible').count() == 4
@@ -291,7 +294,7 @@ def check_cockpit_stream(page):
     row = page.locator('.finding-row').bounding_box()
     header = page.locator('.topbar').bounding_box()
     assert row['y'] >= header['y'] + header['height'], 'finding context must not be under the sticky header'
-    page.evaluate("showView('overview', false)")
+    page.evaluate("showView('stream', false)")
     page.locator('#stream-filter').select_option('all')
     assert stream.locator('[data-actor]:visible').count() == 4
     for width in [1440, 1280, 1024, 390, 320]:
@@ -316,7 +319,7 @@ def check_generated_document_csp(page):
 
 
 def check_cockpit_task_context(page):
-    page.evaluate("showView('overview', false)")
+    page.evaluate("showView('stream', false)")
     page.locator('#brain-stream').get_by_role('button', name='Inspect blocked task').click()
     expect(page.locator('#blocked-task')).to_be_visible()
     assert 'demo-task-02' in page.locator('#blocked-task').inner_text()
@@ -328,7 +331,7 @@ def check_cockpit_task_context(page):
     assert 'demo-f-01' in page.locator('#coverage-detail').inner_text()
     page.locator('#persona').select_option('Anonymous')
     page.locator('#map-search').fill('/api/profile')
-    page.evaluate("showView('overview', false)")
+    page.evaluate("showView('stream', false)")
     page.locator('#brain-stream').get_by_role('button', name='Inspect operation').click()
     expect(page.locator('#surfaces-panel')).to_be_visible()
     expect(page.locator('#inspect-title')).to_have_text('GET /api/invoices/{id}')
@@ -375,7 +378,7 @@ def check_finding_inspection(page):
 
 
 def check_finding_evidence_availability(page):
-    page.evaluate("showView('overview', false)")
+    page.evaluate("showView('stream', false)")
     page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
     expect(page.locator('[data-finding="demo-f-01"]')).to_have_attribute('open', '')
     verdict = page.locator('#finding-verdict').inner_text()
@@ -397,7 +400,7 @@ def check_finding_evidence_availability(page):
 def check_finding_return_scroll(page):
     page.set_viewport_size({'width': 390, 'height': 1000})
     for _ in range(2):
-        page.evaluate("showView('overview', false)")
+        page.evaluate("showView('stream', false)")
         page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
         row = page.locator('.finding-row')
         expect(row).to_be_focused()
@@ -425,6 +428,71 @@ def check_zoom_and_media(page):
     page.emulate_media(forced_colors='none', reduced_motion='no-preference')
 
 
+def check_dashboard_engagement_settings_separation(page):
+    page.goto((DOCS / 'Omnis_UI_Prototype.html').as_uri())
+    page.reload()
+    expect(page.locator('[data-page="dashboard"]')).to_be_visible()
+    expect(page.locator('#engagement-nav')).to_be_hidden()
+    expect(page.locator('#settings-nav')).to_be_hidden()
+    expect(page.locator('[data-global="dashboard"]')).to_have_attribute('aria-current', 'page')
+    page.get_by_role('button', name='Open engagement', exact=True).click()
+    expect(page.locator('[data-page="overview"]')).to_be_visible()
+    expect(page.locator('#engagement-nav')).to_be_visible()
+    expect(page.locator('[data-global="engagement"]')).to_have_attribute('aria-current', 'page')
+    assert page.locator('#engagement-nav [data-view="skills"],#engagement-nav [data-view="runtime"]').count() == 0
+    expect(page.locator('#brain-stream')).to_be_hidden()
+    page.locator('#engagement-nav [data-view="stream"]').click()
+    expect(page.locator('#brain-stream')).to_be_visible()
+    page.locator('[data-global="settings"]').click()
+    expect(page.locator('#engagement-nav')).to_be_hidden()
+    expect(page.locator('#settings-nav')).to_be_visible()
+    expect(page.locator('[data-global="settings"]')).to_have_attribute('aria-current', 'page')
+    page.locator('#settings-nav [data-view="skills"]').click()
+    expect(page.locator('[data-page="skills"]')).to_be_visible()
+    expect(page.locator('#stop-control')).to_be_visible()
+    page.locator('[data-global="dashboard"]').click()
+    expect(page.locator('[data-page="dashboard"]')).to_be_visible()
+    expect(page.locator('#settings-nav')).to_be_hidden()
+    page.locator('#stop-control').click()
+    expect(page.locator('[data-run-label]')).to_have_text('STOPPING · demo')
+    page.locator('#complete-stop').click()
+    expect(page.locator('[data-run-label]')).to_have_text('STOPPED · demo')
+    page.get_by_role('button', name='Set up an engagement →', exact=True).click()
+    expect(page.get_by_role('heading', name='New engagement', exact=True)).to_be_visible()
+    expect(page.locator('#engagement-nav')).to_be_hidden()
+    page.locator('[data-global="engagement"]').click()
+    page.locator('#engagement-nav [data-view="setup"]').click()
+    expect(page.get_by_role('heading', name='Engagement setup', exact=True)).to_be_visible()
+    expect(page.locator('#engagement-nav')).to_be_visible()
+
+
+def check_navigation_context_regressions(page):
+    failures = []
+    page.evaluate("showView('setup', false)")
+    for _ in range(4):
+        page.locator('#wizard-next').click()
+    page.locator('[data-global="dashboard"]').click()
+    page.get_by_role('button', name='Set up an engagement →', exact=True).click()
+    if not page.locator('[data-step="0"]').is_visible():
+        failures.append('new engagement inherited the existing wizard step')
+    page.locator('[data-global="engagement"]').click()
+    nav, header = page.locator('#engagement-nav').bounding_box(), page.locator('.topbar').bounding_box()
+    if nav['y'] < header['y'] + header['height']:
+        failures.append('navigation hidden behind sticky run controls after entering engagement')
+    page.set_viewport_size({'width': 390, 'height': 1000})
+    for view, scope in [('skills', 'settings'), ('new-engagement', 'dashboard')]:
+        page.evaluate('name=>showView(name, false)', view)
+        page.locator('#open-menu').click()
+        context = page.locator('#drawer-run-context')
+        if context.count() != 1 or not context.is_visible() or 'run-demo' not in context.inner_text():
+            failures.append(f'{view}: drawer Stop lost its run identity')
+        selected = page.locator(f'#sidebar [data-drawer-global="{scope}"][aria-current="page"]')
+        if selected.count() != 1:
+            failures.append(f'{view}: drawer global selection lost its scope')
+        page.keyboard.press('Escape')
+    assert not failures, failures
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
@@ -432,7 +500,9 @@ REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, che
                check_touch_targets, check_typography, check_run_catalog_copy,
                check_empty_error_previews, check_cockpit_stream, check_cockpit_task_context,
                check_finding_inspection, check_finding_evidence_availability,
-               check_finding_return_scroll, check_zoom_and_media, check_generated_document_csp]
+               check_finding_return_scroll, check_zoom_and_media,
+               check_dashboard_engagement_settings_separation,
+               check_navigation_context_regressions, check_generated_document_csp]
 
 
 def main():
@@ -477,7 +547,7 @@ def main():
         page.locator("#open-menu").click()
         assert page.locator(".maincol").evaluate("e=>e.inert")
         page.keyboard.press("Shift+Tab")
-        assert page.locator('#sidebar [data-view="runtime"]').evaluate("e=>e===document.activeElement")
+        assert page.locator('#drawer-engagement [data-view="setup"]').evaluate("e=>e===document.activeElement")
         page.keyboard.press("Escape")
         assert not page.locator(".maincol").evaluate("e=>e.inert")
         page.evaluate("showView('setup', false)")

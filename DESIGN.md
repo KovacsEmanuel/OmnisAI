@@ -141,12 +141,12 @@ Body desktop 14px, mobil/form input 16px; metadata minimum 12px, dar nu pentru e
 
 ## Layout
 
-- Container centrat de maximum 1280px, padding 24px desktop/16–18px mobil. Navigare globală într-o capsulă deasupra engagementului; apoi topbar sticky cu identitatea runului și Stop, apoi navigare orizontală contextuală. Fără sidebar permanent. Controale minimum 44px.
-- ≥1024px: cockpit asimetric (lucru/findings aproximativ 1.45fr, stream 1fr), gap 24px. Map păstrează inspectorul lateral la ≥1440, sub tabel în două coloane la 1024–1439. Nicio coloană nu depășește viewportul.
-- <1024px: navigarea contextuală în drawer, cockpit într-o coloană, detaliu full-width; Stop în topbar persistent. Tabelele derulează în propriul container etichetat, niciodată întreaga pagină.
+- Container centrat de maximum 1180px, padding 24px desktop/16–18px mobil. Trei suprafețe: Dashboard global, Engagement și Settings. Capsula globală este comună; taburile engagementului sau Settings apar numai în contextul lor. Fără sidebar permanent. Controale minimum 44px.
+- ≥1024px: Dashboard cu creare/listă de engagementuri și atenție; Overview per engagement asimetric (findings/taskuri 1.5fr, context/ultima decizie 1fr), gap 20–24px. Brain stream complet în tab separat, nu panou care domină Overview. Map păstrează inspectorul lateral la ≥1440, sub tabel la 1024–1439.
+- <1024px: drawer cu grup contextual, dashboard într-o coloană, detaliu full-width; Stop în topbar persistent. În afara engagementului topbarul este o bandă compactă cu identitatea runului activ, fără taburi de țintă. Tabelele derulează local, niciodată întreaga pagină.
 - 320–600px: acțiuni pe două rânduri dacă este nevoie; wizard într-o singură coloană; finding/evidence detail stack. Nu ascundem verdictul, identitatea, snapshotul sau motivul blocajului pentru a câștiga spațiu.
 
-Spacing pe multipli de 4px. Overview: context compact → atenție operator + findings + taskuri, cu Brain stream alături. Fără monumente KPI sau procente fără numitor. Map are tree + tabel + inspector, Coverage rămâne tab al Map. Ecranele auxiliare păstrează contractele funcționale; redesignul lor complet așteaptă feedback pe această felie. Detaliile sunt în `documents/Omnis_UI_UX_Spec.md`.
+Spacing pe multipli de 4px. Overview arată rezumate și trimite la detaliu/stream; Dashboard central selectează engagementul, nu se substituie lui. Skills/Runtime apar numai sub Settings. Fără monumente KPI sau procente fără numitor. Map păstrează tree/tabel/inspector, Coverage este tab al Map. Copy-ul fixture-ului și controalele de simulare nu sunt cerințe de produs aprobate. Proveniența elementelor și placementul sunt în `documents/Omnis_UI_UX_Spec.md`.
 
 ## Elevation & Depth
 

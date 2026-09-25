@@ -183,10 +183,17 @@
         (finding.report_review.required ? reviewStatus(finding) === 'APPROVED' : finding.report_review.status === 'NOT_REQUIRED');
     }
     function generateReport() {
+      const findings = state.findings.filter(reportEligible).map(finding => {
+        const copy = structuredClone(finding);
+        copy.evidence_refs = finding.evidence.map(artifact => artifact.id);
+        if (finding.evidence_status !== 'AVAILABLE') copy.evidence = [];
+        delete copy.report_review.material_snapshot;
+        return copy;
+      });
       const report = {id: 'demo-report-' + (reports.length + 1), schema_version: state.schema_version, demo: true,
         notice: 'DEMO ONLY — NOT AN ASSESSMENT. No target requests or validation were executed.',
         source_snapshot: state.snapshot_id, source_revision: state.revision, run_id: state.run.id,
-        engagement: structuredClone(state.engagement), findings: structuredClone(state.findings.filter(reportEligible)),
+        engagement: structuredClone(state.engagement), findings,
         coverage: structuredClone(summary().coverage), limits: ['Synthetic UI fixture only.', 'Current evidence availability must be checked separately.', 'Candidate and unreviewed-required records are excluded.']};
       reports.push(structuredClone(report));
       return report;

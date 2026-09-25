@@ -121,6 +121,18 @@ artifact.auth_epoch = 'wrong-epoch';
 assert.equal(model.summary().coverage.covered, 6, 'mismatched artifact context cannot qualify');
 """)
 
+    def test_unavailable_evidence_does_not_export_cached_transcript_bytes(self):
+        self.run_model("""
+model.reviewFinding('demo-f-02', 'APPROVED', 1);
+const f = model.state.findings.find(f => f.id === 'demo-f-02');
+f.evidence_status = 'MISSING';
+const exported = model.generateReport().findings.find(x => x.id === f.id);
+assert.ok(exported, 'historical confirmed review is retained');
+assert.equal(exported.evidence.length, 0, 'missing bytes cannot be exported as available transcripts');
+assert.equal(exported.evidence_refs.length, 3);
+assert.ok(!JSON.stringify(exported.report_review).includes('SYNTHETIC TRANSCRIPT'), 'internal material snapshot must not leak evidence bytes');
+""")
+
 
 if __name__ == '__main__':
     unittest.main()

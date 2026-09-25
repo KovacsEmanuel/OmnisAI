@@ -37,11 +37,13 @@
     },
     {
       "name": "omnis-delivery",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-delivery/SKILL.md",
-      "sha256": "9f7326239ec921aad8a09c50f8b55315d23c926a8d4ca69369de1326904c8b5b",
+      "sha256": "b7d01a5f41675ad48d35ff2260628f93ce9317b5b4eec9f9ecf6fc3fee05fe80",
       "native_read": true,
-      "scanner_verdict": "safe"
+      "scanner_verdict": "safe",
+      "checked_at_utc": "2026-09-25T21:43:18.163855+00:00",
+      "verification_note": "Native skill_view reloaded 0.1.1. Installed skills_guard returned safe with one unchanged low informational agent_config_ref at SKILL.md:19 (read AGENTS.md); baseline/current findings compared exactly, zero new findings. Other entries retain their recorded snapshots."
     },
     {
       "name": "omnis-frontend",

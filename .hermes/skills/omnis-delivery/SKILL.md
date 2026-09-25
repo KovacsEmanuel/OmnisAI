@@ -1,7 +1,7 @@
 ---
 name: omnis-delivery
 description: "Use when delivering an Omnis implementation slice."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -31,6 +31,9 @@ Read repo `AGENTS.md`, the relevant plan ticket/gate and actual code. Resolve pa
 Use hypotheses instead of confidence claims; prefer removing accidental complexity over adding abstractions; measure before optimizing. Keep unrelated cleanup out of a feature. After two failed repair hypotheses stop repeating edits: inspect the failure mechanism, narrow the reproducer, then revise the plan. A blocker is a legitimate outcome, not permission to fake success.
 
 ## Pitfalls
+- Audit cross-layer delivery before a session handoff: map each requested UI surface/action to its authoritative projection or command, persistence owner/migration, ticket and positive/negative acceptance. A navigable prototype and prose policy do not establish API behavior.
+- Check gate dependencies as a graph, including bootstrap assets, schemas, configuration and test harnesses. A phase cannot require a component first delivered by its successor. Separate repaired-build admission for isolated tests from integrated boundary certification; never solve the cycle by marking the boundary safe or using a rejected dependency.
+- Bound the first increment to a working observable artifact and real prerequisites, not every planned directory. Distinguish API, dashboard and assessment readiness; inert startup also excludes incidental provider validation, discovery/pricing and token refresh.
 - Do not use automatic worktree defaults when local commits are ahead of remote. Use `terminal` with `git worktree add -b <branch> <new-path> HEAD` after reviewing the base.
 - Do not load the entire skill catalog into each child. Give it the contract and the few relevant skills/files.
 - Prompt wording cannot enforce commits or make side effects reversible. Git readback and external-state checks remain necessary.

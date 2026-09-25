@@ -4,7 +4,7 @@
     {
       "kind": "prototype_view",
       "width": 1440,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 1440,
@@ -16,6 +16,17 @@
       "kind": "prototype_view",
       "width": 1440,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 1440,
@@ -114,7 +125,7 @@
     {
       "kind": "prototype_view",
       "width": 1280,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 1280,
@@ -126,6 +137,17 @@
       "kind": "prototype_view",
       "width": 1280,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 1280,
@@ -224,7 +246,7 @@
     {
       "kind": "prototype_view",
       "width": 1024,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 1024,
@@ -236,6 +258,17 @@
       "kind": "prototype_view",
       "width": 1024,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 1024,
@@ -334,7 +367,7 @@
     {
       "kind": "prototype_view",
       "width": 390,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 390,
@@ -346,6 +379,17 @@
       "kind": "prototype_view",
       "width": 390,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 390,
@@ -444,7 +488,7 @@
     {
       "kind": "prototype_view",
       "width": 330,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 330,
@@ -456,6 +500,17 @@
       "kind": "prototype_view",
       "width": 330,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 330,
@@ -554,7 +609,7 @@
     {
       "kind": "prototype_view",
       "width": 320,
-      "view": "engagements",
+      "view": "dashboard",
       "passed": true,
       "size": {
         "viewport": 320,
@@ -566,6 +621,17 @@
       "kind": "prototype_view",
       "width": 320,
       "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "stream",
       "passed": true,
       "size": {
         "viewport": 320,
@@ -792,6 +858,21 @@
     {
       "kind": "regression",
       "name": "check_zoom_and_media",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_dashboard_engagement_settings_separation",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_navigation_context_regressions",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_simulation_controls_are_separate",
       "passed": true
     },
     {

@@ -16,7 +16,7 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 - **[Arhitectura MVP v1 — HTML](documents/Omnis_MVP_Architecture.html)** · [Markdown](documents/Omnis_MVP_Architecture.md)
 - **[Stack și versiuni — HTML](documents/Omnis_Stack_Baseline.html)** · [Markdown](documents/Omnis_Stack_Baseline.md) · [Registru JSON](documents/Omnis_Stack_Baseline.versions.json)
 - **[UI/UX — HTML](documents/Omnis_UI_UX_Spec.html)** · [Markdown](documents/Omnis_UI_UX_Spec.md) · [DESIGN.md](DESIGN.md)
-- **[Prototip UI navigabil — DEMO offline](documents/Omnis_UI_Prototype.html)**
+- **[Prototip UI navigabil — DEMO offline](documents/Omnis_UI_Prototype.html)** · Dashboard central → Engagement, cu Settings separat și Brain stream dedicat
 - **[Re-review și readiness — HTML](documents/Omnis_Implementation_Readiness_Review.html)** · [Markdown](documents/Omnis_Implementation_Readiness_Review.md)
 
 ### Decizia de pornire

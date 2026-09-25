@@ -1,0 +1,347 @@
+{
+  "repository": "https://github.com/ckanthony/Chisel/tree/main",
+  "audited_head": "b2a7c90cbc1a9f27c546d6f70d7ca564d858930e",
+  "release_tag": "v0.1.7",
+  "release_commit": "386e03bf02ee4eed97d2920351bf619c4e88436d",
+  "reported_binary_version": "0.1.6",
+  "binary_sha256": "6c1b5b980867a4f57a0b70c8b9e43254f0bba0af393c0ab14ee86ddf85d53ee5",
+  "adoption": "NO-GO: not enabled as a Hermes MCP server; no binary or source vendored",
+  "parent_rerun": {
+    "timestamp_utc": "2026-09-25T10:12:31.969568+00:00",
+    "check_count": 53,
+    "counts": {
+      "PASS": 43,
+      "COMPATIBILITY_FAIL": 2,
+      "DOCUMENTATION_FAIL": 1,
+      "SECURITY_FAIL": 7
+    },
+    "checks": [
+      {
+        "name": "isolation_only_loopback_interface",
+        "status": "PASS",
+        "detail": [
+          "lo"
+        ]
+      },
+      {
+        "name": "isolation_host_home_absent",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "stdio_initialize_version",
+        "status": "PASS",
+        "detail": {
+          "name": "chisel",
+          "version": "0.1.6"
+        }
+      },
+      {
+        "name": "six_real_tools",
+        "status": "PASS",
+        "detail": [
+          "append",
+          "create_directory",
+          "move_file",
+          "patch_apply",
+          "shell_exec",
+          "write_file"
+        ]
+      },
+      {
+        "name": "create_directory",
+        "status": "PASS",
+        "detail": "created directory: /task/workspace/docs"
+      },
+      {
+        "name": "write_frontend/src/Status.tsx",
+        "status": "PASS",
+        "detail": "wrote 60 bytes to /task/workspace/frontend/src/Status.tsx"
+      },
+      {
+        "name": "write_backend/status.py",
+        "status": "PASS",
+        "detail": "wrote 42 bytes to /task/workspace/backend/status.py"
+      },
+      {
+        "name": "write_db/migrations/001_jobs.sql",
+        "status": "PASS",
+        "detail": "wrote 66 bytes to /task/workspace/db/migrations/001_jobs.sql"
+      },
+      {
+        "name": "write_docs/design.txt",
+        "status": "PASS",
+        "detail": "wrote 37 bytes to /task/workspace/docs/design.txt"
+      },
+      {
+        "name": "targeted_search",
+        "status": "PASS",
+        "detail": "exit_code: 0\nstdout:\n2:  return <span>Pending</span>;\n\nstderr:\n"
+      },
+      {
+        "name": "fenced_patch_and_readback",
+        "status": "PASS",
+        "detail": "patched: /task/workspace/frontend/src/Status.tsx"
+      },
+      {
+        "name": "bad_patch_preserves_bytes",
+        "status": "PASS",
+        "detail": "patch failed: hunk mismatch (file may have drifted): ApplyError(1)"
+      },
+      {
+        "name": "bad_patch_no_tmp_artifact",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "dev_null_patch_creation",
+        "status": "PASS",
+        "detail": "patched: /task/workspace/docs/new.txt"
+      },
+      {
+        "name": "append",
+        "status": "PASS",
+        "detail": "appended 19 bytes to /task/workspace/docs/design.txt"
+      },
+      {
+        "name": "append_missing_rejected",
+        "status": "PASS",
+        "detail": "not found: '/task/workspace/missing.txt'"
+      },
+      {
+        "name": "move_and_readback",
+        "status": "PASS",
+        "detail": "moved /task/workspace/docs/design.txt \u2192 /task/workspace/docs/design-reviewed.txt"
+      },
+      {
+        "name": "shell_read",
+        "status": "PASS",
+        "detail": "exit_code: 0\nstdout:\nSynthetic Omnis development fixture.\nValidated locally.\n\nstderr:\n"
+      },
+      {
+        "name": "nonzero_exit_is_tool_success",
+        "status": "PASS",
+        "detail": "exit_code: 1\nstdout:\n\nstderr:\n"
+      },
+      {
+        "name": "filesystem_absolute_blocked",
+        "status": "PASS",
+        "detail": "security error: resolved path '/task/outside/canary.txt' is outside configured root '/task/workspace'"
+      },
+      {
+        "name": "filesystem_traversal_blocked",
+        "status": "PASS",
+        "detail": "internal error: a path led outside of the filesystem"
+      },
+      {
+        "name": "filesystem_symlink_blocked",
+        "status": "PASS",
+        "detail": "internal error: File exists (os error 17)"
+      },
+      {
+        "name": "shell_explicit_outside_path_blocked",
+        "status": "PASS",
+        "detail": "security error: resolved path '/task/outside/canary.txt' is outside configured root '/task/workspace'"
+      },
+      {
+        "name": "direct_sh_blocked",
+        "status": "PASS",
+        "detail": "command not allowed: 'sh'. Permitted: grep, sed, awk, find, cat, head, tail, wc, sort, uniq, cut, tr, diff, file, stat, ls, du, rg"
+      },
+      {
+        "name": "direct_printf_blocked",
+        "status": "PASS",
+        "detail": "command not allowed: 'printf'. Permitted: grep, sed, awk, find, cat, head, tail, wc, sort, uniq, cut, tr, diff, file, stat, ls, du, rg"
+      },
+      {
+        "name": "documented_rg_workflow_available",
+        "status": "COMPATIBILITY_FAIL",
+        "detail": "command not allowed: 'rg'. Permitted: grep, sed, awk, find, cat, head, tail, wc, sort, uniq, cut, tr, diff, file, stat, ls, du, rg"
+      },
+      {
+        "name": "documented_npm_workflow_available",
+        "status": "COMPATIBILITY_FAIL",
+        "detail": "command not allowed: 'npm'. Permitted: grep, sed, awk, find, cat, head, tail, wc, sort, uniq, cut, tr, diff, file, stat, ls, du, rg"
+      },
+      {
+        "name": "server_instruction_relative_paths_rejected",
+        "status": "DOCUMENTATION_FAIL",
+        "detail": "wrote 28 bytes to relative.txt"
+      },
+      {
+        "name": "shell_root_confinement_bare-link",
+        "status": "SECURITY_FAIL",
+        "detail": "exit_code: 0\nstdout:\nOUTSIDE_SYNTHETIC_ONLY\n\nstderr:\n"
+      },
+      {
+        "name": "shell_root_confinement_x/canary.txt",
+        "status": "SECURITY_FAIL",
+        "detail": "exit_code: 0\nstdout:\nOUTSIDE_SYNTHETIC_ONLY\n\nstderr:\n"
+      },
+      {
+        "name": "subprocess_whitelist_enforced",
+        "status": "SECURITY_FAIL",
+        "detail": "exit_code: 0\nstdout:\nSAFE_SUBPROCESS_PROOF\nstderr:\n"
+      },
+      {
+        "name": "readonly_write_file_blocked",
+        "status": "PASS",
+        "detail": "server is in read-only mode; write operations are disabled"
+      },
+      {
+        "name": "readonly_append_blocked",
+        "status": "PASS",
+        "detail": "server is in read-only mode; write operations are disabled"
+      },
+      {
+        "name": "readonly_patch_apply_blocked",
+        "status": "PASS",
+        "detail": "server is in read-only mode; write operations are disabled"
+      },
+      {
+        "name": "readonly_create_directory_blocked",
+        "status": "PASS",
+        "detail": "server is in read-only mode; write operations are disabled"
+      },
+      {
+        "name": "readonly_move_file_blocked",
+        "status": "PASS",
+        "detail": "server is in read-only mode; write operations are disabled"
+      },
+      {
+        "name": "readonly_file_tools_preserved_bytes",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "readonly_reads_work",
+        "status": "PASS",
+        "detail": "exit_code: 0\nstdout:\nBEFORE\n\nstderr:\n"
+      },
+      {
+        "name": "readonly_sed_does_not_mutate",
+        "status": "SECURITY_FAIL",
+        "detail": {
+          "reply": "exit_code: 0\nstdout:\n\nstderr:\n",
+          "actual_file": "AFTER\n"
+        }
+      },
+      {
+        "name": "awk_available_in_probe_sandbox",
+        "status": "PASS",
+        "detail": "exit_code: 0\nstdout:\n\nstderr:\n"
+      },
+      {
+        "name": "readonly_awk_does_not_create",
+        "status": "SECURITY_FAIL",
+        "detail": "exit_code: 0\nstdout:\n\nstderr:\n"
+      },
+      {
+        "name": "readonly_find_subprocess_does_not_create",
+        "status": "SECURITY_FAIL",
+        "detail": "exit_code: 0\nstdout:\n\nstderr:\n"
+      },
+      {
+        "name": "http_missing_secret_fails_startup",
+        "status": "PASS",
+        "detail": "error: secret is required: set --secret or MCP_APP_SECRET"
+      },
+      {
+        "name": "http_none_token_401",
+        "status": "PASS",
+        "detail": 401
+      },
+      {
+        "name": "http_wrong_token_401",
+        "status": "PASS",
+        "detail": 401
+      },
+      {
+        "name": "http_initialize",
+        "status": "PASS",
+        "detail": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "result": {
+            "protocolVersion": "2025-03-26",
+            "capabilities": {
+              "tools": {}
+            },
+            "serverInfo": {
+              "name": "chisel",
+              "version": "0.1.6"
+            },
+            "instructions": "Filesystem and shell tool server.\nRoot directory: /task/workspace\nPlatform: linux (GNU sed (Linux))\nIMPORTANT: All path arguments must be absolute paths starting with \"/task/workspace/\". Relative paths (\".\", \"./foo\", bare names) are rejected. Always use the full path, e.g. \"/task/workspace/myfile.txt\" not \"myfile.txt\" or \".\".\nIMPORTANT: For sed -i on this platform: GNU sed \u2014 use [\"-i\", \"s/old/new/g\", \"/abs/path\"]"
+          }
+        }
+      },
+      {
+        "name": "configured_body_limit_enforced",
+        "status": "SECURITY_FAIL",
+        "detail": {
+          "configured_bytes": 128,
+          "actual_request_bytes": 183,
+          "status": 200
+        }
+      },
+      {
+        "name": "http_session_id_present",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "http_initialized_notification",
+        "status": "PASS",
+        "detail": 202
+      },
+      {
+        "name": "http_write_and_readback",
+        "status": "PASS",
+        "detail": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "wrote 25 bytes to /task/workspace/http-proof.txt"
+              }
+            ],
+            "isError": false
+          }
+        }
+      },
+      {
+        "name": "legacy_sse_not_served",
+        "status": "PASS",
+        "detail": 404
+      },
+      {
+        "name": "actual_http_listener_loopback_only",
+        "status": "PASS",
+        "detail": [
+          "0100007F:46A0"
+        ]
+      },
+      {
+        "name": "rate_limit_429_before_auth",
+        "status": "PASS",
+        "detail": [
+          401,
+          429,
+          429
+        ]
+      }
+    ],
+    "harness_exit": 0,
+    "acceptance_passed": false
+  },
+  "license": "MIT declared by bundle manifest, but no tracked license grant text; redistribution not approved",
+  "limits": [
+    "Synthetic isolated tests, not a full vulnerability inventory or source-build proof",
+    "Seven failed checks represent four categories, not seven distinct vulnerabilities",
+    "HTTP body cap reproduced at configured 128 bytes, not a measured unlimited-body claim",
+    "Harness exit 0 means audit completed, not security passed"
+  ],
+  "reproducible_local_audit_path": "/home/kali/.hermes/cache/scratch/omnis-dev-tool-research/chisel-probe"
+}

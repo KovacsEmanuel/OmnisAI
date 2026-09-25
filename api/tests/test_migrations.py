@@ -4,12 +4,17 @@ import sys
 from pathlib import Path
 from uuid import UUID
 
-import psycopg
+from alembic.config import Config
+from alembic.script import ScriptDirectory
+
+from conftest import connect_test_database
+from omnis.core.db import SCHEMA_REVISION
 
 
 def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url):
-    dsn = empty_database_url.set(drivername="postgresql").render_as_string(hide_password=False)
-    with psycopg.connect(dsn) as connection:
+    script = ScriptDirectory.from_config(Config(str(Path(__file__).resolve().parents[1] / "alembic.ini")))
+    assert script.get_current_head() == SCHEMA_REVISION
+    with connect_test_database(empty_database_url) as connection:
         assert connection.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'").fetchone() == (0,)
 
     completed = subprocess.run(
@@ -25,7 +30,7 @@ def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url)
     )
     assert completed.returncode == 0, f"migration failed (exit {completed.returncode})"
 
-    with psycopg.connect(dsn) as connection:
+    with connect_test_database(empty_database_url) as connection:
         revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()
         rows = connection.execute(
             "SELECT instance_id, admission_open, shutdown_command_id, generation, "

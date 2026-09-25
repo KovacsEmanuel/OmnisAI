@@ -2,6 +2,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from omnis.api import create_app
+from conftest import connect_test_database
 
 
 @pytest.mark.asyncio
@@ -45,3 +46,122 @@ async def test_live_ignores_forwarded_host():
         )
 
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_ready_requires_real_migrated_postgresql(monkeypatch, migrated_database_url):
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "api_ready": True,
+        "dashboard_ready": False,
+        "assessment_ready": False,
+        "reason": None,
+    }
+
+
+@pytest.mark.asyncio
+async def test_ready_denies_an_unmigrated_postgresql(monkeypatch, empty_database_url):
+    monkeypatch.setenv("OMNIS_DATABASE_URL", empty_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "api_ready": False,
+        "dashboard_ready": False,
+        "assessment_ready": False,
+        "reason": "SCHEMA_INCOMPATIBLE",
+    }
+
+
+@pytest.mark.asyncio
+async def test_ready_denies_a_newer_schema_revision(monkeypatch, migrated_database_url):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute("UPDATE alembic_version SET version_num = 'unsupported_future'")
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.asyncio
+async def test_ready_denies_a_missing_instance_row(monkeypatch, migrated_database_url):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute("DELETE FROM instance_control WHERE id = 1")
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.asyncio
+async def test_ready_reports_disconnected_database_without_exposing_url(monkeypatch, empty_database_url):
+    unavailable = empty_database_url.set(port=1, password="synthetic_do_not_echo")
+    monkeypatch.setenv("OMNIS_DATABASE_URL", unavailable.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+            live = await client.get("/health/live")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "DATABASE_UNAVAILABLE"
+    assert "synthetic_do_not_echo" not in response.text
+    assert live.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_api_restart_closes_pool_and_keeps_instance_identity(monkeypatch, migrated_database_url):
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    with connect_test_database(migrated_database_url) as connection:
+        identity = connection.execute("SELECT instance_id FROM instance_control WHERE id = 1").fetchone()
+        assert identity is not None
+
+    for _ in range(2):
+        app = create_app()
+        async with app.router.lifespan_context(app):
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+            ) as client:
+                assert (await client.get("/health/ready")).status_code == 200
+            with connect_test_database(migrated_database_url) as connection:
+                count_row = connection.execute(
+                    "SELECT count(*) FROM pg_stat_activity "
+                    "WHERE datname = current_database() AND pid <> pg_backend_pid()"
+                ).fetchone()
+                assert count_row is not None and count_row[0] >= 1
+        with connect_test_database(migrated_database_url) as connection:
+            assert connection.execute("SELECT instance_id FROM instance_control WHERE id = 1").fetchone() == identity
+            count_row = connection.execute(
+                "SELECT count(*) FROM pg_stat_activity "
+                "WHERE datname = current_database() AND pid <> pg_backend_pid()"
+            ).fetchone()
+            assert count_row == (0,)

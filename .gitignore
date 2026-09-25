@@ -4,3 +4,11 @@ __pycache__/
 .pytest_cache/
 .venv/
 node_modules/
+
+# Local credentials, captures and parallel worktrees are not source.
+.env
+.env.*
+!.env.example
+.reticle/
+.worktrees/
+AGENTS.override.md

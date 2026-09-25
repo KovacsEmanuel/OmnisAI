@@ -1,0 +1,39 @@
+---
+name: omnis-delivery
+description: "Use when delivering an Omnis implementation slice."
+version: 0.1.0
+author: OmnisAI (KovacsEmanuel), Hermes Agent
+license: MIT
+platforms: [linux]
+metadata:
+  hermes:
+    tags: [omnis, development]
+---
+
+# Omnis delivery
+
+## When to Use
+Implement a ticket, fix a regression, resume a slice, or coordinate a phase. This is the development workflow, not an autonomous assessment run.
+
+## Prerequisites
+Read repo `AGENTS.md`, the relevant plan ticket/gate and actual code. Resolve paths from the git root. Use only the available Hermes tools; role templates describe assignments, not extra tool APIs.
+
+## Procedure
+1. Use `terminal` for status/base SHA and `search_files`/`read_file` for the existing path. Account for dirty files before editing. Identify one acceptance criterion that the slice can demonstrate.
+2. Write a short task contract: goal; non-goals; inputs; allowed files; observable success/failure; exact verification; rollback. For nontrivial work keep it in the task notes or commit body. If the contract changes, record why before expanding scope.
+3. Choose the smallest end-to-end behavior: one persistence action, one event path or one validated operator action. Do not scaffold all future layers in advance. Separate discovery spikes from shipping code.
+4. For behavior changes, reproduce RED, implement GREEN and refactor only with green tests. Preserve the failing assertion and actual output for the change record. Use a clean scratch/worktree for experiments; never present its substitute data as a production result.
+5. Parallelize independent research/review; split writers by worktree/file ownership. Delegate with a bounded acceptance contract from `templates/task.md`. Findings return to the parent; a child summary alone is not integration evidence.
+6. Review the minimal diff, execute acceptance and regression checks, and commit the coherent slice immediately as required by AGENTS. Preserve separate commits for an independent corrective action, documentation decision or dependency upgrade.
+7. At a phase boundary run its actual gate, record passed/failed/blocked/not-run individually, and name the next unblocked slice. Never unlock a safety gate merely because prerequisite documents exist.
+
+## Working stance
+Use hypotheses instead of confidence claims; prefer removing accidental complexity over adding abstractions; measure before optimizing. Keep unrelated cleanup out of a feature. After two failed repair hypotheses stop repeating edits: inspect the failure mechanism, narrow the reproducer, then revise the plan. A blocker is a legitimate outcome, not permission to fake success.
+
+## Pitfalls
+- Do not use automatic worktree defaults when local commits are ahead of remote. Use `terminal` with `git worktree add -b <branch> <new-path> HEAD` after reviewing the base.
+- Do not load the entire skill catalog into each child. Give it the contract and the few relevant skills/files.
+- Prompt wording cannot enforce commits or make side effects reversible. Git readback and external-state checks remain necessary.
+
+## Verification
+Every claimed acceptance criterion has real output; every intended change belongs to a verified commit; independent review issues are resolved or explicitly block delivery. A fresh session can recover the decision from Git and versioned notes, without chat history.

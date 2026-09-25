@@ -43,7 +43,7 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 ## 4. Etape și dependențe revizuite
 
-**G-DESIGN — PENDING, înainte de P0:** utilizatorul cere întâi feedback pe cockpit/findings și stabilirea structurii sistemului/pornirii prin `omnis`, apoi acord explicit pentru implementare. Referința a fost adaptată în prototipul offline, nu aprobată vizual. Arborele țintă `api/`, `web/`, `cli/` și regulile de fișiere/import sunt în arhitectură §12. Această poartă nu înlocuiește G00–G08 și nu pornește automat implementarea când testele documentelor sunt verzi.
+**G-DESIGN — VISUAL_ACCEPTED / START_PENDING_NEW_SESSION:** utilizatorul a acceptat prototipul `df17a29` și cere acest audit înainte de implementare. Mesajul de pornire din sesiunea nouă confirmă folosirea structurii `api/`, `web/`, `cli/` și a contractului `omnis` din arhitectură §4/§12 și autorizează prima felie declarată. Nu redeschidem designul fără motiv/cerere și nu începem scaffoldul în această sesiune. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
 
 ```text
 P0 — fundație, versiuni și contracte ale primei felii
@@ -253,7 +253,7 @@ Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay
 
 ## 16. UI/UX ca acceptare, nu doar stil
 
-**Feedback vizual înainte de implementare:** cockpit și finding detail adaptate din referință; aprobarea utilizatorului face parte din G-DESIGN. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.
+**Baseline vizual acceptat în df17a29:** compoziția, pastilele, densitatea, stadiul și panourile cerute se păstrează în componentele conectate; G-DESIGN nu mai așteaptă încă o rundă de aprobare estetică. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.
 
 - Navigare globală Engagements/Settings; navigare contextuală Overview/Map/Investigations/Findings/Reports. Identitatea/epoch/snapshot selectat sunt vizibile la dovezi și matrice.
 - Stop persistent, `STOPPING` verificat, Start cu preflight/rezumat; approve necesită detaliile acțiunii exacte, nu un buton vag „permite agentului”.

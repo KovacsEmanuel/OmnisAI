@@ -142,7 +142,7 @@ components:
 
 **Surface primar: Operate / Monitor; secundar: Inspect.** Omnis prioritizează stadiul engagementului, deciziile operatorului și lanțul observație → acțiune → dovadă → verdict. Antetul amplu și metricile cerute explicit urmează compoziția referinței; nu sunt înlocuite cu o consolă minimalistă generică.
 
-**Propunere vizuală, încă neaprobată:** interpretare a referinței furnizate `omnis-cockpit-v5.html`, identificată în §0 din specificația UI. Negru cald, ivory/taupe, accent nisipiu, topnav compact și panouri cu contur discret. Înlocuiește direcția verde/albastră respinsă, nu creează un baseline concurent. Fără brain graph/council; Brain stream și finding detail sunt suprafețele reprezentative. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. DEMO etichetat, nu aplicație.
+**VISUAL_ACCEPTED — prototip `df17a29`:** utilizatorul a acceptat direcția vizuală după iterațiile respinse. Referința `omnis-cockpit-v5.html` și proveniența sunt în UI/UX §0. Negru cald, ivory/taupe, accent nisipiu, capsule și double-bezel; compoziția/densitatea se păstrează la portare, nu numai culorile. Fără brain graph/council/Chains. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. Prototipul rămâne DEMO, nu aplicație, iar acordul de pornire este separat.
 
 ## Colors
 

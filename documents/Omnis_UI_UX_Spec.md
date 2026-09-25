@@ -1,12 +1,12 @@
-# Omnis — specificație UI/UX v2 · propunere
+# Omnis — specificație UI/UX v2 · baseline vizual acceptat
 
-**Revizie după referința utilizatorului · Surface: Operate, cu inspector contextual · Aprobarea vizuală este în așteptare**
+**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · Aplicația NEÎNCEPUTĂ**
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.
 
 ## 0. Referința primită și felia de design
 
-**Propunere în lucru, nu aprobare vizuală.** Referință furnizată de utilizator: `/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html`, SHA-256 `d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7`. Fișierul extern rămâne nemodificat; nu importăm scripturile, conținutul de securitate sau configurațiile sale. Referința este un template vizual, nu contractul de domeniu Omnis.
+**Aprobarea vizuală este explicită:** după livrarea prototipului `df17a29`, utilizatorul a răspuns „arata bine. bravo” și a cerut auditul final înaintea implementării într-o sesiune nouă. Acceptarea acoperă direcția/layoutul și interacțiunile ilustrate, nu datele sintetice, integrarea backend sau rezultatele de securitate. Referință furnizată de utilizator: `/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html`, SHA-256 `d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7`. Fișierul extern rămâne nemodificat; nu importăm scripturile, conținutul de securitate sau configurațiile sale. Referința este un template vizual, nu contractul de domeniu Omnis.
 
 **Surface primar: Operate / Monitor; secundar: Inspect.** Referința definește acum și compoziția, nu numai paleta: antetul amplu al Dashboardului, pastilele de navigare și metrici, now-bar/stadiu, Needs you, Top findings, Severity și Budget. Statisticile vin dintr-un fixture DEMO coerent în prototip și din agregate backend în produs; nu eliminăm informația cerută pentru a evita datele demo. Nu copiem confidence/precision fără definiție, council/graph, scripturi sau resurse remote. Contrastul și țintele de 44px au prioritate față de microtextul din template.
 
@@ -29,9 +29,9 @@ Adaptări obligatorii:
 
 **Limita feliei:** prototipul existent, asseturi locale și fixture-ul lui, testele, DESIGN/tokenuri, specificația și probele aferente. Păstrăm separarea Dashboard/Engagement/Settings și contractele Stop/focus, dar înlocuim compoziția prea simplificată. Fără frontend/backend de produs, framework nou, conturi, date reale sau trafic target. Review-ul pentru raport este modelat ca cerință UI/backend propusă la cererea utilizatorului, nu ca serviciu deja implementat. Nu creăm un baseline concurent.
 
-**Acceptare tehnică:** Dashboard/Engagement/Settings au scope și selecție de navigare distincte; Skills/Runtime nu sunt taburi ale engagementului; new setup este separat de setupul contextului selectat. Navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow la 320/390/1024/1280/1440; screenshoturi inspectate și zero requesturi externe. Verificare: `python tests/documentation/browser_check.py --include-documents --output <scratch>/browser-check.json`, `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`. Baseline al acestei reordonări: 101 checks browser trecute, zero erori JS/requesturi externe. Tokenurile de culoare rămân neschimbate.
+**Acceptare tehnică:** Dashboard/Engagement/Settings au scope și selecție de navigare distincte; Skills/Runtime nu sunt taburi ale engagementului; new setup este separat de setupul contextului selectat. Navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow la 320/390/1024/1280/1440; screenshoturi inspectate și zero requesturi externe. Verificare: `python tests/documentation/browser_check.py --include-documents --output <scratch>/browser-check.json`, `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`. Iterația acceptată are 116 checks browser trecute, zero erori JS/requesturi externe; probele și limitele sunt în `verification/README.md` și `verification/browser-check.json`. Testele tehnice nu sunt sursa aprobării vizuale.
 
-Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală și acordul de implementare rămân ale utilizatorului. Structura fișierelor și contractul `omnis` există în arhitectură/plan; această iterație nu le extinde și nu începe scaffoldul.
+Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală este consemnată; acordul de implementare rămâne **START_PENDING_NEW_SESSION**. Structura fișierelor și contractul `omnis` sunt auditate în arhitectură/plan; această sesiune nu creează scaffoldul aplicației.
 
 ### Proveniența elementelor, nu funcții aprobate implicit
 

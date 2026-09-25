@@ -25,7 +25,7 @@ PATH="$PWD/.venv/bin:$PATH" make check
 
 Folosește un mediu Python izolat pentru instalare; comanda de mai sus nu cere modificarea environmentului Hermes. `make check` verifică documentele, launcher-ele și controalele anti-slop, nu pretinde că testează aplicația încă neimplementată. Proba completă Reticle este separată/opt-in, conform README-ului ei; Chisel nu are un gate „verde” ascuns în check.
 
-Regresia browser a documentelor/prototipului rămâne separată și se rulează la schimbări de UI. Referința utilizatorului este acum adaptată în cockpit/findings; aprobarea vizuală rămâne în așteptare. Nu confundăm smoke-uri de unelte cu testele viitoare React/FastAPI/PostgreSQL/Hermes ale produsului.
+Regresia browser a documentelor/prototipului rămâne separată și se rulează la schimbări de UI. Aspectul prototipului `df17a29` a fost acceptat explicit; pornirea implementării este separată și se cere în sesiunea nouă. Nu confundăm smoke-uri de unelte cu testele viitoare React/FastAPI/PostgreSQL/Hermes ale produsului.
 
 ## Actualizare și rollback
 

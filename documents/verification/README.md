@@ -61,7 +61,7 @@ Fluxul exercitat prin clickuri: Dashboard → Overview cu metrici/Severity/buget
 
 Review-ul independent a găsit o fază reactivată greșit după Stop + rerender și un contur de focus parțial acoperit la Tab/Shift+Tab. Părintele a reprodus ambele RED și a verificat corecțiile GREEN, inclusiv revenirea prin tastatură la 1440/390px. Review-ul vizual a dus la metrici Home value-first, Top findings mai dens, readiness de raport compact și evenimente de 97px la 1440px, cu ținte clicabile de minimum 44px. Coverage păstrează intenționat contextul operation/identity, nu copiază clase sau succese nesusținute din template. Lecțiile sunt în UI/UX §0 și skill-urile proiectului.
 
-Stop/focus/dialog/drawer, scope-ul global/contextual, new/setup, filtrele, stările empty/error/stale și controalele demo pliate rămân acoperite. Capturi desktop/mobil și dropdownul de review au fost inspectate real. Testul CSS zoom 200% nu înlocuiește verificarea zoomului nativ; screen-readerul și alte browsere rămân neverificate. **Aceasta nu este aprobare vizuală a utilizatorului sau integrare backend**; G-DESIGN rămâne deschis.
+Stop/focus/dialog/drawer, scope-ul global/contextual, new/setup, filtrele, stările empty/error/stale și controalele demo pliate rămân acoperite. Capturi desktop/mobil și dropdownul de review au fost inspectate real. Testul CSS zoom 200% nu înlocuiește verificarea zoomului nativ; screen-readerul și alte browsere rămân neverificate. **Probele nu constituie integrare backend sau aprobare vizuală.** Acceptarea vizuală a fost dată ulterior explicit de utilizator pentru `df17a29`; pornirea implementării rămâne separată, în sesiunea nouă, conform planului.
 
 Tokenurile se verifică/exportă cu `@google/design.md@0.4.0`:
 

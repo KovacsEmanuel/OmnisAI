@@ -9,6 +9,22 @@ DOCS = ROOT / "documents"
 
 
 class BaselineContracts(unittest.TestCase):
+    def test_visual_acceptance_is_separate_from_implementation_start(self):
+        # AGENTS.md is protected; its pending status-only update is disclosed in README.
+        for relative in ['README.md', 'DESIGN.md',
+                         'documents/Omnis_UI_UX_Spec.md',
+                         'documents/Omnis_Implementation_Plan.md',
+                         'documents/Omnis_Implementation_Readiness_Review.md']:
+            text = (ROOT / relative).read_text(encoding='utf-8')
+            self.assertIn('VISUAL_ACCEPTED', text, relative)
+            self.assertIn('df17a29', text, relative)
+        for name in ['Omnis_Implementation_Plan.md', 'Omnis_Implementation_Readiness_Review.md']:
+            text = (DOCS / name).read_text(encoding='utf-8')
+            self.assertIn('START_PENDING_NEW_SESSION', text)
+            self.assertIn('NEÎNCEPUT', text)
+        self.assertIn('NO-GO pentru target effects', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('INSTRUCTIONS_UPDATE_BLOCKED', (ROOT / 'README.md').read_text(encoding='utf-8'))
+
     def test_all_original_recommendations_have_one_traceability_row(self):
         text = (DOCS / "Omnis_Implementation_Plan.md").read_text(encoding="utf-8")
         ids = re.findall(r"^\| (R\d{2}) \|", text, re.M)

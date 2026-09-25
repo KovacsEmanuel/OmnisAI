@@ -6,7 +6,9 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Reguli de dezvoltare
 
-[AGENTS.md](AGENTS.md) fixează regula de commit după fiecare schimbare coerentă, verificarea, review-ul și rollbackul. **UI/UX în revizie:** referința `omnis-cockpit-v5.html` a fost primită; adaptarea fără brain graph/council este descrisă în [specificația UI/UX, §0](documents/Omnis_UI_UX_Spec.md). Prototipul nu este încă un design aprobat. Înainte de implementare stabilim și structura fișierelor sistemului și pornirea prin `omnis`; implementarea așteaptă acordul utilizatorului.
+[AGENTS.md](AGENTS.md) fixează istoricul granular, verificarea, review-ul și rollbackul. **VISUAL_ACCEPTED:** utilizatorul a acceptat aspectul prototipului `df17a29` („arata bine. bravo”). [UI/UX §0](documents/Omnis_UI_UX_Spec.md) și DESIGN.md sunt baseline-ul vizual de portat, fără graph/council. Acceptarea vizuală nu transformă datele DEMO în cerințe de produs sau rezultate reale.
+
+**INSTRUCTIONS_UPDATE_BLOCKED:** actualizarea exclusiv a stării vizuale din fișierul protejat `AGENTS.md` a fost refuzată după expirarea aprobării interactive. Fișierul a rămas nemodificat; formularea sa despre aprobarea încă absentă precedă feedbackul de mai sus. Regulile sale de siguranță, autorizare, istoric și verificare rămân neschimbate. Corectarea acelui status cere o aprobare separată, nu ocolirea protecției.
 
 ## Începe aici
 
@@ -21,7 +23,7 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 
 ### Decizia de pornire
 
-**G-DESIGN în așteptare:** aprobarea UI/UX și a structurii sistemului/pornirii `omnis`, apoi acord explicit pentru implementare. Arborele concret `api/`, `web/`, `cli/`, module/teste/ops și regulile sunt în [arhitectură §12](documents/Omnis_MVP_Architecture.md). Nu există încă aceste componente de produs.
+**G-DESIGN: VISUAL_ACCEPTED / START_PENDING_NEW_SESSION.** Auditul pregătește implementarea; această sesiune nu o începe. Mesajul de pornire din sesiunea nouă confirmă baseline-ul de structură `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md), apoi autorizează numai felia P0 declarată. Nu există încă aceste componente de produs.
 
 **După G-DESIGN:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 

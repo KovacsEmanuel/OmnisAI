@@ -4,7 +4,6 @@ name: Omnis Operator Cockpit
 description: Consolă locală de investigație, cu proveniență vizibilă și control explicit al efectelor.
 colors:
   primary: "#C7BAA7"
-  primaryInk: "#111210"
   secondary: "#B8AEA1"
   neutral: "#0B0C0A"
   surface: "#131412"
@@ -26,19 +25,19 @@ typography:
   h1:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 1.75rem
-    fontWeight: 600
+    fontWeight: 500
     lineHeight: 1.25
     letterSpacing: "-0.02em"
   h2:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 1.25rem
-    fontWeight: 600
+    fontWeight: 500
     lineHeight: 1.4
   body-md:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
-    fontSize: 0.875rem
+    fontSize: 14.5px
     fontWeight: 400
-    lineHeight: 1.55
+    lineHeight: 1.5
   label:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
     fontSize: 0.8125rem
@@ -49,6 +48,24 @@ typography:
     fontSize: 0.8125rem
     fontWeight: 400
     lineHeight: 1.6
+  display:
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontSize: 60px
+    fontWeight: 600
+    lineHeight: 1.02
+    letterSpacing: "-0.04em"
+  engagement-title:
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontSize: 40px
+    fontWeight: 500
+    lineHeight: 1.08
+    letterSpacing: "-0.035em"
+  metric:
+    fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
+    fontSize: 36px
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "-0.035em"
 rounded:
   sm: 8px
   md: 10px
@@ -83,8 +100,8 @@ components:
     backgroundColor: "{colors.elevated}"
     textColor: "{colors.text}"
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primaryInk}"
+    backgroundColor: "{colors.selected}"
+    textColor: "{colors.text}"
     rounded: "{rounded.pill}"
     padding: 12px
     height: 44px
@@ -123,7 +140,7 @@ components:
 
 ## Overview
 
-**Surface primar: Operate; secundar: Command / Inspect.** Omnis este un instrument de lucru, nu o pagină de marketing și nu un chat cu o hartă atașată. Interfața prioritizează starea verificată, următoarea decizie a operatorului și lanțul observație → acțiune → dovadă → verdict.
+**Surface primar: Operate / Monitor; secundar: Inspect.** Omnis prioritizează stadiul engagementului, deciziile operatorului și lanțul observație → acțiune → dovadă → verdict. Antetul amplu și metricile cerute explicit urmează compoziția referinței; nu sunt înlocuite cu o consolă minimalistă generică.
 
 **Propunere vizuală, încă neaprobată:** interpretare a referinței furnizate `omnis-cockpit-v5.html`, identificată în §0 din specificația UI. Negru cald, ivory/taupe, accent nisipiu, topnav compact și panouri cu contur discret. Înlocuiește direcția verde/albastră respinsă, nu creează un baseline concurent. Fără brain graph/council; Brain stream și finding detail sunt suprafețele reprezentative. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. DEMO etichetat, nu aplicație.
 
@@ -137,20 +154,21 @@ Nicio informație esențială nu folosește opacitate redusă în loc de contras
 
 Geist și Geist Mono urmează tipografia referinței. Prototipul include local subseturile Latin/Latin-ext în `documents/assets/prototype-fonts.css`, cu SIL OFL 1.1 și proveniență/checksums alături; browserul nu cere fonturi unui CDN. Fonturile de sistem rămân fallback. Sans pentru operațiuni, mono pentru URL, ID, metodă HTTP, hash și evidence. Numere tabelare în coloanele cantitative. Licența aparține autorilor fontului, nu produsului Omnis.
 
-Body desktop 14px, mobil/form input 16px; metadata minimum 12px, dar nu pentru erori sau instrucțiuni esențiale. Titlurile produsului sunt 28/20px, fără hero de 64px. Print minimum 12pt. Zoom 200% nu ascunde Stop sau acțiunile formularului.
+Body desktop 14.5px, mobil/form input 16px; metadata minimum 12px. Dashboard display 40–60px, titlu engagement 40px (30 pe mobil), headinguri auxiliare 28/20px, metrici 36px (32 pe mobil). Această scară înlocuiește restricția anterioară prea severă asupra antetului/statisticilor. Print minimum 12pt. Zoom 200% nu ascunde Stop sau acțiunile formularului.
 
 ## Layout
 
-- Container centrat de maximum 1180px, padding 24px desktop/16–18px mobil. Trei suprafețe: Dashboard global, Engagement și Settings. Capsula globală este comună; taburile engagementului sau Settings apar numai în contextul lor. Fără sidebar permanent. Controale minimum 44px.
-- ≥1024px: Dashboard cu creare/listă de engagementuri și atenție; Overview per engagement asimetric (findings/taskuri 1.5fr, context/ultima decizie 1fr), gap 20–24px. Brain stream complet în tab separat, nu panou care domină Overview. Map păstrează inspectorul lateral la ≥1440, sub tabel la 1024–1439.
+- Container centrat de maximum 1180px, padding 32px desktop/16px mobil. Trei suprafețe: Home/Dashboard global, Engagement și Settings. Capsula globală de 60px este comună; taburile engagementului sau Settings apar numai în contextul lor. Fără sidebar permanent. Controale minimum 44px; capsulele vizuale mai mici nu reduc suprafața clicabilă.
+- Dashboard: antet amplu + target/new-engagement; Needs your review; patru carduri statistice; pulse compact; bento Recent engagements cu card principal pe două coloane și card de creare pe una. Valorile sunt derivate, nu filler.
+- Overview: now-bar/stadiu și checks; Needs you; cinci metrici Confirmed/Critical/High/Coverage/Endpoints; Top findings + Severity în raport 1.5:1; Budget & gates + Run snapshot dedesubt. Gap 16px și panouri aliniate pe rând. Brain stream rămâne în tab propriu. Endpoints și matricea sunt sub Coverage; Candidates și Setup sunt acțiuni secundare, nu alte taburi principale.
 - <1024px: drawer cu grup contextual, dashboard într-o coloană, detaliu full-width; Stop în topbar persistent. În afara engagementului topbarul este o bandă compactă cu identitatea runului activ, fără taburi de țintă. Tabelele derulează local, niciodată întreaga pagină.
 - 320–600px: acțiuni pe două rânduri dacă este nevoie; wizard într-o singură coloană; finding/evidence detail stack. Nu ascundem verdictul, identitatea, snapshotul sau motivul blocajului pentru a câștiga spațiu.
 
-Spacing pe multipli de 4px. Overview arată rezumate și trimite la detaliu/stream; Dashboard central selectează engagementul, nu se substituie lui. Skills/Runtime apar numai sub Settings. Fără monumente KPI sau procente fără numitor. Map păstrează tree/tabel/inspector, Coverage este tab al Map. Copy-ul fixture-ului și controalele de simulare nu sunt cerințe de produs aprobate. Proveniența elementelor și placementul sunt în `documents/Omnis_UI_UX_Spec.md`.
+Spacing pe multipli de 4px. Metricile și donutul de 128px sunt componente cerute, cu count/numitor/snapshot explicite. Dashboard central selectează engagementul, nu se substituie lui. Skills/Runtime apar numai sub Settings. Nu adăugăm precision/confidence fără definiție, model tiers sau Chains. Copy-ul fixture-ului și controalele de simulare nu sunt cerințe de produs aprobate. Proveniența și legătura la backend sunt în `documents/Omnis_UI_UX_Spec.md`.
 
 ## Elevation & Depth
 
-Suprafețe solide, nu blur/glass. Contur dublu foarte discret pe panourile principale (outer 4px, ivory la aproximativ 2%), fără glow sau animații. Separatoare și fundaluri delimitează streamul/evidence. Umbre ample numai pe drawer/dialog. Un singur overlay modal activ; revenire de focus la un control vizibil. Când topbarul devine inert, overlay-ul conține Stop echivalent, fără confirmare. Resize-ul închide modul modal și mută focusul în workspace, deoarece drawerul dispare pe desktop; Esc nu anulează aprobări deja trimise.
+Double-bezel real: înveliș de 5px, raze 14px exterior / 10px interior, contur ivory subtil, core de 24px. Fără glow sau animații decorative. Separatoare și fundaluri delimitează streamul/evidence; nav are umbră ambientală discretă. Un singur overlay modal activ; revenire de focus la un control vizibil. Când topbarul devine inert, overlay-ul conține Stop echivalent și identitatea runului. Resize-ul închide modul modal și mută focusul în workspace; Esc nu anulează aprobări deja trimise.
 
 ## Shapes
 

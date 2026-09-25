@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src data:; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>Omnis — Operator Console · DEMO</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src data:; script-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>Omnis — Operator Console · DEMO</title>
 <link rel="stylesheet" href="assets/prototype-fonts.css">
 <style>
 :root{--bg:#0b0c0a;--surface:#131412;--raised:#191b18;--text:#eee9e1;--muted:#b8aea1;--line:#30312c;--border:#726d62;--accent:#c7baa7;--accent-ink:#111210;--selected:#2a2c27;--focus:#d6c9b6;--danger:#f28e7f;--danger-bg:#301e1b;--warning:#e7b56c;--warning-bg:#30271b;--info:#a2bad0;--info-bg:#202930;--mono:'Geist Mono','Liberation Mono',Consolas,monospace}
@@ -117,28 +117,29 @@ summary{cursor:pointer;min-height:44px;outline-offset:-3px}summary:focus-visible
 .prototype-tools .field{margin:16px 0}.prototype-tools .tool-actions{display:flex;gap:12px;flex-wrap:wrap}.prototype-tools p{font-size:12px}
 @media print{.prototype-tools{display:none!important}}
 body{font-family:'Geist','Segoe UI','Liberation Sans',Arial,sans-serif}
-</style></head><body>
+</style><link rel="stylesheet" href="assets/prototype-ui.css"></head><body>
 <a class="skip" href="#workspace">Skip to workspace</a>
-<div class="demo"><strong>DESIGN PROTOTYPE · DEMO DATA ONLY · No backend, credentials or target traffic</strong><a href="Omnis_UI_UX_Spec.html">Read the UI specification</a></div>
+<div class="demo sr-only"><strong>DESIGN PROTOTYPE · DEMO DATA ONLY · No backend, credentials or target traffic</strong><a href="Omnis_UI_UX_Spec.html">Read the UI specification</a></div>
 <div class="shell"><aside class="sidebar" id="sidebar" aria-label="Main navigation">
   <button class="reveal-mobile drawerclose" id="close-menu">Close menu</button><p class="small" id="drawer-run-context">Run controls: <strong>Invoice lab</strong><br><span class="mono">run-demo</span></p><button class="danger reveal-mobile" data-stop aria-describedby="drawer-run-context">Stop demo</button>
   <div class="brand">OMNIS<small>Local workspace · DEMO</small></div>
   <nav class="navgroup" aria-label="Global"><a href="#dashboard" data-view="dashboard" data-drawer-global="dashboard">Dashboard</a><a href="#overview" data-view="overview" data-drawer-global="engagement">Engagement</a><a href="#providers" data-view="providers" data-drawer-global="settings">Settings</a></nav>
-  <div id="drawer-engagement"><p class="navlabel">Invoice lab</p><nav class="navgroup" aria-label="Engagement"><a href="#overview" data-view="overview">Overview</a><a href="#findings" data-view="findings">Findings</a><a href="#stream" data-view="stream">Brain stream</a><a href="#map" data-view="map">Target map</a><a href="#investigations" data-view="investigations">Investigations</a><a href="#reports" data-view="reports">Reports</a><a href="#setup" data-view="setup">Setup</a></nav></div>
+  <div id="drawer-engagement"><p class="navlabel">Invoice lab</p><nav class="navgroup" aria-label="Engagement"><a href="#overview" data-view="overview">Overview</a><a href="#stream" data-view="stream">Brain stream</a><a href="#findings" data-view="findings">Findings</a><a href="#map" data-view="map" data-map-view="coverage">Coverage</a><a href="#reports" data-view="reports">Reports</a></nav></div>
   <div id="drawer-settings"><p class="navlabel">Configuration</p><nav class="navgroup" aria-label="Settings"><a href="#providers" data-view="providers">Providers</a><a href="#skills" data-view="skills">Skills</a><a href="#runtime" data-view="runtime">Runtime &amp; data</a></nav></div>
 </aside>
 <div class="maincol">
 <div class="global-header"><nav class="global-nav" aria-label="Workspace navigation">
   <span class="wordmark" aria-label="Omnis"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16Q16 1 28 16Q16 31 4 16Z"/><circle cx="16" cy="16" r="4"/></svg><span>Omnis</span></span>
-  <a href="#dashboard" data-view="dashboard" data-global="dashboard">Dashboard</a><a href="#overview" data-view="overview" data-global="engagement">Engagement</a><a href="#providers" data-view="providers" data-global="settings">Settings</a><span class="local-label">Local operator</span>
+  <a href="#dashboard" data-view="dashboard" data-global="dashboard" aria-label="Home dashboard">Home</a><a href="#overview" data-view="overview" data-global="engagement">Engagement</a><a href="#providers" data-view="providers" data-global="settings">Settings</a><span class="local-label"><b>DEMO</b><span class="desktop-only"> · offline</span></span>
 </nav></div>
 <a class="back-link" id="engagement-back" href="#dashboard" data-view="dashboard">← All engagements</a>
-<header class="topbar"><button class="menu-toggle" id="open-menu" aria-expanded="false" aria-controls="sidebar">Menu</button><div class="crumb"><p class="muted small" id="header-scope">ACTIVE RUN · DEMO</p><p><strong>Invoice lab</strong></p><p class="mono muted">lab.invalid · run-demo</p></div><div class="controls"><span class="status" id="run-state" role="status" aria-live="polite" aria-atomic="true">RUNNING · demo</span><button id="pause-control">Pause</button><button id="complete-pause" hidden>Simulate drain complete</button><button class="danger" id="stop-control">Stop demo</button><button id="complete-stop" hidden>Show stopped state</button><button class="primary" id="start-control" hidden>Preflight / Start</button></div></header>
-<nav class="workspace-nav" id="engagement-nav" aria-label="Engagement pages"><a href="#overview" data-view="overview">Overview</a><a href="#findings" data-view="findings">Findings</a><a href="#stream" data-view="stream">Brain stream</a><a href="#map" data-view="map">Target map</a><a href="#investigations" data-view="investigations">Investigations</a><a href="#reports" data-view="reports">Reports</a><a href="#setup" data-view="setup">Setup</a></nav>
+<header class="topbar"><button class="menu-toggle" id="open-menu" aria-expanded="false" aria-controls="sidebar">Menu</button><div class="crumb"><p class="muted small" id="header-scope">ACTIVE RUN · DEMO</p><p><strong>lab.invalid</strong></p><p class="mono muted">Invoice lab · run-demo</p></div><div class="controls"><button class="context-action" id="engagement-setup-control" data-go="setup">Setup</button><span class="status" id="run-state" role="status" aria-live="polite" aria-atomic="true">RUNNING · demo</span><button id="pause-control">Pause</button><button id="complete-pause" hidden>Simulate drain complete</button><button class="danger" id="stop-control">Stop demo</button><button id="complete-stop" hidden>Show stopped state</button><button class="primary" id="start-control" hidden>Preflight / Start</button></div></header>
+<nav class="workspace-nav" id="engagement-nav" aria-label="Engagement pages"><a href="#overview" data-view="overview">Overview</a><a href="#stream" data-view="stream">Brain stream</a><a href="#findings" data-view="findings">Findings <span class="nav-count" data-findings-count></span></a><a href="#map" data-view="map" data-map-view="coverage">Coverage <span class="nav-count" data-coverage-count></span></a><a href="#reports" data-view="reports">Reports</a></nav>
 <nav class="workspace-nav" id="settings-nav" aria-label="Settings pages" hidden><a href="#providers" data-view="providers">Providers</a><a href="#skills" data-view="skills">Skills</a><a href="#runtime" data-view="runtime">Runtime &amp; data</a></nav>
 <main id="workspace" tabindex="-1">
+<p id="ui-feedback" class="ui-feedback" role="status" hidden></p>
 <div id="state-preview" class="notice" hidden role="status"><div><h2 id="state-preview-title">State preview</h2><p id="state-preview-body"></p></div></div>
-<section data-page="map"><div class="heading"><div><h1>Target map</h1><p>Inspect what was observed, under which identity, and why it matters.</p></div><span class="status">Snapshot demo-r3 · synthetic</span></div><div class="subnav" aria-label="Map views"><button data-map="surfaces" aria-pressed="true">Surfaces</button><button data-map="coverage" aria-pressed="false">Coverage matrix</button></div><div class="toolbar"><label for="map-search">Filter operations</label><input id="map-search" placeholder="Search a path or method"><label for="persona">Identity</label><select id="persona"><option>All demo identities</option><option>Alice · member</option><option>Anonymous</option></select><span class="status" id="filter-note" role="status">Known surface only</span></div>
+<section data-page="map"><div class="heading"><div><h1 id="map-title">Endpoints</h1><p>Scope, observed endpoints and tested procedures from one snapshot.</p></div><span class="status">Snapshot demo-r3 · synthetic</span></div><div class="subnav" aria-label="Map views"><button data-map="coverage" aria-pressed="false">Coverage</button><button data-map="surfaces" aria-pressed="true">Endpoints</button></div><div class="toolbar"><label for="map-search">Filter operations</label><input id="map-search" placeholder="Search a path or method"><label for="persona">Identity</label><select id="persona"><option>All demo identities</option><option>Alice · member</option><option>Anonymous</option></select><span class="status" id="filter-note" role="status">Known surface only</span></div>
 <div id="surfaces-panel"><div class="map-layout"><div class="tree"><h3>Origins</h3><ul><li>lab.invalid</li><li class="indent">/app</li><li class="indent selected">/api/invoices</li><li class="indent">/api/profile</li><li class="indent">/assets</li></ul><p class="small muted">Tree is a projection.<br>Identity and evidence remain separate.</p></div><div class="tablearea"><div class="tablewrap" tabindex="0" role="region" aria-label="Observed operations"><table><thead><tr><th>Operation</th><th>Identity</th><th>Source</th></tr></thead><tbody id="surface-rows"><tr class="selected-row" data-operation="invoice"><td><span class="method">GET</span><button class="rowbutton" data-inspect="invoice">/api/invoices/{id}</button><br><span class="small muted">Observed · demo fixture</span></td><td>Alice</td><td>Browser</td></tr><tr data-operation="profile"><td><span class="method">GET</span><button class="rowbutton" data-inspect="profile">/api/profile</button><br><span class="small muted">Observed · demo fixture</span></td><td>Alice</td><td>HTTP</td></tr><tr data-operation="export"><td><span class="method">POST</span><button class="rowbutton" data-inspect="export">/api/export</button><br><span class="small muted">Inferred · not exercised</span></td><td>Unknown</td><td>JS hint</td></tr></tbody></table></div><p class="table-note">An inferred route is not a verified endpoint.<br>DEMO rows are not scan results.</p></div><aside class="inspector" aria-label="Operation inspector"><div><p class="eyebrow">Operation inspector</p><h2 class="mono" id="inspect-title">GET /api/invoices/{id}</h2><span class="status ok" id="inspect-state">Observed · synthetic</span><dl class="kv"><dt>Identity</dt><dd id="inspect-identity">Alice / member</dd><dt>Auth epoch</dt><dd id="inspect-epoch">demo-epoch-a</dd><dt>Scope</dt><dd>ATTACKABLE / demo-r3</dd><dt>Source</dt><dd id="inspect-source">Browser observation / demo-ev-01</dd><dt>Parameter</dt><dd id="inspect-param">id · path · object reference</dd></dl></div><div class="divider"><h3>Evidence preview</h3><pre class="evidence" id="inspect-evidence">GET /api/invoices/demo-private
 Authorization: [REDACTED]
 
@@ -249,6 +250,8 @@ omnis.yaml</pre><p class="muted">Pin the entire package, not just its title. A r
 </main></div></div>
 <dialog id="approval-dialog" aria-labelledby="approval-title"><h2 id="approval-title">Approve this exact action?</h2><p class="muted">DEMO dialog only. No approval is sent.</p><dl class="kv"><dt>Operation</dt><dd>Session setup / login</dd><dt>Target</dt><dd class="mono">https://lab.invalid/login</dd><dt>Identity</dt><dd>Alice / demo-epoch-a</dd><dt>Effect</dt><dd>SESSION_CHANGE</dd><dt>Policy</dt><dd>demo-r3 / one use / bounded expiry</dd><dt>Arguments</dt><dd>Secret reference only; values redacted</dd></dl><p>Subrequests still need their own policy checks. This does not allow arbitrary actions by the agent.</p><div class="dialogfoot"><button class="danger" data-stop>Stop demo</button><button data-close="approval-dialog" autofocus>Deny / close demo</button><button class="primary" id="approve-demo">Approve demo action</button></div></dialog>
 <dialog id="start-dialog" aria-labelledby="start-title"><h2 id="start-title">Preflight · design preview</h2><p>The real product checks authorization, policy, identity, runtime, provider, budgets and confinement before Start.</p><div class="notice"><p><strong>These gates have not run.</strong><br>The next button changes the demo label only.</p></div><div class="dialogfoot"><button class="danger" data-stop>Stop demo</button><button data-close="start-dialog" autofocus>Cancel</button><button class="primary" id="start-demo">Simulate running state</button></div></dialog>
+<script src="assets/prototype-model.js"></script>
+<script src="assets/prototype-ui.js"></script>
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
@@ -264,6 +267,10 @@ mobileNav.addEventListener('change',e=>{
   $('workspace').focus();
  }
 });
+const runHeader=document.querySelector('.topbar');
+function syncScrollInset(){document.documentElement.style.setProperty('--run-scroll-inset',runHeader.getBoundingClientRect().height+16+'px');}
+new ResizeObserver(syncScrollInset).observe(runHeader);
+syncScrollInset();
 function focusContent(target){
  target.focus({preventScroll:true});
  const headerHeight=document.querySelector('.topbar').getBoundingClientRect().height;
@@ -275,6 +282,7 @@ function showView(name, focus=true){
  if(name==='engagements')name='dashboard';
  if(!pages.some(p=>p.dataset.page===name)) name='dashboard';
  activeView=name;
+ if($('ui-feedback'))$('ui-feedback').hidden=true;
  const scope=newEngagement?'dashboard':viewScopes[name];
  $('setup-title').textContent=newEngagement?'New engagement':'Engagement setup';
  document.querySelector('.maincol').dataset.scope=scope;
@@ -284,41 +292,34 @@ function showView(name, focus=true){
  $('header-scope').textContent=scope==='engagement'?'ENGAGEMENT · DEMO':'RUN CONTROLS · DEMO';
  applyPreview();
  document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===name)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ if(name==='investigations')document.querySelector('#engagement-nav [data-view="findings"]').setAttribute('aria-current','page');
  document.querySelectorAll('[data-global],[data-drawer-global]').forEach(a=>{if((a.dataset.global||a.dataset.drawerGlobal)===scope)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  history.replaceState(null,'','#'+(newEngagement?'new-engagement':name)); closeMenu();
  if(focus){$('workspace').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 }
-document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showView(a.dataset.view);}));
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
- showView(b.dataset.go);
- if(b.dataset.go==='findings'){
-  const finding=document.querySelector('[data-finding="demo-f-01"]');finding.open=true;
-  focusContent(finding.querySelector('summary'));
- }
-}));
-$('stream-filter').addEventListener('change',()=>{
- const actor=$('stream-filter').value;
- const events=[...document.querySelectorAll('#brain-stream [data-actor]')];
- events.forEach(event=>event.hidden=actor!=='all'&&event.dataset.actor!==actor);
- const count=events.filter(event=>!event.hidden).length;
- $('stream-status').textContent=count+' example event'+(count===1?'':'s')+' · newest first';
-});
-document.querySelectorAll('[data-operation-link]').forEach(button=>button.addEventListener('click',()=>{
- const key=button.dataset.operationLink;
- showView('map');$('map-search').value='';$('persona').selectedIndex=key==='invoice'?1:0;filterRows();
+document.addEventListener('click',e=>{
+ const target=e.target.closest('[data-view],[data-go],[data-operation-link]');if(!target)return;
+ if(target.dataset.view){e.preventDefault();showView(target.dataset.view);if(target.dataset.mapView)document.querySelector('[data-map="'+target.dataset.mapView+'"]').click();return;}
+ if(target.dataset.go){if(target.dataset.go==='findings')OmnisUI.openFinding('demo-f-01');else showView(target.dataset.go);return;}
+ const key=target.dataset.operationLink;if(!Object.hasOwn(ops,key))return;
+ showView('map');$('map-search').value='';$('persona').selectedIndex=ops[key][2]==='Alice / member'?1:0;filterRows();
  document.querySelector('[data-map="surfaces"]').click();inspectOperation(key);
-}));
+});
 $('open-menu').addEventListener('click',()=>{$('sidebar').classList.add('open');$('sidebar').setAttribute('role','dialog');$('sidebar').setAttribute('aria-modal','true');document.querySelector('.maincol').inert=true;$('open-menu').setAttribute('aria-expanded','true');$('close-menu').focus();});
 $('sidebar').addEventListener('keydown',e=>{if(e.key!=='Tab'||!$('sidebar').classList.contains('open'))return;const items=[...$('sidebar').querySelectorAll('a,button')].filter(x=>x.offsetParent!==null);const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 $('close-menu').addEventListener('click',()=>{closeMenu();$('open-menu').focus();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('sidebar').classList.contains('open')){closeMenu();$('open-menu').focus();}});
-document.querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-map]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('surfaces-panel').hidden=b.dataset.map!=='surfaces';$('coverage-panel').hidden=b.dataset.map!=='coverage';}));
-const ops={invoice:['GET /api/invoices/{id}','Observed · synthetic','Alice / member','Browser observation / demo-ev-01','id · path · object reference','GET /api/invoices/demo-private\nAuthorization: [REDACTED]\n\nSynthetic example only.\nNo request has been sent.'],profile:['GET /api/profile','Observed · synthetic','Alice / member','HTTP observation / demo-ev-02','No object ID in this example','GET /api/profile\nCookie: [REDACTED]\n\nSynthetic identity check.\nNo request has been sent.'],export:['POST /api/export','Inferred · not exercised','Unknown','Static JS hint / demo-source-js','Body fields not yet observed','No request evidence.\nA JS reference is only a hint.\nEffect class: UNKNOWN → blocked.']};
-const authEpochs={invoice:'demo-epoch-a',profile:'demo-epoch-a',export:'Unknown · no verified auth context'};
+document.querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-map]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('surfaces-panel').hidden=b.dataset.map!=='surfaces';$('coverage-panel').hidden=b.dataset.map!=='coverage';$('map-title').textContent=b.dataset.map==='coverage'?'Coverage':'Endpoints';}));
+const ops=Object.fromEntries(OmnisUI.model.state.operations.map(op=>{
+ const finding=OmnisUI.model.state.findings.find(f=>f.operation_id===op.id&&f.validation_status==='CONFIRMED');
+ return [op.id,[op.method+' '+op.path,op.state==='observed'?'Observed · synthetic':'Inferred · not exercised',op.identity,op.source+' / '+OmnisUI.model.state.snapshot_id,op.parameter,finding?finding.poc:op.state==='inferred'?'No request evidence.\nA JS reference is only a hint.\nEffect class: UNKNOWN → blocked.':'SYNTHETIC TRANSCRIPT — No request has been sent.\n'+op.method+' '+op.path]];
+}));
+const authEpochs=Object.fromEntries(OmnisUI.model.state.operations.map(op=>[op.id,op.auth_epoch||'Unknown · no verified auth context']));
 let selectedOperation='invoice';
 function resetCoverageDetail(hasRows){
  $('coverage-heading').textContent=hasRows?'Select a cell to inspect the test contract':'No matching operations';
  $('coverage-detail').textContent=hasRows?'Coverage does not certify that an endpoint is safe. Unknown applicability stays visible in the denominator.':'No coverage evidence matches the current identity and operation filters.';
+ $('coverage-evidence').hidden=true;$('coverage-evidence').textContent='';
 }
 function inspectOperation(key){
  if(key!==selectedOperation)resetCoverageDetail(Boolean(key));
@@ -326,30 +327,35 @@ function inspectOperation(key){
  const values=key?ops[key]:[];
  document.querySelector('.inspector').hidden=!key;
  ['inspect-title','inspect-state','inspect-identity','inspect-source','inspect-param','inspect-evidence'].forEach((id,i)=>$(id).textContent=values[i]||'');
+ const finding=key?OmnisUI.model.state.findings.find(f=>f.operation_id===key&&f.validation_status==='CONFIRMED'):null;
+ if(finding&&finding.evidence_status!=='AVAILABLE')$('inspect-evidence').textContent=finding.evidence_status+' · Evidence unavailable. Historical verdict retained; no transcript bytes are shown.';
  $('inspect-epoch').textContent=key?authEpochs[key]:'';
  $('inspect-state').className=key==='export'?'status warn':'status ok';
  document.querySelector('.inspector [data-go="investigations"]').hidden=key!=='invoice';
  document.querySelectorAll('#surface-rows tr').forEach(r=>r.classList.toggle('selected-row',r.dataset.operation===key));
- document.querySelectorAll('.tree li').forEach(li=>li.classList.toggle('selected',li.textContent===({invoice:'/api/invoices',profile:'/api/profile'}[key])));
+ document.querySelectorAll('.tree li').forEach(li=>li.classList.toggle('selected',li.dataset.treeOperation===key));
 }
-document.querySelectorAll('[data-inspect]').forEach(b=>b.addEventListener('click',()=>inspectOperation(b.dataset.inspect)));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-inspect]');if(b)inspectOperation(b.dataset.inspect);});
 function filterRows(){
  const q=$('map-search').value.trim().toLowerCase(),identity=$('persona').value;
  const visible=Object.keys(ops).filter(key=>ops[key][0].toLowerCase().includes(q)&&identity!=='Anonymous'&&(identity!=='Alice · member'||ops[key][2]==='Alice / member'));
- document.querySelectorAll('#surface-rows tr,#coverage-panel tbody tr').forEach(r=>r.hidden=!visible.includes(r.dataset.operation));
+ document.querySelectorAll('#surface-rows tr,[data-coverage-operation]').forEach(r=>r.hidden=!visible.includes(r.dataset.operation));
  inspectOperation(visible.includes(selectedOperation)?selectedOperation:(visible[0]||null));
  $('filter-note').textContent=identity==='Anonymous'?'No anonymous observations in DEMO':visible.length?'Filtered design rows only':'No matching operations in DEMO';
  resetCoverageDetail(visible.length>0);
 }
 $('map-search').addEventListener('input',filterRows);$('persona').addEventListener('change',filterRows);
-const coverage={confirmed:'CONFIRMED · synthetic example demo-f-01. Independent replay, expected rule and paired controls support the stored verdict; no real finding exists in this prototype.',candidate:'Candidate is not confirmed. A separate validator must replay with the same authorized preconditions and secure controls.',not_tested:'No qualifying procedure evidence exists. This cell cannot increase tested coverage.',not_applicable:'Requires a recorded applicability reason and version. Exclusion is never inferred from lack of a finding.',tested_no_issue:'Requires procedure revision, valid identity/epoch, executed test and controls, and evidence references. Means no issue demonstrated here, not endpoint safe.',blocked:'Identity or expected policy is missing. The cell stays visible; it is not a negative result.',unsupported:'The declared capability catalog does not test this surface. Report the limitation explicitly.'};
-document.querySelectorAll('[data-coverage]').forEach(b=>b.addEventListener('click',()=>{
- const key=b.closest('tr').dataset.operation;
+const coverage={confirmed:'CONFIRMED · synthetic example. Independent replay, expected rule and paired controls support the stored verdict; no real finding exists in this prototype.',candidate:'Candidate is not confirmed. A separate validator must replay with the same authorized preconditions and secure controls.',not_tested:'No qualifying procedure evidence exists. This cell cannot increase tested coverage.',not_applicable:'Requires a recorded applicability reason and version. Exclusion is never inferred from lack of a finding.',tested_no_issue:'Requires procedure revision, valid identity/epoch, executed test and controls, and evidence references. Means no issue demonstrated here, not endpoint safe.',blocked:'Identity or expected policy is missing. The cell stays visible; it is not a negative result.',unsupported:'The declared capability catalog does not test this surface. Report the limitation explicitly.'};
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-coverage]');if(!b)return;
+ const cell=OmnisUI.model.state.coverage.find(c=>c.id===b.dataset.cellId);if(!cell)return;
+ const key=cell.operation_id;
  inspectOperation(key);
- const family=document.querySelectorAll('.coverage th')[b.closest('td').cellIndex].textContent;
- $('coverage-heading').textContent=ops[key][0]+' · '+ops[key][2]+' · Auth epoch: '+authEpochs[key]+' · '+family+' · '+b.textContent+' · DEMO contract';
- $('coverage-detail').textContent=coverage[b.dataset.coverage];
-}));
+ $('coverage-heading').textContent=ops[key][0]+' · '+ops[key][2]+' · Auth epoch: '+authEpochs[key]+' · '+cell.family+' · '+b.textContent+' · DEMO contract';
+ $('coverage-detail').textContent=coverage[cell.status]+' '+cell.explanation+(cell.finding_id?' Finding: '+cell.finding_id:'')+' Snapshot: '+cell.snapshot_id+'; procedure: '+(cell.procedure_revision||'not executed');
+ $('coverage-evidence').hidden=cell.evidence_refs.length===0;
+ $('coverage-evidence').textContent=cell.evidence_refs.map(id=>{const artifact=OmnisUI.model.state.evidence[id];return artifact?id+' · '+artifact.status+(artifact.status==='AVAILABLE'?'\n'+artifact.body:' · Evidence unavailable'):id+' · MISSING';}).join('\n\n');
+});
 function syncOverlayStops(){document.querySelectorAll('[data-stop]').forEach(b=>b.hidden=$('stop-control').hidden||$('stop-control').disabled);}
 function openDialog(id){
  syncOverlayStops();lastFocus=document.activeElement;
@@ -365,12 +371,12 @@ function restoreFocus(target){
  (valid?target:$('workspace')).focus();
 }
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('close',()=>restoreFocus(lastFocus)));
-$('approval-open-inline').addEventListener('click',()=>openDialog('approval-dialog'));
-$('approve-demo').addEventListener('click',()=>{$('approval-dialog').close();$('preview-message').textContent='Demo approval acknowledged locally. No action was authorized or sent.';});
+$('approve-demo').addEventListener('click',()=>{$('approval-dialog').close();OmnisUI.approveAction();$('preview-message').textContent='Demo approval acknowledged locally. No action was authorized or sent.';});
 let runState='RUNNING';
 function setRunState(state){
  runState=state;
  $('run-state').textContent=state+' · demo';
+ OmnisUI.updateRunState(state);
  document.querySelectorAll('[data-run-label]').forEach(label=>label.textContent=state+' · demo');
  $('pause-control').hidden=!['RUNNING','PAUSED'].includes(state);
  $('pause-control').textContent=state==='PAUSED'?'Resume':'Pause';
@@ -412,21 +418,12 @@ $('start-demo').addEventListener('click',()=>{
 });
 let step=0;function setStep(){document.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);document.querySelectorAll('#wizard-steps li').forEach((e,i)=>e.classList.toggle('active',i===step));$('wizard-back').disabled=step===0;$('wizard-next').textContent=step===4?'Open demo overview':'Next';$('wizard-message').textContent='';}
 $('wizard-next').addEventListener('click',()=>{if(step===4){showView('overview');return;}step++;setStep();});$('wizard-back').addEventListener('click',()=>{if(step>0)step--;setStep();});$('draft-preview').addEventListener('click',()=>{$('wizard-message').textContent='The real product saves a draft to its API. This prototype does not persist it.';});
-$('retest-preview').addEventListener('click',()=>{$('retest-state').textContent='RETEST_INCONCLUSIVE · demo: auth expired. This is not FIXED.';});
-$('finding-evidence-state').addEventListener('change',()=>{
- const state=$('finding-evidence-state').value,available=state==='AVAILABLE';
- $('evidence-bundle').hidden=!available;$('replay-preview').disabled=!available;
- $('evidence-availability').textContent=available?'AVAILABLE · synthetic preview only. Historical verdict retained.':state+' · Required evidence unavailable for replay. Historical verdict retained; new validation requires new complete evidence.';
- $('replay-message').textContent='';
-});
-$('replay-preview').addEventListener('click',()=>{
- $('replay-message').textContent='No replay was executed. Real replay requires intact evidence, fresh authorization, verified identity, scope, policy and budget.';
-});
-$('report-preview').addEventListener('click',()=>{$('report-state').textContent='Actual export: immutable HTML/JSON from durable data, escaped and offline. No fake assessment file is generated here.';});
+
 document.querySelectorAll('.provider-preview').forEach(b=>b.addEventListener('click',()=>{$('provider-message').textContent='Secure product flow only: explicit consent → Hermes management → readback → optional billable inference test. No credential input in this prototype.';}));
 $('skill-preview').addEventListener('click',()=>{$('skill-state').textContent='Publication pins the whole package digest for new runs. Every task in the same run retains its catalog snapshot. Draft editing may continue; release selection applies to the next run. No code runs on publish.';});
 const preview={normal:'All content is synthetic.',stale:'STALE · event stream disconnected. Last-known data is not live; a Stop request would need acknowledgement.',empty:'EMPTY · no observations exist yet. The product must show an empty state, never seed it with these DEMO rows.',error:'EVIDENCE_UNAVAILABLE · missing bytes block verification; a successful database read is not enough.'};
 function applyPreview(){const mode=$('preview-state').value;const blocked=mode==='empty'||mode==='error';pages.forEach(p=>p.hidden=blocked||p.dataset.page!==activeView);$('state-preview').hidden=mode==='normal';$('state-preview-title').textContent=mode==='empty'?'No observations yet':mode==='error'?'Evidence unavailable':'Connection lost · last-known state';$('state-preview-body').textContent=preview[mode];$('preview-message').textContent=mode==='normal'?'':preview[mode];}
 $('preview-state').addEventListener('change',applyPreview);
+inspectOperation('invoice');
 showView(location.hash.slice(1)||'dashboard',false);
 </script></body></html>

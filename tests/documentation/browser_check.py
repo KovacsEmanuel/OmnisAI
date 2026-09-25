@@ -8,6 +8,7 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import tempfile
 
 from playwright.sync_api import Error as PlaywrightError, expect, sync_playwright
 
@@ -108,9 +109,9 @@ def check_run_state_live_region(page):
 
 def check_anonymous_context(page):
     page.locator('[data-map="coverage"]').click()
-    page.locator('[data-coverage="confirmed"]').click()
+    page.locator('#coverage-panel [data-operation="invoice"] [data-coverage="confirmed"]').click()
     page.locator('#persona').select_option('Anonymous')
-    assert page.locator('#coverage-panel tbody tr:visible').count() == 0, 'coverage must respect Anonymous filter'
+    assert page.locator('[data-coverage-operation]:visible').count() == 0, 'coverage must respect Anonymous filter'
     assert 'No matching operations' in page.locator('#coverage-heading').inner_text()
     assert 'Alice' not in page.locator('#coverage-detail').inner_text()
     page.locator('[data-map="surfaces"]').click()
@@ -138,26 +139,26 @@ def check_filtered_selection(page):
     expect(page.locator('#inspect-title')).to_have_text('GET /api/profile')
     assert page.locator('#surface-rows tr.selected-row:visible').count() == 1
     page.locator('[data-map="coverage"]').click()
-    rows = page.locator('#coverage-panel tbody tr:visible')
+    rows = page.locator('[data-coverage-operation]:visible')
     assert rows.count() == 1 and '/api/profile' in rows.inner_text()
-    page.locator('[data-coverage="tested_no_issue"]').click()
+    page.locator('#coverage-panel [data-operation="profile"] [data-coverage="tested_no_issue"]').click()
     assert '/api/profile' in page.locator('#coverage-heading').inner_text()
     page.locator('#map-search').fill('no-such-operation')
-    assert page.locator('#coverage-panel tbody tr:visible').count() == 0
+    assert page.locator('[data-coverage-operation]:visible').count() == 0
     assert 'No matching operations' in page.locator('#coverage-heading').inner_text()
     page.locator('[data-map="surfaces"]').click()
     assert not page.locator('.inspector').is_visible()
     page.locator('#map-search').fill('')
     page.locator('#persona').select_option('Alice · member')
-    assert page.locator('#surface-rows tr:visible').count() == 2
+    assert page.locator('#surface-rows tr:visible').count() == 4
     assert page.locator('.inspector').is_visible()
     page.locator('[data-map="coverage"]').click()
-    assert page.locator('#coverage-panel tbody tr:visible').count() == 2
+    assert page.locator('[data-coverage-operation]:visible').count() == 4
 
 
 def check_selection_clears_other_context(page):
     page.locator('[data-map="coverage"]').click()
-    page.locator('[data-coverage="confirmed"]').click()
+    page.locator('#coverage-panel [data-operation="invoice"] [data-coverage="confirmed"]').click()
     page.locator('[data-map="surfaces"]').click()
     page.locator('[data-inspect="export"]').click()
     page.locator('[data-map="coverage"]').click()
@@ -284,20 +285,20 @@ def check_cockpit_stream(page):
     page.locator('#engagement-nav [data-view="stream"]').click()
     expect(page.get_by_role('heading', name='Brain stream', exact=True)).to_be_visible()
     stream = page.locator('#brain-stream')
-    assert stream.locator('[data-actor]:visible').count() == 4
+    assert stream.locator('[data-actor]:visible').count() == 8
     page.locator('#stream-filter').select_option('validator')
-    assert stream.locator('[data-actor]:visible').count() == 1
+    assert stream.locator('[data-actor]:visible').count() == 4
     assert 'Replay and controls' in stream.inner_text()
     assert 'Internal deliberations' not in stream.inner_text()
-    stream.get_by_role('button', name='Inspect finding').click()
+    stream.locator('[data-open-finding="demo-f-01"]').first.click()
     expect(page.locator('[data-page="findings"]')).to_be_visible()
-    expect(page.locator('.finding-row')).to_be_focused()
-    row = page.locator('.finding-row').bounding_box()
+    expect(page.locator('[data-finding="demo-f-01"] > summary')).to_be_focused()
+    row = page.locator('[data-finding="demo-f-01"] > summary').bounding_box()
     header = page.locator('.topbar').bounding_box()
     assert row['y'] >= header['y'] + header['height'], 'finding context must not be under the sticky header'
     page.evaluate("showView('stream', false)")
     page.locator('#stream-filter').select_option('all')
-    assert stream.locator('[data-actor]:visible').count() == 4
+    assert stream.locator('[data-actor]:visible').count() == 8
     for width in [1440, 1280, 1024, 390, 320]:
         page.set_viewport_size({'width': width, 'height': 1000})
         page.locator('#stop-control').scroll_into_view_if_needed()
@@ -328,12 +329,12 @@ def check_cockpit_task_context(page):
     assert 'UNKNOWN' in page.locator('#blocked-task').inner_text()
     page.evaluate("showView('map', false)")
     page.locator('[data-map="coverage"]').click()
-    page.locator('[data-coverage="confirmed"]').click()
+    page.locator('#coverage-panel [data-operation="invoice"] [data-coverage="confirmed"]').click()
     assert 'demo-f-01' in page.locator('#coverage-detail').inner_text()
     page.locator('#persona').select_option('Anonymous')
     page.locator('#map-search').fill('/api/profile')
     page.evaluate("showView('stream', false)")
-    page.locator('#brain-stream').get_by_role('button', name='Inspect operation').click()
+    page.locator('#brain-stream [data-operation-link="invoice"]').click()
     expect(page.locator('#surfaces-panel')).to_be_visible()
     expect(page.locator('#inspect-title')).to_have_text('GET /api/invoices/{id}')
     expect(page.locator('.inspector')).to_be_visible()
@@ -345,7 +346,7 @@ def check_finding_inspection(page):
     page.evaluate("showView('findings', false)")
     finding = page.locator('[data-finding="demo-f-01"]')
     expect(finding).to_be_visible()
-    assert page.locator('[data-finding]').count() == 1
+    assert page.locator('[data-finding]').count() == 3
     summary = finding.locator('summary').first
     summary.focus()
     assert summary.evaluate('''e => {
@@ -381,7 +382,7 @@ def check_finding_inspection(page):
 
 def check_finding_evidence_availability(page):
     page.evaluate("showView('stream', false)")
-    page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
+    page.locator('#brain-stream [data-open-finding="demo-f-01"]').first.click()
     expect(page.locator('[data-finding="demo-f-01"]')).to_have_attribute('open', '')
     verdict = page.locator('#finding-verdict').inner_text()
     page.locator('#finding-demo-tools > summary').click()
@@ -404,8 +405,8 @@ def check_finding_return_scroll(page):
     page.set_viewport_size({'width': 390, 'height': 1000})
     for _ in range(2):
         page.evaluate("showView('stream', false)")
-        page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
-        row = page.locator('.finding-row')
+        page.locator('#brain-stream [data-open-finding="demo-f-01"]').first.click()
+        row = page.locator('[data-finding="demo-f-01"] > summary')
         expect(row).to_be_focused()
         rect, header = row.bounding_box(), page.locator('.topbar').bounding_box()
         assert rect['y'] >= header['y'] + header['height']
@@ -426,8 +427,8 @@ def check_zoom_and_media(page):
     page.evaluate("document.body.style.zoom='1';showView('findings',false)")
     page.emulate_media(forced_colors='active')
     assert page.evaluate("matchMedia('(forced-colors: active)').matches")
-    page.locator('.finding-row').focus()
-    assert page.locator('.finding-row').evaluate('e=>parseFloat(getComputedStyle(e).outlineWidth)') >= 2
+    page.locator('[data-finding="demo-f-01"] > summary').focus()
+    assert page.locator('[data-finding="demo-f-01"] > summary').evaluate('e=>parseFloat(getComputedStyle(e).outlineWidth)') >= 2
     page.emulate_media(forced_colors='none', reduced_motion='no-preference')
 
 
@@ -460,11 +461,11 @@ def check_dashboard_engagement_settings_separation(page):
     expect(page.locator('[data-run-label]')).to_have_text('STOPPING · demo')
     page.locator('#complete-stop').click()
     expect(page.locator('[data-run-label]')).to_have_text('STOPPED · demo')
-    page.get_by_role('button', name='Set up an engagement →', exact=True).click()
+    page.locator('[data-page="dashboard"] [data-go="new-engagement"]').first.click()
     expect(page.get_by_role('heading', name='New engagement', exact=True)).to_be_visible()
     expect(page.locator('#engagement-nav')).to_be_hidden()
     page.locator('[data-global="engagement"]').click()
-    page.locator('#engagement-nav [data-view="setup"]').click()
+    page.locator('#engagement-setup-control').click()
     expect(page.get_by_role('heading', name='Engagement setup', exact=True)).to_be_visible()
     expect(page.locator('#engagement-nav')).to_be_visible()
 
@@ -475,7 +476,7 @@ def check_navigation_context_regressions(page):
     for _ in range(4):
         page.locator('#wizard-next').click()
     page.locator('[data-global="dashboard"]').click()
-    page.get_by_role('button', name='Set up an engagement →', exact=True).click()
+    page.locator('[data-page="dashboard"] [data-go="new-engagement"]').first.click()
     if not page.locator('[data-step="0"]').is_visible():
         failures.append('new engagement inherited the existing wizard step')
     page.locator('[data-global="engagement"]').click()
@@ -507,7 +508,7 @@ def check_simulation_controls_are_separate(page):
     expect(page.locator('[data-page="dashboard"]')).to_be_visible()
     page.locator('#prototype-tools > summary').click()
     page.evaluate("showView('findings', false)")
-    page.locator('.finding-row').click()
+    page.locator('[data-finding="demo-f-01"] > summary').click()
     expect(page.locator('#finding-evidence-state')).to_be_hidden()
     expect(page.locator('#evidence-bundle')).to_be_visible()
     page.locator('#finding-demo-tools > summary').click()
@@ -526,6 +527,137 @@ def check_reference_fonts_are_local(page):
     assert 'Geist' in result['loaded'] and 'Geist Mono' in result['loaded'], result
 
 
+def check_reference_cockpit_projection_flow(page):
+    page.evaluate("showView('dashboard', false)")
+    assert page.locator('#dashboard-metrics .metric-card').count() == 4, 'reference dashboard metrics are missing'
+    page.get_by_role('button', name='Open engagement', exact=True).click()
+    for key, value in [('confirmed', '3'), ('critical', '0'), ('high', '2'), ('coverage', '64%'), ('endpoints', '5')]:
+        expect(page.locator(f'#overview-metrics [data-metric="{key}"] .metric-value')).to_have_text(value)
+    assert 'VALIDATE' in page.locator('#overview-phase').inner_text()
+    expect(page.locator('#severity-total')).to_have_text('3')
+    assert '84 / 300' in page.locator('#budget-panel').inner_text()
+    assert '7 / 11' in page.locator('#overview-progress').inner_text()
+    page.locator('#engagement-nav [data-view="stream"]').click()
+    page.locator('[data-stream-kind="tools"]').click()
+    kinds = page.locator('#brain-stream [data-event-kind]:visible').evaluate_all('items=>items.map(e=>e.dataset.eventKind)')
+    assert kinds and set(kinds) <= {'tool_called', 'tool_result'}
+    page.locator('[data-stream-kind="endpoint"]').click()
+    expect(page.locator('#brain-stream [data-operation-link="file"]')).to_be_visible()
+    page.locator('#brain-stream [data-operation-link="file"]').click()
+    expect(page.locator('#inspect-title')).to_have_text('GET /api/files/preview')
+    page.locator('#engagement-nav [data-view="reports"]').click()
+    page.locator('#generate-demo-report').click()
+    first = page.locator('[data-report-id="demo-report-1"]')
+    assert '2 confirmed' in first.inner_text()
+    with page.expect_download() as pending:
+        first.locator('[data-export-format="json"]').click()
+    with tempfile.TemporaryDirectory(prefix='omnis-demo-report-') as directory:
+        path = Path(directory) / 'report.json'
+        pending.value.save_as(path)
+        report = json.loads(path.read_text())
+        assert report['demo'] is True
+        assert {f['id'] for f in report['findings']} == {'demo-f-01', 'demo-f-03'}
+        assert all(f['validation_status'] == 'CONFIRMED' for f in report['findings'])
+        with page.expect_download() as html_pending:
+            first.locator('[data-export-format="html"]').click()
+        html_path = Path(directory) / 'report.html'
+        html_pending.value.save_as(html_path)
+        report_page = page.context.new_page()
+        report_errors = []
+        report_page.on('pageerror', lambda error: report_errors.append(str(error)))
+        try:
+            report_page.goto(html_path.as_uri())
+            assert report_page.locator('article').count() == 2
+            assert 'DEMO report' in report_page.locator('h1').inner_text()
+            assert 'CONFIRMED' in report_page.locator('body').inner_text()
+            assert not report_errors, report_errors
+        finally:
+            report_page.close()
+    page.locator('#engagement-nav [data-view="findings"]').click()
+    page.locator('[data-finding-filter="review"]').click()
+    finding = page.locator('[data-finding="demo-f-02"]')
+    finding.locator('summary').first.click()
+    finding.locator('[data-review-decision="APPROVED"]').click()
+    assert 'Approved for report' in finding.inner_text()
+    page.locator('#engagement-nav [data-view="reports"]').click()
+    page.locator('#generate-demo-report').click()
+    assert '3 confirmed' in page.locator('[data-report-id="demo-report-2"]').inner_text()
+    assert '2 confirmed' in page.locator('[data-report-id="demo-report-1"]').inner_text()
+    with page.expect_download() as original_pending:
+        page.locator('[data-report-id="demo-report-1"] [data-export-format="json"]').click()
+    with tempfile.TemporaryDirectory(prefix='omnis-demo-history-') as directory:
+        original_path = Path(directory) / 'original.json'
+        original_pending.value.save_as(original_path)
+        assert json.loads(original_path.read_text()) == report, 'download must use the saved snapshot, not current findings'
+
+
+def check_model_projection_text_and_missing_evidence(page):
+    page.evaluate("""() => {
+        const f = OmnisUI.model.state.findings[0];
+        f.title = '<img src="https://untrusted.invalid/x" onerror="window.demoInjected=true">';
+        f.summary = '<svg onload="window.demoInjected=true"></svg>';
+        OmnisUI.renderProjections();
+        OmnisUI.openFinding(f.id);
+    }""")
+    assert page.locator('[data-finding="demo-f-01"] img,[data-finding="demo-f-01"] svg[onload]').count() == 0
+    assert page.evaluate('window.demoInjected') is None
+    assert '<img' in page.locator('[data-finding="demo-f-01"] > summary').inner_text()
+    page.locator('#finding-demo-tools > summary').click()
+    page.locator('#finding-evidence-state').select_option('MISSING')
+    assert page.evaluate('OmnisUI.model.summary().coverage.covered') == 6
+    page.evaluate("showView('map', false)")
+    page.locator('[data-map="surfaces"]').click()
+    page.locator('[data-inspect="invoice"]').click()
+    assert 'unavailable' in page.locator('#inspect-evidence').inner_text().lower()
+    assert 'SYNTHETIC TRANSCRIPT' not in page.locator('#inspect-evidence').inner_text()
+    page.locator('[data-map="coverage"]').click()
+    page.locator('#coverage-panel [data-operation="invoice"] [data-coverage="confirmed"]').click()
+    assert 'MISSING' in page.locator('#coverage-evidence').inner_text()
+    assert 'SYNTHETIC TRANSCRIPT' not in page.locator('#coverage-evidence').inner_text()
+
+
+def check_dashboard_phase_survives_review_rerender(page):
+    page.evaluate("showView('dashboard', false)")
+    page.locator('#stop-control').click()
+    page.locator('#complete-stop').click()
+    expect(page.locator('[data-page="dashboard"] [data-demo-phase]')).to_have_text('STOPPED')
+    page.locator('[data-page="dashboard"] [data-open-finding="demo-f-02"]').click()
+    page.locator('[data-review-finding="demo-f-02"][data-review-decision="HELD"]').click()
+    page.locator('.global-nav [data-global="dashboard"]').click()
+    expect(page.locator('#run-state')).to_have_text('STOPPED · demo')
+    expect(page.locator('[data-page="dashboard"] [data-demo-phase]')).to_have_text('STOPPED')
+    expect(page.locator('#dashboard-metrics [data-metric="active"] .metric-value')).to_have_text('0')
+    page.locator('#start-control').click()
+    page.locator('#start-demo').click()
+    expect(page.locator('[data-page="dashboard"] [data-demo-phase]')).to_have_text('VALIDATE')
+
+
+def check_finding_keyboard_return_clears_sticky_header(page):
+    for width in [1440, 390]:
+        page.set_viewport_size({'width': width, 'height': 1000})
+        page.reload()
+        page.evaluate("showView('dashboard', false)")
+        page.locator('[data-page="dashboard"] [data-open-finding="demo-f-02"]').click()
+        page.locator('[data-review-finding="demo-f-02"][data-review-decision="HELD"]').click()
+        page.locator('[data-finding-filter="held"]').click()
+        page.locator('[data-review-finding="demo-f-02"][data-review-decision="APPROVED"]').click()
+        page.keyboard.press('Tab')
+        page.keyboard.press('Shift+Tab')
+        summary = page.locator('[data-finding="demo-f-02"] > summary')
+        expect(summary).to_be_focused()
+        bounds = summary.evaluate('e => ({top:e.getBoundingClientRect().top,header:document.querySelector(".topbar").getBoundingClientRect().bottom})')
+        assert bounds['top'] >= bounds['header'], (width, bounds)
+
+
+def check_reference_stream_density(page):
+    page.set_viewport_size({'width': 1440, 'height': 1000})
+    page.evaluate("showView('stream')")
+    heights = page.locator('#brain-stream .stream-event').evaluate_all('es => es.map(e => e.getBoundingClientRect().height)')
+    assert len(heights) == 8 and max(heights) <= 120, heights
+    targets = page.locator('#brain-stream button').evaluate_all('es => es.map(e => e.getBoundingClientRect().height)')
+    assert targets and min(targets) >= 44, 'compact rows must retain usable hit targets'
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
@@ -536,7 +668,12 @@ REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, che
                check_finding_return_scroll, check_zoom_and_media,
                check_dashboard_engagement_settings_separation,
                check_navigation_context_regressions, check_simulation_controls_are_separate,
-               check_reference_fonts_are_local, check_generated_document_csp]
+               check_reference_fonts_are_local, check_reference_cockpit_projection_flow,
+               check_model_projection_text_and_missing_evidence,
+               check_dashboard_phase_survives_review_rerender,
+               check_finding_keyboard_return_clears_sticky_header,
+               check_reference_stream_density,
+               check_generated_document_csp]
 
 
 def main():
@@ -563,7 +700,7 @@ def main():
                 checks.append({"kind": "prototype_view", "width": width, "view": view, "passed": size["content"] <= size["viewport"] and size["visible"] == 1, "size": size})
         page.evaluate("showView('map', false)")
         page.locator('[data-map="coverage"]').click()
-        page.locator('[data-coverage="tested_no_issue"]').click()
+        page.locator('#coverage-panel [data-operation="profile"] [data-coverage="tested_no_issue"]').click()
         assert "Requires procedure revision" in page.locator("#coverage-detail").inner_text()
         page.locator('#prototype-tools > summary').click()
         page.locator("#preview-state").select_option("empty")
@@ -582,7 +719,7 @@ def main():
         page.locator("#open-menu").click()
         assert page.locator(".maincol").evaluate("e=>e.inert")
         page.keyboard.press("Shift+Tab")
-        assert page.locator('#drawer-engagement [data-view="setup"]').evaluate("e=>e===document.activeElement")
+        assert page.locator('#drawer-engagement [data-view="reports"]').evaluate("e=>e===document.activeElement")
         page.keyboard.press("Escape")
         assert not page.locator(".maincol").evaluate("e=>e.inert")
         page.evaluate("showView('setup', false)")

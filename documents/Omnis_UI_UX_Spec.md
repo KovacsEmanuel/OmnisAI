@@ -22,7 +22,7 @@
 
 Adaptări obligatorii:
 
-- Trei suprafețe distincte: **Dashboard central**, **Engagement** și **Settings**, conform separării Home/cockpit/settings din referință. Overview-ul engagementului rezumă findings/taskuri/context și ultima decizie; **Brain stream complet are propriul tab**, nu ocupă jumătate din fiecare dashboard. Fără sidebar permanent; drawer pe mobil păstrează scope-ul și Stop echivalent.
+- Trei suprafețe distincte: **Home / Dashboard central**, **Engagement** și **Settings**. Overview urmează compoziția now-bar → Needs you → metrici → Top findings/Severity → Budget/context. **Brain stream complet are propriul tab**, cu stadiu și evenimente compacte. Fără sidebar permanent; drawer pe mobil păstrează scope-ul și Stop echivalent.
 - Fără brain graph, canvas de noduri sau panouri plutitoare draggable. Brain stream: evenimente și decizii scurte, actor/task, motiv rezumat, rezultat și link către obiect/dovadă. Nu expune chain-of-thought și nu deduce starea runului din conversație.
 - Fără council, jurori sau voturi. Investigator → validator separat → verdict persistent admis de serviciul probatoriu, pe oracle/controale/evidence. Review-ul operatorului este separat: **Accept for report / Hold**, numai după confirmarea tehnică. Candidatul rămâne neconfirmat indiferent de un click; validatorul nu este nici el un vot LLM suficient pentru CONFIRMED.
 - Findings confirmate separate de candidates/inconclusive. Detaliu deschis din listă: impact, severitate motivată, precondiții, reproducere, evidence redactate, controale, decizia validatorului, limite, remediere și retest. Lipsa actuală a dovezilor nu rescrie verdictul istoric.
@@ -48,17 +48,19 @@ Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtim
 ## 1. Anatomia consolei
 
 ```text
-Global: Omnis | Dashboard · Engagement · Settings
+Global: Omnis | Home (Dashboard) · Engagement · Settings
 
 Dashboard
-  overview + creare nouă
-  listă/carduri de engagement + atenție → cazul sursă
+  antet + target/creare nouă
+  Needs your review → metrici globale → pulse → engagement bento
 
 Engagement / Invoice lab
   țintă + run / Pause · Stop
-  Overview · Findings · Brain stream · Map · Investigations · Reports · Setup
-  Overview: findings/taskuri | context/ultima decizie
-  Brain stream: log complet separat, numai pentru acest engagement
+  Overview · Brain stream · Findings · Coverage · Reports
+  Overview: stadiu → Needs you → metrici → findings/severity → buget/context
+  Brain stream: log compact tipizat, cu stadiu și linkuri la obiecte
+  Coverage: matrice/checks și subvedere Endpoints
+  Setup și Candidates: acțiuni secundare în context
 
 Settings
   Providers · Skills · Runtime & data
@@ -84,8 +86,8 @@ Topbar menține numele engagementului, run state și sync state. Stop rămâne a
 | `/engagements` — Dashboard / home | Overview global: creare engagement, listă/carduri și atenție legată de cazul sursă | Deschide engagementul; fără findings/detail/stream complet sau taburi de țintă globale |
 | `/engagements/new` | Wizard cu pași verticali și form central | Rezumat sticky desktop; Save draft permanent, Next/Back; nimic nu pornește |
 | `/engagements/:id/setup` | Revizie/draft, scope și context | Edit numai oprit; active → motiv + link Stop, fără editare mascată |
-| `/engagements/:id/overview` | Atenție compactă, rezumat findings/taskuri, context și ultima decizie | Deschide obiectul sau tabul lui; nu înghesuie întreg streamul aici |
-| `/engagements/:id/stream` | Brain stream: actor/cursor/motiv/rezultat/link și filtru | Contextul acestui engagement; fără graph/council sau control global de modele |
+| `/engagements/:id/overview` | Now-bar/stadiu, aprobări, metrici, Top findings, Severity, Budget și context | Review finding/operator sau acțiune exactă; streamul rămâne separat |
+| `/engagements/:id/stream` | Stadiu + evenimente compacte tipizate, timestamp/actor/sumar/link; filtre de tip și actor | Tool called/result, decizie, endpoint, validare; fără graph/council/deliberări interne |
 | `/engagements/:id/map?tab=surfaces` | Tree host/path, tabel metodă/path/auth/sursă/stare | Operație selectată: params, observations, request/response, related |
 | `/engagements/:id/map?tab=coverage` | Matrice suprafață × identitate × familie, filtre | Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile |
 | `/engagements/:id/investigations` | Tabel/queue taskuri cu ipoteză, rol, skill, attempt, blocaj/verdict | Timeline investigator→validator; reason, budget, results și stop task dacă suportat |
@@ -130,7 +132,7 @@ Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill dige
 
 Listă implicită numai CONFIRMED. Candidates/REJECTED/INCONCLUSIVE rămân în Investigations și pot fi deschise explicit. Finding detail: impact demonstrat, severitate motivată, precondiții, pași, evidence, limite, remediere. Confidence nu este severity.
 
-**Compoziția de review:** rând expandabil cu severitate, titlu, metodă/rută, identificator, investigator → validator și verdict. Nu există Confirm/Dismiss/vot în listă. La expandare: context run/scope/identity/epoch/regulă, apoi impact + reproducere + baseline/replay/control în coloana principală, cu decizia validatorului și verificările oracle într-un panou distinct. Sub 1024px panourile se stivuiesc; verdictul rămâne disponibil înaintea detaliilor lungi. Linkul din Brain stream deschide findingul, nu o listă fără selecție.
+**Compoziția de review:** listă comună în double-bezel, filtre-pill și rânduri cu severity pill, titlu/metodă/rută, investigator → validator, verdict/review și chevron. Dropdown inline: context și ID, Summary/Risk în două coloane, PoC, pași numerotați, evidence baseline/replay/control, cardul validatorului, apoi Accept for report/Hold când este necesar și remediere/limite. Sub 760px coloanele se stivuiesc. Linkul din stream deschide findingul exact; nu există vot/council sau confirmare manuală a candidatului.
 
 Disponibilitatea **actuală** a evidence este separată de completitudinea **la momentul verdictului**. În prototip, selectorul DEMO AVAILABLE/MISSING/TRUNCATED/CORRUPT/DELETED din panoul pliant **Finding demo controls** ascunde transcripturile indisponibile și dezactivează preview-ul cerințelor de replay, dar nu rescrie verdictul istoric. Statusul de disponibilitate rămâne vizibil în detaliu, în afara panoului de simulare. Textele/transcripturile sunt sintetice, nu output al unui executor. Produsul nu va avea acest selector de scenarii: starea vine din API.
 
@@ -170,7 +172,7 @@ Editorul de skill este form text/file tree controlat, nu filesystem browser. Pub
 
 ## 7. Contract frontend și acceptance checklist
 
-Componente comune: AppShell, RunControls, StatusLabel, EmptyState, ErrorPanel, DataTable, ScopeEditor, IdentitySelector, PreflightChecklist, ApprovalDetail, EvidenceViewer, CoverageMatrix și SkillReleasePanel. Radix acoperă dialog/tabs/menu; nu înlocuim elementele native utile. Nu adăugăm bibliotecă mare de charts sau IDE editor înaintea unei nevoi.
+Componente comune propuse: AppShell, RunControls, PhaseBanner, MetricPill, SeverityDistribution, BudgetPanel, AttentionQueue, FindingDisclosure, ReportReview, StatusLabel, EmptyState, ErrorPanel, DataTable, ScopeEditor, IdentitySelector, PreflightChecklist, ApprovalDetail, EvidenceViewer, CoverageMatrix și SkillReleasePanel. Radix acoperă dialog/tabs/menu; nu înlocuim elementele native utile. Nu adăugăm bibliotecă mare de charts sau IDE editor înaintea unei nevoi.
 
 Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sau cheia seifului. Target evidence este text escapate, nu `dangerouslySetInnerHTML`. Schema API generată, erorile tipizate și entity revision alimentează UI; nu inferăm starea runului din streamul conversației.
 

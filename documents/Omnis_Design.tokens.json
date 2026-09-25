@@ -14,17 +14,6 @@
         "hex": "#c7baa7"
       }
     },
-    "primaryInk": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [
-          0.067,
-          0.071,
-          0.063
-        ],
-        "hex": "#111210"
-      }
-    },
     "secondary": {
       "$value": {
         "colorSpace": "srgb",
@@ -282,7 +271,7 @@
           "value": 1.75,
           "unit": "rem"
         },
-        "fontWeight": 600,
+        "fontWeight": 500,
         "letterSpacing": {
           "value": -0.02,
           "unit": "em"
@@ -297,7 +286,7 @@
           "value": 1.25,
           "unit": "rem"
         },
-        "fontWeight": 600
+        "fontWeight": 500
       }
     },
     "body-md": {
@@ -305,8 +294,8 @@
       "$value": {
         "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
         "fontSize": {
-          "value": 0.875,
-          "unit": "rem"
+          "value": 14.5,
+          "unit": "px"
         },
         "fontWeight": 400
       }
@@ -331,6 +320,51 @@
           "unit": "rem"
         },
         "fontWeight": 400
+      }
+    },
+    "display": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 60,
+          "unit": "px"
+        },
+        "fontWeight": 600,
+        "letterSpacing": {
+          "value": -0.04,
+          "unit": "em"
+        }
+      }
+    },
+    "engagement-title": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 40,
+          "unit": "px"
+        },
+        "fontWeight": 500,
+        "letterSpacing": {
+          "value": -0.035,
+          "unit": "em"
+        }
+      }
+    },
+    "metric": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Geist, Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 36,
+          "unit": "px"
+        },
+        "fontWeight": 500,
+        "letterSpacing": {
+          "value": -0.035,
+          "unit": "em"
+        }
       }
     }
   }

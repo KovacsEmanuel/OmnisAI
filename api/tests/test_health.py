@@ -1,0 +1,18 @@
+import pytest
+from httpx import ASGITransport, AsyncClient
+
+from omnis.api import create_app
+
+
+@pytest.mark.asyncio
+async def test_live_reports_the_process_without_a_database(monkeypatch):
+    monkeypatch.delenv("OMNIS_DATABASE_URL", raising=False)
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/live")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "live"}

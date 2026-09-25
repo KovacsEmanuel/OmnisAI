@@ -3,11 +3,13 @@
   "skills": [
     {
       "name": "omnis-accessibility",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-accessibility/SKILL.md",
-      "sha256": "e6463b33677acd7cd44a67821d7bd1d55f6b38413bf1f598c52293ec19a5a785",
+      "sha256": "726e0841b8257fb43ba442deb68c47a1b31bab0903c1a21570d7314389ea91c9",
       "native_read": true,
-      "scanner_verdict": "safe"
+      "scanner_verdict": "safe",
+      "checked_at_utc": "2026-09-25T16:25:49.909254+00:00",
+      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
     },
     {
       "name": "omnis-anti-slop",
@@ -43,12 +45,13 @@
     },
     {
       "name": "omnis-frontend",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "path": ".hermes/skills/omnis-frontend/SKILL.md",
-      "sha256": "66206e8e105294dd7e80804309a7162089731585d7cc754d3d74a72c6784cb6a",
+      "sha256": "53d53d544bbb2a29259e332223f3b0c3b8cce73cf7fa4151c34a0727763424a5",
       "native_read": true,
       "scanner_verdict": "safe",
-      "verification_note": "Revision 0.1.1 reloaded through native skill_view and rescanned with installed skills_guard after layout commits 22b0346/b5808e3; zero findings. Other entries retain their stated verification snapshots."
+      "checked_at_utc": "2026-09-25T16:25:49.878043+00:00",
+      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
     },
     {
       "name": "omnis-frontend-performance",
@@ -84,12 +87,13 @@
     },
     {
       "name": "omnis-review-qa",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "path": ".hermes/skills/omnis-review-qa/SKILL.md",
-      "sha256": "0bc28bc9768c748a5ff29fb8e784d48278daf96429369dc123c3d67ed33f2b2e",
+      "sha256": "19e75faa3f1e30e0f6b9170e13f4dec7ac2ad9582a8612f27c626cf42388e838",
       "native_read": true,
       "scanner_verdict": "safe",
-      "verification_note": "Revision 0.1.2 reloaded through native skill_view and rescanned with installed skills_guard after UI commits 5cae5d4/3a3d3ba; zero findings. Other entries retain the checked_at_utc snapshot."
+      "checked_at_utc": "2026-09-25T16:25:49.886162+00:00",
+      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
     },
     {
       "name": "omnis-safety-evaluation",

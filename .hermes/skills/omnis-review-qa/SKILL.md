@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -26,7 +26,7 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 8. Parent reproduces critical assertions and commits the accepted slice. Record exact commands, counts, exit codes, limitations and base/head; final reporting distinguishes implementation, integration and visual acceptance.
 
 ## Pitfalls
-No universal 'verified' badge. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
+No universal 'verified' badge. Verify the verifier: match exact structured diagnostic identifiers/severity/source, not a substring in an exception stack; require positive and negative controls on the SAME evidence channel. An arbitrary failure or always-rejecting observer must not pass the negative control. Add a regression for each false-green mechanism before trusting the repaired gate. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

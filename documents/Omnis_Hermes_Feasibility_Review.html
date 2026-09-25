@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Analiză de fezabilitate Omnis + Hermes: integrare web, reutilizare selectivă, fork, arhitectură și criterii de validare.">
+  <meta name="color-scheme" content="light">
+  <title>Omnis × Hermes — concluzii și decizie arhitecturală</title>
+  <style>
+    :root {
+      --paper: #faf9f6; --surface: #fff; --ink: #262923; --muted: #62665c;
+      --line: #dbded4; --accent: #245c44; --tint: #edf3ec; --warm: #f4ede0;
+      --warm-ink: #76501c; --nav: #f0f0e9;
+      --sans: "Segoe UI", "Liberation Sans", Arial, sans-serif;
+      --serif: Georgia, "Liberation Serif", "Times New Roman", serif;
+      --mono: "Liberation Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: 28px; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.7 var(--sans); }
+    a { color: var(--accent); text-underline-offset: 4px; overflow-wrap: anywhere; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .skip { position: fixed; top: -100px; left: 20px; background: white; padding: 12px 20px; z-index: 10; }
+    .skip:focus { top: 12px; }
+    .sidebar { position: fixed; width: 250px; height: 100vh; height: 100dvh; overflow-y: auto; padding: 36px 24px; border-right: 1px solid var(--line); background: var(--nav); }
+    .wordmark { font: 700 25px/1 var(--sans); letter-spacing: .15em; margin: 0; }
+    .sidebar .subtitle { margin: 12px 0 32px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .nav-label, .eyebrow, .section-label { font: 600 12px/1.5 var(--sans); letter-spacing: .13em; text-transform: uppercase; }
+    .nav-label { color: var(--muted); }
+    nav ol { list-style: none; padding: 0; margin: 12px 0 32px; }
+    nav a { display: flex; gap: 12px; align-items: center; min-height: 44px; margin: 2px -10px; padding: 8px 10px; border-radius: 5px; text-decoration: none; color: var(--ink); font-size: 14px; line-height: 1.4; }
+    nav a:hover { background: #e2e7dc; }
+    nav .num { font: 12px var(--mono); color: var(--muted); }
+    .sidebar-note { font-size: 13px; line-height: 1.6; color: var(--muted); padding-top: 20px; border-top: 1px solid var(--line); }
+    .sidebar-note strong { color: var(--accent); }
+    .page { margin-left: 250px; padding: 46px clamp(28px, 5vw, 86px) 72px; }
+    main { max-width: 1030px; margin: auto; }
+    .topline { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 13px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .status { color: var(--warm-ink); background: var(--warm); padding: 5px 10px; border-radius: 4px; font-weight: 600; }
+    header { padding: 54px 0 30px; }
+    .eyebrow { color: var(--accent); margin: 0 0 20px; }
+    h1 { font: 400 clamp(38px, 4.4vw, 65px)/1.08 var(--serif); letter-spacing: -.035em; max-width: 850px; margin: 0 0 24px; text-wrap: balance; }
+    h1 em { color: var(--accent); font-style: normal; }
+    .lead { font-size: 20px; line-height: 1.6; max-width: 780px; color: #4f5749; margin: 0; }
+    .verdict { margin: 28px 0 0; padding: 30px 34px; background: var(--tint); border: 1px solid #cedccb; border-radius: 8px; }
+    .verdict .section-label { color: var(--accent); margin: 0 0 10px; }
+    .verdict p { margin: 0; font-size: 21px; line-height: 1.6; }
+    .verdict .qualification { margin-top: 15px; font-size: 15px; color: var(--muted); }
+    section { padding-top: 52px; margin-top: 30px; border-top: 1px solid var(--line); scroll-margin-top: 24px; }
+    section:target > .section-label { text-decoration: underline; text-underline-offset: 5px; }
+    .section-label { color: var(--muted); margin: 0 0 12px; }
+    h2 { font: 400 clamp(29px, 3vw, 39px)/1.2 var(--serif); letter-spacing: -.025em; margin: 0 0 24px; text-wrap: balance; }
+    h3 { font-size: 20px; line-height: 1.35; margin: 30px 0 12px; }
+    p { margin: 0 0 18px; }
+    li { padding-left: 3px; margin: 7px 0; }
+    ul, ol { padding-left: 24px; }
+    .prose { max-width: 78ch; }
+    .fine { font-size: 14px; color: var(--muted); }
+    code { font-family: var(--mono); font-size: .84em; overflow-wrap: anywhere; background: #eeeee7; padding: .13em .3em; border-radius: 3px; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 24px 0; }
+    .split > div { min-width: 0; }
+    .split h3 { margin-top: 0; }
+    .note { background: var(--warm); color: #604b2a; padding: 20px 24px; border-radius: 6px; margin: 24px 0; }
+    .note p:last-child { margin-bottom: 0; }
+    .table-wrap { margin: 25px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.55; }
+    caption { text-align: left; padding: 17px 20px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); }
+    th, td { text-align: left; vertical-align: top; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+    thead th { font-weight: 600; background: #f0f1eb; }
+    tbody th { font-weight: 600; width: 23%; }
+    tbody tr:last-child > * { border-bottom: 0; }
+    .preferred { background: #edf3ec; }
+    .table-label { display: block; margin-top: 5px; font-size: 12px; color: var(--accent); font-weight: 600; }
+    .option { display: grid; grid-template-columns: 44px 1fr; gap: 18px; padding: 25px 0; border-bottom: 1px solid var(--line); }
+    .option:last-child { border-bottom: 0; }
+    .option-index { font: 24px/1.4 var(--serif); color: var(--muted); }
+    .option h3 { margin: 0 0 12px; }
+    .option p:last-child { margin-bottom: 0; }
+    .recommended-word { color: var(--accent); font-size: 13px; white-space: nowrap; }
+    blockquote { margin: 25px 0; padding: 23px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font: 400 25px/1.5 var(--serif); }
+    figure { margin: 28px 0; }
+    .diagram { border-radius: 8px; background: #0c1721; overflow: hidden; }
+    .diagram svg { width: 100%; height: auto; display: block; }
+    figcaption { margin-top: 14px; font-size: 14px; color: var(--muted); }
+    .diagram-mobile { display: none; }
+    .responsibility { margin-top: 24px; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .responsibility p { margin: 7px 0; }
+    .numbered { list-style: none; counter-reset: choices; padding: 0; margin: 22px 0; }
+    .numbered li { counter-increment: choices; padding: 20px 0 20px 47px; margin: 0; position: relative; border-bottom: 1px solid var(--line); }
+    .numbered li:last-child { border-bottom: 0; }
+    .numbered li::before { content: counter(choices, decimal-leading-zero); position: absolute; left: 0; top: 25px; font: 13px var(--mono); color: var(--accent); }
+    .numbered strong { display: block; font-size: 18px; margin-bottom: 7px; }
+    .decision-path { list-style: none; padding: 0; margin: 24px 0; }
+    .decision-path li { display: grid; grid-template-columns: minmax(180px, 1fr) 28px 1fr; gap: 14px; padding: 19px 0; margin: 0; border-bottom: 1px solid var(--line); align-items: start; }
+    .decision-path .arrow { color: var(--accent); }
+    .closing { padding: 28px 30px; background: #263d31; color: #f8faf5; border-radius: 7px; margin: 30px 0; }
+    .closing h3 { margin: 0 0 14px; font: 400 28px/1.3 var(--serif); }
+    .closing p { margin: 0; }
+    details { margin: 20px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+    summary { cursor: pointer; padding: 16px 20px; min-height: 52px; font-weight: 600; }
+    details[open] summary { border-bottom: 1px solid var(--line); }
+    .details-body { padding: 22px 24px; }
+    .details-body p:last-child { margin-bottom: 0; }
+    .source-list { list-style: none; padding: 0; font-size: 15px; }
+    .source-list li { padding: 13px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+    .source-list span { display: block; font-size: 13px; color: var(--muted); }
+    .cite { font-size: .8em; vertical-align: super; text-decoration: none; margin-left: 3px; white-space: nowrap; }
+    footer { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; margin-top: 50px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .mobile-overview { display: none; }
+    @media (min-width: 1650px) { .page { padding-left: 100px; padding-right: 100px; } }
+    @media (max-width: 1100px) {
+      .sidebar { width: 212px; padding: 28px 20px; }
+      .page { margin-left: 212px; padding: 30px 32px 60px; }
+      th, td { padding: 14px 12px; }
+    }
+    @media (max-width: 800px) {
+      .sidebar { display: none; }
+      .page { margin: 0; padding: 24px 24px 48px; }
+      .mobile-overview { display: block; }
+      .mobile-overview nav ol { display: grid; grid-template-columns: 1fr 1fr; margin: 0; gap: 0 18px; }
+      .mobile-overview nav { padding: 12px 20px; }
+      .mobile-overview nav a { margin: 2px 0; }
+      .mobile-overview nav li { padding-left: 0; }
+      header { padding-top: 35px; }
+      .lead { font-size: 18px; }
+      .verdict { padding: 23px; }
+      .verdict p { font-size: 19px; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .page { padding: 20px 18px 40px; }
+      section { padding-top: 32px; margin-top: 28px; }
+      .split { grid-template-columns: 1fr; gap: 8px; }
+      .diagram { display: none; }
+      .diagram-mobile { display: block; background: #0c1721; color: #e5eee8; border-radius: 7px; padding: 23px 24px 23px 46px; }
+      .diagram-mobile li { margin: 0; padding: 12px 0 12px 6px; }
+      .diagram-mobile strong { display: block; }
+      .diagram-mobile small { color: #b7c7bd; }
+      .diagram-mobile li::marker { color: #9ad8b4; }
+      .option { grid-template-columns: 26px 1fr; gap: 12px; }
+      .table-wrap { overflow: visible; }
+      .responsive-table, .responsive-table tbody, .responsive-table tr { display: block; }
+      .responsive-table caption { display: block; }
+      .responsive-table thead { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
+      .responsive-table tbody th { display: block; width: auto; padding: 14px 16px; background: #f0f1eb; border-bottom: 0; }
+      .responsive-table tbody td { display: block; padding: 12px 16px; border-bottom: 0; }
+      .responsive-table tbody td::before { content: attr(data-label); display: block; font-weight: 600; font-size: 13px; margin-bottom: 5px; color: var(--muted); }
+      .responsive-table tbody tr { border-bottom: 1px solid var(--line); }
+      .responsive-table tbody tr:last-child { border-bottom: 0; }
+      .decision-path li { grid-template-columns: 1fr; gap: 4px; }
+      .decision-path .arrow { display: none; }
+      .decision-path strong::before { content: "Atunci: "; font-weight: 400; }
+      .details-body { padding: 19px 17px; }
+      .closing { padding: 24px; }
+      .mobile-overview nav ol { grid-template-columns: 1fr; }
+    }
+    @media print {
+      @page { size: A4; margin: 17mm; }
+      body { background: white; color: #111; font-size: 12pt; line-height: 1.5; }
+      .sidebar, .mobile-overview, .skip, .print-hint, .back-top { display: none !important; }
+      .page { margin: 0; padding: 0; }
+      main { max-width: none; }
+      header { padding: 24px 0 12px; }
+      h1 { font-size: 32pt; }
+      h2 { font-size: 23pt; }
+      h3 { font-size: 14pt; }
+      .lead, .verdict p { font-size: 14pt; }
+      section { padding-top: 20px; margin-top: 24px; }
+      h2, h3, .section-label, summary { break-after: avoid; }
+      tr, .option, figure, .closing { break-inside: avoid; }
+      p, li { orphans: 3; widows: 3; }
+      .diagram { display: block; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .diagram-mobile { display: none; }
+      table, .fine, .source-list, .source-list span, figcaption, footer, .topline { font-size: 12pt; }
+      .table-wrap { overflow: visible; }
+      details > .details-body { display: block !important; }
+      details::details-content { content-visibility: visible; }
+      summary { list-style: none; }
+      .verdict, .closing { color: #111; background: #f2f5ef; border: 1px solid #bbb; }
+      a { color: #1c4a36; }
+      .source-list a::after { content: " — " attr(href); font-size: 10pt; overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#continut">Sari la document</a>
+  <aside class="sidebar" aria-label="Cuprinsul documentului">
+    <p class="wordmark">OMNIS</p>
+    <p class="subtitle">Memoriu de decizie<br>Integrarea motorului Hermes</p>
+    <p class="nav-label">Cuprins</p>
+    <nav aria-label="Navigare principală"><ol>
+      <li><a href="#verdict"><span class="num">01</span> Verdictul</a></li>
+      <li><a href="#fezabilitate"><span class="num">02</span> Ce este confirmat</a></li>
+      <li><a href="#variante"><span class="num">03</span> Cele trei variante</a></li>
+      <li><a href="#reutilizare"><span class="num">04</span> Ce reutilizăm</a></li>
+      <li><a href="#arhitectura"><span class="num">05</span> Arhitectura propusă</a></li>
+      <li><a href="#limite"><span class="num">06</span> Limitele reale</a></li>
+      <li><a href="#ajustari"><span class="num">07</span> Ce simplificăm</a></li>
+      <li><a href="#validare"><span class="num">08</span> Proba decisivă</a></li>
+      <li><a href="#surse"><span class="num">09</span> Dovezi și surse</a></li>
+    </ol></nav>
+    <div class="sidebar-note"><strong>Analiză, nu implementare.</strong><br>Recomandare pentru discuție. Siguranța și compatibilitatea operațională rămân de demonstrat.</div>
+    <p class="sidebar-note print-hint">Document offline<br>Tipărire / PDF: <kbd>Ctrl + P</kbd></p>
+  </aside>
+
+  <div class="page"><main id="continut">
+    <div class="topline"><span>Omnis × Hermes / Analiză tehnică</span><span class="status">Propunere pentru discuție</span></div>
+    <header id="verdict">
+      <p class="eyebrow">01 / Concluzia principală</p>
+      <h1>Omnis deține produsul.<br><em>Hermes furnizează motorul.</em></h1>
+      <p class="lead">O platformă de pentest AI, controlată din web, este fezabilă. Calea recomandată este reutilizarea Hermes fără a transforma Omnis într-un fork masiv al unui asistent generalist.</p>
+      <div class="verdict">
+        <p class="section-label">Recomandare</p>
+        <p><strong>Omnis separat + adaptor Hermes + plugin restrâns + execuție izolată.</strong> Păstrăm posibilitatea unui patch punctual sau a înlocuirii motorului, dacă experimentul arată blocaje reale.</p>
+        <p class="qualification">Nu începem cu transplantarea autentificării, rebrandingul întregului Hermes sau un framework universal de agenți. Începem cu o singură investigație controlată, demonstrabilă cap-coadă.</p>
+      </div>
+    </header>
+
+    <details class="mobile-overview"><summary>Cuprinsul documentului</summary><nav aria-label="Navigare pe ecrane mici"><ol>
+      <li><a href="#verdict">01 · Verdictul</a></li><li><a href="#fezabilitate">02 · Ce este confirmat</a></li>
+      <li><a href="#variante">03 · Cele trei variante</a></li><li><a href="#reutilizare">04 · Ce reutilizăm</a></li>
+      <li><a href="#arhitectura">05 · Arhitectura</a></li><li><a href="#limite">06 · Limitele reale</a></li>
+      <li><a href="#ajustari">07 · Ce simplificăm</a></li><li><a href="#validare">08 · Proba decisivă</a></li>
+      <li><a href="#surse">09 · Dovezi și surse</a></li>
+    </ol></nav></details>
+
+    <section id="fezabilitate">
+      <p class="section-label">02 / Fapte, nu presupuneri</p>
+      <h2>Integrarea web are o bază reală.</h2>
+      <div class="prose"><p>Analiza s-a bazat pe propunerea Omnis, documentația oficială și inspecția selectivă a codului și testelor Hermes. Versiunea analizată: <strong>0.21.5</strong>, commit <code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code>.</p>
+      <p><strong>Hermes oferă deja HTTP, SSE, JSON-RPC și acces direct la clasa Python <code>AIAgent</code>.</strong> Nu trebuie să controlăm un terminal și să parsăm ieșirea lui pentru a construi o interfață proprie.<a class="cite" href="#s2" aria-label="Sursa 2">[2]</a><a class="cite" href="#s3" aria-label="Sursa 3">[3]</a></p></div>
+      <div class="split">
+        <div><h3>Confirmat în sursă</h3><ul>
+          <li>Sesiuni, pornire de rulări și status.</li><li>Evenimente de progres prin SSE.</li><li>Stop, aprobări și intervenții în rulare.</li><li>Catalog de modele și pluginuri cu tools proprii.</li><li>Interfețe de administrare și anumite fluxuri OAuth web.</li>
+        </ul></div>
+        <div><h3>Încă nedemonstrat pentru Omnis</h3><ul>
+          <li>Funcționarea adaptorului cap-coadă.</li><li>Izolarea a două investigații concurente.</li><li>Blocarea tuturor rutelor în afara scope-ului.</li><li>Oprirea completă și recuperarea după crash.</li><li>Drepturile comerciale pentru fluxurile de abonament.</li>
+        </ul></div>
+      </div>
+      <div class="note"><p><strong>Limită a verificării:</strong> auditul a fost static. Nu s-au pornit servicii, executat teste sau scanări. Existența codului și a testelor nu echivalează cu o integrare Omnis validată.</p></div>
+      <h3>„Totul din web” înseamnă două interfețe</h3>
+      <p><strong>Operarea agentului</strong> — mesaje, rulări, progres și rezultate — este diferită de <strong>administrarea instalării</strong> — provideri, autentificare, configurare, profiluri și skills. Dashboardul Hermes este o suprafață de management a mașinii, nu portalul unui engagement de pentest.<a class="cite" href="#s7" aria-label="Sursa 7">[7]</a></p>
+      <p>În cod există fluxuri OAuth web, dar și intrări care cer un CLI extern. Prin urmare, o experiență Omnis din web este realizabilă, însă <strong>nu toate autentificările tuturor providerilor se transferă automat</strong>.</p>
+    </section>
+
+    <section id="variante">
+      <p class="section-label">03 / Comparația opțiunilor</p>
+      <h2>Integrare, extracție sau fork?</h2>
+      <p>Evaluările de mai jos sunt judecăți arhitecturale. Nu reprezintă estimări măsurate de calendar sau procente de cod reutilizabil.</p>
+      <div class="table-wrap"><table class="responsive-table">
+        <caption>Aceleași criterii pentru fiecare variantă</caption>
+        <thead><tr><th scope="col">Criteriu</th><th scope="col" class="preferred">Web + Hermes separat<span class="table-label">Recomandarea inițială</span></th><th scope="col">Extracție selectivă</th><th scope="col">Fork masiv</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Primul flux funcțional</th><td class="preferred" data-label="Web + Hermes">Cea mai scurtă cale probabilă</td><td data-label="Extracție">Rapid doar pentru module mici și independente</td><td data-label="Fork masiv">Rapid pentru rebranding, nu neapărat pentru pentest</td></tr>
+          <tr><th scope="row">Cuplare</th><td class="preferred" data-label="Web + Hermes">API, pluginuri și comportamentele lor</td><td data-label="Extracție">Codul copiat și dependențele lui</td><td data-label="Fork masiv">Întreaga arhitectură moștenită</td></tr>
+          <tr><th scope="row">Control intern</th><td class="preferred" data-label="Web + Hermes">Limitat de extensii; extindere punctuală posibilă</td><td data-label="Extracție">Ridicat asupra părții extrase</td><td data-label="Fork masiv">Ridicat, cu responsabilitate integrală</td></tr>
+          <tr><th scope="row">Izolare multi-user</th><td class="preferred" data-label="Web + Hermes">De construit în Omnis și infrastructură</td><td data-label="Extracție">De construit</td><td data-label="Fork masiv">Tot de construit; fork-ul nu o oferă automat</td></tr>
+          <tr><th scope="row">Actualizări upstream</th><td class="preferred" data-label="Web + Hermes">Relativ accesibile, cu teste de compatibilitate</td><td data-label="Extracție">Portare manuală a remedierilor relevante</td><td data-label="Fork masiv">Conflicte crescânde pe măsură ce divergăm</td></tr>
+          <tr><th scope="row">Testare proprie</th><td class="preferred" data-label="Web + Hermes">Contractul adaptorului și produsul</td><td data-label="Extracție">Module, integrare și runtime propriu</td><td data-label="Fork masiv">Regresii în întregul produs derivat</td></tr>
+          <tr><th scope="row">Licențiere</th><td class="preferred" data-label="Web + Hermes">Componentele efectiv distribuite</td><td data-label="Extracție">Proveniență pentru fiecare componentă preluată</td><td data-label="Fork masiv">Obligațiile întregului pachet distribuit</td></tr>
+          <tr><th scope="row">Migrare ulterioară</th><td class="preferred" data-label="Web + Hermes">Gestionabilă dacă domeniul Omnis rămâne separat</td><td data-label="Extracție">Depinde de limitele modulelor</td><td data-label="Fork masiv">Mai grea dacă Omnis se amestecă în nucleu</td></tr>
+        </tbody>
+      </table></div>
+      <article class="option"><span class="option-index" aria-hidden="true">1.</span><div><h3>Web Omnis peste un motor Hermes separat <span class="recommended-word">/ Recomandat</span></h3><p>Reutilizăm bucla agentului, modelele, skill-urile și mecanismele utile de sesiune. Omnis construiește engagementurile, autorizarea, investigațiile, dovezile și raportarea.</p><p><strong>Nu este doar un wrapper de chat.</strong> Avantajul este că nu întreținem simultan un produs de pentest și o copie completă a infrastructurii generaliste de agent.</p></div></article>
+      <article class="option"><span class="option-index" aria-hidden="true">2.</span><div><h3>Extracție selectivă / Utilă, cu limite clare</h3><p>Copierea codului open-source nu este greșită. Presupunerea că un fișier mic este o componentă autonomă este problema. Pluginul Codex declară în esență providerul, tipul API și endpointul; nu conține întreaga autentificare sau execuție.</p><p>Contractul <code>ProviderProfile</code> spune explicit că nu deține construirea clientului, rotația credențialelor sau streamingul. Acestea atrag alte subsisteme.</p></div></article>
+      <article class="option"><span class="option-index" aria-hidden="true">3.</span><div><h3>Fork masiv / Doar dacă vrem aproape întregul Hermes</h3><p>Are sens pentru un produs care păstrează în mare parte experiența Hermes, dar o specializează. Este mai puțin potrivit când vrem o platformă de pentest care folosește numai anumite capabilități Hermes.</p><p><strong>Un fork minimal este acceptabil.</strong> Dacă lipsește un hook necesar, un patch mic și testat poate fi pragmatic. Problema este divergența masivă, nu simpla existență a unui fork.</p></div></article>
+    </section>
+
+    <section id="reutilizare">
+      <p class="section-label">04 / Reutilizare fără transplant inutil</p>
+      <h2>Ce păstrăm și ce construim noi.</h2>
+      <div class="table-wrap"><table class="responsive-table">
+        <thead><tr><th scope="col">Componentă</th><th scope="col">Alegerea inițială</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Provideri și modele</th><td data-label="Alegere">Rutare prin Hermes; Omnis stabilește modelele permise și bugetele.</td></tr>
+          <tr><th scope="row">OAuth și refresh</th><td data-label="Alegere">Un singur gestionar al ciclului de viață al credențialelor; fără copii independente ale aceluiași grant.</td></tr>
+          <tr><th scope="row">Skill-uri</th><td data-label="Alegere">Format și conținut revizuit. Loaderul rămâne în runtime; metodologia se adaptează la tools Omnis.</td></tr>
+          <tr><th scope="row">Subagenți</th><td data-label="Alegere">Sarcini scurte de raționament, nu sursa de adevăr a campaniei.</td></tr>
+          <tr><th scope="row">Profiluri</th><td data-label="Alegere">Configurații de runtime, nu utilizatori sau granițe de tenant Omnis.</td></tr>
+          <tr><th scope="row">Sesiuni</th><td data-label="Alegere">Hermes pentru conversație; Omnis pentru starea investigației.</td></tr>
+          <tr><th scope="row">UI și branding</th><td data-label="Alegere">Frontend Omnis propriu. Nu este necesară preluarea UI/TUI Hermes.</td></tr>
+          <tr><th scope="row">Scope, dovezi, findings</th><td data-label="Alegere"><strong>Responsabilitate Omnis.</strong> Autorizare, audit, validare și raportare.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Autentificarea nu este un loc bun pentru copy-paste superficial</h3>
+      <p>Refresh-ul Codex folosește o tranzacție care acoperă recitirea, refresh-ul și persistarea tokenurilor. Aceasta evită folosirea concurentă a tokenurilor deja rotite. Nu aș face din Omnis și Hermes doi gestionari independenți ai aceleiași autentificări.</p>
+      <h3>Skill-urile sunt mai portabile decât infrastructura lor</h3>
+      <p>Un <code>SKILL.md</code> poate presupune anumite tools, scripturi, căi, programe și credențiale. Aș reutiliza metodologia și aș adapta interfețele; nu aș importa întregul catalog cu libertatea de a instala orice dependență cerută.</p>
+      <h3>Licența codului și dreptul de acces la servicii sunt lucruri diferite</h3>
+      <p>Licența principală verificată este <strong>MIT</strong>, cu păstrarea notificărilor relevante. Există și componente cu alte atribuiri și licențe, inclusiv cod Apache-2.0 în pluginul <code>security-guidance</code>. Nu a fost făcut un audit complet al dependențelor și asset-urilor.</p>
+      <p>Hermes documentează autentificare prin anumite abonamente, dar condițiile diferă între provideri. Funcționarea tehnică în Hermes nu demonstrează dreptul de redistribuire a accesului sau utilizare într-un SaaS multi-user.<a class="cite" href="#s5" aria-label="Sursa 5">[5]</a></p>
+      <details><summary>Alternativă pentru mai târziu: doar inferența prin proxy</summary><div class="details-body"><p>Există un <strong>subscription proxy</strong>, diferit de API-ul agentului. Poate fi relevant dacă Omnis ajunge să aibă propria buclă de agent și are nevoie numai de acces la model. Proxy-ul nu aduce skills, memorie sau execuția uneltelor și nu presupunem că suportă orice provider. Nu trebuie expus direct unui public neautentificat.<a class="cite" href="#s9" aria-label="Sursa 9">[9]</a></p></div></details>
+    </section>
+
+    <section id="arhitectura">
+      <p class="section-label">05 / Arhitectura recomandată</p>
+      <h2>Motor înlocuibil. Control propriu.</h2>
+      <p>Frontendul vorbește cu Omnis. Hermes rulează separat, cu unelte restrânse. Efectele asupra țintelor trec obligatoriu prin brokerul Omnis, care verifică acțiunea concretă.</p>
+      <figure aria-labelledby="architecture-caption">
+        <div class="diagram">
+          <svg viewBox="0 0 1040 575" role="img" aria-labelledby="diagram-title diagram-desc" xmlns="http://www.w3.org/2000/svg">
+            <title id="diagram-title">Fluxul propus Omnis–Hermes</title>
+            <desc id="diagram-desc">Omnis Web comunică cu backendul Omnis. Backendul deține starea și pornește motorul Hermes restrâns. Acțiunile agentului trec prin brokerul de autorizare Omnis, apoi prin executorul izolat către ținta autorizată. Hermes nu are o rută directă către țintă.</desc>
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#26343e" stroke-width=".5"/></pattern>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#9ab7b5"/></marker>
+              <marker id="safe-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#fb7185"/></marker>
+            </defs>
+            <rect width="1040" height="575" fill="#0c1721"/><rect width="1040" height="575" fill="url(#grid)"/>
+            <g fill="none" stroke="#9ab7b5" stroke-width="2" marker-end="url(#arrow)">
+              <path d="M310 82H374"/><path d="M505 125V165H280V209"/><path d="M810 125V209"/>
+            </g>
+            <g fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#safe-arrow)">
+              <path d="M280 321V389"/><path d="M510 442H599"/><path d="M760 442H834"/>
+            </g>
+            <rect x="31" y="190" width="498" height="151" rx="12" fill="none" stroke="#b4a5d4" stroke-dasharray="6 5"/>
+            <g font-family="'Segoe UI','Liberation Sans',Arial,sans-serif" fill="#edf5f0">
+              <rect x="50" y="40" width="260" height="85" rx="6" fill="#12232e"/><rect x="50" y="40" width="260" height="85" rx="6" fill="#083344" fill-opacity=".4" stroke="#22d3ee" stroke-width="1.5"/>
+              <text x="72" y="76" font-size="23" font-weight="600">Omnis Web</text><text x="72" y="102" font-size="16" fill="#b9ced2">Interfața echipei</text>
+              <rect x="375" y="40" width="610" height="85" rx="6" fill="#12232e"/><rect x="375" y="40" width="610" height="85" rx="6" fill="#064e3b" fill-opacity=".4" stroke="#34d399" stroke-width="1.5"/>
+              <text x="399" y="76" font-size="23" font-weight="600">Omnis Backend + adaptor Hermes</text><text x="399" y="103" font-size="16" fill="#b9ced2">Engagementuri · taskuri · permisiuni · aprobare · audit</text>
+              <rect x="50" y="210" width="460" height="111" rx="6" fill="#12232e"/><rect x="50" y="210" width="460" height="111" rx="6" fill="#1e293b" fill-opacity=".5" stroke="#b4a5d4" stroke-width="1.5"/>
+              <text x="74" y="247" font-size="23" font-weight="600">Runtime Hermes restrâns</text><text x="74" y="276" font-size="16" fill="#c3c8d9">Model · raționament · sesiune · skills</text><text x="74" y="301" font-size="16" fill="#c3c8d9">Tool-uri din pluginul Omnis</text>
+              <rect x="615" y="210" width="370" height="111" rx="6" fill="#12232e"/><rect x="615" y="210" width="370" height="111" rx="6" fill="#4c1d95" fill-opacity=".25" stroke="#a78bfa" stroke-width="1.5"/>
+              <text x="639" y="249" font-size="23" font-weight="600">Stare canonică Omnis</text><text x="639" y="279" font-size="16" fill="#c3c8d9">PostgreSQL + stocare dovezi</text><text x="639" y="302" font-size="16" fill="#c3c8d9">Nu istoricul conversației agentului</text>
+              <text x="302" y="368" font-size="15" fill="#f9b4be">Solicitare, nu permisiune implicită</text>
+              <rect x="50" y="390" width="460" height="105" rx="6" fill="#12232e"/><rect x="50" y="390" width="460" height="105" rx="6" fill="#881337" fill-opacity=".27" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="74" y="429" font-size="23" font-weight="600">Broker de acțiuni Omnis</text><text x="74" y="458" font-size="16" fill="#f3c4ca">Scope · risc · identitate · buget · revocare</text><text x="74" y="481" font-size="16" fill="#f3c4ca">Verificare obligatorie înaintea efectului</text>
+              <rect x="600" y="390" width="160" height="105" rx="6" fill="#12232e"/><rect x="600" y="390" width="160" height="105" rx="6" fill="#064e3b" fill-opacity=".4" stroke="#34d399" stroke-width="1.5"/>
+              <text x="621" y="433" font-size="21" font-weight="600">Executor</text><text x="621" y="463" font-size="16" fill="#b9ced2">Izolat</text>
+              <rect x="835" y="390" width="150" height="105" rx="6" fill="#12232e"/><rect x="835" y="390" width="150" height="105" rx="6" fill="#1e293b" fill-opacity=".5" stroke="#94a3b8" stroke-width="1.5"/>
+              <text x="857" y="433" font-size="21" font-weight="600">Țintă</text><text x="857" y="463" font-size="16" fill="#b9ced2">Autorizată</text>
+              <path d="M51 540H83" stroke="#9ab7b5" stroke-width="2"/><text x="94" y="546" font-size="15" fill="#c4d2d6">Control / stare</text>
+              <path d="M285 540H317" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 5"/><text x="328" y="546" font-size="15" fill="#c4d2d6">Calea controlată a efectelor</text>
+              <text x="676" y="546" font-size="15" fill="#c4d2d6">Fără rută directă Hermes → țintă</text>
+            </g>
+          </svg>
+        </div>
+        <ol class="diagram-mobile">
+          <li><strong>Omnis Web</strong><small>Interfața echipei</small></li>
+          <li><strong>Omnis Backend + adaptor</strong><small>Permisiuni, taskuri și stare în PostgreSQL; dovezi separat</small></li>
+          <li><strong>Runtime Hermes restrâns</strong><small>Raționament, sesiune, skills și tools Omnis</small></li>
+          <li><strong>Broker de acțiuni Omnis</strong><small>Scope, risc, identitate, buget și revocare</small></li>
+          <li><strong>Executor izolat</strong><small>Rețea și efecte controlate</small></li>
+          <li><strong>Țintă autorizată</strong><small>Fără o rută directă din Hermes</small></li>
+        </ol>
+        <figcaption id="architecture-caption">Diagramă conceptuală, nu infrastructură deja implementată. Izolarea și calea obligatorie a efectelor trebuie demonstrate. Accesul runtime-ului la providerii AI se autorizează separat de traficul către ținte.</figcaption>
+      </figure>
+      <div class="prose"><p>Pluginul poate oferi consultarea contextului, solicitarea unei acțiuni HTTP, citirea dovezilor redactate și propunerea de ipoteze. Hermes permite înregistrarea acestor tools fără modificarea nucleului.<a class="cite" href="#s4" aria-label="Sursa 4">[4]</a></p>
+      <p><strong>Pluginul nu este executorul privilegiat.</strong> Brokerul verifică autoritatea asociată rulării, nu un identificator de engagement inventat de model.</p></div>
+      <div class="responsibility"><p><strong>Hermes deține:</strong> model → tool → rezultat → următorul pas.</p><p><strong>Omnis deține:</strong> engagement → task → autorizare → dovezi → validare → raport.</p></div>
+      <h3>Monolit modular, nu microservicii peste tot</h3>
+      <p>Frontend propriu, backend modular, PostgreSQL, stocare de dovezi și runtime/executor separat unde izolarea o cere. Fără Kubernetes, framework universal de agenți sau bază de date de graf separată din prima versiune.</p>
+    </section>
+
+    <section id="limite">
+      <p class="section-label">06 / Limite care schimbă designul</p>
+      <h2>Ce nu trebuie confundat cu o garanție.</h2>
+      <ol class="numbered">
+        <li><strong>O opțiune Python nu este automat un câmp HTTP.</strong><code>AIAgent</code> oferă mai multe opțiuni decât expune calea API obișnuită. Toolseturile provin din configurația profilului/platformei. Adaptorul trebuie construit după contractul efectiv.</li>
+        <li><strong>Un hook nu este singurul firewall de scope.</strong>Middleware-ul poate continua către execuția normală după eroarea unui callback. <code>pre_tool_call</code> poate bloca la excepție sau timeout, dar există și fallback exterior care continuă la eroarea infrastructurii de dispatch. Controalele nu au toate aceeași semantică.<a class="cite" href="#s6" aria-label="Sursa 6">[6]</a></li>
+        <li><strong>Profilul nu este un sandbox.</strong>Hermes are multiplexare și separare software de configurație/secrete. Acestea nu creează automat UID-uri, rețele sau filesystemuri inaccesibile reciproc.</li>
+        <li><strong><code>stopping</code> nu înseamnă „toate efectele au încetat”.</strong>Stop solicită întreruperea și încearcă să curețe procesele asociate. Omnis trebuie să revoce acțiunile noi și să verifice terminarea executorului. O cerere deja ajunsă la țintă nu poate fi anulată retroactiv.</li>
+        <li><strong>Lista configurată nu este întotdeauna inventarul final.</strong>Pluginurile, serverele MCP, rezolvarea toolseturilor și rolurile copiilor pot modifica suprafața disponibilă. Verificăm efectiv uneltele vizibile, inclusiv după upgrade.</li>
+      </ol>
+      <blockquote>Modelul poate propune și adapta. Codul autorizează efectul. Dovezile susțin findingul.</blockquote>
+      <p>Nu atașăm un hook peste un shell nelimitat și declarăm că avem scope enforcement. Verificarea trebuie să existe în calea obligatorie a efectului, completată de restricții OS/rețea.</p>
+    </section>
+
+    <section id="ajustari">
+      <p class="section-label">07 / Critica propunerii existente</p>
+      <h2>Direcția este bună. Prima versiune trebuie restrânsă.</h2>
+      <ol class="numbered">
+        <li><strong>Agentul restrâns înaintea dashboardului bogat.</strong>Întâi demonstrăm că Hermes păstrează raționamentul util când poate produce numai efectele oferite de Omnis. Abia apoi investim în multe pagini și vizualizări.</li>
+        <li><strong>Mai puțini agenți la început.</strong>Coordonator, recon, tester, validator și reporter sunt responsabilități, nu obligatoriu procese distincte. Începem cu un investigator și o etapă separată de validare.</li>
+        <li><strong>O singură sursă de adevăr pentru fiecare tip de stare.</strong>Omnis deține politica și snapshotul rulării; Hermes gestionează mecanica runtime-ului. Nu duplicăm cataloage manuale și mecanisme OAuth care trebuie sincronizate permanent.</li>
+        <li><strong>Izolarea și oprirea intră în primul experiment.</strong>Multi-tenancy complet poate aștepta. Blocarea ieșirii din scope și oprirea efectelor nu pot aștepta până după MVP.</li>
+        <li><strong>Model de date înaintea grafului vizual.</strong>Suprafață → observație → ipoteză → test → dovadă. Un graf frumos nu compensează findings fără suport.</li>
+        <li><strong>Al doilea model oferă o opinie, nu o dovadă.</strong>Validarea folosește controale și rezultate observabile. Unele cazuri de logică de business cer review uman. Rezultatul poate rămâne neconcludent.</li>
+      </ol>
+    </section>
+
+    <section id="validare">
+      <p class="section-label">08 / Fezabilitate demonstrabilă</p>
+      <h2>Un experiment mic trebuie să decidă investiția mare.</h2>
+      <p><strong>Ținta realistă:</strong> un produs intern pentru Web/API autorizat, cu investigații autonome limitate, operare din web și raportare bazată pe dovezi.</p>
+      <p>Nu avem încă suport pentru promisiuni de pentest complet asupra oricărei aplicații, autonomie nelimitată, zero false pozitive, SaaS ostil izolat prin profiluri sau folosirea oricărui abonament pentru oricâți utilizatori.</p>
+      <div class="table-wrap"><table class="responsive-table">
+        <thead><tr><th scope="col">Probă</th><th scope="col">Criteriul de trecere</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Control programatic</th><td data-label="Criteriu">Sesiune, run, progres, rezultat și stop fără parsarea terminalului.</td></tr>
+          <tr><th scope="row">Capabilități restrânse</th><td data-label="Criteriu">Agentul și copiii văd numai uneltele aprobate, inclusiv după rezolvarea pluginurilor/MCP.</td></tr>
+          <tr><th scope="row">Izolare</th><td data-label="Criteriu">Două investigații nu amestecă stare, credențiale sau dovezi.</td></tr>
+          <tr><th scope="row">Scope</th><td data-label="Criteriu">O destinație nepermisă și un redirect către ea sunt blocate tehnic.</td></tr>
+          <tr><th scope="row">Oprire și recovery</th><td data-label="Criteriu">Oprirea revocă acțiunile noi; după crash nu se repetă orbește o acțiune cu rezultat necunoscut.</td></tr>
+          <tr><th scope="row">Valoare reală</th><td data-label="Criteriu">Un caz vulnerabil este demonstrat, iar controlul sigur nu devine finding.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Când schimbăm recomandarea</h3>
+      <ul class="decision-path">
+        <li><span>API-ul și pluginul sunt suficiente</span><span class="arrow" aria-hidden="true">→</span><strong>Păstrăm Hermes separat.</strong></li>
+        <li><span>Lipsește un control punctual</span><span class="arrow" aria-hidden="true">→</span><strong>Adaptor Python în worker sau fork minimal.</strong></li>
+        <li><span>Restrângerea sigură cere modificări în multe subsisteme</span><span class="arrow" aria-hidden="true">→</span><strong>Reevaluăm extracția sau runtime-ul propriu.</strong></li>
+        <li><span>Produsul dorit este aproape integral Hermes specializat</span><span class="arrow" aria-hidden="true">→</span><strong>Fork-ul masiv devine o alegere explicită.</strong></li>
+      </ul>
+      <div class="closing"><h3>Nu alegem între „de la zero” și „copiem tot”.</h3><p>Omnis poate fi un produs integral propriu pentru utilizator, cu Hermes în interior. Păstrăm controlul asupra permisiunilor, efectelor și dovezilor — fără a moșteni toate funcțiile active ale unui asistent generalist.</p></div>
+      <p><strong>Ipoteza inițială recomandată:</strong> o singură organizație, echipă autentificată și ținte Web/API controlate. Decizia care schimbă cel mai mult arhitectura este dacă aceasta este prima versiune sau dacă urmărim SaaS pentru clienți diferiți încă de la început.</p>
+    </section>
+
+    <section id="surse">
+      <p class="section-label">09 / Trasabilitate</p>
+      <h2>Ce susține concluziile.</h2>
+      <p>Documentul reformatează concluziile analizei din conversație. Nu aprobă implementarea și nu înlocuiește un test operațional, un audit complet de securitate sau verificarea contractuală a providerilor.</p>
+      <p>Propunerea citită integral: <a href="Omnis_Hermes_MVP_Architecture_Proposal.md">Omnis_Hermes_MVP_Architecture_Proposal.md</a>.</p>
+      <details><summary>Dovezi din codul inspectat</summary><div class="details-body">
+        <p class="fine">Căi relative la <code>/home/kali/.hermes/hermes-agent</code>, commit <code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code>. Numerele liniilor aparțin acestui snapshot.</p>
+        <ul>
+          <li><code>gateway/platforms/api_server.py:2195</code> — <code>_create_agent</code>: constructorul de pe calea HTTP și toolseturile din configurație.</li>
+          <li><code>gateway/platforms/api_server.py:2334</code> — <code>_handle_model_options</code>: inventarul de modele.</li>
+          <li><code>gateway/platforms/api_server_runs.py:567, 1016, 1072, 1157</code> — pornire, evenimente, aprobări și stop.</li>
+          <li><code>hermes_cli/web_routers/oauth.py:720–739</code> — start OAuth și refuzul fluxurilor care necesită CLI extern.</li>
+          <li><code>providers/base.py:7–9</code> — providerul declarativ nu deține construirea clientului, rotația sau streamingul.</li>
+          <li><code>plugins/model-providers/openai-codex/__init__.py:6–12</code> — declarația providerului Codex.</li>
+          <li><code>hermes_cli/runtime_provider.py:17–35</code> — dependențe către auth, pool, secret scope, configurare și modele.</li>
+          <li><code>hermes_cli/auth_codex.py:483–524</code> — tranzacția de refresh și persistare.</li>
+          <li><code>hermes_cli/middleware.py:161–214</code> — continuare downstream la anumite erori de middleware.</li>
+          <li><code>hermes_cli/plugins_dispatch.py:209–243</code> — blocare la excepție/timeout pentru callbackurile de politică.</li>
+          <li><code>agent/tool_executor.py:663–677</code> — fallback exterior al dispatchului hookului.</li>
+          <li><code>hermes_cli/tools_config.py:576–690</code> — rezolvarea toolseturilor, pluginurilor și MCP.</li>
+          <li><code>tests/gateway/test_api_server_runs.py:1062–1151</code> — teste inspectate, neexecutate, pentru semantica stop/completion.</li>
+          <li><code>LICENSE</code> și <code>plugins/security-guidance/NOTICE</code> — licența principală MIT și atribuirea componentei Apache-2.0.</li>
+        </ul>
+      </div></details>
+      <h3>Documentație oficială</h3>
+      <ul class="source-list">
+        <li id="s2"><a href="https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration">[2] Programmatic Integration</a><span>HTTP, JSON-RPC, ACP și integrarea Python.</span></li>
+        <li id="s3"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server">[3] API Server</a><span>Rulări, sesiuni, SSE, aprobări și stop.</span></li>
+        <li id="s4"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins">[4] Plugins</a><span>Tools și extensii fără modificarea nucleului.</span></li>
+        <li id="s5"><a href="https://hermes-agent.nousresearch.com/docs/integrations/providers">[5] LLM and Model Providers</a><span>Fluxuri tehnice de autentificare și diferențe între provideri; nu verificare contractuală pentru Omnis.</span></li>
+        <li id="s6"><a href="https://hermes-agent.nousresearch.com/docs/developer-guide/middleware">[6] Middleware</a><span>Contractul extensiilor și semantica erorilor.</span></li>
+        <li id="s7"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/web-dashboard">[7] Hermes Web Dashboard</a><span>Administrarea instalării și a profilurilor.</span></li>
+        <li id="s9"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/subscription-proxy">[9] Subscription Proxy</a><span>Inferență prin proxy, distinctă de execuția agentului.</span></li>
+      </ul>
+      <p class="fine">Documentația online poate evolua. Concluziile despre cod sunt legate de commitul inspectat; înainte de implementare, contractele se verifică pe versiunea aleasă.</p>
+    </section>
+    <footer><span>OMNIS / Memoriu de decizie · HTML autonom, fără resurse externe</span><a class="back-top" href="#verdict">Înapoi la concluzie ↑</a></footer>
+  </main></div>
+</body>
+</html>

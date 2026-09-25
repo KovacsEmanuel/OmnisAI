@@ -1,0 +1,343 @@
+{
+  "scope": "REGISTRY_METADATA_ONLY_NOT_INSTALL_BUILD_SECURITY_OR_RUNTIME_CERTIFICATION",
+  "checked_at_utc": "2026-09-25T20:52:30.673507+00:00",
+  "requested": 33,
+  "results": [
+    {
+      "registry": "npm",
+      "group": "frontend_runtime",
+      "name": "react",
+      "selected": "19.3.0",
+      "url": "https://registry.npmjs.org/react/19.3.0",
+      "retrieved_version": "19.3.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_runtime",
+      "name": "react-dom",
+      "selected": "19.3.0",
+      "url": "https://registry.npmjs.org/react-dom/19.3.0",
+      "retrieved_version": "19.3.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_runtime",
+      "name": "react-router",
+      "selected": "8.4.0",
+      "url": "https://registry.npmjs.org/react-router/8.4.0",
+      "retrieved_version": "8.4.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_runtime",
+      "name": "@tanstack/react-query",
+      "selected": "5.103.2",
+      "url": "https://registry.npmjs.org/%40tanstack%2Freact-query/5.103.2",
+      "retrieved_version": "5.103.2",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_runtime",
+      "name": "radix-ui",
+      "selected": "1.6.7",
+      "url": "https://registry.npmjs.org/radix-ui/1.6.7",
+      "retrieved_version": "1.6.7",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "typescript",
+      "selected": "5.9.3",
+      "url": "https://registry.npmjs.org/typescript/5.9.3",
+      "retrieved_version": "5.9.3",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "vite",
+      "selected": "8.3.1",
+      "url": "https://registry.npmjs.org/vite/8.3.1",
+      "retrieved_version": "8.3.1",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "@vitejs/plugin-react",
+      "selected": "6.1.1",
+      "url": "https://registry.npmjs.org/%40vitejs%2Fplugin-react/6.1.1",
+      "retrieved_version": "6.1.1",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "@types/react",
+      "selected": "19.3.0",
+      "url": "https://registry.npmjs.org/%40types%2Freact/19.3.0",
+      "retrieved_version": "19.3.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "@types/react-dom",
+      "selected": "19.3.0",
+      "url": "https://registry.npmjs.org/%40types%2Freact-dom/19.3.0",
+      "retrieved_version": "19.3.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "@types/node",
+      "selected": "24.13.6",
+      "url": "https://registry.npmjs.org/%40types%2Fnode/24.13.6",
+      "retrieved_version": "24.13.6",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_build",
+      "name": "openapi-typescript",
+      "selected": "7.13.0",
+      "url": "https://registry.npmjs.org/openapi-typescript/7.13.0",
+      "retrieved_version": "7.13.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "vitest",
+      "selected": "4.1.11",
+      "url": "https://registry.npmjs.org/vitest/4.1.11",
+      "retrieved_version": "4.1.11",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "@testing-library/react",
+      "selected": "16.3.3",
+      "url": "https://registry.npmjs.org/%40testing-library%2Freact/16.3.3",
+      "retrieved_version": "16.3.3",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "@testing-library/dom",
+      "selected": "10.4.2",
+      "url": "https://registry.npmjs.org/%40testing-library%2Fdom/10.4.2",
+      "retrieved_version": "10.4.2",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "@testing-library/jest-dom",
+      "selected": "7.0.1",
+      "url": "https://registry.npmjs.org/%40testing-library%2Fjest-dom/7.0.1",
+      "retrieved_version": "7.0.1",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "@testing-library/user-event",
+      "selected": "14.6.7",
+      "url": "https://registry.npmjs.org/%40testing-library%2Fuser-event/14.6.7",
+      "retrieved_version": "14.6.7",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "jsdom",
+      "selected": "30.1.1",
+      "url": "https://registry.npmjs.org/jsdom/30.1.1",
+      "retrieved_version": "30.1.1",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "npm",
+      "group": "frontend_tests",
+      "name": "@playwright/test",
+      "selected": "1.63.0",
+      "url": "https://registry.npmjs.org/%40playwright%2Ftest/1.63.0",
+      "retrieved_version": "1.63.0",
+      "published": true,
+      "reported_advisory_ids": null
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "fastapi",
+      "selected": "0.141.1",
+      "url": "https://pypi.org/pypi/fastapi/0.141.1/json",
+      "retrieved_version": "0.141.1",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "pydantic",
+      "selected": "2.13.5",
+      "url": "https://pypi.org/pypi/pydantic/2.13.5/json",
+      "retrieved_version": "2.13.5",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "SQLAlchemy",
+      "selected": "2.0.54",
+      "url": "https://pypi.org/pypi/SQLAlchemy/2.0.54/json",
+      "retrieved_version": "2.0.54",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "alembic",
+      "selected": "1.20.0",
+      "url": "https://pypi.org/pypi/alembic/1.20.0/json",
+      "retrieved_version": "1.20.0",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "uvicorn",
+      "selected": "0.54.0",
+      "url": "https://pypi.org/pypi/uvicorn/0.54.0/json",
+      "retrieved_version": "0.54.0",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "httpx",
+      "selected": "0.28.1",
+      "url": "https://pypi.org/pypi/httpx/0.28.1/json",
+      "retrieved_version": "0.28.1",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "cryptography",
+      "selected": "50.0.1",
+      "url": "https://pypi.org/pypi/cryptography/50.0.1/json",
+      "retrieved_version": "50.0.1",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "psycopg[binary]",
+      "selected": "3.3.6",
+      "url": "https://pypi.org/pypi/psycopg/3.3.6/json",
+      "retrieved_version": "3.3.6",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_runtime",
+      "name": "greenlet",
+      "selected": "3.5.6",
+      "url": "https://pypi.org/pypi/greenlet/3.5.6/json",
+      "retrieved_version": "3.5.6",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_tests",
+      "name": "pytest",
+      "selected": "9.1.1",
+      "url": "https://pypi.org/pypi/pytest/9.1.1/json",
+      "retrieved_version": "9.1.1",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "api_tests",
+      "name": "pytest-asyncio",
+      "selected": "1.4.0",
+      "url": "https://pypi.org/pypi/pytest-asyncio/1.4.0/json",
+      "retrieved_version": "1.4.0",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "parsers_at_recon_gate",
+      "name": "defusedxml",
+      "selected": "0.7.1",
+      "url": "https://pypi.org/pypi/defusedxml/0.7.1/json",
+      "retrieved_version": "0.7.1",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "parsers_at_recon_gate",
+      "name": "PyYAML",
+      "selected": "6.0.3",
+      "url": "https://pypi.org/pypi/PyYAML/6.0.3/json",
+      "retrieved_version": "6.0.3",
+      "published": true,
+      "reported_advisory_ids": []
+    },
+    {
+      "registry": "pypi",
+      "group": "parsers_at_recon_gate",
+      "name": "openapi-spec-validator",
+      "selected": "0.9.0",
+      "url": "https://pypi.org/pypi/openapi-spec-validator/0.9.0/json",
+      "retrieved_version": "0.9.0",
+      "published": true,
+      "reported_advisory_ids": []
+    }
+  ],
+  "limitations": [
+    "Exact direct pins only: npm runtime/build/test and PyPI API/tests/parser entries with explicit versions.",
+    "No install, resolver, transitive advisory audit, image execution, application build or runtime probe was performed.",
+    "npm advisory status was not queried by this metadata check; PyPI reported_advisory_ids is only that registry field.",
+    "The previously rejected proxy and the runtime/network/provider gates remain blocked or unproven."
+  ]
+}

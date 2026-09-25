@@ -132,6 +132,8 @@ Nu înlocuim verificarea actualizărilor cu o promisiune că exact pin = sigur. 
 
 Nu au fost conectate conturi, apelate modele, lansate scanări sau implementată aplicația Omnis. Probele sunt programe mici separate, păstrate ca dovezi/reproduceri sub `documents/verification/`, nu un frontend/backend stub prezentat ca produs.
 
+**Recontrol înainte de implementare:** [preimplementation-pins.json](verification/preimplementation-pins.json) păstrează răspunsurile de metadate pentru cele 33 de pinuri directe web/API/test/parsers verificate: toate versiunile exacte există în registre. Nicio versiune nu a fost schimbată. Acest recontrol nu a reinstalat pachete, nu a auditat transitivele/npm advisories și nu a executat imagini sau produsul; lockurile de produs și recontrolul securității rămân B01a/B01e. Absența unor ID-uri în câmpul PyPI nu este certificat de securitate. Probe și timestamps istorice rămân separate de acest snapshot.
+
 ## 9. Prag de pornire
 
 **GO pentru fundație, web persistent și probe Hermes inerte. NO-GO pentru target effects până la B01e + binding + confinare.** Stackul este suficient de concret pentru implementatori; necunoscutele reale au owner, test și fază blocată, nu sunt ascunse sub „folosim latest și vedem”.

@@ -4,7 +4,7 @@
 
 ## 1. Autoritate și domeniu
 
-Acest document închide alegerile de arhitectură pentru MVP-ul local cerut. [Planul revizuit](Omnis_Implementation_Plan.md) stabilește ordinea și porțile; [stackul](Omnis_Stack_Baseline.md) stabilește versiunile și limitele verificării; [UI/UX](Omnis_UI_UX_Spec.md) și [DESIGN.md](../DESIGN.md) stabilesc interfața. Propunerile Hermes precedente rămân audituri istorice ale contractelor, nu surse concurente de scope. La conflict se aplică acest baseline și planul v2; o abatere se înregistrează printr-un amendament înaintea implementării.
+Acest document închide alegerile de arhitectură pentru MVP-ul local cerut. [Planul revizuit](Omnis_Implementation_Plan.md) stabilește ordinea și porțile; [stackul](Omnis_Stack_Baseline.md) stabilește versiunile și limitele verificării; [UI/UX](Omnis_UI_UX_Spec.md) și [DESIGN.md](../DESIGN.md) stabilesc interfața. Contractele Hermes necesare sunt consolidate în §5; propunerile anterioare se consultă numai în istoricul Git, nu ca specificații concurente. La conflict se aplică acest baseline și planul v2; o abatere se înregistrează printr-un amendament înaintea implementării.
 
 **„Final” înseamnă o bază coerentă, versionată, de pornire, nu integrare deja validată.** P2/P3 au porți explicite de fezabilitate. Nu substituim o probă eșuată cu o promisiune sau cu o reducere tacită a MVP-ului.
 
@@ -96,7 +96,7 @@ Settings și management Hermes au un singur writer; mutațiile provider/model/ca
 
 ## 5. Runtime Hermes și autoritatea copilului
 
-Pinul de cod este `0.21.5` / `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`. Mediu instalat separat, nu copiat cu toate datele din home-ul personal. JSON-RPC stdio este suprafața aleasă pentru sesiuni, întrebări server→client și subagenți; documentația oficială distinge această suprafață de HTTP Runs.[2] Contractele exacte la pin rămân în [auditul de integrare](Omnis_Hermes_Local_MVP_Integration_Proposal.md).
+Pinul de cod este `0.21.5` / `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`. Mediu instalat separat, nu copiat cu toate datele din home-ul personal. JSON-RPC stdio este suprafața aleasă pentru sesiuni, întrebări server→client și subagenți; documentația oficială distinge această suprafață de HTTP Runs.[2] Referința de adaptor de mai jos păstrează contractele utile din auditul static, fără dependență de o propunere veche.
 
 **Un singur runtime activ și un singur store de credentiale AI.** Alegem un home de produs dedicat, cu un singur slot activ de engagement, nu copii de OAuth grants în homes concurente. Supervisorul oprește complet writerii înaintea schimbării engagementului și mută starea de caz (state DB, sessions, logs, caches și derivatele inventariate) într-o arhivă per-engagement nemontată runtime-ului următor; în slot rămân numai provider store/config aprobate și catalogul comun read-only. Restaurarea unui caz mută numai starea lui, cu verificarea ID-ului și cu permisiuni noi, înaintea startupului. Nu relocăm fișiere SQLite/WAL sub procese active și nu folosim symlinkuri către grants pe care un atomic replace le-ar putea rupe.
 
@@ -119,6 +119,54 @@ P2 include: două goaluri identice; batch concurent/retry; falsificarea taskului
 Brain: context/hartă/delte, pregătire task, delegare nativă, vizualizare rezultate. Copil: context îngust, skill native read-only, acțiuni HTTP/browser tipizate, emitere semnal/rezultat. Validator: numai precondiții, probe de replay și control autorizate. Fără tooluri stock de terminal/browser/network, SQL, `eval`, MCP liber, auto-learning global, auto-install, shell preprocessing sau scriere în skill release.
 
 Uneltele nu includ credentiale în schema lor. Read APIs validează engagement/attempt/identity/snapshot la fel de strict ca write APIs. Nu se copiază chain-of-thought în UI; afișăm ipoteze, decizii scurte, motive, acțiuni și dovezi.
+
+### Referință de adaptor la pinul Hermes
+
+Consolidare din auditul static păstrat în Git la `b12e179`, pentru SHA Hermes indicat mai sus. Nu reprezintă o nouă verificare live și nu schimbă porțile H01–H08. Rutele administrative sunt contracte interne care trebuie încapsulate și acoperite de teste de contract în P2; browserul Omnis nu le apelează direct.
+
+**Execuție:** `python -m tui_gateway.entry`, cu interpreterul și mediul runtime-ului Omnis controlat, pe stdio. Nu automatizăm TUI și nu expunem un al doilea proprietar HTTP al aceleiași sesiuni.
+
+| Operație | Metodă RPC | Câmpuri / condiții |
+|---|---|---|
+| Handshake reverse requests | `client.capabilities` | `server_requests: true`, după `gateway.ready` |
+| Creare Brain | `session.create` | `provider`, `model`, `title`, `cwd` controlat, `close_on_disconnect: false` |
+| Tur nou / continuare | `prompt.submit` | `session_id`, `text`; răspuns pierdut → reconciliere, nu retry orb |
+| Stare / istoric | `session.status`, `session.history` | `session_id` |
+| Reatașare / evenimente recente | `session.resume`, `session.events.since` | Pentru events: `session_id`, `last_seen`; nu înlocuiește jurnalul Omnis |
+| Intervenție Brain | `session.steer` | `session_id`, `text` |
+| Copii activi | `subagent.list` | `session_id` al părintelui; nu registru istoric durabil |
+| Intervenție / oprire copil | `subagent.steer`, `subagent.interrupt` | `session_id`, `subagent_id`; steer adaugă `text`; oprirea se verifică ulterior |
+| Oprire sesiune | `session.interrupt` | `session_id`; nu substituie revocarea brokerului |
+
+Păstrăm separat `session_id` RPC și `stored_session_id`. Requesturile server→client primesc răspuns cu același `id`; `approval` folosește `result:{choice:...}`, `request.cancel` retrage întrebarea exactă, iar metodele neimplementate primesc eroare JSON-RPC, nu aprobare implicită. Fără sudo/shell generic. Schema de referință: `apps/shared/src/gateway-contract.openrpc.json`; control copii: `tui_gateway/methods_subagents.py:53–113`.
+
+**Delegare nativă:** `delegate_task` acceptă `tasks[].goal`, `context`, `output_schema`, `images`, `group` și acțiunile `spawn/list/steer/stop` la pinul auditat; nu presupunem selecție arbitrară provider/tools/skills per copil. `role="leaf"` nu este o graniță: adâncimea/configurația decid delegarea imbricată. Pluginul folosește `ctx.register_tool`; numele `omnis_*` din această arhitectură sunt contracte Omnis de implementat, nu tooluri deja existente. Ancoră: `tools/delegate_tool.py:187–191,634–726`.
+
+Pollerul RPC poate porni nativ continuarea unui rezultat detached; Omnis nu o dublează. În alternativa HTTP Runs, clientul deține continuarea. ACK-ul notificării nu dovedește consumul rezultatului: verificăm și admiterea falsă, Stop și crashul după pornirea turului. Ancore: `tui_gateway/session_notifications.py:148–168,459–544,690–737`; `tui_gateway/prompt_turn.py:994–1001`.
+
+**Bootstrap Settings privat:** supervisorul folosește `hermes serve --isolated --host 127.0.0.1 --port 0`, cu `HERMES_HOME` dedicat și `HERMES_DASHBOARD_SESSION_TOKEN` aleator injectat. Descoperă portul din `HERMES_BACKEND_READY port=<PORT_ALOCAT>`, verifică `/api/health` și un GET autentificat. În modul loopback fără gate extern, headerul este `X-Hermes-Session-Token`. Acesta nu este `API_SERVER_KEY` sau cheia AI. Se aplică regula unui singur writer din §5: managementul este oprit înaintea execuției. Ancore: `hermes_cli/main_dashboard.py:810–901`, `hermes_cli/web_server.py:317–445`.
+
+`<PROFILE_ID>` este fixat server-side la profilul runtime-ului Omnis; nu este o cale sau o selecție arbitrară din browser.
+
+| Operație Settings | Contract management | Semantica obligatorie |
+|---|---|---|
+| OpenRouter status | `GET /api/env?profile=<PROFILE_ID>` | `OPENROUTER_API_KEY`: `is_set`, `redacted_value`; nu inferență validată |
+| OpenRouter validate | `POST /api/providers/validate` | Body `key`, `value`, `profile`; nu salvează; un 429 poate fi raportat `ok:true, reachable:true` |
+| OpenRouter save | `PUT /api/env` | Body `key`, `value`, `profile`; rezultat `ok`, `key`, `config_updates`, apoi readback |
+| OpenRouter delete | `DELETE /api/env` | Body `key`, `profile`; verificăm că nu reapare prin fallback |
+| Codex status | `GET /api/providers/oauth?profile=<PROFILE_ID>` | Rândul `id=openai-codex` și sursa credentialului |
+| Codex device login | `POST /api/providers/oauth/openai-codex/start?profile=<PROFILE_ID>` | Fără body; `session_id`, `flow`, `user_code`, `verification_url`, `expires_in`, `poll_interval` |
+| Codex poll | `GET /api/providers/oauth/openai-codex/poll/{session_id}?profile=<PROFILE_ID>` | `pending`, `approved`, `expired`, `error`; schema generică include `denied` |
+| Cancel login pending | `DELETE /api/providers/oauth/sessions/{session_id}?profile=<PROFILE_ID>` | Poll ulterior poate da 404, nu un rezultat durabil `cancelled` |
+| Codex logout | `DELETE /api/providers/oauth/openai-codex?profile=<PROFILE_ID>` | Ștergere locală, nu revocare upstream; anulăm întâi loginurile pending cunoscute |
+| Catalog modele | `GET /api/model/options?profile=<PROFILE_ID>&refresh=false&include_unconfigured=false&explicit_only=true` | Filtrat la OpenRouter/Codex; discovery/pricing pot accesa rețeaua |
+| Selecție model | `POST /api/model/set` | `scope:"main"`, `provider`, `model`, `profile`, `confirm_expensive_model:false`; pentru sesiuni noi |
+
+Toate rutele OAuth, inclusiv poll, cer autentificarea managementului și același profil. `/submit` nu este fallback Codex în acest contract; start poate da 504 înainte să termine loginul, iar pending sessions se pierd la restart. Nu retrimitem start nelimitat și nu interpretăm `has_refresh_token:false` drept absență demonstrată a grantului. `approved` nu înseamnă inferență disponibilă; Codex CLI nu este necesar pentru device OAuth nativ.
+
+La model/set, HTTP 200 poate avea `ok:false, confirm_required:true`; `stale_aux` cere verificarea auxiliarelor/delegării/fallbackului. Cheile/codurile rămân numai în fluxul securizat, nu în prompt/log. Nu expunem `/api/env/reveal`, configul integral, profile management sau REST generic. `GET /api/skills` și `PUT /api/skills/toggle` nu înlocuiesc editorul complet, release digest/review și catalogul per run deținut de Omnis. Ancore Settings: `hermes_cli/web_routers/config_env.py:232–316,887–972`, `oauth.py:264–305,619–795`, `models.py:101–131,275–318`, `hermes_cli/auth_codex.py:153–193`.
+
+**Ancorele probelor de autoritate:** identitate contextuală în `agent/tool_executor.py:1673–1688`, `model_tools.py:822–838`, `tools/registry.py:887–903`; hook pre-run în `tools/delegate_tool.py:285–297,383–415` și `tools/delegate_tool_child_run.py:854–862`; rotație session ID în `agent/conversation_compression.py:3340–3373`; surse dotenv/root în `tui_gateway/server.py:50–51`, `run_agent.py:121–122`, `hermes_cli/env_loader.py:423–447`, `hermes_constants.py:217–234`, `hermes_cli/config_defaults.py:1718–1724`. Aceste ancore sunt pentru SHA fixat, nu contracte garantate după upgrade și nu dovadă că mappingul sigur Omnis există deja.
 
 ## 6. Scheduler, taskuri, continuări și bugete
 

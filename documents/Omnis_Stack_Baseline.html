@@ -211,12 +211,12 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><code>mitmproxy==12.2.3</code> publicat impune limite care țin <code>cryptography</code> la ≤48.1, <code>h2</code> la 4.3.0, <code>msgpack</code> la ≤1.1.2 și <code>tornado</code> la ≤6.5.5.[18] Combinația rezolvată include <strong>cryptography 48.0.1, pyOpenSSL 26.2.0, mitmproxy-rs 0.12.11</strong>. Se rezolvă, dar nu este aprobată.</p>
 <p>Metadatele de advisories pe versiunile exacte au semnalat probleme pentru <strong>cryptography, h2, msgpack și tornado</strong>. Pentru cryptography, sursa indică remedieri în 49.0.0/50.0.0, în afara capului pachetului candidat.[19] Detaliile/aliasurile/fixed_in pentru toate sunt păstrate în JSON, fără a susține că toate sunt exploatabile în traseul Omnis. Lipsa exploitabilității demonstrate nu justifică alegerea lor ca frontieră de securitate nouă.</p>
 <p><strong>Decizie: REJECTED_FOR_TARGET_USE.</strong> Nu am instalat sau pornit proxyul afectat și nu am dat trafic prin el. Nu coborâm API crypto, nu activăm <code>ssl_insecure</code>, nu forțăm resolverul și nu folosim CONNECT opac ca scurtătură.</p>
-<p><strong>B01e, owner integrare/executori:</strong></p>
+<p><strong>B01e, owner integrare/executori — două praguri, fără ciclu cu P3:</strong></p>
 <ol>
 <li>Verifică dacă există release upstream cu constrângeri remediate; dacă nu, propune patch minimal de packaging/cod peste tagul exact, cu licență și surse păstrate.</li>
 <li>Rezolvă lock separat, actualizează toate dependențele afectate și verifică întregul set, nu numai cryptography; orice cap schimbat este decizie review-uită, nu override ascuns.</li>
-<li>Execută teste upstream relevante, import/start, CA/cert validation, HTTP parsing/body buffering, conexiuni reutilizate, failure modes și G-NET.</li>
-<li>Fixează commit/digest al buildului aprobat. Până atunci, P3a/P3b sunt <strong>BLOCKED</strong>; fundația/web și P2 inert pot începe.</li>
+<li><strong>B01e-build:</strong> teste upstream/import/start inert, CA/cert validation și primitive HTTP ale buildului remediat; fixează commit/digest/lock/licențe. Verdict LAB_TEST_ONLY, nu assessment ready. Buildul publicat respins nu este o alternativă de testare implicită.</li>
+<li><strong>B01e-integrated:</strong> B07/B09 construiesc și verifică broker/addon/buffering/reuse/failure modes/G-NET în harness izolat, cu fixture/sinks explicit autorizate și egress extern închis. Controale pozitive/negative la aceeași frontieră; lipsa addonului nu permite trafic. Abia apoi build+integrare închid G-DEPENDENCIES pentru transportul respectiv și permit startupul normal al executorului. Fără pragul necesar, execuția P3 rămâne BLOCKED; fundația/web și P2 inert pot continua.</li>
 </ol>
 <p>Arhitectura alege frontiera HTTPS inspectabilă și un adaptor mitmdump îngust; gate-ul nu lasă implementatorul să înlocuiască asta cu un transport neobservabil. Dacă patchul necesar devine substanțial, revenim cu ADR de alternativă înainte de implementare, nu promitem un fork mic fără probe.</p>
 <h2 id="7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</h2>
@@ -305,5 +305,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>cb62e188799a8ea983a2d41ec9ae6e8b4adc28f468733436548bd8017f6ee755</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>31615ea38bd885d672a99c3890b7d6a17d69844b8239e702f2e4ce0b9569bca3</code>.</p></footer>
 </main></div></body></html>

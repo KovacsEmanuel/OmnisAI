@@ -45,46 +45,46 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 **G-DESIGN — VISUAL_ACCEPTED / START_PENDING_NEW_SESSION:** utilizatorul a acceptat prototipul `df17a29` și cere acest audit înainte de implementare. Mesajul de pornire din sesiunea nouă confirmă folosirea structurii `api/`, `web/`, `cli/` și a contractului `omnis` din arhitectură §4/§12 și autorizează prima felie declarată. Nu redeschidem designul fără motiv/cerere și nu începem scaffoldul în această sesiune. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
 
-```text
-P0 — fundație, versiuni și contracte ale primei felii
- ├─ P1 — web + engagement persistent
- └─ P2 — host Hermes + binding/skill/izolare/wake
-         ├─ P4a — Settings minim, un provider și catalog read-only
-         └─ P4b — Settings complet + al doilea provider (în paralel)
-P1 + P2 + P4a
-         ↓
-P3a — HTTP brokered + evidence + UI + Stop
-         ↓
-P3b — browser/auth/HTTPS controlat, devreme
-         ↓
-P5a + P6a — recon necesar → BOLA E2E → validator → raport/retest
-         ↓
-P5b + P6b — extindere recon + XSS reflectat + traversal-canary
-         ↓
-P7 — bucle și recuperare extinse, maximum doi copii
-         ↓
-P8 — evaluare și livrare (cere și P4b complet)
-```
+### Ordine verificabilă
 
-Nucleul de lease/stări/revocare/recuperare intră în P2/P3, nu așteaptă P7. Browserul nu așteaptă editorul Skills. P4a se poate construi odată cu P2; UI P1 are Start indisponibil cu motiv până la trecerea porții reale. Autorarea drafturilor și UI neefectual pot avansa în paralel, pe contracte comune, fără editarea concurentă a acelorași fișiere.
+Tabelul definește dependențele de **închidere**; citirile și probele disposable fără efecte pot preceda etapa, fără a o marca trecută. P0-control include bootstrapul web real necesar launcherului, nu formularul/experiența completă P1 și nu runtime-host P2. P1-data (B02) oferă persistența reală de care bindingul P2 are nevoie; P1-web și P2-inert pot continua apoi în paralel.
+
+| Etapă | Dependențe | Livrare / condiție de ieșire |
+|---|---|---|
+| P0-control | — | Medii/build, DB/migrări, pairing/control, supervisor inert, launcher și bootstrap web real; G00, fără runtime/proxy/conturi |
+| P1-data | P0-control | B02: draft/revizie persistentă și API, cu ownership/concurență |
+| P1-web | P1-data | B03/B04: UI acceptat conectat la datele reale, G01 |
+| P2-inert | P0-control, P1-data | B05/B06 și partea inertă H01–H08; fără adoptare credentiale sau rețea provider |
+| P4a-minim | P2-inert | Configurare/readback/control provider și catalog, înainte de prima probă de inferență |
+| P2-live | P2-inert, P4a-minim | G-DATA-EARLY + acord cont/model/buget, apoi G02-live/G04a; fără target effects |
+| B01e-build | — | Build proxy remediat/admis numai pentru testele izolate; nu ASSESSMENT_READY |
+| P3a | P1-web, P2-live, B01e-build | B07 determinist mai întâi, B01e-integrated/G-NET HTTP, apoi tracerul nativ B08 și G03a |
+| P3b | P3a | Browser/auth/HTTPS, extensia integrată a certificării și G03b/G-EFFECT |
+| P5a+P6a | P3b | Discovery → BOLA → validator → review/raport/retest, G05a/G06a |
+| P5b+P6b | P5a+P6a | Recon extins + XSS reflectat + traversal-canary, G05b/G06b |
+| P4b | P4a-minim | Settings complet și ambii provideri verificați; poate avansa paralel |
+| P7 | P5b+P6b | Recuperare/bucle/concurență extinse, G07 |
+| P8 | P7, P4b | Evaluare și release; G08/G-DATA/G-OPS |
+
+Nucleul de lease/stări/revocare/recuperare intră în P0-control/P2/P3, nu așteaptă P7. Browserul nu așteaptă editorul Skills. UI/config P4a se pot pregăti odată cu contractele P2, dar **P2-inert → P4a-minim → P2-live** închide dependența reală; nu cerem inferență înainte să existe configurarea sigură a contului. UI P1 are Start indisponibil cu motiv până la trecerea porții reale. Autorarea drafturilor și UI neefectual pot avansa în paralel, pe contracte comune, fără editarea concurentă a acelorași fișiere.
 
 ## 5. P0 — fundație și contracte minime
 
-**Rezultat:** repo reproductibil, entrypoints separate API/supervisor, contracte minimale, scenarii de test și threat model din arhitectură. Creăm structura documentată, nu toate serviciile viitoare.
+**Rezultat P0-control:** repo reproductibil și primul control plane real: PostgreSQL, API, supervisor inert, pairing/control local, launcher instalabil și build web minim cu starea efectivă. Bootstrapul reutilizează shellul/tokenurile acceptate și arată UNAVAILABLE/NOT_RUN; nu conține engagementuri sau findings fictive. Runtime-host, proxy și executori nu sunt cerințe de boot P0 și nu sunt porniți ca mockuri „healthy”. P1 adaugă experiența completă de engagement, P2 adaptorul Hermes. Creăm numai fișierele feliei executate; §19 definește primul increment, nu întregul P0 într-un singur commit.
 
 **Tickets:**
 
-- B01a: directoarele root `api/`, `web/`, `cli/` conform arhitecturii §12, numai fișierele primei felii; manifeste/lockfiles separate, `.gitignore`, `.env.example` numai cu nume/substituenți, comenzi reale `dev/check/test/build`, CI fără conturi. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.
+- B01a: directoarele root `api/`, `web/`, `cli/` conform arhitecturii §12, create pe rând cu fișierele feliei; manifeste/lockfiles separate, `.gitignore`/build-context allowlist, `.env.example` numai substituenți, comenzi reale și CI fără conturi. Buildurile nu includ `.hermes/`, `.env`, documentele/fixture-urile DEMO sau runtime personal. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.
 - B01b: numai DTO-urile primei felii plus envelope/revision/command/error comune; `ProjectionEnvelope` urmează arhitectură §9.1. `contracts/omnis.openapi.json` → `web/src/shared/api/generated.ts`, drift verificat când există consumatorul. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Nu expunem toate endpointurile viitoare ca stuburi sănătoase.
 - B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.
 - B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.
-- B01f: launcherul instalabil `cli/` pentru `omnis`, startup core inert și idempotent, lock/identity, migrare dedicată, readiness și browser same-origin; status/headless/erori fără secrete. Contractul este arhitectură §4.1–4.5, nu wrapper peste TUI Hermes. L01–L05 se probează fără conturi/LLM/țintă; componenta absentă nu este simulată ca serviciu sănătos.
+- B01f: launcherul instalabil `cli/` pentru `omnis`, startup P0-control inert/idempotent, lock/identity, migrare dedicată, readiness și bootstrap web/pairing real same-origin; status/headless/erori fără secrete. Wheelul, buildul web și manifestul minim sunt produse/testate aici, nu presupuse existente până la B21. Contract arhitectură §4.1–4.5. L01–L04 și partea pairing/control L05 se probează fără conturi; partea SSE a L05 aparține B08. Componentele absente raportează UNAVAILABLE.
 
-B01f include `InstanceControl`: barieră durabilă de shutdown verificată atomic la Start/Resume/Settings/admitere și generație de instanță. Proba inertă L08 Start concurent cu stop + crash launcher după închiderea admiterii intră în G00; nu este amânată până la release. Supervisorul comandă adaptoarele/process groups, numai launcherul controlează containerele. Crash/restart nu redeschide automat admiterea.
+B01f include `InstanceControl`: barieră durabilă de shutdown și generație. G00 probează tranzacția reală de admitere concurentă cu shutdown și crash/restart pe PostgreSQL, cu o comandă de lucru strict inertă în harness și controale allow/deny; nu declară Start runtime funcțional înainte de B05/B07. Integrarea fiecărui producer real (Start/Resume/Settings/raport) cu aceeași barieră completează L08 în faza lui. Nucleul nu este amânat până la release. Supervisorul comandă adaptoarele/process groups, numai launcherul controlează containerele. Crash/restart nu redeschide automat admiterea.
 
-**G00:** checkout curat instalează din lock și face build/typecheck/unit tests; migrații pe DB goală și upgrade de la revizia precedentă; schema incompatibilă blochează readiness. Niciun job automat nu apelează LLM sau ținte. Scope parser păstrează URL brut și refuză intrări ambigue.
+**G00:** checkout curat instalează din lock și face build/typecheck/unit/integration pentru componentele introduse; DB reală, schema goală și migrare/upgrade conform reviziilor existente, schema incompatibilă blochează readiness. L01–L05-control/L08-core se închid numai pe artifactul/procesele reale; L05-SSE și runtime/execuție rămân NEÎNCEPUTE. Dashboard ready cere bootstrap real, assessment_ready=false. Boot/health/status nu fac nici inferență, nici validate/discovery/pricing/OAuth refresh către provider; zero trafic target. Lipsa Docker/DB/pinului este BLOCKED, nu fallback SQLite/mock sau skip raportat PASS. Scope parser păstrează URL brut și refuză intrări ambigue.
 
-**B01e — gate de securitate dependențe proxy:** baseline-ul publicat `mitmproxy==12.2.3` se rezolvă, dar are dependențe cu advisories; este REJECTED pentru trafic target, nu o alegere „aprobată cu avertisment”. Vezi registrul de versiuni. Înainte de B07 alegem release upstream corectat sau un build cu patch minimal auditat, lock separat și suite TLS/HTTP/confinare trecute. Nu facem downgrade la crypto API, nu folosim override neverificat și nu activăm tunel opac/direct ca fallback. Dacă nu există soluție validată, P3 rămâne BLOCKED; P0/P1/P2 inerte pot continua.
+**B01e — gate de securitate dependențe proxy:** baseline-ul publicat `mitmproxy==12.2.3` se rezolvă, dar are dependențe cu advisories; este REJECTED pentru trafic target, nu o alegere „aprobată cu avertisment”. Vezi registrul de versiuni. **B01e-build**, înainte de a executa proxyul în testele B07, alege release upstream corectat sau patch minimal auditat, lock separat și probe upstream/TLS/HTTP de build. Rezultatul este LAB_TEST_ONLY. **B01e-integrated** se închide în B07/B09 odată cu contractele broker/addon și G-NET pentru transportul respectiv; împreună închid G-DEPENDENCIES, nu invers. Nu facem downgrade la crypto API, nu folosim override neverificat și nu activăm tunel opac/direct ca fallback. Dacă nu există build admis, execuția proxyului/efectele P3 rămân BLOCKED; P0/P1/P2 inerte pot continua. Testele izolate necesare certificării rulează numai într-un harness cu fixture/sinks explicit autorizate și egress extern închis; nu sunt assessmenturi sau o excepție ascunsă în Start. Mai întâi trec controalele deterministe allow/deny și absent-addon, apoi tracerul nativ. Buildul publicat respins nu primește derogare nici prin acest traseu.
 
 Nu construim aici un motor generic de workflow sau toate tabelele proiectului. Migrațiile și contractele se adaugă cu felia care le exercită.
 
@@ -125,7 +125,7 @@ Testele inerte nu contactează ținte. **G02-live** cere o inferență reală, c
 
 ## 8. P4a — Settings minim, fără editor blocant
 
-Se livrează împreună cu P2: provider validat, selecție explicită model, status runtime, catalog read-only, pachete reviewed/published materializate imuabil și dependency readiness. Stări separate: configured/authenticated/reachable/inference_ready și methodology-only/benchmark-validated.
+P4a-minim urmează P2-inert pentru controlul sigur al Settings, apoi permite închiderea P2-live/G04a cu acord. Include selecție explicită model, status runtime, catalog read-only, pachete reviewed/published imuabile și dependency readiness. Configurarea/readbackul nu sunt inferență; fără cont/buget aprobate, partea live rămâne BLOCKED. Stări separate: configured/authenticated/reachable/inference_ready și methodology-only/benchmark-validated.
 
 **G04a:** primul traseu poate rula cu un singur provider verificat și un skill publicat, fără editor sau al doilea cont. Readback după salvare/selectare. Stare `429` nu devine inferență reușită, iar modelul efectiv/auxiliarele corespund manifestului.
 
@@ -133,7 +133,7 @@ Se livrează împreună cu P2: provider validat, selecție explicită model, sta
 
 **B07:** broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.
 
-Launcherul integrează provisionarea L07 numai după B01e: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.
+Launcherul pentru assessment integrează provisionarea L07 numai după B01e-build + B01e-integrated/G-NET pentru transport: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Harnessul de certificare B07/B09 este separat și limitat la fixture/sinks autorizate; nu declară normal startup ready înaintea propriilor probe. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.
 
 **B08:** rezultat/inventar/evidence inspector și proiecții Overview/Brain stream în UI, SSE cu cursor, reconnect și Stop verificat. `ProjectionEnvelope`, summary server-side și `phase_active` urmează arhitectură §6/§9.1; phase/status nu se deduc din chat. O observație HTTP reală este suficientă; finding/severity/report review încă indisponibile nu sunt umplute cu demo.
 
@@ -298,4 +298,22 @@ MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet e
 
 **După acordul G-DESIGN putem începe fără conturi:** B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. **Înainte de live LLM:** operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. **Înainte de target effects:** G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.
 
-Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.
+Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor. Pornim cu P0.1 din §19, nu cu întregul arbore deodată. După P0-control și B02, P1-web/P2-inert pot avansa în paralel conform §4; B10–B13 rămâne prima demonstrație a valorii de securitate.
+
+## 19. Reluarea într-o sesiune nouă — prima felie
+
+**Stare:** aplicație NEÎNCEPUTĂ; design df17a29 acceptat; numai documente/prototip/unelte și probe izolate există. Citește README/AGENTS, §4–§5/§19 din acest plan, arhitectură §4/§12 și stackul. Pentru frontend, UI/UX §0/§8 și DESIGN sunt obligatorii. Nu reia brainstormingul sau reproiectarea vizuală. Nu folosi snapshotul remote ca bază dacă HEAD local este înainte.
+
+**P0.1 — API/DB readiness real, subfelie B01a/B01b/B01c.** Acesta este primul rezultat observabil, nu închiderea întregului P0. Creează numai pachetul API instalabil, schema minimă InstanceControl necesară control plane-ului și probele sale; `admission_open` inițial false. Contracte propuse `GET /health/live` și `GET /health/ready`: primul reflectă procesul, al doilea verifică PostgreSQL și versiunea schemei. `api_ready` nu înseamnă `dashboard_ready` sau `assessment_ready`; ultimele rămân false cât lipsesc componentele. Nu folosi un răspuns constant „healthy” sau SQLite ca substitut.
+
+- **Perimetru:** `api/pyproject.toml`, `uv.lock`, app factory/core config/DB/schemas strict necesare, Alembic/InstanceControl și teste unit/integration/migrations; `ops/compose.test.yaml`/imaginea DB fixată și harnessul izolat necesar; root Makefile/CI/.gitignore/.dockerignore numai pentru comenzile și artefactele reale ale feliei. Nu crea acum toate modulele/ports/repositories sau directoare goale web/cli/executors.
+- **Mediu:** Python/uv și Postgres din stack, lock nou de produs rezolvat și auditat, mediu separat de Hermes. Instanță/volum DB de test dedicate și identificabile; niciun profil personal, `.env` existent, DB sau serviciu străin nu este adoptat/oprit/șters. Permisiunile/pașii privilegiați se cer separat; nu se modifică firewall global pe ascuns.
+- **RED → GREEN:** app/liveness reală; readiness pozitiv pe PostgreSQL migrat și negativ la DB căzută/schema lipsă sau incompatibilă; Host nepermis refuzat; migrare pe DB goală, persistență/restart, lifecycle pool și output fără secrete. Upgrade se probează între revizii când există o revizie anterioară, nu se inventează una. Startup/reload/health nu importă/pornește Hermes, scheduler de assessment, proxy/executori și nu contactează provideri/ținte.
+- **Comenzi de livrat, nu existente astăzi:** `make check-api`, `make test-api`, `make test-migrations` și verificarea wheelului; rădăcina `make check` integrează componentele care există. CI folosește aceleași comenzi. Lipsa unui prerechizit dă BLOCKED/exit nenul; nu un test skipped prezentat ca trecut. Salvează output real, review independent și commit coerent; verifică SHA/status înainte de pasul următor.
+- **Non-obiective:** UI complet, `omnis` funcțional, SSE, provider/OAuth, secret vault, recon, finding, executori și evaluare. Nicio integrare nativă sau scanare pretinsă pe baza acestei felii.
+
+**Ordinea restului P0-control:** P0.2 adaugă pairing/Host/Origin/CSRF, control local și supervisorul inert cu bariera durabilă/admitere concurentă; P0.3 buildul web real de bootstrap/pairing în designul acceptat; P0.4 launcherul instalabil, manifestul/artefactele minime și L01–L05-control/L08-core din afara checkoutului. Numai după toate acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.
+
+**Comanda de lucru pentru sesiunea nouă:** „Continuăm OmnisAI. UI df17a29 este aprobat; confirm structura api/web/cli și contractul omnis din baseline. Începe numai P0.1 din plan §19, cu TDD, review și commituri mici; fără conturi/LLM/ținte.” Aceasta nu pretinde executabilul `omnis` deja existent și nu închide gate-uri de runtime.
+
+**Excepție de predare:** README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.

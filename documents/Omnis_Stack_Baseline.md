@@ -95,12 +95,12 @@ Metadatele de advisories pe versiunile exacte au semnalat probleme pentru **cryp
 
 **Decizie: REJECTED_FOR_TARGET_USE.** Nu am instalat sau pornit proxyul afectat și nu am dat trafic prin el. Nu coborâm API crypto, nu activăm `ssl_insecure`, nu forțăm resolverul și nu folosim CONNECT opac ca scurtătură.
 
-**B01e, owner integrare/executori:**
+**B01e, owner integrare/executori — două praguri, fără ciclu cu P3:**
 
 1. Verifică dacă există release upstream cu constrângeri remediate; dacă nu, propune patch minimal de packaging/cod peste tagul exact, cu licență și surse păstrate.
 2. Rezolvă lock separat, actualizează toate dependențele afectate și verifică întregul set, nu numai cryptography; orice cap schimbat este decizie review-uită, nu override ascuns.
-3. Execută teste upstream relevante, import/start, CA/cert validation, HTTP parsing/body buffering, conexiuni reutilizate, failure modes și G-NET.
-4. Fixează commit/digest al buildului aprobat. Până atunci, P3a/P3b sunt **BLOCKED**; fundația/web și P2 inert pot începe.
+3. **B01e-build:** teste upstream/import/start inert, CA/cert validation și primitive HTTP ale buildului remediat; fixează commit/digest/lock/licențe. Verdict LAB_TEST_ONLY, nu assessment ready. Buildul publicat respins nu este o alternativă de testare implicită.
+4. **B01e-integrated:** B07/B09 construiesc și verifică broker/addon/buffering/reuse/failure modes/G-NET în harness izolat, cu fixture/sinks explicit autorizate și egress extern închis. Controale pozitive/negative la aceeași frontieră; lipsa addonului nu permite trafic. Abia apoi build+integrare închid G-DEPENDENCIES pentru transportul respectiv și permit startupul normal al executorului. Fără pragul necesar, execuția P3 rămâne BLOCKED; fundația/web și P2 inert pot continua.
 
 Arhitectura alege frontiera HTTPS inspectabilă și un adaptor mitmdump îngust; gate-ul nu lasă implementatorul să înlocuiască asta cu un transport neobservabil. Dacă patchul necesar devine substanțial, revenim cu ADR de alternativă înainte de implementare, nu promitem un fork mic fără probe.
 

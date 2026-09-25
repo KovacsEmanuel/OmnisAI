@@ -148,6 +148,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Binding browser→proxy:</strong> un context/generație de browser aparține unui singur attempt pe durata lui, nu este transferat de la investigator la validator. <code>parent_action</code> reprezintă un workflow browser bounded (navigare și pași tipizați), nu fiecare click; pașii și requesturile au ID-uri proprii sub același părinte și nu extind permisiunea workflowului. Executorul de încredere deschide un <code>BrowserActionWindow</code> cu <code>(run, attempt, parent_action, auth_epoch, fencing_epoch, context_generation, deadline)</code> și canal proxy autentificat; metadata nu este pusă în headere ce ajung la țintă sau în argumentele LLM. Proxyul atribuie fiecărui request copil propriul action ID în acea fereastră și îl admite separat. Nu există două ferestre concurente pe același context. După închidere, fetchuri/timere de fundal se refuză; înaintea următoarei acțiuni se drenează și închide generația. Pentru MVP, contextul se reface dintr-un checkpoint de auth permis, nu se atribuie după timestamp o cerere întârziată unei acțiuni noi. Pierderea stării SPA/tokenurilor neregenerabile produce blocaj asistat, nu o excepție de policy. P3b probează cererea întârziată din generația veche exact când începe următoarea acțiune. Identitatea transportului singură nu este suficientă.</p>
 <h2 id="4-control-plane-local-si-configurare">4. Control plane local și configurare</h2>
 <p>Loopback nu este autentificare. Omnis pornește numai pe <code>127.0.0.1</code>, cu Host allowlist exactă și același origin pentru buildul web și API. Dev Vite are host strict și proxy <code>/api</code>; nu CORS <code>*</code> sau porturi ascultate public.</p>
+<p><code>127.0.0.1</code> este bindul <strong>publicat pe host</strong>. API-ul containerizat poate asculta pe interfața internă necesară rețelei control; publicarea Compose rămâne numai loopback, iar DB/IPC/runtime nu capătă port public. Health-ul intern folosește Host-ul configurat, fără a lărgi allowlistul sau a accepta X-Forwarded-Host arbitrar. Probele P0 verifică atât accesul same-origin, cât și absența accesului LAN.</p>
 <p><strong>Bootstrap ales:</strong> launcherul generează un cod local de pairing, unic/expirabil, afișat numai operatorului în terminal; formularul local îl schimbă o singură dată pe o sesiune opacă server-side. Codul nu apare în URL, Git sau log de request. Rată limitată, verificare Host/Origin și timeout. Cookie <code>HttpOnly; SameSite=Strict; Path=/</code>, fără <code>Domain</code>; HTTP loopback este limita asumată, nu pretindem TLS. Mutările cer și token CSRF legat de sesiune; SSE cere aceeași sesiune. Logout invalidează server-side; expirarea sesiunii UI nu anulează automat engagementul, dar nu permite control neautorizat. Refuzăm extinderea bindului; accesul remote ar cere TLS și alt threat model.</p>
 <p>Un proces malițios cu același UID/root pe host rămâne în afara garanției. Nu prezentăm seiful, cookieul sau containerele drept protecție față de administratorul hostului.</p>
 <p>Paths propuse pentru instalare, nu create acum: <code>$XDG_STATE_HOME/omnis</code> (implicit <code>~/.local/state/omnis</code>), runtime homes sub acest root, <strong>nu sub <code>~/.hermes</code></strong>, configurație non-secretă sub <code>$XDG_CONFIG_HOME/omnis</code>, secrets cu permisiuni restrictive. Nu montăm <code>/home/kali</code>, checkoutul personal Hermes sau <code>.codex</code>. State/secrets/evidence/backups nu trăiesc în repo.</p>
@@ -199,14 +200,16 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>La rezolvarea runului activ, clientul de control leagă comanda de ID/revizie; dacă între timp contextul s-a schimbat, raportează conflict, nu oprește un alt run printr-o selecție implicită stale. Closing browser/terminal nu oprește serviciile detached. Nu instalăm implicit serviciu de boot al OS-ului; după reboot pornirea rămâne explicită și fără autoresume de assessment.</p>
 <h3 id="42-startup-determinist-independent-de-cwd">4.2. Startup determinist, independent de cwd</h3>
+<p><strong>Profile de livrare, nu stări simulate:</strong> P0-control pornește numai PostgreSQL, API, supervisor inert și build web real de bootstrap/pairing în shellul acceptat. Nu are nevoie de runtime-host/P2 sau de SSE/P3 pentru dashboard_ready; aceste capabilități sunt UNAVAILABLE și assessment_ready=false. P1 adaugă engagementul persistent și interfața completă; P2 adaugă profilul runtime cu adaptorul real. Protocolul SSE este certificat în B08, nu dedus din pairingul P0. Manifestul/wheelul/buildul minim necesare startupului se produc în P0, iar B21/P8 închid releaseul complet.</p>
+<p><strong>Inert înseamnă zero apeluri provider</strong>, nu numai zero inferențe: fără validate, model discovery/pricing, refresh OAuth, login sau verificare online implicită la boot/status/health/open. Configurația/statusul local pot fi citite numai prin DTO-uri fără secrete; probele online Settings cer o acțiune/acord separate. Instalarea/pullul explicit sunt în afara startupului și nu îi dau dreptul să contacteze providerul sau ținta.</p>
 <p>Owner: <code>cli/src/omnis_cli/instance.py</code> și <code>compose.py</code> pentru instanță; supervisorul este singurul owner al runului. Launcherul folosește căi absolute din manifestul releaseului, argv ca listă și environment allowlisted; nu citește <code>.env</code>, Compose overrides sau scripturi din cwd. Nu schimbă profilul Hermes personal.</p>
 <ol>
 <li>Validează OS/distribuția, release/checksums, Docker/Compose disponibile, configurația non-secretă și permisiunile directoarelor. Regulile de host care cer privilegii se pregătesc prin instalare explicită; launcherul verifică precondițiile, fără sudo sau modificare globală de firewall pe ascuns. Nicio instalare, descărcare sau migrare de upgrade implicită. Release lipsă/incompatibil → eroare acționabilă.</li>
 <li>Ia lock exclusiv local per instanță și verifică identitatea Compose/manifestului. Dublu launch reutilizează aceeași instanță; un PID sau un port care răspunde nu dovedește ownership. Numele proiectului/etichetele nu se deduc din cwd.</li>
 <li>Port propus implicit <strong><code>127.0.0.1:8765</code></strong>, configurabil explicit numai cu serviciile oprite. Host/Origin allowlist urmează exact originul configurat. Port ocupat de alt proces → conflict, fără kill, auto-port sau deschidere a paginii străine. Pentru o instanță existentă verifică identitatea/readiness prin canalul local autentificat și originul HTTP asociat; dacă este sănătoasă, trece la deschiderea UI fără migrare/restart sau schimbarea writerilor. Pentru o instanță nouă continuă cu pasul 4; readiness HTTP se verifică după startup. Alt release/instance ID → refuz.</li>
 <li>Pornește DB și așteaptă health bounded. Rulează jobul de migrare <strong>o singură dată</strong>, cu lock DB și verificarea schemei; la instalare nouă creează schema din release. La date existente, versiune incompatibilă/upgrade necesar → oprește startupul și cere procedura explicită de update/backup, nu migrează distructiv pe ascuns.</li>
-<li>Pornește API-ul, supervisorul unic și adaptorul runtime inert. API servește numai assets trusted ale buildului și <code>/api</code> same-origin. Supervisorul dobândește ownership/lease DB, verifică inboxul și intenția durabilă de shutdown a instanței, marchează runurile întrerupte pentru reconciliere și nu reia prompturi/efecte. Admiterea rămâne închisă cât un shutdown este incomplet; operatorul finalizează <code>omnis stop</code>, apoi cere o nouă pornire. După oprire completă/instalare nouă, startupul explicit poate redeschide admiterea într-o generație nouă, numai după verificarea stării. Restart/reload API nu redeschide admiterea și nu creează al doilea supervisor.</li>
-<li>Provisionarea serviciilor de execuție rămâne ordonată: numai un build proxy admis de B01e, reguli de rețea aplicate și self-test negativ al addonului permit pornirea containerelor worker HTTP/browser. Niciun browser context, sesiune Brain sau request target nu se creează la boot. Proxyul refuză tot fără run/lease. Dacă aceste gates nu sunt disponibile, pornește <strong>numai control plane-ul</strong>, cu Start blocat și motiv vizibil; nu rulează proxyul respins pentru a obține un dashboard „verde”.</li>
+<li>Pornește API-ul și supervisorul unic; adaptorul runtime inert se pornește numai dacă profilul P2 instalat/admis îl include. Absența lui în P0-control este UNAVAILABLE, nu healthy și nu blocaj al bootstrapului web. API servește numai assets trusted ale buildului și <code>/api</code> same-origin. Supervisorul dobândește ownership/lease DB, verifică inboxul și intenția durabilă de shutdown a instanței, marchează runurile întrerupte pentru reconciliere și nu reia prompturi/efecte. Admiterea rămâne închisă cât un shutdown este incomplet; operatorul finalizează <code>omnis stop</code>, apoi cere o nouă pornire. După oprire completă/instalare nouă, startupul explicit poate redeschide admiterea într-o generație nouă, numai după verificarea stării. Restart/reload API nu redeschide admiterea și nu creează al doilea supervisor.</li>
+<li>Provisionarea normală a serviciilor de execuție rămâne ordonată: numai B01e-build plus B01e-integrated/G-NET pentru transportul cerut, reguli de rețea aplicate și self-test negativ al addonului permit containerele worker HTTP/browser. Certificarea se construiește înainte într-un harness separat, izolat și autorizat; nu prin activarea prematură a assessmentului. Niciun browser context, sesiune Brain sau request target nu se creează la boot. Proxyul refuză tot fără run/lease. Dacă aceste gates nu sunt disponibile, pornește <strong>numai control plane-ul</strong>, cu Start blocat și motiv vizibil; nu rulează proxyul respins pentru a obține un dashboard „verde”.</li>
 <li><code>DASHBOARD_READY</code> cere DB/schemă/assets/API/control sănătoase. <code>ASSESSMENT_READY</code> este separat și cere runtime/provider/policy/confinare/buget la preflight. Lipsa contului sau proxyului certificat nu împiedică folosirea drafturilor/Settings. Health nu apelează modelul sau ținta. Frontendul afișează gate-ul lipsă, nu cost zero sau zero findings înaintea răspunsului.</li>
 <li>Launcherul generează codul de pairing local și înregistrează digestul/expirarea prin canalul local autentificat; valoarea se afișează numai pe TTY, nu în logs sau output JSON/redirecționat. Consumul atomic este al serviciului de sesiuni, nu al UI. În headless, pairingul este o acțiune ulterioară explicită. Deschide originul configurat (implicit <code>http://127.0.0.1:8765/</code>) numai după readiness; fără cod în query/fragment. Browser indisponibil → serviciile rămân ready, URL și instrucțiune de deschidere manuală, fără succes GUI inventat.</li>
 </ol>
@@ -304,8 +307,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>L03 Startup inert</td>
-<td>Boot, status, health, API reload și browser open produc zero prompturi/model calls/target effects</td>
-<td>G00/G01</td>
+<td>Boot/status/health/API reload/open: zero inferențe, validate/discovery/pricing/OAuth refresh și target effects; doar servicii locale declarate</td>
+<td>G00/G01/G02</td>
 </tr>
 <tr>
 <td>L04 Migrare/partial failure</td>
@@ -314,8 +317,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>L05 Pairing/control</td>
-<td>One-use atomic, expiry, Host/Origin/CSRF/SSE, peer/capability greșit, zero codes în URL/argv/log/JSON</td>
-<td>G00</td>
+<td>P0: one-use atomic, expiry, Host/Origin/CSRF, peer/capability greșit, zero codes în URL/argv/log/JSON. B08 completează autentificarea/expirarea SSE real.</td>
+<td>G00-control / G03a-SSE</td>
 </tr>
 <tr>
 <td>L06 Runtime bridge</td>
@@ -329,8 +332,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>L08 Stop și crash</td>
-<td>Start/Resume/Settings concurente cu shutdown, crash launcher după închiderea admiterii, Stop repetat, crash supervisor/adaptor/DB și rezultat detached întârziat: fără efect nou/auto-wake, barieră durabilă și dovadă reală de oprire</td>
-<td>G00/G02/G03/G07</td>
+<td>G00: barieră/admitere atomică reală cu lucru inert, crash launcher și restart închis. P2/P3/P7: integrarea Start/Resume/Settings/raport și runtime/execuție, fără efect nou/auto-wake, cu dovadă reală de quiescență.</td>
+<td>G00-core/G02/G03/G07</td>
 </tr>
 <tr>
 <td>L09 Persistență/restart</td>
@@ -811,8 +814,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <tr>
 <td><code>instance/</code></td>
 <td>Identitatea/admiterea instanței și intenția durabilă de shutdown</td>
-<td><code>admission.py</code>, <code>shutdown.py</code></td>
-<td>B01f</td>
+<td>schema minimă la P0.1; <code>admission.py</code>, <code>shutdown.py</code> odată cu lifecycle</td>
+<td>B01c/B01f</td>
 </tr>
 <tr>
 <td><code>engagements/</code></td>
@@ -911,7 +914,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h3 id="porti-de-decizie-care-raman-reale-nu-ascunse">Porți de decizie care rămân reale, nu ascunse</h3>
 <ul>
 <li><strong>G-RUNTIME:</strong> binding/lineage, credential ownership, wake și Stop native — dacă pică, P3 blocat până la extensie/patch minimal verificat.</li>
-<li><strong>G-DEPENDENCIES:</strong> proxyul publicat cu dependențe afectate este respins; B01e produce upstream/build remediat și verificat înaintea oricărui target effect.</li>
+<li><strong>G-DEPENDENCIES:</strong> proxyul publicat cu dependențe afectate rămâne respins; B01e-build permite numai testarea unui build remediat în harness izolat autorizat. B01e-integrated în B07/B09 + G-NET închid admiterea de assessment; nu cerem proba integrată înainte să existe adaptorul care trebuie testat.</li>
 <li><strong>G-NET:</strong> proxy/namespace nu poate împiedica toate traseele certificate — transport blocat; nu activăm fallback direct.</li>
 <li><strong>G-PROVIDER:</strong> cont, model, entitlement, buget și data policy aprobate — test live blocat până atunci; P0/P1 și testele fără LLM continuă.</li>
 <li><strong>G-RELEASE:</strong> toate funcțiile MVP promise, inclusiv Settings complet/ambii provideri, au dovezi. Lipsa contului nu devine succes mock.</li>
@@ -927,5 +930,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>8a2da8ddb2666c240e574dae31f1caf2edce4f080ae985a945bcbf07a428a82a</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>7720b80bfc936c6010a04f36975b03c012873e0ba0f39c73e4ebb69e22d329c9</code>.</p></footer>
 </main></div></body></html>

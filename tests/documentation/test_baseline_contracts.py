@@ -1,5 +1,6 @@
 """Consistency gates for the implementation baseline, not runtime claims."""
 import json
+from graphlib import TopologicalSorter
 from pathlib import Path
 import re
 import unittest
@@ -65,6 +66,27 @@ class BaselineContracts(unittest.TestCase):
         plan = (DOCS / 'Omnis_Implementation_Plan.md').read_text(encoding='utf-8')
         for ticket in ['B13a', 'B13b', 'B13c', 'B13d']:
             self.assertTrue(ticket in plan, 'Missing deliverable ' + ticket)
+
+    def test_delivery_dependencies_are_acyclic_and_bootstrap_is_inert(self):
+        plan = (DOCS / 'Omnis_Implementation_Plan.md').read_text(encoding='utf-8')
+        self.assertTrue('### Ordine verificabilă' in plan, 'Missing canonical phase dependency table')
+        section = plan.split('### Ordine verificabilă', 1)[1].split('## 5.', 1)[0]
+        rows = re.findall(r'^\| ([A-Za-z0-9+-]+) \| ([^|]+) \|', section, re.M)
+        graph = {name: set() if deps.strip() == '—' else set(deps.strip().split(', ')) for name, deps in rows}
+        expected = {'P0-control', 'P1-data', 'P1-web', 'P2-inert', 'P4a-minim', 'P2-live',
+                    'B01e-build', 'P3a', 'P3b', 'P5a+P6a', 'P5b+P6b', 'P4b', 'P7', 'P8'}
+        self.assertEqual(set(graph), expected)
+        self.assertEqual(len(rows), len(graph))
+        self.assertTrue(all(deps <= expected for deps in graph.values()))
+        self.assertEqual(len(tuple(TopologicalSorter(graph).static_order())), len(expected))
+        self.assertIn('P1-data', graph['P2-inert'])
+        self.assertEqual(graph['P2-live'], {'P2-inert', 'P4a-minim'})
+        self.assertIn('B01e-build', graph['P3a'])
+        for name in ['Omnis_MVP_Architecture.md', 'Omnis_Stack_Baseline.md']:
+            text = (DOCS / name).read_text(encoding='utf-8')
+            self.assertTrue('B01e-build' in text and 'B01e-integrated' in text, name)
+        architecture = (DOCS / 'Omnis_MVP_Architecture.md').read_text(encoding='utf-8')
+        self.assertTrue('P0-control' in architecture and 'zero apeluri provider' in architecture)
 
     def test_second_review_contracts_are_recorded(self):
         text = (DOCS / "Omnis_Implementation_Readiness_Review.md").read_text(encoding="utf-8")

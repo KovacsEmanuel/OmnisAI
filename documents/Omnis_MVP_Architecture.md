@@ -88,6 +88,8 @@ Folosim Playwright Python în executor și **un proxy inspectabil bazat pe mitmd
 
 Loopback nu este autentificare. Omnis pornește numai pe `127.0.0.1`, cu Host allowlist exactă și același origin pentru buildul web și API. Dev Vite are host strict și proxy `/api`; nu CORS `*` sau porturi ascultate public.
 
+`127.0.0.1` este bindul **publicat pe host**. API-ul containerizat poate asculta pe interfața internă necesară rețelei control; publicarea Compose rămâne numai loopback, iar DB/IPC/runtime nu capătă port public. Health-ul intern folosește Host-ul configurat, fără a lărgi allowlistul sau a accepta X-Forwarded-Host arbitrar. Probele P0 verifică atât accesul same-origin, cât și absența accesului LAN.
+
 **Bootstrap ales:** launcherul generează un cod local de pairing, unic/expirabil, afișat numai operatorului în terminal; formularul local îl schimbă o singură dată pe o sesiune opacă server-side. Codul nu apare în URL, Git sau log de request. Rată limitată, verificare Host/Origin și timeout. Cookie `HttpOnly; SameSite=Strict; Path=/`, fără `Domain`; HTTP loopback este limita asumată, nu pretindem TLS. Mutările cer și token CSRF legat de sesiune; SSE cere aceeași sesiune. Logout invalidează server-side; expirarea sesiunii UI nu anulează automat engagementul, dar nu permite control neautorizat. Refuzăm extinderea bindului; accesul remote ar cere TLS și alt threat model.
 
 Un proces malițios cu același UID/root pe host rămâne în afara garanției. Nu prezentăm seiful, cookieul sau containerele drept protecție față de administratorul hostului.
@@ -117,14 +119,18 @@ La rezolvarea runului activ, clientul de control leagă comanda de ID/revizie; d
 
 ### 4.2. Startup determinist, independent de cwd
 
+**Profile de livrare, nu stări simulate:** P0-control pornește numai PostgreSQL, API, supervisor inert și build web real de bootstrap/pairing în shellul acceptat. Nu are nevoie de runtime-host/P2 sau de SSE/P3 pentru dashboard_ready; aceste capabilități sunt UNAVAILABLE și assessment_ready=false. P1 adaugă engagementul persistent și interfața completă; P2 adaugă profilul runtime cu adaptorul real. Protocolul SSE este certificat în B08, nu dedus din pairingul P0. Manifestul/wheelul/buildul minim necesare startupului se produc în P0, iar B21/P8 închid releaseul complet.
+
+**Inert înseamnă zero apeluri provider**, nu numai zero inferențe: fără validate, model discovery/pricing, refresh OAuth, login sau verificare online implicită la boot/status/health/open. Configurația/statusul local pot fi citite numai prin DTO-uri fără secrete; probele online Settings cer o acțiune/acord separate. Instalarea/pullul explicit sunt în afara startupului și nu îi dau dreptul să contacteze providerul sau ținta.
+
 Owner: `cli/src/omnis_cli/instance.py` și `compose.py` pentru instanță; supervisorul este singurul owner al runului. Launcherul folosește căi absolute din manifestul releaseului, argv ca listă și environment allowlisted; nu citește `.env`, Compose overrides sau scripturi din cwd. Nu schimbă profilul Hermes personal.
 
 1. Validează OS/distribuția, release/checksums, Docker/Compose disponibile, configurația non-secretă și permisiunile directoarelor. Regulile de host care cer privilegii se pregătesc prin instalare explicită; launcherul verifică precondițiile, fără sudo sau modificare globală de firewall pe ascuns. Nicio instalare, descărcare sau migrare de upgrade implicită. Release lipsă/incompatibil → eroare acționabilă.
 2. Ia lock exclusiv local per instanță și verifică identitatea Compose/manifestului. Dublu launch reutilizează aceeași instanță; un PID sau un port care răspunde nu dovedește ownership. Numele proiectului/etichetele nu se deduc din cwd.
 3. Port propus implicit **`127.0.0.1:8765`**, configurabil explicit numai cu serviciile oprite. Host/Origin allowlist urmează exact originul configurat. Port ocupat de alt proces → conflict, fără kill, auto-port sau deschidere a paginii străine. Pentru o instanță existentă verifică identitatea/readiness prin canalul local autentificat și originul HTTP asociat; dacă este sănătoasă, trece la deschiderea UI fără migrare/restart sau schimbarea writerilor. Pentru o instanță nouă continuă cu pasul 4; readiness HTTP se verifică după startup. Alt release/instance ID → refuz.
 4. Pornește DB și așteaptă health bounded. Rulează jobul de migrare **o singură dată**, cu lock DB și verificarea schemei; la instalare nouă creează schema din release. La date existente, versiune incompatibilă/upgrade necesar → oprește startupul și cere procedura explicită de update/backup, nu migrează distructiv pe ascuns.
-5. Pornește API-ul, supervisorul unic și adaptorul runtime inert. API servește numai assets trusted ale buildului și `/api` same-origin. Supervisorul dobândește ownership/lease DB, verifică inboxul și intenția durabilă de shutdown a instanței, marchează runurile întrerupte pentru reconciliere și nu reia prompturi/efecte. Admiterea rămâne închisă cât un shutdown este incomplet; operatorul finalizează `omnis stop`, apoi cere o nouă pornire. După oprire completă/instalare nouă, startupul explicit poate redeschide admiterea într-o generație nouă, numai după verificarea stării. Restart/reload API nu redeschide admiterea și nu creează al doilea supervisor.
-6. Provisionarea serviciilor de execuție rămâne ordonată: numai un build proxy admis de B01e, reguli de rețea aplicate și self-test negativ al addonului permit pornirea containerelor worker HTTP/browser. Niciun browser context, sesiune Brain sau request target nu se creează la boot. Proxyul refuză tot fără run/lease. Dacă aceste gates nu sunt disponibile, pornește **numai control plane-ul**, cu Start blocat și motiv vizibil; nu rulează proxyul respins pentru a obține un dashboard „verde”.
+5. Pornește API-ul și supervisorul unic; adaptorul runtime inert se pornește numai dacă profilul P2 instalat/admis îl include. Absența lui în P0-control este UNAVAILABLE, nu healthy și nu blocaj al bootstrapului web. API servește numai assets trusted ale buildului și `/api` same-origin. Supervisorul dobândește ownership/lease DB, verifică inboxul și intenția durabilă de shutdown a instanței, marchează runurile întrerupte pentru reconciliere și nu reia prompturi/efecte. Admiterea rămâne închisă cât un shutdown este incomplet; operatorul finalizează `omnis stop`, apoi cere o nouă pornire. După oprire completă/instalare nouă, startupul explicit poate redeschide admiterea într-o generație nouă, numai după verificarea stării. Restart/reload API nu redeschide admiterea și nu creează al doilea supervisor.
+6. Provisionarea normală a serviciilor de execuție rămâne ordonată: numai B01e-build plus B01e-integrated/G-NET pentru transportul cerut, reguli de rețea aplicate și self-test negativ al addonului permit containerele worker HTTP/browser. Certificarea se construiește înainte într-un harness separat, izolat și autorizat; nu prin activarea prematură a assessmentului. Niciun browser context, sesiune Brain sau request target nu se creează la boot. Proxyul refuză tot fără run/lease. Dacă aceste gates nu sunt disponibile, pornește **numai control plane-ul**, cu Start blocat și motiv vizibil; nu rulează proxyul respins pentru a obține un dashboard „verde”.
 7. `DASHBOARD_READY` cere DB/schemă/assets/API/control sănătoase. `ASSESSMENT_READY` este separat și cere runtime/provider/policy/confinare/buget la preflight. Lipsa contului sau proxyului certificat nu împiedică folosirea drafturilor/Settings. Health nu apelează modelul sau ținta. Frontendul afișează gate-ul lipsă, nu cost zero sau zero findings înaintea răspunsului.
 8. Launcherul generează codul de pairing local și înregistrează digestul/expirarea prin canalul local autentificat; valoarea se afișează numai pe TTY, nu în logs sau output JSON/redirecționat. Consumul atomic este al serviciului de sesiuni, nu al UI. În headless, pairingul este o acțiune ulterioară explicită. Deschide originul configurat (implicit `http://127.0.0.1:8765/`) numai după readiness; fără cod în query/fragment. Browser indisponibil → serviciile rămân ready, URL și instrucțiune de deschidere manuală, fără succes GUI inventat.
 
@@ -175,12 +181,12 @@ Defaults XDG sunt cele ale utilizatorului (`~/.config`, `~/.local/share`, `~/.lo
 |---|---|---|
 | L01 Instalare și cwd | `omnis` instalat pornește din alt director, servește assets din release și deschide numai originul verificat | G00/G-OPS |
 | L02 Concurență | Două launchuri, lock/PID stale și port străin nu creează două instanțe/supervisoare și nu ating alt serviciu | G00 |
-| L03 Startup inert | Boot, status, health, API reload și browser open produc zero prompturi/model calls/target effects | G00/G01 |
+| L03 Startup inert | Boot/status/health/API reload/open: zero inferențe, validate/discovery/pricing/OAuth refresh și target effects; doar servicii locale declarate | G00/G01/G02 |
 | L04 Migrare/partial failure | DB indisponibilă, job concurent, schemă incompatibilă sau asset lipsă blochează readiness fără ștergeri | G00/G-OPS |
-| L05 Pairing/control | One-use atomic, expiry, Host/Origin/CSRF/SSE, peer/capability greșit, zero codes în URL/argv/log/JSON | G00 |
+| L05 Pairing/control | P0: one-use atomic, expiry, Host/Origin/CSRF, peer/capability greșit, zero codes în URL/argv/log/JSON. B08 completează autentificarea/expirarea SSE real. | G00-control / G03a-SSE |
 | L06 Runtime bridge | Fragmentare, reverse requests, stderr flood, backpressure, EOF, submit incert și generație veche sunt tratate fail-closed | H01/G02 |
 | L07 Provisionare izolată | Proxy neadmis/addon absent → niciun executor; namespace/host/metadata/IPv6/Docker/IPC neautorizat refuzate | G-DEPENDENCIES/G-NET |
-| L08 Stop și crash | Start/Resume/Settings concurente cu shutdown, crash launcher după închiderea admiterii, Stop repetat, crash supervisor/adaptor/DB și rezultat detached întârziat: fără efect nou/auto-wake, barieră durabilă și dovadă reală de oprire | G00/G02/G03/G07 |
+| L08 Stop și crash | G00: barieră/admitere atomică reală cu lucru inert, crash launcher și restart închis. P2/P3/P7: integrarea Start/Resume/Settings/raport și runtime/execuție, fără efect nou/auto-wake, cu dovadă reală de quiescență. | G00-core/G02/G03/G07 |
 | L09 Persistență/restart | Browser/terminal închis nu oprește serviciul; stop/start păstrează datele, fără assessment autoresume | G01/G-OPS |
 | L10 Release/headless/recovery | Fără GUI → URL fără secret; update cu backup; restore separat/cheie lipsă → LOCKED și lease-uri vechi refuzate | G-OPS/G08 |
 
@@ -545,7 +551,7 @@ Sub `api/src/omnis/modules/`:
 
 | Modul | Deține | Fișiere speciale, numai când sunt necesare | Prima felie |
 |---|---|---|---|
-| `instance/` | Identitatea/admiterea instanței și intenția durabilă de shutdown | `admission.py`, `shutdown.py` | B01f |
+| `instance/` | Identitatea/admiterea instanței și intenția durabilă de shutdown | schema minimă la P0.1; `admission.py`, `shutdown.py` odată cu lifecycle | B01c/B01f |
 | `engagements/` | Draft, revizie, scope declarat, autorizare și context business | `scope.py`, `business_rules.py` | B02 |
 | `runs/` | Preflight, comenzi idempotente, run snapshot și tranziții | `preflight.py`, `commands.py`, `completion.py` | B04/B05/B07 |
 | `tasks/` | Task/attempt, bindings, inbox/continuări și priorități | `binding.py`, `continuations.py` | B06 |
@@ -591,7 +597,7 @@ TDD pe felii verticale: test RED relevant → implementare minimă → GREEN →
 ### Porți de decizie care rămân reale, nu ascunse
 
 - **G-RUNTIME:** binding/lineage, credential ownership, wake și Stop native — dacă pică, P3 blocat până la extensie/patch minimal verificat.
-- **G-DEPENDENCIES:** proxyul publicat cu dependențe afectate este respins; B01e produce upstream/build remediat și verificat înaintea oricărui target effect.
+- **G-DEPENDENCIES:** proxyul publicat cu dependențe afectate rămâne respins; B01e-build permite numai testarea unui build remediat în harness izolat autorizat. B01e-integrated în B07/B09 + G-NET închid admiterea de assessment; nu cerem proba integrată înainte să existe adaptorul care trebuie testat.
 - **G-NET:** proxy/namespace nu poate împiedica toate traseele certificate — transport blocat; nu activăm fallback direct.
 - **G-PROVIDER:** cont, model, entitlement, buget și data policy aprobate — test live blocat până atunci; P0/P1 și testele fără LLM continuă.
 - **G-RELEASE:** toate funcțiile MVP promise, inclusiv Settings complet/ambii provideri, au dovezi. Lipsa contului nu devine succes mock.

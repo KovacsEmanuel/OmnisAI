@@ -59,6 +59,27 @@ dialog{border-radius:14px;max-height:calc(100dvh - 32px);overflow:auto}
 @media(max-width:600px){.global-header{padding:16px 12px}.global-nav{gap:0;padding:4px}.global-nav a{font-size:12px;padding:9px 11px}.wordmark{font-size:18px;padding:0 12px 0 8px;gap:7px}.wordmark svg{width:23px;height:23px}.global-nav [data-view=providers]{display:none}.topbar{margin:0 16px;gap:12px}.crumb strong{font-size:21px}.controls{justify-content:flex-start;gap:7px}.controls button{padding:8px 13px}.heading{align-items:flex-start;gap:12px}main{padding:24px 16px}.panel{padding:18px}.context-strip{gap:12px 20px;padding:14px 16px}.context-strip dd{overflow-wrap:anywhere}.workrow{gap:12px;flex-wrap:wrap}.cockpit-grid{gap:20px}.cockpit-stack{gap:20px}.stream-controls{flex-wrap:wrap}.stream-controls select{font-size:16px}.notice{padding:16px}.panel-title{flex-wrap:wrap}.sidebar.open{width:min(320px,94vw)}.statebar{padding:12px}.status{font-size:12px}}
 @media(forced-colors:active){.panel,.stream-card,.global-nav,.workspace-nav,.notice{border:1px solid CanvasText}.status{border-color:CanvasText}.primary{border:2px solid ButtonText}.global-nav a[aria-current],.workspace-nav a[aria-current]{outline:2px solid Highlight}.severity::before{background:CanvasText}}
 @media print{.global-header,.workspace-nav{display:none!important}.panel{box-shadow:none}}
+/* Finding review: one expandable record, evidence before authority. */
+summary{cursor:pointer;min-height:44px;outline-offset:-3px}summary:focus-visible{outline:2px solid var(--focus)}
+.finding-filters{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px}.finding-filters .status{padding:10px 16px}
+.finding-record{border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 0 0 4px #eee9e104;overflow:clip}
+.finding-row{list-style:none;display:grid;grid-template-columns:80px minmax(0,1fr) auto 24px;gap:22px;align-items:center;padding:26px}
+.finding-row::-webkit-details-marker{display:none}.finding-row::after{content:'+';font-size:23px;color:var(--muted);text-align:center}.finding-record[open]>.finding-row::after{content:'−'}
+.finding-row:hover{background:var(--raised)}.finding-row strong{display:block;font-size:17px;font-weight:500;margin-bottom:6px}.finding-row .mono{display:block;color:var(--muted);font-size:12px}
+.finding-row .provenance{display:block;color:var(--muted);font-size:12px;margin-top:10px}
+.finding-body{padding:0 26px 26px;border-top:1px solid var(--line)}.finding-body .context-strip{margin:24px 0}
+.finding-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:32px;align-items:start}
+.finding-content,.validation-rail{min-width:0}.finding-content h2{font-size:20px}.finding-content h3{margin-top:24px}.finding-content p{font-size:14px;color:var(--muted)}
+.repro-steps{list-style:none;counter-reset:step;padding:0;margin:20px 0 28px;display:grid;gap:18px}
+.repro-steps li{counter-increment:step;display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px}.repro-steps li::before{content:counter(step);display:grid;place-items:center;width:28px;height:28px;font:12px var(--mono);border:1px solid var(--line);border-radius:8px;background:var(--raised);color:var(--muted)}
+.repro-steps p{margin:5px 0 0}.evidence-item{border:1px solid var(--line);border-radius:10px;margin:10px 0;background:var(--bg);overflow:clip}
+.evidence-item summary{padding:12px 14px;color:var(--text);font-size:14px}.evidence-item pre{border:0;border-top:1px solid var(--line);margin:0;padding:16px;font-size:12px;background:var(--raised);border-radius:0}
+.validation-rail{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:22px}.validation-rail p{font-size:14px;color:var(--muted)}
+.validation-rail h2{font-weight:500}.validation-rail .kv{font-size:13px;grid-template-columns:86px minmax(0,1fr)}
+.oracle-checks{list-style:none;padding:0;margin:18px 0}.oracle-checks li{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.oracle-checks li span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.detail-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+@media(max-width:1023px){.finding-layout{grid-template-columns:minmax(0,1fr)}.finding-row{grid-template-columns:70px minmax(0,1fr) 24px;gap:14px}.finding-row>.status{grid-column:2;grid-row:2}.finding-row::after{grid-column:3;grid-row:1}.finding-body{padding:0 20px 20px}.validation-rail{grid-row:1}}
+@media(max-width:600px){.finding-row{padding:18px;grid-template-columns:minmax(0,1fr) 24px;gap:12px}.finding-row>.severity{grid-column:1}.finding-row>span:nth-child(2){grid-column:1/-1}.finding-row>.status{grid-column:1;grid-row:auto;justify-self:start}.finding-row::after{grid-column:2;grid-row:1}.finding-body{padding:0 16px 20px}.finding-row strong{font-size:17px}.validation-rail{padding:18px}.finding-layout{gap:24px}}
 </style></head><body>
 <a class="skip" href="#workspace">Skip to workspace</a>
 <div class="demo"><strong>DESIGN PROTOTYPE · DEMO DATA ONLY · No backend, credentials or target traffic</strong><a href="Omnis_UI_UX_Spec.html">Read the UI specification</a></div>
@@ -106,7 +127,58 @@ No request has been sent.</pre><p class="muted small">Raw target HTML would be e
 <section data-page="investigations" hidden><div class="heading"><div><h1>Investigations</h1><p>Candidate, validation and final verdict are separate steps.</p></div><span class="status">Skill catalog pinned per run</span></div>
   <div class="two-column"><section class="panel" id="blocked-task"><p class="eyebrow">Blocked task · synthetic</p><h2>Export access policy</h2><p class="mono">POST /api/export · demo-task-02</p><p>The expected business rule is UNKNOWN. The operation is inferred, the effect is unclassified and no verified identity exists. No probe is admitted.</p><dl class="kv"><dt>Attempt</dt><dd>demo-attempt-02 / investigator</dd><dt>Snapshot</dt><dd>run-demo / demo-r3</dd><dt>Outcome</dt><dd>BLOCKED · not a finding or a negative test</dd></dl><button data-operation-link="export">Inspect inferred operation</button></section>
   <section class="panel"><p class="eyebrow">Completed validation · synthetic</p><h2>Invoice authorization</h2><p>Private object: non-owner access expected DENY. Shared invoice: ALLOW control. Ownership alone is not the rule.</p><dl class="kv"><dt>Procedure</dt><dd>object-authorization / demo release</dd><dt>Lineage</dt><dd>demo-task-01 → demo-val-01 → demo-f-01</dd><dt>Identity</dt><dd>Alice / member / demo-epoch-a</dd><dt>Snapshot</dt><dd>run-demo / demo-r3</dd><dt>Outcome</dt><dd>CONFIRMED · synthetic example, no real execution</dd></dl><h3>Validation contract</h3><ol><li>Independent child with fresh authorized context.</li><li>Verify principal, expected rule and preconditions.</li><li>Replay candidate and paired controls.</li><li>Require complete evidence and deterministic oracle checks.</li></ol><p class="muted">Missing evidence or expired login means INCONCLUSIVE, not REJECTED or FIXED.</p><button data-go="findings">Inspect finding</button></section></div></section>
-<section data-page="findings" hidden><div class="heading"><div><h1>Findings</h1><p>Only confirmed records appear here in the implemented product.</p></div><span class="status warn">Layout example · not a real finding</span></div><div class="details panel"><p class="eyebrow">DEMO-ONLY / OBJECT AUTHORIZATION</p><h2>Private invoice visible to another account</h2><div class="chips"><span class="status bad">Severity requires demonstrated impact</span><span class="status">CWE-639 · illustrative classification</span></div><p>This is synthetic copy for the finding detail layout. No vulnerability has been found or validated by this prototype.</p><div class="two-column divider"><div><h3>Demonstrated impact</h3><p class="muted">The real report would state exactly which test object and operation were proven, without claiming access to all customer data.</p><h3>Evidence and preconditions</h3><p class="muted">Identity, auth epoch, expected rule, baseline, replay and secure control — each linked to durable artifacts.</p></div><div><h3>Remediation and retest</h3><p class="muted">Enforce the application's expected object-access rule. Retest with fresh preconditions and preserve the original report.</p><button id="retest-preview">Preview retest state</button><p class="statusline" id="retest-state" role="status"></p></div></div><button data-go="reports">Open report snapshot layout →</button></div></section>
+<section data-page="findings" hidden>
+  <div class="heading"><div><h1>Findings</h1><p>What was demonstrated, how it was validated, and what to fix.</p></div><span class="status">Synthetic design example</span></div>
+  <div class="finding-filters"><span class="status ok">Confirmed · 1 example</span><button data-go="investigations">Candidates &amp; inconclusive → Investigations</button></div>
+  <details class="finding-record" data-finding="demo-f-01">
+    <summary class="finding-row"><span class="severity">HIGH</span><span><strong>Private invoice visible to another account</strong><span class="mono">GET /api/invoices/{id} · CWE-639 · demo-f-01</span><span class="provenance">Investigator demo-task-01 → Validator demo-val-01</span></span><span class="status ok">CONFIRMED · DEMO</span></summary>
+    <div class="finding-body">
+      <dl class="context-strip" id="finding-context"><div><dt>Run / scope snapshot</dt><dd class="mono">run-demo / demo-r3</dd></div><div><dt>Identity / auth epoch</dt><dd>Alice · member / demo-epoch-a</dd></div><div><dt>Business rule</dt><dd class="mono">demo-rule-02 · expected DENY</dd></div></dl>
+      <div class="finding-layout">
+        <div class="finding-content">
+          <h2>Impact &amp; boundaries</h2><p>In this synthetic scenario, Alice can read the contents of Bob's private test invoice despite an explicit deny rule. The example demonstrates one cross-account read — not access to every invoice, mass enumeration or a write capability.</p><p><strong>Severity rationale:</strong> High because private billing data crosses an account boundary. No numeric CVSS or confidence score is invented.</p>
+          <h3>Reproduction</h3><p>Design walkthrough only. These steps and transcripts have not been executed.</p>
+          <ol class="repro-steps"><li><div><strong>Restore the authorized preconditions</strong><p>Verify Alice's principal and role, the private test object, rule demo-rule-02 and a fresh isolated auth context.</p></div></li><li><div><strong>Establish the allowed baseline</strong><p>Read the shared test invoice as Alice. Match the expected object marker; a successful status alone is insufficient.</p></div></li><li><div><strong>Replay the private-object read independently</strong><p>The validator repeats the bounded GET for Bob's private test invoice. Compare the observed object marker with the expected DENY rule.</p></div></li><li><div><strong>Run the secure control</strong><p>The matching protected fixture must deny this private-object read while the shared-object baseline still succeeds. Auth failure alone cannot satisfy the control.</p></div></li></ol>
+          <h3>Evidence bundle</h3><p>Redacted, inert text. Identifiers below are fixture labels, not real evidence digests.</p>
+          <label class="field"><span>Preview current evidence state · DEMO</span><select id="finding-evidence-state"><option value="AVAILABLE">AVAILABLE · synthetic preview</option><option value="MISSING">MISSING</option><option value="TRUNCATED">TRUNCATED</option><option value="CORRUPT">CORRUPT</option><option value="DELETED">DELETED</option></select></label>
+          <p id="evidence-availability" role="status">AVAILABLE · synthetic preview only. Historical verdict retained.</p>
+          <div id="evidence-bundle">
+          <details class="evidence-item" id="baseline-evidence"><summary>01 · Allowed baseline <span class="muted">/ demo-ev-baseline</span></summary><pre class="evidence">SYNTHETIC TRANSCRIPT — No request was sent.
+GET /api/invoices/demo-shared
+Authorization: [REDACTED]
+Expected rule: ALLOW · Alice / demo-epoch-a
+Example observation: 200 · object marker demo-shared
+Source: bounded HTTP executor / design fixture</pre></details>
+          <details class="evidence-item" id="replay-evidence"><summary>02 · Independent replay <span class="muted">/ demo-ev-replay</span></summary><pre class="evidence">SYNTHETIC TRANSCRIPT — No request was sent.
+GET /api/invoices/demo-private
+Authorization: [REDACTED]
+Expected rule: DENY · Alice / demo-epoch-a
+Example observation: 200 · object marker demo-private
+Validator: demo-val-01 · fresh context
+Only the designated synthetic test object is represented.</pre></details>
+          <details class="evidence-item" id="control-evidence"><summary>03 · Paired secure control <span class="muted">/ demo-ev-control</span></summary><pre class="evidence">SYNTHETIC TRANSCRIPT — No request was sent.
+Protected fixture · same principal and access rule
+Private test object: denied (example 403)
+Shared test object: allowed with expected object marker
+Control outcome: authorization boundary, not expired login
+All examples are inert, not validation evidence.</pre></details>
+          </div>
+          <button id="replay-preview">Preview replay requirements</button><p id="replay-message" class="statusline" role="status"></p>
+          <h3>Remediation</h3><p>Enforce the versioned object-access rule on the server for every invoice read. Bind the decision to the authenticated principal, tenant and object. Add both private-denial and shared-access regression cases.</p>
+          <div class="detail-actions"><button id="retest-preview">Preview retest state</button><button data-go="reports">Inspect report snapshot →</button></div><p class="statusline" id="retest-state" role="status"></p>
+        </div>
+        <aside class="validation-rail" aria-labelledby="validator-title">
+          <p class="eyebrow">Independent validation</p><h2 id="validator-title">Validator decision</h2><p id="finding-verdict" class="status ok">CONFIRMED · synthetic example</p><p>The independent replay and paired controls support the bounded claim. The evidence service admits the persisted verdict only after deterministic oracle and completeness checks.</p>
+          <ul class="oracle-checks"><li>Preconditions verified<span>Principal, auth epoch, scope and expected rule</span></li><li>Claim reproduced<span>Private-object marker, not merely HTTP 200</span></li><li>Paired controls satisfied<span>Allowed access succeeds; protected private access fails</span></li><li>Evidence complete at verdict<span>Baseline, replay, control and source lineage</span></li></ul>
+          <dl class="kv"><dt>Validation</dt><dd class="mono">demo-val-01</dd><dt>Procedure</dt><dd>object-authorization / demo release</dd><dt>Verdict ref</dt><dd class="mono">demo-verdict-01</dd><dt>Remediation</dt><dd>OPEN · example only</dd><dt>Occurrence</dt><dd>One synthetic operation/context</dd></dl>
+          <p>No operator confirmation or model vote can replace these checks. An annotation can contest the result without rewriting the evidence.</p>
+          <div class="divider"><h3>History &amp; retest</h3><p>Candidate → independent validation → stored verdict. Retest requires fresh authorization and evidence; a new report never overwrites the original snapshot.</p></div>
+        </aside>
+      </div>
+    </div>
+  </details>
+  <p class="stream-note">DEMO only. No vulnerability was found or validated by this prototype.</p>
+</section>
 <section data-page="reports" hidden><div class="heading"><div><h1>Reports</h1><p>Immutable snapshots. Findings, evidence and limits from the same run.</p></div><button id="report-preview">Preview export contract</button></div><div class="panel details"><p class="eyebrow">DEMO SNAPSHOT · NOT AN ASSESSMENT</p><h2>Invoice lab / report structure</h2><div class="reportsummary"><h3>Scope &amp; conditions</h3><p class="muted">Authorization, exact origins, exclusions, identities, policy revision, model, skills and tool versions.</p><h3>Confirmed findings</h3><p class="muted">Impact, evidence, reproduction, severity rationale, remediation and occurrences.</p><h3>Coverage &amp; limitations</h3><p class="muted">Known denominator, tested/no-issue evidence, blocked/unsupported areas, auth drift and cleanup obligations.</p><h3>Retest history</h3><p class="muted">New evidence and new report version. Missing login is inconclusive, not fixed.</p></div><p class="statusline" id="report-state" role="status"></p></div></section>
 <section data-page="setup" hidden><div class="heading"><div><h1>Engagement setup</h1><p>Preview the setup flow. Do not enter real targets or secrets.</p></div><span class="status">Draft · local demo state only</span></div><div class="wizard"><ol class="steps" id="wizard-steps"><li class="active">1. Target &amp; permission</li><li>2. Application context</li><li>3. Identities</li><li>4. Rules &amp; budgets</li><li>5. Review</li></ol><div class="panel"><div data-step="0"><h2>Target &amp; permission</h2><label class="field"><span>Engagement name</span><input value="Invoice lab · DEMO" readonly><small>This prototype does not save data.</small></label><label class="field"><span>Authorized origin</span><input value="https://lab.invalid" readonly></label><label class="field"><span>Scope policy</span><select><option>ATTACKABLE — synthetic fixture only</option><option>VISIT_ONLY — functional dependency</option><option>BLOCKED</option></select><small>An IdP needed for login is not an authorized pentest target.</small></label></div><div data-step="1" hidden><h2>Application context</h2><p class="muted">A versioned rule tells us what access is expected. The model does not invent it.</p><div class="tablewrap" tabindex="0" role="region" aria-label="Expected access rules"><table><thead><tr><th>Persona</th><th>Object / operation</th><th>Expected</th></tr></thead><tbody><tr><td>Alice</td><td>Bob's private invoice / read</td><td>DENY</td></tr><tr><td>Alice</td><td>Shared invoice / read</td><td>ALLOW</td></tr><tr><td>Unknown role</td><td>Export / create</td><td>UNKNOWN</td></tr></tbody></table></div><p class="muted small">DEMO source: evaluator fixture manifest. Actual context imports are reviewed and cannot expand scope.</p></div><div data-step="2" hidden><h2>Identities are optional</h2><label class="field"><span>Authentication mode</span><select><option>Anonymous</option><option>Token / cookie / Basic — secret reference</option><option>Assisted browser in isolated context</option></select></label><label class="field"><span>Secret input unavailable in this prototype</span><input disabled placeholder="Never enter a credential here"></label><p class="muted">The product uses a secured secret flow. Sessions serialize refresh and keep their own auth epoch.</p></div><div data-step="3" hidden><h2>Rules &amp; budgets</h2><label class="field"><span>Unknown effects</span><input readonly value="BLOCK under read-only policy"></label><label class="field"><span>Model data policy</span><input readonly value="Minimal, reviewed excerpts only"></label><p class="muted">Request/time/storage limits include redirects, login, controls and validation. Financial estimates are not a hard provider cap.</p></div><div data-step="4" hidden><h2>Review &amp; preflight</h2><ul class="plain-list"><li>Scope, permission and expected business rules: demo only.</li><li>Runtime: not connected.</li><li>Provider inference: not tested.</li><li>Network confinement: not implemented in this prototype.</li></ul><p class="muted" style="margin-top:15px">Real Start stays blocked until these gates pass. The button below only opens the design example.</p></div><div class="formfoot"><button id="wizard-back" disabled>Back</button><button id="draft-preview">Preview Save draft</button><button class="primary" id="wizard-next">Next</button></div><p class="statusline" id="wizard-message" role="status"></p></div></div></section>
 <section data-page="providers" hidden><div class="heading"><div><h1>Providers</h1><p>Hermes owns AI credentials. Omnis shows verified readiness.</p></div><span class="status">No provider connected</span></div><div class="panel"><div class="provider"><div><h2>OpenRouter</h2><p class="muted small">API key stored by dedicated Hermes</p></div><div><span class="status">Not configured</span><p class="small muted">Configured ≠ authenticated ≠ inference-ready</p></div><div><button class="provider-preview">Preview secure setup</button></div></div><div class="provider"><div><h2>ChatGPT / Codex</h2><p class="muted small">Native device OAuth</p></div><div><span class="status">Not connected</span><p class="small muted">Eligibility and quota are not assumed.</p></div><div><button class="provider-preview">Preview login flow</button></div></div><p class="muted" style="margin-top:20px">No login is started by this prototype. An inference test is a separate, explicit, potentially billable action.</p><p class="statusline" id="provider-message" role="status"></p></div></section>
@@ -136,16 +208,27 @@ mobileNav.addEventListener('change',e=>{
   $('workspace').focus();
  }
 });
+function focusContent(target){
+ target.focus({preventScroll:true});
+ const headerHeight=document.querySelector('.topbar').getBoundingClientRect().height;
+ window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-headerHeight-16),behavior:'instant'});
+}
 function showView(name, focus=true){
  if(!pages.some(p=>p.dataset.page===name)) name='overview';
  activeView=name;
  applyPreview();
  document.querySelectorAll('[data-view]').forEach(a=>{if(a.dataset.view===name)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  history.replaceState(null,'','#'+name); closeMenu();
- if(focus)$('workspace').focus({preventScroll:true});
+ if(focus)focusContent($('workspace'));
 }
 document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showView(a.dataset.view);}));
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+ showView(b.dataset.go);
+ if(b.dataset.go==='findings'){
+  const finding=document.querySelector('[data-finding="demo-f-01"]');finding.open=true;
+  focusContent(finding.querySelector('summary'));
+ }
+}));
 $('stream-filter').addEventListener('change',()=>{
  const actor=$('stream-filter').value;
  const events=[...document.querySelectorAll('#brain-stream [data-actor]')];
@@ -262,6 +345,15 @@ $('start-demo').addEventListener('click',()=>{
 let step=0;function setStep(){document.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);document.querySelectorAll('#wizard-steps li').forEach((e,i)=>e.classList.toggle('active',i===step));$('wizard-back').disabled=step===0;$('wizard-next').textContent=step===4?'Open demo overview':'Next';$('wizard-message').textContent='';}
 $('wizard-next').addEventListener('click',()=>{if(step===4){showView('overview');return;}step++;setStep();});$('wizard-back').addEventListener('click',()=>{if(step>0)step--;setStep();});$('draft-preview').addEventListener('click',()=>{$('wizard-message').textContent='The real product saves a draft to its API. This prototype does not persist it.';});
 $('retest-preview').addEventListener('click',()=>{$('retest-state').textContent='RETEST_INCONCLUSIVE · demo: auth expired. This is not FIXED.';});
+$('finding-evidence-state').addEventListener('change',()=>{
+ const state=$('finding-evidence-state').value,available=state==='AVAILABLE';
+ $('evidence-bundle').hidden=!available;$('replay-preview').disabled=!available;
+ $('evidence-availability').textContent=available?'AVAILABLE · synthetic preview only. Historical verdict retained.':state+' · Required evidence unavailable for replay. Historical verdict retained; new validation requires new complete evidence.';
+ $('replay-message').textContent='';
+});
+$('replay-preview').addEventListener('click',()=>{
+ $('replay-message').textContent='No replay was executed. Real replay requires intact evidence, fresh authorization, verified identity, scope, policy and budget.';
+});
 $('report-preview').addEventListener('click',()=>{$('report-state').textContent='Actual export: immutable HTML/JSON from durable data, escaped and offline. No fake assessment file is generated here.';});
 document.querySelectorAll('.provider-preview').forEach(b=>b.addEventListener('click',()=>{$('provider-message').textContent='Secure product flow only: explicit consent → Hermes management → readback → optional billable inference test. No credential input in this prototype.';}));
 $('skill-preview').addEventListener('click',()=>{$('skill-state').textContent='Publication pins the whole package digest for new runs. Every task in the same run retains its catalog snapshot. Draft editing may continue; release selection applies to the next run. No code runs on publish.';});

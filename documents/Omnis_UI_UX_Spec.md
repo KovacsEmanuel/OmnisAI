@@ -96,6 +96,10 @@ Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill dige
 
 Listă implicită numai CONFIRMED. Candidates/REJECTED/INCONCLUSIVE rămân în Investigations și pot fi deschise explicit. Finding detail: impact demonstrat, severitate motivată, precondiții, pași, evidence, limite, remediere. Confidence nu este severity.
 
+**Compoziția de review:** rând expandabil cu severitate, titlu, metodă/rută, identificator, investigator → validator și verdict. Nu există Confirm/Dismiss/vot în listă. La expandare: context run/scope/identity/epoch/regulă, apoi impact + reproducere + baseline/replay/control în coloana principală, cu decizia validatorului și verificările oracle într-un panou distinct. Sub 1024px panourile se stivuiesc; verdictul rămâne disponibil înaintea detaliilor lungi. Linkul din Brain stream deschide findingul, nu o listă fără selecție.
+
+Disponibilitatea **actuală** a evidence este separată de completitudinea **la momentul verdictului**. În prototip, selectorul DEMO AVAILABLE/MISSING/TRUNCATED/CORRUPT/DELETED ascunde transcripturile indisponibile și dezactivează preview-ul cerințelor de replay, dar nu rescrie verdictul istoric. Textele/transcripturile sunt sintetice, nu output al unui executor. Produsul nu va avea acest selector de scenarii: starea vine din API.
+
 Retest cere run/autorizație/buget proaspăt și afișează FIXED doar după precondiții valide/control. Auth expirat produce RETEST_INCONCLUSIVE. Raportul nou citează probe noi; cel vechi rămâne neschimbat. Dedup conservator cu occurrences expandabile, nu dispariția „duplicatelor” fără audit.
 
 ### Providers și Skills

@@ -287,7 +287,10 @@ def check_cockpit_stream(page):
     assert 'Internal deliberations' not in stream.inner_text()
     stream.get_by_role('button', name='Inspect finding').click()
     expect(page.locator('[data-page="findings"]')).to_be_visible()
-    expect(page.locator('#workspace')).to_be_focused()
+    expect(page.locator('.finding-row')).to_be_focused()
+    row = page.locator('.finding-row').bounding_box()
+    header = page.locator('.topbar').bounding_box()
+    assert row['y'] >= header['y'] + header['height'], 'finding context must not be under the sticky header'
     page.evaluate("showView('overview', false)")
     page.locator('#stream-filter').select_option('all')
     assert stream.locator('[data-actor]:visible').count() == 4
@@ -334,13 +337,83 @@ def check_cockpit_task_context(page):
     assert page.locator('#persona').input_value() == 'Alice · member'
 
 
+def check_finding_inspection(page):
+    page.evaluate("showView('findings', false)")
+    finding = page.locator('[data-finding="demo-f-01"]')
+    expect(finding).to_be_visible()
+    assert page.locator('[data-finding]').count() == 1
+    summary = finding.locator('summary').first
+    summary.focus()
+    assert summary.evaluate('''e => {
+        const style = getComputedStyle(e);
+        return parseFloat(style.outlineWidth) >= 2 &&
+            parseFloat(style.outlineOffset) <= -parseFloat(style.outlineWidth);
+    }'''), 'focus ring must sit inside the clipped finding card'
+    focused_pixels = summary.screenshot()
+    summary.evaluate('e => e.blur()')
+    assert focused_pixels != summary.screenshot(), 'keyboard focus must change visible pixels, not only the DOM'
+    summary.focus()
+    page.keyboard.press('Enter')
+    expect(finding).to_have_attribute('open', '')
+    expect(page.get_by_role('heading', name='Validator decision', exact=True)).to_be_visible()
+    assert 'CONFIRMED' in page.locator('#finding-verdict').inner_text()
+    assert 'demo-r3' in page.locator('#finding-context').inner_text()
+    assert 'demo-epoch-a' in page.locator('#finding-context').inner_text()
+    page.locator('#replay-evidence summary').click()
+    assert 'SYNTHETIC TRANSCRIPT' in page.locator('#replay-evidence pre').inner_text()
+    assert 'No request was sent' in page.locator('#replay-evidence pre').inner_text()
+    page.locator('#retest-preview').click()
+    assert 'RETEST_INCONCLUSIVE' in page.locator('#retest-state').inner_text()
+    for width in [1440, 1280, 1024, 390, 320]:
+        page.set_viewport_size({'width': width, 'height': 1000})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        expect(page.locator('#finding-verdict')).to_be_visible()
+    summary.focus()
+    page.keyboard.press('Enter')
+    assert finding.get_attribute('open') is None
+    expect(summary).to_be_focused()
+
+
+def check_finding_evidence_availability(page):
+    page.evaluate("showView('overview', false)")
+    page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
+    expect(page.locator('[data-finding="demo-f-01"]')).to_have_attribute('open', '')
+    verdict = page.locator('#finding-verdict').inner_text()
+    page.locator('#replay-preview').click()
+    assert 'No replay was executed' in page.locator('#replay-message').inner_text()
+    for state in ['MISSING', 'TRUNCATED', 'CORRUPT', 'DELETED']:
+        page.locator('#finding-evidence-state').select_option(state)
+        expect(page.locator('#evidence-bundle')).to_be_hidden()
+        expect(page.locator('#replay-preview')).to_be_disabled()
+        assert state in page.locator('#evidence-availability').inner_text()
+        assert 'unavailable' in page.locator('#evidence-availability').inner_text()
+        assert page.locator('#finding-verdict').inner_text() == verdict
+    page.locator('#finding-evidence-state').select_option('AVAILABLE')
+    expect(page.locator('#evidence-bundle')).to_be_visible()
+    expect(page.locator('#replay-preview')).to_be_enabled()
+    assert page.locator('#finding-verdict').inner_text() == verdict
+
+
+def check_finding_return_scroll(page):
+    page.set_viewport_size({'width': 390, 'height': 1000})
+    for _ in range(2):
+        page.evaluate("showView('overview', false)")
+        page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
+        row = page.locator('.finding-row')
+        expect(row).to_be_focused()
+        rect, header = row.bounding_box(), page.locator('.topbar').bounding_box()
+        assert rect['y'] >= header['y'] + header['height']
+        assert rect['y'] + rect['height'] <= 1000
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
                check_pause_resume_preflight, check_resume_preflight_stop, check_stop_during_pause_drain,
                check_touch_targets, check_typography, check_run_catalog_copy,
                check_empty_error_previews, check_cockpit_stream, check_cockpit_task_context,
-               check_generated_document_csp]
+               check_finding_inspection, check_finding_evidence_availability,
+               check_finding_return_scroll, check_generated_document_csp]
 
 
 def main():

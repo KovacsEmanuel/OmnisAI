@@ -1,0 +1,32 @@
+---
+name: omnis-review-qa
+description: "Use when reviewing and verifying an Omnis change."
+version: 0.1.0
+author: OmnisAI (KovacsEmanuel), Hermes Agent
+license: MIT
+platforms: [linux]
+metadata:
+  hermes:
+    tags: [omnis, development]
+---
+
+# Omnis independent review and QA
+
+## When to Use
+Before accepting an implementation slice, resolving a regression, or declaring a phase delivered. Review functional compliance separately from code quality and visual approval.
+
+## Procedure
+1. Use `terminal` to identify base/head and `git diff`; include owned untracked files, relevant surrounding code and acceptance criteria. Establish existing failures without stashing someone else's work. A detached clean worktree can reproduce a baseline.
+2. Run the cheapest relevant deterministic checks first: syntax, schema, lint/type, targeted unit/integration, then regression and browser/E2E. Missing commands are NOT-RUN/BLOCKED, never silent green. A tool's exit 0 is only evidence for the property it tested.
+3. Ask an independent reviewer via `delegate_task` for concrete findings: severity, file:line, reproducer, violated requirement, remedy. First ask whether the slice meets the spec; then inspect authorization, input boundaries, races, persistence, error handling and complexity. The reviewer is read-only in the shared checkout.
+4. Reject findings based only on style preference unless they conflict with a committed rule. Verify suspected bugs with a test. Fix blockers in minimal separate changes; rerun affected checks after the LAST edit. Two failed fix attempts trigger a narrower investigation, not blind repetition.
+5. For UI inspect the actual screenshot against the user's reference at agreed viewports. Test keyboard/focus, modal/drawer Stop, resize, loading/empty/error/unavailable, reduced motion, long content and real state transitions. Chromium smoke does not certify screen readers, all browsers or aesthetics.
+6. Use Reticle optionally for instrumented local runtime evidence; keep Playwright/DOM and screenshot checks independent. An INCONCLUSIVE result remains inconclusive. Do not install instrumentation into a production build or use it on unrelated sites.
+7. Audit added lines and staged paths for credentials, sensitive evidence, unsupported dependencies and accidental files. Review generated changes against their source. Keep external revisions/licenses and actual failures in the change record.
+8. Parent reproduces critical assertions and commits the accepted slice. Record exact commands, counts, exit codes, limitations and base/head; final reporting distinguishes implementation, integration and visual acceptance.
+
+## Pitfalls
+No universal 'verified' badge. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
+
+## Verification
+All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

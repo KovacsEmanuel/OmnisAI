@@ -6,7 +6,7 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Reguli de dezvoltare
 
-[AGENTS.md](AGENTS.md) fixează regula de commit după fiecare schimbare coerentă, verificarea, review-ul și rollbackul. **Direcția vizuală actuală nu este acceptată**; redesignul începe de la referința pe care o va furniza utilizatorul. Prototipul rămâne o probă tehnică, nu un design aprobat.
+[AGENTS.md](AGENTS.md) fixează regula de commit după fiecare schimbare coerentă, verificarea, review-ul și rollbackul. **UI/UX în revizie:** referința `omnis-cockpit-v5.html` a fost primită; adaptarea fără brain graph/council este descrisă în [specificația UI/UX, §0](documents/Omnis_UI_UX_Spec.md). Prototipul nu este încă un design aprobat. Înainte de implementare stabilim și structura fișierelor sistemului și pornirea prin `omnis`; implementarea așteaptă acordul utilizatorului.
 
 ## Începe aici
 

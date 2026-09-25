@@ -4,7 +4,7 @@
 
 - Citește `README.md` și doar secțiunile relevante din baseline-ul `documents/`. Arhitectura decide comportamentul; planul decide ordinea și porțile. Nu porni un plan concurent.
 - Proiectul este local-first, un singur operator, Web/API autorizat. Documentele, probele și prototipul nu sunt aplicația implementată. Nu conecta conturi, nu cheltui buget LLM și nu executa trafic de țintă fără acordul necesar.
-- **Direcția vizuală a prototipului nu este acceptată de utilizator.** Așteaptă referința UI înainte de redesign; testele tehnice trecute nu aprobă estetica. Păstrează contractele funcționale de Stop, focus, stări și accesibilitate.
+- **Direcția vizuală anterioară a fost respinsă.** Referința `omnis-cockpit-v5.html` a fost furnizată; interpretarea curentă este în §0 din specificația UI/UX. Lucrează întâi pe prototip: fără brain graph/council, cu Brain stream și validator. Adaptarea nu este încă aprobată vizual; testele tehnice nu aprobă estetica. Păstrează Stop, focus, stări și accesibilitate. Implementarea aplicației așteaptă acordul utilizatorului și stabilirea structurii sistemului/comenzii `omnis`.
 - `.hermes/skills/` conține skill-uri pentru DEZVOLTAREA Omnis, nu catalogul executabil de pentest al produsului. Nu le expune investigatorilor sau runtime-ului de evaluare.
 
 ## Schimbări mici, istoric reversibil — obligatoriu

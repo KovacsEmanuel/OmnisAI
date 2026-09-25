@@ -4,6 +4,25 @@
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.
 
+## 0. Referința primită și felia de design
+
+**Propunere în lucru, nu aprobare vizuală.** Referință furnizată de utilizator: `/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html`, SHA-256 `d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7`. Fișierul extern rămâne nemodificat; nu importăm scripturile, conținutul de securitate sau configurațiile sale. Referința este un template vizual, nu contractul de domeniu Omnis.
+
+**Surface primar: Operate; secundar: Inspect.** Păstrăm negrul cald, textul ivory/taupe, accentele nisipii, navigarea globală compactă deasupra contextului engagementului, subtabs și panouri cu contur dublu discret. Nu preluăm hero-ul, statistici fără sursă, procente de confidence/precision inventate, animațiile și fonturile remote. Contrastul informației esențiale și țintele de 44px au prioritate față de microtextul din template.
+
+Adaptări obligatorii:
+
+- Cockpit: context/run/Stop persistent, decizii pentru operator, findings accesibile direct, lucru activ și Brain stream într-o compoziție asimetrică. Fără sidebar permanent care consumă spațiul central; drawer pe mobil păstrează Stop echivalent.
+- Fără brain graph, canvas de noduri sau panouri plutitoare draggable. Brain stream: evenimente și decizii scurte, actor/task, motiv rezumat, rezultat și link către obiect/dovadă. Nu expune chain-of-thought și nu deduce starea runului din conversație.
+- Fără council, jurori, voturi sau buton de confirmare manuală a unui finding. Investigator → validator separat → verdict persistent admis de serviciul probatoriu, pe oracle/controale/evidence. Validatorul nu este un vot LLM suficient pentru CONFIRMED.
+- Findings confirmate separate de candidates/inconclusive. Detaliu deschis din listă: impact, severitate motivată, precondiții, reproducere, evidence redactate, controale, decizia validatorului, limite, remediere și retest. Lipsa actuală a dovezilor nu rescrie verdictul istoric.
+
+**Contractul feliei:** adaptăm prototipul existent, cu cockpit și finding detail reprezentative; celelalte ecrane rămân probe funcționale, nu redesign complet aprobat. Fișiere admise: prototip, testele sale, DESIGN/tokenuri, această specificație și indexurile/probele aferente. Fără frontend/backend de produs, noi dependențe UI, conturi, date reale sau trafic target. Nu creăm un baseline concurent.
+
+**Acceptare tehnică:** navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow de pagină la 320/390/1024/1280/1440; screenshoturi inspectate, inclusiv detaliu; zero requesturi externe. Verificare: `python tests/documentation/browser_check.py --include-documents --output <scratch>/browser-check.json`, `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`, plus lint/export tokenuri. Baseline înainte de schimbare: 95 checks browser, 16 teste documentare trecute, zero erori JS/requesturi externe.
+
+Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală și acordul de implementare rămân ale utilizatorului. După această iterație se stabilește în arhitectura/planul existente structura fișierelor și pornirea prin executabilul `omnis`, nu se începe scaffoldul.
+
 ## 1. Anatomia consolei
 
 ```text

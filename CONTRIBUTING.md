@@ -46,6 +46,12 @@ Template-ul de sarcină și roluri este în [.hermes/skills/omnis-delivery/templ
 | Hermes nativ, copii, Settings, skills per run, recuperare | `omnis-hermes-runtime` |
 | Scope/egress/auth, validatori, fault injection/evaluare | `omnis-safety-evaluation` |
 | Review independent, regresii, QA și raportare sinceră | `omnis-review-qa` |
+| Interfață de la referință, React și stări reale | `omnis-frontend` |
+| Keyboard, focus, formulare, overlay-uri și contrast | `omnis-accessibility` |
+| Măsurători de render, streaming, memorie și motion | `omnis-frontend-performance` |
+| QA runtime local instrumentat, cu limite explicite | `omnis-reticle` |
+| Reguli executabile împotriva casturilor fără dovezi | `omnis-anti-slop` |
+| Reevaluare adaptor de fișiere — **NO-GO curent** | `omnis-chisel` |
 | Pinning, CI, build, release, backup/restore | `omnis-release-ops` |
 
 Nu încărca toate skill-urile în fiecare tură. Citește numai procedura necesară feliei. Skills existente precum `test-driven-development`, `systematic-debugging`, `hermes-agent` și `design-md` completează procedurile, nu înlocuiesc criteriile Omnis.
@@ -78,6 +84,10 @@ Rollback: revert și efecte externe care cer pași separați.
 Pentru rollback inspectăm `git show <sha>` și dependențele, folosim `git revert <sha>`, apoi rerulăm criteriile. Nu rescriem istoria. Snapshoturile Hermes sunt doar o posibilă plasă locală suplimentară, nu înlocuitor al commiturilor și nici rollback pentru DB/servicii.[4]
 
 ## Verificări disponibile acum
+
+Comanda canonică este `make check` (alias `make test`); rulează verificările documentare, testele launcherelor și proba reală anti-slop, propagând orice eșec. Instalează întâi [dependențele de dezvoltare](tools/development/README.md). Nu este certificarea aplicației sau a Chisel. Proba completă Reticle este separată, cu namespace/browser și rezultate proprii.
+
+Comenzile individuale, pentru investigații țintite:
 
 ```sh
 python scripts/render_docs.py --check

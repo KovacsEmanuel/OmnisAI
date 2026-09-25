@@ -1,0 +1,110 @@
+{
+  "count": 12,
+  "skills": [
+    {
+      "name": "omnis-accessibility",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-accessibility/SKILL.md",
+      "sha256": "e6463b33677acd7cd44a67821d7bd1d55f6b38413bf1f598c52293ec19a5a785",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-anti-slop",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-anti-slop/SKILL.md",
+      "sha256": "8f92416e5515f8e05441d5e3629eeadaf68390827c5cdd1de8ef55e9e2b6e1f8",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-api-data",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-api-data/SKILL.md",
+      "sha256": "112d38a0252a4536f866a24a56c77e24711929e0a74180758223c9bfceb01449",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-chisel",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-chisel/SKILL.md",
+      "sha256": "46b9b05abc7615eebee55f0b5c90312bafc3f065580c1557dd409383053f7b4b",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-delivery",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-delivery/SKILL.md",
+      "sha256": "9f7326239ec921aad8a09c50f8b55315d23c926a8d4ca69369de1326904c8b5b",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-frontend",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-frontend/SKILL.md",
+      "sha256": "6a9b5bdeb061d1fbc207136873b8ccad4bc744dcb25afa8544501b0cc1b14b22",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-frontend-performance",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-frontend-performance/SKILL.md",
+      "sha256": "abeb04205409150ff50fd2a619d7bc6bf7580452025524ed471ece1df2031336",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-hermes-runtime",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "sha256": "9216ce0b161ab1b94dfc7fcde882d21fb7354d182ae567328db905735f9ab147",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-release-ops",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-release-ops/SKILL.md",
+      "sha256": "f7d7bd326d0c3529d28910a1f0015ba864c46c2697c3b4eabd84508595ae3828",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-reticle",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-reticle/SKILL.md",
+      "sha256": "0d4edde783dc84d3511e046d11f55f7f44aa653af840f84d84f65ce956f61a6f",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-review-qa",
+      "version": "0.1.1",
+      "path": ".hermes/skills/omnis-review-qa/SKILL.md",
+      "sha256": "1a8f817150cc50eceff62b3748520b50da292d24b0b61f90bcffe75e87ce49bd",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    },
+    {
+      "name": "omnis-safety-evaluation",
+      "version": "0.1.0",
+      "path": ".hermes/skills/omnis-safety-evaluation/SKILL.md",
+      "sha256": "25b245bf657f23c6a864c6198284a1ba9e5a269bc3af0c91bddb1a02910df3f8",
+      "native_read": true,
+      "scanner_verdict": "safe"
+    }
+  ],
+  "scope": "Project-local development skills, not the assessment runtime catalog",
+  "checked_at_utc": "2026-09-25T10:43:06.335319+00:00",
+  "hermes": "0.21.5 / ee5ee84a (installed native loader; fresh checkout-bound process)",
+  "limitations": [
+    "Current already-open session prompt/catalog was not rewritten",
+    "Native Reticle/Chisel MCP servers were not globally registered",
+    "Chisel is an adoption gate, explicitly NO-GO",
+    "Visual redesign waits for user reference; product app remains unimplemented"
+  ]
+}

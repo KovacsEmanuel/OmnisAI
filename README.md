@@ -25,6 +25,8 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 
 **G-DESIGN: VISUAL_ACCEPTED / START_PENDING_NEW_SESSION.** Auditul pregătește implementarea; această sesiune nu o începe. Mesajul de pornire din sesiunea nouă confirmă baseline-ul de structură `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md), apoi autorizează numai felia P0 declarată. Nu există încă aceste componente de produs.
 
+**Reluare după clear:** [plan §19](documents/Omnis_Implementation_Plan.md) definește **P0.1 — API/PostgreSQL readiness și migrare reală**, cu perimetru, teste, non-obiective și mesaj de pornire. Nu implementăm întregul MVP sau toate folderele dintr-un foc. Matricea UI→owner/API/migrare/ticket/probă este în plan §16; [registrul auditului PA01–PA09](documents/Omnis_Implementation_Readiness_Review.md) explică gapurile remediate și excepția AGENTS. G00, integrarea runtime și execuția target rămân NEÎNCEPUTE/BLOCKED până la probele lor.
+
 **După G-DESIGN:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 
 Planul include trasabilitatea tuturor celor 12 recomandări inițiale. `documents/` păstrează numai baseline-ul curent și suportul lui; nu conține propuneri alternative sau review-uri înlocuite. Contractele Hermes necesare implementării sunt în §5 din arhitectura curentă.

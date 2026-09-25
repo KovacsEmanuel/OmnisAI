@@ -273,6 +273,25 @@ Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay
 - Status stale/reconnecting, loading, empty, error, unsupported, blocked, not implemented și N/A distincte. Nicio acțiune de control nu afișează succes optimist.
 - Desktop 1440/1280, tabletă 1024 și mobil 390/320; accesibilitate keyboard/focus/dialog/contrast, zoom 200%, reduced motion, fără overflow global. Print raport offline.
 
+### Matrice UI → date/comandă → livrare → probe
+
+Toate rândurile sunt **NEÎNCEPUTE în produs**. Contractele/API-urile sunt propuse în arhitectură §9; fiecare felie introduce împreună migrarea/DTO-ul/handlerul/componentele și testele necesare. Înaintea acelei felii, UI arată disponibilitatea reală, nu un buton care pretinde succes. URL/deep-link/back/refresh păstrează contextul; restabilirea selecției nu pornește un run.
+
+| ID | Suprafață / acțiune | Owner, date/API și migrare | Ticket / gate | Probe pozitive și negative |
+|---|---|---|---|---|
+| UI01 | Home: creare/selectare/Recent engagements/Needs review | engagements/runs, draft+revision și GET dashboard; active run distinct de selecție | B02–B04 / G01 | create/read/restart; 409/cross-context; total global nu este pagina; fără run → NOT_RUN |
+| UI02 | Overview: stadiu, metrici, Severity, budget, atenție | runs/policy/coverage/findings; ProjectionEnvelope + GET summary; câmpuri/run progress adăugate cu sursa lor | B08, B10/B12/B13 / G03a/G06a | counts distincte și aceeași revizie; unknown cost nu devine zero; Stop/Pause preced faza; lipsă API fără fallback demo |
+| UI03 | Brain stream: filtre tip/actor, replay și linkuri | DomainEvent/SSE Omnis; cursor engagement-order legat de run, actor/refs redactate | B08 / G03a | replay/resync/session expiry; duplicate/out-of-order și token străin; nu log/chain-of-thought; linkul restabilește obiect/context |
+| UI04 | Findings: disclosure, PoC/pași/validator/evidence | findings/validation/evidence; Finding/Occurrence/RunFindingLink și manifests; GET findings/evidence | B12/B13a / G06a | CONFIRMED separat de candidates; identitate/proveniență; MISSING/HTML/SVG/ID străin; focus și bytes indisponibili în toate view-urile |
+| UI05 | Accept for report / Hold | findings/report_review; ReportReview/decizii + policy/revizii, POST report-review și readback | B13b / G06a | CAS/material schimbat, ownership, candidat, duplicate; Accept cere bytes, Hold nu falsifică verificarea; fără relansarea runului |
+| UI06 | Coverage / Endpoints: filtre și inspectare | surfaces/coverage/evidence; operații/parametri/celule și denominator_revision; queries bounded | B08/B10/B12 / G03a/G05a/G06a | inferred/unknown/N/A, epoch nou, parametru, proveniență greșită; filtru nu schimbă totalul; gol → N/A |
+| UI07 | Reports: generate/history/HTML/JSON/print | reports + snapshot/artifact refs; job durabil, POST reports/list/download salvat | B13c / G06a | confirmed eligibile, excluderi/partial, generare concurentă, STAGING/crash/quota; bytes descărcați și istoric imuabil după Hold/retention |
+| UI08 | Setup / preflight / Start/Pause/Resume/Stop / operational approval | engagements/runs/policy/InstanceControl; revision/Command/Action/Approval; comenzi și readback | B02/B04/B05/B07/B19 / G01/G02/G03/G07 | draft fără efect; policy/run activ/409/expiry; Stop în overlay, 202≠STOPPED, deconectare, barieră shutdown și efect incert |
+| UI09 | Settings providers/models: save/test/OAuth/cancel/logout | settings + runtime-host privat; projection/config command, grant numai în store dedicat | P4a/B14a / G04a/G04b | readback, 401/429/cancel/timeout; fără fallback personal/hot-swap; test live numai cu acord și buget |
+| UI10 | Settings Skills/Runtime/Data | settings/catalog/evidence/ops; draft/release pin, inventory, retention/backup, comenzi tipizate | B14b/B21 / G04b/G-DATA/G-OPS | draft fără execuție, pin per run, path/symlink/shadowing; diagnostic fără secret; ștergere/restore cu manifest și startup locked |
+
+P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația cockpit/stream; B13 finding disclosure/review/report. Testele API/PostgreSQL verifică autoritatea și persistența, iar web component/E2E verifică contractul, focusul, staleness și layoutul. `browser_check.py` asupra DEMO rămâne separat și nu închide aceste gates.
+
 ## 17. Trasabilitatea tuturor recomandărilor
 
 | Review | Decizie implementată în plan/arhitectură | Ticket / poartă | Stare aplicație |

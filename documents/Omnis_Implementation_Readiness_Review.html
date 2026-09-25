@@ -16,7 +16,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h1 id="omnis-re-review-si-readiness-pentru-implementare">Omnis — re-review și readiness pentru implementare</h1>
 <p><strong>25 septembrie 2026 · Review de specificație și probe de dependențe/documente · Nu validare a produsului</strong></p>
 <h2 id="1-verdict-de-arhitectura">1. Verdict de arhitectură</h2>
-<p><strong>VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.</strong> Utilizatorul a aprobat aspectul și cere auditul final. Structura/contractul <code>omnis</code> rămân baseline-ul de verificat și de confirmat prin mesajul de pornire din sesiunea nouă; această sesiune nu implementează aplicația. <strong>NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.</p>
+<p><strong>VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.</strong> Utilizatorul a aprobat aspectul și cere auditul final. Auditul a aliniat structura/contractul <code>omnis</code>, noul UI și succesiunea livrării; punctul de reluare este <strong>P0.1, plan §19</strong>, după mesajul explicit de pornire. Această sesiune nu implementează aplicația. Excepția administrativă INSTRUCTIONS_UPDATE_BLOCKED este declarată în README: AGENTS.md a rămas nemodificat după expirarea aprobării interactive, nu a fost ocolită protecția. <strong>NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.</p>
 <p>Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.</p>
 <h2 id="2-ce-s-a-revizuit">2. Ce s-a revizuit</h2>
 <ul>
@@ -84,6 +84,65 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Alte alegeri închise: pairing local distinct de tokenul admin Hermes, TCB explicit și copii care nu sunt sandboxes OS, cursor alocat sub lock în ordinea commiturilor, tranzacție comună pentru autoritate/buget/approval, un singur owner de refresh AI și slot activ de stare de caz arhivat numai cu procese oprite.</p>
 <p>Amendamentul launcherului a trecut printr-un review separat de lifecycle. Două neconcordanțe au fost corectate <strong>în contract, nu în cod de produs</strong>: shutdownul instanței închide durabil admiterea <code>InstanceControl</code> înainte de oprirea runului (Start/Resume/Settings concurente și crash launcher sunt în L08/G00); supervisorul controlează process groups prin adaptoare, numai launcherul host controlează containerele. Bootstrapul Settings trece explicit prin runtime-host în namespace-ul corect. Arborele de fișiere și probele L01–L10 sunt propuneri pentru acordul utilizatorului, nu dovezi de operare deja executată.</p>
 <p>Nu am acceptat automat sugestia de a trece la altă orchestrare/batch sincron pentru a evita wake-ul. Păstrăm contractul nativ dorit și gate-ul exact de continuare/reconciliere; o schimbare ulterioară necesită ADR, nu reducere tacită de scope.</p>
+<h3 id="41-audit-pre-implementare-dupa-acceptarea-ui">4.1. Audit pre-implementare după acceptarea UI</h3>
+<p>Audit pe baseline-ul <code>aaab291</code>, apoi amendamente verificate în același plan/arhitectură; două review-uri independente read-only au verificat UI→date/API/etape și dependențele bootstrap/runtime/proxy. „Rezolvat” mai jos înseamnă contract clarificat, <strong>nu implementare sau gate runtime trecut</strong>.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Gap constatat</th>
+<th>Remediu și statut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PA01</td>
+<td>Acceptarea vizuală lipsea din baseline; startul era confundabil cu aprobarea layoutului</td>
+<td>VISUAL_ACCEPTED pentru df17a29 și START_PENDING_NEW_SESSION în documentele permise. Statusul AGENTS rămâne INSTRUCTIONS_UPDATE_BLOCKED, cu acord separat necesar.</td>
+</tr>
+<tr>
+<td>PA02</td>
+<td>Nav vechi și stream sub overview în structura de fișiere</td>
+<td>Plan §16/UI §2/arhitectură §12: cinci taburi, owners dashboard/stream/coverage; rutele demo nu sunt API de produs. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA03</td>
+<td>Summary/global aggregation/cursor și faza nu aveau contract complet</td>
+<td>ProjectionEnvelope, per-engagement sequence cu context run, citiri coerente, RunProgress/phase_active; B08 și negativele de replay/context. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA04</td>
+<td>Denominatorul/epochurile și evidence actuale versus rezultat istoric erau ambigue</td>
+<td>Arhitectură §11: materializare/revizie, inferred/unknown, epoch curent, provenance și verificabilitate; B10/B12. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA05</td>
+<td>Report review fără default policy, owner/migrare și revizii separate</td>
+<td>Arhitectură §6/§9.2, UI §3/§8, B13b: policy explicită, claim/review revisions, audit/CAS/idempotency, Hold fără bytes și candidat refuzat. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA06</td>
+<td>Exportul nu era legat suficient de setul eligibil și disponibilitate</td>
+<td>B13c: snapshot consistent, job durabil/AVAILABLE, allowlist, download salvat și controale concurrency/retention/bytes/istoric; review nu ține runul deschis. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA07</td>
+<td>G00/launcher depindeau circular de web P1, runtime-host P2 și SSE P3</td>
+<td>P0-control include bootstrapul real; runtime absent UNAVAILABLE, L05/L08 împărțite pe subprobe reale. P0.1–P0.4 au ordine explicită. SPEC_ALIGNED.</td>
+</tr>
+<tr>
+<td>PA08</td>
+<td>Gate proxy cerea G-NET înainte de adaptor; P2-live preceda configurarea providerului</td>
+<td>B01e-build/LAB_TEST_ONLY apoi B01e-integrated în harness autorizat; P2-inert→P4a-minim→P2-live; DAG verificat, zero apeluri provider incidentale la boot. SPEC_ALIGNED; probele rămân neexecutate.</td>
+</tr>
+<tr>
+<td>PA09</td>
+<td>Lipsea contractul compact pentru clear și repartizarea noilor componente</td>
+<td>Plan §16 UI01–UI10 mapează fiecare suprafață la owner/migrare/ticket/probă; §19 definește perimetrul, non-obiectivele și acceptarea P0.1. SPEC_ALIGNED.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Recontrolul <a href="verification/preimplementation-pins.json">pinurilor</a> a găsit toate cele 33 de versiuni exacte solicitate în registre; nu a reinstalat/admis un lock nou. Checkoutul Hermes instalat corespunde SHA-ului baseline; documentația oficială de integrare a fost recitită, fără probă RPC/provider și fără schimbarea pinului. Scope-ul rămâne local-first, nu un redesign de stack sau permisiune de trafic.</p>
 <h2 id="5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</h2>
 <h3 id="frontend">Frontend</h3>
 <p>Cercetarea de metadata nu a prins conflictul de declarații TypeScript între Vitest 5.0.1 și jest-dom 7.0.1. <code>tsc --noEmit</code> l-a reprodus (TS2428). Baseline-ul selectează Vitest 4.1.11; același typecheck strict și testul de dialog/router au trecut. Nu am folosit <code>skipLibCheck</code>, <code>--force</code> sau <code>--legacy-peer-deps</code> pentru a ascunde incompatibilitatea.</p>
@@ -117,12 +176,12 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <tr>
 <td>L01–L10 / G-OPS</td>
 <td>Integrare + operare</td>
-<td>Executabil <code>omnis</code> instalat, startup inert/readiness/pairing, runtime-host privat, stop/recovery și zero efecte la boot; toate probele NEÎNCEPUTE</td>
+<td>P0-control și L05-control/L08-core reale, apoi extensiile SSE/runtime/execuție în fazele lor; startup/readiness/pairing/stop/recovery, toate probele aplicației NEÎNCEPUTE</td>
 </tr>
 <tr>
 <td>G-DEPENDENCIES / B01e</td>
 <td>Integrare/executori</td>
-<td>Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare</td>
+<td>B01e-build remediat/admis pentru harness izolat, apoi B01e-integrated/G-NET; fără derogare pentru buildul respins</td>
 </tr>
 <tr>
 <td>G-RUNTIME / H01–H08</td>
@@ -158,7 +217,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste probe nu există declarație de MVP funcțional. Configurația de rețea/seccomp și calitatea testelor de vulnerabilitate nu pot fi certificate printr-un document.</p>
 <h2 id="8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</h2>
-<p>După acordul G-DESIGN, primul lot rămâne fundație/web/persistență și probe inerte în paralel, fără redeschiderea stackului după preferințe. Arborele <code>api/</code> + <code>web/</code> + <code>cli/</code>, responsabilitățile fișierelor și standardele sunt acum descrise în arhitectură §12, nu create ca schelet gol. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Proxyul respins și bindingul nativ rămân porți reale.</p>
+<p><strong>Pregătit tehnic pentru începerea P0.1 la cererea din sesiunea nouă</strong>, nu pentru un assessment sau MVP declarat funcțional. Contractul primei felii și al P0-control este în plan §19, iar DAG-ul din §4 separă datele B02, P1-web, P2-inert, configurarea P4a și live. Arborele <code>api/</code> + <code>web/</code> + <code>cli/</code> există numai ca plan, nu ca schelet gol. UI-ul acceptat și matricea §16/contractele arhitectură §9 împiedică portarea numai a culorilor sau inventarea de date în produs. Browserul/auth și primul finding rămân înaintea editorului complet Skills; proxyul respins/bindingul/confinarea/live provider rămân porți reale.</p>
+<p><strong>Înaintea predării fără excepții</strong>, statusul vizual istoric din AGENTS.md ar trebui aliniat printr-o aprobare separată. Auditul nu a putut face acea scriere protejată; documentele permise au starea actuală și limitarea explicită, fără modificarea regulilor de siguranță sau auto-autorizarea implementării.</p>
 <p>Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>faaa111980d17706ce5108d6976be29c8c58badd6f901d817cc71a3a7fde5967</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>6f0bc9048d73b628e542ee0112f79fd1623f35ef696bdf67d66e091e53e3e050</code>.</p></footer>
 </main></div></body></html>

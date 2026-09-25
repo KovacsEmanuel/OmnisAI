@@ -4,7 +4,7 @@
 
 ## 1. Verdict de arhitectură
 
-**VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.** Utilizatorul a aprobat aspectul și cere auditul final. Structura/contractul `omnis` rămân baseline-ul de verificat și de confirmat prin mesajul de pornire din sesiunea nouă; această sesiune nu implementează aplicația. **NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.** Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.
+**VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.** Utilizatorul a aprobat aspectul și cere auditul final. Auditul a aliniat structura/contractul `omnis`, noul UI și succesiunea livrării; punctul de reluare este **P0.1, plan §19**, după mesajul explicit de pornire. Această sesiune nu implementează aplicația. Excepția administrativă INSTRUCTIONS_UPDATE_BLOCKED este declarată în README: AGENTS.md a rămas nemodificat după expirarea aprobării interactive, nu a fost ocolită protecția. **NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.** Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.
 
 Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.
 
@@ -42,6 +42,24 @@ Amendamentul launcherului a trecut printr-un review separat de lifecycle. Două 
 
 Nu am acceptat automat sugestia de a trece la altă orchestrare/batch sincron pentru a evita wake-ul. Păstrăm contractul nativ dorit și gate-ul exact de continuare/reconciliere; o schimbare ulterioară necesită ADR, nu reducere tacită de scope.
 
+### 4.1. Audit pre-implementare după acceptarea UI
+
+Audit pe baseline-ul `aaab291`, apoi amendamente verificate în același plan/arhitectură; două review-uri independente read-only au verificat UI→date/API/etape și dependențele bootstrap/runtime/proxy. „Rezolvat” mai jos înseamnă contract clarificat, **nu implementare sau gate runtime trecut**.
+
+| ID | Gap constatat | Remediu și statut |
+|---|---|---|
+| PA01 | Acceptarea vizuală lipsea din baseline; startul era confundabil cu aprobarea layoutului | VISUAL_ACCEPTED pentru df17a29 și START_PENDING_NEW_SESSION în documentele permise. Statusul AGENTS rămâne INSTRUCTIONS_UPDATE_BLOCKED, cu acord separat necesar. |
+| PA02 | Nav vechi și stream sub overview în structura de fișiere | Plan §16/UI §2/arhitectură §12: cinci taburi, owners dashboard/stream/coverage; rutele demo nu sunt API de produs. SPEC_ALIGNED. |
+| PA03 | Summary/global aggregation/cursor și faza nu aveau contract complet | ProjectionEnvelope, per-engagement sequence cu context run, citiri coerente, RunProgress/phase_active; B08 și negativele de replay/context. SPEC_ALIGNED. |
+| PA04 | Denominatorul/epochurile și evidence actuale versus rezultat istoric erau ambigue | Arhitectură §11: materializare/revizie, inferred/unknown, epoch curent, provenance și verificabilitate; B10/B12. SPEC_ALIGNED. |
+| PA05 | Report review fără default policy, owner/migrare și revizii separate | Arhitectură §6/§9.2, UI §3/§8, B13b: policy explicită, claim/review revisions, audit/CAS/idempotency, Hold fără bytes și candidat refuzat. SPEC_ALIGNED. |
+| PA06 | Exportul nu era legat suficient de setul eligibil și disponibilitate | B13c: snapshot consistent, job durabil/AVAILABLE, allowlist, download salvat și controale concurrency/retention/bytes/istoric; review nu ține runul deschis. SPEC_ALIGNED. |
+| PA07 | G00/launcher depindeau circular de web P1, runtime-host P2 și SSE P3 | P0-control include bootstrapul real; runtime absent UNAVAILABLE, L05/L08 împărțite pe subprobe reale. P0.1–P0.4 au ordine explicită. SPEC_ALIGNED. |
+| PA08 | Gate proxy cerea G-NET înainte de adaptor; P2-live preceda configurarea providerului | B01e-build/LAB_TEST_ONLY apoi B01e-integrated în harness autorizat; P2-inert→P4a-minim→P2-live; DAG verificat, zero apeluri provider incidentale la boot. SPEC_ALIGNED; probele rămân neexecutate. |
+| PA09 | Lipsea contractul compact pentru clear și repartizarea noilor componente | Plan §16 UI01–UI10 mapează fiecare suprafață la owner/migrare/ticket/probă; §19 definește perimetrul, non-obiectivele și acceptarea P0.1. SPEC_ALIGNED. |
+
+Recontrolul [pinurilor](verification/preimplementation-pins.json) a găsit toate cele 33 de versiuni exacte solicitate în registre; nu a reinstalat/admis un lock nou. Checkoutul Hermes instalat corespunde SHA-ului baseline; documentația oficială de integrare a fost recitită, fără probă RPC/provider și fără schimbarea pinului. Scope-ul rămâne local-first, nu un redesign de stack sau permisiune de trafic.
+
 ## 5. Decizii schimbate de execuție reală
 
 ### Frontend
@@ -77,8 +95,8 @@ DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verifica
 | Gate | Owner | Închidere necesară |
 |---|---|---|
 | G-DESIGN | Operator | VISUAL_ACCEPTED pentru df17a29; START_PENDING_NEW_SESSION confirmă structura/contractul `omnis` și pornirea feliei, nu execuția live |
-| L01–L10 / G-OPS | Integrare + operare | Executabil `omnis` instalat, startup inert/readiness/pairing, runtime-host privat, stop/recovery și zero efecte la boot; toate probele NEÎNCEPUTE |
-| G-DEPENDENCIES / B01e | Integrare/executori | Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare |
+| L01–L10 / G-OPS | Integrare + operare | P0-control și L05-control/L08-core reale, apoi extensiile SSE/runtime/execuție în fazele lor; startup/readiness/pairing/stop/recovery, toate probele aplicației NEÎNCEPUTE |
+| G-DEPENDENCIES / B01e | Integrare/executori | B01e-build remediat/admis pentru harness izolat, apoi B01e-integrated/G-NET; fără derogare pentru buildul respins |
 | G-RUNTIME / H01–H08 | Integrare Hermes | Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord |
 | G-DATA-EARLY | API/securitate | Proiecție model-facing și markeri înainte de date de țintă către provider |
 | G-NET / G03 | Broker/executori | Trasee blocate măsurate, subrequest attribution, limits, scope și lease fail-closed |
@@ -90,6 +108,8 @@ Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste p
 
 ## 8. Concluzie și controlul schimbării
 
-După acordul G-DESIGN, primul lot rămâne fundație/web/persistență și probe inerte în paralel, fără redeschiderea stackului după preferințe. Arborele `api/` + `web/` + `cli/`, responsabilitățile fișierelor și standardele sunt acum descrise în arhitectură §12, nu create ca schelet gol. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Proxyul respins și bindingul nativ rămân porți reale.
+**Pregătit tehnic pentru începerea P0.1 la cererea din sesiunea nouă**, nu pentru un assessment sau MVP declarat funcțional. Contractul primei felii și al P0-control este în plan §19, iar DAG-ul din §4 separă datele B02, P1-web, P2-inert, configurarea P4a și live. Arborele `api/` + `web/` + `cli/` există numai ca plan, nu ca schelet gol. UI-ul acceptat și matricea §16/contractele arhitectură §9 împiedică portarea numai a culorilor sau inventarea de date în produs. Browserul/auth și primul finding rămân înaintea editorului complet Skills; proxyul respins/bindingul/confinarea/live provider rămân porți reale.
+
+**Înaintea predării fără excepții**, statusul vizual istoric din AGENTS.md ar trebui aliniat printr-o aprobare separată. Auditul nu a putut face acea scriere protejată; documentele permise au starea actuală și limitarea explicită, fără modificarea regulilor de siguranță sau auto-autorizarea implementării.
 
 Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.

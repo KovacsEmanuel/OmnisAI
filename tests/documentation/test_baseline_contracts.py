@@ -88,6 +88,16 @@ class BaselineContracts(unittest.TestCase):
         architecture = (DOCS / 'Omnis_MVP_Architecture.md').read_text(encoding='utf-8')
         self.assertTrue('P0-control' in architecture and 'zero apeluri provider' in architecture)
 
+    def test_every_ui_surface_has_a_delivery_mapping_and_handoff(self):
+        plan = (DOCS / 'Omnis_Implementation_Plan.md').read_text(encoding='utf-8')
+        ids = re.findall(r'^\| (UI\d{2}) \|', plan, re.M)
+        self.assertEqual(sorted(ids), [f'UI{i:02d}' for i in range(1, 11)])
+        for token in ['## 19.', 'P0.1', 'make test-api', 'make test-migrations', 'INSTRUCTIONS_UPDATE_BLOCKED']:
+            self.assertTrue(token in plan, 'Missing handoff field: ' + token)
+        readiness = (DOCS / 'Omnis_Implementation_Readiness_Review.md').read_text(encoding='utf-8')
+        audit_ids = re.findall(r'^\| (PA\d{2}) \|', readiness, re.M)
+        self.assertEqual(sorted(audit_ids), [f'PA{i:02d}' for i in range(1, 10)])
+
     def test_second_review_contracts_are_recorded(self):
         text = (DOCS / "Omnis_Implementation_Readiness_Review.md").read_text(encoding="utf-8")
         ids = re.findall(r"^\| (RR\d{2}) \|", text, re.M)

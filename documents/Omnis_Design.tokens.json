@@ -1,0 +1,331 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Consolă locală de investigație, cu proveniență vizibilă și control explicit al efectelor.",
+  "color": {
+    "$type": "color",
+    "primary": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.576,
+          0.89,
+          0.741
+        ],
+        "hex": "#93e3bd"
+      }
+    },
+    "primaryInk": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.063,
+          0.137,
+          0.102
+        ],
+        "hex": "#10231a"
+      }
+    },
+    "secondary": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.686,
+          0.737,
+          0.792
+        ],
+        "hex": "#afbcca"
+      }
+    },
+    "neutral": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.055,
+          0.075,
+          0.094
+        ],
+        "hex": "#0e1318"
+      }
+    },
+    "surface": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.082,
+          0.106,
+          0.133
+        ],
+        "hex": "#151b22"
+      }
+    },
+    "elevated": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.114,
+          0.149,
+          0.188
+        ],
+        "hex": "#1d2630"
+      }
+    },
+    "text": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.929,
+          0.949,
+          0.969
+        ],
+        "hex": "#edf2f7"
+      }
+    },
+    "border": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.349,
+          0.42,
+          0.49
+        ],
+        "hex": "#596b7d"
+      }
+    },
+    "divider": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.169,
+          0.216,
+          0.263
+        ],
+        "hex": "#2b3743"
+      }
+    },
+    "selected": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.137,
+          0.239,
+          0.196
+        ],
+        "hex": "#233d32"
+      }
+    },
+    "focus": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.69,
+          0.918,
+          0.804
+        ],
+        "hex": "#b0eacd"
+      }
+    },
+    "danger": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          0.706,
+          0.671
+        ],
+        "hex": "#ffb4ab"
+      }
+    },
+    "dangerBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.294,
+          0.133,
+          0.149
+        ],
+        "hex": "#4b2226"
+      }
+    },
+    "warning": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.953,
+          0.796,
+          0.51
+        ],
+        "hex": "#f3cb82"
+      }
+    },
+    "warningBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.239,
+          0.196,
+          0.122
+        ],
+        "hex": "#3d321f"
+      }
+    },
+    "success": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.643,
+          0.91,
+          0.784
+        ],
+        "hex": "#a4e8c8"
+      }
+    },
+    "successBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.094,
+          0.22,
+          0.176
+        ],
+        "hex": "#18382d"
+      }
+    },
+    "info": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.694,
+          0.835,
+          1
+        ],
+        "hex": "#b1d5ff"
+      }
+    },
+    "infoBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.137,
+          0.212,
+          0.29
+        ],
+        "hex": "#23364a"
+      }
+    }
+  },
+  "spacing": {
+    "$type": "dimension",
+    "xs": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "sm": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    },
+    "md": {
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      }
+    },
+    "lg": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      }
+    },
+    "xl": {
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      }
+    }
+  },
+  "rounded": {
+    "$type": "dimension",
+    "sm": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    },
+    "md": {
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      }
+    },
+    "lg": {
+      "$value": {
+        "value": 10,
+        "unit": "px"
+      }
+    }
+  },
+  "typography": {
+    "h1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 1.75,
+          "unit": "rem"
+        },
+        "fontWeight": 600,
+        "letterSpacing": {
+          "value": -0.02,
+          "unit": "em"
+        }
+      }
+    },
+    "h2": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 1.25,
+          "unit": "rem"
+        },
+        "fontWeight": 600
+      }
+    },
+    "body-md": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 0.875,
+          "unit": "rem"
+        },
+        "fontWeight": 400
+      }
+    },
+    "label": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Segoe UI, Liberation Sans, Arial, sans-serif",
+        "fontSize": {
+          "value": 0.8125,
+          "unit": "rem"
+        },
+        "fontWeight": 600
+      }
+    },
+    "code": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Liberation Mono, Consolas, monospace",
+        "fontSize": {
+          "value": 0.8125,
+          "unit": "rem"
+        },
+        "fontWeight": 400
+      }
+    }
+  }
+}

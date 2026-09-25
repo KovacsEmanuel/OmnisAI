@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="description" content="Propunere revizuită: MVP local Omnis, API-urile Hermes, Settings, orchestrare, recon, coverage și validarea findingurilor."><title>Omnis × Hermes — MVP local și integrare</title><style>
+:root{--paper:#faf9f6;--ink:#262923;--muted:#5f6458;--line:#d9ddd1;--accent:#245c44;--tint:#edf3ec;--nav:#f0f0e9;--mono:"Liberation Mono",Consolas,monospace}
+*{box-sizing:border-box}html{scroll-padding-top:28px}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.72 "Segoe UI","Liberation Sans",Arial,sans-serif}a{color:var(--accent);text-underline-offset:4px;overflow-wrap:anywhere}a:hover{text-decoration-thickness:2px}a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.skip{position:fixed;top:-100px;left:16px;background:white;padding:12px;z-index:10}.skip:focus{top:12px}.sidebar{position:fixed;inset:0 auto 0 0;width:270px;padding:32px 24px;overflow-y:auto;background:var(--nav);border-right:1px solid var(--line)}.wordmark{font-size:24px;font-weight:700;letter-spacing:.15em;margin:0}.sidebar small{display:block;color:var(--muted);margin:10px 0 24px}.sidebar nav{border-top:1px solid var(--line);padding-top:14px}nav ol{list-style:none;padding:0;margin:0}nav li{margin:0;padding:0}nav a{display:flex;gap:10px;align-items:baseline;min-height:44px;padding:8px 0;color:var(--ink);font-size:13px;line-height:1.5;text-decoration:none}nav a:hover{color:var(--accent);text-decoration:underline}nav a span{font:11px/1.5 var(--mono);color:var(--muted);flex-shrink:0}.side-note{font-size:12px;line-height:1.65;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;margin-top:22px}.page{margin-left:270px;padding:32px clamp(24px,4vw,72px) 80px}main{max-width:1000px;min-width:0;margin:auto}.topline{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;padding-bottom:18px;border-bottom:1px solid var(--line);color:var(--muted)}.status{padding:3px 10px;background:#f3ecdf;color:#73501d;border-radius:4px}h1{font:400 clamp(36px,4vw,57px)/1.13 Georgia,"Liberation Serif",serif;letter-spacing:-.025em;max-width:800px;margin:46px 0 24px;text-wrap:balance}h2{font:400 clamp(27px,2.6vw,35px)/1.26 Georgia,"Liberation Serif",serif;letter-spacing:-.02em;margin:60px 0 24px;padding-top:32px;border-top:1px solid var(--line);scroll-margin-top:24px}h3{font-size:20px;line-height:1.35;margin:32px 0 16px}p{margin:0 0 18px}li{margin:7px 0}ul,ol{padding-left:24px}code{font: .82em/1.55 var(--mono);overflow-wrap:anywhere;background:#edeee6;padding:2px 4px;border-radius:3px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#15231f;color:#eef2e7;border-radius:6px;padding:22px;margin:26px 0;line-height:1.6}pre code{font-size:13px;background:none;color:inherit;padding:0;border-radius:0}strong{font-weight:650}.table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:6px;margin:26px 0;background:#fff}table{border-collapse:collapse;min-width:640px;width:100%;font-size:14px;line-height:1.6}th,td{text-align:left;vertical-align:top;padding:15px 17px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:#eff1e9;font-weight:650}tr:last-child td{border-bottom:0}td:first-child{min-width:145px}th:first-child{width:23%}.citation{font-size:.8em;white-space:nowrap}.mobile-nav{display:none}footer{font-size:14px;color:var(--muted);padding-top:36px;border-top:1px solid var(--line);margin-top:55px}h1+p{color:var(--accent)}#section-1+p{font-size:20px;line-height:1.6;padding:24px;background:var(--tint);border-radius:6px}p[id^=source-]{font-size:14px}p[id^=source-]:target{background:var(--tint)}
+@media(max-width:1000px){.sidebar{width:225px;padding:28px 18px}.page{margin-left:225px;padding-inline:28px}}
+@media(max-width:760px){.sidebar{display:none}.page{margin:0;padding:22px 20px 48px}.mobile-nav{display:block;background:var(--nav);border-bottom:1px solid var(--line);padding:0 20px}.mobile-nav summary{min-height:48px;padding:12px 0;cursor:pointer;font-size:14px;font-weight:600}.mobile-nav nav{padding-bottom:20px}.mobile-nav nav a{font-size:14px}body{font-size:16px}h1{margin-top:32px}h2{margin-top:44px}pre{padding:16px}#section-1+p{padding:18px;font-size:18px}}
+@media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:27pt;margin-top:0}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}p,li{orphans:3;widows:3}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{padding:8px;min-width:0!important}pre{font-size:12pt;background:#f0f0ed;color:#222;white-space:pre-wrap;break-inside:avoid}pre code{font-size:12pt}a{color:inherit}nav{display:none}footer{font-size:12pt}.citation,p[id^=source-]{font-size:12pt}}
+</style></head>
+<body><a class="skip" href="#content">Sari la conținut</a>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><small>Arhitectură & integrare<br>MVP local · propunere de lucru</small><nav aria-label="Cuprins"><ol><li><a href="#section-1"><span>01</span>Verdict și limite confirmate de utilizator</a></li><li><a href="#section-2"><span>02</span>Cine deține ce</a></li><li><a href="#section-3"><span>03</span>API-uri de execuție: REST și JSON-RPC</a></li><li><a href="#section-4"><span>04</span>Settings: contractele existente, fără clonarea dashboardului</a></li><li><a href="#section-5"><span>05</span>Orchestrarea: delegare nativă, cu host JSON-RPC</a></li><li><a href="#section-6"><span>06</span>Fluxul MVP: etape cu bucle, nu o conductă rigidă</a></li><li><a href="#section-7"><span>07</span>Harta tip Burp: mai mult decât un arbore de URL-uri</a></li><li><a href="#section-8"><span>08</span>Findings confirmate: verificatorul nu votează adevărul</a></li><li><a href="#section-9"><span>09</span>Dashboard live și coverage fără procente înșelătoare</a></li><li><a href="#section-10"><span>10</span>Autonomie controlată, pauză și recuperare</a></li><li><a href="#section-11"><span>11</span>Ce este fezabil, ce necesită lucru și ce nu promitem</a></li><li><a href="#section-12"><span>12</span>MVP mai ambițios, livrat incremental</a></li><li><a href="#section-13"><span>13</span>Diferențe față de propunerea precedentă</a></li><li><a href="#section-14"><span>14</span>Dovezi din cod și nivelul de verificare</a></li><li><a href="#section-15"><span>15</span>Surse oficiale</a></li></ol></nav><p class="side-note">Document de analiză, nu aplicație funcțională.<br>Contracte inspectate pe Hermes 0.21.5.<br>Citire offline · Ctrl+P pentru PDF.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprinsul analizei</summary><nav aria-label="Cuprins mobil"><ol><li><a href="#section-1"><span>01</span>Verdict și limite confirmate de utilizator</a></li><li><a href="#section-2"><span>02</span>Cine deține ce</a></li><li><a href="#section-3"><span>03</span>API-uri de execuție: REST și JSON-RPC</a></li><li><a href="#section-4"><span>04</span>Settings: contractele existente, fără clonarea dashboardului</a></li><li><a href="#section-5"><span>05</span>Orchestrarea: delegare nativă, cu host JSON-RPC</a></li><li><a href="#section-6"><span>06</span>Fluxul MVP: etape cu bucle, nu o conductă rigidă</a></li><li><a href="#section-7"><span>07</span>Harta tip Burp: mai mult decât un arbore de URL-uri</a></li><li><a href="#section-8"><span>08</span>Findings confirmate: verificatorul nu votează adevărul</a></li><li><a href="#section-9"><span>09</span>Dashboard live și coverage fără procente înșelătoare</a></li><li><a href="#section-10"><span>10</span>Autonomie controlată, pauză și recuperare</a></li><li><a href="#section-11"><span>11</span>Ce este fezabil, ce necesită lucru și ce nu promitem</a></li><li><a href="#section-12"><span>12</span>MVP mai ambițios, livrat incremental</a></li><li><a href="#section-13"><span>13</span>Diferențe față de propunerea precedentă</a></li><li><a href="#section-14"><span>14</span>Dovezi din cod și nivelul de verificare</a></li><li><a href="#section-15"><span>15</span>Surse oficiale</a></li></ol></nav></details>
+<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / HERMES / INTEGRATION REVIEW</span><span class="status">Revizie pentru discuție</span></div><h1 id="omnis-hermes-mvp-local-si-contracte-de-integrare">Omnis × Hermes — MVP local și contracte de integrare</h1>
+<p><strong>Revizie pentru discuție · 25 septembrie 2026</strong></p>
+<p>Aceasta este propunerea de lucru actualizată după clarificarea MVP-ului local. Nu este o implementare, o aprobare a tuturor alegerilor tehnice sau o autorizație de scanare. Păstrează propunerile precedente ca istoric, dar înlocuiește presupunerea unui MVP redus la o singură scanare demonstrativă.</p>
+<p><strong>Bază verificată:</strong> documentația oficială Hermes, pornind de la indexul public,<a class="citation" href="#source-1" aria-label="Sursa 1">[1]</a> și inspecția statică a checkoutului <code>0.21.5</code>, commit <code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code>, din <code>/home/kali/.hermes/hermes-agent</code>. Nu au fost pornite gatewayuri, schimbate credențiale, apelate modele sau testate ținte în acest audit. „Confirmat în cod” nu înseamnă „validat end-to-end”.</p>
+<h2 id="section-1">1. Verdict și limite confirmate de utilizator</h2>
+<p><strong>Da: Omnis poate folosi Hermes ca motor de agenți în backend și poate reutiliza inclusiv orchestrarea subagenților.</strong> Nu este necesar să copiem autentificarea providerilor sau să facem un fork masiv. Integrarea recomandată are trei suprafețe: API-ul de execuție Hermes (preferabil JSON-RPC pentru acest MVP), API-ul administrativ al Dashboardului și un plugin Omnis pentru unelte și telemetrie.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a><a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a><a class="citation" href="#source-7" aria-label="Sursa 7">[7]</a></p>
+<p>Dar <strong>Hermes nu furnizează prin aceste contracte modelul de engagement, harta de țintă, metrica de coverage sau verdictul probatoriu al unui finding</strong>. Acestea sunt produsul Omnis, nu o temă nouă pentru dashboard.</p>
+<h3 id="confirmat-in-aceasta-discutie">Confirmat în această discuție</h3>
+<ul>
+<li>Aplicație web <strong>locală</strong> în prima fază.</li>
+<li>Validare pe <strong>laboratoare și aplicații proprii/de test, cu autorizare explicită</strong>.</li>
+<li>Identități opționale: fără login, cookie/token/Basic Auth; login în browser asistat de utilizator pentru fluxuri complicate.</li>
+<li>Teste cu impact limitat automat; <strong>aprobare înaintea modificărilor și acțiunilor mai intruzive</strong>.</li>
+<li>Settings inițial pentru <strong>OpenRouter</strong> și <strong>ChatGPT/Codex OAuth</strong>.</li>
+<li>Engagement dashboard live, recon, hartă navigabilă, ipoteze, workeri scurți, verificator separat, findings și raport.</li>
+<li>Chains avansate pot rămâne post-MVP.</li>
+</ul>
+<h3 id="recomandari-nu-decizii-impuse">Recomandări, nu decizii impuse</h3>
+<p>Un operator local inițial; un engagement activ simultan; workeri concurenți limitați în interiorul lui. Un provider/model explicit per engagement la început; schimbarea modelelor per rol poate urma după testarea rutării și contabilizării. Un singur cont AI nu este totuna cu o singură identitate pe țintă: putem avea identități de test separate în același engagement.</p>
+<p><strong>Local nu înseamnă offline.</strong> OpenRouter și Codex presupun acces la servicii externe; fragmentele trimise modelelor trebuie filtrate și aprobate prin politica de date. Nu încărcăm automat întregul trafic al aplicației în prompturi.<a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<h2 id="section-2">2. Cine deține ce</h2>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Strat</th>
+<th>Responsabilitate</th>
+<th>Reutilizare / construcție</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Omnis Web</td>
+<td>Settings, engagement wizard, scope, identități, hartă, progres, approvals, findings, raport</td>
+<td>Construim UI propriu; nu clonăm întregul Hermes Dashboard</td>
+</tr>
+<tr>
+<td>Omnis API și DB</td>
+<td>Starea engagementului, snapshoturi, taskuri, evenimente durabile, dovezi, autorizare</td>
+<td>Construim; sursa canonică a produsului</td>
+</tr>
+<tr>
+<td>Adaptor Hermes</td>
+<td>Client JSON-RPC pentru agenți, client REST pentru administrare, corelare și reconciliere</td>
+<td>Construim clienți restrânși peste interfețele existente</td>
+</tr>
+<tr>
+<td>Hermes runtime</td>
+<td>Provideri, autentificare AI, conversații, compresie, tool-calling, copii AI</td>
+<td>Reutilizăm</td>
+</tr>
+<tr>
+<td>Plugin Omnis în Hermes</td>
+<td>Unelte de domeniu, acces restrâns la context, legătura task–subagent, telemetrie</td>
+<td>Construim pe API-urile de extensie existente</td>
+</tr>
+<tr>
+<td>Broker/executori Omnis</td>
+<td>HTTP, browser și unelte de recon controlate; scope, identități, rate, timeout, captură de dovezi</td>
+<td>Construim adaptoare; putem reutiliza unelte existente fără să le expunem ca shell nelimitat</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-text">Browserul operatorului
+  └─ Omnis Web + API
+       ├─ DB engagement + taskuri + evenimente + evidence store
+       ├─ Settings adapter ── Hermes Dashboard API privat
+       ├─ Runtime adapter ── Hermes JSON-RPC privat
+       │                      └─ Brain Hermes
+       │                           └─ delegate_task → subagenți Hermes
+       └─ Broker de acțiuni → executori izolați → ținte autorizate
+                 ↑
+        pluginul cere acțiuni; brokerul decide și execută
+</code></pre>
+<p>Aceasta este o separare de responsabilități, nu cerința de a crea microservicii. Recomand un <strong>monolit modular Omnis</strong>, Hermes într-un proces/mediu separat și executori separați. Postgres poate păstra taskurile și evenimentele; nu avem nevoie inițial de Redis, Neo4j sau Kubernetes. Frontendul poate fi React/TypeScript, iar backendul Python/FastAPI; acestea sunt alegeri propuse, nu rezultate ale auditului.</p>
+<p>Hermes Dashboard și API Server sunt suprafețe distincte. Browserul Omnis nu primește cheile lor de administrare. Backendul face apelurile și expune numai operațiile necesare engagementurilor.</p>
+<h2 id="section-3">3. API-uri de execuție: REST și JSON-RPC</h2>
+<h3 id="alegerea-pentru-mvp-json-rpc-pentru-control-fin">Alegerea pentru MVP: JSON-RPC pentru control fin</h3>
+<p><strong>JSON-RPC este tot un API</strong>, nu automatizarea ecranului TUI. Omnis trimite obiecte JSON și primește răspunsuri/evenimente structurate. Protocolul este disponibil pe stdio sau WebSocket; este interfața folosită de hosturile Hermes pentru sesiuni, approvals și subagenți.<a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a></p>
+<p>Pentru local-first recomand un host Omnis care deține procesul RPC și transportul stdio. Entrypointul verificat este <code>python -m tui_gateway.entry</code>, rulat cu interpreterul instalării Hermes și mediul Omnis controlat; nu există un flag <code>hermes --mode rpc</code> de inventat. Alternativa WebSocket <code>/api/ws</code> există în <code>hermes_cli/web_routers/chat_ws.py:583–601</code>, dar cere gate-urile și credentialul transportului său; nu presupunem că un token REST funcționează identic. Stdio evită să expunem încă un transport privilegiat browserului.</p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Operație a hostului Omnis</th>
+<th>Metodă JSON-RPC existentă</th>
+<th>Parametri principali</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Negociere întrebări/approvals</td>
+<td><code>client.capabilities</code></td>
+<td><code>server_requests: true</code>, după <code>gateway.ready</code></td>
+</tr>
+<tr>
+<td>Creare Brain</td>
+<td><code>session.create</code></td>
+<td><code>provider</code>, <code>model</code>, <code>title</code>, <code>cwd</code> controlat, <code>close_on_disconnect: false</code></td>
+</tr>
+<tr>
+<td>Pornește/continuă lucru</td>
+<td><code>prompt.submit</code></td>
+<td><code>session_id</code>, <code>text</code>; alte câmpuri nu se transmit implicit</td>
+</tr>
+<tr>
+<td>Stare / istoric</td>
+<td><code>session.status</code>, <code>session.history</code></td>
+<td><code>session_id</code></td>
+</tr>
+<tr>
+<td>Reatașare / evenimente recente</td>
+<td><code>session.resume</code>, <code>session.events.since</code></td>
+<td>Pentru events: <code>session_id</code>, <code>last_seen</code>; nu înlocuiește jurnalul Omnis</td>
+</tr>
+<tr>
+<td>Intervenție Brain</td>
+<td><code>session.steer</code></td>
+<td><code>session_id</code>, <code>text</code></td>
+</tr>
+<tr>
+<td>Copii activi</td>
+<td><code>subagent.list</code></td>
+<td><code>session_id</code> al părintelui</td>
+</tr>
+<tr>
+<td>Intervenție copil</td>
+<td><code>subagent.steer</code></td>
+<td><code>session_id</code>, <code>subagent_id</code>, <code>text</code></td>
+</tr>
+<tr>
+<td>Oprire copil</td>
+<td><code>subagent.interrupt</code></td>
+<td><code>session_id</code>, <code>subagent_id</code>; verificăm ulterior terminarea</td>
+</tr>
+<tr>
+<td>Stop sesiune</td>
+<td><code>session.interrupt</code></td>
+<td><code>session_id</code>; Omnis revocă și acțiunile/executorii</td>
+</tr>
+</tbody>
+</table></div>
+<p>Schemele au fost verificate în <code>apps/shared/src/gateway-contract.openrpc.json</code>, iar controlul copiilor în <code>tui_gateway/methods_subagents.py:53–113</code>. <code>session_id</code> RPC și <code>stored_session_id</code> sunt valori distincte returnate la creare; păstrăm ambele, fără a presupune identitate cu ID-uri HTTP. <code>subagent.list</code> nu oferă automat un istoric durabil al tuturor copiilor.</p>
+<p>Exemple JSON-RPC <strong>de schemă, neexecutate</strong>, cu substituenți expliciți:</p>
+<pre><code class="language-json">{"jsonrpc":"2.0","id":"omnis-cap-1","method":"client.capabilities","params":{"server_requests":true}}
+</code></pre>
+<pre><code class="language-json">{"jsonrpc":"2.0","id":"omnis-create-1","method":"session.create","params":{"provider":"openrouter","model":"&lt;MODEL_DIN_CATALOG&gt;","title":"Omnis · ENG_DEMO · Brain","cwd":"&lt;WORKSPACE_OMNIS_CONTROLAT&gt;","close_on_disconnect":false}}
+</code></pre>
+<pre><code class="language-json">{"jsonrpc":"2.0","id":"omnis-turn-1","method":"prompt.submit","params":{"session_id":"&lt;RPC_SESSION_ID&gt;","text":"Începe engagementul ENG_DEMO folosind uneltele Omnis și snapshotul autorizat."}}
+</code></pre>
+<p>Hostul trebuie să răspundă și la requesturi <strong>server → client</strong>, nu doar să consume evenimente. Pentru <code>approval</code> răspunde cu același <code>id</code> și <code>result:{choice:...}</code>; pentru metode neimplementate returnează eroare JSON-RPC, nu lasă agentul blocat. <code>request.cancel</code> retrage numai întrebarea corespunzătoare. Nu implementăm sudo/shell general pentru un workflow de pentest limitat.<a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a></p>
+<p>Diferența față de REST: RPC expune și progres <code>subagent.tool</code>, dar oglindirea UI nu este sursa probatorie. Evidence și verdictul vin din broker; observer hooks completează telemetria.<a class="citation" href="#source-6" aria-label="Sursa 6">[6]</a> În plus, admission-ul unui prompt RPC nu moștenește garanția <code>Idempotency-Key</code> a HTTP Runs: după un răspuns pierdut, hostul verifică status/istoric/attempt înainte să retrimită.</p>
+<h3 id="alternativa-http-contracte-existente-si-utile">Alternativa HTTP: contracte existente și utile</h3>
+<p>Tabelul următor documentează ce putem apela prin REST, chiar dacă pentru controlul nativ fin al copiilor recomand RPC. <strong>Nu conducem aceeași sesiune simultan prin doi proprietari RPC/HTTP.</strong></p>
+<p>Contractele de mai jos sunt Hermes, nu endpointuri Omnis inventate. API Server folosește <code>Authorization: Bearer &lt;API_SERVER_KEY&gt;</code>; portul implicit documentat este <code>8642</code>, cu bind pe loopback. Configurația reală trebuie descoperită, nu presupusă.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Operație necesară Omnis</th>
+<th>Contract Hermes existent</th>
+<th>Ce completează Omnis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Descoperirea funcțiilor versiunii active</td>
+<td><code>GET /v1/capabilities</code></td>
+<td>Preflight și verificarea compatibilității; nu presupunem că toate versiunile au aceleași rute</td>
+</tr>
+<tr>
+<td>Verificare runtime</td>
+<td><code>GET /health</code>, <code>GET /health/detailed</code></td>
+<td>Interpretarea stării din JSON; readiness degradat poate răspunde tot HTTP 200</td>
+</tr>
+<tr>
+<td>Catalog modele/provideri</td>
+<td><code>GET /api/model/options</code>, opțional <code>?refresh=1</code></td>
+<td>UI filtrat la cei doi provideri admiși; <code>/v1/models</code> nu este catalogul complet</td>
+</tr>
+<tr>
+<td>Crearea conversației Brain</td>
+<td><code>POST /api/sessions</code></td>
+<td>Asociere durabilă engagement–session; sistemul de scope rămâne în Omnis</td>
+</tr>
+<tr>
+<td>Începerea unui tur de lucru</td>
+<td><code>POST /v1/runs</code></td>
+<td><code>session_id</code>, <code>input</code>, provider/model și cheie de idempotency; o rulare nu este întreg engagementul</td>
+</tr>
+<tr>
+<td>Stare și rezultat</td>
+<td><code>GET /v1/runs/{run_id}</code></td>
+<td>Persistență proprie; modelul solicitat se distinge de <code>runtime</code> efectiv</td>
+</tr>
+<tr>
+<td>Progres live</td>
+<td><code>GET /v1/runs/{run_id}/events</code></td>
+<td>Un consumator backend; stocare și retransmitere către UI, fără a trata SSE drept audit durabil</td>
+</tr>
+<tr>
+<td>Istoric și rezultate întârziate</td>
+<td><code>GET /api/sessions/{session_id}/messages</code></td>
+<td>Reconciliere și continuarea Brainului, fără istorice client stale</td>
+</tr>
+<tr>
+<td>Intervenție în timpul lucrului</td>
+<td><code>POST /v1/runs/{run_id}/steer</code></td>
+<td>Mesaj de operator; nu este un mecanism de schimbare a scope-ului</td>
+</tr>
+<tr>
+<td>Approval Hermes</td>
+<td><code>POST /v1/runs/{run_id}/approval</code></td>
+<td>Asociere cu approval ID; separat de aprobările de risc Omnis</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td><code>POST /v1/runs/{run_id}/stop</code></td>
+<td>Revocarea acțiunilor, oprirea executorilor și verificarea stării terminale</td>
+</tr>
+<tr>
+<td>Descoperire skills/toolsets</td>
+<td><code>GET /v1/skills</code>, <code>GET /v1/toolsets</code></td>
+<td>Catalogul permis și verificarea inventarului efectiv, inclusiv pentru copii</td>
+</tr>
+</tbody>
+</table></div>
+<p>Rutele de bază și semantica sunt documentate.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a> <code>steer</code> și schema precisă de approval au fost verificate și în <code>gateway/platforms/api_server_runs.py:1072–1178</code>. API-ul oferă și session chat/fork și API-uri OpenAI-compatible, iar <strong>Sessions + Runs</strong> este alternativa HTTP potrivită, nu parsarea CLI-ului sau a textului ANSI.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a><a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a></p>
+<h3 id="secventa-de-pornire-http-alternativa-neexecutata">Secvență de pornire HTTP — alternativă, neexecutată</h3>
+<ol>
+<li>Omnis verifică autorizarea, scope-ul, identitățile necesare, bugetele și disponibilitatea providerului.</li>
+<li>Creează sesiunea Hermes și păstrează ID-ul returnat.</li>
+<li>Îngheață revizia inițială de engagement și configurația relevantă. Secretele nu intră în mesaj.</li>
+<li>Creează turul de lucru cu o cheie de idempotency persistentă pentru acel tur.</li>
+<li>Consumă SSE în backend și afișează evenimentele Omnis persistente în browser.</li>
+</ol>
+<pre><code class="language-http">POST /api/sessions
+Content-Type: application/json
+Authorization: Bearer &lt;API_SERVER_KEY_DOAR_IN_BACKEND&gt;
+
+{"title":"Omnis · ENG_DEMO · Brain"}
+</code></pre>
+<pre><code class="language-http">POST /v1/runs
+Content-Type: application/json
+Authorization: Bearer &lt;API_SERVER_KEY_DOAR_IN_BACKEND&gt;
+Idempotency-Key: omnis-ENG_DEMO-brain-turn-0001
+
+{
+  "session_id": "&lt;ID_RETURNAT_DE_HERMES&gt;",
+  "provider": "openrouter",
+  "model": "&lt;MODEL_VALID_ALES_DIN_CATALOG&gt;",
+  "input": "Începe engagementul ENG_DEMO. Încarcă snapshotul și taskurile prin uneltele Omnis."
+}
+</code></pre>
+<p>Acestea sunt exemple cu substituenți expliciți, <strong>nu payloaduri gata de rulat</strong>. Pentru al doilea provider, slugul este <code>openai-codex</code>, cu un model disponibil contului. Nu trimitem parola de pe țintă, cheia OpenRouter sau grantul OAuth în prompt.<a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<pre><code class="language-json">{"input":"Prioritizează suprafețele nou descoperite după autentificare."}
+</code></pre>
+<p>Ultimul payload se poate trimite la <code>/v1/runs/{run_id}/steer</code> numai când runul acceptă intervenții. Pentru approval folosim forma <code>{"request_id":"&lt;ID_EXACT&gt;","choice":"once"}</code> sau <code>"deny"</code>; nu expunem opțiuni globale de tip <code>always</code> în fluxul obișnuit Omnis. O aprobare Hermes nu autorizează implicit o acțiune în afara engagementului.</p>
+<h3 id="limite-care-schimba-implementarea">Limite care schimbă implementarea</h3>
+<ul>
+<li><strong>Toolseturile nu sunt câmpuri arbitrare per run.</strong> <code>_create_agent</code>, <code>gateway/platforms/api_server.py:2195–2279</code>, le încarcă din configurația profilului/platformei pe traseul obișnuit. Putem pregăti un runtime Omnis restrâns și folosi capabilități de task în broker; nu presupunem că JSON cu <code>allowed_tools</code> modifică agentul.</li>
+<li><strong>Instrucțiunile suplimentare nu înlocuiesc întregul system prompt Hermes.</strong> Comportamentul trebuie adaptat prin toolset, plugin și configurație, nu doar printr-un mesaj care spune „ești pentester”.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></li>
+<li><strong>SSE nu este un event log durabil cu replay garantat.</strong> Codul folosește o coadă consumată, iar handlerul șterge transportul la închidere: <code>api_server_runs.py:481–482, 1016–1057</code>. Nu există aici un contract verificat de replay prin <code>Last-Event-ID</code>. Reconectarea browserului trebuie făcută la jurnalul Omnis; pierderea legăturii backend–Hermes cere reconciliere din status/istoric și din sursele de domeniu.</li>
+<li><strong>Progresul copiilor este incomplet pe SSE.</strong> Sunt transmise <code>subagent.start</code> și <code>subagent.complete</code>, dar <code>subagent.tool</code>/progress ticks sunt omise; preview-ul rezultatului de tool este limitat la 500 de caractere. Nu extragem evidence sau endpointuri prin parsarea acestui preview.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></li>
+<li><strong>Idempotency nu înseamnă exact-once pe țintă.</strong> Runs deduplică pornirea pentru 24 h după ultima actualizare a stării. O cerere HTTP cu efect incert după crash trebuie reconciliată separat, nu retrimisă automat.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></li>
+<li><strong>Stop nu înseamnă pauză/reluare a stivei de execuție.</strong> Runul intră în <code>stopping</code>, apoi ajunge într-o stare terminală. Pauza de engagement și reluarea de la checkpoint sunt funcții Omnis.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></li>
+</ul>
+<h2 id="section-4">4. Settings: contractele existente, fără clonarea dashboardului</h2>
+<p><strong>Putem construi Settings aproape integral peste backendul existent al Hermes Dashboard.</strong> Aceste rute REST detaliate sunt contracte interne dashboard/desktop observate la commitul auditat, nu un SDK public promis stabil. Le încapsulăm într-un adaptor mic, pin-uim versiunea și le acoperim cu contract tests. Capabilitățile administrative și autentificarea providerilor sunt documentate oficial.<a class="citation" href="#source-7" aria-label="Sursa 7">[7]</a><a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<h3 id="bootstrap-local-si-autentificare-administrativa">Bootstrap local și autentificare administrativă</h3>
+<p>Există <code>hermes serve</code>, un backend headless cu REST-ul Dashboardului, fără build SPA. Recomand un <code>HERMES_HOME</code> dedicat Omnis, mediu controlat și <code>--isolated</code>, ca să nu ne atașăm sau să modificăm backendul personal existent. Exemple schematice, <strong>neexecutate</strong>:</p>
+<pre><code class="language-text">Mediu injectat de supervisor:
+  HERMES_HOME=&lt;DIRECTOR_OMNIS_SEPARAT&gt;
+  HERMES_DASHBOARD_SESSION_TOKEN=&lt;SECRET_ALEATOR_PER_PORNIRE&gt;
+
+Argumente proces management:
+  hermes serve --isolated --host 127.0.0.1 --port 0
+
+Semnal readiness de verificat:
+  HERMES_BACKEND_READY port=&lt;PORT_ALOCAT&gt;
+</code></pre>
+<p>În modul loopback fără gate extern, backendul Omnis folosește headerul <code>X-Hermes-Session-Token: &lt;TOKEN_ADMIN&gt;</code>. Acesta este alt secret decât <code>API_SERVER_KEY</code> și altul decât cheia OpenRouter. Verificăm <code>/api/health</code>, apoi un GET autentificat. Tokenul rămâne în backend. Dacă activăm un gate extern, contractul de autentificare se schimbă; tokenul local nu îl substituie.</p>
+<p>Dovezi: <code>hermes_cli/main_dashboard.py:810–901</code>, <code>hermes_cli/web_server.py:317–445</code>, <code>hermes_cli/subcommands/dashboard.py:15–59</code>. Loopback/tokenul nu izolează backendul de alte procese locale ale aceluiași utilizator. Omnis trebuie să adauge propriile controale de acces local, Origin/CSRF și protecția secretelor.</p>
+<h3 id="openrouter">OpenRouter</h3>
+<p>Toate exemplele folosesc <code>&lt;PROFILE_ID&gt;</code> ca substituent. Într-un <code>HERMES_HOME</code> separat se poate folosi profilul <code>default</code> al acelui runtime, nu profilul personal al utilizatorului. Adaptorul fixează profilul server-side; nu primește căi de filesystem arbitrare din browser.</p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Operație</th>
+<th>Contract Dashboard</th>
+<th>Semantica importantă</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stare cheie</td>
+<td><code>GET /api/env?profile=&lt;PROFILE_ID&gt;</code></td>
+<td>Pentru <code>OPENROUTER_API_KEY</code>: <code>is_set</code>, <code>redacted_value</code>; existența în fișier nu dovedește validitatea sau creditul</td>
+</tr>
+<tr>
+<td>Test cheie</td>
+<td><code>POST /api/providers/validate</code></td>
+<td>Body <code>key</code>, <code>value</code>, <code>profile</code>; rezultat <code>ok</code>, <code>reachable</code>, <code>message</code>; nu salvează cheia</td>
+</tr>
+<tr>
+<td>Salvare/actualizare</td>
+<td><code>PUT /api/env</code></td>
+<td>Același body; rezultat <code>ok</code>, <code>key</code>, <code>config_updates</code></td>
+</tr>
+<tr>
+<td>Ștergere cheie</td>
+<td><code>DELETE /api/env</code></td>
+<td>Body <code>key</code>, <code>profile</code>; elimină și oglinzile/env pool asociate; poate păstra alte credențiale independente</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-json">{"key":"OPENROUTER_API_KEY","value":"&lt;CHEIE_INTRODUSA_SECURIZAT&gt;","profile":"&lt;PROFILE_ID&gt;"}
+</code></pre>
+<p>Acesta este un exemplu de schemă, nu o cheie și nu un request executat. Testul face o cerere externă de verificare a cheii. Codul acceptă și HTTP 429 ca <code>ok:true, reachable:true</code>: <strong>nu etichetăm asta drept inferență disponibilă</strong>. O inferență de probă este altă operație, explicită și potențial facturabilă. Dovezi: <code>web_routers/config_env.py:232–316,887–972</code>, <code>web_models.py:15–25</code>, relative la <code>hermes_cli/</code>.</p>
+<h3 id="chatgptcodex-provider-nativ-nu-plugin-nou">ChatGPT/Codex — provider nativ, nu plugin nou</h3>
+<p>Slugul este <strong><code>openai-codex</code></strong>. Device-code OAuth nativ nu cere instalarea Codex CLI. Nu extragem sau copiem refresh tokens în Omnis și nu avem nevoie de subscription proxy între Omnis și agentul Hermes.<a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Operație</th>
+<th>Contract Dashboard</th>
+<th>Ce folosește Omnis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Status provider</td>
+<td><code>GET /api/providers/oauth?profile=&lt;PROFILE_ID&gt;</code></td>
+<td>Rândul <code>id=openai-codex</code>, starea loginului și sursa credentialului</td>
+</tr>
+<tr>
+<td>Început login</td>
+<td><code>POST /api/providers/oauth/openai-codex/start?profile=&lt;PROFILE_ID&gt;</code></td>
+<td>Fără body; întoarce <code>session_id</code>, <code>flow</code>, <code>user_code</code>, <code>verification_url</code>, <code>expires_in</code>, <code>poll_interval</code></td>
+</tr>
+<tr>
+<td>Urmărire</td>
+<td><code>GET /api/providers/oauth/openai-codex/poll/{session_id}?profile=&lt;PROFILE_ID&gt;</code></td>
+<td><code>pending</code>, <code>approved</code>, <code>expired</code>, <code>error</code>; schema generică include și <code>denied</code></td>
+</tr>
+<tr>
+<td>Anulare login pending</td>
+<td><code>DELETE /api/providers/oauth/sessions/{session_id}?profile=&lt;PROFILE_ID&gt;</code></td>
+<td>După anulare, poll poate întoarce 404; nu există rezultat durabil <code>cancelled</code></td>
+</tr>
+<tr>
+<td>Deconectare profil</td>
+<td><code>DELETE /api/providers/oauth/openai-codex?profile=&lt;PROFILE_ID&gt;</code></td>
+<td>Eliminare locală, nu revocare upstream și nu anulare implicită a loginurilor pending</td>
+</tr>
+</tbody>
+</table></div>
+<p>UI-ul arată URL-ul și codul în fluxul securizat de autentificare; utilizatorul aprobă la provider. Omnis doar urmărește starea. <code>approved</code> înseamnă că Hermes a salvat grantul în propriul store, nu că a fost deja verificată o inferență sau selectat defaultul modelului.</p>
+<p><strong>Capcane care trebuie tratate:</strong></p>
+<ul>
+<li>Toate rutele, inclusiv poll, necesită autentificarea dashboardului. Comentariul local „no auth” al pollului nu descrie middleware-ul efectiv.</li>
+<li>Folosim același profil la start, poll și cancel; nepotrivirea este refuzată.</li>
+<li><code>/submit</code> nu implementează introducerea unui cod pentru Codex: răspunde 400. CLI-ul oferă și PKCE browser, dar această rută REST <code>start</code> este device-code; nu promitem un fallback PKCE REST inexistent.</li>
+<li>Start poate da 504 înainte ca workerul de login să termine. Evităm retry automat nelimitat, fiindcă o sesiune pending poate exista deja fără ID primit de client.</li>
+<li>Pending sessions sunt în RAM și se pierd la restart. Logout anulează întâi loginurile pending cunoscute, apoi șterge și recitește statusul. Fallbackul către credențiale externe/root trebuie exclus prin izolarea mediului și testat; altfel contul poate reapărea conectat.</li>
+<li>Câmpurile de status despre refresh/expirare nu reflectă complet store-ul Codex în această versiune; nu deducem absența refresh tokenului din <code>has_refresh_token:false</code>.</li>
+</ul>
+<p>Dovezi: <code>hermes_cli/web_routers/oauth.py:264–305,619–795</code>, <code>hermes_cli/auth_codex.py:153–193</code>. Contractul tehnic nu garantează eligibilitatea fiecărui abonament, cota sau drepturile de redistribuire; documentația Hermes lasă detalii ale cotelor/planurilor neprecizate.<a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<h3 id="catalog-si-selectie-de-modele">Catalog și selecție de modele</h3>
+<ul>
+<li><code>GET /api/model/options?profile=&lt;PROFILE_ID&gt;&amp;refresh=false&amp;include_unconfigured=false&amp;explicit_only=true</code> — filtrăm în Omnis la OpenRouter/Codex. Discovery/pricing pot accesa rețeaua.</li>
+<li><code>POST /api/model/set</code> — alegerea defaultului pentru sesiuni noi, nu hot-swap garantat pentru agenții existenți.</li>
+</ul>
+<pre><code class="language-json">{
+  "scope":"main",
+  "provider":"openai-codex",
+  "model":"&lt;MODEL_ALES_DIN_CATALOG&gt;",
+  "profile":"&lt;PROFILE_ID&gt;",
+  "confirm_expensive_model":false
+}
+</code></pre>
+<p>Nu trimitem cheia prin această operație. HTTP 200 poate conține <code>ok:false, confirm_required:true</code>: Omnis cere acord, nu anunță succes. <code>stale_aux</code> semnalează configurații auxiliare rămase separat. Configurația Brain, delegare, auxiliare și fallback trebuie verificată împreună, nu doar dropdownul principal. Dovezi: <code>hermes_cli/web_routers/models.py:101–131,275–318</code>.</p>
+<h3 id="ce-administrare-restrangem">Ce administrare restrângem</h3>
+<p>Există <code>GET/POST /api/profiles</code>, <code>GET/PUT /api/config</code>, <code>GET /api/tools/toolsets</code>, <code>PUT /api/tools/toolsets/{name}</code>, <code>GET /api/skills</code>, <code>PUT /api/skills/toggle</code>. Nu le expunem ca proxy generic în Omnis. Crearea de profil nu clonează implicit <code>.env</code> personal; configurarea tools/skills se face dintr-un manifest aprobat, la sesiuni noi. Nu expunem <code>/api/env/reveal</code> și nu retransmitem întregul config: configurațiile legacy pot conține secrete.</p>
+<p>Hermes rămâne proprietarul <code>.env</code>, <code>auth.json</code> și <code>config.yaml</code> din mediul său; Omnis păstrează referințe și stare de interfață. Setările se salvează prin API, se recitesc pentru verificare și se aplică la o limită sigură, nu schimbând mediul unui agent activ.</p>
+<p><strong>Identitățile țintei sunt separate de credențialele AI.</strong> Omnis are seif/referințe pentru cookie, token sau Basic Auth, injectate numai de executor în originea autorizată. Loginul asistat se face în browserul izolat al engagementului, fără a preda agenților întregul browser personal.</p>
+<h2 id="section-5">5. Orchestrarea: delegare nativă, cu host JSON-RPC</h2>
+<p><strong>Recomandarea finală a auditului este <code>delegate_task</code> nativ + host Omnis pe JSON-RPC</strong>, cu plugin pentru instrumentele de pentest și evenimentele de domeniu. Nu recomand actualul <code>ctx.subagent_lifecycle</code> ca bază principală a MVP-ului. Interfața este publică, dar nu oferă paritate cu delegarea standard.<a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a><a class="citation" href="#source-4" aria-label="Sursa 4">[4]</a><a class="citation" href="#source-5" aria-label="Sursa 5">[5]</a></p>
+<h3 id="comparatia-mecanismelor-reale">Comparația mecanismelor reale</h3>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Mecanism</th>
+<th>Ce oferă</th>
+<th>Limită decisivă / alegere</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>delegate_task</code> + JSON-RPC</td>
+<td>Contexte noi, loturi de copii, rezultate, output schema, list/steer/stop; hostul poate controla copiii și primi progres</td>
+<td><strong>Preferat.</strong> Provider/model din configurația delegării/moștenire, nu arbitrar în fiecare task; Omnis aplică autoritatea pe efecte</td>
+</tr>
+<tr>
+<td><code>ctx.subagent_lifecycle</code></td>
+<td>launch/status/wait/cancel/result/reconnect, model per launch, <code>allowed_toolsets</code></td>
+<td>Fără steer, provider per launch, skills sau output_schema; operațiile verifică parentul activ; rezultate în proces</td>
+</tr>
+<tr>
+<td><code>/v1/runs</code> independente</td>
+<td>HTTP, provider/model explicit, status/SSE/stop/steer pentru fiecare worker</td>
+<td>Alternativă dacă prioritatea devine HTTP-only și workeri rădăcină independenți; Omnis preia mai multă coordonare</td>
+</tr>
+<tr>
+<td>Kanban</td>
+<td>Taskuri/attempturi și dependențe durabile, workeri pe profiluri</td>
+<td>Posibil ulterior; nu este necesar pentru primul arbore de specialiști scurți și nu înlocuiește DB de pentest</td>
+</tr>
+</tbody>
+</table></div>
+<p>Nu confundăm API-ul de integrare al hostului cu unealta expusă modelului. Brainul apelează <strong><code>delegate_task</code></strong>; backendul Omnis vorbește <strong>JSON-RPC</strong> cu sesiunea Brain și cu managementul copiilor. Sunt două niveluri ale aceluiași mecanism, nu două frameworkuri de agenți.</p>
+<h3 id="de-ce-nu-alegem-lifecycle-api-ca-fundatie">De ce nu alegem lifecycle API ca fundație</h3>
+<p>Am verificat <code>agent/subagent_lifecycle.py:245–280,335–389</code>, nu doar descrierea din documentație:</p>
+<ul>
+<li>inclusiv managementul handle-ului depinde de parentul activ; un handle serializat nu devine automat controlabil dintr-un request HTTP exterior;</li>
+<li>lipsesc <code>steer</code>, provider, output_schema și subscribe/callback public; <code>structured_payload</code> există în dataclass, dar nu este populat pe traseul citit;</li>
+<li>launch folosește <code>DEFAULT_MAX_ITERATIONS</code>, nu rezolvarea standard a configurației <code>delegation</code>; nu presupunem aceleași pinuri provider/model și aceleași controale de admission;</li>
+<li>timeout per launch, working directory și per-tool blocking sunt respinse; <code>allowed_toolsets</code> poate restrânge, nu lărgi;</li>
+<li>rezultatul <code>SUCCEEDED</code> nu garantează finalizarea investigației sau validitatea findingului; starea se pierde la restart, iar retenția terminală este de o oră.<a class="citation" href="#source-5" aria-label="Sursa 5">[5]</a></li>
+</ul>
+<p>În plus, la acest commit parametrul legacy <code>role</code> este ignorat de constructorul copilului: dreptul de a delega este calculat din adâncime și configurație (<code>tools/delegate_tool.py:187–191</code>). Pentru un arbore plat dezactivăm delegarea imbricată prin configurația reală și verificăm uneltele rezolvate; <code>role="leaf"</code> în prompt sau request nu este o graniță de securitate.</p>
+<h3 id="ce-pastram-din-hermes">Ce păstrăm din Hermes</h3>
+<p>Brainul folosește <code>delegate_task</code> pentru investigații și lansează un copil nou pentru validare. Schema model-facing acceptă <code>tasks[].goal</code>, <code>context</code>, <code>output_schema</code>, <code>images</code>, <code>group</code> și acțiunile <code>spawn/list/steer/stop</code>. Nu acceptă selecții arbitrare de provider/tools/skills per copil; modelul comun și toolseturile restrânse ale runtime-ului sunt suficiente pentru prima versiune (<code>tools/delegate_tool.py:634–726</code>).<a class="citation" href="#source-4" aria-label="Sursa 4">[4]</a></p>
+<p>Pluginul Omnis înregistrează unelte prin <code>ctx.register_tool</code>, fără să rescrie tool loop, provideri, auth sau compresie.<a class="citation" href="#source-10" aria-label="Sursa 10">[10]</a> Nume <strong>propuse</strong>, nu funcții existente: <code>omnis_context</code>, <code>omnis_surfaces</code>, <code>omnis_prepare_task</code>, <code>omnis_report_signal</code>, <code>omnis_submit_result</code>.</p>
+<p>Un task este pregătit în Omnis înainte de delegare. Brainul primește un briefing restrâns și o referință de task; pluginul corelează delegarea și copilul cu acel task. <strong>Asocierea trebuie legată de sesiunea reală/capabilitatea emisă de backend, nu autorizată printr-un task_id scris liber de LLM.</strong> Copilul neasociat poate raționa, dar brokerul refuză orice acces la țintă. Această legătură este un criteriu critic pentru I0; nu pretindem că API-ul nativ are deja un câmp generic de task Omnis.</p>
+<p>Observer hooks oferă sesiune părinte/copil, turn, task și tool-call IDs, cu diferențe între evenimente. Omnis stochează mapping-ul propriu; nu presupune un <code>run_id</code> comun peste REST, RPC și copii. <code>subagent_stop</code> poate fi corelat prin <code>child_session_id</code>; evenimentele pot sosi înaintea răspunsului de spawn.<a class="citation" href="#source-6" aria-label="Sursa 6">[6]</a></p>
+<h3 id="cine-trezeste-brainul-diferenta-importanta-intre-transporturi">Cine trezește Brainul — diferență importantă între transporturi</h3>
+<p><strong>HTTP Runs:</strong> completarea detached se persistă în istoricul serverului, dar nu pornește automat un tur de model; clientul deține continuarea.<a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a></p>
+<p><strong>TUI gateway / JSON-RPC:</strong> codul <code>tui_gateway/session_notifications.py:148–168,459–544,690–737</code> are poller nativ, claim al turului și <code>_notif_submit</code> pentru completările delegării. Poate relansa agentul când sesiunea este disponibilă. Așadar, <strong>nu rescriem în Omnis acest wake pentru fiecare copil și nu generalizăm limita HTTP la tot Hermes</strong>. Documentația descrie inclusiv tururile pornite de completări async și starea lor la reconnect.<a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a></p>
+<p>Pentru evenimentele specifice pentestului — identitate nouă, hartă modificată, semnal intermediar, aprobare — construim un inbox durabil Omnis și un dispatcher serializat:</p>
+<pre><code class="language-text">Copilul observă o anomalie
+  → omnis_report_signal: tip, observație, evidence refs
+  → broker validează autoritatea și persistă evenimentul
+  → harta și dashboardul se actualizează
+  → dacă Brainul rulează: session.steer / citire de delte
+    dacă este idle și continuarea este permisă: prompt.submit
+  → fără duplicarea completării native de delegare
+</code></pre>
+<p>Nu invocăm reentrant modelul dintr-un observer callback. Grupăm deltele, verificăm bugetul și starea engagementului și deduplicăm după eveniment/attempt. Dacă se folosește alternativa HTTP, dispatcherul trebuie să preia explicit și continuarea rezultatelor copiilor.</p>
+<h3 id="bugete-si-stari">Bugete și stări</h3>
+<p>Delegarea nativă are limite de lot/iterații și mecanisme de stagnare, dar acestea nu constituie automat un buget comun de campanie. Copiii primesc bugete noi; timeoutul configurat pentru inactivitate nu este un deadline total. Omnis controlează separat durată, trafic, concurență și rezervă pentru validare. Rezultatele <code>completed</code> cu <code>schema_valid:false</code> se păstrează pentru triere, nu se promovează la findings.<a class="citation" href="#source-4" aria-label="Sursa 4">[4]</a></p>
+<p>O sesiune Brain poate avea multe tururi. <code>message.complete</code>, <code>run.completed</code>, <code>subagent.complete</code> și <code>SUCCEEDED</code> sunt stări de runtime, nu <code>engagement.completed</code>. Închiderea engagementului se decide din starea Omnis și din precondițiile de raportare. Nu lăsăm wake-ul nativ să ocolească pause/stop/bugete: brokerul revocă efectele imediat, iar hostul trebuie să oprească/dreneze runtime-ul dacă nu poate garanta suspendarea continuărilor; acest caz este test obligatoriu în I0.</p>
+<h2 id="section-6">6. Fluxul MVP: etape cu bucle, nu o conductă rigidă</h2>
+<h3 id="a-preflight">A. Preflight</h3>
+<p>Autorizație și reguli de engagement, ținte și excluderi, identități, fereastră, bugete, verificarea providerului, verificarea politicii de rețea și readiness. Absența loginului este validă; nu blochează reconul neautentificat.</p>
+<h3 id="b-recon-initial-si-incrementari">B. Recon inițial și incrementări</h3>
+<ul>
+<li>Crawl HTTP și crawl/browser pentru suprafețe dinamice autorizate.</li>
+<li>Linkuri, formulare, metode, parametri observați în query/path/body/header/cookie, JSON și cereri browser.</li>
+<li><code>robots.txt</code>, sitemap și specificații API disponibile legitim.</li>
+<li>Headere, cookies, indicii de tehnologie/versiune și metadate de răspuns.</li>
+<li>JS: inventar fișiere, legături între surse, extragere de rute și parametri, comentarii relevante.</li>
+<li>Descoperire bounded de directoare/fișiere și parametri, în limita ratei și a scope-ului.</li>
+<li>Proveniență și de-duplicare; semnale de soft-404, redirect, pagină de login și rate limiting tratate explicit.</li>
+</ul>
+<p><strong>Corecție:</strong> fuzzingul de directoare este activ, nu „pasiv” doar fiindcă este în recon. O rută găsită într-un JS este mai întâi <strong>inferred</strong>, nu endpoint live confirmat. Un banner de versiune sau un header absent nu dovedește automat o vulnerabilitate.</p>
+<p>Reconul are un buget și un punct de livrare inițial, dar continuă pe delta: noi identități, noi rute, inputuri sau răspunsuri neobișnuite. Putem testa o suprafață suficient documentată înainte de a epuiza tot crawlul.</p>
+<h3 id="c-analiza-si-generare-de-ipoteze">C. Analiză și generare de ipoteze</h3>
+<p>Brainul citește rezumatul hărții, matricea de acoperire și vecinătățile relevante. Creează taskuri cu suprafață, identitate, clasă de problemă, observație suport, semnal așteptat, control sigur, buget și motiv de prioritate.</p>
+<p>Nu cerem „găsește vulnerabilități peste tot” fiecărui copil. Un task bun delimitează o ipoteză verificabilă și drepturile necesare.</p>
+<h3 id="d-workeri-de-investigatie">D. Workeri de investigație</h3>
+<p>Fiecare copil lucrează într-un context proaspăt și pe un task îngust. Poate raporta:</p>
+<ul>
+<li>candidat susținut de observații;</li>
+<li>comportament negativ/control sigur;</li>
+<li>rezultat neconcludent sau blocaj;</li>
+<li>suprafață nouă;</li>
+<li>ipoteză alternativă apărută în investigație.</li>
+</ul>
+<p>Un comportament neașteptat devine un eveniment de replanificare, nu o permisiune pentru copil de a lărgi singur scope-ul sau de a testa altă identitate. Același broker verifică fiecare acțiune nouă.</p>
+<h3 id="e-validare-independenta-si-raport">E. Validare independentă și raport</h3>
+<p>Un candidat pozitiv trimis de investigator este dat unui <strong>copil nou</strong>, cu o sesiune de execuție proaspătă, aceleași identități/precondiții autorizate necesare reproducerii și context minim. Același provider/model poate fi folosit în MVP; separarea de context nu garantează independența erorilor. Diferența decisivă o fac replay-ul, controlul negativ și dovada observabilă.</p>
+<p>După verdict, actualizăm harta, matricea și taskurile dependente. La final generăm raportul numai din findinguri confirmate și adăugăm explicit limitele și suprafețele netestate.</p>
+<h2 id="section-7">7. Harta tip Burp: mai mult decât un arbore de URL-uri</h2>
+<p>UI-ul poate arăta <code>host → path → metodă → parametri</code>, dar baza de date trebuie să păstreze observațiile care nu încap într-un arbore.</p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Entitate Omnis propusă</th>
+<th>Ce trebuie să păstreze</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engagement / ScopeRevision</td>
+<td>Autorizație, originuri/ținte, excluderi, reguli, interval, bugete, revizie</td>
+</tr>
+<tr>
+<td>Identity / AuthContext</td>
+<td>Anonim sau cont/rol; principal/ownership, referință secret, cookie jar/browser context separat, expirare, <code>auth_epoch</code> și dovadă pozitivă de login</td>
+</tr>
+<tr>
+<td>Surface / Operation</td>
+<td>Origin, metodă, cale brută și rută normalizată numai când este justificată, content-type, sursă</td>
+</tr>
+<tr>
+<td>Parameter / Observation</td>
+<td>Nume, locație, tip observat, identitate/stare, exemplare redactate, <code>inferred</code>/<code>observed</code> și evidence refs</td>
+</tr>
+<tr>
+<td>Relationship</td>
+<td>JS referă rută; formular trimite request; identitate accesează operație; evidence susține candidat</td>
+</tr>
+<tr>
+<td>Task / Attempt</td>
+<td>Ipoteză, rol, snapshot, dependențe, lease, limită, model efectiv, stare și rezultate</td>
+</tr>
+<tr>
+<td>Evidence / Validation</td>
+<td>Request/response, diferențe/control, screenshot dacă este necesar, timestamp, hash, identitate și încercare</td>
+</tr>
+<tr>
+<td>Finding / Report</td>
+<td>Verdict demonstrat, impact și limitări, referințe verificabile, versiune și retest</td>
+</tr>
+</tbody>
+</table></div>
+<p>Normalizarea nu trebuie să unească din greșeală resurse cu politici diferite. Păstrăm URL-ul/cererea originală ca evidence, iar ruta normalizată este o vedere separată. Identitățile nu se amestecă în aceleași sesiuni de browser sau cookies.</p>
+<p>Pentru agent, harta nu este un screenshot: expunem unelte de interogare cu filtre, paginare și snapshot. Exemple de nume <strong>propuse</strong>: <code>omnis_context</code>, <code>omnis_surfaces</code>, <code>omnis_evidence</code>, <code>omnis_tasks</code>, <code>omnis_submit_result</code>, <code>omnis_report_signal</code>. Nu expunem direct SQL și nu punem tot graful în fiecare prompt.</p>
+<h3 id="autentificare-browser-si-schimbarea-contextului">Autentificare, browser și schimbarea contextului</h3>
+<p>Un browser autentificat și un client HTTP cu cookie copiat nu au obligatoriu aceeași stare: tokenuri JS, CSRF, refresh și workflow pot diferi. Fiecare identitate are context propriu, verificare pozitivă a principalului/rolului și <code>auth_epoch</code>. Nu deducem succesul loginului numai din lipsa unui 401.</p>
+<p>La expirare sau drift blocăm taskurile dependente și marcăm intervalul incert <code>AUTH_BLOCKED/INCONCLUSIVE</code>; nu îl contabilizăm ca test negativ. Loginul asistat redeschide descoperirea post-auth într-o revizie nouă. Accesul necesar către IdP/CDN se poate aproba separat ca dependență funcțională, <strong>nu ca autorizație de pentest asupra acelui terț</strong>.</p>
+<p>Analiza statică JS, execuția browser și testarea DOM XSS sunt capabilități diferite. Faptul că avem browser nu înseamnă că am implementat toate verificările JavaScript.</p>
+<h2 id="section-8">8. Findings confirmate: verificatorul nu votează adevărul</h2>
+<p>Flux propus:</p>
+<pre><code class="language-text">CANDIDATE → INVESTIGATING → VALIDATING
+                              ├─ CONFIRMED
+                              ├─ REJECTED
+                              └─ INCONCLUSIVE
+</code></pre>
+<p>Un finding poate deveni <code>CONFIRMED</code> numai dacă validatorul produce dovezi suficiente pentru clasa respectivă și serviciul de validare verifică precondițiile și integritatea lor. Simplul „am confirmat” din textul LLM nu satisface condiția.</p>
+<ul>
+<li><strong>Control de acces:</strong> relația rol/ownership trebuie cunoscută și autorizată. Diferența dintre două răspunsuri sau simplul status 200 nu demonstrează acces nepermis.</li>
+<li><strong>XSS:</strong> un marker reflectat nu este același lucru cu execuție în browser. Validarea trebuie să distingă textul inert de contextul executabil, într-un browser izolat.</li>
+<li><strong>SQLi:</strong> o eroare generică sau o întârziere singulară nu ajunge. Oracle-ul și controalele trebuie definite înainte; fără acces distructiv sau extragere de date sensibile pentru a „face dovada mai convingătoare”.</li>
+<li><strong>Expunere de informații:</strong> relevanța și sensibilitatea trebuie demonstrate; headerele și fingerprintul rămân observații când impactul nu este stabilit.</li>
+</ul>
+<p><strong>Pachetul inițial recomandat pentru aprobare:</strong> control de acces la obiecte între identități autorizate (IDOR/BOLA), XSS reflectat și path traversal read-only limitat la un fișier-canary autorizat. Pentru ultima familie nu folosim citirea secretelor reale drept probă. Acoperim astfel identitate/ownership, browser și o clasă server-side cu oracle de laborator explicit.</p>
+<p>SQLi general, stored/DOM XSS, SSRF/OAST, race conditions, upload executabil și chains rămân în afara adâncimii inițiale, chiar dacă reconul descoperă suprafețe unde ar putea fi relevante. Explicația SQLi de mai sus arată ce ar cere o validare serioasă, nu promite suport MVP. <strong>Catalogul rămâne de aprobat</strong>, iar semnalele nesuportate apar ca ipoteze/zone neevaluate, nu findings certificate.</p>
+<p><code>INCONCLUSIVE</code> nu este <code>REJECTED</code>. Expirarea sesiunii, WAF/rate limit, target schimbat, lipsa unei identități sau epuizarea bugetului nu demonstrează false positive. Păstrăm motivele și permitem retest când precondițiile se schimbă. Măsurăm și false negatives pe laborator; un sistem care respinge orice candidat nu este unul bun doar pentru că nu raportează FP.</p>
+<h2 id="section-9">9. Dashboard live și coverage fără procente înșelătoare</h2>
+<h3 id="ecrane-mvp">Ecrane MVP</h3>
+<ol>
+<li><strong>Engagement setup:</strong> ținte, scope/excluderi, autorizație, identități, profil de risc, bugete, provider/model.</li>
+<li><strong>Overview live:</strong> faze active, taskuri, workeri, approval queue, trafic/rate, buget, blocaje, progres și status real.</li>
+<li><strong>Target map:</strong> tree și tabel, filtre după metodă/identitate/stare/sursă; inspector de parametri, comentarii, request/response și provenance.</li>
+<li><strong>Investigații:</strong> candidat → investigator → validator, rezultate negative, neconcludente și taskuri blocate.</li>
+<li><strong>Findings:</strong> numai confirmate în vederea principală, cu replay/evidence și revizii; candidații rămân separat.</li>
+<li><strong>Raport:</strong> constatări demonstrate, metodologie, identități testate, acoperire și limite, export HTML/JSON; PDF printr-un flux de print/export ulterior validat.</li>
+<li><strong>Settings:</strong> cei doi provideri AI și statusul runtime-ului, fără întregul panou administrativ Hermes.</li>
+</ol>
+<h3 id="sursele-de-date-live">Sursele de date live</h3>
+<p>REST SSE și evenimentele JSON-RPC Hermes oferă telemetrie de execuție. Observer hooks pot furniza corelare pentru sesiuni, requesturi LLM, tooluri și copii, însă sunt contracte de observabilitate, nu un jurnal probatoriu obligatoriu.<a class="citation" href="#source-6" aria-label="Sursa 6">[6]</a></p>
+<p><strong>Brokerul și parserii Omnis emit evenimentele de domeniu direct:</strong> suprafață observată, identitate validată, probă înregistrată, task schimbat, candidat nou și verdict. Nu lăsăm un LLM să estimeze câte endpointuri există din povestea conversației. Scrierea stării și a evenimentului se face atomic, cu ID și ordine de evenimente per engagement. Browserul poate relua de la cursorul Omnis.</p>
+<h3 id="ce-inseamna-coverage">Ce înseamnă coverage</h3>
+<p>Nu putem cunoaște procentul dintr-o aplicație necunoscută care a fost descoperit doar din crawling. Afișăm separat:</p>
+<ul>
+<li><strong>Discovery:</strong> suprafețe observate, deduplicate; rute doar inferate separat; frontieră vizitată/rămasă și zone blocate.</li>
+<li><strong>Exercise coverage:</strong> operații cunoscute pentru care există interacțiune în contextul unei anumite identități.</li>
+<li><strong>Test coverage:</strong> matrice <code>operație × parametru relevant × identitate/stare × familie de verificare aplicabilă</code>.</li>
+<li><strong>Validation coverage:</strong> candidați cu verdict versus candidați încă nevalidați.</li>
+</ul>
+<p>Stările includ <code>not_tested</code>, <code>queued</code>, <code>running</code>, <code>tested_no_issue</code>, <code>candidate</code>, <code>confirmed</code>, <code>inconclusive</code>, <code>blocked</code>, <code>not_applicable</code>. Un rezultat „fără problemă observată” este legat de test și snapshot; nu certifică endpointul ca sigur pentru orice vulnerabilitate.</p>
+<p>Orice procent derivat trebuie să aibă un numitor explicit, versiunea snapshotului și excluderile vizibile. Aplicabilitatea necunoscută și taskurile blocate nu se elimină pentru a îmbunătăți artificial scorul; numai <code>not_applicable</code> justificat poate fi exclus. Numitorul gol se afișează <code>N/A</code>, nu „100%”. Dacă loginul descoperă suprafețe noi, numitorul crește; coverage poate scădea fără ca sistemul să fi pierdut progres. Nu promitem „100% din aplicație”.</p>
+<h2 id="section-10">10. Autonomie controlată, pauză și recuperare</h2>
+<p><strong>Scope-ul este cod, nu prompt.</strong> Include originuri, porturi, căi și excluderi, identități, tipuri de acțiune, rate și limite. Fiecare request, redirect, cerere de browser și acțiune copil trebuie să treacă prin aceeași verificare. Un firewall pe IP singur nu distinge căile sau aplicațiile găzduite pe aceeași infrastructură.</p>
+<p>Mediul de execuție nu are voie să ocolească brokerul prin shell, browser stock, MCP arbitrar sau trafic direct. Informațiile despre țintă sunt input neîncrezător; o pagină care „cere” extinderea scope-ului nu este o aprobare. Containerele și mecanismele de securitate Hermes ajută, dar nu constituie singure dovada confinării cerute de Omnis.<a class="citation" href="#source-9" aria-label="Sursa 9">[9]</a></p>
+<h3 id="actiuni-ale-operatorului">Acțiuni ale operatorului</h3>
+<ul>
+<li><strong>Pause:</strong> oprește admiterea taskurilor noi, lasă numai acțiunile deja admise să se încheie în limitele lor; UI arată <code>PAUSING</code> până când condiția este îndeplinită.</li>
+<li><strong>Stop:</strong> revocă permisiunea de noi efecte, trimite stop/cancel, oprește procesele executorilor și verifică lipsa activității. <code>STOPPING</code> nu se afișează ca <code>STOPPED</code> prematur.</li>
+<li><strong>Resume:</strong> revalidează scope/identități/provider, reconciliază taskurile și pornește tururi noi din checkpoint; nu pretinde că reia un thread Python mort.</li>
+<li><strong>Aprobări:</strong> legate de acțiunea exactă, argumente, target, identitate, revizie și expirare. Nu folosim „aprobare permanentă pentru orice”.</li>
+</ul>
+<p>Recon, task, worker, fază și engagement primesc bugete și criterii de oprire. Retestul se justifică prin dovezi noi, identitate nouă, schimbare de stare ori un motiv înregistrat; detectăm repetarea fără informație nouă. Când limita oprește munca, rezultatul este <strong>LIMITED</strong>, nu „pentest complet”.</p>
+<p>Bugetele de cereri/timeouts/concurență se pot impune în broker. Costul AI necesită contabilizarea cererilor părintelui, copiilor, retry-urilor și operațiilor auxiliare, fără dublarea agregatelor. Un cost calculat după răspuns este un <strong>prag estimativ de oprire</strong>, nu un plafon financiar exact; hard cap cere un mecanism înaintea apelului sau o limită impusă de provider. Cotele abonamentului nu se inventează în UI.<a class="citation" href="#source-6" aria-label="Sursa 6">[6]</a><a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a></p>
+<p>Dacă Hermes cade, Omnis păstrează taskurile și dovezile. Operațiile cu rezultat extern necunoscut devin <code>UNKNOWN/NEEDS_RECONCILIATION</code>, nu „failed, retry imediat”. Metodele HTTP nu garantează singure lipsa efectelor secundare. Dacă aceeași acțiune poate modifica date, repetarea ei cere reconciliere sau aprobare.</p>
+<h2 id="section-11">11. Ce este fezabil, ce necesită lucru și ce nu promitem</h2>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Funcție solicitată</th>
+<th>Verdict pentru MVP local</th>
+<th>Condiție / muncă reală</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI propriu care conduce Hermes</td>
+<td>Fezabil pe contracte existente</td>
+<td>Host JSON-RPC, adaptor REST pentru Settings, procese private; contract tests</td>
+</tr>
+<tr>
+<td>OpenRouter și Codex în Settings</td>
+<td>Fezabil tehnic</td>
+<td>Integrare management/OAuth și verificare live cu acord; drepturile/cotele contului rămân externe</td>
+</tr>
+<tr>
+<td>Recon HTTP + JS + browser + fuzzing bounded</td>
+<td>Fezabil de construit</td>
+<td>Tool adapters, captură, parseri, state/auth, politici; nu vine gata din Hermes</td>
+</tr>
+<tr>
+<td>Sitemap tree cu parametri și provenance</td>
+<td>Fezabil de construit</td>
+<td>Model de date și UI Omnis; dedup fără pierderea identității/contextului</td>
+</tr>
+<tr>
+<td>Brain cu workeri scurți și validator</td>
+<td>Fezabil pe mecanisme Hermes</td>
+<td>Delegare nativă, plugin și task ledger; corelare și delte event-driven</td>
+</tr>
+<tr>
+<td>Live pentru fiecare acțiune relevantă</td>
+<td>Parțial nativ</td>
+<td>RPC pentru progresul copiilor; evenimente de domeniu și telemetrie plugin pentru datele canonice</td>
+</tr>
+<tr>
+<td>Bucle post-auth și descoperiri neașteptate</td>
+<td>Fezabil de construit</td>
+<td>Snapshoturi/delta, prioritate, dedup și condiții de retest</td>
+</tr>
+<tr>
+<td>Findings confirmate cu evidence</td>
+<td>Fezabil pentru catalog explicit</td>
+<td>Oracle-uri per clasă, replay și control; nu simplă încredere în verdictul LLM</td>
+</tr>
+<tr>
+<td>Pause/stop/recovery de engagement</td>
+<td>Nu este livrat integral de API</td>
+<td>Omnis state machine + revocare/oprire/reconciliere verificată</td>
+</tr>
+<tr>
+<td>Coverage completă a oricărei aplicații</td>
+<td>Nu este o promisiune defensabilă</td>
+<td>Raportăm ce știm și ce am testat, cu limite</td>
+</tr>
+<tr>
+<td>Zero false positives / zero false negatives</td>
+<td>Nu garantăm</td>
+<td>Evaluare pe exemple vulnerabile și controale sigure, cu inconclusive separat</td>
+</tr>
+<tr>
+<td>Children care supraviețuiesc restartului</td>
+<td>Nu prin lifecycle API actual</td>
+<td>Restart/replay controlat la nivel de task, nu învierea contextului de execuție</td>
+</tr>
+<tr>
+<td>Chains multi-etapă, SSO/MFA autonom, SaaS multi-client</td>
+<td>Post-MVP</td>
+<td>Cerințe și model de risc distincte</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nu alegem încă un fork.</strong> Dacă testele arată o lipsă punctuală imposibil de rezolvat prin plugin/adaptor, documentăm exact hookul necesar și evaluăm un patch upstream/fork minimal. Nu copiem auth/provider runtime doar pentru a evita două endpointuri de management.</p>
+<h2 id="section-12">12. MVP mai ambițios, livrat incremental</h2>
+<p>Experimentul tehnic este <strong>poarta de intrare</strong>, nu plafonul produsului. MVP-ul final trebuie să conțină fluxul complet descris de utilizator.</p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Increment</th>
+<th>Ce trebuie să existe</th>
+<th>Probă de acceptare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I0 — contracte și limite</td>
+<td>Host RPC, Settings pentru cei doi provideri, un copil și legătura de task, cancel; REST ca alternativă documentată</td>
+<td>Contraste între versiune/docs verificate; login/reautentificare reală; comportament la crash și ieșire din scope</td>
+</tr>
+<tr>
+<td>I1 — engagement și hartă live</td>
+<td>Setup, identități opționale, recon HTTP/browser/JS, tree și evidence</td>
+<td>Descoperiri live deduplicate, toate cererile atribuibile, login expirat semnalat, excluderi respectate</td>
+</tr>
+<tr>
+<td>I2 — investigații și verificator</td>
+<td>Brain, taskuri scurte, catalogul agreat, validator nou</td>
+<td>Caz vulnerabil și control sigur pentru fiecare clasă; inconclusive nu devine FP; dovezile se pot reproduce</td>
+</tr>
+<tr>
+<td>I3 — bucle și închidere</td>
+<td>Post-auth incremental, reprioritizare, bugete, pause/stop/recovery, raport</td>
+<td>Suprafața nouă redeschide taskuri relevante; refresh UI nu pierde progres; restart nu repetă mutații; raportul nu inventează rezultate</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="teste-obligatorii-inainte-de-a-l-numi-mvp">Teste obligatorii înainte de a-l numi MVP</h3>
+<ul>
+<li>Schimbarea providerului nu expune chei în browser, mesaje sau loguri; fallbackul nu trece neobservat către un provider nepermis.</li>
+<li>Grant expirat/revocat și rate limit apar corect; „configurat” nu este afișat drept „testat”.</li>
+<li>Brain și copil corelează fiecare acțiune cu taskul și cu evidence, fără acces la identitatea altui task.</li>
+<li>Streamul browserului poate fi reconectat din jurnalul Omnis; căderea fluxului Hermes nu șterge harta/dovezile.</li>
+<li>Finalizarea detached folosește wake-ul nativ o singură dată; dispatcherul Omnis nu îl dublează. Pause/stop/bugetele împiedică efecte noi și continuări nepermise.</li>
+<li>Redirect, DNS schimbat, IPv6, subresurse browser și tool alternativ nu pot depăși scope-ul. Accesul la metadata, host și control plane este blocat dacă nu face parte din laboratorul autorizat.</li>
+<li>O pagină ostilă nu poate transforma instrucțiuni din target în autoritate, nu poate confirma singură un finding și nu execută scripturi când evidence este afișat în dashboard.</li>
+<li>Două identități de test și controlul negativ rămân distincte; sesiunea expirată nu produce verdict de vulnerabilitate.</li>
+<li>Pentru fiecare familie aprobată există fixture vulnerabil și fixture remediat, resetabile și separate de exemplele de dezvoltare. Dovezile trebuie să reproducă problema pe primul și să nu promoveze controlul sigur; orice abatere blochează publicarea acelei capabilități ca verificată.</li>
+<li>Stop verifică executori și copii, iar resume după crash reconciliază rezultatele incerte.</li>
+<li>Raportul final referă numai evidence existente și include explicit identități, teste neefectuate și limitări.</li>
+</ul>
+<p>Nu atribui durate exacte sau procente de cod reutilizat fără aceste probe. Partea costisitoare nu este conectarea butonului Start la Hermes; este calitatea hărții, execuția observabilă, autenticitatea dovezilor și comportamentul sigur al buclelor.</p>
+<h2 id="section-13">13. Diferențe față de propunerea precedentă</h2>
+<ol>
+<li>Local-first și setul de autentificări clarificate înlocuiesc planificarea inițială orientată și spre o echipă/VPS.</li>
+<li>Providers restrânși la OpenRouter și Codex; Settings este fațadă peste managementul existent, nu rescriere auth.</li>
+<li>Delegarea nativă Hermes, controlată prin host JSON-RPC, este preferată unui wrapper peste actualul lifecycle API; limitările acestuia sunt documentate.</li>
+<li>Separăm wake-ul nativ al delegării în runtime-ul RPC de continuările specifice pentestului și de limita HTTP, unde clientul deține următorul tur.</li>
+<li>Browser recon, recon post-auth, hartă cu proveniență, feedback loops și validator sunt ținte MVP, nu toate împinse după el.</li>
+<li>Snapshot/coverage/verdict/evidence devin entități de produs, nu text derivat din chat.</li>
+<li>S0/I0 rămâne un experiment tehnic obligatoriu, dar MVP-ul nu se reduce la el.</li>
+</ol>
+<p><strong>Decizii încă deschise:</strong> catalogul exact de verificări pentru prima versiune, aplicațiile de laborator și fixture-urile pentru controale, limita inițială de concurență și alegerea definitivă a stackului. Acestea nu anulează fezabilitatea integrării, dar trebuie închise înainte de estimare și implementare.</p>
+<h2 id="section-14">14. Dovezi din cod și nivelul de verificare</h2>
+<p>Căile de mai jos sunt relative la checkoutul Hermes menționat la început. Liniile sunt ancore pentru commitul auditat, nu un contract de stabilitate după upgrade.</p>
+<div aria-label="Tabel — derulare orizontală pe ecrane mici" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Sursă</th>
+<th>Constatare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gateway/platforms/api_server.py:2195–2279</code> — <code>_create_agent</code></td>
+<td>Config/platform toolsets; construcție agent și rutare</td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server.py:2334–2349</code> — <code>_handle_model_options</code></td>
+<td>Catalog îmbogățit diferit de <code>/v1/models</code></td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server.py:2944–3009</code> — <code>_handle_create_session</code></td>
+<td>Creare atomică a unei sesiuni reale</td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server_runs.py:567–703</code> — <code>_handle_runs</code></td>
+<td>Body input/session/provider/model, idempotency, continuare istoric</td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server_runs.py:267–301</code> — <code>_make_run_event_callback</code></td>
+<td>Evenimente copii selective; omiterea progresului per tool copil</td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server_runs.py:481–482, 1016–1057</code></td>
+<td>Coadă SSE consumată și curățarea transportului; fără replay durabil verificat</td>
+</tr>
+<tr>
+<td><code>gateway/platforms/api_server_runs.py:1072–1178</code></td>
+<td>Schema approval, steer și stop</td>
+</tr>
+<tr>
+<td><code>agent/subagent_lifecycle.py:24–75, 148–161</code></td>
+<td>Contracte publice, limite, retenție în proces și thread pool</td>
+</tr>
+<tr>
+<td><code>agent/subagent_lifecycle.py:245–280,335–389</code></td>
+<td>Lipsa parității cu delegarea standard; parent activ și rezultate limitate</td>
+</tr>
+<tr>
+<td><code>tools/delegate_tool.py:187–191,634–726</code></td>
+<td>Rol derivat din configurație/adâncime; schema delegării native</td>
+</tr>
+<tr>
+<td><code>apps/shared/src/gateway-contract.openrpc.json</code></td>
+<td>Parametrii și rezultatele metodelor RPC folosite în exemple</td>
+</tr>
+<tr>
+<td><code>tui_gateway/methods_subagents.py:53–113</code></td>
+<td>List/interrupt/tail cu ownership de sesiune/transport</td>
+</tr>
+<tr>
+<td><code>tui_gateway/session_notifications.py:148–168,459–544,690–737</code></td>
+<td>Completări async care pot porni nativ următorul tur în runtime-ul RPC</td>
+</tr>
+<tr>
+<td><code>hermes_cli/web_server.py:317–445</code></td>
+<td>Tokenul local pentru management</td>
+</tr>
+<tr>
+<td><code>hermes_cli/web_routers/config_env.py:232–316,887–972</code></td>
+<td>Stare/salvare/validare/ștergere OpenRouter</td>
+</tr>
+<tr>
+<td><code>hermes_cli/web_routers/oauth.py:264–305,619–795</code></td>
+<td>OAuth Codex start/poll/cancel/logout</td>
+</tr>
+<tr>
+<td><code>hermes_cli/web_routers/models.py:101–131,275–318</code></td>
+<td>Catalogul management și model assignment</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Verificat aici:</strong> documentație oficială, source inspection și corelarea traseelor importante. <strong>De verificat în I0:</strong> apeluri reale, OAuth, izolarea și oprirea, durata/rata/costul, evenimentele plugin sub sarcină și recuperarea. Nu sunt prezentate numere de benchmark sau rezultate de scanare fabricate.</p>
+<h2 id="section-15">Surse oficiale</h2>
+<p id="source-1"><a class="citation" href="#source-1" aria-label="Sursa 1">[1]</a> <a href="https://hermes-agent.nousresearch.com/docs/llms.txt" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/llms.txt</a></p>
+<p id="source-2"><a class="citation" href="#source-2" aria-label="Sursa 2">[2]</a> <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server</a></p>
+<p id="source-3"><a class="citation" href="#source-3" aria-label="Sursa 3">[3]</a> <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration</a></p>
+<p id="source-4"><a class="citation" href="#source-4" aria-label="Sursa 4">[4]</a> <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation</a></p>
+<p id="source-5"><a class="citation" href="#source-5" aria-label="Sursa 5">[5]</a> <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/subagent-lifecycle-api" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/developer-guide/subagent-lifecycle-api</a></p>
+<p id="source-6"><a class="citation" href="#source-6" aria-label="Sursa 6">[6]</a> <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/observer-hooks" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/developer-guide/observer-hooks</a></p>
+<p id="source-7"><a class="citation" href="#source-7" aria-label="Sursa 7">[7]</a> <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/web-dashboard" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/user-guide/features/web-dashboard</a></p>
+<p id="source-8"><a class="citation" href="#source-8" aria-label="Sursa 8">[8]</a> <a href="https://hermes-agent.nousresearch.com/docs/integrations/providers" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/integrations/providers</a></p>
+<p id="source-9"><a class="citation" href="#source-9" aria-label="Sursa 9">[9]</a> <a href="https://hermes-agent.nousresearch.com/docs/user-guide/security" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/user-guide/security</a></p>
+<p id="source-10"><a class="citation" href="#source-10" aria-label="Sursa 10">[10]</a> <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins" rel="noreferrer noopener">https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins</a></p><footer>Versiunea redactabilă: <a href="Omnis_Hermes_Local_MVP_Integration_Proposal.md">documentul Markdown</a>. Analiza precedentă: <a href="Omnis_Hermes_Feasibility_Review.html">variante de integrare și fezabilitate</a>. Nicio bibliotecă, font sau resursă de afișare nu este încărcată din rețea.</footer></main></div></body></html>

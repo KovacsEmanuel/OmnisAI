@@ -1,0 +1,2 @@
+# Offline documentation renderer only; not the Omnis application stack.
+Markdown==3.10.2

@@ -45,6 +45,15 @@ class BaselineContracts(unittest.TestCase):
         self.assertNotIn('/engagements/:id/map?tab=', ui)
 
 
+    def test_ui_projections_have_consistent_snapshot_and_phase_contracts(self):
+        for name in ['Omnis_MVP_Architecture.md', 'Omnis_UI_UX_Spec.md', 'Omnis_Implementation_Plan.md']:
+            text = (DOCS / name).read_text(encoding='utf-8')
+            for token in ['ProjectionEnvelope', 'CURSOR_CONTEXT_MISMATCH', 'phase_active', 'denominator_revision']:
+                self.assertTrue(token in text, name + ': missing ' + token)
+        architecture = (DOCS / 'Omnis_MVP_Architecture.md').read_text(encoding='utf-8')
+        for route in ['GET /api/v1/dashboard', 'GET /api/v1/runs/{run}/summary']:
+            self.assertTrue(route in architecture, 'Missing canonical route: ' + route)
+
     def test_second_review_contracts_are_recorded(self):
         text = (DOCS / "Omnis_Implementation_Readiness_Review.md").read_text(encoding="utf-8")
         ids = re.findall(r"^\| (RR\d{2}) \|", text, re.M)

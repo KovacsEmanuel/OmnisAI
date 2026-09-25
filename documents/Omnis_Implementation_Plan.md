@@ -75,7 +75,7 @@ Nucleul de lease/stări/revocare/recuperare intră în P2/P3, nu așteaptă P7. 
 **Tickets:**
 
 - B01a: directoarele root `api/`, `web/`, `cli/` conform arhitecturii §12, numai fișierele primei felii; manifeste/lockfiles separate, `.gitignore`, `.env.example` numai cu nume/substituenți, comenzi reale `dev/check/test/build`, CI fără conturi. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.
-- B01b: modul vertical `engagements` și DTO-uri pentru engagement/revision/run, command/event/error; `contracts/omnis.openapi.json` → `web/src/shared/api/generated.ts`, drift verificat. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Enumuri comune și stări indisponibile sincere.
+- B01b: numai DTO-urile primei felii plus envelope/revision/command/error comune; `ProjectionEnvelope` urmează arhitectură §9.1. `contracts/omnis.openapi.json` → `web/src/shared/api/generated.ts`, drift verificat când există consumatorul. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Nu expunem toate endpointurile viitoare ca stuburi sănătoase.
 - B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.
 - B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.
 - B01f: launcherul instalabil `cli/` pentru `omnis`, startup core inert și idempotent, lock/identity, migrare dedicată, readiness și browser same-origin; status/headless/erori fără secrete. Contractul este arhitectură §4.1–4.5, nu wrapper peste TUI Hermes. L01–L05 se probează fără conturi/LLM/țintă; componenta absentă nu este simulată ca serviciu sănătos.
@@ -135,7 +135,7 @@ Se livrează împreună cu P2: provider validat, selecție explicită model, sta
 
 Launcherul integrează provisionarea L07 numai după B01e: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.
 
-**B08:** rezultat/hartă/evidence inspector în UI, SSE cu cursor, reconnect și Stop verificat. O observație HTTP reală este suficientă; nu inventăm finding pentru această demonstrație.
+**B08:** rezultat/inventar/evidence inspector și proiecții Overview/Brain stream în UI, SSE cu cursor, reconnect și Stop verificat. `ProjectionEnvelope`, summary server-side și `phase_active` urmează arhitectură §6/§9.1; phase/status nu se deduc din chat. O observație HTTP reală este suficientă; finding/severity/report review încă indisponibile nu sunt umplute cu demo.
 
 **G03a:**
 
@@ -145,6 +145,7 @@ Launcherul integrează provisionarea L07 numai după B01e: proxy admis + policy/
 - Crash înainte/după fsync/rename/commit DB; artefact lipsă/corupt, disc plin și body/decompresie oversized. Niciun verdict/counter nu ascunde probele absente.
 - Crash după DISPATCHING → UNKNOWN/NEEDS_RECONCILIATION, fără retry automat; comanda Stop duplicată nu are efect secundar suplimentar.
 - Snapshot + cursor, evenimente duplicate/out-of-order și cursor expirat nu dublează counters; UI afișează staleness și resync.
+- `CURSOR_CONTEXT_MISMATCH` pentru token din alt run/engagement; paginare și citiri concurente nu amestecă revizii. După Stop/Pause, reconnect sau review/rerender, faza nu reapare activă. Summaries sunt server-side și nu totaluri ale paginii clientului.
 
 ## 10. P3b — browser, HTTPS și autentificare devreme
 
@@ -162,7 +163,7 @@ Se injectează crash după rotația refresh tokenului, înaintea salvării local
 
 ## 11. P5a + P6a — prima familie utilă, BOLA cap-coadă
 
-**B10:** recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, hartă tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea.
+**B10:** recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea. `denominator_revision` și materializarea celulelor inferred/unknown/parametru/epoch au owner în coverage, conform arhitectură §11; nicio obligație descoperită nu devine testată prin simpla existență în hartă.
 
 **B11:** `object-authorization` complet: SKILL.md, metodologie, validator, controale, schema rezultatului, manifest Omnis, fixture privat/partajat și matrice business versionată. Brainul creează ipoteza din observații și deleagă un task îngust.
 
@@ -175,6 +176,7 @@ Se injectează crash după rotația refresh tokenului, înaintea salvării local
 - E2E începe cu URL, identități/reguli autorizate, nu endpointul vulnerabil/soluția; reconul și Brainul ajung la finding.
 - Obiect privat interzis, obiect partajat legitim, owner legitim și cross-tenant dau verdicte conforme regulilor. HTTP 200 singur nu confirmă.
 - Negativ fără precondiții/controale/evidence nu crește coverage; matricea este inspectabilă până la dovadă.
+- Coverage curent versus rezultat istoric: bytes indisponibili/context greșit nu califică numeratorul; refacerea epochului nu însumează vechile celule, iar filtrele nu schimbă numitorul global. DB/UI/report la același cursor și denominator_revision coincid; numitor gol → N/A.
 - Fixture vulnerabil → CONFIRMED; remediat → retest cu probe noi → FIXED numai cu controale valide; auth expirat → RETEST_INCONCLUSIVE. Raportul vechi rămâne neschimbat.
 - Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.
 

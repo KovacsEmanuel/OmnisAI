@@ -202,7 +202,7 @@ Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sa
 
 | Suprafață | Date/proiecție necesară | Sursa planificată și interacțiuni |
 |---|---|---|
-| Dashboard | Engagement ID/nume/origin, run activ, phase, summary per snapshot, atenție și findings confirmate | `/api/v1/engagements` + proiecție summary; click păstrează engagement/run/snapshot; creare separată |
+| Dashboard | Engagement ID/nume/origin, run activ, phase, summary per snapshot, atenție și findings confirmate | `GET /api/v1/dashboard` pentru sumar/pagină; `/api/v1/engagements` pentru CRUD; click păstrează engagement/run/snapshot; creare separată |
 | Overview | `run.status`, `phase`, activitate curentă, elapsed, bugete used/limit, `confirmed_by_severity`, endpoints observed/inferred, coverage covered/total, approvals și report reviews pending | Proiecție server-side a runului din aceleași revizii ca findings/coverage; propunere `/runs/{run}/summary`; Stop/Pause rămân comenzi cu readback |
 | Brain stream | Event ID/cursor, UTC, kind (`tool_called`, `tool_result`, `decision`, `endpoint`, `validation`, `approval`), actor, sumar redactat, referință la obiect/attempt | SSE `/runs/{run}/events?after=cursor`; replay/resync nu dublează contoare; fără deliberări interne, raw payloaduri sau credentiale |
 | Findings | ID/revision, clasă, severitate + motiv, operation/identity/snapshot, summary/risk, PoC text, pași, evidence refs/stare, validator, limite/remediere, review separat | `/runs/{run}/findings`; expand/filter/select; `POST /findings/{id}/report-review` propus pentru `APPROVED`/`HELD`, cu expected revision și command ID |
@@ -210,6 +210,8 @@ Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sa
 | Reports | Run/snapshot/revision, policy de includere, copii finding/evidence/review, coverage/limite, istoric și artifact refs | Generare server-side dintr-un snapshot coerent; export HTML/JSON inert, raport vechi imuabil; preview-ul din prototip este marcat DEMO |
 
 ### Reguli de agregare și review
+
+Contractul normativ este `ProjectionEnvelope` din arhitectură §9.1: scope revision este diferită de versiunea/cursorul datelor, iar proiecția completă a paginii furnizează și counts de navigare. Starea/faza sunt ale serverului; `phase_active=false` nu poate fi suprascris prin rerandare sau din textul Brainului. Erorile `CURSOR_CONTEXT_MISMATCH`/RESYNC_REQUIRED, paginarea și pollingul Home păstrează ultima proiecție etichetată stale până la resync. Coverage afișează `denominator_revision`, numerator/denominator și contextul; filtrarea nu schimbă tacit totalul.
 
 - Confirmed/critical/high și distribuția Severity numără **numai verdictul tehnic CONFIRMED**. Un candidat cu severitate potențială Critical nu mărește aceste valori.
 - Coverage = celule eligibile cu procedură/precondiții/control/evidence complete împărțite la numitorul declarat. N/A se exclude numai cu motiv de aplicabilitate; blocked/unknown/unsupported nu sunt succese. Numitor gol → N/A. Endpoints și requests sunt metrici diferite.

@@ -328,7 +328,7 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <tr>
 <td>Dashboard</td>
 <td>Engagement ID/nume/origin, run activ, phase, summary per snapshot, atenție și findings confirmate</td>
-<td><code>/api/v1/engagements</code> + proiecție summary; click păstrează engagement/run/snapshot; creare separată</td>
+<td><code>GET /api/v1/dashboard</code> pentru sumar/pagină; <code>/api/v1/engagements</code> pentru CRUD; click păstrează engagement/run/snapshot; creare separată</td>
 </tr>
 <tr>
 <td>Overview</td>
@@ -358,6 +358,7 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </tbody>
 </table></div>
 <h3 id="reguli-de-agregare-si-review">Reguli de agregare și review</h3>
+<p>Contractul normativ este <code>ProjectionEnvelope</code> din arhitectură §9.1: scope revision este diferită de versiunea/cursorul datelor, iar proiecția completă a paginii furnizează și counts de navigare. Starea/faza sunt ale serverului; <code>phase_active=false</code> nu poate fi suprascris prin rerandare sau din textul Brainului. Erorile <code>CURSOR_CONTEXT_MISMATCH</code>/RESYNC_REQUIRED, paginarea și pollingul Home păstrează ultima proiecție etichetată stale până la resync. Coverage afișează <code>denominator_revision</code>, numerator/denominator și contextul; filtrarea nu schimbă tacit totalul.</p>
 <ul>
 <li>Confirmed/critical/high și distribuția Severity numără <strong>numai verdictul tehnic CONFIRMED</strong>. Un candidat cu severitate potențială Critical nu mărește aceste valori.</li>
 <li>Coverage = celule eligibile cu procedură/precondiții/control/evidence complete împărțite la numitorul declarat. N/A se exclude numai cu motiv de aplicabilitate; blocked/unknown/unsupported nu sunt succese. Numitor gol → N/A. Endpoints și requests sunt metrici diferite.</li>
@@ -369,5 +370,5 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </ul>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>68375cff68bcf9c4360b84603efb5b00dce7fed430c1226787142d770ea2e115</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>efcac11f0f2a985870b614269945f2156b81806d7a60de5fb4ccc965d6e25271</code>.</p></footer>
 </main></div></body></html>

@@ -96,7 +96,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p><strong>Tickets:</strong></p>
 <ul>
 <li>B01a: directoarele root <code>api/</code>, <code>web/</code>, <code>cli/</code> conform arhitecturii §12, numai fișierele primei felii; manifeste/lockfiles separate, <code>.gitignore</code>, <code>.env.example</code> numai cu nume/substituenți, comenzi reale <code>dev/check/test/build</code>, CI fără conturi. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.</li>
-<li>B01b: modul vertical <code>engagements</code> și DTO-uri pentru engagement/revision/run, command/event/error; <code>contracts/omnis.openapi.json</code> → <code>web/src/shared/api/generated.ts</code>, drift verificat. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Enumuri comune și stări indisponibile sincere.</li>
+<li>B01b: numai DTO-urile primei felii plus envelope/revision/command/error comune; <code>ProjectionEnvelope</code> urmează arhitectură §9.1. <code>contracts/omnis.openapi.json</code> → <code>web/src/shared/api/generated.ts</code>, drift verificat când există consumatorul. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Nu expunem toate endpointurile viitoare ca stuburi sănătoase.</li>
 <li>B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.</li>
 <li>B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.</li>
 <li>B01f: launcherul instalabil <code>cli/</code> pentru <code>omnis</code>, startup core inert și idempotent, lock/identity, migrare dedicată, readiness și browser same-origin; status/headless/erori fără secrete. Contractul este arhitectură §4.1–4.5, nu wrapper peste TUI Hermes. L01–L05 se probează fără conturi/LLM/țintă; componenta absentă nu este simulată ca serviciu sănătos.</li>
@@ -174,7 +174,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <h2 id="9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</h2>
 <p><strong>B07:</strong> broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.</p>
 <p>Launcherul integrează provisionarea L07 numai după B01e: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.</p>
-<p><strong>B08:</strong> rezultat/hartă/evidence inspector în UI, SSE cu cursor, reconnect și Stop verificat. O observație HTTP reală este suficientă; nu inventăm finding pentru această demonstrație.</p>
+<p><strong>B08:</strong> rezultat/inventar/evidence inspector și proiecții Overview/Brain stream în UI, SSE cu cursor, reconnect și Stop verificat. <code>ProjectionEnvelope</code>, summary server-side și <code>phase_active</code> urmează arhitectură §6/§9.1; phase/status nu se deduc din chat. O observație HTTP reală este suficientă; finding/severity/report review încă indisponibile nu sunt umplute cu demo.</p>
 <p><strong>G03a:</strong></p>
 <ul>
 <li>Request permis → evidence AVAILABLE inspectabil după restart. Request scos din scope, redirect interzis, identity greșită, lease expirat și approval vechi → refuz înaintea efectului.</li>
@@ -183,6 +183,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <li>Crash înainte/după fsync/rename/commit DB; artefact lipsă/corupt, disc plin și body/decompresie oversized. Niciun verdict/counter nu ascunde probele absente.</li>
 <li>Crash după DISPATCHING → UNKNOWN/NEEDS_RECONCILIATION, fără retry automat; comanda Stop duplicată nu are efect secundar suplimentar.</li>
 <li>Snapshot + cursor, evenimente duplicate/out-of-order și cursor expirat nu dublează counters; UI afișează staleness și resync.</li>
+<li><code>CURSOR_CONTEXT_MISMATCH</code> pentru token din alt run/engagement; paginare și citiri concurente nu amestecă revizii. După Stop/Pause, reconnect sau review/rerender, faza nu reapare activă. Summaries sunt server-side și nu totaluri ale paginii clientului.</li>
 </ul>
 <h2 id="10-p3b-browser-https-si-autentificare-devreme">10. P3b — browser, HTTPS și autentificare devreme</h2>
 <p><strong>B09a:</strong> Chromium izolat și sandbox activ, proxy MITM numai în laborator, request buffering înaintea policy, toate subrequesturile corelate și limitate. SW/WS/QUIC/download neautorizat/passthrough oprite. TLS upstream verificat, CA numai în executor.</p>
@@ -192,7 +193,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p><strong>G-NET:</strong> CONNECT/SNI/Host/path nepermis, rebinding, redirect/subresursă off-scope și request streaming accidental sunt refuzate înaintea traficului relevant. Măsurăm la sink/fixture bytes/stare, nu doar log de policy.</p>
 <p><strong>G-EFFECT:</strong> GET mutator și mutație SPA automată nu modifică starea sub politică read-only fără approval. Sinks de email/webhook și health degradation verifică impactul; cleanup eșuat rămâne vizibil. <code>UNKNOWN</code> nu este mapat la read-only de LLM.</p>
 <h2 id="11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</h2>
-<p><strong>B10:</strong> recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, hartă tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea.</p>
+<p><strong>B10:</strong> recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea. <code>denominator_revision</code> și materializarea celulelor inferred/unknown/parametru/epoch au owner în coverage, conform arhitectură §11; nicio obligație descoperită nu devine testată prin simpla existență în hartă.</p>
 <p><strong>B11:</strong> <code>object-authorization</code> complet: SKILL.md, metodologie, validator, controale, schema rezultatului, manifest Omnis, fixture privat/partajat și matrice business versionată. Brainul creează ipoteza din observații și deleagă un task îngust.</p>
 <p><strong>B12:</strong> copil nou de validare și serviciu determinist de verdict; poartă probatorie pentru negativ. Situațiile UNKNOWN/auth drift/buget epuizat rămân INCONCLUSIVE sau BLOCKED.</p>
 <p><strong>B13:</strong> finding + occurrences, impact demonstrat, severitate argumentată, CWE, remediere, report snapshot HTML/JSON, retest cu evidence noi. Poate fi UI simplu, dar conținutul nu este amânat până la final.</p>
@@ -201,6 +202,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <li>E2E începe cu URL, identități/reguli autorizate, nu endpointul vulnerabil/soluția; reconul și Brainul ajung la finding.</li>
 <li>Obiect privat interzis, obiect partajat legitim, owner legitim și cross-tenant dau verdicte conforme regulilor. HTTP 200 singur nu confirmă.</li>
 <li>Negativ fără precondiții/controale/evidence nu crește coverage; matricea este inspectabilă până la dovadă.</li>
+<li>Coverage curent versus rezultat istoric: bytes indisponibili/context greșit nu califică numeratorul; refacerea epochului nu însumează vechile celule, iar filtrele nu schimbă numitorul global. DB/UI/report la același cursor și denominator_revision coincid; numitor gol → N/A.</li>
 <li>Fixture vulnerabil → CONFIRMED; remediat → retest cu probe noi → FIXED numai cu controale valide; auth expirat → RETEST_INCONCLUSIVE. Raportul vechi rămâne neschimbat.</li>
 <li>Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.</li>
 </ul>
@@ -368,5 +370,5 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p>MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.</p>
 <p><strong>După acordul G-DESIGN putem începe fără conturi:</strong> B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. <strong>Înainte de live LLM:</strong> operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. <strong>Înainte de target effects:</strong> G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.</p>
 <p>Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>576aff8db70402254d08045ce7fa46fa481c82e06956bbbdc4d6d3b391b997e5</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>0fc1fe18ba0c4d37c5b5305ba9741e48032c6a6554466c8d6829fc4da4c35e43</code>.</p></footer>
 </main></div></body></html>

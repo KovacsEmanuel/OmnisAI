@@ -194,6 +194,29 @@ Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sa
 
 **U10** DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.
 
+## 8. Date necesare și legătura UI–backend
+
+**Contracte propuse, nu endpointuri deja implementate.** `assets/prototype-model.js` este un fixture sintetic local, nu adaptor API și nu sursă de autoritate. Un singur model alimentează toate contoarele și eligibilitatea raportului; valorile nu sunt copiate manual între carduri.
+
+| Suprafață | Date/proiecție necesară | Sursa planificată și interacțiuni |
+|---|---|---|
+| Dashboard | Engagement ID/nume/origin, run activ, phase, summary per snapshot, atenție și findings confirmate | `/api/v1/engagements` + proiecție summary; click păstrează engagement/run/snapshot; creare separată |
+| Overview | `run.status`, `phase`, activitate curentă, elapsed, bugete used/limit, `confirmed_by_severity`, endpoints observed/inferred, coverage covered/total, approvals și report reviews pending | Proiecție server-side a runului din aceleași revizii ca findings/coverage; propunere `/runs/{run}/summary`; Stop/Pause rămân comenzi cu readback |
+| Brain stream | Event ID/cursor, UTC, kind (`tool_called`, `tool_result`, `decision`, `endpoint`, `validation`, `approval`), actor, sumar redactat, referință la obiect/attempt | SSE `/runs/{run}/events?after=cursor`; replay/resync nu dublează contoare; fără deliberări interne, raw payloaduri sau credentiale |
+| Findings | ID/revision, clasă, severitate + motiv, operation/identity/snapshot, summary/risk, PoC text, pași, evidence refs/stare, validator, limite/remediere, review separat | `/runs/{run}/findings`; expand/filter/select; `POST /findings/{id}/report-review` propus pentru `APPROVED`/`HELD`, cu expected revision și command ID |
+| Coverage / Endpoints | Celule cu denominator key, operație/parametru/identitate/epoch/familie/procedură/snapshot; state și evidence; observed/inferred separat | `/runs/{run}/coverage` și `/surfaces`; inspectarea unei celule păstrează contextul exact, nu declară endpointul sigur |
+| Reports | Run/snapshot/revision, policy de includere, copii finding/evidence/review, coverage/limite, istoric și artifact refs | Generare server-side dintr-un snapshot coerent; export HTML/JSON inert, raport vechi imuabil; preview-ul din prototip este marcat DEMO |
+
+### Reguli de agregare și review
+
+- Confirmed/critical/high și distribuția Severity numără **numai verdictul tehnic CONFIRMED**. Un candidat cu severitate potențială Critical nu mărește aceste valori.
+- Coverage = celule eligibile cu procedură/precondiții/control/evidence complete împărțite la numitorul declarat. N/A se exclude numai cu motiv de aplicabilitate; blocked/unknown/unsupported nu sunt succese. Numitor gol → N/A. Endpoints și requests sunt metrici diferite.
+- Faza (`VALIDATE` etc.) este proiecție de progres a runului, nu înlocuiește RUNNING/PAUSING/STOPPING și nu se ghicește dintr-un mesaj Brain. Barele de buget arată used/limit, nu procent de „pentest complet”. Cost indisponibil rămâne Unknown, nu zero.
+- `report_review.required/status/actor/finding_revision` este o axă separată de `validation_status` și `remediation_status`. `Accept for report` este disponibil numai pentru un CONFIRMED revizionat, cu evidence disponibile pentru review; hold nu șterge verdictul. Un candidat/inconclusive nu poate fi promovat prin această acțiune.
+- Backendul trebuie să verifice ownership, If-Match/revision, policy, integritatea și legătura probelor în tranzacție, să păstreze auditul și să refuze cererea stale. Schimbarea materială a claimului/evidence version invalidează review-ul anterior. O simplă schimbare de disponibilitate actuală nu rescrie istoricul.
+- La generare, **finding eligibil = CONFIRMED și (review necerut sau APPROVED)**. Candidate/REJECTED/INCONCLUSIVE și review-required PENDING/HELD nu intră ca vulnerabilități. Un raport existent nu se schimbă după review ulterior; raportul nou indică separat disponibilitatea actuală a evidence și limitele.
+- În demo, review-ul și snapshoturile trăiesc numai în memorie și exportul se numește explicit DEMO. În produs, aceste reguli sunt aplicate de backend; butonul, promptul sau JavaScriptul nu sunt enforcement.
+
 ## Sources
 
 [9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)

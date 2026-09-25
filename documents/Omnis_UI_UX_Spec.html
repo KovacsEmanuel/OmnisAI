@@ -10,8 +10,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 @media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
 </style></head>
 <body><a class="skip" href="#content">Sari la conținut</a>
-<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
-<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#8-date-necesare-si-legatura-uibackend">8. Date necesare și legătura UI–backend</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#8-date-necesare-si-legatura-uibackend">8. Date necesare și legătura UI–backend</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
 <h1 id="omnis-specificatie-uiux-v2-propunere">Omnis — specificație UI/UX v2 · propunere</h1>
 <p><strong>Revizie după referința utilizatorului · Surface: Operate, cu inspector contextual · Aprobarea vizuală este în așteptare</strong></p>
@@ -312,7 +312,60 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <p><strong>U08</strong> Payload HTML/JS/SVG ostil, linkuri externe și screenshot invalid nu execută/încarcă resurse în browserul operatorului.</p>
 <p><strong>U09</strong> SSE replay/resync/stale și refresh nu dublează counters; numerator/denominator și N/A se păstrează.</p>
 <p><strong>U10</strong> DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.</p>
+<h2 id="8-date-necesare-si-legatura-uibackend">8. Date necesare și legătura UI–backend</h2>
+<p><strong>Contracte propuse, nu endpointuri deja implementate.</strong> <code>assets/prototype-model.js</code> este un fixture sintetic local, nu adaptor API și nu sursă de autoritate. Un singur model alimentează toate contoarele și eligibilitatea raportului; valorile nu sunt copiate manual între carduri.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Suprafață</th>
+<th>Date/proiecție necesară</th>
+<th>Sursa planificată și interacțiuni</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>Engagement ID/nume/origin, run activ, phase, summary per snapshot, atenție și findings confirmate</td>
+<td><code>/api/v1/engagements</code> + proiecție summary; click păstrează engagement/run/snapshot; creare separată</td>
+</tr>
+<tr>
+<td>Overview</td>
+<td><code>run.status</code>, <code>phase</code>, activitate curentă, elapsed, bugete used/limit, <code>confirmed_by_severity</code>, endpoints observed/inferred, coverage covered/total, approvals și report reviews pending</td>
+<td>Proiecție server-side a runului din aceleași revizii ca findings/coverage; propunere <code>/runs/{run}/summary</code>; Stop/Pause rămân comenzi cu readback</td>
+</tr>
+<tr>
+<td>Brain stream</td>
+<td>Event ID/cursor, UTC, kind (<code>tool_called</code>, <code>tool_result</code>, <code>decision</code>, <code>endpoint</code>, <code>validation</code>, <code>approval</code>), actor, sumar redactat, referință la obiect/attempt</td>
+<td>SSE <code>/runs/{run}/events?after=cursor</code>; replay/resync nu dublează contoare; fără deliberări interne, raw payloaduri sau credentiale</td>
+</tr>
+<tr>
+<td>Findings</td>
+<td>ID/revision, clasă, severitate + motiv, operation/identity/snapshot, summary/risk, PoC text, pași, evidence refs/stare, validator, limite/remediere, review separat</td>
+<td><code>/runs/{run}/findings</code>; expand/filter/select; <code>POST /findings/{id}/report-review</code> propus pentru <code>APPROVED</code>/<code>HELD</code>, cu expected revision și command ID</td>
+</tr>
+<tr>
+<td>Coverage / Endpoints</td>
+<td>Celule cu denominator key, operație/parametru/identitate/epoch/familie/procedură/snapshot; state și evidence; observed/inferred separat</td>
+<td><code>/runs/{run}/coverage</code> și <code>/surfaces</code>; inspectarea unei celule păstrează contextul exact, nu declară endpointul sigur</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>Run/snapshot/revision, policy de includere, copii finding/evidence/review, coverage/limite, istoric și artifact refs</td>
+<td>Generare server-side dintr-un snapshot coerent; export HTML/JSON inert, raport vechi imuabil; preview-ul din prototip este marcat DEMO</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="reguli-de-agregare-si-review">Reguli de agregare și review</h3>
+<ul>
+<li>Confirmed/critical/high și distribuția Severity numără <strong>numai verdictul tehnic CONFIRMED</strong>. Un candidat cu severitate potențială Critical nu mărește aceste valori.</li>
+<li>Coverage = celule eligibile cu procedură/precondiții/control/evidence complete împărțite la numitorul declarat. N/A se exclude numai cu motiv de aplicabilitate; blocked/unknown/unsupported nu sunt succese. Numitor gol → N/A. Endpoints și requests sunt metrici diferite.</li>
+<li>Faza (<code>VALIDATE</code> etc.) este proiecție de progres a runului, nu înlocuiește RUNNING/PAUSING/STOPPING și nu se ghicește dintr-un mesaj Brain. Barele de buget arată used/limit, nu procent de „pentest complet”. Cost indisponibil rămâne Unknown, nu zero.</li>
+<li><code>report_review.required/status/actor/finding_revision</code> este o axă separată de <code>validation_status</code> și <code>remediation_status</code>. <code>Accept for report</code> este disponibil numai pentru un CONFIRMED revizionat, cu evidence disponibile pentru review; hold nu șterge verdictul. Un candidat/inconclusive nu poate fi promovat prin această acțiune.</li>
+<li>Backendul trebuie să verifice ownership, If-Match/revision, policy, integritatea și legătura probelor în tranzacție, să păstreze auditul și să refuze cererea stale. Schimbarea materială a claimului/evidence version invalidează review-ul anterior. O simplă schimbare de disponibilitate actuală nu rescrie istoricul.</li>
+<li>La generare, <strong>finding eligibil = CONFIRMED și (review necerut sau APPROVED)</strong>. Candidate/REJECTED/INCONCLUSIVE și review-required PENDING/HELD nu intră ca vulnerabilități. Un raport existent nu se schimbă după review ulterior; raportul nou indică separat disponibilitatea actuală a evidence și limitele.</li>
+<li>În demo, review-ul și snapshoturile trăiesc numai în memorie și exportul se numește explicit DEMO. În produs, aceste reguli sunt aplicate de backend; butonul, promptul sau JavaScriptul nu sunt enforcement.</li>
+</ul>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>eed41fb67e6c02bc719f415717a4d6665f15f98450cb7476db126976b43f9c0f</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>724cd7260e770eeca68c4647b7202a41d468dc4de31e345e3a690613130fc799</code>.</p></footer>
 </main></div></body></html>

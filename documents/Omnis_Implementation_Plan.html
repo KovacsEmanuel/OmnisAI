@@ -196,7 +196,14 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p><strong>B10:</strong> recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea. <code>denominator_revision</code> și materializarea celulelor inferred/unknown/parametru/epoch au owner în coverage, conform arhitectură §11; nicio obligație descoperită nu devine testată prin simpla existență în hartă.</p>
 <p><strong>B11:</strong> <code>object-authorization</code> complet: SKILL.md, metodologie, validator, controale, schema rezultatului, manifest Omnis, fixture privat/partajat și matrice business versionată. Brainul creează ipoteza din observații și deleagă un task îngust.</p>
 <p><strong>B12:</strong> copil nou de validare și serviciu determinist de verdict; poartă probatorie pentru negativ. Situațiile UNKNOWN/auth drift/buget epuizat rămân INCONCLUSIVE sau BLOCKED.</p>
-<p><strong>B13:</strong> finding + occurrences, impact demonstrat, severitate argumentată, CWE, remediere, report snapshot HTML/JSON, retest cu evidence noi. Poate fi UI simplu, dar conținutul nu este amânat până la final.</p>
+<p><strong>B13 — felii legate, nu un singur ticket vag:</strong></p>
+<ul>
+<li><strong>B13a:</strong> finding + occurrences/RunFindingLink, impact demonstrat, severitate/CWE, claim_revision, remediere și disclosure-ul acceptat, cu migrare/API/DTO/UI împreună.</li>
+<li><strong>B13b:</strong> policy <code>report_review_policy</code> din revizia runului (OPERATOR_REQUIRED preselectat explicit sau VALIDATOR_ONLY), persistență ReportReview/decizii, review_revision separat de material, comanda idempotentă și audit/readback; UI Accept for report/Hold. Owner findings, contract arhitectură §9.2.</li>
+<li><strong>B13c:</strong> snapshot/export HTML/JSON server-side, eligibility, excluderi, istoric, stări pending/AVAILABLE/failed și download ownership-checked; nu exportăm pagina curentă din browser sau bytes indisponibili.</li>
+<li><strong>B13d:</strong> retest autorizat într-un run nou, probe și reguli proaspete, legat de findingul inițial; FIXED/REGRESSED/RETEST_INCONCLUSIVE fără rescrierea raportului vechi.</li>
+</ul>
+<p>Conținutul și designul acceptat nu sunt amânate până la P8. Review-ul editorial nu ține runtime-ul pornit și nu este operational approval.</p>
 <p><strong>G05a/G06a:</strong></p>
 <ul>
 <li>E2E începe cu URL, identități/reguli autorizate, nu endpointul vulnerabil/soluția; reconul și Brainul ajung la finding.</li>
@@ -204,6 +211,8 @@ P8 — evaluare și livrare (cere și P4b complet)
 <li>Negativ fără precondiții/controale/evidence nu crește coverage; matricea este inspectabilă până la dovadă.</li>
 <li>Coverage curent versus rezultat istoric: bytes indisponibili/context greșit nu califică numeratorul; refacerea epochului nu însumează vechile celule, iar filtrele nu schimbă numitorul global. DB/UI/report la același cursor și denominator_revision coincid; numitor gol → N/A.</li>
 <li>Fixture vulnerabil → CONFIRMED; remediat → retest cu probe noi → FIXED numai cu controale valide; auth expirat → RETEST_INCONCLUSIVE. Raportul vechi rămâne neschimbat.</li>
+<li>B13b: candidat sau ownership străin refuzate; CAS stale, schimbarea claim_revision/manifest/policy, revizia separată a review-ului, duplicate/same-key-different-payload și readback după restart. Accept cu evidence indisponibile este refuzat; Hold rămâne permis pentru CONFIRMED. Decizia nu schimbă verdictul sau statusul runului.</li>
+<li>B13c: generare concurentă cu Hold/claim nou/retention produce un snapshot coerent, nu un amestec. Descărcările reale HTML/JSON includ numai CONFIRMED eligibile; raport vechi identic după schimbări, bytes indisponibili și metadata interne excluse din exportul nou. Crash STAGING, quota/IO failure și retry idempotent nu publică un artifact fals AVAILABLE.</li>
 <li>Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.</li>
 </ul>
 <h2 id="12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</h2>
@@ -370,5 +379,5 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p>MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.</p>
 <p><strong>După acordul G-DESIGN putem începe fără conturi:</strong> B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. <strong>Înainte de live LLM:</strong> operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. <strong>Înainte de target effects:</strong> G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.</p>
 <p>Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>0fc1fe18ba0c4d37c5b5305ba9741e48032c6a6554466c8d6829fc4da4c35e43</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>b98c7c43f3bd4274462fc1dfb8cb603e1cd7f2b4c57277ac6dcd9fdd19775911</code>.</p></footer>
 </main></div></body></html>

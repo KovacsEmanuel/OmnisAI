@@ -204,7 +204,7 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <li><strong>Target &amp; permission:</strong> nume, obiectiv, owner/autorizație, fereastră; origins ATTACKABLE/VISIT_ONLY/BLOCKED, căi și excluderi. Preview al regulilor, fără requests pentru validarea de sintaxă.</li>
 <li><strong>Application context:</strong> seed URLs, workflowuri prioritare, obiecte test, reguli <code>(rol/tenant × obiect × operație → ALLOW/DENY/UNKNOWN)</code>, proveniență/revizie, import OpenAPI revizionat. Cerințele BOLA nu se ascund într-un free-text opțional.</li>
 <li><strong>Identities (optional):</strong> anonymous valid; persona/rol/tenant, tip auth și secret handle; Verify login cu efecte și scope explicite. Assisted browser deschis numai după aprobarea scopeului dependențelor, fără browser personal.</li>
-<li><strong>Rules &amp; budgets:</strong> efecte, praguri, request/time/storage, rezervă validare, data policy/provider/model și catalog admis. „Cost necunoscut” separat de limita tehnică; nu afișăm quota Codex inventată.</li>
+<li><strong>Rules &amp; budgets:</strong> efecte, praguri, request/time/storage, rezervă validare, data policy/provider/model și catalog admis. <code>report_review_policy</code>: OPERATOR_REQUIRED preselectat și afișat explicit sau VALIDATOR_ONLY ales de operator; se fixează în run, nu se schimbă în timpul lui. „Cost necunoscut” separat de limita tehnică; nu afișăm quota Codex inventată.</li>
 <li><strong>Review &amp; preflight:</strong> erori/blocaje grupate cu link înapoi la câmp; revizie/model/identități/riscuri/costul posibil rezumate. Save draft nu face inferență. Start cere preflight actual și confirmare explicită a rulării.</li>
 </ol>
 <p>Backendul este autoritatea finală. Un wizard bifat nu garantează că între timp auth/lease/model/policy nu s-au schimbat. La 409 păstrăm editările locale și arătăm conflictul; nu suprascriem automat.</p>
@@ -342,8 +342,8 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </tr>
 <tr>
 <td>Findings</td>
-<td>ID/revision, clasă, severitate + motiv, operation/identity/snapshot, summary/risk, PoC text, pași, evidence refs/stare, validator, limite/remediere, review separat</td>
-<td><code>/runs/{run}/findings</code>; expand/filter/select; <code>POST /findings/{id}/report-review</code> propus pentru <code>APPROVED</code>/<code>HELD</code>, cu expected revision și command ID</td>
+<td>ID, claim_revision, review_revision, clasă/severitate, operation/identity/snapshot, summary/risk, PoC, pași, evidence manifest/stare, validator, limite/remediere și report_review_policy</td>
+<td><code>/api/v1/runs/{run}/findings</code>; expand/filter/select; <code>POST /api/v1/findings/{id}/report-review</code> pentru APPROVED/HELD, expected revisions și command ID; contract în arhitectură §9.2</td>
 </tr>
 <tr>
 <td>Coverage / Endpoints</td>
@@ -363,12 +363,13 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <li>Confirmed/critical/high și distribuția Severity numără <strong>numai verdictul tehnic CONFIRMED</strong>. Un candidat cu severitate potențială Critical nu mărește aceste valori.</li>
 <li>Coverage = celule eligibile cu procedură/precondiții/control/evidence complete împărțite la numitorul declarat. N/A se exclude numai cu motiv de aplicabilitate; blocked/unknown/unsupported nu sunt succese. Numitor gol → N/A. Endpoints și requests sunt metrici diferite.</li>
 <li>Faza (<code>VALIDATE</code> etc.) este proiecție de progres a runului, nu înlocuiește RUNNING/PAUSING/STOPPING și nu se ghicește dintr-un mesaj Brain. Barele de buget arată used/limit, nu procent de „pentest complet”. Cost indisponibil rămâne Unknown, nu zero.</li>
-<li><code>report_review.required/status/actor/finding_revision</code> este o axă separată de <code>validation_status</code> și <code>remediation_status</code>. <code>Accept for report</code> este disponibil numai pentru un CONFIRMED revizionat, cu evidence disponibile pentru review; hold nu șterge verdictul. Un candidat/inconclusive nu poate fi promovat prin această acțiune.</li>
+<li><code>report_review.required/status/actor/claim_revision/review_revision</code> este o axă separată de <code>validation_status</code> și <code>remediation_status</code>. Accept for report cere CONFIRMED și evidence disponibile; Hold poate exclude și cu evidence lipsă, fără a șterge verdictul. Un candidat/inconclusive nu poate fi promovat. Policy OPERATOR_REQUIRED versus VALIDATOR_ONLY și modificările materiale sunt explicate conform arhitectură §9.2; flagurile mixte ale fixture-ului sunt exemple de stări, nu motorul policy de copiat.</li>
 <li>Backendul trebuie să verifice ownership, If-Match/revision, policy, integritatea și legătura probelor în tranzacție, să păstreze auditul și să refuze cererea stale. Schimbarea materială a claimului/evidence version invalidează review-ul anterior. O simplă schimbare de disponibilitate actuală nu rescrie istoricul.</li>
 <li>La generare, <strong>finding eligibil = CONFIRMED și (review necerut sau APPROVED)</strong>. Candidate/REJECTED/INCONCLUSIVE și review-required PENDING/HELD nu intră ca vulnerabilități. Un raport existent nu se schimbă după review ulterior; raportul nou indică separat disponibilitatea actuală a evidence și limitele.</li>
 <li>În demo, review-ul și snapshoturile trăiesc numai în memorie și exportul se numește explicit DEMO. În produs, aceste reguli sunt aplicate de backend; butonul, promptul sau JavaScriptul nu sunt enforcement.</li>
 </ul>
+<p>Review-ul pentru raport nu împiedică oprirea/finalizarea tehnică și nu reia runul. La 409 păstrăm contextul, arătăm schimbarea materialului și cerem un nou review; nu retrimitem automat decizia. Generate arată pending până când artifactul este AVAILABLE; lista și downloadurile provin din snapshotul salvat. Raportul parțial declară excluderile/limitele; pagina nu schimbă raportul vechi după Hold, retest sau retention.</p>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>efcac11f0f2a985870b614269945f2156b81806d7a60de5fb4ccc965d6e25271</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>ec9384af4325ad80a75b8fba2ebb02174210d2e15a1431eb6e4dc6c34f953751</code>.</p></footer>
 </main></div></body></html>

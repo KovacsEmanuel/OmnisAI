@@ -169,7 +169,14 @@ Se injectează crash după rotația refresh tokenului, înaintea salvării local
 
 **B12:** copil nou de validare și serviciu determinist de verdict; poartă probatorie pentru negativ. Situațiile UNKNOWN/auth drift/buget epuizat rămân INCONCLUSIVE sau BLOCKED.
 
-**B13:** finding + occurrences, impact demonstrat, severitate argumentată, CWE, remediere, report snapshot HTML/JSON, retest cu evidence noi. Poate fi UI simplu, dar conținutul nu este amânat până la final.
+**B13 — felii legate, nu un singur ticket vag:**
+
+- **B13a:** finding + occurrences/RunFindingLink, impact demonstrat, severitate/CWE, claim_revision, remediere și disclosure-ul acceptat, cu migrare/API/DTO/UI împreună.
+- **B13b:** policy `report_review_policy` din revizia runului (OPERATOR_REQUIRED preselectat explicit sau VALIDATOR_ONLY), persistență ReportReview/decizii, review_revision separat de material, comanda idempotentă și audit/readback; UI Accept for report/Hold. Owner findings, contract arhitectură §9.2.
+- **B13c:** snapshot/export HTML/JSON server-side, eligibility, excluderi, istoric, stări pending/AVAILABLE/failed și download ownership-checked; nu exportăm pagina curentă din browser sau bytes indisponibili.
+- **B13d:** retest autorizat într-un run nou, probe și reguli proaspete, legat de findingul inițial; FIXED/REGRESSED/RETEST_INCONCLUSIVE fără rescrierea raportului vechi.
+
+Conținutul și designul acceptat nu sunt amânate până la P8. Review-ul editorial nu ține runtime-ul pornit și nu este operational approval.
 
 **G05a/G06a:**
 
@@ -178,6 +185,8 @@ Se injectează crash după rotația refresh tokenului, înaintea salvării local
 - Negativ fără precondiții/controale/evidence nu crește coverage; matricea este inspectabilă până la dovadă.
 - Coverage curent versus rezultat istoric: bytes indisponibili/context greșit nu califică numeratorul; refacerea epochului nu însumează vechile celule, iar filtrele nu schimbă numitorul global. DB/UI/report la același cursor și denominator_revision coincid; numitor gol → N/A.
 - Fixture vulnerabil → CONFIRMED; remediat → retest cu probe noi → FIXED numai cu controale valide; auth expirat → RETEST_INCONCLUSIVE. Raportul vechi rămâne neschimbat.
+- B13b: candidat sau ownership străin refuzate; CAS stale, schimbarea claim_revision/manifest/policy, revizia separată a review-ului, duplicate/same-key-different-payload și readback după restart. Accept cu evidence indisponibile este refuzat; Hold rămâne permis pentru CONFIRMED. Decizia nu schimbă verdictul sau statusul runului.
+- B13c: generare concurentă cu Hold/claim nou/retention produce un snapshot coerent, nu un amestec. Descărcările reale HTML/JSON includ numai CONFIRMED eligibile; raport vechi identic după schimbări, bytes indisponibili și metadata interne excluse din exportul nou. Crash STAGING, quota/IO failure și retry idempotent nu publică un artifact fals AVAILABLE.
 - Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.
 
 ## 12. P4b — Settings complet, în paralel

@@ -877,6 +877,36 @@
     },
     {
       "kind": "regression",
+      "name": "check_reference_fonts_are_local",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_reference_cockpit_projection_flow",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_model_projection_text_and_missing_evidence",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_dashboard_phase_survives_review_rerender",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_finding_keyboard_return_clears_sticky_header",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_reference_stream_density",
+      "passed": true
+    },
+    {
+      "kind": "regression",
       "name": "check_generated_document_csp",
       "passed": true
     },

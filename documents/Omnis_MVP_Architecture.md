@@ -92,7 +92,7 @@ Un proces malițios cu același UID/root pe host rămâne în afara garanției. 
 
 Paths propuse pentru instalare, nu create acum: `$XDG_STATE_HOME/omnis` (implicit `~/.local/state/omnis`), runtime homes sub acest root, **nu sub `~/.hermes`**, configurație non-secretă sub `$XDG_CONFIG_HOME/omnis`, secrets cu permisiuni restrictive. Nu montăm `/home/kali`, checkoutul personal Hermes sau `.codex`. State/secrets/evidence/backups nu trăiesc în repo.
 
-Settings și management Hermes au un singur writer; mutațiile provider/model/catalog sunt interzise în timpul unui run, exceptând Stop și revocarea credentialului care declanșează mai întâi oprire. Nu expunem proxy generic pentru config, filesystem, env reveal, terminal sau admin. Readback obligatoriu după set/delete/logout; `429`, `configured` și `oauth approved` nu înseamnă `inference_ready`.
+Settings și management Hermes au un singur writer; mutațiile provider/model/catalogului executabil sunt interzise în timpul unui run, exceptând Stop și revocarea credentialului care declanșează mai întâi oprire. Editarea unui draft Omnis neexecutabil poate continua: nu scrie în catalogul runtime și nu schimbă snapshotul; publicarea/selectarea noii versiuni se aplică numai unui run nou. Nu expunem proxy generic pentru config, filesystem, env reveal, terminal sau admin. Readback obligatoriu după set/delete/logout; `429`, `configured` și `oauth approved` nu înseamnă `inference_ready`.
 
 ## 5. Runtime Hermes și autoritatea copilului
 

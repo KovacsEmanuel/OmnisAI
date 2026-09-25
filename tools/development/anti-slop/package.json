@@ -1,0 +1,18 @@
+{
+  "name": "omnis-dev-anti-slop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node smoke.mjs",
+    "lint": "node --import tsx node_modules/oxlint/bin/oxlint -c oxlint.config.ts --deny-warnings"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "1.78.0",
+    "oxlint": "1.78.0",
+    "tsx": "4.23.12"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

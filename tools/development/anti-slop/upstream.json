@@ -1,0 +1,34 @@
+{
+  "repository": "https://github.com/dmmulroy/anti-slop",
+  "commit": "c44ef22ca116d0ba62a3ff663a0bd13a3f3fa40b",
+  "license": "MIT",
+  "mode": "reviewed subset, unchanged rule implementations; Omnis-specific entrypoint/config",
+  "files": [
+    {
+      "upstream_path": "src/rules/no-chained-type-assertions.ts",
+      "vendored_path": "vendor/rules/no-chained-type-assertions.ts",
+      "sha256": "72f8e981520f94adac0ffbdab8f8e84e5f2a4595f14e4a6471be917a85a20a15"
+    },
+    {
+      "upstream_path": "src/rules/no-widen-then-assert.ts",
+      "vendored_path": "vendor/rules/no-widen-then-assert.ts",
+      "sha256": "63f2c07cc42b8ad60a7e868efbd7b29e462b9ba960fbd07bbc8f590ef9e3f879"
+    },
+    {
+      "upstream_path": "src/rules/require-safety-comment-for-type-assertion.ts",
+      "vendored_path": "vendor/rules/require-safety-comment-for-type-assertion.ts",
+      "sha256": "c8ed9f50f1c6e3592b77165dd8847d187ee9b0ef955d50f8099498d3139aa27c"
+    },
+    {
+      "upstream_path": "LICENSE",
+      "vendored_path": "vendor/LICENSE",
+      "sha256": "10ed33bf340d6d63dc0633dfc917a346b369b6aa41fe20734aefc6a3fb75ba17"
+    }
+  ],
+  "selected_rules": [
+    "no-chained-type-assertions",
+    "no-widen-then-assert",
+    "require-safety-comment-for-type-assertion"
+  ],
+  "not_enabled_rationale": "Unknown/typeof validation at trust boundaries, meaningful error handling and isolated test seams remain permitted. No Effect dependency or broad formatting/naming policy is introduced."
+}

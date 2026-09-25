@@ -1,7 +1,7 @@
 ---
 name: omnis-accessibility
 description: "Use when auditing Omnis keyboard and accessibility."
-version: 0.1.0
+version: 0.1.1
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -20,7 +20,7 @@ Forms, tables, dialogs, drawers, tabs, menus, live events and accessibility regr
 ## Procedure
 1. Use `read_file` and browser tools to inspect the actual semantic/accessible tree and reproduce a specific failure. Prioritize accessible names, keyboard reachability, focus and state comprehension.
 2. Prefer native HTML; label fields, name icon-only buttons, hide decorative icons, associate errors/help text and expose invalid/required/expanded/busy state. Do not add redundant ARIA or clickable div substitutes.
-3. Test the complete keyboard path. Tab reaches composite widgets; arrows/roving tabindex reach their items according to the primitive's pattern. Do NOT force every menu/tab option into the Tab sequence or use positive tabindex.
+3. Test the complete keyboard path. Tab reaches composite widgets; arrows/roving tabindex reach their items according to the primitive's pattern. Do NOT force every menu/tab option into the Tab sequence or use positive tabindex. After a long disclosure or rerender, test Tab then Shift+Tab back to its summary and compare target bounds with the sticky header; activeElement alone misses partial occlusion. Account for the measured header size in native scrolling, not only explicit click handlers, and repeat after responsive changes.
 4. Test modal initial focus/trap/close and restoration to a still-visible trigger or sensible fallback. Resize drawer→desktop must remove stale inert state and move focus to a visible element. Critical Stop stays reachable even when the topbar is inert.
 5. Critical errors persist near the action, not only in a toast. Aggregate SSE updates through polite announcements; do not read every event. A visible disabled action explains the missing gate. Status uses text/icon as well as color.
 6. Test skip link, named table-scroll region, adequate target size, contrast, long labels, 320/390/1280/1440 layouts, 200% zoom, forced colors and reduced motion, scoped to the feature. Do not silently reduce typography/contrast to fit more data.

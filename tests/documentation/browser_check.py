@@ -406,6 +406,25 @@ def check_finding_return_scroll(page):
         assert rect['y'] + rect['height'] <= 1000
 
 
+def check_zoom_and_media(page):
+    page.set_viewport_size({'width': 1440, 'height': 1100})
+    page.emulate_media(reduced_motion='reduce')
+    assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
+    assert page.evaluate('document.getAnimations().length') == 0
+    # CSS zoom is an additional stress test, not native browser zoom certification.
+    page.evaluate("document.body.style.zoom='2'")
+    for view in ['overview', 'findings', 'map']:
+        page.evaluate('name=>showView(name,false)', view)
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), view
+        expect(page.locator('#stop-control')).to_be_visible()
+    page.evaluate("document.body.style.zoom='1';showView('findings',false)")
+    page.emulate_media(forced_colors='active')
+    assert page.evaluate("matchMedia('(forced-colors: active)').matches")
+    page.locator('.finding-row').focus()
+    assert page.locator('.finding-row').evaluate('e=>parseFloat(getComputedStyle(e).outlineWidth)') >= 2
+    page.emulate_media(forced_colors='none', reduced_motion='no-preference')
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
@@ -413,7 +432,7 @@ REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, che
                check_touch_targets, check_typography, check_run_catalog_copy,
                check_empty_error_previews, check_cockpit_stream, check_cockpit_task_context,
                check_finding_inspection, check_finding_evidence_availability,
-               check_finding_return_scroll, check_generated_document_csp]
+               check_finding_return_scroll, check_zoom_and_media, check_generated_document_csp]
 
 
 def main():

@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/ibelick/ui-skills",
+  "commit": "fd0889bdf72aee45c32028b4643b09735d5b5a34",
+  "files": [
+    {
+      "source_path": "skills/fixing-accessibility/SKILL.md",
+      "reference": "upstream.md",
+      "sha256": "549261e8a53b53a1a20c0ddbf736821e5fc0876ad82eee76e0efab8e9ee9dadf"
+    },
+    {
+      "source_path": "LICENSE",
+      "reference": "LICENSE.txt",
+      "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b"
+    }
+  ],
+  "mode": "unaltered passive sources; active SKILL.md is an Omnis adaptation; no live registry/CLI/MCP"
+}

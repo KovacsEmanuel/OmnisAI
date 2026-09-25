@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 2,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration",
+      "title": "https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "tui_gateway/server.py is the protocol the Ink TUI (hermes --tui) and the embedded dashboard PTY bridge talk to. Any external host can speak the same protocol over stdio (or WebSocket via tui_gateway/ws.py).",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/egress/network-isolation",
+      "title": "https://hermes-agent.nousresearch.com/docs/user-guide/egress/network-isolation",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Two Docker networks:\ninternal — no default route, no internet access. The agent, dashboard,\nand gateway run here.\negress — has internet access. Only services that need to reach external",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "url": "https://playwright.dev/python/docs/network",
+      "title": "https://playwright.dev/python/docs/network",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "page.on(\"websocket\", on_web_socket)\nMissing Network Events and Service Workers​\nPlaywright's built-in browser_context.route() and page.route() allow your tests to natively route requests and perform mocking and interception.\nIf you're using Playwright's native browser_context.route() and page.route(), and it appears network events are missing, disable Service Workers by setting service_workers to 'block'.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "url": "https://playwright.dev/python/docs/docker",
+      "title": "https://playwright.dev/python/docs/docker",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "This Docker image is intended to be used for testing and development purposes only. It is not recommended to use this Docker image to visit untrusted websites.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "url": "https://docs.docker.com/engine/network/drivers/bridge",
+      "title": "Bridge network driver | Docker Docs",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Differences between user-defined bridges and the default bridge\nUser-defined bridges provide automatic DNS resolution between containers.\nContainers on the default bridge network can only access each other by IP\naddresses, unless you use the --link option, which is",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "url": "https://www.postgresql.org/docs/current/explicit-locking.html",
+      "title": "PostgreSQL: Documentation: 18: 13.3. Explicit Locking",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "There are two ways to acquire an advisory lock in PostgreSQL: at session level or at transaction level. Once acquired at session level, an advisory lock is held until explicitly released or the session ends. Unlike standard lock requests, session-level advisory lock requests do not honor transaction semantics: a lock acquired during a transaction that is later rolled back will still be held following the rollback, and likewise an unlock is effective even if the calling transaction fails later. A lock can be acquired multiple times by its owning process; for each completed lock request there must be a corresponding unlock request before the lock is actually released. Transaction-level lock requests, on the other hand, behave more like regular lock requests: they are automatically released at the end of the transaction, and there is no explicit unlock operation. This behavior is often more convenient than the session-level behavior for short-term usage of an advisory lock. Session-level and transaction-level lock requests for the same advisory lock identifier will block each other in the expected way. If a session already holds a given advisory lock, additional requests by it will always succeed, even if other sessions are awaiting the lock; this statement is true regardless of whether the existing lock hold and new request are at session level or transaction level.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "url": "https://www.w3.org/WAI/WCAG22/quickref",
+      "title": "How to Meet WCAG (Quickref Reference)",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes, except where the underlying function requires input that depends on the path of the user's movement and not just the endpoints.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "url": "https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works",
+      "title": "How mitmproxy works",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "mitmproxy.certs\nmitmproxy.connection\nmitmproxy.contentviews\nmitmproxy.coretypes.multidict",
+          "added": "2026-09-25"
+        },
+        {
+          "text": "data stream, so a CONNECT request simply asks the proxy to open a pipe\nbetween the client and server. The proxy here is just a facilitator - it\nblindly forwards data in both directions without knowing anything about\nthe contents. The negotiation of the TLS connection happens over this",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "url": "https://docs.mitmproxy.org/stable/api/events.html",
+      "title": "Event Hooks",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Note: If request streaming is active, this event fires after the entire body has been streamed.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "url": "https://docs.mitmproxy.org/stable/concepts/options",
+      "title": "Options",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Default: None\nconnection_strategy\nmitmproxy mitmdump mitmweb\nstr",
+          "added": "2026-09-25"
+        },
+        {
+          "text": "Determine when server connections should be established. When set to lazy, mitmproxy tries to defer establishing an upstream connection as long as possible. This makes it possible to use server replay while being offline. When set to eager, mitmproxy can detect protocols with server-side greetings, as well as accurately mirror TLS ALPN negotiation.\nDefault: eager\nChoices: eager, lazy\nconsole_default_contentview",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "url": "https://nodejs.org/dist/index.json",
+      "title": "Node.js release metadata",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "{\n  \"version\": \"v24.21.0\",\n  \"date\": \"2026-09-07\",\n  \"files\": [\n    \"aix-ppc64\",\n    \"headers\",\n    \"linux-arm64\",\n    \"linux-ppc64le\",\n    \"linux-s390x\",\n    \"linux-x64\",\n    \"linux-x64-musl\",\n    \"osx-arm64-tar\",\n    \"osx-x64-pkg\",\n    \"osx-x64-tar\",\n    \"src\",\n    \"win-arm64-7z\",\n    \"win-arm64-zip\",\n    \"win-x64-7z\",\n    \"win-x64-exe\",\n    \"win-x64-msi\",\n    \"win-x64-zip\"\n  ],\n  \"npm\": \"11.19.0\",\n  \"v8\": \"13.6.233.17\",\n  \"uv\": \"1.52.1\",\n  \"zlib\": \"1.3.2.1-motley\",\n  \"openssl\": \"3.5.8\",\n  \"modules\": \"137\",\n  \"lts\": \"Krypton\",\n  \"security\": false\n}",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "url": "https://peps.python.org/pep-0719",
+      "title": "CPython 3.13 release schedule",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Source-only security fix releases\n\nProvided irregularly on an as-needed basis until October 2029.",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "url": "https://www.postgresql.org/support/versioning",
+      "title": "PostgreSQL supported versions",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "18\n       18.6\n       Yes\n       September 25, 2025",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "url": "https://registry.npmjs.org/openapi-typescript/7.13.0",
+      "title": "openapi-typescript exact metadata",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "{\n  \"name\": \"openapi-typescript\",\n  \"version\": \"7.13.0\",\n  \"peerDependencies\": {\n    \"typescript\": \"^5.x\"\n  }\n}",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "url": "https://pypi.org/pypi/mitmproxy/12.2.3/json",
+      "title": "mitmproxy dependency bounds",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "{\n  \"name\": \"mitmproxy\",\n  \"version\": \"12.2.3\",\n  \"requires_dist\": [\n    \"aioquic<=1.2.0,>=1.2.0\",\n    \"argon2-cffi<=25.1.0,>=23.1.0\",\n    \"asgiref<=3.11.1,>=3.2.10\",\n    \"bcrypt<=5.0.0,>=5.0.0\",\n    \"Brotli<=1.2.0,>=1.0\",\n    \"certifi>=2019.9.11\",\n    \"cryptography<=48.1,>=42.0\",\n    \"flask<=3.1.3,>=3.0\",\n    \"h11<=0.16.0,>=0.16.0\",\n    \"h2<=4.3.0,>=4.3.0\",\n    \"hyperframe<=6.1.0,>=6.0\",\n    \"kaitaistruct<=0.11,>=0.10\",\n    \"ldap3<=2.9.1,>=2.8\",\n    \"mitmproxy-rs<0.13,>=0.12.6\",\n    \"msgpack<=1.1.2,>=1.0.0\",\n    \"pyOpenSSL<=27.0.0,>=24.3\",\n    \"pyparsing<=3.3.2,>=2.4.2\",\n    \"pyperclip<=1.11.0,>=1.9.0\",\n    \"ruamel.yaml<=0.19.1,>=0.18.10\",\n    \"sortedcontainers<=2.4.0,>=2.3\",\n    \"tornado<=6.5.5,>=6.5.0\",\n    \"urwid<=3.0.5,>=2.6.14\",\n    \"wsproto<=1.3.2,>=1.0\",\n    \"publicsuffix2<=2.20191221,>=2.20190812\",\n    \"zstandard<=0.25.0,>=0.25\",\n    \"typing-extensions<=4.14,>=4.13.2; python_version < \\\"3.13\\\"\",\n    \"pydivert<=2.1.0,>=2.0.3; sys_platform == \\\"win32\\\"\"\n  ]\n}",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "url": "https://pypi.org/pypi/cryptography/48.0.1/json",
+      "title": "cryptography 48.0.1 advisory metadata",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "{\n  \"name\": \"cryptography\",\n  \"version\": \"48.0.1\",\n  \"advisories\": [\n    {\n      \"id\": \"GHSA-m2h6-j472-rp4c\",\n      \"fixed_in\": [\n        \"49.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/GHSA-m2h6-j472-rp4c\"\n    },\n    {\n      \"id\": \"GHSA-g6cj-pr64-35w5\",\n      \"fixed_in\": [\n        \"50.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/GHSA-g6cj-pr64-35w5\"\n    },\n    {\n      \"id\": \"GHSA-jwv3-5hgf-82ww\",\n      \"fixed_in\": [\n        \"49.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/GHSA-jwv3-5hgf-82ww\"\n    },\n    {\n      \"id\": \"PYSEC-2026-3552\",\n      \"fixed_in\": [\n        \"50.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/PYSEC-2026-3552\"\n    },\n    {\n      \"id\": \"PYSEC-2026-3553\",\n      \"fixed_in\": [\n        \"49.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/PYSEC-2026-3553\"\n    },\n    {\n      \"id\": \"PYSEC-2026-3554\",\n      \"fixed_in\": [\n        \"49.0.0\"\n      ],\n      \"link\": \"https://osv.dev/vulnerability/PYSEC-2026-3554\"\n    }\n  ]\n}",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "url": "https://www.sqlalchemy.org/download.html",
+      "title": "SQLAlchemy maintained branches",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "Current Release Series (2.1)\n\n    \nMaintenance Release (2.0)\n\n    \nDevelopment Access\n    \nLice",
+          "added": "2026-09-25"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "url": "https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md",
+      "title": "PostgreSQL official image volume and PGDATA",
+      "accessed": "2026-09-25",
+      "quotes": [
+        {
+          "text": "> **Important Change:** [the `PGDATA` environment variable of the image was changed to be version specific in PostgreSQL 18 and above](https://github.com/docker-library/postgres/pull/1259). For 18 it is `/var/lib/postgresql/18/docker`. Later versions will replace `18` with their respective major version (e.g., `/var/lib/postgresql/19/docker` for PostgreSQL `19.x`). The defined `VOLUME` was changed in 18 and above to `/var/lib/postgresql`. Mounts and volumes should be targeted at the updated location. This will allow users upgrading between PostgreSQL major releases to use the faster `--link` when running `pg_upgrade` and mounting `/var/lib/postgresql`.",
+          "added": "2026-09-25"
+        }
+      ]
+    }
+  ]
+}

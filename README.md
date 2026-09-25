@@ -11,6 +11,13 @@ Platformă web locală propusă pentru evaluări Web/API autorizate, cu runtime 
 
 Planul actualizează ordinea de livrare și include Settings / Skills, probele de integrare, porțile de siguranță și primul lot de lucru. Starea fiecărei etape este cea consemnată în document, nu dedusă din existența acestei liste.
 
+### Review critic al planului
+
+- [Review — riscuri, amendamente propuse și criterii de acceptare](documents/Omnis_Implementation_Plan_Review.md)
+- [Registrul surselor publice și extrasele verificate](documents/Omnis_Implementation_Plan_Review.sources.json)
+
+Review-ul este consultativ: nu modifică planul original și nu reprezintă validare live a aplicației sau aprobare pentru scanări.
+
 ## Baza tehnică și istoricul
 
 - [MVP local și contracte Hermes — HTML](documents/Omnis_Hermes_Local_MVP_Integration_Proposal.html) · [Markdown](documents/Omnis_Hermes_Local_MVP_Integration_Proposal.md)

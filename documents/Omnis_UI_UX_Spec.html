@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><title>Omnis — specificație UI/UX</title><style>
+:root{color-scheme:light;--paper:#faf9f6;--ink:#262923;--muted:#5f6458;--line:#d9ddd1;--accent:#245c44;--nav:#f0f0e9}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.7 'Segoe UI','Liberation Sans',Arial,sans-serif}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.skip{position:fixed;top:-100px;left:16px;background:white;padding:12px;z-index:10}.skip:focus{top:12px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:272px;padding:28px 22px;overflow-y:auto;background:var(--nav);border-right:1px solid var(--line)}.wordmark{letter-spacing:.14em;font-size:23px;font-weight:700}.note{font-size:13px;color:var(--muted)}nav ul{list-style:none;padding:0}nav a{display:block;padding:8px 0;min-height:44px;font-size:13px;line-height:1.5;text-decoration:none}nav a:hover{text-decoration:underline}
+.page{margin-left:272px;padding:30px clamp(22px,4vw,64px) 70px}main{max-width:1050px;min-width:0;margin:auto}.topline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);padding-bottom:18px;border-bottom:1px solid var(--line)}.status{background:#edf3ec;padding:3px 9px;border-radius:4px}
+h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-spacing:-.025em;margin:40px 0 24px}h2{font:400 clamp(25px,2.5vw,33px)/1.3 Georgia,'Liberation Serif',serif;margin:56px 0 20px;padding-top:25px;border-top:1px solid var(--line);scroll-margin-top:24px}h3{font-size:20px;margin-top:32px}p,li{overflow-wrap:anywhere}li{margin:7px 0}code{font:13px/1.6 'Liberation Mono',Consolas,monospace;overflow-wrap:anywhere;background:#e9ece5;border-radius:3px;padding:2px 4px}pre{background:#18251f;color:#eef3ec;padding:20px;overflow-x:auto;border-radius:6px;max-width:100%;line-height:1.6}pre code{background:none;padding:0;color:inherit;white-space:pre;overflow-wrap:normal}.table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:5px;margin:24px 0}table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px;line-height:1.6}th,td{padding:12px 14px;vertical-align:top;text-align:left;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:var(--nav);font-weight:600}td{min-width:155px}tr:last-child td{border-bottom:0}blockquote{margin:24px 0;padding:16px 20px;background:#edf3ec}.mobile-nav{display:none}footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}.links{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:1000px){.sidebar{width:224px;padding:22px 16px}.page{margin-left:224px;padding-inline:26px}}@media(max-width:760px){.sidebar{display:none}.page{margin:0;padding:20px 18px 48px}.mobile-nav{display:block;background:var(--nav);padding:0 18px;border-bottom:1px solid var(--line)}summary{min-height:48px;padding:12px 0;cursor:pointer}body{font-size:16px}h1{margin-top:28px}pre{padding:14px}}
+@media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
+</style></head>
+<body><a class="skip" href="#content">Sari la conținut</a>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
+<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
+<h1 id="omnis-specificatie-uiux-v1">Omnis — specificație UI/UX v1</h1>
+<p><strong>Baseline de implementare · 25 septembrie 2026 · Surface: Operate, cu inspector contextual</strong></p>
+<p><a href="../DESIGN.md">DESIGN.md</a> este sursa tokenurilor; <a href="Omnis_UI_Prototype.html">prototipul offline</a> este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.</p>
+<h2 id="1-anatomia-consolei">1. Anatomia consolei</h2>
+<pre><code class="language-text">┌ sidebar 232 ─┬ engagement / breadcrumb ── sync + run state ─ Pause · Stop ┐
+│ Engagements │ page heading + principal action / filters                  │
+│             ├───────────────────────────────────┬ inspector 360 ─────────┤
+│ Engagement  │ workspace                         │ identity / snapshot    │
+│ Overview    │ tables, map, tasks or form        │ Summary / Evidence     │
+│ Map         │                                   │ Related / History      │
+│ Investigat. │                                   │                        │
+│ Findings    │                                   │                        │
+│ Reports     │                                   │                        │
+│             │                                   │                        │
+│ Settings    └───────────────────────────────────┴────────────────────────┤
+│ runtime     status: last event / budget unknown or measured / limits     │
+└─────────────┴────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>Sidebar are două niveluri vizibile: global (Engagements, Settings) și contextul engagementului curent. Nu există un agent ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată rosterul workerilor în contextul taskurilor, nu o pagină separată de avataruri.</p>
+<p>Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.</p>
+<h2 id="2-route-map-si-placement">2. Route map și placement</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Rută planificată</th>
+<th>Conținut primar</th>
+<th>Inspector / acțiune</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/engagements</code></td>
+<td>Tabel: nume, țintă, status, ultima actualizare; search și filtru</td>
+<td>New engagement sus-dreapta; empty cu un singur CTA</td>
+</tr>
+<tr>
+<td><code>/engagements/new</code></td>
+<td>Wizard cu pași verticali și form central</td>
+<td>Rezumat sticky desktop; Save draft permanent, Next/Back; nimic nu pornește</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/setup</code></td>
+<td>Revizie/draft, scope și context</td>
+<td>Edit numai oprit; active → motiv + link Stop, fără editare mascată</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/overview</code></td>
+<td>Blocaje/aprobări mai întâi, apoi taskuri active și evenimente</td>
+<td>Preflight/Start sau Pause/Stop; nu colecție de KPI-uri fără decizie</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/map?tab=surfaces</code></td>
+<td>Tree host/path, tabel metodă/path/auth/sursă/stare</td>
+<td>Operație selectată: params, observations, request/response, related</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/map?tab=coverage</code></td>
+<td>Matrice suprafață × identitate × familie, filtre</td>
+<td>Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/investigations</code></td>
+<td>Tabel/queue taskuri cu ipoteză, rol, skill, attempt, blocaj/verdict</td>
+<td>Timeline investigator→validator; reason, budget, results și stop task dacă suportat</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/findings</code></td>
+<td>Confirmate implicit, filtre clasă/severitate/status remediere</td>
+<td>Dovadă, impact, limite, remediere, retest; candidates nu sunt amestecați</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/reports</code></td>
+<td>Snapshoturi/version history și limite</td>
+<td>Generate snapshot, HTML/JSON download, print; nu rescrie raport vechi</td>
+</tr>
+<tr>
+<td><code>/settings/providers</code></td>
+<td>OpenRouter și Codex: stări și model/config</td>
+<td>Save/test/delete ori device OAuth; consum AI explicit</td>
+</tr>
+<tr>
+<td><code>/settings/skills</code></td>
+<td>Catalog, search, lifecycle și readiness independente</td>
+<td>Files/diff/review/publish; pachet/revizie/digest/evaluare vizibile</td>
+</tr>
+<tr>
+<td><code>/settings/runtime</code></td>
+<td>Pin Hermes, tool inventory, executori, compatibilitate</td>
+<td>Diagnostic sanitizat; fără shell, env reveal, auto-upgrade</td>
+</tr>
+<tr>
+<td><code>/settings/data</code></td>
+<td>Storage/retention, export/delete/backups, data policy</td>
+<td>Operații distructive confirmate cu impact; restore nu autorulează</td>
+</tr>
+</tbody>
+</table></div>
+<p>URL păstrează filtre și ID de selecție, <strong>niciodată secrete, request bodies sau tokenuri</strong>. Datele reale vin prin API și Query cache; refresh reîncarcă snapshotul. Preference neconfidențiale de densitate pot fi locale; nu persistăm dovezi/credentiale în browser.</p>
+<h2 id="3-setup-in-cinci-pasi">3. Setup în cinci pași</h2>
+<ol>
+<li><strong>Target &amp; permission:</strong> nume, obiectiv, owner/autorizație, fereastră; origins ATTACKABLE/VISIT_ONLY/BLOCKED, căi și excluderi. Preview al regulilor, fără requests pentru validarea de sintaxă.</li>
+<li><strong>Application context:</strong> seed URLs, workflowuri prioritare, obiecte test, reguli <code>(rol/tenant × obiect × operație → ALLOW/DENY/UNKNOWN)</code>, proveniență/revizie, import OpenAPI revizionat. Cerințele BOLA nu se ascund într-un free-text opțional.</li>
+<li><strong>Identities (optional):</strong> anonymous valid; persona/rol/tenant, tip auth și secret handle; Verify login cu efecte și scope explicite. Assisted browser deschis numai după aprobarea scopeului dependențelor, fără browser personal.</li>
+<li><strong>Rules &amp; budgets:</strong> efecte, praguri, request/time/storage, rezervă validare, data policy/provider/model și catalog admis. „Cost necunoscut” separat de limita tehnică; nu afișăm quota Codex inventată.</li>
+<li><strong>Review &amp; preflight:</strong> erori/blocaje grupate cu link înapoi la câmp; revizie/model/identități/riscuri/costul posibil rezumate. Save draft nu face inferență. Start cere preflight actual și confirmare explicită a rulării.</li>
+</ol>
+<p>Backendul este autoritatea finală. Un wizard bifat nu garantează că între timp auth/lease/model/policy nu s-au schimbat. La 409 păstrăm editările locale și arătăm conflictul; nu suprascriem automat.</p>
+<h2 id="4-fluxurile-critice">4. Fluxurile critice</h2>
+<h3 id="start-approvals-stop">Start / approvals / Stop</h3>
+<ul>
+<li>Start: buton disabled cu explicație dacă gate incomplet; la click se cere preflight real, apoi dialog de rezumat. Comanda primește ID; UI arată PENDING până la readback.</li>
+<li>Approval: panou persistent în Overview și badge număr real în nav; detaliu cu acțiune/efect/target/body redactat/persona/epoch/revizie/expirare. Confirmarea este exactă și o singură utilizare. Expirarea/invalidate se vede chiar dacă dialogul era deschis.</li>
+<li>Stop: click imediat, fără modală care întârzie oprirea; 202 afișează STOPPING, nu STOPPED. Orice dialog/drawer care face topbarul inert conține o acțiune Stop echivalentă pentru runul activ; aceasta închide overlay-ul și trimite aceeași comandă idempotentă. Dacă rețeaua cade, mesaj persistent „Stop not acknowledged” și calea locală de oprire din runbook; nu toast verde.</li>
+<li>Pause: PAUSING până la drenarea efectelor, apoi PAUSED; explică diferența față de Stop. Resume face preflight și poate intra în NEEDS_RECONCILIATION.</li>
+<li>Lucrul deja expediat nu este prezentat ca anulat. Efectele UNKNOWN au detaliu și acțiune de review; nu există retry automat dintr-un buton generic „repară”.</li>
+</ul>
+<h3 id="map-investigatie-dovada">Map → investigație → dovadă</h3>
+<p>Surfaces/coverage sunt taburi ale Map. Treeul selectează contextul, tabelul selectează operația, inspectorul nu pierde identity/snapshot. Parametri grupați query/path/header/cookie/body; valorile redactate. Sursa JS/OpenAPI este INFERRED până există observație. Un header/banner nu apare la Findings.</p>
+<p>Click pe coverage cell arată: denominator key, procedură/revizie, precondiții, acțiunile executate, controlul și evidence. <code>tested_no_issue</code> este descris „No issue demonstrated by this procedure”, nu „Safe”. Un filtru nu schimbă numitorul global fără etichetă.</p>
+<p>Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill digest și dependențe. Timeline separă investigator, validator și serviciul de verdict. Nu afișăm deliberări interne/chain-of-thought; afișăm decizii scurte și rezultate observabile.</p>
+<h3 id="findings-report-retest">Findings → report → retest</h3>
+<p>Listă implicită numai CONFIRMED. Candidates/REJECTED/INCONCLUSIVE rămân în Investigations și pot fi deschise explicit. Finding detail: impact demonstrat, severitate motivată, precondiții, pași, evidence, limite, remediere. Confidence nu este severity.</p>
+<p>Retest cere run/autorizație/buget proaspăt și afișează FIXED doar după precondiții valide/control. Auth expirat produce RETEST_INCONCLUSIVE. Raportul nou citează probe noi; cel vechi rămâne neschimbat. Dedup conservator cu occurrences expandabile, nu dispariția „duplicatelor” fără audit.</p>
+<h3 id="providers-si-skills">Providers și Skills</h3>
+<p>Settings minim poate fi catalog read-only. Settings complet adaugă editor/diff/review/publish fără a schimba layoutul. Readiness provider are patru axe: configured/authenticated/reachable/inference_ready. Test inference este separat și potențial facturabil. Cancel login și logout sunt operații distincte, cu readback.</p>
+<p>Editorul de skill este form text/file tree controlat, nu filesystem browser. Publicarea arată exact digest/revizie și spune „Applies to new runs”; toate taskurile aceluiași run păstrează catalogul fixat. Disable blochează selecția în runuri noi; revocarea de urgență a unui release activ trece prin Stop/fencing. Erorile de path/reference/dependency sunt lângă fișierul relevant.</p>
+<h2 id="5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Stare</th>
+<th>UI corect</th>
+<th>UI interzis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nu există date</td>
+<td>Empty + următoarea acțiune</td>
+<td>Numere demo în baza reală</td>
+</tr>
+<tr>
+<td>Încărcare</td>
+<td>Skeleton bounded și aria-busy</td>
+<td>„0 findings” înainte de răspuns</td>
+</tr>
+<tr>
+<td>Readiness insuficient</td>
+<td>Motiv și gate lipsă</td>
+<td>Start funcțional cu backend absent</td>
+</tr>
+<tr>
+<td>SSE deconectat</td>
+<td>Stale, ultimul cursor/timp, reconnect</td>
+<td>Indicator live verde</td>
+</tr>
+<tr>
+<td>Model cost necunoscut</td>
+<td>Unknown + motiv</td>
+<td>0.00 inventat</td>
+</tr>
+<tr>
+<td>Scope/protocol nesuportat</td>
+<td>Unsupported/not tested</td>
+<td>No issue / passed</td>
+</tr>
+<tr>
+<td>Auth expirat</td>
+<td>AUTH_BLOCKED, identitatea afectată</td>
+<td>Negative test / fixed</td>
+</tr>
+<tr>
+<td>Evidence lipsă</td>
+<td>MISSING/TRUNCATED și ce nu se poate verifica</td>
+<td>Replay disponibil fictiv</td>
+</tr>
+<tr>
+<td>Stop trimis</td>
+<td>STOPPING + verificări</td>
+<td>STOPPED pe răspuns 202</td>
+</tr>
+<tr>
+<td>Limită atinsă</td>
+<td>LIMITED, teste rămase și motiv</td>
+<td>„Assessment complete” fără limite</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="6-accesibilitate-si-responsive">6. Accesibilitate și responsive</h2>
+<p>Țintă WCAG 2.2 AA pentru fluxurile implementate: semantică, keyboard, focus vizibil/neobscurat, contrast, reflow și mesaje de status; verificarea automată nu certifică singură conformitatea.[9]</p>
+<ul>
+<li>Toate controalele au label/accessible name; tab order natural și skip link. Nu shortcut global cu o singură literă pentru Stop sau alte efecte.</li>
+<li>Dialoguri/drawers cu focus containment, Esc și restore; erori form cu summary focus. Live region polite agregat, nu spam la fiecare eveniment.</li>
+<li>Touch targets minimum 44px; niciun text esențial sub 14px desktop/16px form mobil; nu tabele gigantice înghesuite pe mobil.</li>
+<li>≥1440 inspector persistent lateral; 1024–1439 inspector sub tabel în două coloane; &lt;1024 nav drawer și detaliu full-width; 320/390 controalele rămân accesibile. Table scroll local etichetat.</li>
+<li>Zoom 200%, prefers-reduced-motion și high contrast/forced colors verificate pe fluxurile de bază. Statusurile au text, nu doar nuanță.</li>
+<li>Raport print A4, text minimum 12pt, referințe la evidence lizibile, fără sidebar/acțiuni de aplicație.</li>
+</ul>
+<h2 id="7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</h2>
+<p>Componente comune: AppShell, RunControls, StatusLabel, EmptyState, ErrorPanel, DataTable, ScopeEditor, IdentitySelector, PreflightChecklist, ApprovalDetail, EvidenceViewer, CoverageMatrix și SkillReleasePanel. Radix acoperă dialog/tabs/menu; nu înlocuim elementele native utile. Nu adăugăm bibliotecă mare de charts sau IDE editor înaintea unei nevoi.</p>
+<p>Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sau cheia seifului. Target evidence este text escapate, nu <code>dangerouslySetInnerHTML</code>. Schema API generată, erorile tipizate și entity revision alimentează UI; nu inferăm starea runului din streamul conversației.</p>
+<p><strong>U01</strong> Create/edit/reload/restart, field errors, dirty-state și conflict între două taburi.</p>
+<p><strong>U02</strong> Start blocked/preflight/pending/live; Stop pending/disconnected/stopped, fără succes optimist.</p>
+<p><strong>U03</strong> Approval expirat sau policy revizuit în timp ce panoul era deschis este refuzat și explicat.</p>
+<p><strong>U04</strong> Tree/tabel/coverage/inspector folosesc același snapshot/identity și permit trecerea la evidence.</p>
+<p><strong>U05</strong> Candidate nu apare ca finding; negative fără dovadă nu crește coverage; report+retest păstrează istoricul.</p>
+<p><strong>U06</strong> Provider/Skills readiness independent, cancel/logout/readback și release immutable.</p>
+<p><strong>U07</strong> Keyboard complet, focus/dialog, contrast, mobile 320/390 și desktop 1280/1440, zoom/reduced motion.</p>
+<p><strong>U08</strong> Payload HTML/JS/SVG ostil, linkuri externe și screenshot invalid nu execută/încarcă resurse în browserul operatorului.</p>
+<p><strong>U09</strong> SSE replay/resync/stale și refresh nu dublează counters; numerator/denominator și N/A se păstrează.</p>
+<p><strong>U10</strong> DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.</p>
+<h2 id="sources">Sources</h2>
+<p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>c0934abd2980313a535ecb60f4941bf54a5f64e2e23dc6865e0ce8a4cdd4f71c</code>.</p></footer>
+</main></div></body></html>

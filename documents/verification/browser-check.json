@@ -1,0 +1,941 @@
+{
+  "scope": "OFFLINE_DOCUMENTS_AND_SYNTHETIC_PROTOTYPE_ONLY",
+  "checks": [
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1440,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 1440,
+        "content": 1440,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1280,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 1280,
+        "content": 1280,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 1024,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 1024,
+        "content": 1024,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 390,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 390,
+        "content": 390,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 330,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 330,
+        "content": 330,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "engagements",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "overview",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "map",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "investigations",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "findings",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "reports",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "setup",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "providers",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "skills",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "prototype_view",
+      "width": 320,
+      "view": "runtime",
+      "passed": true,
+      "size": {
+        "viewport": 320,
+        "content": 320,
+        "visible": 1
+      }
+    },
+    {
+      "kind": "interaction_contracts",
+      "passed": true,
+      "checks": [
+        "coverage evidence detail",
+        "empty hides synthetic data",
+        "Stop pending/completed",
+        "preflight dialog Esc/focus restore",
+        "mobile menu inert/focus wrap/Esc",
+        "wizard five steps",
+        "credential input disabled"
+      ]
+    },
+    {
+      "kind": "regression",
+      "name": "check_drawer_stop",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_approval_stop",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_preflight_stop",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_drawer_resize",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_stopped_focus",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_started_focus",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_run_state_live_region",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_anonymous_context",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_unknown_epoch",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_filtered_selection",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_selection_clears_other_context",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_pause_resume_preflight",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_resume_preflight_stop",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_stop_during_pause_drain",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_touch_targets",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_typography",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_run_catalog_copy",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_empty_error_previews",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_generated_document_csp",
+      "passed": true
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Plan",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Plan",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Plan",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_MVP_Architecture",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_MVP_Architecture",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_MVP_Architecture",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_UI_UX_Spec",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_UI_UX_Spec",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_UI_UX_Spec",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Stack_Baseline",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Stack_Baseline",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Stack_Baseline",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Readiness_Review",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Readiness_Review",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "broken": []
+      }
+    },
+    {
+      "kind": "document",
+      "name": "Omnis_Implementation_Readiness_Review",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "broken": []
+      }
+    }
+  ],
+  "javascript_errors": [],
+  "unexpected_network": [],
+  "passed": true
+}

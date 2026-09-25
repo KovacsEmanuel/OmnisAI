@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><title>Omnis — review de readiness</title><style>
+:root{color-scheme:light;--paper:#faf9f6;--ink:#262923;--muted:#5f6458;--line:#d9ddd1;--accent:#245c44;--nav:#f0f0e9}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.7 'Segoe UI','Liberation Sans',Arial,sans-serif}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.skip{position:fixed;top:-100px;left:16px;background:white;padding:12px;z-index:10}.skip:focus{top:12px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:272px;padding:28px 22px;overflow-y:auto;background:var(--nav);border-right:1px solid var(--line)}.wordmark{letter-spacing:.14em;font-size:23px;font-weight:700}.note{font-size:13px;color:var(--muted)}nav ul{list-style:none;padding:0}nav a{display:block;padding:8px 0;min-height:44px;font-size:13px;line-height:1.5;text-decoration:none}nav a:hover{text-decoration:underline}
+.page{margin-left:272px;padding:30px clamp(22px,4vw,64px) 70px}main{max-width:1050px;min-width:0;margin:auto}.topline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);padding-bottom:18px;border-bottom:1px solid var(--line)}.status{background:#edf3ec;padding:3px 9px;border-radius:4px}
+h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-spacing:-.025em;margin:40px 0 24px}h2{font:400 clamp(25px,2.5vw,33px)/1.3 Georgia,'Liberation Serif',serif;margin:56px 0 20px;padding-top:25px;border-top:1px solid var(--line);scroll-margin-top:24px}h3{font-size:20px;margin-top:32px}p,li{overflow-wrap:anywhere}li{margin:7px 0}code{font:13px/1.6 'Liberation Mono',Consolas,monospace;overflow-wrap:anywhere;background:#e9ece5;border-radius:3px;padding:2px 4px}pre{background:#18251f;color:#eef3ec;padding:20px;overflow-x:auto;border-radius:6px;max-width:100%;line-height:1.6}pre code{background:none;padding:0;color:inherit;white-space:pre;overflow-wrap:normal}.table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:5px;margin:24px 0}table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px;line-height:1.6}th,td{padding:12px 14px;vertical-align:top;text-align:left;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:var(--nav);font-weight:600}td{min-width:155px}tr:last-child td{border-bottom:0}blockquote{margin:24px 0;padding:16px 20px;background:#edf3ec}.mobile-nav{display:none}footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}.links{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:1000px){.sidebar{width:224px;padding:22px 16px}.page{margin-left:224px;padding-inline:26px}}@media(max-width:760px){.sidebar{display:none}.page{margin:0;padding:20px 18px 48px}.mobile-nav{display:block;background:var(--nav);padding:0 18px;border-bottom:1px solid var(--line)}summary{min-height:48px;padding:12px 0;cursor:pointer}body{font-size:16px}h1{margin-top:28px}pre{padding:14px}}
+@media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
+</style></head>
+<body><a class="skip" href="#content">Sari la conținut</a>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-ce-s-a-revizuit">2. Ce s-a revizuit</a></li><li><a href="#3-toate-recomandarile-initiale">3. Toate recomandările inițiale</a></li><li><a href="#4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</a></li><li><a href="#5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</a></li><li><a href="#6-ui-si-documente">6. UI și documente</a></li><li><a href="#7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-ce-s-a-revizuit">2. Ce s-a revizuit</a></li><li><a href="#3-toate-recomandarile-initiale">3. Toate recomandările inițiale</a></li><li><a href="#4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</a></li><li><a href="#5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</a></li><li><a href="#6-ui-si-documente">6. UI și documente</a></li><li><a href="#7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav></details>
+<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
+<h1 id="omnis-re-review-si-readiness-pentru-implementare">Omnis — re-review și readiness pentru implementare</h1>
+<p><strong>25 septembrie 2026 · Review de specificație și probe de dependențe/documente · Nu validare a produsului</strong></p>
+<h2 id="1-verdict-de-arhitectura">1. Verdict de arhitectură</h2>
+<p><strong>GO pentru P0/P1 și probele inerte Hermes; NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1 sunt baza curentă pentru implementare, cu owner și criteriu pentru fiecare risc. „Final” nu înseamnă că integrarea nativă sau eficacitatea pentestului sunt deja demonstrate.</p>
+<p>Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.</p>
+<h2 id="2-ce-s-a-revizuit">2. Ce s-a revizuit</h2>
+<ul>
+<li><a href="Omnis_Implementation_Plan.md">Plan v2</a>: etape, dependențe, backlog, porți și protocol de evaluare.</li>
+<li><a href="Omnis_MVP_Architecture.md">Arhitectura v1</a>: granițe, RPC/binding, proxy/HTTPS, auth, date, stări, SSE și raportare.</li>
+<li><a href="Omnis_Stack_Baseline.md">Stack baseline</a>: metadate primare, variante respinse, rezolvări și probe reale; <a href="verification/stack-probe.json">output</a>.</li>
+<li><a href="Omnis_UI_UX_Spec.md">UI/UX</a>, <a href="../DESIGN.md">DESIGN.md</a>, <a href="Omnis_UI_Prototype.html">prototip</a> și renderer/teste documentare.</li>
+</ul>
+<p>Au existat review-uri independente pentru versiunile propuse și riscurile de arhitectură, apoi o a doua lectură independentă a documentelor revizuite și a UI/toolingului. Rezultatele lor sunt constatări, nu autoritate de a marca testele aplicației drept trecute. Snapshoturile citite de review pot preceda ultimele corecții; starea livrată este cea verificată de părinte după integrare.</p>
+<h2 id="3-toate-recomandarile-initiale">3. Toate recomandările inițiale</h2>
+<p>Tabelul R01–R12 din plan a fost verificat programatic: fiecare ID apare exact o dată. Secvențierea Settings/browser/primul finding, probele Hermes, revocarea scope-ului, efectele necunoscute, regula business, auth concurent, negative evidence, persistența artefactelor, E2E/baseline, suportul recon, toate copiile datelor și raport/retest sunt acum decizii sau porți explicite.</p>
+<p><strong>Stare: rezolvate în specificație, NEÎNCEPUTE în aplicație.</strong> Aceasta nu este o declarație că 12 probleme de cod au fost remediate într-un produs existent.</p>
+<h2 id="4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Constatare</th>
+<th>Rezolvare în baseline / probă obligatorie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RR01</td>
+<td>Contextul browserului nu identifică singur fiecare acțiune de fundal</td>
+<td>BrowserActionWindow, binding run/attempt/action/epoch/generație; requesturi separate, generații închise refuzate; G03b</td>
+</tr>
+<tr>
+<td>RR02</td>
+<td>Limită de fișier nu este limită de recepție/decompresie</td>
+<td>Capuri incrementale wire/decompressed/stored înainte de buffering, inclusiv chunked; G03a măsoară consumul efectiv</td>
+</tr>
+<tr>
+<td>RR03</td>
+<td>Politica datelor era verificată transversal prea târziu</td>
+<td>ModelProjection v1 și G-DATA-EARLY înainte de LLM/target data; P8 extinde retention/restore</td>
+</tr>
+<tr>
+<td>RR04</td>
+<td>Owner unic de refresh nu rezolvă crashul după rotație</td>
+<td>Intenție durabilă, fencing la publicare, secret durabil înainte de epoch; AUTH_UNKNOWN fără retry token vechi</td>
+</tr>
+<tr>
+<td>RR05</td>
+<td>Catalog per run versus „task nou vede release nou”</td>
+<td>Taskurile unui run folosesc același snapshot; release nou numai în run nou; revocare prin Stop/fencing</td>
+</tr>
+<tr>
+<td>RR06</td>
+<td>COMPLETED/stagnare fără predicat</td>
+<td>Supervisor determinist, frontieră/obligații/candidați/efecte/cleanup închise; prag de trei tururi fără progres</td>
+</tr>
+<tr>
+<td>RR07</td>
+<td>Regula de rerulare putea schimba numitorul benchmarkului</td>
+<td>Motive exogene prestabilite, invalidare de evaluator, maximum o înlocuire per slot, toate tentativele publicate; erorile Omnis rămân în scor</td>
+</tr>
+<tr>
+<td>RR08</td>
+<td>Raport istoric după ștergerea evidence</td>
+<td>Verdict istoric separat de disponibilitatea curentă; UI/export nou arată MISSING/DELETED/CORRUPT și replay indisponibil</td>
+</tr>
+</tbody>
+</table></div>
+<p>Alte alegeri închise: pairing local distinct de tokenul admin Hermes, TCB explicit și copii care nu sunt sandboxes OS, cursor alocat sub lock în ordinea commiturilor, tranzacție comună pentru autoritate/buget/approval, un singur owner de refresh AI și slot activ de stare de caz arhivat numai cu procese oprite.</p>
+<p>Nu am acceptat automat sugestia de a trece la altă orchestrare/batch sincron pentru a evita wake-ul. Păstrăm contractul nativ dorit și gate-ul exact de continuare/reconciliere; o schimbare ulterioară necesită ADR, nu reducere tacită de scope.</p>
+<h2 id="5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</h2>
+<h3 id="frontend">Frontend</h3>
+<p>Cercetarea de metadata nu a prins conflictul de declarații TypeScript între Vitest 5.0.1 și jest-dom 7.0.1. <code>tsc --noEmit</code> l-a reprodus (TS2428). Baseline-ul selectează Vitest 4.1.11; același typecheck strict și testul de dialog/router au trecut. Nu am folosit <code>skipLibCheck</code>, <code>--force</code> sau <code>--legacy-peer-deps</code> pentru a ascunde incompatibilitatea.</p>
+<p>Mediul moștenit production a făcut <code>React.act</code> indisponibil în primul test; scripturile de test cer acum <code>NODE_ENV=test</code> și instalarea include explicit devDependencies. Buildul Vite a trecut cu warnings <code>use client</code> consemnate, nu ca build perfect fără warnings.</p>
+<h3 id="api">API</h3>
+<p>CPython 3.13.15/uv 0.12.19 au rezolvat și instalat mediul API separat; <code>uv pip check</code>, DTO valid/invalid, OpenAPI, ASGI in-process, dialect async psycopg și criptare sintetică au trecut. Nu s-a conectat DB și nu s-a implementat seiful. Testul ASGI evită calea TestClient/HTTPX depreciată observată în Starlette curent.</p>
+<h3 id="proxy-blocaj-real-ramas">Proxy — blocaj real rămas</h3>
+<p>Rezolvarea <code>mitmproxy 12.2.3</code> a reușit, dar metadatele advisories au marcat dependențe <strong>cryptography, h2, msgpack și tornado</strong>. Capurile pachetului împiedică selectarea simplă a versiunilor remediate. Buildul este <strong>REJECTED_FOR_TARGET_USE</strong>, nu aprobat cu un warning. B01e are owner, cale upstream/patch minimal auditat și suită obligatorie înainte de P3.</p>
+<p>Nu afirmăm că fiecare advisory este exploatabil în Omnis; nici nu alegem o frontieră nouă de securitate pe baza absenței unui exploit demonstrat. API crypto nu a fost coborât, iar proxyul afectat nu a fost pornit.</p>
+<h2 id="6-ui-si-documente">6. UI și documente</h2>
+<p>Review-ul a identificat Stop inaccesibil în overlay-uri, stare inert rămasă după resize, focus pierdut la Stop/Start, identitate/epoch incoerente în inspector, Pause fără stări intermediare, touch targets sub prag și ancore imbricate în cuprinsul rendererului. Acestea au regresii dedicate în remedierea UI/tooling.</p>
+<p><strong>Verificarea finală a părintelui a trecut:</strong> 16 teste unitare/contracte documentare; regenerare și <code>render_docs.py --check</code> pentru toate cele cinci cititoare; 95 verificări Chromium pentru prototip și documente, fără eșecuri, erori JavaScript sau requesturi HTTP(S) neașteptate. Testele includ Stop din fiecare overlay, resize cu drawer deschis, focus/live-region, PAUSING/drain/Resume preflight, filtrarea identității/epoch, touch targets și stările goale. Raportul este în <a href="verification/browser-check.json">browser-check.json</a>. Primele verificări ale părintelui nu prinseseră toate aceste cazuri; re-review-ul independent și regresiile le-au adăugat. Nu este certificare WCAG, test screen-reader/cross-browser sau E2E al aplicației inexistente.</p>
+<p>DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verificarea documentară a folosit Playwright Python 1.60.0 și Chromium 145.0.7632.159 de pe host; nu certifică executorul planificat Playwright 1.63.0 sau imaginea lui. Prototipul este etichetat DEMO, cu conexiuni/form submit blocate; rendererul este numai pentru Markdown trusted al proiectului, nu pentru target evidence.</p>
+<h2 id="7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Owner</th>
+<th>Închidere necesară</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G-DEPENDENCIES / B01e</td>
+<td>Integrare/executori</td>
+<td>Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare</td>
+</tr>
+<tr>
+<td>G-RUNTIME / H01–H08</td>
+<td>Integrare Hermes</td>
+<td>Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord</td>
+</tr>
+<tr>
+<td>G-DATA-EARLY</td>
+<td>API/securitate</td>
+<td>Proiecție model-facing și markeri înainte de date de țintă către provider</td>
+</tr>
+<tr>
+<td>G-NET / G03</td>
+<td>Broker/executori</td>
+<td>Trasee blocate măsurate, subrequest attribution, limits, scope și lease fail-closed</td>
+</tr>
+<tr>
+<td>G-PROVIDER</td>
+<td>Operator + integrare</td>
+<td>Cont/model eligibil, data policy și buget explicit; ambii provideri până la MVP final</td>
+</tr>
+<tr>
+<td>G00 DB/build</td>
+<td>Backend/dev environment</td>
+<td>Lockuri finale de produs, migrații și DB reală; imaginile nu sunt certificate prin metadata</td>
+</tr>
+<tr>
+<td>G08</td>
+<td>Evaluare/operator</td>
+<td>Corpus sigilat, threshold fixat, rezultate reale, baseline și retest</td>
+</tr>
+</tbody>
+</table></div>
+<p>Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste probe nu există declarație de MVP funcțional. Configurația de rețea/seccomp și calitatea testelor de vulnerabilitate nu pot fi certificate printr-un document.</p>
+<h2 id="8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</h2>
+<p>Putem începe primul lot fără să redeschidem stackul la nivel de preferințe: fundație/web/persistență și probe inerte în paralel. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Dependența proxy respinsă și bindingul nativ sunt porți vizibile, nu implementări ghicite.</p>
+<p>Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.</p>
+<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>6f922516907e92db7d73745434edd22ce431e3813272d9f2d1c6aedf9ead4fe5</code>.</p></footer>
+</main></div></body></html>

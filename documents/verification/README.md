@@ -47,7 +47,15 @@ python scripts/render_docs.py
 python scripts/render_docs.py --check
 ```
 
-Rendererul acceptă numai Markdown trusted al proiectului. **Nu este sanitizer și nu se folosește pentru evidence de la ținte.** HTML este generat din Markdown; nu se editează în paralel cele două formate.
+Rendererul acceptă numai Markdown trusted al proiectului. **Nu este sanitizer și nu se folosește pentru evidence de la ținte.** CSP a cititoarelor blochează scripts/subresurse ca defense-in-depth, nu transformă rendererul într-un parser pentru conținut ostil. HTML este generat din Markdown; nu se editează în paralel cele două formate.
+
+Verificarea browserului necesită Playwright Python și Chromium local, separat de viitorul executor de produs:
+
+```sh
+python tests/documentation/browser_check.py --include-documents --output "$TMPDIR/omnis-docs-browser-check.json"
+```
+
+Aceasta verifică prototipul DEMO, regresiile Stop/focus/context și cititoarele offline; raportul păstrat este `documents/verification/browser-check.json`, nu rezultate de pentest.
 
 Tokenurile se verifică/exportă cu `@google/design.md@0.4.0`:
 

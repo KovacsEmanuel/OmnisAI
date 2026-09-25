@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><title>Omnis — stack și versiuni</title><style>
+:root{color-scheme:light;--paper:#faf9f6;--ink:#262923;--muted:#5f6458;--line:#d9ddd1;--accent:#245c44;--nav:#f0f0e9}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.7 'Segoe UI','Liberation Sans',Arial,sans-serif}
+a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.skip{position:fixed;top:-100px;left:16px;background:white;padding:12px;z-index:10}.skip:focus{top:12px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:272px;padding:28px 22px;overflow-y:auto;background:var(--nav);border-right:1px solid var(--line)}.wordmark{letter-spacing:.14em;font-size:23px;font-weight:700}.note{font-size:13px;color:var(--muted)}nav ul{list-style:none;padding:0}nav a{display:block;padding:8px 0;min-height:44px;font-size:13px;line-height:1.5;text-decoration:none}nav a:hover{text-decoration:underline}
+.page{margin-left:272px;padding:30px clamp(22px,4vw,64px) 70px}main{max-width:1050px;min-width:0;margin:auto}.topline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);padding-bottom:18px;border-bottom:1px solid var(--line)}.status{background:#edf3ec;padding:3px 9px;border-radius:4px}
+h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-spacing:-.025em;margin:40px 0 24px}h2{font:400 clamp(25px,2.5vw,33px)/1.3 Georgia,'Liberation Serif',serif;margin:56px 0 20px;padding-top:25px;border-top:1px solid var(--line);scroll-margin-top:24px}h3{font-size:20px;margin-top:32px}p,li{overflow-wrap:anywhere}li{margin:7px 0}code{font:13px/1.6 'Liberation Mono',Consolas,monospace;overflow-wrap:anywhere;background:#e9ece5;border-radius:3px;padding:2px 4px}pre{background:#18251f;color:#eef3ec;padding:20px;overflow-x:auto;border-radius:6px;max-width:100%;line-height:1.6}pre code{background:none;padding:0;color:inherit;white-space:pre;overflow-wrap:normal}.table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:5px;margin:24px 0}table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px;line-height:1.6}th,td{padding:12px 14px;vertical-align:top;text-align:left;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:var(--nav);font-weight:600}td{min-width:155px}tr:last-child td{border-bottom:0}blockquote{margin:24px 0;padding:16px 20px;background:#edf3ec}.mobile-nav{display:none}footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}.links{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:1000px){.sidebar{width:224px;padding:22px 16px}.page{margin-left:224px;padding-inline:26px}}@media(max-width:760px){.sidebar{display:none}.page{margin:0;padding:20px 18px 48px}.mobile-nav{display:block;background:var(--nav);padding:0 18px;border-bottom:1px solid var(--line)}summary{min-height:48px;padding:12px 0;cursor:pointer}body{font-size:16px}h1{margin-top:28px}pre{padding:14px}}
+@media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
+</style></head>
+<body><a class="skip" href="#content">Sari la conținut</a>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
+<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
+<h1 id="omnis-stack-si-versiuni-baseline-v1">Omnis — stack și versiuni, baseline v1</h1>
+<p><strong>Verificat la 25 septembrie 2026 · Linux x86_64 · Decizii pentru implementare, nu produs instalat</strong></p>
+<h2 id="1-verdict">1. Verdict</h2>
+<p><strong>Frontendul și nucleul API au o combinație exactă rezolvată și exercitată în probe izolate. Proxyul publicat este respins pentru trafic target din cauza dependențelor cu advisories.</strong> Hermes, browserul întărit, DB/migrațiile și întreaga aplicație nu au fost validate live în această livrare.</p>
+<p>Registrul machine-readable este <a href="Omnis_Stack_Baseline.versions.json">Omnis_Stack_Baseline.versions.json</a>: versiuni, engines/peers, integrități npm, metadate PyPI, advisories și digests de imagini. <a href="verification/stack-probe.json">Outputul verificărilor</a> și <a href="verification/README.md">inputurile reproductibile</a> separă testele efectiv executate de porțile viitoare. Pinurile directe din tabel provin din aceste metadate și din rezolvările executate, nu din presupunerea „latest funcționează împreună”.</p>
+<h2 id="2-runtime-si-infrastructura">2. Runtime și infrastructură</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Componentă</th>
+<th>Alegere exactă</th>
+<th>Motiv / stare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td><strong>24.21.0 LTS</strong></td>
+<td>Descărcat în scratch de la nodejs.org, checksum verificat; executat <code>--version</code>; nu schimbă Node-ul hostului.[14]</td>
+</tr>
+<tr>
+<td>npm</td>
+<td><strong>11.19.0</strong></td>
+<td>Versiunea inclusă în distribuția Node aleasă; executată în probe. Nu npm latest 12 implicit.[14]</td>
+</tr>
+<tr>
+<td>CPython API</td>
+<td><strong>3.13.15</strong>, build normal cu GIL</td>
+<td>Instalare scratch separată, importuri și teste efective; 3.13 rămâne baseline comun compatibil cu pinul Hermes, nu 3.14 forțat</td>
+</tr>
+<tr>
+<td>uv</td>
+<td><strong>0.12.19</strong></td>
+<td>Wheel oficial verificat prin digest; folosit pentru venv/rezolvare/install cu hashes</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td><strong>18.6</strong>, <code>postgres:18.6-bookworm</code></td>
+<td>Metadate/digest verificate, serverul nu a fost pornit; ramură suportată conform politicii publice.[16]</td>
+</tr>
+<tr>
+<td>Hermes</td>
+<td><strong>0.21.5</strong>, <code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code></td>
+<td>Pin auditat, <code>requires-python &gt;=3.11,&lt;3.14</code>; mediu separat, nu upgrade al instalării personale</td>
+</tr>
+<tr>
+<td>Docker/Compose pe host</td>
+<td><strong>27.5.1+dfsg4 / 2.32.4-3</strong>, observate</td>
+<td>Client/server și Compose răspund; aceasta nu certifică deploymentul sau hardeningul</td>
+</tr>
+</tbody>
+</table></div>
+<p>Python 3.13 se apropie de trecerea la suport numai de securitate; release-ul 3.13.16 din calendar nu este tratat ca disponibil înaintea publicării. Reevaluăm patchul Python înaintea releaseului, nu îl înghețăm pentru totdeauna.[15] Un pin auditat astăzi nu justifică amânarea unui security update.</p>
+<p><strong>Docker/Compose:</strong> folosim interfața Compose v2 și un manifest testat pe hostul Linux de referință, fără <code>network_mode: host</code>, socket Docker în runtime sau containere privilegiate. Distribuția hostului, kernelul/seccomp/nftables și versiunile efective intră în manifestul P0/G-NET. Nu inventăm un număr „minim sigur” universal de Engine. Un host diferit trebuie să treacă aceeași suită înainte de target effects.</p>
+<h2 id="3-frontend">3. Frontend</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Pachete și pinuri</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI</td>
+<td><code>react==19.3.0</code>, <code>react-dom==19.3.0</code></td>
+</tr>
+<tr>
+<td>Limbaj și build</td>
+<td><code>typescript==5.9.3</code>, <code>vite==8.3.1</code>, <code>@vitejs/plugin-react==6.1.1</code></td>
+</tr>
+<tr>
+<td>Navigare</td>
+<td><code>react-router==8.4.0</code>, declarative mode, fără framework/SSR</td>
+</tr>
+<tr>
+<td>Server state</td>
+<td><code>@tanstack/react-query==5.103.2</code></td>
+</tr>
+<tr>
+<td>Primitive accesibile</td>
+<td><code>radix-ui==1.6.7</code>; CSS Modules + variabilele DESIGN.md</td>
+</tr>
+<tr>
+<td>Tipuri</td>
+<td><code>@types/react==19.3.0</code>, <code>@types/react-dom==19.3.0</code>, <code>@types/node==24.13.6</code></td>
+</tr>
+<tr>
+<td>Contract API</td>
+<td><code>openapi-typescript==7.13.0</code>, numai schema Omnis locală</td>
+</tr>
+<tr>
+<td>Test runner</td>
+<td><strong><code>vitest==4.1.11</code></strong>, <code>jsdom==30.1.1</code></td>
+</tr>
+<tr>
+<td>Testing Library</td>
+<td><code>@testing-library/react==16.3.3</code>, <code>@testing-library/dom==10.4.2</code>, <code>@testing-library/jest-dom==7.0.1</code>, <code>@testing-library/user-event==14.6.7</code></td>
+</tr>
+<tr>
+<td>Browser E2E</td>
+<td><code>@playwright/test==1.63.0</code>; buildul browserului se fixează împreună</td>
+</tr>
+</tbody>
+</table></div>
+<p>În acest tabel, <code>==</code> înseamnă pin exact descriptiv; în <code>package.json</code> se scrie valoarea simplă <code>"19.3.0"</code>, fără <code>^</code> sau <code>~</code>.</p>
+<h3 id="doua-alegeri-care-difera-de-latest">Două alegeri care diferă de latest</h3>
+<ul>
+<li>TypeScript latest observat în cercetare era 7.0.2, dar <code>openapi-typescript@7.13.0</code> declară peer TypeScript <code>^5.x</code>. Alegem 5.9.3; nu <code>--force</code>/<code>--legacy-peer-deps</code>.[17]</li>
+<li>Vitest 5.0.1 + jest-dom 7.0.1 <strong>a eșuat efectiv</strong> la <code>tsc --noEmit</code> cu TS2428 pentru declarațiile <code>Assertion</code>. Vitest 4.1.11 a trecut același typecheck și testul DOM/Radix/router. Nu am ascuns conflictul prin <code>skipLibCheck: true</code>. Eșecul și corecția sunt în registrul probelor.</li>
+</ul>
+<p>Dev install explicit <code>npm ci --include=dev</code>; teste cu <code>NODE_ENV=test</code>, build cu profil de producție explicit. Mediul gazdă al probelor moștenea production și a făcut <code>React.act</code> indisponibil; nu era un bug al aplicației. P0 trebuie să neutralizeze acest tip de moștenire în scripturile documentate.</p>
+<p><strong>Nu adăugăm:</strong> Tailwind/shadcn obligatoriu, Redux/Zustand, Monaco, canvas graph, bibliotecă mare de charts, Storybook înaintea nevoii sau fonturi remote. Componentele de bază au test/demonstrație locală și tokenuri. Radix ajută mecanica interactivă, nu certifică automat accesibilitatea paginii.</p>
+<h2 id="4-api-persistenta-si-teste-python">4. API, persistență și teste Python</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Pin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API/DTO</td>
+<td><code>fastapi==0.141.1</code>, <code>pydantic==2.13.5</code></td>
+</tr>
+<tr>
+<td>ASGI</td>
+<td><code>uvicorn==0.54.0</code>; primul deployment un singur proces API, supervisor separat</td>
+</tr>
+<tr>
+<td>ORM/migrații</td>
+<td><code>SQLAlchemy==2.0.54</code>, <code>alembic==1.20.0</code></td>
+</tr>
+<tr>
+<td>Driver async</td>
+<td><code>psycopg[binary]==3.3.6</code>, <code>greenlet==3.5.6</code>; DSN SQLAlchemy <code>postgresql+psycopg://</code></td>
+</tr>
+<tr>
+<td>HTTP adapter/API testing</td>
+<td><code>httpx==0.28.1</code></td>
+</tr>
+<tr>
+<td>Seif target AEAD</td>
+<td><code>cryptography==50.0.1</code></td>
+</tr>
+<tr>
+<td>Teste</td>
+<td><code>pytest==9.1.1</code>, <code>pytest-asyncio==1.4.0</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Decizie explicită:</strong> SQLAlchemy async, sesiune per unitate de lucru, fără sesiune globală sau I/O sincron în event loop. Proba a construit dialectul async psycopg; nu s-a conectat la DB. Nu adăugăm <code>asyncpg</code>, <code>psycopg_pool</code> sau două ORM-uri. SQLAlchemy 2.0 este ramura de mentenanță; 2.1.0 tocmai publicat nu este adoptat automat pentru primul increment.[21]</p>
+<p>Rezolvarea API cu hashes a produs un mediu compatibil, inclusiv Starlette <strong>1.7.0</strong> și pydantic-core <strong>2.46.5</strong>; întregul set este păstrat în inputurile probei. Manifestul aplicației va avea propriul <code>uv.lock</code> și security review; nu copiem mediul Hermes peste API.</p>
+<p>Testul FastAPI folosește HTTPX <code>AsyncClient + ASGITransport</code>. Calea <code>TestClient</code> a avertizat despre deprecarea HTTPX în Starlette curent; am ales un test ASGI explicit, fără a adăuga un al doilea client numai pentru acel smoke. Pentru startup/shutdown real și pool DB avem teste de lifecycle separate în P0/P3.</p>
+<p>AES-256-GCM cu nonce unic per criptare și AAD legat de engagement/identitate/tip de secret; cheie în afara DB/repo/backup. Nonce-ul fix din proba disposable este folosit o singură dată cu cheie proaspătă și text sintetic; nu este modelul de implementare a seifului. Cheia lipsă produce LOCKED. Threat modelul nu protejează de root/același UID compromis.</p>
+<h2 id="5-recon-browser-si-parsere">5. Recon, browser și parsere</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Componentă</th>
+<th>Pin / moment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Playwright Python</td>
+<td><strong>1.63.0</strong>, mediu executor separat; P3b</td>
+</tr>
+<tr>
+<td>Chromium</td>
+<td>Buildul livrat pentru Playwright 1.63.0, plus digest al imaginii; nu Chrome personal sau <code>latest</code></td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>stdlib Python, cu byte/depth/time limits</td>
+</tr>
+<tr>
+<td>XML robots/sitemap</td>
+<td><code>defusedxml==0.7.1</code>; DTD/entities interzise, limită de resurse</td>
+</tr>
+<tr>
+<td>YAML</td>
+<td><code>PyYAML==6.0.3</code>, safe loader + alias/depth/input budgets</td>
+</tr>
+<tr>
+<td>OpenAPI validation</td>
+<td><code>openapi-spec-validator==0.9.0</code>; subset MVP 3.0/3.1, import local, <code>$ref</code> externe/file interzise</td>
+</tr>
+</tbody>
+</table></div>
+<p>Pinii parserelor sunt verificați ca publicare/metadate, nu printr-un test complet de recon. <code>defusedxml</code> are metadate vechi; Requires-Python permisiv nu certifică Python 3.13. Implicit nu facem fetch de <code>$ref</code> sau validare de țintă la upload. OpenAPI 2.0/3.2 se marchează unsupported până la probe proprii, chiar dacă biblioteca poate suporta mai mult.</p>
+<p>Driver, browser și imagine Playwright se actualizează împreună; documentația avertizează asupra mismatchului dintre versiunea bibliotecii și imagine.[5] Imaginile <code>mcr.microsoft.com/playwright/python:v1.63.0-noble</code> și JS echivalent au digesturi verificate, dar <strong>nu sunt executorul hardened livrat</strong>. Interpreterul din imagine poate fi diferit de Python 3.13.15; P3b fie îl înregistrează și testează separat, fie construiește imagine proprie pornind de la Python ales. Nu afirmăm un interpreter neinspectat.</p>
+<p>Katana/Nuclei/sqlmap nu sunt dependențe baseline. Orice adaptor ulterior are pin de binar/templates/digest, politică de efecte, captură, probe de bypass și laborator; un nume în SKILL.md nu instalează sau autorizează toolul.</p>
+<h2 id="6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</h2>
+<p><code>mitmproxy==12.2.3</code> publicat impune limite care țin <code>cryptography</code> la ≤48.1, <code>h2</code> la 4.3.0, <code>msgpack</code> la ≤1.1.2 și <code>tornado</code> la ≤6.5.5.[18] Combinația rezolvată include <strong>cryptography 48.0.1, pyOpenSSL 26.2.0, mitmproxy-rs 0.12.11</strong>. Se rezolvă, dar nu este aprobată.</p>
+<p>Metadatele de advisories pe versiunile exacte au semnalat probleme pentru <strong>cryptography, h2, msgpack și tornado</strong>. Pentru cryptography, sursa indică remedieri în 49.0.0/50.0.0, în afara capului pachetului candidat.[19] Detaliile/aliasurile/fixed_in pentru toate sunt păstrate în JSON, fără a susține că toate sunt exploatabile în traseul Omnis. Lipsa exploitabilității demonstrate nu justifică alegerea lor ca frontieră de securitate nouă.</p>
+<p><strong>Decizie: REJECTED_FOR_TARGET_USE.</strong> Nu am instalat sau pornit proxyul afectat și nu am dat trafic prin el. Nu coborâm API crypto, nu activăm <code>ssl_insecure</code>, nu forțăm resolverul și nu folosim CONNECT opac ca scurtătură.</p>
+<p><strong>B01e, owner integrare/executori:</strong></p>
+<ol>
+<li>Verifică dacă există release upstream cu constrângeri remediate; dacă nu, propune patch minimal de packaging/cod peste tagul exact, cu licență și surse păstrate.</li>
+<li>Rezolvă lock separat, actualizează toate dependențele afectate și verifică întregul set, nu numai cryptography; orice cap schimbat este decizie review-uită, nu override ascuns.</li>
+<li>Execută teste upstream relevante, import/start, CA/cert validation, HTTP parsing/body buffering, conexiuni reutilizate, failure modes și G-NET.</li>
+<li>Fixează commit/digest al buildului aprobat. Până atunci, P3a/P3b sunt <strong>BLOCKED</strong>; fundația/web și P2 inert pot începe.</li>
+</ol>
+<p>Arhitectura alege frontiera HTTPS inspectabilă și un adaptor mitmdump îngust; gate-ul nu lasă implementatorul să înlocuiască asta cu un transport neobservabil. Dacă patchul necesar devine substanțial, revenim cu ADR de alternativă înainte de implementare, nu promitem un fork mic fără probe.</p>
+<h2 id="7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</h2>
+<ul>
+<li><strong>Web:</strong> <code>package-lock.json</code>, Node/npm exacte, <code>npm ci --include=dev</code> pentru CI; transitivele sunt fixate în lock, nu refăcute la fiecare run.</li>
+<li><strong>Python:</strong> proiecte/medii și <code>uv.lock</code> distincte API, Hermes, browser și proxy. <code>uv sync --locked</code>, hashes și inventar minimal; fără <code>pip install</code> la pornirea unui task.</li>
+<li><strong>Hermes:</strong> cod+dependințe ale SHA auditat, configurație/tool inventory exportate sanitizat, patchuri separate dacă sunt necesare. Un Git SHA fără lock/build provenance nu este suficient.</li>
+<li><strong>OCI:</strong> tag + digest de index și <code>platform: linux/amd64</code>; digestul manifestului platformei se înregistrează. Tagurile Node/Python/Postgres/Playwright au fost recitite din registry și coincid cu cele salvate. Nicio imagine nu a fost executată pentru validarea topologiei.</li>
+<li><strong>Postgres 18:</strong> mountul și <code>PGDATA</code> versionat trebuie luate din documentația exactă a imaginii 18, nu copiate din exemple ≤17.[22] P0 validează persistența/restart/backup pe volumul ales.</li>
+<li><strong>Upgrade:</strong> branch/commit dedicat; resolve + advisory/SBOM/licențe + unit/contracts/safety + smoke real; migrare și rollback/restore documentate. Fără actualizări automate în timpul runului.</li>
+</ul>
+<p>Nu înlocuim verificarea actualizărilor cu o promisiune că exact pin = sigur. Auditul npm a raportat zero advisories pentru lockul probei la data verificării; checkul PyPI al API nu a raportat advisories pentru setul rezolvat. Acestea nu sunt audituri exhaustive de securitate sau licență.</p>
+<h2 id="8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</h2>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Verificare</th>
+<th>Rezultat real</th>
+<th>Limită</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runtime Node/npm/uv/Python alese</td>
+<td>Executate în scratch; versiuni confirmate</td>
+<td>Nu au înlocuit instalările personale</td>
+</tr>
+<tr>
+<td>Rezolvare API cu hashes + instalare + <code>uv pip check</code></td>
+<td>Trecut</td>
+<td>Nu este DB conectată sau runtime Hermes</td>
+</tr>
+<tr>
+<td>FastAPI/Pydantic/ASGI, SQLAlchemy async dialect, AEAD sintetic</td>
+<td>Trecut</td>
+<td>Nu este API-ul produsului sau implementarea seifului</td>
+</tr>
+<tr>
+<td>npm lock/install/audit</td>
+<td>Trecut; zero advisories raportate</td>
+<td>Nu audit complet de supply chain/licențe</td>
+</tr>
+<tr>
+<td>TypeScript strict (<code>skipLibCheck: false</code>)</td>
+<td>Trecut după alegerea Vitest 4.1.11</td>
+<td>Nu verifică componente Omnis inexistente</td>
+</tr>
+<tr>
+<td>Vite build</td>
+<td>Trecut</td>
+<td>Warnings <code>use client</code> din librării, consemnate pentru aplicația client-only; nu build fără warnings</td>
+</tr>
+<tr>
+<td>Testing Library / Radix dialog / router</td>
+<td>Un test smoke trecut cu NODE_ENV=test</td>
+<td>Nu UI E2E complet</td>
+</tr>
+<tr>
+<td>Proxy resolve/advisories</td>
+<td>Resolve trecut, security gate RESPINS</td>
+<td>Nicio pornire/țintă; trebuie B01e</td>
+</tr>
+<tr>
+<td>Digests imagini</td>
+<td>Readback verificat din registry</td>
+<td>Fără pull/run/hardening test</td>
+</tr>
+<tr>
+<td>DESIGN.md CLI 0.4.0</td>
+<td>Zero erori și zero warnings; DTCG exportat</td>
+<td>Nu certificare WCAG a produsului</td>
+</tr>
+</tbody>
+</table></div>
+<p>Nu au fost conectate conturi, apelate modele, lansate scanări sau implementată aplicația Omnis. Probele sunt programe mici separate, păstrate ca dovezi/reproduceri sub <code>documents/verification/</code>, nu un frontend/backend stub prezentat ca produs.</p>
+<h2 id="9-prag-de-pornire">9. Prag de pornire</h2>
+<p><strong>GO pentru fundație, web persistent și probe Hermes inerte. NO-GO pentru target effects până la B01e + binding + confinare.</strong> Stackul este suficient de concret pentru implementatori; necunoscutele reale au owner, test și fază blocată, nu sunt ascunse sub „folosim latest și vedem”.</p>
+<h2 id="sources">Sources</h2>
+<p>[5] https://playwright.dev/python/docs/docker — https://playwright.dev/python/docs/docker
+[14] https://nodejs.org/dist/index.json — Node.js release metadata
+[15] https://peps.python.org/pep-0719 — CPython 3.13 release schedule
+[16] https://www.postgresql.org/support/versioning — PostgreSQL supported versions
+[17] https://registry.npmjs.org/openapi-typescript/7.13.0 — openapi-typescript exact metadata
+[18] https://pypi.org/pypi/mitmproxy/12.2.3/json — mitmproxy dependency bounds
+[19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
+[21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
+[22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>27023a416bf50e39799edbd49eb15ae103ae6fb5e544b8d57150d8aab9993eb8</code>.</p></footer>
+</main></div></body></html>

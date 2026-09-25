@@ -83,11 +83,12 @@
     },
     {
       "name": "omnis-review-qa",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "path": ".hermes/skills/omnis-review-qa/SKILL.md",
-      "sha256": "1a8f817150cc50eceff62b3748520b50da292d24b0b61f90bcffe75e87ce49bd",
+      "sha256": "0bc28bc9768c748a5ff29fb8e784d48278daf96429369dc123c3d67ed33f2b2e",
       "native_read": true,
-      "scanner_verdict": "safe"
+      "scanner_verdict": "safe",
+      "verification_note": "Revision 0.1.2 reloaded through native skill_view and rescanned with installed skills_guard after UI commits 5cae5d4/3a3d3ba; zero findings. Other entries retain the checked_at_utc snapshot."
     },
     {
       "name": "omnis-safety-evaluation",

@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.1
+version: 0.1.2
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -26,6 +26,12 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 8. Parent reproduces critical assertions and commits the accepted slice. Record exact commands, counts, exit codes, limitations and base/head; final reporting distinguishes implementation, integration and visual acceptance.
 
 ## Pitfalls
+For hash-routed prototypes, reload or create a fresh browser page between cases: fragment navigation retains run, dialog and filter state. Verify the isolated RED fails only for the intended behavior.
+
+Verify focused pixels and target geometry, not only activeElement: an outer outline can be clipped, and a contextual link can preserve scroll below the selected object's title. Test repeat navigation from long mobile pages and place focus below persistent run controls.
+
+Resolve an evidence/task link's operation, identity and snapshot explicitly; opening the destination page while retaining incompatible filters can display another object's evidence. Include a prior-selection/empty-filter regression.
+
 No universal 'verified' badge. Verify the verifier: match exact structured diagnostic identifiers/severity/source, not a substring in an exception stack; require positive and negative controls on the SAME evidence channel. An arbitrary failure or always-rejecting observer must not pass the negative control. Add a regression for each false-green mechanism before trusting the repaired gate. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
 
 ## Verification

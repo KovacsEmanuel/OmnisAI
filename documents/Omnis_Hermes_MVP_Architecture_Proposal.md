@@ -1,5 +1,7 @@
 # Omnis + Hermes — arhitectură propusă și plan MVP
 
+> **Revizie local-first pentru discuție:** [MVP local și contracte de integrare](Omnis_Hermes_Local_MVP_Integration_Proposal.md). Include alegerile utilizatorului privind laboratorul, autentificarea și approvals, plus auditul REST/JSON-RPC/Settings. Documentul de mai jos rămâne istoricul propunerii inițiale, nu backlogul aprobat.
+
 - **Statut:** propunere pentru discuție, **neaprobată**; nu autorizează implementarea sau testarea vreunei ținte.
 - **Data:** 2026-09-24
 - **Domeniu:** evaluări Web/API autorizate, inițial pe laborator și aplicații controlate; acces pentru echipa autentificată, cu posibilă mutare ulterioară pe VPS.

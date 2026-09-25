@@ -1,0 +1,345 @@
+{
+  "status": "pass",
+  "network_interfaces": [
+    "lo"
+  ],
+  "browser_version": "148.0.7778.96",
+  "sdk_connected": true,
+  "count_after": "Count: 1",
+  "positive": {
+    "verified": "yes",
+    "verifiedReason": "proved",
+    "because": "assertion held at signal grade over a clean capture with no channel disagreeing",
+    "effect": {
+      "ok": true,
+      "ref": "e2",
+      "action": "click",
+      "dispatched": true,
+      "settled": true,
+      "settleReason": null,
+      "testid": "increment",
+      "role": "button",
+      "name": "Increment",
+      "effect": {
+        "focusMoved": "null->e2",
+        "domMutatedWithin": 1,
+        "appeared": "Count: 1"
+      }
+    },
+    "verdict": {
+      "pass": true,
+      "evidence": {
+        "name": "fixture:incremented",
+        "data": {
+          "count": 1
+        }
+      }
+    },
+    "trace": {
+      "window_ms": 68,
+      "summary": {
+        "total": 4,
+        "domChanged": 1,
+        "signals": 1
+      }
+    },
+    "summary": {
+      "net": {
+        "total": 0,
+        "errors": 0
+      },
+      "consoleErrors": 0,
+      "statePathsChanged": [
+        "fixture"
+      ],
+      "storageKeysChanged": [],
+      "stateDiffs": [
+        {
+          "path": "count",
+          "from": 0,
+          "to": 1,
+          "atMs": 574
+        }
+      ],
+      "storageDiffs": [],
+      "signals": [
+        "fixture:incremented"
+      ],
+      "longTasks": 0
+    },
+    "instrumentationGaps": [
+      {
+        "kind": "no-flow-intent",
+        "missing": "this verdict proved something, and no intent says what it was meant to make true",
+        "cost": "the pass is real but it is only about this run \u2014 six months from now the ledger can say a check went green and not what stopped being false, so a later agent re-derives the goal from the steps instead of reading it",
+        "fix": "save it again with intent: \"<which user does what, and what should become true>\" \u2014 prose, in your own words \u2014 or set intentId to an intent already in the ledger"
+      }
+    ],
+    "honesty": {
+      "grade": "signal",
+      "attribution": "window",
+      "coverage": {
+        "pct": 100,
+        "partial": false
+      },
+      "settled": true,
+      "integrity": {
+        "clean": true,
+        "issues": []
+      }
+    },
+    "blastRadius": [
+      "state fixture"
+    ],
+    "since": 546
+  },
+  "positive_network": {
+    "verified": "yes",
+    "verifiedReason": "proved",
+    "because": "assertion held at net grade over a clean capture with no channel disagreeing",
+    "effect": {
+      "ok": true,
+      "ref": "e4",
+      "action": "click",
+      "dispatched": true,
+      "settled": true,
+      "settleReason": null,
+      "testid": "healthy-request",
+      "role": "button",
+      "name": "Simulate successful request",
+      "effect": {
+        "focusMoved": "e2->e4",
+        "domMutatedWithin": 0
+      }
+    },
+    "verdict": {
+      "pass": true,
+      "evidence": {
+        "id": "n176",
+        "method": "POST",
+        "url": "/api/ok",
+        "status": 200,
+        "ok": true,
+        "durationMs": 39,
+        "initiator": "fetch",
+        "statusText": "OK",
+        "contentType": "application/json",
+        "responseSize": 52,
+        "requestShape": "116badf8",
+        "requestBody": "{\"value\":\"inert\"}",
+        "responseBody": "{\"ok\":true,\"fixture\":\"synthetic network control\"}"
+      }
+    },
+    "trace": {
+      "window_ms": 104,
+      "summary": {
+        "total": 4,
+        "network": 1,
+        "domChanged": 1
+      }
+    },
+    "summary": {
+      "net": {
+        "total": 1,
+        "errors": 0
+      },
+      "consoleErrors": 0,
+      "statePathsChanged": [],
+      "storageKeysChanged": [],
+      "stateDiffs": [],
+      "storageDiffs": [],
+      "signals": [],
+      "longTasks": 0
+    },
+    "instrumentationGaps": [
+      {
+        "repeat": true,
+        "kind": "no-flow-intent"
+      }
+    ],
+    "honesty": {
+      "grade": "net",
+      "attribution": "window",
+      "coverage": {
+        "pct": 100,
+        "partial": false
+      },
+      "settled": true,
+      "integrity": {
+        "clean": true,
+        "issues": []
+      }
+    },
+    "since": 994
+  },
+  "assert_existing_session": {
+    "verified": "yes",
+    "verifiedReason": "proved",
+    "because": "assertion held at state grade over a clean capture with no channel disagreeing",
+    "pass": true,
+    "evidence": {
+      "store": "fixture",
+      "path": "count",
+      "value": 1
+    }
+  },
+  "negative": {
+    "verified": "no",
+    "verifiedReason": "assertion_failed",
+    "because": "the declared consequence did not hold",
+    "effect": {
+      "ok": true,
+      "ref": "e3",
+      "action": "click",
+      "dispatched": true,
+      "settled": true,
+      "settleReason": null,
+      "testid": "failed-save",
+      "role": "button",
+      "name": "Simulate failed save",
+      "effect": {
+        "focusMoved": "e4->e3",
+        "domMutatedWithin": 0
+      }
+    },
+    "verdict": {
+      "pass": false,
+      "failureReason": "no network call matched {\"kind\":\"net\",\"method\":\"POST\",\"urlContains\":\"/api/save\",\"status\":200} \u2014 note that this window starts where the SDK attached, and requests made before that are never captured, so a miss here cannot tell a call that was never made apart from one made before the page connected; if the call is expected during startup, assert on the state it produces instead",
+      "observed": "calls seen in this window: POST /api/save \u2192 500",
+      "expected": "at least one call matching {\"kind\":\"net\",\"method\":\"POST\",\"urlContains\":\"/api/save\",\"status\":200}",
+      "assertion": "net.present"
+    },
+    "trace": {
+      "window_ms": 3023,
+      "summary": {
+        "total": 6,
+        "network": 1,
+        "domChanged": 1,
+        "consoleErrors": 1,
+        "signals": 1
+      }
+    },
+    "capsuleSaved": "1790332557409-assert",
+    "summary": {
+      "net": {
+        "total": 1,
+        "errors": 1,
+        "headline": "POST /api/save 500"
+      },
+      "consoleErrors": 1,
+      "statePathsChanged": [],
+      "storageKeysChanged": [],
+      "stateDiffs": [],
+      "storageDiffs": [],
+      "signals": [
+        "fixture:save-failed"
+      ],
+      "longTasks": 0
+    },
+    "instrumentationGaps": [
+      {
+        "kind": "source-mapping-off",
+        "missing": "source mapping is turned off for this build, so no element carries data-reticle-source",
+        "cost": "this verdict can name the control but not the file and line that render it, so finding the code is a separate search",
+        "fix": "nothing to install \u2014 this build has sourceMapping turned off, so no element carries data-reticle-source. Re-enable it in the Reticle plugin options unless this app renders through a non-DOM reconciler (react-three-fiber, react-pdf, ink), where the stamp is what would break it"
+      }
+    ],
+    "honesty": {
+      "grade": "net",
+      "attribution": "window",
+      "coverage": {
+        "pct": 100,
+        "partial": false
+      },
+      "settled": true,
+      "integrity": {
+        "clean": true,
+        "issues": []
+      }
+    },
+    "capsule": {
+      "firstDivergence": {
+        "expected": {
+          "kind": "net",
+          "urlContains": "/api/save",
+          "status": 200
+        },
+        "observed": "/api/save responded 500 (expected 200)"
+      },
+      "blastRadius": [
+        "signal fixture:save-failed"
+      ]
+    },
+    "since": 1137
+  },
+  "network_observation": {
+    "calls": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:14401/",
+        "status": 200,
+        "ms": 0
+      },
+      {
+        "method": "POST",
+        "url": "/api/ok",
+        "status": 200,
+        "statusText": "OK",
+        "contentType": "application/json",
+        "responseSize": 52,
+        "requestBody": "{\"value\":\"inert\"}",
+        "responseBody": "{\"ok\":true,\"fixture\":\"synthetic network control\"}",
+        "ms": 39
+      },
+      {
+        "method": "POST",
+        "url": "/api/save",
+        "status": 500,
+        "statusText": "Internal Server Error",
+        "contentType": "application/json",
+        "responseSize": 53,
+        "requestBody": "{\"value\":\"inert\"}",
+        "responseBody": "{\"ok\":false,\"fixture\":\"synthetic network control\"}",
+        "ms": 25
+      }
+    ],
+    "assetsFolded": {
+      "count": 175,
+      "bytes": 22339,
+      "sample": [
+        "http://127.0.0.1:14401/node_modules/@reticlehq/browser/dist/index.js",
+        "http://127.0.0.1:14401/node_modules/@reticlehq/browser/dist/reticle-singleton.js",
+        "http://127.0.0.1:14401/node_modules/@reticlehq/browser/dist/reticle.js"
+      ],
+      "why": "successful GETs of build output (modules, styles, maps, Vite plumbing). They carry no verdict \u2014 this is the bundler talking to itself, not the app under test.",
+      "how": "pass assets:true to list them, or name what you mean with urlContains / method / status."
+    },
+    "cost": {
+      "bytes": 1119,
+      "tokens": 280
+    }
+  },
+  "dishonest_ui": "Saved successfully",
+  "checks": {
+    "increment_visible": true,
+    "positive_verdict_yes": true,
+    "state_assertion_yes": true,
+    "negative_verdict_no": true,
+    "network_capture_controls": true,
+    "inert_failed_request_reached_fixture": true,
+    "failure_hidden_by_screen": true,
+    "no_browser_js_exceptions": true
+  },
+  "child_exits": {
+    "cli-version": 0,
+    "cli-telemetry": 0,
+    "cli-help": 0,
+    "server": 0,
+    "mcp": -15
+  },
+  "listeners_after_cleanup": {
+    "14400": false,
+    "14401": false
+  },
+  "scope": "Actual pinned Reticle MCP with synthetic loopback fixture; positive and negative network capture, not Omnis app integration or visual approval"
+}

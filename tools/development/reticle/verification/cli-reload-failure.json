@@ -1,0 +1,22 @@
+{
+  "scope": "Separate CLI reload diagnostic, explicitly NOT an accepted Reticle path",
+  "status": "blocked",
+  "cli_verify_expect": {
+    "exit_code": 1,
+    "stdout": "verified: no\nreason: assertion_failed\n{\n  \"verified\": \"no\",\n  \"verifiedReason\": \"assertion_failed\",\n  \"because\": \"the declared consequence did not hold\",\n  \"pass\": false,\n  \"failureReason\": \"state 'count' is 1, expected 0\",\n  \"observed\": \"count = 1\",\n  \"expected\": \"count = 0\",\n  \"assertion\": \"state.equals\",\n  \"evidence\": {\n    \"store\": \"fixture\",\n    \"path\": \"count\",\n    \"value\": 1\n  },\n  \"instrumentationGaps\": [\n    {\n      \"repeat\": true,\n      \"kind\": \"source-mapping-off\"\n    }\n  ]\n}\n"
+  },
+  "error": "session-yield: {'content': [{'type': 'text', 'text': '{\"error\":\"no connected session with id \\'omnis-inert-fixture\\', and no sessions are connected at all \u2014 so there is no other id to retry with. Last seen on http://127.0.0.1:14401/. The app is not dialling this daemon; call reticle_session { action: \\\\\"list\\\\\" } for the diagnosis rather than retrying this call.\",\"recovery\":\"That sessionId is not connected. Call reticle_session { action: \\\\\"list\\\\\" } for the current ids and retry with a valid one.\"}'}], 'isError': True}",
+  "child_exits": {
+    "cli-version": 0,
+    "cli-telemetry": 0,
+    "cli-help": 0,
+    "server": 0,
+    "mcp": -15,
+    "cli-verify-expect": 1
+  },
+  "listeners_after_cleanup": {
+    "14400": false,
+    "14401": false
+  },
+  "resolution": "No upstream fix claimed. Accepted smoke uses direct MCP on the connected session and does not invoke verify --expect. Failure retained rather than converted to a pass."
+}

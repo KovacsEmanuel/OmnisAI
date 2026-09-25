@@ -1,0 +1,30 @@
+{
+  "repository": "https://github.com/reticlehq/reticle",
+  "audited_source_commit": "39cc34a84bfb78023154c9f4e99c61f3cbe8fc19",
+  "tested_artifact": "@reticlehq/server@3.2.0",
+  "npm_publication_commit": "d400c5dd6296813011acecb5922dc78a38d93b57",
+  "npm_publication_note": "Different from audited checkout HEAD despite same version; npm lock integrity is retained. Attestation contents were inspected, not independently signature-verified.",
+  "server_tarball_sha256": "641d663e12437fcfab9e1509d6a3f20cf31081f46fe736350a6e644ec9538498",
+  "license": "FSL-1.1-ALv2 for server; Apache-2.0 for SDK/core/adapters; enterprise has separate terms",
+  "license_url": "https://github.com/reticlehq/reticle/blob/39cc34a84bfb78023154c9f4e99c61f3cbe8fc19/server/LICENSE",
+  "adoption": "Internal development helper only; no global MCP, no Omnis product dependency or production instrumentation",
+  "accepted_path": "Direct stdio MCP on an existing connected SDK session, isolated inert fixture",
+  "not_accepted": [
+    "CLI verify --expect reload path",
+    "source-line mapping not tested",
+    "Reticle-owned browser leases/native input not tested",
+    "live provider exploration/cloud sync not permitted by setup",
+    "commercial embedding requires separate license review"
+  ],
+  "security_controls": [
+    "RETICLE_TELEMETRY=0 and DO_NOT_TRACK=1",
+    "loopback-only network namespace; fail closed if unavailable",
+    "fresh scratch HOME/state/temp/XDG and no model/cloud credentials",
+    "no downloaded installer, auto-init or agent configuration registration"
+  ],
+  "limits": [
+    "Network namespace is not a filesystem sandbox; run only reviewed tooling on the supplied synthetic fixture",
+    "Prototype/doc tests do not validate future application instrumentation",
+    "No native Reticle tool registration is claimed"
+  ]
+}

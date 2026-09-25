@@ -1,0 +1,10 @@
+{
+  "name": "omnis-reticle-local-probe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated localhost-only Reticle audit; not an Omnis dependency",
+  "dependencies": {
+    "@reticlehq/server": "3.2.0"
+  }
+}

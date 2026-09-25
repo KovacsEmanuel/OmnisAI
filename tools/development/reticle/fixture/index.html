@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Inert Reticle probe</title>
+<style>body{font:18px sans-serif;padding:40px}button{font:inherit;padding:12px;margin:8px}</style>
+<h1>Local Reticle fixture — no accounts or external services</h1>
+<p id="count" aria-live="polite">Count: 0</p>
+<button data-testid="increment">Increment</button>
+<button data-testid="failed-save">Simulate failed save</button>
+<button data-testid="healthy-request">Simulate successful request</button>
+<p id="network-status" role="status">Network control not run</p>
+<p id="save-status" role="status">Not saved</p>
+<script type="importmap">
+{"imports":{
+  "@reticlehq/browser":"/node_modules/@reticlehq/browser/dist/index.js",
+  "@reticlehq/core":"/node_modules/@reticlehq/core/dist/index.js",
+  "@reticlehq/core/telemetry":"/node_modules/@reticlehq/core/dist/telemetry-entry.js",
+  "@reticlehq/core/artifacts":"/node_modules/@reticlehq/core/dist/artifacts/artifacts-entry.js",
+  "@reticlehq/core/hooks":"/node_modules/@reticlehq/core/dist/hooks/hooks-entry.js",
+  "@reticlehq/core/tour":"/node_modules/@reticlehq/core/dist/tour-entry.js",
+  "open-verification":"/node_modules/open-verification/dist/index.js",
+  "zod":"/node_modules/zod/index.js"
+}}
+</script>
+<script type="module">
+import {reticle, registerStore} from '@reticlehq/browser';
+const state = {count: 0, saved: false};
+const listeners = new Set();
+registerStore('fixture', {
+  getState: () => ({...state}),
+  subscribe: (listener) => {listeners.add(listener); return () => listeners.delete(listener);}
+});
+reticle.connect({
+  session: 'omnis-inert-fixture', projectId: 'omnis-reticle-probe',
+  url: 'ws://127.0.0.1:14400/reticle', token: 'probe-local-only-not-a-real-credential',
+  captureNetworkBodies: true, captureErrorBodies: true,
+  overlay: false, annotate: false, recorder: false, sourceMapping: false,
+  present: false, exposePresenter: false
+});
+window.fixtureReticle = reticle;
+document.querySelector('[data-testid="increment"]').addEventListener('click', () => {
+  state.count += 1;
+  document.querySelector('#count').textContent = `Count: ${state.count}`;
+  listeners.forEach(listener => listener());
+  reticle.signal('fixture:incremented', {count: state.count});
+});
+document.querySelector('[data-testid="failed-save"]').addEventListener('click', async () => {
+  const response = await fetch('/api/save', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({value:'inert'})});
+  await response.json();
+  // An intentionally dishonest screen: this only mutates an inert local variable.
+  document.querySelector('#save-status').textContent = 'Saved successfully';
+  console.error('fixture-save-failed');
+  reticle.signal('fixture:save-failed', {status: response.status});
+});
+document.querySelector('[data-testid="healthy-request"]').addEventListener('click', async () => {
+  const response = await fetch('/api/ok', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({value:'inert'})});
+  await response.json();
+  document.querySelector('#network-status').textContent = `HTTP ${response.status}`;
+});
+</script></html>

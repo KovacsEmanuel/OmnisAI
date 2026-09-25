@@ -255,6 +255,7 @@ def check_run_catalog_copy(page):
 def check_empty_error_previews(page):
     # Re-check the parent's fixes, including navigation while content is unavailable.
     page.set_viewport_size({'width': 330, 'height': 1000})
+    page.locator('#prototype-tools > summary').click()
     for mode, title in [('empty', 'No observations yet'), ('error', 'Evidence unavailable')]:
         page.locator('#preview-state').select_option(mode)
         for view in VIEWS:
@@ -365,6 +366,7 @@ def check_finding_inspection(page):
     page.locator('#replay-evidence summary').click()
     assert 'SYNTHETIC TRANSCRIPT' in page.locator('#replay-evidence pre').inner_text()
     assert 'No request was sent' in page.locator('#replay-evidence pre').inner_text()
+    page.locator('#finding-demo-tools > summary').click()
     page.locator('#retest-preview').click()
     assert 'RETEST_INCONCLUSIVE' in page.locator('#retest-state').inner_text()
     for width in [1440, 1280, 1024, 390, 320]:
@@ -382,6 +384,7 @@ def check_finding_evidence_availability(page):
     page.locator('#brain-stream').get_by_role('button', name='Inspect finding', exact=True).click()
     expect(page.locator('[data-finding="demo-f-01"]')).to_have_attribute('open', '')
     verdict = page.locator('#finding-verdict').inner_text()
+    page.locator('#finding-demo-tools > summary').click()
     page.locator('#replay-preview').click()
     assert 'No replay was executed' in page.locator('#replay-message').inner_text()
     for state in ['MISSING', 'TRUNCATED', 'CORRUPT', 'DELETED']:
@@ -493,6 +496,26 @@ def check_navigation_context_regressions(page):
     assert not failures, failures
 
 
+def check_simulation_controls_are_separate(page):
+    page.evaluate("showView('dashboard', false)")
+    expect(page.locator('#preview-state')).to_be_hidden()
+    expect(page.locator('#stop-control')).to_be_visible()
+    page.locator('#prototype-tools > summary').click()
+    page.locator('#preview-state').select_option('empty')
+    expect(page.locator('[data-page="dashboard"]')).to_be_hidden()
+    page.locator('#preview-state').select_option('normal')
+    expect(page.locator('[data-page="dashboard"]')).to_be_visible()
+    page.locator('#prototype-tools > summary').click()
+    page.evaluate("showView('findings', false)")
+    page.locator('.finding-row').click()
+    expect(page.locator('#finding-evidence-state')).to_be_hidden()
+    expect(page.locator('#evidence-bundle')).to_be_visible()
+    page.locator('#finding-demo-tools > summary').click()
+    page.locator('#finding-evidence-state').select_option('MISSING')
+    expect(page.locator('#evidence-bundle')).to_be_hidden()
+    assert 'CONFIRMED' in page.locator('#finding-verdict').inner_text()
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
@@ -502,7 +525,8 @@ REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, che
                check_finding_inspection, check_finding_evidence_availability,
                check_finding_return_scroll, check_zoom_and_media,
                check_dashboard_engagement_settings_separation,
-               check_navigation_context_regressions, check_generated_document_csp]
+               check_navigation_context_regressions, check_simulation_controls_are_separate,
+               check_generated_document_csp]
 
 
 def main():
@@ -531,6 +555,7 @@ def main():
         page.locator('[data-map="coverage"]').click()
         page.locator('[data-coverage="tested_no_issue"]').click()
         assert "Requires procedure revision" in page.locator("#coverage-detail").inner_text()
+        page.locator('#prototype-tools > summary').click()
         page.locator("#preview-state").select_option("empty")
         assert page.locator('[data-page]:visible').count() == 0
         assert page.locator("#state-preview").is_visible()

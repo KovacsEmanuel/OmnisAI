@@ -32,7 +32,7 @@ Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtim
 | Providers/Skills/Runtime, approvals, scope/auth, retest | Contractele existente din baseline, nu funcții inventate în această reordonare | Settings sau detaliul obiectului; nu scurtături tehnice în nav engagement |
 | Skills/Runtime în taburile engagementului; stream complet în Overview | Alegeri ale adaptării precedente, neacceptate vizual | Eliminate din aceste poziții |
 | Invoice lab, Alice/Bob, ruta facturii, evenimentele și findingul exemplu | Copy/fixture creat pentru machetă | Date sintetice, nu cerințe noi aprobate și nu rezultate reale |
-| Butoane/selectoare „Preview”, simularea ACK și evidence-state | Instrumente pentru verificarea prototipului | Nu sunt funcții de produs; se disting de suprafața de operare |
+| Butoane/selectoare „Preview”, simularea ACK și evidence-state | Instrumente pentru verificarea prototipului | Selectorul global și previewurile evidence/replay/retest sunt în panouri pliante „Prototype controls” / „Finding demo controls”, închise implicit; ACK-ul simulat apare numai după comanda demo relevantă |
 | Council, graf, chains, multiple runuri active, procente/precision/costuri din template | Conținut al referinței care nu definește Omnis | Nu este importat ca funcționalitate sau telemetrie |
 
 ## 1. Anatomia consolei
@@ -122,7 +122,7 @@ Listă implicită numai CONFIRMED. Candidates/REJECTED/INCONCLUSIVE rămân în 
 
 **Compoziția de review:** rând expandabil cu severitate, titlu, metodă/rută, identificator, investigator → validator și verdict. Nu există Confirm/Dismiss/vot în listă. La expandare: context run/scope/identity/epoch/regulă, apoi impact + reproducere + baseline/replay/control în coloana principală, cu decizia validatorului și verificările oracle într-un panou distinct. Sub 1024px panourile se stivuiesc; verdictul rămâne disponibil înaintea detaliilor lungi. Linkul din Brain stream deschide findingul, nu o listă fără selecție.
 
-Disponibilitatea **actuală** a evidence este separată de completitudinea **la momentul verdictului**. În prototip, selectorul DEMO AVAILABLE/MISSING/TRUNCATED/CORRUPT/DELETED ascunde transcripturile indisponibile și dezactivează preview-ul cerințelor de replay, dar nu rescrie verdictul istoric. Textele/transcripturile sunt sintetice, nu output al unui executor. Produsul nu va avea acest selector de scenarii: starea vine din API.
+Disponibilitatea **actuală** a evidence este separată de completitudinea **la momentul verdictului**. În prototip, selectorul DEMO AVAILABLE/MISSING/TRUNCATED/CORRUPT/DELETED din panoul pliant **Finding demo controls** ascunde transcripturile indisponibile și dezactivează preview-ul cerințelor de replay, dar nu rescrie verdictul istoric. Statusul de disponibilitate rămâne vizibil în detaliu, în afara panoului de simulare. Textele/transcripturile sunt sintetice, nu output al unui executor. Produsul nu va avea acest selector de scenarii: starea vine din API.
 
 Retest cere run/autorizație/buget proaspăt și afișează FIXED doar după precondiții valide/control. Auth expirat produce RETEST_INCONCLUSIVE. Raportul nou citează probe noi; cel vechi rămâne neschimbat. Dedup conservator cu occurrences expandabile, nu dispariția „duplicatelor” fără audit.
 

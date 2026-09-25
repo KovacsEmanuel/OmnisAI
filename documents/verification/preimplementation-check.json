@@ -1,0 +1,95 @@
+{
+  "scope": "SPECIFICATION_AND_DEVELOPMENT_CHECKS_NOT_OMNIS_APPLICATION",
+  "checked_at_utc": "2026-09-25T21:48:51.011384+00:00",
+  "source_head": "0a24d771b7ffb3b65d9d3a4c043b92090be7ce57",
+  "phase_count": 14,
+  "dependency_count": 17,
+  "topological_order": [
+    "P0-control",
+    "B01e-build",
+    "P1-data",
+    "P1-web",
+    "P2-inert",
+    "P4a-minim",
+    "P2-live",
+    "P4b",
+    "P3a",
+    "P3b",
+    "P5a+P6a",
+    "P5b+P6b",
+    "P7",
+    "P8"
+  ],
+  "ui_mapping_ids": [
+    "UI01",
+    "UI02",
+    "UI03",
+    "UI04",
+    "UI05",
+    "UI06",
+    "UI07",
+    "UI08",
+    "UI09",
+    "UI10"
+  ],
+  "audit_ids": [
+    "PA01",
+    "PA02",
+    "PA03",
+    "PA04",
+    "PA05",
+    "PA06",
+    "PA07",
+    "PA08",
+    "PA09"
+  ],
+  "accepted_prototype_and_protected_agents_unchanged": true,
+  "application_manifests_present": [],
+  "source_sha256": {
+    "README.md": "ca9a3d178203d3c272a3703e73d5a4903f04c5389e748cd341bec83111d9c361",
+    "DESIGN.md": "acf9c948e309ba082f4dd625388d30d1de26f6fe4458b850a3eadb32558754de",
+    "documents/Omnis_Implementation_Plan.md": "cfea6e1f7f6e097957fea96f20208ee30348bf9cda74aa777d5ead639cf2cbde",
+    "documents/Omnis_MVP_Architecture.md": "7720b80bfc936c6010a04f36975b03c012873e0ba0f39c73e4ebb69e22d329c9",
+    "documents/Omnis_UI_UX_Spec.md": "ec9384af4325ad80a75b8fba2ebb02174210d2e15a1431eb6e4dc6c34f953751",
+    "documents/Omnis_Implementation_Readiness_Review.md": "15d1a73821da2c2ed02ce77abbd49a7d22300e320f943271bc44ac04874cfaa4",
+    "documents/Omnis_Stack_Baseline.md": "31615ea38bd885d672a99c3890b7d6a17d69844b8239e702f2e4ce0b9569bca3",
+    "tests/documentation/test_baseline_contracts.py": "7cb82bd4ead22a7c1cff18e893638d0704089c69f7537e172cd2bffc36eec39a"
+  },
+  "verification_worktree": "Source HEAD plus final audit notes and regenerated reader; source hashes bind the exact checked files.",
+  "commands": [
+    {
+      "command": "python scripts/render_docs.py",
+      "exit_code": 0,
+      "output": "RENDERED Omnis_Implementation_Plan.html\nRENDERED Omnis_MVP_Architecture.html\nRENDERED Omnis_UI_UX_Spec.html\nRENDERED Omnis_Stack_Baseline.html\nRENDERED Omnis_Implementation_Readiness_Review.html"
+    },
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "output": "python scripts/render_docs.py --check\nOK Omnis_Implementation_Plan.html\nOK Omnis_MVP_Architecture.html\nOK Omnis_UI_UX_Spec.html\nOK Omnis_Stack_Baseline.html\nOK Omnis_Implementation_Readiness_Review.html\npython -m unittest discover -s tests/documentation -v\ntest_accepted_navigation_has_matching_plan_and_feature_owners (test_baseline_contracts.BaselineContracts.test_accepted_navigation_has_matching_plan_and_feature_owners) ... ok\ntest_all_original_recommendations_have_one_traceability_row (test_baseline_contracts.BaselineContracts.test_all_original_recommendations_have_one_traceability_row) ... ok\ntest_delivery_dependencies_are_acyclic_and_bootstrap_is_inert (test_baseline_contracts.BaselineContracts.test_delivery_dependencies_are_acyclic_and_bootstrap_is_inert) ... ok\ntest_every_ui_surface_has_a_delivery_mapping_and_handoff (test_baseline_contracts.BaselineContracts.test_every_ui_surface_has_a_delivery_mapping_and_handoff) ... ok\ntest_evidence_record_preserves_actual_failures_and_limits (test_baseline_contracts.BaselineContracts.test_evidence_record_preserves_actual_failures_and_limits) ... ok\ntest_frontend_probe_matches_selected_pins (test_baseline_contracts.BaselineContracts.test_frontend_probe_matches_selected_pins) ... ok\ntest_rejected_proxy_is_not_marked_ready (test_baseline_contracts.BaselineContracts.test_rejected_proxy_is_not_marked_ready) ... ok\ntest_report_review_policy_revisions_and_delivery_are_explicit (test_baseline_contracts.BaselineContracts.test_report_review_policy_revisions_and_delivery_are_explicit) ... ok\ntest_second_review_contracts_are_recorded (test_baseline_contracts.BaselineContracts.test_second_review_contracts_are_recorded) ... ok\ntest_ui_projections_have_consistent_snapshot_and_phase_contracts (test_baseline_contracts.BaselineContracts.test_ui_projections_have_consistent_snapshot_and_phase_contracts) ... ok\ntest_visual_acceptance_is_separate_from_implementation_start (test_baseline_contracts.BaselineContracts.test_visual_acceptance_is_separate_from_implementation_start) ... ok\ntest_coverage_references_resolve_and_reject_wrong_context (test_prototype_model.PrototypeModelTests.test_coverage_references_resolve_and_reject_wrong_context) ... ok\ntest_material_change_invalidates_prior_report_acceptance (test_prototype_model.PrototypeModelTests.test_material_change_invalidates_prior_report_acceptance) ... ok\ntest_report_review_does_not_bypass_validation_revision_or_evidence (test_prototype_model.PrototypeModelTests.test_report_review_does_not_bypass_validation_revision_or_evidence) ... ok\ntest_reports_include_only_confirmed_review_eligible_snapshot_copies (test_prototype_model.PrototypeModelTests.test_reports_include_only_confirmed_review_eligible_snapshot_copies) ... ok\ntest_summary_uses_confirmed_findings_and_defined_coverage (test_prototype_model.PrototypeModelTests.test_summary_uses_confirmed_findings_and_defined_coverage) ... ok\ntest_unavailable_evidence_does_not_export_cached_transcript_bytes (test_prototype_model.PrototypeModelTests.test_unavailable_evidence_does_not_export_cached_transcript_bytes) ... ok\ntest_cli_check_reports_stale_and_missing_outputs_without_writing (test_render_docs.RenderDocsTests.test_cli_check_reports_stale_and_missing_outputs_without_writing) ... ok\ntest_cli_missing_source_fails_without_inventing_output (test_render_docs.RenderDocsTests.test_cli_missing_source_fails_without_inventing_output) ... ok\ntest_cli_render_and_check_are_deterministic_and_check_is_read_only (test_render_docs.RenderDocsTests.test_cli_render_and_check_are_deterministic_and_check_is_read_only) ... ok\ntest_code_stays_inert (test_render_docs.RenderDocsTests.test_code_stays_inert) ... ok\ntest_heading_links_use_escaped_text_only_in_both_tocs (test_render_docs.RenderDocsTests.test_heading_links_use_escaped_text_only_in_both_tocs) ... ok\ntest_metadata_is_escaped (test_render_docs.RenderDocsTests.test_metadata_is_escaped) ... ok\ntest_offline_shell_and_semantics (test_render_docs.RenderDocsTests.test_offline_shell_and_semantics) ... ok\ntest_plan_and_architecture_both_configured (test_render_docs.RenderDocsTests.test_plan_and_architecture_both_configured) ... ok\ntest_render_is_deterministic_and_digest_tracks_exact_source (test_render_docs.RenderDocsTests.test_render_is_deterministic_and_digest_tracks_exact_source) ... ok\ntest_static_csp_is_defense_in_depth_not_markdown_sanitization (test_render_docs.RenderDocsTests.test_static_csp_is_defense_in_depth_not_markdown_sanitization) ... ok\ntest_tables_have_local_scroll_regions (test_render_docs.RenderDocsTests.test_tables_have_local_scroll_regions) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 1.753s\n\nOK\npython -m unittest discover -s tests/development -v\ntest_arguments_are_preserved_without_shell_interpretation (test_hermes_launch.HermesLaunchTests.test_arguments_are_preserved_without_shell_interpretation) ... ok\ntest_check_never_executes_or_dumps_environment (test_hermes_launch.HermesLaunchTests.test_check_never_executes_or_dumps_environment) ... ok\ntest_execution_pins_workspace_and_preserves_profile (test_hermes_launch.HermesLaunchTests.test_execution_pins_workspace_and_preserves_profile) ... ok\ntest_launcher_exposes_project_check_without_starting_a_model (test_hermes_launch.HermesLaunchTests.test_launcher_exposes_project_check_without_starting_a_model) ... ok\ntest_missing_executable_is_a_reported_failure (test_hermes_launch.HermesLaunchTests.test_missing_executable_is_a_reported_failure) ... ok\ntest_missing_browser_fails_closed (test_reticle_launcher.ReticleLauncherTests.test_missing_browser_fails_closed) ... ok\ntest_always_rejecting_verifier_is_not_a_pass (test_reticle_verdicts.ReticleVerdictTests.test_always_rejecting_verifier_is_not_a_pass) ... ok\ntest_missing_or_wrong_capture_is_not_a_pass (test_reticle_verdicts.ReticleVerdictTests.test_missing_or_wrong_capture_is_not_a_pass) ... ok\ntest_requires_both_real_network_outcomes (test_reticle_verdicts.ReticleVerdictTests.test_requires_both_real_network_outcomes) ... ok\ntest_unrelated_negative_reason_is_not_a_pass (test_reticle_verdicts.ReticleVerdictTests.test_unrelated_negative_reason_is_not_a_pass) ... ok\ntest_wrong_assertion_or_inconsistent_verdict_is_not_a_pass (test_reticle_verdicts.ReticleVerdictTests.test_wrong_assertion_or_inconsistent_verdict_is_not_a_pass) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.142s\n\nOK\nnpm --prefix tools/development/anti-slop test\n\n> omnis-dev-anti-slop@0.0.0 test\n> node smoke.mjs\n\nPASS verifier controls: plugin failure, wrong severity and wrong fixture are rejected\nPASS boundary-pass.ts: actual exit 0; 0 diagnostic(s)\nPASS chain-fail.ts: actual exit 1; 1 diagnostic(s)\nPASS widen-fail.ts: actual exit 1; 1 diagnostic(s)\nPASS comment-fail.ts: actual exit 1; 1 diagnostic(s)\nPASS 4 real Oxlint integration cases; no network or application execution\ngit diff --check"
+    },
+    {
+      "command": "python tests/documentation/browser_check.py --include-documents --output <scratch>/omnis-preimplementation-final-browser.json",
+      "exit_code": 0,
+      "output": "{\"passed\": true, \"checks\": 116, \"failures\": [], \"javascript_errors\": [], \"unexpected_network\": []}"
+    }
+  ],
+  "browser": {
+    "checks": 116,
+    "passed": true,
+    "javascript_errors": [],
+    "unexpected_network": []
+  },
+  "documentation_model_tests": 28,
+  "development_tests": 11,
+  "operator_state": {
+    "visual": "VISUAL_ACCEPTED",
+    "implementation": "START_PENDING_NEW_SESSION",
+    "protected_instruction_status": "INSTRUCTIONS_UPDATE_BLOCKED"
+  },
+  "limits": [
+    "No product implementation, DB/container execution or native RPC/LLM/target assessment was performed.",
+    "Dependency recheck is registry metadata only; rejected proxy and runtime/network/provider gates remain unproven.",
+    "Protected AGENTS.md edit was not authorized by the expired prompt; file unchanged and exception disclosed.",
+    "Offline Chromium/documentation and graph checks do not prove runtime behavior or all possible specification properties."
+  ]
+}

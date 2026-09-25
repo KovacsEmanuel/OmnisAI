@@ -60,6 +60,8 @@ Audit pe baseline-ul `aaab291`, apoi amendamente verificate în același plan/ar
 
 Recontrolul [pinurilor](verification/preimplementation-pins.json) a găsit toate cele 33 de versiuni exacte solicitate în registre; nu a reinstalat/admis un lock nou. Checkoutul Hermes instalat corespunde SHA-ului baseline; documentația oficială de integrare a fost recitită, fără probă RPC/provider și fără schimbarea pinului. Scope-ul rămâne local-first, nu un redesign de stack sau permisiune de trafic.
 
+**Relectură independentă după amendamente:** pe `7e90c09` nu a identificat blocaje substanțiale de specificație rămase în secțiunile verificate. A verificat ordinea etapelor, dimensiunea P0.1, separarea policy/reviziilor și raportul istoric versus evidence curente. Excepția AGENTS rămâne declarată; acest verdict nu închide gates runtime. Rezultatul comenzilor finale ale părintelui este păstrat în [preimplementation-check.json](verification/preimplementation-check.json), cu scope și limite, separat de probele aplicației încă inexistente.
+
 ## 5. Decizii schimbate de execuție reală
 
 ### Frontend

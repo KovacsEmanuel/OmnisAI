@@ -41,6 +41,8 @@ Migrații/DB reală, browser executor hardened, egress/HTTPS policy, native Herm
 
 [Recontrolul pinurilor înainte de implementare](preimplementation-pins.json) conține 33 răspunsuri de metadate exacte, cu URL/versiune/timestamp și limitele explicite ale probei. Verifică publicarea pinurilor, nu compatibilitatea unui nou lock, întregul lanț de dependențe sau funcționarea aplicației. Proxyul respins nu a fost pornit sau reaprobat prin această verificare.
 
+[Auditul final înainte de implementare](preimplementation-check.json) păstrează outputul real `make check`, rezultatul browserului, verificarea DAG-ului și lipsa modificărilor în prototipul acceptat/AGENTS.md. Plan §19 este handofful P0.1, iar registrul PA01–PA09 separă remedierea în specificație de gates neexecutate. Scrierea protejată a statusului AGENTS a rămas blocată de aprobarea expirată; nu a fost ocolită sau raportată ca reușită.
+
 Din rădăcina repo-ului, într-un mediu cu `Markdown==3.10.2`:
 
 ```sh

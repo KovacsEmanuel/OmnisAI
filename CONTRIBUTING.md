@@ -97,7 +97,7 @@ python tests/documentation/browser_check.py --include-documents --output <scratc
 git diff --check
 ```
 
-Comenzile aplicației se adaugă când există componentele, nu sunt inventate din structura propusă. Probele sintetice sunt etichetate; nu fac scanări și nu consumă conturi LLM. Verificările UI tehnice existente nu înseamnă acceptare vizuală: **așteptăm referința utilizatorului** înainte de redesign.
+Comenzile aplicației se adaugă când există componentele, nu sunt inventate din structura propusă. Probele sintetice sunt etichetate; nu fac scanări și nu consumă conturi LLM. Referința UI a fost primită și adaptată în prototip; **aprobarea vizuală și acordul de implementare sunt încă în așteptare**. Vezi §0 din specificația UI/UX; verde tehnic nu înseamnă design acceptat.
 
 ## Sources
 

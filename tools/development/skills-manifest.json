@@ -106,6 +106,6 @@
     "Current already-open session prompt/catalog was not rewritten",
     "Native Reticle/Chisel MCP servers were not globally registered",
     "Chisel is an adoption gate, explicitly NO-GO",
-    "Visual redesign waits for user reference; product app remains unimplemented"
+    "Initial checked_at_utc snapshot predates the supplied UI reference; current prototype status is in the UI specification. Product app remains unimplemented."
   ]
 }

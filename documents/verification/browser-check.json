@@ -766,6 +766,36 @@
     },
     {
       "kind": "regression",
+      "name": "check_cockpit_stream",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_cockpit_task_context",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_finding_inspection",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_finding_evidence_availability",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_finding_return_scroll",
+      "passed": true
+    },
+    {
+      "kind": "regression",
+      "name": "check_zoom_and_media",
+      "passed": true
+    },
+    {
+      "kind": "regression",
       "name": "check_generated_document_csp",
       "passed": true
     },

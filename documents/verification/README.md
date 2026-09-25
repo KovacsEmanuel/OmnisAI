@@ -55,7 +55,7 @@ Verificarea browserului necesită Playwright Python și Chromium local, separat 
 python tests/documentation/browser_check.py --include-documents --output "$TMPDIR/omnis-docs-browser-check.json"
 ```
 
-Aceasta verifică prototipul DEMO, regresiile Stop/focus/context și cititoarele offline; raportul păstrat este `documents/verification/browser-check.json`, nu rezultate de pentest.
+Aceasta verifică prototipul DEMO, regresiile Stop/focus/context și cititoarele offline; raportul păstrat este `documents/verification/browser-check.json`, nu rezultate de pentest. Revizia cockpit/findings are 101 checks trecute: include filtrul Brain stream, contextul linkurilor, disclosure/evidence/validator, separarea disponibilității de verdict, comparație de pixeli focused/blurred și scrollul mobil sub headerul sticky. Testul CSS zoom 200% nu înlocuiește verificarea zoomului nativ; screen-readerul și alte browsere rămân neverificate. Inspecția vizuală reală nu reprezintă aprobarea utilizatorului.
 
 Tokenurile se verifică/exportă cu `@google/design.md@0.4.0`:
 

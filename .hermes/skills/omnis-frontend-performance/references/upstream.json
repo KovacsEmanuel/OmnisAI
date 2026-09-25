@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/ibelick/ui-skills",
+  "commit": "fd0889bdf72aee45c32028b4643b09735d5b5a34",
+  "files": [
+    {
+      "source_path": "skills/fixing-motion-performance/SKILL.md",
+      "reference": "upstream.md",
+      "sha256": "0a2d654902bc04263ce68c8c02967ef03f17b482e855360a5463211d99d7baa9"
+    },
+    {
+      "source_path": "LICENSE",
+      "reference": "LICENSE.txt",
+      "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b"
+    }
+  ],
+  "mode": "unaltered passive sources; active SKILL.md is an Omnis adaptation; no live registry/CLI/MCP"
+}

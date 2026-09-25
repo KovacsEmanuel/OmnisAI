@@ -21,7 +21,9 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 
 ### Decizia de pornire
 
-**GO:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
+**G-DESIGN în așteptare:** aprobarea UI/UX și a structurii sistemului/pornirii `omnis`, apoi acord explicit pentru implementare. Arborele concret `api/`, `web/`, `cli/`, module/teste/ops și regulile sunt în [arhitectură §12](documents/Omnis_MVP_Architecture.md). Nu există încă aceste componente de produs.
+
+**După G-DESIGN:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 
 Planul include trasabilitatea tuturor celor 12 recomandări inițiale. `documents/` păstrează numai baseline-ul curent și suportul lui; nu conține propuneri alternative sau review-uri înlocuite. Contractele Hermes necesare implementării sunt în §5 din arhitectura curentă.
 

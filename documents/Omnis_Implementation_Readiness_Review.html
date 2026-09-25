@@ -16,7 +16,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h1 id="omnis-re-review-si-readiness-pentru-implementare">Omnis — re-review și readiness pentru implementare</h1>
 <p><strong>25 septembrie 2026 · Review de specificație și probe de dependențe/documente · Nu validare a produsului</strong></p>
 <h2 id="1-verdict-de-arhitectura">1. Verdict de arhitectură</h2>
-<p><strong>GO pentru P0/P1 și probele inerte Hermes; NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1 sunt baza curentă pentru implementare, cu owner și criteriu pentru fiecare risc. „Final” nu înseamnă că integrarea nativă sau eficacitatea pentestului sunt deja demonstrate.</p>
+<p><strong>Readiness tehnic pentru P0/P1 și probele inerte Hermes, dar G-DESIGN este PENDING:</strong> utilizatorul cere aprobarea UI/UX și stabilirea structurii sistemului/comenzii <code>omnis</code> înaintea acordului de implementare. <strong>NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.</p>
 <p>Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.</p>
 <h2 id="2-ce-s-a-revizuit">2. Ce s-a revizuit</h2>
 <ul>
@@ -108,6 +108,11 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </thead>
 <tbody>
 <tr>
+<td>G-DESIGN</td>
+<td>Operator</td>
+<td>Feedback/aprobare cockpit/findings, structură sistem și contract <code>omnis</code>, apoi acord explicit de implementare</td>
+</tr>
+<tr>
 <td>G-DEPENDENCIES / B01e</td>
 <td>Integrare/executori</td>
 <td>Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare</td>
@@ -146,7 +151,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste probe nu există declarație de MVP funcțional. Configurația de rețea/seccomp și calitatea testelor de vulnerabilitate nu pot fi certificate printr-un document.</p>
 <h2 id="8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</h2>
-<p>Putem începe primul lot fără să redeschidem stackul la nivel de preferințe: fundație/web/persistență și probe inerte în paralel. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Dependența proxy respinsă și bindingul nativ sunt porți vizibile, nu implementări ghicite.</p>
+<p>După acordul G-DESIGN, primul lot rămâne fundație/web/persistență și probe inerte în paralel, fără redeschiderea stackului după preferințe. Arborele <code>api/</code> + <code>web/</code> + <code>cli/</code>, responsabilitățile fișierelor și standardele sunt acum descrise în arhitectură §12, nu create ca schelet gol. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Proxyul respins și bindingul nativ rămân porți reale.</p>
 <p>Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>c7feeb5e0ffe9b404a7fa1bfd8d00d41591a94cf263c2e398af0a316c4dc3bae</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>6007bac8ad3c3cd92c18e1243b0870ae7b1a29260e6da2274c1cc2e89bb0cfad</code>.</p></footer>
 </main></div></body></html>

@@ -441,21 +441,203 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Evaluarea separă integrare, capabilitate cu ipoteză furnizată și E2E fără soluție furnizată. Evaluatorul deține adevărul de referință, canary-urile și resetarea; agentul nu vede seed DB, scorer sau source privilegiat. Profilul de informație este declarat: black-box URL sau grey-box cu identități/reguli/OpenAPI, nu revendicăm black-box când dăm reguli business.</p>
 <p>Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea rulărilor. Rezultatele se publică per run, cu ratări atribuite discovery/planificare/investigație/validare și cost necunoscut explicit. Promovarea unei familii ca benchmark-validated este legată de exact skill/tool/model/corpus; nu este precizie universală.</p>
 <h2 id="12-implementare-si-guvernanta">12. Implementare și guvernanță</h2>
-<p>Structură țintă, de creat în P0:</p>
-<pre><code class="language-text">apps/web/                  React, CSS Modules, generated API types
-src/omnis/                 config, API, modules/domain, adapters, supervisor
-integrations/hermes/       plugin, contract fixtures, patch manifest dacă necesar
-executors/                 HTTP/browser runner, proxy addon, manifests
-skills/                    surse reviewed; releases materializate read-only
-labs/                      fixture-uri dev fără secrete reale
-# corpusul held-out/scorer: workspace evaluator separat, nemontat agentului
-migrations/                Alembic
-tests/                     unit, contract, integration, UI, safety, recovery
-ops/                       Compose, profiles, egress policy, launcher
-scripts/                   test/build/doc/release helpers
-documents/                 baseline, ADR/amendamente, verificări
+<h3 id="121-arborele-tinta-si-proprietatea-fisierelor">12.1. Arborele țintă și proprietatea fișierelor</h3>
+<p><strong>Amendament de organizare propus după revizia UI. Nu este scaffold creat sau aprobare de implementare.</strong> Alegem directoare <strong><code>api/</code> și <code>web/</code> la rădăcină</strong>, în locul schiței anterioare <code>src/omnis</code> + <code>apps/web</code>. <code>api/</code> conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); <code>cli/</code> este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.</p>
+<pre><code class="language-text">OmnisAI/
+├── README.md / AGENTS.md / CONTRIBUTING.md / DESIGN.md / Makefile
+├── .github/workflows/ci.yml             # gate comun, fără conturi/live LLM
+├── api/
+│   ├── pyproject.toml / uv.lock         # API + supervisor, nu Hermes/proxy
+│   ├── alembic.ini
+│   ├── migrations/env.py / versions/   # migrare odată cu felia de date
+│   ├── src/omnis/
+│   │   ├── __init__.py
+│   │   ├── api.py                      # app factory FastAPI, fără scheduler
+│   │   ├── bootstrap.py                # wiring explicit al adaptoarelor
+│   │   ├── core/
+│   │   │   ├── config.py / paths.py    # configurație validată, fără env dump
+│   │   │   ├── ids.py / clock.py / errors.py
+│   │   │   ├── db.py / uow.py          # pool + unitate de lucru/tranzacție
+│   │   │   └── logging.py              # context IDs + redaction
+│   │   ├── security/
+│   │   │   ├── host_origin.py / csrf.py / sessions.py
+│   │   │   ├── pairing.py              # bootstrap local; nu token admin Hermes
+│   │   │   └── redaction.py            # proiecție allowlist, nu DLP universal
+│   │   ├── modules/                    # modulele din tabelul de mai jos
+│   │   │   └── engagements/
+│   │   │       ├── domain.py           # invariants/tranziții pure
+│   │   │       ├── service.py / ports.py
+│   │   │       ├── models.py / repository.py
+│   │   │       └── schemas.py / routes.py
+│   │   ├── supervisor/
+│   │   │   ├── __main__.py / loop.py   # entrypoint separat, singleton
+│   │   │   ├── leases.py / inbox.py / reconcile.py
+│   │   │   └── shutdown.py             # fencing, Stop, dovadă de quiescență
+│   │   ├── transport/
+│   │   │   ├── internal_api.py / internal_auth.py
+│   │   │   └── events.py               # SSE din evenimente durabile
+│   │   └── adapters/
+│   │       ├── hermes_client.py        # protocol privat, nu SDK în domain
+│   │       └── executor_client.py      # acțiuni tipizate, nu shell generic
+│   └── tests/
+│       ├── conftest.py
+│       ├── unit/ / integration/ / contracts/ / migrations/
+├── web/
+│   ├── package.json / package-lock.json
+│   ├── index.html / vite.config.ts / tsconfig.json / vitest.config.ts
+│   ├── src/
+│   │   ├── main.tsx
+│   │   ├── app/App.tsx / router.tsx / providers.tsx
+│   │   ├── shared/
+│   │   │   ├── api/client.ts / errors.ts / events.ts / generated.ts
+│   │   │   ├── styles/tokens.css / global.css
+│   │   │   └── ui/                     # RunControls, StatusLabel, Dialog etc.
+│   │   └── features/
+│   │       ├── engagements/ / setup/ / overview/
+│   │       ├── map/ / investigations/ / findings/ / reports/
+│   │       └── settings/providers/ / skills/ / runtime/ / data/
+│   └── tests/setup.ts                  # Vitest; teste lângă componente
+├── cli/
+│   ├── pyproject.toml / uv.lock         # console script `omnis`, mediu mic
+│   ├── src/omnis_cli/
+│   │   ├── __init__.py / __main__.py / main.py
+│   │   ├── paths.py / config.py / instance.py
+│   │   ├── compose.py / health.py / browser.py
+│   │   └── pairing.py / control.py / exit_codes.py
+│   └── tests/                          # lifecycle, concurență, erori, argv
+├── integrations/hermes/
+│   ├── pyproject.toml / uv.lock / upstream.json
+│   ├── src/omnis_hermes/plugin.py / binding.py / projections.py
+│   ├── contracts/                      # mesaje de pin + teste de compatibilitate
+│   └── patches/                        # numai dacă un gate cere patch auditat
+├── executors/
+│   ├── http/pyproject.toml / uv.lock / src/omnis_http/ / tests/
+│   ├── browser/pyproject.toml / uv.lock / src/omnis_browser/ / tests/
+│   └── proxy/pyproject.toml / uv.lock / src/omnis_proxy/ / tests/
+├── contracts/
+│   ├── omnis.openapi.json              # generat din API-ul Omnis
+│   └── internal.schema.json            # wire intern versionat, fără ORM
+├── skills/                             # surse metodologie PRODUCT, reviewed
+├── labs/dev/manifests/ / fixtures/ / sinks/
+├── ops/
+│   ├── compose.yaml / compose.dev.yaml / compose.test.yaml
+│   ├── images/                         # API, runtime, HTTP, browser, proxy
+│   ├── network/                        # policy nftables/namespace verificată
+│   └── release/manifest.schema.json    # versiuni, wheel-uri, OCI digests
+├── tests/
+│   ├── documentation/ / development/  # testele existente, nu aplicația
+│   └── e2e/ / safety/ / recovery/ / release/
+├── scripts/
+│   ├── render_docs.py / hermes_dev.py  # existente, numai dezvoltare
+│   └── export_contracts.py / build_release.py
+├── documents/                          # același baseline și probele lui
+├── tools/development/                  # Reticle/anti-slop etc., numai dev
+└── .hermes/skills/                      # skills DEZVOLTARE, niciodată runtime
 </code></pre>
-<p>Domeniul nu importă Hermes/Playwright/FastAPI. Adaptoare la margine; DTO-uri API distincte de ORM. Nu ținem SQLAlchemy sessions globale sau pe durata apelului LLM. I/O async; parsare/CPU și subprocessuri izolate, fără blocarea event loopului. Nu introducem abstraction framework/DI container general înaintea nevoii.</p>
+<p>Numele separate prin <code>/</code> într-un rând cu fișiere înseamnă frați în directorul indicat, nu un singur path. <code>dist/</code>, builduri, caches și medii virtuale sunt generate/ignorate, nu surse versionate. Arborele nu mută acum niciun fișier existent.</p>
+<h3 id="122-modulul-potrivit-pentru-fiecare-comportament">12.2. Modulul potrivit pentru fiecare comportament</h3>
+<p>Sub <code>api/src/omnis/modules/</code>:</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Modul</th>
+<th>Deține</th>
+<th>Fișiere speciale, numai când sunt necesare</th>
+<th>Prima felie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engagements/</code></td>
+<td>Draft, revizie, scope declarat, autorizare și context business</td>
+<td><code>scope.py</code>, <code>business_rules.py</code></td>
+<td>B02</td>
+</tr>
+<tr>
+<td><code>runs/</code></td>
+<td>Preflight, comenzi idempotente, run snapshot și tranziții</td>
+<td><code>preflight.py</code>, <code>commands.py</code>, <code>completion.py</code></td>
+<td>B04/B05/B07</td>
+</tr>
+<tr>
+<td><code>tasks/</code></td>
+<td>Task/attempt, bindings, inbox/continuări și priorități</td>
+<td><code>binding.py</code>, <code>continuations.py</code></td>
+<td>B06</td>
+</tr>
+<tr>
+<td><code>policy/</code></td>
+<td>Efecte, scope efectiv, admitere, approval și bugete</td>
+<td><code>effects.py</code>, <code>admission.py</code>, <code>budgets.py</code></td>
+<td>B07</td>
+</tr>
+<tr>
+<td><code>identities/</code></td>
+<td>Persona/auth context, refresh/lease, epoch, secret refs</td>
+<td><code>vault.py</code>, <code>refresh.py</code></td>
+<td>B09</td>
+</tr>
+<tr>
+<td><code>surfaces/</code></td>
+<td>Operații/parametri/observații/relații, normalizare conservatoare</td>
+<td><code>normalization.py</code>, <code>imports.py</code></td>
+<td>B08/B10</td>
+</tr>
+<tr>
+<td><code>coverage/</code></td>
+<td>Numitor, aplicabilitate, proceduri și dovada negativului</td>
+<td><code>denominator.py</code></td>
+<td>B10/B12</td>
+</tr>
+<tr>
+<td><code>evidence/</code></td>
+<td>STAGING/finalizare, manifest, integritate, retenție</td>
+<td><code>store.py</code>, <code>projection.py</code>, <code>retention.py</code></td>
+<td>B07</td>
+</tr>
+<tr>
+<td><code>validation/</code></td>
+<td>Reproducere independentă și gate deterministic, nu voturi</td>
+<td><code>oracles/object_access.py</code>, <code>reflected_xss.py</code>, <code>traversal_canary.py</code></td>
+<td>B12</td>
+</tr>
+<tr>
+<td><code>findings/</code></td>
+<td>Verdict admis, occurrences, severitate, retest</td>
+<td><code>deduplication.py</code>, <code>retest.py</code></td>
+<td>B13</td>
+</tr>
+<tr>
+<td><code>reports/</code></td>
+<td>Snapshot/export HTML/JSON inert, limite și istoric</td>
+<td><code>render.py</code>, <code>templates/report.html</code></td>
+<td>B13</td>
+</tr>
+<tr>
+<td><code>settings/</code></td>
+<td>Readiness provider, publicare catalog și data policy</td>
+<td><code>providers.py</code>, <code>skill_catalog.py</code></td>
+<td>B14/P4a</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Șablon de modul, nu generator obligatoriu:</strong> <code>domain.py</code> (stdlib, invariants), <code>service.py</code> (use cases), <code>ports.py</code> (Protocol pentru I/O), <code>models.py</code> (ORM), <code>repository.py</code> (SQL), <code>schemas.py</code> (DTO Pydantic), <code>routes.py</code> (HTTP). Nu creăm cele șapte fișiere dacă felia nu are cele șapte responsabilități. Testele au același nume de modul: <code>api/tests/unit/engagements/test_domain.py</code>, <code>api/tests/integration/engagements/test_repository.py</code>, <code>api/tests/contracts/test_engagements_api.py</code>.</p>
+<p><strong>Exemplu web concret:</strong> <code>web/src/features/findings/FindingsPage.tsx</code>, <code>FindingDetail.tsx</code>, <code>EvidenceBundle.tsx</code>, <code>ValidatorDecision.tsx</code>, <code>api.ts</code>, <code>queryKeys.ts</code>, <code>FindingsPage.module.css</code> și teste <code>*.test.tsx</code> lângă componente. <code>overview/BrainStream.tsx</code> consumă proiecții de evenimente, nu loguri interne Hermes. <code>shared/ui/RunControls/</code> deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Nu copiem HTML-ul DEMO ca aplicație și nu menținem un al doilea set de fixture-uri în datele produsului.</p>
+<p><strong>Executori:</strong> în fiecare pachet, <code>__main__.py</code> pornește workerul inert, <code>runner.py</code> execută numai acțiuni tipizate admise, <code>capture.py</code> păstrează output bounded. Browserul adaugă <code>contexts.py</code> și <code>action_window.py</code>; proxyul are <code>addon.py</code>, <code>policy_client.py</code>, <code>limits.py</code>, <code>readiness.py</code>. Adaptorul nativ Hermes expune numai binding/proiecții/unelte allowlisted. Proxyul rămâne neadmis până la B01e, indiferent că are deja un loc în arbore.</p>
+<h3 id="123-reguli-de-import-date-api-si-ui">12.3. Reguli de import, date, API și UI</h3>
+<ul>
+<li><strong>Direcția dependențelor:</strong> routes/schemas → services/ports → domain. Repositories/ORM, filesystem și Hermes/executor clients implementează ports și sunt conectate în <code>bootstrap.py</code>. Domain nu importă FastAPI, SQLAlchemy, Hermes sau Playwright; o probă de import în CI respinge încălcările.</li>
+<li><strong>Monolit modular, nu microservicii de domeniu:</strong> un modul folosește serviciul/portul public al altuia, nu îi modifică direct modelele. Nu introducem event bus distribuit, DI container general, <code>BaseService</code>/<code>BaseRepository</code> generic sau <code>utils.py</code> fără responsabilitate. Evenimentul durabil și idempotency rămân contracte de date, nu notificări volatile.</li>
+<li><strong>O tranzacție pentru invariantul comun:</strong> <code>uow.py</code> deține commit/rollback; repository-urile nu fac commit pe ascuns. Admiterea autoritate/buget/approval rămâne atomică între module. SQLAlchemy session per unitate de lucru, nu globală și nu ținută deschisă cât răspunde LLM-ul. I/O async; parsing CPU și subprocessuri bounded în afara event loopului.</li>
+<li><strong>Boundary strict:</strong> input validat cu DTO-uri, erori tipizate și correlation ID; UUID-uri opace, UTC, entity revisions, ownership engagement-scoped, paginare bounded. Nu returnăm ORM, traceback, env sau secrete. Domain errors sunt mapate explicit la contractul HTTP, inclusiv 409 și stări necunoscute.</li>
+<li><strong>Contracte generate:</strong> API-ul este sursa pentru <code>contracts/omnis.openapi.json</code> și apoi <code>web/src/shared/api/generated.ts</code>; schema internă pornește din DTO-urile interne ale aceluiași cod. CI detectează drift; nu edităm generated types de mână și nu generăm cod din OpenAPI-ul țintei. Wire schema are versiune și compatibilitate verificată între mediile separate.</li>
+<li><strong>Frontend:</strong> TypeScript strict, Router pentru navigare/filtre/selecție, Query pentru server state, state local numai pentru draft/interacțiune. CSS Modules + tokenuri generate din DESIGN; Radix pentru interacțiuni complexe și HTML nativ unde ajunge. Fără <code>any</code>/ignore global/catch gol pentru a face testele verzi; stările loading/empty/error/stale/unknown rămân distincte.</li>
+<li><strong>Date și loguri:</strong> ID-uri/cauzalitate în logs structurate, allowlist/redaction înainte de log/model/export; nici evidence raw, tokens, cookies sau codes de pairing în browser storage/URL/log. Bloburile nu se servesc prin director static; numai endpoint cu ownership, integritate și policy. Settings runtime nu este filesystem browser.</li>
+<li><strong>Config și dependențe:</strong> manifeste/lockuri separate pentru web, API, CLI, Hermes și fiecare executor; nu un venv comun. <code>api/src/omnis/core/config.py</code> și <code>cli/src/omnis_cli/config.py</code> au subseturi proprii tipizate, nu copiază credentiale. Versiunile sunt cele din stack baseline; formatare/typecheck/dependency audit se fixează explicit în B01a, nu alegem aici versiuni inventate pentru unelte lipsă.</li>
+</ul>
+<h3 id="124-comenzi-si-traseul-unei-felii">12.4. Comenzi și traseul unei felii</h3>
+<p>Astăzi există numai <code>make check</code>/<code>make test</code> pentru documente/unelte. <strong>Contracte de comenzi viitoare, nu comenzi deja funcționale:</strong> <code>make dev</code>, <code>make build</code>, <code>make test-api</code>, <code>make test-web</code>, <code>make test-contracts</code>, <code>make test-e2e</code>, <code>make test-safety</code>, <code>make test-release</code>. Se adaugă când componenta și proba există; un gate indisponibil raportează NOT-RUN/BLOCKED, nu exit 0. CI apelează aceleași comenzi locale. Pachetul instalat folosește <code>omnis</code>, nu Vite sau comenzi Make.</p>
+<p>Exemplu B02: test domain RED → modul <code>engagements</code> + migrare → repository pe PostgreSQL real → route/DTO/OpenAPI → tipuri generate + formular/query web → E2E create/reload/conflict → commit coerent. B07 adaugă policy/evidence cu aceleași frontiere, nu un director generic de „agenți” care ajunge să dețină DB și rețeaua. Corpul held-out/scorer rămâne într-un workspace evaluator separat, niciodată montat runtime-ului.</p>
 <p>Migrațiile se execută o singură dată prin comandă dedicată înaintea startupului; schema incompatibilă blochează readiness. Backup înaintea migrațiilor distructive; rollback documentat sau restore, nu promisiune că orice migrație este reversibilă. CI fără secrete/scanări/LLM: format/typecheck/unit/contracts/build, DB reală de test, safety fixtures izolate. Live provider opt-in și buget explicit.</p>
 <p>TDD pe felii verticale: test RED relevant → implementare minimă → GREEN → refactor. Commit mic per comportament/decizie, numai fișiere intenționate, mesaje cu motiv și verificări. Upgrade Hermes/dependințe prin branch dedicat, lock/digests, contract+safety suite, fără upgrade sub run activ. Nu încărcăm automat pluginuri/pachete din rețea la startup.</p>
 <h3 id="porti-de-decizie-care-raman-reale-nu-ascunse">Porți de decizie care rămân reale, nu ascunse</h3>
@@ -477,5 +659,5 @@ documents/                 baseline, ADR/amendamente, verificări
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>e4682fc9b85871a2f02bf31f821fa32f759d89925361230fc011f42f3dd2090b</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>625999e740eb5ccd44409e645e224c7f422248d8a74be1c93ff31444b3abdd17</code>.</p></footer>
 </main></div></body></html>

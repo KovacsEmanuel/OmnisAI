@@ -43,6 +43,8 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 ## 4. Etape și dependențe revizuite
 
+**G-DESIGN — PENDING, înainte de P0:** utilizatorul cere întâi feedback pe cockpit/findings și stabilirea structurii sistemului/pornirii prin `omnis`, apoi acord explicit pentru implementare. Referința a fost adaptată în prototipul offline, nu aprobată vizual. Arborele țintă `api/`, `web/`, `cli/` și regulile de fișiere/import sunt în arhitectură §12. Această poartă nu înlocuiește G00–G08 și nu pornește automat implementarea când testele documentelor sunt verzi.
+
 ```text
 P0 — fundație, versiuni și contracte ale primei felii
  ├─ P1 — web + engagement persistent
@@ -72,8 +74,8 @@ Nucleul de lease/stări/revocare/recuperare intră în P2/P3, nu așteaptă P7. 
 
 **Tickets:**
 
-- B01a: manifeste/lockfiles în mediile separate, `.gitignore`, `.env.example` numai cu nume/substituenți, comenzi `dev/check/test/build`, CI fără conturi.
-- B01b: layout modular și DTO-uri pentru engagement/revision/run, command/event/error; OpenAPI → TS generat/verificat. Enumuri comune și stări indisponibile sincere.
+- B01a: directoarele root `api/`, `web/`, `cli/` conform arhitecturii §12, numai fișierele primei felii; manifeste/lockfiles separate, `.gitignore`, `.env.example` numai cu nume/substituenți, comenzi reale `dev/check/test/build`, CI fără conturi. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.
+- B01b: modul vertical `engagements` și DTO-uri pentru engagement/revision/run, command/event/error; `contracts/omnis.openapi.json` → `web/src/shared/api/generated.ts`, drift verificat. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Enumuri comune și stări indisponibile sincere.
 - B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.
 - B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.
 
@@ -240,7 +242,7 @@ Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay
 
 ## 16. UI/UX ca acceptare, nu doar stil
 
-Primul feedback vizual: B04; primul feedback integrat: B08; primul finding: B13. Prototipul arată layout/fluxuri și este etichetat DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.
+**Feedback vizual înainte de implementare:** cockpit și finding detail adaptate din referință; aprobarea utilizatorului face parte din G-DESIGN. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.
 
 - Navigare globală Engagements/Settings; navigare contextuală Overview/Map/Investigations/Findings/Reports. Identitatea/epoch/snapshot selectat sunt vizibile la dovezi și matrice.
 - Stop persistent, `STOPPING` verificat, Start cu preflight/rezumat; approve necesită detaliile acțiunii exacte, nu un buton vag „permite agentului”.
@@ -272,6 +274,6 @@ Trasabilitatea rezolvă recomandarea **în specificație**, nu pretinde testul t
 
 MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.
 
-**Putem începe fără conturi:** B01–B04 și probele inerte B05–B06. **Înainte de live LLM:** operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. **Înainte de target effects:** G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate. Nu cerem acum alte decizii de produs ca să amânăm fundația.
+**După acordul G-DESIGN putem începe fără conturi:** B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. **Înainte de live LLM:** operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. **Înainte de target effects:** G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.
 
 Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.

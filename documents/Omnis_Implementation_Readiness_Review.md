@@ -4,7 +4,7 @@
 
 ## 1. Verdict de arhitectură
 
-**GO pentru P0/P1 și probele inerte Hermes; NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.** Planul v2 și arhitectura v1 sunt baza curentă pentru implementare, cu owner și criteriu pentru fiecare risc. „Final” nu înseamnă că integrarea nativă sau eficacitatea pentestului sunt deja demonstrate.
+**Readiness tehnic pentru P0/P1 și probele inerte Hermes, dar G-DESIGN este PENDING:** utilizatorul cere aprobarea UI/UX și stabilirea structurii sistemului/comenzii `omnis` înaintea acordului de implementare. **NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.** Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.
 
 Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.
 
@@ -72,6 +72,7 @@ DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verifica
 
 | Gate | Owner | Închidere necesară |
 |---|---|---|
+| G-DESIGN | Operator | Feedback/aprobare cockpit/findings, structură sistem și contract `omnis`, apoi acord explicit de implementare |
 | G-DEPENDENCIES / B01e | Integrare/executori | Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare |
 | G-RUNTIME / H01–H08 | Integrare Hermes | Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord |
 | G-DATA-EARLY | API/securitate | Proiecție model-facing și markeri înainte de date de țintă către provider |
@@ -84,6 +85,6 @@ Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste p
 
 ## 8. Concluzie și controlul schimbării
 
-Putem începe primul lot fără să redeschidem stackul la nivel de preferințe: fundație/web/persistență și probe inerte în paralel. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Dependența proxy respinsă și bindingul nativ sunt porți vizibile, nu implementări ghicite.
+După acordul G-DESIGN, primul lot rămâne fundație/web/persistență și probe inerte în paralel, fără redeschiderea stackului după preferințe. Arborele `api/` + `web/` + `cli/`, responsabilitățile fișierelor și standardele sunt acum descrise în arhitectură §12, nu create ca schelet gol. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Proxyul respins și bindingul nativ rămân porți reale.
 
 Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.

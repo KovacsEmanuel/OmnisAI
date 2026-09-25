@@ -70,6 +70,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </ul>
 <p>TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la final”. Un commit mic pe schimbare coerentă, inclusiv doc/config. Nu se stage-uiesc secrete, runtime homes, credentiale, dovezi reale sau fișierele fără legătură.</p>
 <h2 id="4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</h2>
+<p><strong>G-DESIGN — PENDING, înainte de P0:</strong> utilizatorul cere întâi feedback pe cockpit/findings și stabilirea structurii sistemului/pornirii prin <code>omnis</code>, apoi acord explicit pentru implementare. Referința a fost adaptată în prototipul offline, nu aprobată vizual. Arborele țintă <code>api/</code>, <code>web/</code>, <code>cli/</code> și regulile de fișiere/import sunt în arhitectură §12. Această poartă nu înlocuiește G00–G08 și nu pornește automat implementarea când testele documentelor sunt verzi.</p>
 <pre><code class="language-text">P0 — fundație, versiuni și contracte ale primei felii
  ├─ P1 — web + engagement persistent
  └─ P2 — host Hermes + binding/skill/izolare/wake
@@ -94,8 +95,8 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p><strong>Rezultat:</strong> repo reproductibil, entrypoints separate API/supervisor, contracte minimale, scenarii de test și threat model din arhitectură. Creăm structura documentată, nu toate serviciile viitoare.</p>
 <p><strong>Tickets:</strong></p>
 <ul>
-<li>B01a: manifeste/lockfiles în mediile separate, <code>.gitignore</code>, <code>.env.example</code> numai cu nume/substituenți, comenzi <code>dev/check/test/build</code>, CI fără conturi.</li>
-<li>B01b: layout modular și DTO-uri pentru engagement/revision/run, command/event/error; OpenAPI → TS generat/verificat. Enumuri comune și stări indisponibile sincere.</li>
+<li>B01a: directoarele root <code>api/</code>, <code>web/</code>, <code>cli/</code> conform arhitecturii §12, numai fișierele primei felii; manifeste/lockfiles separate, <code>.gitignore</code>, <code>.env.example</code> numai cu nume/substituenți, comenzi reale <code>dev/check/test/build</code>, CI fără conturi. Mediile Hermes/proxy/executori nu se amestecă cu API/CLI.</li>
+<li>B01b: modul vertical <code>engagements</code> și DTO-uri pentru engagement/revision/run, command/event/error; <code>contracts/omnis.openapi.json</code> → <code>web/src/shared/api/generated.ts</code>, drift verificat. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Enumuri comune și stări indisponibile sincere.</li>
 <li>B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.</li>
 <li>B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.</li>
 </ul>
@@ -262,7 +263,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p>Marker sensibil sintetic și secret de test urmărite prin request/response, eroare provider, compresie, logs, screenshots, export, backup și restart. Engagementul B nu citește datele lui A. Retenția și ștergerea au manifest, inclusiv derivatele și limitele backupurilor. Restore într-un root separat verifică DB + artefacte; niciun secret din backup nu ajunge în Git sau outputul CI.</p>
 <p>Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay curent: UI/exporturile noi arată MISSING/DELETED/CORRUPT separat de verdictul istoric; raportul vechi rămâne imuabil și indică data/snapshotul disponibilității. Test: ștergere/retention → evidence unavailable → replay refuzat, fără rescrierea trecutului.</p>
 <h2 id="16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</h2>
-<p>Primul feedback vizual: B04; primul feedback integrat: B08; primul finding: B13. Prototipul arată layout/fluxuri și este etichetat DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.</p>
+<p><strong>Feedback vizual înainte de implementare:</strong> cockpit și finding detail adaptate din referință; aprobarea utilizatorului face parte din G-DESIGN. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.</p>
 <ul>
 <li>Navigare globală Engagements/Settings; navigare contextuală Overview/Map/Investigations/Findings/Reports. Identitatea/epoch/snapshot selectat sunt vizibile la dovezi și matrice.</li>
 <li>Stop persistent, <code>STOPPING</code> verificat, Start cu preflight/rezumat; approve necesită detaliile acțiunii exacte, nu un buton vag „permite agentului”.</li>
@@ -359,7 +360,7 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p>Trasabilitatea rezolvă recomandarea <strong>în specificație</strong>, nu pretinde testul trecut. Pentru fiecare gate implementat se păstrează comanda, versiunile, output sanitizat și verdictul real.</p>
 <h2 id="18-definition-of-done-si-pornire">18. Definition of Done și pornire</h2>
 <p>MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.</p>
-<p><strong>Putem începe fără conturi:</strong> B01–B04 și probele inerte B05–B06. <strong>Înainte de live LLM:</strong> operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. <strong>Înainte de target effects:</strong> G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate. Nu cerem acum alte decizii de produs ca să amânăm fundația.</p>
+<p><strong>După acordul G-DESIGN putem începe fără conturi:</strong> B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. <strong>Înainte de live LLM:</strong> operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. <strong>Înainte de target effects:</strong> G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.</p>
 <p>Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>8dd759b89b1b47f6bcbd0bbd003b93fcc14f1acfe38fd771998d7225ad6321b6</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>f70da09ceb0e5c986248dcb2c9d3f0695502d8d974f44d8461a2ec8ad7ed0da5</code>.</p></footer>
 </main></div></body></html>

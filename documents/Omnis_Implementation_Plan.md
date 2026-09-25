@@ -2,7 +2,7 @@
 
 **Baseline de implementare · 25 septembrie 2026 · Local-first · Toate etapele aplicației sunt NEÎNCEPUTE**
 
-Acest plan integrează toate cele 12 constatări din [review-ul inițial](Omnis_Implementation_Plan_Review.md). Închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
+Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
 ## 1. Documentele care guvernează implementarea
 
@@ -15,7 +15,7 @@ Acest plan integrează toate cele 12 constatări din [review-ul inițial](Omnis_
 | Planul de față | Dependențe, tickets, porți și Definition of Done |
 | [Re-review și registru de readiness](Omnis_Implementation_Readiness_Review.md) | Verificări ale pachetului, corecții și blocajele reale pentru execuție |
 
-Propunerile anterioare rămân istoric. Nu reactivăm implicit arhitectura v7 sau presupuneri de SaaS. **Arhitectura decide comportamentul; acest plan decide momentul livrării.** Stackul ales nu mai este o întrebare deschisă generică; compatibilitatea live Hermes și conturile rămân porți de test.
+Directorul curent conține numai baseline-ul și suportul necesar lui; propunerile anterioare rămân în istoricul Git. Nu reactivăm implicit arhitectura v7 sau presupuneri de SaaS. **Arhitectura decide comportamentul; acest plan decide momentul livrării.** Stackul ales nu mai este o întrebare deschisă generică; compatibilitatea live Hermes și conturile rămân porți de test.
 
 ## 2. Obiectiv și non-obiective
 

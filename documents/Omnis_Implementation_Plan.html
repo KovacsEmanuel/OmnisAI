@@ -15,7 +15,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
 <h1 id="omnis-plan-de-implementare-v2">Omnis — plan de implementare v2</h1>
 <p><strong>Baseline de implementare · 25 septembrie 2026 · Local-first · Toate etapele aplicației sunt NEÎNCEPUTE</strong></p>
-<p>Acest plan integrează toate cele 12 constatări din <a href="Omnis_Implementation_Plan_Review.md">review-ul inițial</a>. Închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.</p>
+<p>Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la <code>b12e179</code>, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.</p>
 <h2 id="1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -51,7 +51,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 </tbody>
 </table></div>
-<p>Propunerile anterioare rămân istoric. Nu reactivăm implicit arhitectura v7 sau presupuneri de SaaS. <strong>Arhitectura decide comportamentul; acest plan decide momentul livrării.</strong> Stackul ales nu mai este o întrebare deschisă generică; compatibilitatea live Hermes și conturile rămân porți de test.</p>
+<p>Directorul curent conține numai baseline-ul și suportul necesar lui; propunerile anterioare rămân în istoricul Git. Nu reactivăm implicit arhitectura v7 sau presupuneri de SaaS. <strong>Arhitectura decide comportamentul; acest plan decide momentul livrării.</strong> Stackul ales nu mai este o întrebare deschisă generică; compatibilitatea live Hermes și conturile rămân porți de test.</p>
 <h2 id="2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</h2>
 <p>Un operator creează din web un engagement autorizat, configurează scope/excluderi/context/identități/bugete, pornește recon HTTP/browser/JS, inspectează harta și matricea, primește investigații native Hermes cu skills și validare independentă, gestionează delte/approvals/Stop și exportă un raport fidel, inclusiv retest după remediere.</p>
 <p>MVP-ul include ambii provideri OpenRouter și <code>openai-codex</code>, Settings complet și guvernanță Skills. <strong>Acestea nu mai blochează prima vulnerabilitate demonstrată</strong>, dar rămân condiții ale livrării finale.</p>
@@ -361,5 +361,5 @@ P8 — evaluare și livrare (cere și P4b complet)
 <p>MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.</p>
 <p><strong>Putem începe fără conturi:</strong> B01–B04 și probele inerte B05–B06. <strong>Înainte de live LLM:</strong> operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. <strong>Înainte de target effects:</strong> G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate. Nu cerem acum alte decizii de produs ca să amânăm fundația.</p>
 <p>Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor, cu riscurile rămase și capacitatea echipei. Primul lot rămâne B01–B04 în paralel cu B05–B06/P4a, apoi B07–B09; B10–B13 este prima demonstrație a valorii de securitate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>6b08f1119d2458aeb024df52905a426dea3f63f93a003ea9316c31e05f06c2e9</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>8dd759b89b1b47f6bcbd0bbd003b93fcc14f1acfe38fd771998d7225ad6321b6</code>.</p></footer>
 </main></div></body></html>

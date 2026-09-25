@@ -17,7 +17,7 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 **GO:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 
-Planul include trasabilitatea tuturor celor 12 recomandări inițiale. Acest pachet este baza curentă; propunerile de mai jos sunt istoric și nu reintră implicit în scope.
+Planul include trasabilitatea tuturor celor 12 recomandări inițiale. `documents/` păstrează numai baseline-ul curent și suportul lui; nu conține propuneri alternative sau review-uri înlocuite. Contractele Hermes necesare implementării sunt în §5 din arhitectura curentă.
 
 ## Dovezi și întreținerea documentelor
 
@@ -30,11 +30,10 @@ Markdown este sursa editabilă a documentelor; `python scripts/render_docs.py` r
 
 HTML-urile și prototipul se deschid local, fără server sau resurse de afișare externe. Prototipul nu are backend, nu acceptă credentiale și nu execută trafic de țintă. Probele din `documents/verification/stack-probe-inputs/` sunt teste de compatibilitate, nu aplicația Omnis.
 
-## Istoric păstrat
+## O singură bază de lucru
 
-- [Review critic inițial, înaintea planului v2](documents/Omnis_Implementation_Plan_Review.md) · [surse](documents/Omnis_Implementation_Plan_Review.sources.json)
-- [Propunerea local MVP și auditul contractelor Hermes — HTML](documents/Omnis_Hermes_Local_MVP_Integration_Proposal.html) · [Markdown](documents/Omnis_Hermes_Local_MVP_Integration_Proposal.md)
-- [Fezabilitate inițială — HTML](documents/Omnis_Hermes_Feasibility_Review.html)
-- [Propunerea inițială — Markdown](documents/Omnis_Hermes_MVP_Architecture_Proposal.md)
+Fișierele `.md` sunt sursele, iar perechile `.html` sunt cititoare generate, nu versiuni concurente. Registrele `.json`, tokenurile și `verification/` sunt suport tehnic pentru aceleași decizii și dovezi; nu reprezintă alte planuri.
+
+Documentele istorice versionate rămân recuperabile din Git la commitul `b12e179`; nu păstrăm copii `archive/` în `documents/`, ca să nu fie confundate cu instrucțiuni curente.
 
 Niciun document nu constituie autorizație de scanare, dovadă de eficacitate universală sau aprobare pentru folosirea credentialelor personale.

@@ -43,11 +43,12 @@
     },
     {
       "name": "omnis-frontend",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-frontend/SKILL.md",
-      "sha256": "6a9b5bdeb061d1fbc207136873b8ccad4bc744dcb25afa8544501b0cc1b14b22",
+      "sha256": "66206e8e105294dd7e80804309a7162089731585d7cc754d3d74a72c6784cb6a",
       "native_read": true,
-      "scanner_verdict": "safe"
+      "scanner_verdict": "safe",
+      "verification_note": "Revision 0.1.1 reloaded through native skill_view and rescanned with installed skills_guard after layout commits 22b0346/b5808e3; zero findings. Other entries retain their stated verification snapshots."
     },
     {
       "name": "omnis-frontend-performance",

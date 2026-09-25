@@ -95,8 +95,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>A12</td>
-<td>UI Operate: tree/tabel/inspector, nu graph canvas în prima versiune</td>
-<td>Păstrăm relațiile și proveniența în model; vizualizarea 3D nu aduce valoare primei demonstrații</td>
+<td>UI Operate/Monitor: cockpit acceptat, stream și finding disclosure; Coverage/Endpoints cu tree/tabel/inspector</td>
+<td>Păstrăm relațiile/proveniența; fără graph/council/Chains și fără reinventarea layoutului acceptat</td>
 </tr>
 <tr>
 <td>A13</td>
@@ -702,8 +702,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 │   │   │   ├── styles/tokens.css / global.css
 │   │   │   └── ui/                     # RunControls, StatusLabel, Dialog etc.
 │   │   └── features/
-│   │       ├── engagements/ / setup/ / overview/
-│   │       ├── map/ / investigations/ / findings/ / reports/
+│   │       ├── dashboard/ / engagements/ / setup/ / overview/ / stream/
+│   │       ├── coverage/ / investigations/ / findings/ / reports/
 │   │       └── settings/providers/ / skills/ / runtime/ / data/
 │   └── tests/setup.ts                  # Vitest; teste lângă componente
 ├── cli/
@@ -838,7 +838,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tbody>
 </table></div>
 <p><strong>Șablon de modul, nu generator obligatoriu:</strong> <code>domain.py</code> (stdlib, invariants), <code>service.py</code> (use cases), <code>ports.py</code> (Protocol pentru I/O), <code>models.py</code> (ORM), <code>repository.py</code> (SQL), <code>schemas.py</code> (DTO Pydantic), <code>routes.py</code> (HTTP). Nu creăm cele șapte fișiere dacă felia nu are cele șapte responsabilități. Testele au același nume de modul: <code>api/tests/unit/engagements/test_domain.py</code>, <code>api/tests/integration/engagements/test_repository.py</code>, <code>api/tests/contracts/test_engagements_api.py</code>.</p>
-<p><strong>Exemplu web concret:</strong> <code>web/src/features/findings/FindingsPage.tsx</code>, <code>FindingDetail.tsx</code>, <code>EvidenceBundle.tsx</code>, <code>ValidatorDecision.tsx</code>, <code>api.ts</code>, <code>queryKeys.ts</code>, <code>FindingsPage.module.css</code> și teste <code>*.test.tsx</code> lângă componente. <code>overview/BrainStream.tsx</code> consumă proiecții de evenimente, nu loguri interne Hermes. <code>shared/ui/RunControls/</code> deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Nu copiem HTML-ul DEMO ca aplicație și nu menținem un al doilea set de fixture-uri în datele produsului.</p>
+<p><strong>Navigare de produs:</strong> Home/Dashboard · Engagement · Settings; în engagement <strong>Overview · Brain stream · Findings · Coverage · Reports</strong>. <code>dashboard/</code> deține selecția/rezumatul global, <code>overview/</code> stadiu/atenție/metrici, <code>stream/BrainStreamPage.tsx</code> pagina de evenimente, <code>coverage/CoveragePage.tsx</code> matricea și subvederea <code>EndpointInventory.tsx</code>/<code>OperationInspector.tsx</code>. <code>investigations/</code> și Setup rămân rute secundare; Settings este global. Route map-ul canonic este UI/UX §2; hashurile prototipului, inclusiv <code>#map</code>, nu sunt contracte URL ale aplicației.</p>
+<p><strong>Exemplu web concret:</strong> <code>web/src/features/findings/FindingsPage.tsx</code>, <code>FindingDetail.tsx</code>, <code>EvidenceBundle.tsx</code>, <code>ValidatorDecision.tsx</code>, <code>ReportReview.tsx</code>, <code>api.ts</code>, <code>queryKeys.ts</code>, <code>FindingsPage.module.css</code> și teste <code>*.test.tsx</code> lângă componente. Streamul consumă proiecții de evenimente, nu loguri interne Hermes. <code>shared/ui/RunControls/</code> deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Portăm compoziția/tokenurile și fonturile locale cu licența, nu HTML-ul, reducerul sau datele DEMO; fixture-urile de teste nu intră în bundle-ul/DB-ul produsului.</p>
 <p><strong>Executori:</strong> în fiecare pachet, <code>__main__.py</code> pornește workerul inert, <code>runner.py</code> execută numai acțiuni tipizate admise, <code>capture.py</code> păstrează output bounded. Browserul adaugă <code>contexts.py</code> și <code>action_window.py</code>; proxyul are <code>addon.py</code>, <code>policy_client.py</code>, <code>limits.py</code>, <code>readiness.py</code>. Adaptorul nativ Hermes expune numai binding/proiecții/unelte allowlisted. Proxyul rămâne neadmis până la B01e, indiferent că are deja un loc în arbore.</p>
 <h3 id="123-reguli-de-import-date-api-si-ui">12.3. Reguli de import, date, API și UI</h3>
 <ul>
@@ -875,5 +876,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>4da4fd893635e7b087ae78e8caf05e44c7a6b526ca92952431d4baf2ce4abf77</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>24b7562b267f1f87c70703b4587a273efd585ccc26b308535ae2eb5ff8990d6e</code>.</p></footer>
 </main></div></body></html>

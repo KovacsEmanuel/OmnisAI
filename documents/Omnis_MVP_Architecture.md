@@ -35,7 +35,7 @@ SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework
 | A09 | Confirmare și `tested_no_issue` prin verificatoare deterministe de completitudine/oracle | Un al doilea LLM nu votează adevărul; verdictul runtime nu este verdict de securitate |
 | A10 | Scope/politică/model/catalog imutabile pe run; Stop + nou run pentru modificări | Evităm migrarea live a permisiunilor; identitatea poate reautentifica numai într-un nou `auth_epoch` controlat |
 | A11 | SSE Omnis cu replay; comenzi HTTP versionate și idempotente | Nici SSE Hermes, nici chatul nu sunt event store |
-| A12 | UI Operate: tree/tabel/inspector, nu graph canvas în prima versiune | Păstrăm relațiile și proveniența în model; vizualizarea 3D nu aduce valoare primei demonstrații |
+| A12 | UI Operate/Monitor: cockpit acceptat, stream și finding disclosure; Coverage/Endpoints cu tree/tabel/inspector | Păstrăm relațiile/proveniența; fără graph/council/Chains și fără reinventarea layoutului acceptat |
 | A13 | Executabil host `omnis` → Compose detached + build web static same-origin | O comandă pentru operator, fără Vite/terminale multiple; pornirea aplicației nu pornește un assessment |
 | A14 | `runtime-host` fix, părinte al Hermes stdio; canal Unix privat către supervisor | Stdio nu traversează singur containerele; nu montăm Docker socket și nu facem proxy admin generic |
 
@@ -453,8 +453,8 @@ OmnisAI/
 │   │   │   ├── styles/tokens.css / global.css
 │   │   │   └── ui/                     # RunControls, StatusLabel, Dialog etc.
 │   │   └── features/
-│   │       ├── engagements/ / setup/ / overview/
-│   │       ├── map/ / investigations/ / findings/ / reports/
+│   │       ├── dashboard/ / engagements/ / setup/ / overview/ / stream/
+│   │       ├── coverage/ / investigations/ / findings/ / reports/
 │   │       └── settings/providers/ / skills/ / runtime/ / data/
 │   └── tests/setup.ts                  # Vitest; teste lângă componente
 ├── cli/
@@ -520,7 +520,9 @@ Sub `api/src/omnis/modules/`:
 
 **Șablon de modul, nu generator obligatoriu:** `domain.py` (stdlib, invariants), `service.py` (use cases), `ports.py` (Protocol pentru I/O), `models.py` (ORM), `repository.py` (SQL), `schemas.py` (DTO Pydantic), `routes.py` (HTTP). Nu creăm cele șapte fișiere dacă felia nu are cele șapte responsabilități. Testele au același nume de modul: `api/tests/unit/engagements/test_domain.py`, `api/tests/integration/engagements/test_repository.py`, `api/tests/contracts/test_engagements_api.py`.
 
-**Exemplu web concret:** `web/src/features/findings/FindingsPage.tsx`, `FindingDetail.tsx`, `EvidenceBundle.tsx`, `ValidatorDecision.tsx`, `api.ts`, `queryKeys.ts`, `FindingsPage.module.css` și teste `*.test.tsx` lângă componente. `overview/BrainStream.tsx` consumă proiecții de evenimente, nu loguri interne Hermes. `shared/ui/RunControls/` deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Nu copiem HTML-ul DEMO ca aplicație și nu menținem un al doilea set de fixture-uri în datele produsului.
+**Navigare de produs:** Home/Dashboard · Engagement · Settings; în engagement **Overview · Brain stream · Findings · Coverage · Reports**. `dashboard/` deține selecția/rezumatul global, `overview/` stadiu/atenție/metrici, `stream/BrainStreamPage.tsx` pagina de evenimente, `coverage/CoveragePage.tsx` matricea și subvederea `EndpointInventory.tsx`/`OperationInspector.tsx`. `investigations/` și Setup rămân rute secundare; Settings este global. Route map-ul canonic este UI/UX §2; hashurile prototipului, inclusiv `#map`, nu sunt contracte URL ale aplicației.
+
+**Exemplu web concret:** `web/src/features/findings/FindingsPage.tsx`, `FindingDetail.tsx`, `EvidenceBundle.tsx`, `ValidatorDecision.tsx`, `ReportReview.tsx`, `api.ts`, `queryKeys.ts`, `FindingsPage.module.css` și teste `*.test.tsx` lângă componente. Streamul consumă proiecții de evenimente, nu loguri interne Hermes. `shared/ui/RunControls/` deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Portăm compoziția/tokenurile și fonturile locale cu licența, nu HTML-ul, reducerul sau datele DEMO; fixture-urile de teste nu intră în bundle-ul/DB-ul produsului.
 
 **Executori:** în fiecare pachet, `__main__.py` pornește workerul inert, `runner.py` execută numai acțiuni tipizate admise, `capture.py` păstrează output bounded. Browserul adaugă `contexts.py` și `action_window.py`; proxyul are `addon.py`, `policy_client.py`, `limits.py`, `readiness.py`. Adaptorul nativ Hermes expune numai binding/proiecții/unelte allowlisted. Proxyul rămâne neadmis până la B01e, indiferent că are deja un loc în arbore.
 

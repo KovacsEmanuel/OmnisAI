@@ -92,7 +92,7 @@ Nu construim aici un motor generic de workflow sau toate tabelele proiectului. M
 
 **B02:** engagement draft persistent; create/list/read/edit, scope ATTACKABLE/VISIT_ONLY/BLOCKED, excluderi, autorizație, fereastră, reguli de efecte, bugete și context aplicație.
 
-**B03:** shell, navigare, tabele, formular în pași și stări loading/empty/error/unavailable/not implemented. Stilul și placementul se iau din UI/UX, nu se reinventează pe pagină.
+**B03:** portarea shellului și componentelor acceptate, navigare pe trei scope-uri, tabele, formular în pași și stări loading/empty/error/unavailable/not implemented. Home și cele cinci taburi de engagement urmează UI/UX/§16; metricile și acțiunile fără sursă reală sunt indisponibile, nu umplute cu fixture. Tokenurile și fonturile locale Geist/Geist Mono păstrează proveniența/licența; nu importăm modelul/scripturile DEMO în buildul produsului.
 
 **B04:** formularul conectat la API, erori per câmp, dirty-state, optimistic concurrency și refresh/restart. Matricea business poate fi introdusă ca date nesensibile; secretele se activează numai după backendul securizat P3b.
 
@@ -255,7 +255,7 @@ Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay
 
 **Baseline vizual acceptat în df17a29:** compoziția, pastilele, densitatea, stadiul și panourile cerute se păstrează în componentele conectate; G-DESIGN nu mai așteaptă încă o rundă de aprobare estetică. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.
 
-- Navigare globală Engagements/Settings; navigare contextuală Overview/Map/Investigations/Findings/Reports. Identitatea/epoch/snapshot selectat sunt vizibile la dovezi și matrice.
+- Navigare globală Home/Dashboard · Engagement · Settings; navigare contextuală **Overview · Brain stream · Findings · Coverage · Reports**. Candidates/Investigations și Setup sunt acțiuni secundare, iar Endpoints este subvedere Coverage. Identitatea/epoch/snapshot selectat rămân vizibile la dovezi și matrice; Settings nu intră în taburile engagementului.
 - Stop persistent, `STOPPING` verificat, Start cu preflight/rezumat; approve necesită detaliile acțiunii exacte, nu un buton vag „permite agentului”.
 - Formular setup cu scope, context/reguli business, identități opționale, efecte/bugete/data policy și review; salvare draft fără a consuma buget.
 - Tree + tabel + inspector; matrice coverage filtrabilă, evidență raw escapata și redactată implicit; findings confirmate separat de candidates/inconclusive.

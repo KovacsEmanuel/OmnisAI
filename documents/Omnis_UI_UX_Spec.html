@@ -152,14 +152,14 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <td>Tool called/result, decizie, endpoint, validare; fără graph/council/deliberări interne</td>
 </tr>
 <tr>
-<td><code>/engagements/:id/map?tab=surfaces</code></td>
-<td>Tree host/path, tabel metodă/path/auth/sursă/stare</td>
-<td>Operație selectată: params, observations, request/response, related</td>
-</tr>
-<tr>
-<td><code>/engagements/:id/map?tab=coverage</code></td>
+<td><code>/engagements/:id/coverage</code></td>
 <td>Matrice suprafață × identitate × familie, filtre</td>
 <td>Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile</td>
+</tr>
+<tr>
+<td><code>/engagements/:id/coverage?tab=endpoints</code></td>
+<td>Tree host/path, tabel metodă/path/auth/sursă/stare</td>
+<td>Operație selectată: params, observations, request/response, related</td>
 </tr>
 <tr>
 <td><code>/engagements/:id/investigations</code></td>
@@ -198,7 +198,7 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </tr>
 </tbody>
 </table></div>
-<p>URL păstrează filtre și ID de selecție, <strong>niciodată secrete, request bodies sau tokenuri</strong>. Datele reale vin prin API și Query cache; refresh reîncarcă snapshotul. Preference neconfidențiale de densitate pot fi locale; nu persistăm dovezi/credentiale în browser.</p>
+<p>Rutele Investigations/Candidates și Setup sunt secundare; nu adaugă taburi primare. URL păstrează engagement/run, filtre și ID de selecție, <strong>niciodată secrete, request bodies sau tokenuri</strong>. Hashurile DEMO (<code>#map</code> etc.) nu sunt rute de produs și nu impun compatibilitate API. Datele reale vin prin API și Query cache; refresh reîncarcă snapshotul. Preference neconfidențiale de densitate pot fi locale; nu persistăm dovezi/credentiale în browser.</p>
 <h2 id="3-setup-in-cinci-pasi">3. Setup în cinci pași</h2>
 <ol>
 <li><strong>Target &amp; permission:</strong> nume, obiectiv, owner/autorizație, fereastră; origins ATTACKABLE/VISIT_ONLY/BLOCKED, căi și excluderi. Preview al regulilor, fără requests pentru validarea de sintaxă.</li>
@@ -217,8 +217,8 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 <li>Pause: PAUSING până la drenarea efectelor, apoi PAUSED; explică diferența față de Stop. Resume face preflight și poate intra în NEEDS_RECONCILIATION.</li>
 <li>Lucrul deja expediat nu este prezentat ca anulat. Efectele UNKNOWN au detaliu și acțiune de review; nu există retry automat dintr-un buton generic „repară”.</li>
 </ul>
-<h3 id="map-investigatie-dovada">Map → investigație → dovadă</h3>
-<p>Surfaces/coverage sunt taburi ale Map. Treeul selectează contextul, tabelul selectează operația, inspectorul nu pierde identity/snapshot. Parametri grupați query/path/header/cookie/body; valorile redactate. Sursa JS/OpenAPI este INFERRED până există observație. Un header/banner nu apare la Findings.</p>
+<h3 id="coverage-endpoints-investigatie-dovada">Coverage / Endpoints → investigație → dovadă</h3>
+<p>Coverage este tabul principal; Endpoints este subvederea inventarului. Treeul selectează contextul, tabelul selectează operația, inspectorul nu pierde identity/snapshot. Parametri grupați query/path/header/cookie/body; valorile redactate. Sursa JS/OpenAPI este INFERRED până există observație. Un header/banner nu apare la Findings.</p>
 <p>Click pe coverage cell arată: denominator key, procedură/revizie, precondiții, acțiunile executate, controlul și evidence. <code>tested_no_issue</code> este descris „No issue demonstrated by this procedure”, nu „Safe”. Un filtru nu schimbă numitorul global fără etichetă.</p>
 <p>Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill digest și dependențe. Timeline separă investigator, validator și serviciul de verdict. Nu afișăm deliberări interne/chain-of-thought; afișăm decizii scurte și rezultate observabile.</p>
 <h3 id="findings-report-retest">Findings → report → retest</h3>
@@ -369,5 +369,5 @@ Container centrat · maximum 1180px · Stop accesibil în orice scope.
 </ul>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>68408c26fed0a24c7d2b3a6c648909eb8b315eb051346cbc9111ea2a62787896</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>68375cff68bcf9c4360b84603efb5b00dce7fed430c1226787142d770ea2e115</code>.</p></footer>
 </main></div></body></html>

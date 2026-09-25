@@ -30,6 +30,21 @@ class BaselineContracts(unittest.TestCase):
         ids = re.findall(r"^\| (R\d{2}) \|", text, re.M)
         self.assertEqual(sorted(ids), [f"R{i:02d}" for i in range(1, 13)])
 
+    def test_accepted_navigation_has_matching_plan_and_feature_owners(self):
+        tabs = 'Overview · Brain stream · Findings · Coverage · Reports'
+        for name in ['Omnis_UI_UX_Spec.md', 'Omnis_Implementation_Plan.md', 'Omnis_MVP_Architecture.md']:
+            text = (DOCS / name).read_text(encoding='utf-8')
+            self.assertTrue(tabs in text, name + ': accepted engagement tabs missing')
+            self.assertNotIn('Overview/Map/Investigations/Findings/Reports', text)
+        architecture = (DOCS / 'Omnis_MVP_Architecture.md').read_text(encoding='utf-8')
+        self.assertIn('stream/BrainStreamPage.tsx', architecture)
+        self.assertIn('coverage/CoveragePage.tsx', architecture)
+        self.assertNotIn('overview/BrainStream.tsx', architecture)
+        ui = (DOCS / 'Omnis_UI_UX_Spec.md').read_text(encoding='utf-8')
+        self.assertIn('/engagements/:id/coverage?tab=endpoints', ui)
+        self.assertNotIn('/engagements/:id/map?tab=', ui)
+
+
     def test_second_review_contracts_are_recorded(self):
         text = (DOCS / "Omnis_Implementation_Readiness_Review.md").read_text(encoding="utf-8")
         ids = re.findall(r"^\| (RR\d{2}) \|", text, re.M)

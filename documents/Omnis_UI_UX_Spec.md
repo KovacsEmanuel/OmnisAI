@@ -88,8 +88,8 @@ Topbar menține numele engagementului, run state și sync state. Stop rămâne a
 | `/engagements/:id/setup` | Revizie/draft, scope și context | Edit numai oprit; active → motiv + link Stop, fără editare mascată |
 | `/engagements/:id/overview` | Now-bar/stadiu, aprobări, metrici, Top findings, Severity, Budget și context | Review finding/operator sau acțiune exactă; streamul rămâne separat |
 | `/engagements/:id/stream` | Stadiu + evenimente compacte tipizate, timestamp/actor/sumar/link; filtre de tip și actor | Tool called/result, decizie, endpoint, validare; fără graph/council/deliberări interne |
-| `/engagements/:id/map?tab=surfaces` | Tree host/path, tabel metodă/path/auth/sursă/stare | Operație selectată: params, observations, request/response, related |
-| `/engagements/:id/map?tab=coverage` | Matrice suprafață × identitate × familie, filtre | Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile |
+| `/engagements/:id/coverage` | Matrice suprafață × identitate × familie, filtre | Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile |
+| `/engagements/:id/coverage?tab=endpoints` | Tree host/path, tabel metodă/path/auth/sursă/stare | Operație selectată: params, observations, request/response, related |
 | `/engagements/:id/investigations` | Tabel/queue taskuri cu ipoteză, rol, skill, attempt, blocaj/verdict | Timeline investigator→validator; reason, budget, results și stop task dacă suportat |
 | `/engagements/:id/findings` | Confirmate implicit, filtre clasă/severitate/status remediere | Dovadă, impact, limite, remediere, retest; candidates nu sunt amestecați |
 | `/engagements/:id/reports` | Snapshoturi/version history și limite | Generate snapshot, HTML/JSON download, print; nu rescrie raport vechi |
@@ -98,7 +98,7 @@ Topbar menține numele engagementului, run state și sync state. Stop rămâne a
 | `/settings/runtime` | Pin Hermes, tool inventory, executori, compatibilitate | Diagnostic sanitizat; fără shell, env reveal, auto-upgrade |
 | `/settings/data` | Storage/retention, export/delete/backups, data policy | Operații distructive confirmate cu impact; restore nu autorulează |
 
-URL păstrează filtre și ID de selecție, **niciodată secrete, request bodies sau tokenuri**. Datele reale vin prin API și Query cache; refresh reîncarcă snapshotul. Preference neconfidențiale de densitate pot fi locale; nu persistăm dovezi/credentiale în browser.
+Rutele Investigations/Candidates și Setup sunt secundare; nu adaugă taburi primare. URL păstrează engagement/run, filtre și ID de selecție, **niciodată secrete, request bodies sau tokenuri**. Hashurile DEMO (`#map` etc.) nu sunt rute de produs și nu impun compatibilitate API. Datele reale vin prin API și Query cache; refresh reîncarcă snapshotul. Preference neconfidențiale de densitate pot fi locale; nu persistăm dovezi/credentiale în browser.
 
 ## 3. Setup în cinci pași
 
@@ -120,9 +120,9 @@ Backendul este autoritatea finală. Un wizard bifat nu garantează că între ti
 - Pause: PAUSING până la drenarea efectelor, apoi PAUSED; explică diferența față de Stop. Resume face preflight și poate intra în NEEDS_RECONCILIATION.
 - Lucrul deja expediat nu este prezentat ca anulat. Efectele UNKNOWN au detaliu și acțiune de review; nu există retry automat dintr-un buton generic „repară”.
 
-### Map → investigație → dovadă
+### Coverage / Endpoints → investigație → dovadă
 
-Surfaces/coverage sunt taburi ale Map. Treeul selectează contextul, tabelul selectează operația, inspectorul nu pierde identity/snapshot. Parametri grupați query/path/header/cookie/body; valorile redactate. Sursa JS/OpenAPI este INFERRED până există observație. Un header/banner nu apare la Findings.
+Coverage este tabul principal; Endpoints este subvederea inventarului. Treeul selectează contextul, tabelul selectează operația, inspectorul nu pierde identity/snapshot. Parametri grupați query/path/header/cookie/body; valorile redactate. Sursa JS/OpenAPI este INFERRED până există observație. Un header/banner nu apare la Findings.
 
 Click pe coverage cell arată: denominator key, procedură/revizie, precondiții, acțiunile executate, controlul și evidence. `tested_no_issue` este descris „No issue demonstrated by this procedure”, nu „Safe”. Un filtru nu schimbă numitorul global fără etichetă.
 

@@ -1,0 +1,23 @@
+# P0.1 only: an explicitly named, isolated test project; never the operator's DB.
+name: ${OMNIS_TEST_PROJECT:?Set a unique omnis-p01-test project name}
+services:
+  db:
+    image: postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: omnis_test
+      POSTGRES_DB: omnis_test
+      POSTGRES_PASSWORD: ${OMNIS_TEST_DB_PASSWORD:?Set a disposable test password}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports:
+      - "127.0.0.1::5432"
+    volumes:
+      - pgdata:/var/lib/postgresql # PG18 PGDATA: /var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "omnis_test", "-d", "omnis_test"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    restart: "no"
+volumes:
+  pgdata:

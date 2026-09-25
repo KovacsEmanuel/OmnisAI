@@ -45,6 +45,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </code></pre>
 <p>Navigare în două niveluri: global sus (Engagements, Workspace, Settings), apoi contextul engagementului. Pe mobil, navigarea contextuală și Settings intră în drawer. Nu există agent, council sau graf ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată workerii în contextul taskurilor, nu o pagină de avataruri. În prototip, Skills/Runtime rămân scurtături tehnice; în produs sunt sub Settings.</p>
 <p>Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.</p>
+<p><strong>Intrare în produsul instalat:</strong> comanda <code>omnis</code> pornește serviciile în fundal și deschide dashboardul după readiness; pairingul este cerut dacă nu există sesiune UI validă. „Dashboard ready” nu înseamnă provider gata sau assessment pornit. Settings/Overview explică gates lipsă; nu apare un run RUNNING după simpla deschidere. Închiderea tabului nu oprește serviciile. Stop din UI oprește runul; <code>omnis stop</code> oprește și instanța, păstrând datele. Contractul complet și probele încă neîncepute sunt în arhitectură §4.1–4.5; acest bootstrap nu este simulat ca autentificare reală în prototip.</p>
 <h2 id="2-route-map-si-placement">2. Route map și placement</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -55,6 +56,11 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>/pair</code></td>
+<td>Pairing local la prima deschidere sau sesiune expirată</td>
+<td>Cod din terminal, unic/expirabil; fără secret în URL, fără acces la date înaintea autentificării</td>
+</tr>
 <tr>
 <td><code>/engagements</code></td>
 <td>Tabel: nume, țintă, status, ultima actualizare; search și filtru</td>
@@ -240,5 +246,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>U10</strong> DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.</p>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>aa8b35cd57c8f66e5c1223640a5249f57abf4a6cb349d93581df376f1efc9dfa</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>03846261f4d1de47e3deeff672dedcf70495302b3523a4e5481a19a826de7fd0</code>.</p></footer>
 </main></div></body></html>

@@ -82,6 +82,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tbody>
 </table></div>
 <p>Alte alegeri închise: pairing local distinct de tokenul admin Hermes, TCB explicit și copii care nu sunt sandboxes OS, cursor alocat sub lock în ordinea commiturilor, tranzacție comună pentru autoritate/buget/approval, un singur owner de refresh AI și slot activ de stare de caz arhivat numai cu procese oprite.</p>
+<p>Amendamentul launcherului a trecut printr-un review separat de lifecycle. Două neconcordanțe au fost corectate <strong>în contract, nu în cod de produs</strong>: shutdownul instanței închide durabil admiterea <code>InstanceControl</code> înainte de oprirea runului (Start/Resume/Settings concurente și crash launcher sunt în L08/G00); supervisorul controlează process groups prin adaptoare, numai launcherul host controlează containerele. Bootstrapul Settings trece explicit prin runtime-host în namespace-ul corect. Arborele de fișiere și probele L01–L10 sunt propuneri pentru acordul utilizatorului, nu dovezi de operare deja executată.</p>
 <p>Nu am acceptat automat sugestia de a trece la altă orchestrare/batch sincron pentru a evita wake-ul. Păstrăm contractul nativ dorit și gate-ul exact de continuare/reconciliere; o schimbare ulterioară necesită ADR, nu reducere tacită de scope.</p>
 <h2 id="5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</h2>
 <h3 id="frontend">Frontend</h3>
@@ -111,6 +112,11 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>G-DESIGN</td>
 <td>Operator</td>
 <td>Feedback/aprobare cockpit/findings, structură sistem și contract <code>omnis</code>, apoi acord explicit de implementare</td>
+</tr>
+<tr>
+<td>L01–L10 / G-OPS</td>
+<td>Integrare + operare</td>
+<td>Executabil <code>omnis</code> instalat, startup inert/readiness/pairing, runtime-host privat, stop/recovery și zero efecte la boot; toate probele NEÎNCEPUTE</td>
 </tr>
 <tr>
 <td>G-DEPENDENCIES / B01e</td>
@@ -153,5 +159,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h2 id="8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</h2>
 <p>După acordul G-DESIGN, primul lot rămâne fundație/web/persistență și probe inerte în paralel, fără redeschiderea stackului după preferințe. Arborele <code>api/</code> + <code>web/</code> + <code>cli/</code>, responsabilitățile fișierelor și standardele sunt acum descrise în arhitectură §12, nu create ca schelet gol. Primul finding vine devreme; browserul/auth nu sunt amânate după editorul Skills. Proxyul respins și bindingul nativ rămân porți reale.</p>
 <p>Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>6007bac8ad3c3cd92c18e1243b0870ae7b1a29260e6da2274c1cc2e89bb0cfad</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>0034e4a2a985918091008270e24bf5c624acfa5f422d6134c46a8816ef1cf7b7</code>.</p></footer>
 </main></div></body></html>

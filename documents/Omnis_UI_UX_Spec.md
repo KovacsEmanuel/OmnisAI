@@ -44,10 +44,13 @@ Navigare în două niveluri: global sus (Engagements, Workspace, Settings), apoi
 
 Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.
 
+**Intrare în produsul instalat:** comanda `omnis` pornește serviciile în fundal și deschide dashboardul după readiness; pairingul este cerut dacă nu există sesiune UI validă. „Dashboard ready” nu înseamnă provider gata sau assessment pornit. Settings/Overview explică gates lipsă; nu apare un run RUNNING după simpla deschidere. Închiderea tabului nu oprește serviciile. Stop din UI oprește runul; `omnis stop` oprește și instanța, păstrând datele. Contractul complet și probele încă neîncepute sunt în arhitectură §4.1–4.5; acest bootstrap nu este simulat ca autentificare reală în prototip.
+
 ## 2. Route map și placement
 
 | Rută planificată | Conținut primar | Inspector / acțiune |
 |---|---|---|
+| `/pair` | Pairing local la prima deschidere sau sesiune expirată | Cod din terminal, unic/expirabil; fără secret în URL, fără acces la date înaintea autentificării |
 | `/engagements` | Tabel: nume, țintă, status, ultima actualizare; search și filtru | New engagement sus-dreapta; empty cu un singur CTA |
 | `/engagements/new` | Wizard cu pași verticali și form central | Rezumat sticky desktop; Save draft permanent, Next/Back; nimic nu pornește |
 | `/engagements/:id/setup` | Revizie/draft, scope și context | Edit numai oprit; active → motiv + link Stop, fără editare mascată |

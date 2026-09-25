@@ -78,6 +78,9 @@ Nucleul de lease/stări/revocare/recuperare intră în P2/P3, nu așteaptă P7. 
 - B01b: modul vertical `engagements` și DTO-uri pentru engagement/revision/run, command/event/error; `contracts/omnis.openapi.json` → `web/src/shared/api/generated.ts`, drift verificat. Probe de import țin domainul independent de FastAPI/ORM/Hermes. Enumuri comune și stări indisponibile sincere.
 - B01c: migrări Alembic și PostgreSQL de test; fixture manifests de scope/efecte/business și adversarial test plan.
 - B01d: bootstrap local/Host/Origin/CSRF și schemă de rețele/procese; acces la runtime personal interzis.
+- B01f: launcherul instalabil `cli/` pentru `omnis`, startup core inert și idempotent, lock/identity, migrare dedicată, readiness și browser same-origin; status/headless/erori fără secrete. Contractul este arhitectură §4.1–4.5, nu wrapper peste TUI Hermes. L01–L05 se probează fără conturi/LLM/țintă; componenta absentă nu este simulată ca serviciu sănătos.
+
+B01f include `InstanceControl`: barieră durabilă de shutdown verificată atomic la Start/Resume/Settings/admitere și generație de instanță. Proba inertă L08 Start concurent cu stop + crash launcher după închiderea admiterii intră în G00; nu este amânată până la release. Supervisorul comandă adaptoarele/process groups, numai launcherul controlează containerele. Crash/restart nu redeschide automat admiterea.
 
 **G00:** checkout curat instalează din lock și face build/typecheck/unit tests; migrații pe DB goală și upgrade de la revizia precedentă; schema incompatibilă blochează readiness. Niciun job automat nu apelează LLM sau ținte. Scope parser păstrează URL brut și refuză intrări ambigue.
 
@@ -98,6 +101,8 @@ Nu construim aici un motor generic de workflow sau toate tabelele proiectului. M
 ## 7. P2 — contracte Hermes și riscuri eliminate devreme
 
 **B05:** supervisor privat, RPC stdio, server→client requests, management minim, mediu instalat separat și inventar efectiv. Timeout/EOF și process groups tratate; startup nu adoptă root/personal/checkout `.env` sau Codex logins externe.
+
+B05 include adaptorul fix `runtime-host`, părinte al Hermes în containerul runtime, și IPC Unix privat către supervisor. Este cod Omnis de lifecycle/transport, nu scheduler alternativ sau endpoint Hermes inventat. Watchdog/lease oprește inclusiv inferența la pierderea controlului; exclusivitatea management/execuție și metodele allowlisted se probează pe pin. L06/L08 completează H01–H08; fără Docker socket în componente. Fără acord G-DESIGN, nu creăm adaptorul.
 
 **B06:** un pachet real nativ, task pregătit, copil nativ, mapping verificat înaintea toolului și rezultat structurat. `LaunchManifest` și lineage după compresie sunt ale Omnis; `task_id` din prompt nu acordă drepturi. Plugin-first, apoi numai patch minimal auditat dacă API-ul nu permite corelarea exactă; fără asociere după goal/FIFO.
 
@@ -127,6 +132,8 @@ Se livrează împreună cu P2: provider validat, selecție explicită model, sta
 ## 9. P3a — prima felie HTTP completă
 
 **B07:** broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.
+
+Launcherul integrează provisionarea L07 numai după B01e: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.
 
 **B08:** rezultat/hartă/evidence inspector în UI, SSE cu cursor, reconnect și Stop verificat. O observație HTTP reală este suficientă; nu inventăm finding pentru această demonstrație.
 
@@ -211,7 +218,11 @@ Fault injection determinist rulează fără LLM unde se poate; probele live supl
 
 **B21:** ghid install/start/preflight/pause/stop/recovery/update, diagnostic fără secrete, migrații, backup/restore, retenție/ștergere, storage limits. Arhivele/exporturile nu se deschid activ în browserul operatorului.
 
+B21 închide `omnis` / `omnis start --no-open` / `omnis open` / `omnis status` / `omnis pair` / `omnis run stop` / `omnis stop` / `omnis doctor` pe pachetul instalat, din afara checkoutului. Build web static în imaginea API, manifest release cu wheel/OCI digests, fără install/pull/upgrade la startup. Închiderea browserului nu oprește serviciile; oprirea instanței păstrează datele; restartul cere reconcilierea runului. Probele L01–L10 din arhitectură sunt parte din G-OPS, nu acoperite de screenshotul prototipului.
+
 **B22:** demonstrație din checkout curat, fără editare manuală de DB și fără profil Hermes personal. Documentația numește incompatibilități de OS/browser/protocol și costuri necunoscute.
+
+Demonstrația finală folosește executabilul `omnis` instalat: o comandă pornește serviciile și deschide dashboardul ready, apoi pairing dacă sesiunea UI lipsește. Se verifică separat că launch/open/status nu fac inferență sau trafic target. Pe headless se afișează URL-ul fără secret și `browser_opened=false`. Nicio comandă propusă aici nu este raportată ca funcțională înaintea probei reale.
 
 ### Protocol de evaluare obligatoriu
 

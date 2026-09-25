@@ -36,6 +36,8 @@ SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework
 | A10 | Scope/politică/model/catalog imutabile pe run; Stop + nou run pentru modificări | Evităm migrarea live a permisiunilor; identitatea poate reautentifica numai într-un nou `auth_epoch` controlat |
 | A11 | SSE Omnis cu replay; comenzi HTTP versionate și idempotente | Nici SSE Hermes, nici chatul nu sunt event store |
 | A12 | UI Operate: tree/tabel/inspector, nu graph canvas în prima versiune | Păstrăm relațiile și proveniența în model; vizualizarea 3D nu aduce valoare primei demonstrații |
+| A13 | Executabil host `omnis` → Compose detached + build web static same-origin | O comandă pentru operator, fără Vite/terminale multiple; pornirea aplicației nu pornește un assessment |
+| A14 | `runtime-host` fix, părinte al Hermes stdio; canal Unix privat către supervisor | Stdio nu traversează singur containerele; nu montăm Docker socket și nu facem proxy admin generic |
 
 ## 3. Procese, rețele și granițe de încredere
 
@@ -43,7 +45,7 @@ SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework
 Browser operator → loopback Omnis web/API → PostgreSQL + artefacte + seif
                                    ↓ comenzi durabile
                          supervisor Omnis (unic)
-                           ├─ host RPC → Hermes Brain → delegate_task → copii
+                           ├─ IPC privat → runtime-host → RPC stdio Hermes → copii
                            ├─ Settings → management Hermes privat
                            └─ action broker → HTTP / Chromium executori
                                                ↓ exclusiv proxy autorizant
@@ -52,7 +54,7 @@ Browser operator → loopback Omnis web/API → PostgreSQL + artefacte + seif
 
 Separăm procesele pentru ciclul de viață și autoritate, nu pentru scalare distribuită. Un singur repo, un singur model de domeniu și o singură DB Omnis. State DB Hermes este istoric de runtime, nu DB alternativă de produs.
 
-**Baza de încredere:** codul supervisorului, brokerului, proxy-addonului, pluginului de identitate și runtime-ul Hermes fixat. Modelul, textele copiilor, skills nepublicate și conținutul țintei sunt neîncrezătoare. Copiii nativi au conversații separate în același runtime, nu sandboxes OS independente. Modelul nu primește execuție arbitrară în acest proces; compromiterea arbitrară a codului din baza de încredere și root/același UID malițios nu sunt izolate de un mapping de task.
+**Baza de încredere:** launcherul host, supervisorul, runtime-host, brokerul, proxy-addonul, pluginul de identitate și runtime-ul Hermes fixat. Modelul, textele copiilor, skills nepublicate și conținutul țintei sunt neîncrezătoare. Copiii nativi au conversații separate în același runtime, nu sandboxes OS independente. Modelul nu primește execuție arbitrară în acest proces; compromiterea arbitrară a codului din baza de încredere și root/același UID malițios nu sunt izolate de un mapping de task.
 
 ### Topologie aleasă
 
@@ -93,6 +95,96 @@ Un proces malițios cu același UID/root pe host rămâne în afara garanției. 
 Paths propuse pentru instalare, nu create acum: `$XDG_STATE_HOME/omnis` (implicit `~/.local/state/omnis`), runtime homes sub acest root, **nu sub `~/.hermes`**, configurație non-secretă sub `$XDG_CONFIG_HOME/omnis`, secrets cu permisiuni restrictive. Nu montăm `/home/kali`, checkoutul personal Hermes sau `.codex`. State/secrets/evidence/backups nu trăiesc în repo.
 
 Settings și management Hermes au un singur writer; mutațiile provider/model/catalogului executabil sunt interzise în timpul unui run, exceptând Stop și revocarea credentialului care declanșează mai întâi oprire. Editarea unui draft Omnis neexecutabil poate continua: nu scrie în catalogul runtime și nu schimbă snapshotul; publicarea/selectarea noii versiuni se aplică numai unui run nou. Nu expunem proxy generic pentru config, filesystem, env reveal, terminal sau admin. Readback obligatoriu după set/delete/logout; `429`, `configured` și `oauth approved` nu înseamnă `inference_ready`.
+
+### 4.1. Experiența instalată: `omnis`
+
+**Contract propus pentru MVP, încă NEIMPLEMENTAT.** După instalarea explicită a releaseului local, operatorul execută **`omnis`** din orice director: serviciile pornesc în fundal, iar browserul implicit deschide Omnis când dashboardul este ready. La prima utilizare, pagina cere pairingul local de mai sus; nu intră neautentificat în datele engagementului. Cu sesiune validă, ajunge direct la dashboard. Nu pornește TUI-ul sau dashboardul administrativ Hermes.
+
+`cli/` livrează un console script executabil `omnis` dintr-un wheel Python, cu mediu mic separat. Nu impunem un binar monolitic PyInstaller/Electron și nu pretindem că PostgreSQL/Chromium/Hermes sunt încorporate în acel fișier. Releaseul conține launcher, manifest/checksums, configurațiile Compose și imagini OCI fixate; buildul web este inclus în imaginea API, nu servit de Vite în utilizarea normală. Instalarea/pullul inițial și upgradeul sunt operații explicite, nu efecte ascunse ale startupului.
+
+| Comandă propusă | Contract pentru operator |
+|---|---|
+| `omnis` | Start idempotent + așteptare readiness + deschidere browser |
+| `omnis start --no-open` | Același startup, fără GUI; pentru headless/CI |
+| `omnis open` | Deschide numai o instanță verificată deja pornită; nu pornește un run |
+| `omnis status` / `omnis status --json` | Stare servicii, instance/release/schema, readiness separat; output sanitizat |
+| `omnis pair` | Emite un nou cod local one-use/expirabil numai într-un terminal interactiv; nimic secret în JSON/argv/URL |
+| `omnis run stop` | Oprește runul activ identificat explicit în comandă/output, fără confirmare; dashboardul rămâne pornit |
+| `omnis stop` | Cere Stop/revocare/drenare, apoi oprește instanța și serviciile proprii; păstrează volumele/datele |
+| `omnis doctor` | Diagnostic local sanitizat; nu face inferență, login, target probe sau reparare distructivă automată |
+
+La rezolvarea runului activ, clientul de control leagă comanda de ID/revizie; dacă între timp contextul s-a schimbat, raportează conflict, nu oprește un alt run printr-o selecție implicită stale. Closing browser/terminal nu oprește serviciile detached. Nu instalăm implicit serviciu de boot al OS-ului; după reboot pornirea rămâne explicită și fără autoresume de assessment.
+
+### 4.2. Startup determinist, independent de cwd
+
+Owner: `cli/src/omnis_cli/instance.py` și `compose.py` pentru instanță; supervisorul este singurul owner al runului. Launcherul folosește căi absolute din manifestul releaseului, argv ca listă și environment allowlisted; nu citește `.env`, Compose overrides sau scripturi din cwd. Nu schimbă profilul Hermes personal.
+
+1. Validează OS/distribuția, release/checksums, Docker/Compose disponibile, configurația non-secretă și permisiunile directoarelor. Regulile de host care cer privilegii se pregătesc prin instalare explicită; launcherul verifică precondițiile, fără sudo sau modificare globală de firewall pe ascuns. Nicio instalare, descărcare sau migrare de upgrade implicită. Release lipsă/incompatibil → eroare acționabilă.
+2. Ia lock exclusiv local per instanță și verifică identitatea Compose/manifestului. Dublu launch reutilizează aceeași instanță; un PID sau un port care răspunde nu dovedește ownership. Numele proiectului/etichetele nu se deduc din cwd.
+3. Port propus implicit **`127.0.0.1:8765`**, configurabil explicit numai cu serviciile oprite. Host/Origin allowlist urmează exact originul configurat. Port ocupat de alt proces → conflict, fără kill, auto-port sau deschidere a paginii străine. Pentru o instanță existentă verifică identitatea/readiness prin canalul local autentificat și originul HTTP asociat; dacă este sănătoasă, trece la deschiderea UI fără migrare/restart sau schimbarea writerilor. Pentru o instanță nouă continuă cu pasul 4; readiness HTTP se verifică după startup. Alt release/instance ID → refuz.
+4. Pornește DB și așteaptă health bounded. Rulează jobul de migrare **o singură dată**, cu lock DB și verificarea schemei; la instalare nouă creează schema din release. La date existente, versiune incompatibilă/upgrade necesar → oprește startupul și cere procedura explicită de update/backup, nu migrează distructiv pe ascuns.
+5. Pornește API-ul, supervisorul unic și adaptorul runtime inert. API servește numai assets trusted ale buildului și `/api` same-origin. Supervisorul dobândește ownership/lease DB, verifică inboxul și intenția durabilă de shutdown a instanței, marchează runurile întrerupte pentru reconciliere și nu reia prompturi/efecte. Admiterea rămâne închisă cât un shutdown este incomplet; operatorul finalizează `omnis stop`, apoi cere o nouă pornire. După oprire completă/instalare nouă, startupul explicit poate redeschide admiterea într-o generație nouă, numai după verificarea stării. Restart/reload API nu redeschide admiterea și nu creează al doilea supervisor.
+6. Provisionarea serviciilor de execuție rămâne ordonată: numai un build proxy admis de B01e, reguli de rețea aplicate și self-test negativ al addonului permit pornirea containerelor worker HTTP/browser. Niciun browser context, sesiune Brain sau request target nu se creează la boot. Proxyul refuză tot fără run/lease. Dacă aceste gates nu sunt disponibile, pornește **numai control plane-ul**, cu Start blocat și motiv vizibil; nu rulează proxyul respins pentru a obține un dashboard „verde”.
+7. `DASHBOARD_READY` cere DB/schemă/assets/API/control sănătoase. `ASSESSMENT_READY` este separat și cere runtime/provider/policy/confinare/buget la preflight. Lipsa contului sau proxyului certificat nu împiedică folosirea drafturilor/Settings. Health nu apelează modelul sau ținta. Frontendul afișează gate-ul lipsă, nu cost zero sau zero findings înaintea răspunsului.
+8. Launcherul generează codul de pairing local și înregistrează digestul/expirarea prin canalul local autentificat; valoarea se afișează numai pe TTY, nu în logs sau output JSON/redirecționat. Consumul atomic este al serviciului de sesiuni, nu al UI. În headless, pairingul este o acțiune ulterioară explicită. Deschide originul configurat (implicit `http://127.0.0.1:8765/`) numai după readiness; fără cod în query/fragment. Browser indisponibil → serviciile rămân ready, URL și instrucțiune de deschidere manuală, fără succes GUI inventat.
+
+Bugetele startup/shutdown sunt finite și configurate, nu bucle infinite. Cod de ieșire propus: `0` pentru operația de lifecycle verificată (dashboard ready nu înseamnă assessment ready), `2` config/precondiție/port incompatibil, `3` startup/readiness eșuat, `4` stop/efecte nereconciliate. JSON include explicit `dashboard_ready`, `assessment_ready`, `browser_opened` și motivul degradării, niciodată coduri/secrete.
+
+Eșec parțial: consemnează serviciile proprii pornite în această încercare și oprește numai acele resurse când nu există instanță preexistentă sănătoasă. Nu șterge volume sau date, nu oprește alte proiecte Docker și nu resetează DB. Un crash al launcherului lasă cel mult servicii fără lucru autorizat; următoarea pornire reconciliază identitatea/starea, nu lansează încă o copie.
+
+### 4.3. Runtime-host, canale private și oprire
+
+**A14 concretizează transportul peste izolarea deja cerută, nu înlocuiește Hermes nativ.** Supervisorul din `control` nu poate controla stdio-ul unui proces din alt container fără adaptor. `integrations/hermes/src/omnis_hermes/runtime_host.py` este părintele fix al procesului Hermes, în namespace-ul runtime; deține stdin/stdout, stderr separat, process group, semnale și reap. Supervisorul păstrează task binding, autoritate, scheduling și DB; adaptorul nu are DB de produs, queue durabilă proprie sau libertatea de a genera taskuri. Hermes JSON-RPC stdio rămâne protocolul nativ documentat; framingul și metodele exacte se verifică pe pin în H01, nu se presupun din documentația curentă.[2]
+
+- **IPC supervisor ↔ runtime-host:** socket Unix într-un volum privat montat numai acestor servicii; director/owner/mode verificate, identitate peer și capability locală per boot, corelată cu generația/fencing epoch. Nu se publică un port sau Docker socket. Capability nu intră în prompt, schema toolului sau log. Nu montăm IPC în HTTP/browser/proxy, web sau evaluator; runtime model-facing nu primește unelte de citire a filesystemului arbitrar.
+- `runtime_protocol.py` definește numai operațiile necesare launch/stop/status și schimbul allowlisted de mesaje RPC; fără shell, argv/cwd/path arbitrar, `cli.exec` sau forwarding nelimitat de metode. Dimensiune/frame, coadă, backpressure, timeout, request ID și reverse requests sunt bounded. EOF/submit cu răspuns pierdut → reconciliere, nu retry orb; approval fără operator nu este aprobare implicită.
+- Managementul Hermes rămâne loopback în container, accesat de adaptor numai prin operații Settings tipizate. Writerul management și writerul de execuție sunt mutual exclusive. Nu există un proxy admin generic disponibil API-ului/browserului/modelului.
+- Watchdog/lease pe adaptor și executori: pierderea supervisorului, a canalului sau a autorității DB blochează efectele și oprește bounded întregul process group Hermes, inclusiv lucrul detached. Refuzul toolurilor singur nu este dovadă că inferența s-a oprit. Mesajele/generațiile vechi sunt refuzate la reconnect. A→B→A și refresh ownership din §5 rămân obligatorii.
+- **IPC operator ↔ control plane:** socket local separat `control.sock`, disponibil launcherului host și componentei de control, nu runtime-ului. `api/src/omnis/transport/local_control.py` autentifică owner/peer și capability locală; permite doar status/pairing/stop și tranziția tipizată de admitere a instanței după startup/reconciliere. Acest canal nu ocolește autoritatea DB, nu devine HTTP admin fără sesiune și nu împrumută tokenul administrativ Hermes. UID mapping și permisiunile socketurilor sunt probe P0/P2, nu presupuneri bazate numai pe un volum.
+- **Un singur client de container lifecycle:** launcherul host are accesul operatorului la Compose. Nici API, supervisor, runtime, executori, proxy sau tool model-facing nu primesc Docker socket, privileged mode sau generic exec. Serviciile fixe sunt provisionate de launcher în ordinea §4.2; supervisorul activează doar procese/contexte tipizate din containere deja admise. Dacă lipsește serviciul, Start este blocat, nu provisionat printr-un escape hatch.
+
+`omnis run stop` și butonul Stop folosesc aceeași comandă durabilă/idempotentă: revoke/fence → închidere admitere pentru run → întrerupere/drenare runtime/executori → readback. `STOPPING` rămâne până la dovada quiescenței; bytes deja trimiși pot rămâne UNKNOWN.
+
+**Oprirea instanței are o barieră suplimentară, înainte de Stop run.** Toate comenzile CLI care schimbă lifecycle-ul instanței folosesc același lock local. `omnis stop` persistă tranzacțional în `InstanceControl` intenția de shutdown, `admission_open=false`, un `shutdown_command_id` idempotent și o generație monotonă. Start/Resume, launch/continuare model, writer Settings și fiecare admitere de task/acțiune verifică această barieră sub același lock DB/tranzacție; nu este o bifă în UI. Astfel, un Start concurent fie este admis înaintea închiderii și inclus în oprire, fie este refuzat cu `INSTANCE_SHUTTING_DOWN` — niciodată admis între quiescență și oprirea containerelor. Stop și citirile de diagnostic rămân permise.
+
+Cu admiterea instanței închisă, supervisorul oprește runul și writerii prin adaptoarele tipizate, persistă dovada de quiescență/generație, apoi launcherul oprește numai containerele proprii, cu deadline și fără `down -v`/ștergere de date. API și DB rămân disponibile până la persistarea rezultatului. Crashul launcherului nu șterge intenția din DB și nu redeschide admiterea; noul proces continuă shutdownul idempotent. Receiptul local de containere oprite nu rescrie singur stările de run/effect din DB. O nouă pornire explicită verifică finalizarea și generația înainte de redeschidere; un run nereconciliat rămâne blocat separat de disponibilitatea dashboardului.
+
+Dacă API/supervisor nu mai răspund, launcherul poate opri numai containerele identificate din manifest/etichete/ID-uri proprii, inclusiv runtime, executori și proxy, pentru a elimina căile de efect. Raportează **oprire de urgență / stare nereconciliată**, nu inventează `STOPPED` în DB. La restart, runul intră în NEEDS_RECONCILIATION; nu autoresume și nu retry al acțiunilor UNKNOWN. Nu folosim `pkill`, kill după port sau curățare globală Docker.
+
+### 4.4. Instalare, stare și artefacte în afara repo-ului
+
+| Root propus | Conținut și owner |
+|---|---|
+| `$XDG_CONFIG_HOME/omnis/config.toml` | Configurație non-secretă a operatorului; niciun grant/token |
+| `$XDG_DATA_HOME/omnis/releases/<version>/` | Manifest/launcher/artefacte trusted ale releaseului; nu modificate de run |
+| `$XDG_STATE_HOME/omnis/instance.json` | Instance/release/Compose identity, schema și origin; fără secrete |
+| `$XDG_STATE_HOME/omnis/postgres/` | Numai DB; mount/PGDATA exact pentru imaginea 18 verificat în P0 |
+| `$XDG_STATE_HOME/omnis/evidence/` | Bloburi/derivate și staging ale serviciului evidence; fără mount runtime |
+| `$XDG_STATE_HOME/omnis/runtime/active/` | Slotul Hermes dedicat; provider store unic, nu profilul personal |
+| `$XDG_STATE_HOME/omnis/runtime/archives/` | Starea per-engagement arhivată numai cu writerii opriți; nemontată altui caz |
+| `$XDG_STATE_HOME/omnis/catalog/releases/` | Pachete publicate/digesturi, montate read-only pentru run |
+| `$XDG_STATE_HOME/omnis/vault/` | Chei/handles target cu owner/mode restrictiv; cheia în afara backupului comun |
+| `$XDG_STATE_HOME/omnis/logs/`, `exports/`, `backups/` | Date inventariate și retenție separată conform §10 |
+| `$XDG_RUNTIME_DIR/omnis/` | Lock/control IPC/capabilities efemere; mod 0700, fișiere secrete 0600 |
+
+Defaults XDG sunt cele ale utilizatorului (`~/.config`, `~/.local/share`, `~/.local/state`). Dacă XDG_RUNTIME_DIR lipsește, se folosește un subdirector privat verificat `runtime-ipc/` sub state, nu un director partajat temporar. IPC runtime privat are mountul lui, separat de `control.sock`. Căile sunt canonice, owner/mode verificate, symlinkuri nesigure refuzate; startupul nu adoptă date din home-ul personal Hermes. Nu se copiază `documents/Omnis_UI_Prototype.html`, `.hermes/skills` sau toolurile de dezvoltare în catalogul executabil ori buildul produsului.
+
+### 4.5. Acceptarea launcherului — toate probele sunt NEÎNCEPUTE
+
+| Probă | Rezultatul cerut, cu output real | Poartă |
+|---|---|---|
+| L01 Instalare și cwd | `omnis` instalat pornește din alt director, servește assets din release și deschide numai originul verificat | G00/G-OPS |
+| L02 Concurență | Două launchuri, lock/PID stale și port străin nu creează două instanțe/supervisoare și nu ating alt serviciu | G00 |
+| L03 Startup inert | Boot, status, health, API reload și browser open produc zero prompturi/model calls/target effects | G00/G01 |
+| L04 Migrare/partial failure | DB indisponibilă, job concurent, schemă incompatibilă sau asset lipsă blochează readiness fără ștergeri | G00/G-OPS |
+| L05 Pairing/control | One-use atomic, expiry, Host/Origin/CSRF/SSE, peer/capability greșit, zero codes în URL/argv/log/JSON | G00 |
+| L06 Runtime bridge | Fragmentare, reverse requests, stderr flood, backpressure, EOF, submit incert și generație veche sunt tratate fail-closed | H01/G02 |
+| L07 Provisionare izolată | Proxy neadmis/addon absent → niciun executor; namespace/host/metadata/IPv6/Docker/IPC neautorizat refuzate | G-DEPENDENCIES/G-NET |
+| L08 Stop și crash | Start/Resume/Settings concurente cu shutdown, crash launcher după închiderea admiterii, Stop repetat, crash supervisor/adaptor/DB și rezultat detached întârziat: fără efect nou/auto-wake, barieră durabilă și dovadă reală de oprire | G00/G02/G03/G07 |
+| L09 Persistență/restart | Browser/terminal închis nu oprește serviciul; stop/start păstrează datele, fără assessment autoresume | G01/G-OPS |
+| L10 Release/headless/recovery | Fără GUI → URL fără secret; update cu backup; restore separat/cheie lipsă → LOCKED și lease-uri vechi refuzate | G-OPS/G08 |
+
+Nicio probă a prototipului HTML sau a launcherului **de dezvoltare** `scripts/hermes_dev.py` nu închide aceste criterii. `omnis` este livrat numai după exercitarea artifactului instalat și a proceselor reale.
 
 ## 5. Runtime Hermes și autoritatea copilului
 
@@ -144,7 +236,7 @@ Păstrăm separat `session_id` RPC și `stored_session_id`. Requesturile server�
 
 Pollerul RPC poate porni nativ continuarea unui rezultat detached; Omnis nu o dublează. În alternativa HTTP Runs, clientul deține continuarea. ACK-ul notificării nu dovedește consumul rezultatului: verificăm și admiterea falsă, Stop și crashul după pornirea turului. Ancore: `tui_gateway/session_notifications.py:148–168,459–544,690–737`; `tui_gateway/prompt_turn.py:994–1001`.
 
-**Bootstrap Settings privat:** supervisorul folosește `hermes serve --isolated --host 127.0.0.1 --port 0`, cu `HERMES_HOME` dedicat și `HERMES_DASHBOARD_SESSION_TOKEN` aleator injectat. Descoperă portul din `HERMES_BACKEND_READY port=<PORT_ALOCAT>`, verifică `/api/health` și un GET autentificat. În modul loopback fără gate extern, headerul este `X-Hermes-Session-Token`. Acesta nu este `API_SERVER_KEY` sau cheia AI. Se aplică regula unui singur writer din §5: managementul este oprit înaintea execuției. Ancore: `hermes_cli/main_dashboard.py:810–901`, `hermes_cli/web_server.py:317–445`.
+**Bootstrap Settings privat:** supervisorul cere operația tipizată prin runtime-host; adaptorul din container folosește `hermes serve --isolated --host 127.0.0.1 --port 0`, cu `HERMES_HOME` dedicat și `HERMES_DASHBOARD_SESSION_TOKEN` aleator injectat. Adaptorul descoperă portul din `HERMES_BACKEND_READY port=<PORT_ALOCAT>`, verifică `/api/health` și un GET autentificat pe loopbackul acelui container; supervisorul nu accesează direct loopbackul altui namespace. În modul loopback fără gate extern, headerul este `X-Hermes-Session-Token`. Acesta nu este `API_SERVER_KEY` sau cheia AI. Se aplică regula unui singur writer din §5: managementul este oprit înaintea execuției. Ancore: `hermes_cli/main_dashboard.py:810–901`, `hermes_cli/web_server.py:317–445`.
 
 `<PROFILE_ID>` este fixat server-side la profilul runtime-ului Omnis; nu este o cale sau o selecție arbitrară din browser.
 
@@ -193,7 +285,7 @@ Supervisorul unic deține dispatcherul, runtime-ul și lease-urile. API poate av
 
 ### Stop, pause, sănătate
 
-Stop nu cere confirmare modală: revocă `fencing_epoch`, blochează noi dispatchuri, întrerupe Hermes, închide proxy/context/procese și așteaptă quiescența. UI rămâne `STOPPING` cât verificarea nu e completă. La timeout, supervisorul termină process group/containerul și afișează efectele incerte; nu declară anularea requesturilor deja expediate.
+Stop nu cere confirmare modală: revocă `fencing_epoch`, blochează noi dispatchuri, întrerupe Hermes, închide admiterea proxy/context/procese și așteaptă quiescența. UI rămâne `STOPPING` cât verificarea nu e completă. La timeout, supervisorul comandă terminarea process groupului prin runtime-host/adaptorul executorului; watchdogurile locale sunt fallbackul bounded. Numai launcherul host poate opri containerele conform §4.3. Dacă un adaptor nu răspunde, supervisorul afișează escaladarea și efectele incerte, fără `STOPPED` sau dovadă de quiescență inventată; operatorul poate folosi oprirea de urgență a instanței. Nu declarăm anularea requesturilor deja expediate. Bariera `InstanceControl` se aplică suplimentar la shutdownul aplicației, nu numai fencingul runului curent.
 
 Pause oprește **dispatchuri noi**, nu numai taskuri noi; acțiunile deja expediate se pot drena în timeout. Permituri emise dar nefolosite sunt invalidate. Wake nativ în timpul pauzei nu trebuie să producă inferențe noi; dacă pinul nu poate garanta asta, închidem runtime-ul după drenare și reluăm din checkpoint într-un runtime nou. Resume face preflight și reconciliere, nu reînvie threaduri.
 
@@ -235,6 +327,7 @@ UUID-uri opace, timp UTC, revizii întregi, enums explicite, schema_version pe p
 
 | Agregat | Date și constrângeri |
 |---|---|
+| InstanceControl | Identitatea instanței, admission_open, shutdown_command_id/generation, receipt de quiescență; barieră tranzacțională comună Start/Resume/Settings/admitere |
 | Engagement / EngagementRevision / Run | Autorizație, scope, policy, data policy, bugete, snapshot model/catalog; runul citează revizia imutabilă |
 | Identity / AuthContext / BusinessRuleRevision | Secret refs, principal, epoch, lease și reguli ALLOW/DENY/UNKNOWN |
 | Surface / Operation / Parameter / Observation / Relationship | URL brut separat de rută normalizată, metodă, tip, proveniență, observed/inferred, context identitate și evidence |
@@ -249,6 +342,7 @@ Relațiile sunt engagement-scoped, cu FK compuse/validare de ownership; fără j
 ### API Omnis v1 (contract propus, nu endpointuri deja existente)
 
 - `/api/v1/engagements`, `/{id}`, `/{id}/revisions`: CRUD draft și validare; update cu `If-Match`/revision, 409 la conflict sau run activ.
+- Orice Start/Resume și admitere de lucru verifică și `InstanceControl` în tranzacția comună; `INSTANCE_SHUTTING_DOWN` refuză lucrul nou chiar dacă runul anterior este deja STOPPED. Citirile și Stop rămân disponibile.
 - `/{id}/preflight`, `/{id}/runs`, `/runs/{run}/commands`: Start/Pause/Resume/Stop; comenzi cu idempotency key și readback; 202 înseamnă acceptată, nu finalizată. Serverul reface condițiile critice la Start, nu se bazează pe un rezultat UI stale.
 - `/runs/{run}/events?after=cursor`: SSE cu `id`, replay din DB, heartbeat, last cursor; cursor expirat → `RESYNC_REQUIRED`, fetch snapshot și reabonare fără dublare. Snapshot include `through_cursor` consistent.
 - `/runs/{run}/surfaces`, `/coverage`, `/tasks`, `/findings`, `/approvals`, `/evidence/{id}`: query bounded și scope validat. Autorizarea nu vine din filtrul clientului.
@@ -338,7 +432,7 @@ OmnisAI/
 │   │   │   ├── leases.py / inbox.py / reconcile.py
 │   │   │   └── shutdown.py             # fencing, Stop, dovadă de quiescență
 │   │   ├── transport/
-│   │   │   ├── internal_api.py / internal_auth.py
+│   │   │   ├── internal_api.py / internal_auth.py / local_control.py
 │   │   │   └── events.py               # SSE din evenimente durabile
 │   │   └── adapters/
 │   │       ├── hermes_client.py        # protocol privat, nu SDK în domain
@@ -372,6 +466,7 @@ OmnisAI/
 ├── integrations/hermes/
 │   ├── pyproject.toml / uv.lock / upstream.json
 │   ├── src/omnis_hermes/plugin.py / binding.py / projections.py
+│   ├── src/omnis_hermes/runtime_host.py / runtime_protocol.py
 │   ├── contracts/                      # mesaje de pin + teste de compatibilitate
 │   └── patches/                        # numai dacă un gate cere patch auditat
 ├── executors/
@@ -407,6 +502,7 @@ Sub `api/src/omnis/modules/`:
 
 | Modul | Deține | Fișiere speciale, numai când sunt necesare | Prima felie |
 |---|---|---|---|
+| `instance/` | Identitatea/admiterea instanței și intenția durabilă de shutdown | `admission.py`, `shutdown.py` | B01f |
 | `engagements/` | Draft, revizie, scope declarat, autorizare și context business | `scope.py`, `business_rules.py` | B02 |
 | `runs/` | Preflight, comenzi idempotente, run snapshot și tranziții | `preflight.py`, `commands.py`, `completion.py` | B04/B05/B07 |
 | `tasks/` | Task/attempt, bindings, inbox/continuări și priorități | `binding.py`, `continuations.py` | B06 |

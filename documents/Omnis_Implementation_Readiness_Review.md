@@ -38,6 +38,8 @@ Tabelul R01–R12 din plan a fost verificat programatic: fiecare ID apare exact 
 
 Alte alegeri închise: pairing local distinct de tokenul admin Hermes, TCB explicit și copii care nu sunt sandboxes OS, cursor alocat sub lock în ordinea commiturilor, tranzacție comună pentru autoritate/buget/approval, un singur owner de refresh AI și slot activ de stare de caz arhivat numai cu procese oprite.
 
+Amendamentul launcherului a trecut printr-un review separat de lifecycle. Două neconcordanțe au fost corectate **în contract, nu în cod de produs**: shutdownul instanței închide durabil admiterea `InstanceControl` înainte de oprirea runului (Start/Resume/Settings concurente și crash launcher sunt în L08/G00); supervisorul controlează process groups prin adaptoare, numai launcherul host controlează containerele. Bootstrapul Settings trece explicit prin runtime-host în namespace-ul corect. Arborele de fișiere și probele L01–L10 sunt propuneri pentru acordul utilizatorului, nu dovezi de operare deja executată.
+
 Nu am acceptat automat sugestia de a trece la altă orchestrare/batch sincron pentru a evita wake-ul. Păstrăm contractul nativ dorit și gate-ul exact de continuare/reconciliere; o schimbare ulterioară necesită ADR, nu reducere tacită de scope.
 
 ## 5. Decizii schimbate de execuție reală
@@ -73,6 +75,7 @@ DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verifica
 | Gate | Owner | Închidere necesară |
 |---|---|---|
 | G-DESIGN | Operator | Feedback/aprobare cockpit/findings, structură sistem și contract `omnis`, apoi acord explicit de implementare |
+| L01–L10 / G-OPS | Integrare + operare | Executabil `omnis` instalat, startup inert/readiness/pairing, runtime-host privat, stop/recovery și zero efecte la boot; toate probele NEÎNCEPUTE |
 | G-DEPENDENCIES / B01e | Integrare/executori | Proxy remediat, lock/build provenance, audit și teste TLS/HTTP/confinare |
 | G-RUNTIME / H01–H08 | Integrare Hermes | Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord |
 | G-DATA-EARLY | API/securitate | Proiecție model-facing și markeri înainte de date de țintă către provider |

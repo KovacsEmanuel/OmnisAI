@@ -1,27 +1,27 @@
 ---
 version: alpha
-name: Omnis Operator Console
+name: Omnis Operator Cockpit
 description: Consolă locală de investigație, cu proveniență vizibilă și control explicit al efectelor.
 colors:
-  primary: "#93E3BD"
-  primaryInk: "#10231A"
-  secondary: "#AFBCCA"
-  neutral: "#0E1318"
-  surface: "#151B22"
-  elevated: "#1D2630"
-  text: "#EDF2F7"
-  border: "#596B7D"
-  divider: "#2B3743"
-  selected: "#233D32"
-  focus: "#B0EACD"
-  danger: "#FFB4AB"
-  dangerBg: "#4B2226"
-  warning: "#F3CB82"
-  warningBg: "#3D321F"
-  success: "#A4E8C8"
-  successBg: "#18382D"
-  info: "#B1D5FF"
-  infoBg: "#23364A"
+  primary: "#C7BAA7"
+  primaryInk: "#111210"
+  secondary: "#B8AEA1"
+  neutral: "#0B0C0A"
+  surface: "#131412"
+  elevated: "#191B18"
+  text: "#EEE9E1"
+  border: "#726D62"
+  divider: "#30312C"
+  selected: "#2A2C27"
+  focus: "#D6C9B6"
+  danger: "#F28E7F"
+  dangerBg: "#301E1B"
+  warning: "#E7B56C"
+  warningBg: "#30271B"
+  success: "#C7BAA7"
+  successBg: "#2A2C27"
+  info: "#A2BAD0"
+  infoBg: "#202930"
 typography:
   h1:
     fontFamily: "Segoe UI, Liberation Sans, Arial, sans-serif"
@@ -50,9 +50,10 @@ typography:
     fontWeight: 400
     lineHeight: 1.6
 rounded:
-  sm: 4px
-  md: 6px
-  lg: 10px
+  sm: 8px
+  md: 10px
+  lg: 14px
+  pill: 999px
 spacing:
   xs: 4px
   sm: 8px
@@ -76,31 +77,31 @@ components:
   panel:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.md}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.lg}"
   panel-elevated:
     backgroundColor: "{colors.elevated}"
     textColor: "{colors.text}"
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.primaryInk}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.pill}"
     padding: 12px
-    height: 40px
+    height: 44px
   button-secondary:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
-    rounded: "{rounded.md}"
-    height: 40px
+    rounded: "{rounded.pill}"
+    height: 44px
   button-danger:
     backgroundColor: "{colors.dangerBg}"
     textColor: "{colors.danger}"
-    rounded: "{rounded.md}"
-    height: 40px
+    rounded: "{rounded.pill}"
+    height: 44px
   nav-selected:
     backgroundColor: "{colors.selected}"
     textColor: "{colors.primary}"
-    rounded: "{rounded.sm}"
+    rounded: "{rounded.pill}"
   metadata:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.secondary}"
@@ -108,7 +109,7 @@ components:
     backgroundColor: "{colors.neutral}"
     textColor: "{colors.text}"
     rounded: "{rounded.sm}"
-    height: 40px
+    height: 44px
   status-warning:
     backgroundColor: "{colors.warningBg}"
     textColor: "{colors.warning}"
@@ -124,7 +125,7 @@ components:
 
 **Surface primar: Operate; secundar: Command / Inspect.** Omnis este un instrument de lucru, nu o pagină de marketing și nu un chat cu o hartă atașată. Interfața prioritizează starea verificată, următoarea decizie a operatorului și lanțul observație → acțiune → dovadă → verdict.
 
-Direcție unică pentru MVP: dark console cu accente verzi discrete, densitate moderată și tabele lizibile. Nu clonăm identitatea unui produs existent. Tema light a aplicației este post-MVP; raportul imprimabil este light de la început. Prototipul este DEMO etichetat și nu constituie aplicația.
+**Propunere vizuală, încă neaprobată:** interpretare a referinței furnizate `omnis-cockpit-v5.html`, identificată în §0 din specificația UI. Negru cald, ivory/taupe, accent nisipiu, topnav compact și panouri cu contur discret. Înlocuiește direcția verde/albastră respinsă, nu creează un baseline concurent. Fără brain graph/council; Brain stream și finding detail sunt suprafețele reprezentative. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. DEMO etichetat, nu aplicație.
 
 ## Colors
 
@@ -140,21 +141,20 @@ Body desktop 14px, mobil/form input 16px; metadata minimum 12px, dar nu pentru e
 
 ## Layout
 
-- Sidebar desktop 232px; topbar minimum 64px; padding content 24px; rând tabel minimum 44px; controale touch minimum 44px.
-- ≥1440px: nav 232px + workspace fluid + inspector 360px când este selectat un obiect. Nicio coloană nu trebuie să depășească viewportul.
-- 1024–1439px: nav 208px, inspector sub tabel în două coloane; tabelul primește prioritate. Selecția rămâne vizibilă și detaliul nu acoperă controalele runului.
-- <1024px: nav în drawer, inspector ca pagină/panou de detaliu; filtre pliabile, Stop în topbar persistent. Tabelele pot derula în propriul container etichetat, niciodată întreaga pagină.
+- Container centrat de maximum 1280px, padding 24px desktop/16–18px mobil. Navigare globală într-o capsulă deasupra engagementului; apoi topbar sticky cu identitatea runului și Stop, apoi navigare orizontală contextuală. Fără sidebar permanent. Controale minimum 44px.
+- ≥1024px: cockpit asimetric (lucru/findings aproximativ 1.45fr, stream 1fr), gap 24px. Map păstrează inspectorul lateral la ≥1440, sub tabel în două coloane la 1024–1439. Nicio coloană nu depășește viewportul.
+- <1024px: navigarea contextuală în drawer, cockpit într-o coloană, detaliu full-width; Stop în topbar persistent. Tabelele derulează în propriul container etichetat, niciodată întreaga pagină.
 - 320–600px: acțiuni pe două rânduri dacă este nevoie; wizard într-o singură coloană; finding/evidence detail stack. Nu ascundem verdictul, identitatea, snapshotul sau motivul blocajului pentru a câștiga spațiu.
 
-Spacing pe multipli de 4px. Overview are taskuri/blocaje/evenimente, nu trei carduri egale cu numere decorative. Map are tree + tabel + inspector, iar Coverage este un tab al Map. Planul ecran-cu-ecran este în `documents/Omnis_UI_UX_Spec.md`.
+Spacing pe multipli de 4px. Overview: context compact → atenție operator + findings + taskuri, cu Brain stream alături. Fără monumente KPI sau procente fără numitor. Map are tree + tabel + inspector, Coverage rămâne tab al Map. Ecranele auxiliare păstrează contractele funcționale; redesignul lor complet așteaptă feedback pe această felie. Detaliile sunt în `documents/Omnis_UI_UX_Spec.md`.
 
 ## Elevation & Depth
 
-Suprafețe solide, nu blur/glass. Separatoare și nivel de fundal delimitează panourile. Shadow numai pe drawer/dialog/popover; fără umbre pe fiecare rând. Un singur overlay modal activ; revenire de focus la un control vizibil. Când topbarul devine inert, overlay-ul conține o acțiune Stop echivalentă, fără confirmare suplimentară. Resize-ul închide modul modal înainte să ascundă triggerul de închidere; Esc poate închide drawerul, nu poate anula retroactiv aprobări deja trimise.
+Suprafețe solide, nu blur/glass. Contur dublu foarte discret pe panourile principale (outer 4px, ivory la aproximativ 2%), fără glow sau animații. Separatoare și fundaluri delimitează streamul/evidence. Umbre ample numai pe drawer/dialog. Un singur overlay modal activ; revenire de focus la un control vizibil. Când topbarul devine inert, overlay-ul conține Stop echivalent, fără confirmare. Resize-ul închide modul modal și mută focusul în workspace, deoarece drawerul dispare pe desktop; Esc nu anulează aprobări deja trimise.
 
 ## Shapes
 
-Radii 4–6px pentru controale și rânduri selectate; 10px maximum pentru dialog. Badge-uri compacte cu text clar, nu capsule peste tot. Un icon numai dacă ajută orientarea, întotdeauna cu accessible name. Fără emoji de status sau animații decorative.
+Radii 8–10px pentru input/evidence/stream și 14px pentru panouri/dialoguri. Capsule pentru topnav, butoane și statusuri, conform referinței; nu pentru containerele de conținut. Un icon numai dacă ajută orientarea, cu accessible name; simbolul Omnis este decorativ. Fără emoji de status, grafuri sau animații decorative.
 
 ## Components
 

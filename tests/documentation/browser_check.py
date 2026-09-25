@@ -108,7 +108,7 @@ def check_run_state_live_region(page):
 
 def check_anonymous_context(page):
     page.locator('[data-map="coverage"]').click()
-    page.locator('[data-coverage="candidate"]').click()
+    page.locator('[data-coverage="confirmed"]').click()
     page.locator('#persona').select_option('Anonymous')
     assert page.locator('#coverage-panel tbody tr:visible').count() == 0, 'coverage must respect Anonymous filter'
     assert 'No matching operations' in page.locator('#coverage-heading').inner_text()
@@ -157,7 +157,7 @@ def check_filtered_selection(page):
 
 def check_selection_clears_other_context(page):
     page.locator('[data-map="coverage"]').click()
-    page.locator('[data-coverage="candidate"]').click()
+    page.locator('[data-coverage="confirmed"]').click()
     page.locator('[data-map="surfaces"]').click()
     page.locator('[data-inspect="export"]').click()
     page.locator('[data-map="coverage"]').click()
@@ -274,6 +274,30 @@ def check_empty_error_previews(page):
     assert page.locator('#stop-control').is_enabled()
 
 
+def check_cockpit_stream(page):
+    page.goto((DOCS / 'Omnis_UI_Prototype.html').as_uri())
+    page.reload()
+    expect(page.locator('[data-page="overview"]')).to_be_visible()
+    expect(page.get_by_role('heading', name='Brain stream', exact=True)).to_be_visible()
+    stream = page.locator('#brain-stream')
+    assert stream.locator('[data-actor]:visible').count() == 4
+    page.locator('#stream-filter').select_option('validator')
+    assert stream.locator('[data-actor]:visible').count() == 1
+    assert 'Replay and controls' in stream.inner_text()
+    assert 'Internal deliberations' not in stream.inner_text()
+    stream.get_by_role('button', name='Inspect finding').click()
+    expect(page.locator('[data-page="findings"]')).to_be_visible()
+    expect(page.locator('#workspace')).to_be_focused()
+    page.evaluate("showView('overview', false)")
+    page.locator('#stream-filter').select_option('all')
+    assert stream.locator('[data-actor]:visible').count() == 4
+    for width in [1440, 1280, 1024, 390, 320]:
+        page.set_viewport_size({'width': width, 'height': 1000})
+        page.locator('#stop-control').scroll_into_view_if_needed()
+        assert page.locator('#stop-control').is_visible()
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+
+
 def check_generated_document_csp(page):
     spec = importlib.util.spec_from_file_location('render_docs', ROOT / 'scripts' / 'render_docs.py')
     assert spec is not None and spec.loader is not None
@@ -288,12 +312,35 @@ def check_generated_document_csp(page):
     assert page.locator('nav a').first.inner_text() == 'Local & link'
 
 
+def check_cockpit_task_context(page):
+    page.evaluate("showView('overview', false)")
+    page.locator('#brain-stream').get_by_role('button', name='Inspect blocked task').click()
+    expect(page.locator('#blocked-task')).to_be_visible()
+    assert 'demo-task-02' in page.locator('#blocked-task').inner_text()
+    assert '/api/export' in page.locator('#blocked-task').inner_text()
+    assert 'UNKNOWN' in page.locator('#blocked-task').inner_text()
+    page.evaluate("showView('map', false)")
+    page.locator('[data-map="coverage"]').click()
+    page.locator('[data-coverage="confirmed"]').click()
+    assert 'demo-f-01' in page.locator('#coverage-detail').inner_text()
+    page.locator('#persona').select_option('Anonymous')
+    page.locator('#map-search').fill('/api/profile')
+    page.evaluate("showView('overview', false)")
+    page.locator('#brain-stream').get_by_role('button', name='Inspect operation').click()
+    expect(page.locator('#surfaces-panel')).to_be_visible()
+    expect(page.locator('#inspect-title')).to_have_text('GET /api/invoices/{id}')
+    expect(page.locator('.inspector')).to_be_visible()
+    assert page.locator('#map-search').input_value() == ''
+    assert page.locator('#persona').input_value() == 'Alice · member'
+
+
 REGRESSIONS = [check_drawer_stop, check_approval_stop, check_preflight_stop, check_drawer_resize,
                check_stopped_focus, check_started_focus, check_run_state_live_region,
                check_anonymous_context, check_unknown_epoch, check_filtered_selection, check_selection_clears_other_context,
                check_pause_resume_preflight, check_resume_preflight_stop, check_stop_during_pause_drain,
                check_touch_targets, check_typography, check_run_catalog_copy,
-               check_empty_error_previews, check_generated_document_csp]
+               check_empty_error_previews, check_cockpit_stream, check_cockpit_task_context,
+               check_generated_document_csp]
 
 
 def main():
@@ -349,7 +396,9 @@ def main():
         checks.append({"kind": "interaction_contracts", "passed": True, "checks": ["coverage evidence detail", "empty hides synthetic data", "Stop pending/completed", "preflight dialog Esc/focus restore", "mobile menu inert/focus wrap/Esc", "wizard five steps", "credential input disabled"]})
         for regression in REGRESSIONS:
             page.set_viewport_size({'width': 1440, 'height': 1000})
-            page.goto((DOCS / 'Omnis_UI_Prototype.html').as_uri())
+            page.goto((DOCS / 'Omnis_UI_Prototype.html').as_uri() + '#map')
+            # Hash navigation alone keeps the prior run/dialog/filter state.
+            page.reload()
             try:
                 regression(page)
                 checks.append({'kind': 'regression', 'name': regression.__name__, 'passed': True})

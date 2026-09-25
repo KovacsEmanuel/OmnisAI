@@ -13,8 +13,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
 <details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</a></li><li><a href="#1-anatomia-consolei">1. Anatomia consolei</a></li><li><a href="#2-route-map-si-placement">2. Route map și placement</a></li><li><a href="#3-setup-in-cinci-pasi">3. Setup în cinci pași</a></li><li><a href="#4-fluxurile-critice">4. Fluxurile critice</a></li><li><a href="#5-stari-si-copy-obligatorii">5. Stări și copy obligatorii</a></li><li><a href="#6-accesibilitate-si-responsive">6. Accesibilitate și responsive</a></li><li><a href="#7-contract-frontend-si-acceptance-checklist">7. Contract frontend și acceptance checklist</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
-<h1 id="omnis-specificatie-uiux-v1">Omnis — specificație UI/UX v1</h1>
-<p><strong>Baseline de implementare · 25 septembrie 2026 · Surface: Operate, cu inspector contextual</strong></p>
+<h1 id="omnis-specificatie-uiux-v2-propunere">Omnis — specificație UI/UX v2 · propunere</h1>
+<p><strong>Revizie după referința utilizatorului · Surface: Operate, cu inspector contextual · Aprobarea vizuală este în așteptare</strong></p>
 <p><a href="../DESIGN.md">DESIGN.md</a> este sursa tokenurilor; <a href="Omnis_UI_Prototype.html">prototipul offline</a> este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.</p>
 <h2 id="0-referinta-primita-si-felia-de-design">0. Referința primită și felia de design</h2>
 <p><strong>Propunere în lucru, nu aprobare vizuală.</strong> Referință furnizată de utilizator: <code>/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html</code>, SHA-256 <code>d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7</code>. Fișierul extern rămâne nemodificat; nu importăm scripturile, conținutul de securitate sau configurațiile sale. Referința este un template vizual, nu contractul de domeniu Omnis.</p>
@@ -30,21 +30,20 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Acceptare tehnică:</strong> navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow de pagină la 320/390/1024/1280/1440; screenshoturi inspectate, inclusiv detaliu; zero requesturi externe. Verificare: <code>python tests/documentation/browser_check.py --include-documents --output &lt;scratch&gt;/browser-check.json</code>, <code>python scripts/render_docs.py --check</code>, <code>python -m unittest discover -s tests/documentation -v</code>, plus lint/export tokenuri. Baseline înainte de schimbare: 95 checks browser, 16 teste documentare trecute, zero erori JS/requesturi externe.</p>
 <p>Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală și acordul de implementare rămân ale utilizatorului. După această iterație se stabilește în arhitectura/planul existente structura fișierelor și pornirea prin executabilul <code>omnis</code>, nu se începe scaffoldul.</p>
 <h2 id="1-anatomia-consolei">1. Anatomia consolei</h2>
-<pre><code class="language-text">┌ sidebar 232 ─┬ engagement / breadcrumb ── sync + run state ─ Pause · Stop ┐
-│ Engagements │ page heading + principal action / filters                  │
-│             ├───────────────────────────────────┬ inspector 360 ─────────┤
-│ Engagement  │ workspace                         │ identity / snapshot    │
-│ Overview    │ tables, map, tasks or form        │ Summary / Evidence     │
-│ Map         │                                   │ Related / History      │
-│ Investigat. │                                   │                        │
-│ Findings    │                                   │                        │
-│ Reports     │                                   │                        │
-│             │                                   │                        │
-│ Settings    └───────────────────────────────────┴────────────────────────┤
-│ runtime     status: last event / budget unknown or measured / limits     │
-└─────────────┴────────────────────────────────────────────────────────────┘
+<pre><code class="language-text">                  ( Omnis | Engagements · Workspace · Settings )
+┌ engagement / target / exact run ───────── run + sync ─ Pause · Stop ┐
+│ Overview · Findings · Target map · Investigations · Reports · Setup │
+├─────────────────────────────────────────────────────────────────────┤
+│ heading / action + scope snapshot / identity / budget state         │
+├───────────────────────────────────────┬─────────────────────────────┤
+│ Needs your attention                  │ Brain stream                │
+│ Confirmed findings → inspect          │ actor filter / event cursor │
+│ Active / blocked tasks                │ short decision + result     │
+│ Coverage &amp; limitations → Map          │ link → task / finding       │
+└───────────────────────────────────────┴─────────────────────────────┘
+                centered workspace · maximum 1280px
 </code></pre>
-<p>Sidebar are două niveluri vizibile: global (Engagements, Settings) și contextul engagementului curent. Nu există un agent ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată rosterul workerilor în contextul taskurilor, nu o pagină separată de avataruri.</p>
+<p>Navigare în două niveluri: global sus (Engagements, Workspace, Settings), apoi contextul engagementului. Pe mobil, navigarea contextuală și Settings intră în drawer. Nu există agent, council sau graf ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată workerii în contextul taskurilor, nu o pagină de avataruri. În prototip, Skills/Runtime rămân scurtături tehnice; în produs sunt sub Settings.</p>
 <p>Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.</p>
 <h2 id="2-route-map-si-placement">2. Route map și placement</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
@@ -73,8 +72,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td><code>/engagements/:id/overview</code></td>
-<td>Blocaje/aprobări mai întâi, apoi taskuri active și evenimente</td>
-<td>Preflight/Start sau Pause/Stop; nu colecție de KPI-uri fără decizie</td>
+<td>Context compact, blocaje/aprobări, findings și taskuri; Brain stream lateral</td>
+<td>Preflight/Start sau Pause/Stop; stream cu actor/cursor/motiv/rezultat/link; fără KPI decorativi</td>
 </tr>
 <tr>
 <td><code>/engagements/:id/map?tab=surfaces</code></td>
@@ -220,7 +219,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Toate controalele au label/accessible name; tab order natural și skip link. Nu shortcut global cu o singură literă pentru Stop sau alte efecte.</li>
 <li>Dialoguri/drawers cu focus containment, Esc și restore; erori form cu summary focus. Live region polite agregat, nu spam la fiecare eveniment.</li>
 <li>Touch targets minimum 44px; niciun text esențial sub 14px desktop/16px form mobil; nu tabele gigantice înghesuite pe mobil.</li>
-<li>≥1440 inspector persistent lateral; 1024–1439 inspector sub tabel în două coloane; &lt;1024 nav drawer și detaliu full-width; 320/390 controalele rămân accesibile. Table scroll local etichetat.</li>
+<li>Container maximum 1280px fără sidebar permanent. Cockpit două coloane la ≥1024, stack sub 1024. Map: ≥1440 inspector lateral; 1024–1439 inspector sub tabel; &lt;1024 nav drawer și detaliu full-width. La 320/390 controalele rămân accesibile, cu scroll local etichetat pentru tabele.</li>
 <li>Zoom 200%, prefers-reduced-motion și high contrast/forced colors verificate pe fluxurile de bază. Statusurile au text, nu doar nuanță.</li>
 <li>Raport print A4, text minimum 12pt, referințe la evidence lizibile, fără sidebar/acțiuni de aplicație.</li>
 </ul>
@@ -239,5 +238,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>U10</strong> DEMO-ul este separat vizibil și tehnic: fără API real, secrets, fetch către țintă, metrici salvate în datele produsului sau confuzie cu teste de integrare.</p>
 <h2 id="sources">Sources</h2>
 <p>[9] https://www.w3.org/WAI/WCAG22/quickref — How to Meet WCAG (Quickref Reference)</p>
-<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>7a5f268a96b7c16d8de9a599cc755c9cdfc5e54279af4dfb537b9aa7203ac86a</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_UI_UX_Spec.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>d95d5f56836dcdd1f5ef8a5d1e56534efa3d876ca781621f1fd54bd2bd6e4b50</code>.</p></footer>
 </main></div></body></html>

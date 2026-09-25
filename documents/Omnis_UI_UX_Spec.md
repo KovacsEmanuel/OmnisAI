@@ -1,6 +1,6 @@
-# Omnis — specificație UI/UX v1
+# Omnis — specificație UI/UX v2 · propunere
 
-**Baseline de implementare · 25 septembrie 2026 · Surface: Operate, cu inspector contextual**
+**Revizie după referința utilizatorului · Surface: Operate, cu inspector contextual · Aprobarea vizuală este în așteptare**
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.
 
@@ -26,22 +26,21 @@ Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtim
 ## 1. Anatomia consolei
 
 ```text
-┌ sidebar 232 ─┬ engagement / breadcrumb ── sync + run state ─ Pause · Stop ┐
-│ Engagements │ page heading + principal action / filters                  │
-│             ├───────────────────────────────────┬ inspector 360 ─────────┤
-│ Engagement  │ workspace                         │ identity / snapshot    │
-│ Overview    │ tables, map, tasks or form        │ Summary / Evidence     │
-│ Map         │                                   │ Related / History      │
-│ Investigat. │                                   │                        │
-│ Findings    │                                   │                        │
-│ Reports     │                                   │                        │
-│             │                                   │                        │
-│ Settings    └───────────────────────────────────┴────────────────────────┤
-│ runtime     status: last event / budget unknown or measured / limits     │
-└─────────────┴────────────────────────────────────────────────────────────┘
+                  ( Omnis | Engagements · Workspace · Settings )
+┌ engagement / target / exact run ───────── run + sync ─ Pause · Stop ┐
+│ Overview · Findings · Target map · Investigations · Reports · Setup │
+├─────────────────────────────────────────────────────────────────────┤
+│ heading / action + scope snapshot / identity / budget state         │
+├───────────────────────────────────────┬─────────────────────────────┤
+│ Needs your attention                  │ Brain stream                │
+│ Confirmed findings → inspect          │ actor filter / event cursor │
+│ Active / blocked tasks                │ short decision + result     │
+│ Coverage & limitations → Map          │ link → task / finding       │
+└───────────────────────────────────────┴─────────────────────────────┘
+                centered workspace · maximum 1280px
 ```
 
-Sidebar are două niveluri vizibile: global (Engagements, Settings) și contextul engagementului curent. Nu există un agent ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată rosterul workerilor în contextul taskurilor, nu o pagină separată de avataruri.
+Navigare în două niveluri: global sus (Engagements, Workspace, Settings), apoi contextul engagementului. Pe mobil, navigarea contextuală și Settings intră în drawer. Nu există agent, council sau graf ca obiect primar în nav; taskul/ipoteza și dovada sunt obiectele de lucru. Overview arată workerii în contextul taskurilor, nu o pagină de avataruri. În prototip, Skills/Runtime rămân scurtături tehnice; în produs sunt sub Settings.
 
 Topbar menține numele engagementului, run state și sync state. Stop rămâne accesibil în toate paginile și pe mobil când un run este activ. Selecția contextului nu mută accidental controlul pe alt run: butonul indică exact runul activ dacă pagina consultă un snapshot vechi.
 
@@ -52,7 +51,7 @@ Topbar menține numele engagementului, run state și sync state. Stop rămâne a
 | `/engagements` | Tabel: nume, țintă, status, ultima actualizare; search și filtru | New engagement sus-dreapta; empty cu un singur CTA |
 | `/engagements/new` | Wizard cu pași verticali și form central | Rezumat sticky desktop; Save draft permanent, Next/Back; nimic nu pornește |
 | `/engagements/:id/setup` | Revizie/draft, scope și context | Edit numai oprit; active → motiv + link Stop, fără editare mascată |
-| `/engagements/:id/overview` | Blocaje/aprobări mai întâi, apoi taskuri active și evenimente | Preflight/Start sau Pause/Stop; nu colecție de KPI-uri fără decizie |
+| `/engagements/:id/overview` | Context compact, blocaje/aprobări, findings și taskuri; Brain stream lateral | Preflight/Start sau Pause/Stop; stream cu actor/cursor/motiv/rezultat/link; fără KPI decorativi |
 | `/engagements/:id/map?tab=surfaces` | Tree host/path, tabel metodă/path/auth/sursă/stare | Operație selectată: params, observations, request/response, related |
 | `/engagements/:id/map?tab=coverage` | Matrice suprafață × identitate × familie, filtre | Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile |
 | `/engagements/:id/investigations` | Tabel/queue taskuri cu ipoteză, rol, skill, attempt, blocaj/verdict | Timeline investigator→validator; reason, budget, results și stop task dacă suportat |
@@ -127,7 +126,7 @@ Editorul de skill este form text/file tree controlat, nu filesystem browser. Pub
 - Toate controalele au label/accessible name; tab order natural și skip link. Nu shortcut global cu o singură literă pentru Stop sau alte efecte.
 - Dialoguri/drawers cu focus containment, Esc și restore; erori form cu summary focus. Live region polite agregat, nu spam la fiecare eveniment.
 - Touch targets minimum 44px; niciun text esențial sub 14px desktop/16px form mobil; nu tabele gigantice înghesuite pe mobil.
-- ≥1440 inspector persistent lateral; 1024–1439 inspector sub tabel în două coloane; <1024 nav drawer și detaliu full-width; 320/390 controalele rămân accesibile. Table scroll local etichetat.
+- Container maximum 1280px fără sidebar permanent. Cockpit două coloane la ≥1024, stack sub 1024. Map: ≥1440 inspector lateral; 1024–1439 inspector sub tabel; <1024 nav drawer și detaliu full-width. La 320/390 controalele rămân accesibile, cu scroll local etichetat pentru tabele.
 - Zoom 200%, prefers-reduced-motion și high contrast/forced colors verificate pe fluxurile de bază. Statusurile au text, nu doar nuanță.
 - Raport print A4, text minimum 12pt, referințe la evidence lizibile, fără sidebar/acțiuni de aplicație.
 

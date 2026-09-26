@@ -1,6 +1,6 @@
 # API P0.1 — utilizare și limite
 
-Acesta este numai control plane-ul API/PostgreSQL. Nu pornește `omnis`, dashboardul, supervisorul, Hermes, provideri sau evaluări. `/health/live` arată procesul; `/health/ready` este 200 numai pentru PostgreSQL 18 migrat și schema `0001_instance_control`, în timp ce `dashboard_ready` și `assessment_ready` rămân false. API-ul trebuie pornit explicit pe loopback; Host-ul permis în această felie este exact `127.0.0.1:8765`.
+Acesta este numai control plane-ul API/PostgreSQL. Nu pornește `omnis`, dashboardul, supervisorul, Hermes, provideri sau evaluări. `/health/live` arată procesul; `/health/ready` este 200 numai după conectarea la PostgreSQL cu schema `0001_instance_control` compatibilă, în timp ce `dashboard_ready` și `assessment_ready` rămân false. Proba de integrare folosește imaginea fixată PostgreSQL 18.6; endpointul nu verifică separat numărul de versiune al serverului, aceasta fiind o precondiție a instalării testate. API-ul trebuie pornit explicit pe loopback; Host-ul permis în această felie este exact `127.0.0.1:8765`.
 
 ## Pregătirea unui test izolat
 

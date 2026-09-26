@@ -29,6 +29,12 @@ async def test_http_pairing_session_csrf_logout(monkeypatch, migrated_database_u
             csrf = response.json()["csrf_token"]
             session = await client.get("/api/session")
             assert session.status_code == 200 and session.json()["csrf_token"] == csrf
+            instance = await client.get("/api/instance")
+            assert instance.status_code == 200
+            assert instance.json()["admission_open"] is False
+            assert instance.json()["supervisor_ready"] is False
+            assert instance.json()["assessment_ready"] is False
+            assert instance.json()["dashboard_ready"] is False
             assert (await client.post("/api/logout", headers={"origin": ORIGIN})).status_code == 403
             assert (await client.post("/api/logout", headers={"origin": ORIGIN, "x-csrf-token": "wrong"})).status_code == 403
             assert (await client.post("/api/logout", headers={"origin": ORIGIN, "x-csrf-token": csrf})).status_code == 204

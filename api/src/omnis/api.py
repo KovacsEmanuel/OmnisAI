@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
+from omnis.modules.instance.schemas import InstanceView
+from omnis.modules.instance.service import InstanceService
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
 from omnis.security.routes import router as session_router
 
@@ -50,6 +52,10 @@ def create_app() -> FastAPI:
     @app.get("/health/live")
     async def live() -> dict[str, str]:
         return {"status": "live"}
+
+    @app.get("/api/instance", response_model=InstanceView)
+    async def instance() -> InstanceView:
+        return InstanceView.model_validate(await InstanceService(app.state.db_engine).status())
 
     @app.get("/health/ready", response_model=HealthReady)
     async def ready(response: Response) -> HealthReady:

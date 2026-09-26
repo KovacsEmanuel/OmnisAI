@@ -140,6 +140,50 @@ async def test_ready_denies_missing_instance_column(monkeypatch, migrated_databa
     assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton",
+        "ALTER TABLE instance_control DROP CONSTRAINT instance_control_instance_id_key",
+        "ALTER TABLE instance_control ALTER COLUMN admission_open SET DEFAULT true",
+        "ALTER TABLE instance_control ALTER COLUMN quiesced_generation TYPE text",
+    ],
+)
+@pytest.mark.asyncio
+async def test_ready_denies_constraint_default_or_type_drift(monkeypatch, migrated_database_url, mutation):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute(mutation)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.asyncio
+async def test_ready_denies_a_same_named_weakened_constraint(monkeypatch, migrated_database_url):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute("ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton")
+        connection.execute(
+            "ALTER TABLE instance_control ADD CONSTRAINT ck_instance_control_singleton CHECK (true)"
+        )
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
 @pytest.mark.asyncio
 async def test_ready_reports_disconnected_database_without_exposing_url(monkeypatch, empty_database_url):
     unavailable = empty_database_url.set(port=1, password="synthetic_do_not_echo")

@@ -45,10 +45,56 @@ async def readiness_reason(engine: AsyncEngine | None) -> ReadinessReason | None
                         )
                     )
                 ).first()
+                if revisions != [SCHEMA_REVISION] or instance is None:
+                    return ReadinessReason.SCHEMA_INCOMPATIBLE
+                columns = (
+                    await connection.execute(
+                        text(
+                            "SELECT a.attname, format_type(a.atttypid, a.atttypmod), "
+                            "a.attnotnull, pg_get_expr(d.adbin, d.adrelid) "
+                            "FROM pg_attribute a LEFT JOIN pg_attrdef d "
+                            "ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
+                            "WHERE a.attrelid = 'instance_control'::regclass "
+                            "AND a.attnum > 0 AND NOT a.attisdropped"
+                        )
+                    )
+                ).all()
+                constraints = (
+                    await connection.execute(
+                        text(
+                            "SELECT conname, contype, pg_get_constraintdef(oid) "
+                            "FROM pg_constraint "
+                            "WHERE conrelid = 'instance_control'::regclass"
+                        )
+                    )
+                ).all()
             except SQLAlchemyError:
                 return ReadinessReason.SCHEMA_INCOMPATIBLE
     except SQLAlchemyError:
         return ReadinessReason.DATABASE_UNAVAILABLE
-    if revisions != [SCHEMA_REVISION] or instance is None:
+    expected_columns = {
+        ("id", "smallint", True),
+        ("instance_id", "uuid", True),
+        ("admission_open", "boolean", True),
+        ("shutdown_command_id", "uuid", False),
+        ("generation", "bigint", True),
+        ("quiesced_generation", "bigint", False),
+        ("quiesced_at", "timestamp with time zone", False),
+    }
+    actual_columns = {(name, kind, required) for name, kind, required, _ in columns}
+    defaults = {name: default for name, _, _, default in columns}
+    expected_constraints = {
+        ("instance_control_pkey", "p", "PRIMARY KEY (id)"),
+        ("instance_control_instance_id_key", "u", "UNIQUE (instance_id)"),
+        ("ck_instance_control_singleton", "c", "CHECK ((id = 1))"),
+        ("ck_instance_control_generation", "c", "CHECK ((generation >= 0))"),
+    }
+    if (
+        actual_columns != expected_columns
+        or defaults.get("instance_id") != "gen_random_uuid()"
+        or defaults.get("admission_open") != "false"
+        or defaults.get("generation") != "0"
+        or not expected_constraints.issubset(set(constraints))
+    ):
         return ReadinessReason.SCHEMA_INCOMPATIBLE
     return None

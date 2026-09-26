@@ -26,7 +26,7 @@ check-api:
 	$(API_PY) -m compileall -q api/src api/migrations api/tests
 
 test-api:
-	$(API_PY) -m pytest api/tests/test_health.py -q
+	$(API_PY) -m pytest api/tests/test_health.py api/tests/test_fixture_ownership.py -q
 
 test-migrations:
 	$(API_PY) -m pytest api/tests/test_migrations.py -q

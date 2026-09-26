@@ -1,10 +1,11 @@
 """Inert PostgreSQL pool and schema readiness; never migrate in the API process."""
 
+import asyncio
 from enum import StrEnum
 
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
-from sqlalchemy.exc import ArgumentError, SQLAlchemyError
+from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 
@@ -23,55 +24,67 @@ def database_engine(database_url: str) -> AsyncEngine:
         raise ValueError("Invalid PostgreSQL configuration") from None
     if url.drivername != "postgresql+psycopg":
         raise ValueError("PostgreSQL must use the async psycopg driver")
-    return create_async_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 2})
+    return create_async_engine(
+        url,
+        pool_pre_ping=True,
+        pool_timeout=2,
+        connect_args={"connect_timeout": 2, "options": "-c statement_timeout=2000"},
+    )
 
 
 async def readiness_reason(engine: AsyncEngine | None) -> ReadinessReason | None:
     if engine is None:
         return ReadinessReason.DATABASE_UNAVAILABLE
     try:
-        async with engine.connect() as connection:
-            await connection.execute(text("SELECT 1"))
-            try:
-                revisions = (
-                    await connection.execute(text("SELECT version_num FROM alembic_version"))
-                ).scalars().all()
-                instance = (
-                    await connection.execute(
-                        text(
-                            "SELECT id, instance_id, admission_open, shutdown_command_id, "
-                            "generation, quiesced_generation, quiesced_at "
-                            "FROM instance_control WHERE id = 1"
-                        )
-                    )
-                ).first()
-                if revisions != [SCHEMA_REVISION] or instance is None:
-                    return ReadinessReason.SCHEMA_INCOMPATIBLE
-                columns = (
-                    await connection.execute(
-                        text(
-                            "SELECT a.attname, format_type(a.atttypid, a.atttypmod), "
-                            "a.attnotnull, pg_get_expr(d.adbin, d.adrelid) "
-                            "FROM pg_attribute a LEFT JOIN pg_attrdef d "
-                            "ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
-                            "WHERE a.attrelid = 'instance_control'::regclass "
-                            "AND a.attnum > 0 AND NOT a.attisdropped"
-                        )
-                    )
-                ).all()
-                constraints = (
-                    await connection.execute(
-                        text(
-                            "SELECT conname, contype, pg_get_constraintdef(oid) "
-                            "FROM pg_constraint "
-                            "WHERE conrelid = 'instance_control'::regclass"
-                        )
-                    )
-                ).all()
-            except SQLAlchemyError:
-                return ReadinessReason.SCHEMA_INCOMPATIBLE
-    except SQLAlchemyError:
+        async with asyncio.timeout(3):
+            return await _probe_schema(engine)
+    except (TimeoutError, SQLAlchemyError):
         return ReadinessReason.DATABASE_UNAVAILABLE
+
+
+async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
+    async with engine.connect() as connection:
+        await connection.execute(text("SELECT 1"))
+        try:
+            revisions = (
+                await connection.execute(text("SELECT version_num FROM alembic_version"))
+            ).scalars().all()
+            instance = (
+                await connection.execute(
+                    text(
+                        "SELECT id, instance_id, admission_open, shutdown_command_id, "
+                        "generation, quiesced_generation, quiesced_at "
+                        "FROM instance_control WHERE id = 1"
+                    )
+                )
+            ).first()
+            if revisions != [SCHEMA_REVISION] or instance is None:
+                return ReadinessReason.SCHEMA_INCOMPATIBLE
+            columns = (
+                await connection.execute(
+                    text(
+                        "SELECT a.attname, format_type(a.atttypid, a.atttypmod), "
+                        "a.attnotnull, pg_get_expr(d.adbin, d.adrelid) "
+                        "FROM pg_attribute a LEFT JOIN pg_attrdef d "
+                        "ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
+                        "WHERE a.attrelid = 'instance_control'::regclass "
+                        "AND a.attnum > 0 AND NOT a.attisdropped"
+                    )
+                )
+            ).all()
+            constraints = (
+                await connection.execute(
+                    text(
+                        "SELECT conname, contype, pg_get_constraintdef(oid) "
+                        "FROM pg_constraint "
+                        "WHERE conrelid = 'instance_control'::regclass"
+                    )
+                )
+            ).all()
+        except SQLAlchemyError as exc:
+            if isinstance(exc, DBAPIError) and getattr(exc.orig, "sqlstate", None) in {"42P01", "42703"}:
+                return ReadinessReason.SCHEMA_INCOMPATIBLE
+            return ReadinessReason.DATABASE_UNAVAILABLE
     expected_columns = {
         ("id", "smallint", True),
         ("instance_id", "uuid", True),

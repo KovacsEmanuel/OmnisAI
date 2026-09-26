@@ -1,10 +1,11 @@
 """Inert PostgreSQL pool and schema readiness; never migrate in the API process."""
 
 import asyncio
+import os
 from enum import StrEnum
 
 from sqlalchemy import text
-from sqlalchemy.engine import make_url
+from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -17,13 +18,26 @@ class ReadinessReason(StrEnum):
     SCHEMA_INCOMPATIBLE = "SCHEMA_INCOMPATIBLE"
 
 
-def database_engine(database_url: str) -> AsyncEngine:
+def reject_ambient_libpq_config() -> None:
+    if any(name.startswith("PG") for name in os.environ):
+        raise ValueError("Ambient libpq configuration is forbidden")
+
+
+def validated_database_url(database_url: str) -> URL:
+    reject_ambient_libpq_config()
     try:
         url = make_url(database_url)
     except ArgumentError:
         raise ValueError("Invalid PostgreSQL configuration") from None
     if url.drivername != "postgresql+psycopg":
         raise ValueError("PostgreSQL must use the async psycopg driver")
+    if url.query:
+        raise ValueError("Database URL query parameters are forbidden")
+    return url
+
+
+def database_engine(database_url: str) -> AsyncEngine:
+    url = validated_database_url(database_url)
     return create_async_engine(
         url,
         pool_pre_ping=True,

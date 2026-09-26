@@ -129,6 +129,41 @@ def test_failed_migration_does_not_echo_database_input(marker):
         pytest.fail("Migration failure exposed database configuration", pytrace=False)
 
 
+def test_migration_rejects_ambient_libpq_routing_before_connecting():
+    result = subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate"],
+        env={
+            "PATH": os.environ.get("PATH", ""),
+            "OMNIS_DATABASE_URL": "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test",
+            "PGHOSTADDR": "127.0.0.2",
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "Ambient libpq" in result.stderr
+
+
+def test_migration_rejects_database_url_query_overrides_before_connecting():
+    result = subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate"],
+        env={
+            "PATH": os.environ.get("PATH", ""),
+            "OMNIS_DATABASE_URL": (
+                "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test?host=127.0.0.2"
+            ),
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "query parameters are forbidden" in result.stderr
+
+
 def test_migration_job_exits_when_schema_lock_is_held(migrated_database_url, tmp_path):
     with connect_test_database(migrated_database_url) as blocker:
         blocker.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")

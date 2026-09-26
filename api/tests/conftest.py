@@ -15,7 +15,13 @@ from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
 
+def reject_ambient_libpq_config() -> None:
+    if any(name.startswith("PG") for name in os.environ):
+        raise RuntimeError("Ambient libpq configuration is forbidden for the dedicated test project")
+
+
 def verify_test_database(url: URL) -> None:
+    reject_ambient_libpq_config()
     project = os.environ.get("OMNIS_TEST_PROJECT", "")
     if not re.fullmatch(r"omnis-p01-[a-z0-9-]+", project):
         raise RuntimeError("Expected a dedicated test project")
@@ -67,6 +73,7 @@ def verify_test_database(url: URL) -> None:
 
 
 def connect_test_database(url: URL, *, autocommit=False):
+    reject_ambient_libpq_config()
     if url.query:
         raise RuntimeError("Expected a dedicated test project database URL")
     try:

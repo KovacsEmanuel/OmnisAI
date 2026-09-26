@@ -239,6 +239,31 @@ async def test_ready_reports_disconnected_database_without_exposing_url(monkeypa
 
 
 @pytest.mark.asyncio
+async def test_api_rejects_ambient_libpq_routing_at_startup(monkeypatch):
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL",
+        "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test",
+    )
+    monkeypatch.setenv("PGHOSTADDR", "127.0.0.2")
+    app = create_app()
+    with pytest.raises(ValueError, match="Ambient libpq"):
+        async with app.router.lifespan_context(app):
+            pass
+
+
+@pytest.mark.asyncio
+async def test_api_rejects_database_url_query_overrides_at_startup(monkeypatch):
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL",
+        "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test?host=127.0.0.2",
+    )
+    app = create_app()
+    with pytest.raises(ValueError, match="query parameters are forbidden"):
+        async with app.router.lifespan_context(app):
+            pass
+
+
+@pytest.mark.asyncio
 async def test_api_restart_closes_pool_and_keeps_instance_identity(monkeypatch, migrated_database_url):
     monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
     with connect_test_database(migrated_database_url) as connection:

@@ -4,11 +4,11 @@ import asyncio
 import os
 
 from alembic import context
-from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
+from omnis.core.db import validated_database_url
 from omnis.modules.instance.models import Base
 
 
@@ -23,11 +23,12 @@ def run_migrations(connection) -> None:
 
 async def migrate() -> None:
     database_url = os.environ.get("OMNIS_DATABASE_URL")
-    if not database_url or make_url(database_url).drivername != "postgresql+psycopg":
+    if not database_url:
         raise RuntimeError("OMNIS_DATABASE_URL must use postgresql+psycopg")
+    url = validated_database_url(database_url)
 
     engine = create_async_engine(
-        database_url,
+        url,
         poolclass=NullPool,
         connect_args={
             "connect_timeout": 2,

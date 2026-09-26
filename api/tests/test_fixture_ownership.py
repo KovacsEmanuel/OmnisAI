@@ -42,6 +42,19 @@ def test_connection_helper_cannot_use_an_overridden_destination(monkeypatch):
         connect_test_database(url)
 
 
+@pytest.mark.parametrize("name", ["PGHOSTADDR", "PGSERVICE", "PGSERVICEFILE", "PGPORT"])
+def test_rejects_ambient_libpq_redirection_before_driver(monkeypatch, name):
+    url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
+    monkeypatch.setenv(name, "127.0.0.2" if name == "PGHOSTADDR" else "untrusted")
+    monkeypatch.setattr(
+        psycopg, "connect", lambda *args, **kwargs: pytest.fail("driver called", pytrace=False)
+    )
+    with pytest.raises(RuntimeError, match="Ambient libpq"):
+        verify_test_database(url)
+    with pytest.raises(RuntimeError, match="Ambient libpq"):
+        connect_test_database(url)
+
+
 def test_accepts_only_its_own_running_compose_database():
     url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
     verify_test_database(url)

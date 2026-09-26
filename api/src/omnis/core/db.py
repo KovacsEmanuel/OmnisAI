@@ -89,10 +89,10 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
             constraints = (
                 await connection.execute(
                     text(
-                        "SELECT conname, contype, pg_get_constraintdef(oid) "
+                        "SELECT conname, contype, pg_get_constraintdef(oid), "
+                        "convalidated, conenforced "
                         "FROM pg_constraint "
-                        "WHERE conrelid = 'instance_control'::regclass "
-                        "AND contype <> 'n'"
+                        "WHERE conrelid = 'instance_control'::regclass"
                     )
                 )
             ).all()
@@ -112,10 +112,14 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
     actual_columns = {(name, kind, required) for name, kind, required, _ in columns}
     defaults = {name: default for name, _, _, default in columns}
     expected_constraints = {
-        ("instance_control_pkey", "p", "PRIMARY KEY (id)"),
-        ("instance_control_instance_id_key", "u", "UNIQUE (instance_id)"),
-        ("ck_instance_control_singleton", "c", "CHECK ((id = 1))"),
-        ("ck_instance_control_generation", "c", "CHECK ((generation >= 0))"),
+        ("instance_control_pkey", "p", "PRIMARY KEY (id)", True, True),
+        ("instance_control_instance_id_key", "u", "UNIQUE (instance_id)", True, True),
+        ("ck_instance_control_singleton", "c", "CHECK ((id = 1))", True, True),
+        ("ck_instance_control_generation", "c", "CHECK ((generation >= 0))", True, True),
+        ("instance_control_id_not_null", "n", "NOT NULL id", True, True),
+        ("instance_control_instance_id_not_null", "n", "NOT NULL instance_id", True, True),
+        ("instance_control_admission_open_not_null", "n", "NOT NULL admission_open", True, True),
+        ("instance_control_generation_not_null", "n", "NOT NULL generation", True, True),
     }
     if (
         actual_columns != expected_columns

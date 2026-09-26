@@ -205,6 +205,37 @@ async def test_ready_denies_an_extra_constraint_blocking_future_admission(monkey
 
 
 @pytest.mark.asyncio
+async def test_ready_denies_an_unvalidated_not_null_with_a_null_row(monkeypatch, migrated_database_url):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute("ALTER TABLE instance_control ALTER COLUMN admission_open DROP NOT NULL")
+        connection.execute("UPDATE instance_control SET admission_open = NULL WHERE id = 1")
+        connection.execute(
+            "ALTER TABLE instance_control ADD CONSTRAINT nn_admission "
+            "NOT NULL admission_open NOT VALID"
+        )
+        assert connection.execute(
+            "SELECT admission_open FROM instance_control WHERE id = 1"
+        ).fetchone() == (None,)
+        assert connection.execute(
+            "SELECT a.attnotnull, c.convalidated FROM pg_attribute a "
+            "JOIN pg_constraint c ON c.conrelid = a.attrelid AND c.conkey = ARRAY[a.attnum] "
+            "WHERE a.attrelid = 'instance_control'::regclass "
+            "AND a.attname = 'admission_open' AND c.contype = 'n'"
+        ).fetchone() == (True, False)
+
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.asyncio
 async def test_ready_times_out_while_postgres_is_connected_but_locked(monkeypatch, migrated_database_url):
     monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
     with connect_test_database(migrated_database_url) as blocker:

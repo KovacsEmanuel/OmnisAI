@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import os
 import secrets
-
+import signal
 import socket
 import subprocess
 import tempfile
@@ -18,6 +18,12 @@ from test_local_control import request
 from test_supervisor import stop_process, wait_ready
 
 
+def assert_clean_guard_report(events):
+    assert events and events[0] == "GUARD_READY", "missing audit channel readiness"
+    assert events.count("GUARD_READY") == 1, "duplicate audit readiness"
+    assert set(events) <= {"GUARD_READY", "CONNECT_ALLOWED", "DNS_ALLOWED"}, "forbidden or unknown audit event"
+
+
 def exercise_installed_control(python, database_url):
     with tempfile.TemporaryDirectory(prefix="omnis-live-", dir=os.environ["TMPDIR"]) as name:
         directory = Path(name)
@@ -25,14 +31,29 @@ def exercise_installed_control(python, database_url):
         env = {"PATH": os.environ.get("PATH", ""),
                "OMNIS_DATABASE_URL": database_url.render_as_string(hide_password=False),
                "OMNIS_CONTROL_DIR": name}
-        negative = subprocess.run([str(python), "-I", guard, "negative"], cwd=directory, env=env,
-                                  capture_output=True, text=True, timeout=5)
-        assert negative.returncode == 0 and negative.stdout.strip() == "GUARD_NEGATIVE_OK"
-        supervisor = subprocess.Popen([str(python), "-I", guard, "omnis.supervisor"], cwd=directory, env=env,
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        processes = [supervisor]
+        for mode, event in (("negative", "EGRESS_DENIED"), ("positive", "CONNECT_ALLOWED")):
+            with tempfile.TemporaryFile(dir=directory) as audit:
+                guard_result = subprocess.run([str(python), "-I", guard, mode], cwd=directory,
+                    env={**env, "OMNIS_TEST_AUDIT_FD": str(audit.fileno())}, pass_fds=(audit.fileno(),),
+                    capture_output=True, text=True, timeout=5)
+                assert guard_result.returncode == 0
+                audit.seek(0)
+                assert audit.read().decode().splitlines() == ["GUARD_READY", event]
+        processes = []
+        expected_exits = []
+        audits = []
+        def launch_guarded(command, *, pass_fds=(), extra_env=None, expected_exit=0):
+            audit = tempfile.TemporaryFile(dir=directory)
+            audits.append(audit)
+            process = subprocess.Popen(command, cwd=directory,
+                env={**env, **(extra_env or {}), "OMNIS_TEST_AUDIT_FD": str(audit.fileno())},
+                pass_fds=(*pass_fds, audit.fileno()), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            processes.append(process)
+            expected_exits.append(expected_exit)
+            return process
         sensitive = []
         try:
+            supervisor = launch_guarded([str(python), "-I", guard, "omnis.supervisor"])
             wait_ready(supervisor)
             capability = (directory / "control.cap").read_text()
             sensitive.append(capability)
@@ -54,11 +75,8 @@ def exercise_installed_control(python, database_url):
                                "--fd", str(listener.fileno()), "--no-access-log", "--no-proxy-headers",
                                "--log-level", "warning", "--timeout-graceful-shutdown", "3"]
                 def launch_api():
-                    process = subprocess.Popen(api_command, cwd=directory, env={**env, "OMNIS_HTTP_PORT": str(port)},
-                                               pass_fds=(listener.fileno(),), stdout=subprocess.PIPE,
-                                               stderr=subprocess.PIPE, text=True)
-                    processes.append(process)
-                    return process
+                    return launch_guarded(api_command, pass_fds=(listener.fileno(),),
+                                          extra_env={"OMNIS_HTTP_PORT": str(port)}, expected_exit=-signal.SIGTERM)
                 def ready(client, process):
                     deadline = time.monotonic() + 8
                     while time.monotonic() < deadline:
@@ -97,6 +115,18 @@ def exercise_installed_control(python, database_url):
                     assert client.get("/health/live", headers={"host": "attacker.invalid"}).status_code == 400
         finally:
             outputs = [stop_process(process) for process in reversed(processes)]
+            reports = []
+            try:
+                for audit in audits:
+                    audit.seek(0)
+                    reports.append(audit.read().decode().splitlines())
+            finally:
+                for audit in audits:
+                    audit.close()
+            # Pinned Uvicorn deliberately re-raises SIGTERM after graceful shutdown.
+            assert [process.returncode for process in processes] == expected_exits
+            for events in reports:
+                assert_clean_guard_report(events)
             for stdout, stderr in outputs:
                 assert "TEST_EGRESS_DENIED" not in stdout + stderr
                 assert "TEST_PROCESS_DENIED" not in stdout + stderr

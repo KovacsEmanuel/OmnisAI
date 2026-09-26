@@ -1,10 +1,13 @@
+import asyncio
 import secrets
 from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 
 from omnis.api import create_app
+from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import SessionStore, code_digest
 
 ORIGIN = "http://127.0.0.1:8765"
@@ -89,3 +92,39 @@ async def test_pairing_body_is_bounded_and_errors_do_not_reflect(monkeypatch, mi
                 yield b"synthetic_marker" * 300
             oversized = await client.post("/api/pairing", content=chunks())
             assert oversized.status_code == 413 and "synthetic_marker" not in oversized.text
+
+
+@pytest.mark.parametrize("operation", ["pairing", "logout", "instance"])
+@pytest.mark.asyncio
+async def test_session_transaction_has_deadline_and_rolls_back(monkeypatch, migrated_database_url, operation):
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        store = SessionStore(app.state.db_engine)
+        code = secrets.token_urlsafe(24)
+        await store.register(code_digest(code), issuance_id=uuid4())
+        grant = await store.exchange(code)
+
+        async def stalled_transaction(self, *args):
+            # Fault-inject a stalled client operation after a real PostgreSQL write.
+            async with self.engine.begin() as connection:
+                await connection.execute(text("UPDATE pairing_challenge SET attempts = attempts + 10"))
+                await asyncio.Event().wait()
+
+        method = {"pairing": "exchange", "logout": "logout", "instance": "status"}[operation]
+        owner = InstanceService if operation == "instance" else SessionStore
+        monkeypatch.setattr(owner, method, stalled_transaction)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            try:
+                response = await asyncio.wait_for(client.request(
+                    "GET" if operation == "instance" else "POST", f"/api/{operation}",
+                    json={"code": code} if operation == "pairing" else None,
+                    headers={"origin": ORIGIN, "cookie": f"omnis_session={grant.token}", "x-csrf-token": grant.csrf}
+                ), timeout=4)
+            except TimeoutError:
+                pytest.fail("Session transaction outlived the HTTP deadline")
+            assert response.status_code == 503
+            assert response.json() == {"error": {"code": "CONTROL_TIMEOUT"}}
+            assert "set-cookie" not in response.headers and code not in response.text
+        async with app.state.db_engine.connect() as connection:
+            assert (await connection.execute(text("SELECT attempts FROM pairing_challenge"))).scalar_one() == 1

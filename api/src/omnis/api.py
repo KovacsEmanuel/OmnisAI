@@ -1,5 +1,6 @@
 """Local, inert API process."""
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 
@@ -49,13 +50,18 @@ def create_app() -> FastAPI:
     async def database_failure(request: Request, exc: SQLAlchemyError):
         return error_response("CONTROL_UNAVAILABLE", 503)
 
+    @app.exception_handler(TimeoutError)
+    async def operation_timeout(request: Request, exc: TimeoutError):
+        return error_response("CONTROL_TIMEOUT", 503)
+
     @app.get("/health/live")
     async def live() -> dict[str, str]:
         return {"status": "live"}
 
     @app.get("/api/instance", response_model=InstanceView)
     async def instance() -> InstanceView:
-        return InstanceView.model_validate(await InstanceService(app.state.db_engine).status())
+        async with asyncio.timeout(3):
+            return InstanceView.model_validate(await InstanceService(app.state.db_engine).status())
 
     @app.get("/health/ready", response_model=HealthReady)
     async def ready(response: Response) -> HealthReady:

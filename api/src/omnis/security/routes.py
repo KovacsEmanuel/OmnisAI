@@ -1,5 +1,7 @@
 """Narrow browser bootstrap routes; pairing issuance is never an HTTP operation."""
 
+import asyncio
+
 from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -23,7 +25,8 @@ class SessionView(BaseModel):
 async def pair(body: PairingBody, request: Request, response: Response):
     store = SessionStore(request.app.state.db_engine)
     try:
-        grant = await store.exchange(body.code)
+        async with asyncio.timeout(3):
+            grant = await store.exchange(body.code)
     except PairingDenied:
         return error_response("PAIRING_DENIED", 401)
     except PairingLimited:
@@ -42,7 +45,8 @@ async def session(request: Request):
 
 @router.post("/logout", status_code=204)
 async def logout(request: Request):
-    await SessionStore(request.app.state.db_engine).logout(request.state.session_grant.token)
+    async with asyncio.timeout(3):
+        await SessionStore(request.app.state.db_engine).logout(request.state.session_grant.token)
     response = Response(status_code=204)
     response.delete_cookie(COOKIE, path="/", httponly=True, samesite="strict", secure=False)
     return response

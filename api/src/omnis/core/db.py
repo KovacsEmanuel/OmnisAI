@@ -39,7 +39,8 @@ async def readiness_reason(engine: AsyncEngine | None) -> ReadinessReason | None
                 instance = (
                     await connection.execute(
                         text(
-                            "SELECT instance_id, admission_open, generation "
+                            "SELECT id, instance_id, admission_open, shutdown_command_id, "
+                            "generation, quiesced_generation, quiesced_at "
                             "FROM instance_control WHERE id = 1"
                         )
                     )

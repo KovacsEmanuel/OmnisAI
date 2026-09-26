@@ -1,5 +1,6 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
+from psycopg import sql
 
 from omnis.api import create_app
 from conftest import connect_test_database
@@ -108,6 +109,25 @@ async def test_ready_denies_a_newer_schema_revision(monkeypatch, migrated_databa
 async def test_ready_denies_a_missing_instance_row(monkeypatch, migrated_database_url):
     with connect_test_database(migrated_database_url) as connection:
         connection.execute("DELETE FROM instance_control WHERE id = 1")
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.parametrize("column", ["shutdown_command_id", "quiesced_at"])
+@pytest.mark.asyncio
+async def test_ready_denies_missing_instance_column(monkeypatch, migrated_database_url, column):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute(
+            sql.SQL("ALTER TABLE instance_control DROP COLUMN {}").format(sql.Identifier(column))
+        )
     monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
     app = create_app()
     async with app.router.lifespan_context(app):

@@ -70,6 +70,13 @@ async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(monkey
     "ALTER TABLE pairing_challenge ALTER COLUMN attempts SET DEFAULT 1",
     "ALTER TABLE instance_command DROP CONSTRAINT instance_command_pkey",
     "DELETE FROM supervisor_lease",
+    "DROP TABLE ui_session",
+    "ALTER TABLE pairing_challenge DROP CONSTRAINT pairing_challenge_id_check; "
+    "ALTER TABLE pairing_challenge ADD CONSTRAINT pairing_challenge_id_check CHECK (true)",
+    "ALTER TABLE ui_session ALTER COLUMN expires_at DROP NOT NULL; "
+    "INSERT INTO ui_session VALUES ('synthetic-null-expiry', NULL); "
+    "ALTER TABLE ui_session ADD CONSTRAINT expires_required NOT NULL expires_at NOT VALID",
+    "ALTER TABLE pairing_issuance DROP CONSTRAINT pairing_issuance_digest_key",
 ])
 @pytest.mark.asyncio
 async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mutation):
@@ -78,6 +85,15 @@ async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mu
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     try:
         assert await readiness_reason(engine) == ReadinessReason.SCHEMA_INCOMPATIBLE
+        app = create_app()
+        app.state.db_engine = engine
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765") as client:
+            response = await client.post("/api/pairing", json={"code": "synthetic-denied-code"},
+                                         headers={"origin": "http://127.0.0.1:8765"})
+            assert response.status_code == 503
+            assert response.json()["error"]["code"] == "CONTROL_UNAVAILABLE"
+        async with engine.connect() as connection:
+            assert (await connection.execute(text("SELECT digest, attempts FROM pairing_challenge"))).one() == (None, 0)
     finally:
         await engine.dispose()
 

@@ -235,6 +235,31 @@ async def test_ready_denies_an_unvalidated_not_null_with_a_null_row(monkeypatch,
     assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "ALTER TABLE instance_control ALTER COLUMN quiesced_generation SET DEFAULT 0",
+        "ALTER TABLE instance_control ALTER COLUMN shutdown_command_id SET DEFAULT gen_random_uuid()",
+        "ALTER TABLE instance_control ALTER COLUMN quiesced_at SET DEFAULT now()",
+        "ALTER TABLE instance_control ALTER COLUMN id DROP DEFAULT",
+    ],
+)
+@pytest.mark.asyncio
+async def test_ready_denies_unexpected_instance_defaults(monkeypatch, migrated_database_url, mutation):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute(mutation)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
 @pytest.mark.asyncio
 async def test_ready_times_out_while_postgres_is_connected_but_locked(monkeypatch, migrated_database_url):
     monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))

@@ -111,6 +111,15 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
     }
     actual_columns = {(name, kind, required) for name, kind, required, _ in columns}
     defaults = {name: default for name, _, _, default in columns}
+    expected_defaults = {
+        "id": "nextval('instance_control_id_seq'::regclass)",
+        "instance_id": "gen_random_uuid()",
+        "admission_open": "false",
+        "shutdown_command_id": None,
+        "generation": "0",
+        "quiesced_generation": None,
+        "quiesced_at": None,
+    }
     expected_constraints = {
         ("instance_control_pkey", "p", "PRIMARY KEY (id)", True, True),
         ("instance_control_instance_id_key", "u", "UNIQUE (instance_id)", True, True),
@@ -123,9 +132,7 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
     }
     if (
         actual_columns != expected_columns
-        or defaults.get("instance_id") != "gen_random_uuid()"
-        or defaults.get("admission_open") != "false"
-        or defaults.get("generation") != "0"
+        or defaults != expected_defaults
         or set(constraints) != expected_constraints
     ):
         return ReadinessReason.SCHEMA_INCOMPATIBLE

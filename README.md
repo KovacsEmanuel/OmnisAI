@@ -2,7 +2,7 @@
 
 Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativi Hermes și skills versionate.
 
-**Stare: P0.1_IMPLEMENTED_LOCAL / review final în curs.** Primul pachet API instalabil și migrarea reală PostgreSQL există; `api_ready` este separat de dashboard/assessment, încă indisponibile. Webul, CLI-ul `omnis`, runtime-ul Hermes și execuția țintelor nu sunt implementate. Nu au fost efectuate scanări sau apeluri LLM de produs.
+**Stare: P0.1_IMPLEMENTED_LOCAL / verificat și review-uit local; CI remote NOT-RUN.** Primul pachet API instalabil și migrarea reală PostgreSQL există; constatările review-urilor independente au fost reproduse și corectate. `api_ready` este separat de dashboard/assessment, încă indisponibile. Webul, CLI-ul `omnis`, runtime-ul Hermes și execuția țintelor nu sunt implementate. Nu au fost efectuate scanări sau apeluri LLM de produs.
 
 ## Reguli de dezvoltare
 
@@ -20,6 +20,7 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 - **[UI/UX — HTML](documents/Omnis_UI_UX_Spec.html)** · [Markdown](documents/Omnis_UI_UX_Spec.md) · [DESIGN.md](DESIGN.md)
 - **[Prototip UI navigabil — DEMO offline](documents/Omnis_UI_Prototype.html)** · Home/Dashboard → Overview · Brain stream · Findings · Coverage · Reports; Settings separat, findings expandabile și review/export DEMO din același model
 - **[Re-review și readiness — HTML](documents/Omnis_Implementation_Readiness_Review.html)** · [Markdown](documents/Omnis_Implementation_Readiness_Review.md)
+- **[Proba locală P0.1](documents/verification/p01-local-readiness.md)** · API/PostgreSQL, wheel, controale negative, limite și porți neexecutate
 
 ### Decizia de pornire
 

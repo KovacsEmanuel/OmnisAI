@@ -447,7 +447,7 @@ Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea 
 
 ### 12.1. Arborele țintă și proprietatea fișierelor
 
-**Organizarea a fost confirmată pentru implementare; P0.1 este în lucru, nu întregul arbore.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
+**Organizarea a fost confirmată pentru implementare; P0.1 este verificat local, nu întregul arbore.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
 
 ```text
 OmnisAI/

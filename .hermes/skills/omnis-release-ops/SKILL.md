@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -29,6 +29,8 @@ Read stack baseline and rejected dependencies; inspect current manifests/locks a
 
 ## Pitfalls
 Host Playwright/Chromium validation is not certification of the planned executor version. Docker tags can move. Git rollback does not restore DB or secrets. Documentation readiness is not runtime readiness.
+
+- A wheel that imports its app factory may still omit Alembic scripts kept outside the package root. Build and install the wheel with dependencies exported/hash-checked from its lock in a fresh scratch venv; run the dedicated migrator on a disposable empty PostgreSQL database **outside the checkout**, then read back the schema and closed instance row. Source-tree Alembic success or a filename-only archive check is not release evidence.
 
 ## Verification
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

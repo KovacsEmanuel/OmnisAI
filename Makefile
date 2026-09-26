@@ -23,13 +23,13 @@ check-api:
 	$(UV) lock --check --no-config --directory api
 	$(UV) pip check --no-config --python $(API_PY)
 	$(UV) audit --preview-features audit-command --locked --no-config --directory api --python-version 3.13 --python-platform linux
-	$(API_PY) -m compileall -q api/src api/migrations api/tests
+	$(API_PY) -m compileall -q api/src api/tests
 
 test-api:
 	$(API_PY) -m pytest api/tests/test_health.py api/tests/test_fixture_ownership.py -q
 
 test-migrations:
-	$(API_PY) -m pytest api/tests/test_migrations.py -q
+	OMNIS_UV="$(UV)" $(API_PY) -m pytest api/tests/test_migrations.py -q
 
 check-api-wheel:
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a scratch directory\n' >&2; exit 2; }

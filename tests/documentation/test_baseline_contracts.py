@@ -19,10 +19,13 @@ class BaselineContracts(unittest.TestCase):
             text = (ROOT / relative).read_text(encoding='utf-8')
             self.assertIn('VISUAL_ACCEPTED', text, relative)
             self.assertIn('df17a29', text, relative)
-        for name in ['Omnis_Implementation_Plan.md', 'Omnis_Implementation_Readiness_Review.md']:
-            text = (DOCS / name).read_text(encoding='utf-8')
-            self.assertIn('START_PENDING_NEW_SESSION', text)
-            self.assertIn('NEÎNCEPUT', text)
+        historical_review = (DOCS / 'Omnis_Implementation_Readiness_Review.md').read_text(encoding='utf-8')
+        self.assertIn('START_PENDING_NEW_SESSION', historical_review)
+        self.assertIn('NEÎNCEPUT', historical_review)
+        for relative in ['README.md', 'documents/Omnis_Implementation_Plan.md']:
+            text = (ROOT / relative).read_text(encoding='utf-8')
+            self.assertIn('P0.1_IMPLEMENTED_LOCAL', text, relative)
+            self.assertIn('G00', text, relative)
         self.assertIn('NO-GO pentru target effects', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('INSTRUCTIONS_UPDATE_BLOCKED', (ROOT / 'README.md').read_text(encoding='utf-8'))
 

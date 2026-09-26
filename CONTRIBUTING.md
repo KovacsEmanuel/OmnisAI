@@ -85,7 +85,7 @@ Pentru rollback inspectăm `git show <sha>` și dependențele, folosim `git reve
 
 ## Verificări disponibile acum
 
-Comanda canonică este `make check` (alias `make test`); rulează verificările documentare, testele launcherelor și proba reală anti-slop, propagând orice eșec. Instalează întâi [dependențele de dezvoltare](tools/development/README.md). Nu este certificarea aplicației sau a Chisel. Proba completă Reticle este separată, cu namespace/browser și rezultate proprii.
+Comanda canonică este `make check` (alias `make test`); rulează verificările documentare, testele launcherelor de dezvoltare, anti-slop și, acum, P0.1 API/PostgreSQL + wheel. Instalează întâi [dependențele de dezvoltare](tools/development/README.md) și [DB-ul de test izolat](api/README.md); lipsa lor eșuează, nu este skip. Nu este certificarea dashboardului, assessmentului sau a Chisel. Proba completă Reticle este separată, cu namespace/browser și rezultate proprii.
 
 Comenzile individuale, pentru investigații țintite:
 
@@ -97,7 +97,7 @@ python tests/documentation/browser_check.py --include-documents --output <scratc
 git diff --check
 ```
 
-Comenzile aplicației se adaugă când există componentele, nu sunt inventate din structura propusă. Probele sintetice sunt etichetate; nu fac scanări și nu consumă conturi LLM. Direcția prototipului `df17a29` este **VISUAL_ACCEPTED** prin feedback explicit. Pornirea implementării rămâne **START_PENDING_NEW_SESSION**, conform planului; verde tehnic nu acordă permisiunea pentru LLM/ținte. Vezi UI/UX §0/§8 și punctul de reluare din plan.
+Comenzile aplicației se adaugă numai odată cu componentele: `make check-api`, `make test-api`, `make test-migrations`, `make check-api-wheel` aparțin acum P0.1. Probele sintetice sunt etichetate; nu fac scanări și nu consumă conturi LLM. Direcția prototipului `df17a29` este **VISUAL_ACCEPTED**, iar pornirea P0.1 a fost autorizată; `P0.1_IMPLEMENTED_LOCAL` nu închide G00 și nu acordă permisiunea pentru LLM/ținte. Vezi plan §19 și [api/README.md](api/README.md).
 
 ## Sources
 

@@ -2,7 +2,7 @@
 
 Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativi Hermes și skills versionate.
 
-**Stare:** baseline de implementare pregătit; aplicația nu este implementată. Au fost executate probe izolate de dependențe și verificări ale documentelor/prototipului, nu scanări sau integrarea live Hermes.
+**Stare: P0.1_IMPLEMENTED_LOCAL / review final în curs.** Primul pachet API instalabil și migrarea reală PostgreSQL există; `api_ready` este separat de dashboard/assessment, încă indisponibile. Webul, CLI-ul `omnis`, runtime-ul Hermes și execuția țintelor nu sunt implementate. Nu au fost efectuate scanări sau apeluri LLM de produs.
 
 ## Reguli de dezvoltare
 
@@ -12,7 +12,7 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Începe aici
 
-Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)** · [uneltele auditate și starea lor](tools/development/README.md). Pornire Hermes: `python scripts/hermes_dev.py`; verificare locală: `make check` după setup-ul documentat.
+Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)** · [uneltele auditate și starea lor](tools/development/README.md) · [operare API P0.1](api/README.md). Pornire Hermes de dezvoltare: `python scripts/hermes_dev.py`; verificare locală: `make check` după setup-ul documentat al DB-ului de test.
 
 - **[Plan de implementare v2 — HTML](documents/Omnis_Implementation_Plan.html)** · [Markdown](documents/Omnis_Implementation_Plan.md)
 - **[Arhitectura MVP v1 — HTML](documents/Omnis_MVP_Architecture.html)** · [Markdown](documents/Omnis_MVP_Architecture.md)
@@ -23,9 +23,9 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 
 ### Decizia de pornire
 
-**G-DESIGN: VISUAL_ACCEPTED / START_PENDING_NEW_SESSION.** Auditul pregătește implementarea; această sesiune nu o începe. Mesajul de pornire din sesiunea nouă confirmă baseline-ul de structură `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md), apoi autorizează numai felia P0 declarată. Nu există încă aceste componente de produs.
+**G-DESIGN: VISUAL_ACCEPTED; pornirea P0.1 autorizată.** Utilizatorul a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md). Numai `api/` a fost introdus pentru prima felie; acordul vizual nu autorizează conturi, modele sau trafic către ținte.
 
-**Reluare după clear:** [plan §19](documents/Omnis_Implementation_Plan.md) definește **P0.1 — API/PostgreSQL readiness și migrare reală**, cu perimetru, teste, non-obiective și mesaj de pornire. Nu implementăm întregul MVP sau toate folderele dintr-un foc. Matricea UI→owner/API/migrare/ticket/probă este în plan §16; [registrul auditului PA01–PA09](documents/Omnis_Implementation_Readiness_Review.md) explică gapurile remediate și excepția AGENTS. G00, integrarea runtime și execuția target rămân NEÎNCEPUTE/BLOCKED până la probele lor.
+**Reluare după clear:** [plan §19](documents/Omnis_Implementation_Plan.md) fixează perimetrul P0.1; [api/README.md](api/README.md) descrie testul izolat și comanda migratorului instalat. Matricea UI→owner/API/migrare/ticket/probă este în plan §16; [registrul auditului PA01–PA09](documents/Omnis_Implementation_Readiness_Review.md) rămâne auditul istoric anterior pornirii. G00, integrarea runtime și execuția target rămân NEÎNCEPUTE/BLOCKED până la probele lor.
 
 **După G-DESIGN:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 

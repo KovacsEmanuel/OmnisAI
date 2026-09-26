@@ -1,6 +1,6 @@
 # Omnis — plan de implementare v2
 
-**Baseline de implementare · 25 septembrie 2026 · Local-first · Toate etapele aplicației sunt NEÎNCEPUTE**
+**Baseline de implementare · Local-first · P0.1_IMPLEMENTED_LOCAL / review final în curs · G00 și etapele următoare NEÎNCEPUTE**
 
 Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
@@ -43,7 +43,7 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 ## 4. Etape și dependențe revizuite
 
-**G-DESIGN — VISUAL_ACCEPTED / START_PENDING_NEW_SESSION:** utilizatorul a acceptat prototipul `df17a29` și cere acest audit înainte de implementare. Mesajul de pornire din sesiunea nouă confirmă folosirea structurii `api/`, `web/`, `cli/` și a contractului `omnis` din arhitectură §4/§12 și autorizează prima felie declarată. Nu redeschidem designul fără motiv/cerere și nu începem scaffoldul în această sesiune. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
+**G-DESIGN — VISUAL_ACCEPTED / P0.1 autorizat:** utilizatorul a acceptat prototipul `df17a29` și a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din arhitectură §4/§12 pentru prima felie declarată. `api/` a fost introdus incremental; webul și CLI-ul rămân neimplementate. Nu redeschidem designul fără motiv/cerere. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
 
 ### Ordine verificabilă
 
@@ -321,7 +321,7 @@ Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probe
 
 ## 19. Reluarea într-o sesiune nouă — prima felie
 
-**Stare:** aplicație NEÎNCEPUTĂ; design df17a29 acceptat; numai documente/prototip/unelte și probe izolate există. Citește README/AGENTS, §4–§5/§19 din acest plan, arhitectură §4/§12 și stackul. Pentru frontend, UI/UX §0/§8 și DESIGN sunt obligatorii. Nu reia brainstormingul sau reproiectarea vizuală. Nu folosi snapshotul remote ca bază dacă HEAD local este înainte.
+**Stare actuală: P0.1_IMPLEMENTED_LOCAL / review final în curs.** API-ul instalabil, migrarea din wheel și readiness pe PostgreSQL real există; P0.2–P0.4, web/CLI și G00 sunt NEÎNCEPUTE. Restul acestei secțiuni rămâne contractul primei felii, nu o invitație la refacerea scaffoldului. Citește README/AGENTS, §4–§5/§19 din acest plan, arhitectură §4/§12 și stackul. Pentru frontend, UI/UX §0/§8 și DESIGN sunt obligatorii. Nu reia brainstormingul sau reproiectarea vizuală. Nu folosi snapshotul remote ca bază dacă HEAD local este înainte.
 
 **P0.1 — API/DB readiness real, subfelie B01a/B01b/B01c.** Acesta este primul rezultat observabil, nu închiderea întregului P0. Creează numai pachetul API instalabil, schema minimă InstanceControl necesară control plane-ului și probele sale; `admission_open` inițial false. Contracte propuse `GET /health/live` și `GET /health/ready`: primul reflectă procesul, al doilea verifică PostgreSQL și versiunea schemei. `api_ready` nu înseamnă `dashboard_ready` sau `assessment_ready`; ultimele rămân false cât lipsesc componentele. Nu folosi un răspuns constant „healthy” sau SQLite ca substitut.
 

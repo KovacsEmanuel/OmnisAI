@@ -18,6 +18,8 @@ make check
 
 Volumul este `OMNIS_TEST_PROJECT` + `_pgdata`, montat la `/var/lib/postgresql` (PG18 are `PGDATA=/var/lib/postgresql/18/docker`). Portul este atribuit dinamic **numai pe 127.0.0.1**; citiți-l din nou după orice `up`/recreare a containerului. Fixture-urile testează proiectul, imaginea, bindul și volumul înainte de CREATE/DROP pe baze disposable cu nume UUID; lipsa unei precondiții dă exit nenul, nu SQLite/skip. Verificați numele proiectului și al volumului înainte de orice intervenție Docker. Docker inspect poate expune parola sintetică administratorilor hostului; nu folosiți această topologie cu date reale.
 
+Conexiunile API/migrator și fixture-urile refuză orice setare moștenită `PG*` din libpq și orice parametru query în `OMNIS_DATABASE_URL`/`OMNIS_TEST_DATABASE_URL`: acestea pot redirecționa hostul efectiv chiar dacă autoritatea URL pare să indice instanța test. Configurați doar URL-ul explicit, fără `?host=`, `?port=` sau fișier service. Readiness compară schema fizică a `InstanceControl` din PG18, inclusiv constrângerile `NOT NULL` **validate și enforced**; un stamp Alembic sau `attnotnull` singur nu dovedește compatibilitatea.
+
 `make check` cere și dependențele existente de documentație/anti-slop din `tools/development/README.md`; nu instalează automat nimic. Dacă `uv` din PATH nu este 0.12.19, instalați pinul separat și transmiteți `UV=/cale/către/uv-0.12.19` la Make. `make test-api`, `make test-migrations` și `make check-api-wheel` sunt probele P0.1 individuale; wheelul este instalat cu dependențe exportate din lock într-un venv scratch, apoi migrează o DB goală **din afara checkoutului**.
 
 Migrarea este un job explicit înaintea pornirii procesului API:

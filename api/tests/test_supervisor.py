@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import selectors
 import subprocess
@@ -37,8 +38,9 @@ def stop_process(process, *, crash=False):
     return process.communicate(timeout=8)
 
 
+@pytest.mark.parametrize("crash_point", ["before_shutdown", "after_commit", "after_quiescence", "lost_ack"])
 @pytest.mark.asyncio
-async def test_real_supervisor_is_unique_and_restart_stays_closed(migrated_database_url, ipc_directory):
+async def test_real_supervisor_is_unique_and_restart_stays_closed(migrated_database_url, ipc_directory, crash_point):
     first = start_supervisor(migrated_database_url, ipc_directory)
     processes = [first]
     try:
@@ -55,11 +57,38 @@ async def test_real_supervisor_is_unique_and_restart_stays_closed(migrated_datab
         opened = await request(ipc_directory, capability, {"op": "open", "instance_id": instance,
                                "command_id": str(uuid4()), "expected_generation": status["generation"]})
         assert opened["ok"]
-        stop_id = str(uuid4())
-        stopped = await request(ipc_directory, capability, {"op": "shutdown", "instance_id": instance,
-                               "command_id": stop_id, "expected_generation": opened["status"]["generation"]})
-        assert stopped["ok"] and stopped["status"]["admission_open"] is False
-        # Crash the real owner after durable shutdown; no in-memory barrier may be relied on.
+        readback = opened["status"]
+        stop_id = None
+        if crash_point != "before_shutdown":
+            stop_id = str(uuid4())
+            command = {"op": "shutdown", "instance_id": instance, "command_id": stop_id,
+                       "expected_generation": opened["status"]["generation"]}
+            if crash_point == "lost_ack":
+                _, writer = await asyncio.open_unix_connection(str(ipc_directory / "control.sock"))
+                writer.write(json.dumps({"version": 1, "capability": capability, "command": command}).encode() + b"\n")
+                await writer.drain()
+                writer.close()
+                await writer.wait_closed()
+                # No response is consumed. Resolve by readback, then retry the same UUID.
+                deadline = time.monotonic() + 4
+                while time.monotonic() < deadline:
+                    readback = (await request(ipc_directory, capability, {"op": "status"}))["status"]
+                    if readback["shutdown_command_id"] == stop_id:
+                        break
+                    await asyncio.sleep(0.05)
+                assert readback["shutdown_command_id"] == stop_id
+            stopped = await request(ipc_directory, capability, command)
+            assert stopped["ok"] and stopped["status"]["admission_open"] is False
+            assert stopped["result_generation"] == opened["status"]["generation"] + 1
+            if crash_point == "after_quiescence":
+                deadline = time.monotonic() + 4
+                while time.monotonic() < deadline:
+                    readback = (await request(ipc_directory, capability, {"op": "status"}))["status"]
+                    if readback["quiesced_generation"] == readback["generation"]:
+                        break
+                    await asyncio.sleep(0.05)
+                assert readback["quiesced_generation"] == readback["generation"]
+        # Crash at the chosen boundary; no in-memory barrier may be relied on.
         stop_process(first, crash=True)
         await asyncio.sleep(5.2)
         third = start_supervisor(migrated_database_url, ipc_directory)
@@ -70,7 +99,9 @@ async def test_real_supervisor_is_unique_and_restart_stays_closed(migrated_datab
         assert (await request(ipc_directory, capability, {"op": "status"}))["error"] == "CONTROL_DENIED"
         after = (await request(ipc_directory, fresh_capability, {"op": "status"}))["status"]
         assert after["instance_id"] == instance
-        assert after["shutdown_command_id"] == stop_id
+        assert after["shutdown_command_id"] is not None
+        if stop_id is not None:
+            assert after["shutdown_command_id"] == stop_id
         assert not after["admission_open"] and not after["shutdown_finalized"]
         assert after["supervisor_epoch"] > status["supervisor_epoch"]
         refused = await request(ipc_directory, fresh_capability, {"op": "open", "instance_id": instance,

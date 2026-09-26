@@ -1,6 +1,6 @@
 import asyncio
 import secrets
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -87,6 +87,7 @@ async def test_pairing_body_is_bounded_and_errors_do_not_reflect(monkeypatch, mi
         async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN, headers={"origin": ORIGIN}) as client:
             invalid = await client.post("/api/pairing", json={"code": {"secret": "synthetic_marker"}})
             assert invalid.status_code == 422 and "synthetic_marker" not in invalid.text
+            assert invalid.json()["error"]["correlation_id"] == invalid.headers["x-correlation-id"]
             async def chunks():
                 yield b"x" * 3000
                 yield b"synthetic_marker" * 300
@@ -124,7 +125,34 @@ async def test_session_transaction_has_deadline_and_rolls_back(monkeypatch, migr
             except TimeoutError:
                 pytest.fail("Session transaction outlived the HTTP deadline")
             assert response.status_code == 503
-            assert response.json() == {"error": {"code": "CONTROL_TIMEOUT"}}
+            assert response.json()["error"]["code"] == "CONTROL_TIMEOUT"
+            assert response.json()["error"]["correlation_id"] == response.headers["x-correlation-id"]
             assert "set-cookie" not in response.headers and code not in response.text
         async with app.state.db_engine.connect() as connection:
             assert (await connection.execute(text("SELECT attempts FROM pairing_challenge"))).scalar_one() == 1
+
+
+@pytest.mark.asyncio
+async def test_error_correlations_are_generated_server_side_per_request():
+    injected = "00000000-0000-4000-8000-000000000000"
+    async with AsyncClient(transport=ASGITransport(app=create_app()), base_url=ORIGIN,
+                           headers={"x-correlation-id": injected}) as client:
+        responses = await asyncio.gather(
+            client.get("/health/live", headers={"host": "attacker.invalid"}),
+            client.post("/api/pairing", headers={"origin": "null"}),
+            client.get("/api/session"),
+            client.post("/api/pairing", json={"code": "synthetic_code_marker"}, headers={"origin": ORIGIN}),
+            client.get("/unknown"),
+            client.post("/health/live", headers={"origin": ORIGIN}),
+        )
+    assert [response.status_code for response in responses] == [400, 403, 401, 503, 404, 405]
+    assert "GET" in responses[-1].headers.get("allow", "")
+    correlations = []
+    for response in responses:
+        assert "x-correlation-id" in response.headers
+        correlation = response.headers["x-correlation-id"]
+        assert UUID(correlation).version == 4 and correlation != injected
+        assert response.json()["error"]["correlation_id"] == correlation
+        assert "synthetic_code_marker" not in response.text
+        correlations.append(correlation)
+    assert len(set(correlations)) == len(responses)

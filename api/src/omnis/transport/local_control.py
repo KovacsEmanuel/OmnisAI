@@ -9,7 +9,7 @@ import secrets
 import socket
 import struct
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
@@ -142,6 +142,7 @@ class LocalControl:
                 response = {"ok": False, "error": exc.code.value}
             except PairingConflict:
                 response = {"ok": False, "error": "PAIRING_CONFLICT"}
+            response["correlation_id"] = str(uuid4())
             writer.write(json.dumps(response).encode() + b"\n")
             await asyncio.wait_for(writer.drain(), 1)
         except (ConnectionError, TimeoutError):

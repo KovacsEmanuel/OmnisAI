@@ -3,6 +3,7 @@
 import asyncio
 import hmac
 import os
+from uuid import uuid4
 
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.datastructures import Headers
@@ -10,6 +11,7 @@ from starlette.datastructures import Headers
 from starlette.responses import JSONResponse
 
 from omnis.core.db import readiness_reason
+from omnis.core.errors import ErrorCode, ErrorDetail, ErrorEnvelope, request_correlation
 from omnis.security.sessions import SessionStore
 
 COOKIE = "omnis_session"
@@ -23,7 +25,8 @@ def local_origin() -> str:
 
 
 def error_response(code: str, status: int) -> JSONResponse:
-    return JSONResponse({"error": {"code": code}}, status_code=status,
+    error = ErrorEnvelope(error=ErrorDetail(code=ErrorCode(code), correlation_id=request_correlation.get() or uuid4()))
+    return JSONResponse(error.model_dump(mode="json"), status_code=status,
                         headers={"Cache-Control": "no-store"})
 
 
@@ -37,6 +40,20 @@ class LocalBoundary:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
+        correlation = uuid4()
+        token = request_correlation.set(correlation)
+        async def correlated_send(message):
+            if message["type"] == "http.response.start":
+                message["headers"] = [
+                    (key, value) for key, value in message.get("headers", []) if key.lower() != b"x-correlation-id"
+                ] + [(b"x-correlation-id", str(correlation).encode())]
+            await send(message)
+        try:
+            await self._http(scope, receive, correlated_send)
+        finally:
+            request_correlation.reset(token)
+
+    async def _http(self, scope, receive, send):
         headers = Headers(scope=scope)
         mutation = scope["method"] not in {"GET", "HEAD", "OPTIONS"}
         origins = headers.getlist("origin")

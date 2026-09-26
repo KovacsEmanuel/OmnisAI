@@ -8,6 +8,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
+from starlette.exceptions import HTTPException
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.schemas import InstanceView
@@ -45,6 +46,14 @@ def create_app() -> FastAPI:
     @app.exception_handler(RequestValidationError)
     async def invalid_input(request: Request, exc: RequestValidationError):
         return error_response("INVALID_INPUT", 422)
+
+    @app.exception_handler(HTTPException)
+    async def http_failure(request: Request, exc: HTTPException):
+        code = {404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}.get(exc.status_code, "HTTP_ERROR")
+        response = error_response(code, exc.status_code)
+        if exc.status_code == 405 and exc.headers and "Allow" in exc.headers:
+            response.headers["Allow"] = exc.headers["Allow"]
+        return response
 
     @app.exception_handler(SQLAlchemyError)
     async def database_failure(request: Request, exc: SQLAlchemyError):

@@ -6,7 +6,7 @@ import socket
 import stat
 import tempfile
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -45,7 +45,8 @@ async def test_real_unix_control_peer_capability_and_allowlist(migrated_database
             for name in ("control.sock", "control.cap", "control.lock"):
                 assert stat.S_IMODE((ipc_directory / name).stat().st_mode) == 0o600
             denied = await request(ipc_directory, secrets.token_hex(32), {"op": "status"})
-            assert denied == {"ok": False, "error": "CONTROL_DENIED"}
+            assert denied["ok"] is False and denied["error"] == "CONTROL_DENIED"
+            assert UUID(denied["correlation_id"]).version == 4
             accepted = await request(ipc_directory, capability, {"op": "status"})
             assert accepted["ok"] and accepted["status"]["admission_open"] is False
             assert capability not in json.dumps(accepted)

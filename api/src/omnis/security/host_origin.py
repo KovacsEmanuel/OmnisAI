@@ -2,6 +2,8 @@
 
 import asyncio
 import hmac
+import json
+import logging
 import os
 from uuid import uuid4
 
@@ -42,14 +44,26 @@ class LocalBoundary:
             return
         correlation = uuid4()
         token = request_correlation.set(correlation)
+        response_started = False
         async def correlated_send(message):
+            nonlocal response_started
             if message["type"] == "http.response.start":
+                response_started = True
                 message["headers"] = [
                     (key, value) for key, value in message.get("headers", []) if key.lower() != b"x-correlation-id"
                 ] + [(b"x-correlation-id", str(correlation).encode())]
             await send(message)
         try:
             await self._http(scope, receive, correlated_send)
+        except Exception:
+            # Transport failure, not success: preserve correlation without logging
+            # untrusted exception text/tracebacks. BaseException cancellation propagates.
+            logging.getLogger("omnis.api").error(json.dumps({
+                "event": "API_INTERNAL_ERROR", "correlation_id": str(correlation),
+            }))
+            if response_started:
+                raise RuntimeError(f"API_RESPONSE_INTERRUPTED correlation_id={correlation}") from None
+            await error_response("INTERNAL_ERROR", 500)(scope, receive, correlated_send)
         finally:
             request_correlation.reset(token)
 

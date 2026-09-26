@@ -156,3 +156,57 @@ async def test_error_correlations_are_generated_server_side_per_request():
         assert "synthetic_code_marker" not in response.text
         correlations.append(correlation)
     assert len(set(correlations)) == len(responses)
+
+
+@pytest.mark.parametrize("location", ["boundary", "route"])
+@pytest.mark.asyncio
+async def test_unexpected_failures_are_sanitized_and_correlated(monkeypatch, caplog, location):
+    async def broken_readiness(engine):
+        raise RuntimeError("synthetic-sensitive-error-marker")
+
+    module = "omnis.security.host_origin" if location == "boundary" else "omnis.api"
+    monkeypatch.setattr(module + ".readiness_reason", broken_readiness)
+    async with AsyncClient(transport=ASGITransport(app=create_app(), raise_app_exceptions=False), base_url=ORIGIN) as client:
+        if location == "boundary":
+            response = await client.post("/api/pairing", json={"code": "synthetic-pairing-code"}, headers={"origin": ORIGIN})
+        else:
+            response = await client.get("/health/ready")
+    assert response.status_code == 500
+    assert response.headers.get("cache-control") == "no-store"
+    error = response.json()["error"]
+    assert error["code"] == "INTERNAL_ERROR"
+    assert UUID(error["correlation_id"]).version == 4
+    assert error["correlation_id"] == response.headers["x-correlation-id"]
+    assert "synthetic-sensitive-error-marker" not in response.text + caplog.text
+    assert error["correlation_id"] in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_http_cancellation_is_not_converted_to_an_error(monkeypatch):
+    async def cancelled(engine):
+        raise asyncio.CancelledError()
+
+    monkeypatch.setattr("omnis.api.readiness_reason", cancelled)
+    async with AsyncClient(transport=ASGITransport(app=create_app(), raise_app_exceptions=False), base_url=ORIGIN) as client:
+        with pytest.raises(asyncio.CancelledError):
+            await client.get("/health/ready")
+
+
+@pytest.mark.asyncio
+async def test_failure_after_response_start_aborts_without_second_response(caplog):
+    from omnis.security.host_origin import LocalBoundary
+
+    messages = []
+    async def started_then_failed(scope, receive, send):
+        await send({"type": "http.response.start", "status": 200, "headers": []})
+        raise RuntimeError("synthetic-sensitive-error-marker")
+    async def receive():
+        return {"type": "http.request", "body": b"", "more_body": False}
+    async def send(message):
+        messages.append(message)
+    scope = {"type": "http", "method": "GET", "path": "/health/live", "query_string": b"",
+             "headers": [(b"host", b"127.0.0.1:8765")]}
+    with pytest.raises(RuntimeError, match="API_RESPONSE_INTERRUPTED") as caught:
+        await LocalBoundary(started_then_failed, ORIGIN)(scope, receive, send)
+    assert len(messages) == 1
+    assert "synthetic-sensitive-error-marker" not in str(caught.value) + caplog.text

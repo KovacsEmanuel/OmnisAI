@@ -22,6 +22,8 @@ def reject_ambient_libpq_config() -> None:
 
 def verify_test_database(url: URL) -> None:
     reject_ambient_libpq_config()
+    if any(name.startswith("DOCKER_") for name in os.environ):
+        raise RuntimeError("Only a local Docker context is allowed for test databases")
     project = os.environ.get("OMNIS_TEST_PROJECT", "")
     if not re.fullmatch(r"omnis-p01-[a-z0-9-]+", project):
         raise RuntimeError("Expected a dedicated test project")
@@ -37,6 +39,16 @@ def verify_test_database(url: URL) -> None:
 
     compose = ["docker", "compose", "-f", str(Path(__file__).resolve().parents[2] / "ops/compose.test.yaml")]
     try:
+        context = subprocess.run(
+            ["docker", "context", "show"], capture_output=True, text=True,
+            timeout=10, check=True,
+        ).stdout.strip()
+        endpoint = subprocess.run(
+            ["docker", "context", "inspect", context, "--format", "{{(index .Endpoints \"docker\").Host}}"],
+            capture_output=True, text=True, timeout=10, check=True,
+        ).stdout.strip()
+        if not endpoint.startswith("unix://") or not Path(endpoint[7:]).is_socket():
+            raise RuntimeError("Only a local Docker socket is allowed for test databases")
         result = subprocess.run(
             [*compose, "ps", "--format", "json"], capture_output=True, text=True,
             timeout=10, check=True,
@@ -76,13 +88,28 @@ def connect_test_database(url: URL, *, autocommit=False):
     reject_ambient_libpq_config()
     if url.query:
         raise RuntimeError("Expected a dedicated test project database URL")
+    verify_test_database(url.set(database="omnis_test"))
     try:
-        return psycopg.connect(
+        connection = psycopg.connect(
             url.set(drivername="postgresql").render_as_string(hide_password=False),
             autocommit=autocommit,
         )
     except psycopg.Error:
         raise RuntimeError("Dedicated PostgreSQL test database is unavailable") from None
+    try:
+        compose = ["docker", "compose", "-f", str(Path(__file__).resolve().parents[2] / "ops/compose.test.yaml")]
+        expected = subprocess.run(
+            [*compose, "exec", "-T", "db", "psql", "-U", "omnis_test", "-d", "omnis_test",
+             "-Atc", "SELECT system_identifier FROM pg_control_system()"],
+            capture_output=True, text=True, timeout=10, check=True,
+        ).stdout.strip()
+        actual = connection.execute("SELECT system_identifier FROM pg_control_system()").fetchone()
+        if not expected.isdecimal() or actual is None or str(actual[0]) != expected:
+            raise RuntimeError("Dedicated PostgreSQL cluster identity mismatch")
+    except (OSError, subprocess.SubprocessError, psycopg.Error, RuntimeError):
+        connection.close()
+        raise RuntimeError("Cannot verify dedicated PostgreSQL cluster identity") from None
+    return connection
 
 
 @pytest.fixture

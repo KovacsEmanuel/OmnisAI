@@ -1,6 +1,7 @@
 """Test-only guard before creating or dropping any PostgreSQL database."""
 
 import os
+import subprocess
 
 import psycopg
 import pytest
@@ -55,6 +56,56 @@ def test_rejects_ambient_libpq_redirection_before_driver(monkeypatch, name):
         connect_test_database(url)
 
 
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("DOCKER_HOST", "tcp://203.0.113.9:2375"),
+        ("DOCKER_CONTEXT", "remote"),
+        ("DOCKER_CONFIG", "/untrusted/docker-config"),
+    ],
+)
+def test_rejects_remote_docker_settings_before_cli(monkeypatch, name, value):
+    url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
+    monkeypatch.setenv(name, value)
+    monkeypatch.setattr(
+        subprocess, "run", lambda *args, **kwargs: pytest.fail("Docker CLI called", pytrace=False)
+    )
+    with pytest.raises(RuntimeError, match="local Docker"):
+        verify_test_database(url)
+
+
+def test_rejects_remote_active_context_before_fixture_inspection(monkeypatch):
+    url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
+
+    def fake_run(command, **kwargs):
+        if command == ["docker", "context", "show"]:
+            return subprocess.CompletedProcess(command, 0, "remote\n", "")
+        if command[:3] == ["docker", "context", "inspect"]:
+            return subprocess.CompletedProcess(command, 0, "tcp://203.0.113.9:2375\n", "")
+        pytest.fail("Fixture inspected a service through a remote daemon", pytrace=False)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError, match="local Docker"):
+        verify_test_database(url)
+
+
+def test_connection_rejects_a_mismatched_cluster_identity(monkeypatch):
+    url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
+    original_run = subprocess.run
+
+    def fake_cluster_read(command, **kwargs):
+        if "exec" in command and any("pg_control_system()" in str(part) for part in command):
+            return subprocess.CompletedProcess(command, 0, "0\n", "")
+        return original_run(command, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", fake_cluster_read)
+    with pytest.raises(RuntimeError, match="cluster identity"):
+        with connect_test_database(url):
+            pass
+
+
 def test_accepts_only_its_own_running_compose_database():
     url = make_url(os.environ["OMNIS_TEST_DATABASE_URL"])
     verify_test_database(url)
+    with connect_test_database(url) as connection:
+        assert connection.execute("SELECT current_database()").fetchone() == ("omnis_test",)

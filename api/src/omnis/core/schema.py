@@ -5,6 +5,14 @@ from sqlalchemy import text
 
 # Each column is (type, required, exact default). Tables are never inferred from a stamp alone.
 AUTHORITY_TABLES = {
+    "pairing_issuance": ({
+        "issuance_id": ("uuid", True, None),
+        "digest": ("text", True, None),
+        "expires_at": ("timestamp with time zone", True, None),
+    }, {
+        ("pairing_issuance_pkey", "p", "PRIMARY KEY (issuance_id)", True, True),
+        ("pairing_issuance_digest_key", "u", "UNIQUE (digest)", True, True),
+    }),
     "pairing_challenge": ({
         "id": ("smallint", True, None),
         "digest": ("text", False, None),

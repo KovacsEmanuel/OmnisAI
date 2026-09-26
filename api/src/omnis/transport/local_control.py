@@ -19,7 +19,7 @@ from omnis.core.paths import check_private_file, private_directory, remove_stale
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.schemas import ControlRequest, InstanceView, PairingCommand, StatusCommand
 from omnis.modules.instance.service import InstanceService
-from omnis.security.sessions import SessionStore
+from omnis.security.sessions import PairingConflict, SessionStore
 
 
 def unique_object(pairs):
@@ -99,7 +99,7 @@ class LocalControl:
             if command.instance_id != status.instance_id:
                 return {"ok": False, "error": "INSTANCE_MISMATCH"}
             if isinstance(command, PairingCommand):
-                await SessionStore(self.service.engine).register(command.digest)
+                await SessionStore(self.service.engine).register(command.digest, issuance_id=command.issuance_id)
             elif command.op == "open":
                 result_generation = await self.service.open(command.command_id, command.expected_generation, self.owner, self.epoch)
             elif command.op == "shutdown":
@@ -140,6 +140,8 @@ class LocalControl:
                 response = {"ok": False, "error": "CONTROL_UNAVAILABLE"}
             except ControlConflict as exc:
                 response = {"ok": False, "error": exc.code.value}
+            except PairingConflict:
+                response = {"ok": False, "error": "PAIRING_CONFLICT"}
             writer.write(json.dumps(response).encode() + b"\n")
             await asyncio.wait_for(writer.drain(), 1)
         except (ConnectionError, TimeoutError):

@@ -5,6 +5,8 @@ import hmac
 import re
 import secrets
 from dataclasses import dataclass, field
+from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -15,6 +17,10 @@ class PairingDenied(Exception):
 
 
 class PairingLimited(Exception):
+    pass
+
+
+class PairingConflict(Exception):
     pass
 
 
@@ -35,17 +41,35 @@ class SessionStore:
     def __init__(self, engine: AsyncEngine):
         self.engine = engine
 
-    async def register(self, digest: str) -> None:
+    async def register(self, digest: str, *, issuance_id: UUID) -> datetime:
         if not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise ValueError("Invalid pairing digest")
         async with self.engine.begin() as connection:
+            await connection.execute(text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE"))
+            previous = (await connection.execute(text(
+                "SELECT digest, expires_at FROM pairing_issuance WHERE issuance_id = :issuance"
+            ), {"issuance": issuance_id})).mappings().one_or_none()
+            if previous is not None:
+                if previous["digest"] != digest:
+                    raise PairingConflict()
+                return previous["expires_at"]
+            reused = (await connection.execute(text(
+                "SELECT 1 FROM pairing_issuance WHERE digest = :digest"
+            ), {"digest": digest})).scalar_one_or_none()
+            if reused:
+                raise PairingConflict()
+            expires = (await connection.execute(text(
+                "INSERT INTO pairing_issuance VALUES (:issuance, :digest, clock_timestamp() + interval '5 minutes') "
+                "RETURNING expires_at"
+            ), {"issuance": issuance_id, "digest": digest})).scalar_one()
             # New code invalidates the old one but never resets the rate limit.
             result = await connection.execute(text(
                 "UPDATE pairing_challenge SET digest = :digest, "
-                "expires_at = clock_timestamp() + interval '5 minutes' WHERE id = 1"
-            ), {"digest": digest})
+                "expires_at = :expires WHERE id = 1"
+            ), {"digest": digest, "expires": expires})
             if result.rowcount != 1:
                 raise PairingDenied()
+            return expires
 
     async def exchange(self, code: str) -> SessionGrant:
         grant = None

@@ -27,7 +27,7 @@ async def test_pairing_rechecks_expiry_after_waiting_for_the_row(migrated_databa
     store = SessionStore(engine)
     code = secrets.token_urlsafe(24)
     try:
-        await store.register(code_digest(code))
+        await store.register(code_digest(code), issuance_id=uuid4())
         async with engine.begin() as blocker:
             await blocker.execute(text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE"))
             attempt = asyncio.create_task(store.exchange(code))
@@ -52,7 +52,7 @@ async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(monkey
         tokens = []
         for _ in range(2):
             code = secrets.token_urlsafe(24)
-            await store.register(code_digest(code))
+            await store.register(code_digest(code), issuance_id=uuid4())
             tokens.append(await store.exchange(code))
         first, second = tokens
         async with AsyncClient(transport=ASGITransport(app=app), base_url=origin) as client:

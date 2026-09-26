@@ -31,6 +31,7 @@ class StatusCommand(StrictBody):
 class PairingCommand(StrictBody):
     op: Literal["pairing"]
     instance_id: UUID
+    issuance_id: UUID
     digest: str = Field(pattern=r"^[0-9a-f]{64}$", repr=False)
 
 

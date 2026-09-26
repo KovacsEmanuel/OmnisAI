@@ -1,4 +1,5 @@
 import secrets
+from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -15,7 +16,7 @@ async def test_http_pairing_session_csrf_logout(monkeypatch, migrated_database_u
     app = create_app()
     async with app.router.lifespan_context(app):
         code = secrets.token_urlsafe(24)
-        await SessionStore(app.state.db_engine).register(code_digest(code))
+        await SessionStore(app.state.db_engine).register(code_digest(code), issuance_id=uuid4())
         async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
             assert (await client.get("/api/session")).status_code == 401
             response = await client.post("/api/pairing", json={"code": code}, headers={"origin": ORIGIN})

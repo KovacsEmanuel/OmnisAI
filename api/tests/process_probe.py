@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+from uuid import uuid4
 
 import httpx
 
@@ -40,8 +41,9 @@ def exercise_installed_control(python, database_url):
             status = asyncio.run(control({"op": "status"}))["status"]
             code = secrets.token_urlsafe(24)
             sensitive.append(code)
-            paired = asyncio.run(control({"op": "pairing", "instance_id": status["instance_id"],
-                                          "digest": hashlib.sha256(code.encode()).hexdigest()}))
+            issuance = {"op": "pairing", "instance_id": status["instance_id"],
+                        "issuance_id": str(uuid4()), "digest": hashlib.sha256(code.encode()).hexdigest()}
+            paired = asyncio.run(control(issuance))
             assert paired["ok"] and code not in str(paired)
             with socket.socket() as listener:
                 listener.bind(("127.0.0.1", 0))
@@ -77,6 +79,8 @@ def exercise_installed_control(python, database_url):
                     response = client.post("/api/pairing", json={"code": code}, headers={"origin": origin})
                     assert response.status_code == 200
                     sensitive.append(client.cookies["omnis_session"])
+                    assert asyncio.run(control(issuance))["ok"]
+                    assert client.post("/api/pairing", json={"code": code}, headers={"origin": origin}).status_code == 401
                     csrf = response.json()["csrf_token"]
                     sensitive.append(csrf)
                     actual = client.get("/api/instance").json()

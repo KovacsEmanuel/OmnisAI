@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from omnis.core.schema import authority_schema_matches
 
 
-SCHEMA_REVISION = "0002_local_sessions"
+SCHEMA_REVISION = "0003_instance_lifecycle"
 
 
 class ReadinessReason(StrEnum):

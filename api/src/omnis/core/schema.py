@@ -22,6 +22,29 @@ AUTHORITY_TABLES = {
     }, {
         ("ui_session_pkey", "p", "PRIMARY KEY (token_digest)", True, True),
     }),
+    "supervisor_lease": ({
+        "id": ("smallint", True, None),
+        "owner": ("uuid", False, None),
+        "epoch": ("bigint", True, "0"),
+        "expires_at": ("timestamp with time zone", False, None),
+    }, {
+        ("supervisor_lease_pkey", "p", "PRIMARY KEY (id)", True, True),
+        ("supervisor_lease_id_check", "c", "CHECK ((id = 1))", True, True),
+        ("supervisor_lease_epoch_check", "c", "CHECK ((epoch >= 0))", True, True),
+    }),
+    "instance_command": ({
+        "command_id": ("uuid", True, None),
+        "kind": ("text", True, None),
+        "expected_generation": ("bigint", True, None),
+        "result_generation": ("bigint", True, None),
+        "owner_epoch": ("bigint", True, None),
+    }, {
+        ("instance_command_pkey", "p", "PRIMARY KEY (command_id)", True, True),
+        ("instance_command_kind_check", "c", "CHECK ((kind = ANY (ARRAY['OPEN'::text, 'SHUTDOWN'::text, 'FINALIZE'::text])))", True, True),
+        ("instance_command_expected_generation_check", "c", "CHECK ((expected_generation >= 0))", True, True),
+        ("instance_command_result_generation_check", "c", "CHECK ((result_generation >= 0))", True, True),
+        ("instance_command_owner_epoch_check", "c", "CHECK ((owner_epoch >= 0))", True, True),
+    }),
 }
 
 
@@ -45,4 +68,7 @@ async def authority_schema_matches(connection) -> bool:
             return False
         if set(constraints) != expected_constraints | required:
             return False
-    return (await connection.execute(text("SELECT count(*) FROM pairing_challenge WHERE id = 1"))).scalar_one() == 1
+    return all((await connection.execute(text(
+        "SELECT (SELECT count(*) FROM pairing_challenge WHERE id = 1) = 1, "
+        "(SELECT count(*) FROM supervisor_lease WHERE id = 1) = 1"
+    ))).one())

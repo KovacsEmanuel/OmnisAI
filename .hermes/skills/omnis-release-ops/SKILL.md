@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.1
+version: 0.1.2
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -30,7 +30,8 @@ Read stack baseline and rejected dependencies; inspect current manifests/locks a
 ## Pitfalls
 Host Playwright/Chromium validation is not certification of the planned executor version. Docker tags can move. Git rollback does not restore DB or secrets. Documentation readiness is not runtime readiness.
 
-- A wheel that imports its app factory may still omit Alembic scripts kept outside the package root. Build and install the wheel with dependencies exported/hash-checked from its lock in a fresh scratch venv; run the dedicated migrator on a disposable empty PostgreSQL database **outside the checkout**, then read back the schema and closed instance row. Source-tree Alembic success or a filename-only archive check is not release evidence.
+- A wheel that imports its app factory may still omit migrations or process entrypoints. Build/install with dependencies exported/hash-checked from the lock in a fresh scratch venv, then migrate a disposable PostgreSQL DB **outside the checkout**. Exercise the installed supervisor, real Unix IPC and actual HTTP process, including restart and state readback; reserve the loopback listener rather than adopting whatever answers on a free-port guess. A Python audit guard needs a negative control and remains distinct from OS confinement. Source-tree/ASGI success or an archive filename check is not release evidence.
+- Before rerunning an integration gate after a session handoff, verify required environment presence without printing values. Missing ephemeral test credentials are a failed prerequisite, not permission to read personal stores or weaken tests. Recreate a uniquely named disposable project when needed; keep setup/test/cleanup in one process if environment continuity is uncertain, and stop only resources whose ownership was verified.
 
 ## Verification
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

@@ -18,17 +18,21 @@ def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url)
     with connect_test_database(empty_database_url) as connection:
         assert connection.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'").fetchone() == (0,)
 
-    completed = subprocess.run(
-        [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],
-        cwd=Path(__file__).resolve().parents[1],
-        env={
-            **os.environ,
-            "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
-        },
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],
+            cwd=Path(__file__).resolve().parents[1],
+            env={
+                **os.environ,
+                "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
+            },
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Initial migration fixture timed out", pytrace=False)
     assert completed.returncode == 0, f"migration failed (exit {completed.returncode})"
 
     with connect_test_database(empty_database_url) as connection:
@@ -64,9 +68,13 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
                 "PATH": os.environ.get("PATH", ""),
                 "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
             }
-        result = subprocess.run(
-            command, cwd=tmp_path, env=env, capture_output=True, text=True, check=False,
-        )
+        try:
+            result = subprocess.run(
+                command, cwd=tmp_path, env=env, capture_output=True, text=True,
+                timeout=120, check=False,
+            )
+        except subprocess.TimeoutExpired:
+            pytest.fail(f"{label} exceeded its deadline", pytrace=False)
         if result.returncode:
             pytest.fail(f"{label} failed (exit {result.returncode})", pytrace=False)
 
@@ -102,16 +110,42 @@ def test_failed_migration_does_not_echo_database_input(marker):
         f"postgresql+psycopg://omnis_test:{marker}@127.0.0.1:1/omnis_test"
         if "password" in marker else marker
     )
-    result = subprocess.run(
-        [sys.executable, "-I", "-m", "omnis.migrate"],
-        env={
-            "PATH": os.environ.get("PATH", ""),
-            "OMNIS_DATABASE_URL": database_url,
-        },
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, "-I", "-m", "omnis.migrate"],
+            env={
+                "PATH": os.environ.get("PATH", ""),
+                "OMNIS_DATABASE_URL": database_url,
+            },
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Failed migration exceeded its deadline", pytrace=False)
     assert result.returncode != 0
     if marker in result.stdout + result.stderr:
         pytest.fail("Migration failure exposed database configuration", pytrace=False)
+
+
+def test_migration_job_exits_when_schema_lock_is_held(migrated_database_url, tmp_path):
+    with connect_test_database(migrated_database_url) as blocker:
+        blocker.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")
+        try:
+            completed = subprocess.run(
+                [sys.executable, "-I", "-m", "omnis.migrate"],
+                cwd=tmp_path,
+                env={
+                    "PATH": os.environ.get("PATH", ""),
+                    "OMNIS_DATABASE_URL": migrated_database_url.render_as_string(hide_password=False),
+                },
+                capture_output=True,
+                text=True,
+                timeout=4,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            pytest.fail("Migration job exceeded its bounded DB wait", pytrace=False)
+
+    assert completed.returncode != 0

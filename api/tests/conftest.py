@@ -103,16 +103,20 @@ def empty_database_url():
 
 @pytest.fixture
 def migrated_database_url(empty_database_url):
-    completed = subprocess.run(
-        [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],
-        cwd=Path(__file__).resolve().parents[1],
-        env={
-            **os.environ,
-            "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
-        },
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],
+            cwd=Path(__file__).resolve().parents[1],
+            env={
+                **os.environ,
+                "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
+            },
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("Dedicated migration fixture timed out", pytrace=False)
     assert completed.returncode == 0, f"migration failed (exit {completed.returncode})"
     return empty_database_url

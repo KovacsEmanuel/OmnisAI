@@ -5,6 +5,7 @@ import os
 
 from alembic import context
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -25,10 +26,20 @@ async def migrate() -> None:
     if not database_url or make_url(database_url).drivername != "postgresql+psycopg":
         raise RuntimeError("OMNIS_DATABASE_URL must use postgresql+psycopg")
 
-    engine = create_async_engine(database_url, poolclass=NullPool)
+    engine = create_async_engine(
+        database_url,
+        poolclass=NullPool,
+        connect_args={
+            "connect_timeout": 2,
+            "options": "-c lock_timeout=1500 -c statement_timeout=15000",
+        },
+    )
     try:
-        async with engine.connect() as connection:
-            await connection.run_sync(run_migrations)
+        async with asyncio.timeout(20):
+            async with engine.connect() as connection:
+                await connection.run_sync(run_migrations)
+    except (TimeoutError, SQLAlchemyError):
+        raise RuntimeError("PostgreSQL migration failed or timed out") from None
     finally:
         await engine.dispose()
 

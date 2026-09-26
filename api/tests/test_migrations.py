@@ -41,7 +41,7 @@ def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url)
             "SELECT instance_id, admission_open, shutdown_command_id, generation, "
             "quiesced_generation, quiesced_at FROM instance_control"
         ).fetchall()
-    assert revision == ("0001_instance_control",)
+    assert revision == (SCHEMA_REVISION,)
     assert len(rows) == 1
     identity, admission_open, shutdown_command_id, generation, quiesced_generation, quiesced_at = rows[0]
     assert isinstance(identity, UUID)
@@ -104,6 +104,28 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
         assert connection.execute(
             "SELECT admission_open, generation FROM instance_control WHERE id = 1"
         ).fetchone() == (False, 0)
+
+
+def test_upgrade_from_p01_preserves_instance_identity(empty_database_url, tmp_path):
+    env = {"PATH": os.environ.get("PATH", ""),
+           "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False)}
+    root = Path(__file__).resolve().parents[1]
+    verify_test_database(empty_database_url.set(database="omnis_test"))
+    first = subprocess.run(
+        [sys.executable, "-m", "alembic", "-c", str(root / "alembic.ini"), "upgrade", "0001_instance_control"],
+        cwd=root, env=env, capture_output=True, timeout=30,
+    )
+    assert first.returncode == 0
+    with connect_test_database(empty_database_url) as connection:
+        before = connection.execute("SELECT * FROM instance_control").fetchone()
+    upgraded = subprocess.run([sys.executable, "-I", "-m", "omnis.migrate"],
+                              cwd=tmp_path, env=env, capture_output=True, timeout=30)
+    assert upgraded.returncode == 0
+    with connect_test_database(empty_database_url) as connection:
+        assert connection.execute("SELECT * FROM instance_control").fetchone() == before
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (SCHEMA_REVISION,)
+        assert connection.execute("SELECT digest, attempts FROM pairing_challenge").fetchone() == (None, 0)
+        assert connection.execute("SELECT count(*) FROM ui_session").fetchone() == (0,)
 
 
 @pytest.mark.parametrize("marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"])

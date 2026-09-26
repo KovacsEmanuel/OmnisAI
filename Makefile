@@ -26,7 +26,7 @@ check-api:
 	$(API_PY) -m compileall -q api/src api/tests
 
 test-api:
-	$(API_PY) -m pytest api/tests/test_health.py api/tests/test_fixture_ownership.py -q
+	$(API_PY) -m pytest api/tests/test_health.py api/tests/test_fixture_ownership.py api/tests/test_sessions.py -q
 
 test-migrations:
 	OMNIS_UV="$(UV)" $(API_PY) -m pytest api/tests/test_migrations.py -q

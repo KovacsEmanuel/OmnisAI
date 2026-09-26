@@ -124,3 +124,28 @@ def test_private_directory_rejects_replaceable_ancestor(ipc_directory):
     child.mkdir(mode=0o700)
     with pytest.raises(ValueError, match="ancestor"):
         private_directory(child)
+
+
+@pytest.mark.asyncio
+async def test_cancelled_socket_startup_leaves_no_listener(migrated_database_url, ipc_directory):
+    from omnis.transport.local_control import LocalControl
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    epoch = await service.acquire(owner)
+    control = LocalControl(ipc_directory, service, owner, epoch)
+    try:
+        startup = asyncio.create_task(control.__aenter__())
+        await asyncio.sleep(0)
+        startup.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await startup
+        assert not (ipc_directory / "control.sock").exists()
+        assert not (ipc_directory / "control.cap").exists()
+        async with LocalControl(ipc_directory, service, owner, epoch):
+            capability = (ipc_directory / "control.cap").read_text()
+            assert (await request(ipc_directory, capability, {"op": "status"}))["ok"]
+    finally:
+        await control.__aexit__(None, None, None)
+        await engine.dispose()

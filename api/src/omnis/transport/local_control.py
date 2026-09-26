@@ -63,9 +63,12 @@ class LocalControl:
                 output.flush()
                 os.fsync(output.fileno())
             self.server = await asyncio.start_unix_server(self._handle, path=str(self.directory / "control.sock"),
-                                                        limit=4096, backlog=16, cleanup_socket=False)
-            (self.directory / "control.sock").chmod(0o600)
+                                                        limit=4096, backlog=16, cleanup_socket=False,
+                                                        start_serving=False)
             self.socket_inode = (self.directory / "control.sock").stat().st_ino
+            (self.directory / "control.sock").chmod(0o600)
+            # Own cleanup and set mode before start_serving's cancellation point.
+            await self.server.start_serving()
             return self
         except BaseException:
             await self.__aexit__(None, None, None)

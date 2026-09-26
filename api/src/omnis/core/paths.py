@@ -13,6 +13,17 @@ def private_directory(path: Path) -> None:
     info = path.lstat()
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
         raise ValueError("Control directory must be owned and private (0700)")
+    protected = False
+    for parent in reversed(path.parents):
+        ancestor = parent.lstat()
+        if (
+            not stat.S_ISDIR(ancestor.st_mode) or ancestor.st_uid not in {0, os.getuid()}
+            or ancestor.st_mode & 0o002
+            or (ancestor.st_mode & 0o020 and not protected)
+        ):
+            raise ValueError("Control directory has a replaceable ancestor")
+        if ancestor.st_uid == os.getuid() and ancestor.st_mode & 0o077 == 0:
+            protected = True
 
 
 def check_private_file(info) -> None:

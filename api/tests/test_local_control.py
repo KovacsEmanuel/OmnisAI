@@ -112,3 +112,15 @@ async def test_control_frames_are_bounded_and_duplicate_keys_rejected(migrated_d
                 await writer.wait_closed()
     finally:
         await engine.dispose()
+
+
+def test_private_directory_rejects_replaceable_ancestor(ipc_directory):
+    from omnis.core.paths import private_directory
+
+    parent = ipc_directory / "shared"
+    parent.mkdir(mode=0o777)
+    parent.chmod(0o777)
+    child = parent / "private"
+    child.mkdir(mode=0o700)
+    with pytest.raises(ValueError, match="ancestor"):
+        private_directory(child)

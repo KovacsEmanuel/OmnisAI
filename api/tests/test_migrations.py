@@ -96,13 +96,17 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
         ).fetchone() == (False, 0)
 
 
-def test_failed_migration_does_not_echo_database_password():
-    marker = "synthetic_migration_password_marker"
+@pytest.mark.parametrize("marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"])
+def test_failed_migration_does_not_echo_database_input(marker):
+    database_url = (
+        f"postgresql+psycopg://omnis_test:{marker}@127.0.0.1:1/omnis_test"
+        if "password" in marker else marker
+    )
     result = subprocess.run(
         [sys.executable, "-I", "-m", "omnis.migrate"],
         env={
             "PATH": os.environ.get("PATH", ""),
-            "OMNIS_DATABASE_URL": f"postgresql+psycopg://omnis_test:{marker}@127.0.0.1:1/omnis_test",
+            "OMNIS_DATABASE_URL": database_url,
         },
         capture_output=True,
         text=True,
@@ -110,4 +114,4 @@ def test_failed_migration_does_not_echo_database_password():
     )
     assert result.returncode != 0
     if marker in result.stdout + result.stderr:
-        pytest.fail("Migration failure exposed a database password", pytrace=False)
+        pytest.fail("Migration failure exposed database configuration", pytrace=False)

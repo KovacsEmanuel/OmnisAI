@@ -25,6 +25,8 @@ class BaselineContracts(unittest.TestCase):
         for relative in ['README.md', 'documents/Omnis_Implementation_Plan.md']:
             text = (ROOT / relative).read_text(encoding='utf-8')
             self.assertIn('P0.1_IMPLEMENTED_LOCAL', text, relative)
+            self.assertIn('P0.2_IMPLEMENTED_LOCAL', text, relative)
+            self.assertIn('P0.3', text, relative)
             self.assertIn('G00', text, relative)
         self.assertIn('NO-GO pentru target effects', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('INSTRUCTIONS_UPDATE_BLOCKED', (ROOT / 'README.md').read_text(encoding='utf-8'))

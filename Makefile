@@ -1,4 +1,4 @@
-# P0.1 checks certify only API/DB readiness, not the dashboard or an assessment.
+# P0.1/P0.2 checks certify local API/control, not the dashboard or an assessment.
 .PHONY: check test check-docs check-development check-api test-api test-migrations check-api-wheel
 
 UV ?= uv

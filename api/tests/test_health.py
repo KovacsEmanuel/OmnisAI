@@ -187,6 +187,24 @@ async def test_ready_denies_a_same_named_weakened_constraint(monkeypatch, migrat
 
 
 @pytest.mark.asyncio
+async def test_ready_denies_an_extra_constraint_blocking_future_admission(monkeypatch, migrated_database_url):
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute(
+            "ALTER TABLE instance_control ADD CONSTRAINT ck_never_open CHECK (NOT admission_open)"
+        )
+    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["reason"] == "SCHEMA_INCOMPATIBLE"
+
+
+@pytest.mark.asyncio
 async def test_ready_times_out_while_postgres_is_connected_but_locked(monkeypatch, migrated_database_url):
     monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
     with connect_test_database(migrated_database_url) as blocker:

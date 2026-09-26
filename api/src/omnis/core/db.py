@@ -77,7 +77,8 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
                     text(
                         "SELECT conname, contype, pg_get_constraintdef(oid) "
                         "FROM pg_constraint "
-                        "WHERE conrelid = 'instance_control'::regclass"
+                        "WHERE conrelid = 'instance_control'::regclass "
+                        "AND contype <> 'n'"
                     )
                 )
             ).all()
@@ -107,7 +108,7 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
         or defaults.get("instance_id") != "gen_random_uuid()"
         or defaults.get("admission_open") != "false"
         or defaults.get("generation") != "0"
-        or not expected_constraints.issubset(set(constraints))
+        or set(constraints) != expected_constraints
     ):
         return ReadinessReason.SCHEMA_INCOMPATIBLE
     return None

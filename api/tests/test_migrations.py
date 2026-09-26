@@ -10,6 +10,7 @@ from alembic.script import ScriptDirectory
 
 from conftest import connect_test_database, verify_test_database
 from omnis.core.db import SCHEMA_REVISION
+from process_probe import exercise_installed_control
 
 
 def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url):
@@ -104,6 +105,7 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
         assert connection.execute(
             "SELECT admission_open, generation FROM instance_control WHERE id = 1"
         ).fetchone() == (False, 0)
+    exercise_installed_control(venv_python, empty_database_url)
 
 
 def test_upgrade_from_p01_preserves_instance_identity(empty_database_url, tmp_path):

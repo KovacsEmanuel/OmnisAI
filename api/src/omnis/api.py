@@ -4,10 +4,13 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
-from starlette.responses import PlainTextResponse
+from sqlalchemy.exc import SQLAlchemyError
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
+from omnis.security.host_origin import LocalBoundary, error_response, local_origin
+from omnis.security.routes import router as session_router
 
 
 class HealthReady(BaseModel):
@@ -33,11 +36,16 @@ def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
     app.state.db_engine = None
 
-    @app.middleware("http")
-    async def require_local_host(request: Request, call_next):
-        if request.headers.getlist("host") != ["127.0.0.1:8765"]:
-            return PlainTextResponse("Invalid host", status_code=400)
-        return await call_next(request)
+    app.add_middleware(LocalBoundary, origin=local_origin())
+    app.include_router(session_router)
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_input(request: Request, exc: RequestValidationError):
+        return error_response("INVALID_INPUT", 422)
+
+    @app.exception_handler(SQLAlchemyError)
+    async def database_failure(request: Request, exc: SQLAlchemyError):
+        return error_response("CONTROL_UNAVAILABLE", 503)
 
     @app.get("/health/live")
     async def live() -> dict[str, str]:

@@ -25,6 +25,7 @@ def verify_test_database(url: URL) -> None:
         or url.username != "omnis_test"
         or url.database != "omnis_test"
         or url.port is None
+        or url.query
     ):
         raise RuntimeError("Expected a dedicated test project database URL")
 
@@ -66,6 +67,8 @@ def verify_test_database(url: URL) -> None:
 
 
 def connect_test_database(url: URL, *, autocommit=False):
+    if url.query:
+        raise RuntimeError("Expected a dedicated test project database URL")
     try:
         return psycopg.connect(
             url.set(drivername="postgresql").render_as_string(hide_password=False),

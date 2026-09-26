@@ -43,6 +43,8 @@ Migrații/DB reală, browser executor hardened, egress/HTTPS policy, native Herm
 
 [Auditul final înainte de implementare](preimplementation-check.json) păstrează outputul real `make check`, rezultatul browserului, verificarea DAG-ului și lipsa modificărilor în prototipul acceptat/AGENTS.md. Plan §19 este handofful P0.1, iar registrul PA01–PA09 separă remedierea în specificație de gates neexecutate. Scrierea protejată a statusului AGENTS a rămas blocată de aprobarea expirată; nu a fost ocolită sau raportată ca reușită.
 
+[Verificarea locală P0.1](p01-local-readiness.md) consemnează separat API-ul instalabil, migrarea din wheel pe PostgreSQL real, controalele negative, review-urile și limitele. Nu rescrie probele preimplementare și nu declară G00 sau CI remote trecute.
+
 Din rădăcina repo-ului, într-un mediu cu `Markdown==3.10.2`:
 
 ```sh

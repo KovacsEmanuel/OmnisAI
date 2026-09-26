@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.1
+version: 0.1.2
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -31,8 +31,8 @@ Read the active architecture, relevant ticket and stack pins. Inspect actual man
 ## Pitfalls
 Do not swallow exceptions, retry uncertain external effects as if they were safe, return success for queued completion, or weaken validation to satisfy a linter. An in-memory smoke is not durability; a restart test must restart the owning process and read real state.
 
-- Before fixture CREATE/DROP, attest the dedicated Compose project, pinned image, current loopback port and volume; a matching URI authority alone does not establish ownership. Reject URL query parameters and ambient `PG*` libpq settings on both fixture and product DB paths: `hostaddr`/service can redirect psycopg independently of the displayed host. Prove a denial without calling the driver, and reacquire the port after a container recreation.
-- On PostgreSQL 18, `attnotnull=true` can coexist with `NOT NULL NOT VALID` and existing NULL rows. A compatible-schema probe must compare the exact authority column/default/constraint set including `pg_constraint.convalidated` and `conenforced`; a revision stamp or subset check can report a false ready. Exercise the real DDL mutation on an isolated DB before trusting the negative test.
+- Before fixture CREATE/DROP, require a local Unix Docker context and attest the dedicated Compose project, pinned image, current loopback port, volume **and connected PostgreSQL system identifier**; a remote daemon's published `127.0.0.1` is not the test host's loopback. Reject URL query parameters and ambient `PG*` libpq settings on fixture/product DB paths: `hostaddr`/service can redirect psycopg independently of the displayed host. Prove denial before the driver and reacquire the port after a container recreation.
+- On PostgreSQL 18, `attnotnull=true` can coexist with `NOT NULL NOT VALID` and existing NULL rows. A compatible-schema probe must compare the exact authority column/**every default**/constraint set including `pg_constraint.convalidated` and `conenforced`; a revision stamp, partial default map or subset check can report a false ready. Exercise the real DDL mutation on an isolated DB before trusting the negative test.
 - Bound connection, lock and statement waits for both health and the dedicated migration job. Keep test subprocess deadlines finite; a reachable but blocked database must return a degraded result, not hold the gate indefinitely.
 
 ## Verification

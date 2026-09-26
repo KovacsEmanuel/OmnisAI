@@ -21,12 +21,12 @@
     },
     {
       "name": "omnis-api-data",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "path": ".hermes/skills/omnis-api-data/SKILL.md",
-      "sha256": "3cdd9641939670f2eef83585aa326a609ae52cc3f5ee2adefff85fd9b3153238",
+      "sha256": "01d9757555ff22bce2431a9959abf5ebfdefd3aaa2cf646160b8f4dae441830e",
       "native_read": true,
       "scanner_verdict": "safe",
-      "verification_note": "Native skill_view reloaded 0.1.2; installed skills_guard scan_skill(source=project) returned safe with zero findings. Other entries retain their recorded snapshots."
+      "verification_note": "Native skill_view reloaded 0.1.3; installed skills_guard scan_skill(source=project) returned safe with zero findings. Other entries retain their recorded snapshots."
     },
     {
       "name": "omnis-chisel",

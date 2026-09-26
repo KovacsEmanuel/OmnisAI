@@ -705,17 +705,18 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea rulărilor. Rezultatele se publică per run, cu ratări atribuite discovery/planificare/investigație/validare și cost necunoscut explicit. Promovarea unei familii ca benchmark-validated este legată de exact skill/tool/model/corpus; nu este precizie universală.</p>
 <h2 id="12-implementare-si-guvernanta">12. Implementare și guvernanță</h2>
 <h3 id="121-arborele-tinta-si-proprietatea-fisierelor">12.1. Arborele țintă și proprietatea fișierelor</h3>
-<p><strong>Amendament de organizare propus după revizia UI. Nu este scaffold creat sau aprobare de implementare.</strong> Alegem directoare <strong><code>api/</code> și <code>web/</code> la rădăcină</strong>, în locul schiței anterioare <code>src/omnis</code> + <code>apps/web</code>. <code>api/</code> conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); <code>cli/</code> este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.</p>
+<p><strong>Organizarea a fost confirmată pentru implementare; P0.1 este în lucru, nu întregul arbore.</strong> Alegem directoare <strong><code>api/</code> și <code>web/</code> la rădăcină</strong>, în locul schiței anterioare <code>src/omnis</code> + <code>apps/web</code>. <code>api/</code> conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); <code>cli/</code> este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.</p>
 <pre><code class="language-text">OmnisAI/
 ├── README.md / AGENTS.md / CONTRIBUTING.md / DESIGN.md / Makefile
 ├── .github/workflows/ci.yml             # gate comun, fără conturi/live LLM
 ├── api/
 │   ├── pyproject.toml / uv.lock         # API + supervisor, nu Hermes/proxy
-│   ├── alembic.ini
-│   ├── migrations/env.py / versions/   # migrare odată cu felia de date
+│   ├── alembic.ini                  # comoditate în checkout, nu artefactul instalat
 │   ├── src/omnis/
 │   │   ├── __init__.py
 │   │   ├── api.py                      # app factory FastAPI, fără scheduler
+│   │   ├── migrate.py                  # comandă dedicată: python -m omnis.migrate
+│   │   ├── migrations/env.py / versions/ # aceeași migrare inclusă în wheel
 │   │   ├── bootstrap.py                # wiring explicit al adaptoarelor
 │   │   ├── core/
 │   │   │   ├── config.py / paths.py    # configurație validată, fără env dump
@@ -798,7 +799,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 ├── tools/development/                  # Reticle/anti-slop etc., numai dev
 └── .hermes/skills/                      # skills DEZVOLTARE, niciodată runtime
 </code></pre>
-<p>Numele separate prin <code>/</code> într-un rând cu fișiere înseamnă frați în directorul indicat, nu un singur path. <code>dist/</code>, builduri, caches și medii virtuale sunt generate/ignorate, nu surse versionate. Arborele nu mută acum niciun fișier existent.</p>
+<p>Numele separate prin <code>/</code> într-un rând cu fișiere înseamnă frați în directorul indicat, nu un singur path. <code>dist/</code>, builduri, caches și medii virtuale sunt generate/ignorate, nu surse versionate. Arborele este ținta incrementală; folderele viitoare nu sunt scaffold creat în P0.1.</p>
+<p><strong>Amendament P0.1:</strong> singura sursă a reviziilor Alembic este <code>api/src/omnis/migrations/</code>, pentru ca wheelul instalat să poată migra o DB goală din afara checkoutului prin <code>python -m omnis.migrate</code>. <code>api/alembic.ini</code> rămâne numai un alias de dezvoltare la același director, nu a doua copie a reviziilor. Mutarea corectează limitarea demonstrată de testul RED al wheelului; nu schimbă ordinea porților și nu autorizează un upgrade de date fără backup.</p>
 <h3 id="122-modulul-potrivit-pentru-fiecare-comportament">12.2. Modulul potrivit pentru fiecare comportament</h3>
 <p>Sub <code>api/src/omnis/modules/</code>:</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
@@ -930,5 +932,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>7720b80bfc936c6010a04f36975b03c012873e0ba0f39c73e4ebb69e22d329c9</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>5658ce0b20d0060d52181420357d8e7c56ab199a475913ccf7ef7406bb26570f</code>.</p></footer>
 </main></div></body></html>

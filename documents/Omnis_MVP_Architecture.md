@@ -447,7 +447,7 @@ Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea 
 
 ### 12.1. Arborele țintă și proprietatea fișierelor
 
-**Amendament de organizare propus după revizia UI. Nu este scaffold creat sau aprobare de implementare.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
+**Organizarea a fost confirmată pentru implementare; P0.1 este în lucru, nu întregul arbore.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
 
 ```text
 OmnisAI/
@@ -455,11 +455,12 @@ OmnisAI/
 ├── .github/workflows/ci.yml             # gate comun, fără conturi/live LLM
 ├── api/
 │   ├── pyproject.toml / uv.lock         # API + supervisor, nu Hermes/proxy
-│   ├── alembic.ini
-│   ├── migrations/env.py / versions/   # migrare odată cu felia de date
+│   ├── alembic.ini                  # comoditate în checkout, nu artefactul instalat
 │   ├── src/omnis/
 │   │   ├── __init__.py
 │   │   ├── api.py                      # app factory FastAPI, fără scheduler
+│   │   ├── migrate.py                  # comandă dedicată: python -m omnis.migrate
+│   │   ├── migrations/env.py / versions/ # aceeași migrare inclusă în wheel
 │   │   ├── bootstrap.py                # wiring explicit al adaptoarelor
 │   │   ├── core/
 │   │   │   ├── config.py / paths.py    # configurație validată, fără env dump
@@ -543,7 +544,9 @@ OmnisAI/
 └── .hermes/skills/                      # skills DEZVOLTARE, niciodată runtime
 ```
 
-Numele separate prin `/` într-un rând cu fișiere înseamnă frați în directorul indicat, nu un singur path. `dist/`, builduri, caches și medii virtuale sunt generate/ignorate, nu surse versionate. Arborele nu mută acum niciun fișier existent.
+Numele separate prin `/` într-un rând cu fișiere înseamnă frați în directorul indicat, nu un singur path. `dist/`, builduri, caches și medii virtuale sunt generate/ignorate, nu surse versionate. Arborele este ținta incrementală; folderele viitoare nu sunt scaffold creat în P0.1.
+
+**Amendament P0.1:** singura sursă a reviziilor Alembic este `api/src/omnis/migrations/`, pentru ca wheelul instalat să poată migra o DB goală din afara checkoutului prin `python -m omnis.migrate`. `api/alembic.ini` rămâne numai un alias de dezvoltare la același director, nu a doua copie a reviziilor. Mutarea corectează limitarea demonstrată de testul RED al wheelului; nu schimbă ordinea porților și nu autorizează un upgrade de date fără backup.
 
 ### 12.2. Modulul potrivit pentru fiecare comportament
 

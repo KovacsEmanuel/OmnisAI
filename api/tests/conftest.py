@@ -137,6 +137,7 @@ def empty_database_url():
 
 @pytest.fixture
 def migrated_database_url(empty_database_url):
+    verify_test_database(empty_database_url.set(database="omnis_test"))
     try:
         completed = subprocess.run(
             [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],

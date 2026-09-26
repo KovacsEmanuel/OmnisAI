@@ -29,10 +29,10 @@ def validated_database_url(database_url: str) -> URL:
         url = make_url(database_url)
     except ArgumentError:
         raise ValueError("Invalid PostgreSQL configuration") from None
-    if url.drivername != "postgresql+psycopg":
-        raise ValueError("PostgreSQL must use the async psycopg driver")
     if url.query:
         raise ValueError("Database URL query parameters are forbidden")
+    if url.drivername != "postgresql+psycopg":
+        raise ValueError("PostgreSQL must use the async psycopg driver")
     return url
 
 

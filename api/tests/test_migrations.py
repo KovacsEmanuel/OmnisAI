@@ -8,7 +8,7 @@ import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-from conftest import connect_test_database
+from conftest import connect_test_database, verify_test_database
 from omnis.core.db import SCHEMA_REVISION
 
 
@@ -92,6 +92,8 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
     run("wheel install", [uv, "pip", "install", "--python", str(venv_python),
                           "--no-deps", str(wheel)])
     run("installed dependency check", [uv, "pip", "check", "--python", str(venv_python)])
+    with connect_test_database(empty_database_url) as connection:
+        assert connection.execute("SELECT current_database()").fetchone() == (empty_database_url.database,)
     run(
         "installed migration",
         [str(venv_python), "-I", "-m", "omnis.migrate"],
@@ -105,11 +107,14 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
 
 
 @pytest.mark.parametrize("marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"])
-def test_failed_migration_does_not_echo_database_input(marker):
-    database_url = (
-        f"postgresql+psycopg://omnis_test:{marker}@127.0.0.1:1/omnis_test"
-        if "password" in marker else marker
-    )
+def test_failed_migration_does_not_echo_database_input(marker, migrated_database_url):
+    if "password" in marker:
+        if marker == os.environ["OMNIS_TEST_DB_PASSWORD"]:
+            pytest.fail("Test password unexpectedly equals denial marker", pytrace=False)
+        verify_test_database(migrated_database_url.set(database="omnis_test"))
+        database_url = migrated_database_url.set(password=marker).render_as_string(hide_password=False)
+    else:
+        database_url = marker
     try:
         result = subprocess.run(
             [sys.executable, "-I", "-m", "omnis.migrate"],
@@ -134,7 +139,7 @@ def test_migration_rejects_ambient_libpq_routing_before_connecting():
         [sys.executable, "-I", "-m", "omnis.migrate"],
         env={
             "PATH": os.environ.get("PATH", ""),
-            "OMNIS_DATABASE_URL": "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test",
+            "OMNIS_DATABASE_URL": "sqlite:///synthetic-do-not-open.db",
             "PGHOSTADDR": "127.0.0.2",
         },
         capture_output=True,
@@ -151,9 +156,7 @@ def test_migration_rejects_database_url_query_overrides_before_connecting():
         [sys.executable, "-I", "-m", "omnis.migrate"],
         env={
             "PATH": os.environ.get("PATH", ""),
-            "OMNIS_DATABASE_URL": (
-                "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test?host=127.0.0.2"
-            ),
+            "OMNIS_DATABASE_URL": "sqlite:///synthetic-do-not-open.db?host=127.0.0.2",
         },
         capture_output=True,
         text=True,
@@ -167,6 +170,7 @@ def test_migration_rejects_database_url_query_overrides_before_connecting():
 def test_migration_job_exits_when_schema_lock_is_held(migrated_database_url, tmp_path):
     with connect_test_database(migrated_database_url) as blocker:
         blocker.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")
+        verify_test_database(migrated_database_url.set(database="omnis_test"))
         try:
             completed = subprocess.run(
                 [sys.executable, "-I", "-m", "omnis.migrate"],

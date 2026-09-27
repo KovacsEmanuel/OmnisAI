@@ -128,8 +128,7 @@ class LocalControl:
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
-        await self.service.heartbeat(self.owner, self.epoch)
-        status = await self.service.status()
+        status = await self.service.owned_status(self.owner, self.epoch)
         result_generation: int | None = None
         if not isinstance(command, StatusCommand):
             if command.instance_id != status.instance_id:

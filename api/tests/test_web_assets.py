@@ -1,5 +1,6 @@
 """Serve only a manifest-bound build, never arbitrary files from the release root."""
 
+import asyncio
 import hashlib
 import json
 from pathlib import Path
@@ -9,6 +10,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.engine import URL
 
+from conftest import connect_test_database
 from omnis.api import create_app
 from omnis.core.db import database_engine
 from omnis.modules.instance.service import InstanceService
@@ -136,5 +138,51 @@ async def test_dashboard_requires_assets_schema_and_live_private_control(
                     degraded = (await client.get("/health/ready")).json()
                     assert degraded["api_ready"] and not degraded["dashboard_ready"]
                     assert degraded["dashboard_reason"] == "ASSETS_UNAVAILABLE"
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_health_reads_neither_extend_nor_resurrect_supervisor_lease(
+    web_build: Path,
+    migrated_database_url: URL,
+    ipc_directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    url = migrated_database_url.render_as_string(hide_password=False)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", url)
+    monkeypatch.setenv("OMNIS_CONTROL_DIR", str(ipc_directory))
+    engine = database_engine(url)
+    service = InstanceService(engine)
+    owner = uuid4()
+    epoch = await service.acquire(owner)
+    app = create_app()
+    try:
+        async with LocalControl(ipc_directory, service, owner, epoch):
+            with connect_test_database(migrated_database_url) as db:
+                db.execute(
+                    "UPDATE supervisor_lease SET expires_at = clock_timestamp() + interval '2 seconds'"
+                )
+                expiry = db.execute("SELECT expires_at FROM supervisor_lease").fetchone()
+            async with app.router.lifespan_context(app):
+                async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+                    assert (await client.get("/health/ready")).json()["dashboard_ready"]
+                    with connect_test_database(migrated_database_url) as db:
+                        assert (
+                            db.execute("SELECT expires_at FROM supervisor_lease").fetchone()
+                            == expiry
+                        )
+                    # Continue read traffic across expiry without the supervisor heartbeat loop.
+                    for _ in range(8):
+                        await client.get("/health/ready")
+                        await asyncio.sleep(0.3)
+                    result = (await client.get("/health/ready")).json()
+                    assert result["api_ready"] and not result["dashboard_ready"]
+                    assert result["dashboard_reason"] == "CONTROL_UNAVAILABLE"
+                    with connect_test_database(migrated_database_url) as db:
+                        assert (
+                            db.execute("SELECT expires_at FROM supervisor_lease").fetchone()
+                            == expiry
+                        )
     finally:
         await engine.dispose()

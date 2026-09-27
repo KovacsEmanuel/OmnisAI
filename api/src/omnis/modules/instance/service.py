@@ -250,14 +250,25 @@ class InstanceService:
 
     async def status(self) -> InstanceStatus:
         async with self._locked() as (connection, instance, lease):
-            return InstanceStatus(
-                instance_id=instance.instance_id,
-                generation=instance.generation,
-                admission_open=instance.admission_open,
-                shutdown_command_id=instance.shutdown_command_id,
-                quiesced_generation=instance.quiesced_generation,
-                supervisor_epoch=lease.epoch,
-                supervisor_ready=await self._live(connection, lease),
-                shutdown_finalized=await self._finalized_epoch(connection, instance.generation)
-                is not None,
-            )
+            return await self._status(connection, instance, lease)
+
+    async def owned_status(self, owner: UUID, epoch: int) -> InstanceStatus:
+        """Validate serving authority without extending its lease on read traffic."""
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            return await self._status(connection, instance, lease)
+
+    async def _status(
+        self, connection: AsyncConnection, instance: InstanceRecord, lease: LeaseRecord
+    ) -> InstanceStatus:
+        return InstanceStatus(
+            instance_id=instance.instance_id,
+            generation=instance.generation,
+            admission_open=instance.admission_open,
+            shutdown_command_id=instance.shutdown_command_id,
+            quiesced_generation=instance.quiesced_generation,
+            supervisor_epoch=lease.epoch,
+            supervisor_ready=await self._live(connection, lease),
+            shutdown_finalized=await self._finalized_epoch(connection, instance.generation)
+            is not None,
+        )

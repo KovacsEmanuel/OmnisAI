@@ -1,12 +1,12 @@
 # Local component checks; P0.4 increments do not close G00 or certify assessment execution.
-.PHONY: check test check-docs check-development check-api lint-api typecheck-api test-api test-migrations check-api-wheel check-cli test-cli check-cli-wheel test-cli-live
+.PHONY: check test check-docs check-development check-api lint-api typecheck-api test-api test-migrations check-api-wheel check-cli test-cli check-cli-wheel test-cli-live check-release-install
 
 UV ?= uv
 API_PY = api/.venv/bin/python
 API_CHECK_PATHS = api/src api/tests
 CLI_PY = cli/.venv/bin/python
 
-check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli
+check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
 	git diff --check
 
 test: check
@@ -108,3 +108,10 @@ test-cli-live: check-cli-wheel
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a private scratch directory\n' >&2; exit 2; }
 	@test -n "$$OMNIS_TEST_DATABASE_URL" || { printf 'Set a dedicated test PostgreSQL project\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(API_PY) -I -m pytest api/tests/test_cli_status.py -q
+
+# Build a real release from both wheels, lock-exported hashes and trusted web assets.
+check-release-install: check-cli-wheel build-web
+	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix ops/build_control_bundle.py cli/integration
+	$(API_PY) -I -m ruff format --config api/pyproject.toml --check ops/build_control_bundle.py cli/integration
+	@env -u PYTHONPATH MYPYPATH=cli/src $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json ops/build_control_bundle.py
+	env -u PYTHONPATH -u MYPYPATH OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v

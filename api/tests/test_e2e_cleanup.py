@@ -62,7 +62,8 @@ time.sleep(60)
         try:
             with open(f"/proc/{child_pid}/stat") as source:
                 state = source.read().split(") ", 1)[1].split()[0]
-            assert state == "Z", "Owned descendant is still running"
+            # proc_pid_stat(5): X is the transient dead state during reaping, not a live process.
+            assert state in {"Z", "X"}, "Owned descendant is still running"
         except FileNotFoundError:
             pass
     finally:

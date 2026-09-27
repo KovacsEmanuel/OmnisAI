@@ -34,7 +34,7 @@ def _descendants(root: int) -> dict[int, str]:
 def _signal(members: dict[int, str], sig: signal.Signals) -> None:
     for pid, started in members.items():
         current = _identity(pid)
-        if current is not None and current[1] == started and current[2] != "Z":
+        if current is not None and current[1] == started and current[2] not in {"Z", "X"}:
             try:
                 os.kill(pid, sig)
             except ProcessLookupError:
@@ -59,7 +59,7 @@ def _stop(process: subprocess.Popen[str], tree: bool, grace: float) -> tuple[str
     deadline = time.monotonic() + 3
     while time.monotonic() < deadline:
         if all(
-            (current := _identity(pid)) is None or current[1] != started or current[2] == "Z"
+            (current := _identity(pid)) is None or current[1] != started or current[2] in {"Z", "X"}
             for pid, started in members.items()
         ):
             return output

@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.5
+version: 0.1.6
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -39,6 +39,8 @@ No universal 'verified' badge. Verify the verifier: match exact structured diagn
 For exception-based test guards, record each attempted violation to an independent parent-owned channel **before** raising. Test a child that catches the exception and exits successfully: its report must still fail the clean verdict. Require observer readiness, known event tags and positive/negative controls; missing evidence is not zero attempts. Fail closed if recording fails, and distinguish Python audit events from native syscalls/OS confinement.
 
 When typing a test observer/decoder, preserve unknown fields before leak/completeness assertions. A parser that strips unrecognized fields can manufacture a clean result. Exercise an unexpected synthetic marker at both top-level and nested payload positions, while rejecting wrong types; this evidence-preserving test policy does not replace strict allowlists on production inputs.
+
+Test teardown after an ordinary early driver exit, not only a live-driver timeout. A PPID snapshot taken after the leader exits loses reparented/detached children. Establish owned adoption or a managed scope before launch, exercise real SIGTERM-resistant children in both orderings, attempt all cleanup before exit-code assertions, and restore any per-test process attribute. Do not adopt preexisting/foreign work; publish final PASS only after teardown and parent-owned leak checks.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

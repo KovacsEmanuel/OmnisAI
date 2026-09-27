@@ -8,6 +8,7 @@ import os
 import secrets
 import socket
 import struct
+from contextlib import suppress
 from pathlib import Path
 from types import TracebackType
 from typing import Self
@@ -210,7 +211,6 @@ class LocalControl:
         finally:
             self.clients.discard(task)
             writer.close()
-            try:
+            # A disconnected peer may fail to close, but must not erase a pending cancellation.
+            with suppress(ConnectionError, TimeoutError):
                 await asyncio.wait_for(writer.wait_closed(), 1)
-            except (ConnectionError, TimeoutError):
-                return

@@ -32,6 +32,8 @@ Pluginul oficial `pydantic.mypy`, din Pydantic deja fixat, este necesar cu `init
 
 ## Verificare și rollback
 
+**Adoptarea uneltelor:** pinurile sunt acum numai în grupul dev, cu lock regenerat. `uv sync --locked` și auditul OSV al celor 37 de pachete au trecut fără advisories/status advers cunoscut. Cele 7 controale versionate din `api/tests/test_python_quality.py` au eșuat înainte de integrare și trec după instalare/configurare; propriul fișier trece Ruff și mypy. Acest checkpoint nu pretinde încă aplicația fără diagnostice: normalizarea, tipizarea tuturor surselor/testelor și legarea gate-urilor rămân următoarea parte a aceleiași felii.
+
 Acceptarea cere gate-uri reale fără erori, controale negative valide, lock/audit, suită completă existentă plus regresiile noi, artifact instalat și review. CI remote rămâne NOT-RUN fără push cerut separat; rulează aceleași comenzi versionate, dar nu inventăm o execuție GitHub.
 
 Experimentele și venv-ul candidat trăiesc în scratch. Mediul API va primi numai uneltele de dezvoltare fixate; mediul Hermes rămâne neatins. Revert pe commiturile relevante și `uv sync --locked --group dev --directory api` din revizia restaurată pentru mediul de dezvoltare; nu este nevoie de migrare de date doar pentru lint/typing. Dacă o remediere schimbă schema/comportamentul, va avea contract și rollback propriu. Probele DB folosesc numai proiecte/volume test atestate; cleanup fără ștergerea volumelor.

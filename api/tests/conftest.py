@@ -13,6 +13,7 @@ from uuid import uuid4
 import psycopg
 import pytest
 from psycopg import sql
+from pydantic import TypeAdapter
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
@@ -84,11 +85,17 @@ def verify_test_database(url: URL) -> None:
             timeout=10,
             check=True,
         )
-        services = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+        services = [
+            TypeAdapter(dict[str, object]).validate_json(line, strict=True)
+            for line in result.stdout.splitlines()
+            if line.strip()
+        ]
         if len(services) != 1:
             raise ValueError("unexpected service count")
         service = services[0]
         cid = service["ID"]
+        if not isinstance(cid, str):
+            raise ValueError("invalid container identity")
         mounts = subprocess.run(
             ["docker", "inspect", cid, "--format", "{{json .Mounts}}"],
             capture_output=True,
@@ -96,7 +103,7 @@ def verify_test_database(url: URL) -> None:
             timeout=10,
             check=True,
         )
-        volume = json.loads(mounts.stdout)
+        volume = TypeAdapter(list[dict[str, object]]).validate_json(mounts.stdout, strict=True)
     except (OSError, subprocess.SubprocessError, ValueError, KeyError, json.JSONDecodeError):
         raise RuntimeError("Cannot verify dedicated test project") from None
 
@@ -118,13 +125,15 @@ def verify_test_database(url: URL) -> None:
         raise RuntimeError("Database URL does not belong to the dedicated test project")
 
 
-def connect_test_database(url: URL, *, autocommit=False):
+def connect_test_database(
+    url: URL, *, autocommit: bool = False
+) -> psycopg.Connection[tuple[object, ...]]:
     reject_ambient_libpq_config()
     if url.query:
         raise RuntimeError("Expected a dedicated test project database URL")
     verify_test_database(url.set(database="omnis_test"))
     try:
-        connection = psycopg.connect(
+        connection: psycopg.Connection[tuple[object, ...]] = psycopg.connect(
             url.set(drivername="postgresql").render_as_string(hide_password=False),
             autocommit=autocommit,
         )
@@ -166,7 +175,7 @@ def connect_test_database(url: URL, *, autocommit=False):
 
 
 @pytest.fixture
-def empty_database_url():
+def empty_database_url() -> Iterator[URL]:
     raw = os.environ.get("OMNIS_TEST_DATABASE_URL")
     if not raw:
         pytest.fail("OMNIS_TEST_DATABASE_URL is required for PostgreSQL tests")
@@ -189,7 +198,7 @@ def empty_database_url():
 
 
 @pytest.fixture
-def migrated_database_url(empty_database_url):
+def migrated_database_url(empty_database_url: URL) -> URL:
     verify_test_database(empty_database_url.set(database="omnis_test"))
     try:
         completed = subprocess.run(

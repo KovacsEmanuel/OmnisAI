@@ -5,13 +5,16 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.engine import URL
 
 from omnis.core.db import database_engine
 
 
 @pytest.mark.asyncio
-async def test_pairing_consumes_once_across_competing_connections(migrated_database_url):
-    from omnis.security.sessions import PairingDenied, SessionStore, code_digest
+async def test_pairing_consumes_once_across_competing_connections(
+    migrated_database_url: URL,
+) -> None:
+    from omnis.security.sessions import PairingDenied, SessionGrant, SessionStore, code_digest
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     store = SessionStore(engine)
@@ -25,6 +28,7 @@ async def test_pairing_consumes_once_across_competing_connections(migrated_datab
         assert len(grants) == 1
         assert sum(isinstance(result, PairingDenied) for result in results) == 1
         grant = grants[0]
+        assert isinstance(grant, SessionGrant)
         assert await store.authenticate(grant.token) is not None
         async with engine.connect() as connection:
             rows = (
@@ -45,7 +49,7 @@ async def test_pairing_consumes_once_across_competing_connections(migrated_datab
 
 
 @pytest.mark.asyncio
-async def test_expiry_and_persistent_attempt_limit(migrated_database_url):
+async def test_expiry_and_persistent_attempt_limit(migrated_database_url: URL) -> None:
     from omnis.security.sessions import PairingDenied, PairingLimited, SessionStore, code_digest
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -89,7 +93,9 @@ async def test_expiry_and_persistent_attempt_limit(migrated_database_url):
 
 @pytest.mark.parametrize("state", ["consumed", "superseded", "expired"])
 @pytest.mark.asyncio
-async def test_pairing_registration_replay_never_reactivates_a_code(migrated_database_url, state):
+async def test_pairing_registration_replay_never_reactivates_a_code(
+    migrated_database_url: URL, state: str
+) -> None:
     from omnis.security.sessions import PairingDenied, SessionStore, code_digest
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -120,7 +126,9 @@ async def test_pairing_registration_replay_never_reactivates_a_code(migrated_dat
 
 
 @pytest.mark.asyncio
-async def test_pairing_issuance_is_idempotent_and_rejects_id_or_code_reuse(migrated_database_url):
+async def test_pairing_issuance_is_idempotent_and_rejects_id_or_code_reuse(
+    migrated_database_url: URL,
+) -> None:
     from omnis.security.sessions import PairingConflict, SessionStore, code_digest
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))

@@ -12,7 +12,7 @@ url = urlsplit(
 audit_fd = int(os.environ["OMNIS_TEST_AUDIT_FD"])
 
 
-def record(event):
+def record(event: str) -> None:
     data = (event + "\n").encode()
     try:
         if os.write(audit_fd, data) != len(data):
@@ -22,7 +22,7 @@ def record(event):
         os._exit(91)
 
 
-def guard(event, args):
+def guard(event: str, args: tuple[object, ...]) -> None:
     if event == "socket.connect":
         address = args[1]
         if not isinstance(address, tuple) or address[:2] != ("127.0.0.1", url.port):

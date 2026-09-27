@@ -7,13 +7,14 @@ from uuid import UUID
 import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
+from sqlalchemy.engine import URL
 
 from conftest import connect_test_database, verify_test_database
 from omnis.core.db import SCHEMA_REVISION
 from process_probe import exercise_installed_control
 
 
-def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url):
+def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url: URL) -> None:
     script = ScriptDirectory.from_config(
         Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     )
@@ -59,7 +60,7 @@ def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url)
     assert quiesced_at is None
 
 
-def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path):
+def test_installed_wheel_migrates_without_checkout(empty_database_url: URL, tmp_path: Path) -> None:
     uv = os.environ.get("OMNIS_UV")
     assert uv, "OMNIS_UV must point to pinned uv 0.12.19"
     root = Path(__file__).resolve().parents[1]
@@ -68,7 +69,7 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
     requirements = tmp_path / "requirements.txt"
     venv_python = tmp_path / "venv/bin/python"
 
-    def run(label, command, *, isolated_migration=False):
+    def run(label: str, command: list[str], *, isolated_migration: bool = False) -> None:
         env = None
         if isolated_migration:
             env = {
@@ -148,8 +149,8 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
     "previous_revision", ["0001_instance_control", "0002_local_sessions", "0003_instance_lifecycle"]
 )
 def test_upgrade_from_previous_revision_preserves_instance_identity(
-    empty_database_url, tmp_path, previous_revision
-):
+    empty_database_url: URL, tmp_path: Path, previous_revision: str
+) -> None:
     env = {
         "PATH": os.environ.get("PATH", ""),
         "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
@@ -206,7 +207,9 @@ def test_upgrade_from_previous_revision_preserves_instance_identity(
 @pytest.mark.parametrize(
     "marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"]
 )
-def test_failed_migration_does_not_echo_database_input(marker, migrated_database_url):
+def test_failed_migration_does_not_echo_database_input(
+    marker: str, migrated_database_url: URL
+) -> None:
     if "password" in marker:
         if marker == os.environ["OMNIS_TEST_DB_PASSWORD"]:
             pytest.fail("Test password unexpectedly equals denial marker", pytrace=False)
@@ -235,7 +238,7 @@ def test_failed_migration_does_not_echo_database_input(marker, migrated_database
         pytest.fail("Migration failure exposed database configuration", pytrace=False)
 
 
-def test_migration_rejects_ambient_libpq_routing_before_connecting():
+def test_migration_rejects_ambient_libpq_routing_before_connecting() -> None:
     result = subprocess.run(
         [sys.executable, "-I", "-m", "omnis.migrate"],
         env={
@@ -252,7 +255,7 @@ def test_migration_rejects_ambient_libpq_routing_before_connecting():
     assert "Ambient libpq" in result.stderr
 
 
-def test_migration_rejects_database_url_query_overrides_before_connecting():
+def test_migration_rejects_database_url_query_overrides_before_connecting() -> None:
     result = subprocess.run(
         [sys.executable, "-I", "-m", "omnis.migrate"],
         env={
@@ -268,7 +271,9 @@ def test_migration_rejects_database_url_query_overrides_before_connecting():
     assert "query parameters are forbidden" in result.stderr
 
 
-def test_migration_job_exits_when_schema_lock_is_held(migrated_database_url, tmp_path):
+def test_migration_job_exits_when_schema_lock_is_held(
+    migrated_database_url: URL, tmp_path: Path
+) -> None:
     with connect_test_database(migrated_database_url) as blocker:
         blocker.execute("LOCK TABLE alembic_version IN ACCESS EXCLUSIVE MODE")
         verify_test_database(migrated_database_url.set(database="omnis_test"))

@@ -3,15 +3,48 @@ import json
 import os
 import secrets
 import stat
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Required, TypedDict
 from uuid import UUID, uuid4
 
 import pytest
+from pydantic import ConfigDict, TypeAdapter, ValidationError, with_config
+from sqlalchemy.engine import URL
 
 from omnis.core.db import database_engine
 from omnis.modules.instance.service import InstanceService
 
 
-async def request(directory, capability, command, **extra):
+@with_config(ConfigDict(extra="allow"))
+class ControlStatus(TypedDict):
+    instance_id: str
+    generation: int
+    admission_open: bool
+    shutdown_command_id: str | None
+    quiesced_generation: int | None
+    supervisor_epoch: int
+    supervisor_ready: bool
+    shutdown_finalized: bool
+    assessment_ready: bool
+    dashboard_ready: bool
+
+
+@with_config(ConfigDict(extra="allow"))
+class ControlReply(TypedDict, total=False):
+    ok: Required[bool]
+    correlation_id: Required[str]
+    error: str
+    status: ControlStatus
+    result_generation: int | None
+
+
+CONTROL_REPLY = TypeAdapter(ControlReply)
+
+
+async def request(
+    directory: Path, capability: str, command: Mapping[str, object], **extra: object
+) -> ControlReply:
     reader, writer = await asyncio.open_unix_connection(str(directory / "control.sock"))
     try:
         writer.write(
@@ -21,16 +54,69 @@ async def request(directory, capability, command, **extra):
             + b"\n"
         )
         await writer.drain()
-        return json.loads(await asyncio.wait_for(reader.readline(), 5))
+        return CONTROL_REPLY.validate_json(
+            await asyncio.wait_for(reader.readline(), 5), strict=True
+        )
     finally:
         writer.close()
         await writer.wait_closed()
 
 
+@pytest.mark.parametrize("case", ["valid", "not_object", "missing_id", "boolean", "generation"])
+@pytest.mark.asyncio
+async def test_request_validates_reply_without_discarding_evidence(
+    ipc_directory: Path, case: str
+) -> None:
+    status: dict[str, object] = {
+        "instance_id": str(uuid4()),
+        "generation": 1,
+        "admission_open": False,
+        "shutdown_command_id": None,
+        "quiesced_generation": None,
+        "supervisor_epoch": 1,
+        "supervisor_ready": True,
+        "shutdown_finalized": False,
+        "assessment_ready": False,
+        "dashboard_ready": False,
+        "unexpected_status_evidence": "synthetic-secret-marker",
+    }
+    payload: dict[str, object] = {
+        "ok": True,
+        "correlation_id": str(uuid4()),
+        "result_generation": 1,
+        "status": status,
+        "unexpected_evidence": "synthetic-secret-marker",
+    }
+    if case == "missing_id":
+        del payload["correlation_id"]
+    elif case == "boolean":
+        payload["ok"] = 1
+    elif case == "generation":
+        status["generation"] = "1"
+    frame = json.dumps([] if case == "not_object" else payload).encode() + b"\n"
+
+    async def respond(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        try:
+            await asyncio.wait_for(reader.readline(), 5)
+            writer.write(frame)
+            await writer.drain()
+        finally:
+            writer.close()
+            await writer.wait_closed()
+
+    async with await asyncio.start_unix_server(respond, path=str(ipc_directory / "control.sock")):
+        if case == "valid":
+            # Unknown keys must survive decoding: filtering could hide leaked secrets.
+            assert await request(ipc_directory, "synthetic-capability", {"op": "status"}) == payload
+        else:
+            with pytest.raises(ValidationError):
+                await request(ipc_directory, "synthetic-capability", {"op": "status"})
+
+
 @pytest.mark.asyncio
 async def test_real_unix_control_peer_capability_and_allowlist(
-    migrated_database_url, ipc_directory
-):
+    migrated_database_url: URL, ipc_directory: Path
+) -> None:
     from omnis.transport.local_control import LocalControl
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -90,8 +176,8 @@ async def test_real_unix_control_peer_capability_and_allowlist(
 
 @pytest.mark.asyncio
 async def test_control_refuses_unsafe_directory_and_foreign_files(
-    migrated_database_url, ipc_directory
-):
+    migrated_database_url: URL, ipc_directory: Path
+) -> None:
     from omnis.transport.local_control import LocalControl
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -117,8 +203,8 @@ async def test_control_refuses_unsafe_directory_and_foreign_files(
 
 @pytest.mark.asyncio
 async def test_control_frames_are_bounded_and_duplicate_keys_rejected(
-    migrated_database_url, ipc_directory
-):
+    migrated_database_url: URL, ipc_directory: Path
+) -> None:
     from omnis.transport.local_control import LocalControl
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -133,7 +219,9 @@ async def test_control_frames_are_bounded_and_duplicate_keys_rejected(
                 )
                 writer.write(payload)
                 await writer.drain()
-                response = json.loads(await asyncio.wait_for(reader.readline(), 4))
+                response = CONTROL_REPLY.validate_json(
+                    await asyncio.wait_for(reader.readline(), 4), strict=True
+                )
                 assert response["error"] == "INVALID_REQUEST"
                 writer.close()
                 await writer.wait_closed()
@@ -141,7 +229,7 @@ async def test_control_frames_are_bounded_and_duplicate_keys_rejected(
         await engine.dispose()
 
 
-def test_private_directory_rejects_replaceable_ancestor(ipc_directory):
+def test_private_directory_rejects_replaceable_ancestor(ipc_directory: Path) -> None:
     from omnis.core.paths import private_directory
 
     parent = ipc_directory / "shared"
@@ -154,7 +242,9 @@ def test_private_directory_rejects_replaceable_ancestor(ipc_directory):
 
 
 @pytest.mark.asyncio
-async def test_cancelled_socket_startup_leaves_no_listener(migrated_database_url, ipc_directory):
+async def test_cancelled_socket_startup_leaves_no_listener(
+    migrated_database_url: URL, ipc_directory: Path
+) -> None:
     from omnis.transport.local_control import LocalControl
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))

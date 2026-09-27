@@ -5,11 +5,13 @@ import os
 import secrets
 import subprocess
 import sys
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
+from sqlalchemy.engine import URL
 
 from conftest import connect_test_database
 from omnis.api import create_app
@@ -21,7 +23,9 @@ from test_supervisor import start_supervisor, stop_process, wait_ready
 
 
 @pytest.mark.asyncio
-async def test_pairing_rechecks_expiry_after_waiting_for_the_row(migrated_database_url):
+async def test_pairing_rechecks_expiry_after_waiting_for_the_row(
+    migrated_database_url: URL,
+) -> None:
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     store = SessionStore(engine)
     code = secrets.token_urlsafe(24)
@@ -49,8 +53,8 @@ async def test_pairing_rechecks_expiry_after_waiting_for_the_row(migrated_databa
 
 @pytest.mark.asyncio
 async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(
-    monkeypatch, migrated_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
     )
@@ -99,7 +103,9 @@ async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(
     ],
 )
 @pytest.mark.asyncio
-async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mutation):
+async def test_new_authority_schema_drift_is_not_ready(
+    migrated_database_url: URL, mutation: str
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(mutation)
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -126,7 +132,7 @@ async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mu
 
 
 @pytest.mark.asyncio
-async def test_expired_admission_rolls_back_its_inert_write(migrated_database_url):
+async def test_expired_admission_rolls_back_its_inert_write(migrated_database_url: URL) -> None:
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)
     owner = uuid4()
@@ -153,8 +159,8 @@ async def test_expired_admission_rolls_back_its_inert_write(migrated_database_ur
 
 
 def test_supervisor_exits_bounded_when_db_authority_is_blocked(
-    migrated_database_url, ipc_directory
-):
+    migrated_database_url: URL, ipc_directory: Path
+) -> None:
     process = start_supervisor(migrated_database_url, ipc_directory)
     try:
         wait_ready(process)
@@ -168,7 +174,7 @@ def test_supervisor_exits_bounded_when_db_authority_is_blocked(
         stop_process(process)
 
 
-def test_domain_import_is_independent_of_frameworks_and_runtime(ipc_directory):
+def test_domain_import_is_independent_of_frameworks_and_runtime(ipc_directory: Path) -> None:
     result = subprocess.run(
         [
             sys.executable,

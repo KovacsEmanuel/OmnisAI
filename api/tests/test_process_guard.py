@@ -15,7 +15,9 @@ from process_probe import assert_clean_guard_report
 @pytest.mark.parametrize(
     "mode, expected", [("negative", "EGRESS_DENIED"), ("positive", "CONNECT_ALLOWED")]
 )
-def test_guard_records_independent_events_when_application_catches(mode, expected):
+def test_guard_records_independent_events_when_application_catches(
+    mode: str, expected: str
+) -> None:
     guard = Path(__file__).with_name("process_guard.py")
     with (
         socket.socket() as owned_listener,
@@ -57,6 +59,6 @@ def test_guard_records_independent_events_when_application_catches(mode, expecte
         ["GUARD_READY", "GUARD_READY"],
     ],
 )
-def test_missing_or_invalid_observer_evidence_is_not_clean(events):
+def test_missing_or_invalid_observer_evidence_is_not_clean(events: list[str]) -> None:
     with pytest.raises(AssertionError):
         assert_clean_guard_report(events)

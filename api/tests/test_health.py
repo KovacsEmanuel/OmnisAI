@@ -3,13 +3,14 @@ import asyncio
 import pytest
 from httpx import ASGITransport, AsyncClient
 from psycopg import sql
+from sqlalchemy.engine import URL
 
-from omnis.api import create_app
 from conftest import connect_test_database
+from omnis.api import create_app
 
 
 @pytest.mark.asyncio
-async def test_live_reports_the_process_without_a_database(monkeypatch):
+async def test_live_reports_the_process_without_a_database(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("OMNIS_DATABASE_URL", raising=False)
     app = create_app()
     async with app.router.lifespan_context(app):
@@ -26,7 +27,7 @@ async def test_live_reports_the_process_without_a_database(monkeypatch):
     "host", ["attacker.invalid:8765", "127.0.0.1:9999", "127.0.0.1:8765.evil", "127.0.0.1"]
 )
 @pytest.mark.asyncio
-async def test_live_rejects_a_foreign_host(host):
+async def test_live_rejects_a_foreign_host(host: str) -> None:
     app = create_app()
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
@@ -39,7 +40,7 @@ async def test_live_rejects_a_foreign_host(host):
 
 
 @pytest.mark.asyncio
-async def test_live_ignores_forwarded_host():
+async def test_live_ignores_forwarded_host() -> None:
     app = create_app()
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
@@ -52,7 +53,9 @@ async def test_live_ignores_forwarded_host():
 
 
 @pytest.mark.asyncio
-async def test_ready_requires_real_migrated_postgresql(monkeypatch, migrated_database_url):
+async def test_ready_requires_real_migrated_postgresql(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
     )
@@ -73,7 +76,9 @@ async def test_ready_requires_real_migrated_postgresql(monkeypatch, migrated_dat
 
 
 @pytest.mark.asyncio
-async def test_ready_denies_an_unmigrated_postgresql(monkeypatch, empty_database_url):
+async def test_ready_denies_an_unmigrated_postgresql(
+    monkeypatch: pytest.MonkeyPatch, empty_database_url: URL
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", empty_database_url.render_as_string(hide_password=False)
     )
@@ -94,7 +99,9 @@ async def test_ready_denies_an_unmigrated_postgresql(monkeypatch, empty_database
 
 
 @pytest.mark.asyncio
-async def test_ready_denies_a_newer_schema_revision(monkeypatch, migrated_database_url):
+async def test_ready_denies_a_newer_schema_revision(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute("UPDATE alembic_version SET version_num = 'unsupported_future'")
     monkeypatch.setenv(
@@ -112,7 +119,9 @@ async def test_ready_denies_a_newer_schema_revision(monkeypatch, migrated_databa
 
 
 @pytest.mark.asyncio
-async def test_ready_denies_a_missing_instance_row(monkeypatch, migrated_database_url):
+async def test_ready_denies_a_missing_instance_row(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute("DELETE FROM instance_control WHERE id = 1")
     monkeypatch.setenv(
@@ -131,7 +140,9 @@ async def test_ready_denies_a_missing_instance_row(monkeypatch, migrated_databas
 
 @pytest.mark.parametrize("column", ["shutdown_command_id", "quiesced_at"])
 @pytest.mark.asyncio
-async def test_ready_denies_missing_instance_column(monkeypatch, migrated_database_url, column):
+async def test_ready_denies_missing_instance_column(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, column: str
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(
             sql.SQL("ALTER TABLE instance_control DROP COLUMN {}").format(sql.Identifier(column))
@@ -161,8 +172,8 @@ async def test_ready_denies_missing_instance_column(monkeypatch, migrated_databa
 )
 @pytest.mark.asyncio
 async def test_ready_denies_constraint_default_or_type_drift(
-    monkeypatch, migrated_database_url, mutation
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, mutation: str
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(mutation)
     monkeypatch.setenv(
@@ -180,7 +191,9 @@ async def test_ready_denies_constraint_default_or_type_drift(
 
 
 @pytest.mark.asyncio
-async def test_ready_denies_a_same_named_weakened_constraint(monkeypatch, migrated_database_url):
+async def test_ready_denies_a_same_named_weakened_constraint(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(
             "ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton"
@@ -204,8 +217,8 @@ async def test_ready_denies_a_same_named_weakened_constraint(monkeypatch, migrat
 
 @pytest.mark.asyncio
 async def test_ready_denies_an_extra_constraint_blocking_future_admission(
-    monkeypatch, migrated_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(
             "ALTER TABLE instance_control ADD CONSTRAINT ck_never_open CHECK (NOT admission_open)"
@@ -226,8 +239,8 @@ async def test_ready_denies_an_extra_constraint_blocking_future_admission(
 
 @pytest.mark.asyncio
 async def test_ready_denies_an_unvalidated_not_null_with_a_null_row(
-    monkeypatch, migrated_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute("ALTER TABLE instance_control ALTER COLUMN admission_open DROP NOT NULL")
         connection.execute("UPDATE instance_control SET admission_open = NULL WHERE id = 1")
@@ -270,8 +283,8 @@ async def test_ready_denies_an_unvalidated_not_null_with_a_null_row(
 )
 @pytest.mark.asyncio
 async def test_ready_denies_unexpected_instance_defaults(
-    monkeypatch, migrated_database_url, mutation
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, mutation: str
+) -> None:
     with connect_test_database(migrated_database_url) as connection:
         connection.execute(mutation)
     monkeypatch.setenv(
@@ -290,8 +303,8 @@ async def test_ready_denies_unexpected_instance_defaults(
 
 @pytest.mark.asyncio
 async def test_ready_times_out_while_postgres_is_connected_but_locked(
-    monkeypatch, migrated_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
     )
@@ -310,8 +323,8 @@ async def test_ready_times_out_while_postgres_is_connected_but_locked(
 
 @pytest.mark.asyncio
 async def test_ready_reports_disconnected_database_without_exposing_url(
-    monkeypatch, empty_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, empty_database_url: URL
+) -> None:
     unavailable = empty_database_url.set(port=1, password="synthetic_do_not_echo")
     monkeypatch.setenv("OMNIS_DATABASE_URL", unavailable.render_as_string(hide_password=False))
     app = create_app()
@@ -329,7 +342,9 @@ async def test_ready_reports_disconnected_database_without_exposing_url(
 
 
 @pytest.mark.asyncio
-async def test_api_rejects_ambient_libpq_routing_at_startup(monkeypatch):
+async def test_api_rejects_ambient_libpq_routing_at_startup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL",
         "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test",
@@ -342,7 +357,9 @@ async def test_api_rejects_ambient_libpq_routing_at_startup(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_api_rejects_database_url_query_overrides_at_startup(monkeypatch):
+async def test_api_rejects_database_url_query_overrides_at_startup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL",
         "postgresql+psycopg://omnis_test:synthetic@127.0.0.1:1/omnis_test?host=127.0.0.2",
@@ -355,8 +372,8 @@ async def test_api_rejects_database_url_query_overrides_at_startup(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_api_restart_closes_pool_and_keeps_instance_identity(
-    monkeypatch, migrated_database_url
-):
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
     )
@@ -378,6 +395,7 @@ async def test_api_restart_closes_pool_and_keeps_instance_identity(
                     "SELECT count(*) FROM pg_stat_activity "
                     "WHERE datname = current_database() AND pid <> pg_backend_pid()"
                 ).fetchone()
+                assert count_row is not None and isinstance(count_row[0], int)
                 assert count_row is not None and count_row[0] >= 1
         with connect_test_database(migrated_database_url) as connection:
             assert (

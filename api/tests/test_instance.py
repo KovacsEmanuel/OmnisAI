@@ -3,15 +3,17 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.engine import URL
 
 from omnis.core.db import database_engine
 
 
 @pytest.mark.asyncio
 async def test_shutdown_serializes_with_real_admission_and_requires_explicit_restart(
-    migrated_database_url,
-):
-    from omnis.modules.instance.service import ControlConflict, InstanceService
+    migrated_database_url: URL,
+) -> None:
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)
@@ -28,7 +30,7 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
         entered = asyncio.Event()
         finish = asyncio.Event()
 
-        async def admitted():
+        async def admitted() -> None:
             async with service.admission(generation, owner, epoch) as connection:
                 entered.set()
                 await finish.wait()
@@ -80,8 +82,11 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
 
 
 @pytest.mark.asyncio
-async def test_expired_owner_is_fenced_and_takeover_never_reopens(migrated_database_url):
-    from omnis.modules.instance.service import ControlConflict, InstanceService
+async def test_expired_owner_is_fenced_and_takeover_never_reopens(
+    migrated_database_url: URL,
+) -> None:
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)

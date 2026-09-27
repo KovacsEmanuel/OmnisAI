@@ -5,14 +5,16 @@ import selectors
 import subprocess
 import sys
 import time
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.engine import URL
 
 from test_local_control import request
 
 
-def start_supervisor(database_url, directory):
+def start_supervisor(database_url: URL, directory: Path) -> subprocess.Popen[str]:
     process = subprocess.Popen(
         [sys.executable, "-I", "-m", "omnis.supervisor"],
         cwd=directory,
@@ -28,7 +30,8 @@ def start_supervisor(database_url, directory):
     return process
 
 
-def wait_ready(process):
+def wait_ready(process: subprocess.Popen[str]) -> None:
+    assert process.stdout is not None
     with selectors.DefaultSelector() as selector:
         selector.register(process.stdout, selectors.EVENT_READ)
         ready = selector.select(8)
@@ -37,7 +40,7 @@ def wait_ready(process):
     assert line == "SUPERVISOR_READY", f"Supervisor not ready (exit {process.poll()})"
 
 
-def stop_process(process, *, crash=False):
+def stop_process(process: subprocess.Popen[str], *, crash: bool = False) -> tuple[str, str]:
     if process.poll() is None:
         process.kill() if crash else process.terminate()
     return process.communicate(timeout=8)
@@ -48,8 +51,8 @@ def stop_process(process, *, crash=False):
 )
 @pytest.mark.asyncio
 async def test_real_supervisor_is_unique_and_restart_stays_closed(
-    migrated_database_url, ipc_directory, crash_point
-):
+    migrated_database_url: URL, ipc_directory: Path, crash_point: str
+) -> None:
     first = start_supervisor(migrated_database_url, ipc_directory)
     processes = [first]
     try:
@@ -191,7 +194,7 @@ async def test_real_supervisor_is_unique_and_restart_stays_closed(
             stop_process(process)
 
 
-def test_supervisor_startup_failure_is_sanitized(ipc_directory):
+def test_supervisor_startup_failure_is_sanitized(ipc_directory: Path) -> None:
     process = subprocess.run(
         [sys.executable, "-I", "-m", "omnis.supervisor"],
         cwd=ipc_directory,

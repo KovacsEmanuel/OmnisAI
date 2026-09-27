@@ -9,16 +9,18 @@ import socket
 import subprocess
 import tempfile
 import time
+from collections.abc import Mapping
 from pathlib import Path
 from uuid import uuid4
 
 import httpx
+from sqlalchemy.engine import URL
 
-from test_local_control import request
+from test_local_control import ControlReply, request
 from test_supervisor import stop_process, wait_ready
 
 
-def assert_clean_guard_report(events):
+def assert_clean_guard_report(events: list[str]) -> None:
     assert events and events[0] == "GUARD_READY", "missing audit channel readiness"
     assert events.count("GUARD_READY") == 1, "duplicate audit readiness"
     assert set(events) <= {"GUARD_READY", "CONNECT_ALLOWED", "DNS_ALLOWED"}, (
@@ -26,7 +28,7 @@ def assert_clean_guard_report(events):
     )
 
 
-def exercise_installed_control(python, database_url):
+def exercise_installed_control(python: Path, database_url: URL) -> None:
     with tempfile.TemporaryDirectory(prefix="omnis-live-", dir=os.environ["TMPDIR"]) as name:
         directory = Path(name)
         guard = str(Path(__file__).with_name("process_guard.py"))
@@ -53,7 +55,13 @@ def exercise_installed_control(python, database_url):
         expected_exits = []
         audits = []
 
-        def launch_guarded(command, *, pass_fds=(), extra_env=None, expected_exit=0):
+        def launch_guarded(
+            command: list[str],
+            *,
+            pass_fds: tuple[int, ...] = (),
+            extra_env: dict[str, str] | None = None,
+            expected_exit: int = 0,
+        ) -> subprocess.Popen[str]:
             audit = tempfile.TemporaryFile(dir=directory)
             audits.append(audit)
             process = subprocess.Popen(
@@ -76,7 +84,7 @@ def exercise_installed_control(python, database_url):
             capability = (directory / "control.cap").read_text()
             sensitive.append(capability)
 
-            async def control(command):
+            async def control(command: Mapping[str, object]) -> ControlReply:
                 return await request(directory, capability, command)
 
             status = asyncio.run(control({"op": "status"}))["status"]
@@ -112,7 +120,7 @@ def exercise_installed_control(python, database_url):
                     "3",
                 ]
 
-                def launch_api():
+                def launch_api() -> subprocess.Popen[str]:
                     return launch_guarded(
                         api_command,
                         pass_fds=(listener.fileno(),),
@@ -120,7 +128,7 @@ def exercise_installed_control(python, database_url):
                         expected_exit=-signal.SIGTERM,
                     )
 
-                def ready(client, process):
+                def ready(client: httpx.Client, process: subprocess.Popen[str]) -> None:
                     deadline = time.monotonic() + 8
                     while time.monotonic() < deadline:
                         assert process.poll() is None, "Installed API exited before readiness"

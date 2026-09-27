@@ -9,6 +9,8 @@ import secrets
 import socket
 import struct
 from pathlib import Path
+from types import TracebackType
+from typing import Self
 from uuid import UUID, uuid4
 
 from pydantic import ValidationError
@@ -25,6 +27,7 @@ from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.schemas import (
     ControlRequest,
     InstanceView,
+    LifecycleCommand,
     PairingCommand,
     StatusCommand,
 )
@@ -32,8 +35,8 @@ from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingConflict, SessionStore
 
 
-def unique_object(pairs):
-    result = {}
+def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
     for key, value in pairs:
         if key in result:
             raise ValueError("Duplicate JSON key")
@@ -50,20 +53,20 @@ class LocalControl:
         epoch: int,
         *,
         peer_uid: int | None = None,
-    ):
+    ) -> None:
         self.directory = directory
         self.service = service
         self.owner = owner
         self.epoch = epoch
         self.peer_uid = os.getuid() if peer_uid is None else peer_uid
         self.capability = secrets.token_hex(32)
-        self.server = None
-        self.lock_fd = None
-        self.socket_inode = None
-        self.cap_inode = None
-        self.clients = set()
+        self.server: asyncio.AbstractServer | None = None
+        self.lock_fd: int | None = None
+        self.socket_inode: int | None = None
+        self.cap_inode: int | None = None
+        self.clients: set[asyncio.Task[object]] = set()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         private_directory(self.directory)
         try:
             self.lock_fd = os.open(
@@ -99,7 +102,12 @@ class LocalControl:
             await self.__aexit__(None, None, None)
             raise
 
-    async def __aexit__(self, *_):
+    async def __aexit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
         if self.server is not None:
             self.server.close()
             await self.server.wait_closed()
@@ -114,12 +122,14 @@ class LocalControl:
             os.close(self.lock_fd)
             self.lock_fd = None
 
-    async def _dispatch(self, command):
+    async def _dispatch(
+        self, command: StatusCommand | PairingCommand | LifecycleCommand
+    ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
         await self.service.heartbeat(self.owner, self.epoch)
         status = await self.service.status()
-        result_generation = None
+        result_generation: int | None = None
         if not isinstance(command, StatusCommand):
             if command.instance_id != status.instance_id:
                 return {"ok": False, "error": "INSTANCE_MISMATCH"}
@@ -146,8 +156,9 @@ class LocalControl:
             "status": InstanceView.model_validate(status).model_dump(mode="json"),
         }
 
-    async def _handle(self, reader, writer):
+    async def _handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
+        assert task is not None  # start_unix_server runs each coroutine callback in a Task.
         if len(self.clients) >= 16:
             writer.close()
             return

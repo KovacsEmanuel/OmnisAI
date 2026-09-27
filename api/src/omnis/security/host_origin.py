@@ -9,8 +9,8 @@ from uuid import uuid4
 
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.datastructures import Headers
-
 from starlette.responses import JSONResponse
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from omnis.core.db import readiness_reason
 from omnis.core.errors import ErrorCode, ErrorDetail, ErrorEnvelope, request_correlation
@@ -36,12 +36,12 @@ def error_response(code: str, status: int) -> JSONResponse:
 
 
 class LocalBoundary:
-    def __init__(self, app, origin: str):
+    def __init__(self, app: ASGIApp, origin: str) -> None:
         self.app = app
         self.origin = origin
         self.host = origin.removeprefix("http://")
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -49,7 +49,7 @@ class LocalBoundary:
         token = request_correlation.set(correlation)
         response_started = False
 
-        async def correlated_send(message):
+        async def correlated_send(message: Message) -> None:
             nonlocal response_started
             if message["type"] == "http.response.start":
                 response_started = True
@@ -81,7 +81,7 @@ class LocalBoundary:
         finally:
             request_correlation.reset(token)
 
-    async def _http(self, scope, receive, send):
+    async def _http(self, scope: Scope, receive: Receive, send: Send) -> None:
         headers = Headers(scope=scope)
         mutation = scope["method"] not in {"GET", "HEAD", "OPTIONS"}
         origins = headers.getlist("origin")
@@ -113,7 +113,7 @@ class LocalBoundary:
                             if not message.get("more_body", False):
                                 break
 
-                    async def buffered_receive():
+                    async def buffered_receive() -> Message:
                         return {"type": "http.request", "body": bytes(body), "more_body": False}
 
                     receive = buffered_receive
@@ -156,7 +156,7 @@ class LocalBoundary:
                 await error_response("CONTROL_UNAVAILABLE", 503)(scope, receive, send)
                 return
 
-        async def private_send(message):
+        async def private_send(message: Message) -> None:
             if message["type"] == "http.response.start" and is_api:
                 message["headers"] = [
                     (key, value)

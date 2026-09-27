@@ -4,6 +4,7 @@ import asyncio
 
 from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
+from starlette.responses import JSONResponse
 
 from omnis.security.host_origin import COOKIE, error_response
 from omnis.security.sessions import PairingDenied, PairingLimited, SessionStore
@@ -22,7 +23,9 @@ class SessionView(BaseModel):
 
 
 @router.post("/pairing", response_model=SessionView)
-async def pair(body: PairingBody, request: Request, response: Response):
+async def pair(
+    body: PairingBody, request: Request, response: Response
+) -> SessionView | JSONResponse:
     store = SessionStore(request.app.state.db_engine)
     try:
         async with asyncio.timeout(3):
@@ -40,12 +43,12 @@ async def pair(body: PairingBody, request: Request, response: Response):
 
 
 @router.get("/session", response_model=SessionView)
-async def session(request: Request):
+async def session(request: Request) -> SessionView:
     return SessionView(csrf_token=request.state.session_grant.csrf)
 
 
 @router.post("/logout", status_code=204)
-async def logout(request: Request):
+async def logout(request: Request) -> Response:
     async with asyncio.timeout(3):
         await SessionStore(request.app.state.db_engine).logout(request.state.session_grant.token)
     response = Response(status_code=204)

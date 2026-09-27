@@ -2,6 +2,7 @@
 
 import asyncio
 import os
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
@@ -9,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
+from starlette.responses import JSONResponse
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.schemas import InstanceView
@@ -26,7 +28,7 @@ class HealthReady(BaseModel):
 
 def create_app() -> FastAPI:
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         database_url = os.environ.get("OMNIS_DATABASE_URL")
         engine = database_engine(database_url) if database_url else None
         app.state.db_engine = engine
@@ -44,11 +46,11 @@ def create_app() -> FastAPI:
     app.include_router(session_router)
 
     @app.exception_handler(RequestValidationError)
-    async def invalid_input(request: Request, exc: RequestValidationError):
+    async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:
         return error_response("INVALID_INPUT", 422)
 
     @app.exception_handler(HTTPException)
-    async def http_failure(request: Request, exc: HTTPException):
+    async def http_failure(request: Request, exc: HTTPException) -> JSONResponse:
         code = {404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}.get(exc.status_code, "HTTP_ERROR")
         response = error_response(code, exc.status_code)
         if exc.status_code == 405 and exc.headers and "Allow" in exc.headers:
@@ -56,11 +58,11 @@ def create_app() -> FastAPI:
         return response
 
     @app.exception_handler(SQLAlchemyError)
-    async def database_failure(request: Request, exc: SQLAlchemyError):
+    async def database_failure(request: Request, exc: SQLAlchemyError) -> JSONResponse:
         return error_response("CONTROL_UNAVAILABLE", 503)
 
     @app.exception_handler(TimeoutError)
-    async def operation_timeout(request: Request, exc: TimeoutError):
+    async def operation_timeout(request: Request, exc: TimeoutError) -> JSONResponse:
         return error_response("CONTROL_TIMEOUT", 503)
 
     @app.get("/health/live")

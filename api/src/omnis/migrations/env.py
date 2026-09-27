@@ -4,6 +4,7 @@ import asyncio
 import os
 
 from alembic import context
+from sqlalchemy.engine import Connection
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
@@ -11,11 +12,10 @@ from sqlalchemy.pool import NullPool
 from omnis.core.db import validated_database_url
 from omnis.modules.instance.models import Base
 
-
 target_metadata = Base.metadata
 
 
-def run_migrations(connection) -> None:
+def run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()

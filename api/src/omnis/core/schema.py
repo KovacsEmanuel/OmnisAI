@@ -1,10 +1,14 @@
 """Physical authority schema contracts, including validated PostgreSQL 18 constraints."""
 
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncConnection
 
+type ColumnSpec = tuple[str, bool, str | None]
+type ConstraintSpec = tuple[str, str, str, bool, bool]
+type AuthoritySpec = tuple[dict[str, ColumnSpec], set[ConstraintSpec]]
 
 # Each column is (type, required, exact default). Tables are never inferred from a stamp alone.
-AUTHORITY_TABLES = {
+AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
     "pairing_issuance": (
         {
             "issuance_id": ("uuid", True, None),
@@ -89,7 +93,7 @@ AUTHORITY_TABLES = {
 }
 
 
-async def authority_schema_matches(connection) -> bool:
+async def authority_schema_matches(connection: AsyncConnection) -> bool:
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
         columns = (
             await connection.execute(

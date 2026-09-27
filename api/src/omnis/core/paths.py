@@ -31,7 +31,7 @@ def private_directory(path: Path) -> None:
             protected = True
 
 
-def check_private_file(info) -> None:
+def check_private_file(info: os.stat_result) -> None:
     if (
         not stat.S_ISREG(info.st_mode)
         or info.st_uid != os.getuid()

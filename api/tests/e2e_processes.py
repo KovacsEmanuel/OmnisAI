@@ -1,9 +1,12 @@
 """Test-only bounded teardown of owned Popen handles and their Linux descendants."""
 
+import ctypes
 import os
 import signal
 import subprocess
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 
@@ -67,8 +70,66 @@ def _stop(process: subprocess.Popen[str], tree: bool, grace: float) -> tuple[str
     raise RuntimeError("Owned E2E descendants failed to stop")
 
 
+def subreaper_state() -> int:
+    value = ctypes.c_int()
+    if ctypes.CDLL(None, use_errno=True).prctl(37, ctypes.byref(value), 0, 0, 0) != 0:
+        raise RuntimeError("Cannot inspect test-process subreaper state")
+    return value.value
+
+
+def _set_subreaper(value: int) -> None:
+    if ctypes.CDLL(None, use_errno=True).prctl(36, ctypes.c_ulong(value), 0, 0, 0) != 0:
+        raise RuntimeError("Cannot set test-process subreaper state")
+
+
+class OwnedChildren:
+    def __init__(self, baseline: dict[int, str]) -> None:
+        self.baseline = baseline
+
+    def cleanup(self, grace: float = 0.2) -> None:
+        started = time.monotonic()
+        while time.monotonic() - started < grace + 3:
+            members = {
+                pid: stamp
+                for pid, stamp in _descendants(os.getpid()).items()
+                if pid != os.getpid() and self.baseline.get(pid) != stamp
+            }
+            if not members:
+                return
+            _signal(
+                members, signal.SIGTERM if time.monotonic() - started < grace else signal.SIGKILL
+            )
+            for pid in members:
+                current = _identity(pid)
+                if current is not None and current[0] == os.getpid():
+                    try:
+                        os.waitpid(pid, os.WNOHANG)
+                    except ChildProcessError:
+                        pass
+            time.sleep(0.01)
+        raise RuntimeError("Owned/adopted E2E children failed to stop and reap")
+
+
+@contextmanager
+def owned_children() -> Iterator[OwnedChildren]:
+    """Adopt orphaned descendants of this test process, never a foreign process tree."""
+    previous = subreaper_state()
+    family = OwnedChildren(_descendants(os.getpid()))
+    _set_subreaper(1)
+    try:
+        yield family
+    finally:
+        try:
+            family.cleanup()
+        finally:
+            _set_subreaper(previous)
+
+
 def cleanup_all(
-    processes: list[tuple[subprocess.Popen[str], bool]], *, grace: float = 3
+    processes: list[tuple[subprocess.Popen[str], bool]],
+    *,
+    grace: float = 3,
+    ownership: OwnedChildren | None = None,
 ) -> list[tuple[str, str]]:
     outputs = []
     failures = []
@@ -76,6 +137,11 @@ def cleanup_all(
         try:
             outputs.append(_stop(process, tree, grace))
         except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
+            failures.append(type(exc).__name__)
+    if ownership is not None:
+        try:
+            ownership.cleanup()
+        except (OSError, RuntimeError) as exc:
             failures.append(type(exc).__name__)
     if failures:
         raise RuntimeError(

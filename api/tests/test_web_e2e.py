@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import time
+from collections.abc import Iterator
 from pathlib import Path
 
 import httpx
@@ -14,18 +15,25 @@ import pytest
 from pydantic import TypeAdapter
 from sqlalchemy.engine import URL
 
-from e2e_processes import cleanup_all
+from e2e_processes import OwnedChildren, cleanup_all, owned_children
 from e2e_secrets import assert_secret_free, decode_markers
 from test_supervisor import start_supervisor, wait_ready
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.fixture
+def e2e_family(migrated_database_url: URL) -> Iterator[OwnedChildren]:
+    # Depend on the DB fixture so adoption cleanup precedes disposable DB deletion.
+    with owned_children() as family:
+        yield family
+
+
 @pytest.mark.parametrize(
     "case", ["flow", "expiry", "control", "database", "api", "offline", "accessibility"]
 )
 def test_built_web_against_real_control_plane(
-    migrated_database_url: URL, ipc_directory: Path, case: str
+    migrated_database_url: URL, ipc_directory: Path, e2e_family: OwnedChildren, case: str
 ) -> None:
     assert (ROOT / "web/dist/omnis-web.json").is_file(), "Run make build-web before E2E"
     supervisor = start_supervisor(migrated_database_url, ipc_directory)
@@ -124,7 +132,7 @@ def test_built_web_against_real_control_plane(
             resources.append((api, False))
         resources.append((supervisor, False))
         try:
-            outputs = cleanup_all(resources)
+            outputs = cleanup_all(resources, ownership=e2e_family)
         finally:
             os.close(marker_write)
             try:

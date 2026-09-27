@@ -1,8 +1,10 @@
 """Trusted release assets only, bound to a small hashed manifest, not a file server."""
 
+import asyncio
 import hashlib
 import os
 import stat
+import threading
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -23,6 +25,54 @@ class BuildManifest(BaseModel):
 class WebAssets:
     def __init__(self, root: str | None) -> None:
         self.root = Path(root) if root else None
+        self._pending: asyncio.Future[dict[str, bytes] | None] | None = None
+
+    async def read(self) -> dict[str, bytes] | None:
+        """One outstanding read per app; request cancellation cannot enqueue another worker."""
+        if self._pending is None or self._pending.done():
+            loop = asyncio.get_running_loop()
+            self._pending = loop.create_future()
+            self._pending.add_done_callback(self._observe_failure)
+            # Filesystem waits cannot be cancelled in Python. A daemon worker avoids
+            # trapping interpreter shutdown; no executor queue or retry fan-out.
+            threading.Thread(
+                target=self._worker,
+                args=(loop, self._pending),
+                daemon=True,
+                name="omnis-web-assets",
+            ).start()
+        try:
+            return await asyncio.wait_for(asyncio.shield(self._pending), timeout=1)
+        except TimeoutError:
+            return None
+
+    @staticmethod
+    def _observe_failure(future: asyncio.Future[dict[str, bytes] | None]) -> None:
+        if not future.cancelled():
+            future.exception()  # Retrieve late exceptions; active awaiters still receive them.
+
+    def _worker(
+        self, loop: asyncio.AbstractEventLoop, future: asyncio.Future[dict[str, bytes] | None]
+    ) -> None:
+        result = None
+        failure = None
+        try:
+            result = self.load()
+        except Exception:
+            failure = RuntimeError("WEB_ASSET_READ_FAILED")
+
+        def deliver() -> None:
+            if not future.done():
+                if failure is not None:
+                    future.set_exception(failure)
+                else:
+                    future.set_result(result)
+
+        try:
+            loop.call_soon_threadsafe(deliver)
+        except RuntimeError:
+            # The owning API event loop has already closed. No live request remains.
+            return
 
     def _read(self, name: str, limit: int) -> bytes:
         if self.root is None or not self.root.is_absolute() or self.root.resolve() != self.root:

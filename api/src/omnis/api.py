@@ -121,7 +121,7 @@ def create_app() -> FastAPI:
         )
 
     async def serve_asset(name: str) -> Response:
-        files = await asyncio.to_thread(web_assets.load)
+        files = await web_assets.read()
         if files is None:
             return error_response("WEB_UNAVAILABLE", 503)
         content = files.get(name)

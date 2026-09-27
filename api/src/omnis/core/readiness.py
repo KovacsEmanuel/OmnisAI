@@ -1,6 +1,5 @@
 """Dashboard health is separate from database/API health and admission authority."""
 
-import asyncio
 from enum import StrEnum
 from pathlib import Path
 
@@ -17,7 +16,7 @@ class DashboardReason(StrEnum):
 async def dashboard_reason(
     assets: WebAssets, directory: Path | None, status: InstanceStatus
 ) -> DashboardReason | None:
-    if await asyncio.to_thread(assets.load) is None:
+    if await assets.read() is None:
         return DashboardReason.ASSETS_UNAVAILABLE
     if not await control_available(directory, status):
         return DashboardReason.CONTROL_UNAVAILABLE

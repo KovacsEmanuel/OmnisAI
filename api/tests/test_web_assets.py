@@ -3,6 +3,9 @@
 import asyncio
 import hashlib
 import json
+import subprocess
+import sys
+import threading
 from pathlib import Path
 from uuid import uuid4
 
@@ -13,6 +16,8 @@ from sqlalchemy.engine import URL
 from conftest import connect_test_database
 from omnis.api import create_app
 from omnis.core.db import database_engine
+from omnis.core.web_assets import WebAssets
+from omnis.modules.instance.domain import InstanceStatus
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import SessionStore, code_digest
 from omnis.transport.local_control import LocalControl
@@ -186,3 +191,110 @@ async def test_health_reads_neither_extend_nor_resurrect_supervisor_lease(
                         )
     finally:
         await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_stalled_asset_reads_are_bounded_and_share_one_worker(
+    web_build: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    release = threading.Event()
+    started = 0
+    lock = threading.Lock()
+    original = WebAssets.load
+
+    def stalled(self: WebAssets) -> dict[str, bytes] | None:
+        nonlocal started
+        with lock:
+            started += 1
+        release.wait(10)
+        return original(self)
+
+    async def database_ready(engine: object) -> None:
+        return None
+
+    async def status(self: InstanceService) -> InstanceStatus:
+        return InstanceStatus(uuid4(), 0, False, None, None, 1, True, False)
+
+    monkeypatch.setattr(WebAssets, "load", stalled)
+    monkeypatch.setattr("omnis.api.readiness_reason", database_ready)
+    monkeypatch.setattr(InstanceService, "status", status)
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+        try:
+            for _ in range(2):
+                try:
+                    responses = await asyncio.wait_for(
+                        asyncio.gather(
+                            client.get("/"),
+                            client.get("/health/ready"),
+                            client.get("/assets/app-test.js"),
+                        ),
+                        timeout=1.7,
+                    )
+                except TimeoutError:
+                    pytest.fail("Asset I/O outlived its response deadline")
+                assert [r.status_code for r in responses] == [503, 200, 503]
+                assert responses[1].json()["api_ready"] is True
+                assert responses[1].json()["dashboard_reason"] == "ASSETS_UNAVAILABLE"
+            assert started == 1, "Timed-out requests must not accumulate filesystem workers"
+        finally:
+            release.set()
+        await asyncio.sleep(0.1)
+        assert (await client.get("/")).status_code == 200
+
+
+def test_stalled_asset_worker_does_not_hold_interpreter_exit() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            """
+import asyncio
+import threading
+from omnis.core.web_assets import WebAssets
+class Stalled(WebAssets):
+    def load(self):
+        threading.Event().wait()
+assets = Stalled(None)
+assert asyncio.run(assets.read()) is None
+print('BOUNDED_EXIT')
+""",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=3,
+    )
+    assert result.returncode == 0 and result.stdout.strip() == "BOUNDED_EXIT"
+
+
+@pytest.mark.asyncio
+async def test_cancelled_asset_waiter_does_not_cancel_or_duplicate_worker(
+    web_build: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    assets = WebAssets(str(web_build))
+    release = threading.Event()
+    started = threading.Event()
+    original = WebAssets.load
+    calls = 0
+
+    def stalled(self: WebAssets) -> dict[str, bytes] | None:
+        nonlocal calls
+        calls += 1
+        started.set()
+        release.wait(5)
+        return original(self)
+
+    monkeypatch.setattr(WebAssets, "load", stalled)
+    waiter = asyncio.create_task(assets.read())
+    try:
+        assert await asyncio.to_thread(started.wait, 1)
+        waiter.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await waiter
+        assert await assets.read() is None
+        assert calls == 1
+    finally:
+        release.set()

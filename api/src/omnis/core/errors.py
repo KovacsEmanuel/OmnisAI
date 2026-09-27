@@ -26,6 +26,7 @@ class ErrorCode(StrEnum):
     METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED"
     HTTP_ERROR = "HTTP_ERROR"
     INTERNAL_ERROR = "INTERNAL_ERROR"
+    WEB_UNAVAILABLE = "WEB_UNAVAILABLE"
 
 
 class ErrorDetail(BaseModel):

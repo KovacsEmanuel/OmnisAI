@@ -4,6 +4,7 @@ import asyncio
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -14,6 +15,7 @@ from starlette.responses import JSONResponse
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.core.errors import error_responses
+from omnis.core.web_assets import CONTENT_TYPES, WEB_HEADERS, WebAssets
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
@@ -48,6 +50,7 @@ def create_app() -> FastAPI:
         responses=error_responses(400, 403, 500),
     )
     app.state.db_engine = None
+    web_assets = WebAssets(os.environ.get("OMNIS_WEB_ROOT"))
 
     app.add_middleware(LocalBoundary, origin=local_origin())
     app.include_router(session_router)
@@ -96,5 +99,22 @@ def create_app() -> FastAPI:
             assessment_ready=False,
             reason=reason,
         )
+
+    async def serve_asset(name: str) -> Response:
+        files = await asyncio.to_thread(web_assets.load)
+        if files is None:
+            return error_response("WEB_UNAVAILABLE", 503)
+        content = files.get(name)
+        if content is None:
+            return error_response("NOT_FOUND", 404)
+        return Response(content, media_type=CONTENT_TYPES[Path(name).suffix], headers=WEB_HEADERS)
+
+    @app.get("/", include_in_schema=False)
+    async def web_index() -> Response:
+        return await serve_asset("index.html")
+
+    @app.get("/assets/{name}", include_in_schema=False)
+    async def web_asset(name: str) -> Response:
+        return await serve_asset(f"assets/{name}")
 
     return app

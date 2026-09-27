@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -12,6 +12,12 @@ function mount() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   return client;
+}
+
+function deferred<T>() {
+  let settle: ((value: T) => void) | undefined;
+  const promise = new Promise<T>(resolve => { settle = resolve; });
+  return { promise, resolve(value: T) { if (!settle) throw new Error('Missing deferred resolver'); settle(value); } };
 }
 
 it('pairs a browser, reads actual instance state, and confirms logout with a session readback', async () => {
@@ -87,4 +93,60 @@ it('shows loading, then explicit API failure rather than a pairing form or fake 
   fail(new ApiError('API_UNAVAILABLE'));
   expect(await screen.findByRole('alert')).toHaveTextContent('API could not be reached');
   expect(screen.queryByLabelText('Pairing code')).not.toBeInTheDocument();
+});
+
+it('a late session poll cannot restore authenticated state after a newer instance 401', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  const read = vi.spyOn(api, 'session').mockResolvedValue(session);
+  const status = vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  const client = mount();
+  await screen.findByText(instance.instance_id);
+  const older = deferred<typeof session | null>();
+  read.mockReturnValueOnce(older.promise);
+  let pending: Promise<void> | undefined;
+  act(() => { pending = client.refetchQueries({ queryKey: ['session'] }); });
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+  status.mockRejectedValue(new ApiError('UNAUTHENTICATED'));
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh status' }));
+  await screen.findByLabelText('Pairing code');
+  await act(async () => { older.resolve(session); await pending; });
+  expect(screen.getByLabelText('Pairing code')).toBeVisible();
+  expect(screen.queryByText('PAIRED')).not.toBeInTheDocument();
+});
+
+it('a held pairing readback cannot overtake confirmed logout via concurrent polling', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  const read = vi.spyOn(api, 'session').mockResolvedValue(null);
+  vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  vi.spyOn(api, 'pair').mockResolvedValue(session);
+  vi.spyOn(api, 'logout').mockImplementation(async () => { read.mockResolvedValue(null); });
+  const client = mount();
+  const user = userEvent.setup();
+  const input = await screen.findByLabelText('Pairing code');
+  const older = deferred<typeof session | null>();
+  read.mockReturnValueOnce(older.promise).mockResolvedValue(session);
+  await user.type(input, 'synthetic-pairing-code');
+  await user.keyboard('{Enter}');
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+  await act(async () => {
+    await client.refetchQueries({ queryKey: ['session'] });
+    await new Promise(resolve => setTimeout(resolve, 25));
+  });
+  const prematureLogout = screen.queryByRole('button', { name: 'Log out' });
+  if (prematureLogout) {
+    // Reproduce the pre-fix race: the poll exposes Logout ahead of the held readback.
+    await user.click(prematureLogout);
+    await screen.findByText('Logged out. The server session was revoked.');
+    await act(async () => {
+      older.resolve(session);
+      await new Promise(resolve => setTimeout(resolve, 25));
+    });
+  } else {
+    // Correctly serialized path: no poll may expose a session before pairing readback.
+    expect(screen.getByRole('button', { name: 'Pairing…' })).toBeDisabled();
+    await act(async () => { older.resolve(session); });
+    await user.click(await screen.findByRole('button', { name: 'Log out' }));
+  }
+  expect(await screen.findByText('Logged out. The server session was revoked.')).toBeVisible();
+  expect(screen.queryByText('PAIRED')).not.toBeInTheDocument();
 });

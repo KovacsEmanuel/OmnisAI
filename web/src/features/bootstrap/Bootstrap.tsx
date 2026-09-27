@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { api } from '../../shared/api/client';
 import { ApiError } from '../../shared/api/errors';
 import { copy, readinessCopy } from './copy';
 import { PairingForm } from './PairingForm';
+import { useBrowserSession } from './useBrowserSession';
 import fontLicense from '../../shared/styles/fonts-OFL.txt?url';
 import styles from './Bootstrap.module.css';
 
@@ -22,53 +23,22 @@ function Failure({ error, retry }: { error: unknown; retry: () => void }) {
 }
 
 export function Bootstrap() {
-  const client = useQueryClient();
-  const [notice, setNotice] = useState<string | null>(null);
-  const [logoutPending, setLogoutPending] = useState(false);
-  const [logoutError, setLogoutError] = useState<unknown>(null);
-  const hadSession = useRef(false);
+  const { session, transition, notice, logoutError, pair, logout, expire } = useBrowserSession();
+  const logoutPending = transition === 'logout';
   const heading = useRef<HTMLHeadingElement>(null);
-  const session = useQuery({ queryKey: ['session'], queryFn: ({ signal }) => api.session(signal), retry: false, refetchInterval: 15000 });
   const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => api.health(signal), retry: false, refetchInterval: 5000 });
   const status = useQuery({ queryKey: ['instance'], queryFn: ({ signal }) => api.instance(signal),
-    enabled: !!session.data && !session.isError, retry: false, refetchInterval: 5000 });
+    enabled: !!session.data && !session.isError && transition === 'idle', retry: false, refetchInterval: 5000 });
 
   useEffect(() => {
-    if (session.data) hadSession.current = true;
-    if (session.data === null && hadSession.current) {
-      setNotice(copy.expired);
-      hadSession.current = false;
-      client.removeQueries({ queryKey: ['instance'] });
-      heading.current?.focus();
-    }
-  }, [session.data, client]);
+    if (notice) heading.current?.focus();
+  }, [notice]);
 
   useEffect(() => {
     if (status.error instanceof ApiError && status.error.code === 'UNAUTHENTICATED') {
-      client.setQueryData(['session'], null);
+      expire();
     }
-  }, [status.error, client]);
-
-  async function logout() {
-    if (!session.data || logoutPending) return;
-    setLogoutPending(true);
-    setLogoutError(null);
-    try {
-      await api.logout(session.data.csrf_token);
-      await client.cancelQueries({ queryKey: ['session'] });
-      const readback = await api.session();
-      if (readback !== null) throw new Error(copy.logoutUncertain);
-      hadSession.current = false;
-      client.removeQueries({ queryKey: ['instance'] });
-      client.setQueryData(['session'], null);
-      setNotice(copy.loggedOut);
-      heading.current?.focus();
-    } catch (error) {
-      setLogoutError(error);
-    } finally {
-      setLogoutPending(false);
-    }
-  }
+  }, [status.error, expire]);
 
   const ready = health.data;
   const currentHealth = ready && !health.isError;
@@ -100,14 +70,8 @@ export function Bootstrap() {
             <span className={styles.pill}>{copy.sessionActive}</span>
             <p>{copy.boundary}</p><button onClick={() => { void logout(); }} disabled={logoutPending}>{logoutPending ? copy.loggingOut : copy.logout}</button>
             {logoutError !== null && <><p role="alert">{copy.logoutUncertain}</p><Failure error={logoutError} retry={() => { void session.refetch(); }} /></>}
-          </Panel> : <PairingForm onPaired={async grant => {
-            await client.cancelQueries({ queryKey: ['session'] });
-            const readback = await api.session();
-            if (readback === null) throw new ApiError('UNAUTHENTICATED');
-            if (readback.csrf_token !== grant.csrf_token) throw new ApiError('INVALID_RESPONSE');
-            setNotice(null);
-            setLogoutError(null);
-            client.setQueryData(['session'], readback);
+          </Panel> : <PairingForm onPair={async code => {
+            await pair(code);
             heading.current?.focus();
           }} />}
       </div>

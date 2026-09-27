@@ -1,12 +1,10 @@
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { api } from '../../shared/api/client';
 import { ApiError } from '../../shared/api/errors';
-import type { components } from '../../shared/api/generated';
 import { copy } from './copy';
 import styles from './Bootstrap.module.css';
 
-export function PairingForm({ onPaired }: { onPaired: (session: components['schemas']['SessionView']) => Promise<void> }) {
+export function PairingForm({ onPair }: { onPair: (code: string) => Promise<void> }) {
   const [code, setCode] = useState('');
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -25,8 +23,7 @@ export function PairingForm({ onPaired }: { onPaired: (session: components['sche
     const submitted = code;
     setCode('');
     try {
-      const session = await api.pair(submitted);
-      await onPaired(session);
+      await onPair(submitted);
     } catch (error) {
       setFailure(error instanceof ApiError ? error.message : copy.pairingUncertain);
       input.current?.focus();

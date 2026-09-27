@@ -53,6 +53,8 @@ generate-contracts:
 	npm --prefix web run generate:contracts
 
 test-contracts:
+	$(API_PY) -I -m ruff check --config api/pyproject.toml scripts/export_contracts.py
+	$(API_PY) -I -m ruff format --config api/pyproject.toml --check scripts/export_contracts.py
 	$(API_PY) -I scripts/export_contracts.py --check
 	npm --prefix web run check:contracts
 	npm --prefix web run test:tooling

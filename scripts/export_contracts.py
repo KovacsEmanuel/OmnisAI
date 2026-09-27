@@ -16,7 +16,9 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--output", type=Path, default=ROOT / "contracts/omnis.openapi.json")
     args = parser.parse_args()
-    content = json.dumps(create_app().openapi(), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    content = (
+        json.dumps(create_app().openapi(), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    )
     if args.check:
         if not args.output.is_file() or args.output.read_text() != content:
             print("OpenAPI drift: run make generate-contracts", file=sys.stderr)

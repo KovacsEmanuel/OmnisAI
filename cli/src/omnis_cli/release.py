@@ -25,6 +25,7 @@ _BASE_FILES = {
     f"cli/omnis_cli-{_RELEASE}-py3-none-any.whl",
     "api/requirements.txt",
     "ops/Dockerfile",
+    "ops/compose.yaml",
     "web/omnis-web.json",
     "web/index.html",
 }

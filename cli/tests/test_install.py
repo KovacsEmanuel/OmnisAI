@@ -25,6 +25,7 @@ class InstallTest(unittest.TestCase):
             "cli/omnis_cli-0.1.0-py3-none-any.whl": b"synthetic cli wheel bytes",
             "api/requirements.txt": b"# synthetic locked input\n",
             "ops/Dockerfile": b"FROM pinned-synthetic-base\n",
+            "ops/compose.yaml": b"name: synthetic-owned-project\nservices: {}\n",
             "web/omnis-web.json": b'{"version":1,"files":{"index.html":"synthetic"}}',
             "web/index.html": b"synthetic index",
             "web/assets/index-1.js": b"synthetic asset",

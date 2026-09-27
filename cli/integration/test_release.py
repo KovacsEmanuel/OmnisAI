@@ -13,6 +13,138 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseBundleTest(unittest.TestCase):
+    def assert_compose_config(self, installed_root, scratch):
+        state = scratch / "state"
+        control = scratch / "control"
+        state.mkdir(mode=0o700)
+        (state / "postgres").mkdir(mode=0o700)
+        control.mkdir(mode=0o700)
+        password_file = scratch / "db-password"
+        password_file.write_text("synthetic-compose-only")
+        password_file.chmod(0o600)
+        project = f"omnis-p04-config-{uuid4().hex[:12]}"
+        image = "sha256:" + "a" * 64  # Config-only placeholder; never run it.
+        env = {
+            "PATH": os.environ.get("PATH", ""),
+            "OMNIS_PROJECT": project,
+            "OMNIS_IMAGE_ID": image,
+            "OMNIS_UID": str(os.getuid()),
+            "OMNIS_GID": str(os.getgid()),
+            "OMNIS_HTTP_PORT": "8765",
+            "OMNIS_STATE_ROOT": str(state),
+            "OMNIS_CONTROL_DIR": str(control),
+            "OMNIS_DB_PASSWORD_FILE": str(password_file),
+            "OMNIS_DATABASE_URL": "postgresql+psycopg://omnis:synthetic@db:5432/omnis",
+        }
+        command = [
+            "docker",
+            "compose",
+            "-f",
+            str(installed_root / "ops/compose.yaml"),
+            "config",
+            "--format",
+            "json",
+        ]
+        denied = subprocess.run(
+            command,
+            cwd=scratch,
+            env={"PATH": env["PATH"]},
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        self.assertNotEqual(denied.returncode, 0, "Compose must require explicit identity/paths")
+        result = subprocess.run(
+            command,
+            cwd=scratch,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, "Installed Compose config refused")
+        config = json.loads(result.stdout)
+        self.assertEqual(config["name"], project)
+        self.assertEqual(set(config["services"]), {"db", "supervisor", "api"})
+        services = config["services"]
+        for service in services.values():
+            self.assertEqual(service["pull_policy"], "never")
+        self.assertEqual(services["api"]["image"], image)
+        self.assertEqual(services["supervisor"]["image"], image)
+        self.assertEqual(
+            services["db"]["image"],
+            "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+        )
+        self.assertNotIn("ports", services["db"])
+        self.assertNotIn("ports", services["supervisor"])
+        self.assertEqual(
+            services["api"]["ports"],
+            [
+                {
+                    "mode": "ingress",
+                    "host_ip": "127.0.0.1",
+                    "target": 8765,
+                    "published": "8765",
+                    "protocol": "tcp",
+                }
+            ],
+        )
+        self.assertEqual(set(config["secrets"]), {"db_password"})
+        self.assertEqual(config["secrets"]["db_password"]["file"], str(password_file))
+        self.assertEqual(
+            services["db"]["secrets"],
+            [{"source": "db_password", "target": "/run/secrets/db_password"}],
+        )
+        self.assertNotIn("secrets", services["api"])
+        self.assertNotIn("secrets", services["supervisor"])
+        self.assertEqual(
+            services["db"]["environment"],
+            {
+                "POSTGRES_USER": "omnis",
+                "POSTGRES_DB": "omnis",
+                "POSTGRES_PASSWORD_FILE": "/run/secrets/db_password",
+                "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256",
+            },
+        )
+        self.assertEqual(
+            services["api"]["environment"],
+            {
+                "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
+                "OMNIS_CONTROL_DIR": "/run/omnis-control",
+                "OMNIS_HTTP_PORT": "8765",
+            },
+        )
+        self.assertEqual(
+            services["supervisor"]["environment"],
+            {
+                "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
+                "OMNIS_CONTROL_DIR": "/run/omnis-control",
+            },
+        )
+        for service in services.values():
+            self.assertNotIn("build", service)
+            self.assertNotEqual(service.get("network_mode"), "host")
+            self.assertFalse(service.get("privileged", False))
+            self.assertNotIn("/var/run/docker.sock", json.dumps(service))
+            self.assertEqual(set(service["networks"]), {"control"})
+        self.assertEqual(services["api"]["user"], f"{os.getuid()}:{os.getgid()}")
+        self.assertEqual(services["supervisor"]["user"], f"{os.getuid()}:{os.getgid()}")
+        self.assertEqual(len(services["db"]["volumes"]), 1)
+        self.assertEqual(len(services["api"]["volumes"]), 1)
+        self.assertEqual(len(services["supervisor"]["volumes"]), 1)
+        self.assertEqual(services["db"]["volumes"][0]["source"], str(state / "postgres"))
+        self.assertEqual(services["db"]["volumes"][0]["target"], "/var/lib/postgresql")
+        self.assertEqual(services["api"]["volumes"][0]["source"], str(control))
+        self.assertEqual(services["supervisor"]["volumes"][0]["source"], str(control))
+        self.assertEqual(services["api"]["volumes"][0]["target"], "/run/omnis-control")
+        self.assertEqual(services["supervisor"]["volumes"][0]["target"], "/run/omnis-control")
+        self.assertTrue(services["api"]["volumes"][0]["read_only"])
+        self.assertFalse(services["supervisor"]["volumes"][0].get("read_only", False))
+        self.assertTrue(config["networks"]["control"]["internal"])
+        self.assertEqual(config["networks"]["control"]["name"], f"{project}_control")
+
     def test_build_timeout_reaps_owned_image(self):
         calls = []
         marker = None
@@ -393,6 +525,40 @@ class ReleaseBundleTest(unittest.TestCase):
                 (installed_root / "web/index.html").read_bytes(),
                 (ROOT / "web/dist/index.html").read_bytes(),
             )
+            self.assert_compose_config(installed_root, scratch)
+            compose_source = (installed_root / "ops/compose.yaml").read_text()
+            regressions = [
+                (
+                    "foreign-port",
+                    '      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"',
+                    '      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"\n'
+                    '      - "0.0.0.0:9876:8765"',
+                ),
+                (
+                    "extra-mount",
+                    "        read_only: true\n    ports:",
+                    "        read_only: true\n      - type: bind\n"
+                    "        source: ${OMNIS_CONTROL_DIR:?Explicit private control path required}\n"
+                    "        target: /extra-writable\n    ports:",
+                ),
+                (
+                    "wrong-secret",
+                    "POSTGRES_PASSWORD_FILE: /run/secrets/db_password",
+                    "POSTGRES_PASSWORD_FILE: /other-secret",
+                ),
+            ]
+            for label, original, changed in regressions:
+                self.assertEqual(compose_source.count(original), 1)
+                mutant = scratch / label
+                (mutant / "ops").mkdir(parents=True)
+                (mutant / "ops/compose.yaml").write_text(
+                    compose_source.replace(original, changed, 1)
+                )
+                runtime = scratch / f"{label}-runtime"
+                runtime.mkdir(mode=0o700)
+                with self.assertRaises(AssertionError) as failure:
+                    self.assert_compose_config(mutant, runtime)
+                self.assertNotIn("Installed Compose config refused", str(failure.exception))
             if os.environ.get("OMNIS_IMAGE_PROBE") == "1":
                 self.probe_image(installed_root, scratch)
             run([cli, "install", "--bundle", str(bundle)], env=env)

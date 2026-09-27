@@ -1,0 +1,75 @@
+# P0 control plane only. Installed CLI supplies a verified project, image ID and private paths.
+name: ${OMNIS_PROJECT:?Explicit Omnis project required}
+services:
+  db:
+    image: postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    pull_policy: never
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: omnis
+      POSTGRES_DB: omnis
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    secrets: [db_password]
+    volumes:
+      - type: bind
+        source: ${OMNIS_STATE_ROOT:?Explicit private state root required}/postgres
+        target: /var/lib/postgresql # PostgreSQL 18 PGDATA is /var/lib/postgresql/18/docker
+    networks: [control]
+    healthcheck:
+      test: [CMD, pg_isready, -U, omnis, -d, omnis]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    restart: "no"
+  supervisor:
+    image: ${OMNIS_IMAGE_ID:?Explicit verified control image ID required}
+    pull_policy: never
+    platform: linux/amd64
+    user: "${OMNIS_UID:?Explicit operator UID required}:${OMNIS_GID:?Explicit operator GID required}"
+    command: [python, -I, -m, omnis.supervisor]
+    environment:
+      OMNIS_DATABASE_URL: ${OMNIS_DATABASE_URL:?Explicit internal PostgreSQL URL required}
+      OMNIS_CONTROL_DIR: /run/omnis-control
+    volumes:
+      - type: bind
+        source: ${OMNIS_CONTROL_DIR:?Explicit private control path required}
+        target: /run/omnis-control
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [control]
+    restart: "no"
+  api:
+    image: ${OMNIS_IMAGE_ID:?Explicit verified control image ID required}
+    pull_policy: never
+    platform: linux/amd64
+    user: "${OMNIS_UID:?Explicit operator UID required}:${OMNIS_GID:?Explicit operator GID required}"
+    environment:
+      OMNIS_DATABASE_URL: ${OMNIS_DATABASE_URL:?Explicit internal PostgreSQL URL required}
+      OMNIS_CONTROL_DIR: /run/omnis-control
+      OMNIS_HTTP_PORT: ${OMNIS_HTTP_PORT:?Explicit host loopback port required}
+    volumes:
+      - type: bind
+        source: ${OMNIS_CONTROL_DIR:?Explicit private control path required}
+        target: /run/omnis-control
+        read_only: true
+    ports:
+      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [control]
+    restart: "no"
+secrets:
+  db_password:
+    file: ${OMNIS_DB_PASSWORD_FILE:?Explicit private password file required}
+networks:
+  control:
+    internal: true

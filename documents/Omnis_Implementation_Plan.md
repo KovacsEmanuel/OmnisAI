@@ -1,6 +1,6 @@
 # Omnis — plan de implementare v2
 
-**Baseline de implementare · Local-first · P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local · CI remote NOT-RUN · G00 deschis; P0.4 NEÎNCEPUTĂ**
+**Baseline de implementare · Local-first · P0.3_IMPLEMENTED_LOCAL · P0.4 în curs: doar CLI status privat instalabil · CI remote NOT-RUN · G00 deschis**
 
 Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
@@ -43,7 +43,7 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 ## 4. Etape și dependențe revizuite
 
-**G-DESIGN — VISUAL_ACCEPTED / P0.1–P0.3 autorizate:** utilizatorul a acceptat prototipul `df17a29` și a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din arhitectură §4/§12. `api/` și bootstrapul `web/` au fost introduse incremental; CLI-ul rămâne neimplementat. Nu redeschidem designul fără motiv/cerere. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
+**G-DESIGN — VISUAL_ACCEPTED / P0.1–P0.4 autorizate:** utilizatorul a acceptat prototipul `df17a29` și a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din arhitectură §4/§12. `api/`, bootstrapul `web/` și primul increment `cli/` au fost introduse incremental; launcherul complet rămâne neimplementat. Nu redeschidem designul fără motiv/cerere. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
 
 ### Ordine verificabilă
 
@@ -317,11 +317,11 @@ MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet e
 
 **După acordul G-DESIGN putem începe fără conturi:** B01–B04 și probele inerte B05–B06. Până atunci lucrăm numai la prototip și specificații. **Înainte de live LLM:** operatorul alege cont/model și aprobă bugetul/data policy; nu folosim implicit sesiunea personală existentă. **Înainte de target effects:** G02 și topologia fixture trecute, scope/efecte/reguli explicit aprobate.
 
-Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor. P0.1/P0.2 și bootstrapul P0.3 sunt implementate local; continuarea autorizabilă separat este P0.4 din §19, nu întregul arbore deodată. După P0-control și B02, P1-web/P2-inert pot avansa în paralel conform §4; B10–B13 rămâne prima demonstrație a valorii de securitate.
+Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probelor. P0.1/P0.2 și bootstrapul P0.3 sunt implementate local; P0.4 a început numai cu statusul CLI instalabil din §19, nu cu întregul arbore. După P0-control și B02, P1-web/P2-inert pot avansa în paralel conform §4; B10–B13 rămâne prima demonstrație a valorii de securitate.
 
 ## 19. Reluarea într-o sesiune nouă — stare și următoarea felie
 
-**Stare actuală: P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local; [dovezi și adjudecări](verification/p03-local-bootstrap.md); CI remote NOT-RUN.** `P0.1_IMPLEMENTED_LOCAL` și `P0.2_IMPLEMENTED_LOCAL` sunt păstrate: [P0.1](verification/p01-local-readiness.md), [P0.2](verification/p02-local-control.md). Există bootstrap web real servit de API, pairing/sesiune/logout și status autentic, cu contracte generate și E2E PostgreSQL/browser. P0.4/CLI rămân NEÎNCEPUTE; **G00 rămâne deschis**. Contractele de mai jos sunt executate, nu invitație la refacerea scaffoldului. Citește README/AGENTS, §4–§5/§19, arhitectură §4/§12, stackul și dovezile/README-urile API și web. Nu reia brainstormingul/designul acceptat și nu folosi remote-ul ca bază dacă HEAD local este înainte.
+**Stare actuală: P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local; [dovezi și adjudecări](verification/p03-local-bootstrap.md); P0.4 IN_PROGRESS cu [wheelul/statusul privat](verification/p04-cli-status.md); CI remote NOT-RUN.** `P0.1_IMPLEMENTED_LOCAL` și `P0.2_IMPLEMENTED_LOCAL` sunt păstrate: [P0.1](verification/p01-local-readiness.md), [P0.2](verification/p02-local-control.md). Există bootstrap web real servit de API, pairing/sesiune/logout și status autentic, cu contracte generate și E2E PostgreSQL/browser. CLI-ul poate citi controlul privat din afara checkoutului, dar **nu verifică încă HTTP, nu instalează releaseul și nu pornește/oprește serviciile; G00 rămâne deschis**. Contractele de mai jos sunt executate numai în limita incrementului probat. Citește README/AGENTS, §4–§5/§19, arhitectură §4/§12, stackul și dovezile/README-urile API, web și CLI. Nu reia brainstormingul/designul acceptat și nu folosi remote-ul ca bază dacă HEAD local este înainte.
 
 **P0.1 — contract executat: API/DB readiness real, subfelie B01a/B01b/B01c.** Acesta a fost primul rezultat observabil, nu închiderea întregului P0. S-au introdus pachetul API instalabil, schema minimă InstanceControl necesară control plane-ului și probele sale; `admission_open` inițial false. Contracte implementate `GET /health/live` și `GET /health/ready`: primul reflectă procesul, al doilea verifică PostgreSQL și versiunea schemei. `api_ready` nu înseamnă `dashboard_ready` sau `assessment_ready`; ultimele rămân false cât lipsesc componentele. Nu folosi un răspuns constant „healthy” sau SQLite ca substitut.
 
@@ -337,8 +337,10 @@ Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probe
 
 **P0.3 — contract executat:** build React/TypeScript/Vite fixat, shell/tokenuri/fonturi locale portate fără model DEMO; pairing/session/logout cu readback, status real, loading/expiry/error/stale/UNAVAILABLE; OpenAPI → TS cu drift în gate; assets same-origin și readiness DB/schemă/assets/API/control. `assessment_ready=false`. Teste componente, E2E cu backend real și coduri sintetice emise numai privat, review/remedieri și capturi în [matricea P0.3](verification/p03-local-bootstrap.md). Nu este UI P1 complet sau o nouă aprobare vizuală.
 
-**Ordinea restului P0-control:** P0.4 adaugă launcherul instalabil, manifestul/artefactele minime, topologia/UID și probele complete L01–L05-control/L08-core din afara checkoutului. Numai după acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.
+**P0.4 — increment 1 executat local:** `cli/` are wheel/lock proprii și `omnis status [--json]` verifică IPC privat/identitatea pe DB reală din afara checkoutului; nu pretinde HTTP `dashboard_ready`. [RED/GREEN, gate complet, review, erori și limite](verification/p04-cli-status.md). Instalarea releaseului, startupul, pairingul terminal, deschiderea UI și oprirea nu sunt implementate.
 
-**Propunere pentru reluare, numai la cererea utilizatorului:** „Verifică HEAD/checkoutul și închiderea dovezilor P0.3, apoi continuăm exclusiv P0.4 din plan §19: launcher instalabil și instalarea control plane-ului, cu TDD/review/commituri mici; fără refacerea webului, conturi/LLM/ținte.” Nu pretinde executabilul `omnis` deja existent și nu închide gate-uri de runtime.
+**Ordinea restului P0-control:** continuă P0.4 cu manifestul/artefactele minime, instalare, startup/pairing/open/stop, topologia/UID și probele complete L01–L05-control/L08-core din afara checkoutului. Numai după acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.
+
+**Reluare P0.4 după clear:** verifică HEAD/checkoutul, [dovezile P0.3](verification/p03-local-bootstrap.md) și [incrementul CLI](verification/p04-cli-status.md); continuă exclusiv instalarea releaseului/startupul din P0.4, în felii TDD/review/commituri mici, fără refacerea webului, conturi/LLM/ținte. Nu pretinde că `omnis status` înseamnă startup sau gate-uri de runtime închise.
 
 **Excepție de predare:** README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.

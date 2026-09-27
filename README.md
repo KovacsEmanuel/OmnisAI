@@ -2,7 +2,7 @@
 
 Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativi Hermes și skills versionate.
 
-**Stare: P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local; CI remote NOT-RUN.** Fundațiile `P0.1_IMPLEMENTED_LOCAL` și `P0.2_IMPLEMENTED_LOCAL` sunt păstrate. Există build React servit same-origin de API, pairing/sesiune/logout cu readback și stare reală a instanței. `dashboard_ready` cere DB/schemă/assets/API/control sănătoase; `assessment_ready=false`. Funcțiile viitoare sunt UNAVAILABLE/NOT_RUN, nu date DEMO. [Dovezile și limitele P0.3](documents/verification/p03-local-bootstrap.md) separă verificarea locală de porțile încă deschise. Launcherul `omnis`, experiența P1, runtime-ul Hermes și execuția țintelor nu sunt implementate. Nu au fost efectuate scanări sau apeluri LLM de produs.
+**Stare: P0.4 în curs — doar wheelul `omnis status` instalabil și statusul privat au fost verificate local; CI remote NOT-RUN.** Fundațiile `P0.1_IMPLEMENTED_LOCAL` / `P0.2_IMPLEMENTED_LOCAL` / `P0.3_IMPLEMENTED_LOCAL` sunt păstrate. Există build React servit same-origin de API, pairing/sesiune/logout cu readback și stare reală a instanței. `dashboard_ready` cere DB/schemă/assets/API/control sănătoase; `assessment_ready=false`. Funcțiile viitoare sunt UNAVAILABLE/NOT_RUN, nu date DEMO. [P0.3](documents/verification/p03-local-bootstrap.md) și [proba primului increment P0.4](documents/verification/p04-cli-status.md) separă verificarea locală de porțile deschise. `omnis status` nu verifică încă HTTP și nu pornește serviciile; launcherul de startup, experiența P1, runtime-ul Hermes și execuția țintelor nu sunt implementate. Nu au fost efectuate scanări sau apeluri LLM de produs.
 
 ## Reguli de dezvoltare
 
@@ -14,7 +14,7 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Începe aici
 
-Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)** · [uneltele auditate și starea lor](tools/development/README.md) · [operare API/control](api/README.md) · [build web, pairing și E2E](web/README.md). Pornire Hermes de dezvoltare: `python scripts/hermes_dev.py`; verificare locală: `make check UV=/cale/uv-0.12.19`, după setup-ul DB-ului de test și al mediilor web/browser documentate.
+Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)** · [uneltele auditate și starea lor](tools/development/README.md) · [operare API/control](api/README.md) · [build web, pairing și E2E](web/README.md) · [CLI P0.4 parțial](cli/README.md). Pornire Hermes de dezvoltare: `python scripts/hermes_dev.py`; verificare locală: `make check UV=/cale/uv-0.12.19`, după setup-ul DB-ului de test și al mediilor web/browser documentate.
 
 - **[Plan de implementare v2 — HTML](documents/Omnis_Implementation_Plan.html)** · [Markdown](documents/Omnis_Implementation_Plan.md)
 - **[Arhitectura MVP v1 — HTML](documents/Omnis_MVP_Architecture.html)** · [Markdown](documents/Omnis_MVP_Architecture.md)
@@ -28,9 +28,9 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 
 ### Decizia de pornire
 
-**G-DESIGN: VISUAL_ACCEPTED; P0.1/P0.2/P0.3 autorizate explicit.** Utilizatorul a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md). `api/` și `web/` au fost introduse incremental; acordul nu autorizează conturi, modele sau trafic către ținte.
+**G-DESIGN: VISUAL_ACCEPTED; P0.1–P0.4 autorizate explicit.** Utilizatorul a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din [arhitectură §4/§12](documents/Omnis_MVP_Architecture.md). `api/`, `web/` și primul increment `cli/` au fost introduse incremental; acordul nu autorizează conturi, modele sau trafic către ținte.
 
-**Reluare după clear:** verifică HEAD/checkoutul real și citește [dovezile P0.3](documents/verification/p03-local-bootstrap.md), inclusiv remedierile adjudecate. Următoarea implementare, numai la cerere separată, este **P0.4 — launcherul și instalarea control plane-ului**, conform [plan §19](documents/Omnis_Implementation_Plan.md); nu se refac P0.1/P0.2/P0.3 sau designul acceptat. Matricea UI→owner/API/migrare/ticket/probă rămâne în plan §16; [registrul PA01–PA09](documents/Omnis_Implementation_Readiness_Review.md) este auditul istoric preimplementare. **G00 rămâne deschis** până la launcherul/manifestul/topologia/UID și probele complete P0.4; integrarea runtime și execuția target rămân NEÎNCEPUTE/BLOCKED până la porțile lor.
+**Reluare după clear:** verifică HEAD/checkoutul real și citește [dovezile P0.3](documents/verification/p03-local-bootstrap.md) și [primul increment P0.4](documents/verification/p04-cli-status.md), inclusiv remedierile de review. Continuă exclusiv **P0.4 — instalarea control plane-ului, startup/pair/open/stop**, conform [plan §19](documents/Omnis_Implementation_Plan.md); nu se refac P0.1/P0.2/P0.3 sau designul acceptat. Matricea UI→owner/API/migrare/ticket/probă rămâne în plan §16; [registrul PA01–PA09](documents/Omnis_Implementation_Readiness_Review.md) este auditul istoric preimplementare. **G00 rămâne deschis** până la launcherul/manifestul/topologia/UID și probele complete P0.4; integrarea runtime și execuția target rămân NEÎNCEPUTE/BLOCKED până la porțile lor.
 
 **După G-DESIGN:** fundație, engagement persistent, web și probe Hermes inerte. **NO-GO pentru target effects:** până la rezolvarea gate-ului de dependențe proxy, bindingului task–copil și confinării. `mitmproxy 12.2.3` publicat este respins pentru trafic target din cauza dependențelor cu advisories; nu îl ascundem sub un dependency resolve reușit. Testele provider cer separat cont, model, acord și buget.
 
@@ -49,7 +49,7 @@ HTML-urile și prototipul se deschid local, fără server sau resurse de afișar
 
 ## O singură bază de lucru
 
-**Experiență de pornire propusă pentru MVP:** executabilul `omnis` va porni serviciile detached și va deschide dashboardul local, după readiness și pairing când este necesar. Pornirea aplicației nu pornește un assessment și nu consumă LLM. `omnis run stop` va opri runul, `omnis stop` și serviciile, fără ștergerea datelor. Contractul, erorile, structura stării și probele de acceptare sunt în [arhitectură §4.1–4.5](documents/Omnis_MVP_Architecture.md); **comenzile nu sunt încă implementate**.
+**Experiență de pornire propusă pentru MVP:** executabilul `omnis` va porni serviciile detached și va deschide dashboardul local, după readiness și pairing când este necesar. Pornirea aplicației nu pornește un assessment și nu consumă LLM. `omnis run stop` va opri runul, `omnis stop` și serviciile, fără ștergerea datelor. Contractul, erorile, structura stării și probele de acceptare sunt în [arhitectură §4.1–4.5](documents/Omnis_MVP_Architecture.md); **numai `omnis status` privat este implementat parțial; celelalte comenzi nu sunt încă implementate**.
 
 Fișierele `.md` sunt sursele, iar perechile `.html` sunt cititoare generate, nu versiuni concurente. Registrele `.json`, tokenurile și `verification/` sunt suport tehnic pentru aceleași decizii și dovezi; nu reprezintă alte planuri.
 

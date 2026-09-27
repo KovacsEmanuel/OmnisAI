@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, mkdirSync, copyFileSync, symlinkSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 
 const root = new URL('../../', import.meta.url);
@@ -29,7 +30,7 @@ test('TypeScript generation detects drift without rewriting it', () => {
   const directory = mkdtempSync(join(process.env.TMPDIR, 'omnis-ts-'));
   try {
     const output = join(directory, 'generated.ts');
-    const command = [new URL('generate-contracts.mjs', import.meta.url).pathname, '--output', output];
+    const command = [fileURLToPath(new URL('generate-contracts.mjs', import.meta.url)), '--output', output];
     const run = (...args) => spawnSync(process.execPath, [...command, ...args], { timeout: 15000, encoding: 'utf8' });
     assert.equal(run().status, 0, 'TypeScript generator must run');
     assert.match(readFileSync(output, 'utf8'), /SessionView/);
@@ -41,5 +42,23 @@ test('TypeScript generation detects drift without rewriting it', () => {
     assert.equal(readFileSync(output, 'utf8'), '// deliberate synthetic drift\n');
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('contract generation works inside an actual path with spaces', () => {
+  const directory = mkdtempSync(join(process.env.TMPDIR, 'omnis spaced checkout '));
+  try {
+    mkdirSync(join(directory, 'web/scripts'), { recursive: true });
+    mkdirSync(join(directory, 'contracts'));
+    copyFileSync(new URL('generate-contracts.mjs', import.meta.url), join(directory, 'web/scripts/generate-contracts.mjs'));
+    copyFileSync(new URL('contracts/omnis.openapi.json', root), join(directory, 'contracts/omnis.openapi.json'));
+    symlinkSync(fileURLToPath(new URL('../node_modules', import.meta.url)), join(directory, 'web/node_modules'));
+    const result = spawnSync(process.execPath, [join(directory, 'web/scripts/generate-contracts.mjs')], { timeout: 15000 });
+    assert.equal(result.status, 0);
+    assert.ok(existsSync(join(directory, 'web/src/shared/api/generated.ts')), 'generated file must be inside the spaced checkout');
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+    // The pre-fix generator incorrectly uses the percent-encoded filesystem name.
+    rmSync(directory.replaceAll(' ', '%20'), { recursive: true, force: true });
   }
 });

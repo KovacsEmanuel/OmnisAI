@@ -1,8 +1,10 @@
 # Omnis — specificație UI/UX v2 · baseline vizual acceptat
 
-**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · Aplicația NEÎNCEPUTĂ**
+**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · Bootstrap P0.3 implementat local; experiența P1 rămâne NEÎNCEPUTĂ**
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.
+
+**Portarea P0.3:** numai shellul/capsulele/tokenurile/fonturile și formularul local, sesiunea/logoutul și starea reală a instanței sunt conectate la API. Nu se copiază fixture-ul DEMO sau metricile în produs; funcțiile viitoare sunt UNAVAILABLE/NOT_RUN cu motiv. Capturile și probele de tastatură/contrast/stări sunt în [dovezile P0.3](verification/p03-local-bootstrap.md), separate de acceptarea vizuală a prototipului și de viitoarea experiență P1. API/DB/control indisponibile, sesiunea expirată și datele stale nu sunt succese.
 
 ## 0. Referința primită și felia de design
 
@@ -27,11 +29,11 @@ Adaptări obligatorii:
 - Fără council, jurori sau voturi. Investigator → validator separat → verdict persistent admis de serviciul probatoriu, pe oracle/controale/evidence. Review-ul operatorului este separat: **Accept for report / Hold**, numai după confirmarea tehnică. Candidatul rămâne neconfirmat indiferent de un click; validatorul nu este nici el un vot LLM suficient pentru CONFIRMED.
 - Findings confirmate separate de candidates/inconclusive. Detaliu deschis din listă: impact, severitate motivată, precondiții, reproducere, evidence redactate, controale, decizia validatorului, limite, remediere și retest. Lipsa actuală a dovezilor nu rescrie verdictul istoric.
 
-**Limita feliei:** prototipul existent, asseturi locale și fixture-ul lui, testele, DESIGN/tokenuri, specificația și probele aferente. Păstrăm separarea Dashboard/Engagement/Settings și contractele Stop/focus, dar înlocuim compoziția prea simplificată. Fără frontend/backend de produs, framework nou, conturi, date reale sau trafic target. Review-ul pentru raport este modelat ca cerință UI/backend propusă la cererea utilizatorului, nu ca serviciu deja implementat. Nu creăm un baseline concurent.
+**Limita feliei de design acceptate (istoric):** prototipul existent, asseturi locale și fixture-ul lui, testele, DESIGN/tokenuri, specificația și probele aferente. S-au păstrat separarea Dashboard/Engagement/Settings și contractele Stop/focus, înlocuind compoziția prea simplificată, fără frontend/backend de produs, conturi sau trafic target în acea felie. Review-ul pentru raport este cerință UI/backend propusă, nu serviciu deja implementat. Portarea ulterioară P0.3 de mai sus nu schimbă baseline-ul vizual sau ordinea livrării celorlalte funcții.
 
 **Acceptare tehnică:** Dashboard/Engagement/Settings au scope și selecție de navigare distincte; Skills/Runtime nu sunt taburi ale engagementului; new setup este separat de setupul contextului selectat. Navigare și detaliu utilizabile; DEMO permanent; stări fără succes optimist; regresiile Stop/modal/drawer/focus păstrate; fără overflow la 320/390/1024/1280/1440; screenshoturi inspectate și zero requesturi externe. Verificare: `python tests/documentation/browser_check.py --include-documents --output <scratch>/browser-check.json`, `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`. Iterația acceptată are 116 checks browser trecute, zero erori JS/requesturi externe; probele și limitele sunt în `verification/README.md` și `verification/browser-check.json`. Testele tehnice nu sunt sursa aprobării vizuale.
 
-Rollback: reverturile commiturilor acestei felii, fără schimbări de DB/runtime; referința externă nu este atinsă. Aprobarea vizuală este consemnată; acordul de implementare rămâne **START_PENDING_NEW_SESSION**. Structura fișierelor și contractul `omnis` sunt auditate în arhitectură/plan; această sesiune nu creează scaffoldul aplicației.
+Rollbackul prototipului folosește commiturile acelei felii, fără schimbări de DB/runtime; referința externă rămâne neatinsă. Starea de atunci **START_PENDING_NEW_SESSION** a fost urmată de autorizări explicite P0.1/P0.2/P0.3. Structura și contractul `omnis` rămân în arhitectură/plan; launcherul este încă P0.4. Testele de portare nu constituie o nouă aprobare vizuală automată.
 
 ### Proveniența elementelor, nu funcții aprobate implicit
 

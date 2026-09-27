@@ -1,6 +1,8 @@
-# Verificări ale baseline-ului, nu aplicația Omnis
+# Verificări: baseline istoric și implementare locală
 
 `stack-probe.json` păstrează output real și limitele probelor de dependențe din 25 septembrie 2026. `stack-probe-inputs/` conține inputurile și lockurile reproducerii; nu este scaffoldul aplicației și nu pornește Hermes sau o scanare. Nu se copiază aceste probe ca implementare de domeniu.
+
+**Implementare locală actuală:** [P0.1](p01-local-readiness.md) · [P0.2](p02-local-control.md) · [calitate Python](p02-python-quality.md) · [P0.3 bootstrap/pairing](p03-local-bootstrap.md), cu [rezultate browser](p03-browser.json) și capturi în `p03-ui/`. Aceste dovezi sunt separate de probele istorice de mai jos. G00/P0.4 și CI remote nu sunt închise implicit de existența unui raport.
 
 ## Reproducere în scratch
 

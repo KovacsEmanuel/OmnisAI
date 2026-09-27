@@ -192,7 +192,7 @@ Defaults XDG sunt cele ale utilizatorului (`~/.config`, `~/.local/share`, `~/.lo
 
 Nicio probă a prototipului HTML sau a launcherului **de dezvoltare** `scripts/hermes_dev.py` nu închide aceste criterii. `omnis` este livrat numai după exercitarea artifactului instalat și a proceselor reale.
 
-**Stare P0.2:** subprobele locale API/pairing/control/supervisor, inclusiv procesele instalate din wheel și bariera inertă concurentă, sunt verificate și review-uite; [matricea și limitele](verification/p02-local-control.md) indică exact ce s-a executat. G00/L01–L05-control/L08-core complete așteaptă P0.3/P0.4; nu există încă launcherul `omnis`, buildul web sau certificarea topologiei/UID containerizate. FINALIZE persistat certifică numai quiescența controlului inert; redeschiderea cere epoch nou și comandă explicită. Launcherul P0.4 trebuie să verifice separat resursele/receiptul opririi, iar P2/P3 extind predicatul cu adaptoarele reale.
+**Stare locală P0.1–P0.3:** API/pairing/control/supervisor și bariera inertă sunt păstrate; [P0.2](verification/p02-local-control.md) și [bootstrapul web P0.3](verification/p03-local-bootstrap.md) au dovezi separate. Buildul React este servit same-origin, cu pairing/session/logout și status real, fără DEMO. `GET /health/ready` păstrează HTTP 200 pentru API-ready; `dashboard_ready` și `dashboard_reason` verifică separat assets și controlul privat. Statusul IPC validează lease-ul fără reînnoire; timpul de citire a asseturilor și numărul de workeri sunt bounded. `assessment_ready=false`. G00/L01–L05-control/L08-core complete așteaptă P0.4: launcherul `omnis`, manifestul și certificarea topologiei/UID. FINALIZE persistat certifică numai quiescența controlului inert; redeschiderea cere epoch nou și comandă explicită. Launcherul trebuie să verifice resursele/receiptul opririi, iar P2/P3 extind predicatul cu adaptoarele reale.
 
 ## 5. Runtime Hermes și autoritatea copilului
 
@@ -449,7 +449,7 @@ Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea 
 
 ### 12.1. Arborele țintă și proprietatea fișierelor
 
-**Organizarea a fost confirmată pentru implementare; P0.1/P0.2 sunt verificate local, nu întregul arbore.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` este launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
+**Organizarea este confirmată; API/control P0.1/P0.2 și bootstrapul web P0.3 există local, nu întregul arbore.** Alegem directoare **`api/` și `web/` la rădăcină**, în locul schiței anterioare `src/omnis` + `apps/web`. `api/` conține monolitul modular și supervisorul (același wheel/cod de domeniu, procese diferite); `cli/` va fi launcherul operatorului, nu un al doilea backend. Rootul păstrează documentele/uneltele existente. Fișierele de mai jos se creează numai în felia care le exercită; nu umplem P0 cu clase goale sau toate tabelele MVP.
 
 ```text
 OmnisAI/
@@ -591,7 +591,7 @@ Sub `api/src/omnis/modules/`:
 
 ### 12.4. Comenzi și traseul unei felii
 
-Astăzi `make check`/`make test` acoperă documente/unelte și API/control PostgreSQL. `make check-api`, `make test-api`, `make test-migrations` și `make check-api-wheel` sunt implementate și exercită și supervisorul/socketul/procesele instalate. **Contracte de comenzi viitoare, nu comenzi deja funcționale:** `make dev`, `make build`, `make test-web`, `make test-contracts`, `make test-e2e`, `make test-safety`, `make test-release`. Se adaugă când componenta și proba există; un gate indisponibil raportează NOT-RUN/BLOCKED, nu exit 0. CI apelează aceleași comenzi locale. Pachetul instalat folosește `omnis`, nu Vite sau comenzi Make.
+Astăzi `make check`/`make test` acoperă documente/unelte, API/control PostgreSQL și bootstrapul web. `make check-api`, `make test-api`, `make test-migrations`, `make check-api-wheel`, `make check-web`, `make lint-web`, `make typecheck-web`, `make test-web`, `make build-web`, `make test-contracts` și `make test-e2e` sunt implementate. E2E servește buildul real prin API și folosește numai coduri sintetice prin controlul privat. **Comenzi viitoare, nu deja funcționale:** `make dev`, `make build`, `make test-safety`, `make test-release`; se adaugă odată cu componentele lor. Un gate indisponibil raportează NOT-RUN/BLOCKED, nu exit 0. CI apelează aceleași comenzi locale; CI remote nu a fost executat. Launcherul instalat `omnis` rămâne P0.4, nu este înlocuit cu Vite sau Make.
 
 Exemplu B02: test domain RED → modul `engagements` + migrare → repository pe PostgreSQL real → route/DTO/OpenAPI → tipuri generate + formular/query web → E2E create/reload/conflict → commit coerent. B07 adaugă policy/evidence cu aceleași frontiere, nu un director generic de „agenți” care ajunge să dețină DB și rețeaua. Corpul held-out/scorer rămâne într-un workspace evaluator separat, niciodată montat runtime-ului.
 

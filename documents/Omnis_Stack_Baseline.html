@@ -68,6 +68,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Python 3.13 se apropie de trecerea la suport numai de securitate; release-ul 3.13.16 din calendar nu este tratat ca disponibil înaintea publicării. Reevaluăm patchul Python înaintea releaseului, nu îl înghețăm pentru totdeauna.[15] Un pin auditat astăzi nu justifică amânarea unui security update.</p>
 <p><strong>Docker/Compose:</strong> folosim interfața Compose v2 și un manifest testat pe hostul Linux de referință, fără <code>network_mode: host</code>, socket Docker în runtime sau containere privilegiate. Distribuția hostului, kernelul/seccomp/nftables și versiunile efective intră în manifestul P0/G-NET. Nu inventăm un număr „minim sigur” universal de Engine. Un host diferit trebuie să treacă aceeași suită înainte de target effects.</p>
 <h2 id="3-frontend">3. Frontend</h2>
+<p><strong>Consumator real P0.3:</strong> <code>web/package.json</code>/<code>package-lock.json</code> folosesc subsetul necesar din pinurile de mai jos; nicio versiune selectată nu a fost schimbată. React/Router/Query și buildul sunt exercitate prin <a href="verification/p03-local-bootstrap.md">probe de produs locale</a>, separat de smoke-urile istorice. Radix rămâne disponibil ca alegere pentru widgeturi complexe, fără instalare inutilă în formularul nativ de bootstrap. Oxlint/React/a11y refolosesc unealta development fixată; aceasta nu intră în bundle. E2E folosește Playwright 1.63.0 și Chromium 153.0.8010.12/build 1243, nu browserul/executorul personal. Gate-urile și setup-ul sunt în <a href="../web/README.md">web/README.md</a>.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -310,5 +311,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>e98a6b6e0923d63f89962ab1b30b79537e941bd098cb7478674abacaa663516b</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>afea0c722b070a1f6212a82891014c81b86e22a0f11f14f2639c8373327f893c</code>.</p></footer>
 </main></div></body></html>

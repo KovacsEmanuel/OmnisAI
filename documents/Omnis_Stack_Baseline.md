@@ -26,6 +26,8 @@ Python 3.13 se apropie de trecerea la suport numai de securitate; release-ul 3.1
 
 ## 3. Frontend
 
+**Consumator real P0.3:** `web/package.json`/`package-lock.json` folosesc subsetul necesar din pinurile de mai jos; nicio versiune selectată nu a fost schimbată. React/Router/Query și buildul sunt exercitate prin [probe de produs locale](verification/p03-local-bootstrap.md), separat de smoke-urile istorice. Radix rămâne disponibil ca alegere pentru widgeturi complexe, fără instalare inutilă în formularul nativ de bootstrap. Oxlint/React/a11y refolosesc unealta development fixată; aceasta nu intră în bundle. E2E folosește Playwright 1.63.0 și Chromium 153.0.8010.12/build 1243, nu browserul/executorul personal. Gate-urile și setup-ul sunt în [web/README.md](../web/README.md).
+
 | Rol | Pachete și pinuri |
 |---|---|
 | UI | `react==19.3.0`, `react-dom==19.3.0` |

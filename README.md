@@ -6,6 +6,8 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Reguli de dezvoltare
 
+**Restanțe pentru P0.3: închise local.** Ruff/mypy sunt fixate, lint/format/typecheck acoperă sursele și testele API, OpenAPI corespunde erorilor reale, iar gate-ul a fost reprodus din checkout curat. [Dovezi și review](documents/verification/p02-python-quality.md): 41 de fișiere verificate static, 128 teste API/control/tooling și 10 de migrare/livrare. Aceasta permite începutul local P0.3, nu închide G00 și nu reprezintă CI remote.
+
 [AGENTS.md](AGENTS.md) fixează istoricul granular, verificarea, review-ul și rollbackul. **VISUAL_ACCEPTED:** utilizatorul a acceptat aspectul prototipului `df17a29` („arata bine. bravo”). [UI/UX §0](documents/Omnis_UI_UX_Spec.md) și DESIGN.md sunt baseline-ul vizual de portat, fără graph/council. Acceptarea vizuală nu transformă datele DEMO în cerințe de produs sau rezultate reale.
 
 **INSTRUCTIONS_UPDATE_BLOCKED:** actualizarea exclusiv a stării vizuale din fișierul protejat `AGENTS.md` a fost refuzată după expirarea aprobării interactive. Fișierul a rămas nemodificat; formularea sa despre aprobarea încă absentă precedă feedbackul de mai sus. Regulile sale de siguranță, autorizare, istoric și verificare rămân neschimbate. Corectarea acelui status cere o aprobare separată, nu ocolirea protecției.
@@ -21,7 +23,7 @@ Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)*
 - **[Prototip UI navigabil — DEMO offline](documents/Omnis_UI_Prototype.html)** · Home/Dashboard → Overview · Brain stream · Findings · Coverage · Reports; Settings separat, findings expandabile și review/export DEMO din același model
 - **[Re-review și readiness — HTML](documents/Omnis_Implementation_Readiness_Review.html)** · [Markdown](documents/Omnis_Implementation_Readiness_Review.md)
 - **[Proba locală P0.1](documents/verification/p01-local-readiness.md)** · API/PostgreSQL, wheel, controale negative, limite și porți neexecutate
-- **[Proba locală P0.2 și comparația cu planul/arhitectura](documents/verification/p02-local-control.md)** · pairing/control/supervisor, remedieri de review, 101 teste API/control și 10 de migrare/livrare
+- **[Proba inițială P0.2 și comparația cu planul/arhitectura](documents/verification/p02-local-control.md)** · pairing/control/supervisor și remedieri de review; completată de gate-ul Python de mai sus
 
 ### Decizia de pornire
 

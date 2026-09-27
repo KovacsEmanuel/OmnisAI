@@ -1,6 +1,6 @@
 # P0.2 — închiderea restanței de calitate Python înainte de P0.3
 
-**Stare: implementat și verificat local; review final în curs.** Bază curată `6c40083184fd89698518a25877c1dc7757407465`. Utilizatorul a cerut remedierea restanțelor necesare următoarei faze. Acesta este contractul feliei B01a pentru codul deja introdus, nu un plan nou și nu pornirea P0.3/P0.4.
+**Stare: QUALITY_GATE_VERIFIED_LOCAL / restanțele identificate înainte de P0.3 sunt închise local.** Bază curată `6c40083184fd89698518a25877c1dc7757407465`. Utilizatorul a cerut remedierea restanțelor necesare următoarei faze. Acesta este contractul feliei B01a pentru codul deja introdus, nu un plan nou și nu pornirea P0.3/P0.4.
 
 ## Rezultat observabil și perimetru
 
@@ -51,7 +51,11 @@ Pluginul oficial `pydantic.mypy`, din Pydantic deja fixat, este necesar cu `init
 - `2b341b8`: `return` din cleanup putea înghiți anularea când și închiderea peer-ului eșua. RED pe socket real, apoi propagare păstrată, fără schimbarea autorității DB.
 - `9204108`: auditul de prerechizite a reprodus 422 `ErrorEnvelope` versus `HTTPValidationError` în OpenAPI. Răspunsurile declarate reflectă acum payloadurile reale; health503 păstrează `HealthReady`. Exportul și tipurile TS rămân P0.3.
 
-Review-urile finale de producție și de toolchain sunt încă în curs la această versiune; niciun rezultat de reviewer nu înlocuiește execuțiile părintelui.
+**Review-uri finale independente:** nu au identificat blocante în perimetrul revizuit `6c40083..4c5a645`. Review-ul de producție a executat 8 teste noDB, 5 probe suplimentare și lint/typecheck pe toate cele 24 de surse; proba challengeului cu driver substituit nu a fost prezentată drept commit PostgreSQL. Review-ul de toolchain a confirmat enumerarea efectivă 41/41, cele 12 controale de gate, cele 5 controale de decoder, păstrarea celor 222 de aserțiuni și legarea CI fără mascare de erori. PostgreSQL/wheel/checkoutul curat au fost exercitate de părinte, nu atribuite reviewerilor.
+
+Auditul prerechizitelor separă explicit lucrul viitor: export OpenAPI/tipuri TS/build/pairing vizual în P0.3; launcher/manifest/topologie/UID și probele complete ale instalării în P0.4. Nu există un blocker cunoscut rămas în această felie care să împiedice începutul local P0.3. Aceasta nu este închiderea G00 și nu garantează absența oricărui defect nedescoperit.
+
+`uv` global din PATH rămâne 0.11.7 și este refuzat corect de gate; verificările de acceptare au transmis explicit executabilul uv 0.12.19. Nu am făcut upgrade implicit al uneltelor personale. Pentru un mediu nou se urmează setup-ul cu pinul cerut, nu se dezactivează verificarea versiunii.
 
 Acceptarea cere gate-uri reale fără erori, controale negative valide, lock/audit, suită completă existentă plus regresiile noi, artifact instalat și review. CI remote rămâne NOT-RUN fără push cerut separat; rulează aceleași comenzi versionate, dar nu inventăm o execuție GitHub.
 

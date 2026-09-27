@@ -24,7 +24,7 @@
 - **10 teste migrare/livrare**, inclusiv wheel instalat și cele trei revizii precedente;
 - lock/dependințe compatibile, audit OSV fără vulnerabilități cunoscute în 31 de pachete; build și import wheel, compileall, renderer fără drift și `git diff --check` trecute.
 
-Auditul de dependențe nu garantează absența vulnerabilităților. Compileall este verificare de sintaxă, nu typecheck Python complet. Niciun build/typecheck React sau test browser de produs nu este pretins: `web/` nu există încă. CI remote este **NOT-RUN** (nu s-a cerut push).
+Auditul de dependențe nu garantează absența vulnerabilităților. La proba inițială de mai sus, compileall verifica numai sintaxa. **Restanța Python a fost ulterior închisă** prin Ruff lint/format și mypy strict pe surse/teste; [completarea verificată și review-uită](p02-python-quality.md) consemnează 41 de fișiere și suita extinsă 128+10, fără a rescrie rezultatele istorice de aici. Niciun build/typecheck React sau test browser de produs nu este pretins: `web/` nu există încă. CI remote este **NOT-RUN** (nu s-a cerut push).
 
 ## Review și remedieri
 

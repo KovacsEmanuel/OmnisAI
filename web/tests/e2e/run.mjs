@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
+import { writeSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { chromium, expect } from '@playwright/test';
+import { assertSecretFree } from './leaks.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -15,6 +17,17 @@ const scenario = process.argv[2];
 assert.match(origin ?? '', /^http:\/\/127\.0\.0\.1:[0-9]+$/);
 assert.ok(directory && output && process.env.OMNIS_E2E_DATABASE_URL, 'Run via make test-e2e with an owned DB');
 const sensitive = [];
+const markerFd = Number(process.env.OMNIS_E2E_MARKER_FD);
+assert.ok(Number.isInteger(markerFd) && markerFd >= 3, 'Private marker channel is required');
+writeSync(markerFd, 'READY\n');
+function remember(value) {
+  assert.ok(typeof value === 'string' && /^[A-Za-z0-9_-]{16,128}$/.test(value), 'Invalid synthetic marker');
+  if (sensitive.includes(value)) return;
+  assert.ok(sensitive.length < 128, 'Too many synthetic markers');
+  sensitive.push(value);
+  const record = Buffer.from(`SECRET ${value}\n`);
+  assert.equal(writeSync(markerFd, record), record.length, 'Incomplete private marker evidence');
+}
 const requests = [];
 const consoleMessages = [];
 const pageErrors = [];
@@ -23,7 +36,7 @@ const faultPath = fileURLToPath(new URL('../../../api/tests/web_fault.py', impor
 
 async function control(command) {
   const capability = await readFile(join(directory, 'control.cap'), 'utf8');
-  sensitive.push(capability);
+  remember(capability);
   return new Promise((resolve, reject) => {
     let data = '';
     const socket = createConnection(join(directory, 'control.sock'));
@@ -49,7 +62,7 @@ async function control(command) {
 async function issue() {
   const status = (await control({ op: 'status' })).status;
   const code = randomBytes(24).toString('base64url');
-  sensitive.push(code);
+  remember(code);
   await control({ op: 'pairing', instance_id: status.instance_id, issuance_id: randomUUID(),
     digest: createHash('sha256').update(code).digest('hex') });
   return { code, status };
@@ -75,6 +88,7 @@ page.on('console', message => consoleMessages.push(message.text()));
 page.on('pageerror', error => pageErrors.push(error.message));
 
 async function pair(code) {
+  remember(code);
   await page.getByLabel('Pairing code').fill(code);
   await page.getByRole('button', { name: 'Pair browser' }).click();
 }
@@ -84,6 +98,11 @@ async function paired() {
   await pair(grant.code);
   await check(page.getByText(grant.status.instance_id, { exact: true })).toBeVisible();
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
+  const cookie = (await context.cookies()).find(item => item.name === 'omnis_session');
+  assert.ok(cookie, 'Missing synthetic session cookie');
+  remember(cookie.value);
+  const view = await page.evaluate(async () => (await fetch('/api/session')).json());
+  remember(view.csrf_token);
   return grant;
 }
 
@@ -98,11 +117,8 @@ async function secretChecks() {
   assert.deepEqual(storage.databases, []);
   assert.equal(storage.workers, 0);
   const content = await page.content();
-  for (const value of sensitive) {
-    assert.ok(!requests.some(url => url.includes(value)), 'Secret in URL');
-    assert.ok(!consoleMessages.some(line => line.includes(value)), 'Secret in browser log');
-    assert.ok(!content.includes(value), 'Secret retained in DOM');
-  }
+  const liveValues = await page.locator('input, textarea').evaluateAll(elements => elements.map(element => element.value));
+  assertSecretFree(sensitive, [...requests, ...consoleMessages, ...pageErrors, content, ...liveValues]);
   assert.deepEqual(external, [], 'Browser attempted an external request');
   assert.deepEqual(pageErrors, [], 'Browser JavaScript failure');
 }
@@ -119,6 +135,7 @@ try {
     const foreignHost = await context.request.get(`${origin}/health/live`, { headers: { Host: 'attacker.invalid', 'X-Forwarded-Host': new URL(origin).host } });
     assert.equal(foreignHost.status(), 400);
     const foreignOrigin = await context.request.post(`${origin}/api/pairing`, { headers: { Origin: 'null' }, data: { code: 'synthetic-invalid-origin-code' } });
+    remember('synthetic-invalid-origin-code');
     assert.equal(foreignOrigin.status(), 403);
     await pair('synthetic-invalid-pairing-code');
     await check(page.getByRole('alert')).toContainText('invalid, expired or already used');
@@ -128,10 +145,10 @@ try {
     const cookies = await context.cookies();
     const cookie = cookies.find(item => item.name === 'omnis_session');
     assert.ok(cookie, 'Cookie missing');
-    sensitive.push(cookie.value);
+    remember(cookie.value);
     assert.ok(cookie.httpOnly && cookie.sameSite === 'Strict' && cookie.path === '/' && !cookie.secure);
     const payload = await page.evaluate(async () => (await fetch('/api/session')).json());
-    sensitive.push(payload.csrf_token);
+    remember(payload.csrf_token);
     assert.equal(typeof payload.csrf_token, 'string');
     for (const token of [null, 'synthetic-wrong-csrf']) {
       const denied = await page.evaluate(async value => {
@@ -250,7 +267,7 @@ try {
     await writeFile(join(output, 'contrast.json'), JSON.stringify(contrast, null, 2));
   } else throw new Error('Unknown E2E case');
   await secretChecks();
-  await writeFile(join(output, 'result.json'), JSON.stringify({ scenario, passed: true, browser: browser.version(),
+  await writeFile(join(output, 'browser-result.json'), JSON.stringify({ scenario, passed: true, browser: browser.version(),
     requestCount: requests.length, externalRequests: external.length, pageErrors: pageErrors.length,
     secretChecks: true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
   console.log(`E2E PASS ${scenario}: real backend, synthetic pairing, browser ${browser.version()}`);

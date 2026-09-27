@@ -1,5 +1,6 @@
 """Browser acceptance with a real owned PostgreSQL, supervisor and HTTP-served build."""
 
+import json
 import os
 import signal
 import socket
@@ -10,9 +11,11 @@ from pathlib import Path
 
 import httpx
 import pytest
+from pydantic import TypeAdapter
 from sqlalchemy.engine import URL
 
 from e2e_processes import cleanup_all
+from e2e_secrets import assert_secret_free, decode_markers
 from test_supervisor import start_supervisor, wait_ready
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +34,10 @@ def test_built_web_against_real_control_plane(
     output = Path(os.environ["TMPDIR"]) / "omnis-p03-e2e" / case
     output.mkdir(parents=True, exist_ok=True)
     (output / "result.json").unlink(missing_ok=True)
+    (output / "browser-result.json").unlink(missing_ok=True)
+    marker_read, marker_write = os.pipe()
+    os.set_blocking(marker_read, False)
+    os.set_blocking(marker_write, False)
     try:
         wait_ready(supervisor)
         with socket.socket() as listener:
@@ -97,7 +104,9 @@ def test_built_web_against_real_control_plane(
                 "OMNIS_E2E_API_PID": str(api.pid),
                 "OMNIS_E2E_SUPERVISOR_PID": str(supervisor.pid),
                 "OMNIS_E2E_OUTPUT": str(output),
+                "OMNIS_E2E_MARKER_FD": str(marker_write),
             },
+            pass_fds=(marker_write,),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -114,12 +123,31 @@ def test_built_web_against_real_control_plane(
         if api is not None:
             resources.append((api, False))
         resources.append((supervisor, False))
-        outputs = cleanup_all(resources)
+        try:
+            outputs = cleanup_all(resources)
+        finally:
+            os.close(marker_write)
+            try:
+                marker_evidence = os.read(marker_read, 16385)
+            finally:
+                os.close(marker_read)
         # Verdicts come only after every owned process has received teardown.
         if api is not None:
             assert api.returncode == -signal.SIGTERM
         assert supervisor.returncode in {0, 3}  # DB loss exits bounded with its documented error.
         combined = "".join(part for output_pair in outputs for part in output_pair)
+        markers = decode_markers(marker_evidence)
+        if case != "accessibility":
+            assert len(markers) >= 4, "Expected code/capability/session/CSRF evidence"
+        assert_secret_free(markers, [combined])
         assert "Traceback" not in combined
-        # Node separately checks raw test codes/session/CSRF against browser output and storage.
+        # Independent parent channel checks unlabelled raw values in every process's logs too.
         assert "omnis_session=" not in combined and "csrf_token" not in combined
+        if driver is not None and driver.returncode == 0:
+            record = TypeAdapter(dict[str, object]).validate_json(
+                (output / "browser-result.json").read_text(), strict=True
+            )
+            assert record["passed"] is True and record["scenario"] == case
+            assert_secret_free(markers, [json.dumps(record)])
+            record.update(server_log_secret_check=True, cleanup_verified=True)
+            (output / "result.json").write_text(json.dumps(record, indent=2) + "\n")

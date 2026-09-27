@@ -124,6 +124,7 @@ class SessionStore:
                 )
                 if (
                     row["digest"] is not None
+                    and row["expires_at"] is not None
                     and row["expires_at"] > now
                     and hmac.compare_digest(row["digest"], code_digest(code))
                 ):

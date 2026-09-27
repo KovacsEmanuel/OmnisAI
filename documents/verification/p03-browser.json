@@ -1,6 +1,6 @@
 {
   "scope": "P0.3 local bootstrap E2E; not G00, remote CI, target execution or visual approval",
-  "tested_harness_commit": "b7cb7ee",
+  "tested_harness_commit": "6c5bf13",
   "browser_driver": "@playwright/test@1.63.0",
   "browser": "153.0.8010.12",
   "browser_platform_limit": "Ubuntu24.04 fallback on Kali; no other browsers or screen-reader certification",
@@ -141,5 +141,24 @@
       "assets/index-G-F3Gg7_.js": "531acce20d5cb55a3fd772dabd0883ccf60927143831e2ef7d73f6b7ed3b7fdc",
       "index.html": "6d22ac3983bd0245b2060a2581628bb84ed195d6347e1eea0f2ec9a79552615a"
     }
+  },
+  "full_gate": {
+    "command": "make check UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv",
+    "commit": "c1efb30",
+    "exit_code": 0,
+    "api_tests": 148,
+    "migration_delivery_tests": 10,
+    "web_unit_tests": 20,
+    "web_tooling_tests": 6,
+    "browser_e2e_cases": 7,
+    "documentation_tests": 28,
+    "development_tests": 11,
+    "anti_slop_cases": 4,
+    "python_source_test_files": 52
+  },
+  "docs_browser": {
+    "command": "python tests/documentation/browser_check.py --include-documents --output <scratch>/docs-browser-check.json",
+    "checks": 116,
+    "exit_code": 0
   }
 }

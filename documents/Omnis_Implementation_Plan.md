@@ -1,6 +1,6 @@
 # Omnis — plan de implementare v2
 
-**Baseline de implementare · Local-first · P0.3_IMPLEMENTED_LOCAL / adjudecare finală harness în curs · CI remote NOT-RUN · G00 deschis; P0.4 NEÎNCEPUTĂ**
+**Baseline de implementare · Local-first · P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local · CI remote NOT-RUN · G00 deschis; P0.4 NEÎNCEPUTĂ**
 
 Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
@@ -321,7 +321,7 @@ Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probe
 
 ## 19. Reluarea într-o sesiune nouă — stare și următoarea felie
 
-**Stare actuală: P0.3_IMPLEMENTED_LOCAL; adjudecarea finală a harnessului este urmărită în [dovezi](verification/p03-local-bootstrap.md); CI remote NOT-RUN.** `P0.1_IMPLEMENTED_LOCAL` și `P0.2_IMPLEMENTED_LOCAL` sunt păstrate: [P0.1](verification/p01-local-readiness.md), [P0.2](verification/p02-local-control.md). Există bootstrap web real servit de API, pairing/sesiune/logout și status autentic, cu contracte generate și E2E PostgreSQL/browser. P0.4/CLI rămân NEÎNCEPUTE; **G00 rămâne deschis**. Contractele de mai jos sunt executate, nu invitație la refacerea scaffoldului. Citește README/AGENTS, §4–§5/§19, arhitectură §4/§12, stackul și dovezile/README-urile API și web. Nu reia brainstormingul/designul acceptat și nu folosi remote-ul ca bază dacă HEAD local este înainte.
+**Stare actuală: P0.3_IMPLEMENTED_LOCAL / verificat și review-uit local; [dovezi și adjudecări](verification/p03-local-bootstrap.md); CI remote NOT-RUN.** `P0.1_IMPLEMENTED_LOCAL` și `P0.2_IMPLEMENTED_LOCAL` sunt păstrate: [P0.1](verification/p01-local-readiness.md), [P0.2](verification/p02-local-control.md). Există bootstrap web real servit de API, pairing/sesiune/logout și status autentic, cu contracte generate și E2E PostgreSQL/browser. P0.4/CLI rămân NEÎNCEPUTE; **G00 rămâne deschis**. Contractele de mai jos sunt executate, nu invitație la refacerea scaffoldului. Citește README/AGENTS, §4–§5/§19, arhitectură §4/§12, stackul și dovezile/README-urile API și web. Nu reia brainstormingul/designul acceptat și nu folosi remote-ul ca bază dacă HEAD local este înainte.
 
 **P0.1 — contract executat: API/DB readiness real, subfelie B01a/B01b/B01c.** Acesta a fost primul rezultat observabil, nu închiderea întregului P0. S-au introdus pachetul API instalabil, schema minimă InstanceControl necesară control plane-ului și probele sale; `admission_open` inițial false. Contracte implementate `GET /health/live` și `GET /health/ready`: primul reflectă procesul, al doilea verifică PostgreSQL și versiunea schemei. `api_ready` nu înseamnă `dashboard_ready` sau `assessment_ready`; ultimele rămân false cât lipsesc componentele. Nu folosi un răspuns constant „healthy” sau SQLite ca substitut.
 

@@ -8,7 +8,9 @@ from omnis.core.db import database_engine
 
 
 @pytest.mark.asyncio
-async def test_shutdown_serializes_with_real_admission_and_requires_explicit_restart(migrated_database_url):
+async def test_shutdown_serializes_with_real_admission_and_requires_explicit_restart(
+    migrated_database_url,
+):
     from omnis.modules.instance.service import ControlConflict, InstanceService
 
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
@@ -25,11 +27,16 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
         # This is only a fully transactional inert marker, never an external effect.
         entered = asyncio.Event()
         finish = asyncio.Event()
+
         async def admitted():
             async with service.admission(generation, owner, epoch) as connection:
                 entered.set()
                 await finish.wait()
-                await connection.execute(text("INSERT INTO inert_marker VALUES (:generation)"), {"generation": generation})
+                await connection.execute(
+                    text("INSERT INTO inert_marker VALUES (:generation)"),
+                    {"generation": generation},
+                )
+
         work = asyncio.create_task(admitted())
         await entered.wait()
         stop_id = uuid4()
@@ -65,7 +72,9 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
         with pytest.raises(ControlConflict, match="GENERATION_CONFLICT"):
             await service.shutdown(uuid4(), generation)
         async with engine.connect() as connection:
-            assert (await connection.execute(text("SELECT generation FROM inert_marker"))).scalars().all() == [generation]
+            assert (
+                await connection.execute(text("SELECT generation FROM inert_marker"))
+            ).scalars().all() == [generation]
     finally:
         await engine.dispose()
 
@@ -83,7 +92,11 @@ async def test_expired_owner_is_fenced_and_takeover_never_reopens(migrated_datab
             await service.acquire(uuid4())
         generation = await service.open(uuid4(), 0, owner, epoch)
         async with engine.begin() as connection:
-            await connection.execute(text("UPDATE supervisor_lease SET expires_at = clock_timestamp() - interval '1 second'"))
+            await connection.execute(
+                text(
+                    "UPDATE supervisor_lease SET expires_at = clock_timestamp() - interval '1 second'"
+                )
+            )
         with pytest.raises(ControlConflict, match="LEASE_LOST"):
             async with service.admission(generation, owner, epoch):
                 pytest.fail("expired owner admitted work")

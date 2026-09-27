@@ -6,7 +6,9 @@ import socket
 import sys
 from urllib.parse import urlsplit
 
-url = urlsplit(os.environ["OMNIS_DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://", 1))
+url = urlsplit(
+    os.environ["OMNIS_DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://", 1)
+)
 audit_fd = int(os.environ["OMNIS_TEST_AUDIT_FD"])
 
 

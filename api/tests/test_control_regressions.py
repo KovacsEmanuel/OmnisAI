@@ -33,18 +33,28 @@ async def test_pairing_rechecks_expiry_after_waiting_for_the_row(migrated_databa
             attempt = asyncio.create_task(store.exchange(code))
             await asyncio.sleep(0.05)
             assert not attempt.done()
-            await blocker.execute(text("UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"))
+            await blocker.execute(
+                text(
+                    "UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"
+                )
+            )
         with pytest.raises(PairingDenied):
             await attempt
         async with engine.connect() as connection:
-            assert (await connection.execute(text("SELECT count(*) FROM ui_session"))).scalar_one() == 0
+            assert (
+                await connection.execute(text("SELECT count(*) FROM ui_session"))
+            ).scalar_one() == 0
     finally:
         await engine.dispose()
 
 
 @pytest.mark.asyncio
-async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(monkeypatch, migrated_database_url):
-    monkeypatch.setenv("OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False))
+async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(
+    monkeypatch, migrated_database_url
+):
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
     app = create_app()
     origin = "http://127.0.0.1:8765"
     async with app.router.lifespan_context(app):
@@ -56,28 +66,39 @@ async def test_csrf_is_not_transferable_and_ambiguous_cookies_are_refused(monkey
             tokens.append(await store.exchange(code))
         first, second = tokens
         async with AsyncClient(transport=ASGITransport(app=app), base_url=origin) as client:
-            response = await client.post("/api/logout", headers={"origin": origin,
-                "cookie": f"omnis_session={second.token}", "x-csrf-token": first.csrf})
+            response = await client.post(
+                "/api/logout",
+                headers={
+                    "origin": origin,
+                    "cookie": f"omnis_session={second.token}",
+                    "x-csrf-token": first.csrf,
+                },
+            )
             assert response.status_code == 403
             assert await store.authenticate(second.token) is not None
-            response = await client.get("/api/session", headers={"cookie":
-                f"omnis_session={first.token}; omnis_session={second.token}"})
+            response = await client.get(
+                "/api/session",
+                headers={"cookie": f"omnis_session={first.token}; omnis_session={second.token}"},
+            )
             assert response.status_code == 401
 
 
-@pytest.mark.parametrize("mutation", [
-    "ALTER TABLE ui_session ALTER COLUMN expires_at DROP NOT NULL",
-    "ALTER TABLE pairing_challenge ALTER COLUMN attempts SET DEFAULT 1",
-    "ALTER TABLE instance_command DROP CONSTRAINT instance_command_pkey",
-    "DELETE FROM supervisor_lease",
-    "DROP TABLE ui_session",
-    "ALTER TABLE pairing_challenge DROP CONSTRAINT pairing_challenge_id_check; "
-    "ALTER TABLE pairing_challenge ADD CONSTRAINT pairing_challenge_id_check CHECK (true)",
-    "ALTER TABLE ui_session ALTER COLUMN expires_at DROP NOT NULL; "
-    "INSERT INTO ui_session VALUES ('synthetic-null-expiry', NULL); "
-    "ALTER TABLE ui_session ADD CONSTRAINT expires_required NOT NULL expires_at NOT VALID",
-    "ALTER TABLE pairing_issuance DROP CONSTRAINT pairing_issuance_digest_key",
-])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "ALTER TABLE ui_session ALTER COLUMN expires_at DROP NOT NULL",
+        "ALTER TABLE pairing_challenge ALTER COLUMN attempts SET DEFAULT 1",
+        "ALTER TABLE instance_command DROP CONSTRAINT instance_command_pkey",
+        "DELETE FROM supervisor_lease",
+        "DROP TABLE ui_session",
+        "ALTER TABLE pairing_challenge DROP CONSTRAINT pairing_challenge_id_check; "
+        "ALTER TABLE pairing_challenge ADD CONSTRAINT pairing_challenge_id_check CHECK (true)",
+        "ALTER TABLE ui_session ALTER COLUMN expires_at DROP NOT NULL; "
+        "INSERT INTO ui_session VALUES ('synthetic-null-expiry', NULL); "
+        "ALTER TABLE ui_session ADD CONSTRAINT expires_required NOT NULL expires_at NOT VALID",
+        "ALTER TABLE pairing_issuance DROP CONSTRAINT pairing_issuance_digest_key",
+    ],
+)
 @pytest.mark.asyncio
 async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mutation):
     with connect_test_database(migrated_database_url) as connection:
@@ -87,13 +108,20 @@ async def test_new_authority_schema_drift_is_not_ready(migrated_database_url, mu
         assert await readiness_reason(engine) == ReadinessReason.SCHEMA_INCOMPATIBLE
         app = create_app()
         app.state.db_engine = engine
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765") as client:
-            response = await client.post("/api/pairing", json={"code": "synthetic-denied-code"},
-                                         headers={"origin": "http://127.0.0.1:8765"})
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+        ) as client:
+            response = await client.post(
+                "/api/pairing",
+                json={"code": "synthetic-denied-code"},
+                headers={"origin": "http://127.0.0.1:8765"},
+            )
             assert response.status_code == 503
             assert response.json()["error"]["code"] == "CONTROL_UNAVAILABLE"
         async with engine.connect() as connection:
-            assert (await connection.execute(text("SELECT digest, attempts FROM pairing_challenge"))).one() == (None, 0)
+            assert (
+                await connection.execute(text("SELECT digest, attempts FROM pairing_challenge"))
+            ).one() == (None, 0)
     finally:
         await engine.dispose()
 
@@ -108,18 +136,26 @@ async def test_expired_admission_rolls_back_its_inert_write(migrated_database_ur
         generation = await service.open(uuid4(), 0, owner, epoch)
         async with engine.begin() as connection:
             await connection.execute(text("CREATE TABLE inert_marker (id integer)"))
-            await connection.execute(text("UPDATE supervisor_lease SET expires_at = clock_timestamp() + interval '1 second'"))
+            await connection.execute(
+                text(
+                    "UPDATE supervisor_lease SET expires_at = clock_timestamp() + interval '1 second'"
+                )
+            )
         with pytest.raises(ControlConflict, match="LEASE_LOST"):
             async with service.admission(generation, owner, epoch) as connection:
                 await connection.execute(text("INSERT INTO inert_marker VALUES (1)"))
                 await asyncio.sleep(1.1)
         async with engine.connect() as connection:
-            assert (await connection.execute(text("SELECT count(*) FROM inert_marker"))).scalar_one() == 0
+            assert (
+                await connection.execute(text("SELECT count(*) FROM inert_marker"))
+            ).scalar_one() == 0
     finally:
         await engine.dispose()
 
 
-def test_supervisor_exits_bounded_when_db_authority_is_blocked(migrated_database_url, ipc_directory):
+def test_supervisor_exits_bounded_when_db_authority_is_blocked(
+    migrated_database_url, ipc_directory
+):
     process = start_supervisor(migrated_database_url, ipc_directory)
     try:
         wait_ready(process)
@@ -134,9 +170,18 @@ def test_supervisor_exits_bounded_when_db_authority_is_blocked(migrated_database
 
 
 def test_domain_import_is_independent_of_frameworks_and_runtime(ipc_directory):
-    result = subprocess.run([sys.executable, "-I", "-c",
-        "import sys; import omnis.modules.instance.domain; "
-        "assert not {'fastapi','sqlalchemy','hermes','playwright'} & set(sys.modules); print('DOMAIN_IMPORT_OK')"],
-        cwd=ipc_directory, env={"PATH": os.environ.get("PATH", "")},
-        capture_output=True, text=True, timeout=5)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            "import sys; import omnis.modules.instance.domain; "
+            "assert not {'fastapi','sqlalchemy','hermes','playwright'} & set(sys.modules); print('DOMAIN_IMPORT_OK')",
+        ],
+        cwd=ipc_directory,
+        env={"PATH": os.environ.get("PATH", "")},
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
     assert result.returncode == 0 and result.stdout.strip() == "DOMAIN_IMPORT_OK"

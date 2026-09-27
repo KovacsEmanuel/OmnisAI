@@ -19,8 +19,13 @@ def upgrade() -> None:
     op.create_table(
         "instance_control",
         sa.Column("id", sa.SmallInteger(), primary_key=True),
-        sa.Column("instance_id", postgresql.UUID(as_uuid=True), nullable=False,
-                  server_default=sa.text("gen_random_uuid()"), unique=True),
+        sa.Column(
+            "instance_id",
+            postgresql.UUID(as_uuid=True),
+            nullable=False,
+            server_default=sa.text("gen_random_uuid()"),
+            unique=True,
+        ),
         sa.Column("admission_open", sa.Boolean(), nullable=False, server_default=sa.text("false")),
         sa.Column("shutdown_command_id", postgresql.UUID(as_uuid=True)),
         sa.Column("generation", sa.BigInteger(), nullable=False, server_default=sa.text("0")),

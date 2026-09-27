@@ -18,14 +18,20 @@ async def test_pairing_consumes_once_across_competing_connections(migrated_datab
     code = secrets.token_urlsafe(24)
     try:
         await store.register(code_digest(code), issuance_id=uuid4())
-        results = await asyncio.gather(store.exchange(code), store.exchange(code), return_exceptions=True)
+        results = await asyncio.gather(
+            store.exchange(code), store.exchange(code), return_exceptions=True
+        )
         grants = [result for result in results if not isinstance(result, Exception)]
         assert len(grants) == 1
         assert sum(isinstance(result, PairingDenied) for result in results) == 1
         grant = grants[0]
         assert await store.authenticate(grant.token) is not None
         async with engine.connect() as connection:
-            rows = (await connection.execute(text("SELECT token_digest FROM ui_session"))).scalars().all()
+            rows = (
+                (await connection.execute(text("SELECT token_digest FROM ui_session")))
+                .scalars()
+                .all()
+            )
             assert rows == [hashlib.sha256(grant.token.encode()).hexdigest()]
         await engine.dispose()
         # A fresh pool reads persisted authority, not a process-local dictionary.
@@ -48,7 +54,11 @@ async def test_expiry_and_persistent_attempt_limit(migrated_database_url):
     try:
         await store.register(code_digest(code), issuance_id=uuid4())
         async with engine.begin() as connection:
-            await connection.execute(text("UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"))
+            await connection.execute(
+                text(
+                    "UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"
+                )
+            )
         with pytest.raises(PairingDenied):
             await store.exchange(code)
         code = secrets.token_urlsafe(24)
@@ -62,10 +72,16 @@ async def test_expiry_and_persistent_attempt_limit(migrated_database_url):
         with pytest.raises(PairingLimited):
             await SessionStore(engine).exchange(code)
         async with engine.begin() as connection:
-            await connection.execute(text("UPDATE pairing_challenge SET window_started_at = clock_timestamp() - interval '61 seconds'"))
+            await connection.execute(
+                text(
+                    "UPDATE pairing_challenge SET window_started_at = clock_timestamp() - interval '61 seconds'"
+                )
+            )
         grant = await store.exchange(code)
         async with engine.begin() as connection:
-            await connection.execute(text("UPDATE ui_session SET expires_at = clock_timestamp() - interval '1 second'"))
+            await connection.execute(
+                text("UPDATE ui_session SET expires_at = clock_timestamp() - interval '1 second'")
+            )
         assert await store.authenticate(grant.token) is None
     finally:
         await engine.dispose()
@@ -89,7 +105,11 @@ async def test_pairing_registration_replay_never_reactivates_a_code(migrated_dat
             await store.register(code_digest(current_code), issuance_id=uuid4())
         else:
             async with engine.begin() as connection:
-                await connection.execute(text("UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"))
+                await connection.execute(
+                    text(
+                        "UPDATE pairing_challenge SET expires_at = clock_timestamp() - interval '1 second'"
+                    )
+                )
         assert await store.register(code_digest(old_code), issuance_id=issuance) == expires
         with pytest.raises(PairingDenied):
             await store.exchange(old_code)
@@ -108,16 +128,18 @@ async def test_pairing_issuance_is_idempotent_and_rejects_id_or_code_reuse(migra
     code = secrets.token_urlsafe(24)
     issuance = uuid4()
     try:
-        deadlines = await asyncio.gather(*[
-            store.register(code_digest(code), issuance_id=issuance) for _ in range(2)
-        ])
+        deadlines = await asyncio.gather(
+            *[store.register(code_digest(code), issuance_id=issuance) for _ in range(2)]
+        )
         assert deadlines[0] == deadlines[1]
         with pytest.raises(PairingConflict):
             await store.register(code_digest("another-synthetic-code"), issuance_id=issuance)
         with pytest.raises(PairingConflict):
             await store.register(code_digest(code), issuance_id=uuid4())
         async with engine.connect() as connection:
-            assert (await connection.execute(text("SELECT count(*) FROM pairing_issuance"))).scalar_one() == 1
+            assert (
+                await connection.execute(text("SELECT count(*) FROM pairing_issuance"))
+            ).scalar_one() == 1
         assert await store.exchange(code)
     finally:
         await engine.dispose()

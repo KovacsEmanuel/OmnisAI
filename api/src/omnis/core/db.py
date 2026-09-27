@@ -63,8 +63,10 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
         await connection.execute(text("SELECT 1"))
         try:
             revisions = (
-                await connection.execute(text("SELECT version_num FROM alembic_version"))
-            ).scalars().all()
+                (await connection.execute(text("SELECT version_num FROM alembic_version")))
+                .scalars()
+                .all()
+            )
             instance = (
                 await connection.execute(
                     text(
@@ -101,7 +103,10 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
                 )
             ).all()
         except SQLAlchemyError as exc:
-            if isinstance(exc, DBAPIError) and getattr(exc.orig, "sqlstate", None) in {"42P01", "42703"}:
+            if isinstance(exc, DBAPIError) and getattr(exc.orig, "sqlstate", None) in {
+                "42P01",
+                "42703",
+            }:
                 return ReadinessReason.SCHEMA_INCOMPATIBLE
             return ReadinessReason.DATABASE_UNAVAILABLE
     expected_columns = {

@@ -27,9 +27,12 @@ def local_origin() -> str:
 
 
 def error_response(code: str, status: int) -> JSONResponse:
-    error = ErrorEnvelope(error=ErrorDetail(code=ErrorCode(code), correlation_id=request_correlation.get() or uuid4()))
-    return JSONResponse(error.model_dump(mode="json"), status_code=status,
-                        headers={"Cache-Control": "no-store"})
+    error = ErrorEnvelope(
+        error=ErrorDetail(code=ErrorCode(code), correlation_id=request_correlation.get() or uuid4())
+    )
+    return JSONResponse(
+        error.model_dump(mode="json"), status_code=status, headers={"Cache-Control": "no-store"}
+    )
 
 
 class LocalBoundary:
@@ -45,24 +48,35 @@ class LocalBoundary:
         correlation = uuid4()
         token = request_correlation.set(correlation)
         response_started = False
+
         async def correlated_send(message):
             nonlocal response_started
             if message["type"] == "http.response.start":
                 response_started = True
                 message["headers"] = [
-                    (key, value) for key, value in message.get("headers", []) if key.lower() != b"x-correlation-id"
+                    (key, value)
+                    for key, value in message.get("headers", [])
+                    if key.lower() != b"x-correlation-id"
                 ] + [(b"x-correlation-id", str(correlation).encode())]
             await send(message)
+
         try:
             await self._http(scope, receive, correlated_send)
         except Exception:
             # Transport failure, not success: preserve correlation without logging
             # untrusted exception text/tracebacks. BaseException cancellation propagates.
-            logging.getLogger("omnis.api").error(json.dumps({
-                "event": "API_INTERNAL_ERROR", "correlation_id": str(correlation),
-            }))
+            logging.getLogger("omnis.api").error(
+                json.dumps(
+                    {
+                        "event": "API_INTERNAL_ERROR",
+                        "correlation_id": str(correlation),
+                    }
+                )
+            )
             if response_started:
-                raise RuntimeError(f"API_RESPONSE_INTERRUPTED correlation_id={correlation}") from None
+                raise RuntimeError(
+                    f"API_RESPONSE_INTERRUPTED correlation_id={correlation}"
+                ) from None
             await error_response("INTERNAL_ERROR", 500)(scope, receive, correlated_send)
         finally:
             request_correlation.reset(token)
@@ -98,8 +112,10 @@ class LocalBoundary:
                                 return
                             if not message.get("more_body", False):
                                 break
+
                     async def buffered_receive():
                         return {"type": "http.request", "body": bytes(body), "more_body": False}
+
                     receive = buffered_receive
 
                 engine = scope["app"].state.db_engine
@@ -107,7 +123,11 @@ class LocalBoundary:
                 public_pairing = scope["path"] == "/api/pairing" and scope["method"] == "POST"
                 tokens = []
                 if not public_pairing:
-                    cookies = [part.strip().partition("=") for header in headers.getlist("cookie") for part in header.split(";")]
+                    cookies = [
+                        part.strip().partition("=")
+                        for header in headers.getlist("cookie")
+                        for part in header.split(";")
+                    ]
                     tokens = [value for name, _, value in cookies if name == COOKIE]
                     if len(tokens) != 1:
                         await error_response("UNAUTHENTICATED", 401)(scope, receive, send)
@@ -122,7 +142,10 @@ class LocalBoundary:
                         await error_response("UNAUTHENTICATED", 401)(scope, receive, send)
                         return
                     csrf = headers.getlist("x-csrf-token")
-                    if mutation and (len(csrf) != 1 or not hmac.compare_digest(csrf[0].encode(), grant.csrf.encode())):
+                    if mutation and (
+                        len(csrf) != 1
+                        or not hmac.compare_digest(csrf[0].encode(), grant.csrf.encode())
+                    ):
                         await error_response("INVALID_CSRF", 403)(scope, receive, send)
                         return
                     scope.setdefault("state", {})["session_grant"] = grant
@@ -136,8 +159,14 @@ class LocalBoundary:
         async def private_send(message):
             if message["type"] == "http.response.start" and is_api:
                 message["headers"] = [
-                    (key, value) for key, value in message.get("headers", []) if key.lower() != b"cache-control"
-                ] + [(b"cache-control", b"no-store"), (b"x-content-type-options", b"nosniff"),
-                     (b"x-frame-options", b"DENY")]
+                    (key, value)
+                    for key, value in message.get("headers", [])
+                    if key.lower() != b"cache-control"
+                ] + [
+                    (b"cache-control", b"no-store"),
+                    (b"x-content-type-options", b"nosniff"),
+                    (b"x-frame-options", b"DENY"),
+                ]
             await send(message)
+
         await self.app(scope, receive, private_send)

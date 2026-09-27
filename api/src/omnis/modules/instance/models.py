@@ -23,7 +23,9 @@ class InstanceControl(Base):
     instance_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), nullable=False, unique=True, server_default=text("gen_random_uuid()")
     )
-    admission_open: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    admission_open: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     shutdown_command_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True))
     generation: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default=text("0"))
     quiesced_generation: Mapped[int | None] = mapped_column(BigInteger)

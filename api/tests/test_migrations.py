@@ -14,10 +14,14 @@ from process_probe import exercise_installed_control
 
 
 def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url):
-    script = ScriptDirectory.from_config(Config(str(Path(__file__).resolve().parents[1] / "alembic.ini")))
+    script = ScriptDirectory.from_config(
+        Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
+    )
     assert script.get_current_head() == SCHEMA_REVISION
     with connect_test_database(empty_database_url) as connection:
-        assert connection.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'").fetchone() == (0,)
+        assert connection.execute(
+            "SELECT count(*) FROM pg_tables WHERE schemaname='public'"
+        ).fetchone() == (0,)
 
     try:
         completed = subprocess.run(
@@ -44,7 +48,9 @@ def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url)
         ).fetchall()
     assert revision == (SCHEMA_REVISION,)
     assert len(rows) == 1
-    identity, admission_open, shutdown_command_id, generation, quiesced_generation, quiesced_at = rows[0]
+    identity, admission_open, shutdown_command_id, generation, quiesced_generation, quiesced_at = (
+        rows[0]
+    )
     assert isinstance(identity, UUID)
     assert admission_open is False
     assert shutdown_command_id is None
@@ -71,76 +77,143 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url, tmp_path)
             }
         try:
             result = subprocess.run(
-                command, cwd=tmp_path, env=env, capture_output=True, text=True,
-                timeout=120, check=False,
+                command,
+                cwd=tmp_path,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
             )
         except subprocess.TimeoutExpired:
             pytest.fail(f"{label} exceeded its deadline", pytrace=False)
         if result.returncode:
             pytest.fail(f"{label} failed (exit {result.returncode})", pytrace=False)
 
-    run("wheel build", [uv, "build", "--no-config", "--wheel", str(root), "--out-dir", str(wheel_dir)])
-    wheel, = wheel_dir.glob("omnis_api-*.whl")
+    run(
+        "wheel build",
+        [uv, "build", "--no-config", "--wheel", str(root), "--out-dir", str(wheel_dir)],
+    )
+    (wheel,) = wheel_dir.glob("omnis_api-*.whl")
     run(
         "locked dependency export",
-        [uv, "export", "--locked", "--no-config", "--directory", str(root),
-         "--no-dev", "--no-emit-project", "--format", "requirements-txt",
-         "--output-file", str(requirements)],
+        [
+            uv,
+            "export",
+            "--locked",
+            "--no-config",
+            "--directory",
+            str(root),
+            "--no-dev",
+            "--no-emit-project",
+            "--format",
+            "requirements-txt",
+            "--output-file",
+            str(requirements),
+        ],
     )
-    run("isolated venv", [uv, "venv", "--no-python-downloads", "--python", "3.13.15", str(tmp_path / "venv")])
-    run("locked dependency install", [uv, "pip", "sync", "--python", str(venv_python),
-                                      "--require-hashes", str(requirements)])
-    run("wheel install", [uv, "pip", "install", "--python", str(venv_python),
-                          "--no-deps", str(wheel)])
+    run(
+        "isolated venv",
+        [uv, "venv", "--no-python-downloads", "--python", "3.13.15", str(tmp_path / "venv")],
+    )
+    run(
+        "locked dependency install",
+        [uv, "pip", "sync", "--python", str(venv_python), "--require-hashes", str(requirements)],
+    )
+    run(
+        "wheel install",
+        [uv, "pip", "install", "--python", str(venv_python), "--no-deps", str(wheel)],
+    )
     run("installed dependency check", [uv, "pip", "check", "--python", str(venv_python)])
     with connect_test_database(empty_database_url) as connection:
-        assert connection.execute("SELECT current_database()").fetchone() == (empty_database_url.database,)
+        assert connection.execute("SELECT current_database()").fetchone() == (
+            empty_database_url.database,
+        )
     run(
         "installed migration",
         [str(venv_python), "-I", "-m", "omnis.migrate"],
         isolated_migration=True,
     )
     with connect_test_database(empty_database_url) as connection:
-        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (SCHEMA_REVISION,)
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
+            SCHEMA_REVISION,
+        )
         assert connection.execute(
             "SELECT admission_open, generation FROM instance_control WHERE id = 1"
         ).fetchone() == (False, 0)
     exercise_installed_control(venv_python, empty_database_url)
 
 
-@pytest.mark.parametrize("previous_revision", ["0001_instance_control", "0002_local_sessions", "0003_instance_lifecycle"])
-def test_upgrade_from_previous_revision_preserves_instance_identity(empty_database_url, tmp_path, previous_revision):
-    env = {"PATH": os.environ.get("PATH", ""),
-           "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False)}
+@pytest.mark.parametrize(
+    "previous_revision", ["0001_instance_control", "0002_local_sessions", "0003_instance_lifecycle"]
+)
+def test_upgrade_from_previous_revision_preserves_instance_identity(
+    empty_database_url, tmp_path, previous_revision
+):
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
+    }
     root = Path(__file__).resolve().parents[1]
     verify_test_database(empty_database_url.set(database="omnis_test"))
     first = subprocess.run(
-        [sys.executable, "-m", "alembic", "-c", str(root / "alembic.ini"), "upgrade", previous_revision],
-        cwd=root, env=env, capture_output=True, timeout=30,
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            str(root / "alembic.ini"),
+            "upgrade",
+            previous_revision,
+        ],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        timeout=30,
     )
     assert first.returncode == 0
     with connect_test_database(empty_database_url) as connection:
         before = connection.execute("SELECT * FROM instance_control").fetchone()
         if previous_revision != "0001_instance_control":
-            connection.execute("INSERT INTO ui_session VALUES ('synthetic_digest', clock_timestamp() + interval '12 hours')")
-            connection.execute("UPDATE pairing_challenge SET digest = 'synthetic_pending_digest', expires_at = clock_timestamp() + interval '5 minutes'")
-    upgraded = subprocess.run([sys.executable, "-I", "-m", "omnis.migrate"],
-                              cwd=tmp_path, env=env, capture_output=True, timeout=30)
+            connection.execute(
+                "INSERT INTO ui_session VALUES ('synthetic_digest', clock_timestamp() + interval '12 hours')"
+            )
+            connection.execute(
+                "UPDATE pairing_challenge SET digest = 'synthetic_pending_digest', expires_at = clock_timestamp() + interval '5 minutes'"
+            )
+    upgraded = subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate"],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        timeout=30,
+    )
     assert upgraded.returncode == 0
     with connect_test_database(empty_database_url) as connection:
         assert connection.execute("SELECT * FROM instance_control").fetchone() == before
-        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (SCHEMA_REVISION,)
-        assert connection.execute("SELECT digest, attempts FROM pairing_challenge").fetchone() == (None, 0)
-        assert connection.execute("SELECT count(*) FROM ui_session").fetchone() == (int(previous_revision != "0001_instance_control"),)
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
+            SCHEMA_REVISION,
+        )
+        assert connection.execute("SELECT digest, attempts FROM pairing_challenge").fetchone() == (
+            None,
+            0,
+        )
+        assert connection.execute("SELECT count(*) FROM ui_session").fetchone() == (
+            int(previous_revision != "0001_instance_control"),
+        )
 
 
-@pytest.mark.parametrize("marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"])
+@pytest.mark.parametrize(
+    "marker", ["synthetic_migration_password_marker", "synthetic_malformed_url_marker"]
+)
 def test_failed_migration_does_not_echo_database_input(marker, migrated_database_url):
     if "password" in marker:
         if marker == os.environ["OMNIS_TEST_DB_PASSWORD"]:
             pytest.fail("Test password unexpectedly equals denial marker", pytrace=False)
         verify_test_database(migrated_database_url.set(database="omnis_test"))
-        database_url = migrated_database_url.set(password=marker).render_as_string(hide_password=False)
+        database_url = migrated_database_url.set(password=marker).render_as_string(
+            hide_password=False
+        )
     else:
         database_url = marker
     try:
@@ -205,7 +278,9 @@ def test_migration_job_exits_when_schema_lock_is_held(migrated_database_url, tmp
                 cwd=tmp_path,
                 env={
                     "PATH": os.environ.get("PATH", ""),
-                    "OMNIS_DATABASE_URL": migrated_database_url.render_as_string(hide_password=False),
+                    "OMNIS_DATABASE_URL": migrated_database_url.render_as_string(
+                        hide_password=False
+                    ),
                 },
                 capture_output=True,
                 text=True,

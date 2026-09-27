@@ -33,8 +33,9 @@ async def pair(body: PairingBody, request: Request, response: Response):
         result = error_response("PAIRING_RATE_LIMITED", 429)
         result.headers["Retry-After"] = "60"
         return result
-    response.set_cookie(COOKIE, grant.token, httponly=True, samesite="strict", path="/",
-                        secure=False, max_age=43200)
+    response.set_cookie(
+        COOKIE, grant.token, httponly=True, samesite="strict", path="/", secure=False, max_age=43200
+    )
     return SessionView(csrf_token=grant.csrf)
 
 

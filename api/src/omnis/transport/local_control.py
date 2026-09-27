@@ -15,9 +15,19 @@ from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from omnis.core.db import readiness_reason
-from omnis.core.paths import check_private_file, private_directory, remove_stale_socket, unlink_owned_inode
+from omnis.core.paths import (
+    check_private_file,
+    private_directory,
+    remove_stale_socket,
+    unlink_owned_inode,
+)
 from omnis.modules.instance.domain import ControlConflict
-from omnis.modules.instance.schemas import ControlRequest, InstanceView, PairingCommand, StatusCommand
+from omnis.modules.instance.schemas import (
+    ControlRequest,
+    InstanceView,
+    PairingCommand,
+    StatusCommand,
+)
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingConflict, SessionStore
 
@@ -32,7 +42,15 @@ def unique_object(pairs):
 
 
 class LocalControl:
-    def __init__(self, directory: Path, service: InstanceService, owner: UUID, epoch: int, *, peer_uid: int | None = None):
+    def __init__(
+        self,
+        directory: Path,
+        service: InstanceService,
+        owner: UUID,
+        epoch: int,
+        *,
+        peer_uid: int | None = None,
+    ):
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -48,7 +66,9 @@ class LocalControl:
     async def __aenter__(self):
         private_directory(self.directory)
         try:
-            self.lock_fd = os.open(self.directory / "control.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+            self.lock_fd = os.open(
+                self.directory / "control.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600
+            )
             check_private_file(os.fstat(self.lock_fd))
             fcntl.flock(self.lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             remove_stale_socket(self.directory / "control.sock")
@@ -62,9 +82,14 @@ class LocalControl:
                 output.write(self.capability)
                 output.flush()
                 os.fsync(output.fileno())
-            self.server = await asyncio.start_unix_server(self._handle, path=str(self.directory / "control.sock"),
-                                                        limit=4096, backlog=16, cleanup_socket=False,
-                                                        start_serving=False)
+            self.server = await asyncio.start_unix_server(
+                self._handle,
+                path=str(self.directory / "control.sock"),
+                limit=4096,
+                backlog=16,
+                cleanup_socket=False,
+                start_serving=False,
+            )
             self.socket_inode = (self.directory / "control.sock").stat().st_ino
             (self.directory / "control.sock").chmod(0o600)
             # Own cleanup and set mode before start_serving's cancellation point.
@@ -99,16 +124,27 @@ class LocalControl:
             if command.instance_id != status.instance_id:
                 return {"ok": False, "error": "INSTANCE_MISMATCH"}
             if isinstance(command, PairingCommand):
-                await SessionStore(self.service.engine).register(command.digest, issuance_id=command.issuance_id)
+                await SessionStore(self.service.engine).register(
+                    command.digest, issuance_id=command.issuance_id
+                )
             elif command.op == "open":
-                result_generation = await self.service.open(command.command_id, command.expected_generation, self.owner, self.epoch)
+                result_generation = await self.service.open(
+                    command.command_id, command.expected_generation, self.owner, self.epoch
+                )
             elif command.op == "shutdown":
-                result_generation = await self.service.shutdown(command.command_id, command.expected_generation)
+                result_generation = await self.service.shutdown(
+                    command.command_id, command.expected_generation
+                )
             elif command.op == "finalize":
-                result_generation = await self.service.finalize(command.command_id, command.expected_generation)
+                result_generation = await self.service.finalize(
+                    command.command_id, command.expected_generation
+                )
             status = await self.service.status()
-        return {"ok": True, "result_generation": result_generation,
-                "status": InstanceView.model_validate(status).model_dump(mode="json")}
+        return {
+            "ok": True,
+            "result_generation": result_generation,
+            "status": InstanceView.model_validate(status).model_dump(mode="json"),
+        }
 
     async def _handle(self, reader, writer):
         task = asyncio.current_task()
@@ -119,7 +155,9 @@ class LocalControl:
         try:
             try:
                 async with asyncio.timeout(4):
-                    peer = writer.get_extra_info("socket").getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i"))
+                    peer = writer.get_extra_info("socket").getsockopt(
+                        socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
+                    )
                     _, uid, _ = struct.unpack("3i", peer)
                     if uid != self.peer_uid:
                         response = {"ok": False, "error": "CONTROL_DENIED"}
@@ -127,12 +165,22 @@ class LocalControl:
                         frame = await reader.readuntil(b"\n")
                         if len(frame) > 4096:
                             raise ValueError("Oversized frame")
-                        body = ControlRequest.model_validate(json.loads(frame, object_pairs_hook=unique_object))
-                        if not hmac.compare_digest(body.capability.encode(), self.capability.encode()):
+                        body = ControlRequest.model_validate(
+                            json.loads(frame, object_pairs_hook=unique_object)
+                        )
+                        if not hmac.compare_digest(
+                            body.capability.encode(), self.capability.encode()
+                        ):
                             response = {"ok": False, "error": "CONTROL_DENIED"}
                         else:
                             response = await self._dispatch(body.command)
-            except (ValueError, ValidationError, RecursionError, asyncio.LimitOverrunError, asyncio.IncompleteReadError):
+            except (
+                ValueError,
+                ValidationError,
+                RecursionError,
+                asyncio.LimitOverrunError,
+                asyncio.IncompleteReadError,
+            ):
                 response = {"ok": False, "error": "INVALID_REQUEST"}
             except TimeoutError:
                 response = {"ok": False, "error": "CONTROL_TIMEOUT"}

@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.5
+version: 0.1.6
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -39,6 +39,7 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Establish listener ownership, inode and permissions before an asynchronous serving call can yield. On the pinned Python, create a non-serving Unix server first, then start serving; inject cancellation at the first yield and verify the listener is gone and restart succeeds. A successful normal shutdown does not cover partial startup.
 - When typing SQL results, validate driver values into strict records/scalars rather than casting dynamic values. Strict Pydantic models may reject `RowMapping` even when its fields are correct: normalize only the Mapping container to a dict, preserve every field, and retain strict value checks. Prove acceptance on real driver rows and rejection of coercions; sanitize validation failures as storage failures, not invalid client requests.
 - Test cancellation together with a transport-close failure. A `return` inside cleanup can erase the original exception; suppress only the expected close error without returning from `finally`, and require the original cancellation to propagate.
+- Keep health/status observation separate from authority renewal. Inspect the entire reused IPC handler, not only its command name: a status dispatch may call heartbeat. Reproduce with PostgreSQL expiry readback, continue polling across expiry without the owner loop, and require the lease to expire unchanged; validate owner/epoch without extending it.
 
 ## Verification
 Acceptance includes valid/invalid input, concurrency, persistence/restart and schema compatibility. Record exact DB/Python versions and commands. Commit code, schema, tests and necessary docs as one coherent behavior change.

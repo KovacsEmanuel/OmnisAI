@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.2
+version: 0.1.3
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -32,6 +32,7 @@ Host Playwright/Chromium validation is not certification of the planned executor
 
 - A wheel that imports its app factory may still omit migrations or process entrypoints. Build/install with dependencies exported/hash-checked from the lock in a fresh scratch venv, then migrate a disposable PostgreSQL DB **outside the checkout**. Exercise the installed supervisor, real Unix IPC and actual HTTP process, including restart and state readback; reserve the loopback listener rather than adopting whatever answers on a free-port guess. A Python audit guard needs a negative control and remains distinct from OS confinement. Source-tree/ASGI success or an archive filename check is not release evidence.
 - Before rerunning an integration gate after a session handoff, verify required environment presence without printing values. Missing ephemeral test credentials are a failed prerequisite, not permission to read personal stores or weaken tests. Recreate a uniquely named disposable project when needed; keep setup/test/cleanup in one process if environment continuity is uncertain, and stop only resources whose ownership was verified.
+- Assert that source tests import the current checkout, especially with worktrees and editable installs. Neutralize ambient Python/mypy paths and pytest selection/plugin settings in canonical commands; use explicit project config and isolated interpreters. Reproduce from a clean local-HEAD worktree with its own locked environment, not a shared editable package or an accidentally narrowed test selection.
 
 ## Verification
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

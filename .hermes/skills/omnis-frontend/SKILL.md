@@ -1,7 +1,7 @@
 ---
 name: omnis-frontend
 description: "Use when building Omnis UI from a visual reference."
-version: 0.1.2
+version: 0.1.3
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -34,6 +34,10 @@ Read the relevant UI/UX flow and data/state contract. Use `vision_analyze` for a
    Capture screens reached through real navigation, including re-entry from a long page or an existing wizard's final step. Direct-load screenshots can hide retained scroll, obscured tabs or leaked draft-step state.
 
 ## Pitfalls
+Serialize browser-auth transitions and fence every asynchronous continuation, including direct readbacks outside Query. Cancel pending session/instance reads on expiry/logout and pause polling during pairing/logout; reproduce held older responses arriving after a newer denial or confirmed logout, allowing Query notification batches to flush before assertions.
+
+Use an explicit loopback network policy rather than assuming Internet connectivity determines localhost availability. Exercise the browser offline flag and Query pause behavior; display paused/aged/error observations as unverified or stale, and never claim a previous confirmed response when the first request failed.
+
 Classify visible elements by provenance: explicit user request, existing baseline contract, reference-only example, or synthetic design copy. Do not promote mock examples into new product requirements. Keep simulation selectors and evidence/replay/retest preview tools in labelled, default-collapsed design controls; persistent availability/error/Stop feedback must remain outside them.
 
 An automation-green screen can still be visually poor. Existing DESIGN.md is a technical token record, not renewed visual approval. The upstream AlertDialog rule does not apply to emergency Stop; its Tailwind and animation defaults are not adopted. Avoid unnecessary new components and visual-only rewrites of safety behavior.

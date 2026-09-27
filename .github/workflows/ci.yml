@@ -27,6 +27,7 @@ jobs:
           "$RUNNER_TEMP/omnis-docs/bin/python" -m pip install -r documents/requirements-docs.txt
           npm --prefix tools/development/anti-slop ci --include=dev --ignore-scripts --no-fund
           npm --prefix web ci --include=dev --ignore-scripts --no-fund
+          web/node_modules/.bin/playwright install --with-deps chromium
       - name: Verify Python lint, formatting and strict types before provisioning
         run: make lint-api typecheck-api
       - name: Run the local gate against a dedicated PostgreSQL instance

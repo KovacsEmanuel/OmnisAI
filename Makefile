@@ -5,7 +5,7 @@ UV ?= uv
 API_PY = api/.venv/bin/python
 API_CHECK_PATHS = api/src api/tests
 
-check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web
+check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e
 	git diff --check
 
 test: check
@@ -37,7 +37,7 @@ typecheck-api:
 	@env -u PYTHONPATH -u MYPYPATH $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json $(API_CHECK_PATHS)
 
 test-api:
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests --ignore=api/tests/test_migrations.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests --ignore=api/tests/test_migrations.py --ignore=api/tests/test_web_e2e.py -q
 
 test-migrations:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_UV="$(UV)" $(API_PY) -I -m pytest api/tests/test_migrations.py -q
@@ -77,3 +77,7 @@ test-web:
 
 build-web:
 	npm --prefix web run build
+
+.PHONY: test-e2e
+test-e2e: build-web
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s

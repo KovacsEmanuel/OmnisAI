@@ -5,7 +5,7 @@ UV ?= uv
 API_PY = api/.venv/bin/python
 API_CHECK_PATHS = api/src api/tests
 
-check: check-docs check-development check-api test-api test-migrations check-api-wheel
+check: check-docs check-development check-api test-api test-migrations check-api-wheel test-contracts
 	git diff --check
 
 test: check
@@ -56,3 +56,4 @@ test-contracts:
 	$(API_PY) -I scripts/export_contracts.py --check
 	npm --prefix web run check:contracts
 	npm --prefix web run test:tooling
+	npm --prefix web run typecheck

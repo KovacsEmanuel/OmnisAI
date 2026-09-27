@@ -6,6 +6,14 @@ import { test } from 'node:test';
 
 const root = new URL('../../', import.meta.url);
 
+test('canonical check and CI include the web contract gate', () => {
+  const dryRun = spawnSync('make', ['-n', 'check'], { cwd: root, encoding: 'utf8', timeout: 15000 });
+  assert.equal(dryRun.status, 0);
+  assert.match(dryRun.stdout, /npm --prefix web run check:contracts/);
+  const ci = readFileSync(new URL('.github/workflows/ci.yml', root), 'utf8');
+  assert.match(ci, /npm --prefix web ci --include=dev --ignore-scripts/);
+});
+
 test('web pins match the baseline, without opportunistic dependencies', () => {
   const pins = JSON.parse(readFileSync(new URL('documents/Omnis_Stack_Baseline.versions.json', root)));
   const pkg = JSON.parse(readFileSync(new URL('web/package.json', root)));

@@ -11,6 +11,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from omnis.core.persistence import DatabaseRecord, read_datetime, read_record
+
 
 class PairingDenied(Exception):
     pass
@@ -37,8 +39,21 @@ def code_digest(code: str) -> str:
     return hashlib.sha256(code.encode()).hexdigest()
 
 
+class _ChallengeRecord(DatabaseRecord):
+    id: int
+    digest: str | None
+    expires_at: datetime | None
+    window_started_at: datetime
+    attempts: int
+
+
+class _IssuanceRecord(DatabaseRecord):
+    digest: str
+    expires_at: datetime
+
+
 class SessionStore:
-    def __init__(self, engine: AsyncEngine):
+    def __init__(self, engine: AsyncEngine) -> None:
         self.engine = engine
 
     async def register(self, digest: str, *, issuance_id: UUID) -> datetime:
@@ -48,7 +63,7 @@ class SessionStore:
             await connection.execute(
                 text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE")
             )
-            previous = (
+            previous_data = (
                 (
                     await connection.execute(
                         text(
@@ -60,10 +75,13 @@ class SessionStore:
                 .mappings()
                 .one_or_none()
             )
+            previous = (
+                read_record(_IssuanceRecord, previous_data) if previous_data is not None else None
+            )
             if previous is not None:
-                if previous["digest"] != digest:
+                if previous.digest != digest:
                     raise PairingConflict()
-                return previous["expires_at"]
+                return previous.expires_at
             reused = (
                 await connection.execute(
                     text("SELECT 1 FROM pairing_issuance WHERE digest = :digest"),
@@ -72,7 +90,7 @@ class SessionStore:
             ).scalar_one_or_none()
             if reused:
                 raise PairingConflict()
-            expires = (
+            expires_data = (
                 await connection.execute(
                     text(
                         "INSERT INTO pairing_issuance VALUES (:issuance, :digest, clock_timestamp() + interval '5 minutes') "
@@ -81,6 +99,7 @@ class SessionStore:
                     {"issuance": issuance_id, "digest": digest},
                 )
             ).scalar_one()
+            expires = read_datetime(expires_data)
             # New code invalidates the old one but never resets the rate limit.
             result = await connection.execute(
                 text(
@@ -97,7 +116,7 @@ class SessionStore:
         grant = None
         limited = False
         async with self.engine.begin() as connection:
-            row = (
+            row_data = (
                 (
                     await connection.execute(
                         text("SELECT * FROM pairing_challenge WHERE id = 1 FOR UPDATE")
@@ -106,10 +125,11 @@ class SessionStore:
                 .mappings()
                 .one()
             )
-            now = (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()
-            attempts = (
-                row["attempts"] if (now - row["window_started_at"]).total_seconds() < 60 else 0
+            row = read_record(_ChallengeRecord, row_data)
+            now = read_datetime(
+                (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()
             )
+            attempts = row.attempts if (now - row.window_started_at).total_seconds() < 60 else 0
             limited = attempts >= 5
             if not limited:
                 await connection.execute(
@@ -119,14 +139,14 @@ class SessionStore:
                     ),
                     {
                         "attempts": attempts + 1,
-                        "started": now if attempts == 0 else row["window_started_at"],
+                        "started": now if attempts == 0 else row.window_started_at,
                     },
                 )
                 if (
-                    row["digest"] is not None
-                    and row["expires_at"] is not None
-                    and row["expires_at"] > now
-                    and hmac.compare_digest(row["digest"], code_digest(code))
+                    row.digest is not None
+                    and row.expires_at is not None
+                    and row.expires_at > now
+                    and hmac.compare_digest(row.digest, code_digest(code))
                 ):
                     grant = SessionGrant(secrets.token_urlsafe(32))
                     await connection.execute(

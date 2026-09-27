@@ -2,10 +2,7 @@ import asyncio
 import json
 import os
 import secrets
-import socket
 import stat
-import tempfile
-from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
@@ -28,12 +25,6 @@ async def request(directory, capability, command, **extra):
     finally:
         writer.close()
         await writer.wait_closed()
-
-
-@pytest.fixture
-def ipc_directory():
-    with tempfile.TemporaryDirectory(prefix="omnis-ipc-", dir=os.environ["TMPDIR"]) as name:
-        yield Path(name)
 
 
 @pytest.mark.asyncio

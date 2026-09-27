@@ -5,6 +5,8 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
+from collections.abc import Iterator
 from pathlib import Path
 from uuid import uuid4
 
@@ -13,6 +15,12 @@ import pytest
 from psycopg import sql
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError
+
+
+@pytest.fixture
+def ipc_directory() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory(prefix="omnis-ipc-", dir=os.environ["TMPDIR"]) as name:
+        yield Path(name)
 
 
 def reject_ambient_libpq_config() -> None:

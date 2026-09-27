@@ -17,7 +17,6 @@ from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingDenied, SessionStore, code_digest
-from test_local_control import ipc_directory, request
 from test_supervisor import start_supervisor, stop_process, wait_ready
 
 

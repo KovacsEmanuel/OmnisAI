@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import pytest
 
-from test_local_control import ipc_directory, request
+from test_local_control import request
 
 
 def start_supervisor(database_url, directory):

@@ -163,11 +163,16 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>Teste</td>
 <td><code>pytest==9.1.1</code>, <code>pytest-asyncio==1.4.0</code></td>
 </tr>
+<tr>
+<td>Calitate Python, numai dev</td>
+<td><strong><code>ruff==0.16.9</code>, <code>mypy==2.3.1</code></strong>; amendament verificat local înainte de P0.3</td>
+</tr>
 </tbody>
 </table></div>
 <p><strong>Decizie explicită:</strong> SQLAlchemy async, sesiune per unitate de lucru, fără sesiune globală sau I/O sincron în event loop. Proba a construit dialectul async psycopg; nu s-a conectat la DB. Nu adăugăm <code>asyncpg</code>, <code>psycopg_pool</code> sau două ORM-uri. SQLAlchemy 2.0 este ramura de mentenanță; 2.1.0 tocmai publicat nu este adoptat automat pentru primul increment.[21]</p>
 <p>Rezolvarea API cu hashes a produs un mediu compatibil, inclusiv Starlette <strong>1.7.0</strong> și pydantic-core <strong>2.46.5</strong>; întregul set este păstrat în inputurile probei. Manifestul aplicației va avea propriul <code>uv.lock</code> și security review; nu copiem mediul Hermes peste API.</p>
 <p>Testul FastAPI folosește HTTPX <code>AsyncClient + ASGITransport</code>. Calea <code>TestClient</code> a avertizat despre deprecarea HTTPX în Starlette curent; am ales un test ASGI explicit, fără a adăuga un al doilea client numai pentru acel smoke. Pentru startup/shutdown real și pool DB avem teste de lifecycle separate în P0/P3.</p>
+<p><strong>Amendament de calitate Python:</strong> <code>ruff==0.16.9</code> și <code>mypy==2.3.1</code> sunt fixate în grupul dev al API și în lock, nu în runtime. Ruff verifică lint/format, mypy strict verifică sursele și testele cu pluginul oficial Pydantic tipizat, fără casts sau excluderi pentru a ascunde erori. <code>make lint-api</code>/<code>make typecheck-api</code> intră în gate-ul comun și au controale pozitive/negative executabile. <a href="verification/p02-python-quality.md">Proveniența, rezultatele pe checkout curat și limitele</a> sunt separate de probele istorice de dependențe de mai sus; acestea nu sunt rescrise drept certificare a produsului.</p>
 <p>AES-256-GCM cu nonce unic per criptare și AAD legat de engagement/identitate/tip de secret; cheie în afara DB/repo/backup. Nonce-ul fix din proba disposable este folosit o singură dată cu cheie proaspătă și text sintetic; nu este modelul de implementare a seifului. Cheia lipsă produce LOCKED. Threat modelul nu protejează de root/același UID compromis.</p>
 <h2 id="5-recon-browser-si-parsere">5. Recon, browser și parsere</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
@@ -305,5 +310,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>31615ea38bd885d672a99c3890b7d6a17d69844b8239e702f2e4ce0b9569bca3</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>e98a6b6e0923d63f89962ab1b30b79537e941bd098cb7478674abacaa663516b</code>.</p></footer>
 </main></div></body></html>

@@ -77,6 +77,16 @@
     "pytest": "9.1.1",
     "pytest-asyncio": "1.4.0"
   },
+  "api_quality_dev": {
+    "ruff": "0.16.9",
+    "mypy": "2.3.1",
+    "verified_at_utc": "2026-09-27T03:32:03Z",
+    "scope": "development-only API source and tests; not runtime dependencies",
+    "configuration": "api/pyproject.toml",
+    "lock": "api/uv.lock",
+    "evidence": "verification/p02-python-quality.md",
+    "commands": ["make lint-api", "make typecheck-api", "make check"]
+  },
   "parsers_at_recon_gate": {
     "defusedxml": "0.7.1",
     "PyYAML": "6.0.3",

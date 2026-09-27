@@ -61,12 +61,15 @@ Dev install explicit `npm ci --include=dev`; teste cu `NODE_ENV=test`, build cu 
 | HTTP adapter/API testing | `httpx==0.28.1` |
 | Seif target AEAD | `cryptography==50.0.1` |
 | Teste | `pytest==9.1.1`, `pytest-asyncio==1.4.0` |
+| Calitate Python, numai dev | **`ruff==0.16.9`, `mypy==2.3.1`**; amendament verificat local înainte de P0.3 |
 
 **Decizie explicită:** SQLAlchemy async, sesiune per unitate de lucru, fără sesiune globală sau I/O sincron în event loop. Proba a construit dialectul async psycopg; nu s-a conectat la DB. Nu adăugăm `asyncpg`, `psycopg_pool` sau două ORM-uri. SQLAlchemy 2.0 este ramura de mentenanță; 2.1.0 tocmai publicat nu este adoptat automat pentru primul increment.[21]
 
 Rezolvarea API cu hashes a produs un mediu compatibil, inclusiv Starlette **1.7.0** și pydantic-core **2.46.5**; întregul set este păstrat în inputurile probei. Manifestul aplicației va avea propriul `uv.lock` și security review; nu copiem mediul Hermes peste API.
 
 Testul FastAPI folosește HTTPX `AsyncClient + ASGITransport`. Calea `TestClient` a avertizat despre deprecarea HTTPX în Starlette curent; am ales un test ASGI explicit, fără a adăuga un al doilea client numai pentru acel smoke. Pentru startup/shutdown real și pool DB avem teste de lifecycle separate în P0/P3.
+
+**Amendament de calitate Python:** `ruff==0.16.9` și `mypy==2.3.1` sunt fixate în grupul dev al API și în lock, nu în runtime. Ruff verifică lint/format, mypy strict verifică sursele și testele cu pluginul oficial Pydantic tipizat, fără casts sau excluderi pentru a ascunde erori. `make lint-api`/`make typecheck-api` intră în gate-ul comun și au controale pozitive/negative executabile. [Proveniența, rezultatele pe checkout curat și limitele](verification/p02-python-quality.md) sunt separate de probele istorice de dependențe de mai sus; acestea nu sunt rescrise drept certificare a produsului.
 
 AES-256-GCM cu nonce unic per criptare și AAD legat de engagement/identitate/tip de secret; cheie în afara DB/repo/backup. Nonce-ul fix din proba disposable este folosit o singură dată cu cheie proaspătă și text sintetic; nu este modelul de implementare a seifului. Cheia lipsă produce LOCKED. Threat modelul nu protejează de root/același UID compromis.
 

@@ -1,0 +1,145 @@
+{
+  "scope": "P0.3 local bootstrap E2E; not G00, remote CI, target execution or visual approval",
+  "tested_harness_commit": "b7cb7ee",
+  "browser_driver": "@playwright/test@1.63.0",
+  "browser": "153.0.8010.12",
+  "browser_platform_limit": "Ubuntu24.04 fallback on Kali; no other browsers or screen-reader certification",
+  "command": "make test-e2e",
+  "exit_code": 0,
+  "case_count": 7,
+  "external_requests": 0,
+  "page_errors": 0,
+  "cases": [
+    {
+      "scenario": "flow",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 26,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "expiry",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 14,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "control",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 12,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "database",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 12,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "api",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 14,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "offline",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 12,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    {
+      "scenario": "accessibility",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 5,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    }
+  ],
+  "contrast": [
+    {
+      "fg": "text",
+      "bg": "surface",
+      "ratio": 15.291203179502807,
+      "minimum": 4.5
+    },
+    {
+      "fg": "secondary",
+      "bg": "surface",
+      "ratio": 8.453363857286513,
+      "minimum": 4.5
+    },
+    {
+      "fg": "danger",
+      "bg": "dangerBg",
+      "ratio": 6.744299501203697,
+      "minimum": 4.5
+    },
+    {
+      "fg": "warning",
+      "bg": "warningBg",
+      "ratio": 7.839491929355851,
+      "minimum": 4.5
+    },
+    {
+      "fg": "border",
+      "bg": "neutral",
+      "ratio": 3.8081601340452664,
+      "minimum": 3
+    },
+    {
+      "fg": "focus",
+      "bg": "neutral",
+      "ratio": 12.032628669656381,
+      "minimum": 3
+    }
+  ],
+  "web_build_manifest": {
+    "version": 1,
+    "files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-ClrpJphz.css": "27d6dabcf54a73d276957ac1a1e323e20e057782bc310957a08eeaaff635e0d0",
+      "assets/index-G-F3Gg7_.js": "531acce20d5cb55a3fd772dabd0883ccf60927143831e2ef7d73f6b7ed3b7fdc",
+      "index.html": "6d22ac3983bd0245b2060a2581628bb84ed195d6347e1eea0f2ec9a79552615a"
+    }
+  }
+}

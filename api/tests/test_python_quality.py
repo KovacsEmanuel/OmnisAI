@@ -2,6 +2,7 @@
 
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tomllib
@@ -130,3 +131,60 @@ def test_quality_tools_require_the_expected_diagnostic(
     assert errors and all(error == (str(bad), code, "error") for error in errors)
     # Check mode must not rewrite the fixture to make the negative disappear.
     assert bad.read_text() == bad_source
+
+
+@pytest.mark.parametrize(
+    ("target", "tool", "bad_source", "code"),
+    [
+        ("lint-api", "lint", "def checked(value: int) -> int:\n    return missing_name\n", "F821"),
+        ("lint-api", "format", "def checked( value:int )->int:\n return value+1\n", "unformatted"),
+        (
+            "typecheck-api",
+            "type",
+            "def checked(value: int) -> int:\n    return 'wrong'\n",
+            "return-value",
+        ),
+    ],
+)
+def test_make_quality_targets_propagate_real_diagnostics(
+    tmp_path: Path, target: str, tool: Tool, bad_source: str, code: str
+) -> None:
+    source = tmp_path / "quality_gate.py"
+    command = [
+        "make",
+        "--no-print-directory",
+        target,
+        f"API_CHECK_PATHS={shlex.quote(str(source))}",
+    ]
+    source.write_text(GOOD)
+    good = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=45)
+    assert good.returncode == 0, good.stdout + good.stderr
+    source.write_text(bad_source)
+    bad = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=45)
+    assert bad.returncode == 2, bad.stdout + bad.stderr
+    if tool == "type":
+        errors = diagnostics(bad.stdout, tool)
+    else:
+        # lint-api emits one JSON report per real Ruff lint/format invocation.
+        errors = []
+        remaining = bad.stdout.strip()
+        while remaining:
+            document, consumed = json.JSONDecoder().raw_decode(remaining)
+            errors.extend(diagnostics(json.dumps(document), tool))
+            remaining = remaining[consumed:].lstrip()
+    assert errors and all(error == (str(source), code, "error") for error in errors)
+    assert source.read_text() == bad_source
+
+
+def test_default_quality_gate_covers_application_and_tests() -> None:
+    result = subprocess.run(
+        ["make", "--no-print-directory", "--dry-run", "check-api"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0
+    commands = result.stdout.splitlines()
+    for marker in ("ruff check", "ruff format", "-m mypy"):
+        assert any(marker in line and "api/src api/tests" in line for line in commands), marker

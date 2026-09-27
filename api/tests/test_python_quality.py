@@ -1,6 +1,7 @@
 """Real positive/negative controls for the pinned Python quality tools."""
 
 import json
+import os
 import subprocess
 import sys
 import tomllib
@@ -30,6 +31,7 @@ def run_tool(tool: Tool, source: Path) -> subprocess.CompletedProcess[str]:
     if tool == "type":
         command = [
             sys.executable,
+            "-I",
             "-m",
             "mypy",
             "--config-file",
@@ -43,6 +45,7 @@ def run_tool(tool: Tool, source: Path) -> subprocess.CompletedProcess[str]:
     else:
         command = [
             sys.executable,
+            "-I",
             "-m",
             "ruff",
             "check" if tool == "lint" else "format",
@@ -57,7 +60,12 @@ def run_tool(tool: Tool, source: Path) -> subprocess.CompletedProcess[str]:
         else:
             command.append("--no-fix")
         command.append(str(source))
-    return subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=30)
+    environment = {
+        key: value for key, value in os.environ.items() if key not in {"PYTHONPATH", "MYPYPATH"}
+    }
+    return subprocess.run(
+        command, cwd=ROOT, env=environment, capture_output=True, text=True, timeout=30
+    )
 
 
 def diagnostics(output: str, tool: Tool) -> list[tuple[str, str, str]]:
@@ -83,6 +91,13 @@ def test_quality_tools_are_exact_dev_pins(package: str, pin: str) -> None:
     assert f"{package}=={pin}" in config["dependency-groups"]["dev"]
     assert not any(item.split("==")[0] == package for item in config["project"]["dependencies"])
     assert version(package) == pin
+
+
+def test_application_import_belongs_to_this_checkout() -> None:
+    import omnis
+
+    assert omnis.__file__ is not None
+    assert Path(omnis.__file__).resolve() == ROOT / "api/src/omnis/__init__.py"
 
 
 @pytest.mark.parametrize(

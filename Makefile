@@ -26,10 +26,10 @@ check-api:
 	$(API_PY) -m compileall -q api/src api/tests
 
 test-api:
-	$(API_PY) -m pytest api/tests --ignore=api/tests/test_migrations.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests --ignore=api/tests/test_migrations.py -q
 
 test-migrations:
-	OMNIS_UV="$(UV)" $(API_PY) -m pytest api/tests/test_migrations.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_UV="$(UV)" $(API_PY) -I -m pytest api/tests/test_migrations.py -q
 
 check-api-wheel:
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a scratch directory\n' >&2; exit 2; }

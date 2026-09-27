@@ -47,8 +47,9 @@ Așteptarea asseturilor are deadline de 1 secundă, separat de probele DB/contro
 - Codul one-use se transmite numai în body-ul `POST /api/pairing`; câmpul se golește la submit. UI verifică apoi cookieul prin `GET /api/session` înainte să afișeze instanța.
 - Cookie opac `HttpOnly; SameSite=Strict; Path=/`, fără `Domain`; limita este HTTP loopback, nu TLS. CSRF legat de sesiune, numai în `X-CSRF-Token` pentru logout.
 - Logout cere ACK și readback fără sesiune. Eroare/timeout nu devin succes; retryul mutației nu este automat.
+- Un singur writer de autentificare serializează pairing/logout, suspendă pollingul lor concurent și fence-uiește toate continuările cu o generație locală. Expiry anulează citirile vechi; un răspuns întârziat nu poate rescrie un logout confirmat.
 - Codurile/CSRF/sesiunea nu intră în URL, loguri, localStorage, sessionStorage, IndexedDB sau CacheStorage. Query păstrează server state numai în memorie; nu există persister, service worker ori devtools în build.
-- Loading, eroare, expiry, răspuns invalid și status stale sunt explicite. Proiecția veche, dacă este păstrată la o eroare de refresh, este etichetată stale. Datele de test sunt în `tests/`, nu în entrypoint.
+- Loading, eroare, expiry, răspuns invalid și status stale sunt explicite. Proiecția veche, dacă este păstrată la eroare/pauză sau după 15 secunde fără confirmare, este etichetată stale; sesiunea este unverified după 30 secunde. Prima cerere eșuată nu inventează un răspuns istoric. Query folosește explicit `networkMode: always`: Internet offline nu înseamnă localhost indisponibil și nu trebuie să suspende verificările. Datele de test sunt în `tests/`, nu în entrypoint.
 - Pollingul statusului este o citire locală, nu SSE. Nu există provideri/OAuth, apeluri LLM sau trafic target.
 
 ## E2E cu backend real

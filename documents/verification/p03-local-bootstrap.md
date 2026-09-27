@@ -33,7 +33,7 @@ Perimetru efectiv: web, export contracte, integrarea minimă API/static/readines
 Mediu: API Python **3.13.15**, uv **0.12.19** explicit, Node **24.21.0**, npm **11.19.0**, PostgreSQL **18.6** digest-pinned. Browser: `@playwright/test==1.63.0`, Chromium **153.0.8010.12 / build 1243**, fallback Ubuntu 24.04 pe Kali. Instalarea browserului a fost explicită; nu s-a înlocuit Chromium-ul personal.
 
 - `make check UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv` la `519519c`: **exit 0**; 141 API/control/tooling, 10 migrare/livrare, 20 Vitest, 7 E2E; 28 documentation, 11 development, 4 controale anti-slop, 5 tooling web. Ruff/mypy, contracte, build/wheel și audituri incluse.
-- După întărirea harnessului `0139f03`/`b7cb7ee`: **4 controale Python** de cleanup/markeri + **1 control Node** anti-leak, lint/typecheck Python/web și **7 E2E** trecute; gate-ul integral final se consemnează după adjudecare.
+- După întărirea harnessului `0139f03`/`b7cb7ee` și corecția de reaping `5082cc7`, aceeași comandă canonică directă: **exit 0**, **145 API/control/tooling + 10 migrare/livrare + 20 Vitest + 7 E2E**; 28 documentation, 11 development, 4 controale anti-slop și 6 tooling web. Controalele Python de cleanup/markeri sunt incluse în cele 145, nu adăugate încă o dată.
 - `make check-web`, `make lint-web typecheck-web test-web build-web`, `make test-contracts` au fost exercitate direct în felii. Audit npm: zero vulnerabilități cunoscute raportate; audit uv: 37 pachete fără advisories/status advers cunoscut. Nu sunt garanții exhaustive de supply chain.
 - Reproducere din worktree curat `abf5a19`, mediu API nou și două instalări `npm ci`: gate complet **exit 0**, 141+10, 15 Vitest și 6 E2E din acea revizie. Manifestul/hashurile buildului coincid cu checkoutul principal al aceleiași revizii. Corecțiile UI și harness ulterioare au probe separate de mai sus; nu rescriem această reproducere ca fiind pe HEAD final.
 
@@ -43,10 +43,12 @@ Comenzile de setup/operare sunt în [api/README.md](../../api/README.md) și [we
 
 1. Contracte: lipsa driftului TS din gate-ul canonic — RED make dry-run, `a9de7a1`; cale cu spații — reproducer filesystem real, `bac7cea`; exporter format/lint — `e6b5fbe`. Pinurile și contractele deterministe au fost verificate independent.
 2. Backend: status IPC reînnoia lease-ul — expiry PostgreSQL schimbată RED, apoi `d11d99b`; asset I/O fără deadline — ASGI blocat RED, apoi `9934b3a` cu operație unică și exit bounded. **Adjudecare independentă: ambele RESOLVED**, fără blocant nou în perimetrul analizat; reviewerul a rulat 15 teste noDB și gate-urile statice, nu DB fără environment. Părintele a rulat regresiile DB.
-3. UI: răspunsuri auth întârziate rescriau expiry/logout — ambele ordonări reproduse RED, apoi `7ff487f`; Query offline păstra false live/READY și inventa istoric la prima eroare — 3 RED, apoi `ecdd8a0`, inclusiv nou E2E offline. Adjudecarea finală este în curs.
+3. UI: răspunsuri auth întârziate rescriau expiry/logout — ambele ordonări reproduse RED, apoi `7ff487f`; Query offline păstra false live/READY și inventa istoric la prima eroare — 3 RED, apoi `ecdd8a0`, inclusiv nou E2E offline. **Adjudecare independentă: ambele RESOLVED**, cu 5 probe ad-hoc trecute, fără modificări în repo; aceste probe nu înlocuiesc unit/E2E-urile părintelui.
 4. Harness: aserțiunea API putea întrerupe cleanup-ul supervisorului; timeout-ul Node necesita ownership/teardown pentru descendenți — `0139f03`, controale cu procese reale și escaladare. Anti-leak putea omite valori brute/live input; nu s-a constatat scurgere efectivă — `b7cb7ee`, markeri pe canal separat și controale pozitive/negative. Adjudecarea finală este în curs.
 
 O verificare inițială a linkului de licență a eșuat sub 44px; E2E a ghidat corecția, păstrată în `09ebfc2`. Unele verificări de format au eșuat și au fost corectate înaintea commiturilor verzi. Browser Use a expirat la captură; alternativa Playwright a produs screenshoturi reale, nu imagini sintetizate.
+
+Gate-ul complet a surprins și starea Linux `X` (dead) în timpul reapingului, după ce testul accepta numai `Z`. Rularea cu 1 eșec/144 trecute a fost refuzată. `5082cc7` recunoaște doar absent/identitate schimbată/Z/X, nu procese running/sleeping/stopped, conform [proc_pid_stat(5)](https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html). Zece repetări ale controalelor reale și apoi gate-ul integral au trecut.
 
 ## Eșecuri de mediu, rollback și porți
 

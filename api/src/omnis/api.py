@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
+from omnis.core.errors import error_responses
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
@@ -39,7 +40,13 @@ def create_app() -> FastAPI:
             if engine is not None:
                 await engine.dispose()
 
-    app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(
+        lifespan=lifespan,
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+        responses=error_responses(400, 403, 500),
+    )
     app.state.db_engine = None
 
     app.add_middleware(LocalBoundary, origin=local_origin())
@@ -69,12 +76,16 @@ def create_app() -> FastAPI:
     async def live() -> dict[str, str]:
         return {"status": "live"}
 
-    @app.get("/api/instance", response_model=InstanceView)
+    @app.get("/api/instance", response_model=InstanceView, responses=error_responses(401, 503))
     async def instance() -> InstanceView:
         async with asyncio.timeout(3):
             return InstanceView.model_validate(await InstanceService(app.state.db_engine).status())
 
-    @app.get("/health/ready", response_model=HealthReady)
+    @app.get(
+        "/health/ready",
+        response_model=HealthReady,
+        responses={503: {"model": HealthReady, "description": "Database or schema unavailable"}},
+    )
     async def ready(response: Response) -> HealthReady:
         reason = await readiness_reason(app.state.db_engine)
         if reason is not None:

@@ -2,6 +2,7 @@
 
 from contextvars import ContextVar
 from enum import StrEnum
+from http import HTTPStatus
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -34,3 +35,11 @@ class ErrorDetail(BaseModel):
 
 class ErrorEnvelope(BaseModel):
     error: ErrorDetail
+
+
+def error_responses(*statuses: int) -> dict[int | str, dict[str, object]]:
+    """Declare the same error DTO used by the HTTP boundary and exception handlers."""
+    return {
+        status: {"model": ErrorEnvelope, "description": HTTPStatus(status).phrase}
+        for status in statuses
+    }

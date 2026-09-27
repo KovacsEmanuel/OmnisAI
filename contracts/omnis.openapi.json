@@ -1,6 +1,14 @@
 {
   "components": {
     "schemas": {
+      "DashboardReason": {
+        "enum": [
+          "ASSETS_UNAVAILABLE",
+          "CONTROL_UNAVAILABLE"
+        ],
+        "title": "DashboardReason",
+        "type": "string"
+      },
       "ErrorCode": {
         "enum": [
           "INVALID_HOST",
@@ -67,6 +75,20 @@
             "title": "Dashboard Ready",
             "type": "boolean"
           },
+          "dashboard_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadinessReason"
+              },
+              {
+                "$ref": "#/components/schemas/DashboardReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dashboard Reason"
+          },
           "reason": {
             "anyOf": [
               {
@@ -82,7 +104,8 @@
           "api_ready",
           "dashboard_ready",
           "assessment_ready",
-          "reason"
+          "reason",
+          "dashboard_reason"
         ],
         "title": "HealthReady",
         "type": "object"

@@ -3,11 +3,17 @@
 import hashlib
 import json
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy.engine import URL
 
 from omnis.api import create_app
+from omnis.core.db import database_engine
+from omnis.modules.instance.service import InstanceService
+from omnis.security.sessions import SessionStore, code_digest
+from omnis.transport.local_control import LocalControl
 
 ORIGIN = "http://127.0.0.1:8765"
 
@@ -81,3 +87,50 @@ async def test_absent_build_is_explicitly_unavailable(monkeypatch: pytest.Monkey
         response = await client.get("/")
         assert response.status_code == 503
         assert response.json()["error"]["code"] == "WEB_UNAVAILABLE"
+
+
+@pytest.mark.asyncio
+async def test_dashboard_requires_assets_schema_and_live_private_control(
+    web_build: Path,
+    migrated_database_url: URL,
+    ipc_directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    url = migrated_database_url.render_as_string(hide_password=False)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", url)
+    monkeypatch.setenv("OMNIS_CONTROL_DIR", str(ipc_directory))
+    engine = database_engine(url)
+    service = InstanceService(engine)
+    owner = uuid4()
+    epoch = await service.acquire(owner)
+    app = create_app()
+    try:
+        async with app.router.lifespan_context(app):
+            async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+                # A live lease is NOT a working control socket.
+                before = (await client.get("/health/ready")).json()
+                assert before["api_ready"] and not before["dashboard_ready"]
+                assert before["dashboard_reason"] == "CONTROL_UNAVAILABLE"
+                async with LocalControl(ipc_directory, service, owner, epoch):
+                    healthy = (await client.get("/health/ready")).json()
+                    assert healthy["dashboard_ready"] is True
+                    assert healthy["dashboard_reason"] is None
+                    assert healthy["assessment_ready"] is False
+                    store = SessionStore(engine)
+                    await store.register(
+                        code_digest("synthetic-p03-pairing-code"), issuance_id=uuid4()
+                    )
+                    await client.post(
+                        "/api/pairing",
+                        json={"code": "synthetic-p03-pairing-code"},
+                        headers={"origin": ORIGIN},
+                    )
+                    view = (await client.get("/api/instance")).json()
+                    assert view["dashboard_ready"] and not view["assessment_ready"]
+                    assert not view["admission_open"]
+                    (web_build / "assets/app-test.js").unlink()
+                    degraded = (await client.get("/health/ready")).json()
+                    assert degraded["api_ready"] and not degraded["dashboard_ready"]
+                    assert degraded["dashboard_reason"] == "ASSETS_UNAVAILABLE"
+    finally:
+        await engine.dispose()

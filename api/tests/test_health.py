@@ -72,6 +72,7 @@ async def test_ready_requires_real_migrated_postgresql(
         "dashboard_ready": False,
         "assessment_ready": False,
         "reason": None,
+        "dashboard_reason": "ASSETS_UNAVAILABLE",
     }
 
 
@@ -95,6 +96,7 @@ async def test_ready_denies_an_unmigrated_postgresql(
         "dashboard_ready": False,
         "assessment_ready": False,
         "reason": "SCHEMA_INCOMPATIBLE",
+        "dashboard_reason": "SCHEMA_INCOMPATIBLE",
     }
 
 

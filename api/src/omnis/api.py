@@ -15,6 +15,7 @@ from starlette.responses import JSONResponse
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.core.errors import error_responses
+from omnis.core.readiness import DashboardReason, dashboard_reason
 from omnis.core.web_assets import CONTENT_TYPES, WEB_HEADERS, WebAssets
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
@@ -27,6 +28,7 @@ class HealthReady(BaseModel):
     dashboard_ready: bool
     assessment_ready: bool
     reason: ReadinessReason | None
+    dashboard_reason: ReadinessReason | DashboardReason | None
 
 
 def create_app() -> FastAPI:
@@ -51,6 +53,8 @@ def create_app() -> FastAPI:
     )
     app.state.db_engine = None
     web_assets = WebAssets(os.environ.get("OMNIS_WEB_ROOT"))
+    control_root = os.environ.get("OMNIS_CONTROL_DIR")
+    control_directory = Path(control_root) if control_root else None
 
     app.add_middleware(LocalBoundary, origin=local_origin())
     app.include_router(session_router)
@@ -82,7 +86,12 @@ def create_app() -> FastAPI:
     @app.get("/api/instance", response_model=InstanceView, responses=error_responses(401, 503))
     async def instance() -> InstanceView:
         async with asyncio.timeout(3):
-            return InstanceView.model_validate(await InstanceService(app.state.db_engine).status())
+            status = await InstanceService(app.state.db_engine).status()
+            view = InstanceView.model_validate(status)
+            view.dashboard_ready = (
+                await dashboard_reason(web_assets, control_directory, status) is None
+            )
+            return view
 
     @app.get(
         "/health/ready",
@@ -91,13 +100,24 @@ def create_app() -> FastAPI:
     )
     async def ready(response: Response) -> HealthReady:
         reason = await readiness_reason(app.state.db_engine)
+        dashboard_failure: ReadinessReason | DashboardReason | None = reason
+        if reason is None:
+            try:
+                async with asyncio.timeout(3):
+                    status = await InstanceService(app.state.db_engine).status()
+                dashboard_failure = await dashboard_reason(web_assets, control_directory, status)
+            except (SQLAlchemyError, TimeoutError):
+                reason = ReadinessReason.DATABASE_UNAVAILABLE
+                dashboard_failure = reason
         if reason is not None:
             response.status_code = 503
+        response.headers["Cache-Control"] = "no-store"
         return HealthReady(
             api_ready=reason is None,
-            dashboard_ready=False,
+            dashboard_ready=dashboard_failure is None,
             assessment_ready=False,
             reason=reason,
+            dashboard_reason=dashboard_failure,
         )
 
     async def serve_asset(name: str) -> Response:

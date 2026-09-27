@@ -107,6 +107,11 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * DashboardReason
+         * @enum {string}
+         */
+        DashboardReason: "ASSETS_UNAVAILABLE" | "CONTROL_UNAVAILABLE";
+        /**
          * ErrorCode
          * @enum {string}
          */
@@ -132,6 +137,8 @@ export interface components {
             assessment_ready: boolean;
             /** Dashboard Ready */
             dashboard_ready: boolean;
+            /** Dashboard Reason */
+            dashboard_reason: components["schemas"]["ReadinessReason"] | components["schemas"]["DashboardReason"] | null;
             reason: components["schemas"]["ReadinessReason"] | null;
         };
         /** InstanceView */

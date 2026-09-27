@@ -46,3 +46,13 @@ check-api-wheel:
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a scratch directory\n' >&2; exit 2; }
 	$(UV) build --no-config --wheel --clear api --out-dir "$$TMPDIR/omnis-p01-wheel"
 	$(API_PY) -I -c 'import glob,sys; wheels=glob.glob(sys.argv[1]+"/*.whl"); assert len(wheels)==1, "one wheel required"; sys.path.insert(0,wheels[0]); import omnis; from omnis.api import create_app; assert str(omnis.__file__).startswith(wheels[0]); assert create_app().routes; print("Wheel import + factory OK")' "$$TMPDIR/omnis-p01-wheel"
+
+.PHONY: generate-contracts test-contracts
+generate-contracts:
+	$(API_PY) -I scripts/export_contracts.py
+	npm --prefix web run generate:contracts
+
+test-contracts:
+	$(API_PY) -I scripts/export_contracts.py --check
+	npm --prefix web run check:contracts
+	npm --prefix web run test:tooling

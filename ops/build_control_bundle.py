@@ -102,6 +102,7 @@ def build_bundle(
         f"api/{expected_api}": api_content,
         f"cli/{expected_cli}": cli_content,
         "api/requirements.txt": locked,
+        "ops/Dockerfile": _canonical_file(Path(__file__).with_name("Dockerfile.control")),
         "web/omnis-web.json": source,
     }
     for name, digest in web_files.items():

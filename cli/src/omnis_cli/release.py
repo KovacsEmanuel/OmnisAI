@@ -24,6 +24,7 @@ _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
     f"cli/omnis_cli-{_RELEASE}-py3-none-any.whl",
     "api/requirements.txt",
+    "ops/Dockerfile",
     "web/omnis-web.json",
     "web/index.html",
 }
@@ -67,12 +68,12 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     files = raw["files"]
     if (
         not _BASE_FILES <= set(files)
-        or not 5 <= len(files) <= 128
+        or not len(_BASE_FILES) <= len(files) <= 128
         or not any(name.endswith(".js") for name in files)
         or any(name not in _BASE_FILES and not _ASSET.fullmatch(name) for name in files)
     ):
         raise ReleaseError("Unsupported release file set")
-    expected_dirs = {"api", "cli", "web", "web/assets"}
+    expected_dirs = {"api", "cli", "ops", "web", "web/assets"}
     found: set[str] = set()
     for parent, dirs, entries in os.walk(root, followlinks=False):
         relative = Path(parent).relative_to(root)

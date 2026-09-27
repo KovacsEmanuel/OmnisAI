@@ -40,7 +40,7 @@ async def run() -> None:
                     await asyncio.wait_for(stop.wait(), timeout=1)
                 except TimeoutError:
                     if await readiness_reason(engine) is not None:
-                        raise ValueError("Control schema unavailable")
+                        raise ValueError("Control schema unavailable") from None
                     await service.heartbeat(owner, epoch)
                     await service.quiesce(owner, epoch)
     finally:

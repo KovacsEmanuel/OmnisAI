@@ -1,11 +1,11 @@
-# P0.1/P0.2 checks certify local API/control, not the dashboard or an assessment.
+# Local component checks; P0.3 does not close G00 or certify assessment execution.
 .PHONY: check test check-docs check-development check-api lint-api typecheck-api test-api test-migrations check-api-wheel
 
 UV ?= uv
 API_PY = api/.venv/bin/python
 API_CHECK_PATHS = api/src api/tests
 
-check: check-docs check-development check-api test-api test-migrations check-api-wheel test-contracts
+check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web
 	git diff --check
 
 test: check
@@ -59,3 +59,21 @@ test-contracts:
 	npm --prefix web run check:contracts
 	npm --prefix web run test:tooling
 	npm --prefix web run typecheck
+
+.PHONY: check-web lint-web typecheck-web test-web build-web
+check-web: test-contracts lint-web test-web build-web
+	@test "$$(node --version)" = "v24.21.0"
+	@test "$$(npm --version)" = "11.19.0"
+	npm --prefix web audit --include=dev
+
+lint-web:
+	npm --prefix web run lint
+
+typecheck-web:
+	npm --prefix web run typecheck
+
+test-web:
+	npm --prefix web test
+
+build-web:
+	npm --prefix web run build

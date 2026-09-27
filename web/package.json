@@ -10,7 +10,12 @@
     "check:contracts": "node scripts/generate-contracts.mjs --check",
     "test:tooling": "node --test scripts/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "NODE_ENV=test vitest run"
+    "lint": "node scripts/lint.mjs",
+    "test": "NODE_ENV=test vitest run",
+    "dev": "NODE_ENV=development vite",
+    "generate:design": "node scripts/sync-design.mjs",
+    "check:design": "node scripts/sync-design.mjs --check",
+    "build": "npm run check:contracts && npm run check:design && tsc --noEmit && NODE_ENV=production vite build && node scripts/build-manifest.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "5.103.2",

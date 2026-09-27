@@ -1,0 +1,32 @@
+/* Generated from DESIGN.md via Omnis_Design.tokens.json. Do not edit. */
+:root {
+  --color-primary: #c7baa7;
+  --color-secondary: #b8aea1;
+  --color-neutral: #0b0c0a;
+  --color-surface: #131412;
+  --color-elevated: #191b18;
+  --color-text: #eee9e1;
+  --color-border: #726d62;
+  --color-divider: #30312c;
+  --color-selected: #2a2c27;
+  --color-focus: #d6c9b6;
+  --color-danger: #f28e7f;
+  --color-dangerBg: #301e1b;
+  --color-warning: #e7b56c;
+  --color-warningBg: #30271b;
+  --color-success: #c7baa7;
+  --color-successBg: #2a2c27;
+  --color-info: #a2bad0;
+  --color-infoBg: #202930;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --font-sans: Geist, Segoe UI, Liberation Sans, Arial, sans-serif;
+  --font-mono: Geist Mono, Liberation Mono, Consolas, monospace;
+}

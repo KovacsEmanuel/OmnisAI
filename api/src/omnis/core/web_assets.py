@@ -8,7 +8,9 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-AssetName = Annotated[str, Field(pattern=r"^(index\.html|assets/[A-Za-z0-9_-]+\.(js|css|woff2))$")]
+AssetName = Annotated[
+    str, Field(pattern=r"^(index\.html|assets/[A-Za-z0-9_-]+\.(js|css|woff2|txt))$")
+]
 Digest = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 
 
@@ -63,6 +65,7 @@ CONTENT_TYPES = {
     ".js": "text/javascript",
     ".css": "text/css",
     ".woff2": "font/woff2",
+    ".txt": "text/plain",
 }
 WEB_HEADERS = {
     "Cache-Control": "no-store",

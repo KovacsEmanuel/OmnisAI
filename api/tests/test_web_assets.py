@@ -25,6 +25,7 @@ def web_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     files = {
         "index.html": b'<!doctype html><script type="module" src="/assets/app-test.js"></script>',
         "assets/app-test.js": b'console.info("synthetic build fixture");',
+        "assets/fonts-OFL-test.txt": b"Synthetic license fixture",
     }
     for name, content in files.items():
         (root / name).write_bytes(content)
@@ -49,6 +50,9 @@ async def test_serves_manifest_bound_assets_with_same_origin_boundary(web_build:
         assert index.headers["referrer-policy"] == "no-referrer"
         script = await client.get("/assets/app-test.js")
         assert script.status_code == 200 and "javascript" in script.headers["content-type"]
+        license_response = await client.get("/assets/fonts-OFL-test.txt")
+        assert license_response.status_code == 200
+        assert license_response.headers["content-type"].startswith("text/plain")
         assert (await client.get("/", headers={"host": "attacker.invalid"})).status_code == 400
         assert (await client.get("/", headers={"origin": "null"})).status_code == 403
         assert (await client.get("/api/session")).status_code == 401

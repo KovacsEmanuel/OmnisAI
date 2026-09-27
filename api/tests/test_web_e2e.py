@@ -17,7 +17,9 @@ from test_supervisor import start_supervisor, stop_process, wait_ready
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.parametrize("case", ["flow", "expiry", "control", "database", "api", "accessibility"])
+@pytest.mark.parametrize(
+    "case", ["flow", "expiry", "control", "database", "api", "offline", "accessibility"]
+)
 def test_built_web_against_real_control_plane(
     migrated_database_url: URL, ipc_directory: Path, case: str
 ) -> None:

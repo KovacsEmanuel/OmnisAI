@@ -17,6 +17,8 @@ export const copy = {
   pairingUncertain: 'Pairing could not be confirmed. Check the local service before requesting a new code.',
   sessionActive: 'PAIRED', instanceTitle: 'Instance status', refresh: 'Refresh status',
   live: 'Live response · local API', stale: 'STALE — showing the last confirmed response, not current state.',
+  unverified: 'UNVERIFIED', noConfirmedStatus: 'Instance status is unverified. No response has been confirmed.',
+  staleReadiness: 'Readiness is stale or paused. Check the local service before relying on its state.',
   loading: 'Loading instance status…', unavailable: 'UNAVAILABLE', notRun: 'NOT_RUN', ready: 'READY',
   api: 'API / database', dashboard: 'Web / control', assessment: 'Assessment',
   checkingHealth: 'Checking service readiness…', healthUnavailable: 'Service readiness could not be verified.',

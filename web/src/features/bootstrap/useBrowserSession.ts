@@ -23,7 +23,7 @@ export function useBrowserSession() {
       if (observed !== epoch.current) throw new CancelledError({ silent: true });
       return result;
     },
-    enabled: transition === 'idle', retry: false, refetchInterval: 15000,
+    enabled: transition === 'idle', networkMode: 'always', retry: false, refetchInterval: 15000,
   });
 
   const expire = useCallback(() => {

@@ -188,6 +188,16 @@ try {
     await check(page.getByRole('alert').first()).toContainText('API could not be reached');
     await check(page.getByText('UNKNOWN', { exact: true }).first()).toBeVisible();
     await screenshot('api-unavailable');
+  } else if (scenario === 'offline') {
+    await paired();
+    await context.setOffline(true);
+    assert.equal(await page.evaluate(() => navigator.onLine), false);
+    await page.getByRole('button', { name: 'Refresh status' }).click();
+    await check(page.getByRole('alert').first()).toContainText('API could not be reached');
+    await check(page.getByText('UNKNOWN', { exact: true }).first()).toBeVisible();
+    await check(page.getByText('STALE — showing the last confirmed response, not current state.')).toBeVisible();
+    await screenshot('browser-offline');
+    await context.setOffline(false);
   } else if (scenario === 'accessibility') {
     await page.keyboard.press('Tab');
     await check(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();

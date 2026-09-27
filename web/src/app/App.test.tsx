@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
@@ -149,4 +149,50 @@ it('a held pairing readback cannot overtake confirmed logout via concurrent poll
   }
   expect(await screen.findByText('Logged out. The server session was revoked.')).toBeVisible();
   expect(screen.queryByText('PAIRED')).not.toBeInTheDocument();
+});
+
+it('checks loopback even when the browser reports offline and marks failed data stale', async () => {
+  const healthRead = vi.spyOn(api, 'health').mockResolvedValue(health);
+  vi.spyOn(api, 'session').mockResolvedValue(session);
+  const status = vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  mount();
+  await screen.findByText(instance.instance_id);
+  healthRead.mockRejectedValue(new ApiError('API_UNAVAILABLE'));
+  status.mockRejectedValue(new ApiError('API_UNAVAILABLE'));
+  try {
+    act(() => { onlineManager.setOnline(false); });
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh status' }));
+    await waitFor(() => expect(status).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('STALE — showing the last confirmed response, not current state.')).toBeVisible();
+    expect(screen.getAllByText('UNKNOWN', { exact: true })).toHaveLength(2);
+  } finally {
+    act(() => { onlineManager.setOnline(true); });
+  }
+});
+
+it('does not claim a previous confirmed response when the first instance request fails', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  vi.spyOn(api, 'session').mockResolvedValue(session);
+  vi.spyOn(api, 'instance').mockRejectedValue(new ApiError('CONTROL_UNAVAILABLE'));
+  mount();
+  await screen.findByRole('alert');
+  expect(screen.getByText('Instance status is unverified. No response has been confirmed.')).toBeVisible();
+  expect(screen.queryByText(/showing the last confirmed response/)).not.toBeInTheDocument();
+});
+
+it('labels old confirmed responses stale even before a new response or error arrives', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  vi.spyOn(api, 'session').mockResolvedValue(session);
+  vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  const client = mount();
+  await screen.findByText(instance.instance_id);
+  act(() => {
+    const updatedAt = Date.now() - 40000;
+    client.setQueryData(['health'], health, { updatedAt });
+    client.setQueryData(['instance'], instance, { updatedAt });
+    client.setQueryData(['session'], session, { updatedAt });
+  });
+  expect(await screen.findByText('STALE — showing the last confirmed response, not current state.')).toBeVisible();
+  expect(screen.getAllByText('UNKNOWN', { exact: true })).toHaveLength(2);
+  expect(screen.getByText('UNVERIFIED', { exact: true })).toBeVisible();
 });

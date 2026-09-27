@@ -10,7 +10,7 @@ import './shared/styles/global.css';
 const root = document.getElementById('root');
 if (!root) throw new Error('Omnis mount is missing');
 const client = new QueryClient({ defaultOptions: {
-  queries: { retry: false, refetchOnWindowFocus: true, staleTime: 0 },
+  queries: { networkMode: 'always', retry: false, refetchOnWindowFocus: true, staleTime: 0 },
   mutations: { retry: false },
 } });
 createRoot(root).render(<StrictMode><QueryClientProvider client={client}><BrowserRouter><App /></BrowserRouter></QueryClientProvider></StrictMode>);

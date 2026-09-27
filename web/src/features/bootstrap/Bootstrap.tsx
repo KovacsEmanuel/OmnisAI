@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router';
@@ -26,9 +26,14 @@ export function Bootstrap() {
   const { session, transition, notice, logoutError, pair, logout, expire } = useBrowserSession();
   const logoutPending = transition === 'logout';
   const heading = useRef<HTMLHeadingElement>(null);
-  const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => api.health(signal), retry: false, refetchInterval: 5000 });
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => api.health(signal), networkMode: 'always', retry: false, refetchInterval: 5000 });
   const status = useQuery({ queryKey: ['instance'], queryFn: ({ signal }) => api.instance(signal),
-    enabled: !!session.data && !session.isError && transition === 'idle', retry: false, refetchInterval: 5000 });
+    enabled: !!session.data && !session.isError && transition === 'idle', networkMode: 'always', retry: false, refetchInterval: 5000 });
 
   useEffect(() => {
     if (notice) heading.current?.focus();
@@ -41,8 +46,12 @@ export function Bootstrap() {
   }, [status.error, expire]);
 
   const ready = health.data;
-  const currentHealth = ready && !health.isError;
-  const healthLabel = (available: boolean | undefined) => health.isPending ? 'LOADING' : health.isError ? 'UNKNOWN' : available ? copy.ready : copy.unavailable;
+  const healthUnverified = health.isError || health.fetchStatus === 'paused' || (!!ready && now - health.dataUpdatedAt > 15000);
+  const statusUnverified = status.isError || status.fetchStatus === 'paused' || (!!status.data && now - status.dataUpdatedAt > 15000);
+  const sessionUnverified = transition !== 'idle' || session.fetchStatus === 'paused' || now - session.dataUpdatedAt > 30000;
+  const currentHealth = ready && !healthUnverified;
+  const healthLabel = (available: boolean | undefined) => healthUnverified ? 'UNKNOWN' : health.isPending ? 'LOADING' : available ? copy.ready : copy.unavailable;
+  const statusLabel = status.data ? (statusUnverified ? copy.stale : copy.live) : copy.noConfirmedStatus;
 
   return <>
     <a className={styles.skip} href="#content">{copy.skip}</a>
@@ -67,7 +76,7 @@ export function Bootstrap() {
         {session.isPending ? <Panel title={copy.sessionTitle}><output>{copy.checking}</output></Panel>
           : session.isError ? <Panel title={copy.sessionTitle}><Failure error={session.error} retry={() => { void session.refetch(); }} /></Panel>
           : session.data ? <Panel title={copy.sessionTitle}>
-            <span className={styles.pill}>{copy.sessionActive}</span>
+            <span className={styles.pill}>{sessionUnverified ? copy.unverified : copy.sessionActive}</span>
             <p>{copy.boundary}</p><button onClick={() => { void logout(); }} disabled={logoutPending}>{logoutPending ? copy.loggingOut : copy.logout}</button>
             {logoutError !== null && <><p role="alert">{copy.logoutUncertain}</p><Failure error={logoutError} retry={() => { void session.refetch(); }} /></>}
           </Panel> : <PairingForm onPair={async code => {
@@ -79,6 +88,7 @@ export function Bootstrap() {
       <section aria-label="Service readiness">
         {health.isPending && <output>{copy.checkingHealth}</output>}
         {health.isError && <Failure error={health.error} retry={() => { void health.refetch(); }} />}
+        {healthUnverified && !health.isError && <output className={styles.notice}>{copy.staleReadiness} <button onClick={() => { void health.refetch(); }}>{copy.retry}</button></output>}
         {currentHealth && ready.dashboard_reason && <output className={styles.notice}>{readinessCopy[ready.dashboard_reason]}</output>}
         <div className={styles.metrics}>
           <Panel title={copy.api}><p className={styles.readiness}>{healthLabel(ready?.api_ready)}</p><p className={styles.small}>PostgreSQL · compatible schema</p></Panel>
@@ -87,7 +97,7 @@ export function Bootstrap() {
         </div>
       </section>
       {session.data && !session.isError && <Panel title={copy.instanceTitle}>
-        <div className={styles.cardHead}><p className={styles.small}>{status.isError ? copy.stale : copy.live}</p><button onClick={() => { void status.refetch(); void health.refetch(); }} disabled={status.isFetching}>{status.isFetching ? copy.refreshing : copy.refresh}</button></div>
+        <div className={styles.cardHead}><p className={styles.small}>{statusLabel}</p><button onClick={() => { void status.refetch(); void health.refetch(); }} disabled={status.isFetching}>{status.isFetching ? copy.refreshing : copy.refresh}</button></div>
         {status.isPending && <output>{copy.loading}</output>}
         {status.isError && <Failure error={status.error} retry={() => { void status.refetch(); }} />}
         {status.data && <dl className={styles.details}>

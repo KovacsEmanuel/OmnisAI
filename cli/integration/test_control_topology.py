@@ -1,0 +1,37 @@
+"""Guardrails for the opt-in installed-control topology probe."""
+
+import os
+import socket
+import unittest
+from unittest.mock import patch
+
+from control_topology import preflight_port, strict_probe_environment
+
+
+class InstalledControlPreflightTest(unittest.TestCase):
+    def test_foreign_loopback_listener_is_refused_without_docker(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as foreign:
+            foreign.bind(("127.0.0.1", 0))
+            foreign.listen(1)
+            port = foreign.getsockname()[1]
+            with self.assertRaises(ValueError):
+                preflight_port(port)
+            self.assertEqual(foreign.getsockname()[1], port)
+
+    def test_ambient_docker_compose_and_libpq_overrides_are_refused(self):
+        for key in ("DOCKER_CONTEXT", "COMPOSE_FILE", "PGSERVICE"):
+            with self.subTest(key=key), patch.dict(os.environ, {key: "foreign"}):
+                with self.assertRaises(ValueError):
+                    strict_probe_environment()
+
+    def test_clean_environment_is_allowed(self):
+        with patch.dict(
+            os.environ,
+            {
+                key: value
+                for key, value in os.environ.items()
+                if not key.startswith(("DOCKER_", "COMPOSE_", "PG"))
+            },
+            clear=True,
+        ):
+            strict_probe_environment()

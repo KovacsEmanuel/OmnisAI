@@ -563,6 +563,10 @@ class ReleaseBundleTest(unittest.TestCase):
             )
             self.assertEqual(image["Config"]["User"], "65532:65532")
             self.probe_installed_image(state, scratch)
+            if os.environ.get("OMNIS_INSTALLED_CONTROL_PROBE") == "1":
+                from control_topology import run_probe
+
+                run_probe(data, state, scratch, cli)
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"

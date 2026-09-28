@@ -11,4 +11,4 @@ COPY web/ /opt/omnis/web/
 # Public UI assets must remain readable with the operator UID mapping at runtime.
 RUN chmod -R a+rX /opt/omnis/web/
 USER 65532:65532
-CMD ["python", "-I", "-m", "uvicorn", "omnis.api:create_app", "--factory", "--host", "0.0.0.0", "--port", "8765", "--no-proxy-headers", "--no-access-log"]
+CMD ["python", "-I", "-m", "omnis.serve"]

@@ -562,6 +562,7 @@ class ReleaseBundleTest(unittest.TestCase):
                 image["Config"]["Labels"]["org.omnis.bundle_sha256"], state["manifest_sha256"]
             )
             self.assertEqual(image["Config"]["User"], "65532:65532")
+            self.assertEqual(image["Config"]["Cmd"], ["python", "-I", "-m", "omnis.serve"])
             self.probe_installed_image(state, scratch)
             if os.environ.get("OMNIS_INSTALLED_CONTROL_PROBE") == "1":
                 from control_topology import run_probe
@@ -612,9 +613,11 @@ class ReleaseBundleTest(unittest.TestCase):
     def assert_compose_config(self, installed_root, scratch):
         state = scratch / "state"
         control = scratch / "control"
+        http = scratch / "http"
         state.mkdir(mode=0o700)
         (state / "postgres").mkdir(mode=0o700)
         control.mkdir(mode=0o700)
+        http.mkdir(mode=0o700)
         password_file = scratch / "db-password"
         password_file.write_text("synthetic-compose-only")
         password_file.chmod(0o600)
@@ -629,6 +632,7 @@ class ReleaseBundleTest(unittest.TestCase):
             "OMNIS_HTTP_PORT": "8765",
             "OMNIS_STATE_ROOT": str(state),
             "OMNIS_CONTROL_DIR": str(control),
+            "OMNIS_HTTP_BIND_DIR": str(http),
             "OMNIS_DB_PASSWORD_FILE": str(password_file),
             "OMNIS_DATABASE_URL": "postgresql+psycopg://omnis:synthetic@db:5432/omnis",
         }
@@ -675,18 +679,7 @@ class ReleaseBundleTest(unittest.TestCase):
         )
         self.assertNotIn("ports", services["db"])
         self.assertNotIn("ports", services["supervisor"])
-        self.assertEqual(
-            services["api"]["ports"],
-            [
-                {
-                    "mode": "ingress",
-                    "host_ip": "127.0.0.1",
-                    "target": 8765,
-                    "published": "8765",
-                    "protocol": "tcp",
-                }
-            ],
-        )
+        self.assertNotIn("ports", services["api"])
         self.assertEqual(set(config["secrets"]), {"db_password"})
         self.assertEqual(config["secrets"]["db_password"]["file"], str(password_file))
         self.assertEqual(
@@ -709,6 +702,7 @@ class ReleaseBundleTest(unittest.TestCase):
             {
                 "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
                 "OMNIS_CONTROL_DIR": "/run/omnis-control",
+                "OMNIS_HTTP_DIR": "/run/omnis-http",
                 "OMNIS_HTTP_PORT": "8765",
             },
         )
@@ -719,33 +713,31 @@ class ReleaseBundleTest(unittest.TestCase):
                 "OMNIS_CONTROL_DIR": "/run/omnis-control",
             },
         )
-        for name, service in services.items():
+        for service in services.values():
             self.assertNotIn("build", service)
             self.assertNotEqual(service.get("network_mode"), "host")
             self.assertFalse(service.get("privileged", False))
             self.assertNotIn("/var/run/docker.sock", json.dumps(service))
-            self.assertEqual(
-                set(service["networks"]),
-                {"control", "front"} if name == "api" else {"control"},
-            )
+            self.assertEqual(set(service["networks"]), {"control"})
         self.assertEqual(services["api"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(services["supervisor"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(len(services["db"]["volumes"]), 1)
-        self.assertEqual(len(services["api"]["volumes"]), 1)
+        self.assertEqual(len(services["api"]["volumes"]), 2)
         self.assertEqual(len(services["supervisor"]["volumes"]), 1)
         self.assertEqual(services["db"]["volumes"][0]["source"], str(state / "postgres"))
         self.assertEqual(services["db"]["volumes"][0]["target"], "/var/lib/postgresql")
         self.assertEqual(services["api"]["volumes"][0]["source"], str(control))
         self.assertEqual(services["supervisor"]["volumes"][0]["source"], str(control))
         self.assertEqual(services["api"]["volumes"][0]["target"], "/run/omnis-control")
+        self.assertEqual(services["api"]["volumes"][1]["source"], str(http))
+        self.assertEqual(services["api"]["volumes"][1]["target"], "/run/omnis-http")
+        self.assertFalse(services["api"]["volumes"][1].get("read_only", False))
         self.assertEqual(services["supervisor"]["volumes"][0]["target"], "/run/omnis-control")
         self.assertTrue(services["api"]["volumes"][0]["read_only"])
         self.assertFalse(services["supervisor"]["volumes"][0].get("read_only", False))
         self.assertTrue(config["networks"]["control"]["internal"])
         self.assertEqual(config["networks"]["control"]["name"], f"{project}_control")
-        self.assertEqual(set(config["networks"]), {"control", "front"})
-        self.assertFalse(config["networks"]["front"].get("internal", False))
-        self.assertEqual(config["networks"]["front"]["name"], f"{project}_front")
+        self.assertEqual(set(config["networks"]), {"control"})
 
     def test_build_timeout_reaps_owned_image(self):
         calls = []
@@ -801,6 +793,7 @@ class ReleaseBundleTest(unittest.TestCase):
                                 "Architecture": "amd64",
                                 "Config": {
                                     "User": "65532:65532",
+                                    "Cmd": ["python", "-I", "-m", "omnis.serve"],
                                     "Env": ["OMNIS_WEB_ROOT=/opt/omnis/web"],
                                     "Labels": {"org.omnis.build-probe": marker},
                                 },
@@ -889,6 +882,7 @@ class ReleaseBundleTest(unittest.TestCase):
             self.assertEqual(image["Config"]["Labels"]["org.omnis.build-probe"], marker)
             image_id = image["Id"]
             self.assertEqual(image["Config"]["User"], "65532:65532")
+            self.assertEqual(image["Config"]["Cmd"], ["python", "-I", "-m", "omnis.serve"])
             self.assertIn("OMNIS_WEB_ROOT=/opt/omnis/web", image["Config"]["Env"])
             self.assertEqual(image["Architecture"], "amd64")
             probe_command = [
@@ -1131,16 +1125,16 @@ class ReleaseBundleTest(unittest.TestCase):
             regressions = [
                 (
                     "foreign-port",
-                    '      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"',
-                    '      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"\n'
-                    '      - "0.0.0.0:9876:8765"',
+                    "        target: /run/omnis-http\n    depends_on:",
+                    "        target: /run/omnis-http\n    ports:\n"
+                    '      - "0.0.0.0:9876:8765"\n    depends_on:',
                 ),
                 (
                     "extra-mount",
-                    "        read_only: true\n    ports:",
-                    "        read_only: true\n      - type: bind\n"
-                    "        source: ${OMNIS_CONTROL_DIR:?Explicit private control path required}\n"
-                    "        target: /extra-writable\n    ports:",
+                    "        target: /run/omnis-http\n    depends_on:",
+                    "        target: /run/omnis-http\n      - type: bind\n"
+                    "        source: ${OMNIS_HTTP_BIND_DIR:?Explicit private HTTP socket path required}\n"
+                    "        target: /extra-writable\n    depends_on:",
                 ),
                 (
                     "wrong-secret",

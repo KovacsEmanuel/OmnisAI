@@ -1,6 +1,7 @@
 """Opt-in, disposable exercise of the installed P0 control topology."""
 
 import hashlib
+import http.client
 import json
 import os
 import platform
@@ -9,6 +10,7 @@ import secrets
 import signal
 import socket
 import stat
+import struct
 import subprocess
 import sys
 import tempfile
@@ -51,6 +53,32 @@ def preflight_port(port: int) -> None:
             probe.bind(("127.0.0.1", port))
     except OSError:
         raise ValueError("Loopback port occupied") from None
+
+
+def assert_no_host_listener(port: int) -> None:
+    """Read back host TCP listeners without connecting to a foreign service.
+
+    A recently closed owned connection may leave TCP TIME_WAIT even though the
+    forwarder exited. This is not a free-port preflight for the next launch.
+    """
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError("Invalid loopback port")
+    try:
+        listeners: set[int] = set()
+        for table in ("tcp", "tcp6"):
+            with Path(f"/proc/net/{table}").open(encoding="ascii") as source:
+                if "local_address" not in source.readline():
+                    raise ValueError("Invalid host TCP table")
+                for line in source:
+                    columns = line.split()
+                    if len(columns) < 4:
+                        raise ValueError("Invalid host TCP row")
+                    if columns[3] == "0A":
+                        listeners.add(int(columns[1].rsplit(":", 1)[1], 16))
+    except (OSError, UnicodeError, ValueError, IndexError):
+        raise ValueError("Host TCP listener readback unavailable") from None
+    if port in listeners:
+        raise ValueError("Host TCP listener remains")
 
 
 def prepare_disposable_postgres(state_root: Path) -> Path:
@@ -197,6 +225,10 @@ def _attest_container_identity(
             or control[0]["RW"] is (service == "api")
         ):
             raise AssertionError("Control UID or socket mount mismatch")
+        if service == "api":
+            http = [m for m in mounts if m["Destination"] == "/run/omnis-http"]
+            if len(http) != 1 or http[0]["Source"] != str(state_root / "http") or not http[0]["RW"]:
+                raise AssertionError("Private HTTP socket mount mismatch")
     return item
 
 
@@ -204,28 +236,15 @@ def _owned_container(
     host: str, ident: str, scratch: Path, project: str, image_id: str, state_root: Path, port: int
 ) -> dict[str, object]:
     item = _attest_container_identity(host, ident, scratch, project, image_id, state_root)
-    service = item["Config"]["Labels"]["com.docker.compose.service"]
     ports = item["NetworkSettings"]["Ports"]
-    expected_networks = (
-        {f"{project}_control", f"{project}_front"} if service == "api" else {f"{project}_control"}
-    )
+    expected_networks = {f"{project}_control"}
     if (
         item.get("State", {}).get("Running", True)
         and set(item["NetworkSettings"]["Networks"]) != expected_networks
     ):
         raise AssertionError("Unexpected runtime network membership")
-    if service == "db" and ports.get("5432/tcp"):
-        raise AssertionError("PostgreSQL port exposure")
-    if service == "api":
-        exposed = ports.get("8765/tcp")
-        if (
-            not exposed
-            or len(exposed) != 1
-            or exposed[0] != {"HostIp": "127.0.0.1", "HostPort": str(port)}
-        ):
-            raise AssertionError("API not bound solely to loopback")
-    elif service == "supervisor" and any(value for value in ports.values()):
-        raise AssertionError("Supervisor port exposure")
+    if item["HostConfig"].get("PortBindings") or any(value for value in ports.values()):
+        raise AssertionError("Docker port exposure")
     return item
 
 
@@ -281,6 +300,40 @@ def _http(port: int, path: str) -> tuple[int, bytes]:
         return response.code, response.read(4097)
 
 
+def _uds_http(directory: Path, port: int, request_path: str) -> tuple[int, bytes]:
+    """Probe only the owned API UDS; never follow an HTTP redirect or URL."""
+    private_dir(directory)
+    path = directory / "api.sock"
+    info = path.lstat()
+    if (
+        not stat.S_ISSOCK(info.st_mode)
+        or info.st_uid != os.getuid()
+        or stat.S_IMODE(info.st_mode) != 0o600
+        or request_path not in {"/health/ready", "/"}
+    ):
+        raise ValueError("Untrusted API socket or request path")
+    with socket.socket(socket.AF_UNIX) as connection:
+        connection.settimeout(2)
+        connection.connect(str(path))
+        credentials = connection.getsockopt(
+            socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
+        )
+        _pid, uid, _gid = struct.unpack("3i", credentials)
+        if uid != os.getuid():
+            raise ValueError("Wrong API socket peer UID")
+        connection.sendall(
+            f"GET {request_path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n".encode()
+        )
+        response = http.client.HTTPResponse(connection)
+        response.begin()
+        body = response.read(2 * 1024 * 1024 + 1)
+        status = response.status
+        response.close()
+    if len(body) > 2 * 1024 * 1024:
+        raise ValueError("API response exceeds limit")
+    return status, body
+
+
 def _wait_ready(port: int) -> dict[str, object]:
     deadline = time.monotonic() + 30
     while time.monotonic() < deadline:
@@ -294,6 +347,21 @@ def _wait_ready(port: int) -> dict[str, object]:
             pass
         time.sleep(0.4)
     raise AssertionError("Installed API did not become ready within budget")
+
+
+def _wait_uds_ready(directory: Path, port: int) -> dict[str, object]:
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        try:
+            code, body = _uds_http(directory, port, "/health/ready")
+            if code == 200:
+                result = json.loads(body)
+                if isinstance(result, dict) and result.get("api_ready") is True:
+                    return result
+        except (OSError, ValueError, TimeoutError):
+            pass
+        time.sleep(0.4)
+    raise AssertionError("Installed private API socket did not become ready")
 
 
 def _owner_set(host: str, project: str, scratch: Path) -> list[str]:
@@ -340,7 +408,7 @@ def _cleanup(
             subprocess.SubprocessError,
         ):
             problems.append("unverifiable container")
-    for name, internal in (("control", True), ("front", False)):
+    for name, internal in (("control", True),):
         try:
             network = _docker(
                 host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
@@ -380,7 +448,7 @@ def _cleanup(
     _compose(host, release, project, empty_env, env, "down", timeout=90)
     if _owner_set(host, project, scratch):
         raise AssertionError("Owned containers survived down")
-    for name in ("control", "front"):
+    for name in ("control",):
         absent = _docker(
             host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
         )
@@ -388,6 +456,8 @@ def _cleanup(
             raise AssertionError("Owned network survived down")
     if not (state_root / "postgres").is_dir():
         raise AssertionError("PostgreSQL bind disappeared")
+    if (state_root / "http/api.sock").exists():
+        raise AssertionError("Private API socket survived shutdown")
 
 
 def conclude_cleanup(project: str, state_root: Path, *, uncertain: bool) -> None:
@@ -413,10 +483,6 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     if receipt is None or recorded.get("image_id") != receipt.image_id:
         raise ValueError("Installed image receipt missing or changed")
     host = _preflight(release)
-    version = _docker(
-        host, "version", "--format", "{{.Server.Version}}", cwd=scratch
-    ).stdout.strip()
-    validate_docker_engine(version)
     if (
         host != receipt.docker_host
         or _docker_id(release, host) != receipt.docker_id
@@ -435,7 +501,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     project = receipt.project
     if _owner_set(host, project, scratch):
         raise ValueError("Refuse preexisting Compose project")
-    for name in ("control", "front"):
+    for name in ("control",):
         network = _docker(
             host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
         )
@@ -451,6 +517,8 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     prepare_disposable_postgres(state_root)
     (state_root / "control").mkdir(mode=0o700)
     private_dir(state_root / "control")
+    (state_root / "http").mkdir(mode=0o700)
+    private_dir(state_root / "http")
     password = secrets.token_hex(24)
     password_file = state_root / "db-password"
     fd = os.open(password_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
@@ -471,6 +539,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         "OMNIS_HTTP_PORT": str(port),
         "OMNIS_STATE_ROOT": str(state_root),
         "OMNIS_CONTROL_DIR": str(state_root / "control"),
+        "OMNIS_HTTP_BIND_DIR": str(state_root / "http"),
         "OMNIS_DB_PASSWORD_FILE": str(password_file),
         "OMNIS_DATABASE_URL": f"postgresql+psycopg://omnis:{password}@db:5432/omnis",
     }
@@ -481,6 +550,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     )
     launched = False
     uncertain = False
+    forwarder: subprocess.Popen[str] | None = None
     try:
         if _docker_id(release, host) != receipt.docker_id:
             raise AssertionError("Docker daemon changed before startup")
@@ -568,7 +638,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         negative_deadline = time.monotonic() + 10
         while True:
             try:
-                code, body = _http(port, "/health/ready")
+                code, body = _uds_http(state_root / "http", port, "/health/ready")
                 if code == 503:
                     projection = json.loads(body)
                     if projection.get("reason") == "SCHEMA_INCOMPATIBLE" and not projection.get(
@@ -580,6 +650,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
             if time.monotonic() > negative_deadline:
                 raise AssertionError("Unmigrated API did not refuse readiness")
             time.sleep(0.3)
+        print(f"INSTALLED_SCHEMA_NEGATIVE_VERIFIED project={project} status=503")
         _compose(host, release, project, empty_env, env, "stop", "-t", "5", "api", timeout=20)
         _docker(host, "container", "rm", api_id, cwd=scratch, timeout=30)
 
@@ -605,10 +676,14 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
             timeout=60,
             success=False,
         )
-        _owned_container(host, job, scratch, project, receipt.image_id, state_root, port)
+        job_info = _inspect(host, job, scratch)
+        job_id = job_info.get("Id") if job_info is not None else None
+        if not isinstance(job_id, str):
+            raise AssertionError("Installed migration job identity unavailable")
+        _owned_container(host, job_id, scratch, project, receipt.image_id, state_root, port)
         if migration.returncode:
             raise AssertionError(f"Installed migration failed with exit {migration.returncode}")
-        _docker(host, "container", "rm", job, cwd=scratch)
+        _docker(host, "container", "rm", job_id, cwd=scratch)
         if (
             _psql(host, release, project, empty_env, env, "SELECT version_num FROM alembic_version")
             != "0004_pairing_receipts"
@@ -661,19 +736,40 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
             )
             if item["State"]["Running"] is not True:
                 raise AssertionError(f"Installed {service} did not remain running")
-        ready = _wait_ready(port)
-        if ready != {
+        expected_ready = {
             "api_ready": True,
             "dashboard_ready": True,
             "assessment_ready": False,
             "reason": None,
             "dashboard_reason": None,
-        }:
+        }
+        if _wait_uds_ready(state_root / "http", port) != expected_ready:
+            raise AssertionError("Installed private API readiness mismatch")
+        cli_python = str(Path(cli).parent / "python")
+        forwarder = subprocess.Popen(
+            [
+                cli_python,
+                "-I",
+                "-m",
+                "omnis_cli.forwarder",
+                "--socket-dir",
+                str(state_root / "http"),
+                "--port",
+                str(port),
+            ],
+            cwd=scratch,
+            env={"PATH": env["PATH"]},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
+        ready = _wait_ready(port)
+        if forwarder.poll() is not None or ready != expected_ready:
             raise AssertionError("Installed dashboard readiness mismatch")
         status, index = _http(port, "/")
         if status != 200 or index != (release / "web/index.html").read_bytes():
             raise AssertionError("Installed same-origin assets mismatch")
-        cli_python = str(Path(cli).parent / "python")
         probe = subprocess.run(
             [
                 cli_python,
@@ -701,6 +797,21 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         uncertain = True
         raise
     finally:
+        if forwarder is not None:
+            if forwarder.poll() is None:
+                os.killpg(forwarder.pid, signal.SIGTERM)
+            try:
+                stdout, _stderr = forwarder.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(forwarder.pid, signal.SIGKILL)
+                stdout, _stderr = forwarder.communicate(timeout=5)
+                uncertain = True
+            if forwarder.returncode != 0 or "FORWARDER_READY" not in stdout:
+                uncertain = True
+            try:
+                assert_no_host_listener(port)
+            except ValueError:
+                uncertain = True
         if launched:
             _cleanup(host, release, project, empty_env, env, state_root, receipt.image_id, port)
             conclude_cleanup(project, state_root, uncertain=uncertain)

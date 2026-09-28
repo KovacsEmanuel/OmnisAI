@@ -22,6 +22,7 @@ from control_topology import (
     _docker,
     _http,
     _owned_container,
+    assert_no_host_listener,
     conclude_cleanup,
     preflight_port,
     prepare_disposable_postgres,
@@ -31,6 +32,83 @@ from control_topology import (
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_poststop_readback_rejects_listener_not_own_tcp_time_wait(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(1)
+            port = listener.getsockname()[1]
+            with self.assertRaisesRegex(ValueError, "listener"):
+                assert_no_host_listener(port)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+                client.connect(("127.0.0.1", port))
+                accepted, _peer = listener.accept()
+                with accepted:
+                    accepted.shutdown(socket.SHUT_WR)
+                    self.assertEqual(client.recv(1), b"")
+        # A server-first FIN leaves TIME_WAIT on this port after every FD closes.
+        with self.assertRaisesRegex(ValueError, "occupied"):
+            preflight_port(port)
+        assert_no_host_listener(port)
+
+    def test_poststop_readback_rejects_ipv6_listener_on_the_same_port(self):
+        if not socket.has_ipv6:
+            self.skipTest("IPv6 socket support unavailable")
+        try:
+            listener = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        except OSError:
+            self.skipTest("IPv6 socket unavailable")
+        with listener:
+            listener.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+            listener.bind(("::1", 0))
+            listener.listen(1)
+            with self.assertRaisesRegex(ValueError, "listener"):
+                assert_no_host_listener(listener.getsockname()[1])
+
+    def test_runtime_api_has_only_private_uds_and_no_docker_port(self):
+        project = "omnis-local-" + "a" * 32
+        image_id = "sha256:" + "b" * 64
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            item = {
+                "Id": "owned-api",
+                "Config": {
+                    "Image": image_id,
+                    "User": f"{os.getuid()}:{os.getgid()}",
+                    "Labels": {
+                        "com.docker.compose.project": project,
+                        "com.docker.compose.service": "api",
+                    },
+                },
+                "Image": image_id,
+                "HostConfig": {"Privileged": False},
+                "Mounts": [
+                    {
+                        "Destination": "/run/omnis-control",
+                        "Source": str(state / "control"),
+                        "RW": False,
+                    },
+                    {"Destination": "/run/omnis-http", "Source": str(state / "http"), "RW": True},
+                ],
+                "NetworkSettings": {"Ports": {}, "Networks": {f"{project}_control": {}}},
+                "State": {"Running": True},
+            }
+            with (
+                patch("control_topology._inspect", return_value=item),
+                patch("control_topology._expected_image_id", return_value=image_id),
+            ):
+                self.assertEqual(
+                    _owned_container(
+                        "unix:///owned/docker.sock",
+                        "owned-api",
+                        state,
+                        project,
+                        image_id,
+                        state,
+                        8765,
+                    ),
+                    item,
+                )
+
     def test_timeout_cleanup_cannot_claim_a_settled_daemon(self):
         output = io.StringIO()
         with redirect_stdout(output):
@@ -133,7 +211,7 @@ class InstalledControlPreflightTest(unittest.TestCase):
             self.assertEqual(live, set())
             self.assertTrue((state / "postgres").is_dir())
 
-    def test_unhealthy_owned_api_does_not_block_disposable_teardown(self):
+    def test_owned_private_uds_api_does_not_block_disposable_teardown(self):
         project = "omnis-local-" + "a" * 32
         image_id = "sha256:" + "b" * 64
         db_id = "sha256:" + "c" * 64
@@ -143,6 +221,8 @@ class InstalledControlPreflightTest(unittest.TestCase):
             (state / "postgres").mkdir(parents=True)
             control = state / "control"
             control.mkdir()
+            http = state / "http"
+            http.mkdir()
             empty_env = scratch / "empty.env"
             empty_env.touch()
             api = {
@@ -158,11 +238,12 @@ class InstalledControlPreflightTest(unittest.TestCase):
                 "Image": image_id,
                 "HostConfig": {"Privileged": False},
                 "Mounts": [
-                    {"Destination": "/run/omnis-control", "Source": str(control), "RW": False}
+                    {"Destination": "/run/omnis-control", "Source": str(control), "RW": False},
+                    {"Destination": "/run/omnis-http", "Source": str(http), "RW": True},
                 ],
                 "NetworkSettings": {
                     "Ports": {},
-                    "Networks": {f"{project}_control": {}, f"{project}_front": {}},
+                    "Networks": {f"{project}_control": {}},
                 },
                 "State": {"Running": True},
             }
@@ -199,9 +280,7 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     if removed:
                         return subprocess.CompletedProcess(args, 1, stderr="network not found")
                     name = args[2]
-                    members = (
-                        {"api-id": {}, "db-id": {}} if name.endswith("_control") else {"api-id": {}}
-                    )
+                    self.assertTrue(name.endswith("_control"))
                     return subprocess.CompletedProcess(
                         args,
                         0,
@@ -209,8 +288,8 @@ class InstalledControlPreflightTest(unittest.TestCase):
                             [
                                 {
                                     "Labels": {"com.docker.compose.project": project},
-                                    "Internal": name.endswith("_control"),
-                                    "Containers": members,
+                                    "Internal": True,
+                                    "Containers": {"api-id": {}, "db-id": {}},
                                 }
                             ]
                         ),

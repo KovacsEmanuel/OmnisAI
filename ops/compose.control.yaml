@@ -1,4 +1,4 @@
-# P0 control plane only. Installed CLI supplies a verified project, image ID and private paths.
+# P0 control plane only. Host launcher forwards loopback to the private API UDS.
 name: ${OMNIS_PROJECT:?Explicit Omnis project required}
 services:
   db:
@@ -51,21 +51,23 @@ services:
     environment:
       OMNIS_DATABASE_URL: ${OMNIS_DATABASE_URL:?Explicit internal PostgreSQL URL required}
       OMNIS_CONTROL_DIR: /run/omnis-control
+      OMNIS_HTTP_DIR: /run/omnis-http
       OMNIS_HTTP_PORT: ${OMNIS_HTTP_PORT:?Explicit host loopback port required}
     volumes:
       - type: bind
         source: ${OMNIS_CONTROL_DIR:?Explicit private control path required}
         target: /run/omnis-control
         read_only: true
-    ports:
-      - "127.0.0.1:${OMNIS_HTTP_PORT:?Explicit host loopback port required}:8765"
+      - type: bind
+        source: ${OMNIS_HTTP_BIND_DIR:?Explicit private HTTP socket path required}
+        target: /run/omnis-http
     depends_on:
       db:
         condition: service_healthy
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    networks: [control, front]
+    networks: [control]
     restart: "no"
 secrets:
   db_password:
@@ -73,7 +75,3 @@ secrets:
 networks:
   control:
     internal: true
-  # Docker cannot publish a host loopback port from an internal-only bridge.
-  # Only API joins this front bridge; DB and supervisor remain internal.
-  front:
-    internal: false

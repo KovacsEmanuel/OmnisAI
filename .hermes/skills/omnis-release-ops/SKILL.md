@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.5
+version: 0.1.6
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -37,6 +37,7 @@ Host Playwright/Chromium validation is not certification of the planned executor
 - For an installed launcher gate, assert the CLI exit code separately from parsed JSON: shell pipelines can hide a failing producer. Make live integration tests depend on the current wheel build even with parallel Make; a previous scratch venv is not the artifact under review. Per-recv socket timeouts are not total IPC deadlines: use a monotonic budget across connect/send/read and prove it with a peer that trickles fragments.
 - For OCI artifact probes, name and label every resource before launch, then in `finally` inspect and attempt all owned-container cleanup before image-tag cleanup, even if build/run times out or the driver exits early. `--rm` alone cannot clean a container whose CLI was killed. Read back exact absence; report uncertainty if Docker is unavailable mid-cleanup. Explicitly strip an inherited image-probe flag from ordinary release gates and enable it only in the requested image target. Test a second nonroot UID against bundled public assets, not only the image default UID.
 - For an installed-image timeout, `subprocess.run` kills only its direct child; own a process group before launch and terminate/reap it before inspecting Docker. An absent tag after finite inspections does not prove the daemon-side build finished: retain the private intent, refuse automatic retry even while the tag is absent, and report manual recovery rather than PASS. Recheck the canonical Unix socket, daemon ID and random ownership labels around cleanup, but do not call distinct Docker CLI invocations an atomic identity binding; same-UID/root socket replacement is outside the declared local threat model. Exercise a TERM-resistant real descendant and a tag appearing after the first inspect as separate negative controls.
+- For PostgreSQL 18 on a private host bind, test the image's actual UID transition: the `postgres` process must traverse `/var/lib/postgresql` after the root entrypoint re-execs. Keep the outer XDG state root 0700 and grant only traversal on its dedicated DB bind root (0711), with PGDATA itself owned/mode-locked by the image; do not chmod a shared ancestor. An internal-only Docker bridge may discard loopback port publication even when `HostConfig.PortBindings` looks correct: keep DB/supervisor internal and attest a separate API-only front network at runtime. Docker Engine <28 can expose localhost-published ports to same-L2 peers; fail closed on that host rather than calling a 127.0.0.1 binding LAN-private. A daemon upgrade or firewall change requires a maintenance/rollback plan for unrelated containers. For long gate wrappers, own the full test process group on timeout and retain the exact disposable DB project/volume; killing only `make` can orphan pytest after teardown.
 
 ## Verification
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

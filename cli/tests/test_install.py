@@ -12,6 +12,34 @@ from omnis_cli.release import ReleaseError, install_release
 
 
 class InstallTest(unittest.TestCase):
+    def test_install_syncs_published_tree_and_pointer_before_ack(self):
+        import omnis_cli.release as release
+
+        with patch.object(release, "_sync_dir", wraps=release._sync_dir) as synced:
+            installed = install_release(self.bundle, self.data_home)
+        paths = [call.args[0] for call in synced.call_args_list]
+        self.assertIn(installed / "web/assets", paths)
+        self.assertIn(installed, paths)
+        self.assertIn(installed.parent, paths)
+        self.assertIn(self.data_home, paths)
+        self.assertIn(self.data_home / "omnis", paths)
+
+    def test_repeat_install_refuses_unsynced_recovered_pointer(self):
+        import omnis_cli.release as release
+
+        install_release(self.bundle, self.data_home)
+        root = self.data_home / "omnis"
+        original = release._sync_dir
+
+        def fail_root(path):
+            if path == root:
+                raise OSError("directory sync failed")
+            return original(path)
+
+        with patch.object(release, "_sync_dir", side_effect=fail_root):
+            with self.assertRaises(ReleaseError):
+                install_release(self.bundle, self.data_home)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="omnis-install-", dir=os.environ["TMPDIR"])
         self.addCleanup(self.temp.cleanup)

@@ -131,6 +131,7 @@ def _owned_data_home(data_home: Path) -> None:
     for path in reversed(missing):
         path.mkdir(mode=0o700)
         private_dir(path)
+        _sync_dir(path.parent)
 
 
 def publish_directory(stage: Path, destination: Path) -> None:
@@ -158,6 +159,21 @@ def _put(path: Path, content: bytes) -> None:
         os.fsync(output.fileno())
 
 
+def _sync_dir(path: Path) -> None:
+    fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _sync_tree(root: Path) -> None:
+    # Files were fsynced on write; make every nested directory entry durable too.
+    dirs = [Path(parent) for parent, _, _ in os.walk(root, followlinks=False)]
+    for directory in reversed(dirs):
+        _sync_dir(directory)
+
+
 def install_release(bundle: Path, data_home: Path) -> Path:
     """Install only a verified, immutable-version bundle; never start or migrate."""
     try:
@@ -168,6 +184,7 @@ def install_release(bundle: Path, data_home: Path) -> Path:
         root = data_home / "omnis"
         root.mkdir(mode=0o700, exist_ok=True)
         private_dir(root)
+        _sync_dir(data_home)
         fd = os.open(root / "install.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         try:
             info = os.fstat(fd)
@@ -206,6 +223,7 @@ def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> 
         releases = root / "releases"
         releases.mkdir(mode=0o700, exist_ok=True)
         private_dir(releases)
+        _sync_dir(root)
         destination = releases / _RELEASE
         pointer = root / "installed.json"
         present = _installed_pointer(pointer)
@@ -231,6 +249,8 @@ def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> 
             finally:
                 if stage.exists():
                     shutil.rmtree(stage)
+        _sync_tree(destination)
+        _sync_dir(releases)
         if not present:
             fd, name = tempfile.mkstemp(prefix=".installed-", dir=root)
             try:
@@ -247,6 +267,7 @@ def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> 
                 Path(name).unlink(missing_ok=True)
         if not _installed_pointer(pointer):
             raise ReleaseError("Installed pointer disappeared before readback")
+        _sync_dir(root)
         return destination
     except (OSError, ValueError, UnicodeError, RecursionError) as exc:
         raise ReleaseError("Release installation refused") from exc

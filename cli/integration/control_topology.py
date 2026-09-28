@@ -1,24 +1,30 @@
 """Opt-in, disposable exercise of the installed P0 control topology."""
 
-import os
 import hashlib
 import json
+import os
 import platform
 import secrets
 import socket
 import stat
 import subprocess
+import sys
 import tempfile
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 
-from omnis_cli.compose import _BASE, _checked_socket, _docker_id, _one_image, _preflight, _record, _validate_image
+from omnis_cli.compose import _docker_id, _one_image, _preflight, _record, _validate_image
 from omnis_cli.instance import private_dir
 from omnis_cli.release import _installed_pointer, _manifest
 
-_POSTGRES = "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
+_POSTGRES = (
+    "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
+)
+_POSTGRES_REPO_DIGEST = (
+    "postgres@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
+)
 
 
 def strict_probe_environment() -> None:
@@ -38,25 +44,73 @@ def preflight_port(port: int) -> None:
         raise ValueError("Loopback port occupied") from None
 
 
-def _docker(host: str, *args: str, cwd: Path, env: dict[str, str] | None = None,
-            timeout: int = 20, success: bool = True) -> subprocess.CompletedProcess[str]:
+def prepare_disposable_postgres(state_root: Path) -> Path:
+    """PG18's postgres UID must traverse the bind root; its host parent stays 0700."""
+    private_dir(state_root)
+    path = state_root / "postgres"
+    path.mkdir(mode=0o711)
+    if path.is_symlink() or path.stat().st_uid != os.getuid():
+        raise ValueError("Unsafe PostgreSQL bind root")
+    path.chmod(0o711)
+    if stat.S_IMODE(path.stat().st_mode) != 0o711:
+        raise ValueError("PostgreSQL bind root cannot be traversed")
+    return path
+
+
+def _docker(
+    host: str,
+    *args: str,
+    cwd: Path,
+    env: dict[str, str] | None = None,
+    timeout: int = 20,
+    success: bool = True,
+) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
-        ["docker", "--host", host, *args], cwd=cwd,
+        ["docker", "--host", host, *args],
+        cwd=cwd,
         env=env or {"PATH": os.environ.get("PATH", "")},
-        capture_output=True, text=True, timeout=timeout, check=False,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
     )
     if success and result.returncode:
-        raise AssertionError(f"Docker {args[0]} failed with exit {result.returncode}")
+        diagnostic = result.stderr + "\n" + result.stdout
+        if env is not None and "OMNIS_DATABASE_URL" in env:
+            database_url = env["OMNIS_DATABASE_URL"]
+            password = database_url.partition("omnis:")[2].partition("@")[0]
+            diagnostic = diagnostic.replace(database_url, "<synthetic-db-url>")
+            if password:
+                diagnostic = diagnostic.replace(password, "<synthetic-db-password>")
+        diagnostic = diagnostic[-1200:]
+        raise AssertionError(f"Docker {args[0]} failed with exit {result.returncode}: {diagnostic}")
     return result
 
 
-def _compose(host: str, release: Path, project: str, empty_env: Path,
-             env: dict[str, str], *args: str, timeout: int = 90,
-             success: bool = True) -> subprocess.CompletedProcess[str]:
+def _compose(
+    host: str,
+    release: Path,
+    project: str,
+    empty_env: Path,
+    env: dict[str, str],
+    *args: str,
+    timeout: int = 90,
+    success: bool = True,
+) -> subprocess.CompletedProcess[str]:
     return _docker(
-        host, "compose", "--project-name", project,
-        "--env-file", str(empty_env), "-f", str(release / "ops/compose.yaml"),
-        *args, cwd=empty_env.parent, env=env, timeout=timeout, success=success,
+        host,
+        "compose",
+        "--project-name",
+        project,
+        "--env-file",
+        str(empty_env),
+        "-f",
+        str(release / "ops/compose.yaml"),
+        *args,
+        cwd=empty_env.parent,
+        env=env,
+        timeout=timeout,
+        success=success,
     )
 
 
@@ -72,8 +126,9 @@ def _inspect(host: str, ident: str, scratch: Path) -> dict[str, object] | None:
     return raw[0]
 
 
-def _owned_container(host: str, ident: str, scratch: Path, project: str,
-                     image_id: str, state_root: Path, port: int) -> dict[str, object]:
+def _owned_container(
+    host: str, ident: str, scratch: Path, project: str, image_id: str, state_root: Path, port: int
+) -> dict[str, object]:
     item = _inspect(host, ident, scratch)
     if item is None:
         raise AssertionError("Owned container missing")
@@ -93,11 +148,12 @@ def _owned_container(host: str, ident: str, scratch: Path, project: str,
     mounts = item["Mounts"]
     ports = item["NetworkSettings"]["Ports"]
     if service == "db":
-        if (
-            not any(m["Type"] == "bind" and m["Source"] == str(state_root / "postgres")
-                    and m["Destination"] == "/var/lib/postgresql" for m in mounts)
-            or ports.get("5432/tcp")
-        ):
+        if not any(
+            m["Type"] == "bind"
+            and m["Source"] == str(state_root / "postgres")
+            and m["Destination"] == "/var/lib/postgresql"
+            for m in mounts
+        ) or ports.get("5432/tcp"):
             raise AssertionError("PostgreSQL bind or exposure mismatch")
     else:
         control = [m for m in mounts if m["Destination"] == "/run/omnis-control"]
@@ -110,9 +166,11 @@ def _owned_container(host: str, ident: str, scratch: Path, project: str,
             raise AssertionError("Control UID or socket mount mismatch")
         if service == "api":
             exposed = ports.get("8765/tcp")
-            if not exposed or len(exposed) != 1 or exposed[0] != {
-                "HostIp": "127.0.0.1", "HostPort": str(port)
-            }:
+            if (
+                not exposed
+                or len(exposed) != 1
+                or exposed[0] != {"HostIp": "127.0.0.1", "HostPort": str(port)}
+            ):
                 raise AssertionError("API not bound solely to loopback")
         elif any(value for value in ports.values()):
             raise AssertionError("Supervisor port exposure")
@@ -122,3 +180,410 @@ def _owned_container(host: str, ident: str, scratch: Path, project: str,
 def _expected_image_id(host: str, image: str, scratch: Path) -> str:
     response = _docker(host, "image", "inspect", image, cwd=scratch)
     return str(_one_image(response.stdout)["Id"])
+
+
+def _service_id(
+    host: str, release: Path, project: str, empty_env: Path, env: dict[str, str], name: str
+) -> str:
+    value = _compose(host, release, project, empty_env, env, "ps", "-q", name).stdout.strip()
+    if not value or "\n" in value:
+        raise AssertionError("Expected one owned service")
+    return value
+
+
+def _psql(
+    host: str, release: Path, project: str, empty_env: Path, env: dict[str, str], query: str
+) -> str:
+    return _compose(
+        host,
+        release,
+        project,
+        empty_env,
+        env,
+        "exec",
+        "-T",
+        "db",
+        "psql",
+        "-U",
+        "omnis",
+        "-d",
+        "omnis",
+        "-Atc",
+        query,
+        timeout=20,
+    ).stdout.strip()
+
+
+def _http(port: int, path: str) -> tuple[int, bytes]:
+    origin = f"http://127.0.0.1:{port}"
+    request = urllib.request.Request(origin + path, headers={"Host": f"127.0.0.1:{port}"})
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        with opener.open(request, timeout=2) as response:
+            return response.status, response.read(2 * 1024 * 1024 + 1)
+    except urllib.error.HTTPError as response:
+        return response.code, response.read(4097)
+
+
+def _wait_ready(port: int) -> dict[str, object]:
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        try:
+            code, body = _http(port, "/health/ready")
+            if code == 200:
+                result = json.loads(body)
+                if isinstance(result, dict) and result.get("api_ready") is True:
+                    return result
+        except (OSError, ValueError, TimeoutError):
+            pass
+        time.sleep(0.4)
+    raise AssertionError("Installed API did not become ready within budget")
+
+
+def _owner_set(host: str, project: str, scratch: Path) -> list[str]:
+    response = _docker(
+        host,
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--filter",
+        f"label=com.docker.compose.project={project}",
+        "--format",
+        "{{.ID}}",
+        cwd=scratch,
+    )
+    return [line for line in response.stdout.splitlines() if line]
+
+
+def _cleanup(
+    host: str,
+    release: Path,
+    project: str,
+    empty_env: Path,
+    env: dict[str, str],
+    state_root: Path,
+    image_id: str,
+    port: int,
+) -> None:
+    """Stop only an attested fresh Compose project; never delete its data bind."""
+    scratch = empty_env.parent
+    ids = _owner_set(host, project, scratch)
+    for ident in ids:
+        _owned_container(host, ident, scratch, project, image_id, state_root, port)
+    network = _docker(host, "network", "inspect", f"{project}_control", cwd=scratch, success=False)
+    if network.returncode == 0:
+        (details,) = json.loads(network.stdout)
+        if details["Labels"].get("com.docker.compose.project") != project or any(
+            ident not in ids for ident in details.get("Containers", {})
+        ):
+            raise AssertionError("Foreign member or network identity")
+    elif "not found" not in network.stderr:
+        raise AssertionError("Network inspection unavailable")
+    for ident in ids:
+        item = _inspect(host, ident, scratch)
+        assert item is not None
+        if item["Config"]["Labels"].get("com.docker.compose.oneoff") == "True":
+            _docker(host, "container", "rm", "-f", ident, cwd=scratch, timeout=30)
+    _compose(host, release, project, empty_env, env, "down", timeout=90)
+    if _owner_set(host, project, scratch):
+        raise AssertionError("Owned containers survived down")
+    if not (state_root / "postgres").is_dir():
+        raise AssertionError("PostgreSQL bind disappeared")
+
+
+def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: str) -> None:
+    """Opt-in disposable P0 DB→migration→control/API proof, not a launcher."""
+    strict_probe_environment()
+    if platform.system() != "Linux" or platform.machine() not in {"x86_64", "amd64"}:
+        raise ValueError("Pinned linux/amd64 platform required")
+    root = data_home / "omnis"
+    private_dir(root)
+    if not _installed_pointer(root / "installed.json"):
+        raise ValueError("Installed release required")
+    release = root / "releases/0.1.0"
+    manifest, _ = _manifest(release)
+    digest = hashlib.sha256(manifest).hexdigest()
+    receipt = _record(root / "image.json", digest, complete=True)
+    if receipt is None or recorded.get("image_id") != receipt.image_id:
+        raise ValueError("Installed image receipt missing or changed")
+    host = _preflight(release)
+    if (
+        host != receipt.docker_host
+        or _docker_id(release, host) != receipt.docker_id
+        or _validate_image(receipt.tag, release, receipt.project, digest, host=host)
+        != receipt.image_id
+    ):
+        raise ValueError("Installed image/daemon identity mismatch")
+    base = _docker(host, "image", "inspect", _POSTGRES, cwd=scratch)
+    details = _one_image(base.stdout)
+    if details.get("Architecture") != "amd64" or _POSTGRES_REPO_DIGEST not in details.get(
+        "RepoDigests", []
+    ):
+        raise ValueError("Pinned PostgreSQL image unavailable")
+    if os.getuid() == 0 or os.getgid() == 0:
+        raise ValueError("Nonroot operator UID/GID required")
+    project = receipt.project
+    if _owner_set(host, project, scratch):
+        raise ValueError("Refuse preexisting Compose project")
+    network = _docker(host, "network", "inspect", f"{project}_control", cwd=scratch, success=False)
+    if network.returncode == 0 or "not found" not in network.stderr:
+        raise ValueError("Refuse preexisting or unverifiable network")
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+        reservation.bind(("127.0.0.1", 0))
+        port = reservation.getsockname()[1]
+    preflight_port(port)
+    state_root = Path(tempfile.mkdtemp(prefix="omnis-p04-control-", dir=os.environ["TMPDIR"]))
+    private_dir(state_root)
+    prepare_disposable_postgres(state_root)
+    (state_root / "control").mkdir(mode=0o700)
+    private_dir(state_root / "control")
+    password = secrets.token_hex(24)
+    password_file = state_root / "db-password"
+    fd = os.open(password_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "w") as output:
+        output.write(password + "\n")
+        output.flush()
+        os.fsync(output.fileno())
+    if stat.S_IMODE(password_file.stat().st_mode) != 0o600:
+        raise AssertionError("Private DB password mode mismatch")
+    empty_env = scratch / "empty-compose.env"
+    empty_env.touch(mode=0o600, exist_ok=False)
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "OMNIS_PROJECT": project,
+        "OMNIS_IMAGE_ID": receipt.image_id,
+        "OMNIS_UID": str(os.getuid()),
+        "OMNIS_GID": str(os.getgid()),
+        "OMNIS_HTTP_PORT": str(port),
+        "OMNIS_STATE_ROOT": str(state_root),
+        "OMNIS_CONTROL_DIR": str(state_root / "control"),
+        "OMNIS_DB_PASSWORD_FILE": str(password_file),
+        "OMNIS_DATABASE_URL": f"postgresql+psycopg://omnis:{password}@db:5432/omnis",
+    }
+    print(
+        f"CONTROL_PROBE_PREPARED project={project} image={receipt.image_id} "
+        f"port=127.0.0.1:{port} disposable_data={state_root}",
+        flush=True,
+    )
+    launched = False
+    try:
+        if _docker_id(release, host) != receipt.docker_id:
+            raise AssertionError("Docker daemon changed before startup")
+        launched = True
+        db_up = _compose(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "up",
+            "-d",
+            "--wait",
+            "--no-build",
+            "--pull",
+            "never",
+            "db",
+            timeout=120,
+            success=False,
+        )
+        if db_up.returncode:
+            for ident in _owner_set(host, project, scratch):
+                item = _inspect(host, ident, scratch)
+                if item and item["Config"]["Labels"].get("com.docker.compose.service") == "db":
+                    owned = _owned_container(
+                        host, ident, scratch, project, receipt.image_id, state_root, port
+                    )
+                    db_mount = next(
+                        m for m in owned["Mounts"] if m["Destination"] == "/var/lib/postgresql"
+                    )
+                    print(
+                        "DISPOSABLE_DB_MOUNT "
+                        f"rw={db_mount['RW']} user={owned['Config']['User']!r} "
+                        f"readonly_root={owned['HostConfig']['ReadonlyRootfs']}",
+                        file=sys.stderr,
+                    )
+                    log = _docker(host, "logs", "--tail", "30", ident, cwd=scratch, success=False)
+                    diagnostic = (log.stdout + log.stderr).replace(
+                        password, "<synthetic-db-password>"
+                    )
+                    print(f"DISPOSABLE_DB_START_FAILED {diagnostic[-900:]}", file=sys.stderr)
+            raise AssertionError(f"Disposable PostgreSQL startup exit {db_up.returncode}")
+        db_id = _service_id(host, release, project, empty_env, env, "db")
+        _owned_container(host, db_id, scratch, project, receipt.image_id, state_root, port)
+        if (
+            _psql(
+                host,
+                release,
+                project,
+                empty_env,
+                env,
+                "SELECT count(*) FROM pg_catalog.pg_tables WHERE schemaname = 'public'",
+            )
+            != "0"
+        ):
+            raise AssertionError("Disposable database is not empty; no automatic upgrade")
+        system_id = _psql(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "SELECT system_identifier FROM pg_control_system()",
+        )
+        if not system_id.isdecimal():
+            raise AssertionError("PostgreSQL cluster identity unavailable")
+
+        _compose(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "up",
+            "-d",
+            "--no-deps",
+            "--no-build",
+            "--pull",
+            "never",
+            "api",
+            timeout=90,
+        )
+        api_id = _service_id(host, release, project, empty_env, env, "api")
+        _owned_container(host, api_id, scratch, project, receipt.image_id, state_root, port)
+        negative_deadline = time.monotonic() + 10
+        while True:
+            try:
+                code, body = _http(port, "/health/ready")
+                if code == 503:
+                    projection = json.loads(body)
+                    if projection.get("reason") == "SCHEMA_INCOMPATIBLE" and not projection.get(
+                        "dashboard_ready"
+                    ):
+                        break
+            except (OSError, ValueError, TimeoutError):
+                pass
+            if time.monotonic() > negative_deadline:
+                raise AssertionError("Unmigrated API did not refuse readiness")
+            time.sleep(0.3)
+        _compose(host, release, project, empty_env, env, "stop", "-t", "5", "api", timeout=20)
+        _docker(host, "container", "rm", api_id, cwd=scratch, timeout=30)
+
+        job = f"{project}-migrate"
+        migration = _compose(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "run",
+            "-T",
+            "--no-deps",
+            "--pull",
+            "never",
+            "--name",
+            job,
+            "supervisor",
+            "python",
+            "-I",
+            "-m",
+            "omnis.migrate",
+            timeout=60,
+            success=False,
+        )
+        _owned_container(host, job, scratch, project, receipt.image_id, state_root, port)
+        if migration.returncode:
+            raise AssertionError(f"Installed migration failed with exit {migration.returncode}")
+        _docker(host, "container", "rm", job, cwd=scratch)
+        if (
+            _psql(host, release, project, empty_env, env, "SELECT version_num FROM alembic_version")
+            != "0004_pairing_receipts"
+        ):
+            raise AssertionError("Installed migration revision mismatch")
+        if (
+            _psql(
+                host,
+                release,
+                project,
+                empty_env,
+                env,
+                "SELECT system_identifier FROM pg_control_system()",
+            )
+            != system_id
+        ):
+            raise AssertionError("PostgreSQL cluster changed during migration")
+        instance_id = _psql(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "SELECT instance_id FROM instance_control WHERE id = 1",
+        )
+        from uuid import UUID
+
+        if str(UUID(instance_id)) != instance_id:
+            raise AssertionError("Instance identity unavailable")
+        _compose(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            "up",
+            "-d",
+            "--no-deps",
+            "--no-build",
+            "--pull",
+            "never",
+            "supervisor",
+            "api",
+            timeout=90,
+        )
+        for service in ("db", "supervisor", "api"):
+            ident = _service_id(host, release, project, empty_env, env, service)
+            item = _owned_container(
+                host, ident, scratch, project, receipt.image_id, state_root, port
+            )
+            if item["State"]["Running"] is not True:
+                raise AssertionError(f"Installed {service} did not remain running")
+        ready = _wait_ready(port)
+        if ready != {
+            "api_ready": True,
+            "dashboard_ready": True,
+            "assessment_ready": False,
+            "reason": None,
+            "dashboard_reason": None,
+        }:
+            raise AssertionError("Installed dashboard readiness mismatch")
+        status, index = _http(port, "/")
+        if status != 200 or index != (release / "web/index.html").read_bytes():
+            raise AssertionError("Installed same-origin assets mismatch")
+        cli_python = str(Path(cli).parent / "python")
+        probe = subprocess.run(
+            [
+                cli_python,
+                "-I",
+                "-c",
+                "import json,sys; from pathlib import Path; "
+                "from omnis_cli.control import request; "
+                "print(json.dumps(request(Path(sys.argv[1]), {'op':'status'})))",
+                str(state_root / "control"),
+            ],
+            cwd=scratch,
+            env={"PATH": env["PATH"]},
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if probe.returncode or json.loads(probe.stdout).get("instance_id") != instance_id:
+            raise AssertionError("Installed CLI private control identity mismatch")
+        print(
+            f"INSTALLED_CONTROL_VERIFIED project={project} image={receipt.image_id} "
+            f"port=127.0.0.1:{port} instance={instance_id} db_system_id={system_id}"
+        )
+    finally:
+        if launched:
+            _cleanup(host, release, project, empty_env, env, state_root, receipt.image_id, port)
+            print(f"INSTALLED_CONTROL_STOPPED project={project} data_retained={state_root}")

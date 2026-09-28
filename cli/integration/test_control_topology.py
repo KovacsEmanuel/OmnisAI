@@ -2,13 +2,25 @@
 
 import os
 import socket
+import stat
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
-from control_topology import preflight_port, strict_probe_environment
+from control_topology import preflight_port, prepare_disposable_postgres, strict_probe_environment
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_pg18_bind_root_is_traversable_only_under_private_state(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name) / "state"
+            state.mkdir(mode=0o700)
+            postgres = prepare_disposable_postgres(state)
+            self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(postgres.stat().st_mode), 0o711)
+            self.assertEqual(postgres.parent, state)
+
     def test_foreign_loopback_listener_is_refused_without_docker(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as foreign:
             foreign.bind(("127.0.0.1", 0))

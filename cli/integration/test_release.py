@@ -719,12 +719,15 @@ class ReleaseBundleTest(unittest.TestCase):
                 "OMNIS_CONTROL_DIR": "/run/omnis-control",
             },
         )
-        for service in services.values():
+        for name, service in services.items():
             self.assertNotIn("build", service)
             self.assertNotEqual(service.get("network_mode"), "host")
             self.assertFalse(service.get("privileged", False))
             self.assertNotIn("/var/run/docker.sock", json.dumps(service))
-            self.assertEqual(set(service["networks"]), {"control"})
+            self.assertEqual(
+                set(service["networks"]),
+                {"control", "front"} if name == "api" else {"control"},
+            )
         self.assertEqual(services["api"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(services["supervisor"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(len(services["db"]["volumes"]), 1)
@@ -740,6 +743,9 @@ class ReleaseBundleTest(unittest.TestCase):
         self.assertFalse(services["supervisor"]["volumes"][0].get("read_only", False))
         self.assertTrue(config["networks"]["control"]["internal"])
         self.assertEqual(config["networks"]["control"]["name"], f"{project}_control")
+        self.assertEqual(set(config["networks"]), {"control", "front"})
+        self.assertFalse(config["networks"]["front"].get("internal", False))
+        self.assertEqual(config["networks"]["front"]["name"], f"{project}_front")
 
     def test_build_timeout_reaps_owned_image(self):
         calls = []

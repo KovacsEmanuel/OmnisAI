@@ -4,7 +4,9 @@ import hashlib
 import json
 import os
 import platform
+import re
 import secrets
+import signal
 import socket
 import stat
 import subprocess
@@ -31,6 +33,13 @@ def strict_probe_environment() -> None:
     """Never let ambient Docker/Compose/libpq redirect a disposable probe."""
     if any(key.startswith(("DOCKER_", "COMPOSE_", "PG")) for key in os.environ):
         raise ValueError("Ambient Docker, Compose or libpq overrides are forbidden")
+
+
+def validate_docker_engine(version: str) -> None:
+    """Older Engines can expose localhost-published ports to same-L2 hosts."""
+    match = re.fullmatch(r"([0-9]+)\.([0-9]+)\.([0-9]+)(?:[+.-][A-Za-z0-9._-]+)?", version)
+    if match is None or int(match.group(1)) < 28:
+        raise ValueError("Docker Engine 28+ required for private localhost publishing")
 
 
 def preflight_port(port: int) -> None:
@@ -65,15 +74,35 @@ def _docker(
     timeout: int = 20,
     success: bool = True,
 ) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(
-        ["docker", "--host", host, *args],
+    argv = ["docker", "--host", host, *args]
+    process = subprocess.Popen(
+        argv,
         cwd=cwd,
         env=env or {"PATH": os.environ.get("PATH", "")},
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        timeout=timeout,
-        check=False,
+        start_new_session=True,
     )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except BaseException:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            process.communicate(timeout=1)
+        except subprocess.TimeoutExpired:
+            pass
+        finally:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.communicate(timeout=5)
+        raise
+    result = subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
     if success and result.returncode:
         diagnostic = result.stderr + "\n" + result.stdout
         if env is not None and "OMNIS_DATABASE_URL" in env:
@@ -126,8 +155,8 @@ def _inspect(host: str, ident: str, scratch: Path) -> dict[str, object] | None:
     return raw[0]
 
 
-def _owned_container(
-    host: str, ident: str, scratch: Path, project: str, image_id: str, state_root: Path, port: int
+def _attest_container_identity(
+    host: str, ident: str, scratch: Path, project: str, image_id: str, state_root: Path
 ) -> dict[str, object]:
     item = _inspect(host, ident, scratch)
     if item is None:
@@ -137,24 +166,28 @@ def _owned_container(
     service = labels.get("com.docker.compose.service")
     expected = _POSTGRES if service == "db" else image_id
     if (
-        labels.get("com.docker.compose.project") != project
+        item.get("Id") != ident
+        or labels.get("com.docker.compose.project") != project
         or service not in {"db", "api", "supervisor"}
         or config["Image"] != expected
         or item["Image"] != _expected_image_id(host, expected, scratch)
         or item["HostConfig"]["Privileged"] is not False
-        or any(m.get("Destination") == "/var/run/docker.sock" for m in item["Mounts"])
+        or any(
+            m.get("Destination") == "/var/run/docker.sock"
+            or m.get("Source") in {"/var/run/docker.sock", "/run/docker.sock"}
+            for m in item["Mounts"]
+        )
     ):
         raise AssertionError("Foreign or incompatible container")
     mounts = item["Mounts"]
-    ports = item["NetworkSettings"]["Ports"]
     if service == "db":
         if not any(
             m["Type"] == "bind"
             and m["Source"] == str(state_root / "postgres")
             and m["Destination"] == "/var/lib/postgresql"
             for m in mounts
-        ) or ports.get("5432/tcp"):
-            raise AssertionError("PostgreSQL bind or exposure mismatch")
+        ):
+            raise AssertionError("PostgreSQL bind identity mismatch")
     else:
         control = [m for m in mounts if m["Destination"] == "/run/omnis-control"]
         if (
@@ -164,16 +197,35 @@ def _owned_container(
             or control[0]["RW"] is (service == "api")
         ):
             raise AssertionError("Control UID or socket mount mismatch")
-        if service == "api":
-            exposed = ports.get("8765/tcp")
-            if (
-                not exposed
-                or len(exposed) != 1
-                or exposed[0] != {"HostIp": "127.0.0.1", "HostPort": str(port)}
-            ):
-                raise AssertionError("API not bound solely to loopback")
-        elif any(value for value in ports.values()):
-            raise AssertionError("Supervisor port exposure")
+    return item
+
+
+def _owned_container(
+    host: str, ident: str, scratch: Path, project: str, image_id: str, state_root: Path, port: int
+) -> dict[str, object]:
+    item = _attest_container_identity(host, ident, scratch, project, image_id, state_root)
+    service = item["Config"]["Labels"]["com.docker.compose.service"]
+    ports = item["NetworkSettings"]["Ports"]
+    expected_networks = (
+        {f"{project}_control", f"{project}_front"} if service == "api" else {f"{project}_control"}
+    )
+    if (
+        item.get("State", {}).get("Running", True)
+        and set(item["NetworkSettings"]["Networks"]) != expected_networks
+    ):
+        raise AssertionError("Unexpected runtime network membership")
+    if service == "db" and ports.get("5432/tcp"):
+        raise AssertionError("PostgreSQL port exposure")
+    if service == "api":
+        exposed = ports.get("8765/tcp")
+        if (
+            not exposed
+            or len(exposed) != 1
+            or exposed[0] != {"HostIp": "127.0.0.1", "HostPort": str(port)}
+        ):
+            raise AssertionError("API not bound solely to loopback")
+    elif service == "supervisor" and any(value for value in ports.values()):
+        raise AssertionError("Supervisor port exposure")
     return item
 
 
@@ -215,9 +267,13 @@ def _psql(
 
 
 def _http(port: int, path: str) -> tuple[int, bytes]:
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
     origin = f"http://127.0.0.1:{port}"
     request = urllib.request.Request(origin + path, headers={"Host": f"127.0.0.1:{port}"})
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
     try:
         with opener.open(request, timeout=2) as response:
             return response.status, response.read(2 * 1024 * 1024 + 1)
@@ -268,27 +324,77 @@ def _cleanup(
     """Stop only an attested fresh Compose project; never delete its data bind."""
     scratch = empty_env.parent
     ids = _owner_set(host, project, scratch)
+    owned: dict[str, dict[str, object]] = {}
+    problems: list[str] = []
     for ident in ids:
-        _owned_container(host, ident, scratch, project, image_id, state_root, port)
-    network = _docker(host, "network", "inspect", f"{project}_control", cwd=scratch, success=False)
-    if network.returncode == 0:
-        (details,) = json.loads(network.stdout)
-        if details["Labels"].get("com.docker.compose.project") != project or any(
-            ident not in ids for ident in details.get("Containers", {})
+        try:
+            owned[ident] = _attest_container_identity(
+                host, ident, scratch, project, image_id, state_root
+            )
+        except (
+            AssertionError,
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+            subprocess.SubprocessError,
         ):
-            raise AssertionError("Foreign member or network identity")
-    elif "not found" not in network.stderr:
-        raise AssertionError("Network inspection unavailable")
-    for ident in ids:
-        item = _inspect(host, ident, scratch)
-        assert item is not None
+            problems.append("unverifiable container")
+    for name, internal in (("control", True), ("front", False)):
+        try:
+            network = _docker(
+                host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
+            )
+            if network.returncode == 0:
+                (details,) = json.loads(network.stdout)
+                if (
+                    details["Labels"].get("com.docker.compose.project") != project
+                    or details["Internal"] is not internal
+                    or any(ident not in ids for ident in details.get("Containers", {}))
+                ):
+                    problems.append("foreign network member or identity")
+            elif "not found" not in network.stderr:
+                problems.append("network inspection unavailable")
+        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+            problems.append("network inspection unavailable")
+    if problems:
+        for ident in owned:
+            try:
+                _attest_container_identity(host, ident, scratch, project, image_id, state_root)
+                _docker(host, "container", "stop", "--time", "10", ident, cwd=scratch, timeout=30)
+                _docker(host, "container", "rm", ident, cwd=scratch, timeout=30)
+            except (
+                AssertionError,
+                OSError,
+                ValueError,
+                KeyError,
+                TypeError,
+                subprocess.SubprocessError,
+            ):
+                problems.append("owned container stop uncertain")
+        raise AssertionError("Owned cleanup incomplete: " + ", ".join(problems))
+    for ident, item in owned.items():
         if item["Config"]["Labels"].get("com.docker.compose.oneoff") == "True":
+            _attest_container_identity(host, ident, scratch, project, image_id, state_root)
             _docker(host, "container", "rm", "-f", ident, cwd=scratch, timeout=30)
     _compose(host, release, project, empty_env, env, "down", timeout=90)
     if _owner_set(host, project, scratch):
         raise AssertionError("Owned containers survived down")
+    for name in ("control", "front"):
+        absent = _docker(
+            host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
+        )
+        if absent.returncode == 0 or "not found" not in absent.stderr:
+            raise AssertionError("Owned network survived down")
     if not (state_root / "postgres").is_dir():
         raise AssertionError("PostgreSQL bind disappeared")
+
+
+def conclude_cleanup(project: str, state_root: Path, *, uncertain: bool) -> None:
+    if uncertain:
+        print(f"INSTALLED_CONTROL_OUTCOME_UNCERTAIN project={project} data_retained={state_root}")
+        raise AssertionError("Compose daemon outcome uncertain; manual recovery required")
+    print(f"INSTALLED_CONTROL_STOPPED project={project} data_retained={state_root}")
 
 
 def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: str) -> None:
@@ -307,6 +413,10 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     if receipt is None or recorded.get("image_id") != receipt.image_id:
         raise ValueError("Installed image receipt missing or changed")
     host = _preflight(release)
+    version = _docker(
+        host, "version", "--format", "{{.Server.Version}}", cwd=scratch
+    ).stdout.strip()
+    validate_docker_engine(version)
     if (
         host != receipt.docker_host
         or _docker_id(release, host) != receipt.docker_id
@@ -325,9 +435,12 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     project = receipt.project
     if _owner_set(host, project, scratch):
         raise ValueError("Refuse preexisting Compose project")
-    network = _docker(host, "network", "inspect", f"{project}_control", cwd=scratch, success=False)
-    if network.returncode == 0 or "not found" not in network.stderr:
-        raise ValueError("Refuse preexisting or unverifiable network")
+    for name in ("control", "front"):
+        network = _docker(
+            host, "network", "inspect", f"{project}_{name}", cwd=scratch, success=False
+        )
+        if network.returncode == 0 or "not found" not in network.stderr:
+            raise ValueError("Refuse preexisting or unverifiable network")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
         reservation.bind(("127.0.0.1", 0))
@@ -367,6 +480,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         flush=True,
     )
     launched = False
+    uncertain = False
     try:
         if _docker_id(release, host) != receipt.docker_id:
             raise AssertionError("Docker daemon changed before startup")
@@ -583,7 +697,10 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
             f"INSTALLED_CONTROL_VERIFIED project={project} image={receipt.image_id} "
             f"port=127.0.0.1:{port} instance={instance_id} db_system_id={system_id}"
         )
+    except subprocess.TimeoutExpired:
+        uncertain = True
+        raise
     finally:
         if launched:
             _cleanup(host, release, project, empty_env, env, state_root, receipt.image_id, port)
-            print(f"INSTALLED_CONTROL_STOPPED project={project} data_retained={state_root}")
+            conclude_cleanup(project, state_root, uncertain=uncertain)

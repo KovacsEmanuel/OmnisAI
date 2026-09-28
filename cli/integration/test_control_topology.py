@@ -1,17 +1,339 @@
 """Guardrails for the opt-in installed-control topology probe."""
 
+import io
+import json
 import os
 import socket
 import stat
+import subprocess
+import sys
 import tempfile
+import threading
+import time
 import unittest
+from contextlib import redirect_stdout
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-from control_topology import preflight_port, prepare_disposable_postgres, strict_probe_environment
+from control_topology import (
+    _POSTGRES,
+    _cleanup,
+    _docker,
+    _http,
+    _owned_container,
+    conclude_cleanup,
+    preflight_port,
+    prepare_disposable_postgres,
+    strict_probe_environment,
+    validate_docker_engine,
+)
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_timeout_cleanup_cannot_claim_a_settled_daemon(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            with self.assertRaisesRegex(AssertionError, "uncertain"):
+                conclude_cleanup("omnis-local-" + "a" * 32, Path("/private/data"), uncertain=True)
+        self.assertIn("OUTCOME_UNCERTAIN", output.getvalue())
+        self.assertNotIn("STOPPED", output.getvalue())
+
+    def test_docker_timeout_reaps_a_term_resistant_owned_descendant(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            ready = scratch / "child-ready"
+            late = scratch / "late-side-effect"
+            child = (
+                "import signal,time; from pathlib import Path; "
+                "signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+                f"Path({str(ready)!r}).write_text('ready'); "
+                "time.sleep(2); "
+                f"Path({str(late)!r}).write_text('late')"
+            )
+            wrapper = scratch / "docker"
+            wrapper.write_text(
+                f"#!{sys.executable}\nimport subprocess,sys,time\n"
+                f"subprocess.Popen([sys.executable,'-c',{child!r}],"
+                "stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n"
+                "time.sleep(10)\n"
+            )
+            wrapper.chmod(0o700)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                _docker(
+                    "unix:///owned/docker.sock",
+                    "info",
+                    cwd=scratch,
+                    env={"PATH": f"{scratch}:{os.environ.get('PATH', '')}"},
+                    timeout=1,
+                )
+            self.assertTrue(ready.exists(), "A descendant must actually start before timeout")
+            time.sleep(2.3)
+            self.assertFalse(late.exists(), "A killed CLI must not leave a late Docker child")
+
+    def test_foreign_network_member_does_not_keep_owned_containers_running(self):
+        project = "omnis-local-" + "a" * 32
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            state = scratch / "state"
+            (state / "postgres").mkdir(parents=True)
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            live = {"api-id", "db-id"}
+            stopped: set[str] = set()
+
+            def docker(_host, *args, **_kwargs):
+                if args[:2] == ("network", "inspect"):
+                    members = {"foreign-id": {}, **{ident: {} for ident in live}}
+                    return subprocess.CompletedProcess(
+                        args,
+                        0,
+                        stdout=json.dumps(
+                            [
+                                {
+                                    "Labels": {"com.docker.compose.project": project},
+                                    "Internal": args[2].endswith("_control"),
+                                    "Containers": members,
+                                }
+                            ]
+                        ),
+                    )
+                if args[:2] == ("container", "stop"):
+                    stopped.add(args[-1])
+                    return subprocess.CompletedProcess(args, 0)
+                if args[:2] == ("container", "rm"):
+                    self.assertIn(args[-1], stopped)
+                    live.remove(args[-1])
+                    return subprocess.CompletedProcess(args, 0)
+                self.fail("Foreign resources must never be removed")
+
+            def attest(_host, ident, _scratch, _project, _image, _state):
+                self.assertIn(ident, live)
+                return {"Config": {"Labels": {"com.docker.compose.oneoff": "False"}}}
+
+            with (
+                patch("control_topology._owner_set", side_effect=lambda *_args: sorted(live)),
+                patch("control_topology._attest_container_identity", side_effect=attest),
+                patch("control_topology._docker", side_effect=docker),
+                patch("control_topology._compose") as compose,
+            ):
+                with self.assertRaisesRegex(AssertionError, "incomplete"):
+                    _cleanup(
+                        "unix:///owned/docker.sock",
+                        scratch,
+                        project,
+                        empty_env,
+                        {},
+                        state,
+                        "",
+                        8765,
+                    )
+                compose.assert_not_called()
+            self.assertEqual(stopped, {"api-id", "db-id"})
+            self.assertEqual(live, set())
+            self.assertTrue((state / "postgres").is_dir())
+
+    def test_unhealthy_owned_api_does_not_block_disposable_teardown(self):
+        project = "omnis-local-" + "a" * 32
+        image_id = "sha256:" + "b" * 64
+        db_id = "sha256:" + "c" * 64
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            state = scratch / "state"
+            (state / "postgres").mkdir(parents=True)
+            control = state / "control"
+            control.mkdir()
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            api = {
+                "Id": "api-id",
+                "Config": {
+                    "Image": image_id,
+                    "User": f"{os.getuid()}:{os.getgid()}",
+                    "Labels": {
+                        "com.docker.compose.project": project,
+                        "com.docker.compose.service": "api",
+                    },
+                },
+                "Image": image_id,
+                "HostConfig": {"Privileged": False},
+                "Mounts": [
+                    {"Destination": "/run/omnis-control", "Source": str(control), "RW": False}
+                ],
+                "NetworkSettings": {
+                    "Ports": {},
+                    "Networks": {f"{project}_control": {}, f"{project}_front": {}},
+                },
+                "State": {"Running": True},
+            }
+            db = {
+                "Id": "db-id",
+                "Config": {
+                    "Image": _POSTGRES,
+                    "Labels": {
+                        "com.docker.compose.project": project,
+                        "com.docker.compose.service": "db",
+                    },
+                },
+                "Image": db_id,
+                "HostConfig": {"Privileged": False},
+                "Mounts": [
+                    {
+                        "Type": "bind",
+                        "Destination": "/var/lib/postgresql",
+                        "Source": str(state / "postgres"),
+                        "RW": True,
+                    }
+                ],
+                "NetworkSettings": {
+                    "Ports": {"5432/tcp": None},
+                    "Networks": {f"{project}_control": {}},
+                },
+                "State": {"Running": True},
+            }
+            resources = {"api-id": api, "db-id": db}
+            removed = False
+
+            def docker(_host, *args, **_kwargs):
+                if args[:2] == ("network", "inspect"):
+                    if removed:
+                        return subprocess.CompletedProcess(args, 1, stderr="network not found")
+                    name = args[2]
+                    members = (
+                        {"api-id": {}, "db-id": {}} if name.endswith("_control") else {"api-id": {}}
+                    )
+                    return subprocess.CompletedProcess(
+                        args,
+                        0,
+                        stdout=json.dumps(
+                            [
+                                {
+                                    "Labels": {"com.docker.compose.project": project},
+                                    "Internal": name.endswith("_control"),
+                                    "Containers": members,
+                                }
+                            ]
+                        ),
+                    )
+                self.fail("Unexpected Docker request")
+
+            def compose(_host, _release, _project, _empty, _env, *args, **_kwargs):
+                nonlocal removed
+                self.assertEqual(args, ("down",))
+                removed = True
+                return subprocess.CompletedProcess(args, 0)
+
+            def owners(_host, _project, _scratch):
+                return [] if removed else ["api-id", "db-id"]
+
+            with (
+                patch("control_topology._owner_set", side_effect=owners),
+                patch(
+                    "control_topology._inspect", side_effect=lambda _h, ident, _s: resources[ident]
+                ),
+                patch(
+                    "control_topology._expected_image_id",
+                    side_effect=lambda _h, image, _s: db_id if image == _POSTGRES else image_id,
+                ),
+                patch("control_topology._docker", side_effect=docker),
+                patch("control_topology._compose", side_effect=compose),
+            ):
+                _cleanup(
+                    "unix:///owned/docker.sock",
+                    scratch,
+                    project,
+                    empty_env,
+                    {},
+                    state,
+                    image_id,
+                    8765,
+                )
+            self.assertTrue(removed)
+            self.assertTrue((state / "postgres").is_dir())
+
+    def test_postgres_must_not_join_the_front_network_at_runtime(self):
+        project = "omnis-local-" + "a" * 32
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            db_image_id = "sha256:" + "b" * 64
+            container = {
+                "Id": "owned-db",
+                "Config": {
+                    "Labels": {
+                        "com.docker.compose.project": project,
+                        "com.docker.compose.service": "db",
+                    },
+                    "Image": _POSTGRES,
+                },
+                "Image": db_image_id,
+                "HostConfig": {"Privileged": False},
+                "Mounts": [
+                    {
+                        "Type": "bind",
+                        "Source": str(state / "postgres"),
+                        "Destination": "/var/lib/postgresql",
+                    }
+                ],
+                "NetworkSettings": {
+                    "Ports": {"5432/tcp": None},
+                    "Networks": {f"{project}_control": {}, f"{project}_front": {}},
+                },
+            }
+            with (
+                patch("control_topology._inspect", return_value=container),
+                patch("control_topology._expected_image_id", return_value=db_image_id),
+            ):
+                with self.assertRaisesRegex(AssertionError, "network"):
+                    _owned_container(
+                        "unix:///owned/docker.sock", "owned-db", state, project, "", state, 8765
+                    )
+
+    def test_docker_27_is_not_a_private_loopback_proof(self):
+        with self.assertRaises(ValueError):
+            validate_docker_engine("27.5.1+dfsg4")
+
+    def test_docker_28_is_eligible_for_a_later_lan_probe(self):
+        validate_docker_engine("28.0.0")
+
+    def test_redirect_does_not_contact_a_second_loopback_sink(self):
+        hit = threading.Event()
+
+        class Sink(BaseHTTPRequestHandler):
+            def do_GET(self):
+                hit.set()
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"{}")
+
+            def log_message(self, format: str, *args: object) -> None:
+                pass
+
+        with ThreadingHTTPServer(("127.0.0.1", 0), Sink) as sink:
+
+            class Redirect(BaseHTTPRequestHandler):
+                def do_GET(self):
+                    self.send_response(302)
+                    self.send_header("Location", f"http://127.0.0.1:{sink.server_port}/sink")
+                    self.end_headers()
+
+                def log_message(self, format: str, *args: object) -> None:
+                    pass
+
+            with ThreadingHTTPServer(("127.0.0.1", 0), Redirect) as source:
+                sink_thread = threading.Thread(target=sink.serve_forever, daemon=True)
+                source_thread = threading.Thread(target=source.serve_forever, daemon=True)
+                sink_thread.start()
+                source_thread.start()
+                try:
+                    status, _body = _http(source.server_port, "/health/ready")
+                    self.assertEqual(status, 302)
+                    self.assertFalse(hit.is_set(), "A redirect is not authorized target traffic")
+                finally:
+                    source.shutdown()
+                    sink.shutdown()
+                    source_thread.join(timeout=2)
+                    sink_thread.join(timeout=2)
+
     def test_pg18_bind_root_is_traversable_only_under_private_state(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             state = Path(name) / "state"

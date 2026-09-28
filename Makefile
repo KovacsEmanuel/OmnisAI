@@ -134,6 +134,7 @@ check-installed-image: check-release-install
 check-installed-control: check-release-install
 	@$(CLI_PY) -I -c 'import os; assert not any(k.startswith(("DOCKER_", "COMPOSE_", "PG")) for k in os.environ), "Ambient Docker/Compose/libpq override"'
 	@docker context inspect "$$(docker context show)" --format '{{(index .Endpoints "docker").Host}}' | $(CLI_PY) -I -c 'import pathlib,sys; h=sys.stdin.read().strip(); assert h.startswith("unix://") and pathlib.Path(h[7:]).is_socket()'
+	@$(CLI_PY) -I -c 'import pathlib,subprocess,sys; sys.path.insert(0,str(pathlib.Path.cwd()/"cli/integration")); from control_topology import validate_docker_engine; v=subprocess.run(["docker","version","--format","{{.Server.Version}}"],capture_output=True,text=True,timeout=15,check=True).stdout.strip(); validate_docker_engine(v)'
 	docker image inspect 'postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650' --format '{{.Id}} {{.Architecture}}'
 	docker image inspect 'python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a' --format '{{.Id}} {{.Architecture}}'
 	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_CONTROL_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v

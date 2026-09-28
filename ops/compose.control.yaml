@@ -65,7 +65,7 @@ services:
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    networks: [control]
+    networks: [control, front]
     restart: "no"
 secrets:
   db_password:
@@ -73,3 +73,7 @@ secrets:
 networks:
   control:
     internal: true
+  # Docker cannot publish a host loopback port from an internal-only bridge.
+  # Only API joins this front bridge; DB and supervisor remain internal.
+  front:
+    internal: false

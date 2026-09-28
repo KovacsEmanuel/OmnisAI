@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 
+from .compose import ImageInstallError, install_control_image
 from .release import ReleaseError, install_release
 from .status import status
 
@@ -20,6 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     install_parser.add_argument(
         "--bundle", type=Path, required=True, help="Absolute bundle directory"
     )
+    commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
     if args.command == "status":
         return status(as_json=args.json)
@@ -35,6 +37,16 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
         print("Release Omnis 0.1.0 instalat; pornirea serviciilor nu este încă implementată.")
+        return 0
+    if args.command == "install-image":
+        data_home = os.environ.get("XDG_DATA_HOME")
+        root = Path(data_home) if data_home else Path.home() / ".local/share"
+        try:
+            receipt = install_control_image(root)
+        except ImageInstallError:
+            print("IMAGE_INSTALL_REFUSED: verificați releaseul și Docker local.", file=sys.stderr)
+            return 2
+        print(f"Control image instalată: {receipt.image_id}; serviciile nu au fost pornite.")
         return 0
     return 2
 

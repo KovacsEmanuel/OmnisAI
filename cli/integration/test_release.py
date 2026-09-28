@@ -1,18 +1,610 @@
 """Build and install a real locked control bundle outside the checkout."""
 
+import hashlib
 import json
 import os
+import shutil
+import signal
+import socket
 import subprocess
+import sys
 import tempfile
+import time
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
+
+from omnis_cli.compose import _checked_socket, _docker_id, _record
+from omnis_cli.instance import private_dir
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseBundleTest(unittest.TestCase):
+    def run_cli_scope(self, argv, *, cwd, env, timeout):
+        """Own the CLI and its Docker child as one process group on timeout."""
+        process = subprocess.Popen(
+            argv,
+            cwd=cwd,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except BaseException:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                process.communicate(timeout=1)
+            except subprocess.TimeoutExpired:
+                pass
+            finally:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.communicate(timeout=5)
+            raise
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
+    def test_cli_timeout_kills_a_term_resistant_owned_child(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            ready = scratch / "ready"
+            late = scratch / "late-tag"
+            child = (
+                "import os,signal,time; from pathlib import Path; "
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                f"Path({str(ready)!r}).write_text(str(os.getpid())); "
+                "time.sleep(2); "
+                f"Path({str(late)!r}).write_text('late')"
+            )
+            parent = scratch / "driver.py"
+            parent.write_text(
+                "import subprocess,sys,time\n"
+                f"subprocess.Popen([sys.executable, '-c', {child!r}], "
+                "stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
+                "time.sleep(10)\n"
+            )
+            with self.assertRaises(subprocess.TimeoutExpired):
+                self.run_cli_scope(
+                    [sys.executable, str(parent)],
+                    cwd=scratch,
+                    env={"PATH": os.environ.get("PATH", "")},
+                    timeout=1,
+                )
+            self.assertTrue(ready.is_file(), "Child must have started before timeout")
+            time.sleep(2.2)
+            self.assertFalse(late.exists(), "Owned child must not publish after timeout")
+
+    @contextmanager
+    def bundle_scratch(self):
+        scratch = Path(tempfile.mkdtemp(prefix="omnis-bundle-", dir=os.environ["TMPDIR"]))
+        keep = False
+        try:
+            yield scratch
+        except BaseException:
+            root = scratch / "data/omnis"
+            keep = (root / "image-installing.json").exists() or (root / "image.json").exists()
+            if keep:
+                print(f"IMAGE_RECOVERY_INTENT retained at {scratch}", file=sys.stderr)
+            raise
+        finally:
+            if not keep:
+                shutil.rmtree(scratch)
+
+    def test_uncertain_install_preserves_private_recovery_intent(self):
+        scratch = None
+        try:
+            with self.assertRaisesRegex(RuntimeError, "uncertain"):
+                with self.bundle_scratch() as scratch:
+                    intent = scratch / "data/omnis/image-installing.json"
+                    intent.parent.mkdir(parents=True, mode=0o700)
+                    intent.write_text("synthetic-intent")
+                    raise RuntimeError("uncertain")
+            self.assertIsNotNone(scratch)
+            self.assertEqual(intent.read_text(), "synthetic-intent")
+        finally:
+            if scratch is not None:
+                shutil.rmtree(scratch)
+
+    def test_probe_of_installed_image_reaps_its_named_container_on_timeout(self):
+        host = "unix:///run/docker.sock"
+        receipt = {
+            "docker_host": host,
+            "project": "omnis-local-" + "a" * 32,
+            "image_id": "sha256:" + "b" * 64,
+        }
+        removed = False
+        started = False
+
+        def docker(argv, **_kwargs):
+            nonlocal removed, started
+            if argv[:5] == ["docker", "--host", host, "container", "inspect"]:
+                if removed or not started:
+                    return subprocess.CompletedProcess(argv, 1, stderr="No such container")
+                return subprocess.CompletedProcess(
+                    argv,
+                    0,
+                    stdout=json.dumps(
+                        [
+                            {
+                                "Image": receipt["image_id"],
+                                "Config": {"Labels": {"org.omnis.project": receipt["project"]}},
+                            }
+                        ]
+                    ),
+                )
+            if argv[:3] == ["docker", "--host", host] and argv[3] == "run":
+                started = True
+                self.assertIn("none", argv)
+                self.assertIn("--read-only", argv)
+                self.assertIn(receipt["image_id"], argv)
+                raise subprocess.TimeoutExpired(argv, 25)
+            if argv[:6] == ["docker", "--host", host, "container", "rm", "-f"]:
+                removed = True
+                return subprocess.CompletedProcess(argv, 0)
+            self.fail("Unexpected Docker operation")
+
+        with patch("subprocess.run", side_effect=docker):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                self.probe_installed_image(receipt, Path(os.environ["TMPDIR"]))
+        self.assertTrue(removed)
+
+    def probe_installed_image(self, receipt, scratch):
+        """Execute the exact read-back image ID with no network or writable rootfs."""
+        host = receipt["docker_host"]
+        name = "omnis-p04-installed-" + receipt["project"].removeprefix("omnis-local-")
+        inspect = ["docker", "--host", host, "container", "inspect", name]
+        before = subprocess.run(
+            inspect, cwd=scratch, capture_output=True, text=True, timeout=15, check=False
+        )
+        self.assertNotEqual(before.returncode, 0, "Refuse a preexisting container name")
+        self.assertIn("No such container", before.stderr, "Container preflight uncertain")
+        uid = os.getuid() if os.getuid() not in {0, 65532} else 1001
+        command = [
+            "docker",
+            "--host",
+            host,
+            "run",
+            "--name",
+            name,
+            "--label",
+            f"org.omnis.project={receipt['project']}",
+            "--network",
+            "none",
+            "--read-only",
+            "--cap-drop",
+            "ALL",
+            "--security-opt",
+            "no-new-privileges",
+            "--user",
+            f"{uid}:{uid}",
+            receipt["image_id"],
+            "python",
+            "-I",
+            "-c",
+            "import os; from omnis.api import create_app; "
+            "from omnis.core.web_assets import WebAssets; assert create_app().routes; "
+            "assets=WebAssets(os.environ['OMNIS_WEB_ROOT']).load(); "
+            "assert assets and 'index.html' in assets; "
+            "print('IMAGE_RUNTIME_OK uid=' + str(os.getuid()))",
+        ]
+        try:
+            result = subprocess.run(
+                command, cwd=scratch, capture_output=True, text=True, timeout=25, check=False
+            )
+            self.assertEqual(result.returncode, 0, "Installed image cannot load API/assets")
+            self.assertEqual(result.stdout.strip(), f"IMAGE_RUNTIME_OK uid={uid}")
+        finally:
+            owned = subprocess.run(
+                inspect, cwd=scratch, capture_output=True, text=True, timeout=15, check=False
+            )
+            if owned.returncode:
+                self.assertIn("No such container", owned.stderr, "Container cleanup uncertain")
+            else:
+                (container,) = json.loads(owned.stdout)
+                self.assertEqual(container["Image"], receipt["image_id"])
+                self.assertEqual(
+                    container["Config"]["Labels"].get("org.omnis.project"), receipt["project"]
+                )
+                subprocess.run(
+                    ["docker", "--host", host, "container", "rm", "-f", name],
+                    cwd=scratch,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    check=True,
+                )
+                absent = subprocess.run(
+                    inspect, cwd=scratch, capture_output=True, text=True, timeout=15, check=False
+                )
+                self.assertNotEqual(absent.returncode, 0, "Installed probe container survived")
+                self.assertIn("No such container", absent.stderr)
+
+    def test_image_install_timeout_cleans_recorded_tag(self):
+        project = "omnis-local-" + "a" * 32
+        tag = "omnis-control-" + "a" * 32 + ":0.1.0"
+        removed = False
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            data = scratch / "data"
+            root = data / "omnis"
+            release = root / "releases/0.1.0"
+            release.mkdir(parents=True, mode=0o700)
+            root.chmod(0o700)
+            manifest = b'{"synthetic":"manifest"}'
+            (release / "release.json").write_bytes(manifest)
+            digest = hashlib.sha256(manifest).hexdigest()
+            with socket.socket(socket.AF_UNIX) as listener:
+                path = scratch / "docker.sock"
+                listener.bind(str(path))
+                host = f"unix://{path}"
+                intent = root / "image-installing.json"
+                intent.write_text(
+                    json.dumps(
+                        {
+                            "format": 1,
+                            "release": "0.1.0",
+                            "project": project,
+                            "tag": tag,
+                            "manifest_sha256": digest,
+                            "docker_host": host,
+                            "docker_id": "daemon-identity",
+                        }
+                    )
+                )
+                intent.chmod(0o600)
+
+                def command(argv, **_kwargs):
+                    nonlocal removed
+                    if argv[:3] == ["docker", "--host", host] and argv[3] == "info":
+                        return subprocess.CompletedProcess(argv, 0, stdout="daemon-identity\n")
+                    if argv[:3] == ["docker", "--host", host] and argv[3:5] == ["image", "inspect"]:
+                        if removed:
+                            return subprocess.CompletedProcess(
+                                argv, 1, stdout="", stderr="No such image"
+                            )
+                        return subprocess.CompletedProcess(
+                            argv,
+                            0,
+                            stdout=json.dumps(
+                                [
+                                    {
+                                        "Id": "sha256:" + "b" * 64,
+                                        "Config": {
+                                            "Labels": {
+                                                "org.omnis.project": project,
+                                                "org.omnis.bundle_sha256": digest,
+                                            }
+                                        },
+                                    }
+                                ]
+                            ),
+                        )
+                    if argv[:3] == ["docker", "--host", host] and argv[3:5] == ["image", "rm"]:
+                        removed = True
+                        return subprocess.CompletedProcess(argv, 0)
+                    raise AssertionError("Unexpected cleanup operation")
+
+                with (
+                    patch("subprocess.run", side_effect=command),
+                    patch.object(
+                        self,
+                        "run_cli_scope",
+                        side_effect=subprocess.TimeoutExpired(["/synthetic/omnis"], 420),
+                    ),
+                ):
+                    with self.assertRaisesRegex(AssertionError, "uncertain"):
+                        self.assert_image_install("/synthetic/omnis", {"PATH": ""}, data, scratch)
+        self.assertTrue(removed, "A CLI timeout must clean its owned tagged image")
+
+    def test_timeout_with_late_image_keeps_uncertainty_after_cleanup(self):
+        project = "omnis-local-" + "a" * 32
+        tag = "omnis-control-" + "a" * 32 + ":0.1.0"
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            data = scratch / "data"
+            root = data / "omnis"
+            release = root / "releases/0.1.0"
+            release.mkdir(parents=True, mode=0o700)
+            root.chmod(0o700)
+            manifest = b'{"synthetic":"manifest"}'
+            (release / "release.json").write_bytes(manifest)
+            digest = hashlib.sha256(manifest).hexdigest()
+            with socket.socket(socket.AF_UNIX) as listener:
+                path = scratch / "docker.sock"
+                listener.bind(str(path))
+                host = f"unix://{path}"
+                intent = root / "image-installing.json"
+                intent.write_text(
+                    json.dumps(
+                        {
+                            "format": 1,
+                            "release": "0.1.0",
+                            "project": project,
+                            "tag": tag,
+                            "manifest_sha256": digest,
+                            "docker_host": host,
+                            "docker_id": "daemon-identity",
+                        }
+                    )
+                )
+                intent.chmod(0o600)
+                inspected = 0
+                removed = False
+
+                def command(argv, **_kwargs):
+                    nonlocal inspected, removed
+                    if argv[:3] != ["docker", "--host", host]:
+                        self.fail("Unexpected endpoint")
+                    if argv[3] == "info":
+                        return subprocess.CompletedProcess(argv, 0, stdout="daemon-identity\n")
+                    if argv[3:5] == ["image", "inspect"]:
+                        inspected += 1
+                        if inspected == 1 or removed:
+                            return subprocess.CompletedProcess(argv, 1, stderr="No such image")
+                        return subprocess.CompletedProcess(
+                            argv,
+                            0,
+                            stdout=json.dumps(
+                                [
+                                    {
+                                        "Id": "sha256:" + "b" * 64,
+                                        "Config": {
+                                            "Labels": {
+                                                "org.omnis.project": project,
+                                                "org.omnis.bundle_sha256": digest,
+                                            }
+                                        },
+                                    }
+                                ]
+                            ),
+                        )
+                    if argv[3:5] == ["image", "rm"]:
+                        removed = True
+                        return subprocess.CompletedProcess(argv, 0)
+                    self.fail("Unexpected Docker operation")
+
+                with (
+                    patch("subprocess.run", side_effect=command),
+                    patch.object(
+                        self,
+                        "run_cli_scope",
+                        side_effect=subprocess.TimeoutExpired(["/synthetic/omnis"], 420),
+                    ),
+                ):
+                    with self.assertRaisesRegex(AssertionError, "uncertain"):
+                        self.assert_image_install("/synthetic/omnis", {"PATH": ""}, data, scratch)
+                self.assertTrue(removed)
+                self.assertGreaterEqual(inspected, 3)
+                self.assertTrue(intent.exists(), "Recovery identity must survive uncertainty")
+
+    def test_cleanup_rejects_daemon_switch_before_deletion(self):
+        project = "omnis-local-" + "a" * 32
+        tag = "omnis-control-" + "a" * 32 + ":0.1.0"
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            data = scratch / "data"
+            root = data / "omnis"
+            release = root / "releases/0.1.0"
+            release.mkdir(parents=True, mode=0o700)
+            root.chmod(0o700)
+            manifest = b'{"synthetic":"manifest"}'
+            (release / "release.json").write_bytes(manifest)
+            digest = hashlib.sha256(manifest).hexdigest()
+            with socket.socket(socket.AF_UNIX) as listener:
+                path = scratch / "docker.sock"
+                listener.bind(str(path))
+                host = f"unix://{path}"
+                intent = root / "image-installing.json"
+                intent.write_text(
+                    json.dumps(
+                        {
+                            "format": 1,
+                            "release": "0.1.0",
+                            "project": project,
+                            "tag": tag,
+                            "manifest_sha256": digest,
+                            "docker_host": host,
+                            "docker_id": "daemon-one",
+                        }
+                    )
+                )
+                intent.chmod(0o600)
+
+                def command(argv, **_kwargs):
+                    if argv[:3] == ["docker", "--host", host] and argv[3:5] == ["image", "inspect"]:
+                        return subprocess.CompletedProcess(
+                            argv,
+                            0,
+                            stdout=json.dumps(
+                                [
+                                    {
+                                        "Id": "sha256:" + "b" * 64,
+                                        "Config": {
+                                            "Labels": {
+                                                "org.omnis.project": project,
+                                                "org.omnis.bundle_sha256": digest,
+                                            }
+                                        },
+                                    }
+                                ]
+                            ),
+                        )
+                    self.fail("No deletion or other Docker operation after daemon switch")
+
+                with (
+                    patch("subprocess.run", side_effect=command),
+                    patch("test_release._docker_id", side_effect=["daemon-one", "daemon-two"]),
+                ):
+                    with self.assertRaisesRegex(AssertionError, "daemon changed"):
+                        self.cleanup_image_install(data)
+                self.assertTrue(intent.exists())
+
+    def cleanup_image_install(self, data, *, uncertain=False):
+        root = data / "omnis"
+        if not root.exists():
+            return
+        private_dir(root)
+        manifest_sha = hashlib.sha256(
+            (root / "releases/0.1.0/release.json").read_bytes()
+        ).hexdigest()
+        record = None
+        malformed = False
+        for path, complete in (
+            (root / "image.json", True),
+            (root / "image-installing.json", False),
+        ):
+            try:
+                record = _record(path, manifest_sha, complete=complete)
+            except (OSError, ValueError):
+                malformed = True
+                continue
+            if record is not None:
+                break
+        if record is None:
+            self.assertFalse(malformed, "Image cleanup uncertain: unreadable intent/receipt")
+            self.assertFalse(uncertain, "Image outcome uncertain: no recovery intent")
+            return  # The installer writes intent before invoking Docker build.
+        self.assertEqual(_checked_socket(record.docker_host), record.docker_host)
+        self.assertEqual(
+            _docker_id(root, record.docker_host),
+            record.docker_id,
+            "Image cleanup uncertain: Docker daemon changed",
+        )
+        args = ["docker", "--host", record.docker_host, "image", "inspect", record.tag]
+        owned = subprocess.run(args, capture_output=True, text=True, timeout=15, check=False)
+        if owned.returncode:
+            self.assertTrue(
+                "No such image" in owned.stderr or "No such object" in owned.stderr,
+                "Image cleanup uncertain: Docker unavailable",
+            )
+            if not uncertain:
+                return
+            self.assertEqual(
+                _docker_id(root, record.docker_host),
+                record.docker_id,
+                "Image cleanup uncertain: Docker daemon changed",
+            )
+            time.sleep(0.1)
+            owned = subprocess.run(args, capture_output=True, text=True, timeout=15, check=False)
+            if owned.returncode:
+                self.assertTrue(
+                    "No such image" in owned.stderr or "No such object" in owned.stderr,
+                    "Image cleanup uncertain: Docker unavailable",
+                )
+                raise AssertionError("Image outcome uncertain: late daemon build may publish")
+        (image,) = json.loads(owned.stdout)
+        self.assertEqual(image["Config"]["Labels"]["org.omnis.project"], record.project)
+        self.assertEqual(
+            image["Config"]["Labels"]["org.omnis.bundle_sha256"], record.manifest_sha256
+        )
+        if record.image_id:
+            self.assertEqual(image["Id"], record.image_id)
+        self.assertEqual(
+            _docker_id(root, record.docker_host),
+            record.docker_id,
+            "Image cleanup uncertain: Docker daemon changed",
+        )
+        subprocess.run(
+            ["docker", "--host", record.docker_host, "image", "rm", record.tag],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+        again = subprocess.run(args, capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(
+            _docker_id(root, record.docker_host),
+            record.docker_id,
+            "Image cleanup uncertain: Docker daemon changed",
+        )
+        self.assertNotEqual(again.returncode, 0, "Owned image survived cleanup")
+        self.assertIn("No such image", again.stderr)
+        if uncertain:
+            raise AssertionError("Image outcome uncertain: daemon build may publish later")
+
+    def assert_image_install(self, cli, env, data, scratch):
+        uncertain = False
+        try:
+            result = self.run_cli_scope(
+                [cli, "install-image"],
+                cwd=scratch,
+                env=env,
+                timeout=420,
+            )
+            self.assertEqual(result.returncode, 0, "Installed CLI did not build the local image")
+            receipt = data / "omnis/image.json"
+            self.assertEqual(receipt.stat().st_mode & 0o777, 0o600)
+            state = json.loads(receipt.read_text())
+            host = state["docker_host"]
+            self.assertEqual(_checked_socket(host), host)
+            self.assertEqual(_docker_id(data / "omnis", host), state["docker_id"])
+            probe = subprocess.run(
+                ["docker", "--host", host, "image", "inspect", state["tag"]],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                check=True,
+            )
+            (image,) = json.loads(probe.stdout)
+            self.assertEqual(image["Id"], state["image_id"])
+            self.assertEqual(image["Config"]["Labels"]["org.omnis.project"], state["project"])
+            self.assertEqual(
+                image["Config"]["Labels"]["org.omnis.bundle_sha256"], state["manifest_sha256"]
+            )
+            self.assertEqual(image["Config"]["User"], "65532:65532")
+            self.probe_installed_image(state, scratch)
+            docker_binary = shutil.which("docker")
+            self.assertIsNotNone(docker_binary)
+            denial = scratch / "deny-image-rebuild"
+            denial.mkdir(mode=0o700)
+            wrapper = denial / "docker"
+            wrapper.write_text(
+                "#!/usr/bin/env python3\nimport os,sys\n"
+                "if 'build' in sys.argv[1:]: sys.exit(97)\n"
+                f"os.execv({docker_binary!r}, [{docker_binary!r}, *sys.argv[1:]])\n"
+            )
+            wrapper.chmod(0o700)
+            denied_build = subprocess.run(
+                [str(wrapper), "build"],
+                cwd=scratch,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+            self.assertEqual(denied_build.returncode, 97, "Negative build control must reject")
+            repeat_env = {**env, "PATH": f"{denial}:{env['PATH']}"}
+            repeated = subprocess.run(
+                [cli, "install-image"],
+                cwd=scratch,
+                env=repeat_env,
+                capture_output=True,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+            self.assertEqual(repeated.returncode, 0, "Same installed image must be idempotent")
+            self.assertEqual(json.loads(receipt.read_text()), state)
+            self.assertNotIn(
+                str(scratch), result.stdout + result.stderr + repeated.stdout + repeated.stderr
+            )
+        except subprocess.TimeoutExpired:
+            uncertain = True
+            raise
+        finally:
+            self.cleanup_image_install(data, uncertain=uncertain)
+        print(f"IMAGE_INSTALLED_VERIFIED id={state['image_id']} project={state['project']}")
+
     def assert_compose_config(self, installed_root, scratch):
         state = scratch / "state"
         control = scratch / "control"
@@ -420,8 +1012,7 @@ class ReleaseBundleTest(unittest.TestCase):
         uv = os.environ["OMNIS_UV"]
         cli = os.environ["OMNIS_CLI_BIN"]
         self.assertTrue((ROOT / "web/dist/omnis-web.json").is_file(), "Build web first")
-        with tempfile.TemporaryDirectory(prefix="omnis-bundle-", dir=os.environ["TMPDIR"]) as name:
-            scratch = Path(name)
+        with self.bundle_scratch() as scratch:
 
             def run(argv, *, env=None, expected=0, timeout=120):
                 result = subprocess.run(
@@ -561,6 +1152,8 @@ class ReleaseBundleTest(unittest.TestCase):
                 self.assertNotIn("Installed Compose config refused", str(failure.exception))
             if os.environ.get("OMNIS_IMAGE_PROBE") == "1":
                 self.probe_image(installed_root, scratch)
+            if os.environ.get("OMNIS_INSTALL_IMAGE_PROBE") == "1":
+                self.assert_image_install(cli, env, data, scratch)
             run([cli, "install", "--bundle", str(bundle)], env=env)
             report = run([cli, "status", "--json"], env=env, expected=3)
             self.assertEqual(json.loads(report.stdout)["state"], "NOT_INSTALLED")

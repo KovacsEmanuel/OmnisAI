@@ -70,6 +70,19 @@ class AmendmentContracts(unittest.TestCase):
         self.assertNotIn("Katana/Nuclei/sqlmap nu sunt dependențe baseline", stack)
         self.assertIn("UI16", document("Implementation_Plan"))
 
+    def test_adaptive_loop_is_separate_from_first_finding(self):
+        architecture = document("MVP_Architecture")
+        for heading in ["### 5.1. Jev DecisionAdvisor", "### 6.1. Bucla de investigație condusă de Brain",
+                        "### 6.2. Module versionate, research și improvement"]:
+            self.assertTrue(heading in architecture, f"Missing normative heading: {heading}")
+        plan = document("Implementation_Plan")
+        for token in ["G-LOOP", "G-PATH", "G-AUTH-HTTP", "G-JEV", "G-MODULE",
+                      "G-RESEARCH", "G-WORDLIST", "G-IMPROVE", "G-HERMES-BOUND"]:
+            self.assertIn(token, plan)
+        self.assertIn("Research este opțional", architecture)
+        self.assertIn("nu prerechizit al primului finding", architecture)
+        self.assertIn("WAITING_FOR_RUNTIME_SLOT", architecture)
+
 
 if __name__ == "__main__":
     unittest.main()

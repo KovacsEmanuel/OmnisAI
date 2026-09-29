@@ -142,7 +142,7 @@ components:
 
 **Surface primar: Operate / Monitor; secundar: Inspect.** Omnis prioritizează stadiul engagementului, deciziile operatorului și lanțul observație → acțiune → dovadă → verdict. Antetul amplu și metricile cerute explicit urmează compoziția referinței; nu sunt înlocuite cu o consolă minimalistă generică.
 
-**VISUAL_ACCEPTED — prototip `df17a29`:** utilizatorul a acceptat direcția vizuală după iterațiile respinse. Referința `omnis-cockpit-v5.html` și proveniența sunt în UI/UX §0. Negru cald, ivory/taupe, accent nisipiu, capsule și double-bezel; compoziția/densitatea se păstrează la portare, nu numai culorile. Fără brain graph/council/Chains. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. Prototipul rămâne DEMO, nu aplicație, iar acordul de pornire este separat.
+**VISUAL_ACCEPTED — prototip `df17a29`:** utilizatorul a acceptat direcția vizuală după iterațiile respinse. Referința `omnis-cockpit-v5.html` și proveniența sunt în UI/UX §0. Negru cald, ivory/taupe, accent nisipiu, capsule și double-bezel; compoziția/densitatea se păstrează la portare, nu numai culorile. Fără brain graph/council sau tab Chains. Amendamentul G-PATH permite numai timeline bounded în finding inspector; extensia cere verificare/aprobare vizuală separată și nu schimbă acceptarea df17a29. Tema light a aplicației rămâne post-MVP; raportul imprimabil este light. Prototipul rămâne DEMO, nu aplicație, iar acordul de pornire este separat.
 
 ## Colors
 
@@ -164,7 +164,7 @@ Body desktop 14.5px, mobil/form input 16px; metadata minimum 12px. Dashboard dis
 - <1024px: drawer cu grup contextual, dashboard într-o coloană, detaliu full-width; Stop în topbar persistent. În afara engagementului topbarul este o bandă compactă cu identitatea runului activ, fără taburi de țintă. Tabelele derulează local, niciodată întreaga pagină.
 - 320–600px: acțiuni pe două rânduri dacă este nevoie; wizard într-o singură coloană; finding/evidence detail stack. Nu ascundem verdictul, identitatea, snapshotul sau motivul blocajului pentru a câștiga spațiu.
 
-Spacing pe multipli de 4px. Metricile și donutul de 128px sunt componente cerute, cu count/numitor/snapshot explicite. Dashboard central selectează engagementul, nu se substituie lui. Skills/Runtime apar numai sub Settings. Nu adăugăm precision/confidence fără definiție, model tiers sau Chains. Copy-ul fixture-ului și controalele de simulare nu sunt cerințe de produs aprobate. Proveniența și legătura la backend sunt în `documents/Omnis_UI_UX_Spec.md`.
+Spacing pe multipli de 4px. Metricile și donutul de 128px sunt componente cerute, cu count/numitor/snapshot explicite. Dashboard central selectează engagementul, nu se substituie lui. Skills/Runtime apar numai sub Settings. Nu adăugăm precision/confidence fără definiție, model tiers sau tab Chains. Setupul mode/obiectiv, rosterul, path timeline și editorii versionați refolosesc aceste componente; sunt contracte funcționale noi, nu aprobare vizuală automată. Copy-ul fixture-ului și controalele de simulare nu sunt cerințe de produs aprobate. Proveniența și legătura la backend sunt în `documents/Omnis_UI_UX_Spec.md`.
 
 ## Elevation & Depth
 

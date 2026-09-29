@@ -79,7 +79,8 @@ class BaselineContracts(unittest.TestCase):
         rows = re.findall(r'^\| ([A-Za-z0-9+-]+) \| ([^|]+) \|', section, re.M)
         graph = {name: set() if deps.strip() == '—' else set(deps.strip().split(', ')) for name, deps in rows}
         expected = {'P0-control', 'P1-data', 'P1-web', 'P2-inert', 'P4a-minim', 'P2-live',
-                    'B01e-build', 'P3a', 'P3b', 'P5a+P6a', 'P5b+P6b', 'P4b', 'P7', 'P8'}
+                    'B01e-build', 'P3a', 'P3-auth', 'P3b', 'P5a+P6a', 'P5b+P6b', 'P4b', 'P7', 'P8',
+                    'P-LOOP', 'P-FOCUS', 'P-PATH', 'P-JEV'}
         self.assertEqual(set(graph), expected)
         self.assertEqual(len(rows), len(graph))
         self.assertTrue(all(deps <= expected for deps in graph.values()))
@@ -87,6 +88,11 @@ class BaselineContracts(unittest.TestCase):
         self.assertIn('P1-data', graph['P2-inert'])
         self.assertEqual(graph['P2-live'], {'P2-inert', 'P4a-minim'})
         self.assertIn('B01e-build', graph['P3a'])
+        self.assertEqual(graph['P5a+P6a'], {'P3-auth'})
+        self.assertEqual(graph['P-LOOP'], {'P5a+P6a'})
+        self.assertEqual(graph['P-FOCUS'], {'P5a+P6a'})
+        self.assertEqual(graph['P-PATH'], {'P-LOOP', 'P5b+P6b'})
+        self.assertIn('P3b', graph['P5b+P6b'])
         for name in ['Omnis_MVP_Architecture.md', 'Omnis_Stack_Baseline.md']:
             text = (DOCS / name).read_text(encoding='utf-8')
             self.assertTrue('B01e-build' in text and 'B01e-integrated' in text, name)
@@ -96,7 +102,7 @@ class BaselineContracts(unittest.TestCase):
     def test_every_ui_surface_has_a_delivery_mapping_and_handoff(self):
         plan = (DOCS / 'Omnis_Implementation_Plan.md').read_text(encoding='utf-8')
         ids = re.findall(r'^\| (UI\d{2}) \|', plan, re.M)
-        self.assertEqual(sorted(ids), [f'UI{i:02d}' for i in range(1, 17)])
+        self.assertEqual(sorted(ids), [f'UI{i:02d}' for i in range(1, 24)])
         for token in ['## 19.', 'P0.1', 'make test-api', 'make test-migrations', 'INSTRUCTIONS_UPDATE_BLOCKED']:
             self.assertTrue(token in plan, 'Missing handoff field: ' + token)
         readiness = (DOCS / 'Omnis_Implementation_Readiness_Review.md').read_text(encoding='utf-8')

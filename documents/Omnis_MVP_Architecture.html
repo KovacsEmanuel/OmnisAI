@@ -14,9 +14,9 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-autoritate-si-domeniu">1. Autoritate și domeniu</a></li><li><a href="#2-decizii-de-arhitectura">2. Decizii de arhitectură</a></li><li><a href="#3-procese-retele-si-granite-de-incredere">3. Procese, rețele și granițe de încredere</a></li><li><a href="#4-control-plane-local-si-configurare">4. Control plane local și configurare</a></li><li><a href="#5-runtime-hermes-si-autoritatea-copilului">5. Runtime Hermes și autoritatea copilului</a></li><li><a href="#6-scheduler-taskuri-continuari-si-bugete">6. Scheduler, taskuri, continuări și bugete</a></li><li><a href="#7-policy-si-efecte">7. Policy și efecte</a></li><li><a href="#8-identitati-auth-si-adevarul-regulii-business">8. Identități, auth și adevărul regulii business</a></li><li><a href="#9-model-de-date-si-contracte">9. Model de date și contracte</a></li><li><a href="#10-evidence-date-si-raport">10. Evidence, date și raport</a></li><li><a href="#11-recon-coverage-si-evaluare">11. Recon, coverage și evaluare</a></li><li><a href="#12-implementare-si-guvernanta">12. Implementare și guvernanță</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
 <h1 id="omnis-arhitectura-mvp-baseline-v1">Omnis — arhitectura MVP, baseline v1</h1>
-<p><strong>25 septembrie 2026 · Specificație MVP · API/control P0.1–P0.2 implementate local; produsul complet neimplementat</strong></p>
+<p><strong>Baseline amendat HF01–HF10 · API/control/web P0.1–P0.3 implementate local; P0.4 în curs, G00 deschis; motor pentest neimplementat</strong></p>
 <h2 id="1-autoritate-si-domeniu">1. Autoritate și domeniu</h2>
-<p>Acest document închide alegerile de arhitectură pentru MVP-ul local cerut. <a href="Omnis_Implementation_Plan.md">Planul revizuit</a> stabilește ordinea și porțile; <a href="Omnis_Stack_Baseline.md">stackul</a> stabilește versiunile și limitele verificării; <a href="Omnis_UI_UX_Spec.md">UI/UX</a> și <a href="../DESIGN.md">DESIGN.md</a> stabilesc interfața. Contractele Hermes necesare sunt consolidate în §5; propunerile anterioare se consultă numai în istoricul Git, nu ca specificații concurente. La conflict se aplică acest baseline și planul v2; o abatere se înregistrează printr-un amendament înaintea implementării.</p>
+<p>Acest document închide alegerile de arhitectură pentru MVP-ul local cerut. <a href="Omnis_Implementation_Plan.md">Planul revizuit</a> stabilește ordinea și porțile; <a href="Omnis_Stack_Baseline.md">stackul</a> stabilește versiunile și limitele verificării; <a href="Omnis_UI_UX_Spec.md">UI/UX</a> și <a href="../DESIGN.md">DESIGN.md</a> stabilesc interfața. Contractele Hermes necesare sunt consolidate în §5; contractele modulare și de date sunt în §6/§9. Review-urile din verification păstrează sursele/rațiunile istorice, nu specificații concurente după acest amendament autorizat. La conflict se aplică acest baseline și planul v2; o abatere se înregistrează printr-un amendament înaintea implementării.</p>
 <p><strong>„Final” înseamnă o bază coerentă, versionată, de pornire, nu integrare deja validată.</strong> P2/P3 au porți explicite de fezabilitate. Nu substituim o probă eșuată cu o promisiune sau cu o reducere tacită a MVP-ului.</p>
 <h3 id="inclus">Inclus</h3>
 <ul>
@@ -24,10 +24,12 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Aplicații/laboratoare proprii, izolate și autorizate; HTTP(S), formulare, REST/JSON, SPA, JS static și import OpenAPI local revizionat.</li>
 <li>Recon anonim și autentificat opțional; hartă și matrice de coverage; Brain, investigatori, validator separat, delte, approvals, Stop, pause/resume și reconciliere.</li>
 <li>Trei familii demonstrate: control de acces la obiecte (IDOR/BOLA), XSS reflectat, traversal read-only către canary autorizat. Etichetele IDOR/BOLA nu dublează aceeași verificare.</li>
-<li>Settings OpenRouter și <code>openai-codex</code>, catalog/editare/review/publicare Skills; raport HTML/JSON, print și retest țintit.</li>
+<li>Settings OpenRouter și <code>openai-codex</code>, catalog/editare/review/eval/publicare Skills; raport HTML/JSON, print și retest țintit.</li>
+<li>Ambele moduri general/focalizat, campanie adaptivă G-LOOP, path bounded G-PATH și Jev integrat/evaluat în shadow; advisory numai calibrat. Research contextual și improvement editorial sunt auxiliare, nu înlocuitori ai pentestului.</li>
 </ul>
-<h3 id="exclus-explicit">Exclus explicit</h3>
-<p>SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework de agenți, marketplace/autoinstall Skills, graph DB, vector DB, Redis/Celery, Kubernetes, execuție shell generică, scanarea LAN-ului, SQLi general, stored/DOM XSS, SSRF/OAST, upload executabil, brute-force, DoS și chains avansate. Observarea unei suprafețe nesuportate nu o transformă în test executat.</p>
+<p><strong>Prima felie:</strong> un copil, recon minim → BOLA → validator independent → raport/retest (G05a/G06a). <strong>MVP coerent:</strong> trei familii într-o buclă adaptivă, browser, ambele moduri, Jev, path bounded, Settings și gates P0–P8. <strong>Produs competitiv:</strong> extinderi E1–E4 din plan; trei familii sau E1 nu înseamnă paritate Strix. Omnis este construit prin reutilizare efectivă de cod/teste/prompturi/metodologie OSS (stack §10), nu wrapper Strix sau rescriere a fundației.</p>
+<h3 id="exclus-din-mvp-nu-plafon-permanent-al-produsului">Exclus din MVP, nu plafon permanent al produsului</h3>
+<p>SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework de agenți, marketplace/autoinstall Skills, graph DB, vector DB, Redis/Celery, Kubernetes, execuție shell generică, scanarea LAN-ului, SQLi general, stored/DOM XSS, SSRF/OAST, upload executabil, brute-force, DoS și chains avansate (pathul bounded G-PATH este excepția adoptată). E1–E4 precizează promovarea subfamiliilor; SaaS/multi-tenancy și alt deployment cer decizie separată. Observarea unei suprafețe nesuportate nu o transformă în test executat.</p>
 <h2 id="2-decizii-de-arhitectura">2. Decizii de arhitectură</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -96,7 +98,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <tr>
 <td>A12</td>
 <td>UI Operate/Monitor: cockpit acceptat, stream și finding disclosure; Coverage/Endpoints cu tree/tabel/inspector</td>
-<td>Păstrăm relațiile/proveniența; fără graph/council/Chains și fără reinventarea layoutului acceptat</td>
+<td>Păstrăm relațiile/proveniența; fără brain graph/council sau tab Chains. Excepție: path timeline bounded în inspector după G-PATH și review vizual separat, fără reinventarea cockpitului</td>
 </tr>
 <tr>
 <td>A13</td>
@@ -107,6 +109,21 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>A14</td>
 <td><code>runtime-host</code> fix, părinte al Hermes stdio; canal Unix privat către supervisor</td>
 <td>Stdio nu traversează singur containerele; nu montăm Docker socket și nu facem proxy admin generic</td>
+</tr>
+<tr>
+<td>A15</td>
+<td>Definiții tipizate/revizionate, registry trusted și RunPlanSnapshot; instanțe adaptive sub definiție fixată</td>
+<td>Nu DSL arbitrar, handler importat din editor sau alt scheduler</td>
+</tr>
+<tr>
+<td>A16</td>
+<td>Research per engagement și maintenance editorial după quiescență, prin Hermes nativ</td>
+<td>Ownership/date/bugete distincte; auto-learning global rămâne oprit</td>
+</tr>
+<tr>
+<td>A17</td>
+<td>Jev DecisionAdvisor OFF/SHADOW/ADVISORY, evaluat pe heads bounded</td>
+<td>Nu validator, publisher sau scope grant; lipsa lui nu blochează prima BOLA</td>
 </tr>
 </tbody>
 </table></div>
@@ -128,7 +145,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li><code>runtime</code>: Hermes are acces numai la unelte Omnis autentificate și la egressul providerului selectat; fără rută către ținte, host, metadata, DB sau API-ul web/admin. Se folosește un endpoint intern separat, nu se permite întregul Omnis API modelului.</li>
 <li><code>executor</code>: HTTP și Chromium pot ajunge numai la proxy; fără DNS extern/direct, UDP/QUIC, SOCKS, host networking, Docker socket sau volum de proiect/personal. Fiecare context primește o identitate de transport distinctă, necunoscută modelului.</li>
 <li><code>target</code>: numai proxyul poate ajunge la fixture. Fixture-ul nu ajunge la control plane, internet sau rețeaua personală; email/plăți/webhookuri sunt sinks de test. Evaluatorul deține seed/reset/canary, inaccesibile agentului.</li>
-<li>Provider egress și target egress sunt trasee diferite, cu politici diferite. Nu se folosește provider proxy ca relay generic către ținte.</li>
+<li>Provider egress (inclusiv Jev), target egress și <strong>research egress</strong> sunt trasee distincte. Research folosește adaptor/proxy de surse publice allowlisted, query minimizat, DNS/redirect/bytes/time caps și failover explicit; fără relay către țintă/control/host/metadata. Downloads sunt quarantine și nu execută PoC. Rețeaua refuză bypassul, nu doar un test pe hostname.</li>
 </ul>
 <p>Reutilizăm ideea de rețea internă plus proxy din documentația Hermes, nu presupunem că ea implementează automat politica Omnis.[3] Rețelele bridge Docker au propriile reguli de conectivitate; <code>internal: true</code> singur nu certifică toate izolările sau accesul la host.[6] <strong>Poarta G03 cere probe negative din fiecare namespace, inclusiv acces la gatewayul hostului și IPv6.</strong> Configurația exactă nftables/namespace este artefact versionat P0/P3; fără demonstrație fail-closed nu pornim efecte.</p>
 <h3 id="browser-si-https-alegere-concreta">Browser și HTTPS: alegere concretă</h3>
@@ -352,7 +369,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h2 id="5-runtime-hermes-si-autoritatea-copilului">5. Runtime Hermes și autoritatea copilului</h2>
 <p>Pinul de cod este <code>0.21.5</code> / <code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code>. Mediu instalat separat, nu copiat cu toate datele din home-ul personal. JSON-RPC stdio este suprafața aleasă pentru sesiuni, întrebări server→client și subagenți; documentația oficială distinge această suprafață de HTTP Runs.[2] Referința de adaptor de mai jos păstrează contractele utile din auditul static, fără dependență de o propunere veche.</p>
 <p><strong>Un singur runtime activ și un singur store de credentiale AI.</strong> Alegem un home de produs dedicat, cu un singur slot activ de engagement, nu copii de OAuth grants în homes concurente. Supervisorul oprește complet writerii înaintea schimbării engagementului și mută starea de caz (state DB, sessions, logs, caches și derivatele inventariate) într-o arhivă per-engagement nemontată runtime-ului următor; în slot rămân numai provider store/config aprobate și catalogul comun read-only. Restaurarea unui caz mută numai starea lui, cu verificarea ID-ului și cu permisiuni noi, înaintea startupului. Nu relocăm fișiere SQLite/WAL sub procese active și nu folosim symlinkuri către grants pe care un atomic replace le-ar putea rupe.</p>
-<p>Managementul Hermes pornește exclusiv pentru Settings când writerul de execuție este oprit; apoi se închide înaintea runului. Runtime-ul activ este singurul proprietar al refreshului. UI citește statusul din proiecția Omnis când runul este activ; nu lansează validări sau modificări admin concurente. Inventarul exhaustiv al căilor de stare și proba A→B→A cu markeri sunt H02/G-DATA: dacă un path rămâne partajat sau un credential este adoptat implicit, gate-ul eșuează. Aceasta este gestionare de volume/stare a supervisorului, nu presupunerea unui flag Hermes inexistent. Memorie globală și auto-learning dezactivate; arhivele nu devin accesibile prin tooluri model-facing.</p>
+<p>Managementul Hermes pornește exclusiv pentru Settings când writerul de execuție este oprit; apoi se închide înaintea runului. Runtime-ul activ este singurul proprietar al refreshului. UI citește statusul din proiecția Omnis când runul este activ; nu lansează validări sau modificări admin concurente. Inventarul exhaustiv al căilor de stare și proba A→B→A cu markeri sunt H02/G-DATA: dacă un path rămâne partajat sau un credential este adoptat implicit, gate-ul eșuează. Aceasta este gestionare de volume/stare a supervisorului, nu presupunerea unui flag Hermes inexistent. Memorie globală și auto-learning dezactivate în engagement; excepția editorială strictă din §6.2 folosește slotul de maintenance după quiescență, nu curator continuu. Arhivele nu devin accesibile prin tooluri model-facing.</p>
 <h3 id="contract-obligatoriu-al-bindingului">Contract obligatoriu al bindingului</h3>
 <ol>
 <li>Brainul pregătește în Omnis un task READY: ipoteză, snapshot, rol, identități, skill digest, buget și precondiții. Referința nu este secret/credential.</li>
@@ -499,6 +516,11 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Toate rutele OAuth, inclusiv poll, cer autentificarea managementului și același profil. <code>/submit</code> nu este fallback Codex în acest contract; start poate da 504 înainte să termine loginul, iar pending sessions se pierd la restart. Nu retrimitem start nelimitat și nu interpretăm <code>has_refresh_token:false</code> drept absență demonstrată a grantului. <code>approved</code> nu înseamnă inferență disponibilă; Codex CLI nu este necesar pentru device OAuth nativ.</p>
 <p>La model/set, HTTP 200 poate avea <code>ok:false, confirm_required:true</code>; <code>stale_aux</code> cere verificarea auxiliarelor/delegării/fallbackului. Cheile/codurile rămân numai în fluxul securizat, nu în prompt/log. Nu expunem <code>/api/env/reveal</code>, configul integral, profile management sau REST generic. <code>GET /api/skills</code> și <code>PUT /api/skills/toggle</code> nu înlocuiesc editorul complet, release digest/review și catalogul per run deținut de Omnis. Ancore Settings: <code>hermes_cli/web_routers/config_env.py:232–316,887–972</code>, <code>oauth.py:264–305,619–795</code>, <code>models.py:101–131,275–318</code>, <code>hermes_cli/auth_codex.py:153–193</code>.</p>
 <p><strong>Ancorele probelor de autoritate:</strong> identitate contextuală în <code>agent/tool_executor.py:1673–1688</code>, <code>model_tools.py:822–838</code>, <code>tools/registry.py:887–903</code>; hook pre-run în <code>tools/delegate_tool.py:285–297,383–415</code> și <code>tools/delegate_tool_child_run.py:854–862</code>; rotație session ID în <code>agent/conversation_compression.py:3340–3373</code>; surse dotenv/root în <code>tui_gateway/server.py:50–51</code>, <code>run_agent.py:121–122</code>, <code>hermes_cli/env_loader.py:423–447</code>, <code>hermes_constants.py:217–234</code>, <code>hermes_cli/config_defaults.py:1718–1724</code>. Aceste ancore sunt pentru SHA fixat, nu contracte garantate după upgrade și nu dovadă că mappingul sigur Omnis există deja.</p>
+<h3 id="51-jev-decisionadvisor">5.1. Jev DecisionAdvisor</h3>
+<p><strong>HF08, integrare decisă, nu prerechizit al primului finding.</strong> Adaptorul <code>integrations/jev</code> folosește SDK-ul async TypeSafe 0.7.2/model candidat <code>jev-1.13.0</code> și întrebările NeuroSploit adaptate (stack §10 U07/U13). Acesta nu este un Brain suplimentar. Primele heads: <strong>relevanță/triage</strong> după recon/clue și <strong>stagnare</strong> după rezultat fără progres; dedup/critica impactului/wordlist/path ranking sunt extensii evaluate separat. OFF păstrează același pentest, SHADOW înregistrează fără influență, ADVISORY poate ordona numai candidați deja admisibili după evaluare/calibrare. Niciodată scope grant, CONFIRMED, CVSS factual, ștergere de obligație sau Publish.</p>
+<p><code>DecisionSupportRevision</code> (schema_version=1, id/revision/digest tip §9.3) conține <code>mode: OFF/SHADOW/ADVISORY</code>, <code>model_id: Text exact</code>, <code>head_refs: Ref[]</code>, <code>question_refs: Ref[]</code>, <code>projection_schema_ref: SchemaRef</code>, <code>threshold_refs: Ref[]</code>, <code>data_policy_ref: Ref</code>, <code>deadline_seconds: integer 1..30</code>, <code>max_calls: integer 0..100</code>, <code>fallback: BRAIN_WITHOUT_ADVISOR/DETERMINISTIC_ORDER</code>, <code>budget_ref: Ref</code>, <code>provider_config_ref: Ref</code>. RunSnapshot fixează totul; secretul stă separat, fără fallback la profilul personal. <code>DecisionReceipt</code> leagă run/task/attempt, mission/focus/snapshot, candidate IDs opace și reviziile de întrebare/proiecție, digestul cererii finale, modelul efectiv, distribuție/scor tipizat, usage/latency/cost cunoscut sau UNKNOWN și motivul fallbackului. Receiptul este evidence despre advisor, nu despre vulnerabilitate.</p>
+<p>Brainul construiește setul finit de candidați; backendul îl filtrează prin mission/policy înainte de ranking. Proiecția include obiectiv/non-goals <strong>redactate și aprobate</strong>, facts/refs relevante, niciodată raw headers/body/secrete ori transcript. Întregul payload serializat (state, questions, criteria, option labels), erorile și logurile sunt allowlisted și sentinel-tested. Nu acceptăm <code>extra_body</code>/<code>extra_headers</code> arbitrare; răspunsul trebuie să aibă exact headurile/choices/ranges/modelul așteptate, nu doar parse SDK reușit. Missing/invalid/timeout → fallback explicit, nu allow/continue optimist. RetryPolicy(max_retries=0); orice reluare este dispatch readmis și bugetat.</p>
+<p>Provider egress Jev se probează separat la sink de target/research. După commit Stop/Pause nu se admit noi dispatchuri Jev și nici wake implicit; apelurile deja trimise rămân remote in-flight/UNKNOWN până la readback posibil, nu pretindem că am oprit inferența pe serverul extern. G-JEV: fixtures tipizate/sentinel → live shadow cu cont/date/buget aprobate → paired OFF/SHADOW/ADVISORY versus heuristică deterministă, aceleași misiuni/bugete; calibrăm pe set separat de held-out. Advisory se activează pe head numai dacă beneficiul și pragurile prestabilite trec fără creștere acceptată tacit a misses/FP. În lipsă rămâne shadow/OFF și raportăm rezultatul; integrarea Jev nu este redeschisă ca decizie de produs.</p>
 <h2 id="6-scheduler-taskuri-continuari-si-bugete">6. Scheduler, taskuri, continuări și bugete</h2>
 <p>Supervisorul unic deține dispatcherul, runtime-ul și lease-urile. API poate avea mai multe procese în viitor, dar nu pornește schedulerul în lifespan. PostgreSQL oferă advisory locks la nivel de sesiune sau tranzacție; alegerea și eliberarea lor trebuie să fie explicite.[8]</p>
 <ul>
@@ -523,6 +545,122 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Pause oprește <strong>dispatchuri noi</strong>, nu numai taskuri noi; acțiunile deja expediate se pot drena în timeout. Permituri emise dar nefolosite sunt invalidate. Wake nativ în timpul pauzei nu trebuie să producă inferențe noi; dacă pinul nu poate garanta asta, închidem runtime-ul după drenare și reluăm din checkpoint într-un runtime nou. Resume face preflight și reconciliere, nu reînvie threaduri.</p>
 <p>Defaults de fixture, de confirmat prin probe: maximum doi copii; o acțiune target în zbor; maximum o cerere/secundă per origin fără burst; deadline per cerere 15 secunde; lease 5 secunde, heartbeat 1 secundă; Stop fără dispatch nou după commitul revocării, quiescență locală în 10 secunde sau escaladare vizibilă. Ceas monotonic pentru deadline local, UTC pentru audit. Nu sunt performanțe măsurate.</p>
 <p>Health: probe incluse în scope/buget, baseline la preflight; 429 respectă <code>Retry-After</code> în limite, altfel backoff bounded; 503 sau trei eșecuri consecutive de health blochează noi dispatchuri și cere review. Nu reluăm mutații pe retry automat. Bugetul global include login, redirecturi, subresurse, health, baseline/control și validare. Costul AI estimat/necunoscut este separat de hard caps de timp/request; plafon financiar numai dacă poate fi rezervat/verificat înaintea apelului sau impus la provider.</p>
+<h3 id="61-bucla-de-investigatie-condusa-de-brain">6.1. Bucla de investigație condusă de Brain</h3>
+<p><strong>HF07, traseu normativ, nu run executat:</strong> obiectiv → recon/mapping incremental → threat model/ipoteze → specialiști → validare independentă → delte/replanificare → recon suplimentar/altă investigație/chaining → raport/retest. Brainul conduce întregul fir; supervisorul admite/limitează și finalizează. Research este opțional când ajută o lacună concretă; improvement pregătește versiuni viitoare și nu înlocuiește investigația.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Moment / revenire</th>
+<th>Comportament și rezultat verificabil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Start/PREPARE</td>
+<td>Cererea salvată este fixată în RunSnapshot; Brain propune MissionSpec, backendul validează FocusEnvelope. Preflight/auth/health și bootstrapul sunt bugetate. Nu există swarm la startup.</td>
+</tr>
+<tr>
+<td>Recon inițial</td>
+<td>Copil nativ Recon + unelte reutilizate observă operații/params/JS/forms/OpenAPI; maparea persistă provenance, observed/inferred și gaps. Un minim util permite prima ipoteză fără a aștepta recon „perfect”.</td>
+</tr>
+<tr>
+<td>Threat model</td>
+<td>Brain compune actori/obiecte/trust boundaries/tehnologii/ipoteze din facts citate. <code>ThreatModelRevision</code> este proiecție revizionată a Observation/Relationship, nu JSON global sau adevăr duplicat. Jev poate ranka; nu este obligatoriu per request.</td>
+</tr>
+<tr>
+<td>Specialist</td>
+<td>TaskBrief specific: ipoteză, baseline/probe/control, identitate/business, procedură fixată, capabilități și limite. Rezultat = claim/clue/contraexemplu/gap, nu numai finding.</td>
+</tr>
+<tr>
+<td>Validator incremental</td>
+<td>După eliberarea slotului, attempt/context independent produce probe proaspete și controale. Serviciul de verdict admite tehnic; nu așteptăm sfârșitul întregii campanii.</td>
+</tr>
+<tr>
+<td>Contraexemplu / auth drift</td>
+<td>Delta consumată o singură dată → închidere justificată, precondiție nouă, remapping ori altă ipoteză. Auth invalid nu devine negativ/FIXED; repetarea identică nu este progres.</td>
+</tr>
+<tr>
+<td>Clue transversal</td>
+<td>Exemplu de dezvoltare: canaryul traversal autorizat citează o operație omisă relevantă aceleiași misiuni. Este observație neîncrezătoare, nu instrucțiune sau extindere de scope.</td>
+</tr>
+<tr>
+<td>Recon suplimentar</td>
+<td>Brain cere confirmarea acelei operații/context auth, nu recrawl global. Harta/numitorul au revizie nouă și basis refs; un nou task BOLA poate reutiliza procedura fixată. Aceeași cauză produce occurrence, nu finding duplicat.</td>
+</tr>
+<tr>
+<td>Path</td>
+<td>Matching requires/provides adaptat din NeuroSploit generează ipoteză; test și replay probează ambii pași <strong>și tranziția</strong>. Canar→referință necesară→acces nepermis este scenariul bounded, nu rezultat pretins.</td>
+</tr>
+<tr>
+<td>Reconciliere / raport</td>
+<td>Frontieră/obligații/candidați/efecte/cleanup reconciliate, apoi predicat §6; lipsurile rămân LIMITED sau NEEDS_RECONCILIATION. Rendererul citește snapshot eligibil; report review nu ține runtime deschis. Retest = run nou/probe noi.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Pool: <strong>un copil în prima probă; apoi maximum doi copii activi, inclusiv validatorul/researcherul, pe lângă Brain</strong>. Mapping/fingerprint/wordlist/parsing sunt module, nu agenți obligatorii. Brain poate aștepta fără inferență continuă. Specialistul care predă eliberează slotul; research așteaptă când validarea are prioritate. Eșec research blochează numai dependența sa, nu fire independente; auxiliarele deja pornite se drenează/opresc bounded la închidere.</p>
+<p>Relațiile includ <code>observed-on/requires/yields/contradicts/tested-by/enables</code>, cu evidence, identity/auth epoch, state și revision. Handofful folosește TaskResultV1: source task/attempt, basis refs, new fact/delta, suggested family, required context, open items și cleanup refs. Nu pune un secret în new_fact; backendul poate injecta un handle numai într-un pas admis. AttackPath are <code>id/revision</code>, ordered step refs, transition evidence refs, preconditions/context și <code>INFERRED/PROVEN/INCOMPLETE/INVALIDATED</code>; same-host/CWE/keyword/Jev confidence nu probează edge-ul. <code>needs-review</code> și no-evidence nu intră în frontieră executabilă ca și capabilități probate. Un path incomplet păstrează findingurile componente; nici paths, nici occurrences nu cresc root-cause count. G-LOOP urmează G06a; G-PATH urmează G-LOOP și familiile necesare, fără obligație retroactivă în prima BOLA.</p>
+<h3 id="62-module-versionate-research-si-improvement">6.2. Module versionate, research și improvement</h3>
+<p>Definițiile/codul/config/prompturile sunt fixate per run; observațiile, taskurile și input artifacts pot crește adaptiv sub aceste definiții. <strong>Configurare</strong> = selectare/parametri/ordine; <strong>metodologie</strong> = pachet/procedură/overlay; <strong>capabilitate nouă</strong> = handler/parser/oracle/adaptor trusted + teste/release. Primele două nu cer modificarea schedulerului; ultima nu se obține dintr-un textarea cu cod. Nu există DSL arbitrar, <code>eval</code>, Jinja executabil, import path sau install hook din editor.</p>
+<p>Contractele de mai jos au schema_version=1, id/revision/digest și regulile de tip/ownership/caps §9.3–9.4. Sunt documente/relații în agregatele existente, nu servicii/tabele/module obligatorii în P0:</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Definiție / owner</th>
+<th>Câmpuri și invariant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WorkflowProfileRevision / settings</td>
+<td><code>phase_refs: Ref[]</code>, <code>selected_action_refs: Ref[]</code>, <code>config: object strict per schema</code>, <code>limits: Limits</code>, <code>dependency_refs: Ref[]</code>; clone/edit/reorder numai între module publicate, controale core nedezactivabile</td>
+</tr>
+<tr>
+<td>PhaseDefinition / settings</td>
+<td><code>key: Key</code>, <code>label: Text</code>, <code>progress_phase: enum RunProgress</code>, <code>subphase_refs: Ref[]</code>, <code>expected_output_schema_refs: SchemaRef[]</code></td>
+</tr>
+<tr>
+<td>SubphaseDefinition / settings</td>
+<td><code>key: Key</code>, <code>action_refs: Ref[]</code>, <code>input_schema_refs: SchemaRef[]</code>, <code>prerequisite_refs: Ref[]</code>, <code>priority: integer 0..1000</code>, <code>optional: bool</code></td>
+</tr>
+<tr>
+<td>ActionDefinition / tasks registry trusted</td>
+<td><code>handler_id: Key</code>, <code>config_schema_ref/input_schema_ref/output_schema_ref: SchemaRef</code>, <code>procedure_refs: Ref[]</code>, <code>requires/provides/predicate_ids: Key[]</code>, <code>execution_class: PURE/RESEARCH_IO/TARGET_IO/MODEL</code>, <code>requested_capabilities: Key[]</code>, <code>effect_ceiling: enum §7</code>, <code>limits: Limits</code>, <code>retry_policy: NEVER/PURE_RECOMPUTE/READMIT</code>, <code>invalidation_predicate_ids: Key[]</code></td>
+</tr>
+<tr>
+<td>RunPlanSnapshot / runs</td>
+<td><code>run_ref: Ref</code>, <code>profile_ref: Ref</code>, <code>definition_refs: Ref[]</code>, <code>config_digest: Digest</code>; immutable definiții. PlanInstance separat: <code>iteration: integer 1..10</code>, <code>causation_ref: Ref</code>, <code>input_refs: Ref[]</code>, <code>task_refs: Ref[]</code>, <code>through_cursor: Cursor</code></td>
+</tr>
+<tr>
+<td>TechnologyObservation / surfaces</td>
+<td><code>product/vendor: Key</code>, <code>version_raw: Text</code>, <code>parsed_version: Text?</code>, <code>detector_ref: Ref</code>, <code>evidence_refs: Ref[]</code>, <code>epistemic_state: OBSERVED/INFERRED/CONTRADICTED</code>, <code>precondition_refs: Ref[]</code>; banner/version ambigue nu devin adevăr exact</td>
+</tr>
+<tr>
+<td>ResearchRequest / tasks</td>
+<td><code>run/task/attempt/snapshot/mission: Ref</code>, <code>public_fact_refs: Ref[]</code>, <code>question: Text</code>, <code>sources_policy_ref: Ref</code>, <code>limits: Limits</code>; inputul permis de data policy, nu export brut de caz</td>
+</tr>
+<tr>
+<td>ResearchResult / evidence + surfaces</td>
+<td><code>request_ref: Ref</code>, <code>status: COMPLETE/PARTIAL/BLOCKED/FAILED</code>, <code>source_records: {url: Text, retrieved_at: UTC, version: Text?, excerpt: Text, content_digest: Digest?}[]</code>, <code>lead_refs: Ref[]</code>, <code>preconditions: Precondition[]</code>, <code>gaps: Text[]</code>; digest numai pentru bytes recuperați, advisory ≠ finding</td>
+</tr>
+<tr>
+<td>WordlistRecipeRevision / settings</td>
+<td><code>source_refs: Ref[]</code>, <code>kind: PATH/PARAMETER/EXTENSION/ROUTE_TEMPLATE/BENIGN_PROBE</code>, <code>transform_ids: Key[]</code>, <code>encoding: UTF8</code>, <code>seed: integer ≥0</code>, <code>max_entries: integer 1..10000</code>, <code>max_bytes: integer 1..1048576</code>, <code>ranking_ref: Ref?</code></td>
+</tr>
+<tr>
+<td>WordlistArtifact / evidence</td>
+<td><code>recipe_ref: Ref</code>, <code>input_refs: Ref[]</code>, <code>artifact_ref: Ref</code>, <code>counts_before/after: integer ≥0</code>, <code>exclusion_reasons: Text[]</code>, <code>truncated: bool</code>, <code>candidate_provenance_ref: Ref</code>; ordine exactă și digest, niciun overwrite al artifactului consumat</td>
+</tr>
+<tr>
+<td>ImprovementDraft / settings</td>
+<td><code>target_ref: Ref</code>, <code>base_digest: Digest</code>, <code>reason/failure_category/expected_benefit: Text</code>, <code>source_refs: Ref[]</code>, <code>files_diff_ref: Ref</code>, <code>changed_capabilities: Key[]</code>, <code>proposed_test_refs: Ref[]</code>, <code>estimated_cost: decimal-string?</code>, <code>review_ref/eval_ref: Ref?</code>; autorul propune, nu publică singur</td>
+</tr>
+</tbody>
+</table></div>
+<p>Registry/compiler adaptează S09/M02/M03/M04/M06 și verificările <code>compile_plan</code> U06 în <strong>același</strong> modul tasks/runs: ID/schema/handler existent, dependency closure, DAG fără ciclu, exclusions și priorități stabile, hooks policy/capture/Stop obligatorii. Re-entry creează o instanță nouă cu cauzalitate către rezultat anterior, nu ciclu de așteptare între taskuri vechi. Max iterations/dedup/stagnare/limite produc LIMITED, nu loop infinit. Cache PURE leagă code/config/input digest/context și nu poate efectua I/O; I/O cere readmitere/buget, UNKNOWN cere reconciliere. Pipeline M07/M08/M09: decode → shape/context → normalize preserving raw → redact/project → persist evidence/event → notify; observer defect nu pierde eventul, guard defect nu permite efectul. Lifecycle instantiate/validate/prepare/claim/admit/execute/capture/persist/notify/close are cleanup testat, nu presupus din upstream.</p>
+<p><strong>Research contextual:</strong> fingerprint pasiv WebTech pe capturi → identificator/version parse valid → adaptoare OSV/vendor docs/search public → ResearchResult citat → lead/metodă candidată → aceeași frontieră Brain. Queryul conține produs/versiune publicabile, nu URL privat/client/PII/cookie/body/lexic privat. 429/backend fallback neaprobat/surse lipsă sunt blocaje, nu zero advisories. Rezultatul web/PoC este date neîncrezătoare; niciun cod recuperat nu se instalează/execută. Research Worker este copil nativ, intră în plafon și folosește tools Omnis cu egress propriu, nu web stock nelimitat.</p>
+<p><strong>Wordlists:</strong> reuse BBOT/CeWL/Kiterunner + subset Assetnote; generator pasiv determinist, fără spider/password lists. Păstrează raw/Unicode/short version tokens, provenance și caps înainte de admitere; CDN bytes au digest propriu, index SHA nu îi fixează. Input nou poate genera artifact nou sub recipe fixat. Fuzzerul este separat și fiecare request este Action autorizată; soft-404 se leagă de prefix/metodă/persona/epoch și se invalidează la drift. 401/403 nu se șterg generic. Ranking Jev este opțional și măsurat prin descoperiri utile/request, nu mărimea listei.</p>
+<p><strong>Improvement:</strong> lesson aprobat → draft → review → eval vulnerable/fixed/benign/regresii → Publish exact digest → numai runuri noi. Reporting nu așteaptă improvement. Slot de maintenance serializat după quiescență, home de produs fără arhive de caz sau granturi copiate, <code>WAITING_FOR_RUNTIME_SLOT</code> când ocupat; nu al doilea writer Hermes și nu auto-learning global. Native background review/curator/staging HM03–HM05 oferă intrări editoriale, nu publisher; la pin, write_approval poate fail-open la import failure, curator dry-run este doar prompt în calea de consolidare, iar snapshotul review-ului nu este implicit sanitizat. De aceea releases RO și publisherul Omnis rămân frontiera. Lessons cross-run trec data policy, fără truth held-out sau transcripte brute.</p>
+<p>Cronul HM06 intră după ownership/draft/egress gates: <code>no_agent</code> enqueue cu wrapper trusted, apoi admission maintenance; nu cron LLM direct în home-ul activ și nu scheduler nou. Memoria/MCP/tool inventory se verifică (skip_memory nu este presupus); malformed wake nu este barieră fail-closed. Stop engagement oprește taskuri/research/dispatchuri model-target ale cazului; Stop maintenance oprește admiterea/jobs native și verifică quiescența, <strong>pause schedule ≠ worker stopped</strong>; Stop instance oprește ambele și păstrează datele. Maintenance nu moștenește aprobarea/bugetul cazului oprit. Restore începe stopped/locked, fără autoresume.</p>
 <h2 id="7-policy-si-efecte">7. Policy și efecte</h2>
 <p>Scope entry: origin exact, port, reguli de path, <code>ATTACKABLE | VISIT_ONLY | BLOCKED</code>, excluderi, dependințe, identități și interval. BLOCKED câștigă; VISIT_ONLY permite numai operații funcționale declarate și nu payloaduri de test. URL-urile din JS/OpenAPI și redirecturile nu lărgesc scope-ul.</p>
 <p>Effect class: <code>READ_ONLY_KNOWN</code>, <code>SESSION_CHANGE</code>, <code>LIMITED_WRITE</code>, <code>DESTRUCTIVE</code>, <code>UNKNOWN</code>. Proveniență: fixture manifest/operator cu revizie; clasificarea modelului este sugestie, nu permisiune. <code>UNKNOWN</code> este blocat sub politica read-only. Pentru aplicații proprii mai puțin descrise operatorul poate aproba o operație/workflow limitat după inspecție; nu pretindem recon read-only universal al oricărei aplicații.</p>
@@ -838,7 +976,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Protocol artefact:</strong> (1) rezervare STAGING în DB; (2) scriere streaming bounded în fișier temporar exclusiv, fără nume ales de țintă; (3) flush/fsync, digest, rename atomic pe același filesystem, fsync director; (4) tranzacție DB care publică AVAILABLE plus eveniment; (5) reconciler pentru STAGING/orfani/lipsă. Cititorul verifică existența/integritatea înaintea operației probatorii. Hashul detectează modificarea, nu dovedește singur proveniența.</p>
 <p>Stări: <code>STAGING</code>, <code>AVAILABLE</code>, <code>TRUNCATED</code>, <code>MISSING</code>, <code>CORRUPT</code>, <code>DELETED</code>; versiunea redactată este derivat cu legătură la raw. Oracle declară ce bytes sunt obligatorii; un fragment suficient poate susține o observație limitată, nu automat un verdict complet. Verdictul este refuzat dacă dovezile obligatorii sunt absente/incomplete.</p>
 <p>Limite inițiale de fixture: request body recepționat 1 MiB; response pe wire 5 MiB; response decomprimat 5 MiB; evidence păstrat 5 MiB, ratio maxim decomprimare 20:1; artefact individual 20 MiB, 1 GiB/run. Guardul aplică bytes/time caps incremental înaintea bufferingului/decomprimării, și fără Content-Length/chunked; depășirea întrerupe consumul și închide upstreamul, nu doar trunchiază fișierul final. Pentru MVP răspunsul bounded este verificat înainte să fie predat browserului; streaming către Chromium este oprit. Trace-ul este oprit implicit și bounded când este cerut; upload OpenAPI/JS 5 MiB, depth/time limits și decodare incrementală. Memoria/CPU/PIDs/tmpfs au capuri de container, inclusiv la parser și Chromium; dumpul/trace-ul nu ocolește bugetul. Parametri ajustabili numai în revizie, niciodată nelimitat; depășirea se înregistrează, nu se ascunde. Rezervăm capacitatea înaintea unei acțiuni; disc plin oprește admiterea și păstrează starea efectului. G03a verifică bytes efectiv citiți, memorie bounded și închiderea conexiunii pe fixture chunked/decompression bomb, nu numai absența verdictului.</p>
-<p>Inventar de date: DB, raw/derivate, seif, cookie/storageState, Hermes sessions/compaction/live logs/provider error dumps, screenshots, model payloads, exports și backups. Memorie globală/cloud memory/auto-learning/exporteri auxiliari dezactivate în runtime Omnis. Providerul primește minimum necesar, conform data policy; redactarea headerelor nu garantează eliminarea PII din body/screenshot. Markeri sensibili sintetici verifică fiecare traseu în G-DATA.</p>
+<p>Inventar de date: DB, raw/derivate, seif, cookie/storageState, Hermes sessions/compaction/live logs/provider error dumps, screenshots, model payloads, exports și backups. Memorie globală/cloud memory/auto-learning/exporteri auxiliari dezactivate în runtime-ul de engagement. Inventarul include și queries/research artifacts/lessons/pending writes/cron outputs/curator reports/backups; numai material aprobat intră în maintenance §6.2. Providerul primește minimum necesar, conform data policy; redactarea headerelor nu garantează eliminarea PII din body/screenshot. Markeri sensibili sintetici verifică fiecare traseu în G-DATA.</p>
 <p><strong>ModelProjection v1</strong>, obligatoriu înainte de prima trimitere de date de țintă: tool results/context/delte sunt DTO-uri cu allowlist de câmpuri (ID-uri opace, metodă, cale redactată, nume/tip parametri, status, observații și fragmente bounded aprobate). Raw body, headers, query values, cookies, storageState, stack traces și fișierele de evidence nu intră implicit în context. Executorul produce o proiecție separată; secretele cunoscute se elimină, iar tipurile/câmpurile sensibile neclasificate se refuză ori cer review, nu sunt „redactate” doar prin regex general. Screenshoturile sunt dezactivate model-facing implicit; se permit doar pe fixture sintetic aprobat și după verificarea/crop/maskingului necesar. Scope-ul și proveniența proiecției sunt verificate ca la evidence read. <code>G-DATA-EARLY</code> cu markeri sintetici este înainte de G02-live pentru datele probei și înainte de P3 pentru primul output target; G-DATA la P8 extinde aceeași suită la retenție/export/restore. Nu pretindem DLP universal; sintetic-only rămâne condiție a MVP-ului.</p>
 <p>Evidence HTML/JS/SVG se afișează ca text escapate; fără iframe raw, script, event handlers, linkuri autoîncărcate sau SVG inline de la țintă. Screenshoturi validate și decodate bounded. Download explicit cu <code>Content-Disposition: attachment</code>, <code>nosniff</code>, CSP restrictiv și avertisment; exporturile sunt offline, escapate, fără resurse remote. Nu stocăm secrete în localStorage sau URL.</p>
 <p>Retenție default propusă: raw/derivate și sesiuni engagement 30 zile, exporturile numai explicit, audit de comenzi/snapshoturi fără payload sensibil 90 zile; secrete de sesiune numai cât sunt necesare. Ștergerea unui engagement cere run oprit, manifest de date/derivate și tombstones; backupurile expiră separat și limita este afișată. Backup consistent: run oprit/quiescent, DB + manifest artefacte + checksums; cheia seifului nu intră în aceeași arhivă. Restore într-un root separat începe locked/stopped, nu repornește taskuri și nu restaurează login AI implicit.</p>
@@ -1123,5 +1261,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>584288fa46a0ebb20f416e62c4d362862ca9d67d113f0931b41af3b3ede64480</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>2975501891124f46c0412429a51dbb9108d272306fed31c9d6613492ef713d98</code>.</p></footer>
 </main></div></body></html>

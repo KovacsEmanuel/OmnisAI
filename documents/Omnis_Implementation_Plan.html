@@ -10,12 +10,12 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 @media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
 </style></head>
 <body><a class="skip" href="#content">Sari la conținut</a>
-<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</a></li><li><a href="#2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</a></li><li><a href="#3-stack-ales-si-mod-de-lucru">3. Stack ales și mod de lucru</a></li><li><a href="#4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</a></li><li><a href="#5-p0-fundatie-si-contracte-minime">5. P0 — fundație și contracte minime</a></li><li><a href="#6-p1-prima-experienta-web-reala">6. P1 — prima experiență web reală</a></li><li><a href="#7-p2-contracte-hermes-si-riscuri-eliminate-devreme">7. P2 — contracte Hermes și riscuri eliminate devreme</a></li><li><a href="#8-p4a-settings-minim-fara-editor-blocant">8. P4a — Settings minim, fără editor blocant</a></li><li><a href="#9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</a></li><li><a href="#10-p3b-browser-https-si-autentificare-devreme">10. P3b — browser, HTTPS și autentificare devreme</a></li><li><a href="#11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</a></li><li><a href="#12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</a></li><li><a href="#13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</a></li><li><a href="#14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</a></li><li><a href="#15-p8-evaluare-operare-si-livrare">15. P8 — evaluare, operare și livrare</a></li><li><a href="#16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</a></li><li><a href="#17-trasabilitatea-tuturor-recomandarilor">17. Trasabilitatea tuturor recomandărilor</a></li><li><a href="#18-definition-of-done-si-pornire">18. Definition of Done și pornire</a></li><li><a href="#19-reluarea-intr-o-sesiune-noua-stare-si-urmatoarea-felie">19. Reluarea într-o sesiune nouă — stare și următoarea felie</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
-<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</a></li><li><a href="#2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</a></li><li><a href="#3-stack-ales-si-mod-de-lucru">3. Stack ales și mod de lucru</a></li><li><a href="#4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</a></li><li><a href="#5-p0-fundatie-si-contracte-minime">5. P0 — fundație și contracte minime</a></li><li><a href="#6-p1-prima-experienta-web-reala">6. P1 — prima experiență web reală</a></li><li><a href="#7-p2-contracte-hermes-si-riscuri-eliminate-devreme">7. P2 — contracte Hermes și riscuri eliminate devreme</a></li><li><a href="#8-p4a-settings-minim-fara-editor-blocant">8. P4a — Settings minim, fără editor blocant</a></li><li><a href="#9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</a></li><li><a href="#10-p3b-browser-https-si-autentificare-devreme">10. P3b — browser, HTTPS și autentificare devreme</a></li><li><a href="#11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</a></li><li><a href="#12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</a></li><li><a href="#13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</a></li><li><a href="#14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</a></li><li><a href="#15-p8-evaluare-operare-si-livrare">15. P8 — evaluare, operare și livrare</a></li><li><a href="#16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</a></li><li><a href="#17-trasabilitatea-tuturor-recomandarilor">17. Trasabilitatea tuturor recomandărilor</a></li><li><a href="#18-definition-of-done-si-pornire">18. Definition of Done și pornire</a></li><li><a href="#19-reluarea-intr-o-sesiune-noua-stare-si-urmatoarea-felie">19. Reluarea într-o sesiune nouă — stare și următoarea felie</a></li></ul></nav></details>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</a></li><li><a href="#2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</a></li><li><a href="#3-stack-ales-si-mod-de-lucru">3. Stack ales și mod de lucru</a></li><li><a href="#4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</a></li><li><a href="#5-p0-fundatie-si-contracte-minime">5. P0 — fundație și contracte minime</a></li><li><a href="#6-p1-prima-experienta-web-reala">6. P1 — prima experiență web reală</a></li><li><a href="#7-p2-contracte-hermes-si-riscuri-eliminate-devreme">7. P2 — contracte Hermes și riscuri eliminate devreme</a></li><li><a href="#8-p4a-settings-minim-fara-editor-blocant">8. P4a — Settings minim, fără editor blocant</a></li><li><a href="#9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</a></li><li><a href="#10-p3-auth-si-p3b-identitati-http-apoi-browser">10. P3-auth și P3b — identități HTTP, apoi browser</a></li><li><a href="#11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</a></li><li><a href="#12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</a></li><li><a href="#13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</a></li><li><a href="#14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</a></li><li><a href="#15-p8-evaluare-operare-si-livrare">15. P8 — evaluare, operare și livrare</a></li><li><a href="#16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</a></li><li><a href="#17-trasabilitatea-tuturor-recomandarilor">17. Trasabilitatea tuturor recomandărilor</a></li><li><a href="#18-definition-of-done-si-pornire">18. Definition of Done și pornire</a></li><li><a href="#19-reluarea-intr-o-sesiune-noua-stare-si-urmatoarea-felie">19. Reluarea într-o sesiune nouă — stare și următoarea felie</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</a></li><li><a href="#2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</a></li><li><a href="#3-stack-ales-si-mod-de-lucru">3. Stack ales și mod de lucru</a></li><li><a href="#4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</a></li><li><a href="#5-p0-fundatie-si-contracte-minime">5. P0 — fundație și contracte minime</a></li><li><a href="#6-p1-prima-experienta-web-reala">6. P1 — prima experiență web reală</a></li><li><a href="#7-p2-contracte-hermes-si-riscuri-eliminate-devreme">7. P2 — contracte Hermes și riscuri eliminate devreme</a></li><li><a href="#8-p4a-settings-minim-fara-editor-blocant">8. P4a — Settings minim, fără editor blocant</a></li><li><a href="#9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</a></li><li><a href="#10-p3-auth-si-p3b-identitati-http-apoi-browser">10. P3-auth și P3b — identități HTTP, apoi browser</a></li><li><a href="#11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</a></li><li><a href="#12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</a></li><li><a href="#13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</a></li><li><a href="#14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</a></li><li><a href="#15-p8-evaluare-operare-si-livrare">15. P8 — evaluare, operare și livrare</a></li><li><a href="#16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</a></li><li><a href="#17-trasabilitatea-tuturor-recomandarilor">17. Trasabilitatea tuturor recomandărilor</a></li><li><a href="#18-definition-of-done-si-pornire">18. Definition of Done și pornire</a></li><li><a href="#19-reluarea-intr-o-sesiune-noua-stare-si-urmatoarea-felie">19. Reluarea într-o sesiune nouă — stare și următoarea felie</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
 <h1 id="omnis-plan-de-implementare-v2">Omnis — plan de implementare v2</h1>
 <p><strong>Baseline de implementare · Local-first · P0.3_IMPLEMENTED_LOCAL · P0.4 în curs: CLI status, bundle/imagine și topologie DB/API/supervisor instalată probată numai în harness; launcher neimplementat · CI remote NOT-RUN · G00 deschis</strong></p>
-<p>Acest plan integrează toate cele 12 constatări R01–R12, păstrate în tabelul de trasabilitate din §17. Review-ul inițial este disponibil în istoricul Git la <code>b12e179</code>, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.</p>
+<p>Acest plan integrează constatări R01–R12 și amendamentele autorizate HF01–HF10, păstrate în §17. Review-urile Sol/OSS și suplimentul modular sunt surse/rațiuni istorice; recomandările înlocuite sunt adjudecate în §17, nu un plan concurent. Review-ul inițial este disponibil în istoricul Git la <code>b12e179</code>, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.</p>
 <h2 id="1-documentele-care-guverneaza-implementarea">1. Documentele care guvernează implementarea</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -55,7 +55,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h2 id="2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</h2>
 <p>Un operator creează din web un engagement autorizat, configurează scope/excluderi/context/identități/bugete, pornește recon HTTP/browser/JS, inspectează harta și matricea, primește investigații native Hermes cu skills și validare independentă, gestionează delte/approvals/Stop și exportă un raport fidel, inclusiv retest după remediere.</p>
 <p>MVP-ul include ambii provideri OpenRouter și <code>openai-codex</code>, Settings complet și guvernanță Skills. <strong>Acestea nu mai blochează prima vulnerabilitate demonstrată</strong>, dar rămân condiții ale livrării finale.</p>
-<p>Limităm catalogul executabil inițial la BOLA/IDOR, XSS reflectat și traversal-canary. Nu eliminăm browser/post-auth/hartă/validator sub pretextul simplificării. Nu adăugăm multi-tenancy, chains avansate, graph DB, Redis, Kubernetes, orchestrator nou, marketplace sau scanere nelimitate.</p>
+<p>Prima probă rămâne BOLA/IDOR; nucleul executabil MVP adaugă XSS reflectat și traversal-canary <strong>într-o campanie adaptivă</strong>, G-LOOP/G-FOCUS/G-PATH și Jev integrat/evaluat. Nu eliminăm browser/post-auth/hartă/validator; HTTP-auth permite prima BOLA API-only fără a aștepta Chromium. Catalogul knowledge poate fi larg fără execuție certificată. Trei familii sau E1 nu sunt paritate Strix; extensiile sunt §15. Nu adăugăm multi-tenancy, chains nelimitate, graph DB, Redis, Kubernetes, orchestrator nou, marketplace sau scanere fără limite.</p>
 <p><strong>Prima dovadă de integrare:</strong> engagement persistent → Brain → copil nativ cu skill fixat → acțiune brokered pe fixture → evidence durabil → UI → Stop verificat.</p>
 <p><strong>Prima dovadă de produs:</strong> pornind de la URL și contextul autorizat, reconul descoperă operația, Brainul formulează ipoteza, investigatorul și validatorul produc un finding corect, controlul sigur nu este confirmat, raportul și retestul au probe.</p>
 <h2 id="3-stack-ales-si-mod-de-lucru">3. Stack ales și mod de lucru</h2>
@@ -123,19 +123,44 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>B07 determinist mai întâi, B01e-integrated/G-NET HTTP, apoi tracerul nativ B08 și G03a</td>
 </tr>
 <tr>
-<td>P3b</td>
+<td>P3-auth</td>
 <td>P3a</td>
-<td>Browser/auth/HTTPS, extensia integrată a certificării și G03b/G-EFFECT</td>
+<td>B09h/G-AUTH-HTTP: identități HTTP, seif, principal/epoch/refresh/replay; fără Chromium obligatoriu</td>
+</tr>
+<tr>
+<td>P3b</td>
+<td>P3-auth</td>
+<td>Browser/SPA/auth asistat, extensia certificării și G03b/G-EFFECT; rămâne MVP obligatoriu</td>
 </tr>
 <tr>
 <td>P5a+P6a</td>
-<td>P3b</td>
-<td>Discovery → BOLA → validator → review/raport/retest, G05a/G06a</td>
+<td>P3-auth</td>
+<td>Discovery → BOLA → validator → review/raport/retest, G05a/G06a; prima probă API-only</td>
+</tr>
+<tr>
+<td>P-LOOP</td>
+<td>P5a+P6a</td>
+<td>B18a/G-LOOP: clue→replan→recon/task nou, fără dublu consum</td>
+</tr>
+<tr>
+<td>P-FOCUS</td>
+<td>P5a+P6a</td>
+<td>B10f/B12f/B13f/G-FOCUS: ambele moduri cu traces și raport distinct</td>
 </tr>
 <tr>
 <td>P5b+P6b</td>
-<td>P5a+P6a</td>
+<td>P5a+P6a, P3b</td>
 <td>Recon extins + XSS reflectat + traversal-canary, G05b/G06b</td>
+</tr>
+<tr>
+<td>P-PATH</td>
+<td>P-LOOP, P5b+P6b</td>
+<td>B18c/G-PATH: două findings și tranziție probate, fără count dublu</td>
+</tr>
+<tr>
+<td>P-JEV</td>
+<td>P-LOOP, P4a-minim</td>
+<td>B06j/B14j/G-JEV: shadow live și evaluare paired; dezvoltarea inertă începe din P2</td>
 </tr>
 <tr>
 <td>P4b</td>
@@ -144,8 +169,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>P7</td>
-<td>P5b+P6b</td>
-<td>Recuperare/bucle/concurență extinse, G07</td>
+<td>P-PATH, P-FOCUS, P-JEV</td>
+<td>Recuperare/bucle/concurență extinse B18b/B19, G07</td>
 </tr>
 <tr>
 <td>P8</td>
@@ -235,6 +260,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h2 id="8-p4a-settings-minim-fara-editor-blocant">8. P4a — Settings minim, fără editor blocant</h2>
 <p>P4a-minim urmează P2-inert pentru controlul sigur al Settings, apoi permite închiderea P2-live/G04a cu acord. Include selecție explicită model, status runtime, catalog read-only, pachete reviewed/published imuabile și dependency readiness. Configurarea/readbackul nu sunt inferență; fără cont/buget aprobate, partea live rămâne BLOCKED. Stări separate: configured/authenticated/reachable/inference_ready și methodology-only/benchmark-validated.</p>
 <p><strong>G04a:</strong> primul traseu poate rula cu un singur provider verificat și un skill publicat, fără editor sau al doilea cont. Readback după salvare/selectare. Stare <code>429</code> nu devine inferență reușită, iar modelul efectiv/auxiliarele corespund manifestului.</p>
+<p><strong>B06j/B14j/G-JEV:</strong> în paralel cu P2/P4a se introduc SDK/adaptor/typed questions/DecisionReceipt și Settings readback. Ordine: fixture/sentinel inert → shadow live cu acord → paired OFF/SHADOW/ADVISORY după G-LOOP; primele heads relevanță/triage și stagnare. Shadow nu schimbă schedulingul, invalid/missing/timeout→fallback și niciun verdict/scope din scor. Testul inspectează întreg payloadul/logurile, extra_body interzis, retries=0 și deny la sink după Stop/Pause. Mode/model/question/projection/threshold/data-policy fixate per run; advisory numai pe head calibrat. Jev este obligatoriu integrat/evaluat pentru MVP, nu pentru G05a/G06a; beneficiul poate fi nul și trebuie raportat.</p>
 <h2 id="9-p3a-prima-felie-http-completa">9. P3a — prima felie HTTP completă</h2>
 <p><strong>B07:</strong> contractele ToolDefinition/ToolInvocation/ToolResult din arhitectură §9.6, cu primul adaptor HTTP, apoi broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.</p>
 <p>Launcherul pentru assessment integrează provisionarea L07 numai după B01e-build + B01e-integrated/G-NET pentru transport: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Harnessul de certificare B07/B09 este separat și limitat la fixture/sinks autorizate; nu declară normal startup ready înaintea propriilor probe. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.</p>
@@ -249,7 +275,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Snapshot + cursor, evenimente duplicate/out-of-order și cursor expirat nu dublează counters; UI afișează staleness și resync.</li>
 <li><code>CURSOR_CONTEXT_MISMATCH</code> pentru token din alt run/engagement; paginare și citiri concurente nu amestecă revizii. După Stop/Pause, reconnect sau review/rerender, faza nu reapare activă. Summaries sunt server-side și nu totaluri ale paginii clientului.</li>
 </ul>
-<h2 id="10-p3b-browser-https-si-autentificare-devreme">10. P3b — browser, HTTPS și autentificare devreme</h2>
+<h2 id="10-p3-auth-si-p3b-identitati-http-apoi-browser">10. P3-auth și P3b — identități HTTP, apoi browser</h2>
+<p><strong>B09h/G-AUTH-HTTP</strong>, după G03a și înainte de G05a: anonymous/Basic/token/cookie, seif, login funcțional bounded, pozitiv principal/rol, epoch/lease/refresh owner și replay cu controale noi. Rotated secret durabil înainte de epoch; drift/crash→AUTH_UNKNOWN/INCONCLUSIVE; izolarea A/B/validator și secret/data policy se probează fără browser. B09b extinde același modul la assisted login/SPA, nu duplică auth. Preflightul necesar BOLA include health și G-EFFECT pentru operațiile HTTP folosite. Excepția înlocuiește dependența veche P5a→P3b, <strong>nu</strong> elimină G03b din MVP.</p>
 <p><strong>B09a:</strong> Chromium izolat și sandbox activ, proxy MITM numai în laborator, request buffering înaintea policy, toate subrequesturile corelate și limitate. SW/WS/QUIC/download neautorizat/passthrough oprite. TLS upstream verificat, CA numai în executor.</p>
 <p><strong>B09b:</strong> identități/seif, anonymous/Basic/token/cookie, login asistat în context engagement și dovadă pozitivă principal/rol. Serializare per auth context/obiect și refresh cu owner unic. Același provider AI nu înseamnă aceeași identitate pe țintă.</p>
 <p><strong>G03b:</strong> fixture SPA cu login și API post-auth; token refresh rotativ sub cereri concurente; CSRF consumabil; auth expirat între baseline/probă; cookies izolate și validator pe stare resetată. Fluxul necesar se reproduce fără slăbirea auth de pe țintă. Auth nesuportat nu blochează recon anonim și nu produce negativ.</p>
@@ -257,7 +284,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>G-NET:</strong> CONNECT/SNI/Host/path nepermis, rebinding, redirect/subresursă off-scope și request streaming accidental sunt refuzate înaintea traficului relevant. Măsurăm la sink/fixture bytes/stare, nu doar log de policy.</p>
 <p><strong>G-EFFECT:</strong> GET mutator și mutație SPA automată nu modifică starea sub politică read-only fără approval. Sinks de email/webhook și health degradation verifică impactul; cleanup eșuat rămâne vizibil. <code>UNKNOWN</code> nu este mapat la read-only de LLM.</p>
 <h2 id="11-p5a-p6a-prima-familie-utila-bola-cap-coada">11. P5a + P6a — prima familie utilă, BOLA cap-coadă</h2>
-<p><strong>B10:</strong> recon minimal real: link/form/JSON, JS route hints, dedup conservator, post-auth incremental, tree/tabel și proveniență. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea. <code>denominator_revision</code> și materializarea celulelor inferred/unknown/parametru/epoch au owner în coverage, conform arhitectură §11; nicio obligație descoperită nu devine testată prin simpla existență în hartă.</p>
+<p><strong>B10a/B10b:</strong> recon minimal real prin reuse Katana/parsers: capture/import link/form/JSON și JS/OpenAPI/body hints necesare primei operații, apoi map/fingerprint/threat model, dedup conservator, post-auth incremental, tree/tabel și proveniență. Nu dăm endpointul vulnerabil ca soluție și nu scriem preventiv alt crawler. <strong>B10c:</strong> research contextual cu primul consumator justificat; <strong>B10d:</strong> wordlist/baseline cu primul discovery care îl cere. c/d sunt opționale per run și nu prerechizite universale BOLA; se închid pentru capabilitatea promisă MVP prin gates auxiliare de mai jos. API-ul de context oferă snapshot/cursor/paginare și menționează trunchierea. <code>denominator_revision</code> și materializarea celulelor inferred/unknown/parametru/epoch au owner în coverage, conform arhitectură §11; nicio obligație descoperită nu devine testată prin simpla existență în hartă.</p>
 <p><strong>B11:</strong> <code>object-authorization</code> complet: SKILL.md, metodologie, validator, controale, schema rezultatului, manifest Omnis, fixture privat/partajat și matrice business versionată. Brainul creează ipoteza din observații și deleagă un task îngust.</p>
 <p><strong>B12:</strong> copil nou de validare și serviciu determinist de verdict; poartă probatorie pentru negativ. Situațiile UNKNOWN/auth drift/buget epuizat rămân INCONCLUSIVE sau BLOCKED.</p>
 <p><strong>B13 — felii legate, nu un singur ticket vag:</strong></p>
@@ -287,6 +314,54 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Pachet nativ + unicul <code>omnis.yaml</code>, conform arhitectură §9.4–9.5: tehnică generală distinctă de procedura bounded; schemas, overlays, templates și assets hash-uite. B06/P4a-minim livrează schema și releaseul read-only înaintea primei proceduri, B14b editorul complet. Draft → Review → Eval → Publish citează digestul exact; metodologia-only nu este execuție certificată. Incompatibilitatea explicită se refuză. Lifecycle, disponibilitate, aplicabilitate și evaluare sunt axe separate.</p>
 <p>Drafturile UI se persistă în workspace/DB Omnis, nu fac <code>git commit</code> automat din procesul web. Publicarea creează release content-addressed read-only și audit; promovarea metodologiei în repo este export/review/commit de dezvoltare separat. Nu amestecăm versionarea surselor cu storage-ul operațional. Un draft nou nu afectează taskurile active; disable blochează utilizări noi, revocarea activă e acțiune separată.</p>
 <p><strong>G04b:</strong> ambii provideri au probe live reale inclusiv cancel/logout/eroare, cu eligibilitate și acord. Fără cont → BLOCKED. Path traversal/symlink/shadowing din editor refuzate, fișierele referite incluse în digest. <strong>Toate taskurile unui run păstrează catalogul acelui run; noul release se selectează numai într-un run nou.</strong> Drafturile pot evolua fără efect pe snapshot; revocarea de urgență a releaseului activ folosește Stop/fencing, nu substituție de versiune. Lipsa unui tool produce UNAVAILABLE, nu instalare tacită.</p>
+<p><strong>B14c:</strong> ImprovementDraft cu material aprobat și slot maintenance după quiescență; reuse native background review/curator/staging, publisher separat. <strong>B21m:</strong> control maintenance și numai apoi cron <code>no_agent</code> enqueue; inițial scheduling manual este suficient pentru MVP, periodicitatea automată urmează după G-HERMES-BOUND, nu blochează prima dovadă/raport.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gate auxiliar / ticket</th>
+<th>Dependențe reale / probă pozitivă</th>
+<th>Negativ și readback obligatoriu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G-MODULE / B06, B14b</td>
+<td>Schema/registry minimal B06; două subfaze recon/mapping și trei acțiuni PURE, profil compilat determinist; editor B14b schimbă ordine/config pentru run nou</td>
+<td>Unknown handler/schema, cycle/missing dependency/core hook disabled/cod în config refuzate; GET profile/plan la aceeași revizie</td>
+</tr>
+<tr>
+<td>G-REVISION / B06, B14b</td>
+<td>Catalog/prompt/model fixate; input artifact nou sub recipe veche permis</td>
+<td>Hot-swap code/config/catalog și stale review refuzate; run vechi identic, release nou doar run nou</td>
+</tr>
+<tr>
+<td>G-RESEARCH / B10c</td>
+<td>H03/H04/H06/H08 + G-DATA + research egress: facts publicabile→sursă primară→lead cu precondiții</td>
+<td>Secret/private URL/version ambiguu/redirect/fallback neaprobat/lipsă sursă; GET result/receipt, zero findings din advisory singur</td>
+</tr>
+<tr>
+<td>G-WORDLIST / B10d/B15</td>
+<td>Capture B10a/b + recipe/inputs fixate→artifact determinist; comparație randament pe fixture</td>
+<td>PII/token/empty/oversize/duplicate/absolute origin/baseline drift; GET exact digest/order/provenance; builder nu face target IO</td>
+</tr>
+<tr>
+<td>G-TOOLS / B07/B09/B15n</td>
+<td>Port comun + adaptor certificat pe transport; invocation→Action receipts la sink</td>
+<td>Installed≠permitted, digest/parser/template greșit, direct egress/late request/Stop/cancel; no verdict din exit 0</td>
+</tr>
+<tr>
+<td>G-IMPROVE / B14c</td>
+<td>Draft/review/eval la același digest + G-REVISION, release pentru run nou</td>
+<td>Autoapprove/publish, import failure, symlink/stale eval/held-out leakage; GET release și audit exact după restart</td>
+</tr>
+<tr>
+<td>G-HERMES-BOUND / B19/B21m</td>
+<td>G-IMPROVE + runtime slot/quiescence + G-RESEARCH pentru jobs online; maintenance Stop/status readback</td>
+<td>Memory/MCP contamination, malformed wake, curator dry-run mutator, schedule paused fără worker stop; fără al doilea writer/grant copiat</td>
+</tr>
+</tbody>
+</table></div>
+<p>Aceste gates se livrează odată cu consumatorul și sunt obligatorii pentru funcțiile MVP promise, nu un mega-prerechizit al BOLA. Nicio capabilitate target/model/research nu primește derogare prin eticheta „auxiliar”.</p>
 <h2 id="13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</h2>
 <p><strong>B15:</strong> consumă reutilizarea Katana/parserelor și ToolInvocation/Action attribution (stack §10 U10), robots/sitemap/form/body params, JS static bounded, OpenAPI JSON/YAML local cu parsare sigură fără ref extern, directory/parameter discovery bounded, soft-404, login page și rate limit. Raportăm protocoalele nesuportate explicit; nu cumpărăm paritate de marketing cu tooluri neverificate.</p>
 <p><strong>B15n:</strong> adaptor Nuclei de semnale, subset HTTP/templates separat fixat și evaluat, fără exec/code/JS/headless/OAST. Hit→Observation/Candidate, nu CONFIRMED; zero matches nu califică automat coverage. Demonstrația adaptorului este MVP; certificarea familiei exposure este E1. Installed/permitted, wrong digest, option injection, cancel/timeout/oversized output și sink attribution sunt probe obligatorii. B09 extinde același port la browser, nu alt registru; E2 adaugă Schemathesis.</p>
@@ -294,7 +369,9 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>B17:</strong> <code>path-traversal-canary</code>: numai canaryul de laborator autorizat, oracle/proveniență în evaluator, niciodată citire de secrete reale. Valoarea/soluția nu este pusă în prompt/skill.</p>
 <p><strong>G05b/G06b:</strong> rută fără link descoperită din JS/OpenAPI, API post-login, parametri body, soft-404, paginare/context mic, identități distincte și contradicții care schimbă taskul următor fără rescanare globală. Fiecare familie are fixture vulnerabil/remediat, procedură pozitivă/negativă, validator, limite și suite de regresie. Pachetele nevalidate sunt methodology-only, nu cresc catalogul executabil.</p>
 <h2 id="14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</h2>
-<p><strong>B18:</strong> inbox/dedup/consumed markers, reprioritizare, task dependencies, două contexte independente maximum, stagnare și rezervă pentru validare. Completed runtime ≠ task valid ≠ engagement completed.</p>
+<p><strong>B18a/G-LOOP</strong>, imediat după G06a: reutilizează inbox/ACK/consumed B06, adaugă STEER bounded și replan vizibil. Clue relevant→delta→revizie hartă/ipoteză→task diferit care citează basis; contraexemplul poate închide/no-op justificat. Replay/crash nu dublează taskul; Stop blochează wake; lipsă progres→LIMITED, research eșuat nu blochează fir independent. Nu așteaptă B15/B16/B17/editor/Jev.</p>
+<p><strong>B18c/G-PATH</strong>, după G-LOOP și G06b: canary traversal→operație nouă→BOLA în misiune; pașii și tranziția au replay/evidence/identity-state compatibile. <code>needs-review</code>/no-evidence/edge străin nu intră în frontieră ca probat. Counts root-cause nu includ path sau occurrence; UI timeline este extensie delimitată, cu verificare vizuală separată.</p>
+<p><strong>B18b/G07:</strong> extinde concurența/recovery la maximum doi copii inclusiv validator/researcher, task dependencies, stagnare și rezervă validare. Completed runtime ≠ task valid ≠ engagement completed.</p>
 <p><strong>B19:</strong> pause/resume/recovery integrate: crash API, supervisor, Hermes, proxy, executor și DB; queued completion înainte/după Stop/aprobare; process orphan și lease expirat. Restore/checkpoint începe stopped/locked; niciun job nu pornește automat din backup.</p>
 <p><strong>G07:</strong> un rezultat deja consumat nu produce două continuări; unul admis dar neconsumat nu se pierde după crash. Pe scope nou nu se reutilizează approval vechi. Doi copii nu pot împrumuta auth/task/evidence; pentru aceeași sesiune auth așteaptă lease-ul. Coverage identic DB/UI/report la același snapshot. Dacă limita oprește lucrul → LIMITED, nu „pentest complet”.</p>
 <p>Finalizarea folosește predicatul determinist din arhitectură: frontieră/obligații/candidați închise, fără inbox/task/approval/cleanup/efect incert restant și executori quiescenți. Trei tururi fără progres nou justificat declanșează stagnare/LIMITED, nu COMPLETED. Un <code>run.completed</code> Hermes sau cererea Brainului nu închide direct engagementul.</p>
@@ -357,7 +434,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Desktop 1440/1280, tabletă 1024 și mobil 390/320; accesibilitate keyboard/focus/dialog/contrast, zoom 200%, reduced motion, fără overflow global. Print raport offline.</li>
 </ul>
 <h3 id="matrice-ui-datecomanda-livrare-probe">Matrice UI → date/comandă → livrare → probe</h3>
-<p>Toate rândurile sunt <strong>NEÎNCEPUTE în produs</strong>. Contractele/API-urile sunt propuse în arhitectură §9; fiecare felie introduce împreună migrarea/DTO-ul/handlerul/componentele și testele necesare. Înaintea acelei felii, UI arată disponibilitatea reală, nu un buton care pretinde succes. URL/deep-link/back/refresh păstrează contextul; restabilirea selecției nu pornește un run.</p>
+<p>Toate rândurile sunt <strong>NEÎNCEPUTE în produs</strong>. Contractele/API-urile sunt propuse în arhitectură §9; fiecare felie introduce împreună migrarea/DTO-ul/handlerul/componentele și testele necesare. Înaintea acelei felii, UI arată disponibilitatea reală, nu un buton care pretinde succes. URL/deep-link/back/refresh păstrează contextul; restabilirea selecției nu pornește un run. În matrice, subrutele abreviate moștenesc prefixul complet al resursei din același rând, nu <code>/api/v1/settings</code> generic. Fiecare mutare cere session/CSRF, ownership, If-Match/expected revision și command ID; GET readback trebuie să confirme exact ținta/revizia după restart, 202 este numai receipt. Migrarea/DTO/handler/UI se introduc împreună cu primul consumator, niciun endpoint viitor stub în P0.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -481,6 +558,55 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>B07/G03a, B09/G03b, B15n/G-TOOLS</td>
 <td>+ installed/compatible/evaluated/permitted distincte și invocare→requests; − digest/dependency/lease/argument injection, zero≠failure; GET receipts + evidence/sink readback, nu exit code singur</td>
 </tr>
+<tr>
+<td>UI17</td>
+<td>HF07: threat model, roster și plan/subphase inspector în Coverage/Brain stream</td>
+<td>ThreatModelRevision/PlanInstance/RunProgress → runs/surfaces/tasks; GET <code>/api/v1/runs/{run}/threat-model</code>, <code>/plan</code>, <code>/tasks</code>, <code>/events</code>; refs/proiecții B10/B18a peste facts/taskuri</td>
+<td>B10b/B18a, G-LOOP/G-MODULE</td>
+<td>+ clue→revizie→task și trigger/reason la refresh; − inferred≠observed, duplicate/reordered cursor; GET plan/summary/tasks coerente</td>
+</tr>
+<tr>
+<td>UI18</td>
+<td>HF07: path timeline în finding inspector</td>
+<td>AttackPath/steps/transitions → findings/validation; GET <code>/api/v1/runs/{run}/attack-paths</code>; migrare legături/evidence odată cu B18c</td>
+<td>B18c/G-PATH după G-LOOP/G06b</td>
+<td>+ ambele defecte și tranziția probate; − same-host/edge străin/epoch incompatibil/lipsă evidence; GET path/raport fără count dublu; vizual separat</td>
+</tr>
+<tr>
+<td>UI19</td>
+<td>HF08: Decision support mode/model/heads/buget, test explicit și receipts</td>
+<td>DecisionSupportRevision/DecisionReceipt → settings + integrations/jev; GET/PUT <code>/api/v1/settings/decision-support</code>, POST <code>/test</code>, GET <code>/api/v1/runs/{run}/decisions</code>; config/revizii B06j/B14j</td>
+<td>B06j/B14j/G-JEV; live cu acord</td>
+<td>+ save→GET exact config/digest după restart, shadow fără efect; − hot-swap/secret echo/invalid response/Stop; receipt/fallback/UNKNOWN vizibile</td>
+</tr>
+<tr>
+<td>UI20</td>
+<td>HF07: profile clone/edit/order/validate/publish și catalog acțiuni</td>
+<td>WorkflowProfileRevision/Phase/Subphase/ActionDefinition → settings; GET <code>/api/v1/settings/action-catalog</code>, GET/POST <code>/workflow-profiles</code>, POST <code>/{id}/drafts</code>, PUT <code>/drafts/{draft}</code>, POST <code>/drafts/{draft}/validate</code>, <code>/review</code>, <code>/eval</code>, <code>/publish</code>; drafts/release la B14b</td>
+<td>B06 registry, B14b/G-MODULE/G-REVISION</td>
+<td>+ config/ordine schimbă doar run nou; − unknown/cycle/excluded dependency/core disable/cod; GET draft/release/plan exact, 409 păstrează draft</td>
+</tr>
+<tr>
+<td>UI21</td>
+<td>HF07: Research sources/activity, wordlist recipe/files/preview</td>
+<td>sources policy → settings/research adapters; GET/PUT <code>/api/v1/settings/research-sources</code>, GET <code>/api/v1/runs/{run}/research</code>; recipe/artifact → skills/evidence, operații draft/review/eval/publish UI14 și GET evidence</td>
+<td>B10c/d/B14b/B15; G-RESEARCH/G-WORDLIST</td>
+<td>+ provenance/source/time/digest/caps și readback; − query secret/private URL, fallback, zero corpus, baseline drift; preview pasiv nu pornește fuzzer</td>
+</tr>
+<tr>
+<td>UI22</td>
+<td>HF07: Improvements list/diff/accept/hold/reject/eval/publish; maintenance status/pause/stop</td>
+<td>ImprovementDraft/receipts + maintenance jobs → settings/supervisor; GET <code>/api/v1/settings/improvements</code>, POST <code>/{id}/review</code>, <code>/eval</code>, <code>/publish</code>; GET <code>/api/v1/maintenance</code>, POST <code>/commands</code>; migrare B14c/B21m</td>
+<td>G-IMPROVE/G-HERMES-BOUND; după quiescență, periodic ulterior</td>
+<td>+ release exact după eval și status WAITING_FOR_RUNTIME_SLOT; − self-approve/stale/held-out leak/wake neadmis; command receipt + GET worker quiescent, pause schedule≠stop</td>
+</tr>
+<tr>
+<td>UI23</td>
+<td>E3: import source snapshot revizionat</td>
+<td>sources artifact/review → engagements/evidence; POST/GET <code>/api/v1/engagements/{id}/sources</code>; migrare cu E3, nu P0</td>
+<td>E3/G-SOURCE + data policy</td>
+<td>+ snapshot imuabil/readback restart; − symlink/remote ref/secret/import exec; zero execuție upload; source-supported≠runtime-confirmed</td>
+</tr>
 </tbody>
 </table></div>
 <p>P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația cockpit/stream; B13 finding disclosure/review/report. Testele API/PostgreSQL verifică autoritatea și persistența, iar web component/E2E verifică contractul, focusul, staleness și layoutul. <code>browser_check.py</code> asupra DEMO rămâne separat și nu închide aceste gates.</p>
@@ -591,5 +717,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Ordinea restului P0-control:</strong> continuă P0.4 cu instalarea și lifecycle-ul <strong>prin launcherul <code>omnis</code></strong>, preflight/lock/concurență, startup/pairing/open/stop, probe de topologie/UID și negativele complete L01–L05-control/L08-core din afara checkoutului. Fixture-ul DB fără port Docker publicat este în <code>d8f79df</code>; rerulează gate-ul canonic pe checkout curat al ultimului cod și păstrează separate negativele LAN, crash/restart și celelalte porți, fără a substitui rezultatul prin probele de harness. Numai după acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.</p>
 <p><strong>Reluare P0.4 după clear:</strong> verifică HEAD/checkoutul, <a href="verification/p03-local-bootstrap.md">dovezile P0.3</a>, <a href="verification/p04-cli-status.md">incrementul CLI</a>, <a href="verification/p04-bundle-install.md">bundleul</a>, <a href="verification/p04-image-artifact.md">imaginea</a>, <a href="verification/p04-compose-contract.md">contractul Compose</a>, <a href="verification/p04-image-install.md">instalarea imaginii</a> și <a href="verification/p04-host-uds.md">proba DB/API/supervisor host-only</a>, <a href="verification/p04-safe-test-db.md">fixture-ul DB de test fără publicație</a>, inclusiv eșecurile istorice, TIME_WAIT și constatările forwarderului încă deschise. Continuă exclusiv launcherul din P0.4 în felii TDD/review/commituri mici, fără refacerea webului, conturi/LLM/ținte. Nu pretinde că topologia de harness înseamnă <code>omnis start</code> sau gate-uri complete închise.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>64e5971c9841686d6bbd00e3c767e5feaa99983fc231c499c7cf696ca3178ff9</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>a4ca773708a54f63c12312e5cfcb95dd61928cf4dc9b3628e1d91168d0450ea5</code>.</p></footer>
 </main></div></body></html>

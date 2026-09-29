@@ -134,7 +134,7 @@ Coverage este tabul principal; Endpoints este subvederea inventarului. Treeul se
 
 Click pe coverage cell arată: denominator key, procedură/revizie, precondiții, acțiunile executate, controlul și evidence. `tested_no_issue` este descris „No issue demonstrated by this procedure”, nu „Safe”. Un filtru nu schimbă numitorul global fără etichetă.
 
-Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill digest și dependențe. Timeline separă investigator, validator și serviciul de verdict. Nu afișăm deliberări interne/chain-of-thought; afișăm decizii scurte și rezultate observabile.
+Investigația arată ipoteză, motiv de prioritizare, worker/attempt, skill digest și dependențe. Inspectorul arată TaskBriefV1/TaskResultV1 redactate, procedura/overlay/input digests și misiunea, consumate o singură dată; reason/gaps/next clues nu sunt transcript intern. Readback și migrarea se livrează cu taskurile conform UI15 din plan. Timeline separă investigator, validator și serviciul de verdict. Nu afișăm deliberări interne/chain-of-thought; afișăm decizii scurte și rezultate observabile.
 
 ### Findings → report → retest
 
@@ -150,7 +150,7 @@ Retest cere run/autorizație/buget proaspăt și afișează FIXED doar după pre
 
 Settings minim poate fi catalog read-only. Settings complet adaugă editor/diff/review/publish fără a schimba layoutul. Readiness provider are patru axe: configured/authenticated/reachable/inference_ready. Test inference este separat și potențial facturabil. Cancel login și logout sunt operații distincte, cu readback.
 
-Editorul de skill este form text/file tree controlat, nu filesystem browser. Publicarea arată exact digest/revizie și spune „Applies to new runs”; toate taskurile aceluiași run păstrează catalogul fixat. Disable blochează selecția în runuri noi; revocarea de urgență a unui release activ trece prin Stop/fencing. Erorile de path/reference/dependency sunt lângă fișierul relevant.
+Editorul de skill este form text/file tree controlat, nu filesystem browser. Arbore: SKILL.md + unicul omnis.yaml + references/technologies + templates/procedures/schemas/requests + assets; TechniqueRevision (metodă) și ProcedureRevision (variantă bounded) sunt separate în detaliu, fără al doilea catalog. Afișează precondiții, baseline/probe/control, false positives, oracle/evidence, limite/cleanup și compatibilitate. Draft → Review → Eval → Publish: afișează digestul acceptat și receiptul; editarea ulterioară invalidează review/eval. Testarea activă din Eval este comandă distinctă, cu laborator/buget/permisiuni, nu efect al editării. Publicarea arată exact digest/revizie și spune „Applies to new runs”; toate taskurile aceluiași run păstrează catalogul fixat. Disable blochează selecția în runuri noi; revocarea de urgență a unui release activ trece prin Stop/fencing. Erorile de path/reference/dependency sunt lângă fișierul relevant.
 
 ## 5. Stări și copy obligatorii
 

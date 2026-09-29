@@ -38,6 +38,24 @@ class AmendmentContracts(unittest.TestCase):
         self.assertIn("409", mission)
         self.assertIn("nu procent global", mission)
 
+    def test_package_and_child_contracts_are_typed_and_run_pinned(self):
+        architecture = document("MVP_Architecture")
+        packages = section(architecture, "### 9.4. Catalog: pachet, tehnică și procedură")
+        briefing = section(architecture, "### 9.5. PromptBundleRevision, TaskBriefV1 și TaskResultV1")
+        for contract in ["SkillPackageRevision", "TechniqueRevision", "ProcedureRevision"]:
+            self.assertRegex(packages, rf"\| `{contract}` \|[^\n]+schema_version[^\n]+revision")
+        for token in ["omnis.yaml", "references/technologies/", "templates/procedures/",
+                      "baseline", "probe", "control", "cleanup", "false_positives",
+                      "Draft → Review → Eval → Publish", "symlink", "methodology-only"]:
+            self.assertIn(token, packages)
+        for contract in ["PromptBundleRevision", "TaskBriefV1", "TaskResultV1"]:
+            self.assertRegex(briefing, rf"\| `{contract}` \|[^\n]+schema_version")
+        for token in ["RuntimeBinding", "mandatory", "auth_epoch", "result_schema_ref",
+                      "consumed_input_refs", "UNKNOWN", "system prefix"]:
+            self.assertIn(token, briefing)
+        self.assertIn("UI14", document("Implementation_Plan"))
+        self.assertIn("UI15", document("Implementation_Plan"))
+
 
 if __name__ == "__main__":
     unittest.main()

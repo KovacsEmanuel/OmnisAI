@@ -1,10 +1,12 @@
 # API/control și bootstrap web P0.3 — utilizare și limite
 
-Acesta este control plane-ul API/PostgreSQL și supervisorul **inert, pornit separat**, cu [bootstrap web real](../web/README.md). Nu există încă launcherul `omnis`, experiența P1, Hermes, provideri sau evaluări. `/health/live` arată procesul; `/health/ready` este 200 numai după conectarea la PostgreSQL cu schema `0004_pairing_receipts` compatibilă. `dashboard_ready` cere suplimentar buildul trusted și controlul privat sănătos; `dashboard_reason` explică indisponibilitatea, iar `assessment_ready` rămâne false. Proba de integrare folosește imaginea fixată PostgreSQL 18.6; endpointul nu verifică separat numărul de versiune al serverului, aceasta fiind o precondiție a instalării testate. API-ul se pornește explicit pe loopback; Host-ul este exact `127.0.0.1:8765`, sau portul ales explicit prin `OMNIS_HTTP_PORT`. Setarea portului nu modifică singură bindul Uvicorn.
+Acesta este control plane-ul API/PostgreSQL și supervisorul **inert, pornit separat**, cu [bootstrap web real](../web/README.md). Nu există încă launcherul `omnis`, experiența P1, Hermes, provideri sau evaluări. `/health/live` arată procesul; `/health/ready` este 200 numai după conectarea la PostgreSQL cu schema `0004_pairing_receipts` compatibilă. `dashboard_ready` cere suplimentar buildul trusted și controlul privat sănătos; `dashboard_reason` explică indisponibilitatea, iar `assessment_ready` rămâne false. Proba de integrare folosește imaginea fixată PostgreSQL 18.6; endpointul nu verifică separat numărul de versiune al serverului, aceasta fiind o precondiție a instalării testate. În exemplul de dezvoltare de mai jos, API-ul se pornește explicit pe loopback; Host-ul este exact `127.0.0.1:8765`, sau portul ales explicit prin `OMNIS_HTTP_PORT`. Setarea portului nu modifică singură bindul Uvicorn.
 
 ## Pregătirea unui test izolat
 
 Sunt necesare Python 3.13.15, uv 0.12.19, Docker/Compose și `postgres:18.6-bookworm` din digestul fixat în `ops/compose.test.yaml`. **Nu folosiți DB personală.** Din root, într-un shell interactiv; valoarea parolei generate este sintetică și nu se afișează sau salvează în repo:
+
+**Nu executați rețeta de mai jos pe Docker Engine 27 sau mai vechi:** `compose.test.yaml` publică PostgreSQL prin Docker pe `127.0.0.1`, iar acel bind nu exclude accesul din același segment L2 înainte de Engine 28. Rețeta rămâne istorică pentru un host/profil de test separat și certificat; pe acest host, `make check` complet este BLOCKED până la un fixture fără port Docker publicat sau o probă de izolare verificată. Nu schimbați firewallul/daemonul și nu porniți un proiect străin doar pentru a obține un gate verde.
 
 ```sh
 UV=/cale/absoluta/uv-0.12.19
@@ -34,6 +36,12 @@ OMNIS_DATABASE_URL="$OMNIS_TEST_DATABASE_URL" api/.venv/bin/python -m uvicorn om
 Se poate folosi același modul `omnis.migrate` dintr-un wheel instalat; `api/alembic.ini` este doar pentru comenzi Alembic din checkout. API nu migrează la startup și nu repară singletonuri lipsă. Migrarea `downgrade` este refuzată deliberat: un revert Git nu readuce datele; pentru o DB existentă cereți backup/restore verificat înainte de orice upgrade. P0.2 adaugă `0002_local_sessions`, `0003_instance_lifecycle` și `0004_pairing_receipts`; testele fac upgrade de la P0.1 păstrând identitatea/admiterea închisă. Nu s-a migrat nicio DB personală sau de producție.
 
 La final, opriți **numai** proiectul de test verificat: `docker compose -f ops/compose.test.yaml down` în același shell cu `OMNIS_TEST_PROJECT` setat. Nu folosiți `down -v`; volumul rămâne disponibil pentru inspecție sau restaurare. Nu opriți containere selectate doar după port/PID. Absența DB/uv/Docker blochează gate-ul, nu certifică readiness.
+
+## Entrypoint OCI P0.4: socket Unix, nu port Docker
+
+Comanda imaginii instalate este `python -I -m omnis.serve`, distinctă de exemplul Uvicorn pe loopback de mai sus (numai dezvoltare). API-ul din release ascultă exclusiv pe `api.sock` în directorul privat 0700, cu socket/lock 0600; HTTP-ul din browser este forwardat doar de procesul host după verificarea peer UID. Un proces părinte fără event loop de API deține copilul Uvicorn prin `pidfd`: la SIGTERM/SIGINT așteaptă cel mult 10 s, apoi trimite SIGKILL copilului și reap bounded. Oprirea normală întoarce 0; depășirea termenului/efectul nereconciliat întoarce 4. Un kill poate lăsa pathname-ul socketului stale, validat și reconciliat numai la o pornire explicită sub lock. Nu interpretați acest exit drept barieră durabilă `InstanceControl` sau quiescență completă a produsului.
+
+`make check-installed-control UV=/cale/uv-0.12.19` a probat din afara checkoutului un release disposable cu PostgreSQL/API/supervisor reale, schema nemigrată 503, apoi migrare/readiness/assets/IPC și cleanup fără `down -v`; [evidența exactă și limitele](../documents/verification/p04-host-uds.md). Nu este `omnis start/stop`, nu testează un crash al launcherului sau un peer LAN, iar `make check` complet rămâne blocat pe fixture-ul DB de test menționat mai sus. Nu sunt porniți provideri, Hermes ori assessmenturi.
 
 ## Gate-uri Python reproductibile
 

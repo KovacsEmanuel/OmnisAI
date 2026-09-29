@@ -110,6 +110,8 @@ Rutele Investigations/Candidates și Setup sunt secundare; nu adaugă taburi pri
 4. **Rules & budgets:** efecte, praguri, request/time/storage, rezervă validare, data policy/provider/model și catalog admis. `report_review_policy`: OPERATOR_REQUIRED preselectat și afișat explicit sau VALIDATOR_ONLY ales de operator; se fixează în run, nu se schimbă în timpul lui. „Cost necunoscut” separat de limita tehnică; nu afișăm quota Codex inventată.
 5. **Review & preflight:** erori/blocaje grupate cu link înapoi la câmp; mod, obiectivul exact salvat, constraints/non-goals, revizie/model/identități/riscuri/cost posibil, capabilități disponibile și necunoscute. Save draft nu face inferență; nu afișăm interpretare AI fictivă. Start cere preflight actual și confirmare explicită. Brain interpretează după admission în PREPARE; preview AI pre-Start nu este inclus în MVP.
 
+În P1, lipsa catalogului permite Save draft cu workflow_profile_ref=null și CATALOG_UNAVAILABLE/NOT_SELECTED; nu împiedică G01 și nu activează Start. B06/P4a livrează profilul publicat, selectat explicit înainte de Start. Formularul secret HTTP se livrează cu B09h/G-AUTH-HTTP, assisted browser login numai cu P3b.
+
 Backendul este autoritatea finală. Un wizard bifat nu garantează că între timp auth/lease/model/policy nu s-au schimbat. La 409 păstrăm editările locale și arătăm conflictul; nu suprascriem automat.
 
 ### 3.1. Misiunea în run și readback

@@ -411,6 +411,111 @@ def _wait_uds_ready(directory: Path, port: int) -> dict[str, object]:
     raise AssertionError("Installed private API socket did not become ready")
 
 
+def _probe_installed_api_stop(
+    host: str,
+    release: Path,
+    project: str,
+    empty_env: Path,
+    env: dict[str, str],
+    state_root: Path,
+    image_id: str,
+    port: int,
+    expected_ready: dict[str, object],
+) -> None:
+    """Fault-inject an installed API event-loop stall without target or model work."""
+    scratch = empty_env.parent
+    _stop_installed_api(host, release, project, empty_env, env)
+    if (state_root / "http/api.sock").exists():
+        raise AssertionError("Normal API stop left a private socket")
+    name = f"{project}-api-stall"
+    program = (
+        "import time\n"
+        "import omnis.serve as owned\n"
+        "async def stalled(self, sockets=None):\n"
+        "    print('STALLED_INSTALLED_API', flush=True)\n"
+        "    while True: time.sleep(60)\n"
+        "owned.uvicorn.Server.serve = stalled\n"
+        "raise SystemExit(owned.main())\n"
+    )
+    _compose(
+        host,
+        release,
+        project,
+        empty_env,
+        env,
+        "run",
+        "-d",
+        "--no-deps",
+        "--pull",
+        "never",
+        "--name",
+        name,
+        "--entrypoint",
+        "python",
+        "api",
+        "-I",
+        "-c",
+        program,
+        timeout=30,
+    )
+    item = _inspect(host, name, scratch)
+    ident = item.get("Id") if item is not None else None
+    if not isinstance(ident, str):
+        raise AssertionError("Installed stalled API identity unavailable")
+    owned = _owned_container(host, ident, scratch, project, image_id, state_root, port)
+    config = owned.get("Config")
+    labels = config.get("Labels") if isinstance(config, dict) else None
+    if not isinstance(labels, dict) or labels.get("com.docker.compose.oneoff") != "True":
+        raise AssertionError("Stalled API is not an owned one-off")
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        current = _inspect(host, ident, scratch)
+        state = current.get("State") if current is not None else None
+        if not isinstance(state, dict) or state.get("Running") is not True:
+            raise AssertionError("Stalled API exited before owner stop")
+        logs = _docker(host, "logs", "--tail", "30", ident, cwd=scratch, success=False)
+        if logs.returncode == 0 and "STALLED_INSTALLED_API" in logs.stdout + logs.stderr:
+            break
+        time.sleep(0.2)
+    else:
+        raise AssertionError("Installed stalled API did not reach the blocked loop")
+    _docker(host, "container", "stop", "--time", "15", ident, cwd=scratch, timeout=30)
+    result = _inspect(host, ident, scratch)
+    stopped = result.get("State") if result is not None else None
+    if (
+        not isinstance(stopped, dict)
+        or stopped.get("Running") is not False
+        or stopped.get("ExitCode") != 4
+        or stopped.get("OOMKilled") is not False
+    ):
+        raise AssertionError("Docker preempted the API owner's exit-4 deadline")
+    _owned_container(host, ident, scratch, project, image_id, state_root, port)
+    _docker(host, "container", "rm", ident, cwd=scratch, timeout=30)
+    _compose(
+        host,
+        release,
+        project,
+        empty_env,
+        env,
+        "up",
+        "-d",
+        "--no-deps",
+        "--no-build",
+        "--pull",
+        "never",
+        "api",
+        timeout=90,
+    )
+    api_id = _service_id(host, release, project, empty_env, env, "api")
+    restarted = _owned_container(host, api_id, scratch, project, image_id, state_root, port)
+    restart_state = restarted.get("State")
+    if not isinstance(restart_state, dict) or restart_state.get("Running") is not True:
+        raise AssertionError("Installed API did not restart after blocked stop")
+    if _wait_uds_ready(state_root / "http", port) != expected_ready:
+        raise AssertionError("Installed API did not reconcile its stale socket")
+    print(f"INSTALLED_API_STOP_DEADLINE_VERIFIED project={project} exit=4")
+
+
 def _owner_set(host: str, project: str, scratch: Path) -> list[str]:
     response = _docker(
         host,
@@ -914,6 +1019,17 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         )
         if probe.returncode or json.loads(probe.stdout).get("instance_id") != instance_id:
             raise AssertionError("Installed CLI private control identity mismatch")
+        _probe_installed_api_stop(
+            host,
+            release,
+            project,
+            empty_env,
+            env,
+            state_root,
+            receipt.image_id,
+            port,
+            expected_ready,
+        )
         print(
             f"INSTALLED_CONTROL_VERIFIED project={project} image={receipt.image_id} "
             f"port=127.0.0.1:{port} instance={instance_id} db_system_id={system_id}"

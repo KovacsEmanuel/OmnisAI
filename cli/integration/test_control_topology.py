@@ -24,6 +24,7 @@ from control_topology import (
     _finish_probe,
     _http,
     _owned_container,
+    _probe_installed_api_stop,
     _stop_installed_api,
     _uds_http,
     assert_no_host_listener,
@@ -36,6 +37,88 @@ from control_topology import (
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_installed_stalled_api_stop_requires_exit_four_and_recovery(self):
+        project = "omnis-local-" + "a" * 32
+        expected = {"api_ready": True, "dashboard_ready": True}
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            state = scratch / "state"
+            (state / "http").mkdir(parents=True)
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            events: list[str] = []
+            halted = False
+
+            def compose(_host, _release, _project, _empty, _env, *args, **_kwargs):
+                if args[:2] == ("run", "-d"):
+                    self.assertIn("STALLED_INSTALLED_API", args[-1])
+                    events.append("oneoff-start")
+                    return subprocess.CompletedProcess(args, 0, "stall-id\n", "")
+                self.assertEqual(
+                    args, ("up", "-d", "--no-deps", "--no-build", "--pull", "never", "api")
+                )
+                events.append("api-restart")
+                return subprocess.CompletedProcess(args, 0)
+
+            def docker(_host, *args, **_kwargs):
+                nonlocal halted
+                if args[:2] == ("logs", "--tail"):
+                    return subprocess.CompletedProcess(args, 0, "STALLED_INSTALLED_API\n", "")
+                if args[:2] == ("container", "stop"):
+                    self.assertEqual(args[2:], ("--time", "15", "stall-id"))
+                    halted = True
+                    events.append("owned-stop")
+                    return subprocess.CompletedProcess(args, 0)
+                if args[:2] == ("container", "rm"):
+                    self.assertTrue(halted)
+                    events.append("owned-remove")
+                    return subprocess.CompletedProcess(args, 0)
+                self.fail("Unexpected Docker operation")
+
+            def inspect(_host, ident, _scratch):
+                self.assertIn(ident, ("stall-id", f"{project}-api-stall"))
+                return {
+                    "Id": "stall-id",
+                    "Config": {"Labels": {"com.docker.compose.oneoff": "True"}},
+                    "State": {
+                        "Running": not halted,
+                        "ExitCode": 4 if halted else 0,
+                        "OOMKilled": False,
+                    },
+                }
+
+            def owned(_host, ident, *_args):
+                if ident == "api-id":
+                    return {"State": {"Running": True}}
+                return inspect("", ident, "")
+
+            with (
+                patch(
+                    "control_topology._stop_installed_api",
+                    side_effect=lambda *_args: events.append("api-stop"),
+                ),
+                patch("control_topology._compose", side_effect=compose),
+                patch("control_topology._docker", side_effect=docker),
+                patch("control_topology._inspect", side_effect=inspect),
+                patch("control_topology._owned_container", side_effect=owned),
+                patch("control_topology._service_id", return_value="api-id"),
+                patch("control_topology._wait_uds_ready", return_value=expected),
+            ):
+                _probe_installed_api_stop(
+                    "unix:///owned/docker.sock",
+                    scratch,
+                    project,
+                    empty_env,
+                    {},
+                    state,
+                    "owned-image",
+                    8765,
+                    expected,
+                )
+            self.assertEqual(
+                events, ["api-stop", "oneoff-start", "owned-stop", "owned-remove", "api-restart"]
+            )
+
     def test_installed_api_stop_budget_exceeds_process_owner_deadline(self):
         project = "omnis-local-" + "a" * 32
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:

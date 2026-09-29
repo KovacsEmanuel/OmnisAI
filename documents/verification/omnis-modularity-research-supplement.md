@@ -58,13 +58,25 @@ BBOT oferă cod de selectare event-type/module și compoziție de preset, iar Sc
 Exemplu de traseu:
 
 ```text
-capture HTTP/browser → parse routes/params → map operations
-                    └→ fingerprint → research stack ─┐
-map + JS/OpenAPI + vocabular aprobat → wordlist build ├→ ipoteze prioritizate
-                                                    ↓
-investigator → validator → rezultat/clue → recon/mapping incremental
-                         └→ finding/path → report/retest
+Start → preflight → Brain + Recon → hartă/threat model → ipoteze
+                                         ↑                │
+                                         │        Jev: prioritizare asistată
+                                         │                ↓
+                                         └── delte ← specialiști → candidați
+                                              ↑                    ↓
+                                              └──── rezultate ← validator
+                                                         │
+                                        replan / chain / raport / retest
+
+Ramuri la nevoie, NU porți obligatorii ale fiecărei investigații:
+  gol de cunoaștere despre stack → Research Worker → leads → ipoteze
+  discovery/fuzz justificat → Wordlist Builder → artifact → specialist
+
+În afara pentestului activ:
+  lessons aprobate → Improvement Worker → draft/review/eval → runuri viitoare
 ```
+
+**Calea principală este investigația și validarea vulnerabilităților.** Research poate să nu fie invocat deloc; un indiciu suficient merge direct la specialist. Wordlist Builder se folosește numai când procedura beneficiază de discovery/fuzzing. Improvement nu trebuie să ruleze sau să termine pentru ca assessmentul să ajungă la raport.
 
 Ordinea logică nu cere „recon complet” înainte de orice investigație. Mappingul este actualizat continuu; un output minim suficient poate permite un task, iar golurile rămân explicit în frontieră.
 
@@ -411,6 +423,75 @@ Aceste gate-uri nu înlocuiesc subprobele canonice G02/H01–H08 sau G03/G-DATA 
 - Hermes `_parse_wake_gate`: șase controale reproduse de parent pe funcția extrasă din pin, fără importarea runtime-ului; malformed output trezește conform implementării, nu este barieră de autorizare.
 - Cele de mai sus sunt probe inerte/extrageri de cod, **nu suite upstream, scanări, rulări Jev ori dovadă de eficacitate**. Testele de integrare din manifest sunt propuse.
 - Arhitectura/planul/UI/stackul canonic și cele șase căi WIP DB/fixture sunt neatinse; G00 și CI remote rămân în starea deja documentată. Nu există cron, provider cost sau auto-learning nou activat de acest review.
+
+## 12. Run Omnis de referință — pentestul rămâne fluxul principal
+
+**Walkthrough ilustrativ al produsului propus, NU run executat sau finding real Omnis.** P0.4 este încă fundație/control. Scenariul folosește o aplicație Web/API proprie de laborator, două identități și reguli de acces aprobate, cu pachetele BOLA, reflected-XSS și traversal-canary disponibile. Arată MVP-ul adaptiv din review-ul principal; nu presupune că SQLi/SSRF/RCE sunt deja implementate.
+
+### 12.1. Cine există într-un run
+
+| Componentă | Pornire și responsabilitate |
+|---|---|
+| Supervisor Omnis | Cod determinist: admission, bugete, ownership, Stop, persistență și finalizare; nu agent LLM |
+| Brain Hermes | Strategia campaniei, ipoteze, selecție/delegare, interpretarea rezultatelor și replan; un părinte logic pe durata runului, nu inferență continuă când așteaptă |
+| Recon Agent | Copil nativ pentru descoperirea/interpretarea suprafeței; poate primi un task nou, îngust, după un indiciu sau schimbarea contextului auth |
+| Investigatori pe familie | Copii creați când există o ipoteză potrivită: Access Control/BOLA, XSS, Traversal etc.; nu toată biblioteca lansată la început |
+| Validator | Copil/attempt/context nou pentru replay și controale; verdictul tehnic este aplicat de serviciul/oracle-ul Omnis |
+| Research Worker | Copil opțional pentru o lacună concretă de cunoaștere; nu prerechizit pentru orice atac și nu owner al planului |
+| Jev | DecisionAdvisor apelat la puncte utile de selecție/triage/stagnare; nu agent pentester și nu înlocuiește Brainul |
+| Mapping, fingerprint, wordlist, crawler/scanner | Module/adaptoare; pot executa multă muncă fără un nou agent LLM |
+| Reporting | Renderer din snapshot; narațiune LLM numai dacă este utilă, fără reporter obligatoriu per finding |
+| Improvement/curator | Nu ocupă un rol în calea critică a pentestului; lessons/drafturi pentru îmbunătățirea runurilor viitoare |
+
+Plafonul propus rămâne **un copil în prima probă, apoi maximum doi copii nativi activi, inclusiv validatorul și eventual researcherul**, pe lângă Brain. Un specialist care predă rezultatul eliberează slotul; validatorul nu apare pe ascuns ca al treilea copil. Research așteaptă un slot când investigația/validarea au prioritate. Concurența agenților nu înseamnă trafic target nelimitat. Extinderea poolului este separată de acest walkthrough.
+
+### 12.2. Firul principal și revenirile, pas cu pas
+
+1. **Setup/Start/preflight:** operatorul oferă URL, scope, identități/reguli, bugete și profil; preflightul verifică funcțional contextul. Nu există încă un swarm și nu rulează improvement. După READY/Start, pașii admiși se execută autonom în limitele stabilite, nu cer confirmare la fiecare citire benignă.
+2. **Recon inițial:** Brain deleagă un task de inventar. Crawlerul, browserul și parserele observă căi, operații/params și fluxurile aplicației. În exemplu apar o API de comenzi, căutare și download. Mappingul persistă fapte/identități/proveniență; Recon predă și ce nu a putut vedea. Nu așteptăm un inventar perfect înaintea primei ipoteze utile.
+3. **Threat model și ipoteze:** Brain leagă roluri/obiecte/suprafețe și creează ipoteze testabile: acces la obiect străin, execuție reflectată, citire în afara directorului admis. Jev poate ordona ipotezele admisibile și sugera specializarea. Dacă indiciile sunt suficiente, mergem direct la investigatori — fără research obligatoriu și fără wordlist obligatoriu.
+4. **Investigație specializată:** un copil Access Control testează ipoteza BOLA; alt slot poate primi XSS sau alt task independent. Fiecare primește pachetul potrivit, context îngust, precondiții și criteriu de închidere. Toolurile/replay-ul sunt brokered. Rezultatul poate fi candidat, control care infirmă ipoteza, clue sau blocaj, nu numai finding.
+5. **Validare incrementală:** când primul investigator termină, validatorul primește claimul și rețeta, execută proaspăt controalele relevante. Alt investigator poate continua în celălalt slot. Nu așteptăm sfârșitul tuturor atacurilor pentru a valida. O reflecție XSS fără execuție nu este confirmată; BOLA fără regula business și identitate validă rămâne neconcludentă.
+6. **Prima revenire:** un rezultat de validator care infirmă ipoteza sau cere o precondiție produce delta către Brain. Brain poate restrânge/închide ipoteza, cere remapping sau formula alt test justificat. Nu repetă mecanic aceeași probă. Jev poate semnala contradicția/stagnarea, iar decizia și motivul sunt înregistrate.
+7. **Indiciu transversal din Traversal:** taskul Traversal poate demonstra citirea canaryului autorizat; în scenariul proiectat, acel artifact de laborator conține și o referință către o operație omisă pentru aceeași clasă de obiecte business. Aceasta este o observație nouă, nu o instrucțiune de executat și nu extinde scope-ul.
+8. **A doua revenire — recon/mapping incremental:** Brain cere verificarea acelei operații noi sau folosește pasul determinist suficient. Harta primește noua operație și provenance. Dacă există acum context auth diferit, se remapează numai suprafața relevantă; nu se recrawlează global tot engagementul.
+9. **Nou task pe o familie deja folosită:** operația nouă justifică o investigație BOLA suplimentară. Brain creează un nou task/attempt cu basis refs și procedura fixată. Nu este necesară instalarea unui skill sau schimbarea planului publicat. Dacă aceeași cauză a fost deja raportată, păstrăm occurrence/evidence noi, nu umflăm automat finding count.
+10. **Chaining:** Brain observă posibilul link dintre citirea canaryului și accesul nepermis la obiect prin noua operație. Generatorul de capabilități/Jev poate ordona ipoteza de path; un task specializat și validatorul probează pașii și tranziția. Doar după aceea path-ul este probat; două findings alăturate pe hartă nu sunt suficiente. Acest gate este după prima vulnerabilitate, nu în locul ei.
+11. **Reconciliază golurile:** Brain și proiecțiile de coverage identifică operații/params/identități netestate, candidați nevalidați, contradicții, approvals ori cleanup restant. Dacă mai există lucru util și admis, se întoarce la etapa potrivită. Dacă lipsesc capabilități/timp/context, golul rămâne explicit; nu este inventat un negativ.
+12. **Închidere și raport:** supervisorul aplică predicatul de completion și dovada quiescenței; Brain nu închide singur runul. Raportul folosește findingurile eligibile, evidence, paths, coverage și limitele snapshotului. Review-ul editorial poate continua fără runtime pornit. După remediere, retestul este un run nou cu probe noi.
+
+Research și wordlisturile se pot insera între pașii relevanți: de exemplu, fingerprint incert → research pe produs/versiune → metodă candidată; sau lipsă de rute → corpus specific stackului → discovery bounded → mapping nou. **Rezultatul lor se întoarce în aceeași frontieră de investigație, nu creează un pentest paralel.** Un research eșuat nu oprește taskurile independente; o ipoteză care depinde de el rămâne blocată/neconcludentă. Lucrul auxiliar deja pornit este tot oprit/drenat bounded la închiderea runului.
+
+### 12.3. Unde intervine Jev și cine decide adevărul
+
+În modul **SHADOW**, toate aceste recomandări se înregistrează fără să schimbe execuția. În **ADVISORY**, numai heads evaluate/calibrate pot influența alegerile admisibile; **OFF** păstrează același motor de pentest fără advisor. Nu apelăm Jev obligatoriu la fiecare request/tool.
+
+| Punct în run | Rol Jev | Owner rămas |
+|---|---|---|
+| După recon / între ipoteze | Relevanță/prioritate/specialist | Brain formulează strategia; supervisorul admite doar taskuri permise |
+| După rezultat sau clue | Semnal nou/contradicție/redundanță | Observația rămâne în DB; Brain consumă delta și replanifică |
+| Într-un fir care nu progresează | Continue/pivot/stop ca sugestie | Limitele/repetițiile și completion sunt deterministe; Brain alege altă ipoteză |
+| La candidate selection/wordlists | Ranking bounded, când headul este evaluat | Generatorul fixează candidații; brokerul validează fiecare efect |
+| La dedup/impact/path, ca extensie | Critică și ordonare, nu verdict | Finding identity, oracle, evidence și path validation rămân Omnis |
+
+Primele heads recomandate rămân **relevanță/triage și stagnare**. Dedup semantic, critica impactului și chain ranking nu sunt declarate toate obligatorii sau certificate din prima felie. Jev nu acordă scope, nu injectează credentiale, nu produce CONFIRMED și nu înlocuiește validatorul.
+
+### 12.4. Matricea revenirilor și a opririlor
+
+| Semnal | Tranziție |
+|---|---|
+| Endpoint/parametru/rol nou | Mapping incremental → aplicabilitate/coverage nouă → ipoteză/task |
+| Candidat promițător | Validator independent, nu raport final direct |
+| Control infirmă ipoteza | Închidere justificată ori ipoteză revizuită; nu încă o probă identică |
+| Auth drift/control invalid | Blocaj/reautentificare admisă → precondiții și baseline proaspete; nu tested_no_issue/FIXED |
+| Capabilitate nouă probată | Reevaluare precondiții → posibil path → test/replay al tranziției |
+| Repetiții fără informație nouă | Pivot sau închidere limitată a firului, cu motiv |
+| Research indisponibil | Continuă firele independente; marchează numai dependența afectată |
+| Buget/permisiune/capabilitate insuficientă | LIMITED/gol explicit; fără să transforme lipsa probei în „sigur” |
+| Stop/Pause | Fără dispatch nou target/model/research; drain/reconcile, fără wake care repornește lucrul |
+| Lesson util pentru produs | ImprovementDraft pentru viitor; nu condiție pentru raport și nu hot-patch al tehnicii active |
+
+**Ce se păstrează din exemplul Strix:** recon-first, model comun, specialiști selectați, handoffs transversale, revenire după indiciu și verificare, goluri reconciliate și impact compus. **Ce adaugă ultimele propuneri:** componente editabile/revizionate și auxiliare utile, fără a înlocui această buclă. În extensiile E1/E2, SQLi/auth/CSRF/SSRF etc. intră în același mecanism când pachetele și adaptoarele sunt implementate; existența ghidului în catalog nu lansează un specialist nefuncțional.
 
 ## Sources
 

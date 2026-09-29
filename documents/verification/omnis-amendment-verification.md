@@ -58,6 +58,10 @@ Primul review al §9.3–9.6 a fost **NO-GO**: outcomes uppercase incompatibile 
 
 Alinierea statusului P0.4, marcarea dosarelor istorice și acest registru sunt în commitul care conține această versiune a fișierului; SHA-ul se citește din Git, fără hash autoreferențial. Nu s-a făcut push. Revert pe commituri și regenerare readers; nu există efecte DB/servicii de inversat în această sesiune.
 
+## Completare din review-ul livrat întârziat
+
+Mesajul integral al review-ului cross-document a numit și propagarea HTTP-auth în UI08. Corecțiile de fond (file_bindings, profil nullable în draft, formular HTTP la B09h) erau deja verificate în 0c51958; follow-upul documentar completează UI08 cu identities/vault, migrarea B09h, G-AUTH-HTTP și readbackul principal/rol/epoch, plus rutele canonice aferente. Nu adaugă API real, DB sau o nouă condiție browser pentru BOLA. Au fost repetate verificările documentare și ale readerelor, fără reluarea gate-ului DB blocat.
+
 ## WIP și blocaje rămase
 
 Căi păstrate separat: `api/src/omnis/core/db.py`, `api/tests/test_fixture_ownership.py`, `ops/compose.test.yaml`, `api/tests/test_database_url.py`, `ops/run_test_db_gate.py`, `tests/development/test_test_db_gate.py`.

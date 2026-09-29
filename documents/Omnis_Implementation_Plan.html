@@ -544,10 +544,10 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>UI08</td>
-<td>Setup / preflight / Start/Pause/Resume/Stop / operational approval</td>
-<td>engagements/runs/policy/InstanceControl; revision/Command/Action/Approval; comenzi și readback</td>
-<td>B02/B04/B05/B07/B19 / G01/G02/G03/G07</td>
-<td>draft fără efect; policy/run activ/409/expiry; Stop în overlay, 202≠STOPPED, deconectare, barieră shutdown și efect incert</td>
+<td>Setup / identități HTTP/Verify login / preflight / Start/Pause/Resume/Stop / operational approval</td>
+<td>engagements/runs/policy/InstanceControl + identities/vault; revision/Command/Action/Approval și Identity/AuthContext/secret refs/auth_epoch, migrare cu B09h; identity API conform arhitectură §9, comenzi și readback</td>
+<td>B02/B04/B05/B07/B09h/B19; G01/G02/G03/G-AUTH-HTTP/G07; assisted browser numai B09b/G03b</td>
+<td>+ save/restart și Verify login cu principal/rol/auth_epoch citite din GET identity/command receipt; − secret echo, identity străină, login invalid/expirat nu devin ready sau negativ; draft fără efect, run activ/409; Stop în overlay, 202≠STOPPED, deconectare/barieră/efect incert</td>
 </tr>
 <tr>
 <td>UI09</td>
@@ -934,5 +934,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>P0.4-prerequisite, cu acordul autorului WIP/operatorului pentru integrare și DB disposable:</strong> un singur contract UDS/no-network în Compose + conftest + runner + Make/CI/docs. Succes observabil: allow pe clusterul propriu atestat (image/project/socket/system_identifier), deny înainte de CREATE/DROP pentru ownership/path/DSN greșit, apoi gate-ul canonic pe checkout curat, cleanup numai pe resursele proprii și date păstrate. Nu promite G00 și nu extinde harnessul owner. Fără acord rămâne BLOCKED; nu adoptăm WIP tacit.</p>
 <p><strong>Următorul increment de produs după prerechizit:</strong> <code>omnis start --no-open</code> instalat, executat din afara checkoutului, calea <code>omnis.serve</code> păstrată până la probă contrară. Succes: o singură instanță, release/instance identity verificate, migrare explicită/readiness HTTP+assets+control reale, zero provider/target; al doilea launch reutilizează, port străin/schema incompatibilă refuzate fără a atinge resurse străine. Pair/open/stop sunt felii distincte dependente; numai setul complet închide G00. În paralel este posibil un import offline Strix B06 delimitat (provenance/root/recon/BOLA/counterevidence + tests), dar nu ține locul launcherului și nu activează runtime.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>af3ab5df0a9617cce5aea93d7c44fa779f6dc8340673fd59aeb057432e2090e7</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>7feafbffaa93b91e7bf225323021155351d363f35dbf3402e2edc10d254bc6f1</code>.</p></footer>
 </main></div></body></html>

@@ -6,21 +6,25 @@ Acesta este control plane-ul API/PostgreSQL și supervisorul **inert, pornit sep
 
 Sunt necesare Python 3.13.15, uv 0.12.19, Docker/Compose și `postgres:18.6-bookworm` din digestul fixat în `ops/compose.test.yaml`. **Nu folosiți DB personală.** Din root, într-un shell interactiv; valoarea parolei generate este sintetică și nu se afișează sau salvează în repo:
 
-**Nu executați rețeta de mai jos pe Docker Engine 27 sau mai vechi:** `compose.test.yaml` publică PostgreSQL prin Docker pe `127.0.0.1`, iar acel bind nu exclude accesul din același segment L2 înainte de Engine 28. Rețeta rămâne istorică pentru un host/profil de test separat și certificat; pe acest host, `make check` complet este BLOCKED până la un fixture fără port Docker publicat sau o probă de izolare verificată. Nu schimbați firewallul/daemonul și nu porniți un proiect străin doar pentru a obține un gate verde.
+**Fixture revizuit pentru Docker 27:** `compose.test.yaml` nu mai publică port prin Docker; PostgreSQL rulează numai în proiectul disposable, în namespace-ul hostului, cu `listen_addresses=127.0.0.1` și port ales explicit. Host networking este o capabilitate largă: folosiți numai imaginea digest-pinned și o DB sintetică, verificați lipsa `route_localnet` pe toate interfețele și nu tratați acest control local drept o probă negativă dintr-un peer L2. Nu schimbați firewallul/daemonul și nu adoptați proiecte străine. [Proba WIP și limitele ei](../documents/verification/p04-safe-test-db.md) nu închid G00.
 
 ```sh
 UV=/cale/absoluta/uv-0.12.19
 "$UV" --version # trebuie să fie 0.12.19, nu uv global implicit
 "$UV" sync --locked --no-config --no-python-downloads --python 3.13.15 --directory api --group dev
+test "$(node --version)" = "v24.21.0"
+test "$(npm --version)" = "11.19.0"
+python -c 'from pathlib import Path; p=list(Path("/proc/sys/net/ipv4/conf").glob("*/route_localnet")); assert p and all(x.read_text().strip()=="0" for x in p)'
+docker context inspect "$(docker context show)" --format '{{(index .Endpoints "docker").Host}}' | python -c 'import pathlib,sys; x=sys.stdin.read().strip(); assert x.startswith("unix://") and pathlib.Path(x[7:]).is_socket()'
 export OMNIS_TEST_PROJECT="omnis-p01-$(openssl rand -hex 8)"
 export OMNIS_TEST_DB_PASSWORD="$(openssl rand -hex 24)"
+export OMNIS_TEST_DB_PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')"
 docker compose -f ops/compose.test.yaml up -d --wait db
-port="$(docker compose -f ops/compose.test.yaml port db 5432)"
-export OMNIS_TEST_DATABASE_URL="postgresql+psycopg://omnis_test:${OMNIS_TEST_DB_PASSWORD}@${port}/omnis_test"
+export OMNIS_TEST_DATABASE_URL="postgresql+psycopg://omnis_test:${OMNIS_TEST_DB_PASSWORD}@127.0.0.1:${OMNIS_TEST_DB_PORT}/omnis_test"
 make check UV="$UV"
 ```
 
-Volumul este `OMNIS_TEST_PROJECT` + `_pgdata`, montat la `/var/lib/postgresql` (PG18 are `PGDATA=/var/lib/postgresql/18/docker`). Portul este atribuit dinamic **numai pe 127.0.0.1**; citiți-l din nou după orice `up`/recreare a containerului. Fixture-urile cer un context Docker pe socket Unix local (fără `DOCKER_*` moștenite), verifică proiectul, imaginea, bindul și volumul, apoi compară identitatea clusterului PostgreSQL conectat cu cea a containerului înainte de CREATE/DROP pe baze disposable cu nume UUID. Un daemon Docker remote nu atestă `127.0.0.1` al hostului de test; orice precondiție lipsă dă exit nenul, nu SQLite/skip. Verificați numele proiectului și al volumului înainte de orice intervenție Docker. Docker inspect poate expune parola sintetică administratorilor hostului; nu folosiți această topologie cu date reale.
+Volumul este `OMNIS_TEST_PROJECT` + `_pgdata`, montat la `/var/lib/postgresql` (PG18 are `PGDATA=/var/lib/postgresql/18/docker`). Portul liber este propus de host, apoi fixat explicit în Compose/URL; o cursă de ocupare blochează startupul, **nu** permite adoptarea unui alt PostgreSQL. Nu există Docker `ports`/NAT: verificați `docker compose ps` cu `Publishers=[]` și `ss` cu listener numai `127.0.0.1` pe acel port. Fixture-urile cer context Docker pe socket Unix local (fără `DOCKER_*` moștenite), verifică proiectul, imaginea, commandul, volumele, absența publicațiilor și identitatea `system_identifier` a clusterului conectat față de container înainte de CREATE/DROP pe baze UUID. Un daemon Docker remote nu atestă loopbackul hostului; orice precondiție lipsă dă exit nenul, nu SQLite/skip. Verificați numele proiectului și volumul înainte de orice intervenție Docker. Docker inspect poate expune parola sintetică administratorilor hostului; nu folosiți această topologie cu date reale.
 
 Conexiunile API/migrator și fixture-urile refuză orice setare moștenită `PG*` din libpq și orice parametru query în `OMNIS_DATABASE_URL`/`OMNIS_TEST_DATABASE_URL`: acestea pot redirecționa hostul efectiv chiar dacă autoritatea URL pare să indice instanța test. Configurați doar URL-ul explicit, fără `?host=`, `?port=` sau fișier service. Readiness compară schema fizică a `InstanceControl` din PG18, inclusiv **toate** defaulturile și constrângerile `NOT NULL` validate și enforced; un stamp Alembic sau `attnotnull` singur nu dovedește compatibilitatea.
 
@@ -39,9 +43,9 @@ La final, opriți **numai** proiectul de test verificat: `docker compose -f ops/
 
 ## Entrypoint OCI P0.4: socket Unix, nu port Docker
 
-Comanda imaginii instalate este `python -I -m omnis.serve`, distinctă de exemplul Uvicorn pe loopback de mai sus (numai dezvoltare). API-ul din release ascultă exclusiv pe `api.sock` în directorul privat 0700, cu socket/lock 0600; HTTP-ul din browser este forwardat doar de procesul host după verificarea peer UID. Un proces părinte fără event loop de API deține copilul Uvicorn prin `pidfd`: la SIGTERM/SIGINT așteaptă cel mult 10 s, apoi trimite SIGKILL copilului și reap bounded. Oprirea normală întoarce 0; depășirea termenului/efectul nereconciliat întoarce 4. Un kill poate lăsa pathname-ul socketului stale, validat și reconciliat numai la o pornire explicită sub lock. Nu interpretați acest exit drept barieră durabilă `InstanceControl` sau quiescență completă a produsului.
+Comanda imaginii instalate este `python -I -m omnis.serve`, distinctă de exemplul Uvicorn pe loopback de mai sus (numai dezvoltare). API-ul din release ascultă exclusiv pe `api.sock` în directorul privat 0700, cu socket/lock 0600; HTTP-ul din browser este forwardat doar de procesul host după verificarea peer UID. Un proces părinte fără event loop de API deține copilul Uvicorn prin `pidfd`: la SIGTERM/SIGINT așteaptă cel mult 10 s, apoi trimite SIGKILL copilului și reap bounded. Oprirea normală întoarce 0; depășirea termenului/efectul nereconciliat întoarce 4. Un kill poate lăsa pathname-ul socketului stale, validat și reconciliat numai la o pornire explicită sub lock. Compose acordă API-ului `stop_grace_period: 15s`, mai mult decât deadline-ul ownerului; [proba instalată](../documents/verification/p04-host-uds.md) a observat `ExitCode=4` pentru un event loop blocat și recuperarea UDS la restart explicit. Nu interpretați acest exit drept barieră durabilă `InstanceControl` sau quiescență completă a produsului.
 
-`make check-installed-control UV=/cale/uv-0.12.19` a probat din afara checkoutului un release disposable cu PostgreSQL/API/supervisor reale, schema nemigrată 503, apoi migrare/readiness/assets/IPC și cleanup fără `down -v`; [evidența exactă și limitele](../documents/verification/p04-host-uds.md). Nu este `omnis start/stop`, nu testează un crash al launcherului sau un peer LAN, iar `make check` complet rămâne blocat pe fixture-ul DB de test menționat mai sus. Nu sunt porniți provideri, Hermes ori assessmenturi.
+`make check-installed-control UV=/cale/uv-0.12.19` a probat din afara checkoutului un release disposable cu PostgreSQL/API/supervisor reale, schema nemigrată 503, apoi migrare/readiness/assets/IPC și cleanup fără `down -v`; [evidența exactă și limitele](../documents/verification/p04-host-uds.md). Nu este `omnis start/stop`, nu testează un crash al launcherului sau un peer LAN, iar `make check` a trecut pe [fixture-ul disposable](../documents/verification/p04-safe-test-db.md) la o revizie anterioară; pe ultimul cod și checkout curat rămâne de rerulat. Nu sunt porniți provideri, Hermes ori assessmenturi.
 
 ## Gate-uri Python reproductibile
 

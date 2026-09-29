@@ -31,13 +31,30 @@ def reject_ambient_libpq_config() -> None:
         )
 
 
+def verify_host_loopback_route() -> None:
+    """Refuse host networking when a non-loopback interface can route 127/8."""
+    try:
+        controls = list(Path("/proc/sys/net/ipv4/conf").glob("*/route_localnet"))
+        if not controls or any(path.read_text().strip() != "0" for path in controls):
+            raise RuntimeError("Host loopback route is not private")
+    except OSError:
+        raise RuntimeError("Cannot verify host loopback route") from None
+
+
 def verify_test_database(url: URL) -> None:
     reject_ambient_libpq_config()
     if any(name.startswith("DOCKER_") for name in os.environ):
         raise RuntimeError("Only a local Docker context is allowed for test databases")
     project = os.environ.get("OMNIS_TEST_PROJECT", "")
+    declared_port = os.environ.get("OMNIS_TEST_DB_PORT", "")
     if not re.fullmatch(r"omnis-p01-[a-z0-9-]+", project):
         raise RuntimeError("Expected a dedicated test project")
+    if (
+        not re.fullmatch(r"[1-9][0-9]{0,4}", declared_port)
+        or int(declared_port) > 65535
+        or url.port != int(declared_port)
+    ):
+        raise RuntimeError("Expected a dedicated test project port")
     if (
         url.drivername != "postgresql+psycopg"
         or url.host != "127.0.0.1"
@@ -47,6 +64,7 @@ def verify_test_database(url: URL) -> None:
         or url.query
     ):
         raise RuntimeError("Expected a dedicated test project database URL")
+    verify_host_loopback_route()
 
     compose = [
         "docker",
@@ -96,14 +114,26 @@ def verify_test_database(url: URL) -> None:
         cid = service["ID"]
         if not isinstance(cid, str):
             raise ValueError("invalid container identity")
-        mounts = subprocess.run(
-            ["docker", "inspect", cid, "--format", "{{json .Mounts}}"],
+        inspected = subprocess.run(
+            [
+                "docker",
+                "inspect",
+                cid,
+                "--format",
+                "{{json .Mounts}}\n{{json .HostConfig}}\n"
+                "{{json .NetworkSettings.Ports}}\n{{json .Config.Cmd}}",
+            ],
             capture_output=True,
             text=True,
             timeout=10,
             check=True,
-        )
-        volume = TypeAdapter(list[dict[str, object]]).validate_json(mounts.stdout, strict=True)
+        ).stdout.splitlines()
+        if len(inspected) != 4:
+            raise ValueError("invalid container inspection")
+        volume = TypeAdapter(list[dict[str, object]]).validate_json(inspected[0], strict=True)
+        host = TypeAdapter(dict[str, object]).validate_json(inspected[1], strict=True)
+        ports = TypeAdapter(dict[str, object]).validate_json(inspected[2], strict=True)
+        command = TypeAdapter(list[str]).validate_json(inspected[3], strict=True)
     except (OSError, subprocess.SubprocessError, ValueError, KeyError, json.JSONDecodeError):
         raise RuntimeError("Cannot verify dedicated test project") from None
 
@@ -113,9 +143,15 @@ def verify_test_database(url: URL) -> None:
         and service["State"] == "running"
         and service["Image"]
         == "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
-        and service["Publishers"]
-        == [{"URL": "127.0.0.1", "TargetPort": 5432, "PublishedPort": url.port, "Protocol": "tcp"}]
-        and any(
+        and service["Publishers"] == []
+        and host.get("NetworkMode") == "host"
+        and host.get("PortBindings") == {}
+        and host.get("Privileged") is False
+        and host.get("CapAdd") in (None, [])
+        and not any(value for value in ports.values())
+        and command == ["postgres", "-c", "listen_addresses=127.0.0.1", "-c", f"port={url.port}"]
+        and len(volume) == 1
+        and all(
             mount["Type"] == "volume"
             and mount["Name"] == f"{project}_pgdata"
             and mount["Destination"] == "/var/lib/postgresql"
@@ -157,6 +193,8 @@ def connect_test_database(
                 "omnis_test",
                 "-d",
                 "omnis_test",
+                "-p",
+                str(url.port),
                 "-Atc",
                 "SELECT system_identifier FROM pg_control_system()",
             ],

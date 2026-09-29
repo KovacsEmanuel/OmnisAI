@@ -1,4 +1,4 @@
-# P0.1 only: an explicitly named, isolated test project; never the operator's DB.
+# P0 test DB only: explicit host loopback, no Docker-published port or operator data.
 name: ${OMNIS_TEST_PROJECT:?Set a unique omnis-p01-test project name}
 services:
   db:
@@ -9,12 +9,17 @@ services:
       POSTGRES_DB: omnis_test
       POSTGRES_PASSWORD: ${OMNIS_TEST_DB_PASSWORD:?Set a disposable test password}
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
-    ports:
-      - "127.0.0.1::5432"
+    network_mode: host
+    command:
+      - postgres
+      - -c
+      - listen_addresses=127.0.0.1
+      - -c
+      - port=${OMNIS_TEST_DB_PORT:?Set a free dedicated loopback port}
     volumes:
       - pgdata:/var/lib/postgresql # PG18 PGDATA: /var/lib/postgresql/18/docker
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "omnis_test", "-d", "omnis_test"]
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-p", "${OMNIS_TEST_DB_PORT:?Set a dedicated loopback port}", "-U", "omnis_test", "-d", "omnis_test"]
       interval: 2s
       timeout: 2s
       retries: 30

@@ -131,7 +131,7 @@ P4a-minim urmează P2-inert pentru controlul sigur al Settings, apoi permite în
 
 ## 9. P3a — prima felie HTTP completă
 
-**B07:** broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.
+**B07:** contractele ToolDefinition/ToolInvocation/ToolResult din arhitectură §9.6, cu primul adaptor HTTP, apoi broker, policy și proxy HTTP(S) minimal; fixture declarat; acțiune tipizată, approval, fencing, buget, evidență durabilă, events și revocare. Persistăm DISPATCHING înaintea bytes upstream. Captura respectă limitele din arhitectură de la primul request.
 
 Launcherul pentru assessment integrează provisionarea L07 numai după B01e-build + B01e-integrated/G-NET pentru transport: proxy admis + policy/rețea + self-test negativ înaintea containerelor executor. Harnessul de certificare B07/B09 este separat și limitat la fixture/sinks autorizate; nu declară normal startup ready înaintea propriilor probe. Control plane-ul poate rula fără aceste componente, cu Start blocat; bootul complet tot nu începe un run. Containerele sunt create de launcherul host, nu prin acces Docker dat supervisorului/modelului.
 
@@ -207,7 +207,9 @@ Drafturile UI se persistă în workspace/DB Omnis, nu fac `git commit` automat d
 
 ## 13. P5b + P6b — recon asumat și celelalte familii
 
-**B15:** robots/sitemap/form/body params, JS static bounded, OpenAPI JSON/YAML local cu parsare sigură fără ref extern, directory/parameter discovery bounded, soft-404, login page și rate limit. Raportăm protocoalele nesuportate explicit; nu cumpărăm paritate de marketing cu tooluri neverificate.
+**B15:** consumă reutilizarea Katana/parserelor și ToolInvocation/Action attribution (stack §10 U10), robots/sitemap/form/body params, JS static bounded, OpenAPI JSON/YAML local cu parsare sigură fără ref extern, directory/parameter discovery bounded, soft-404, login page și rate limit. Raportăm protocoalele nesuportate explicit; nu cumpărăm paritate de marketing cu tooluri neverificate.
+
+**B15n:** adaptor Nuclei de semnale, subset HTTP/templates separat fixat și evaluat, fără exec/code/JS/headless/OAST. Hit→Observation/Candidate, nu CONFIRMED; zero matches nu califică automat coverage. Demonstrația adaptorului este MVP; certificarea familiei exposure este E1. Installed/permitted, wrong digest, option injection, cancel/timeout/oversized output și sink attribution sunt probe obligatorii. B09 extinde același port la browser, nu alt registru; E2 adaugă Schemathesis.
 
 **B16:** `xss-reflected`: execuție demonstrată în Chromium izolat, marker unic și control inert; CSP nu se dezactivează; simpla reflecție nu ajunge.
 
@@ -298,6 +300,7 @@ Toate rândurile sunt **NEÎNCEPUTE în produs**. Contractele/API-urile sunt pro
 | UI13 | HF03: coverage focalizat/criterion outcomes, report/retest | mission/focus/denominator refs → coverage/reports; GET coverage, POST/GET reports, artifact download, POST findings retests; B10f/B12f/B13f extind persistence existentă | după G06a; G-FOCUS | + univers etichetat și outcomes distincte, retest run nou; − skip nu ascunde gap, funcțional nu umflă finding; GET și bytes HTML/JSON/restart identice snapshotului |
 | UI14 | HF04: Skills file tree/technique/procedure/overlay, draft/diff/review/eval/publish/retire | SkillPackageRevision și receipts → settings; GET `/api/v1/settings/skills/{id}`, POST `/{id}/drafts`, PUT `/drafts/{draft}/files`, POST `/drafts/{draft}/validate`, `/review`, `/eval`, `/publish`, POST `/{id}/retire`; drafts DB/workspace și release RO la B14b | B06/P4a schema/release minim, B14b/G04b editor | + GET release/files/digest după publish/restart; − stale review/eval, wrong ref/digest/symlink, autor self-approve, unknown tool; run activ neschimbat; eval activ necesită acord separat |
 | UI15 | HF05: briefing/debriefing redactat și handoff în stream/Investigations | TaskBriefV1/TaskResultV1/PromptBundleRevision → tasks + integrations/hermes; GET `/api/v1/runs/{run}/tasks`, `/events`; payloaduri versionate în Task/Attempt/Inbox B06 | B06/H03–H08, B08/G03a | + goaluri identice corelate independent, exact refs la refresh; − context mandatory trunchiat, role schimbat, cross-run, stale mission, Stop/double wake; GET tasks/events cu același cursor |
+| UI16 | HF06: Runtime tool readiness, capability requests și invocation inspector | ToolDefinition/receipts → settings registry; ToolInvocation/Action → tasks/policy/evidence; GET `/api/v1/settings/runtime`, GET `/api/v1/runs/{run}/tasks` și events, POST commands pentru cancel admis; metadata/refs cu B07/B09/B15 | B07/G03a, B09/G03b, B15n/G-TOOLS | + installed/compatible/evaluated/permitted distincte și invocare→requests; − digest/dependency/lease/argument injection, zero≠failure; GET receipts + evidence/sink readback, nu exit code singur |
 
 P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația cockpit/stream; B13 finding disclosure/review/report. Testele API/PostgreSQL verifică autoritatea și persistența, iar web component/E2E verifică contractul, focusul, staleness și layoutul. `browser_check.py` asupra DEMO rămâne separat și nu închide aceste gates.
 

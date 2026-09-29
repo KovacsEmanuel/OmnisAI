@@ -10,8 +10,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 @media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
 </style></head>
 <body><a class="skip" href="#content">Sari la conținut</a>
-<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
-<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#10-reutilizare-oss-adoptata-nu-runtime-paralel">10. Reutilizare OSS adoptată, nu runtime paralel</a></li><li><a href="#sources">Sources</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict">1. Verdict</a></li><li><a href="#2-runtime-si-infrastructura">2. Runtime și infrastructură</a></li><li><a href="#3-frontend">3. Frontend</a></li><li><a href="#4-api-persistenta-si-teste-python">4. API, persistență și teste Python</a></li><li><a href="#5-recon-browser-si-parsere">5. Recon, browser și parsere</a></li><li><a href="#6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</a></li><li><a href="#7-lockfiles-imagini-si-upgrades">7. Lockfiles, imagini și upgrades</a></li><li><a href="#8-ce-a-fost-executat-si-ce-nu">8. Ce a fost executat și ce nu</a></li><li><a href="#9-prag-de-pornire">9. Prag de pornire</a></li><li><a href="#10-reutilizare-oss-adoptata-nu-runtime-paralel">10. Reutilizare OSS adoptată, nu runtime paralel</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
 <h1 id="omnis-stack-si-versiuni-baseline-v1">Omnis — stack și versiuni, baseline v1</h1>
 <p><strong>Verificat la 25 septembrie 2026 · Linux x86_64 · Decizii pentru implementare, nu produs instalat</strong></p>
@@ -212,7 +212,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>Pinii parserelor sunt verificați ca publicare/metadate, nu printr-un test complet de recon. <code>defusedxml</code> are metadate vechi; Requires-Python permisiv nu certifică Python 3.13. Implicit nu facem fetch de <code>$ref</code> sau validare de țintă la upload. OpenAPI 2.0/3.2 se marchează unsupported până la probe proprii, chiar dacă biblioteca poate suporta mai mult.</p>
 <p>Driver, browser și imagine Playwright se actualizează împreună; documentația avertizează asupra mismatchului dintre versiunea bibliotecii și imagine.[5] Imaginile <code>mcr.microsoft.com/playwright/python:v1.63.0-noble</code> și JS echivalent au digesturi verificate, dar <strong>nu sunt executorul hardened livrat</strong>. Interpreterul din imagine poate fi diferit de Python 3.13.15; P3b fie îl înregistrează și testează separat, fie construiește imagine proprie pornind de la Python ales. Nu afirmăm un interpreter neinspectat.</p>
-<p>Katana/Nuclei/sqlmap nu sunt dependențe baseline. Orice adaptor ulterior are pin de binar/templates/digest, politică de efecte, captură, probe de bypass și laborator; un nume în SKILL.md nu instalează sau autorizează toolul.</p>
+<p>Katana și Nuclei au integrare planificată explicit în §10, fără a fi instalate/admisibile astăzi; sqlmap rămâne candidat E1. Orice adaptor are pin de binar/templates/digest, politică de efecte, captură, probe de bypass și laborator; un nume în SKILL.md nu instalează sau autorizează toolul.</p>
 <h2 id="6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</h2>
 <p><code>mitmproxy==12.2.3</code> publicat impune limite care țin <code>cryptography</code> la ≤48.1, <code>h2</code> la 4.3.0, <code>msgpack</code> la ≤1.1.2 și <code>tornado</code> la ≤6.5.5.[18] Combinația rezolvată include <strong>cryptography 48.0.1, pyOpenSSL 26.2.0, mitmproxy-rs 0.12.11</strong>. Se rezolvă, dar nu este aprobată.</p>
 <p>Metadatele de advisories pe versiunile exacte au semnalat probleme pentru <strong>cryptography, h2, msgpack și tornado</strong>. Pentru cryptography, sursa indică remedieri în 49.0.0/50.0.0, în afara capului pachetului candidat.[19] Detaliile/aliasurile/fixed_in pentru toate sunt păstrate în JSON, fără a susține că toate sunt exploatabile în traseul Omnis. Lipsa exploitabilității demonstrate nu justifică alegerea lor ca frontieră de securitate nouă.</p>
@@ -301,6 +301,403 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Recontrol înainte de implementare:</strong> <a href="verification/preimplementation-pins.json">preimplementation-pins.json</a> păstrează răspunsurile de metadate pentru cele 33 de pinuri directe web/API/test/parsers verificate: toate versiunile exacte există în registre. Nicio versiune nu a fost schimbată. Acest recontrol nu a reinstalat pachete, nu a auditat transitivele/npm advisories și nu a executat imagini sau produsul; lockurile de produs și recontrolul securității rămân B01a/B01e. Absența unor ID-uri în câmpul PyPI nu este certificat de securitate. Probe și timestamps istorice rămân separate de acest snapshot.</p>
 <h2 id="9-prag-de-pornire">9. Prag de pornire</h2>
 <p><strong>GO pentru fundație, web persistent și probe Hermes inerte. NO-GO pentru target effects până la B01e + binding + confinare.</strong> Stackul este suficient de concret pentru implementatori; necunoscutele reale au owner, test și fază blocată, nu sunt ascunse sub „folosim latest și vedem”.</p>
+<h2 id="10-reutilizare-oss-adoptata-nu-runtime-paralel">10. Reutilizare OSS adoptată, nu runtime paralel</h2>
+<p><strong>HF04–HF08, decizie de baseline:</strong> produs independent peste Hermes nativ și fundația Omnis. Adoptăm implementări, teste, prompturi și metodologie reale, nu doar idei. Nu importăm orchestratoarele Strix/PentestGPT/NeuroSploit/PentAGI/Shannon. Matricea de mai jos este backlog normativ de import/adaptare; <strong>niciun import sau binar nou nu este instalat/admis prin acest amendament</strong>. Pinurile de cercetare nu devin lockuri de produs prin redenumire.</p>
+<p>Proveniența exactă, intervalele/hashurile și schimbările necesare rămân în <a href="verification/omnis-modularity-research-supplement.reuse.json">manifestul reuse</a> și <a href="verification/omnis-upgrade-review.inventory.json">inventarul OSS/Strix</a>. Acestea sunt anexe de surse; ordinea/deciziile sunt aici și în plan, nu în recomandările istorice. Recontrolul a numărat 34 unități (26 cod/conținut/date + 8 mecanisme native), 98 referințe source/test și 75 ghiduri Strix + README, dintre care 29 de vulnerabilități. Toate rămân source-reviewed/not-imported, nu capabilități certificate.</p>
+<h3 id="101-pinurile-surselor-selectate">10.1. Pinurile surselor selectate</h3>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Repository</th>
+<th>Revizie inspectată exactă</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CyberSecurityUP/NeuroSploit</code></td>
+<td><code>5d4e7e0347219ceae22735ec6af3d8cdd0561ded</code></td>
+</tr>
+<tr>
+<td><code>GreyDGL/PentestGPT</code></td>
+<td><code>e8b1bb77d1ac00329675cec3b060aba971ec1ac8</code></td>
+</tr>
+<tr>
+<td><code>KeygraphHQ/shannon</code></td>
+<td><code>327c10fd90a6186a9f035b4b6ddb5bbba1839e92</code></td>
+</tr>
+<tr>
+<td><code>NousResearch/hermes-agent</code></td>
+<td><code>ee5ee84a345204a3b1d6ef6ba1ab747e602867b9</code></td>
+</tr>
+<tr>
+<td><code>ShielderSec/webtech</code></td>
+<td><code>7141d3542b650df9f984deba6213e2911ee7b9d1</code></td>
+</tr>
+<tr>
+<td><code>assetnote/kiterunner</code></td>
+<td><code>7d5824cda9a2eef86d8d18b05b713d7e260f34d2</code></td>
+</tr>
+<tr>
+<td><code>assetnote/wordlists</code></td>
+<td><code>6dea231f4cbd356a637851b1c13b83de4da00adb</code></td>
+</tr>
+<tr>
+<td><code>blacklanternsecurity/bbot</code></td>
+<td><code>a6fb827bb144cdb85b52e142a4d6e14ed5f94b69</code></td>
+</tr>
+<tr>
+<td><code>digininja/CeWL</code></td>
+<td><code>ca01aeae1c77bb086ef757611dea6377b8d1168b</code></td>
+</tr>
+<tr>
+<td><code>projectdiscovery/katana</code></td>
+<td><code>29f4d1cbaffc634f79f389c59f34be6f85fcde5d</code></td>
+</tr>
+<tr>
+<td><code>projectdiscovery/nuclei</code></td>
+<td><code>47f74706a54261ecbbbac617a75c1ec5ef9bddd7</code></td>
+</tr>
+<tr>
+<td><code>schemathesis/schemathesis</code></td>
+<td><code>be1b46696dc7eb8aa472054d1b46c95e8f069382</code></td>
+</tr>
+<tr>
+<td><code>scrapy/scrapy</code></td>
+<td><code>5d789b24f994bcdfca97c34d976c73739e064849</code></td>
+</tr>
+<tr>
+<td><code>typesafe-ai/typesafe-sdk-python</code></td>
+<td><code>f078f1e208a0d885154dc758344ae4fce77ac168</code></td>
+</tr>
+<tr>
+<td><code>usestrix/strix</code></td>
+<td><code>ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2</code></td>
+</tr>
+<tr>
+<td><code>vxcontrol/pentagi</code></td>
+<td><code>ea665308baaff015b226f308438a68d929d0f29b</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="102-unitati-de-import-cu-consumator-si-probe">10.2. Unități de import cu consumator și probe</h3>
+<p>C = copiere/adaptare de sursă+teste; PORT = algoritm portat cu atribuire; P = pachet/executabil fixat prin adaptor; N = suprafață nativă păstrată. Nu portăm un engine Go în Python și nu adăugăm Go/Rust/Twisted/Temporal în control plane pentru helpers. Fiecare import păstrează licența/notices, upstream commit, hash de fișier și diff de adaptare. Snapshotul original poate rămâne quarantine, nemontat runtime-ului; doar releaseul selectat intră în catalog.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Sursă concretă / formă</th>
+<th>Destinație și ticket</th>
+<th>Adaptare și verificare obligatorie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U01</td>
+<td>C Strix <code>strix/skills/</code>, toate 75 ghiduri din inventar</td>
+<td><code>skills/</code>, B06/B11 apoi B14b/E1–E4</td>
+<td>Lot inițial root/recon/IDOR/counterevidence/severity; restul importat/revizuit în loturi. Golden/frontmatter/ID/ref/digest; methodology-only ≠ execuție. <code>test_skill_dir_extension.py</code> adaptat: shadowing nu este permis.</td>
+</tr>
+<tr>
+<td>U02</td>
+<td>C Strix <code>_resolve_skills</code>, <code>render_system_prompt</code>, <code>system_prompt.jinja</code></td>
+<td>composer Hermes B06; S01/S03/S06</td>
+<td><code>tests/test_runner_root_prompt.py</code>; missing skill refuzat, fără „test ALL/2000 steps”, terminal generic sau întreg istoric moștenit.</td>
+</tr>
+<tr>
+<td>U03</td>
+<td>C Strix <code>output_store.py::_take_prefix/_take_suffix/_head_tail/bound_text</code></td>
+<td>evidence preview B07/B08, S07</td>
+<td><code>tests/test_output_store.py</code>; limita include notice (proba istorică 10 bytes → 45 a eșuat), UTF-8/paginare/opaque artifact, nu spill raw comun.</td>
+</tr>
+<tr>
+<td>U04</td>
+<td>C Strix <code>tools/threat_model/tools.py</code>, notes/agent_finish</td>
+<td>runs/surfaces/tasks B10/B18a, S04/S05</td>
+<td><code>tests/test_threat_model_tool.py</code>; rubrici structurate și amendamente append-only PostgreSQL, nu JSON globals; clue→revizie→task.</td>
+</tr>
+<tr>
+<td>U05</td>
+<td>C Strix <code>report/writer.py::safe_fence/parse_fenced_code/render_vulnerability_md</code></td>
+<td>reports B13c, S08</td>
+<td><code>test_fenced_code.py</code>, <code>test_report_writer.py</code>; snapshot eligibil, markup inert; csv_safe numai la un export CSV ulterior, nu motiv de a adăuga CSV acum.</td>
+</tr>
+<tr>
+<td>U06</td>
+<td>C PentestGPT activ <code>pentestgpt_agent/.../plan.py::compile_plan</code>, <code>execution.py::_exact_receipt_slice</code></td>
+<td>tasks/validation/evidence B06/B12</td>
+<td><code>pentestgpt_agent/tests/test_plan.py</code>, <code>test_execution.py</code>; basis/dependency/revision și bytes exacte. Fără SQLite MemoryKernel, wrapper vechi, classifier lexical de efect sau limită globală arbitrară de un task.</td>
+</tr>
+<tr>
+<td>U07</td>
+<td>PORT NeuroSploit <code>typesafe.rs::same_finding/progress_checkpoint/response_origin</code>, <code>pipeline.rs::typesafe_prune_agents</code></td>
+<td>integrations/jev B06j/B14j</td>
+<td>Teste typed fixtures/sentinel/unknown; ranking nu șterge coverage, fără defaults optimiste/raw body/jev-latest; nu portăm clientul Rust.</td>
+</tr>
+<tr>
+<td>U08</td>
+<td>PORT NeuroSploit <code>chain.rs::Capability/provides/requires/derive_links/path_for</code>, <code>pipeline.rs::attack_chain/chain_from_seed</code>, <code>agents_md/chains/</code></td>
+<td>findings/attack_paths + tasks B18c</td>
+<td>Păstrează testele din chain.rs, adaugă needs-review exclus din frontieră executabilă, identity/state/epoch și evidence per edge; Jev validate=true nu este oracle.</td>
+</tr>
+<tr>
+<td>U09</td>
+<td>PORT PentAGI <code>backend/pkg/providers/helpers.go::repeatingDetector/executionMonitor</code>, <code>task_assignment_wrapper.tmpl</code> + debrief</td>
+<td>tasks/context B06/B18a</td>
+<td><code>helpers_test.go::TestRepeatingDetector/TestExecutionMonitorDetector_*</code>; key include identitate/procedură/stare, nu pierde diferențe materiale; fără stack Go/Graphiti.</td>
+</tr>
+<tr>
+<td>U10</td>
+<td>P Katana <code>pkg/engine/parser/</code>, <code>pkg/navigation</code>, <code>pkg/output/result.go</code> JSONL</td>
+<td>executors/recon B10a/B15</td>
+<td>Crawler/parsers upstream, nu crawler nou. Compatibilitate JSONL și sink allow/deny/cancel; update/form submit/off-origin neaprobat refuzate; fiecare request atribuit.</td>
+</tr>
+<tr>
+<td>U11</td>
+<td>P Nuclei <code>pkg/templates</code>, <code>pkg/operators</code>, <code>pkg/output.ResultEvent</code></td>
+<td>adaptor semnale B15n, expuneri E1</td>
+<td>Engine fixat; subset HTTP de templates cu provenance/digest/licență <strong>distincte, încă de selectat</strong>. Fără code/JS/headless/network/OAST; matcher hit ≠ verdict, zero match ≠ negativ, secret/PII controls.</td>
+</tr>
+<tr>
+<td>U12</td>
+<td>P Schemathesis <code>specs/openapi</code>, generators/stateful links/checks</td>
+<td>adaptor generator API E2</td>
+<td>Caz generat→Action brokered, seeds/shrinking/cleanup contorizate, no remote refs; contract failure ≠ vulnerabilitate. Lock/probe Python separate, fără fuzz runtime paralel.</td>
+</tr>
+<tr>
+<td>U13</td>
+<td>P <code>typesafe-sdk</code> 0.7.2, client async, model candidat <code>jev-1.13.0</code></td>
+<td>integrations/jev B06j/B14j</td>
+<td><code>RetryPolicy(max_retries=0)</code>, MockTransport tests upstream, deadline; dependență <code>httpx2</code> în lock separat, nu presupunere de compatibilitate HTTPX. Payload final/answers/model exact; no extra_body/header override, missing→fallback.</td>
+</tr>
+<tr>
+<td>U14</td>
+<td>PORT candidat Shannon task grouping (R07), nu Temporal/pi</td>
+<td>tasks/grouping E3, necritic pentru MVP</td>
+<td>Suplimentul înlocuiește „numai referință” cu shortlist tehnic; AGPL-3.0 rămâne obligație reală. Importul copiat așteaptă decizia de distribuție/licență, fără a bloca BOLA/alte importuri; duplicate/unknown labels și observații negrupate păstrate.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Unitățile S/M/R/HM de mai jos <strong>completează</strong>, nu dublează U01–U14. Referințele source/test și destinațiile integrale sunt rezolvabile în manifest; test absent upstream înseamnă teste Omnis de scris, nu test upstream pretins trecut. Aceste rânduri stabilesc primul consumator; nu cer tot catalogul înainte de prima vulnerabilitate.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Formă / unitate concretă la pinul de mai sus</th>
+<th>Destinație</th>
+<th>Ticket / probă și limită</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S01</td>
+<td>copy_adapt: <code>strix/agents/prompt.py::_resolve_skills; render_system_prompt</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/prompt_bundle.py</code></td>
+<td>B06/H03 — Golden root/leaf/mode, missing package and immutable bundle digest. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S02</td>
+<td>copy_adapt_subset: <code>strix/skills/__init__.py::_parse_skill_content; validate_requested_skills; load_skills</code></td>
+<td><code>api/src/omnis/modules/settings/skill_catalog.py</code></td>
+<td>B06/P4a — Duplicate ID, malformed frontmatter, path escape, missing ref and silent override rejected. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S03</td>
+<td>copy_adapt_content: <code>strix/skills/coordination/root_agent.md::Threat model; coverage reconciliation; coordination</code></td>
+<td><code>skills/omnis-engagement/references/coordination.md</code></td>
+<td>B06/B18a — New clue changes next task; consumed delta does not re-spawn. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S04</td>
+<td>copy_adapt_schema_and_validation: <code>strix/tools/threat_model/tools.py::_REQUIRED_SECTIONS; _missing_sections; _save_impl; _amend_impl</code></td>
+<td><code>api/src/omnis/modules/runs/threat_model.py</code></td>
+<td>B10b — Concurrent amendment preserved; unknown observation cannot become observed. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S05</td>
+<td>copy_adapt_contract_not_coordinator: <code>strix/tools/agents_graph/tools.py::create_agent contract; agent_finish contract</code></td>
+<td><code>api/src/omnis/modules/tasks/handoffs.py</code></td>
+<td>B06/H04/H06 — Wrong child/attempt/result refs refused; no duplicate wake. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S06</td>
+<td>adapt_interface: <code>strix/tools/load_skill/tool.py::load_skill</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/skills_projection.py</code></td>
+<td>B06/H03 — Loading knowledge does not install dependencies, grant tools or mutate prompt prefix. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S07</td>
+<td>copy_adapt: <code>strix/tools/output_store.py::UTF-8 head/tail previews</code></td>
+<td><code>api/src/omnis/modules/evidence/preview.py</code></td>
+<td>B07/B08 — UTF-8 intact; whole preview cap including notice; unavailable artifact not fabricated. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S08</td>
+<td>copy_adapt: <code>strix/report/writer.py::csv_safe; safe_fence; render_vulnerability_md</code></td>
+<td><code>api/src/omnis/modules/reports/render.py</code></td>
+<td>B13c — Hostile markup inert; missing bytes not exported; existing snapshot unchanged. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S09</td>
+<td>copy_adapt_registry_validation_only: <code>strix/agents/factory.py::_ensure_unique_tool_names; register_agent_tools</code></td>
+<td><code>api/src/omnis/modules/tasks/module_registry.py</code></td>
+<td>B06/G-MODULE — Duplicate type ID fails before release; role cannot obtain extra tool authority. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>copy_adapt_content: <code>strix/skills/analysis/counterevidence.md::Closure, counterevidence and revision</code></td>
+<td><code>skills/omnis-evidence/SKILL.md</code></td>
+<td>B11/B12 — No proof gap or dead target counted as a secure negative. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R01</td>
+<td>copy_adapt_passive: <code>webtech/target.py::parse_regex_string; checks</code></td>
+<td><code>api/src/omnis/modules/surfaces/fingerprints.py</code></td>
+<td>B10b — Offline positive/negative/contradictory signatures; ReDoS/time cap; no network. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R02</td>
+<td>copy_adapt: <code>webtech/parser.py::WTParser</code></td>
+<td><code>api/src/omnis/modules/surfaces/fingerprints.py</code></td>
+<td>B10b — Meta/script path preserved; inline JS never executed. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R03</td>
+<td>port_to_python: <code>cewl.rb::extract_path_components; word count/grouping; frequency sort</code></td>
+<td><code>api/src/omnis/modules/surfaces/wordlists.py</code></td>
+<td>B10d — Reproducible corpus; v1/Unicode retained per recipe; no secrets/query values; hard entry/byte caps. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R04</td>
+<td>port_schema_and_rendering_subset: <code>pkg/proute/route.go::Route; Path; Query; Body</code></td>
+<td><code>api/src/omnis/modules/surfaces/route_candidates.py</code></td>
+<td>B15 — GET/POST body distinctions retained; candidate outside scope or unknown field is blocked. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R05</td>
+<td>adapt_baseline_model: <code>pkg/kiterunner/preflight.go::WildcardResponse; targetWildcardDetection</code></td>
+<td><code>api/src/omnis/modules/surfaces/response_baselines.py</code></td>
+<td>B10d/B15 — Soft404 versus real route differentiated without dropping all 401/403; baseline drift invalidates. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R06</td>
+<td>reuse_data_index: <code>data/technologies.json::Technology-indexed corpus metadata</code></td>
+<td><code>api/src/omnis/modules/settings/wordlist_sources.py</code></td>
+<td>B10d — Zero-entry list stays empty; million-entry source truncated before admission; no HTML execution from Download field. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>R07</td>
+<td>port_to_python: <code>apps/worker/src/ai/reconciliation/task-formation-schema.ts::buildTaskFormationSchema; parseGroup; acceptTaskGroups</code></td>
+<td><code>api/src/omnis/modules/tasks/grouping.py</code></td>
+<td>E3, licență înainte de import — Valid group accepted; cross-group reuse invalidates each claimant; unknown labels do not disappear from frontier. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>M01</td>
+<td>copy_adapt_subset: <code>bbot/core/event/base.py::BaseEvent.json</code>; <code>bbot/core/event/base.py::BaseEvent.id</code>; <code>bbot/core/event/base.py::BaseEvent.uuid</code>; <code>bbot/core/event/base.py::BaseEvent.data_hash</code></td>
+<td><code>api/src/omnis/modules/surfaces/events.py</code></td>
+<td>B10b — Două observații ale aceluiași obiect păstrează două ocurențe și parent/evidence refs; redelivery aceeași ocurență este idempotentă; cross-engagement parent respins. Teste: <code>bbot/test/test_step_1/test_events.py::test_event_hashing</code>.</td>
+</tr>
+<tr>
+<td>M02</td>
+<td>copy_adapt_subset: <code>bbot/modules/base.py::BaseModule._event_precheck</code>; <code>bbot/modules/base.py::BaseModule._event_postcheck</code>; <code>bbot/modules/base.py::BaseModule._event_postcheck_inner</code></td>
+<td><code>api/src/omnis/modules/tasks/module_registry.py</code></td>
+<td>B06/G-MODULE — Observation de tip permis selectează doar subscriberii activi; tip necunoscut, handler eroare și epoch expirat refuzate; replay nu dublează taskul. Teste: <code>bbot/test/test_step_1/test_modules_basic.py::test_modules_basic_checks</code>.</td>
+</tr>
+<tr>
+<td>M03</td>
+<td>copy_adapt_subset: <code>bbot/scanner/preset/preset.py::Preset.merge</code>; <code>bbot/scanner/preset/preset.py::Preset.bake</code>; <code>bbot/scanner/preset/preset.py::Preset.add_module</code>; <code>bbot/scanner/preset/preset.py::Preset._is_valid_module</code></td>
+<td><code>api/src/omnis/modules/runs/plan_snapshot.py</code></td>
+<td>B06/P4a — Preset A + override B produce un snapshot determinist și diff vizibil; dependency exclusă/ciclu/ID necunoscut blochează publicarea; draft nou nu schimbă run activ. Teste: <code>bbot/test/test_step_1/test_presets.py::test_preset_module_resolution</code>.</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>copy_adapt_subset: <code>bbot/scanner/preset/validate.py::_classify_loc</code>; <code>bbot/scanner/preset/validate.py::_format_errors</code>; <code>bbot/scanner/preset/validate.py::validate_preset</code>; <code>bbot/core/config/models.py::BaseModuleConfig</code></td>
+<td><code>api/src/omnis/modules/settings/skill_catalog.py</code></td>
+<td>B14b — Config bun publicat/readback; typo nested + timeout invalid returnează toate câmpurile cu 422; secret sentinel absent din erori; schema lipsă refuzată. Teste: <code>bbot/test/test_step_1/test_validate_preset.py::test_validate_preset_multiple_errors</code>, <code>bbot/test/test_step_1/test_validate_preset.py::test_validate_preset_config_modules_as_list</code>.</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>copy_adapt_subset: <code>bbot/core/helpers/wordcloud.py::WordCloud.mutations</code>; <code>bbot/core/helpers/wordcloud.py::WordCloud.modifiers</code>; <code>bbot/core/helpers/wordcloud.py::WordCloud.add_word</code>; <code>bbot/core/helpers/wordcloud.py::WordCloud.get_number_mutations</code>; <code>bbot/core/helpers/misc.py::gen_numbers</code></td>
+<td><code>api/src/omnis/modules/surfaces/wordlists.py</code></td>
+<td>B10d/B15 — Termeni sintetici + limite produc artifact determinist/digest și provenance; plafon depășit trunchiat explicit; cookie/PII excluse; nicio cerere target. Teste: <code>bbot/test/test_step_1/test_helpers.py::test_word_cloud</code>.</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>copy_adapt_subset: <code>scrapy/utils/conf.py::build_component_list</code></td>
+<td><code>api/src/omnis/modules/tasks/component_order.py</code></td>
+<td>B06/G-MODULE — Ordine diferită salvată apare în readback și execuție; disabled nu rulează; duplicate ID/priority invalid respinse; policy hooks obligatorii nedezactivabile. Teste: <code>tests/test_utils_conf.py::TestBuildComponentList</code>.</td>
+</tr>
+<tr>
+<td>M07</td>
+<td>copy_adapt_subset: <code>scrapy/pipelines/__init__.py::ItemPipelineManager._add_middleware</code>; <code>scrapy/pipelines/__init__.py::ItemPipelineManager.process_item_async</code>; <code>scrapy/middleware.py::MiddlewareManager._process_chain</code></td>
+<td><code>api/src/omnis/modules/surfaces/ingestion.py</code></td>
+<td>B10a — Ordine A→B verificată, output B derivat din A; invalid la B împiedică persistarea; raw evidence și receipt de rejeție rămân; anulare fără event de succes. Teste: <code>tests/test_pipelines.py::TestPipeline.test_pipeline</code>, <code>tests/test_pipelines.py::TestPipeline.test_process_item_exception</code>.</td>
+</tr>
+<tr>
+<td>M08</td>
+<td>copy_adapt_subset: <code>scrapy/core/downloader/middleware.py::DownloaderMiddlewareManager._add_middleware</code>; <code>scrapy/core/downloader/middleware.py::DownloaderMiddlewareManager._process_request</code>; <code>scrapy/core/downloader/middleware.py::DownloaderMiddlewareManager._process_response</code>; <code>scrapy/core/downloader/middleware.py::DownloaderMiddlewareManager._process_exception</code></td>
+<td><code>executors/http/src/omnis_http/action_hooks.py</code></td>
+<td>B07 — A/B se aplică înainte și B/A după; redirect/retry devine propunere reautorizată; PolicyDenied și Cancelled nu sunt convertite în succes, Stop între propunere/dispatch refuză. Teste: <code>tests/test_downloadermiddleware.py::TestResponseFromProcessException.test_process_response_called</code>, <code>tests/test_downloadermiddleware.py::TestResponseExceptions.test_processed_middleware_not_called</code>.</td>
+</tr>
+<tr>
+<td>M09</td>
+<td>copy_adapt_subset: <code>scrapy/utils/signal.py::_send_catch_log_asyncio</code>; <code>scrapy/signalmanager.py::SignalManager.connect</code>; <code>scrapy/signalmanager.py::SignalManager.disconnect</code></td>
+<td><code>api/src/omnis/transport/events.py</code></td>
+<td>B08 — Consumator UI eșuat nu pierde eventul DB ori alt consumator; retry din cursor recuperează; duplicate event nu dublează wake/task; observerul nu autorizează efect. Teste: <code>tests/test_utils_signal.py::TestSendCatchLog.test_send_catch_log</code>.</td>
+</tr>
+<tr>
+<td>HM01</td>
+<td>use_native_surface_not_copy: <code>tools/delegate_tool.py::Native delegation</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B10c/H04 — Per-run researcher; trusted binding, budget and Stop. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM02</td>
+<td>use_native_surface_not_copy: <code>agent/subagent_lifecycle.py::Native lifecycle API</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B06/H04 — Optional plugin surface with active parent; no durable worker assumption. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM03</td>
+<td>use_native_surface_not_copy: <code>agent/background_review.py::Native review fork</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B14c — Sanitized maintenance session plus proposal tool, no active-release writer. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM04</td>
+<td>use_native_surface_not_copy: <code>agent/curator.py::Native curator</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B14c — Working library only; dry_run prompt is not read-only enforcement. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM05</td>
+<td>use_native_surface_not_copy: <code>tools/skill_manager_tool.py::Native staging/approval</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B14b — Draft source only; separate publisher and RO release; import failure tested. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM06</td>
+<td>use_native_surface_not_copy: <code>cron/scheduler.py::Native periodic scheduling</code>; <code>cron/scheduler_prompt.py::_parse_wake_gate</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B21m, după G-HERMES-BOUND — no_agent enqueue first; exclusive maintenance admission; explicit memory/MCP/provider. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM07</td>
+<td>use_native_surface_not_copy: <code>hermes_cli/plugins.py::Native plugin tools and skills</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B06 — Narrow product tools, no user-profile changes or generic admin proxy. Teste: controale Omnis din manifest.</td>
+</tr>
+<tr>
+<td>HM08</td>
+<td>use_native_surface_not_copy: <code>tools/async_delegation.py::Native completion recovery</code></td>
+<td><code>integrations/hermes/src/omnis_hermes/</code></td>
+<td>B06/H06/H07 — Unknown work and idempotent inbox reconciliation, not resume of thread. Teste: controale Omnis din manifest.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="103-admitere-si-inlocuiri-explicite">10.3. Admitere și înlocuiri explicite</h3>
+<p>Katana devine reutilizare planificată B10/B15, Nuclei adaptor de semnale B15n/E1, Schemathesis E2; sqlmap rămâne candidat E1 fără pin/admitere încă. Textul vechi „nu dependențe baseline” pentru toate trei este înlocuit: <strong>selectat pentru integrare nu înseamnă instalat, evaluat sau permis</strong>. B10 folosește subsetul parser/crawl care trece gate-ul transportului; dacă binarul nu poate atribui requests, acesta rămâne blocat, nu se recreează preventiv engine-ul și nu se ocolește brokerul.</p>
+<p>Buildurile/executabilele și corpusurile cer hashes/licențe/lockuri proprii în felia de import; SHA-ul repo-ului nu certifică binarul sau bytes Assetnote de pe CDN. Engines nu fac auto-update la runtime. BBOT se extrage fără Ansible/scan helpers/_exec_config_class/env/scope merge; Scrapy fără Twisted/Crawler, signals nu sunt inbox durabil; WebTech fără downloader și cu malformed regex/ReDoS controls; CeWL fără Ruby spider/PII/password lists; Kiterunner fără suita de preflight mutatoare. Aceste adaptări sunt cerințe de test, nu invitație să înlocuim implementările cu descrieri conceptuale.</p>
+<p>Jev este inclus în produs, configurabil OFF/SHADOW/ADVISORY, nu prerechizit BOLA și nu validator. Modelul/SDK/întrebările/data policy sunt fixate per run; probele live cer cont/date/buget explicit. Licențele/notices exacte se păstrează la import, iar un conflict de distribuție blochează <strong>unitatea afectată</strong>, nu suspendă întregul baseline într-o nouă dezbatere. Nu se introduc dependențe ori module goale acum.</p>
 <h2 id="sources">Sources</h2>
 <p>[5] https://playwright.dev/python/docs/docker — https://playwright.dev/python/docs/docker
 [14] https://nodejs.org/dist/index.json — Node.js release metadata
@@ -311,5 +708,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>afea0c722b070a1f6212a82891014c81b86e22a0f11f14f2639c8373327f893c</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>132ee4c493f71fe94f56b527b783e8d6f882f1e54b9b57f5029ada29853f792c</code>.</p></footer>
 </main></div></body></html>

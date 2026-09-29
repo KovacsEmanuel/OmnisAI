@@ -152,6 +152,10 @@ Settings minim poate fi catalog read-only. Settings complet adaugă editor/diff/
 
 Editorul de skill este form text/file tree controlat, nu filesystem browser. Arbore: SKILL.md + unicul omnis.yaml + references/technologies + templates/procedures/schemas/requests + assets; TechniqueRevision (metodă) și ProcedureRevision (variantă bounded) sunt separate în detaliu, fără al doilea catalog. Afișează precondiții, baseline/probe/control, false positives, oracle/evidence, limite/cleanup și compatibilitate. Draft → Review → Eval → Publish: afișează digestul acceptat și receiptul; editarea ulterioară invalidează review/eval. Testarea activă din Eval este comandă distinctă, cu laborator/buget/permisiuni, nu efect al editării. Publicarea arată exact digest/revizie și spune „Applies to new runs”; toate taskurile aceluiași run păstrează catalogul fixat. Disable blochează selecția în runuri noi; revocarea de urgență a unui release activ trece prin Stop/fencing. Erorile de path/reference/dependency sunt lângă fișierul relevant.
 
+### Runtime și tooluri
+
+Settings Runtime separă instalat / compatibil / evaluat / permis pentru runul selectat, cu binary/config/template/parser revisions și motivul blocajului. UI nu oferă shell, install arbitrar sau grant global. În Investigations, o ToolInvocation se deschide către toate Action/evidence atribuite; output raw privat este separat de proiecția redactată. Zero matches, unealtă neexecutată, crash/timeout și efect UNKNOWN au stări diferite. Brain cere capabilitatea, backendul acordă subsetul, copilul invocă adaptorul; operatorul vede cererea și motivul, nu chei copiate între agenți. Contractul de livrare este UI16 în plan.
+
 ## 5. Stări și copy obligatorii
 
 | Stare | UI corect | UI interzis |

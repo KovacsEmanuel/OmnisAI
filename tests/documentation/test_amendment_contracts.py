@@ -56,6 +56,20 @@ class AmendmentContracts(unittest.TestCase):
         self.assertIn("UI14", document("Implementation_Plan"))
         self.assertIn("UI15", document("Implementation_Plan"))
 
+    def test_real_tools_have_attribution_and_reuse_not_auto_verdicts(self):
+        tools = section(document("MVP_Architecture"), "### 9.6. Unelte reale și invocări atribuite")
+        for contract in ["ToolDefinition", "ToolInvocation", "ToolResult"]:
+            self.assertRegex(tools, rf"\| `{contract}` \|[^\n]+schema_version")
+        for token in ["zero sau mai multe", "Action", "Instalat", "permis",
+                      "parser", "UNKNOWN", "fencing", "secret", "hardware"]:
+            self.assertIn(token, tools)
+        stack = document("Stack_Baseline")
+        for component in ["Katana", "Nuclei", "Schemathesis", "typesafe-sdk",
+                          "compile_plan", "repeatingDetector", "S01", "M09", "HM08"]:
+            self.assertIn(component, stack)
+        self.assertNotIn("Katana/Nuclei/sqlmap nu sunt dependențe baseline", stack)
+        self.assertIn("UI16", document("Implementation_Plan"))
+
 
 if __name__ == "__main__":
     unittest.main()

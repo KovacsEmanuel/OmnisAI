@@ -423,25 +423,25 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>U06</td>
-<td>C PentestGPT activ <code>pentestgpt_agent/.../plan.py::compile_plan</code>, <code>execution.py::_exact_receipt_slice</code></td>
+<td>C PentestGPT activ <code>pentestgpt_agent/src/pentestgpt_agent/plan.py::compile_plan</code>, <code>pentestgpt_agent/src/pentestgpt_agent/execution.py::_exact_receipt_slice</code></td>
 <td>tasks/validation/evidence B06/B12</td>
 <td><code>pentestgpt_agent/tests/test_plan.py</code>, <code>test_execution.py</code>; basis/dependency/revision și bytes exacte. Fără SQLite MemoryKernel, wrapper vechi, classifier lexical de efect sau limită globală arbitrară de un task.</td>
 </tr>
 <tr>
 <td>U07</td>
-<td>PORT NeuroSploit <code>typesafe.rs::same_finding/progress_checkpoint/response_origin</code>, <code>pipeline.rs::typesafe_prune_agents</code></td>
+<td>PORT NeuroSploit <code>neurosploit-rs/crates/harness/src/typesafe.rs::same_finding/progress_checkpoint/response_origin</code>, <code>neurosploit-rs/crates/harness/src/pipeline.rs::typesafe_prune_agents</code></td>
 <td>integrations/jev B06j/B14j</td>
 <td>Teste typed fixtures/sentinel/unknown; ranking nu șterge coverage, fără defaults optimiste/raw body/jev-latest; nu portăm clientul Rust.</td>
 </tr>
 <tr>
 <td>U08</td>
-<td>PORT NeuroSploit <code>chain.rs::Capability/provides/requires/derive_links/path_for</code>, <code>pipeline.rs::attack_chain/chain_from_seed</code>, <code>agents_md/chains/</code></td>
+<td>PORT NeuroSploit <code>neurosploit-rs/crates/harness/src/chain.rs::Capability/provides/requires/derive_links/path_for</code>, <code>neurosploit-rs/crates/harness/src/pipeline.rs::attack_chain/chain_from_seed</code>, <code>agents_md/chains/</code></td>
 <td>findings/attack_paths + tasks B18c</td>
 <td>Păstrează testele din chain.rs, adaugă needs-review exclus din frontieră executabilă, identity/state/epoch și evidence per edge; Jev validate=true nu este oracle.</td>
 </tr>
 <tr>
 <td>U09</td>
-<td>PORT PentAGI <code>backend/pkg/providers/helpers.go::repeatingDetector/executionMonitor</code>, <code>task_assignment_wrapper.tmpl</code> + debrief</td>
+<td>PORT PentAGI <code>backend/pkg/providers/helpers.go::repeatingDetector/executionMonitor</code>, <code>backend/pkg/templates/prompts/task_assignment_wrapper.tmpl</code> + debrief</td>
 <td>tasks/context B06/B18a</td>
 <td><code>helpers_test.go::TestRepeatingDetector/TestExecutionMonitorDetector_*</code>; key include identitate/procedură/stare, nu pierde diferențe materiale; fără stack Go/Graphiti.</td>
 </tr>
@@ -696,6 +696,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <h3 id="103-admitere-si-inlocuiri-explicite">10.3. Admitere și înlocuiri explicite</h3>
 <p>Katana devine reutilizare planificată B10/B15, Nuclei adaptor de semnale B15n/E1, Schemathesis E2; sqlmap rămâne candidat E1 fără pin/admitere încă. Textul vechi „nu dependențe baseline” pentru toate trei este înlocuit: <strong>selectat pentru integrare nu înseamnă instalat, evaluat sau permis</strong>. B10 folosește subsetul parser/crawl care trece gate-ul transportului; dacă binarul nu poate atribui requests, acesta rămâne blocat, nu se recreează preventiv engine-ul și nu se ocolește brokerul.</p>
+<p><strong>Copyleft la pin, nu licență presupusă permisivă:</strong> BBOT și Kiterunner au <code>LICENSE</code> AGPL-3.0, WebTech <code>LICENSE</code> GPL-3.0; CeWL <code>cewl.rb:18</code> declară CC-BY-SA 2.0 sau GPL-3+. Shannon AGPL-3.0 nu este singura unitate cu obligații de distribuție. Aceeași verificare de compatibilitate/notices se aplică fiecărui port, fără a șterge shortlistul tehnic ori a porni alt runtime. Decizia necesară privește importul/distribuția unității, nu aprobarea deja dată pentru amendamente; nu pretindem aviz juridic. Sursa este fișierul de licență la SHA-ul din §10.1, nu metadata unei versiuni latest. Lista source-test a manifestului este incompletă pentru S/R/HM; testele Strix/U06–U13 din tabel trebuie fixate prin hash în felia lor, nu declarate deja importate sau executate.</p>
 <p>Buildurile/executabilele și corpusurile cer hashes/licențe/lockuri proprii în felia de import; SHA-ul repo-ului nu certifică binarul sau bytes Assetnote de pe CDN. Engines nu fac auto-update la runtime. BBOT se extrage fără Ansible/scan helpers/_exec_config_class/env/scope merge; Scrapy fără Twisted/Crawler, signals nu sunt inbox durabil; WebTech fără downloader și cu malformed regex/ReDoS controls; CeWL fără Ruby spider/PII/password lists; Kiterunner fără suita de preflight mutatoare. Aceste adaptări sunt cerințe de test, nu invitație să înlocuim implementările cu descrieri conceptuale.</p>
 <p>Jev este inclus în produs, configurabil OFF/SHADOW/ADVISORY, nu prerechizit BOLA și nu validator. Modelul/SDK/întrebările/data policy sunt fixate per run; probele live cer cont/date/buget explicit. Licențele/notices exacte se păstrează la import, iar un conflict de distribuție blochează <strong>unitatea afectată</strong>, nu suspendă întregul baseline într-o nouă dezbatere. Nu se introduc dependențe ori module goale acum.</p>
 <h2 id="sources">Sources</h2>
@@ -708,5 +709,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>132ee4c493f71fe94f56b527b783e8d6f882f1e54b9b57f5029ada29853f792c</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>bcc4e85cf19625af34a016664e584cc3edd81850a5f65df273653de1580dd2cd</code>.</p></footer>
 </main></div></body></html>

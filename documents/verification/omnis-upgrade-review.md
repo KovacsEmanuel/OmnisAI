@@ -249,7 +249,7 @@ MVP include:
 - Jev real în shadow și advisory numai pe heads care trec comparația; nu condiționează primul finding.
 - Un path scurt probat, separat de root-cause counts; UI compactă, după amendament/aprobare vizuală.
 
-**Trade-off explicit:** acest MVP demonstrează modul de operare și infrastructura extensibilă, nu breadthul celor 27 issues din Strix. Pentru un prim release care pretinde breadth apropiat, includem și E1 de mai jos și acceptăm livrarea mai mare. Nu recomand să etichetăm trei familii drept competitor complet.
+**Trade-off explicit:** acest MVP demonstrează modul de operare și infrastructura extensibilă, nu breadthul celor 27 issues din Strix. E1 este numai prima extindere: scenariul Strix include și clase din E2, iar unele capabilități de execuție sunt în E4. Un release cu breadth apropiat trebuie definit prin subfamiliile/scenariile efectiv promise și probele lor, nu numai prin eticheta E1. Nu recomand să numim trei familii sau E1 singur competitor complet.
 
 ### 7.2. Valuri cu valoare observabilă
 

@@ -15,8 +15,7 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib.error
-import urllib.request
+from collections.abc import Buffer
 from pathlib import Path
 
 from omnis_cli.compose import _docker_id, _one_image, _preflight, _record, _validate_image
@@ -296,19 +295,48 @@ def _psql(
     ).stdout.strip()
 
 
-def _http(port: int, path: str) -> tuple[int, bytes]:
-    class NoRedirect(urllib.request.HTTPRedirectHandler):
-        def redirect_request(self, req, fp, code, msg, headers, newurl):
-            return None
+class _DeadlineSocket(socket.socket):
+    """Apply one monotonic budget to every HTTP socket operation, including makefile reads."""
 
-    origin = f"http://127.0.0.1:{port}"
-    request = urllib.request.Request(origin + path, headers={"Host": f"127.0.0.1:{port}"})
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
-    try:
-        with opener.open(request, timeout=2) as response:
-            return response.status, response.read(2 * 1024 * 1024 + 1)
-    except urllib.error.HTTPError as response:
-        return response.code, response.read(4097)
+    def __init__(self, family: int, *, deadline: float) -> None:
+        super().__init__(family, socket.SOCK_STREAM)
+        self._deadline = deadline
+
+    def _budget(self) -> None:
+        remaining = self._deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Installed HTTP reply exceeded total deadline")
+        self.settimeout(min(2, remaining))
+
+    def recv(self, bufsize: int, flags: int = 0) -> bytes:
+        self._budget()
+        return super().recv(bufsize, flags)
+
+    def recv_into(self, buffer: Buffer, nbytes: int = 0, flags: int = 0) -> int:
+        self._budget()
+        return super().recv_into(memoryview(buffer), nbytes, flags)
+
+
+def _http(port: int, path: str) -> tuple[int, bytes]:
+    """Only the fixed loopback origin, never redirects, proxies or unbounded trickle."""
+    if type(port) is not int or not 1 <= port <= 65535 or path not in {"/", "/health/ready"}:
+        raise ValueError("Invalid installed HTTP probe destination")
+    with _DeadlineSocket(socket.AF_INET, deadline=time.monotonic() + 4) as connection:
+        connection._budget()
+        connection.connect(("127.0.0.1", port))
+        connection._budget()
+        connection.sendall(
+            f"GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n".encode()
+        )
+        response = http.client.HTTPResponse(connection)
+        response.begin()
+        limit = 2 * 1024 * 1024 if response.status == 200 else 4096
+        body = response.read(limit + 1)
+        status = response.status
+        response.close()
+    if len(body) > limit:
+        raise ValueError("Installed HTTP response exceeds limit")
+    return status, body
 
 
 def _uds_http(directory: Path, port: int, request_path: str) -> tuple[int, bytes]:
@@ -323,8 +351,8 @@ def _uds_http(directory: Path, port: int, request_path: str) -> tuple[int, bytes
         or request_path not in {"/health/ready", "/"}
     ):
         raise ValueError("Untrusted API socket or request path")
-    with socket.socket(socket.AF_UNIX) as connection:
-        connection.settimeout(2)
+    with _DeadlineSocket(socket.AF_UNIX, deadline=time.monotonic() + 4) as connection:
+        connection._budget()
         connection.connect(str(path))
         credentials = connection.getsockopt(
             socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
@@ -332,6 +360,7 @@ def _uds_http(directory: Path, port: int, request_path: str) -> tuple[int, bytes
         _pid, uid, _gid = struct.unpack("3i", credentials)
         if uid != os.getuid():
             raise ValueError("Wrong API socket peer UID")
+        connection._budget()
         connection.sendall(
             f"GET {request_path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n".encode()
         )

@@ -24,6 +24,7 @@ from control_topology import (
     _finish_probe,
     _http,
     _owned_container,
+    _uds_http,
     assert_no_host_listener,
     conclude_cleanup,
     preflight_port,
@@ -683,6 +684,109 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     sink.shutdown()
                     source_thread.join(timeout=2)
                     sink_thread.join(timeout=2)
+
+    def test_private_uds_trickle_has_one_total_reply_deadline(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            directory = Path(name)
+            path = directory / "api.sock"
+            stop = threading.Event()
+            done = threading.Event()
+            outcome: list[str] = []
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
+                listener.bind(str(path))
+                path.chmod(0o600)
+                listener.listen(1)
+
+                def server():
+                    connection, _peer = listener.accept()
+                    with connection:
+                        connection.settimeout(2)
+                        request = bytearray()
+                        while not request.endswith(b"\r\n\r\n"):
+                            request.extend(connection.recv(4096))
+                        connection.sendall(
+                            b"HTTP/1.1 200 OK\r\nContent-Length: 100000\r\nConnection: close\r\n\r\n"
+                        )
+                        while not stop.wait(0.2):
+                            try:
+                                connection.sendall(b"x")
+                            except OSError:
+                                break
+
+                def client():
+                    try:
+                        _uds_http(directory, 8765, "/health/ready")
+                        outcome.append("unexpected success")
+                    except TimeoutError:
+                        outcome.append("total deadline")
+                    except Exception as exc:
+                        outcome.append(type(exc).__name__)
+                    finally:
+                        done.set()
+
+                serving = threading.Thread(target=server, daemon=True)
+                probing = threading.Thread(target=client, daemon=True)
+                serving.start()
+                probing.start()
+                try:
+                    self.assertTrue(done.wait(6), "UDS trickle bypassed the reply budget")
+                    self.assertEqual(outcome, ["total deadline"])
+                finally:
+                    stop.set()
+                    probing.join(timeout=2)
+                    serving.join(timeout=2)
+                self.assertFalse(probing.is_alive())
+                self.assertFalse(serving.is_alive())
+
+    def test_host_forwarded_http_trickle_has_one_total_reply_deadline(self):
+        stop = threading.Event()
+        done = threading.Event()
+        outcome: list[str] = []
+
+        class Drip(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-Length", "100000")
+                self.send_header("Connection", "close")
+                self.end_headers()
+                while not stop.wait(0.2):
+                    try:
+                        self.wfile.write(b"x")
+                        self.wfile.flush()
+                    except OSError:
+                        break
+
+            def log_message(self, format: str, *args: object) -> None:
+                pass
+
+        with ThreadingHTTPServer(("127.0.0.1", 0), Drip) as server:
+            server.daemon_threads = True
+
+            def client():
+                try:
+                    _http(server.server_port, "/health/ready")
+                    outcome.append("unexpected success")
+                except TimeoutError:
+                    outcome.append("total deadline")
+                except Exception as exc:
+                    outcome.append(type(exc).__name__)
+                finally:
+                    done.set()
+
+            serving = threading.Thread(target=server.serve_forever, daemon=True)
+            probing = threading.Thread(target=client, daemon=True)
+            serving.start()
+            probing.start()
+            try:
+                self.assertTrue(done.wait(6), "Loopback trickle bypassed the reply budget")
+                self.assertEqual(outcome, ["total deadline"])
+            finally:
+                stop.set()
+                server.shutdown()
+                probing.join(timeout=2)
+                serving.join(timeout=2)
+            self.assertFalse(probing.is_alive())
+            self.assertFalse(serving.is_alive())
 
     def test_pg18_bind_root_is_traversable_only_under_private_state(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:

@@ -345,6 +345,79 @@ Field reportul Cantina și comparația Doyensec sunt surse atribuite, nu praguri
 - Extracția web a unor pagini a fost parțială; lucrările Jev au fost citite și din HTML direct. Pagina Aikido despre threat model a fost recuperată în browser după 403; prerechizitul repository-linked a fost confirmat acolo. Nu presupunem acces la implementarea internă a produselor închise.
 - Nicio copie de cod/metodologie upstream nu este încă activată în produs, niciun model Jev nu a fost apelat, niciun cost Omnis măsurat. Review-ul livrează sursele și planul de adaptare, nu pretinde că a livrat upgrade-ul.
 
+## 12. Biblioteca Strix: dispoziție exhaustivă pentru import
+
+Auditul de conținut a inventariat **toate cele 75 de ghiduri**, cu digest, dimensiune, linii, metodologie reținută și dispoziție; README este separat. Părintele a recalculat toate digesturile și a verificat exact setul de fișiere. Agregatul este `68a1b4438ab813e42cbe38cd7e3c102ae9ff1182b66b5a2e5cc071bfec590a53` (serializare descrisă în inventarul JSON). Licența Strix este Apache-2.0; se păstrează copyright/attribution și notices de modificare, fără a inventa un NOTICE absent upstream.[2]
+
+**Limita lecturii:** au fost analizate secțiunile de metodologie/validare/false positives ale celor 29 de ghiduri de vulnerabilități, documentele transversale principale și secțiuni/metadata din rest. Nu este audit integral al fiecărui payload, comandă sau link extern. Toate rămân `source_reviewed_not_imported`, cu execuție necertificată.
+
+Recomand păstrarea întregului set original într-un vendor/quarantine fixat, **nemontat și neîncărcat în runtime**, apoi copiere/adaptare în `skills/` de produs. Nu înlocuim `omnis.yaml` cu încă un manifest executabil: manifestul upstream descrie proveniența; `omnis.yaml` rămâne contractul unic de activare al pachetului. Prompturile pe rol se află lângă adaptorul Hermes, nu într-un nou framework.
+
+### 12.1. Cele 29 de vulnerability guides
+
+Faza este prioritatea viitoarei execuții, **nu certificarea actuală**: 3 inițiale, 16 extinderi apropiate, 10 ulterioare. „Apropiată” se împarte între E1/E2 sau extensia concretă de protocol; nu obligă activarea simultană. Calea fiecărui rând este `strix/skills/vulnerabilities/<nume>.md` la pinul Strix.[2]
+
+| Ghid | Val de capabilitate | Ce păstrăm și ce subset activăm |
+|---|---|---|
+| `agentic_system_security` | Ulterior | Hartă authority/tool/schema și sink proof; util ca metodologie de red-team Omnis devreme, adapter de assessment agentic separat |
+| `argument_injection` | Ulterior | Lanț de parsere, operand vs opțiune și control literal; cere runtime/source fixture, nu shell Omnis liber |
+| `authentication_jwt` | Apropiat | Token type × audience × service și control de acces real; handles/personas și rotație/logout, nu simpla decodare JWT |
+| `broken_function_level_authorization` | Apropiat | Actor × action, UI vs backend și readback; citire privilegiată înainte de mutații |
+| `browser_security` | Apropiat | Browsing contexts, origin/source postMessage și controale pereche; XS-Leaks/statistic separat |
+| `business_logic` | Apropiat | Storyboard/invariants/skip-reorder-replay; modelarea intră în MVP, mutațiile cer obiecte sintetice și cleanup |
+| `csrf` | Apropiat | Cookie/SameSite/origin, delivery browser și state readback; operație reversibilă și control protejat |
+| `header_injection` | Apropiat | Transformări headers/final handler; începe cu canary, mail/cache poisoning au fixture separat |
+| `http_request_smuggling` | Ulterior | Proxy-chain/raw bytes/paired responses; transport wire-level dedicat, nu proxyul normalizat MVP |
+| `idor` | Inițial | Subject × object × action și IDs A/B; BOLA read-only, regulă business DENY, owner/public/missing-object controls |
+| `information_disclosure` | Apropiat | Public vs restricționat, anonim/non-owner; metadata recon din MVP, finding doar cu date restricționate/canary |
+| `insecure_deserialization` | Ulterior | Format și prerechizite runtime/gadget, fixed control; no-op/callback autorizat, nu gadget pack universal |
+| `insecure_file_uploads` | Apropiat | Ingress→storage→processor→serving; obiect inert și cleanup; execuția și arhivele riscante au gate separat |
+| `llm_prompt_injection` | Ulterior | Invariant protejat, retrieval trigger, repeated controls și efect la sink; nu verdict din răspunsul LLM |
+| `mass_assignment` | Apropiat | Update legitim + câmp sensibil, control omis/alternativ și GET autoritativ; echo nu probează persistarea |
+| `nosql_injection` | Apropiat | Predicate opuse, tip/operator pe store identificat; obiect canary și validation-error control |
+| `open_redirect` | Apropiat | Parser/scheme/host/path, navigare și fiecare hop; destinație canary, nu presupus furt OAuth |
+| `path_traversal_lfi_rfi` | Inițial | Read-only canary și in-root/out-of-root controls; LFI/RFI/write/ZipSlip nu devin implicit parte din MVP |
+| `prototype_pollution` | Ulterior | Marker benign și efect pe obiect independent, reset de context; nu simplu JSON echo |
+| `race_conditions` | Ulterior | Invariant, baseline unic vs concurență sincronizată și ledger durabil; adapter bounded/reset |
+| `rce` | Ulterior | Sink/prerechizite/oracle canary/no-op și simulated-output control; fără persistence sau shell general implicit |
+| `semantic_confusion` | Apropiat | Transformări reprezentare A/B și capability edges; metodă transversală MVP, certificare pe perechi concrete |
+| `sql_injection` | Apropiat | Query shape, predicate true/false și noise controls; read-only canary, time/OAST separat, fără dump implicit |
+| `ssrf` | Apropiat | Callback server vs browser, redirect/parser boundaries; sink aprobat și nonce corelat, internal reach separat probat |
+| `ssti` | Apropiat | Expresii benigne distincte și engine differential; template evaluation nu implică RCE |
+| `subdomain_takeover` | Ulterior | DNS/provider/claimability cu provenance; recon lead devreme, resource claim separat autorizat |
+| `weak_password_detection` | Ulterior | Session/role proof și lockout observations; numai conturi/listă aprobate, nu breach lists/credential stuffing implicit |
+| `xss` | Inițial | Source→context→sink, encoding/CSP și execuție marker; reflected inițial, DOM/stored în extindere |
+| `xxe` | Apropiat | Parser capability/entity resolution și fixed control; canary XML/file/sink, fără entity-expansion DoS |
+
+### 12.2. Cele 46 de ghiduri suport
+
+Fiecare fișier este individual în inventarul JSON; gruparea de mai jos nu exclude niciuna dintre categorii.
+
+| Categorie / număr | Conținut reutilizat și plasare |
+|---|---|
+| analysis / 4 | Counterevidence și severity din MVP; source-aware discovery și fix verification cu consumatorul lor |
+| coordination / 2 | Root shared model, amendments și reconciliation; white-box coordonare în extensia source-aware |
+| custom / 4 | API-spec baseline/coverage, source-aware SAST, dependency identity și package-resolution checks; separă SCA exposure de exploit |
+| frameworks / 4 | Django, FastAPI, NestJS, Next.js ca overlays de context/guards/serializers/cache, nu patru motoare separate |
+| protocols / 2 | OAuth și GraphQL metodologie; GraphQL HTTP necesită extensie de capabilitate, nu activează subscriptions/WS |
+| reconnaissance / 2 | Asset discovery cu proveniență în MVP; infrastructure lifecycle ca leads și capabilitate ulterioară |
+| scan_modes / 4 | Quick/standard/deep/diff ca strategie și buget, niciodată ca niveluri diferite de autorizare |
+| technologies / 7 | Auth0/Firebase/Supabase/Grafana-Prometheus în extensia potrivită; AD/Electron/LLM-apps ulterior, cu scope propriu |
+| tooling / 13 | HTTPX/Katana/browser/Hurl/Hypothesis/Python: metode de recon/replay/testing; ffuf/Nuclei/sqlmap/subfinder/Semgrep cu adaptor; naabu/nmap în extensia network, nu MVP Web/API |
+| cloud / 4 | AWS/Azure/GCP/Kubernetes: identity/policy/resource/namespace graph și effective authority; knowledge păstrat, execuție numai după decizie separată de scope cloud |
+
+Ghidul unui tool nu este binarul toolului. De exemplu `tooling/httpx` desemnează utilitarul de recon ProjectDiscovery, nu biblioteca Python HTTPX; `tooling/python` păstrează organizarea cazurilor, nu dreptul la `exec_command`. Hurl oferă o metodă de replay/variables/assertions; nu adăugăm executabilul la MVP până la un adapter concret. Hypothesis este util inițial în CI pentru funcții pure și shrinking, nu ca fuzzer target necontorizat.[2]
+
+### 12.3. Pipeline de copiere și adaptare
+
+1. **Achiziție:** upstream pin, set exact de fișiere și digests, licență/attribution. Originalele rămân immutable/quarantine în afara catalogului activ.
+2. **Conversie fără pierderi:** ID calificat, YAML/frontmatter ca date, refuz de symlink/traversal/coliziuni; păstrează sursa, secțiunile preluate și patchul de adaptare. Nu executa Jinja/Python dintr-un import.
+3. **Adaptare metodologică:** rol/tool mapping, ipoteză/precondiții, semnal prezis și control, effect/cleanup, output schema și evidence refs; nu simplă înlocuire a numelui „Strix” cu „Omnis”.
+4. **Test de pachet:** golden pentru metodologie și prompt composition; vulnerable/fixed/benign/noisy/expired-auth și replay pentru procedura activă. Același principiu trebuie să funcționeze și pe o operație nedată ca soluție în prompt.
+5. **Publicare:** axe distincte pentru knowledge reviewed, dependency readiness, fixture evaluation și permission for run; publicarea produce revizie/digest, iar selecția ei este pentru runuri noi. Nu comprimăm toate axele într-un badge „validat”.
+
+Adaptări semantice importante: static source trace nu primește automat verdictul runtime; „două transporturi” este extindere de coverage, nu prerechizit universal pentru orice finding; safe sibling nu închide altă instanță; banner/CVE/config nu este implicit exploit; chain și cause-root rămân separate. Planul include atât contra-dovezi împotriva fals-pozitivelor, cât și păstrarea proof gaps pentru a evita fals-negativele.[2]
+
 ## Sources
 
 [2] https://github.com/usestrix/strix/tree/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2

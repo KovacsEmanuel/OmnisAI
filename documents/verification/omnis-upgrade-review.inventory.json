@@ -277,379 +277,1066 @@
       {
         "path": "analysis/counterevidence.md",
         "category": "analysis",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d",
+        "bytes": 9153,
+        "lines": 185,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Closure confirmed/ruled-out/proof-gap, named-control și redeschidere pe dovezi noi",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "analysis/fix_verification.md",
         "category": "analysis",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "0537302ced43a9a390aba6f5b704965e562409aeed19340062695268841dd264",
+        "bytes": 6003,
+        "lines": 129,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Applicability, original PoC, bypass, benign behavior, repository checks, withhold-fix",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "analysis/severity_calibration.md",
         "category": "analysis",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "87fde3fa53590168c5b19f99239066c19f62158dc3c9aab83d097f923b487a58",
+        "bytes": 5620,
+        "lines": 130,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Reachability înainte de rating, impact dovedit și condiții de schimbare",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "analysis/source_aware_discovery.md",
         "category": "analysis",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "5d0b9818f54b194b0b183926465c123aff19b53080e688dee78e3436316811cf",
+        "bytes": 10772,
+        "lines": 211,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Instanțe/call-sites separate, source-control-sink locations și family sweeps",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "cloud/aws.md",
         "category": "cloud",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "0b45273cb543c4316f216e50e248fd8d4d074a19fecceec26b95baf1c50293e4",
+        "bytes": 9816,
+        "lines": 231,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Principal/action/resource + policy/SCP boundary, minimal resource proof",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "cloud/azure.md",
         "category": "cloud",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "1e0854e285795f6592ce36cb6020a682bc74c7300c8e62382a2ab05c19401f1c",
+        "bytes": 20611,
+        "lines": 262,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Entra vs RBAC planes, PIM state, audience, deny assignments și credential-equivalent actions",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "cloud/gcp.md",
         "category": "cloud",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6c2a761c0d83d93e12e335e22e04508817e5d2e8d9840f0531ad45bcd137aaa8",
+        "bytes": 7938,
+        "lines": 194,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Project/IAM/service-account graph și effective permission evidence",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "cloud/kubernetes.md",
         "category": "cloud",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "90bc45d15f36abfc4581454e4f09dbc3a250792ee9a400a2d5cbc93aee75e492",
+        "bytes": 11551,
+        "lines": 223,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "RBAC/namespace/workload/network graph și actual authority",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "coordination/root_agent.md",
         "category": "coordination",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "1405ce4ba9fc38862195c7e65de2f6a1768f02a0490cdf8cb153137ee667834c",
+        "bytes": 5999,
+        "lines": 105,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Threat model comun, addenda, task decomposition, handoffs, dedup și open-item reconciliation",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "coordination/source_aware_whitebox.md",
         "category": "coordination",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "2efc20ae4d6589cbdd962fb66509c8bb3c99c772e856f015ed2f6880c3fb854e",
+        "bytes": 2150,
+        "lines": 47,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Source map → SAST/AST triage → dynamic validation",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "custom/api_spec_testing.md",
         "category": "custom",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "bc16c8b64d35cae9b3aa703f32d40f33e280617f1c0cdf8c05358fec98dd09bf",
+        "bytes": 3233,
+        "lines": 61,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Well-formed baseline per METHOD/path, authz two-account diffs și risk ordering",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "custom/dependency_cve_scanning.md",
         "category": "custom",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6e3f08707c2d31204f90f11862b360c25fbc95d0bbe3b9ff89baece91ec22b84",
+        "bytes": 19200,
+        "lines": 341,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Lockfile/ecosystem/version + advisory proof; SCA tip separat",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "custom/npx_confusion.md",
         "category": "custom",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "a024221c836dda755369d5bc8c51fc6dd5735a2b89044d94e446bd6615cc1b61",
+        "bytes": 16748,
+        "lines": 233,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Runner resolver + local missing executable + registry ownership + execution authority",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "custom/source_aware_sast.md",
         "category": "custom",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6746609351bf7bf78d9259fb7d8be558492fbde1df5251256bc9b14d2105bd7d",
+        "bytes": 8231,
+        "lines": 192,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Semgrep scope → AST structural map → secrets/SCA → reachable hypotheses",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "frameworks/django.md",
         "category": "frameworks",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "340a8e6af1748a6de6caff6e068277b5483c27ebe31a70af4593bbb54607e7a7",
+        "bytes": 9574,
+        "lines": 214,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "URL/view/serializer/permissions, DRF auth matrix și middleware differences",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "frameworks/fastapi.md",
         "category": "frameworks",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "0d3a9728e3007ec15f1c383f0339651a9882b37c705fd5014001d1356067f17f",
+        "bytes": 7447,
+        "lines": 191,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Router/route dependencies și HTTP/WebSocket authorization parity",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "frameworks/nestjs.md",
         "category": "frameworks",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "b8b80ff16b9dbb3356bbf3b45098a8c721654c586110a0518a0bdb49736c93e5",
+        "bytes": 10698,
+        "lines": 225,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Guards/pipes/interceptors/serialization, module și transport boundaries",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "frameworks/nextjs.md",
         "category": "frameworks",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "4fc68770c92c1c434b89cccc04bcf399da7b4e3369b9bde7d8ae8104faf94638",
+        "bytes": 7977,
+        "lines": 228,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Deployed routes vs build artifacts, actions, cache/identity, Edge/Node parity",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "protocols/graphql.md",
         "category": "protocols",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6bbad1805d0c16575deda46c149264d21398cb3f9b41b37acdb979e5478a5726",
+        "bytes": 7994,
+        "lines": 276,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Schema/type graph, principal × resolver/field, variables și federation parity",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "protocols/oauth.md",
         "category": "protocols",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "e8e3e342dceda15cb95e26f0dd3c290f59891b4b7f98ffcebd5ce2c4e7e8efcf",
+        "bytes": 8349,
+        "lines": 185,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Authorize → callback → token, state/PKCE/audience/client binding",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "reconnaissance/asset_discovery.md",
         "category": "reconnaissance",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "ed48059db9d39330d5ca665d5c46baf689f8c7aa038d42a09afa2c369010567c",
+        "bytes": 10436,
+        "lines": 150,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Provenance, CT/SAN/DNS correlation, live verification, dedup origins",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "reconnaissance/infrastructure_lifecycle.md",
         "category": "reconnaissance",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "09229335d0e216fbbb88a99dcb1b4a2143999526179cb0457bf849a9d709cdbc",
+        "bytes": 14500,
+        "lines": 226,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Trust-consumer graph, control/claimability levels, live triggers/signature checks",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "scan_modes/deep.md",
         "category": "scan_modes",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "a2716675ba0a12da93511460036106d6fd6f3655758f505e1933bd200771fa0b",
+        "bytes": 7354,
+        "lines": 164,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Storyboard complet, cross-boundary chains, revisit după clues",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "scan_modes/diff.md",
         "category": "scan_modes",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "a7b6ab15cd0ed411449f7813ba272cb95c34d79a897b48fed9cbb59583fd40a6",
+        "bytes": 3861,
+        "lines": 86,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Newly reachable bugs și removed/weakened controls, sibling impact",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "scan_modes/quick.md",
         "category": "scan_modes",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "98d97940332d543ce21a3d70c5505a1469db191c6c2ee8c9bfa1257ca57693e0",
+        "bytes": 3103,
+        "lines": 68,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Time-box și prioritate high-impact, validare minimală",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "scan_modes/standard.md",
         "category": "scan_modes",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "8a08601f0f6b08c6b19060f661323c0edbee46d2fdcb135794f6d5f441ee8fe5",
+        "bytes": 4023,
+        "lines": 99,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Recon → business model → systematic tests → proof → report, follow-up loop",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/active_directory.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "0257f4a92c1f79db9e3a23b86613b554bcd7ae15b2afde4a072556cc1bc74dbc",
+        "bytes": 14899,
+        "lines": 233,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Identity/ACL/delegation graph și exact privilege evidence",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/auth0.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "4eb05cedc4884c06704fca8c840f60f2a2ed988f1118d75f0c67c75a6e1ad13b",
+        "bytes": 7644,
+        "lines": 188,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Callback/origin, org/token audience și Rules/Actions boundaries",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/electron_desktop_apps.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "b7321b2eb3297e287b90d99a3f6ca1aa1857fc88ec1ef8024d0258fcb8f46303",
+        "bytes": 10826,
+        "lines": 181,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Renderer → preload → IPC → main; sender origin și navigation recheck",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/firebase.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "52da9f3ad44963f6c399c5a0bc40c57bac9e0b89973b21a943c1c931ad43e2e4",
+        "bytes": 11988,
+        "lines": 263,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Resource × action × principal; Storage rules distinct de GCS IAM",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/grafana_prometheus.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "652086c68cd38d2df7ac90b90ab2d1f78eedcbe7a803d0c0eebad3823fd2f993",
+        "bytes": 16814,
+        "lines": 189,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Auth matrix, observability surface, version prerequisites și pivot leads",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/llm_applications.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "25efa6489641ceddae829969b79ce7d4bcf2324dcc11a808a255e0b8df40bad4",
+        "bytes": 23532,
+        "lines": 257,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Data/authority map, corpus/model/prompt revisions, trials și sink proof",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "technologies/supabase.md",
         "category": "technologies",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6495396e516f3a6b0a8117908072cfb3f2d0df806fbaafc022c9ac4fe41ac651",
+        "bytes": 9527,
+        "lines": 268,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "RLS owner/non-owner/anon, REST/GraphQL/Storage/RPC parity",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/agent_browser.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "db15a63b79ada55911b945da954254f34934ff0fe28aed457e3846097d58fcd3",
+        "bytes": 20909,
+        "lines": 551,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Snapshot → action → wait → resnapshot, session isolation și evidence capture",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/ffuf.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "7b7d03d04c0245183a1da79190c1bb4fa5b0f129324213c5b2d088142e0b843f",
+        "bytes": 3347,
+        "lines": 72,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Matcher/filter calibration și structured results",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/httpx.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6156a2520aa99f50a5f798e38569cd3fe1ebd09421267b5b2d8182c3517313be",
+        "bytes": 3488,
+        "lines": 82,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Live/fingerprint probe metadata, JSONL și bounded rate",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/hurl.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "078340b51de7494c22413837a84bade02706c84f50cca27560ad67c300097b83",
+        "bytes": 4832,
+        "lines": 99,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Ordered request chains, captures și assertion per transition, vulnerable/fixed controls",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/hypothesis.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "5e7c80897579dba98b1fc9b1b665db9f24790462c37a65573148c35b989185da",
+        "bytes": 5059,
+        "lines": 100,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Invariants, differential pairs, shrinking și explicit minimized regression",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/katana.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "397520c5478ec36b6a52b6fdcbd55462bad7273f4e75f7e4cda0220f7f69514a",
+        "bytes": 5939,
+        "lines": 102,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Depth/JS/known-files crawl și provenance, time/page bounds",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/naabu.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "300945ad10e89b4bb4b95ae2c1136bf23a3f079dfd8f618dbff1f9ffcc5c8819",
+        "bytes": 2911,
+        "lines": 68,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Connect probe, verified ports, explicit units/rates",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/nmap.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "3005077292b8c961ffe430d8c1de7d45dce3f3ab348b3d892a87f595b6ca31b2",
+        "bytes": 2867,
+        "lines": 66,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "ulterior",
+        "retain": "Two-pass discovery/enrichment și per-script budget",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/nuclei.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "649df854283a986ad1a8c2e4664df9072ddcabe107344976f853858a899a061a",
+        "bytes": 2839,
+        "lines": 67,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Pinned template selection, machine output, independent validation",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/python.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "672bb2511081a19ac125cd8d33f732328ab73f617597d6858764239650dc5f72",
+        "bytes": 4102,
+        "lines": 109,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "MVP_initial",
+        "retain": "Iterative named-case/replay workflow și response parsing numai",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/semgrep.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "1de60189a3ff5d920ab7842659003349e06c061270c840768da6d35796870554",
+        "bytes": 3557,
+        "lines": 72,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Ruleset pin, scope/JSON/SARIF, metrics-off, baseline diff",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/sqlmap.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "fa59e2ea3ce29ee8aab17c91ddcaebed23c7e46c5ec46f74e19d2aa81be72d31",
+        "bytes": 2876,
+        "lines": 67,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Param/technique targeting, reproducible request și scan state",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "tooling/subfinder.md",
         "category": "tooling",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "e1ca614b5dd38481504edd77dd2a3f33ef637ba2d27d53c3e3929d6e223f7956",
+        "bytes": 2577,
+        "lines": 66,
+        "review_depth": "selected_sections_and_metadata",
+        "phase": "extindere_apropiata",
+        "retain": "Source-attributed passive discovery și rate/source bounds",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/agentic_system_security.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "c1319e1a37bea036341db83ccf34f7f420351d3c0daade0e7257638e3e261750",
+        "bytes": 15044,
+        "lines": 207,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Harta autorității efective, identitatea tool/server/schema, control vs efect real",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/argument_injection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "82089c81be32128492de0c1b06b3c2daefd9a9b286298d497a851683d3554a1c",
+        "bytes": 8823,
+        "lines": 157,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Lanț de parsere argv/config, operand vs opțiune, control literal",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/authentication_jwt.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "2dcfb868bd81e8e69bfa0b8b504729719721a53504a74ff5f97afe55983a515f",
+        "bytes": 8447,
+        "lines": 166,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Matrice token-type × audience × service; owner/non-owner diferență unică",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/broken_function_level_authorization.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "4797d23dc0fe8d09a0c2d3a855a407b3f9eb8dec3abf655d63c97a272bfde4d3",
+        "bytes": 6720,
+        "lines": 154,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Actor × action; UI vs backend; înainte/după din sursa autoritativă",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/browser_security.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "934e878edbc551a36bd1264658d26b787fa6942911917691330f2e081955d395",
+        "bytes": 12947,
+        "lines": 192,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Graf browsing contexts, origin/source postMessage, paired controls",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/business_logic.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "d8e865aa0517942b4bd89e2f43b82c46e98aec89230e76fcedcbc463bf4e0eee",
+        "bytes": 9269,
+        "lines": 178,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Storyboard, state machine, invariants, skip/reorder/replay și readback durabil",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/csrf.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "aaf01a435e09734d8fbc18424727336a473f38c1241b33d212ae1cebe6820974",
+        "bytes": 8145,
+        "lines": 198,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Cookie/SameSite/origin matrice, delivery browser și state readback",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/header_injection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "8f7c186dadc7979f619dcd9e2fac9261d9490c8b3581448154b1e2112fbf351c",
+        "bytes": 16244,
+        "lines": 216,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Headers variabile, final handler, Host/link și auth differential",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/http_request_smuggling.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "8e8613192c9c40b6065f9c7360c01bd6e87dcdf7665a591db8b21082f16ae5ec",
+        "bytes": 11912,
+        "lines": 255,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Proxy-chain model, raw bytes, prefix canary și paired responses",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/idor.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "2b97ead5254ab3e3fec92c3edafcd3eb619e59264c9f743c844bdadfcc1d0659",
+        "bytes": 10379,
+        "lines": 217,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "MVP_initial",
+        "retain": "Subject × object × action, IDs valide A/B, ownership și empty/null control",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/information_disclosure.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "1d1e371f93983609ba66b70e33fd9d832d292c015854ac8a867c1304860efe5b",
+        "bytes": 9355,
+        "lines": 187,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Public vs restricționat, owner/non-owner/anon, triage impact",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/insecure_deserialization.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "7489f280bd5e7f9b2f55e1d2753777aa13565fe3f6bc1b9b1564d690918f9224",
+        "bytes": 11308,
+        "lines": 210,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Format + reachable graph + runtime/gadget prereqs; fixed-instance control",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/insecure_file_uploads.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "7086e432e86b52a139abc93f46cb5293fcc57d332dc20b3e2cd91831b9b85cbe",
+        "bytes": 9544,
+        "lines": 194,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Ingress → storage → processors → serving; detector/consumer mismatch",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/llm_prompt_injection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "d300cb05bd641199ec7bccead25afca66e44bc8cc8855fdda1fc27b1a80d5dbb",
+        "bytes": 11074,
+        "lines": 187,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Invariant protejat, normal retrieval trigger, matched repeated trials, sink proof",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/mass_assignment.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "a299b7272911f1b33dbfe4402d3912b3328b23e15ceca9d8a6a646853a2724d5",
+        "bytes": 6289,
+        "lines": 153,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Sensitive-field dictionary, same legitimate update plus extra field, persisted GET",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/nosql_injection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "2625feb5ef614853271de8f266eefd48ef864df87dc82f440257d23cfc319d41",
+        "bytes": 14607,
+        "lines": 288,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Boolean true/false oracle; tipuri și operators pe store identificat",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/open_redirect.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "39292f59e1d784012f62e3de7bc846143757257341e0a7a7db95fb1e222e49a9",
+        "bytes": 6673,
+        "lines": 165,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Scheme/host/path/parser matrix; full navigation și fiecare hop",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/path_traversal_lfi_rfi.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "53699702c52ea9495d10065c038cd1f8d4dc603e796028aa00f5192150473942",
+        "bytes": 10316,
+        "lines": 218,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "MVP_initial",
+        "retain": "Input joins/normalization, in-root vs out-of-root control, hashes",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/prototype_pollution.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "8d1cf48adfcd6839fc5c5e391b9cf612f79f991f6b62699a733456be3984dc6e",
+        "bytes": 6995,
+        "lines": 142,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Benign prototype marker; efect pe obiecte independente, nu JSON echo",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/race_conditions.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "cbf58b3849b91e285f614fe3f2cb080bda6afad1a8847645a533cce9403cab0b",
+        "bytes": 7845,
+        "lines": 181,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Invariants, single baseline vs synchronized concurrency, durable ledger",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/rce.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "e248a37c186dc2804f2ef6279713f678aca2224d85549e8ba2094b2fc2506df3",
+        "bytes": 8449,
+        "lines": 250,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Sink mapping și oracle determinist, context/prereqs, simulated-output control",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/semantic_confusion.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "5b3ebda3fdb48993b3f2cc5afb797343948b44fac4e5cd23b8e00a0712660f38",
+        "bytes": 12776,
+        "lines": 189,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Representation A vs B, transformation graph, paired inputs și capability edges",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/sql_injection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "c39e057acccca4f858c425856f6a493c305575086d535059b4a13ebdfbe8f4a0",
+        "bytes": 8477,
+        "lines": 190,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Query-shape, toggled predicates, quiet boolean oracle, error/noise controls",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/ssrf.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "5f1f8e228967b0986978fddd119bb50fa4792cfb970c1d3bff9ab2c480b5859a",
+        "bytes": 8479,
+        "lines": 186,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Server-initiated vs browser callback, URL parser și redirect boundaries",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/ssti.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "c0a2303674917aeb7da9d3445920aea26372b4f46e5c76a31577e1b9a709b2aa",
+        "bytes": 19001,
+        "lines": 270,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Două expresii distincte evaluate; engine differential, client vs server",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/subdomain_takeover.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "6699a954592e9686e17b4b1698a1ca5d8ac68a297ae7f9bfeaaa639f6d0ae69b",
+        "bytes": 8481,
+        "lines": 167,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "DNS chain + provider fingerprint + claimability + trusted-origin chain",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/weak_password_detection.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "21b1e25aa23ed0083a1dc6b3156b14a44651dfdb62aef24fd090ab8bb20beace",
+        "bytes": 9859,
+        "lines": 200,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "ulterior",
+        "retain": "Positive session proof, MFA/role verification, rate/lockout observations",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/xss.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "f219113bcb5732d6499bbe2d07d0eab16e3e1e52574d6b3fddb58db68287a43b",
+        "bytes": 7452,
+        "lines": 206,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "MVP_initial",
+        "retain": "Source → context → sink, encoding/CSP/Trusted Types, runtime DOM evidence",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       },
       {
         "path": "vulnerabilities/xxe.md",
         "category": "vulnerabilities",
-        "kind": "guide"
+        "kind": "guide",
+        "sha256": "be155d5f7fb4eace05a90ecd2b031371fefefc88d22fa29893614f978e0bc6ae",
+        "bytes": 7385,
+        "lines": 223,
+        "review_depth": "methodology_validation_false_positive_sections",
+        "phase": "extindere_apropiata",
+        "retain": "Parser capability vs entity resolution, request-correlated callback, fixed control",
+        "import_status": "source_reviewed_not_imported",
+        "execution_certified": false,
+        "phase_semantics": "prioritate de capabilitate propusă; numai subsetul revizuit, nu întregul ghid executabil"
       }
-    ]
+    ],
+    "manifest_digest": {
+      "algorithm": "sha256",
+      "encoding": "sorted upstream_path + NUL + raw-file sha256 + LF, UTF-8, README excluded",
+      "value": "68a1b4438ab813e42cbe38cd7e3c102ae9ff1182b66b5a2e5cc071bfec590a53"
+    },
+    "vulnerability_phase_counts": {
+      "ulterior": 10,
+      "extindere_apropiata": 16,
+      "MVP_initial": 3
+    },
+    "license_sha256": "7db9697134251e314bd8d39257fe170c98b3e2ad9b2ed67e97acaf9613e7b9e3",
+    "reading_limits": "Methodology/validation/false-positive sections for all 29 vulnerability guides; core transversal guides and selected sections/metadata of the rest. Not a full payload/command/link audit."
   },
   "reuse_probe": {
     "kind": "isolated upstream pure-function extraction probe",

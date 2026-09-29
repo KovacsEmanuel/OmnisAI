@@ -12,6 +12,7 @@ import threading
 import time
 import unittest
 from contextlib import redirect_stdout
+from copy import deepcopy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
@@ -133,14 +134,25 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     },
                 },
                 "Image": image_id,
-                "HostConfig": {"Privileged": False},
+                "HostConfig": {
+                    "Privileged": False,
+                    "ReadonlyRootfs": True,
+                    "CapDrop": ["ALL"],
+                    "SecurityOpt": ["no-new-privileges:true"],
+                },
                 "Mounts": [
                     {
+                        "Type": "bind",
                         "Destination": "/run/omnis-control",
                         "Source": str(state / "control"),
                         "RW": False,
                     },
-                    {"Destination": "/run/omnis-http", "Source": str(state / "http"), "RW": True},
+                    {
+                        "Type": "bind",
+                        "Destination": "/run/omnis-http",
+                        "Source": str(state / "http"),
+                        "RW": True,
+                    },
                 ],
                 "NetworkSettings": {"Ports": {}, "Networks": {f"{project}_control": {}}},
                 "State": {"Running": True},
@@ -161,6 +173,118 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     ),
                     item,
                 )
+            for variant in ("extra-bind", "writable-rootfs", "retained-caps", "no-privileges-off"):
+                with self.subTest(variant=variant):
+                    unsafe = deepcopy(item)
+                    if variant == "extra-bind":
+                        unsafe["Mounts"].append(
+                            {
+                                "Type": "bind",
+                                "Destination": "/etc",
+                                "Source": str(state / "foreign"),
+                                "RW": True,
+                            }
+                        )
+                    elif variant == "writable-rootfs":
+                        unsafe["HostConfig"]["ReadonlyRootfs"] = False
+                    elif variant == "retained-caps":
+                        unsafe["HostConfig"]["CapDrop"] = []
+                    else:
+                        unsafe["HostConfig"]["SecurityOpt"] = []
+                    with (
+                        patch("control_topology._inspect", return_value=unsafe),
+                        patch("control_topology._expected_image_id", return_value=image_id),
+                        self.assertRaises(AssertionError),
+                    ):
+                        _owned_container(
+                            "unix:///owned/docker.sock",
+                            "owned-api",
+                            state,
+                            project,
+                            image_id,
+                            state,
+                            8765,
+                        )
+
+    def test_runtime_db_has_only_owned_data_and_readonly_secret_mounts(self):
+        project = "omnis-local-" + "a" * 32
+        image_id = "sha256:" + "b" * 64
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            item = {
+                "Id": "owned-db",
+                "Config": {
+                    "Image": _POSTGRES,
+                    "Labels": {
+                        "com.docker.compose.project": project,
+                        "com.docker.compose.service": "db",
+                    },
+                },
+                "Image": image_id,
+                "HostConfig": {"Privileged": False},
+                "Mounts": [
+                    {
+                        "Type": "bind",
+                        "Source": str(state / "postgres"),
+                        "Destination": "/var/lib/postgresql",
+                        "RW": True,
+                    },
+                    {
+                        "Type": "bind",
+                        "Source": str(state / "db-password"),
+                        "Destination": "/run/secrets/db_password",
+                        "RW": False,
+                    },
+                ],
+                "NetworkSettings": {"Ports": {}, "Networks": {f"{project}_control": {}}},
+                "State": {"Running": True},
+            }
+            with (
+                patch("control_topology._inspect", return_value=item),
+                patch("control_topology._expected_image_id", return_value=image_id),
+            ):
+                self.assertEqual(
+                    _owned_container(
+                        "unix:///owned/docker.sock",
+                        "owned-db",
+                        state,
+                        project,
+                        image_id,
+                        state,
+                        8765,
+                    ),
+                    item,
+                )
+            for variant in ("extra-bind", "writable-secret", "foreign-secret"):
+                with self.subTest(variant=variant):
+                    unsafe = deepcopy(item)
+                    if variant == "extra-bind":
+                        unsafe["Mounts"].append(
+                            {
+                                "Type": "bind",
+                                "Source": str(state / "foreign"),
+                                "Destination": "/etc",
+                                "RW": True,
+                            }
+                        )
+                    elif variant == "writable-secret":
+                        unsafe["Mounts"][1]["RW"] = True
+                    else:
+                        unsafe["Mounts"][1]["Source"] = str(state / "foreign")
+                    with (
+                        patch("control_topology._inspect", return_value=unsafe),
+                        patch("control_topology._expected_image_id", return_value=image_id),
+                        self.assertRaises(AssertionError),
+                    ):
+                        _owned_container(
+                            "unix:///owned/docker.sock",
+                            "owned-db",
+                            state,
+                            project,
+                            image_id,
+                            state,
+                            8765,
+                        )
 
     def test_timeout_cleanup_cannot_claim_a_settled_daemon(self):
         output = io.StringIO()
@@ -289,10 +413,25 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     },
                 },
                 "Image": image_id,
-                "HostConfig": {"Privileged": False},
+                "HostConfig": {
+                    "Privileged": False,
+                    "ReadonlyRootfs": True,
+                    "CapDrop": ["ALL"],
+                    "SecurityOpt": ["no-new-privileges:true"],
+                },
                 "Mounts": [
-                    {"Destination": "/run/omnis-control", "Source": str(control), "RW": False},
-                    {"Destination": "/run/omnis-http", "Source": str(http), "RW": True},
+                    {
+                        "Type": "bind",
+                        "Destination": "/run/omnis-control",
+                        "Source": str(control),
+                        "RW": False,
+                    },
+                    {
+                        "Type": "bind",
+                        "Destination": "/run/omnis-http",
+                        "Source": str(http),
+                        "RW": True,
+                    },
                 ],
                 "NetworkSettings": {
                     "Ports": {},
@@ -317,7 +456,13 @@ class InstalledControlPreflightTest(unittest.TestCase):
                         "Destination": "/var/lib/postgresql",
                         "Source": str(state / "postgres"),
                         "RW": True,
-                    }
+                    },
+                    {
+                        "Type": "bind",
+                        "Destination": "/run/secrets/db_password",
+                        "Source": str(state / "db-password"),
+                        "RW": False,
+                    },
                 ],
                 "NetworkSettings": {
                     "Ports": {"5432/tcp": None},
@@ -470,7 +615,14 @@ class InstalledControlPreflightTest(unittest.TestCase):
                         "Type": "bind",
                         "Source": str(state / "postgres"),
                         "Destination": "/var/lib/postgresql",
-                    }
+                        "RW": True,
+                    },
+                    {
+                        "Type": "bind",
+                        "Source": str(state / "db-password"),
+                        "Destination": "/run/secrets/db_password",
+                        "RW": False,
+                    },
                 ],
                 "NetworkSettings": {
                     "Ports": {"5432/tcp": None},

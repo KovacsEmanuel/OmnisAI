@@ -719,6 +719,10 @@ class ReleaseBundleTest(unittest.TestCase):
             self.assertFalse(service.get("privileged", False))
             self.assertNotIn("/var/run/docker.sock", json.dumps(service))
             self.assertEqual(set(service["networks"]), {"control"})
+        for name in ("api", "supervisor"):
+            self.assertTrue(services[name].get("read_only"))
+            self.assertEqual(services[name].get("cap_drop"), ["ALL"])
+            self.assertEqual(services[name].get("security_opt"), ["no-new-privileges:true"])
         self.assertEqual(services["api"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(services["supervisor"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(len(services["db"]["volumes"]), 1)
@@ -1122,6 +1126,10 @@ class ReleaseBundleTest(unittest.TestCase):
             )
             self.assert_compose_config(installed_root, scratch)
             compose_source = (installed_root / "ops/compose.yaml").read_text()
+            api_security = (
+                "    read_only: true\n    cap_drop: [ALL]\n"
+                '    security_opt: [no-new-privileges:true]\n    networks: [control]\n    restart: "no"\nsecrets:'
+            )
             regressions = [
                 (
                     "foreign-port",
@@ -1140,6 +1148,23 @@ class ReleaseBundleTest(unittest.TestCase):
                     "wrong-secret",
                     "POSTGRES_PASSWORD_FILE: /run/secrets/db_password",
                     "POSTGRES_PASSWORD_FILE: /other-secret",
+                ),
+                (
+                    "writable-api-rootfs",
+                    api_security,
+                    api_security.replace("read_only: true", "read_only: false", 1),
+                ),
+                (
+                    "retained-api-caps",
+                    api_security,
+                    api_security.replace("cap_drop: [ALL]", "cap_drop: []", 1),
+                ),
+                (
+                    "api-privilege-escalation",
+                    api_security,
+                    api_security.replace(
+                        "security_opt: [no-new-privileges:true]", "security_opt: []", 1
+                    ),
                 ),
             ]
             for label, original, changed in regressions:

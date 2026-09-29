@@ -189,6 +189,14 @@ def _attest_container_identity(
     item = _inspect(host, ident, scratch)
     if item is None:
         raise AssertionError("Owned container missing")
+    host_config = item["HostConfig"]
+    mounts = item["Mounts"]
+    if (
+        not isinstance(host_config, dict)
+        or not isinstance(mounts, list)
+        or any(not isinstance(m, dict) for m in mounts)
+    ):
+        raise AssertionError("Invalid runtime confinement or mounts")
     config = item["Config"]
     labels = config["Labels"]
     service = labels.get("com.docker.compose.service")
@@ -199,36 +207,39 @@ def _attest_container_identity(
         or service not in {"db", "api", "supervisor"}
         or config["Image"] != expected
         or item["Image"] != _expected_image_id(host, expected, scratch)
-        or item["HostConfig"]["Privileged"] is not False
+        or host_config["Privileged"] is not False
         or any(
             m.get("Destination") == "/var/run/docker.sock"
             or m.get("Source") in {"/var/run/docker.sock", "/run/docker.sock"}
-            for m in item["Mounts"]
+            for m in mounts
         )
     ):
         raise AssertionError("Foreign or incompatible container")
-    mounts = item["Mounts"]
+    actual_mounts = {
+        (m.get("Type"), m.get("Source"), m.get("Destination"), m.get("RW")) for m in mounts
+    }
     if service == "db":
-        if not any(
-            m["Type"] == "bind"
-            and m["Source"] == str(state_root / "postgres")
-            and m["Destination"] == "/var/lib/postgresql"
-            for m in mounts
-        ):
-            raise AssertionError("PostgreSQL bind identity mismatch")
+        expected_mounts = {
+            ("bind", str(state_root / "postgres"), "/var/lib/postgresql", True),
+            ("bind", str(state_root / "db-password"), "/run/secrets/db_password", False),
+        }
+        if len(mounts) != len(expected_mounts) or actual_mounts != expected_mounts:
+            raise AssertionError("PostgreSQL data or secret mount mismatch")
     else:
-        control = [m for m in mounts if m["Destination"] == "/run/omnis-control"]
+        expected_mounts = {
+            ("bind", str(state_root / "control"), "/run/omnis-control", service == "supervisor")
+        }
+        if service == "api":
+            expected_mounts.add(("bind", str(state_root / "http"), "/run/omnis-http", True))
         if (
             config["User"] != f"{os.getuid()}:{os.getgid()}"
-            or len(control) != 1
-            or control[0]["Source"] != str(state_root / "control")
-            or control[0]["RW"] is (service == "api")
+            or host_config.get("ReadonlyRootfs") is not True
+            or host_config.get("CapDrop") != ["ALL"]
+            or host_config.get("SecurityOpt") != ["no-new-privileges:true"]
+            or len(mounts) != len(expected_mounts)
+            or actual_mounts != expected_mounts
         ):
-            raise AssertionError("Control UID or socket mount mismatch")
-        if service == "api":
-            http = [m for m in mounts if m["Destination"] == "/run/omnis-http"]
-            if len(http) != 1 or http[0]["Source"] != str(state_root / "http") or not http[0]["RW"]:
-                raise AssertionError("Private HTTP socket mount mismatch")
+            raise AssertionError("Control UID, confinement or mount mismatch")
     return item
 
 

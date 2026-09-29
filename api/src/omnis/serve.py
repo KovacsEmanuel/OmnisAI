@@ -176,14 +176,16 @@ def main() -> int:
             child_pidfd = os.pidfd_open(child_pid)
         except OSError:
             # Never keep serving without a stable identity for shutdown signals.
+            owned_pid = child_pid
+            child_pid = None  # Disable numeric forwarding before any waitpid can reap it.
             try:
-                os.kill(child_pid, signal.SIGKILL)
+                os.kill(owned_pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
             reap_deadline = time.monotonic() + 2
             while time.monotonic() < reap_deadline:
-                reaped, _status = os.waitpid(child_pid, os.WNOHANG)
-                if reaped == child_pid:
+                reaped, _status = os.waitpid(owned_pid, os.WNOHANG)
+                if reaped == owned_pid:
                     break
                 time.sleep(0.05)
             return 4

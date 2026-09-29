@@ -204,6 +204,39 @@ def test_signal_after_reap_never_targets_a_recycled_child_pid() -> None:
     assert process.returncode == 0  # The child had already finished successfully.
 
 
+def test_pidfd_failure_never_targets_child_pid_after_reap() -> None:
+    code = (
+        "import os, signal\n"
+        "import omnis.serve as m\n"
+        "real_kill, real_waitpid = os.kill, os.waitpid\n"
+        "retired = [-1]\n"
+        "def checked_kill(pid, signum):\n"
+        "    if pid == retired[0]:\n"
+        "        print('PIDFD_FAILURE_TARGETED_REAPED_PID', flush=True)\n"
+        "        raise RuntimeError('Reaped child was targeted')\n"
+        "    return real_kill(pid, signum)\n"
+        "def injected_waitpid(pid, options):\n"
+        "    result = real_waitpid(pid, options)\n"
+        "    if result[0] == pid and retired[0] == -1:\n"
+        "        retired[0] = pid\n"
+        "        os.kill(os.getpid(), signal.SIGTERM)\n"
+        "    return result\n"
+        "def unavailable(pid): raise OSError('pidfd unavailable')\n"
+        "os.kill, os.waitpid, os.pidfd_open = checked_kill, injected_waitpid, unavailable\n"
+        "m._child_main = lambda: 0\n"
+        "raise SystemExit(m.main())\n"
+    )
+    process = subprocess.run(
+        [sys.executable, "-I", "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+    assert "PIDFD_FAILURE_TARGETED_REAPED_PID" not in process.stdout
+    assert process.returncode == 4
+
+
 @pytest.mark.asyncio
 async def test_cancelled_api_start_releases_the_private_socket_and_lock(
     monkeypatch: pytest.MonkeyPatch,

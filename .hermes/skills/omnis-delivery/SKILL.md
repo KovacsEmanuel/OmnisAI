@@ -39,6 +39,7 @@ Use hypotheses instead of confidence claims; prefer removing accidental complexi
 - Do not load the entire skill catalog into each child. Give it the contract and the few relevant skills/files.
 - Prompt wording cannot enforce commits or make side effects reversible. Git readback and external-state checks remain necessary.
 - Name the product command and acceptance row advanced by each slice. If two review/repair cycles improve only harness evidence without advancing that row, checkpoint the WIP honestly, stop expanding the harness, and choose the next product or prerequisite slice. A blocked process proof remains `UNCERTAIN`, not an invitation to simulate a clean result.
+- Project-local `.hermes/skills/` are versioned repo files, not the active profile's personal catalog. If `skill_manage` cannot find a project skill, use `patch` on its repo `SKILL.md` instead of creating a duplicate personal skill; verify with `skill_view`, then stage only the intended repo path.
 
 ## Verification
 Every claimed acceptance criterion has real output; every intended change belongs to a verified commit; independent review issues are resolved or explicitly block delivery. A fresh session can recover the decision from Git and versioned notes, without chat history.

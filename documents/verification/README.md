@@ -10,6 +10,8 @@
 
 **Supliment pentru următorul OK:** [module editabile, research contextual, wordlists și îmbunătățire continuă prin Hermes](omnis-modularity-research-supplement.md), cu [codul de preluat pe SHA/fișier/simbol/intervale de linii](omnis-modularity-research-supplement.reuse.json). Definește extensiile și amendamentele exacte, fără să modifice arhitectura/planul sau să activeze maintenance/scanări.
 
+**Predare finală pentru amendare:** [contractele de mission prompt/full–focused, skills/tehnici, Brain→copii, unelte reale și evaluare comparativă](omnis-final-amendment-handoff.md). Include cerința cea mai nouă a operatorului: prompt în setup web pentru un obiectiv/test focalizat, nu numai pentest complet. Arhitectura/planul/UI/stackul canonic așteaptă sesiunea de amendare autorizată; acest dosar nu implementează runtime-ul.
+
 ## Reproducere în scratch
 
 Copiază subdirectorul dorit în scratch (`$TMPDIR`, nu în runtime-ul personal). Folosește exact Node 24.21.0/npm 11.19.0 sau CPython 3.13.15/uv 0.12.19 din baseline. Instalarea pachetelor are nevoie de rețea către registry; probele nu cer conturi AI.

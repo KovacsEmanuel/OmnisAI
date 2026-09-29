@@ -4,6 +4,8 @@
 
 **Implementare locală actuală:** [P0.1](p01-local-readiness.md) · [P0.2](p02-local-control.md) · [calitate Python](p02-python-quality.md) · [P0.3 bootstrap/pairing](p03-local-bootstrap.md), cu [rezultate browser](p03-browser.json) și capturi în `p03-ui/` · [P0.4 topologie host-only parțială](p04-host-uds.md) · [fixture PostgreSQL fără publicație Docker](p04-safe-test-db.md) · [adjudecarea buclei P0.4 și calea critică](p04-loop-adjudication.md). Aceste dovezi sunt separate de probele istorice de mai jos. G00/P0.4 și CI remote nu sunt închise implicit de existența unui raport.
 
+**Pentru review într-o sesiune fresh, nu baseline aprobat:** [dosarul de amendamente pentru capabilități pentest, reutilizare Strix, bucle, web/UX și Jev](omnis-pentest-review-proposal.md). Identifică fișierele/secțiunile de schimbat și sursele, dar nu modifică planul canonic, gates, codul produsului sau autorizația de scanare; înainte de aplicare se cere decizia operatorului și se recitește checkoutul.
+
 ## Reproducere în scratch
 
 Copiază subdirectorul dorit în scratch (`$TMPDIR`, nu în runtime-ul personal). Folosește exact Node 24.21.0/npm 11.19.0 sau CPython 3.13.15/uv 0.12.19 din baseline. Instalarea pachetelor are nevoie de rețea către registry; probele nu cer conturi AI.

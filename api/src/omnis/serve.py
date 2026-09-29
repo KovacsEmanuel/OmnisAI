@@ -6,9 +6,12 @@ import os
 import signal
 import socket
 import sys
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
+from types import FrameType
 
 import uvicorn
 
@@ -111,13 +114,108 @@ async def serve() -> None:
                 loop.remove_signal_handler(sig)
 
 
-def main() -> int:
+def _child_main() -> int:
     try:
         asyncio.run(serve())
     except (OSError, ValueError):
         print("API_UNAVAILABLE", file=sys.stderr)
         return 3
     return 0
+
+
+@dataclass
+class _StopRequest:
+    at: float | None = None
+    signum: int | None = None
+
+
+def main() -> int:
+    """Own a separate API process so a blocked event loop cannot stall SIGTERM."""
+    child_pid: int | None = None
+    child_pidfd: int | None = None
+    stop = _StopRequest()
+
+    def request_stop(signum: int, _frame: FrameType | None) -> None:
+        if stop.at is None:
+            stop.at = time.monotonic()
+            stop.signum = signum
+        if child_pidfd is not None:
+            try:
+                signal.pidfd_send_signal(child_pidfd, signum)
+            except ProcessLookupError:
+                pass
+        elif child_pid is not None and child_pid > 0:
+            # This child has not been reaped; its numeric PID cannot be reused yet.
+            try:
+                os.kill(child_pid, signum)
+            except ProcessLookupError:
+                pass
+
+    previous = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    try:
+        for sig in previous:
+            signal.signal(sig, request_stop)
+        try:
+            child_pid = os.fork()
+        except OSError:
+            print("API_UNAVAILABLE", file=sys.stderr)
+            return 3
+        if child_pid == 0:
+            for sig in previous:
+                signal.signal(sig, signal.SIG_DFL)
+            try:
+                code = 4 if stop.at is not None else _child_main()
+            except BaseException:
+                print("API_UNAVAILABLE", file=sys.stderr, flush=True)
+                code = 3
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(code)
+
+        try:
+            child_pidfd = os.pidfd_open(child_pid)
+        except OSError:
+            # Never keep serving without a stable identity for shutdown signals.
+            try:
+                os.kill(child_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            reap_deadline = time.monotonic() + 2
+            while time.monotonic() < reap_deadline:
+                reaped, _status = os.waitpid(child_pid, os.WNOHANG)
+                if reaped == child_pid:
+                    break
+                time.sleep(0.05)
+            return 4
+
+        if stop.signum is not None:
+            request_stop(stop.signum, None)
+        while True:
+            reaped, status = os.waitpid(child_pid, os.WNOHANG)
+            if reaped == child_pid:
+                code = os.waitstatus_to_exitcode(status)
+                if stop.at is not None:
+                    return 0 if code == 0 else 4
+                return code if code in {0, 2, 3, 4} else 3
+            if stop.at is not None and time.monotonic() - stop.at >= 10:
+                try:
+                    signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                reap_deadline = time.monotonic() + 2
+                while time.monotonic() < reap_deadline:
+                    reaped, _status = os.waitpid(child_pid, os.WNOHANG)
+                    if reaped == child_pid:
+                        break
+                    time.sleep(0.05)
+                return 4
+            time.sleep(0.05)
+    finally:
+        if child_pid != 0:
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
+            if child_pidfd is not None:
+                os.close(child_pidfd)
 
 
 if __name__ == "__main__":

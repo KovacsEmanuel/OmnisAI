@@ -61,12 +61,147 @@ def test_stalled_server_shutdown_has_a_hard_process_deadline() -> None:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.communicate(timeout=5)
                 raise AssertionError("API shutdown exceeded its hard deadline") from None
-            assert process.returncode == 3
+            assert process.returncode == 4
             assert not (directory / "api.sock").exists()
         finally:
             if process.poll() is None:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.communicate(timeout=5)
+
+
+def test_blocked_api_event_loop_is_killed_by_an_independent_owner() -> None:
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+        directory = Path(name)
+        code = (
+            "import os, time\n"
+            "import omnis.serve as m\n"
+            "async def blocked(self, sockets=None):\n"
+            "    print('BLOCKED_API_STARTED', os.getpid(), flush=True)\n"
+            "    while True: time.sleep(60)\n"
+            "m.uvicorn.Server.serve = blocked\n"
+            "raise SystemExit(m.main())\n"
+        )
+        process = subprocess.Popen(
+            [sys.executable, "-I", "-c", code],
+            cwd=directory,
+            env={
+                "PATH": os.environ.get("PATH", ""),
+                "OMNIS_HTTP_DIR": str(directory),
+                "OMNIS_HTTP_PORT": "8765",
+            },
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
+        try:
+            assert process.stdout is not None
+            readable, _, _ = select.select([process.stdout], [], [], 5)
+            assert readable, "The blocked API process did not start"
+            marker, child_pid = process.stdout.readline().split()
+            assert marker == "BLOCKED_API_STARTED"
+            assert int(child_pid) > 0
+            os.kill(process.pid, signal.SIGTERM)
+            try:
+                process.communicate(timeout=12)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.communicate(timeout=5)
+                raise AssertionError("Blocked API event loop outlived the process owner") from None
+            assert process.returncode == 4
+            assert not Path(f"/proc/{child_pid}").exists()
+            with private_http_listener(directory):
+                assert (directory / "api.sock").is_socket()
+            assert not (directory / "api.sock").exists()
+        finally:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.communicate(timeout=5)
+
+
+def test_cancel_resistant_lifespan_task_is_killed_by_the_process_owner() -> None:
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+        directory = Path(name)
+        code = (
+            "import asyncio, os\n"
+            "import omnis.serve as m\n"
+            "async def leaked():\n"
+            "    while True:\n"
+            "        try: await asyncio.sleep(1)\n"
+            "        except asyncio.CancelledError: pass\n"
+            "async def stopped(self, sockets=None):\n"
+            "    asyncio.create_task(leaked())\n"
+            "    print('LEAKING_API_STARTED', os.getpid(), flush=True)\n"
+            "    while not self.should_exit: await asyncio.sleep(0.05)\n"
+            "m.uvicorn.Server.serve = stopped\n"
+            "raise SystemExit(m.main())\n"
+        )
+        process = subprocess.Popen(
+            [sys.executable, "-I", "-c", code],
+            cwd=directory,
+            env={
+                "PATH": os.environ.get("PATH", ""),
+                "OMNIS_HTTP_DIR": str(directory),
+                "OMNIS_HTTP_PORT": "8765",
+            },
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
+        try:
+            assert process.stdout is not None
+            readable, _, _ = select.select([process.stdout], [], [], 5)
+            assert readable, "The cancellation-resistant API process did not start"
+            marker, child_pid = process.stdout.readline().split()
+            assert marker == "LEAKING_API_STARTED"
+            assert int(child_pid) > 0
+            os.kill(process.pid, signal.SIGTERM)
+            try:
+                process.communicate(timeout=12)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.communicate(timeout=5)
+                raise AssertionError("Lingering lifespan task outlived the process owner") from None
+            assert process.returncode == 4
+            assert not Path(f"/proc/{child_pid}").exists()
+            assert not (directory / "api.sock").exists()
+        finally:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.communicate(timeout=5)
+
+
+def test_signal_after_reap_never_targets_a_recycled_child_pid() -> None:
+    code = (
+        "import os, signal\n"
+        "import omnis.serve as m\n"
+        "real_kill, real_waitpid = os.kill, os.waitpid\n"
+        "retired = [-1]\n"
+        "def checked_kill(pid, signum):\n"
+        "    if pid == retired[0]:\n"
+        "        print('SENT_TO_REAPED_PID', flush=True)\n"
+        "        raise RuntimeError('Reaped child was targeted')\n"
+        "    return real_kill(pid, signum)\n"
+        "def injected_waitpid(pid, options):\n"
+        "    result = real_waitpid(pid, options)\n"
+        "    if result[0] == pid and retired[0] == -1:\n"
+        "        retired[0] = pid\n"
+        "        os.kill(os.getpid(), signal.SIGTERM)\n"
+        "    return result\n"
+        "os.kill, os.waitpid = checked_kill, injected_waitpid\n"
+        "m._child_main = lambda: 0\n"
+        "raise SystemExit(m.main())\n"
+    )
+    process = subprocess.run(
+        [sys.executable, "-I", "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+    assert "SENT_TO_REAPED_PID" not in process.stdout
+    assert process.returncode == 0  # The child had already finished successfully.
 
 
 @pytest.mark.asyncio

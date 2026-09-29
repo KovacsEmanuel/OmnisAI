@@ -70,7 +70,7 @@ def render(text: str, title: str, source_name: str) -> str:
 <body><a class="skip" href="#content">Sari la conținut</a>
 <aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p>{nav}<p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
 <details class="mobile-nav"><summary>OMNIS · Cuprins</summary>{nav}</details>
-<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · aplicație neimplementată</span></div>
+<div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · starea implementării în document</span></div>
 {body}
 <footer><div class="links"><a href="{safe_source}">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>{digest}</code>.</p></footer>
 </main></div></body></html>

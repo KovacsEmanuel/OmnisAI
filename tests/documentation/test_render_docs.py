@@ -30,6 +30,11 @@ class RenderDocsTests(unittest.TestCase):
         self.assertNotIn('<script src="http', result)
         self.assertNotIn('<link href="http', result)
 
+    def test_reader_does_not_override_document_implementation_status(self):
+        result = self.renderer().render('# P0.4\n\nPartially implemented.', 'Status', 'Status.md')
+        self.assertIn('Specificat · starea implementării în document', result)
+        self.assertNotIn('Specificat · aplicație neimplementată', result)
+
     def test_tables_have_local_scroll_regions(self):
         result = self.renderer().render("# X\n\n| A | B |\n|---|---|\n| a | b |", "X", "X.md")
         self.assertIn('class="table-wrap"', result)

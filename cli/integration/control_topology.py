@@ -170,6 +170,13 @@ def _compose(
     )
 
 
+def _stop_installed_api(
+    host: str, release: Path, project: str, empty_env: Path, env: dict[str, str]
+) -> None:
+    """Allow the API process owner's full 10s deadline plus reaping margin."""
+    _compose(host, release, project, empty_env, env, "stop", "-t", "15", "api", timeout=30)
+
+
 def _inspect(host: str, ident: str, scratch: Path) -> dict[str, object] | None:
     response = _docker(host, "container", "inspect", ident, cwd=scratch, success=False)
     if response.returncode:
@@ -469,7 +476,7 @@ def _cleanup(
         for ident in owned:
             try:
                 _attest_container_identity(host, ident, scratch, project, image_id, state_root)
-                _docker(host, "container", "stop", "--time", "10", ident, cwd=scratch, timeout=30)
+                _docker(host, "container", "stop", "--time", "15", ident, cwd=scratch, timeout=30)
                 _docker(host, "container", "rm", ident, cwd=scratch, timeout=30)
             except (
                 AssertionError,
@@ -769,7 +776,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
                 raise AssertionError("Unmigrated API did not refuse readiness")
             time.sleep(0.3)
         print(f"INSTALLED_SCHEMA_NEGATIVE_VERIFIED project={project} status=503")
-        _compose(host, release, project, empty_env, env, "stop", "-t", "5", "api", timeout=20)
+        _stop_installed_api(host, release, project, empty_env, env)
         _docker(host, "container", "rm", api_id, cwd=scratch, timeout=30)
 
         job = f"{project}-migrate"

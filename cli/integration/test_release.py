@@ -725,6 +725,7 @@ class ReleaseBundleTest(unittest.TestCase):
             self.assertEqual(services[name].get("security_opt"), ["no-new-privileges:true"])
         self.assertEqual(services["api"]["user"], f"{os.getuid()}:{os.getgid()}")
         self.assertEqual(services["supervisor"]["user"], f"{os.getuid()}:{os.getgid()}")
+        self.assertEqual(services["api"].get("stop_grace_period"), "15s")
         self.assertEqual(len(services["db"]["volumes"]), 1)
         self.assertEqual(len(services["api"]["volumes"]), 2)
         self.assertEqual(len(services["supervisor"]["volumes"]), 1)
@@ -1128,7 +1129,8 @@ class ReleaseBundleTest(unittest.TestCase):
             compose_source = (installed_root / "ops/compose.yaml").read_text()
             api_security = (
                 "    read_only: true\n    cap_drop: [ALL]\n"
-                '    security_opt: [no-new-privileges:true]\n    networks: [control]\n    restart: "no"\nsecrets:'
+                "    security_opt: [no-new-privileges:true]\n    stop_grace_period: 15s\n"
+                '    networks: [control]\n    restart: "no"\nsecrets:'
             )
             regressions = [
                 (
@@ -1165,6 +1167,11 @@ class ReleaseBundleTest(unittest.TestCase):
                     api_security.replace(
                         "security_opt: [no-new-privileges:true]", "security_opt: []", 1
                     ),
+                ),
+                (
+                    "api-stop-too-short",
+                    api_security,
+                    api_security.replace("stop_grace_period: 15s", "stop_grace_period: 5s", 1),
                 ),
             ]
             for label, original, changed in regressions:

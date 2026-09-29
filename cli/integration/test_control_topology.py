@@ -24,6 +24,7 @@ from control_topology import (
     _finish_probe,
     _http,
     _owned_container,
+    _stop_installed_api,
     _uds_http,
     assert_no_host_listener,
     conclude_cleanup,
@@ -35,6 +36,27 @@ from control_topology import (
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_installed_api_stop_budget_exceeds_process_owner_deadline(self):
+        project = "omnis-local-" + "a" * 32
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            with patch("control_topology._compose") as compose:
+                _stop_installed_api("unix:///owned/docker.sock", scratch, project, empty_env, {})
+            compose.assert_called_once_with(
+                "unix:///owned/docker.sock",
+                scratch,
+                project,
+                empty_env,
+                {},
+                "stop",
+                "-t",
+                "15",
+                "api",
+                timeout=30,
+            )
+
     def test_forwarder_exit_race_still_attempts_owned_compose_cleanup(self):
         class ExitedForwarder:
             pid = 12345
@@ -355,6 +377,7 @@ class InstalledControlPreflightTest(unittest.TestCase):
                         ),
                     )
                 if args[:2] == ("container", "stop"):
+                    self.assertEqual(args[2:4], ("--time", "15"))
                     stopped.add(args[-1])
                     return subprocess.CompletedProcess(args, 0)
                 if args[:2] == ("container", "rm"):

@@ -1,0 +1,1585 @@
+{
+  "schema_version": 1,
+  "status": "REVIEW_PROPOSAL_NOT_IMPLEMENTED",
+  "omnis_base": "4d13bf009841b5624f6941cfbfde3ccc1ed3a8f2",
+  "unit_count": 34,
+  "code_content_data_units": 26,
+  "native_integration_mechanisms": 8,
+  "source_reference_count": 98,
+  "sources": [
+    {
+      "repository": "https://github.com/KeygraphHQ/shannon",
+      "revision": "327c10fd90a6186a9f035b4b6ddb5bbba1839e92"
+    },
+    {
+      "repository": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"
+    },
+    {
+      "repository": "https://github.com/ShielderSec/webtech",
+      "revision": "7141d3542b650df9f984deba6213e2911ee7b9d1"
+    },
+    {
+      "repository": "https://github.com/assetnote/kiterunner",
+      "revision": "7d5824cda9a2eef86d8d18b05b713d7e260f34d2"
+    },
+    {
+      "repository": "https://github.com/assetnote/wordlists",
+      "revision": "6dea231f4cbd356a637851b1c13b83de4da00adb"
+    },
+    {
+      "repository": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69"
+    },
+    {
+      "repository": "https://github.com/digininja/CeWL",
+      "revision": "ca01aeae1c77bb086ef757611dea6377b8d1168b"
+    },
+    {
+      "repository": "https://github.com/scrapy/scrapy",
+      "revision": "5d789b24f994bcdfca97c34d976c73739e064849"
+    },
+    {
+      "repository": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2"
+    }
+  ],
+  "range_hash_format": "SHA-256 of Git blob lines start..end inclusive, preserving original line endings",
+  "units": [
+    {
+      "id": "S01",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "retained_and_changed": "Retain ordered role/mode/skill composition; product release resolver; missing template or skill is an error, not an empty prompt.",
+      "acceptance_proposed": "Golden root/leaf/mode, missing package and immutable bundle digest.",
+      "source_refs": [
+        {
+          "file": "strix/agents/prompt.py",
+          "symbol": "_resolve_skills; render_system_prompt",
+          "lines": [
+            20,
+            71
+          ],
+          "file_sha256": "2b30f1ecee988f9effed96c54af2baecd3a6506b6bcfdc5bd9a0f325cf540a33",
+          "fragment_sha256": "a060f5d4664a56b1376e03143c3667dcf8972c330bd23ab52051e3fd8c3fe08d",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/agents/prompt.py#L20-L71"
+        },
+        {
+          "file": "strix/agents/prompt.py",
+          "symbol": "_resolve_skills; render_system_prompt",
+          "lines": [
+            74,
+            126
+          ],
+          "file_sha256": "2b30f1ecee988f9effed96c54af2baecd3a6506b6bcfdc5bd9a0f325cf540a33",
+          "fragment_sha256": "0d7b37c93b37e73f3e8e84b93b6b1fc835c93a5a3669530b8c572ecb81ce2f4f",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/agents/prompt.py#L74-L126"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S02",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/settings/skill_catalog.py",
+      "retained_and_changed": "Reuse frontmatter/qualified ID validation; do not copy global shadowing, silent skipping or runtime loader. Hermes remains loader.",
+      "acceptance_proposed": "Duplicate ID, malformed frontmatter, path escape, missing ref and silent override rejected.",
+      "source_refs": [
+        {
+          "file": "strix/skills/__init__.py",
+          "symbol": "_parse_skill_content; validate_requested_skills; load_skills",
+          "lines": [
+            159,
+            175
+          ],
+          "file_sha256": "d7b4d8678dc67cebf9bef76b0ad53d9c77ce4c55a74c4439e6f70d1d853b14f3",
+          "fragment_sha256": "1dd6a302ae537c4f1583d044ed42dc66ebeb7a2eb2fa8a181f803d41b0c6d3b8",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/__init__.py#L159-L175"
+        },
+        {
+          "file": "strix/skills/__init__.py",
+          "symbol": "_parse_skill_content; validate_requested_skills; load_skills",
+          "lines": [
+            215,
+            239
+          ],
+          "file_sha256": "d7b4d8678dc67cebf9bef76b0ad53d9c77ce4c55a74c4439e6f70d1d853b14f3",
+          "fragment_sha256": "0efcf35d5d49dfa9482d417b222f109cfa3281ce4852dc9cc52367eaec79efaf",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/__init__.py#L215-L239"
+        },
+        {
+          "file": "strix/skills/__init__.py",
+          "symbol": "_parse_skill_content; validate_requested_skills; load_skills",
+          "lines": [
+            264,
+            300
+          ],
+          "file_sha256": "d7b4d8678dc67cebf9bef76b0ad53d9c77ce4c55a74c4439e6f70d1d853b14f3",
+          "fragment_sha256": "75adfd91724acc3ffa577b93765350cfb0530e0b8a7b5f6f1dc8802b18e78da8",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/__init__.py#L264-L300"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S03",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_content",
+      "destination_proposed": "skills/omnis-engagement/references/coordination.md",
+      "retained_and_changed": "Keep recon-first, corrections, handoff, gap reconciliation; use Omnis refs and caps.",
+      "acceptance_proposed": "New clue changes next task; consumed delta does not re-spawn.",
+      "source_refs": [
+        {
+          "file": "strix/skills/coordination/root_agent.md",
+          "symbol": "Threat model; coverage reconciliation; coordination",
+          "lines": [
+            28,
+            40
+          ],
+          "file_sha256": "1405ce4ba9fc38862195c7e65de2f6a1768f02a0490cdf8cb153137ee667834c",
+          "fragment_sha256": "ac0be62b06a9c014af8fdc355081b5f6fff4967437f2d84888a736a22bfbfe46",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/coordination/root_agent.md#L28-L40"
+        },
+        {
+          "file": "strix/skills/coordination/root_agent.md",
+          "symbol": "Threat model; coverage reconciliation; coordination",
+          "lines": [
+            67,
+            96
+          ],
+          "file_sha256": "1405ce4ba9fc38862195c7e65de2f6a1768f02a0490cdf8cb153137ee667834c",
+          "fragment_sha256": "3f7cb74254b4eec6b8f51dcd4a048f60d49134985f57c90e4007188f3ef47a91",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/coordination/root_agent.md#L67-L96"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S04",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_schema_and_validation",
+      "destination_proposed": "api/src/omnis/modules/runs/threat_model.py",
+      "retained_and_changed": "Reuse rubric checks/DTO shape; replace JSON globals with versioned PostgreSQL observations and append-only amendments; do not clear unconsumed history. The upstream section check is substring-only; use structured required sections in Omnis, not it as a completeness oracle.",
+      "acceptance_proposed": "Concurrent amendment preserved; unknown observation cannot become observed.",
+      "source_refs": [
+        {
+          "file": "strix/tools/threat_model/tools.py",
+          "symbol": "_REQUIRED_SECTIONS; _missing_sections; _save_impl; _amend_impl",
+          "lines": [
+            53,
+            58
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e",
+          "fragment_sha256": "1d51b252ba91d92e944f40e4fd4e90928f25c295a4846202c140aabfd967c430",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/threat_model/tools.py#L53-L58"
+        },
+        {
+          "file": "strix/tools/threat_model/tools.py",
+          "symbol": "_REQUIRED_SECTIONS; _missing_sections; _save_impl; _amend_impl",
+          "lines": [
+            269,
+            271
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e",
+          "fragment_sha256": "4a343f9e5cff13655050b8a7211f737476744350eca504b7482f17927ba598f0",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/threat_model/tools.py#L269-L271"
+        },
+        {
+          "file": "strix/tools/threat_model/tools.py",
+          "symbol": "_REQUIRED_SECTIONS; _missing_sections; _save_impl; _amend_impl",
+          "lines": [
+            327,
+            389
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e",
+          "fragment_sha256": "6b064e2f13c5a26363eb5cb9958968171c9035b28886d27cec7ac4d5e896ef41",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/threat_model/tools.py#L327-L389"
+        },
+        {
+          "file": "strix/tools/threat_model/tools.py",
+          "symbol": "_REQUIRED_SECTIONS; _missing_sections; _save_impl; _amend_impl",
+          "lines": [
+            418,
+            459
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e",
+          "fragment_sha256": "2ef8d290ef4815ccd6a47a0169f476399872b8d50f71374a0ed9255b771b4323",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/threat_model/tools.py#L418-L459"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S05",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_contract_not_coordinator",
+      "destination_proposed": "api/src/omnis/modules/tasks/handoffs.py",
+      "retained_and_changed": "Keep objective/skills and summary/open-items contract; add typed evidence/action refs, use native Hermes delegate binding.",
+      "acceptance_proposed": "Wrong child/attempt/result refs refused; no duplicate wake.",
+      "source_refs": [
+        {
+          "file": "strix/tools/agents_graph/tools.py",
+          "symbol": "create_agent contract; agent_finish contract",
+          "lines": [
+            498,
+            548
+          ],
+          "file_sha256": "1a73cb63c4ebcdf2d05f7e9463ae07a0591589be224dad1b2f784871ccc81034",
+          "fragment_sha256": "bd1fb3216e25b450ef92072c3f8585c8687171c9a782fef437ad039696396d8d",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/agents_graph/tools.py#L498-L548"
+        },
+        {
+          "file": "strix/tools/agents_graph/tools.py",
+          "symbol": "create_agent contract; agent_finish contract",
+          "lines": [
+            614,
+            672
+          ],
+          "file_sha256": "1a73cb63c4ebcdf2d05f7e9463ae07a0591589be224dad1b2f784871ccc81034",
+          "fragment_sha256": "831ce2c7c47db75ec612924b87650a6c59ed6fa31140e6421f58a9d749c2ad46",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/agents_graph/tools.py#L614-L672"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S06",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "adapt_interface",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/skills_projection.py",
+      "retained_and_changed": "Preserve on-demand reference semantics; map to native skill_view and published catalog, not agent SDK decorator.",
+      "acceptance_proposed": "Loading knowledge does not install dependencies, grant tools or mutate prompt prefix.",
+      "source_refs": [
+        {
+          "file": "strix/tools/load_skill/tool.py",
+          "symbol": "load_skill",
+          "lines": [
+            11,
+            36
+          ],
+          "file_sha256": "1cbcaff9968972f60ede8a3d137df8984a71d1cc2b28014b4224fa27fd8f31d5",
+          "fragment_sha256": "49a7d63102beb2530442d371aa5559df0d49617624008ebd5d5ef0dec602c930",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/load_skill/tool.py#L11-L36"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S07",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt",
+      "destination_proposed": "api/src/omnis/modules/evidence/preview.py",
+      "retained_and_changed": "Opaque artifact refs, bounded notice, no shared raw workspace spill.",
+      "acceptance_proposed": "UTF-8 intact; whole preview cap including notice; unavailable artifact not fabricated.",
+      "source_refs": [
+        {
+          "file": "strix/tools/output_store.py",
+          "symbol": "UTF-8 head/tail previews",
+          "lines": [
+            47,
+            73
+          ],
+          "file_sha256": "79c4c1f5436a931b53a9b22de046fa97a3747ece1c52bc13aa3609054db3775b",
+          "fragment_sha256": "e30d111a4fd96fc6ed5535a44fd947c0bd70cf90087e3a3ff59ab6ae47a5f353",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/output_store.py#L47-L73"
+        },
+        {
+          "file": "strix/tools/output_store.py",
+          "symbol": "UTF-8 head/tail previews",
+          "lines": [
+            76,
+            140
+          ],
+          "file_sha256": "79c4c1f5436a931b53a9b22de046fa97a3747ece1c52bc13aa3609054db3775b",
+          "fragment_sha256": "6e4f74aa6c1663ccfd406faf7de02180d3734505354af91817e799ce2ec54769",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/output_store.py#L76-L140"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S08",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt",
+      "destination_proposed": "api/src/omnis/modules/reports/render.py",
+      "retained_and_changed": "Snapshot allowlist and Omnis refs; template editable but claim selection and escaping not model-owned.",
+      "acceptance_proposed": "Hostile markup inert; missing bytes not exported; existing snapshot unchanged.",
+      "source_refs": [
+        {
+          "file": "strix/report/writer.py",
+          "symbol": "csv_safe; safe_fence; render_vulnerability_md",
+          "lines": [
+            35,
+            66
+          ],
+          "file_sha256": "32e0d389d04c887d0234231a1b24032665f71077daab11de534af8690503a200",
+          "fragment_sha256": "e8afc473a772794b65d629edebcb8e17d49a50c350bcdf1a4f34d2aba779eb8d",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/report/writer.py#L35-L66"
+        },
+        {
+          "file": "strix/report/writer.py",
+          "symbol": "csv_safe; safe_fence; render_vulnerability_md",
+          "lines": [
+            223,
+            361
+          ],
+          "file_sha256": "32e0d389d04c887d0234231a1b24032665f71077daab11de534af8690503a200",
+          "fragment_sha256": "3209e87ae74669d85954f3aa60a5fe1549f88f3fa96b9ee23e5710a94583da51",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/report/writer.py#L223-L361"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S09",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_registry_validation_only",
+      "destination_proposed": "api/src/omnis/modules/tasks/module_registry.py",
+      "retained_and_changed": "Reuse collision check, not global registration on every agent or Shell/Filesystem capabilities. Registry entries are trusted installed code.",
+      "acceptance_proposed": "Duplicate type ID fails before release; role cannot obtain extra tool authority.",
+      "source_refs": [
+        {
+          "file": "strix/agents/factory.py",
+          "symbol": "_ensure_unique_tool_names; register_agent_tools",
+          "lines": [
+            611,
+            644
+          ],
+          "file_sha256": "c0f32a9524ff8b018aa204bf6ba4dbd147f768f9a43eb46d83e4f06a4760adfd",
+          "fragment_sha256": "0bcbda3e811168aabd8eca8ab643fb579f5f7c8896c4c8613ff1d0abae94bc05",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/agents/factory.py#L611-L644"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "S10",
+      "repo": "https://github.com/usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "reuse_mode": "copy_adapt_content",
+      "destination_proposed": "skills/omnis-evidence/SKILL.md",
+      "retained_and_changed": "Keep proof gaps and controls; split source_supported from confirmed runtime.",
+      "acceptance_proposed": "No proof gap or dead target counted as a secure negative.",
+      "source_refs": [
+        {
+          "file": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Closure, counterevidence and revision",
+          "lines": [
+            16,
+            39
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d",
+          "fragment_sha256": "d5a4139a132c3dba932c93f11859b5a73d0d3921b5882a439c995ff86d3c26af",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/analysis/counterevidence.md#L16-L39"
+        },
+        {
+          "file": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Closure, counterevidence and revision",
+          "lines": [
+            100,
+            126
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d",
+          "fragment_sha256": "c9969f9669a56a198e659c674d0beb00ea9f84ac7c300a67b1e27e0e7d599caf",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/analysis/counterevidence.md#L100-L126"
+        },
+        {
+          "file": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Closure, counterevidence and revision",
+          "lines": [
+            145,
+            185
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d",
+          "fragment_sha256": "daad66345ef182bbd888a035507286d1f8edc5270ac57034611bbd7b0477a576",
+          "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/analysis/counterevidence.md#L145-L185"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R01",
+      "repo": "https://github.com/ShielderSec/webtech",
+      "revision": "7141d3542b650df9f984deba6213e2911ee7b9d1",
+      "reuse_mode": "copy_adapt_passive",
+      "destination_proposed": "api/src/omnis/modules/surfaces/fingerprints.py",
+      "retained_and_changed": "No constructor download or network method; typed captured exchange; preserve match source/version ambiguity; support actual regex group index and reject malformed signatures.",
+      "acceptance_proposed": "Offline positive/negative/contradictory signatures; ReDoS/time cap; no network.",
+      "source_refs": [
+        {
+          "file": "webtech/target.py",
+          "symbol": "parse_regex_string; checks",
+          "lines": [
+            31,
+            53
+          ],
+          "file_sha256": "adaacd604d5dce5976e8d50c45b0f76584acaa9efdb45f707f57c794aaa2c075",
+          "fragment_sha256": "e9940fe7bf2822b9cabdb6e3d800e49eeac9dec8d1f1d4bc37cab7281d49008b",
+          "url": "https://github.com/ShielderSec/webtech/blob/7141d3542b650df9f984deba6213e2911ee7b9d1/webtech/target.py#L31-L53"
+        },
+        {
+          "file": "webtech/target.py",
+          "symbol": "parse_regex_string; checks",
+          "lines": [
+            195,
+            203
+          ],
+          "file_sha256": "adaacd604d5dce5976e8d50c45b0f76584acaa9efdb45f707f57c794aaa2c075",
+          "fragment_sha256": "a880c70ca092afc10de626ab8fcdb622185b1d4966a2aa33f40e4ba5dfa5e877",
+          "url": "https://github.com/ShielderSec/webtech/blob/7141d3542b650df9f984deba6213e2911ee7b9d1/webtech/target.py#L195-L203"
+        },
+        {
+          "file": "webtech/target.py",
+          "symbol": "parse_regex_string; checks",
+          "lines": [
+            216,
+            274
+          ],
+          "file_sha256": "adaacd604d5dce5976e8d50c45b0f76584acaa9efdb45f707f57c794aaa2c075",
+          "fragment_sha256": "1240d9ff4149e7a7fa18d0f3b71966981fcaa9bd5d7be7fd71cbc82adad55124",
+          "url": "https://github.com/ShielderSec/webtech/blob/7141d3542b650df9f984deba6213e2911ee7b9d1/webtech/target.py#L216-L274"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R02",
+      "repo": "https://github.com/ShielderSec/webtech",
+      "revision": "7141d3542b650df9f984deba6213e2911ee7b9d1",
+      "reuse_mode": "copy_adapt",
+      "destination_proposed": "api/src/omnis/modules/surfaces/fingerprints.py",
+      "retained_and_changed": "Meta/script extraction from bounded evidence, no script execution; URL retained as observation.",
+      "acceptance_proposed": "Meta/script path preserved; inline JS never executed.",
+      "source_refs": [
+        {
+          "file": "webtech/parser.py",
+          "symbol": "WTParser",
+          "lines": [
+            8,
+            27
+          ],
+          "file_sha256": "2c0beb309273379595bca964dfd31dc7907e37835a7f3cd3a25de60b66389285",
+          "fragment_sha256": "54e47ff320485b7212fecb61ede42a995049ee2e90408715a0fb6fa352a0fc4f",
+          "url": "https://github.com/ShielderSec/webtech/blob/7141d3542b650df9f984deba6213e2911ee7b9d1/webtech/parser.py#L8-L27"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R03",
+      "repo": "https://github.com/digininja/CeWL",
+      "revision": "ca01aeae1c77bb086ef757611dea6377b8d1168b",
+      "reuse_mode": "port_to_python",
+      "destination_proposed": "api/src/omnis/modules/surfaces/wordlists.py",
+      "retained_and_changed": "Reuse extraction/frequency/n-gram algorithm on captured approved text; keep raw routes separately, short version tokens, Unicode, PII filtering, deterministic limits; no crawling/password list.",
+      "acceptance_proposed": "Reproducible corpus; v1/Unicode retained per recipe; no secrets/query values; hard entry/byte caps.",
+      "source_refs": [
+        {
+          "file": "cewl.rb",
+          "symbol": "extract_path_components; word count/grouping; frequency sort",
+          "lines": [
+            760,
+            781
+          ],
+          "file_sha256": "59c416ed9c6ee86737a1aa6b40e60c54795c9d89a262f67af671a23715527847",
+          "fragment_sha256": "e0308d12f549505056f3224fba729beaf8bda650476c8adeac73a0ba17af9a0a",
+          "url": "https://github.com/digininja/CeWL/blob/ca01aeae1c77bb086ef757611dea6377b8d1168b/cewl.rb#L760-L781"
+        },
+        {
+          "file": "cewl.rb",
+          "symbol": "extract_path_components; word count/grouping; frequency sort",
+          "lines": [
+            1168,
+            1203
+          ],
+          "file_sha256": "59c416ed9c6ee86737a1aa6b40e60c54795c9d89a262f67af671a23715527847",
+          "fragment_sha256": "78dcec92bf904d8855e2691d79ea0de997234ec25dafa7099551b3240c1b216b",
+          "url": "https://github.com/digininja/CeWL/blob/ca01aeae1c77bb086ef757611dea6377b8d1168b/cewl.rb#L1168-L1203"
+        },
+        {
+          "file": "cewl.rb",
+          "symbol": "extract_path_components; word count/grouping; frequency sort",
+          "lines": [
+            1236,
+            1245
+          ],
+          "file_sha256": "59c416ed9c6ee86737a1aa6b40e60c54795c9d89a262f67af671a23715527847",
+          "fragment_sha256": "5e7ef8768203cbf4cae97bc49e78ef19fe1aad7b0672f008427549b16f6cb127",
+          "url": "https://github.com/digininja/CeWL/blob/ca01aeae1c77bb086ef757611dea6377b8d1168b/cewl.rb#L1236-L1245"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R04",
+      "repo": "https://github.com/assetnote/kiterunner",
+      "revision": "7d5824cda9a2eef86d8d18b05b713d7e260f34d2",
+      "reuse_mode": "port_schema_and_rendering_subset",
+      "destination_proposed": "api/src/omnis/modules/surfaces/route_candidates.py",
+      "retained_and_changed": "Typed contextual method/path/params/body candidates; no arbitrary defaults or request engine; serializing does not authorize writes.",
+      "acceptance_proposed": "GET/POST body distinctions retained; candidate outside scope or unknown field is blocked.",
+      "source_refs": [
+        {
+          "file": "pkg/proute/route.go",
+          "symbol": "Route; Path; Query; Body",
+          "lines": [
+            13,
+            30
+          ],
+          "file_sha256": "0ea8d96a2006ae9e01fee8077fba641619ead032c0da849693be0eea60871b3e",
+          "fragment_sha256": "d274a49d54385931a28db0d636850dfd73c8f33b407a69fee3bda14746df3fdb",
+          "url": "https://github.com/assetnote/kiterunner/blob/7d5824cda9a2eef86d8d18b05b713d7e260f34d2/pkg/proute/route.go#L13-L30"
+        },
+        {
+          "file": "pkg/proute/route.go",
+          "symbol": "Route; Path; Query; Body",
+          "lines": [
+            66,
+            137
+          ],
+          "file_sha256": "0ea8d96a2006ae9e01fee8077fba641619ead032c0da849693be0eea60871b3e",
+          "fragment_sha256": "1a397822db1f3afd865ac09f8c5db4b40a812597268b82e643cd2b6aca63a2eb",
+          "url": "https://github.com/assetnote/kiterunner/blob/7d5824cda9a2eef86d8d18b05b713d7e260f34d2/pkg/proute/route.go#L66-L137"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R05",
+      "repo": "https://github.com/assetnote/kiterunner",
+      "revision": "7d5824cda9a2eef86d8d18b05b713d7e260f34d2",
+      "reuse_mode": "adapt_baseline_model",
+      "destination_proposed": "api/src/omnis/modules/surfaces/response_baselines.py",
+      "retained_and_changed": "Take per-prefix baseline concept, add method/persona/epoch/variance and evidence; never copy mutating preflight suite.",
+      "acceptance_proposed": "Soft404 versus real route differentiated without dropping all 401/403; baseline drift invalidates.",
+      "source_refs": [
+        {
+          "file": "pkg/kiterunner/preflight.go",
+          "symbol": "WildcardResponse; targetWildcardDetection",
+          "lines": [
+            15,
+            38
+          ],
+          "file_sha256": "e34ec7686dfdfae8b896a5edb8d72e42b2626c156ef0dac60fc0f8032f0acaf7",
+          "fragment_sha256": "1cd0ba699c1ac0bb6e94e09435bb8596813340897ce9f5135ca60ff2ec664666",
+          "url": "https://github.com/assetnote/kiterunner/blob/7d5824cda9a2eef86d8d18b05b713d7e260f34d2/pkg/kiterunner/preflight.go#L15-L38"
+        },
+        {
+          "file": "pkg/kiterunner/preflight.go",
+          "symbol": "WildcardResponse; targetWildcardDetection",
+          "lines": [
+            193,
+            245
+          ],
+          "file_sha256": "e34ec7686dfdfae8b896a5edb8d72e42b2626c156ef0dac60fc0f8032f0acaf7",
+          "fragment_sha256": "10fa99790af7c3ff9bf7a03341fe1a222fe7080672a11785cf1e03e17a09fd5d",
+          "url": "https://github.com/assetnote/kiterunner/blob/7d5824cda9a2eef86d8d18b05b713d7e260f34d2/pkg/kiterunner/preflight.go#L193-L245"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R06",
+      "repo": "https://github.com/assetnote/wordlists",
+      "revision": "6dea231f4cbd356a637851b1c13b83de4da00adb",
+      "reuse_mode": "reuse_data_index",
+      "destination_proposed": "api/src/omnis/modules/settings/wordlist_sources.py",
+      "retained_and_changed": "Use reviewed technology subsets; each downloaded artifact requires own hash/size/license/source metadata; index commit alone does not pin CDN bytes.",
+      "acceptance_proposed": "Zero-entry list stays empty; million-entry source truncated before admission; no HTML execution from Download field.",
+      "source_refs": [
+        {
+          "file": "data/technologies.json",
+          "symbol": "Technology-indexed corpus metadata",
+          "lines": [
+            1,
+            109
+          ],
+          "file_sha256": "69b9cce16e04e07a74b24d1b6c78898260f676f4084efbe674f86dedc1522918",
+          "fragment_sha256": "69b9cce16e04e07a74b24d1b6c78898260f676f4084efbe674f86dedc1522918",
+          "url": "https://github.com/assetnote/wordlists/blob/6dea231f4cbd356a637851b1c13b83de4da00adb/data/technologies.json#L1-L109"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "R07",
+      "repo": "https://github.com/KeygraphHQ/shannon",
+      "revision": "327c10fd90a6186a9f035b4b6ddb5bbba1839e92",
+      "reuse_mode": "port_to_python",
+      "destination_proposed": "api/src/omnis/modules/tasks/grouping.py",
+      "retained_and_changed": "Retain finite label set and duplicate/unknown-group rejection; use opaque Omnis IDs and preserve all rejected/ungrouped observations; no Temporal/pi runtime.",
+      "acceptance_proposed": "Valid group accepted; cross-group reuse invalidates each claimant; unknown labels do not disappear from frontier.",
+      "source_refs": [
+        {
+          "file": "apps/worker/src/ai/reconciliation/task-formation-schema.ts",
+          "symbol": "buildTaskFormationSchema; parseGroup; acceptTaskGroups",
+          "lines": [
+            11,
+            23
+          ],
+          "file_sha256": "e9218d81e380a75055263ee2120afc82c332bad1c6fcbccadc3bc5b82647c0fd",
+          "fragment_sha256": "7c44e950642273354c73fb8637677e687977a1d23f58e1512b08424c9621fe19",
+          "url": "https://github.com/KeygraphHQ/shannon/blob/327c10fd90a6186a9f035b4b6ddb5bbba1839e92/apps/worker/src/ai/reconciliation/task-formation-schema.ts#L11-L23"
+        },
+        {
+          "file": "apps/worker/src/ai/reconciliation/task-formation-schema.ts",
+          "symbol": "buildTaskFormationSchema; parseGroup; acceptTaskGroups",
+          "lines": [
+            33,
+            122
+          ],
+          "file_sha256": "e9218d81e380a75055263ee2120afc82c332bad1c6fcbccadc3bc5b82647c0fd",
+          "fragment_sha256": "ab30ddeb74875f9b17f694e2862c711138dccd8a49d00aeb414d078cd8077bb9",
+          "url": "https://github.com/KeygraphHQ/shannon/blob/327c10fd90a6186a9f035b4b6ddb5bbba1839e92/apps/worker/src/ai/reconciliation/task-formation-schema.ts#L33-L122"
+        },
+        {
+          "file": "apps/worker/src/ai/reconciliation/task-formation-schema.ts",
+          "symbol": "buildTaskFormationSchema; parseGroup; acceptTaskGroups",
+          "lines": [
+            181,
+            209
+          ],
+          "file_sha256": "e9218d81e380a75055263ee2120afc82c332bad1c6fcbccadc3bc5b82647c0fd",
+          "fragment_sha256": "60a31228ab52de309bf4ea5d64e4df5ffc38f720747af8b35776d235ae7a2e80",
+          "url": "https://github.com/KeygraphHQ/shannon/blob/327c10fd90a6186a9f035b4b6ddb5bbba1839e92/apps/worker/src/ai/reconciliation/task-formation-schema.ts#L181-L209"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M01",
+      "repo": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/surfaces/events.py",
+      "retained_and_changed": "Adaptare serializer + separare identitate conținut/ocurență; nu întregul BaseEvent.",
+      "dependency_seam": "Upstream: radixtarget, Pydantic, helpers BBOT, envelope/scan. Port subset: DTO Omnis + stdlib; elimină scan/parent obiect și normalizează doar câmpuri aprobate.",
+      "acceptance_proposed": "Două observații ale aceluiași obiect păstrează două ocurențe și parent/evidence refs; redelivery aceeași ocurență este idempotentă; cross-engagement parent respins.",
+      "source_refs": [
+        {
+          "file": "bbot/core/event/base.py",
+          "symbol": "BaseEvent.json",
+          "lines": [
+            919,
+            1007
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/event/base.py#L919-L1007",
+          "file_sha256": "df11d20d42a0b76fe001441e0131224d52edf4bbec7e7acd9596a26f2ad57f57",
+          "fragment_sha256": "bfc70991333a254dac00453d44f4050a45d7e3d862614c2d67ed8f91a554de46"
+        },
+        {
+          "file": "bbot/core/event/base.py",
+          "symbol": "BaseEvent.id",
+          "lines": [
+            571,
+            577
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/event/base.py#L571-L577",
+          "file_sha256": "df11d20d42a0b76fe001441e0131224d52edf4bbec7e7acd9596a26f2ad57f57",
+          "fragment_sha256": "30a405f14383b81dbdd65ee1d665266cbabe28d83141f0c65782e483cc49ded8"
+        },
+        {
+          "file": "bbot/core/event/base.py",
+          "symbol": "BaseEvent.uuid",
+          "lines": [
+            580,
+            584
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/event/base.py#L580-L584",
+          "file_sha256": "df11d20d42a0b76fe001441e0131224d52edf4bbec7e7acd9596a26f2ad57f57",
+          "fragment_sha256": "4d036f062e274da036c67d52fa11ac71267a508d2830b6cbbccd19c9b945d18c"
+        },
+        {
+          "file": "bbot/core/event/base.py",
+          "symbol": "BaseEvent.data_hash",
+          "lines": [
+            587,
+            593
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/event/base.py#L587-L593",
+          "file_sha256": "df11d20d42a0b76fe001441e0131224d52edf4bbec7e7acd9596a26f2ad57f57",
+          "fragment_sha256": "6534ce8956d135c3f51568d967315f133f0fa02566077341631209b3d45bc654"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "bbot/test/test_step_1/test_events.py",
+          "symbol": "test_event_hashing",
+          "lines": [
+            1224,
+            1268
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_events.py#L1224-L1268",
+          "file_sha256": "0241f1cbf92869b929a096b2a295121e606968eb008401e19e8611fdbf5ec711",
+          "fragment_sha256": "7dd7f4a0347544ed98ae305b8122310d46f903d69466f0041834ca8b189666d5"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M02",
+      "repo": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/tasks/module_registry.py",
+      "retained_and_changed": "Port ramuri event-type/filtre și reason codes peste ActionDefinition; fără cozi, threads, scan helpers sau bypass FINISHED/seed/graph.",
+      "dependency_seam": "Upstream: BaseModule/Scanner, async_helpers și helpers; port: set-uri/Protocol stdlib + repository inbox Omnis.",
+      "acceptance_proposed": "Observation de tip permis selectează doar subscriberii activi; tip necunoscut, handler eroare și epoch expirat refuzate; replay nu dublează taskul.",
+      "source_refs": [
+        {
+          "file": "bbot/modules/base.py",
+          "symbol": "BaseModule._event_precheck",
+          "lines": [
+            828,
+            882
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/modules/base.py#L828-L882",
+          "file_sha256": "8e1040ce747aca3378a8c8595879a39e92d1a160ab16e199684adc6785358cd9",
+          "fragment_sha256": "2748cbb4d6a8cdc93224592901dbe7f5fd1f65a645e103ce26807d5027fd665d"
+        },
+        {
+          "file": "bbot/modules/base.py",
+          "symbol": "BaseModule._event_postcheck",
+          "lines": [
+            884,
+            898
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/modules/base.py#L884-L898",
+          "file_sha256": "8e1040ce747aca3378a8c8595879a39e92d1a160ab16e199684adc6785358cd9",
+          "fragment_sha256": "3efefa86d834b266686d5dc51c4957d45a863346849ebf6ca5356e2216fcb171"
+        },
+        {
+          "file": "bbot/modules/base.py",
+          "symbol": "BaseModule._event_postcheck_inner",
+          "lines": [
+            900,
+            942
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/modules/base.py#L900-L942",
+          "file_sha256": "8e1040ce747aca3378a8c8595879a39e92d1a160ab16e199684adc6785358cd9",
+          "fragment_sha256": "59dd8a53395c2f8ea0c6fcbe9f94f017c443fe3c95d9d197d44a7e59a3f3aa98"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "bbot/test/test_step_1/test_modules_basic.py",
+          "symbol": "test_modules_basic_checks",
+          "lines": [
+            12,
+            245
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_modules_basic.py#L12-L245",
+          "file_sha256": "46bc927526c94cba64879bb05bf254e1a648dc036a4f755278acc87171d4b09b",
+          "fragment_sha256": "31326aaaf77b650ad801d12e61d257da74ee9b98a4a83800f7465aa0618fd097"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M03",
+      "repo": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/runs/plan_snapshot.py",
+      "retained_and_changed": "Port selectare explicită/flag, exclusions, dependency closure; elimină ambient env, defaults invizibile, scope merge, module_dirs și conditions.",
+      "dependency_seam": "Upstream: BBOTCore/ModuleLoader/environ/BBOTTarget/config/YAML; port: immutable definitions + Pydantic și Postgres existente, fără BBOT Scanner.",
+      "acceptance_proposed": "Preset A + override B produce un snapshot determinist și diff vizibil; dependency exclusă/ciclu/ID necunoscut blochează publicarea; draft nou nu schimbă run activ.",
+      "source_refs": [
+        {
+          "file": "bbot/scanner/preset/preset.py",
+          "symbol": "Preset.merge",
+          "lines": [
+            340,
+            411
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/preset.py#L340-L411",
+          "file_sha256": "cb963d823051269df6bea42b680452ba257d3c59952b476ecb3b3154aa818607",
+          "fragment_sha256": "a1e25804f10ebcaad67f71841151bc593303874d423838bc2cd7183411e20919"
+        },
+        {
+          "file": "bbot/scanner/preset/preset.py",
+          "symbol": "Preset.bake",
+          "lines": [
+            413,
+            533
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/preset.py#L413-L533",
+          "file_sha256": "cb963d823051269df6bea42b680452ba257d3c59952b476ecb3b3154aa818607",
+          "fragment_sha256": "c0ce59b6b5d2c43fc146e43838deedf262292b5635fb6e331aae3ba6e41fa279"
+        },
+        {
+          "file": "bbot/scanner/preset/preset.py",
+          "symbol": "Preset.add_module",
+          "lines": [
+            569,
+            579
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/preset.py#L569-L579",
+          "file_sha256": "cb963d823051269df6bea42b680452ba257d3c59952b476ecb3b3154aa818607",
+          "fragment_sha256": "0ea552dd7925cc854a3436fe301181f18fbd5815db7506a7449d0500a0e055ed"
+        },
+        {
+          "file": "bbot/scanner/preset/preset.py",
+          "symbol": "Preset._is_valid_module",
+          "lines": [
+            961,
+            1003
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/preset.py#L961-L1003",
+          "file_sha256": "cb963d823051269df6bea42b680452ba257d3c59952b476ecb3b3154aa818607",
+          "fragment_sha256": "69d73d7f0871237372126a3121ea92a929ee0983d61ba2525c31b48f8ad64727"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "bbot/test/test_step_1/test_presets.py",
+          "symbol": "test_preset_module_resolution",
+          "lines": [
+            503,
+            593
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_presets.py#L503-L593",
+          "file_sha256": "e56f5f74902e5f039fc1586dd823535633b37124f63275e29609a71314f0030c",
+          "fragment_sha256": "ee09fd71ea721c58589cd125ef3c4f511abaea01ce898e8f566fa0cc6a4568bb"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M04",
+      "repo": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/settings/skill_catalog.py",
+      "retained_and_changed": "Copiere/adaptare clasificare/agregare; înlocuiește module_loader cu registru trusted Pydantic. Nu copia exec config, fallback dict ori reflectarea valorilor în mesaje.",
+      "dependency_seam": "Pydantic v2 păstrat ca pachet existent; dataclasses/typing stdlib; fără import BBOT global sau discovery directoare la validare.",
+      "acceptance_proposed": "Config bun publicat/readback; typo nested + timeout invalid returnează toate câmpurile cu 422; secret sentinel absent din erori; schema lipsă refuzată.",
+      "source_refs": [
+        {
+          "file": "bbot/scanner/preset/validate.py",
+          "symbol": "_classify_loc",
+          "lines": [
+            65,
+            93
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/validate.py#L65-L93",
+          "file_sha256": "150c8a78b5e74483219e1bc39e71776100c5942d003e1acb259af984bd68cc33",
+          "fragment_sha256": "f85bda9a99ba71aedc2457658f2827066e9fce9f86c54568949a33b7d500b42f"
+        },
+        {
+          "file": "bbot/scanner/preset/validate.py",
+          "symbol": "_format_errors",
+          "lines": [
+            161,
+            170
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/validate.py#L161-L170",
+          "file_sha256": "150c8a78b5e74483219e1bc39e71776100c5942d003e1acb259af984bd68cc33",
+          "fragment_sha256": "0c780a635cde601841cb61ae603d6c696bcf1562245443bca1078c37512adef7"
+        },
+        {
+          "file": "bbot/scanner/preset/validate.py",
+          "symbol": "validate_preset",
+          "lines": [
+            195,
+            291
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/scanner/preset/validate.py#L195-L291",
+          "file_sha256": "150c8a78b5e74483219e1bc39e71776100c5942d003e1acb259af984bd68cc33",
+          "fragment_sha256": "924d337cfbb9fb57b67c059c374b407730b52ca52021ada7802502d3382b7b4e"
+        },
+        {
+          "file": "bbot/core/config/models.py",
+          "symbol": "BaseModuleConfig",
+          "lines": [
+            322,
+            344
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/config/models.py#L322-L344",
+          "file_sha256": "56b159f51b2cafb05c8a02d7e476bdd7d46880235d3e3bb3e3c239689890e4fd",
+          "fragment_sha256": "ef4c2f03970999f715af7082007353905de5607cffe980b39c0d6a4f3933f693"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "bbot/test/test_step_1/test_validate_preset.py",
+          "symbol": "test_validate_preset_multiple_errors",
+          "lines": [
+            65,
+            80
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_validate_preset.py#L65-L80",
+          "file_sha256": "ff82b17f49ae639102cd1f50125fb2d31db6431661bfa32fc8cf4a149ce691cd",
+          "fragment_sha256": "d7d8bc28e809fbab33f9d8653beb178876b10117ca16b994a4fcca2c2affa8dd"
+        },
+        {
+          "file": "bbot/test/test_step_1/test_validate_preset.py",
+          "symbol": "test_validate_preset_config_modules_as_list",
+          "lines": [
+            89,
+            94
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_validate_preset.py#L89-L94",
+          "file_sha256": "ff82b17f49ae639102cd1f50125fb2d31db6431661bfa32fc8cf4a149ce691cd",
+          "fragment_sha256": "8951cd2b84217b17aa3ae3de767b2b4aa8669cb66c10b4e86383d22e745456e4"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M05",
+      "repo": "https://github.com/blacklanternsecurity/bbot",
+      "revision": "a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/surfaces/wordlists.py",
+      "retained_and_changed": "Port efectiv agregare și mutații numerice/prefix-sufix; injecție vocabular și regex/helpers. Nu copia scanner, DNSMutator, fetch sau corpus neauditat.",
+      "dependency_seam": "Subset: re/string stdlib + helpers gen_numbers/regex revizuite. Fișier întreg importă wordninja/tldextract: nu necesare subsetului; dacă segmentarea devine necesară, pachete pin-uite separat. gen_numbers: misc.py:1334–1358; regexes.py:19–21 portate cu controale Unicode; dedup pe valori, nu hash() și ordine stabilă.",
+      "acceptance_proposed": "Termeni sintetici + limite produc artifact determinist/digest și provenance; plafon depășit trunchiat explicit; cookie/PII excluse; nicio cerere target.",
+      "source_refs": [
+        {
+          "file": "bbot/core/helpers/wordcloud.py",
+          "symbol": "WordCloud.mutations",
+          "lines": [
+            89,
+            135
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/helpers/wordcloud.py#L89-L135",
+          "file_sha256": "40cf19d4dd35fe15eb4452908ef44bf88cce382ed930a8ee481203deeefb4b18",
+          "fragment_sha256": "67fa71473d9e3d438b9c667b5192869b3ea6dcf25a4ba21f1f1a31c9eca86c35"
+        },
+        {
+          "file": "bbot/core/helpers/wordcloud.py",
+          "symbol": "WordCloud.modifiers",
+          "lines": [
+            137,
+            147
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/helpers/wordcloud.py#L137-L147",
+          "file_sha256": "40cf19d4dd35fe15eb4452908ef44bf88cce382ed930a8ee481203deeefb4b18",
+          "fragment_sha256": "d22bfa631748806dfedbe34e758e5cc5626e35b2f407fc8a294f29e7ac8f9a10"
+        },
+        {
+          "file": "bbot/core/helpers/wordcloud.py",
+          "symbol": "WordCloud.add_word",
+          "lines": [
+            191,
+            213
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/helpers/wordcloud.py#L191-L213",
+          "file_sha256": "40cf19d4dd35fe15eb4452908ef44bf88cce382ed930a8ee481203deeefb4b18",
+          "fragment_sha256": "ae80ec60e5f6a3a599c8abc64d5dda3e9557dcd39f38b3c1d72f25aaae54a97c"
+        },
+        {
+          "file": "bbot/core/helpers/wordcloud.py",
+          "symbol": "WordCloud.get_number_mutations",
+          "lines": [
+            215,
+            284
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/helpers/wordcloud.py#L215-L284",
+          "file_sha256": "40cf19d4dd35fe15eb4452908ef44bf88cce382ed930a8ee481203deeefb4b18",
+          "fragment_sha256": "f8729f65a7ea7031fadc6e02992e86726140ebb5f82b350cf1762d1f86ff17b8"
+        },
+        {
+          "file": "bbot/core/helpers/misc.py",
+          "symbol": "gen_numbers",
+          "lines": [
+            1334,
+            1358
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/core/helpers/misc.py#L1334-L1358",
+          "file_sha256": "e958315df9ce536e67b399a16cb8881c31337503e00c92662a1ba39d323efd61",
+          "fragment_sha256": "e932d656bdeefca55ef155987d5aacb83b8615dfadcbcc3ea46e2818071360fe"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "bbot/test/test_step_1/test_helpers.py",
+          "symbol": "test_word_cloud",
+          "lines": [
+            661,
+            761
+          ],
+          "url": "https://github.com/blacklanternsecurity/bbot/blob/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69/bbot/test/test_step_1/test_helpers.py#L661-L761",
+          "file_sha256": "084884b0a538d4f36da361f5468f81be35dd12580beb686fd06ee44b6f2762e4",
+          "fragment_sha256": "9476267c1c4d65ccda44172e36f34405f87d46b5caecf48cd521c17ebe7de485"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M06",
+      "repo": "https://github.com/scrapy/scrapy",
+      "revision": "5d789b24f994bcdfca97c34d976c73739e064849",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/tasks/component_order.py",
+      "retained_and_changed": "Copiere/adaptare sortare, None=disabled și detectare coliziuni; ID-uri exacte de registru, nu import paths ori alias normalization.",
+      "dependency_seam": "Upstream: BaseSettings/update_classpath/without_none_values, numbers/itemgetter. Port dict simplu + stdlib; adaugă priorități int bounded, exclude bool/NaN și tie-break stabil.",
+      "acceptance_proposed": "Ordine diferită salvată apare în readback și execuție; disabled nu rulează; duplicate ID/priority invalid respinse; policy hooks obligatorii nedezactivabile.",
+      "source_refs": [
+        {
+          "file": "scrapy/utils/conf.py",
+          "symbol": "build_component_list",
+          "lines": [
+            20,
+            63
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/utils/conf.py#L20-L63",
+          "file_sha256": "92f790469e813e9d1335af45d307118642a8728a6b6edc9fa6f391c6b6665ed3",
+          "fragment_sha256": "6912ca575cf66893e89b92e649c6b59095e77bfd4ecf99b86ea7bbc6ebe65a68"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "tests/test_utils_conf.py",
+          "symbol": "TestBuildComponentList",
+          "lines": [
+            23,
+            71
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_utils_conf.py#L23-L71",
+          "file_sha256": "85a45f8ae16b2447537caacbf4858d0343bdbe985333a620653931feac85893a",
+          "fragment_sha256": "f4a39ba256b5d5fb64234bb7df1473d7b31e2a98beaade86a74e00669eedf2c3"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M07",
+      "repo": "https://github.com/scrapy/scrapy",
+      "revision": "5d789b24f994bcdfca97c34d976c73739e064849",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/modules/surfaces/ingestion.py",
+      "retained_and_changed": "Port chain sync/async pentru decode → validate shape/context → normalize preserving raw → redact/project → persist evidence/domain event → notify; fără Crawler/Deferred. Rezultat tipizat, rejet explicit, nu dispariție tăcută.",
+      "dependency_seam": "Upstream: MiddlewareManager, Twisted, scrapy.utils.defer, Crawler. Port: inspect.isawaitable/asyncio + DTO/UnitOfWork Omnis; lifecycle managed separat.",
+      "acceptance_proposed": "Ordine A→B verificată, output B derivat din A; invalid la B împiedică persistarea; raw evidence și receipt de rejeție rămân; anulare fără event de succes.",
+      "source_refs": [
+        {
+          "file": "scrapy/pipelines/__init__.py",
+          "symbol": "ItemPipelineManager._add_middleware",
+          "lines": [
+            57,
+            66
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/pipelines/__init__.py#L57-L66",
+          "file_sha256": "b56d456790e1cd01aec2d004ba5d91853d18a944e56e97b7e1e2c251e20d505c",
+          "fragment_sha256": "ec163c14bde8f77bd8bfc40395ff43f38d51304e161bebf11a908c0d6141c572"
+        },
+        {
+          "file": "scrapy/pipelines/__init__.py",
+          "symbol": "ItemPipelineManager.process_item_async",
+          "lines": [
+            77,
+            80
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/pipelines/__init__.py#L77-L80",
+          "file_sha256": "b56d456790e1cd01aec2d004ba5d91853d18a944e56e97b7e1e2c251e20d505c",
+          "fragment_sha256": "5f8e18db4edff24c25a84066c760faf7809bb9fabb58e603ffc1e79bee55fbff"
+        },
+        {
+          "file": "scrapy/middleware.py",
+          "symbol": "MiddlewareManager._process_chain",
+          "lines": [
+            131,
+            153
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/middleware.py#L131-L153",
+          "file_sha256": "3d5948ffe0cb1374fa33913866e29bb10dfb8782fd823a9987b1ad2fd451b2bd",
+          "fragment_sha256": "c4e98e82d6130ac223e8d4671631df6ebe470984c86b8ffc23399297515dc483"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "tests/test_pipelines.py",
+          "symbol": "TestPipeline.test_pipeline",
+          "lines": [
+            160,
+            163
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_pipelines.py#L160-L163",
+          "file_sha256": "df1b564b63c0006c983f4845c80b77f9f91f411e716ebb2550f4ec4569df0492",
+          "fragment_sha256": "1c61266b629df2b8713c1bf28181feac38d20f272879848b172d7b2ec59c6384"
+        },
+        {
+          "file": "tests/test_pipelines.py",
+          "symbol": "TestPipeline.test_process_item_exception",
+          "lines": [
+            220,
+            229
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_pipelines.py#L220-L229",
+          "file_sha256": "df1b564b63c0006c983f4845c80b77f9f91f411e716ebb2550f4ec4569df0492",
+          "fragment_sha256": "848adbcaac4932a0422d6a7099b34d74590f51daa6ccead372c6f6892d4a2cb9"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M08",
+      "repo": "https://github.com/scrapy/scrapy",
+      "revision": "5d789b24f994bcdfca97c34d976c73739e064849",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "executors/http/src/omnis_http/action_hooks.py",
+      "retained_and_changed": "Port ordinea request înainte/result-error invers și validarea outputului; efectul rămâne action broker, fără Request de retry executat automat.",
+      "dependency_seam": "Upstream: Request/Response Scrapy, MiddlewareManager, Deferred helpers. Port: typed ActionRequest/Receipt, asyncio + adapter broker existent; nu Scrapy engine.",
+      "acceptance_proposed": "A/B se aplică înainte și B/A după; redirect/retry devine propunere reautorizată; PolicyDenied și Cancelled nu sunt convertite în succes, Stop între propunere/dispatch refuză.",
+      "source_refs": [
+        {
+          "file": "scrapy/core/downloader/middleware.py",
+          "symbol": "DownloaderMiddlewareManager._add_middleware",
+          "lines": [
+            53,
+            64
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/core/downloader/middleware.py#L53-L64",
+          "file_sha256": "dc4b58a6149e8f777879267a4d2b13ec5d0bc6d180428d39a2f89d78236c6eac",
+          "fragment_sha256": "8bf641fcf1bf97dc3df0ec171e729f7d7c1b4625f40e42dbfa313fddd1a51cdb"
+        },
+        {
+          "file": "scrapy/core/downloader/middleware.py",
+          "symbol": "DownloaderMiddlewareManager._process_request",
+          "lines": [
+            108,
+            126
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/core/downloader/middleware.py#L108-L126",
+          "file_sha256": "dc4b58a6149e8f777879267a4d2b13ec5d0bc6d180428d39a2f89d78236c6eac",
+          "fragment_sha256": "f2b83efff7fcb8f5a06f91814924800eb7c08d6a4f271773c761a2f4c293206b"
+        },
+        {
+          "file": "scrapy/core/downloader/middleware.py",
+          "symbol": "DownloaderMiddlewareManager._process_response",
+          "lines": [
+            128,
+            163
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/core/downloader/middleware.py#L128-L163",
+          "file_sha256": "dc4b58a6149e8f777879267a4d2b13ec5d0bc6d180428d39a2f89d78236c6eac",
+          "fragment_sha256": "956186de7c56b31b1d7fd30b4f324e22916f55ded1d4457a3a6ca10c323e576d"
+        },
+        {
+          "file": "scrapy/core/downloader/middleware.py",
+          "symbol": "DownloaderMiddlewareManager._process_exception",
+          "lines": [
+            200,
+            230
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/core/downloader/middleware.py#L200-L230",
+          "file_sha256": "dc4b58a6149e8f777879267a4d2b13ec5d0bc6d180428d39a2f89d78236c6eac",
+          "fragment_sha256": "a33fac0a31f8f32f13f7517178198dad08a3c696c45b0bcb763c2d04738473a9"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "tests/test_downloadermiddleware.py",
+          "symbol": "TestResponseFromProcessException.test_process_response_called",
+          "lines": [
+            185,
+            209
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_downloadermiddleware.py#L185-L209",
+          "file_sha256": "5323a79ea850cb998f4f7f5aca09a6f68d9b8c894289df8937d62265504d180a",
+          "fragment_sha256": "c8f4d0a87db2c166f56c4bda5ce89617042a0cd310648cbe914c773a25a3ecfc"
+        },
+        {
+          "file": "tests/test_downloadermiddleware.py",
+          "symbol": "TestResponseExceptions.test_processed_middleware_not_called",
+          "lines": [
+            285,
+            307
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_downloadermiddleware.py#L285-L307",
+          "file_sha256": "5323a79ea850cb998f4f7f5aca09a6f68d9b8c894289df8937d62265504d180a",
+          "fragment_sha256": "85c6bd11ed43d4ce0997140466bb8aa76a3534749d3335080a63fba640863f8b"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "M09",
+      "repo": "https://github.com/scrapy/scrapy",
+      "revision": "5d789b24f994bcdfca97c34d976c73739e064849",
+      "reuse_mode": "copy_adapt_subset",
+      "destination_proposed": "api/src/omnis/transport/events.py",
+      "retained_and_changed": "Port fan-out async și rezultat per receiver pentru proiecții/telemetrie; registru local explicit. Nu folosi signal ca inbox durabil sau permission gate.",
+      "dependency_seam": "Upstream: PyDispatcher, robustApply, Twisted, defer/log utils. Port: asyncio, receiver IDs și DTO uniforme; fără PyDispatcher obligatoriu.",
+      "acceptance_proposed": "Consumator UI eșuat nu pierde eventul DB ori alt consumator; retry din cursor recuperează; duplicate event nu dublează wake/task; observerul nu autorizează efect.",
+      "source_refs": [
+        {
+          "file": "scrapy/utils/signal.py",
+          "symbol": "_send_catch_log_asyncio",
+          "lines": [
+            165,
+            214
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/utils/signal.py#L165-L214",
+          "file_sha256": "ce64753add697deda4e587d30904231c0d9acf195169196a42b692cbd4c3e36a",
+          "fragment_sha256": "a3337b83464ebf2f71177587dea6c191acad0fd46504f2fbf378c9466149f1cd"
+        },
+        {
+          "file": "scrapy/signalmanager.py",
+          "symbol": "SignalManager.connect",
+          "lines": [
+            21,
+            38
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/signalmanager.py#L21-L38",
+          "file_sha256": "6f174b0a8185ae383fea78fabc1f6e9e738f56bcaf4375c6a2ebdc7501a7abdb",
+          "fragment_sha256": "05d0df8f92701b787871ee7abec2e574c61a14b1831388482093d259b49d8f09"
+        },
+        {
+          "file": "scrapy/signalmanager.py",
+          "symbol": "SignalManager.disconnect",
+          "lines": [
+            40,
+            49
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/scrapy/signalmanager.py#L40-L49",
+          "file_sha256": "6f174b0a8185ae383fea78fabc1f6e9e738f56bcaf4375c6a2ebdc7501a7abdb",
+          "fragment_sha256": "26c5c921a4555c779fc70af7139c74fb4a5f910c353a7565409bf0f38a8a553e"
+        }
+      ],
+      "upstream_tests": [
+        {
+          "file": "tests/test_utils_signal.py",
+          "symbol": "TestSendCatchLog.test_send_catch_log",
+          "lines": [
+            30,
+            54
+          ],
+          "url": "https://github.com/scrapy/scrapy/blob/5d789b24f994bcdfca97c34d976c73739e064849/tests/test_utils_signal.py#L30-L54",
+          "file_sha256": "5a38d521dced5de1b52dc5b59243357c31c5548b1b76029c7df240f00cecd3a7",
+          "fragment_sha256": "6393dafc6f8bc95385b31567f9f66af43b8f8197d6de05d38dae1eb679d11561"
+        }
+      ],
+      "status": "SOURCE_REVIEWED_NOT_IMPORTED"
+    },
+    {
+      "id": "HM01",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Per-run researcher; trusted binding, budget and Stop.",
+      "source_refs": [
+        {
+          "file": "tools/delegate_tool.py",
+          "symbol": "Native delegation",
+          "lines": [
+            187,
+            205
+          ],
+          "file_sha256": "0cafc5163762c76da285050e4c8259996c8c3dac1b1a81cd5e262f8cb5156f22",
+          "fragment_sha256": "8d4df3b75078d2e90168a3994a936b82eec94beb3750f1778878bfbb45f8ceee",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool.py#L187-L205"
+        },
+        {
+          "file": "tools/delegate_tool.py",
+          "symbol": "Native delegation",
+          "lines": [
+            234,
+            248
+          ],
+          "file_sha256": "0cafc5163762c76da285050e4c8259996c8c3dac1b1a81cd5e262f8cb5156f22",
+          "fragment_sha256": "86a32c21c9725120d46ca23833e6a30945427d7d1c21f8f9ea0c1bc8feccec6f",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool.py#L234-L248"
+        },
+        {
+          "file": "tools/delegate_tool.py",
+          "symbol": "Native delegation",
+          "lines": [
+            263,
+            285
+          ],
+          "file_sha256": "0cafc5163762c76da285050e4c8259996c8c3dac1b1a81cd5e262f8cb5156f22",
+          "fragment_sha256": "e876321fcc3e77f95b86fb8052a02256ab8aa6c6b489b10ac6bca39e66606600",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool.py#L263-L285"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM02",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Optional plugin surface with active parent; no durable worker assumption.",
+      "source_refs": [
+        {
+          "file": "agent/subagent_lifecycle.py",
+          "symbol": "Native lifecycle API",
+          "lines": [
+            219,
+            229
+          ],
+          "file_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+          "fragment_sha256": "a8cc6b550fb36d9dade2c393890c0c160c8d1a730588cb7876d1155f6f06603f",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py#L219-L229"
+        },
+        {
+          "file": "agent/subagent_lifecycle.py",
+          "symbol": "Native lifecycle API",
+          "lines": [
+            245,
+            280
+          ],
+          "file_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+          "fragment_sha256": "d55e7c4669ce87189897b0a0959a4a24314a9acdc77925ccd73b57a585686ee4",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py#L245-L280"
+        },
+        {
+          "file": "agent/subagent_lifecycle.py",
+          "symbol": "Native lifecycle API",
+          "lines": [
+            303,
+            345
+          ],
+          "file_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+          "fragment_sha256": "e3724daec0d7405629b8b0c94f0c62b9a3e0dd6dd3ec471e69cabe4fdc0db314",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py#L303-L345"
+        },
+        {
+          "file": "agent/subagent_lifecycle.py",
+          "symbol": "Native lifecycle API",
+          "lines": [
+            360,
+            387
+          ],
+          "file_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+          "fragment_sha256": "53f9ab5a1da4827d8cdd51fdb150e704a869557becdcfff8307a3be614207bee",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py#L360-L387"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM03",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Sanitized maintenance session plus proposal tool, no active-release writer.",
+      "source_refs": [
+        {
+          "file": "agent/background_review.py",
+          "symbol": "Native review fork",
+          "lines": [
+            1078,
+            1118
+          ],
+          "file_sha256": "47a8ed4c09f7032c2a731e3fc946ca16e0b9388fee71c85f19908215eeb12f03",
+          "fragment_sha256": "430ff839034af6366b78b8f595b67e04c36b0ce74bc17aa7dc407f27ec761838",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/background_review.py#L1078-L1118"
+        },
+        {
+          "file": "agent/background_review.py",
+          "symbol": "Native review fork",
+          "lines": [
+            1137,
+            1183
+          ],
+          "file_sha256": "47a8ed4c09f7032c2a731e3fc946ca16e0b9388fee71c85f19908215eeb12f03",
+          "fragment_sha256": "8abf5469c62bcaeac31f7a210daaacfd8015262196f84ddbea9861745ad8f578",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/background_review.py#L1137-L1183"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM04",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Working library only; dry_run prompt is not read-only enforcement.",
+      "source_refs": [
+        {
+          "file": "agent/curator.py",
+          "symbol": "Native curator",
+          "lines": [
+            860,
+            876
+          ],
+          "file_sha256": "e72987391d0f311b7a3191cedc2e37e8942d34315b8d2c519fb6adb8515d3aa4",
+          "fragment_sha256": "cc4a3ad93fdca00cf8e713d5cfe75606856550dba154b755c69fa8b210adbfe2",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/curator.py#L860-L876"
+        },
+        {
+          "file": "agent/curator.py",
+          "symbol": "Native curator",
+          "lines": [
+            894,
+            967
+          ],
+          "file_sha256": "e72987391d0f311b7a3191cedc2e37e8942d34315b8d2c519fb6adb8515d3aa4",
+          "fragment_sha256": "57405333ed57a7ad63d1649a4b536b1457db1fdf488543c53e9b0413392013ba",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/curator.py#L894-L967"
+        },
+        {
+          "file": "agent/curator.py",
+          "symbol": "Native curator",
+          "lines": [
+            1057,
+            1079
+          ],
+          "file_sha256": "e72987391d0f311b7a3191cedc2e37e8942d34315b8d2c519fb6adb8515d3aa4",
+          "fragment_sha256": "d5f4492311c1b2c84b0509d96f875c7e02dcd7019a66f61b58a997340204f68b",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/curator.py#L1057-L1079"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM05",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Draft source only; separate publisher and RO release; import failure tested.",
+      "source_refs": [
+        {
+          "file": "tools/skill_manager_tool.py",
+          "symbol": "Native staging/approval",
+          "lines": [
+            627,
+            677
+          ],
+          "file_sha256": "f9c6fc6425c6ee6c2effb73a47cceb6da4f5753e00d10295e76ec94725e8acf5",
+          "fragment_sha256": "f0b2f353ae60cb8b562d9bdadb2685689d2cc731c4a6d7dac0f23292b937bc66",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/skill_manager_tool.py#L627-L677"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM06",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "no_agent enqueue first; exclusive maintenance admission; explicit memory/MCP/provider.",
+      "source_refs": [
+        {
+          "file": "cron/scheduler.py",
+          "symbol": "Native periodic scheduling",
+          "lines": [
+            2420,
+            2439
+          ],
+          "file_sha256": "78d70e0e7be7582b39e878c6acf31e8ad110369867a0bc1e4a9faefc62a79a27",
+          "fragment_sha256": "09a4f50a788f9ba5a4e2ab4be29d921608073abb6083d032bab2ae437018589f",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/cron/scheduler.py#L2420-L2439"
+        },
+        {
+          "file": "cron/scheduler_prompt.py",
+          "symbol": "_parse_wake_gate",
+          "lines": [
+            20,
+            34
+          ],
+          "file_sha256": "017c35d3583cdcd13cab1c5192e92729c1c50c4a32f7ad2282d7d094bfb6d05d",
+          "fragment_sha256": "cdb5a4c7ed689c127633efe22d5842bb87f4ce0ea12bb748ff69192dcea7736c",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/cron/scheduler_prompt.py#L20-L34"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM07",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Narrow product tools, no user-profile changes or generic admin proxy.",
+      "source_refs": [
+        {
+          "file": "hermes_cli/plugins.py",
+          "symbol": "Native plugin tools and skills",
+          "lines": [
+            456,
+            498
+          ],
+          "file_sha256": "51c7fdd506b187c8713e706a7b264614902b28039e79875770e4b120180b423c",
+          "fragment_sha256": "3bc9d4286efd849e529ad9e9d74f01a6b9406f3cf99d4eb000e9766a2cfab703",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/hermes_cli/plugins.py#L456-L498"
+        },
+        {
+          "file": "hermes_cli/plugins.py",
+          "symbol": "Native plugin tools and skills",
+          "lines": [
+            993,
+            1022
+          ],
+          "file_sha256": "51c7fdd506b187c8713e706a7b264614902b28039e79875770e4b120180b423c",
+          "fragment_sha256": "f3b8254cd83bd12ef943e7def74aff025f12bbac4ae1bb4b517a10d3a44b4a1c",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/hermes_cli/plugins.py#L993-L1022"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    },
+    {
+      "id": "HM08",
+      "repo": "https://github.com/NousResearch/hermes-agent",
+      "revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "reuse_mode": "use_native_surface_not_copy",
+      "destination_proposed": "integrations/hermes/src/omnis_hermes/",
+      "retained_and_changed": "Unknown work and idempotent inbox reconciliation, not resume of thread.",
+      "source_refs": [
+        {
+          "file": "tools/async_delegation.py",
+          "symbol": "Native completion recovery",
+          "lines": [
+            258,
+            300
+          ],
+          "file_sha256": "6a7b64ae07577ab6ad22753bbe6ef20666d3880242dad86e3bb09dc12dd4d319",
+          "fragment_sha256": "8c1134e78a5b205d33dea97be6058e2d90d4134b8dc3428cedc8316285ec3cd5",
+          "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/async_delegation.py#L258-L300"
+        }
+      ],
+      "upstream_tests": [],
+      "status": "PIN_REVIEWED_PRODUCT_INTEGRATION_NOT_PROVEN"
+    }
+  ],
+  "limitations": [
+    "Exact source locations and hashes verified; not full source audit or integration test",
+    "No source code imported into product",
+    "Acceptance tests in units are proposed unless explicitly recorded as offline probe"
+  ]
+}

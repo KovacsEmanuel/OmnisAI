@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 2,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/curator",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 3,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 5,
+      "url": "https://google.github.io/osv.dev/api",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 6,
+      "url": "https://google.github.io/osv.dev",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 11,
+      "url": "https://github.com/ShielderSec/webtech/tree/7141d3542b650df9f984deba6213e2911ee7b9d1",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 12,
+      "url": "https://github.com/digininja/CeWL/tree/ca01aeae1c77bb086ef757611dea6377b8d1168b",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 13,
+      "url": "https://github.com/assetnote/kiterunner/tree/7d5824cda9a2eef86d8d18b05b713d7e260f34d2",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 14,
+      "url": "https://github.com/assetnote/wordlists/tree/6dea231f4cbd356a637851b1c13b83de4da00adb",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 15,
+      "url": "https://github.com/usestrix/strix/tree/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 16,
+      "url": "https://github.com/KeygraphHQ/shannon/tree/327c10fd90a6186a9f035b4b6ddb5bbba1839e92",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 17,
+      "url": "https://github.com/blacklanternsecurity/bbot/tree/a6fb827bb144cdb85b52e142a4d6e14ed5f94b69",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 18,
+      "url": "https://github.com/scrapy/scrapy/tree/5d789b24f994bcdfca97c34d976c73739e064849",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 22,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/web-search",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 23,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/cron-internals",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 24,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/subagent-lifecycle-api",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 25,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 26,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 27,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/background_review.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 28,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/curator.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 29,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/skill_manager_tool.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 30,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/cron/scheduler.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 31,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/cron/scheduler_prompt.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 32,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/hermes_cli/plugins.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 33,
+      "url": "https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/async_delegation.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    }
+  ]
+}

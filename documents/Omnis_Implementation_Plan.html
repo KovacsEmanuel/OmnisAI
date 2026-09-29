@@ -420,6 +420,51 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Raportăm numitorul, fiecare run, miss stage, inconclusive/blocked, replay, cost/requesturi/timp, intervenții și cleanup. Nu revendicăm precizie universală din corpusul mic.</li>
 </ul>
 <p><strong>Invalidare predefinită:</strong> numai evaluatorul/operatorul, cu dovadă independentă, poate marca <code>INVALID_ENV</code>: fixture resetat greșit înainte de start, truth manifest defect sau indisponibilitate externă dovedită care nu a fost provocată de run. Erori ale Omnis, auth drift pe care trebuia să-l gestioneze, context pierdut, crash al componentelor sale, rate-limit în bugetul ales și depășiri de buget rămân rezultate ale produsului în scor. Maximum o înlocuire pentru fiecare slot programat al seriei, cu același model/config/buget și un seed prestabilit; dacă și înlocuirea este invalidă, poarta este BLOCKED și seria nu trece. Cele trei sloturi de scor rămân fixe; invalidarea nu permite alegerea celui mai bun dintre mai multe rezultate. Raportăm atât toate tentativele (inclusiv cele invalide), cât și scorul per protocol, cu motive/autoritate. Repetările deliberate pentru diagnostic după serie sunt etichetate și nu schimbă retroactiv scorul.</p>
+<h3 id="protocol-comparativ-omnisstrix">Protocol comparativ Omnis–Strix</h3>
+<p><strong>HF09 / B20, protocol preregistrat, fără superioritate promisă înainte de măsurare.</strong> Păstrăm pragurile corpusului minim de mai sus; comparația nu le înlocuiește și nu le relaxează. Evaluatorul/operatorul aprobă înaintea seriei metricile primare, marja de non-inferioritate/superioritate, intervalele de incertitudine, seeds/ordine, reseturile și invalidările; fără prag ales după rezultat. Dacă numărul de cazuri nu susține concluzia statistică, raportăm comparație descriptivă și incertitudine, nu paritate.</p>
+<ol>
+<li>Pin Omnis/Strix/builduri, modelele/provider/fallback, PromptBundle/package/procedure/tool/template versions, hardware, profil informațional, buget AI/target/timp/storage și intervențiile permise. Aceleași misiuni, informații inițiale, identități/reguli business și bugete în pereche; unde paritatea tehnică nu este posibilă, o declarăm, nu ascundem avantajul de input.</li>
+<li>Corpus <strong>held-out vulnerable/fixed/benign</strong>, izolat/resetat, fără soluții/truth/canary accesibile solverului. Fiecare variantă vulnerabilă/remediată din protocolul minim are și scenariu benign cu funcție legitimă asemănătoare; aceleași trei sloturi independente/resetate. Evaluatorul adjudecă independent toate claims și replay-ul; cazul Strix deja citit este numai development, niciodată held-out.</li>
+<li>Piste separate black-box / grey-box / source-aware, și <code>FULL_ASSESSMENT</code> / <code>FOCUSED_TEST</code>: aceeași misiune/focus și aceeași informație autorizată în pereche. Nu comparăm focused reușit cu un full și nu atribuim avantajul accesului source motorului de investigație.</li>
+<li>Raport per run: findings distincte adjudecate pe <strong>cauze-rădăcină</strong>, occurrences și attack paths separat; detecții și <strong>ratări</strong> cu miss stage recon/plan/execuție/validare; <strong>FP</strong> pe fixed/benign; independent <strong>replay</strong>, coverage calificat/numitor, scope/data violations, cleanup/efecte UNKNOWN, <strong>cost</strong>, <strong>latență</strong>, <strong>intervenții</strong>. LLM/decision calls ≠ requesturi target; cost per finding validat este N/A dacă numitorul este zero, UNKNOWN dacă usage nu poate fi verificat.</li>
+<li>Pentru MVP comparăm numai familiile/subvariantele efectiv suportate și etichetăm subsetul. Raportăm separat breadthul total, unsupported și lipsurile; nu revendicăm paritate generală dintr-un subset favorabil. E1 singur nu acoperă runul Strix de referință; clasele E2 și capabilitățile E4 lipsă rămân vizibile.</li>
+<li>OFF/SHADOW/ADVISORY Jev și heuristică deterministă au profil/buget egal, set de calibrare separat de held-out și toate fallback/disagreement raportate. Shadow nu influențează taskurile; live cu/fără advisor măsoară efectul, nu un run izolat. Nu ascundem costul decizional în buget „gratuit”.</li>
+<li>Toate tentativele sunt publicate conform invalidărilor prestabilite; nu best-of/selectarea doar a reușitelor. „Comparabil” cere marja prestabilită și incertitudine; „mai bun” cere câștig pe metrica aleasă fără regresie tacită în siguranță/FP. Cost mai mic cu mai multe ratări este trade-off, nu victorie generală. Niciun rezultat nu este inventat dacă gate-ul este BLOCKED/NOT-RUN.</li>
+</ol>
+<h3 id="nucleu-mvp-si-extindere-competitiva">Nucleu MVP și extindere competitivă</h3>
+<p>M0 = fundație P0.4/G00; M1 = prima BOLA G05a/G06a; M2 = MVP coerent cu ambele moduri, G-LOOP, browser/XSS/traversal, G-PATH, Jev real/evaluat, catalog/profil versionat, research/wordlist/improvement demonstrabile când sunt invocate și Settings/operare/evaluare P0–P8. Research și improvement <strong>nu</strong> sunt obligatorii într-un run sau înainte de raport, chiar dacă integrarea promisă trebuie demonstrată pentru release. Public research periodic nu blochează MVP-ul manual; când este activat cere B21m/G-HERMES-BOUND. Următoarele valuri sunt ordinea capabilităților, nu înlocuirea motorului:</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Val</th>
+<th>Subfamilii și reuse</th>
+<th>Gate observabil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E1</td>
+<td>Disclosure/config exposure; auth/session/JWT; BFLA/mass assignment; SQLi. Strix + Nuclei exposure + adaptor diferențial/SQLi fixat</td>
+<td>Oracle și vulnerable/fixed/benign per subfamilie, funcțional auth-maintenance separat de auth attacks; nu dump implicit</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>CSRF, DOM/stored XSS, SSRF/XXE, business workflows/race bounded. Strix + Schemathesis stateful, browser/sinks dedicate</td>
+<td>Timing/session/business invariant, server-side destinații secundare autorizate, replay și cleanup; fiecare variantă separată</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Source-aware snapshot explicit revizuit, source-to-sink hints/remediere/retest; parsere OSS și Shannon R07 numai după decizia de import</td>
+<td>G-SOURCE: zero exec la import, source data policy și corpus separat; source-supported ≠ runtime-confirmed</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>Workers suplimentari, GraphQL/WS/gRPC/OAST, upload/deserializare/RCE și integrări de echipă cerute explicit</td>
+<td>Gate nou de protocol/familie/deployment; nu drepturi din import de skill, nu host/hardware implicit</td>
+</tr>
+</tbody>
+</table></div>
+<p>Inventarul celor 29 ghiduri de vulnerabilitate și al celor 46 suport rămâne complet în anexa JSON. <code>extindere_apropiata</code> este prioritate de cercetare, <strong>nu</strong> sinonim E1: un ghid upload poate avea subprocedură inertă mai devreme, execuția riscantă rămâne E4; business modelling e MVP, mutațiile business sunt E2. HTTPX ProjectDiscovery din ghid nu este biblioteca Python HTTPX; tooling/python nu autorizează shell. Catalogul se raportează prin metodologie disponibilă, adaptor/transport gata, oracol evaluat și permisiune per run. Releaseul cu breadth apropiat de Strix cere lista explicită de subfamilii/scenarii din E1/E2/E4 și probele lor; nu redenumim trei familii „paritate”.</p>
 <h3 id="g-data-si-g-ops">G-DATA și G-OPS</h3>
 <p>Marker sensibil sintetic și secret de test urmărite prin request/response, eroare provider, compresie, logs, screenshots, export, backup și restart. Engagementul B nu citește datele lui A. Retenția și ștergerea au manifest, inclusiv derivatele și limitele backupurilor. Restore într-un root separat verifică DB + artefacte; niciun secret din backup nu ajunge în Git sau outputul CI.</p>
 <p>Un raport istoric supraviețuiește ștergerii probelor fără a pretinde replay curent: UI/exporturile noi arată MISSING/DELETED/CORRUPT separat de verdictul istoric; raportul vechi rămâne imuabil și indică data/snapshotul disponibilității. Test: ștergere/retention → evidence unavailable → replay refuzat, fără rescrierea trecutului.</p>
@@ -695,6 +740,119 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 </tbody>
 </table></div>
+<h3 id="amendamentele-hf01hf10-si-recomandarile-inlocuite">Amendamentele HF01–HF10 și recomandările înlocuite</h3>
+<p>Toate rândurile sunt <strong>ADOPTAT ÎN SPECIFICAȚIE / RUNTIME NOT-RUN</strong>, nu gates de produs trecute. Handofful final și review-urile păstrează proveniența deciziei; acest tabel trimite la unicul baseline, nu la încă un plan.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Contract canonic / UI</th>
+<th>Owner / ticket / verificare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HF01</td>
+<td>Arhitectură §9.3, UI §3; selector și obiectiv, UI11</td>
+<td>engagements B02/B04, G01: save inert + reload/restart/409/limits/inert HTML</td>
+</tr>
+<tr>
+<td>HF02</td>
+<td>Arhitectură §9.3/§5/§7; MissionSpec/FocusEnvelope, UI12</td>
+<td>runs/tasks/policy B06/B10f/B18a, G-FOCUS: suporta login, nu auth attack/global hunting</td>
+</tr>
+<tr>
+<td>HF03</td>
+<td>Arhitectură §6/§9.2–9.3/§11; outcomes/coverage/report/retest, UI13</td>
+<td>coverage/validation/reports B12f/B13f, G-FOCUS: numerator onest și bytes export exact</td>
+</tr>
+<tr>
+<td>HF04</td>
+<td>Arhitectură §9.4, stack §10; pachet/tehnică/procedură, UI14</td>
+<td>settings B06/P4a-minim→B14b, H03/G04b/G-REVISION: wrong digest/ref/edit-after-eval refuzate</td>
+</tr>
+<tr>
+<td>HF05</td>
+<td>Arhitectură §5/§9.5; PromptBundle/brief/result, UI15</td>
+<td>tasks/integrations/hermes B06, H03–H08: binding corect, context îngust, stale/Stop/no double wake</td>
+</tr>
+<tr>
+<td>HF06</td>
+<td>Arhitectură §3/§9.6, stack §10; tool registry/invocation/Action, UI16</td>
+<td>policy/evidence/adaptoare B07/B09/B15n, G-TOOLS/G-NET: installed≠permitted, fiecare request atribuit</td>
+</tr>
+<tr>
+<td>HF07</td>
+<td>Arhitectură A15/A16/§6.1–6.2; modul/research/wordlist/improvement, UI17/18/20/21/22</td>
+<td>tasks/surfaces/settings B10/B14c/B18/B21m; G-LOOP/G-PATH și gates auxiliare, nu prerequisite BOLA</td>
+</tr>
+<tr>
+<td>HF08</td>
+<td>Arhitectură §5.1, stack U07/U13; Jev UI19</td>
+<td>DecisionAdvisor B06j/B14j, G-JEV: shadow fără efect, advisory calibrat, fără verdict/permisiune</td>
+</tr>
+<tr>
+<td>HF09</td>
+<td>Plan §15, arhitectură §11; corpus/comparație</td>
+<td>evaluator B20/G08: matched inputs/budgets, root-cause/FP/FN/replay/cost, fără superioritate nemăsurată</td>
+</tr>
+<tr>
+<td>HF10</td>
+<td>Plan §19, README/readiness și adjudecare P0.4</td>
+<td>fundație păstrată; WIP neintegrat, assessment_ready=false, niciun scaffold MVP sau promovare harness→G00</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Recomandare veche / conflict</th>
+<th>Decizie normativă înlocuitoare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sol: P4a-minim opțional, inbox doar la B18, toate importurile offline înainte de live</td>
+<td>P4a este obligatoriu înainte P2-live; inbox/ACK/consumed B06; import numai cu primul consumator, nu mega-gate</td>
+</tr>
+<tr>
+<td>P5a depindea de Chromium/P3b</td>
+<td>P3-auth/G-AUTH-HTTP permite primul BOLA API-only; P3b rămâne obligatoriu pentru MVP/browser/XSS</td>
+</tr>
+<tr>
+<td>Replan demonstrat abia la P7; „fără Chains” absolut</td>
+<td>G-LOOP imediat după G06a; G-PATH dependent după familiile necesare. Fără graph/council/tab Chains; timeline bounded cu review vizual separat</td>
+</tr>
+<tr>
+<td>Jev „dacă îl vrem”, validare Jev sau pruning definitiv</td>
+<td>Integrare decisă OFF/SHADOW/ADVISORY, primele heads triage/stagnare, fără CONFIRMED/scope/publicare/ștergere coverage</td>
+</tr>
+<tr>
+<td>Katana/Nuclei excluse din baseline; reuse doar conceptual</td>
+<td>Stack §10 fixează U01–U14 și S/M/R/HM: cod/teste/prompturi/metode, pachete prin adaptoare; source-reviewed nu este installed/evaluated/permitted</td>
+</tr>
+<tr>
+<td>Technique folosit ca procedură; al doilea manifest/workflow engine</td>
+<td>Technique generală + Procedure bounded; SKILL.md nativ și unicul omnis.yaml, profile compozabile pe registry trusted</td>
+</tr>
+<tr>
+<td>Research/improvement prezentate ca flux dominant/prerequisite</td>
+<td>Bucla de pentest §6.1 este primară; auxiliare opționale per run, improvement pentru viitor după quiescență</td>
+</tr>
+<tr>
+<td>Shannon doar reference-only în primul review versus port R07 în supliment</td>
+<td>Shortlist tehnic R07 adoptat; importul AGPL cere decizie de distribuție separată, nu blocaj general sau runtime nou</td>
+</tr>
+<tr>
+<td>E1 suficient pentru breadthul runului Strix; trei familii = competitor complet</td>
+<td>Înlocuit de E1–E4 și protocol matched; runul include clase E2/capabilități E4, paritatea nu este declarată</td>
+</tr>
+<tr>
+<td>Readiness preimplementare/P0.1 și fixture host-network descrise drept stare prezentă</td>
+<td>Dovezi istorice etichetate; stare locală P0.4 și WIP UDS/TCP din §19, G00 deschis. AGENTS status vizual protejat rămâne excepție explicită</td>
+</tr>
+</tbody>
+</table></div>
 <p>Trasabilitatea rezolvă recomandarea <strong>în specificație</strong>, nu pretinde testul trecut. Pentru fiecare gate implementat se păstrează comanda, versiunile, output sanitizat și verdictul real.</p>
 <h2 id="18-definition-of-done-si-pornire">18. Definition of Done și pornire</h2>
 <p>MVP-ul este livrat numai când P0–P8, inclusiv P4b, au probe, fluxul complet este demonstrat, suitele safety/evidence/negative/recovery trec și raportul reproduce starea reală. Nu este suficientă terminarea unei liste de taskuri sau existența unui screenshot.</p>
@@ -717,5 +875,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Ordinea restului P0-control:</strong> continuă P0.4 cu instalarea și lifecycle-ul <strong>prin launcherul <code>omnis</code></strong>, preflight/lock/concurență, startup/pairing/open/stop, probe de topologie/UID și negativele complete L01–L05-control/L08-core din afara checkoutului. Fixture-ul DB fără port Docker publicat este în <code>d8f79df</code>; rerulează gate-ul canonic pe checkout curat al ultimului cod și păstrează separate negativele LAN, crash/restart și celelalte porți, fără a substitui rezultatul prin probele de harness. Numai după acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.</p>
 <p><strong>Reluare P0.4 după clear:</strong> verifică HEAD/checkoutul, <a href="verification/p03-local-bootstrap.md">dovezile P0.3</a>, <a href="verification/p04-cli-status.md">incrementul CLI</a>, <a href="verification/p04-bundle-install.md">bundleul</a>, <a href="verification/p04-image-artifact.md">imaginea</a>, <a href="verification/p04-compose-contract.md">contractul Compose</a>, <a href="verification/p04-image-install.md">instalarea imaginii</a> și <a href="verification/p04-host-uds.md">proba DB/API/supervisor host-only</a>, <a href="verification/p04-safe-test-db.md">fixture-ul DB de test fără publicație</a>, inclusiv eșecurile istorice, TIME_WAIT și constatările forwarderului încă deschise. Continuă exclusiv launcherul din P0.4 în felii TDD/review/commituri mici, fără refacerea webului, conturi/LLM/ținte. Nu pretinde că topologia de harness înseamnă <code>omnis start</code> sau gate-uri complete închise.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>a4ca773708a54f63c12312e5cfcb95dd61928cf4dc9b3628e1d91168d0450ea5</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>bdd8eaeeb101875ab8d91f277083fe3842f3ceaefbb43ec9a049cb85a1461963</code>.</p></footer>
 </main></div></body></html>

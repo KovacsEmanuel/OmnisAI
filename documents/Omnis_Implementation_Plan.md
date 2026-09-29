@@ -289,6 +289,31 @@ Pentru fiecare dintre cele trei familii: două variante held-out independente, f
 
 **Invalidare predefinită:** numai evaluatorul/operatorul, cu dovadă independentă, poate marca `INVALID_ENV`: fixture resetat greșit înainte de start, truth manifest defect sau indisponibilitate externă dovedită care nu a fost provocată de run. Erori ale Omnis, auth drift pe care trebuia să-l gestioneze, context pierdut, crash al componentelor sale, rate-limit în bugetul ales și depășiri de buget rămân rezultate ale produsului în scor. Maximum o înlocuire pentru fiecare slot programat al seriei, cu același model/config/buget și un seed prestabilit; dacă și înlocuirea este invalidă, poarta este BLOCKED și seria nu trece. Cele trei sloturi de scor rămân fixe; invalidarea nu permite alegerea celui mai bun dintre mai multe rezultate. Raportăm atât toate tentativele (inclusiv cele invalide), cât și scorul per protocol, cu motive/autoritate. Repetările deliberate pentru diagnostic după serie sunt etichetate și nu schimbă retroactiv scorul.
 
+### Protocol comparativ Omnis–Strix
+
+**HF09 / B20, protocol preregistrat, fără superioritate promisă înainte de măsurare.** Păstrăm pragurile corpusului minim de mai sus; comparația nu le înlocuiește și nu le relaxează. Evaluatorul/operatorul aprobă înaintea seriei metricile primare, marja de non-inferioritate/superioritate, intervalele de incertitudine, seeds/ordine, reseturile și invalidările; fără prag ales după rezultat. Dacă numărul de cazuri nu susține concluzia statistică, raportăm comparație descriptivă și incertitudine, nu paritate.
+
+1. Pin Omnis/Strix/builduri, modelele/provider/fallback, PromptBundle/package/procedure/tool/template versions, hardware, profil informațional, buget AI/target/timp/storage și intervențiile permise. Aceleași misiuni, informații inițiale, identități/reguli business și bugete în pereche; unde paritatea tehnică nu este posibilă, o declarăm, nu ascundem avantajul de input.
+2. Corpus **held-out vulnerable/fixed/benign**, izolat/resetat, fără soluții/truth/canary accesibile solverului. Fiecare variantă vulnerabilă/remediată din protocolul minim are și scenariu benign cu funcție legitimă asemănătoare; aceleași trei sloturi independente/resetate. Evaluatorul adjudecă independent toate claims și replay-ul; cazul Strix deja citit este numai development, niciodată held-out.
+3. Piste separate black-box / grey-box / source-aware, și `FULL_ASSESSMENT` / `FOCUSED_TEST`: aceeași misiune/focus și aceeași informație autorizată în pereche. Nu comparăm focused reușit cu un full și nu atribuim avantajul accesului source motorului de investigație.
+4. Raport per run: findings distincte adjudecate pe **cauze-rădăcină**, occurrences și attack paths separat; detecții și **ratări** cu miss stage recon/plan/execuție/validare; **FP** pe fixed/benign; independent **replay**, coverage calificat/numitor, scope/data violations, cleanup/efecte UNKNOWN, **cost**, **latență**, **intervenții**. LLM/decision calls ≠ requesturi target; cost per finding validat este N/A dacă numitorul este zero, UNKNOWN dacă usage nu poate fi verificat.
+5. Pentru MVP comparăm numai familiile/subvariantele efectiv suportate și etichetăm subsetul. Raportăm separat breadthul total, unsupported și lipsurile; nu revendicăm paritate generală dintr-un subset favorabil. E1 singur nu acoperă runul Strix de referință; clasele E2 și capabilitățile E4 lipsă rămân vizibile.
+6. OFF/SHADOW/ADVISORY Jev și heuristică deterministă au profil/buget egal, set de calibrare separat de held-out și toate fallback/disagreement raportate. Shadow nu influențează taskurile; live cu/fără advisor măsoară efectul, nu un run izolat. Nu ascundem costul decizional în buget „gratuit”.
+7. Toate tentativele sunt publicate conform invalidărilor prestabilite; nu best-of/selectarea doar a reușitelor. „Comparabil” cere marja prestabilită și incertitudine; „mai bun” cere câștig pe metrica aleasă fără regresie tacită în siguranță/FP. Cost mai mic cu mai multe ratări este trade-off, nu victorie generală. Niciun rezultat nu este inventat dacă gate-ul este BLOCKED/NOT-RUN.
+
+### Nucleu MVP și extindere competitivă
+
+M0 = fundație P0.4/G00; M1 = prima BOLA G05a/G06a; M2 = MVP coerent cu ambele moduri, G-LOOP, browser/XSS/traversal, G-PATH, Jev real/evaluat, catalog/profil versionat, research/wordlist/improvement demonstrabile când sunt invocate și Settings/operare/evaluare P0–P8. Research și improvement **nu** sunt obligatorii într-un run sau înainte de raport, chiar dacă integrarea promisă trebuie demonstrată pentru release. Public research periodic nu blochează MVP-ul manual; când este activat cere B21m/G-HERMES-BOUND. Următoarele valuri sunt ordinea capabilităților, nu înlocuirea motorului:
+
+| Val | Subfamilii și reuse | Gate observabil |
+|---|---|---|
+| E1 | Disclosure/config exposure; auth/session/JWT; BFLA/mass assignment; SQLi. Strix + Nuclei exposure + adaptor diferențial/SQLi fixat | Oracle și vulnerable/fixed/benign per subfamilie, funcțional auth-maintenance separat de auth attacks; nu dump implicit |
+| E2 | CSRF, DOM/stored XSS, SSRF/XXE, business workflows/race bounded. Strix + Schemathesis stateful, browser/sinks dedicate | Timing/session/business invariant, server-side destinații secundare autorizate, replay și cleanup; fiecare variantă separată |
+| E3 | Source-aware snapshot explicit revizuit, source-to-sink hints/remediere/retest; parsere OSS și Shannon R07 numai după decizia de import | G-SOURCE: zero exec la import, source data policy și corpus separat; source-supported ≠ runtime-confirmed |
+| E4 | Workers suplimentari, GraphQL/WS/gRPC/OAST, upload/deserializare/RCE și integrări de echipă cerute explicit | Gate nou de protocol/familie/deployment; nu drepturi din import de skill, nu host/hardware implicit |
+
+Inventarul celor 29 ghiduri de vulnerabilitate și al celor 46 suport rămâne complet în anexa JSON. `extindere_apropiata` este prioritate de cercetare, **nu** sinonim E1: un ghid upload poate avea subprocedură inertă mai devreme, execuția riscantă rămâne E4; business modelling e MVP, mutațiile business sunt E2. HTTPX ProjectDiscovery din ghid nu este biblioteca Python HTTPX; tooling/python nu autorizează shell. Catalogul se raportează prin metodologie disponibilă, adaptor/transport gata, oracol evaluat și permisiune per run. Releaseul cu breadth apropiat de Strix cere lista explicită de subfamilii/scenarii din E1/E2/E4 și probele lor; nu redenumim trei familii „paritate”.
+
 ### G-DATA și G-OPS
 
 Marker sensibil sintetic și secret de test urmărite prin request/response, eroare provider, compresie, logs, screenshots, export, backup și restart. Engagementul B nu citește datele lui A. Retenția și ștergerea au manifest, inclusiv derivatele și limitele backupurilor. Restore într-un root separat verifică DB + artefacte; niciun secret din backup nu ajunge în Git sau outputul CI.
@@ -354,6 +379,36 @@ P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația c
 | R10 | Suport explicit, browser devreme, context bounded/hartă/matrice | B09/B10/B15, G03b/G05b | NEÎNCEPUT |
 | R11 | Inventar toate copiile, model projection înainte de target data, izolare/retention | B06c/B09/B21, G-DATA-EARLY/G-DATA | NEÎNCEPUT |
 | R12 | Dedup/impact/remediere/retest/report immutable | B13/B21, G06a/G08 | NEÎNCEPUT |
+
+### Amendamentele HF01–HF10 și recomandările înlocuite
+
+Toate rândurile sunt **ADOPTAT ÎN SPECIFICAȚIE / RUNTIME NOT-RUN**, nu gates de produs trecute. Handofful final și review-urile păstrează proveniența deciziei; acest tabel trimite la unicul baseline, nu la încă un plan.
+
+| ID | Contract canonic / UI | Owner / ticket / verificare |
+|---|---|---|
+| HF01 | Arhitectură §9.3, UI §3; selector și obiectiv, UI11 | engagements B02/B04, G01: save inert + reload/restart/409/limits/inert HTML |
+| HF02 | Arhitectură §9.3/§5/§7; MissionSpec/FocusEnvelope, UI12 | runs/tasks/policy B06/B10f/B18a, G-FOCUS: suporta login, nu auth attack/global hunting |
+| HF03 | Arhitectură §6/§9.2–9.3/§11; outcomes/coverage/report/retest, UI13 | coverage/validation/reports B12f/B13f, G-FOCUS: numerator onest și bytes export exact |
+| HF04 | Arhitectură §9.4, stack §10; pachet/tehnică/procedură, UI14 | settings B06/P4a-minim→B14b, H03/G04b/G-REVISION: wrong digest/ref/edit-after-eval refuzate |
+| HF05 | Arhitectură §5/§9.5; PromptBundle/brief/result, UI15 | tasks/integrations/hermes B06, H03–H08: binding corect, context îngust, stale/Stop/no double wake |
+| HF06 | Arhitectură §3/§9.6, stack §10; tool registry/invocation/Action, UI16 | policy/evidence/adaptoare B07/B09/B15n, G-TOOLS/G-NET: installed≠permitted, fiecare request atribuit |
+| HF07 | Arhitectură A15/A16/§6.1–6.2; modul/research/wordlist/improvement, UI17/18/20/21/22 | tasks/surfaces/settings B10/B14c/B18/B21m; G-LOOP/G-PATH și gates auxiliare, nu prerequisite BOLA |
+| HF08 | Arhitectură §5.1, stack U07/U13; Jev UI19 | DecisionAdvisor B06j/B14j, G-JEV: shadow fără efect, advisory calibrat, fără verdict/permisiune |
+| HF09 | Plan §15, arhitectură §11; corpus/comparație | evaluator B20/G08: matched inputs/budgets, root-cause/FP/FN/replay/cost, fără superioritate nemăsurată |
+| HF10 | Plan §19, README/readiness și adjudecare P0.4 | fundație păstrată; WIP neintegrat, assessment_ready=false, niciun scaffold MVP sau promovare harness→G00 |
+
+| Recomandare veche / conflict | Decizie normativă înlocuitoare |
+|---|---|
+| Sol: P4a-minim opțional, inbox doar la B18, toate importurile offline înainte de live | P4a este obligatoriu înainte P2-live; inbox/ACK/consumed B06; import numai cu primul consumator, nu mega-gate |
+| P5a depindea de Chromium/P3b | P3-auth/G-AUTH-HTTP permite primul BOLA API-only; P3b rămâne obligatoriu pentru MVP/browser/XSS |
+| Replan demonstrat abia la P7; „fără Chains” absolut | G-LOOP imediat după G06a; G-PATH dependent după familiile necesare. Fără graph/council/tab Chains; timeline bounded cu review vizual separat |
+| Jev „dacă îl vrem”, validare Jev sau pruning definitiv | Integrare decisă OFF/SHADOW/ADVISORY, primele heads triage/stagnare, fără CONFIRMED/scope/publicare/ștergere coverage |
+| Katana/Nuclei excluse din baseline; reuse doar conceptual | Stack §10 fixează U01–U14 și S/M/R/HM: cod/teste/prompturi/metode, pachete prin adaptoare; source-reviewed nu este installed/evaluated/permitted |
+| Technique folosit ca procedură; al doilea manifest/workflow engine | Technique generală + Procedure bounded; SKILL.md nativ și unicul omnis.yaml, profile compozabile pe registry trusted |
+| Research/improvement prezentate ca flux dominant/prerequisite | Bucla de pentest §6.1 este primară; auxiliare opționale per run, improvement pentru viitor după quiescență |
+| Shannon doar reference-only în primul review versus port R07 în supliment | Shortlist tehnic R07 adoptat; importul AGPL cere decizie de distribuție separată, nu blocaj general sau runtime nou |
+| E1 suficient pentru breadthul runului Strix; trei familii = competitor complet | Înlocuit de E1–E4 și protocol matched; runul include clase E2/capabilități E4, paritatea nu este declarată |
+| Readiness preimplementare/P0.1 și fixture host-network descrise drept stare prezentă | Dovezi istorice etichetate; stare locală P0.4 și WIP UDS/TCP din §19, G00 deschis. AGENTS status vizual protejat rămâne excepție explicită |
 
 Trasabilitatea rezolvă recomandarea **în specificație**, nu pretinde testul trecut. Pentru fiecare gate implementat se păstrează comanda, versiunile, output sanitizat și verdictul real.
 

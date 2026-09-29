@@ -620,7 +620,7 @@ Descoperiri noi, rezolvarea unui indiciu sau schimbarea aplicabilității produc
 
 Evaluarea separă integrare, capabilitate cu ipoteză furnizată și E2E fără soluție furnizată. Evaluatorul deține adevărul de referință, canary-urile și resetarea; agentul nu vede seed DB, scorer sau source privilegiat. Profilul de informație este declarat: black-box URL sau grey-box cu identități/reguli/OpenAPI, nu revendicăm black-box când dăm reguli business.
 
-Pragurile, corpusul, repetările și baseline-ul sunt fixate în plan înaintea rulărilor. Rezultatele se publică per run, cu ratări atribuite discovery/planificare/investigație/validare și cost necunoscut explicit. Promovarea unei familii ca benchmark-validated este legată de exact skill/tool/model/corpus; nu este precizie universală.
+Pragurile, corpusul vulnerable/fixed/benign held-out, repetările și baseline-ul sunt fixate în plan §15 înaintea rulărilor. Protocolul Omnis–Strix păstrează aceleași misiuni full/focused, informații inițiale, identități și bugete, separă cauze-rădăcină/occurrences/paths și măsoară FP/FN, replay, cost/latență/intervenții. Nu promitem superioritate sau paritate din bibliotecă/trei familii/E1. Rezultatele se publică per run, cu ratări atribuite discovery/planificare/investigație/validare și cost necunoscut explicit. Promovarea unei familii ca benchmark-validated este legată de exact skill/tool/model/corpus; nu este precizie universală.
 
 ## 12. Implementare și guvernanță
 

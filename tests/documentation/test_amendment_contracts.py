@@ -83,6 +83,18 @@ class AmendmentContracts(unittest.TestCase):
         self.assertIn("nu prerechizit al primului finding", architecture)
         self.assertIn("WAITING_FOR_RUNTIME_SLOT", architecture)
 
+    def test_amendment_matrix_and_comparison_cover_all_requirements(self):
+        plan = document("Implementation_Plan")
+        ids = re.findall(r"^\| (HF\d{2}) \|", plan, re.M)
+        self.assertEqual(ids, [f"HF{i:02d}" for i in range(1, 11)])
+        comparison = section(plan, "### Protocol comparativ Omnis–Strix")
+        for token in ["held-out", "benign", "FOCUSED_TEST", "cauze-rădăcină",
+                      "ratări", "FP", "replay", "cost", "latență", "intervenții",
+                      "marja", "fără superioritate"]:
+            self.assertTrue(token in comparison, f"Missing comparison criterion: {token}")
+        for wave in ["E1", "E2", "E3", "E4"]:
+            self.assertRegex(plan, rf"(?m)^\| {wave} \|")
+
 
 if __name__ == "__main__":
     unittest.main()

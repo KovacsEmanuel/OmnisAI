@@ -1,5 +1,7 @@
 # Omnis — review Sol și strategie de upgrade prin reutilizare OSS
 
+> **INCORPORAT ÎN BASELINE — dosar istoric de surse/rațiuni.** Operatorul a autorizat amendarea HF01–HF10. Arhitectura, planul, UI/UX și stackul canonice conțin deciziile curente; [plan §17](../Omnis_Implementation_Plan.md) identifică explicit recomandările înlocuite, iar §19 starea P0.4. Formulările de mai jos „propus/OK ulterior/sesiunea următoare” descriu momentul review-ului, nu o aprobare încă absentă sau un plan concurent. Pinurile/probele originale rămân nemodificate. Incorporat nu înseamnă runtime implementat, test live sau autorizație de scanare.
+
 **Review de produs și integrare, nu baseline amendat.** Bază inspectată: `1e748a0e05517c3e85854aedee5fb758cf8d609d`, ramura `p04-control-topology-wip`. Obiectul review-ului este [dosarul Sol](omnis-pentest-review-proposal.md), nu doar ultimul diff. Direcția clarificată de operator este: **produs independent, cod/metodologie open-source preluate efectiv, Hermes păstrat, Jev integrat, MVP urmat de extindere competitivă**. Includerea Jev nu mai este o întrebare deschisă; contul, bugetul și datele pentru apeluri live sunt aprobări separate.
 
 Acest document înregistrează recomandările și ordinea amendamentelor. Nu schimbă singur arhitectura, scope-ul, porțile sau aprobarea vizuală și nu constituie implementare. Nu s-au pornit assessmenturi, ținte, provideri sau servicii de produs. Cele șase fișiere WIP DB/fixture găsite la început au rămas neatinse.

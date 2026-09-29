@@ -1,5 +1,7 @@
 # Omnis — supliment: module editabile, research contextual și îmbunătățire continuă
 
+> **INCORPORAT ÎN BASELINE — dosar istoric de surse/rațiuni.** Operatorul a autorizat amendarea HF01–HF10. Arhitectura, planul, UI/UX și stackul canonice conțin deciziile curente; [plan §17](../Omnis_Implementation_Plan.md) identifică explicit recomandările înlocuite, iar §19 starea P0.4. Formulările de mai jos „propus/OK ulterior/sesiunea următoare” descriu momentul review-ului, nu o aprobare încă absentă sau un plan concurent. Pinurile/probele originale rămân nemodificate. Incorporat nu înseamnă runtime implementat, test live sau autorizație de scanare.
+
 **PROPUNERE PENTRU OK, NU AMENDAMENT APLICAT.** Bază Omnis: `4d13bf009841b5624f6941cfbfde3ccc1ed3a8f2`. Completează [review-ul Sol/OSS](omnis-upgrade-review.md), nu îl înlocuiește și nu creează un plan de implementare concurent. Operatorul cere explicit extensibilitate pentru faze/subfaze/acțiuni, skills/tehnici, cercetare după stack/versiuni, wordlists contextuale și propuneri de îmbunătățire în background prin Hermes. Arhitectura și planul canonic se modifică **numai după OK ulterior**.
 
 Accentul acestui supliment este tehnic: ce cod păstrăm și cum îl adaptăm pentru un produs funcțional. Shortlistul nu este restrâns aici după modelul de licențiere; sursa, SHA-ul și notices rămân parte din trasabilitatea fiecărui import. Nu s-au copiat componente în runtime, instalat frameworkuri, creat cronjobs ori pornit servicii/scanări/inferențe de produs. WIP-ul DB/fixture existent rămâne separat.

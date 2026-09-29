@@ -64,7 +64,7 @@ Separăm procesele pentru ciclul de viață și autoritate, nu pentru scalare di
 
 ### Topologie aleasă
 
-- `control`: API, supervisor și DB; numai web/API publică un port loopback. DB, endpointuri interne, management Hermes și proxy nu publică porturi către LAN.
+- `control`: API, supervisor și DB; API instalat folosește UDS privat, forwarderul host servește numai loopback. Fără port Docker publicat. DB, endpointuri interne, management Hermes și proxy nu au porturi către LAN. Aceasta păstrează calea P0.4 deja probată în harness, nu declară launcherul implementat.
 - `runtime`: Hermes are acces numai la unelte Omnis autentificate și la egressul providerului selectat; fără rută către ținte, host, metadata, DB sau API-ul web/admin. Se folosește un endpoint intern separat, nu se permite întregul Omnis API modelului.
 - `executor`: HTTP și Chromium pot ajunge numai la proxy; fără DNS extern/direct, UDP/QUIC, SOCKS, host networking, Docker socket sau volum de proiect/personal. Fiecare context primește o identitate de transport distinctă, necunoscută modelului.
 - `target`: numai proxyul poate ajunge la fixture. Fixture-ul nu ajunge la control plane, internet sau rețeaua personală; email/plăți/webhookuri sunt sinks de test. Evaluatorul deține seed/reset/canary, inaccesibile agentului.
@@ -94,7 +94,7 @@ Folosim Playwright Python în executor și **un proxy inspectabil bazat pe mitmd
 
 Loopback nu este autentificare. Omnis pornește numai pe `127.0.0.1`, cu Host allowlist exactă și același origin pentru buildul web și API. Dev Vite are host strict și proxy `/api`; nu CORS `*` sau porturi ascultate public.
 
-`127.0.0.1` este bindul **publicat pe host**. API-ul containerizat poate asculta pe interfața internă necesară rețelei control; publicarea Compose rămâne numai loopback, iar DB/IPC/runtime nu capătă port public. Health-ul intern folosește Host-ul configurat, fără a lărgi allowlistul sau a accepta X-Forwarded-Host arbitrar. Probele P0 verifică atât accesul same-origin, cât și absența accesului LAN.
+`127.0.0.1` este bindul **forwarderului host**, nu un port publicat de Docker. Amendamentul P0.4 păstrează API UDS privat/peer UID și forwarder host; înlocuiește schița veche cu publicare Compose loopback. DB/IPC/runtime nu capătă port public. Health-ul intern folosește Host-ul configurat, fără a lărgi allowlistul sau a accepta X-Forwarded-Host arbitrar. Probele complete LAN/launcher rămân G00 deschis; Uvicorn TCP direct este numai exemplu de dezvoltare.
 
 **Bootstrap ales:** launcherul generează un cod local de pairing, unic/expirabil, afișat numai operatorului în terminal; formularul local îl schimbă o singură dată pe o sesiune opacă server-side. Codul nu apare în URL, Git sau log de request. Rată limitată, verificare Host/Origin și timeout. Cookie `HttpOnly; SameSite=Strict; Path=/`, fără `Domain`; HTTP loopback este limita asumată, nu pretindem TLS. Mutările cer și token CSRF legat de sesiune; SSE cere aceeași sesiune. Logout invalidează server-side; expirarea sesiunii UI nu anulează automat engagementul, dar nu permite control neautorizat. Refuzăm extinderea bindului; accesul remote ar cere TLS și alt threat model.
 

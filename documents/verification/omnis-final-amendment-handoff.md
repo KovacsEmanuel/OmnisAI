@@ -1,5 +1,7 @@
 # Omnis — predare finală pentru amendarea baseline-ului
 
+> **INCORPORAT ÎN BASELINE — dosar istoric de surse/rațiuni.** Operatorul a autorizat amendarea HF01–HF10. Arhitectura, planul, UI/UX și stackul canonice conțin deciziile curente; [plan §17](../Omnis_Implementation_Plan.md) identifică explicit recomandările înlocuite, iar §19 starea P0.4. Formulările de mai jos „propus/OK ulterior/sesiunea următoare” descriu momentul review-ului, nu o aprobare încă absentă sau un plan concurent. Pinurile/probele originale rămân nemodificate. Incorporat nu înseamnă runtime implementat, test live sau autorizație de scanare.
+
 **Stare: dosar de predare și contracte propuse; baseline-ul canonic NU este modificat prin acest fișier.** Bază reverificată: `0e536941e8adf5b8312ea5eeb515c84123fa3ba9`, ramura `p04-control-topology-wip`. Sesiunea următoare aplică amendamentele când operatorul trimite promptul de autorizare. Nu este ordin de a porni un assessment sau de a implementa tot MVP-ul într-o singură sesiune.
 
 ## 1. Ordinea de lectură și autoritatea

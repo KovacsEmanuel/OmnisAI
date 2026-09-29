@@ -1,10 +1,10 @@
 # Omnis — stack și versiuni, baseline v1
 
-**Verificat la 25 septembrie 2026 · Linux x86_64 · Decizii pentru implementare, nu produs instalat**
+**Probe de pinning istorice: 25 septembrie 2026 · Baseline amendat HF01–HF10 · P0.1–P0.3 locale, P0.4 parțial; runtime pentest neimplementat**
 
 ## 1. Verdict
 
-**Frontendul și nucleul API au o combinație exactă rezolvată și exercitată în probe izolate. Proxyul publicat este respins pentru trafic target din cauza dependențelor cu advisories.** Hermes, browserul întărit, DB/migrațiile și întreaga aplicație nu au fost validate live în această livrare.
+**Frontendul și nucleul API au o combinație exactă rezolvată și exercitată în probe izolate. Proxyul publicat este respins pentru trafic target din cauza dependențelor cu advisories.** Hermes și browserul întărit nu sunt validate live. DB/migrațiile/controlul și webul au ulterior probe locale P0.1–P0.3; CLI/topologia P0.4 sunt parțiale, G00 deschis. Tabelul §8 este proba istorică de dependențe, nu starea actuală a întregului produs.
 
 Registrul machine-readable este [Omnis_Stack_Baseline.versions.json](Omnis_Stack_Baseline.versions.json): versiuni, engines/peers, integrități npm, metadate PyPI, advisories și digests de imagini. [Outputul verificărilor](verification/stack-probe.json) și [inputurile reproductibile](verification/README.md) separă testele efectiv executate de porțile viitoare. Pinurile directe din tabel provin din aceste metadate și din rezolvările executate, nu din presupunerea „latest funcționează împreună”.
 
@@ -16,7 +16,7 @@ Registrul machine-readable este [Omnis_Stack_Baseline.versions.json](Omnis_Stack
 | npm | **11.19.0** | Versiunea inclusă în distribuția Node aleasă; executată în probe. Nu npm latest 12 implicit.[14] |
 | CPython API | **3.13.15**, build normal cu GIL | Instalare scratch separată, importuri și teste efective; 3.13 rămâne baseline comun compatibil cu pinul Hermes, nu 3.14 forțat |
 | uv | **0.12.19** | Wheel oficial verificat prin digest; folosit pentru venv/rezolvare/install cu hashes |
-| PostgreSQL | **18.6**, `postgres:18.6-bookworm` | Metadate/digest verificate, serverul nu a fost pornit; ramură suportată conform politicii publice.[16] |
+| PostgreSQL | **18.6**, `postgres:18.6-bookworm` | Metadate/digest verificate inițial; ulterior server real în probele locale P0.1–P0.4, fără G00; ramură suportată conform politicii publice.[16] |
 | Hermes | **0.21.5**, `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9` | Pin auditat, `requires-python >=3.11,<3.14`; mediu separat, nu upgrade al instalării personale |
 | Docker/Compose pe host | **27.5.1+dfsg4 / 2.32.4-3**, observate | Client/server și Compose răspund; aceasta nu certifică deploymentul sau hardeningul |
 
@@ -114,13 +114,13 @@ Arhitectura alege frontiera HTTPS inspectabilă și un adaptor mitmdump îngust;
 - **Web:** `package-lock.json`, Node/npm exacte, `npm ci --include=dev` pentru CI; transitivele sunt fixate în lock, nu refăcute la fiecare run.
 - **Python:** proiecte/medii și `uv.lock` distincte API, Hermes, browser și proxy. `uv sync --locked`, hashes și inventar minimal; fără `pip install` la pornirea unui task.
 - **Hermes:** cod+dependințe ale SHA auditat, configurație/tool inventory exportate sanitizat, patchuri separate dacă sunt necesare. Un Git SHA fără lock/build provenance nu este suficient.
-- **OCI:** tag + digest de index și `platform: linux/amd64`; digestul manifestului platformei se înregistrează. Tagurile Node/Python/Postgres/Playwright au fost recitite din registry și coincid cu cele salvate. Nicio imagine nu a fost executată pentru validarea topologiei.
+- **OCI:** tag + digest de index și `platform: linux/amd64`; digestul manifestului platformei se înregistrează. Tagurile Node/Python/Postgres/Playwright au fost recitite din registry și coincid cu cele salvate. Proba inițială de metadate nu a executat imagini; probele instalate P0.4 ulterioare sunt în verification/p04-host-uds.md, nu certificare a launcherului.
 - **Postgres 18:** mountul și `PGDATA` versionat trebuie luate din documentația exactă a imaginii 18, nu copiate din exemple ≤17.[22] P0 validează persistența/restart/backup pe volumul ales.
 - **Upgrade:** branch/commit dedicat; resolve + advisory/SBOM/licențe + unit/contracts/safety + smoke real; migrare și rollback/restore documentate. Fără actualizări automate în timpul runului.
 
 Nu înlocuim verificarea actualizărilor cu o promisiune că exact pin = sigur. Auditul npm a raportat zero advisories pentru lockul probei la data verificării; checkul PyPI al API nu a raportat advisories pentru setul rezolvat. Acestea nu sunt audituri exhaustive de securitate sau licență.
 
-## 8. Ce a fost executat și ce nu
+## 8. Probe istorice de dependențe — executat versus neexecutat
 
 | Verificare | Rezultat real | Limită |
 |---|---|---|
@@ -135,7 +135,7 @@ Nu înlocuim verificarea actualizărilor cu o promisiune că exact pin = sigur. 
 | Digests imagini | Readback verificat din registry | Fără pull/run/hardening test |
 | DESIGN.md CLI 0.4.0 | Zero erori și zero warnings; DTCG exportat | Nu certificare WCAG a produsului |
 
-Nu au fost conectate conturi, apelate modele, lansate scanări sau implementată aplicația Omnis. Probele sunt programe mici separate, păstrate ca dovezi/reproduceri sub `documents/verification/`, nu un frontend/backend stub prezentat ca produs.
+În livrarea istorică de pinning nu au fost conectate conturi, apelate modele, lansate scanări sau implementată aplicația Omnis. Fundația implementată ulterior este documentată în README/plan §19; amendamentul curent nu lansează servicii sau inference. Probele de aici sunt programe mici separate, păstrate ca dovezi/reproduceri sub `documents/verification/`, nu un frontend/backend stub prezentat ca produs.
 
 **Recontrol înainte de implementare:** [preimplementation-pins.json](verification/preimplementation-pins.json) păstrează răspunsurile de metadate pentru cele 33 de pinuri directe web/API/test/parsers verificate: toate versiunile exacte există în registre. Nicio versiune nu a fost schimbată. Acest recontrol nu a reinstalat pachete, nu a auditat transitivele/npm advisories și nu a executat imagini sau produsul; lockurile de produs și recontrolul securității rămân B01a/B01e. Absența unor ID-uri în câmpul PyPI nu este certificat de securitate. Probe și timestamps istorice rămân separate de acest snapshot.
 

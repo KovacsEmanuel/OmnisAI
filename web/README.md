@@ -2,6 +2,8 @@
 
 React/TypeScript/Vite consumă API-ul real pentru pairing, sesiune, logout și statusul instanței. Nu importă modelul/scripturile prototipului, nu creează engagementuri și nu pornește assessmenturi. Funcțiile ulterioare sunt `UNAVAILABLE`/`NOT_RUN`, cu motiv. Launcherul `omnis` și emiterea codului pe TTY aparțin P0.4; nu există endpoint public de emitere.
 
+**HF01–HF10 în specificație, nu în acest bootstrap:** selectorul general/focused, obiectivul Brain, Skills/Jev/Runtime și findingurile se livrează în felii P1+ din plan. Nu activăm butoane false sau date DEMO pentru amendamentul documentar. E2E/backend gate rămân BLOCKED până la integrarea/atestarea fixture-ului DB UDS WIP versus conftest/CI TCP; probele P0.3 de mai jos sunt istorice.
+
 ## Mediu și comenzi reproductibile
 
 Din rootul repo-ului, cu **Node 24.21.0 / npm 11.19.0**, API **Python 3.13.15** și **uv 0.12.19**. Verifică executabilul uv separat; cel global poate avea altă versiune. Nu schimba uneltele personale pentru a rula proiectul. API-ul și uneltele development au propriile medii/lockuri.

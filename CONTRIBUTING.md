@@ -85,6 +85,8 @@ Pentru rollback inspectăm `git show <sha>` și dependențele, folosim `git reve
 
 ## Verificări disponibile acum
 
+**Status HF10:** `make check`/`make test` rămân BLOCKED pe checkoutul cu fixture WIP UDS/no-network și conftest/CI TCP; nu urma rețeta istorică de DB ca gate acceptat. Integrarea WIP/DB cere acord separat și ownership/teardown, conform plan §19.1–19.2. Pentru amendamentele documentare sunt suficiente comenzile docs/browser de mai jos, fără a închide G00. Contractele HF01–HF10 sunt canonice în arhitectură/plan/UI/stack, nu funcții runtime livrate.
+
 Comanda canonică este `make check` (alias `make test`); rulează documente/development/anti-slop, API/PostgreSQL/pairing/control/supervisor + wheel/procese instalate, Ruff/mypy strict și bootstrapul web P0.3: contracte/drift, lint/typecheck/unit/build, E2E cu backend real. Instalează întâi [uneltele de dezvoltare](tools/development/README.md), [DB-ul izolat](api/README.md) și [mediul web/browser fixat](web/README.md); lipsa lor eșuează, nu este skip. Nu este certificarea P0.4/G00, a assessmentului sau a Chisel. Proba Reticle este separată, cu rezultate proprii.
 
 Comenzile individuale, pentru investigații țintite:
@@ -97,7 +99,7 @@ python tests/documentation/browser_check.py --include-documents --output <scratc
 git diff --check
 ```
 
-Comenzile se adaugă odată cu componentele: comenzile API de mai sus păstrează P0.1/P0.2; `make check-web`, `make lint-web`, `make typecheck-web`, `make test-web`, `make build-web`, `make test-contracts` și `make test-e2e` acoperă P0.3. `make generate-contracts` este explicit, nu reparare automată în check. Verificările nu instalează unelte și nu fac autofix; pinurile sunt fixate în medii separate. Testele selectează checkoutul curent, nu alt worktree din variabile ambientale. Probele sintetice nu fac scanări și nu consumă conturi LLM. `df17a29` este **VISUAL_ACCEPTED**, implementarea P0.1/P0.2/P0.3 a fost autorizată; `P0.3_IMPLEMENTED_LOCAL` nu închide G00 sau autorizează P0.4/LLM/ținte. Vezi plan §19 și [dovezile P0.3](documents/verification/p03-local-bootstrap.md).
+Comenzile se adaugă odată cu componentele: comenzile API de mai sus păstrează P0.1/P0.2; `make check-web`, `make lint-web`, `make typecheck-web`, `make test-web`, `make build-web`, `make test-contracts` și `make test-e2e` acoperă P0.3. `make generate-contracts` este explicit, nu reparare automată în check. Verificările nu instalează unelte și nu fac autofix; pinurile sunt fixate în medii separate. Testele selectează checkoutul curent, nu alt worktree din variabile ambientale. Probele sintetice nu fac scanări și nu consumă conturi LLM. `df17a29` este **VISUAL_ACCEPTED**, implementarea P0.1/P0.2/P0.3 a fost autorizată; `P0.3_IMPLEMENTED_LOCAL` nu închide G00; P0.4 are autorizare separată deja înregistrată, fără LLM/ținte sau integrare tacită a WIP. Vezi plan §19 și [dovezile P0.3](documents/verification/p03-local-bootstrap.md).
 
 ## Sources
 

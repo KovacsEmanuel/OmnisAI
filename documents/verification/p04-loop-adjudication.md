@@ -2,7 +2,11 @@
 
 **Snapshot local:** `p04-control-topology-wip` la `f4c85e7`, față de `main` la `c4cb784`: 34 de commituri, 6.595 inserări/62 ștergeri în 33 de fișiere. Dintre inserări, 5.660 sunt în teste/probe, 741 în runtime/ops și 194 în documente/configurație/skill-uri (`git diff main...HEAD --numstat`). Aceste numere descriu munca, nu gradul de acceptare. Nu există push, CI remote sau G00 închis.
 
-## Cauză și decizie
+## Recontrol la amendarea HF01–HF10
+
+Snapshotul de mai sus și afirmațiile despre host networking descriu `f4c85e7`, nu checkoutul actual. Recontrolul pornit din `3fc3d46` găsește aceleași șase căi WIP din handoff: Compose **deja** no-network/UDS, db.py cu suport socket, helper probe-only; conftest/CI încă TCP. WIP nu a fost integrat sau certificat prin amendament; make check/test BLOCKED, CI remote NOT-RUN, G00 deschis. CMD instalat rămâne omnis.serve și CLI numai status/install/install-image. Matricea actuală PĂSTRĂM/CORECTĂM ACUM/EXTINDEM și următoarea felie sunt în [plan §19.1–19.2](../Omnis_Implementation_Plan.md). Restul dosarului păstrează cauza și probele istorice; nu este o nouă autorizație de harness.
+
+## Cauză și decizie (snapshot istoric)
 
 - Proba instalată de topologie pornește Compose și forwarderul direct, nu printr-o comandă de produs (`cli/integration/control_topology.py`). CLI-ul expune `status`, `install`, `install-image`, dar nu `start/pair/open/stop` (`cli/src/omnis_cli/main.py`). Imaginea instalată pornește încă `omnis.serve` (`ops/Dockerfile.control:14`); ownerul exec nou din `301b918` este numai WIP. Alte fault-injection tests nu pot demonstra L01–L05-control/L08-core în locul launcherului.
 - `make check-api` verifică lock/audit/compile/lint/type, nu rulează `test-api` (`Makefile:22–41`). Cele 28 de teste focalizate au trecut pe snapshotul de cod anterior commiturilor procedurale, dar sunt probe limitate. `make test`/`make check` sunt **NOT-RUN/BLOCKED pe HEAD curent**: lipsesc variabilele proiectului PostgreSQL dedicat și `ops/compose.test.yaml:12` folosește `network_mode: host`, cu identitatea volumului, namespace-ul/egressul și listenerul încă neatestate suficient pentru gate-ul sigur. Exit 0 al unui `make check` WIP anterior lui `301b918` nu se transferă la HEAD-ul actual. Nu revenim la fixture-ul și mai riscant cu port Docker publicat.

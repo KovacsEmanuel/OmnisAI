@@ -4,13 +4,19 @@
 
 **Implementare locală actuală:** [P0.1](p01-local-readiness.md) · [P0.2](p02-local-control.md) · [calitate Python](p02-python-quality.md) · [P0.3 bootstrap/pairing](p03-local-bootstrap.md), cu [rezultate browser](p03-browser.json) și capturi în `p03-ui/` · [P0.4 topologie host-only parțială](p04-host-uds.md) · [fixture PostgreSQL fără publicație Docker](p04-safe-test-db.md) · [adjudecarea buclei P0.4 și calea critică](p04-loop-adjudication.md). Aceste dovezi sunt separate de probele istorice de mai jos. G00/P0.4 și CI remote nu sunt închise implicit de existența unui raport.
 
-**Pentru review într-o sesiune fresh, nu baseline aprobat:** [dosarul de amendamente pentru capabilități pentest, reutilizare Strix, bucle, web/UX și Jev](omnis-pentest-review-proposal.md). Identifică fișierele/secțiunile de schimbat și sursele, dar nu modifică planul canonic, gates, codul produsului sau autorizația de scanare; înainte de aplicare se cere decizia operatorului și se recitește checkoutul.
+## Amendamente autorizate, incorporate în canon
 
-**Review efectuat, amendamente încă neaplicate:** [review Sol și upgrade prin reutilizare OSS](omnis-upgrade-review.md), cu [inventarul surselor fixate, agenților și probelor derivate](omnis-upgrade-review.inventory.json). Include flow-ul observat Strix, componentele de copiat/adaptat, integrarea Jev, MVP versus extindere și corecțiile P0.4. Nu este implementarea upgrade-ului sau aprobarea implicită a noilor gates.
+[Verificarea amendamentului HF01–HF10](omnis-amendment-verification.md) consemnează codul documentar schimbat, review-urile, comenzile reale PASS/FAIL/BLOCKED/NOT-RUN și WIP-ul păstrat; nu este un nou plan.
 
-**Supliment pentru următorul OK:** [module editabile, research contextual, wordlists și îmbunătățire continuă prin Hermes](omnis-modularity-research-supplement.md), cu [codul de preluat pe SHA/fișier/simbol/intervale de linii](omnis-modularity-research-supplement.reuse.json). Definește extensiile și amendamentele exacte, fără să modifice arhitectura/planul sau să activeze maintenance/scanări.
+HF01–HF10 sunt în [arhitectură](../Omnis_MVP_Architecture.md), [plan §17](../Omnis_Implementation_Plan.md), [UI/UX](../Omnis_UI_UX_Spec.md) și [stack §10](../Omnis_Stack_Baseline.md). Un singur baseline, nu încă un plan alternativ. Contractele noi sunt **SPECIFICATE / RUNTIME NOT-RUN**; P0.4/G00 rămân deschise și WIP-ul DB nu este integrat prin documentare.
 
-**Predare finală pentru amendare:** [contractele de mission prompt/full–focused, skills/tehnici, Brain→copii, unelte reale și evaluare comparativă](omnis-final-amendment-handoff.md). Include cerința cea mai nouă a operatorului: prompt în setup web pentru un obiectiv/test focalizat, nu numai pentest complet. Arhitectura/planul/UI/stackul canonic așteaptă sesiunea de amendare autorizată; acest dosar nu implementează runtime-ul.
+Surse și rațiuni **istorice, adjudecate**:
+- [Dosarul Sol](omnis-pentest-review-proposal.md), cu recomandări înlocuite explicit în plan §17.
+- [Review OSS/Strix](omnis-upgrade-review.md) și [inventarul pinurilor/75 ghiduri + README](omnis-upgrade-review.inventory.json).
+- [Suplimentul modular](omnis-modularity-research-supplement.md), inclusiv §12 walkthrough de referință, și [manifestul 34 unități / 98 referințe source-test](omnis-modularity-research-supplement.reuse.json).
+- [Handofful final](omnis-final-amendment-handoff.md), sursa HF01–HF10; aprobarea amendării nu mai este pending. Niciunul dintre dosare nu certifică runtime/eficacitate sau importul deja activ al componentelor.
+
+Starea curentă a codului și matricea PĂSTRĂM / CORECTĂM ACUM / EXTINDEM sunt în plan §19.1–19.2. `make check/test` sunt BLOCKED de fixture-ul WIP UDS/no-network neintegrat cu conftest/CI TCP; nu rerulăm un harness pentru a promova G00.
 
 ## Reproducere în scratch
 

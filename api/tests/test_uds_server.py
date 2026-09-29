@@ -283,11 +283,6 @@ def test_real_api_process_serves_liveness_on_owned_uds_only() -> None:
             start_new_session=True,
         )
         try:
-            deadline = time.monotonic() + 10
-            while not path.exists() and process.poll() is None and time.monotonic() < deadline:
-                time.sleep(0.1)
-            assert process.poll() is None and path.is_socket()
-            assert stat.S_IMODE(path.stat().st_mode) == 0o600
 
             def request(host: str) -> tuple[int, bytes]:
                 with socket.socket(socket.AF_UNIX) as connection:
@@ -302,7 +297,19 @@ def test_real_api_process_serves_liveness_on_owned_uds_only() -> None:
                     response.close()
                     return result
 
-            assert request("127.0.0.1:8765") == (200, b'{"status":"live"}')
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                assert process.poll() is None, "Owned API exited before liveness"
+                try:
+                    if request("127.0.0.1:8765") == (200, b'{"status":"live"}'):
+                        break
+                except (OSError, http.client.HTTPException):
+                    pass
+                time.sleep(0.1)
+            else:
+                raise AssertionError("Owned API never served liveness within budget")
+            assert path.is_socket()
+            assert stat.S_IMODE(path.stat().st_mode) == 0o600
             denied, _body = request("attacker.invalid:8765")
             assert denied == 400
         finally:

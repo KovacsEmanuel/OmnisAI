@@ -8,9 +8,31 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from collections.abc import Coroutine
 from pathlib import Path
+from typing import Any
 
 from omnis_cli.forwarder import start_forwarder
+
+
+async def observe_bidirectional_progress(
+    browser: socket.socket, body_seen: asyncio.Event, *, timeout: float
+) -> None:
+    """Require private request bytes and browser response bytes on the real sockets."""
+    await asyncio.wait_for(body_seen.wait(), timeout)
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + timeout
+    while loop.time() < deadline:
+        try:
+            prefix = browser.recv(4, socket.MSG_PEEK)
+        except BlockingIOError:
+            prefix = b""
+        if prefix == b"HTTP":
+            return
+        if prefix and not b"HTTP".startswith(prefix):
+            raise AssertionError("unexpected browser response")
+        await asyncio.sleep(0.02)
+    raise TimeoutError("forwarded browser response not observed")
 
 
 class ForwarderTest(unittest.IsolatedAsyncioTestCase):
@@ -328,5 +350,178 @@ class ForwarderTest(unittest.IsolatedAsyncioTestCase):
                 if process.poll() is None:
                     os.killpg(process.pid, signal.SIGKILL)
                     await asyncio.to_thread(process.communicate, timeout=5)
+                unix.close()
+                await unix.wait_closed()
+
+    async def test_process_sigterm_aborts_nonreading_browser_after_large_asset(self) -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            directory = Path(name)
+            upstream_ready = asyncio.Event()
+            body_seen = asyncio.Event()
+            draining: asyncio.Task[None] | None = None
+
+            async def upstream(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+                nonlocal draining
+                try:
+                    await reader.readuntil(b"\r\n\r\n")
+                    response = (
+                        b"HTTP/1.1 200 OK\r\nContent-Length: 8388608\r\nConnection: close\r\n\r\n"
+                        + b"A" * (8 * 1024 * 1024)
+                    )
+                    writer.write(response)
+                    draining = asyncio.create_task(writer.drain())
+                    upstream_ready.set()
+                    if await reader.readexactly(1) == b"B":
+                        body_seen.set()
+                    await draining
+                    await reader.read()
+                except (OSError, asyncio.IncompleteReadError):
+                    pass
+                finally:
+                    writer.close()
+                    try:
+                        await asyncio.wait_for(writer.wait_closed(), 2)
+                    except (OSError, TimeoutError):
+                        writer.transport.abort()
+
+            unix = await asyncio.start_unix_server(upstream, path=str(directory / "api.sock"))
+            (directory / "api.sock").chmod(0o600)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+                reservation.bind(("127.0.0.1", 0))
+                port = reservation.getsockname()[1]
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-I",
+                    "-m",
+                    "omnis_cli.forwarder",
+                    "--socket-dir",
+                    str(directory),
+                    "--port",
+                    str(port),
+                ],
+                cwd=directory,
+                env={"PATH": os.environ.get("PATH", "")},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                start_new_session=True,
+            )
+            browser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            browser.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4096)
+            browser.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4096)
+            browser.setblocking(False)
+            send_body: asyncio.Task[None] | None = None
+            try:
+                assert process.stdout is not None
+                line = await asyncio.wait_for(asyncio.to_thread(process.stdout.readline), 5)
+                self.assertEqual(line.strip(), "FORWARDER_READY")
+                loop = asyncio.get_running_loop()
+                await loop.sock_connect(browser, ("127.0.0.1", port))
+                await loop.sock_sendall(
+                    browser,
+                    b"POST /upload HTTP/1.1\r\nHost: 127.0.0.1:8765\r\n"
+                    b"Content-Length: 1945600\r\n\r\n",
+                )
+                await asyncio.wait_for(upstream_ready.wait(), 2)
+                send_body = asyncio.create_task(loop.sock_sendall(browser, b"B" * (1900 * 1024)))
+                await observe_bidirectional_progress(browser, body_seen, timeout=2)
+                # Neither the UDS peer nor the browser drains the opposite stream.
+                await asyncio.sleep(0.3)
+                self.assertFalse(send_body.done(), "request did not reach backpressure")
+                self.assertIsNotNone(draining)
+                assert draining is not None
+                self.assertFalse(draining.done(), "response did not reach backpressure")
+                os.killpg(process.pid, signal.SIGTERM)
+                await asyncio.wait_for(asyncio.to_thread(process.communicate, timeout=6), 7)
+                self.assertEqual(process.returncode, 0)
+            finally:
+                if send_body is not None:
+                    send_body.cancel()
+                    await asyncio.gather(send_body, return_exceptions=True)
+                browser.close()
+                if process.poll() is None:
+                    os.killpg(process.pid, signal.SIGKILL)
+                    await asyncio.to_thread(process.communicate, timeout=5)
+                unix.close()
+                await asyncio.wait_for(unix.wait_closed(), 3)
+
+    async def test_progress_observer_rejects_header_only_or_bodyless_peer(self) -> None:
+        browser, peer = socket.socketpair()
+        browser.setblocking(False)
+        try:
+            peer.sendall(b"HTTP")
+            with self.assertRaises(TimeoutError):
+                await observe_bidirectional_progress(browser, asyncio.Event(), timeout=0.05)
+            browser.recv(4)
+            seen = asyncio.Event()
+            seen.set()
+            with self.assertRaises(TimeoutError):
+                await observe_bidirectional_progress(browser, seen, timeout=0.05)
+        finally:
+            browser.close()
+            peer.close()
+
+    async def test_shutdown_closes_attached_handler_that_has_not_started(self) -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            directory = Path(name)
+            opened = 0
+
+            async def upstream(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+                nonlocal opened
+                opened += 1
+                try:
+                    await reader.read()
+                finally:
+                    writer.close()
+                    await writer.wait_closed()
+
+            unix = await asyncio.start_unix_server(upstream, path=str(directory / "api.sock"))
+            (directory / "api.sock").chmod(0o600)
+            forward = await start_forwarder(directory, port=0)
+            loop = asyncio.get_running_loop()
+            previous = loop.get_task_factory()
+            self.assertIsNone(previous)
+            attached = asyncio.Event()
+            resume = asyncio.Event()
+
+            def factory(
+                event_loop: asyncio.AbstractEventLoop,
+                coroutine: Coroutine[Any, Any, Any],
+                **kwargs: Any,
+            ) -> asyncio.Task[Any]:
+                if getattr(getattr(coroutine, "cr_code", None), "co_name", None) == "handle":
+
+                    async def pending_handler() -> None:
+                        try:
+                            await resume.wait()
+                            await coroutine
+                        finally:
+                            coroutine.close()
+
+                    task = asyncio.Task(pending_handler(), loop=event_loop, **kwargs)
+                    attached.set()
+                    return task
+                return asyncio.Task(coroutine, loop=event_loop, **kwargs)
+
+            browser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            browser.setblocking(False)
+            loop.set_task_factory(factory)
+            try:
+                await loop.sock_connect(browser, forward.sockets[0].getsockname())
+                await asyncio.wait_for(attached.wait(), 2)
+                forward.close()
+                waiter = asyncio.create_task(forward.wait_closed())
+                await asyncio.sleep(0.05)
+                self.assertFalse(waiter.done(), "attached transport was not held by server")
+                resume.set()
+                await asyncio.wait_for(waiter, 3)
+                self.assertEqual(opened, 0, "late handler opened a private API peer")
+            finally:
+                resume.set()
+                loop.set_task_factory(previous)
+                browser.close()
+                forward.close()
+                await asyncio.wait_for(forward.wait_closed(), 4)
                 unix.close()
                 await unix.wait_closed()

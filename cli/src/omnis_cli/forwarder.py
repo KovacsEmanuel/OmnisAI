@@ -21,29 +21,35 @@ _MAX_RESPONSE_BYTES = 16 * 1024 * 1024
 class ForwarderListener:
     """Own the listening socket and all accepted client tasks through shutdown."""
 
-    def __init__(self, server: asyncio.Server, clients: set[asyncio.Task[None]]) -> None:
+    def __init__(
+        self, server: asyncio.Server, clients: set[asyncio.Task[None]], closing: asyncio.Event
+    ) -> None:
         self._server = server
         self._clients = clients
+        self._closing = closing
 
     @property
     def sockets(self) -> tuple[socket.socket, ...]:
         return tuple(self._server.sockets or ())
 
     def close(self) -> None:
+        self._closing.set()
         self._server.close()
         for client in tuple(self._clients):
-            client.cancel()
+            if not client.cancelling():
+                client.cancel()
 
     async def wait_closed(self) -> None:
         # Let already-accepted callbacks enter their tasks before draining them.
         await asyncio.sleep(0)
         for client in tuple(self._clients):
-            client.cancel()
-        await asyncio.wait_for(self._server.wait_closed(), timeout=2)
+            if not client.cancelling():
+                client.cancel()
         if self._clients:
-            _done, pending = await asyncio.wait(self._clients, timeout=2)
+            _done, pending = await asyncio.wait(self._clients, timeout=5)
             if pending:
                 raise TimeoutError("Private clients did not drain")
+        await asyncio.wait_for(self._server.wait_closed(), timeout=2)
 
 
 def private_api_socket(directory: Path) -> Path:
@@ -85,9 +91,13 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
         raise ValueError("Invalid local port")
     active = 0
     clients: set[asyncio.Task[None]] = set()
+    closing = asyncio.Event()
 
     async def handle(client: asyncio.StreamReader, browser: asyncio.StreamWriter) -> None:
         nonlocal active
+        if closing.is_set():
+            browser.transport.abort()
+            return
         if active >= 16:
             browser.close()
             return
@@ -111,24 +121,38 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
                 _pid, uid, _gid = struct.unpack("3i", credentials)
                 if uid != os.getuid():
                     raise ValueError("Wrong private peer UID")
-                await asyncio.gather(
-                    _copy(client, channel, limit=_MAX_REQUEST_BYTES),
-                    _copy(server, browser, limit=_MAX_RESPONSE_BYTES),
+                copies = (
+                    asyncio.create_task(_copy(client, channel, limit=_MAX_REQUEST_BYTES)),
+                    asyncio.create_task(_copy(server, browser, limit=_MAX_RESPONSE_BYTES)),
                 )
+                try:
+                    await asyncio.gather(*copies)
+                finally:
+                    for copy in copies:
+                        copy.cancel()
+                    await asyncio.gather(*copies, return_exceptions=True)
         except (OSError, ValueError, TimeoutError):
             logging.getLogger("omnis.forwarder").warning("FORWARDER_UNAVAILABLE")
         finally:
+            writers = tuple(writer for writer in (upstream, browser) if writer is not None)
             try:
-                for writer in (upstream, browser):
-                    if writer is not None:
-                        writer.close()
-                for writer in (upstream, browser):
-                    if writer is None:
-                        continue
+                for writer in writers:
+                    writer.close()
+                for writer in writers:
                     try:
-                        await asyncio.wait_for(writer.wait_closed(), timeout=2)
+                        await asyncio.wait_for(asyncio.shield(writer.wait_closed()), timeout=2)
                     except (OSError, TimeoutError):
-                        logging.getLogger("omnis.forwarder").warning("FORWARDER_CLOSE_UNAVAILABLE")
+                        writer.transport.abort()
+                        try:
+                            await asyncio.wait_for(asyncio.shield(writer.wait_closed()), timeout=1)
+                        except (OSError, TimeoutError):
+                            logging.getLogger("omnis.forwarder").warning(
+                                "FORWARDER_CLOSE_UNAVAILABLE"
+                            )
+            except asyncio.CancelledError:
+                for writer in writers:
+                    writer.transport.abort()
+                raise
             finally:
                 active -= 1
                 clients.discard(current)
@@ -149,7 +173,7 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
         listener.close()
         await listener.wait_closed()
         raise
-    return ForwarderListener(listener, clients)
+    return ForwarderListener(listener, clients, closing)
 
 
 async def run(directory: Path, port: int) -> None:

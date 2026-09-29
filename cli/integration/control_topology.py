@@ -443,8 +443,18 @@ def _cleanup(
         raise AssertionError("Owned cleanup incomplete: " + ", ".join(problems))
     for ident, item in owned.items():
         if item["Config"]["Labels"].get("com.docker.compose.oneoff") == "True":
-            _attest_container_identity(host, ident, scratch, project, image_id, state_root)
-            _docker(host, "container", "rm", "-f", ident, cwd=scratch, timeout=30)
+            try:
+                _attest_container_identity(host, ident, scratch, project, image_id, state_root)
+                _docker(host, "container", "rm", "-f", ident, cwd=scratch, timeout=30)
+            except (
+                AssertionError,
+                OSError,
+                ValueError,
+                KeyError,
+                TypeError,
+                subprocess.SubprocessError,
+            ):
+                problems.append("owned one-off removal uncertain")
     _compose(host, release, project, empty_env, env, "down", timeout=90)
     if _owner_set(host, project, scratch):
         raise AssertionError("Owned containers survived down")
@@ -458,6 +468,8 @@ def _cleanup(
         raise AssertionError("PostgreSQL bind disappeared")
     if (state_root / "http/api.sock").exists():
         raise AssertionError("Private API socket survived shutdown")
+    if problems:
+        raise AssertionError("Owned cleanup incomplete: " + ", ".join(problems))
 
 
 def conclude_cleanup(project: str, state_root: Path, *, uncertain: bool) -> None:
@@ -465,6 +477,72 @@ def conclude_cleanup(project: str, state_root: Path, *, uncertain: bool) -> None
         print(f"INSTALLED_CONTROL_OUTCOME_UNCERTAIN project={project} data_retained={state_root}")
         raise AssertionError("Compose daemon outcome uncertain; manual recovery required")
     print(f"INSTALLED_CONTROL_STOPPED project={project} data_retained={state_root}")
+
+
+def _finish_probe(
+    forwarder: subprocess.Popen[str] | None,
+    *,
+    port: int,
+    launched: bool,
+    host: str,
+    release: Path,
+    project: str,
+    empty_env: Path,
+    env: dict[str, str],
+    state_root: Path,
+    image_id: str,
+    uncertain: bool,
+) -> None:
+    """Attempt every owned teardown even when the host forwarder exits mid-signal."""
+    problems = ["probe outcome uncertain"] if uncertain else []
+    cleanup_error: Exception | None = None
+    try:
+        if forwarder is not None:
+            stdout = ""
+            try:
+                if forwarder.poll() is None:
+                    try:
+                        os.killpg(forwarder.pid, signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass  # The leader exited between poll and signal.
+                try:
+                    stdout, _stderr = forwarder.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    problems.append("forwarder timeout")
+                    try:
+                        os.killpg(forwarder.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    stdout, _stderr = forwarder.communicate(timeout=5)
+                if forwarder.returncode != 0 or "FORWARDER_READY" not in stdout:
+                    problems.append("forwarder exit uncertain")
+            except (OSError, ValueError, subprocess.SubprocessError):
+                problems.append("forwarder teardown uncertain")
+            try:
+                assert_no_host_listener(port)
+            except (OSError, ValueError):
+                problems.append("host listener readback uncertain")
+    finally:
+        if launched:
+            try:
+                _cleanup(host, release, project, empty_env, env, state_root, image_id, port)
+            except (
+                AssertionError,
+                OSError,
+                ValueError,
+                KeyError,
+                TypeError,
+                subprocess.SubprocessError,
+            ) as exc:
+                cleanup_error = exc
+                problems.append("owned Compose cleanup incomplete")
+    if problems:
+        print(f"INSTALLED_CONTROL_OUTCOME_UNCERTAIN project={project} data_retained={state_root}")
+        raise AssertionError(
+            "Installed cleanup incomplete: " + ", ".join(problems)
+        ) from cleanup_error
+    if launched:
+        conclude_cleanup(project, state_root, uncertain=False)
 
 
 def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: str) -> None:
@@ -797,21 +875,16 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         uncertain = True
         raise
     finally:
-        if forwarder is not None:
-            if forwarder.poll() is None:
-                os.killpg(forwarder.pid, signal.SIGTERM)
-            try:
-                stdout, _stderr = forwarder.communicate(timeout=5)
-            except subprocess.TimeoutExpired:
-                os.killpg(forwarder.pid, signal.SIGKILL)
-                stdout, _stderr = forwarder.communicate(timeout=5)
-                uncertain = True
-            if forwarder.returncode != 0 or "FORWARDER_READY" not in stdout:
-                uncertain = True
-            try:
-                assert_no_host_listener(port)
-            except ValueError:
-                uncertain = True
-        if launched:
-            _cleanup(host, release, project, empty_env, env, state_root, receipt.image_id, port)
-            conclude_cleanup(project, state_root, uncertain=uncertain)
+        _finish_probe(
+            forwarder,
+            port=port,
+            launched=launched,
+            host=host,
+            release=release,
+            project=project,
+            empty_env=empty_env,
+            env=env,
+            state_root=state_root,
+            image_id=receipt.image_id,
+            uncertain=uncertain,
+        )

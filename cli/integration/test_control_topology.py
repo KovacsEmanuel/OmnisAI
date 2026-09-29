@@ -20,6 +20,7 @@ from control_topology import (
     _POSTGRES,
     _cleanup,
     _docker,
+    _finish_probe,
     _http,
     _owned_container,
     assert_no_host_listener,
@@ -32,6 +33,58 @@ from control_topology import (
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_forwarder_exit_race_still_attempts_owned_compose_cleanup(self):
+        class ExitedForwarder:
+            pid = 12345
+            returncode = 0
+
+            def poll(self):
+                return None  # Exit between this check and killpg.
+
+            def communicate(self, *, timeout):
+                assert timeout == 5
+                return "FORWARDER_READY", ""
+
+        project = "omnis-local-" + "a" * 32
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            state = scratch / "state"
+            (state / "postgres").mkdir(parents=True)
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            output = io.StringIO()
+            with (
+                patch("control_topology.os.killpg", side_effect=ProcessLookupError),
+                patch("control_topology.assert_no_host_listener") as no_listener,
+                patch("control_topology._cleanup") as cleanup,
+                redirect_stdout(output),
+            ):
+                _finish_probe(
+                    ExitedForwarder(),
+                    port=8765,
+                    launched=True,
+                    host="unix:///owned/docker.sock",
+                    release=scratch,
+                    project=project,
+                    empty_env=empty_env,
+                    env={},
+                    state_root=state,
+                    image_id="owned-image",
+                    uncertain=False,
+                )
+            cleanup.assert_called_once_with(
+                "unix:///owned/docker.sock",
+                scratch,
+                project,
+                empty_env,
+                {},
+                state,
+                "owned-image",
+                8765,
+            )
+            no_listener.assert_called_once_with(8765)
+            self.assertIn("INSTALLED_CONTROL_STOPPED", output.getvalue())
+
     def test_poststop_readback_rejects_listener_not_own_tcp_time_wait(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
             listener.bind(("127.0.0.1", 0))
@@ -328,6 +381,72 @@ class InstalledControlPreflightTest(unittest.TestCase):
                     8765,
                 )
             self.assertTrue(removed)
+            self.assertTrue((state / "postgres").is_dir())
+
+    def test_failed_oneoff_removal_still_attempts_owned_compose_teardown(self):
+        project = "omnis-local-" + "a" * 32
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            scratch = Path(name)
+            state = scratch / "state"
+            (state / "postgres").mkdir(parents=True)
+            empty_env = scratch / "empty.env"
+            empty_env.touch()
+            down = False
+            ids = ["owned-job", "owned-api", "owned-db"]
+
+            def owners(_host, _project, _scratch):
+                return [] if down else ids
+
+            def attest(_host, ident, _scratch, _project, _image, _state):
+                return {
+                    "Config": {"Labels": {"com.docker.compose.oneoff": str(ident == "owned-job")}}
+                }
+
+            def docker(_host, *args, **_kwargs):
+                if args[:2] == ("network", "inspect"):
+                    if down:
+                        return subprocess.CompletedProcess(args, 1, stderr="network not found")
+                    return subprocess.CompletedProcess(
+                        args,
+                        0,
+                        stdout=json.dumps(
+                            [
+                                {
+                                    "Labels": {"com.docker.compose.project": project},
+                                    "Internal": True,
+                                    "Containers": {ident: {} for ident in ids},
+                                }
+                            ]
+                        ),
+                    )
+                if args[:3] == ("container", "rm", "-f"):
+                    raise AssertionError("synthetic owned one-off removal failure")
+                self.fail("Unexpected Docker command")
+
+            def compose(_host, _release, _project, _empty, _env, *args, **_kwargs):
+                nonlocal down
+                self.assertEqual(args, ("down",))
+                down = True
+                return subprocess.CompletedProcess(args, 0)
+
+            with (
+                patch("control_topology._owner_set", side_effect=owners),
+                patch("control_topology._attest_container_identity", side_effect=attest),
+                patch("control_topology._docker", side_effect=docker),
+                patch("control_topology._compose", side_effect=compose),
+            ):
+                with self.assertRaisesRegex(AssertionError, "incomplete"):
+                    _cleanup(
+                        "unix:///owned/docker.sock",
+                        scratch,
+                        project,
+                        empty_env,
+                        {},
+                        state,
+                        "owned-image",
+                        8765,
+                    )
+            self.assertTrue(down, "A failed one-off rm must not strand the owned services")
             self.assertTrue((state / "postgres").is_dir())
 
     def test_postgres_must_not_join_the_front_network_at_runtime(self):

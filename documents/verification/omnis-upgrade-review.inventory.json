@@ -1,0 +1,687 @@
+{
+  "schema_version": 1,
+  "kind": "review-derived-evidence-not-product-results",
+  "omnis_base": "1e748a0e05517c3e85854aedee5fb758cf8d609d",
+  "sources": [
+    {
+      "repo": "usestrix/strix",
+      "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "tag": "v1.6.2",
+      "license_declared": "Apache-2.0",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "KeygraphHQ/shannon",
+      "revision": "327c10fd90a6186a9f035b4b6ddb5bbba1839e92",
+      "license_declared": "AGPL-3.0",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "vxcontrol/pentagi",
+      "revision": "ea665308baaff015b226f308438a68d929d0f29b",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "CyberSecurityUP/NeuroSploit",
+      "revision": "5d4e7e0347219ceae22735ec6af3d8cdd0561ded",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "GreyDGL/PentestGPT",
+      "revision": "e8b1bb77d1ac00329675cec3b060aba971ec1ac8",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "projectdiscovery/katana",
+      "revision": "29f4d1cbaffc634f79f389c59f34be6f85fcde5d",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "projectdiscovery/nuclei",
+      "revision": "47f74706a54261ecbbbac617a75c1ec5ef9bddd7",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "schemathesis/schemathesis",
+      "revision": "be1b46696dc7eb8aa472054d1b46c95e8f069382",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    },
+    {
+      "repo": "typesafe-ai/typesafe-sdk-python",
+      "revision": "f078f1e208a0d885154dc758344ae4fce77ac168",
+      "version_declared": "0.7.2",
+      "license_declared": "MIT",
+      "admission": "RESEARCH_SNAPSHOT_NOT_PRODUCT_DEPENDENCY"
+    }
+  ],
+  "strix_run": {
+    "run_id": "host-docker-internal-5000_d7f4",
+    "status": "completed",
+    "start": "2026-09-29T15:45:05.983152+00:00",
+    "end": "2026-09-29T16:12:52.397868+00:00",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "reported_cost_usd": 1.2585033071,
+    "llm_requests": 331,
+    "input_tokens": 31450264,
+    "cached_input_tokens": 29033344,
+    "agent_count_transcript": 13,
+    "agent_count_usage": 14,
+    "usage_only_component": "dedupe",
+    "event_count": 733,
+    "event_types": {
+      "chat": 263,
+      "tool": 470
+    },
+    "tool_counts": {
+      "get_threat_model": 13,
+      "list_notes": 3,
+      "list_coverage": 11,
+      "view_agent_graph": 5,
+      "list_reports": 4,
+      "exec_command": 208,
+      "create_todo": 6,
+      "update_todo": 3,
+      "create_agent": 12,
+      "wait_for_agents": 14,
+      "write_stdin": 11,
+      "create_note": 5,
+      "record_coverage": 60,
+      "agent_finish": 14,
+      "get_note": 17,
+      "save_threat_model": 1,
+      "mark_todo_done": 7,
+      "apply_patch": 7,
+      "create_vulnerability_report": 32,
+      "update_coverage": 20,
+      "send_message_to_agent": 3,
+      "update_vulnerability_report": 2,
+      "amend_threat_model": 3,
+      "get_report": 7,
+      "load_skill": 1,
+      "finish_scan": 1
+    },
+    "finding_count": 27,
+    "severity": {
+      "critical": 6,
+      "high": 13,
+      "medium": 8
+    },
+    "chain_report_id": "vuln-0027",
+    "independent_verifier_claim_ids": [
+      "vuln-0001",
+      "vuln-0017",
+      "vuln-0010",
+      "vuln-0019",
+      "vuln-0018",
+      "vuln-0020"
+    ],
+    "agents": [
+      {
+        "id": "8e6a5d6a",
+        "name": "Root Agent",
+        "parent_id": null,
+        "events": 94,
+        "finding_ids": [
+          "vuln-0027"
+        ]
+      },
+      {
+        "id": "9ec66744",
+        "name": "Recon & Surface Mapping",
+        "parent_id": "8e6a5d6a",
+        "events": 66,
+        "finding_ids": []
+      },
+      {
+        "id": "a4b7e981",
+        "name": "Info Disclosure Reporter",
+        "parent_id": "8e6a5d6a",
+        "events": 28,
+        "finding_ids": [
+          "vuln-0001",
+          "vuln-0002",
+          "vuln-0003",
+          "vuln-0005"
+        ]
+      },
+      {
+        "id": "afcf8263",
+        "name": "Auth & Session Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 77,
+        "finding_ids": [
+          "vuln-0017",
+          "vuln-0018",
+          "vuln-0019",
+          "vuln-0020"
+        ]
+      },
+      {
+        "id": "434b1e3e",
+        "name": "IDOR & Access Control Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 45,
+        "finding_ids": [
+          "vuln-0006",
+          "vuln-0008"
+        ]
+      },
+      {
+        "id": "84ac298b",
+        "name": "SSRF & XXE Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 51,
+        "finding_ids": [
+          "vuln-0007",
+          "vuln-0009"
+        ]
+      },
+      {
+        "id": "92f56160",
+        "name": "Path Traversal / LFI Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 31,
+        "finding_ids": [
+          "vuln-0004"
+        ]
+      },
+      {
+        "id": "f7b35566",
+        "name": "SQL Injection Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 59,
+        "finding_ids": [
+          "vuln-0010",
+          "vuln-0011",
+          "vuln-0012",
+          "vuln-0014"
+        ]
+      },
+      {
+        "id": "f7a7352e",
+        "name": "Client-Side XSS & Redirect Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 67,
+        "finding_ids": [
+          "vuln-0021",
+          "vuln-0022",
+          "vuln-0023"
+        ]
+      },
+      {
+        "id": "545288c5",
+        "name": "Business Logic Specialist",
+        "parent_id": "8e6a5d6a",
+        "events": 63,
+        "finding_ids": [
+          "vuln-0013",
+          "vuln-0015",
+          "vuln-0016"
+        ]
+      },
+      {
+        "id": "85365818",
+        "name": "Independent Critical Verifier",
+        "parent_id": "8e6a5d6a",
+        "events": 46,
+        "finding_ids": []
+      },
+      {
+        "id": "52180885",
+        "name": "Staff-Portal Token & CSRF",
+        "parent_id": "8e6a5d6a",
+        "events": 72,
+        "finding_ids": [
+          "vuln-0024",
+          "vuln-0025"
+        ]
+      },
+      {
+        "id": "2b5c916a",
+        "name": "Mass Assignment Escalation",
+        "parent_id": "8e6a5d6a",
+        "events": 34,
+        "finding_ids": [
+          "vuln-0026"
+        ]
+      }
+    ],
+    "raw_snapshot_hashes": {
+      "run.json": "5c12042264e7f8d6ecc2c32533272f1c138c35ffa66a637d42e33e4c693ffffc",
+      "transcript.json": "a004656bf7fa6b32b66306fa09801a907d23813d2f16660f332ee732ab014c8a",
+      "vulnerabilities.json": "6dc5b3512738e69153dbb0678b5bdb272de1b19d29e82fb28be233da3e48a7d4"
+    },
+    "limits": [
+      "No PoC replay was executed by this review",
+      "Costs are run-reported, not independently invoiced",
+      "Raw snapshots are private scratch, excluded from Git",
+      "Event index is zero-based for this exact snapshot"
+    ]
+  },
+  "strix_knowledge": {
+    "markdown_total": 76,
+    "guides": 75,
+    "vulnerability_guides": 29,
+    "files": [
+      {
+        "path": "README.md",
+        "category": "index",
+        "kind": "readme"
+      },
+      {
+        "path": "analysis/counterevidence.md",
+        "category": "analysis",
+        "kind": "guide"
+      },
+      {
+        "path": "analysis/fix_verification.md",
+        "category": "analysis",
+        "kind": "guide"
+      },
+      {
+        "path": "analysis/severity_calibration.md",
+        "category": "analysis",
+        "kind": "guide"
+      },
+      {
+        "path": "analysis/source_aware_discovery.md",
+        "category": "analysis",
+        "kind": "guide"
+      },
+      {
+        "path": "cloud/aws.md",
+        "category": "cloud",
+        "kind": "guide"
+      },
+      {
+        "path": "cloud/azure.md",
+        "category": "cloud",
+        "kind": "guide"
+      },
+      {
+        "path": "cloud/gcp.md",
+        "category": "cloud",
+        "kind": "guide"
+      },
+      {
+        "path": "cloud/kubernetes.md",
+        "category": "cloud",
+        "kind": "guide"
+      },
+      {
+        "path": "coordination/root_agent.md",
+        "category": "coordination",
+        "kind": "guide"
+      },
+      {
+        "path": "coordination/source_aware_whitebox.md",
+        "category": "coordination",
+        "kind": "guide"
+      },
+      {
+        "path": "custom/api_spec_testing.md",
+        "category": "custom",
+        "kind": "guide"
+      },
+      {
+        "path": "custom/dependency_cve_scanning.md",
+        "category": "custom",
+        "kind": "guide"
+      },
+      {
+        "path": "custom/npx_confusion.md",
+        "category": "custom",
+        "kind": "guide"
+      },
+      {
+        "path": "custom/source_aware_sast.md",
+        "category": "custom",
+        "kind": "guide"
+      },
+      {
+        "path": "frameworks/django.md",
+        "category": "frameworks",
+        "kind": "guide"
+      },
+      {
+        "path": "frameworks/fastapi.md",
+        "category": "frameworks",
+        "kind": "guide"
+      },
+      {
+        "path": "frameworks/nestjs.md",
+        "category": "frameworks",
+        "kind": "guide"
+      },
+      {
+        "path": "frameworks/nextjs.md",
+        "category": "frameworks",
+        "kind": "guide"
+      },
+      {
+        "path": "protocols/graphql.md",
+        "category": "protocols",
+        "kind": "guide"
+      },
+      {
+        "path": "protocols/oauth.md",
+        "category": "protocols",
+        "kind": "guide"
+      },
+      {
+        "path": "reconnaissance/asset_discovery.md",
+        "category": "reconnaissance",
+        "kind": "guide"
+      },
+      {
+        "path": "reconnaissance/infrastructure_lifecycle.md",
+        "category": "reconnaissance",
+        "kind": "guide"
+      },
+      {
+        "path": "scan_modes/deep.md",
+        "category": "scan_modes",
+        "kind": "guide"
+      },
+      {
+        "path": "scan_modes/diff.md",
+        "category": "scan_modes",
+        "kind": "guide"
+      },
+      {
+        "path": "scan_modes/quick.md",
+        "category": "scan_modes",
+        "kind": "guide"
+      },
+      {
+        "path": "scan_modes/standard.md",
+        "category": "scan_modes",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/active_directory.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/auth0.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/electron_desktop_apps.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/firebase.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/grafana_prometheus.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/llm_applications.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "technologies/supabase.md",
+        "category": "technologies",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/agent_browser.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/ffuf.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/httpx.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/hurl.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/hypothesis.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/katana.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/naabu.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/nmap.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/nuclei.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/python.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/semgrep.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/sqlmap.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "tooling/subfinder.md",
+        "category": "tooling",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/agentic_system_security.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/argument_injection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/authentication_jwt.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/broken_function_level_authorization.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/browser_security.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/business_logic.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/csrf.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/header_injection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/http_request_smuggling.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/idor.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/information_disclosure.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/insecure_deserialization.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/insecure_file_uploads.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/llm_prompt_injection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/mass_assignment.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/nosql_injection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/open_redirect.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/path_traversal_lfi_rfi.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/prototype_pollution.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/race_conditions.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/rce.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/semantic_confusion.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/sql_injection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/ssrf.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/ssti.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/subdomain_takeover.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/weak_password_detection.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/xss.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      },
+      {
+        "path": "vulnerabilities/xxe.md",
+        "category": "vulnerabilities",
+        "kind": "guide"
+      }
+    ]
+  },
+  "reuse_probe": {
+    "kind": "isolated upstream pure-function extraction probe",
+    "passed_checks": 19,
+    "checks": [
+      "csv_0",
+      "csv_1",
+      "csv_2",
+      "csv_3",
+      "csv_4",
+      "fence_5",
+      "fence_6",
+      "fence_7",
+      "fenced_crlf",
+      "plain_code",
+      "skill_dedup",
+      "root_methodology",
+      "counterevidence",
+      "small_unchanged",
+      "utf8_preview_bound",
+      "preview_truncation_label",
+      "exact_receipt",
+      "receipt_crlf_preserved",
+      "invented_receipt_refused"
+    ],
+    "edge_observation": {
+      "component": "Strix bound_text",
+      "requested_max_bytes": 10,
+      "actual_bytes": 45,
+      "within_cap": false,
+      "integration_adjustment": "Validate minimum caps or cap the truncation notice; never treat this helper as the evidence/network quota boundary."
+    },
+    "limits": "No SDK lifecycle, target request, LLM inference, package installation, or Omnis code import."
+  }
+}

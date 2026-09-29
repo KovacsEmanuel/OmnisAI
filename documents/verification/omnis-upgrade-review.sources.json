@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 2,
+      "url": "https://github.com/usestrix/strix/tree/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 3,
+      "url": "https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 4,
+      "url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 5,
+      "url": "https://docs.typesafe.ai/models",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 6,
+      "url": "https://docs.typesafe.ai/legal",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 7,
+      "url": "https://docs.typesafe.ai/api",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 8,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/skills/coordination/root_agent.md",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 9,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/agents/prompt.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 10,
+      "url": "https://docs.xbow.com/console/guidance/checking-configuration",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 11,
+      "url": "https://docs.xbow.com/console/reference/protected-urls",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 12,
+      "url": "https://docs.xbow.com/console/reference/vulnerability-classification",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 14,
+      "url": "https://help.aikido.dev/pentests/coverage-and-findings/understanding-pentest-coverage.md",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 16,
+      "url": "https://www.cantina.security/resources/apex-field-report/apex-field-report.pdf",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 17,
+      "url": "https://doyensec.com/resources/ComparingAIApplicationSecurityTestingPlatforms_Doyensec.pdf",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 18,
+      "url": "https://arxiv.org/html/2609.28940v1",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 19,
+      "url": "https://arxiv.org/html/2609.26532",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 20,
+      "url": "https://github.com/insidetrust/awesome-ai-pentest",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 21,
+      "url": "https://github.com/KeygraphHQ/shannon/tree/327c10fd90a6186a9f035b4b6ddb5bbba1839e92",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 22,
+      "url": "https://github.com/vxcontrol/pentagi/tree/ea665308baaff015b226f308438a68d929d0f29b",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 23,
+      "url": "https://github.com/CyberSecurityUP/NeuroSploit/tree/5d4e7e0347219ceae22735ec6af3d8cdd0561ded",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 24,
+      "url": "https://github.com/GreyDGL/PentestGPT/tree/e8b1bb77d1ac00329675cec3b060aba971ec1ac8",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 25,
+      "url": "https://github.com/projectdiscovery/katana/tree/29f4d1cbaffc634f79f389c59f34be6f85fcde5d",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 26,
+      "url": "https://github.com/projectdiscovery/nuclei/tree/47f74706a54261ecbbbac617a75c1ec5ef9bddd7",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 27,
+      "url": "https://github.com/schemathesis/schemathesis/tree/be1b46696dc7eb8aa472054d1b46c95e8f069382",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 29,
+      "url": "https://docs.typesafe.ai/sdk/python/api/retries",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 30,
+      "url": "https://github.com/typesafe-ai/typesafe-sdk-python/tree/f078f1e208a0d885154dc758344ae4fce77ac168",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 31,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/agents/prompts/system_prompt.jinja",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 32,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/finish/tool.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 33,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/reporting/tool.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 34,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/coverage/tools.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 35,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/tools/output_store.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 36,
+      "url": "https://github.com/usestrix/strix/blob/ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2/strix/report/writer.py",
+      "title": "",
+      "accessed": "2026-09-29"
+    },
+    {
+      "id": 37,
+      "url": "https://help.aikido.dev/pentests/coverage-and-findings/threat-model",
+      "title": "",
+      "accessed": "2026-09-29"
+    }
+  ]
+}

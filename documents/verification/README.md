@@ -6,6 +6,8 @@
 
 **Pentru review într-o sesiune fresh, nu baseline aprobat:** [dosarul de amendamente pentru capabilități pentest, reutilizare Strix, bucle, web/UX și Jev](omnis-pentest-review-proposal.md). Identifică fișierele/secțiunile de schimbat și sursele, dar nu modifică planul canonic, gates, codul produsului sau autorizația de scanare; înainte de aplicare se cere decizia operatorului și se recitește checkoutul.
 
+**Review efectuat, amendamente încă neaplicate:** [review Sol și upgrade prin reutilizare OSS](omnis-upgrade-review.md), cu [inventarul surselor fixate, agenților și probelor derivate](omnis-upgrade-review.inventory.json). Include flow-ul observat Strix, componentele de copiat/adaptat, integrarea Jev, MVP versus extindere și corecțiile P0.4. Nu este implementarea upgrade-ului sau aprobarea implicită a noilor gates.
+
 ## Reproducere în scratch
 
 Copiază subdirectorul dorit în scratch (`$TMPDIR`, nu în runtime-ul personal). Folosește exact Node 24.21.0/npm 11.19.0 sau CPython 3.13.15/uv 0.12.19 din baseline. Instalarea pachetelor are nevoie de rețea către registry; probele nu cer conturi AI.

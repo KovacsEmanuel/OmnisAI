@@ -85,7 +85,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>A10</td>
-<td>Scope/politică/model/catalog imutabile pe run; Stop + nou run pentru modificări</td>
+<td>Scope/politică/mod/obiectiv/model/catalog imutabile pe run; Stop + nou run pentru modificări</td>
 <td>Evităm migrarea live a permisiunilor; identitatea poate reautentifica numai într-un nou <code>auth_epoch</code> controlat</td>
 </tr>
 <tr>
@@ -516,7 +516,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><code>Finding</code>: candidat → validare → <code>CONFIRMED | REJECTED | INCONCLUSIVE</code>. Starea remedierii este separată: <code>OPEN | FIXED | REGRESSED | RETEST_INCONCLUSIVE</code>, cu evidence noi și raport nou, fără rescrierea verdictului istoric.</p>
 <p><strong>Review operator pentru raport, separat de validare:</strong> <code>report_review_policy</code> este ales explicit în draft și fixat în revizia runului: <code>OPERATOR_REQUIRED</code> (preselectat conservator pentru un draft nou) sau <code>VALIDATOR_ONLY</code>. Primul cere <code>ReportReview=PENDING | APPROVED | HELD</code> pentru fiecare finding CONFIRMED; al doilea produce <code>NOT_REQUIRED</code>. Nu decide LLM-ul și nu derivăm cerința din culoarea severității. Păstrăm actorul, <code>claim_revision</code>, evidence manifest/version, <code>review_revision</code> și auditul. Acceptarea manuală nu produce CONFIRMED. Acceptarea cere ownership, revizie curentă și evidence disponibile; Hold respectă ownership/revizia fără a pretinde verificarea bytes lipsă; schimbările materiale ale claimului/evidence version invalidează acceptarea. La generare sunt eligibile numai findingurile tehnic CONFIRMED cu review APPROVED sau NOT_REQUIRED. Raportul păstrează copia stării la generare; deciziile ulterioare nu rescriu snapshotul anterior. Contractul de date UI este în specificația UI/UX §8; acest flux este propus, nu implementat în backend.</p>
 <p><strong>ReportReview nu blochează COMPLETED</strong> și nu menține modelul pornit: este o coadă editorială, separată de operational Action/Approval. Accept/Hold pot urma unui run STOPPED/COMPLETED, cu aceleași controale de ownership/revizie, fără a relansa execuția. În predicatul de mai jos „approval restant” înseamnă permisiune operațională/efect, nu includerea în raport.</p>
-<p><strong>Predicat de finalizare:</strong> numai supervisorul poate închide runul. <code>COMPLETED</code> cere frontiera de discovery epuizată în subsetul declarat, toate celulele obligatorii aplicabile cu rezultat probatoriu, toți candidații validați, niciun task/inbox/approval/cleanup/efect UNKNOWN restant și runtime/executori quiescenți. Propunerea Brainului de închidere nu este autoritate. Lucru restant din limită, policy/auth/unsupported relevant sau stagnare → <code>LIMITED</code> cu lista exactă; efecte externe nereconciliate → <code>NEEDS_RECONCILIATION</code>, chiar dacă raportul parțial poate fi exportat. Stagnare implicită: trei tururi consecutive fără observație/dovadă/precondiție nouă, consum de rezultat nou sau schimbare justificată de task; retries identice nu resetează contorul. Pragul este fixat în run manifest. <code>COMPLETED</code> certifică obligațiile catalogului și scope-ului declarat, nu siguranța întregii aplicații.</p>
+<p><strong>Predicat de finalizare:</strong> numai supervisorul poate închide runul. <code>COMPLETED</code> cere frontiera de discovery epuizată în subsetul declarat, toate celulele obligatorii aplicabile cu rezultat probatoriu, toți candidații validați, niciun task/inbox/approval/cleanup/efect UNKNOWN restant și runtime/executori quiescenți. Propunerea Brainului de închidere nu este autoritate. Lucru restant din limită, policy/auth/unsupported relevant sau stagnare → <code>LIMITED</code> cu lista exactă; efecte externe nereconciliate → <code>NEEDS_RECONCILIATION</code>, chiar dacă raportul parțial poate fi exportat. Stagnare implicită: trei tururi consecutive fără observație/dovadă/precondiție nouă, consum de rezultat nou sau schimbare justificată de task; retries identice nu resetează contorul. Pragul este fixat în run manifest. <code>COMPLETED</code> certifică obligațiile catalogului în misiunea și scope-ul declarat (§9.3), nu siguranța întregii aplicații. Criteriile funcționale au outcomes separate; FAIL funcțional nu este automat vulnerabilitate sau run neterminat.</p>
 <h3 id="stop-pause-sanatate">Stop, pause, sănătate</h3>
 <p><strong>Progresul nu este stare de control.</strong> <code>RunProgress</code> este proiecția server-side a supervisorului, cu <code>phase=PREPARE|RECON|INVESTIGATE|VALIDATE|FINALIZE|UNKNOWN</code>, <code>phase_active</code>, <code>phase_updated_at</code> și activitate redactată bounded. Faza rezultă din lucru admis și tranziții de domeniu, nu din textul Brainului; la activități mixte validarea are prioritate în rezumat, iar taskurile individuale rămân vizibile în stream. <code>phase_active=false</code> când runul nu este RUNNING. PAUSING/PAUSED/STOPPING/STOPPED/NEEDS_RECONCILIATION au precedență în banner; ultima fază poate rămâne numai etichetată istoric. Re-renderul, review-ul unui finding sau SSE replay nu pot reactiva faza. Barele requests/timp și coverage nu sunt un procent de „pentest complet”.</p>
 <p>Stop nu cere confirmare modală: revocă <code>fencing_epoch</code>, blochează noi dispatchuri, întrerupe Hermes, închide admiterea proxy/context/procese și așteaptă quiescența. UI rămâne <code>STOPPING</code> cât verificarea nu e completă. La timeout, supervisorul comandă terminarea process groupului prin runtime-host/adaptorul executorului; watchdogurile locale sunt fallbackul bounded. Numai launcherul host poate opri containerele conform §4.3. Dacă un adaptor nu răspunde, supervisorul afișează escaladarea și efectele incerte, fără <code>STOPPED</code> sau dovadă de quiescență inventată; operatorul poate folosi oprirea de urgență a instanței. Nu declarăm anularea requesturilor deja expediate. Bariera <code>InstanceControl</code> se aplică suplimentar la shutdownul aplicației, nu numai fencingul runului curent.</p>
@@ -553,7 +553,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td>Engagement / EngagementRevision / Run</td>
-<td>Autorizație, scope, policy, data policy, bugete, snapshot model/catalog; runul citează revizia imutabilă</td>
+<td>Autorizație, scope, policy, data policy, bugete, mod/obiectiv/constraints și snapshot model/catalog; MissionSpec/FocusEnvelope derivate append-only conform §9.3; runul citează revizia imutabilă</td>
 </tr>
 <tr>
 <td>Identity / AuthContext / BusinessRuleRevision</td>
@@ -644,6 +644,98 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>Snapshotul îngheață IDs/revizii/material redactat, review/policy, scope, through_cursor/denominator, starea runului, excluderi/motive, disponibilitatea evidence și versiunea rendererului. JSON/HTML au DTO allowlist; fără material_snapshot intern sau alte copii ascunse ale bytes indisponibili. Exportul folosește protocolul STAGING→AVAILABLE din §10, caps și reconciliere; queued/202 nu este download ready. Failure și reîncercarea idempotentă nu mută snapshotul spre date mai noi.</li>
 <li>Raport parțial este permis când runul este neterminat/LIMITED sau există excluderi/limite, dar spune explicit ce lipsește. Nu numim un raport gol „aplicație sigură”. Un finding legat prin occurrence confirmată sau retest autorizat în RunFindingLink este numărat o singură dată; retestul citează claimul istoric și probele noi, fără duplicarea vulnerabilității. Disponibilitatea curentă nu șterge verdictul, dar exportul nou nu reproduce bytes declarați indisponibili. ReportReview nu este un grant de efecte, chiar dacă este realizat în timpul unui run.</li>
 </ul>
+<h3 id="93-misiune-general-sau-focalizat">9.3. Misiune: general sau focalizat</h3>
+<p><strong>HF01–HF03, adoptate:</strong> concretizăm obiectivul existent; nu creăm chat DB sau două câmpuri de obiectiv. Contractele de mai jos sunt normative pentru B02/B04/B06/B10–B13, nu endpointuri implementate în P0.4.</p>
+<p>Tipuri comune pentru §9.3–9.6: <code>Id</code> = UUID opac; <code>Revision</code> = integer ≥1; <code>Digest</code> = SHA-256 lowercase hex, 64 caractere; <code>Ref</code> = obiect strict <code>{kind: enum din registrul trusted, id: Id, revision: Revision, digest: Digest}</code>; <code>Cursor</code> = token opac verificat pe context; <code>Text</code> = string Unicode, fără coerciții. Toate câmpurile din tabele sunt obligatorii; numai <code>T?</code> acceptă null, iar <code>T[]</code> acceptă lista goală dacă nu se precizează minim. Niciun câmp suplimentar nu este ignorat; schema necunoscută se refuză. Metadata declarativă nu acordă autoritate. Ref-urile se rezolvă cu ownership, tip/revizie/digest și compatibilitate, nu doar prin existența ID-ului. Referințele la catalog sunt globale numai pentru releases publicate; cele de caz sunt strict engagement/run-scoped. Tipurile se materializează în DTO/schema generată cu primul consumator, nu ca stuburi acum.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Câmp EngagementRevision / RunSnapshot</th>
+<th>Tip / validare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>assessment_mode</code></td>
+<td>enum <code>FULL_ASSESSMENT</code>, <code>FOCUSED_TEST</code>; explicit, niciodată dedus din depth</td>
+</tr>
+<tr>
+<td><code>objective_text</code></td>
+<td>Text 1–8192 code points, maximum 32768 bytes UTF-8; focused respinge whitespace-only, fără trim/normalizare a originalului; full poate materializa explicit defaultul „Evaluează suprafața Web/API autorizată în limitele profilului selectat.” înainte de Save</td>
+</tr>
+<tr>
+<td><code>objective_constraints</code></td>
+<td>listă ≤64 de <code>{id: Id, kind: READ_ONLY/EXCLUDE_FEATURE/REQUIRE_CRITERION, text: Text ≤1024, operation_refs: Ref[]}</code>; numai restricții, referințe rezolvabile</td>
+</tr>
+<tr>
+<td><code>workflow_profile_ref</code>, <code>business_rules_ref</code></td>
+<td>Ref, respectiv Ref?; profile/package/model/prompt/tool selections fixate la Start alături de scope/policy/data policy</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>PUT /api/v1/engagements/{id}</code> cu If-Match și command ID salvează draftul; <code>GET /api/v1/engagements/{id}</code> și <code>GET /api/v1/engagements/{id}/revisions</code> citesc exact textul/modul/revizia după reload/restart. Conflict 409 păstrează draftul local fără overwrite. B02 adaugă câmpurile și migrarea în agregatul existent; dacă există drafturi vechi, backfill full + obiectiv default explicit cu proveniență, fără reinterpretarea runurilor istorice. Secretul aparține seifului/identităților, nu textarea; textul privat nu intră în URL, localStorage, log ori export public implicit. Proiecția spre model respectă data policy; marker detection nu este DLP universal.</p>
+<p><strong>Save/Next/Back și preflight de sintaxă: zero LLM, zero target.</strong> Review înainte de Start arată datele salvate, nu pretinde interpretare semantică AI. Probe online auth/provider rămân acțiuni explicite bugetate. Interpretarea Brainului are loc numai după Start/admission model, în PREPARE, înaintea investigațiilor/fuzz. Preview AI pre-Start nu este inclus în MVP: dacă este adăugat ulterior, cere comandă separată și acord/cost/data policy vizibile.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Contract derivat</th>
+<th>Câmpuri și tipuri</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MissionSpec</code></td>
+<td><code>schema_version: 1</code>, <code>id: Id</code>, <code>revision: Revision</code>, <code>snapshot_ref: Ref</code>, <code>assessment_mode: enum de mai sus</code>, <code>summary: Text ≤4096</code>, <code>criteria: {id: Id, description: Text ≤1024, kind: SECURITY/FUNCTIONAL, oracle_ref: Ref?}[]</code> (1–64), <code>non_goals: Text[]</code>, <code>required_operation_refs: Ref[]</code>, <code>basis_refs: Ref[]</code>, <code>gaps: Text[]</code>, <code>done_when: {criterion_id: Id, required: bool}[]</code></td>
+</tr>
+<tr>
+<td><code>FocusEnvelope</code></td>
+<td><code>schema_version: 1</code>, <code>id: Id</code>, <code>revision: Revision</code>, <code>mission_ref: Ref</code>, <code>state: UNRESOLVED/BOUNDED/RESOLVED/BLOCKED</code>, <code>test_operation_refs: Ref[]</code>, <code>support_operation_refs: Ref[]</code>, <code>discovery_bootstrap: {seed_refs: Ref[], max_actions: integer 0..30, deadline_seconds: integer 0..300}</code>, <code>excluded_operation_refs: Ref[]</code>, <code>scope_ref: Ref</code>, <code>policy_ref: Ref</code>, <code>reason: Text ≤2048</code></td>
+</tr>
+<tr>
+<td><code>CriterionOutcome</code></td>
+<td><code>schema_version: 1</code>, <code>criterion_id: Id</code>, <code>mission_ref: Ref</code>, <code>task_result_ref: Ref</code>, <code>outcome: PASS/FAIL/BLOCKED/INCONCLUSIVE</code>, <code>evidence_refs: Ref[]</code>, <code>reason: Text ≤2048</code>; funcțional ≠ verdict de vulnerabilitate</td>
+</tr>
+</tbody>
+</table></div>
+<p>MissionSpec este propunere model-generated; compilerul verifică criteria IDs unice, <code>done_when</code> exact pe criteriile existente, operații reale și oracles instalate. Backendul construiește/validează FocusEnvelope; browserul/modelul nu poate publica această anvelopă ca grant. <code>BOUNDED</code> permite numai bootstrapul explicit și suportul admis; <code>UNRESOLVED/BLOCKED</code> nu permit hunting. Epuizarea bootstrapului fără delimitare cere clarificare/gap. Plafonul efectiv intersectează scope, efecte, bugete, identități, mission/focus și capabilitățile attemptului. Login/health de suport sunt declarate și contorizate: „nu testa autentificarea” nu interzice loginul funcțional și nu autorizează auth attacks.</p>
+<p>RunSnapshot îngheață <strong>cererea</strong>; MissionSpec/FocusEnvelope sunt revizii derivate <strong>append-only</strong> legate de el, nu rescrieri ale snapshotului. Task/brief/result/action/coverage/report citează revizia consumată. Replan în aceeași misiune poate rezolva operații noi prin evidence, nu modifica material obiectivul. Schimbarea modului/obiectivului cere Stop și revizie/run nou; STEER clarifică/prioritizează numai în limitele existente. Conflict între prompt restrictiv și mod cere clarificare înainte de investigații largi. Focus semantic nu este regex și nu promitem sandbox perfect de limbaj natural: testele compară task/action traces cu misiunea.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comportament</th>
+<th>General</th>
+<th>Focalizat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recon / ipoteze</td>
+<td>Suprafața promisă de scope și profil, incremental</td>
+<td>Numai criteriile și prerechizitele misiunii; fără scanare globală implicită</td>
+</tr>
+<tr>
+<td>Clue nou</td>
+<td>Poate deschide un fir admis</td>
+<td>Numai dacă servește obiectivului; altfel <code>deferred-outside-objective</code>, fără pivot automat</td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td>Universul cunoscut/promis al assessmentului</td>
+<td>Universul fixat de regula de includere a misiunii, nu procent global al aplicației</td>
+</tr>
+<tr>
+<td>Completion</td>
+<td>Predicatul §6</td>
+<td>Același predicat pe obligațiile misiunii; COMPLETED nu înseamnă că toate criteriile au PASS</td>
+</tr>
+<tr>
+<td>Raport / retest</td>
+<td>Domeniu, lacune și probe</td>
+<td>Titlu „Raport de test focalizat”, mod/rezumat autorizat, criterii/outcomes, prerechizite/excluderi; retest nou păstrează explicit misiunea</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>coverage/denominator.py</code> include mission/focus ref și <code>denominator_revision</code>. Suprafața din afara misiunii este <strong>neinclusă/netestată</strong>, nu not_applicable sau sigură. Unsupported/blocked/disabled/skipped în subsetul promis rămân obligații neacoperite și pot produce LIMITED; filtrele nu micșorează numitorul. Noi operații relevante pot materializa o revizie nouă în același univers. CriterionOutcome funcțional nu crește <code>tested_no_issue</code> sau numărul de findings; o constatare de securitate trece separat prin validator/oracle. Scopul nesuportat este explicat, nu convertit tacit într-un pentest complet. Snapshotul raportului și bytes HTML/JSON descărcați păstrează aceleași refs/limite ca proiecțiile.</p>
 <h2 id="10-evidence-date-si-raport">10. Evidence, date și raport</h2>
 <p><strong>Protocol artefact:</strong> (1) rezervare STAGING în DB; (2) scriere streaming bounded în fișier temporar exclusiv, fără nume ales de țintă; (3) flush/fsync, digest, rename atomic pe același filesystem, fsync director; (4) tranzacție DB care publică AVAILABLE plus eveniment; (5) reconciler pentru STAGING/orfani/lipsă. Cititorul verifică existența/integritatea înaintea operației probatorii. Hashul detectează modificarea, nu dovedește singur proveniența.</p>
 <p>Stări: <code>STAGING</code>, <code>AVAILABLE</code>, <code>TRUNCATED</code>, <code>MISSING</code>, <code>CORRUPT</code>, <code>DELETED</code>; versiunea redactată este derivat cu legătură la raw. Oracle declară ce bytes sunt obligatorii; un fragment suficient poate susține o observație limitată, nu automat un verdict complet. Verdictul este refuzat dacă dovezile obligatorii sunt absente/incomplete.</p>
@@ -933,5 +1025,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>affd9e6eeeaf0b8a989824faf7ee700bb6fae7910e6f91ee62d0e80bdd8725c3</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>a73e96b21e7fa5ad4130e3f3a11185a0882dbcaec0edcc238071a2b896a2da38</code>.</p></footer>
 </main></div></body></html>

@@ -2,7 +2,7 @@
 
 **VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · Bootstrap P0.3 implementat local; experiența P1 rămâne NEÎNCEPUTĂ**
 
-[DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; nu implementăm i18n complet, dar textele rămân centralizate.
+[DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; excepția explicit cerută este setupul de misiune cu etichetele românești de mai jos. Nu implementăm i18n complet, dar textele rămân centralizate.
 
 **Portarea P0.3:** numai shellul/capsulele/tokenurile/fonturile și formularul local, sesiunea/logoutul și starea reală a instanței sunt conectate la API. Nu se copiază fixture-ul DEMO sau metricile în produs; funcțiile viitoare sunt UNAVAILABLE/NOT_RUN cu motiv. Capturile și probele de tastatură/contrast/stări sunt în [dovezile P0.3](verification/p03-local-bootstrap.md), separate de acceptarea vizuală a prototipului și de viitoarea experiență P1. API/DB/control indisponibile, sesiunea expirată și datele stale nu sunt succese.
 
@@ -104,13 +104,19 @@ Rutele Investigations/Candidates și Setup sunt secundare; nu adaugă taburi pri
 
 ## 3. Setup în cinci pași
 
-1. **Target & permission:** nume, obiectiv, owner/autorizație, fereastră; origins ATTACKABLE/VISIT_ONLY/BLOCKED, căi și excluderi. Preview al regulilor, fără requests pentru validarea de sintaxă.
+1. **Target & permission:** nume, selector explicit **Evaluare generală / Test focalizat**, textarea multiline **„Obiectiv / instrucțiuni pentru Brain”**, owner/autorizație, fereastră; origins ATTACKABLE/VISIT_ONLY/BLOCKED, căi și excluderi. Text original 1–8192 code points / maximum 32768 bytes UTF-8, limită și counter vizibile; focused gol/whitespace este refuzat. General materializează defaultul explicit din arhitectură §9.3, niciodată aplicat automat focused. Exemplu: „Testează numai dacă un utilizator poate accesa facturile altuia. Nu modifica datele.” Hint: credențialele se introduc la Identities/seif, nu în obiectiv. Preview local al regulilor, fără requests țintă sau LLM la tastare/Save/Next/Back.
 2. **Application context:** seed URLs, workflowuri prioritare, obiecte test, reguli `(rol/tenant × obiect × operație → ALLOW/DENY/UNKNOWN)`, proveniență/revizie, import OpenAPI revizionat. Cerințele BOLA nu se ascund într-un free-text opțional.
 3. **Identities (optional):** anonymous valid; persona/rol/tenant, tip auth și secret handle; Verify login cu efecte și scope explicite. Assisted browser deschis numai după aprobarea scopeului dependențelor, fără browser personal.
 4. **Rules & budgets:** efecte, praguri, request/time/storage, rezervă validare, data policy/provider/model și catalog admis. `report_review_policy`: OPERATOR_REQUIRED preselectat și afișat explicit sau VALIDATOR_ONLY ales de operator; se fixează în run, nu se schimbă în timpul lui. „Cost necunoscut” separat de limita tehnică; nu afișăm quota Codex inventată.
-5. **Review & preflight:** erori/blocaje grupate cu link înapoi la câmp; revizie/model/identități/riscuri/costul posibil rezumate. Save draft nu face inferență. Start cere preflight actual și confirmare explicită a rulării.
+5. **Review & preflight:** erori/blocaje grupate cu link înapoi la câmp; mod, obiectivul exact salvat, constraints/non-goals, revizie/model/identități/riscuri/cost posibil, capabilități disponibile și necunoscute. Save draft nu face inferență; nu afișăm interpretare AI fictivă. Start cere preflight actual și confirmare explicită. Brain interpretează după admission în PREPARE; preview AI pre-Start nu este inclus în MVP.
 
 Backendul este autoritatea finală. Un wizard bifat nu garantează că între timp auth/lease/model/policy nu s-au schimbat. La 409 păstrăm editările locale și arătăm conflictul; nu suprascriem automat.
+
+### 3.1. Misiunea în run și readback
+
+Save/reload/restart păstrează exact textul și selecția; 409 nu pierde editările. Arhitectură §9.3 este unica definiție a MissionSpec/FocusEnvelope. Scope = plafon autorizat, full/focused = ce testăm, depth/buget = cât; deep nu lărgește focusul. Ambiguitatea cere clarificare în Needs you; obiectiv nesuportat arată BLOCKED/gap, nu pornește full. STEER clarifică/prioritizează, schimbarea materială a obiectivului cere Stop + run nou.
+
+Overview și Brain stream afișează mode/objective badge, mission revision și motivul taskului, fără transcript intern. Coverage numește universul misiunii și denominator_revision; în afara misiunii = neinclus/netestat, nu sigur/N/A. CriterionOutcome funcțional apare separat de finding/coverage securitate. Raportul focalizat declară criterii/outcomes, suport, excluderi și limite; COMPLETED înseamnă evaluarea efectuată, nu toate criteriile PASS sau aplicația sigură. Retestul preia explicit modul/limitele într-un run nou. Matricea de livrare/readback este în plan §16, UI11–UI13.
 
 ## 4. Fluxurile critice
 

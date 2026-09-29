@@ -90,7 +90,7 @@ Nu construim aici un motor generic de workflow sau toate tabelele proiectului. M
 
 ## 6. P1 — prima experiență web reală
 
-**B02:** engagement draft persistent; create/list/read/edit, scope ATTACKABLE/VISIT_ONLY/BLOCKED, excluderi, autorizație, fereastră, reguli de efecte, bugete și context aplicație.
+**B02:** engagement draft persistent; create/list/read/edit, scope ATTACKABLE/VISIT_ONLY/BLOCKED, excluderi, autorizație, fereastră, reguli de efecte, bugete și context aplicație. Include `assessment_mode`, `objective_text`, `objective_constraints` și profil publicat conform arhitectură §9.3; migrare în agregatul existent, fără chat DB. B04 conectează selectorul/textarea și readbackul exact. Salvarea/sintaxa sunt inerte, interpretarea Brain este la B06 după Start.
 
 **B03:** portarea shellului și componentelor acceptate, navigare pe trei scope-uri, tabele, formular în pași și stări loading/empty/error/unavailable/not implemented. Home și cele cinci taburi de engagement urmează UI/UX/§16; metricile și acțiunile fără sursă reală sunt indisponibile, nu umplute cu fixture. Tokenurile și fonturile locale Geist/Geist Mono păstrează proveniența/licența; nu importăm modelul/scripturile DEMO în buildul produsului.
 
@@ -188,6 +188,10 @@ Conținutul și designul acceptat nu sunt amânate până la P8. Review-ul edito
 - B13b: candidat sau ownership străin refuzate; CAS stale, schimbarea claim_revision/manifest/policy, revizia separată a review-ului, duplicate/same-key-different-payload și readback după restart. Accept cu evidence indisponibile este refuzat; Hold rămâne permis pentru CONFIRMED. Decizia nu schimbă verdictul sau statusul runului.
 - B13c: generare concurentă cu Hold/claim nou/retention produce un snapshot coerent, nu un amestec. Descărcările reale HTML/JSON includ numai CONFIRMED eligibile; raport vechi identic după schimbări, bytes indisponibili și metadata interne excluse din exportul nou. Crash STAGING, quota/IO failure și retry idempotent nu publică un artifact fals AVAILABLE.
 - Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.
+
+### Gate dependent pentru ambele moduri
+
+**G-FOCUS — B10f/B12f/B13f, după G05a/G06a, obligatoriu pentru MVP, nu retroactiv pentru prima probă BOLA.** B06 compune MissionSpec/FocusEnvelope și briefing; B10f materializează focusul pe operațiile descoperite, B12f verifică criterion outcomes/coverage, B13f raport/retest. Pe aceeași fixture full și focused pornesc de la informații egale: focused invoice-only admite login/health de suport, descoperă și testează numai obligațiile misiunii. Clue off-objective este deferred, auth attack exclus, focus nerezolvat/obiectiv nesuportat cere clarificare/LIMITED, prompt off-scope nu acordă acces. Fixtures verifică task/action traces, input stale, text ostil inert, zero LLM/target la Save și conflict 409; readback după restart și bytes HTML/JSON păstrează mode/mission/denominator. Criteriul funcțional FAIL nu devine finding sau negativ de securitate. Schimbarea materială cere Stop/run nou.
 
 ## 12. P4b — Settings complet, în paralel
 
@@ -289,6 +293,9 @@ Toate rândurile sunt **NEÎNCEPUTE în produs**. Contractele/API-urile sunt pro
 | UI08 | Setup / preflight / Start/Pause/Resume/Stop / operational approval | engagements/runs/policy/InstanceControl; revision/Command/Action/Approval; comenzi și readback | B02/B04/B05/B07/B19 / G01/G02/G03/G07 | draft fără efect; policy/run activ/409/expiry; Stop în overlay, 202≠STOPPED, deconectare, barieră shutdown și efect incert |
 | UI09 | Settings providers/models: save/test/OAuth/cancel/logout | settings + runtime-host privat; projection/config command, grant numai în store dedicat | P4a/B14a / G04a/G04b | readback, 401/429/cancel/timeout; fără fallback personal/hot-swap; test live numai cu acord și buget |
 | UI10 | Settings Skills/Runtime/Data | settings/catalog/evidence/ops; draft/release pin, inventory, retention/backup, comenzi tipizate | B14b/B21 / G04b/G-DATA/G-OPS | draft fără execuție, pin per run, path/symlink/shadowing; diagnostic fără secret; ștergere/restore cu manifest și startup locked |
+| UI11 | HF01: selector/textarea/Save/Next/Back/Review | EngagementRevision mod/obiectiv/constraints → engagements; PUT/GET `/api/v1/engagements/{id}` și GET revisions; migrare B02 + RunSnapshot la B06 | B02/B04, apoi B06; G01/G-FOCUS | + exact text/mod/revizie după reload/restart; − gol focused/oversize/HTML activ/409, zero apeluri la Save; GET readback nu echo optimist |
+| UI12 | HF02: mode/objective badge, clarificare/STEER, task reason | MissionSpec/FocusEnvelope/Task refs → runs/tasks/policy; GET summary/tasks și POST `/api/v1/runs/{run}/commands`; revizii append-only cu primul consumator | B06/B10f/B18a; G-FOCUS/G-LOOP | + operații și suport legate de obiectiv; − ref străin/stale/Stop, schimbare materială refuzată; command receipt + GET tasks/summary același cursor |
+| UI13 | HF03: coverage focalizat/criterion outcomes, report/retest | mission/focus/denominator refs → coverage/reports; GET coverage, POST/GET reports, artifact download, POST findings retests; B10f/B12f/B13f extind persistence existentă | după G06a; G-FOCUS | + univers etichetat și outcomes distincte, retest run nou; − skip nu ascunde gap, funcțional nu umflă finding; GET și bytes HTML/JSON/restart identice snapshotului |
 
 P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația cockpit/stream; B13 finding disclosure/review/report. Testele API/PostgreSQL verifică autoritatea și persistența, iar web component/E2E verifică contractul, focusul, staleness și layoutul. `browser_check.py` asupra DEMO rămâne separat și nu închide aceste gates.
 

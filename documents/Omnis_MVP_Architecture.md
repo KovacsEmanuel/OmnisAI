@@ -33,7 +33,7 @@ SaaS, acces public, multi-tenancy, colaborare, SSO/MFA autonom, un nou framework
 | A07 | Auth opțional cu seif local și serializare per context; refresh cu un singur proprietar | Nu dezactivăm rotația tokenurilor pe țintă și nu reutilizăm browserul personal |
 | A08 | Dovezi adresate opac, protocol de finalizare înainte de verdict; evenimente tranzacționale | Un hash și un commit SQL nu fac filesystemul atomic |
 | A09 | Confirmare și `tested_no_issue` prin verificatoare deterministe de completitudine/oracle | Un al doilea LLM nu votează adevărul; verdictul runtime nu este verdict de securitate |
-| A10 | Scope/politică/model/catalog imutabile pe run; Stop + nou run pentru modificări | Evităm migrarea live a permisiunilor; identitatea poate reautentifica numai într-un nou `auth_epoch` controlat |
+| A10 | Scope/politică/mod/obiectiv/model/catalog imutabile pe run; Stop + nou run pentru modificări | Evităm migrarea live a permisiunilor; identitatea poate reautentifica numai într-un nou `auth_epoch` controlat |
 | A11 | SSE Omnis cu replay; comenzi HTTP versionate și idempotente | Nici SSE Hermes, nici chatul nu sunt event store |
 | A12 | UI Operate/Monitor: cockpit acceptat, stream și finding disclosure; Coverage/Endpoints cu tree/tabel/inspector | Păstrăm relațiile/proveniența; fără graph/council/Chains și fără reinventarea layoutului acceptat |
 | A13 | Executabil host `omnis` → Compose detached + build web static same-origin | O comandă pentru operator, fără Vite/terminale multiple; pornirea aplicației nu pornește un assessment |
@@ -293,7 +293,7 @@ Supervisorul unic deține dispatcherul, runtime-ul și lease-urile. API poate av
 
 **ReportReview nu blochează COMPLETED** și nu menține modelul pornit: este o coadă editorială, separată de operational Action/Approval. Accept/Hold pot urma unui run STOPPED/COMPLETED, cu aceleași controale de ownership/revizie, fără a relansa execuția. În predicatul de mai jos „approval restant” înseamnă permisiune operațională/efect, nu includerea în raport.
 
-**Predicat de finalizare:** numai supervisorul poate închide runul. `COMPLETED` cere frontiera de discovery epuizată în subsetul declarat, toate celulele obligatorii aplicabile cu rezultat probatoriu, toți candidații validați, niciun task/inbox/approval/cleanup/efect UNKNOWN restant și runtime/executori quiescenți. Propunerea Brainului de închidere nu este autoritate. Lucru restant din limită, policy/auth/unsupported relevant sau stagnare → `LIMITED` cu lista exactă; efecte externe nereconciliate → `NEEDS_RECONCILIATION`, chiar dacă raportul parțial poate fi exportat. Stagnare implicită: trei tururi consecutive fără observație/dovadă/precondiție nouă, consum de rezultat nou sau schimbare justificată de task; retries identice nu resetează contorul. Pragul este fixat în run manifest. `COMPLETED` certifică obligațiile catalogului și scope-ului declarat, nu siguranța întregii aplicații.
+**Predicat de finalizare:** numai supervisorul poate închide runul. `COMPLETED` cere frontiera de discovery epuizată în subsetul declarat, toate celulele obligatorii aplicabile cu rezultat probatoriu, toți candidații validați, niciun task/inbox/approval/cleanup/efect UNKNOWN restant și runtime/executori quiescenți. Propunerea Brainului de închidere nu este autoritate. Lucru restant din limită, policy/auth/unsupported relevant sau stagnare → `LIMITED` cu lista exactă; efecte externe nereconciliate → `NEEDS_RECONCILIATION`, chiar dacă raportul parțial poate fi exportat. Stagnare implicită: trei tururi consecutive fără observație/dovadă/precondiție nouă, consum de rezultat nou sau schimbare justificată de task; retries identice nu resetează contorul. Pragul este fixat în run manifest. `COMPLETED` certifică obligațiile catalogului în misiunea și scope-ul declarat (§9.3), nu siguranța întregii aplicații. Criteriile funcționale au outcomes separate; FAIL funcțional nu este automat vulnerabilitate sau run neterminat.
 
 ### Stop, pause, sănătate
 
@@ -342,7 +342,7 @@ UUID-uri opace, timp UTC, revizii întregi, enums explicite, schema_version pe p
 | Agregat | Date și constrângeri |
 |---|---|
 | InstanceControl | Identitatea instanței, admission_open, shutdown_command_id/generation, receipt de quiescență; barieră tranzacțională comună Start/Resume/Settings/admitere |
-| Engagement / EngagementRevision / Run | Autorizație, scope, policy, data policy, bugete, snapshot model/catalog; runul citează revizia imutabilă |
+| Engagement / EngagementRevision / Run | Autorizație, scope, policy, data policy, bugete, mod/obiectiv/constraints și snapshot model/catalog; MissionSpec/FocusEnvelope derivate append-only conform §9.3; runul citează revizia imutabilă |
 | Identity / AuthContext / BusinessRuleRevision | Secret refs, principal, epoch, lease și reguli ALLOW/DENY/UNKNOWN |
 | Surface / Operation / Parameter / Observation / Relationship | URL brut separat de rută normalizată, metodă, tip, proveniență, observed/inferred, context identitate și evidence |
 | Task / Attempt / RuntimeBinding / LaunchManifest | Rol, precondiții, ipoteză, skill digest, limite, lineage de încredere și fencing |
@@ -397,6 +397,43 @@ Aceste DTO-uri se introduc incremental: B01b fixează envelope/error/revision; B
 - `POST /api/v1/runs/{run}/reports` creează din DB un snapshot coerent al setului eligibil la momentul generării, nu din lista trimisă de browser. `GET /api/v1/runs/{run}/reports` listează istoricul; `GET /api/v1/reports/{id}/artifacts/{format}` livrează HTML/JSON numai după ownership/integritate/AVAILABLE. Idempotency leagă aceeași cerere de același snapshot; raportul nu se regenerează din findings curente la download. Materializarea bounded este job durabil al supervisorului, nu BackgroundTask volatil în workerul API; admiterea lui verifică InstanceControl și nu pornește model/target. Shutdownul instanței îl drenează/reconciliază, separat de Stop assessment.
 - Snapshotul îngheață IDs/revizii/material redactat, review/policy, scope, through_cursor/denominator, starea runului, excluderi/motive, disponibilitatea evidence și versiunea rendererului. JSON/HTML au DTO allowlist; fără material_snapshot intern sau alte copii ascunse ale bytes indisponibili. Exportul folosește protocolul STAGING→AVAILABLE din §10, caps și reconciliere; queued/202 nu este download ready. Failure și reîncercarea idempotentă nu mută snapshotul spre date mai noi.
 - Raport parțial este permis când runul este neterminat/LIMITED sau există excluderi/limite, dar spune explicit ce lipsește. Nu numim un raport gol „aplicație sigură”. Un finding legat prin occurrence confirmată sau retest autorizat în RunFindingLink este numărat o singură dată; retestul citează claimul istoric și probele noi, fără duplicarea vulnerabilității. Disponibilitatea curentă nu șterge verdictul, dar exportul nou nu reproduce bytes declarați indisponibili. ReportReview nu este un grant de efecte, chiar dacă este realizat în timpul unui run.
+
+### 9.3. Misiune: general sau focalizat
+
+**HF01–HF03, adoptate:** concretizăm obiectivul existent; nu creăm chat DB sau două câmpuri de obiectiv. Contractele de mai jos sunt normative pentru B02/B04/B06/B10–B13, nu endpointuri implementate în P0.4.
+
+Tipuri comune pentru §9.3–9.6: `Id` = UUID opac; `Revision` = integer ≥1; `Digest` = SHA-256 lowercase hex, 64 caractere; `Ref` = obiect strict `{kind: enum din registrul trusted, id: Id, revision: Revision, digest: Digest}`; `Cursor` = token opac verificat pe context; `Text` = string Unicode, fără coerciții. Toate câmpurile din tabele sunt obligatorii; numai `T?` acceptă null, iar `T[]` acceptă lista goală dacă nu se precizează minim. Niciun câmp suplimentar nu este ignorat; schema necunoscută se refuză. Metadata declarativă nu acordă autoritate. Ref-urile se rezolvă cu ownership, tip/revizie/digest și compatibilitate, nu doar prin existența ID-ului. Referințele la catalog sunt globale numai pentru releases publicate; cele de caz sunt strict engagement/run-scoped. Tipurile se materializează în DTO/schema generată cu primul consumator, nu ca stuburi acum.
+
+| Câmp EngagementRevision / RunSnapshot | Tip / validare |
+|---|---|
+| `assessment_mode` | enum `FULL_ASSESSMENT`, `FOCUSED_TEST`; explicit, niciodată dedus din depth |
+| `objective_text` | Text 1–8192 code points, maximum 32768 bytes UTF-8; focused respinge whitespace-only, fără trim/normalizare a originalului; full poate materializa explicit defaultul „Evaluează suprafața Web/API autorizată în limitele profilului selectat.” înainte de Save |
+| `objective_constraints` | listă ≤64 de `{id: Id, kind: READ_ONLY/EXCLUDE_FEATURE/REQUIRE_CRITERION, text: Text ≤1024, operation_refs: Ref[]}`; numai restricții, referințe rezolvabile |
+| `workflow_profile_ref`, `business_rules_ref` | Ref, respectiv Ref?; profile/package/model/prompt/tool selections fixate la Start alături de scope/policy/data policy |
+
+`PUT /api/v1/engagements/{id}` cu If-Match și command ID salvează draftul; `GET /api/v1/engagements/{id}` și `GET /api/v1/engagements/{id}/revisions` citesc exact textul/modul/revizia după reload/restart. Conflict 409 păstrează draftul local fără overwrite. B02 adaugă câmpurile și migrarea în agregatul existent; dacă există drafturi vechi, backfill full + obiectiv default explicit cu proveniență, fără reinterpretarea runurilor istorice. Secretul aparține seifului/identităților, nu textarea; textul privat nu intră în URL, localStorage, log ori export public implicit. Proiecția spre model respectă data policy; marker detection nu este DLP universal.
+
+**Save/Next/Back și preflight de sintaxă: zero LLM, zero target.** Review înainte de Start arată datele salvate, nu pretinde interpretare semantică AI. Probe online auth/provider rămân acțiuni explicite bugetate. Interpretarea Brainului are loc numai după Start/admission model, în PREPARE, înaintea investigațiilor/fuzz. Preview AI pre-Start nu este inclus în MVP: dacă este adăugat ulterior, cere comandă separată și acord/cost/data policy vizibile.
+
+| Contract derivat | Câmpuri și tipuri |
+|---|---|
+| `MissionSpec` | `schema_version: 1`, `id: Id`, `revision: Revision`, `snapshot_ref: Ref`, `assessment_mode: enum de mai sus`, `summary: Text ≤4096`, `criteria: {id: Id, description: Text ≤1024, kind: SECURITY/FUNCTIONAL, oracle_ref: Ref?}[]` (1–64), `non_goals: Text[]`, `required_operation_refs: Ref[]`, `basis_refs: Ref[]`, `gaps: Text[]`, `done_when: {criterion_id: Id, required: bool}[]` |
+| `FocusEnvelope` | `schema_version: 1`, `id: Id`, `revision: Revision`, `mission_ref: Ref`, `state: UNRESOLVED/BOUNDED/RESOLVED/BLOCKED`, `test_operation_refs: Ref[]`, `support_operation_refs: Ref[]`, `discovery_bootstrap: {seed_refs: Ref[], max_actions: integer 0..30, deadline_seconds: integer 0..300}`, `excluded_operation_refs: Ref[]`, `scope_ref: Ref`, `policy_ref: Ref`, `reason: Text ≤2048` |
+| `CriterionOutcome` | `schema_version: 1`, `criterion_id: Id`, `mission_ref: Ref`, `task_result_ref: Ref`, `outcome: PASS/FAIL/BLOCKED/INCONCLUSIVE`, `evidence_refs: Ref[]`, `reason: Text ≤2048`; funcțional ≠ verdict de vulnerabilitate |
+
+MissionSpec este propunere model-generated; compilerul verifică criteria IDs unice, `done_when` exact pe criteriile existente, operații reale și oracles instalate. Backendul construiește/validează FocusEnvelope; browserul/modelul nu poate publica această anvelopă ca grant. `BOUNDED` permite numai bootstrapul explicit și suportul admis; `UNRESOLVED/BLOCKED` nu permit hunting. Epuizarea bootstrapului fără delimitare cere clarificare/gap. Plafonul efectiv intersectează scope, efecte, bugete, identități, mission/focus și capabilitățile attemptului. Login/health de suport sunt declarate și contorizate: „nu testa autentificarea” nu interzice loginul funcțional și nu autorizează auth attacks.
+
+RunSnapshot îngheață **cererea**; MissionSpec/FocusEnvelope sunt revizii derivate **append-only** legate de el, nu rescrieri ale snapshotului. Task/brief/result/action/coverage/report citează revizia consumată. Replan în aceeași misiune poate rezolva operații noi prin evidence, nu modifica material obiectivul. Schimbarea modului/obiectivului cere Stop și revizie/run nou; STEER clarifică/prioritizează numai în limitele existente. Conflict între prompt restrictiv și mod cere clarificare înainte de investigații largi. Focus semantic nu este regex și nu promitem sandbox perfect de limbaj natural: testele compară task/action traces cu misiunea.
+
+| Comportament | General | Focalizat |
+|---|---|---|
+| Recon / ipoteze | Suprafața promisă de scope și profil, incremental | Numai criteriile și prerechizitele misiunii; fără scanare globală implicită |
+| Clue nou | Poate deschide un fir admis | Numai dacă servește obiectivului; altfel `deferred-outside-objective`, fără pivot automat |
+| Coverage | Universul cunoscut/promis al assessmentului | Universul fixat de regula de includere a misiunii, nu procent global al aplicației |
+| Completion | Predicatul §6 | Același predicat pe obligațiile misiunii; COMPLETED nu înseamnă că toate criteriile au PASS |
+| Raport / retest | Domeniu, lacune și probe | Titlu „Raport de test focalizat”, mod/rezumat autorizat, criterii/outcomes, prerechizite/excluderi; retest nou păstrează explicit misiunea |
+
+`coverage/denominator.py` include mission/focus ref și `denominator_revision`. Suprafața din afara misiunii este **neinclusă/netestată**, nu not_applicable sau sigură. Unsupported/blocked/disabled/skipped în subsetul promis rămân obligații neacoperite și pot produce LIMITED; filtrele nu micșorează numitorul. Noi operații relevante pot materializa o revizie nouă în același univers. CriterionOutcome funcțional nu crește `tested_no_issue` sau numărul de findings; o constatare de securitate trece separat prin validator/oracle. Scopul nesuportat este explicat, nu convertit tacit într-un pentest complet. Snapshotul raportului și bytes HTML/JSON descărcați păstrează aceleași refs/limite ca proiecțiile.
 
 ## 10. Evidence, date și raport
 

@@ -170,7 +170,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>B01e — gate de securitate dependențe proxy:</strong> baseline-ul publicat <code>mitmproxy==12.2.3</code> se rezolvă, dar are dependențe cu advisories; este REJECTED pentru trafic target, nu o alegere „aprobată cu avertisment”. Vezi registrul de versiuni. <strong>B01e-build</strong>, înainte de a executa proxyul în testele B07, alege release upstream corectat sau patch minimal auditat, lock separat și probe upstream/TLS/HTTP de build. Rezultatul este LAB_TEST_ONLY. <strong>B01e-integrated</strong> se închide în B07/B09 odată cu contractele broker/addon și G-NET pentru transportul respectiv; împreună închid G-DEPENDENCIES, nu invers. Nu facem downgrade la crypto API, nu folosim override neverificat și nu activăm tunel opac/direct ca fallback. Dacă nu există build admis, execuția proxyului/efectele P3 rămân BLOCKED; P0/P1/P2 inerte pot continua. Testele izolate necesare certificării rulează numai într-un harness cu fixture/sinks explicit autorizate și egress extern închis; nu sunt assessmenturi sau o excepție ascunsă în Start. Mai întâi trec controalele deterministe allow/deny și absent-addon, apoi tracerul nativ. Buildul publicat respins nu primește derogare nici prin acest traseu.</p>
 <p>Nu construim aici un motor generic de workflow sau toate tabelele proiectului. Migrațiile și contractele se adaugă cu felia care le exercită.</p>
 <h2 id="6-p1-prima-experienta-web-reala">6. P1 — prima experiență web reală</h2>
-<p><strong>B02:</strong> engagement draft persistent; create/list/read/edit, scope ATTACKABLE/VISIT_ONLY/BLOCKED, excluderi, autorizație, fereastră, reguli de efecte, bugete și context aplicație.</p>
+<p><strong>B02:</strong> engagement draft persistent; create/list/read/edit, scope ATTACKABLE/VISIT_ONLY/BLOCKED, excluderi, autorizație, fereastră, reguli de efecte, bugete și context aplicație. Include <code>assessment_mode</code>, <code>objective_text</code>, <code>objective_constraints</code> și profil publicat conform arhitectură §9.3; migrare în agregatul existent, fără chat DB. B04 conectează selectorul/textarea și readbackul exact. Salvarea/sintaxa sunt inerte, interpretarea Brain este la B06 după Start.</p>
 <p><strong>B03:</strong> portarea shellului și componentelor acceptate, navigare pe trei scope-uri, tabele, formular în pași și stări loading/empty/error/unavailable/not implemented. Home și cele cinci taburi de engagement urmează UI/UX/§16; metricile și acțiunile fără sursă reală sunt indisponibile, nu umplute cu fixture. Tokenurile și fonturile locale Geist/Geist Mono păstrează proveniența/licența; nu importăm modelul/scripturile DEMO în buildul produsului.</p>
 <p><strong>B04:</strong> formularul conectat la API, erori per câmp, dirty-state, optimistic concurrency și refresh/restart. Matricea business poate fi introdusă ca date nesensibile; secretele se activează numai după backendul securizat P3b.</p>
 <p><strong>G01:</strong> create/edit/reload/restart păstrează exact datele; două taburi nu suprascriu fără 409; cross-origin/Host fals/CSRF absent sunt refuzate. Scope/politică/model/catalog nu se editează cu run activ. Paginile viitoare nu conțin metrici inventate, iar Start explică gate-ul lipsă. E2E keyboard/focus și mobil pentru fluxul de creare.</p>
@@ -279,6 +279,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li>B13c: generare concurentă cu Hold/claim nou/retention produce un snapshot coerent, nu un amestec. Descărcările reale HTML/JSON includ numai CONFIRMED eligibile; raport vechi identic după schimbări, bytes indisponibili și metadata interne excluse din exportul nou. Crash STAGING, quota/IO failure și retry idempotent nu publică un artifact fals AVAILABLE.</li>
 <li>Providerul secundar și editorul Skills pot fi încă în lucru; nu blochează această demonstrație.</li>
 </ul>
+<h3 id="gate-dependent-pentru-ambele-moduri">Gate dependent pentru ambele moduri</h3>
+<p><strong>G-FOCUS — B10f/B12f/B13f, după G05a/G06a, obligatoriu pentru MVP, nu retroactiv pentru prima probă BOLA.</strong> B06 compune MissionSpec/FocusEnvelope și briefing; B10f materializează focusul pe operațiile descoperite, B12f verifică criterion outcomes/coverage, B13f raport/retest. Pe aceeași fixture full și focused pornesc de la informații egale: focused invoice-only admite login/health de suport, descoperă și testează numai obligațiile misiunii. Clue off-objective este deferred, auth attack exclus, focus nerezolvat/obiectiv nesuportat cere clarificare/LIMITED, prompt off-scope nu acordă acces. Fixtures verifică task/action traces, input stale, text ostil inert, zero LLM/target la Save și conflict 409; readback după restart și bytes HTML/JSON păstrează mode/mission/denominator. Criteriul funcțional FAIL nu devine finding sau negativ de securitate. Schimbarea materială cere Stop/run nou.</p>
 <h2 id="12-p4b-settings-complet-in-paralel">12. P4b — Settings complet, în paralel</h2>
 <p><strong>B14a:</strong> OpenRouter save/test/delete și Codex device OAuth start/poll/cancel/logout; fără secret în prompt/log, fără fallback personal. Catalog și schimbarea modelelor la limita unui run, nu hot-swap ascuns. Pending login după timeout/restart tratat explicit.</p>
 <p><strong>B14b:</strong> Skills catalog/search/detail/files/readiness; editor simplu cu draft/diff/schema/ref checks/review/publicare/retire. Nu Monaco/IDE complet, nu upload arbitrar de arhive și nu instalare din URL. Scriptul din skill nu rulează la editare.</p>
@@ -436,6 +438,27 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <td>B14b/B21 / G04b/G-DATA/G-OPS</td>
 <td>draft fără execuție, pin per run, path/symlink/shadowing; diagnostic fără secret; ștergere/restore cu manifest și startup locked</td>
 </tr>
+<tr>
+<td>UI11</td>
+<td>HF01: selector/textarea/Save/Next/Back/Review</td>
+<td>EngagementRevision mod/obiectiv/constraints → engagements; PUT/GET <code>/api/v1/engagements/{id}</code> și GET revisions; migrare B02 + RunSnapshot la B06</td>
+<td>B02/B04, apoi B06; G01/G-FOCUS</td>
+<td>+ exact text/mod/revizie după reload/restart; − gol focused/oversize/HTML activ/409, zero apeluri la Save; GET readback nu echo optimist</td>
+</tr>
+<tr>
+<td>UI12</td>
+<td>HF02: mode/objective badge, clarificare/STEER, task reason</td>
+<td>MissionSpec/FocusEnvelope/Task refs → runs/tasks/policy; GET summary/tasks și POST <code>/api/v1/runs/{run}/commands</code>; revizii append-only cu primul consumator</td>
+<td>B06/B10f/B18a; G-FOCUS/G-LOOP</td>
+<td>+ operații și suport legate de obiectiv; − ref străin/stale/Stop, schimbare materială refuzată; command receipt + GET tasks/summary același cursor</td>
+</tr>
+<tr>
+<td>UI13</td>
+<td>HF03: coverage focalizat/criterion outcomes, report/retest</td>
+<td>mission/focus/denominator refs → coverage/reports; GET coverage, POST/GET reports, artifact download, POST findings retests; B10f/B12f/B13f extind persistence existentă</td>
+<td>după G06a; G-FOCUS</td>
+<td>+ univers etichetat și outcomes distincte, retest run nou; − skip nu ascunde gap, funcțional nu umflă finding; GET și bytes HTML/JSON/restart identice snapshotului</td>
+</tr>
 </tbody>
 </table></div>
 <p>P1 compară shellul și stările reale cu UI acceptat; B08 adaugă comparația cockpit/stream; B13 finding disclosure/review/report. Testele API/PostgreSQL verifică autoritatea și persistența, iar web component/E2E verifică contractul, focusul, staleness și layoutul. <code>browser_check.py</code> asupra DEMO rămâne separat și nu închide aceste gates.</p>
@@ -546,5 +569,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Ordinea restului P0-control:</strong> continuă P0.4 cu instalarea și lifecycle-ul <strong>prin launcherul <code>omnis</code></strong>, preflight/lock/concurență, startup/pairing/open/stop, probe de topologie/UID și negativele complete L01–L05-control/L08-core din afara checkoutului. Fixture-ul DB fără port Docker publicat este în <code>d8f79df</code>; rerulează gate-ul canonic pe checkout curat al ultimului cod și păstrează separate negativele LAN, crash/restart și celelalte porți, fără a substitui rezultatul prin probele de harness. Numai după acestea se închide G00; apoi B02/P1-data. Review și commit după fiecare comportament, nu un singur commit de fază.</p>
 <p><strong>Reluare P0.4 după clear:</strong> verifică HEAD/checkoutul, <a href="verification/p03-local-bootstrap.md">dovezile P0.3</a>, <a href="verification/p04-cli-status.md">incrementul CLI</a>, <a href="verification/p04-bundle-install.md">bundleul</a>, <a href="verification/p04-image-artifact.md">imaginea</a>, <a href="verification/p04-compose-contract.md">contractul Compose</a>, <a href="verification/p04-image-install.md">instalarea imaginii</a> și <a href="verification/p04-host-uds.md">proba DB/API/supervisor host-only</a>, <a href="verification/p04-safe-test-db.md">fixture-ul DB de test fără publicație</a>, inclusiv eșecurile istorice, TIME_WAIT și constatările forwarderului încă deschise. Continuă exclusiv launcherul din P0.4 în felii TDD/review/commituri mici, fără refacerea webului, conturi/LLM/ținte. Nu pretinde că topologia de harness înseamnă <code>omnis start</code> sau gate-uri complete închise.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>c3f573ad0cc98f83825fff60419332e3181b122d538f1a0f77e6805daf516e2d</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>a8c01277e3d7a57f80a3800b15f72cba4ee32ad950780ee69a99da55cf0a7070</code>.</p></footer>
 </main></div></body></html>

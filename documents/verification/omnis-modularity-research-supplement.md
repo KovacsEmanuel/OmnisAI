@@ -394,6 +394,8 @@ Două subfaze recon/mapping și trei acțiuni **inerte** pe observații sintetic
 
 ### Ordine propusă
 
+Lista următoare descrie incremente care pot avansa în paralel, **nu un lanț în care research/wordlists blochează primul investigator**. Pe calea critică intră numai componentele necesare primei proceduri; B10c/d, editorul și maintenance rămân independente până la consumatorul lor.
+
 1. Amendamentele normative de mai sus, cu readers HTML regenerate și review; un commit coerent per decizie.
 2. Import Strix delimitat și registry/profile minimal, fără editor complet; prima felie inertă.
 3. Fingerprint pasiv → ResearchResult citat → wordlist artifact pe date sintetice; niciun fuzzer pornit automat.

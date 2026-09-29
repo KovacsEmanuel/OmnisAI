@@ -1,6 +1,6 @@
 # P0.4 — checkpoint de întrerupere: topologia control instalată
 
-**Snapshot istoric WIP, NU stare operațională curentă / G00 deschis.** Ramură izolată `p04-control-topology-wip`, pornită din `c4cb784` de pe `main`. Checkpointul păstrează experimentele și implementarea parțială; nu promite startup. [Proba și blocajele ulterioare sunt aici](p04-topology-runtime.md). Nu face merge/push și nu interpreta ramura drept produs gata.
+**Snapshot istoric WIP, NU stare operațională curentă / G00 deschis.** Ramură izolată `p04-control-topology-wip`, pornită din `c4cb784` de pe `main`. Checkpointul păstrează experimentele și implementarea parțială; nu promite startup. [Proba actuală și limitele ei sunt aici](p04-host-uds.md); [profilul cu bridge frontal respins](p04-topology-runtime.md) rămâne istoric. Nu face merge/push și nu interpreta ramura drept produs gata.
 
 ## Ce este sigur pe `main`
 

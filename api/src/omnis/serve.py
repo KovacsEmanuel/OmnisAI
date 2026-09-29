@@ -131,6 +131,12 @@ class _StopRequest:
 
 def main() -> int:
     """Own a separate API process so a blocked event loop cannot stall SIGTERM."""
+    try:
+        if len(os.listdir("/proc/self/task")) != 1:
+            raise OSError("API owner must start in one thread")
+    except OSError:
+        print("API_UNAVAILABLE", file=sys.stderr)
+        return 3
     child_pid: int | None = None
     child_pidfd: int | None = None
     stop = _StopRequest()
@@ -151,10 +157,31 @@ def main() -> int:
             except ProcessLookupError:
                 pass
 
+    def reap_ready(pid: int) -> tuple[int, int, bool]:
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM, signal.SIGINT})
+        try:
+            reaped, status = os.waitpid(pid, os.WNOHANG)
+            stopping = stop.at is not None
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+        return reaped, status, stopping
+
+    def exit_code(status: int, stopping: bool) -> int:
+        code = os.waitstatus_to_exitcode(status)
+        if stopping:
+            return 0 if code == 0 else 4
+        return code if code in {0, 2, 3, 4} else 3
+
     previous = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    previous_sigchld = signal.getsignal(signal.SIGCHLD)
+    previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
     try:
+        # SIG_IGN auto-reaps children on Linux, freeing their numeric PID before pidfd_open.
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
         for sig in previous:
             signal.signal(sig, request_stop)
+        # A parent may inherit blocked stops; the owner and child must receive them.
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGTERM, signal.SIGINT})
         try:
             child_pid = os.fork()
         except OSError:
@@ -178,27 +205,29 @@ def main() -> int:
             # Never keep serving without a stable identity for shutdown signals.
             owned_pid = child_pid
             child_pid = None  # Disable numeric forwarding before any waitpid can reap it.
+            reaped, status, stopping = reap_ready(owned_pid)
+            if reaped == owned_pid:
+                return exit_code(status, stopping)
             try:
                 os.kill(owned_pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
             reap_deadline = time.monotonic() + 2
             while time.monotonic() < reap_deadline:
-                reaped, _status = os.waitpid(owned_pid, os.WNOHANG)
+                reaped, status, stopping = reap_ready(owned_pid)
                 if reaped == owned_pid:
-                    break
+                    if os.waitstatus_to_exitcode(status) == -signal.SIGKILL:
+                        return 4
+                    return exit_code(status, stopping)
                 time.sleep(0.05)
             return 4
 
         if stop.signum is not None:
             request_stop(stop.signum, None)
         while True:
-            reaped, status = os.waitpid(child_pid, os.WNOHANG)
+            reaped, status, stopping = reap_ready(child_pid)
             if reaped == child_pid:
-                code = os.waitstatus_to_exitcode(status)
-                if stop.at is not None:
-                    return 0 if code == 0 else 4
-                return code if code in {0, 2, 3, 4} else 3
+                return exit_code(status, stopping)
             if stop.at is not None and time.monotonic() - stop.at >= 10:
                 try:
                     signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
@@ -214,10 +243,12 @@ def main() -> int:
             time.sleep(0.05)
     finally:
         if child_pid != 0:
+            signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
             for sig, handler in previous.items():
                 signal.signal(sig, handler)
             if child_pidfd is not None:
                 os.close(child_pidfd)
+            signal.signal(signal.SIGCHLD, previous_sigchld)
 
 
 if __name__ == "__main__":

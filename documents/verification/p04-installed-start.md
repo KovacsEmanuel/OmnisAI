@@ -80,3 +80,49 @@ Documente: renderer și `--check`, **54 teste PASS**, **116 controale Chromium P
 Readback separat al primelor probe: `/home/kali/.hermes/cache/scratch/sl02-resource-readback.json` confirmă nouă roots/probe fără servicii proprii active și eliminarea celor șase taguri create de pregătirea manuală; datele/receipturile private rămân. Probele suplimentare au locator și readback proprii. Scratch este diagnostic disposable, **nu backup permanent**. Containerele străine de la baseline nu au fost adoptate/oprite.
 
 **Limite încă explicite:** CI remote NOT-RUN, LAN/IPv6/rutare directă spre containere NOT-RUN, SIGKILL în toate etapele și recovery operațional/persistență stop-start sunt SL04, pairing TTY/open/browser sunt SL03. Intenția stale este fault-injected, nu o probă exhaustivă de crash. Predicatele DB-goală nu sunt o certificare a fiecărui catalog PostgreSQL posibil; testele de identity verifică refuzul/readbackul, nu instrumentează toate statement-urile anterioare unui rollback. Actorul malițios same-UID/root rămâne în afara garanției. G00 și L01–L05/L08 complete nu sunt declarate închise.
+
+## Verdict final pe codul comis
+
+**SL02 headless verificat local.** Revizie testată: `1dfa022f44e9f3e6154a91459a7b3801ded25db5`. Checkoutul tracked a fost curat înainte și după ambele gate-uri; singurul untracked a rămas HTML-ul original protejat. Nu au existat editări de cod/config/test în timpul execuțiilor. Commitul care adaugă această secțiune modifică numai registrul, nu codul verificat.
+
+### Gate canonic: PASS
+
+Cu același PATH pin-uit documentat mai sus:
+
+```sh
+make check UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv
+```
+
+Proces urmărit `proc_446adf4f744c`: **exit 0**, confirmat prin readbackul procesului, nu din heartbeat. Log exterior `sl02-final-check.log`; log/manifest/receipt private în `/home/kali/.hermes/cache/scratch/db-47e0459f5e5b48e1/`.
+
+| Componentă executată | Rezultat în această rulare |
+|---|---|
+| Documentație | 54 teste PASS; HTML-uri sincronizate |
+| Development | 35 teste PASS; anti-slop PASS |
+| API | 218 teste PASS |
+| Migrări / wheel API instalat | 17 teste PASS |
+| Web | 6 tooling + 20 unit + 7 E2E cu backend real PASS |
+| CLI | 67 sursă + 67 wheel instalat + 1 integrare CLI/DB PASS |
+| Release / observer | 37 teste PASS |
+| Lock / audit / lint / format / mypy / TypeScript / contracts / build | PASS |
+
+Fixture canonic: proiect `omnis-p01-5035baa8d3b34748aa9c2dd6792e1e37`, CID `8892443fc0774eb9fa106a84e75d24e49d801a3573ba107e22796967ad307557`, PostgreSQL 18.6, system ID `7691403587275681822`. Receipt exact: `{schema_version:1,code:0,family_drained:true}`. Runnerul și readbackul separat au confirmat CID/rețele/socket absente și `PG_VERSION=18` păstrat. `make test` este aliasul aceleiași căi, nu o a doua execuție raportată.
+
+### Comanda instalată / OCI opt-in: PASS separat
+
+După încheierea gate-ului canonic, fără concurență pe venvuri/artefacte:
+
+```sh
+make check-installed-start UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv
+```
+
+**Exit 0** pe aceeași revizie `1dfa022`; log `/home/kali/.hermes/cache/scratch/sl02-committed-installed.log`. Prerechizite executate: 67 teste CLI wheel și 37 release/observer; apoi integrarea opt-in reală a comenzii. Proiect `omnis-local-338b6c051c26415bbc2fb6d629fab7e9`, imagine instalată `sha256:9ab6840ed5afb8a797b178983e6b8c4f4338cf7a9370461ce5642e0352d198a2`.
+
+- Starturile concurente, reuse și status au verificat instanța `a0ddd150-4507-4028-b66b-a51d989207f1`; root păstrat `/home/kali/.hermes/cache/scratch/s2-u5t36pl1/s/omnis`.
+- Încercarea separată de SIGTERM în VERIFYING a produs `FAILED_CLEANED`, exit 3, pe instanța `a14e7d26-9040-4aad-be84-a5264b03a19b`; retry-ul a refuzat cu exit 4 fără schimbarea journalului/resurselor. Root păstrat `/home/kali/.hermes/cache/scratch/s2i-p5xt3bpm/s/omnis`.
+- Ambele receipturi au `probe=PASS`, `cleanup=VERIFIED`. Readbackul independent final din `sl02-final-readback.json` confirmă daemonul exact, absența tuturor CID-urilor înregistrate și a inventarului proiectului, rețelei, tagului imaginii, IPC-urilor și forwarderului/listenerului propriu. `postgres/18` și datele rămân; un jurnal READY păstrat după teardownul probei este istoric, nu autoritate că serviciile încă rulează.
+- Nu există resurse active ale acestor probe care să necesite recuperare. IPC-ul rezidual al încercării eșuate anterioare a fost recuperat separat și documentat mai sus. Receipturile/DB-urile disposable nu sunt instalații operaționale de reutilizat automat.
+
+**Conservare și Git:** `omnis.serve`, forwarderul și fixture-ul de backpressure, runnerul DB, `api/src/omnis/core/db.py`, migrațiile 0001–0004 și AGENTS au rămas neschimbate față de baseline în perimetrele cerute. HTML-ul original are în continuare SHA-256 `783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f`, untracked/nestaged. Commituri locale separate: `a0f5687` statusuri DB, `44537e4` contract, `26347c0` migrare, `e664c8f` comandă/readiness/cleanup, `ae40cdd` probă opt-in, `ad74946` procedură ops, `1dfa022` utilizare/status/readers. Fără push/deploy.
+
+Următoarea felie este **SL03 / P0.4c / B01f pair/open**. Acest verdict nu închide SL03/SL04, L01–L05/L08 integral, G00 sau CI remote și nu schimbă `assessment_ready=false`.

@@ -14,6 +14,94 @@ from omnis.core.db import SCHEMA_REVISION
 from process_probe import exercise_installed_control
 
 
+def test_startup_migration_refuses_wrong_cluster_before_ddl(empty_database_url: URL) -> None:
+    completed = subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate", "--initialize"],
+        env={
+            "PATH": os.environ.get("PATH", ""),
+            "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
+            "OMNIS_EXPECTED_SYSTEM_ID": "1",
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    with connect_test_database(empty_database_url) as connection:
+        tables = connection.execute(
+            "SELECT count(*) FROM pg_tables WHERE schemaname='public'"
+        ).fetchone()
+    assert completed.returncode != 0, "Startup must reject a different connected cluster"
+    assert tables == (0,), "Identity must be checked before any migration DDL"
+
+
+def run_startup_migration(url: URL, identity: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate", "--initialize"],
+        env={
+            "PATH": os.environ.get("PATH", ""),
+            "OMNIS_DATABASE_URL": url.render_as_string(hide_password=False),
+            "OMNIS_EXPECTED_SYSTEM_ID": identity,
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+
+def test_startup_migration_only_initializes_empty_schema(empty_database_url: URL) -> None:
+    identity = verify_test_database(empty_database_url.set(database="omnis_test")).system_identifier
+    first = run_startup_migration(empty_database_url, identity)
+    assert first.returncode == 0, "Verified empty database must initialize"
+    with connect_test_database(empty_database_url) as connection:
+        before = connection.execute("SELECT * FROM instance_control").fetchall()
+        connection.execute("UPDATE alembic_version SET version_num = 'future_revision'")
+    second = run_startup_migration(empty_database_url, identity)
+    assert second.returncode != 0
+    assert "Explicit update/backup required" in second.stderr
+    with connect_test_database(empty_database_url) as connection:
+        assert connection.execute("SELECT * FROM instance_control").fetchall() == before
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
+            "future_revision",
+        )
+
+
+def test_startup_migration_serializes_with_dedicated_db_lock(empty_database_url: URL) -> None:
+    identity = verify_test_database(empty_database_url.set(database="omnis_test")).system_identifier
+    with connect_test_database(empty_database_url) as connection:
+        connection.execute("SELECT pg_advisory_xact_lock(5714308421745685321)")
+        blocked = run_startup_migration(empty_database_url, identity)
+        assert blocked.returncode != 0
+        assert "migration failed or timed out" in blocked.stderr
+        assert connection.execute(
+            "SELECT count(*) FROM pg_tables WHERE schemaname='public'"
+        ).fetchone() == (0,)
+    assert run_startup_migration(empty_database_url, identity).returncode == 0
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT lo_from_bytea(0, decode('0102', 'hex'))",
+        'CREATE COLLATION public.synthetic_existing FROM pg_catalog."C"',
+        "CREATE PUBLICATION synthetic_existing",
+        "CREATE FOREIGN DATA WRAPPER synthetic_existing",
+    ],
+)
+def test_startup_migration_rejects_non_table_database_objects(
+    empty_database_url: URL, sql: str
+) -> None:
+    identity = verify_test_database(empty_database_url.set(database="omnis_test")).system_identifier
+    with connect_test_database(empty_database_url) as connection:
+        connection.execute(sql)
+    result = run_startup_migration(empty_database_url, identity)
+    assert result.returncode != 0, "An existing non-table object is not an empty database"
+    assert "Explicit update/backup required" in result.stderr
+    with connect_test_database(empty_database_url) as connection:
+        assert connection.execute(
+            "SELECT count(*) FROM pg_tables WHERE schemaname='public'"
+        ).fetchone() == (0,)
+
+
 def test_migration_creates_closed_instance_on_empty_postgres(empty_database_url: URL) -> None:
     script = ScriptDirectory.from_config(
         Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))

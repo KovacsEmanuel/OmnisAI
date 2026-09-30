@@ -50,6 +50,12 @@ Re-review-ul bounded (`cleanup-fix-review.md`) a confirmat ownership-ul dedicat 
 
 Între aceste două review-uri, integrarea a probat și reap-ul adoptaților deja terminați **în timpul** gate-ului: testul existent `test_owner_death_before_server_marker_releases_its_child` a rămas nemodificat, iar runnerul a preluat obligația de reaper. Inițial full gate a dat 1 failed/217 passed; după fix, regresia focalizată și acel test real au trecut, cu receipt family_drained=true. Nu am slăbit oracolul produsului și nu am schimbat ownerul P0.
 
+## Extindere punctuală autorizată: precondiția CLI de backpressure
+
+Rerularea pe `afaae96` (`proc_51b5e8517cbf`, proiect `omnis-p01-64df6bdc092d46f68d9cb21d56bf92f4`, root `db-e55661ef203b4414`) s-a încheiat cu exit 2. Au trecut 54 docs, 35 development, 218 API, 10 migrări, 6 web tooling, 20 web unit și 7 E2E; CLI sursă a avut un eșec din 43 la `test_process_sigterm_aborts_nonreading_browser_after_large_asset`: `request did not reach backpressure`. Receiptul confirmă `code=2,family_drained=true`; readback separat: container/rețele/socket proprii absente, PGDATA păstrat. Nu reportăm această execuție ca PASS și nu îi transferăm rezultatul execuției anterioare.
+
+Testul și forwarderul sunt neschimbate față de baza `7916dea`; aceeași aserțiune a eșuat în 0.441 s cu `cli/.venv/bin/python -I -m unittest discover -s cli/tests -p test_forwarder.py -k test_process_sigterm_aborts_nonreading_browser_after_large_asset -v`, fără DB sau runner. Operatorul a autorizat explicit investigarea/corectarea punctuală și rerularea gate-ului complet. Scop suplimentar: numai fixture-ul/regresiile CLI necesare acestei precondiții; fără launcher, rescriere a forwarderului, eliminarea aserțiunilor de progres/stop sau ajustări globale de kernel. Probe bounded pe buclă locală/UDS proprii, analiză înainte de editare, review independent, commit separat. Dacă mecanismul cere extindere de produs, se raportează înainte de intervenție. Rollback: revert al commitului punctual, fără schimbare de DB existentă.
+
 ## Commituri și închidere
 
 - `dcb75c3` — autorizare, scope și rollback înainte de efecte.
@@ -57,4 +63,6 @@ Re-review-ul bounded (`cleanup-fix-review.md`) a confirmat ownership-ul dedicat 
 - `3750bff` — consumatorul installed-process guard acceptă numai DB UDS declarată.
 - `0c61a78` — fixture/attestor/runner/Make/CI integrate, inclusiv guardul final de teardown și controalele sale.
 
-Codul, istoricul erorilor și documentele de utilizare sunt păstrate separat de datele private. Următoarea felie este launcherul instalat din plan §19.2, nu încă o extindere a harnessului. Verdictul final de re-review și rerularea pe revizia comisă se adaugă înaintea predării; fără push implicit.
+Codul, istoricul erorilor și documentele de utilizare sunt păstrate separat de datele private. Următoarea felie este launcherul instalat din plan §19.2, nu încă o extindere a harnessului.
+
+**Re-review final: PASS bounded.** `final-guard-review.md` confirmă exact cele două atribuiri ale părintelui și regresia PermissionError, plus reap-ul non-blocking al adoptaților morți, fără semnalizare. Reviewerul a verificat AST/fluxul, nu a rerulat probele live. Codul relevant este în `0c61a78`; documentele și cititoarele în `afaae96`. Rerularea pe acel checkout tracked curat (numai HTML-ul original untracked) a eșuat ulterior la precondiția CLI documentată mai sus, fără editări de cod în timpul execuției. Nu schimbă verdictul review-ului punctual, dar blochează acceptarea completă până la remediul autorizat și un nou gate real. Fără push implicit.

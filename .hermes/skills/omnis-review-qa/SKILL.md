@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.7
+version: 0.1.8
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -19,6 +19,7 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 1. Use `terminal` to identify base/head and `git diff`; include owned untracked files, relevant surrounding code and acceptance criteria. Establish existing failures without stashing someone else's work. A detached clean worktree can reproduce a baseline.
 2. Run the cheapest relevant deterministic checks first: syntax, schema, lint/type, targeted unit/integration, then regression and browser/E2E. Missing commands are NOT-RUN/BLOCKED, never silent green. A tool's exit 0 is only evidence for the property it tested.
 3. Ask an independent reviewer via `delegate_task` for concrete findings: severity, file:line, reproducer, violated requirement, remedy. First ask whether the slice meets the spec; then inspect authorization, input boundaries, races, persistence, error handling and complexity. The reviewer is read-only in the shared checkout.
+   Maintain a requirement→code→evidence matrix for the declared slice. A focused fix re-review closes its findings, not requirements that were never reviewed. Separate confirmed defects, incomplete proof and explicitly deferred scope; do not infer completeness from the last blocker being closed. Compare snapshot/scenario, not reused issue IDs, when a later review arrives.
 4. Reject findings based only on style preference unless they conflict with a committed rule. Verify suspected bugs with a test. Fix blockers in minimal separate changes; rerun affected checks after the LAST edit. Two failed fix attempts trigger a narrower investigation, not blind repetition.
    Bound the review loop to the affected product acceptance criterion: re-review a concrete fix, not the entire growing harness. If two cycles expose new test-oracle blockers without advancing that criterion, mark the slice WIP/BLOCKED and reconsider the proof boundary before adding another process supervisor or mutation layer. This does not approve unresolved findings.
 5. For UI inspect the actual screenshot against the user's reference at agreed viewports. Test keyboard/focus, modal/drawer Stop, resize, loading/empty/error/unavailable, reduced motion, long content and real state transitions. Chromium smoke does not certify screen readers, all browsers or aesthetics.
@@ -37,6 +38,8 @@ Resolve an evidence/task link's operation, identity and snapshot explicitly; ope
 Exercise rerenders as well as initial clicks: a stopped/paused run must not regain an active phase after finding review or filtering. Recheck current evidence availability in every consumer (finding, operation inspector, coverage and newly exported reports), while preserving historical verdicts and saved report snapshots. Download and parse the actual export; a preview count is not evidence that its bytes match.
 
 No universal 'verified' badge. Verify the verifier: match exact structured diagnostic identifiers/severity/source, not a substring in an exception stack; require positive and negative controls on the SAME evidence channel. An arbitrary failure or always-rejecting observer must not pass the negative control. Add a regression for each false-green mechanism before trusting the repaired gate. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
+
+Test the producer of a safety flag as well as its consumer: injecting `uncertain=true` proves the cleanup predicate, not that signal exit, lost ACK or decoding failure actually sets it. Exercise the real failure boundary where safe, then pass its observed state into the cleanup oracle; label substituted daemon/resource seams rather than claiming an end-to-end effect.
 
 For process-cleanup mutation controls, hold the synthetic child alive beyond the observed owner/reaper deadline unless an attested kill occurs, while arming a parent-death guard. Assert the actual `waitid` exit cause and bounded reap before crediting SIGKILL: a child's natural timeout can make a no-op kill mutant appear to pass. Rescue every pinned/adopted child and report UNCERTAIN on missing readback.
 

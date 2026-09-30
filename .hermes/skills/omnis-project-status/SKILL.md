@@ -1,7 +1,7 @@
 ---
 name: omnis-project-status
 description: "Use when orienting or closing an Omnis work slice."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -74,6 +74,7 @@ merging, resetting, stashing, adopting or crediting it to the active branch.
 - **Skill nu este enforcement:** these are instructions loaded by the agent, not an automatic exit hook. Wire this skill into project delivery/review rules; **nu porni cron**, plugins, auto-commit or a background watcher to simulate reliability.
 - A source-reviewed skill is not imported/execution-certified; a development skill is not a product feature. Keep E1–E4, B21m and EXECUTION_UNSCHEDULED separate from mandatory MVP branches.
 - A failed/blocked task still receives a truthful handoff; never clear open findings or uncertainty to make the map green. Do not relaunch suites just to appease a repeated verification nudge.
+- Distinguish the immediate corrective action from the next new SL in the plan. A newly confirmed defect reopens acceptance on its owning slice as CHANGES_REQUESTED; keep historical scoped PASS, but do not send the operator past that blocker or invent another phase. Reusable primitives do not mark a future product outcome partially delivered by themselves.
 - Global conversational memory is not the project ledger. Git/history plus canonical docs and verification entries must suffice after a fresh session. Scratch reports may expire: persist the adjudicated conclusion and limits, not only a temporary path.
 - Changes to this map do not authorize targets, provider spending, services or deployment. Do not inspect private credentials to improve status completeness.
 

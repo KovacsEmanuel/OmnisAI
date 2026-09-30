@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.7
+version: 0.1.8
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -51,4 +51,7 @@ Host Playwright/Chromium validation is not certification of the planned executor
 - In an installed-command observer, persist a private recovery locator before launch and in an outer finally. Verify FAILED_CLEANED against exact absence before rescue; compare timestamps/restart counts, not only CIDs, on retry. Never rescue an unsettled daemon/writer outcome into a passing cleanup. Exercise a read-only startup phase for a clean SIGTERM proof; uncertainty controls remain explicitly distinct. Reclaim a fresh attempt's stale IPC only after settled container teardown, under the original service locks, with private inode/type/mode checks and a refused UDS connection; never delete lock files or signal their contents.
 
 ## Verification
+
+For startup error-path acceptance, load [startup failure boundaries](references/startup-failure-boundaries.md): distinguish signal/timeout/ordinary refusal and verify the installed JSON/exit contract on structurally hostile but byte-bounded input. These checks supplement the existing positive OCI proof, not replace it.
+
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

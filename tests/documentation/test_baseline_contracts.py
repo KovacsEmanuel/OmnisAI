@@ -90,7 +90,7 @@ class BaselineContracts(unittest.TestCase):
         self.assertIn('B01e-build', graph['P3a'])
         self.assertEqual(graph['P5a+P6a'], {'P3-auth'})
         self.assertEqual(graph['P-LOOP'], {'P5a+P6a'})
-        self.assertEqual(graph['P-FOCUS'], {'P5a+P6a'})
+        self.assertEqual(graph['P-FOCUS'], {'P5a+P6a', 'P-LOOP'})
         self.assertEqual(graph['P-PATH'], {'P-LOOP', 'P5b+P6b'})
         self.assertIn('P3b', graph['P5b+P6b'])
         for name in ['Omnis_MVP_Architecture.md', 'Omnis_Stack_Baseline.md']:

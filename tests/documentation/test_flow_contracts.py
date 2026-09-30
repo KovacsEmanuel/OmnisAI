@@ -51,5 +51,19 @@ class FlowContracts(unittest.TestCase):
         self.assertIn("candidatul", document("UI_UX_Spec"))
 
 
+    def test_replan_distinguishes_receipts_qualification_and_new_work(self):
+        architecture = document("MVP_Architecture")
+        rules = section(architecture, "### 6.3. Replan, rezultate întârziate și obligații stabile")
+        for token in ["M1", "M2", "ResultQualification", "STOPPING", "RedeliveryKey",
+                      "ExecutionKey", "CoveragePromiseRevision", "bootstrap_budget_ref",
+                      "phase_key", "subphase_key", "instance_id"]:
+            self.assertTrue(token in rules, f"Missing adaptive invariant: {token}")
+        self.assertNotIn("Orice role/revision/input străin sau stale blochează consumul.", architecture)
+        plan = document("Implementation_Plan")
+        focused = re.findall(r"(?m)^\| P-FOCUS \| ([^|]+) \|", plan)
+        self.assertEqual(focused, ["P5a+P6a, P-LOOP"])
+        self.assertIn("ResultQualification", document("UI_UX_Spec"))
+
+
 if __name__ == "__main__":
     unittest.main()

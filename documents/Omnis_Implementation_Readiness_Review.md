@@ -6,6 +6,8 @@
 
 **Deep review de flux/livrare:** [adjudecarea curentă](verification/omnis-deep-review.md) păstrează F01–F04 și clarificările ulterioare, probele și limitele re-review-ului. Traseul de implementare este detaliat în plan §2.1/§4.2–4.3; contractele de bootstrap/eval/pre-run/model admission/replan sunt în arhitectură, nu într-un plan paralel. Continuarea P0.4 rămâne condiționată de prerechizitele §19.2, fără refactor preventiv.
 
+**Notițele originale, NS01–NS19:** [adjudecare și probe](verification/omnis-skill-pattern-amendment.md). Patternul general (arhitectură §9.9), completitudinea/reviewerul (§9.10) și JS/discovery (§11.1) se livrează conform planului §4.4 și ticketurilor B06/B10d/B15/B18a.r/B14b. Prima BOLA, scope-ul P0 și limitele runtime rămân explicite; aceste amendamente nu închid G00.
+
 **Secțiunile 1–8 de mai jos sunt auditul istoric preimplementare**, inclusiv START_PENDING_NEW_SESSION/P0.1, probele/numerele și arborele atunci necreat. Nu descriu starea prezentă, nu anulează autorizările P0.1–P0.4 ulterioare și nu sunt al doilea plan. Registrele RR/PA păstrează istoricul, nu primesc retroactiv PASS runtime din testele documentare.
 
 ## 1. Verdict de arhitectură

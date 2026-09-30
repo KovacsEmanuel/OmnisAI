@@ -10,6 +10,8 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 **Deep review ulterior:** [constatări, adjudecare și limite](documents/verification/omnis-deep-review.md). Pentru lectura noii viziuni: plan **§2.1** (fluxul operațional), **§4.2** (subfeliile și locurile de modificare), **§4.3** (milestone-uri/gates) și arhitectură **§5.2/§6.3/§9.7–9.8** (admission, replan, checks și eval/publicare). Aceste clarificări pregătesc implementarea incrementală; nu mută modulele viitoare în P0 și nu închid G00.
 
+**Pattern comun skills/copii din notițele originale:** arhitectură **§9.9–9.10** separă skillul, specializarea copilului, modelul/capabilitățile efective și reviewul de completitudine de validarea tehnică. **§11.1** aplică patternul la JS și wordlist/discovery; plan **§4.4** arată cum se livrează orice skill, în subfeliile existente. [Adjudecare și verificare NS01–NS19](documents/verification/omnis-skill-pattern-amendment.md). Contracte specificate, nu skills/adaptoare/runtime deja implementate; fără modificarea P0 sau a WIP-ului DB.
+
 ## Reguli de dezvoltare
 
 **Fundația de calitate P0.2 — păstrată și extinsă.** Ruff/mypy rămân fixate, fără gate-uri slăbite. [Proba istorică înainte de P0.3](documents/verification/p02-python-quality.md) consemnează 41 de fișiere și 128+10 teste. [P0.3](documents/verification/p03-local-bootstrap.md) extinde verificarea la 52 de fișiere Python, 148+10 teste API/livrare, 20 teste web și 7 E2E reale, plus contracte/lint/build. Rezultatele sunt locale, nu CI remote sau închidere G00.

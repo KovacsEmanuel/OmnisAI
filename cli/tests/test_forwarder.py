@@ -356,6 +356,27 @@ class ForwarderTest(unittest.IsolatedAsyncioTestCase):
     async def test_process_sigterm_aborts_nonreading_browser_after_large_asset(self) -> None:
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             directory = Path(name)
+            # Clamp the fixture listener before accepting. A small browser send
+            # buffer alone cannot stop Linux autotuning the forwarder's receive
+            # window large enough to hold this entire below-limit request.
+            # Run the real installed entrypoint; no product or global socket tuning.
+            bounded_receiver = "\n".join(
+                (
+                    "import asyncio, runpy, socket",
+                    "original_start_server = asyncio.start_server",
+                    "async def start_bounded_server(*args, **kwargs):",
+                    "    assert kwargs['start_serving'] is False",
+                    "    server = await original_start_server(*args, **kwargs)",
+                    "    assert len(server.sockets) == 1",
+                    "    listener = server.sockets[0]",
+                    "    assert listener.family == socket.AF_INET",
+                    "    listener.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4096)",
+                    "    assert listener.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF) == 8192",
+                    "    return server",
+                    "asyncio.start_server = start_bounded_server",
+                    "runpy.run_module('omnis_cli.forwarder', run_name='__main__')",
+                )
+            )
             upstream_ready = asyncio.Event()
             body_seen = asyncio.Event()
             draining: asyncio.Task[None] | None = None
@@ -393,8 +414,8 @@ class ForwarderTest(unittest.IsolatedAsyncioTestCase):
                 [
                     sys.executable,
                     "-I",
-                    "-m",
-                    "omnis_cli.forwarder",
+                    "-c",
+                    bounded_receiver,
                     "--socket-dir",
                     str(directory),
                     "--port",

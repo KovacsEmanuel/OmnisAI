@@ -146,5 +146,21 @@ class SkillPatternContracts(unittest.TestCase):
                 self.test_common_recipe_is_not_an_agent_or_a_permission_grant()
 
 
+    def test_profile_candidate_refs_are_package_qualified(self):
+        architecture = document("MVP_Architecture")
+        pattern = section(architecture, "### 9.9. Pattern comun: skill, specializare și execuție")
+        rows = re.findall(r"(?m)^\| `ProfileTemplateRef`[^\n]*$", pattern)
+        self.assertEqual(len(rows), 1)
+        for token in ["CANDIDATE", "package_key: Key", "entity_kind: Key", "key: Key", "RELEASE"]:
+            self.assertIn(token, rows[0])
+        for token in ["alpha", "beta", "inspect", "LOCAL necalificat", "source_draft_refs"]:
+            self.assertIn(token, pattern)
+        evaluation = section(architecture, "### 9.8. Evaluarea candidatului și publicarea fără ciclu")
+        self.assertIn("source_draft_refs: Ref[]", evaluation)
+        gate = re.findall(r"(?m)^\| G-SKILL-core /[^\n]*$", document("Implementation_Plan"))
+        self.assertEqual(len(gate), 1)
+        self.assertIn("namespace", gate[0])
+
+
 if __name__ == "__main__":
     unittest.main()

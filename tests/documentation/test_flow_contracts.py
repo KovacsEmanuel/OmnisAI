@@ -65,5 +65,18 @@ class FlowContracts(unittest.TestCase):
         self.assertIn("ResultQualification", document("UI_UX_Spec"))
 
 
+    def test_auxiliary_admission_gates_precede_first_use(self):
+        plan = document("Implementation_Plan")
+        rows = re.findall(r"(?m)^\| G-RESEARCH / B10c \|.*$", plan)
+        self.assertEqual(len(rows), 1)
+        self.assertIn("G-DATA-EARLY-RESEARCH", rows[0])
+        self.assertNotIn("+ G-DATA +", rows[0])
+        for token in ["G-HERMES-BOUND-CORE", "B14c.1", "B14c.2", "G-DATA-EARLY-MAINTENANCE"]:
+            self.assertIn(token, plan)
+        contexts = section(document("MVP_Architecture"), "### 9.7. Emitent și context înainte de primul copil")
+        self.assertIn("MAINTENANCE_JOB", contexts)
+        self.assertIn("MaintenanceSnapshot", contexts)
+
+
 if __name__ == "__main__":
     unittest.main()

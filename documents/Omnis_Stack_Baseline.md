@@ -242,6 +242,21 @@ Admission model B06m/G-MODEL se introduce înainte de prima inferență P2-live,
 
 Jev este inclus în produs, configurabil OFF/SHADOW/ADVISORY, nu prerechizit BOLA și nu validator. Modelul/SDK/întrebările/data policy sunt fixate per run; probele live cer cont/date/buget explicit. Licențele/notices exacte se păstrează la import, iar un conflict de distribuție blochează **unitatea afectată**, nu suspendă întregul baseline într-o nouă dezbatere. Nu se introduc dependențe ori module goale acum.
 
+### 10.4. Notițe de skills: reutilizare și candidați
+
+Amendamentul [NS01–NS19](verification/omnis-skill-pattern-amendment.md) schimbă contractele/metodologia, **nu pinurile sau lockurile**. Rețeta de specializare și MethodCheck/Review extind S01/S02/S05/S09/U06/U09/M03/M04; nu copiem frameworkul din imagini și nu confundăm public lifecycle model/toolsets cu argumentele delegate_task model-facing. Eficacitatea noului prompt/critic se măsoară la consumator, nu prin existența textului.
+
+| Componentă din pattern | Decizie de reutilizare / moment | Admitere și probe |
+|---|---|---|
+| JS acquisition/analysis | Katana U10 pentru parsere/crawl și pipeline M07, WebTech R01/R02 pentru fingerprints; B10 minim, B15j.1 pentru schemas/js_analysis/api_inference | Artifact/AST fixtures, raw versus derived spans/digests, caps/malformed și JS neexecutat; G-JS și transportul folosit, fără alt crawler preventiv |
+| Wordlist generic/contextual | BBOT M05/CeWL R03, Kiterunner R04/R05 și Assetnote R06; B10d→B15d | Păstrăm transformările/datele adaptate și testele, provenance/licențe/corpus digest; G-WORDLIST-CORE apoi G-WORDLIST integrat; propunerea MODEL nu este builder PURE |
+| JSLuice | CANDIDATE_NOT_ADMITTED: analizăm întâi ce oferă parserul/adaptorul Katana fixat; componentă separată numai dacă lipsește o cerință B15j.1 | În felia de selecție: repo/revizie/licență/build + fixtures AST/extraction, input hostile/time/memory și contract output. Nicio versiune sau licență inventată aici |
+| Waymore / archive connector | CANDIDATE_NOT_ADMITTED, B15j.2/E2 după G-JS/G-RESEARCH | Pin/adaptor/surse/attestation, permit explicit de disclosure al queryului, timestamps și egress/cancel; fără cont sau fetch istoric implicit |
+| ffuf / liste onelistforall micro | CANDIDATE_NOT_ADMITTED pentru consumerul discovery și corpus; nu înlocuiesc automat reuse-ul existent | Selecție cu pin/licență/templates/options și fiecare request atribuit, redirects/cancel/sink; corpus separat hash-uit și comparat cu listele deja alese. G-TOOLS/G-WORDLIST înainte folosire; fără engine reimplementat doar pentru a evita evaluarea |
+| Chrome DevTools / debugger | CANDIDATE_NOT_ADMITTED ca adaptor îngust B15j.3/E2, nu UI remote debugging a browserului personal | G-JS-DEBUG, browser/control/data/cleanup gates; CDP/executable access nu se expune copilului generic |
+
+Aceste candidate sunt întrebări de admitere în ticketurile numite, nu o listă de dependențe pretins gata. Dacă un candidat nu trece gate-ul, funcția afectată rămâne limitată/indisponibilă; nu facem fallback la shell/rețea directă și nu ascundem lipsa prin descriere conceptuală. Pachetul methodology-only poate exista înaintea adaptorului. RAG folosește întâi retrieval pe proiecțiile/datele de caz existente; nu justifică vector DB/cloud memory nou. Code runner/hardware sau capabilitățile non-Web/API din tabelul original rămân extensii cu adaptor/autorizație proprie, nu granturi ale MVP-ului.
+
 ## Sources
 
 [5] https://playwright.dev/python/docs/docker — https://playwright.dev/python/docs/docker

@@ -122,7 +122,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>RF07</td>
 <td>Ipoteză falsificabilă + procedură/context → TaskBrief/binding → probe și candidat/gap</td>
 <td>Brain selectează, supervisor admite; copilul folosește numai adaptoarele permise</td>
-<td>B11; baseline/probe/control și business rule; scanner/HTTP 200 singur nu confirmă</td>
+<td>B11; MethodCheck pe baseline/probe/control și business rule; scanner/HTTP 200 singur nu confirmă</td>
 </tr>
 <tr>
 <td>RF08</td>
@@ -134,7 +134,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>RF09</td>
 <td>Rezultat/clue/contraexemplu → delta consumată o dată → alt task, no-op justificat sau recon suplimentar</td>
 <td>Brain conduce replanul; ResultQualification păstrează istoria M1 și compatibilitatea cu M2</td>
-<td>B18a/G-LOOP, B10f/G-FOCUS; după G06b, B18c probează pathul și tranziția fără counts duplicate</td>
+<td>B18a/G-LOOP + B18a.r/G-METHOD: reviewer citat→rework admis când profilul cere; B10f/G-FOCUS; după G06b, B18c probează pathul și tranziția fără counts duplicate</td>
 </tr>
 <tr>
 <td>RF10</td>
@@ -239,7 +239,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>P-LOOP</td>
 <td>P5a+P6a</td>
-<td>B18a/G-LOOP: clue→replan→recon/task nou, fără dublu consum</td>
+<td>B18a/G-LOOP: clue→replan→recon/task nou; apoi B18a.r/G-METHOD review/rework, fără dublu consum</td>
 </tr>
 <tr>
 <td>P-FOCUS</td>
@@ -373,14 +373,14 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>M/settings + M/runs + M/tasks → seed de contract</td>
 <td>Reutilizăm S01/S02/S09, M02/M03/M06 și U06, fără framework general</td>
 <td>skill_catalog.py, plan_snapshot.py, module_registry.py/component_order.py; CandidateSnapshot/resolver, seed skills/profile/schemas</td>
-<td>Catalog gol→STATIC/PURE-qualified closure pentru trei pași; unknown/cycle/shadow/path refuzate. Nicio țintă sau model; G-MODULE-core</td>
+<td>Catalog gol→STATIC/PURE-qualified closure pentru trei pași, AgentRecipe și CONTRACT/SECURITY distincte; unknown/cycle/shadow/path refuzate. Nicio țintă sau model; G-MODULE-core</td>
 </tr>
 <tr>
 <td>SL09</td>
 <td>P2-inert / B06b; după B06a</td>
 <td>tasks + H/binding/prompt_bundle → copil nativ</td>
 <td>Publicăm exact seed-ul, păstrăm metode native și prefix stabil; schema minimală nu editor</td>
-<td>Task/Attempt/LaunchManifest/root-child bindings, TaskBrief/Result și inbox/ACK/consumed durabile</td>
+<td>Task/Attempt/LaunchManifest/root-child bindings, TaskBrief/Result, MethodPlan/Check, predicate calificate și inbox/ACK/consumed durabile</td>
 <td>Goaluri identice, wrong child, compresie, duplicate/late/Stop și M1/M2; Ref rezolvate și output structurat; H03–H08/G-REVISION-core</td>
 </tr>
 <tr>
@@ -396,7 +396,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>P2-inert / B06m; înainte de P2-live</td>
 <td>M/policy + H/runtime_host → model dispatch</td>
 <td>Refolosim InstanceControl/fencing; B07 va extinde același owner</td>
-<td>admission.py/budgets.py minimal + ModelDispatch/reservation/receipt și seam pre-send</td>
+<td>admission.py/budgets.py minimal + ModelDispatch/ExecutionSelection/reservation/receipt și seam pre-send</td>
 <td>Cap/rezervă VALIDATION/retry/fallback/Stop/UNKNOWN probate inert; fără seam real G-MODEL live este BLOCKED, nu contabil declarativ</td>
 </tr>
 <tr>
@@ -505,11 +505,11 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>SL25</td>
-<td>P-LOOP / B18a; după G06a</td>
+<td>P-LOOP / B18a apoi B18a.r; după G06a</td>
 <td>M/tasks/runs + H → Brain</td>
 <td>Extindem inbox B06, nu îl reconstruim; U09/S03/S05</td>
-<td>continuations.py/handoffs.py, ResultQualification/dedup/re-entry și STEER durabil</td>
-<td>Clue→alt task ori no-op motivat, M1 valid după M2 vs auth invalid; duplicate și post-Stop fără wake; G-LOOP</td>
+<td>continuations.py/handoffs.py, ResultQualification/dedup/re-entry, STEER și method_review.py/REVIEWER bounded</td>
+<td>Clue→alt task ori no-op motivat, M1 valid după M2 vs auth invalid; duplicate și post-Stop fără wake; critic/rework fără refill; G-LOOP/G-METHOD</td>
 </tr>
 <tr>
 <td>SL26</td>
@@ -524,7 +524,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>P-WORDLIST / B10d; după B10a/b și prima BOLA</td>
 <td>M/surfaces/settings/evidence → B15 discovery</td>
 <td>Portăm M05/R03/R04/R05/R06 pe capturi, fără spider/password lists</td>
-<td>wordlists.py/response_baselines.py/route_candidates.py + recipes/artifacts/readiness</td>
+<td>wordlists.py/response_baselines.py/route_candidates.py + recipes/artifacts/variante/readiness și WordlistProposalV1 MODEL opțional</td>
 <td>Determinism/order/digest/caps/PII/empty/soft404/auth epoch; builder fără target IO; G-WORDLIST-CORE înainte de consum, G-WORDLIST complet cu B15</td>
 </tr>
 <tr>
@@ -537,10 +537,10 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>SL29</td>
-<td>P5b / B15 și B15n; după browser/wordlist/first finding</td>
+<td>P5b / B15j.1/B15d/B15n; după browser/wordlist/first finding</td>
 <td>recon + executori + surfaces → breadth MVP</td>
 <td>Extindem capture/parser/recon; Katana engine și Nuclei engine păstrate</td>
-<td>Robots/sitemap/body/OpenAPI/discovery, Nuclei JSONL adaptor și subset templates fixat separat</td>
+<td>Robots/sitemap/body/OpenAPI/discovery, js_analysis.py/api_inference.py și surse/artifacts, apoi Nuclei JSONL/template subset</td>
 <td>Routes nelinkuite/soft404/rate limit; consumă artifacte G-WORDLIST-CORE și închide G-WORDLIST prin randament la fixture; every request attribution, wrong digest/no tool/direct route denied; G05b/G-TOOLS, hit≠verdict</td>
 </tr>
 <tr>
@@ -572,7 +572,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>P4b / B14a→B14b; după P4a, paralel</td>
 <td>settings/runtime-host + W/settings → operator</td>
 <td>Extindem provider/config și catalog B06; nu condiționăm BOLA de editor</td>
-<td>Ambii provideri; file tree/diff/validate/review/eval/publish/retire, profile/recipe editor și V necesare</td>
+<td>Ambii provideri; file tree/diff/validate/review/eval/publish/retire, AgentRecipe/model/method policy și editor profiles/recipes, V necesare</td>
 <td>Readback exact, D→D2 invalidează receipts, run vechi pin-uit; path/symlink/AI autoapprove denied; G04b/G-MODULE/G-REVISION complet</td>
 </tr>
 <tr>
@@ -606,11 +606,99 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <li><strong>M0 / fundație:</strong> G00 pe launcher instalat și prerechizite reale. Noua viziune nu cere refactorul P0 sau crearea modulelor B06 în avans; modificările de cod P0 rămân defecte/lifecycle probate în §19, cu acord pentru WIP/DB.</li>
 <li><strong>Integrare nativă:</strong> G02-inert → P4a-minim → G-MODEL/G-DATA-EARLY/G02-live/G04a; apoi G03a/G-NET pentru prima acțiune HTTP. CONTRACT_PROBE nu este assessment și nu califică BOLA.</li>
 <li><strong>M1 / primul finding:</strong> G-AUTH-HTTP + G05a/G06a, inclusiv report/retest și negative controls. Un provider și un copil la început; nu cere browser, focused, research, wordlist, editor, Jev sau path înaintea lui.</li>
-<li><strong>M2 / MVP coerent:</strong> pe lângă M1, G03b/G-EFFECT, G05b/G06b, G-LOOP/G-FOCUS/G-PATH, G-JEV și G04b. Capabilitățile auxiliare promise trebuie demonstrate: G-MODULE/G-REVISION, G-TOOLS, G-RESEARCH (cu early data/egress), G-WORDLIST-CORE înainte de B15 și G-WORDLIST integrat după consum, G-IMPROVE și G-HERMES-BOUND-CORE apoi complet. Ele sunt opționale în execuția unui run, <strong>nu opționale în certificarea funcției promise de release</strong>. Cron B21m este ulterior/opțional și nu blochează MVP-ul manual.</li>
+<li><strong>M2 / MVP coerent:</strong> pe lângă M1, G03b/G-EFFECT, G05b/G06b, G-LOOP/G-FOCUS/G-PATH, G-JEV, G-SKILL, G-METHOD, G-JS și G04b. Capabilitățile auxiliare promise trebuie demonstrate: G-MODULE/G-REVISION, G-TOOLS, G-RESEARCH (cu early data/egress), G-WORDLIST-CORE înainte de B15 și G-WORDLIST integrat după consum, G-IMPROVE și G-HERMES-BOUND-CORE apoi complet. Ele sunt opționale în execuția unui run, <strong>nu opționale în certificarea funcției promise de release</strong>. Cron B21m este ulterior/opțional și nu blochează MVP-ul manual.</li>
 <li><strong>Release:</strong> G07, G08, G-DATA și G-OPS, toate limitele și rezultatele preregistrate raportate. Gate lipsă = BLOCKED/NOT-RUN, nu checkbox bifat din documente. „Documentele sunt pregătite pentru felia următoare” nu înseamnă G00 sau MVP implementat.</li>
 <li><strong>Breadth competitiv:</strong> E1–E4 și lista execution-unscheduled din §15. Fiecare subfamilie intră prin aceeași secvență candidat→adaptor/oracle→eval→publish→run nou; nu reinterpretăm trei familii/E1 ca paritate Strix.</li>
 </ul>
 <p>În fiecare subfelie: invariant/DTO → test RED și control negativ → migrarea strict necesară → use case/adaptor → API/OpenAPI/TS → UI reală/readback → test la frontiera potrivită → review/commit. Contractele pure pot preceda integrarea live, dar probele simulate și reale au verdict separat. Dacă un seam native/egress nu poate fi demonstrat, oprirea este la gate-ul lui, nu o rescriere oportunistă a întregii platforme.</p>
+<h3 id="44-cum-livram-orice-skill-si-specializare">4.4. Cum livrăm orice skill și specializare</h3>
+<p><strong>Amendament NS01–NS19:</strong> <a href="verification/omnis-skill-pattern-amendment.md">sursa/adjudecarea</a> a fost confruntată înainte de editare; regulile normative sunt arhitectură §9.4–9.10 și exemplele §11.1. Acest checklist se aplică fiecărei familii și fiecărui skill SUPPORT/RECON/ANALYSIS/REVIEW, nu doar exemplelor JS/content discovery. SK sunt pași de authoring/livrare, <strong>nu faze noi sau task IDs runtime</strong>. Alegem felia SL/B cu consumator real, fără implementarea tuturor skills în P0.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Pas</th>
+<th>Primul consumator / owner</th>
+<th>Fișiere și contracte păstrate/extinse</th>
+<th>Intrare → ieșire</th>
+<th>Verificare și limită</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SK01</td>
+<td>B06 seed, B11 familie, apoi B15/E1–E4; autor metodologie</td>
+<td><code>skills/&lt;package_key&gt;/SKILL.md</code> și references/method-map.md, surse/licențe și inventarul reuse</td>
+<td>Obiectiv/non-goals + surse → metode/subcategorii/aplicabilitate/gaps</td>
+<td>Cerințe cu surse și criterii observabile; capturile/lista de tools nu probează eficacitate ori permisiune</td>
+</tr>
+<tr>
+<td>SK02</td>
+<td>B06a/catalog, primul pachet</td>
+<td>Unicul omnis.yaml, templates/procedures și schemas, CONTRACT/SECURITY și MethodRequirements</td>
+<td>Metodă → proceduri bounded și output/checker/oracle/effects/cleanup</td>
+<td>IDs/ref/slot/digest/grupuri/caps; typo/DSL/symlink refuzate; CONTRACT nu cere controale de vulnerabilitate inventate</td>
+</tr>
+<tr>
+<td>SK03</td>
+<td>B06b/m + P4a; tasks/Hermes/settings</td>
+<td>skill_catalog/plan_snapshot/prompt_bundle/binding; AgentRecipe în profil, nu agents.yaml; migrare cu consumatorul</td>
+<td>Goal/ipoteză/context → TaskBrief/MethodPlan/ProcedureBinding/ExecutionSelection</td>
+<td>Context lipsă, predicate locale egale, model/effort conflict, tool inheritance; NO_MODEL numai inert, live requested/effective verificat</td>
+</tr>
+<tr>
+<td>SK04</td>
+<td>B07/B09 și adaptorul specific; executori/policy</td>
+<td>ToolDefinition/adaptor/lock/config/parser upstream + teste; supporting script/binary inert în editor</td>
+<td>Cerere → subset compatibil/evaluat/permis</td>
+<td>Input/efect/sink/cancel/UNKNOWN; direct host/install fallback refuzat. Noua capabilitate poate cere cod, metodologia nu rescrie schedulerul</td>
+</tr>
+<tr>
+<td>SK05</td>
+<td>B10a/b și B15j.1; surfaces/evidence</td>
+<td>Capture/import/normalization/projection existente + source/derived records</td>
+<td>Inputuri permise → artifacts/Observation cu provenance/unknowns</td>
+<td>Digest/source/context/spans, JS neexecutat, secret/cross-case/path escape denied; colectarea nu este ascunsă în parser PURE</td>
+</tr>
+<tr>
+<td>SK06</td>
+<td>B11 și fiecare skill ulterior; copil nativ ori handler PURE</td>
+<td>Task/Attempt/ToolInvocation și schema rezultatului pachetului</td>
+<td>Brief → pași admiși → TaskResult/MethodResult, artifacts/clues/gaps/cleanup</td>
+<td>Rezultat util și fără finding; output tool nu confirmă; input refs exacte, handoff fără autoritate</td>
+</tr>
+<tr>
+<td>SK07</td>
+<td>B06b apoi B11/B12; tasks/validation</td>
+<td>tasks/method_checks.py + teste/checker refs în infrastructura existentă</td>
+<td>Result + receipts → MethodCheck și calificare separată a probelor</td>
+<td>DONE/N_A fără probe refuzate; INCOMPLETE nu șterge finding valid; COMPLETE nu produce CONFIRMED; G-METHOD-core</td>
+</tr>
+<tr>
+<td>SK08</td>
+<td>B18a.r după G06a; tasks + composer</td>
+<td>tasks/method_review.py și recipe/prompt REVIEWER publicate pentru run nou, UI15/17</td>
+<td>Result încheiat → critic independent → gap citat → rework nou admis</td>
+<td>G-METHOD: slot eliberat, refs exacte, remediu bounded; fără TARGET_IO/rezervă VALIDATION/recursion/refill/efect după Stop</td>
+</tr>
+<tr>
+<td>SK09</td>
+<td>B06 PURE, B11/B12 SECURITY, B14b editor; evaluator/settings</td>
+<td>CandidateSnapshot/resolver/eval/publication; <code>labs/dev/fixtures/&lt;package_key&gt;/</code> + teste evaluator/API, truth nemontat copilului</td>
+<td>Draft reviewed → STATIC/PURE/FIXTURE după tip → release exact pentru run nou</td>
+<td>Material schimbat/autoapprove/stale refuzate; held-out separat; edit/config nu sunt execuție/grant</td>
+</tr>
+<tr>
+<td>SK10</td>
+<td>B08/B13/B14b și consumator; web/owner domeniu</td>
+<td>Skills/Investigations/Needs you/Coverage, API UI14/15/20/21 și schema/OpenAPI/TS împreună</td>
+<td>GET readback → stări/gaps/evidence/retest și revizie consumată</td>
+<td>Restart/409/Stop/bytes/HTML-JSON reale; fără DEMO sau aprobare vizuală implicită; commit mic cu rezultate</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Legătura cu subfeliile existente:</strong> SL08–SL11 livrează contractul comun/G-SKILL-core/G-METHOD-core; SL12 readbackul live; SL19–SL24 păstrează prima BOLA cu <strong>CHECK_ONLY</strong>, fără critic suplimentar/alt provider/editor. SL25 se desparte în B18a continuări/STEER apoi <strong>B18a.r</strong> review/rework; ambele preced închiderea P-LOOP. SL27 extinde B10d cu builder/variante și propunere MODEL opțională, fără target IO; SL29 detaliază B15j.1 JS, B15d consumer discovery și B15n scanner signals. SL33 le expune în același editor/profil; SL35 fault injection și SL36 evaluare/operare certifică integrarea. Nu înlocuim prerechizitul P0.4/DB și nu creăm modulele viitoare acum.</p>
+<p><strong>Exemple/extinderi:</strong> js-analyze urmează SK01–SK10 și produce JsAnalysisArtifactV1/leads; content-discovery-wordlist produce variante de artifacts, iar content-discovery le consumă după G-WORDLIST-CORE. B15j.1/G-JS și B15d/G-WORDLIST sunt MVP; <strong>B15j.2/G-HISTORY și B15j.3/G-JS-DEBUG sunt E2</strong>, cu gate înaintea disponibilității, nu cerințe G05b. XSS reflected este B16; stored/DOM sunt E2, blind cere protocol/sink OAST E4 separat. Același pattern poate adăuga alte metode prin package/procedură/adaptor/eval, nu câte un proces sau tabel per nume.</p>
+<p><strong>Predare către fiecare sesiune/subagent de dezvoltare:</strong> ID SL/B și HEAD local; obiectiv/non-goals; surse/secțiuni/fișiere permise; ce păstrăm; prerechizite/adaptoare; rezultat pozitiv și refuzuri; comenzi de verificare/limite; commituri/readback și următorul consumator. Subsesiunea nu moștenește automat conversația și nu lărgește scope-ul pentru a termina metodologia. Decizie/pin/permisiune lipsă este blocker al feliei afectate, nu motiv să inventeze alt plan.</p>
 <h2 id="5-p0-fundatie-si-contracte-minime">5. P0 — fundație și contracte minime</h2>
 <p><strong>Rezultat P0-control:</strong> repo reproductibil și primul control plane real: PostgreSQL, API, supervisor inert, pairing/control local, launcher instalabil și build web minim cu starea efectivă. Bootstrapul reutilizează shellul/tokenurile acceptate și arată UNAVAILABLE/NOT_RUN; nu conține engagementuri sau findings fictive. Runtime-host, proxy și executori nu sunt cerințe de boot P0 și nu sunt porniți ca mockuri „healthy”. P1 adaugă experiența completă de engagement, P2 adaptorul Hermes. Creăm numai fișierele feliei executate; §19 definește primul increment, nu întregul P0 într-un singur commit.</p>
 <p><strong>Tickets:</strong></p>
@@ -804,6 +892,21 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>Artifact greșit/necalificat refuzat înainte de request; soft404/drift/identity/Stop/egress la sink; release nu trece fără proba integrată</td>
 </tr>
 <tr>
+<td>G-JS / B15j.1</td>
+<td>După prima BOLA/P3b: surse inline/external/lazy/sourcemap/history import → artifact/feature/API hints/MethodCheck inspectabile</td>
+<td>JS neexecutat la import, source/path/version/auth/context greșite, secret/unknown schema/endpoint inferred promovat live refuzate; GET evidence/surfaces/tasks păstrează gaps</td>
+</tr>
+<tr>
+<td>G-HISTORY / B15j.2, E2</td>
+<td>G-JS + G-RESEARCH + permisiune disclosure query/egress; provenance cu timestamp archive/retrieval distincte</td>
+<td>Fără consent pentru URL/client privat, source fallback sau rezultat vechi prezentat live; readback source/usage exact; nu prerequisite MVP</td>
+</tr>
+<tr>
+<td>G-JS-DEBUG / B15j.3, E2</td>
+<td>G-JS/P3b/G-EFFECT + adaptor debugging bounded, captură și cleanup</td>
+<td>Terminal generic, timeout/Stop fără anulare demonstrată, sursă/rută off-scope refuzate; nu prerequisite MVP</td>
+</tr>
+<tr>
 <td>G-TOOLS / B07/B09/B15n</td>
 <td>Port comun + adaptor certificat pe transport; invocation→Action receipts la sink</td>
 <td>Installed≠permitted, digest/parser/template greșit, direct egress/late request/Stop/cancel; no verdict din exit 0</td>
@@ -828,6 +931,9 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p>Aceste gates se livrează odată cu consumatorul și sunt obligatorii pentru funcțiile MVP promise, nu un mega-prerechizit al BOLA. Nicio capabilitate target/model/research nu primește derogare prin eticheta „auxiliar”.</p>
 <h2 id="13-p5b-p6b-recon-asumat-si-celelalte-familii">13. P5b + P6b — recon asumat și celelalte familii</h2>
 <p><strong>B15:</strong> consumă reutilizarea Katana/parserelor și ToolInvocation/Action attribution (stack §10 U10), robots/sitemap/form/body params, JS static bounded, OpenAPI JSON/YAML local cu parsare sigură fără ref extern, directory/parameter discovery bounded, soft-404, login page și rate limit. Raportăm protocoalele nesuportate explicit; nu cumpărăm paritate de marketing cu tooluri neverificate.</p>
+<p><strong>B15j.1 / G-JS — în B15/MVP:</strong> <code>skills/js-analyze/</code> și <code>surfaces/js_analysis.py</code>/<code>api_inference.py</code> compun parserele/captura existente; nu crawler nou. Introducem JsSourceRecord/JsAnalysisArtifactV1, schemas/MethodRequirements și legături în evidence/Observation, migrare/DTO/API/UI06/15 împreună. Inline/external, lazy-loaded prin P3b, sourcemaps și import istoric inert produc rute/params/API versions/feature map/leads cu provenance. OpenAPI inferat rămâne PARTIAL și fără câmpuri obligatorii inventate; MD/replay recipes sunt derivate sanitizate, nu execuție. Fișierele de test sunt <code>api/tests/contracts/test_js_analysis.py</code>, fixtures sub <code>labs/dev/fixtures/js-analysis/</code>, probe sink/effects în executor; nu pachete cu truth montate în copil. B10a/b rămâne minimul anterior primei BOLA.</p>
+<p><strong>B15j.2 / G-HISTORY — extensie E2, după G-JS și G-RESEARCH:</strong> adaptor de archive cu consent/data policy specifică disclosure-ului queryului despre țintă, egress/source pin/attestation și cost; nu presupunem că permisiunea research produs/versiune ajunge. <strong>B15j.3 / G-JS-DEBUG — extensie E2, după G-JS/P3b/G-EFFECT:</strong> debugging/deobfuscation dinamică numai prin adaptor browser dedicat, lease/limits/capture/cancel/cleanup probate. Ambele rămân NOT_AVAILABLE până la gate și nu sunt necesare G05b/MVP; importul istoric/statica sunt deja în B15j.1.</p>
+<p><strong>B15d — în B15/MVP:</strong> consumerul <code>skills/content-discovery/</code> fixează artifact/variantă Wordlist și invocă adaptorul deja admis; fiecare request/control/redirect trece brokerul. B10d livrează separat <code>skills/content-discovery-wordlist/</code>, schemas/recipes și builderul din <code>surfaces/wordlists.py</code>; opțional planner MODEL cu WordlistProposalV1, fără I/O ascuns în builder. Generic/contextual/full/quick_hits, order/provenance/digest, soft404 și randament la buget egal în G-WORDLIST; zero input/caps/refuz nu se raportează ca suprafață testată fără probleme.</p>
 <p><strong>B15n:</strong> adaptor Nuclei de semnale, subset HTTP/templates separat fixat și evaluat, fără exec/code/JS/headless/OAST. Hit→Observation/Candidate, nu CONFIRMED; zero matches nu califică automat coverage. Demonstrația adaptorului este MVP; certificarea familiei exposure este E1. Installed/permitted, wrong digest, option injection, cancel/timeout/oversized output și sink attribution sunt probe obligatorii. B09 extinde același port la browser, nu alt registru; E2 adaugă Schemathesis.</p>
 <p><strong>B16:</strong> <code>xss-reflected</code>: execuție demonstrată în Chromium izolat, marker unic și control inert; CSP nu se dezactivează; simpla reflecție nu ajunge.</p>
 <p><strong>B17:</strong> <code>path-traversal-canary</code>: numai canaryul de laborator autorizat, oracle/proveniență în evaluator, niciodată citire de secrete reale. Valoarea/soluția nu este pusă în prompt/skill.</p>
@@ -914,7 +1020,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>E2</td>
-<td>CSRF, DOM/stored XSS, SSRF/XXE, business workflows/race bounded. Strix + Schemathesis stateful, browser/sinks dedicate</td>
+<td>CSRF, DOM/stored XSS, SSRF/XXE, business workflows/race bounded; B15j.2 history online/G-HISTORY și B15j.3 debugger/G-JS-DEBUG ca extensii de analiză, nu familii suplimentare. Strix + Schemathesis stateful, browser/sinks dedicate</td>
 <td>Timing/session/business invariant, server-side destinații secundare autorizate, replay și cleanup; fiecare variantă separată</td>
 </tr>
 <tr>
@@ -924,7 +1030,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>E4</td>
-<td>Workers suplimentari, GraphQL/WS/gRPC/OAST, upload/deserializare/RCE și integrări de echipă cerute explicit</td>
+<td>Workers suplimentari, GraphQL/WS/gRPC/OAST (inclusiv subproceduri blind XSS cu sink propriu), upload/deserializare/RCE și integrări de echipă cerute explicit</td>
 <td>Gate nou de protocol/familie/deployment; nu drepturi din import de skill, nu host/hardware implicit</td>
 </tr>
 </tbody>
@@ -996,8 +1102,8 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>UI06</td>
 <td>Coverage / Endpoints: filtre și inspectare</td>
-<td>surfaces/coverage/evidence; operații/parametri/celule și denominator_revision; queries bounded</td>
-<td>B08/B10/B12 / G03a/G05a/G06a</td>
+<td>surfaces/coverage/evidence; operații/parametri/celule și denominator_revision, JsSourceRecord/JsAnalysisArtifactV1/derived API la B15j.1; GET surfaces/evidence, POST <code>/api/v1/engagements/{id}/artifact-imports</code> și GET <code>/{import}</code> pentru JS/SOURCEMAP/JS_HISTORY inerte, linkuri/payload migrare B15j.1, queries bounded</td>
+<td>B08/B10/B12/B15j.1 / G03a/G05a/G06a/G-JS</td>
 <td>inferred/unknown/N/A, epoch nou, parametru, proveniență greșită; filtru nu schimbă totalul; gol → N/A</td>
 </tr>
 <tr>
@@ -1073,7 +1179,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>UI17</td>
 <td>HF07: threat model, roster și plan/subphase inspector în Coverage/Brain stream</td>
-<td>ThreatModelRevision/PlanInstance/RunProgress → runs/surfaces/tasks; GET <code>/api/v1/runs/{run}/threat-model</code>, <code>/plan</code>, <code>/tasks</code>, <code>/events</code>; refs/proiecții B10/B18a peste facts/taskuri</td>
+<td>ThreatModelRevision/PlanInstance/RunProgress și review obligations/receipts → runs/surfaces/tasks; GET <code>/api/v1/runs/{run}/threat-model</code>, <code>/plan</code>, <code>/tasks</code>, <code>/events</code>; refs/proiecții B10/B18a peste facts/taskuri</td>
 <td>B10b/B18a, G-LOOP/G-MODULE</td>
 <td>+ clue→revizie→task și trigger/reason la refresh; − inferred≠observed, duplicate/reordered cursor; GET plan/summary/tasks coerente</td>
 </tr>
@@ -1101,7 +1207,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>UI21</td>
 <td>HF07: Research sources/activity, wordlist recipe/files/preview</td>
-<td>sources policy → settings/research adapters; GET/PUT <code>/api/v1/settings/research-sources</code>, GET <code>/api/v1/runs/{run}/research</code>; recipe/artifact → skills/evidence, operații draft/review/eval/publish UI14 și GET evidence</td>
+<td>sources policy → settings/research adapters; GET/PUT <code>/api/v1/settings/research-sources</code>, GET <code>/api/v1/runs/{run}/research</code>; recipe/WordlistProposalV1/artifact și variante generic/contextual/full/quick_hits → skills/evidence, operații draft/review/eval/publish UI14 și GET evidence</td>
 <td>B10c/d/B14b/B15; G-RESEARCH/G-WORDLIST-CORE, apoi G-WORDLIST integrat</td>
 <td>+ provenance/source/time/digest/caps și readback; − query secret/private URL, fallback, zero corpus, baseline drift; preview pasiv nu pornește fuzzer</td>
 </tr>
@@ -1399,5 +1505,5 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p><strong>P0.4-prerequisite, cu acordul autorului WIP/operatorului pentru integrare și DB disposable:</strong> un singur contract UDS/no-network în Compose + conftest + runner + Make/CI/docs. Succes observabil: allow pe clusterul propriu atestat (image/project/socket/system_identifier), deny înainte de CREATE/DROP pentru ownership/path/DSN greșit, apoi gate-ul canonic pe checkout curat, cleanup numai pe resursele proprii și date păstrate. Nu promite G00 și nu extinde harnessul owner. Fără acord rămâne BLOCKED; nu adoptăm WIP tacit.</p>
 <p><strong>Următorul increment de produs după prerechizit:</strong> <code>omnis start --no-open</code> instalat, executat din afara checkoutului, calea <code>omnis.serve</code> păstrată până la probă contrară. Succes: o singură instanță, release/instance identity verificate, migrare explicită/readiness HTTP+assets+control reale, zero provider/target; al doilea launch reutilizează, port străin/schema incompatibilă refuzate fără a atinge resurse străine. Pair/open/stop sunt felii distincte dependente; numai setul complet închide G00. În paralel este posibil un import offline Strix B06 delimitat (provenance/root/recon/BOLA/counterevidence + tests), dar nu ține locul launcherului și nu activează runtime.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>c5614d22777387e66347ac5455a3b8053ff9c8a2584c43ccf0791e8c599f29bc</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>4e34bad54584d05f6e25b23996dfe3142a5cb1cc16c3817dc0f63ec9b5bff5db</code>.</p></footer>
 </main></div></body></html>

@@ -4,6 +4,8 @@
 
 **Status curent:** P0.1/P0.2/P0.3_IMPLEMENTED_LOCAL, P0.4 parțial, G00 deschis, CI remote NOT-RUN. Amendamentele autorizate HF01–HF10 sunt incorporate în arhitectură/plan/UI/stack; matricea de acoperire și recomandările înlocuite sunt în plan §17, impactul codului și următoarea felie în §19.1–19.2. assessment_ready=false, fără motor pentest încă. WIP DB UDS/no-network versus conftest/CI TCP rămâne neintegrat; make check/test BLOCKED. Direcția vizuală df17a29 rămâne VISUAL_ACCEPTED; extensiile funcționale nu sunt automat aprobare vizuală nouă. Codul de produs nu a fost rescris sau extins pentru acest amendament.
 
+**Deep review de flux/livrare:** [adjudecarea curentă](verification/omnis-deep-review.md) păstrează F01–F04 și clarificările ulterioare, probele și limitele re-review-ului. Traseul de implementare este detaliat în plan §2.1/§4.2–4.3; contractele de bootstrap/eval/pre-run/model admission/replan sunt în arhitectură, nu într-un plan paralel. Continuarea P0.4 rămâne condiționată de prerechizitele §19.2, fără refactor preventiv.
+
 **Secțiunile 1–8 de mai jos sunt auditul istoric preimplementare**, inclusiv START_PENDING_NEW_SESSION/P0.1, probele/numerele și arborele atunci necreat. Nu descriu starea prezentă, nu anulează autorizările P0.1–P0.4 ulterioare și nu sunt al doilea plan. Registrele RR/PA păstrează istoricul, nu primesc retroactiv PASS runtime din testele documentare.
 
 ## 1. Verdict de arhitectură

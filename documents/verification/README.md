@@ -6,6 +6,8 @@
 
 ## Amendamente autorizate, incorporate în canon
 
+[Deep review-ul de flux și livrare](omnis-deep-review.md) urmărește dependențele implicite și scenariile cap-coadă după HF01–HF10; verdictul și remediile sunt separate de gate-urile runtime.
+
 [Verificarea amendamentului HF01–HF10](omnis-amendment-verification.md) consemnează codul documentar schimbat, review-urile, comenzile reale PASS/FAIL/BLOCKED/NOT-RUN și WIP-ul păstrat; nu este un nou plan.
 
 HF01–HF10 sunt în [arhitectură](../Omnis_MVP_Architecture.md), [plan §17](../Omnis_Implementation_Plan.md), [UI/UX](../Omnis_UI_UX_Spec.md) și [stack §10](../Omnis_Stack_Baseline.md). Un singur baseline, nu încă un plan alternativ. Contractele noi sunt **SPECIFICATE / RUNTIME NOT-RUN**; P0.4/G00 rămân deschise și WIP-ul DB nu este integrat prin documentare.

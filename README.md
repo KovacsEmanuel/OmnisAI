@@ -22,6 +22,8 @@ Platformă web locală pentru evaluări Web/API autorizate, cu Brain/copii nativ
 
 ## Începe aici
 
+- **[Harta globală de implementare și review — MVP/post-MVP](documents/verification/implementation-status.md)** · cod/probe/review separate, toate subfeliile SL și extensiile E; proiecție întreținută la predare prin `omnis-project-status`, nu un plan nou.
+
 Pentru lucru în repo: **[modul de dezvoltare și skill-urile](CONTRIBUTING.md)** · [uneltele auditate și starea lor](tools/development/README.md) · [operare API/control](api/README.md) · [build web, pairing și E2E](web/README.md) · [CLI P0.4 parțial](cli/README.md). Pornire Hermes de dezvoltare: `python scripts/hermes_dev.py`; verificare locală: `make check UV=/cale/uv-0.12.19`, cu mediile/pinurile pregătite; runnerul creează și atestă automat numai o DB disposable nouă. Instrucțiunile vechi TCP sunt istorice; nu se folosește o DB existentă pentru a forța un green.
 
 - **[Plan de implementare v2 — HTML](documents/Omnis_Implementation_Plan.html)** · [Markdown](documents/Omnis_Implementation_Plan.md)

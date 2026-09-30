@@ -33,14 +33,21 @@ Păstrăm modelul/providerul, politica de aprobări, limitele globale de delegar
 3. **Implementare minimă:** o felie verticală, fără refactor independent sau dependență oportunistă.
 4. **Review:** conformitate, apoi corectitudine/securitate. Pentru cod relevant, reviewer independent read-only. Părintele reproduce constatările importante.
 5. **Commit imediat:** schimbare coerentă + teste/documentație necesară, cu motiv, verificări, încercări eșuate relevante și rollback.
-6. **Readback:** SHA/diff/status; raport scurt cu ce este implementat, verificat, neexecutat și blocat.
+6. **Readback:** SHA/diff/status; raport scurt cu ce este implementat, verificat, neexecutat și blocat, urmat de statusul global prin `omnis-project-status`.
 
 Template-ul de sarcină și roluri este în [.hermes/skills/omnis-delivery/templates/task.md](.hermes/skills/omnis-delivery/templates/task.md). Nu folosim un prompt monolitic de „expert perfect”; lucrăm cu criterii falsificabile și rezultate măsurabile.
+
+## Status global la orientare și predare
+
+Încarcă [omnis-project-status](.hermes/skills/omnis-project-status/SKILL.md) la început pentru **ORIENT/read-only** și la finalul fiecărei felii, subfaze, faze ori prompt de review pentru **CLOSE/predare**. [Harta globală MVP/post-MVP](documents/verification/implementation-status.md) păstrează toate SL-urile și E1–E4, fundațiile, milestone-urile și capabilitățile execution-unscheduled, ca proiecție a planului, nu backlog concurent.
+
+La închidere, actualizează numai diferențele justificate prin Git și dovezi versionate: cod, probe și review sunt axe independente. Reviewerul read-only transmite delta părintelui; nu își aprobă integrarea. Fără schimbare factuală nu sunt necesare scrieri sau commit gol. Raportul final arată unde suntem, ce este aprobat/în review/neaprobat, gates deschise și următoarea felie. Un skill nu este exit hook ori enforcement; nu instalăm cron/plugin/autocommit și nu pretindem că indexul sesiunii curente se reîncarcă automat.
 
 ## Acoperirea implementării
 
 | Activitate | Skill de încărcat |
 |---|---|
+| Orientare și status global la fiecare predare/review | `omnis-project-status` |
 | Felie verticală, TDD, coordonare, reluare | `omnis-delivery` |
 | API, PostgreSQL, migrații, evenimente/evidence | `omnis-api-data` |
 | Hermes nativ, copii, Settings, skills per run, recuperare | `omnis-hermes-runtime` |

@@ -1,7 +1,7 @@
 ---
 name: omnis-delivery
 description: "Use when delivering an Omnis implementation slice."
-version: 0.1.1
+version: 0.1.2
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -27,6 +27,7 @@ Read repo `AGENTS.md`, the relevant plan ticket/gate and actual code. Resolve pa
 6. Review the minimal diff, execute acceptance and regression checks, and commit the coherent slice immediately as required by AGENTS. Preserve separate commits for an independent corrective action, documentation decision or dependency upgrade.
 7. At a phase boundary run its actual gate, record passed/failed/blocked/not-run individually, and name the next unblocked slice. Never unlock a safety gate merely because prerequisite documents exist.
 8. If the canonical gate is unsafe or lacks prerequisites, perform one read-only preflight, run only bounded safe checks, and record `BLOCKED`/`NOT-RUN` with the exact reason. Do not rerun the same partial suite to satisfy a Hermes verify-on-stop nudge, rename a partial target to `check`/`test`, or claim that focused tests close G00. Fix the prerequisite or hand off the blocker; do not keep editing a test oracle while the product acceptance row remains unchanged.
+9. Load `omnis-project-status` in ORIENT mode at entry and CLOSE at each implementation/subphase/phase handoff, including blocked work. Reconcile the affected rows in `documents/verification/implementation-status.md` with Git and versioned evidence; finish with current location, scoped approved/pending/not-approved review, gates and the exact next slice. No changed fact means no status edit or empty commit; the map does not replace the plan.
 
 ## Working stance
 Use hypotheses instead of confidence claims; prefer removing accidental complexity over adding abstractions; measure before optimizing. Keep unrelated cleanup out of a feature. After two failed repair hypotheses stop repeating edits: inspect the failure mechanism, narrow the reproducer, then revise the plan. A blocker is a legitimate outcome, not permission to fake success.

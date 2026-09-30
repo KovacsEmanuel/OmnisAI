@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.6
+version: 0.1.7
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -25,6 +25,7 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 6. Use Reticle optionally for instrumented local runtime evidence; keep Playwright/DOM and screenshot checks independent. An INCONCLUSIVE result remains inconclusive. Do not install instrumentation into a production build or use it on unrelated sites.
 7. Audit added lines and staged paths for credentials, sensitive evidence, unsupported dependencies and accidental files. Review generated changes against their source. Keep external revisions/licenses and actual failures in the change record.
 8. Parent reproduces critical assertions and commits the accepted slice. Record exact commands, counts, exit codes, limitations and base/head; final reporting distinguishes implementation, integration and visual acceptance.
+9. Use `omnis-project-status` for ORIENT before review and a scoped status delta at handoff. A read-only reviewer reports proposed changes; only the parent reconciles the map in CLOSE after adjudication. Bind approval to the reviewed snapshot/files, preserve genuinely open findings and compare delayed reports with later fixes. End with approved/in-review/not-reviewed or changes-requested scope, global gates and the next canonical slice; a review is not a runtime PASS.
 
 ## Pitfalls
 For hash-routed prototypes, reload or create a fresh browser page between cases: fragment navigation retains run, dialog and filter state. Verify the isolated RED fails only for the intended behavior.

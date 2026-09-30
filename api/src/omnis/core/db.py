@@ -3,6 +3,8 @@
 import asyncio
 import os
 from enum import StrEnum
+from pathlib import Path
+from urllib.parse import quote, unquote
 
 from sqlalchemy import text
 from sqlalchemy.engine import URL, make_url
@@ -34,6 +36,25 @@ def validated_database_url(database_url: str) -> URL:
         raise ValueError("Database URL query parameters are forbidden")
     if url.drivername != "postgresql+psycopg":
         raise ValueError("PostgreSQL must use the async psycopg driver")
+    if not url.host:
+        raise ValueError("Explicit PostgreSQL host required")
+    if url.host and url.host.startswith("%2F"):
+        try:
+            host = unquote(url.host, errors="strict")
+        except UnicodeDecodeError:
+            raise ValueError("Invalid private PostgreSQL socket path") from None
+        path = Path(host)
+        if (
+            not path.is_absolute()
+            or "," in host  # libpq interprets commas as multiple destinations.
+            or str(path) != host
+            or path.resolve() != path
+            or quote(host, safe="") != url.host
+        ):
+            raise ValueError("Invalid private PostgreSQL socket path")
+        return url.set(host=host)
+    if url.host and "%" in url.host:
+        raise ValueError("Invalid private PostgreSQL socket path")
     return url
 
 

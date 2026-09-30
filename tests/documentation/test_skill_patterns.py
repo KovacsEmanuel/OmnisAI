@@ -13,6 +13,20 @@ class SkillPatternContracts(unittest.TestCase):
                       "WorkflowProfileRevision", "requested", "effective", "xhig",
                       "allowed_toolsets=()", "Skill ≠ agent", "B06", "G-SKILL"]:
             self.assertIn(token, pattern)
+        fields = {
+            "ExecutionPreference": ["model_key: Key?", "effort: Text?", "requirement: REQUIRED/PREFERRED",
+                                    "on_unavailable: BLOCK/USE_RUN_DEFAULT", "REQUIRED impune BLOCK."],
+            "AgentRecipe": ["key: Key", "role:", "package_refs: Ref[]", "procedure_refs: Ref[]",
+                            "execution_preference: ExecutionPreference?", "requested_capabilities: Key[]"],
+            "ExecutionSelection": ["snapshot_ref: Ref", "recipe_key: Key", "requested: ExecutionPreference",
+                                   "effective:", "NO_MODEL", "provider_config_ref: Ref", "model_id: Text"],
+        }
+        for name, required in fields.items():
+            rows = re.findall(rf"(?m)^\| `{name}`[^\n]*$", pattern)
+            self.assertEqual(len(rows), 1, name)
+            self.assertEqual(len(rows[0].strip("|").split("|")), 2)
+            for field in required:
+                self.assertIn(field, rows[0], name)
         package = section(architecture, "### 9.4. Catalog: pachet, tehnică și procedură")
         for token in ["verification_kind", "SECURITY", "CONTRACT", "non_applicable_groups",
                       "execution_preference", "work_kind"]:
@@ -32,6 +46,24 @@ class SkillPatternContracts(unittest.TestCase):
                       "CHECK_ONLY", "INDEPENDENT", "max_rework_rounds", "după G06a",
                       "rezerva VALIDATION", "Stop", "LIMITED", "subject_result_ref"]:
             self.assertIn(token, review)
+        fields = {
+            "MethodRequirement": ["key: Key", "required: bool", "applies_if: Precondition[]", "step_ids: Key[]"],
+            "MethodRequirementRef": ["bound_procedure_ref: Ref", "requirement_key: Key"],
+            "BoundPredicateRef": ["bound_procedure_ref: Ref", "predicate_id: Key"],
+            "MethodPlan": ["requirements:", "ref: MethodRequirementRef", "applicability:", "required: bool"],
+            "MethodResult": ["ref: MethodRequirementRef", "state:", "basis_refs: Ref[]", "artifact_refs: Ref[]"],
+            "MethodCheck": ["brief_ref: Ref", "task_result_ref: Ref", "checker_ref: Ref", "status:",
+                            "checked_results: MethodResult[]", "gap_refs: MethodRequirementRef[]"],
+            "MethodReviewRequest": ["subject_brief_ref: Ref", "subject_result_ref: Ref", "method_check_ref: Ref"],
+            "MethodReviewFeedback": ["subject_result_ref: Ref", "items:", "recommendation:"],
+            "MethodReviewReceipt": ["request_brief_ref: Ref", "reviewer_result_ref: Ref", "subject_result_ref: Ref"],
+        }
+        for name, required in fields.items():
+            rows = re.findall(rf"(?m)^\| `{name}`[^\n]*$", review)
+            self.assertEqual(len(rows), 1, name)
+            self.assertEqual(len(rows[0].strip("|").split("|")), 2)
+            for field in required:
+                self.assertIn(field, rows[0], name)
         brief = re.findall(r"(?m)^\| `TaskBriefV1` \|.*$", architecture)
         result = re.findall(r"(?m)^\| `TaskResultV1` \|.*$", architecture)
         self.assertEqual(len(brief), 1)
@@ -85,6 +117,33 @@ class SkillPatternContracts(unittest.TestCase):
         self.assertIn("CHECK_ONLY", route)
         self.assertIn("B15j.2", route)
         self.assertIn("B18a.r", route)
+
+
+    def test_normative_method_rows_cannot_be_removed(self):
+        from unittest import mock
+
+        read_document = document
+        architecture = read_document("MVP_Architecture")
+        for contract in ["MethodPlan", "MethodCheck"]:
+            with self.subTest(contract=contract):
+                mutated, count = re.subn(rf"(?m)^\| `{contract}`[^\n]*\n", "", architecture)
+                self.assertEqual(count, 1)
+                with mock.patch(f"{__name__}.document", side_effect=lambda name:
+                                mutated if name == "MVP_Architecture" else read_document(name)):
+                    with self.assertRaises(AssertionError):
+                        self.test_method_review_cannot_replace_validation_or_reset_work()
+
+    def test_required_model_cannot_silently_allow_fallback(self):
+        from unittest import mock
+
+        read_document = document
+        architecture = read_document("MVP_Architecture")
+        self.assertEqual(architecture.count("REQUIRED impune BLOCK."), 1)
+        mutated = architecture.replace("REQUIRED impune BLOCK.", "REQUIRED permite USE_RUN_DEFAULT.")
+        with mock.patch(f"{__name__}.document", side_effect=lambda name:
+                        mutated if name == "MVP_Architecture" else read_document(name)):
+            with self.assertRaises(AssertionError):
+                self.test_common_recipe_is_not_an_agent_or_a_permission_grant()
 
 
 if __name__ == "__main__":

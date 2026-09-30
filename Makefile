@@ -6,8 +6,25 @@ API_PY = api/.venv/bin/python
 API_CHECK_PATHS = api/src api/tests
 CLI_PY = cli/.venv/bin/python
 
-check: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
+.DEFAULT_GOAL := check
+.PHONY: check-components test-db-contract
+# Dry-run/touch/ignore-errors must not produce a successful verification receipt.
+ifneq ($(filter check test check-components test-db-contract,$(or $(MAKECMDGOALS),check)),)
+_verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
+ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
+$(error Unsafe Make flags for verification; execute the real gate)
+endif
+endif
+
+check:
+	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)"
+
+# Exact former check dependencies, run by the same private DB lifecycle in CI/local.
+check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
 	git diff --check
+
+test-db-contract:
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_fixture_ownership.py api/tests/test_database_url.py -v
 
 test: check
 

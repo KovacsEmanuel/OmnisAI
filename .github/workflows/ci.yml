@@ -23,6 +23,7 @@ jobs:
           set -euo pipefail
           python -m pip install uv==0.12.19
           uv sync --locked --no-config --no-python-downloads --python 3.13.15 --directory api --group dev
+          uv sync --locked --no-config --no-python-downloads --python 3.13.15 --directory cli
           python -m venv "$RUNNER_TEMP/omnis-docs"
           "$RUNNER_TEMP/omnis-docs/bin/python" -m pip install -r documents/requirements-docs.txt
           npm --prefix tools/development/anti-slop ci --include=dev --ignore-scripts --no-fund
@@ -35,10 +36,6 @@ jobs:
           set -euo pipefail
           export TMPDIR="$HOME/.cache/omnis-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           install -d -m 0700 "$TMPDIR"
-          export OMNIS_TEST_PROJECT="omnis-p01-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          export OMNIS_TEST_DB_PASSWORD="$(python -c 'import secrets; print(secrets.token_urlsafe(28))')"
-          trap 'docker compose -f ops/compose.test.yaml down' EXIT
-          docker compose -f ops/compose.test.yaml up -d --wait db
-          port="$(docker compose -f ops/compose.test.yaml port db 5432)"
-          export OMNIS_TEST_DATABASE_URL="postgresql+psycopg://omnis_test:${OMNIS_TEST_DB_PASSWORD}@${port}/omnis_test"
+          # Explicit prerequisite; the gate itself never pulls or adopts an old DB.
+          docker pull --platform linux/amd64 postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
           PATH="$RUNNER_TEMP/omnis-docs/bin:$PATH" make check

@@ -8,10 +8,18 @@ import { test } from 'node:test';
 const root = new URL('../../', import.meta.url);
 
 test('canonical check and CI include the web contract gate', () => {
-  const dryRun = spawnSync('make', ['-n', 'check'], { cwd: root, encoding: 'utf8', timeout: 15000 });
+  const refused = spawnSync('make', ['-n', 'check'], { cwd: root, encoding: 'utf8', timeout: 15000 });
+  assert.notEqual(refused.status, 0, 'a dry run must not pass as canonical verification');
+  assert.match(refused.stderr, /Unsafe Make flags for verification/);
+  const makefile = readFileSync(new URL('Makefile', root), 'utf8');
+  assert.match(makefile, /^check:\n\t\$\(API_PY\) -I ops\/run_test_db_gate\.py --check/m);
+  assert.match(makefile, /^check-components:.*\bcheck-web\b/m);
+  const dryRun = spawnSync('make', ['-n', 'check-web'], { cwd: root, encoding: 'utf8', timeout: 15000 });
   assert.equal(dryRun.status, 0);
   assert.match(dryRun.stdout, /npm --prefix web run check:contracts/);
   const ci = readFileSync(new URL('.github/workflows/ci.yml', root), 'utf8');
+  assert.match(ci, /make check/);
+  assert.match(ci, /--directory cli/);
   assert.match(ci, /npm --prefix web ci --include=dev --ignore-scripts/);
 });
 

@@ -1,6 +1,5 @@
 """Dedicated PostgreSQL fixture; refuse an arbitrary operator database."""
 
-import json
 import os
 import re
 import subprocess
@@ -8,12 +7,14 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Literal
+from urllib.parse import quote
 from uuid import uuid4
 
 import psycopg
 import pytest
 from psycopg import sql
-from pydantic import TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
@@ -31,182 +32,80 @@ def reject_ambient_libpq_config() -> None:
         )
 
 
-def verify_host_loopback_route() -> None:
-    """Refuse host networking when a non-loopback interface can route 127/8."""
-    try:
-        controls = list(Path("/proc/sys/net/ipv4/conf").glob("*/route_localnet"))
-        if not controls or any(path.read_text().strip() != "0" for path in controls):
-            raise RuntimeError("Host loopback route is not private")
-    except OSError:
-        raise RuntimeError("Cannot verify host loopback route") from None
+class FixtureReceipt(BaseModel):
+    """Public fields from the shared, fail-closed disposable-fixture attestor."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+    schema_version: Literal[1]
+    project: str
+    socket_directory: str
+    system_identifier: str = Field(pattern=r"^[0-9]+$")
+    container_id: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
-def verify_test_database(url: URL) -> None:
+def verify_test_database(url: URL) -> FixtureReceipt:
     reject_ambient_libpq_config()
-    if any(name.startswith("DOCKER_") for name in os.environ):
+    if any(name.startswith(("DOCKER_", "COMPOSE_")) for name in os.environ):
         raise RuntimeError("Only a local Docker context is allowed for test databases")
     project = os.environ.get("OMNIS_TEST_PROJECT", "")
-    declared_port = os.environ.get("OMNIS_TEST_DB_PORT", "")
-    if not re.fullmatch(r"omnis-p01-[a-z0-9-]+", project):
-        raise RuntimeError("Expected a dedicated test project")
+    socket_directory = os.environ.get("OMNIS_TEST_SOCKET_DIR", "")
+    fixture = Path(os.environ.get("OMNIS_TEST_FIXTURE", ""))
     if (
-        not re.fullmatch(r"[1-9][0-9]{0,4}", declared_port)
-        or int(declared_port) > 65535
-        or url.port != int(declared_port)
-    ):
-        raise RuntimeError("Expected a dedicated test project port")
-    if (
-        url.drivername != "postgresql+psycopg"
-        or url.host != "127.0.0.1"
+        not re.fullmatch(r"omnis-p01-[a-z0-9-]+", project)
+        or not Path(socket_directory).is_absolute()
+        or not fixture.is_absolute()
+        or url.drivername != "postgresql+psycopg"
+        or url.host != quote(socket_directory, safe="")
         or url.username != "omnis_test"
         or url.database != "omnis_test"
-        or url.port is None
+        or url.port not in (None, 5432)
+        or not url.password
         or url.query
     ):
-        raise RuntimeError("Expected a dedicated test project database URL")
-    verify_host_loopback_route()
-
-    compose = [
-        "docker",
-        "compose",
-        "-f",
-        str(Path(__file__).resolve().parents[2] / "ops/compose.test.yaml"),
-    ]
+        raise RuntimeError("Expected a dedicated test project private database URL")
+    script = Path(__file__).resolve().parents[2] / "ops/run_test_db_gate.py"
     try:
-        context = subprocess.run(
-            ["docker", "context", "show"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=True,
-        ).stdout.strip()
-        endpoint = subprocess.run(
-            [
-                "docker",
-                "context",
-                "inspect",
-                context,
-                "--format",
-                '{{(index .Endpoints "docker").Host}}',
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=True,
-        ).stdout.strip()
-        if not endpoint.startswith("unix://") or not Path(endpoint[7:]).is_socket():
-            raise RuntimeError("Only a local Docker socket is allowed for test databases")
         result = subprocess.run(
-            [*compose, "ps", "--format", "json"],
+            [sys.executable, "-I", str(script), "--attest", str(fixture)],
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=30,
             check=True,
         )
-        services = [
-            TypeAdapter(dict[str, object]).validate_json(line, strict=True)
-            for line in result.stdout.splitlines()
-            if line.strip()
-        ]
-        if len(services) != 1:
-            raise ValueError("unexpected service count")
-        service = services[0]
-        cid = service["ID"]
-        if not isinstance(cid, str):
-            raise ValueError("invalid container identity")
-        inspected = subprocess.run(
-            [
-                "docker",
-                "inspect",
-                cid,
-                "--format",
-                "{{json .Mounts}}\n{{json .HostConfig}}\n"
-                "{{json .NetworkSettings.Ports}}\n{{json .Config.Cmd}}",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=True,
-        ).stdout.splitlines()
-        if len(inspected) != 4:
-            raise ValueError("invalid container inspection")
-        volume = TypeAdapter(list[dict[str, object]]).validate_json(inspected[0], strict=True)
-        host = TypeAdapter(dict[str, object]).validate_json(inspected[1], strict=True)
-        ports = TypeAdapter(dict[str, object]).validate_json(inspected[2], strict=True)
-        command = TypeAdapter(list[str]).validate_json(inspected[3], strict=True)
-    except (OSError, subprocess.SubprocessError, ValueError, KeyError, json.JSONDecodeError):
+        receipt = FixtureReceipt.model_validate_json(result.stdout, strict=True)
+    except (OSError, subprocess.SubprocessError, ValueError):
         raise RuntimeError("Cannot verify dedicated test project") from None
-
-    if not (
-        service["Project"] == project
-        and service["Service"] == "db"
-        and service["State"] == "running"
-        and service["Image"]
-        == "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
-        and service["Publishers"] == []
-        and host.get("NetworkMode") == "host"
-        and host.get("PortBindings") == {}
-        and host.get("Privileged") is False
-        and host.get("CapAdd") in (None, [])
-        and not any(value for value in ports.values())
-        and command == ["postgres", "-c", "listen_addresses=127.0.0.1", "-c", f"port={url.port}"]
-        and len(volume) == 1
-        and all(
-            mount["Type"] == "volume"
-            and mount["Name"] == f"{project}_pgdata"
-            and mount["Destination"] == "/var/lib/postgresql"
-            for mount in volume
-        )
-    ):
-        raise RuntimeError("Database URL does not belong to the dedicated test project")
+    if receipt.project != project or receipt.socket_directory != socket_directory:
+        raise RuntimeError("Receipt does not match the dedicated test project")
+    return receipt
 
 
 def connect_test_database(
     url: URL, *, autocommit: bool = False
 ) -> psycopg.Connection[tuple[object, ...]]:
-    reject_ambient_libpq_config()
-    if url.query:
-        raise RuntimeError("Expected a dedicated test project database URL")
-    verify_test_database(url.set(database="omnis_test"))
+    receipt = verify_test_database(url.set(database="omnis_test"))
+    if url.database != "omnis_test" and not re.fullmatch(
+        r"omnis_p01_[0-9a-f]{32}", url.database or ""
+    ):
+        raise RuntimeError("Expected a dedicated test project database name")
     try:
         connection: psycopg.Connection[tuple[object, ...]] = psycopg.connect(
-            url.set(drivername="postgresql").render_as_string(hide_password=False),
+            host=receipt.socket_directory,
+            port=5432,
+            user=url.username,
+            password=url.password,
+            dbname=url.database,
+            connect_timeout=3,
+            options="-c statement_timeout=3000 -c lock_timeout=3000",
             autocommit=autocommit,
         )
     except psycopg.Error:
         raise RuntimeError("Dedicated PostgreSQL test database is unavailable") from None
     try:
-        compose = [
-            "docker",
-            "compose",
-            "-f",
-            str(Path(__file__).resolve().parents[2] / "ops/compose.test.yaml"),
-        ]
-        expected = subprocess.run(
-            [
-                *compose,
-                "exec",
-                "-T",
-                "db",
-                "psql",
-                "-U",
-                "omnis_test",
-                "-d",
-                "omnis_test",
-                "-p",
-                str(url.port),
-                "-Atc",
-                "SELECT system_identifier FROM pg_control_system()",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=True,
-        ).stdout.strip()
         actual = connection.execute("SELECT system_identifier FROM pg_control_system()").fetchone()
-        if not expected.isdecimal() or actual is None or str(actual[0]) != expected:
+        if actual is None or str(actual[0]) != receipt.system_identifier:
             raise RuntimeError("Dedicated PostgreSQL cluster identity mismatch")
-    except (OSError, subprocess.SubprocessError, psycopg.Error, RuntimeError):
+    except (psycopg.Error, RuntimeError):
         connection.close()
         raise RuntimeError("Cannot verify dedicated PostgreSQL cluster identity") from None
     return connection

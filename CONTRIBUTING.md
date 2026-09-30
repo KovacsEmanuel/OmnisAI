@@ -85,7 +85,7 @@ Pentru rollback inspectăm `git show <sha>` și dependențele, folosim `git reve
 
 ## Verificări disponibile acum
 
-**Status HF10:** `make check`/`make test` rămân BLOCKED pe checkoutul cu fixture WIP UDS/no-network și conftest/CI TCP; nu urma rețeta istorică de DB ca gate acceptat. Integrarea WIP/DB cere acord separat și ownership/teardown, conform plan §19.1–19.2. Pentru amendamentele documentare sunt suficiente comenzile docs/browser de mai jos, fără a închide G00. Contractele HF01–HF10 sunt canonice în arhitectură/plan/UI/stack, nu funcții runtime livrate.
+**Prerechizit DB integrat cu acord explicit:** `make check`/`make test` folosesc runnerul comun UDS/no-network și un root/proiect nou per execuție, nu conftest TCP sau o DB aleasă manual. [Dovezile integrării](documents/verification/p04-test-db-integration.md) disting probele țintite, gate-ul complet și cleanup-ul familiei proprii. Medii/pinuri lipsă refuză provisioningul; CI remote și G00 rămân neînchise. Pentru documentare sunt suficiente comenzile docs/browser, fără promovare runtime. Contractele HF01–HF10/NS01–NS19 rămân specificații ale funcțiilor viitoare.
 
 Comanda canonică este `make check` (alias `make test`); rulează documente/development/anti-slop, API/PostgreSQL/pairing/control/supervisor + wheel/procese instalate, Ruff/mypy strict și bootstrapul web P0.3: contracte/drift, lint/typecheck/unit/build, E2E cu backend real. Instalează întâi [uneltele de dezvoltare](tools/development/README.md), [DB-ul izolat](api/README.md) și [mediul web/browser fixat](web/README.md); lipsa lor eșuează, nu este skip. Nu este certificarea P0.4/G00, a assessmentului sau a Chisel. Proba Reticle este separată, cu rezultate proprii.
 

@@ -20,7 +20,7 @@ Surse și rațiuni **istorice, adjudecate**:
 - [Suplimentul modular](omnis-modularity-research-supplement.md), inclusiv §12 walkthrough de referință, și [manifestul 34 unități / 98 referințe source-test](omnis-modularity-research-supplement.reuse.json).
 - [Handofful final](omnis-final-amendment-handoff.md), sursa HF01–HF10; aprobarea amendării nu mai este pending. Niciunul dintre dosare nu certifică runtime/eficacitate sau importul deja activ al componentelor.
 
-Starea curentă a codului și matricea PĂSTRĂM / CORECTĂM ACUM / EXTINDEM sunt în plan §19.1–19.2. `make check/test` sunt BLOCKED de fixture-ul WIP UDS/no-network neintegrat cu conftest/CI TCP; nu rerulăm un harness pentru a promova G00.
+Starea curentă a codului și matricea PĂSTRĂM / CORECTĂM ACUM / EXTINDEM sunt în plan §19.1–19.2. [Integrarea DB autorizată](p04-test-db-integration.md) înlocuiește ulterior blockerul fixture/conftest/CI: un singur runner UDS pentru make check/test, cu atestare și cleanup propriu. Rezultatele sunt separate de G00 și CI remote; nu reluăm harnessul owner ca substitut al launcherului.
 
 ## Reproducere în scratch
 

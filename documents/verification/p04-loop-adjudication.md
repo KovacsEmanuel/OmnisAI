@@ -6,6 +6,10 @@
 
 Snapshotul de mai sus și afirmațiile despre host networking descriu `f4c85e7`, nu checkoutul actual. Recontrolul pornit din `3fc3d46` găsește aceleași șase căi WIP din handoff: Compose **deja** no-network/UDS, db.py cu suport socket, helper probe-only; conftest/CI încă TCP. WIP nu a fost integrat sau certificat prin amendament; make check/test BLOCKED, CI remote NOT-RUN, G00 deschis. CMD instalat rămâne omnis.serve și CLI numai status/install/install-image. Matricea actuală PĂSTRĂM/CORECTĂM ACUM/EXTINDEM și următoarea felie sunt în [plan §19.1–19.2](../Omnis_Implementation_Plan.md). Restul dosarului păstrează cauza și probele istorice; nu este o nouă autorizație de harness.
 
+## Integrarea DB autorizată ulterior
+
+Operatorul a aprobat explicit preluarea celor șase fișiere DB/WIP. [Felia de integrare](p04-test-db-integration.md) păstrează originalele în backup privat și unifică runner/attestor/conftest/Make/CI pe UDS/no-network; rândurile BLOCKED anterioare sunt istorice. Noua dovadă nu promovează ownerul exec, launcherul, CI remote sau G00 și nu reinterpretează tentativele eșuate de mai jos.
+
 ## Cauză și decizie (snapshot istoric)
 
 - Proba instalată de topologie pornește Compose și forwarderul direct, nu printr-o comandă de produs (`cli/integration/control_topology.py`). CLI-ul expune `status`, `install`, `install-image`, dar nu `start/pair/open/stop` (`cli/src/omnis_cli/main.py`). Imaginea instalată pornește încă `omnis.serve` (`ops/Dockerfile.control:14`); ownerul exec nou din `301b918` este numai WIP. Alte fault-injection tests nu pot demonstra L01–L05-control/L08-core în locul launcherului.

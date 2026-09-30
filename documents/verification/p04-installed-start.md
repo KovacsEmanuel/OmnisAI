@@ -18,4 +18,65 @@ Bază verificată: `c4e8b4f67c3de715fca673f670e64ddb52a1bba1`, branch `p04-contr
 
 ## Stare inițială
 
-Toolchain disponibil și verificat: API/CLI Python 3.13.15, uv 0.12.19, Node 24.21.0/npm 11.19.0 din căile scratch documentate; Docker 27.5.1+dfsg4 / Compose 2.32.4-3. Pythonul documentelor este 3.13.12. Nicio probă de startup produs executată încă; această notă fixează contractul, nu verdictul livrării.
+Toolchain disponibil și verificat: API/CLI Python 3.13.15, uv 0.12.19, Node 24.21.0/npm 11.19.0 din căile scratch documentate; Docker 27.5.1+dfsg4 / Compose 2.32.4-3. Pythonul documentelor este 3.13.12. Nicio probă de startup produs executată încă la acest checkpoint inițial; această secțiune fixează contractul, nu verdictul livrării.
+
+## Implementare și probe înaintea gate-ului final
+
+Codul migrării este în `26347c0`; calea verticală de produs, inclusiv status/readiness și cleanupul propriei încercări, este în `e664c8f`; proba opt-in este în `ae40cdd`. Rezultatele de mai jos descriu checkpointurile din sesiune, nu transferă PASS-ul `bd06bcd` și nu închid G00.
+
+### RED, erori reale și remedieri
+
+- Wheelul baseline instalat în `/home/kali/.hermes/cache/scratch/s2-8vdw8gbw/venv`, din `cwd/` extern, a refuzat `start --no-open --json` cu exit 2: comandă necunoscută. Releaseul și imaginea au fost pregătite explicit înaintea probei; niciun serviciu nu a fost pornit de acel RED.
+- Primele încercări de produs au expus valorile implicite reale Compose (`ipam: {}`, `entrypoint: null`), reprezentarea `HostConfig.Binds` a bindului deja verificat complet prin `Mounts`, apoi faptul că `compose create` nu acceptă `--no-deps`. Au fost corectate punctual, păstrând atestarea exactă și adăugând `--no-recreate`, fără schimbarea topologiei. Într-o încercare a rămas un container doar creat; CID-ul a fost recuperat după readback exact, nu printr-un `down` global. Datele nu au fost șterse pentru GREEN.
+- Prima comandă instalată READY și primul reuse au trecut pe rootul `s2-n584z_iv`, origin implicit `127.0.0.1:8765`; aceeași instanță/containere/timestamps/generație/epoch după ieșirea launcherului. Proba ad-hoc `hermes-verify-*` a confirmat acestea, apoi a dat RED pentru vechiul status `HTTP_UNVERIFIED`. Scriptul ad-hoc a fost eliminat; nu este suita de acceptare finală.
+- Migrarea startup a avut RED: un cluster ID greșit era ignorat și se executa DDL. `--initialize` verifică acum pe aceeași conexiune `system_identifier` și DB, apoi advisory lock tranzacțional și absența obiectelor existente. Review-ul F1 a găsit large objects/collations omise; patru cazuri non-table au dat **4 failed / 13 passed**, apoi **17 PASS** după remediu. Upgrade-ul explicit normal și migrațiile 0001–0004 sunt păstrate. Ultima probă țintită: runner `--target test-migrations`, root `db-863dcfa9a6824b3b`, exit 0; readback container/rețea/socket absente, date păstrate. Lint/format/mypy API PASS.
+- Review-urile produsului au identificat și închis R1–R7: nonce/atestare compusă; lock comun al proiectului pentru state roots diferite; păstrarea DB sub incertitudine; handofful handle-ului forwarder la eșec; legarea peer-ului API de namespace/cgroup; deadline înainte de spawn; output Docker limitat incremental; jurnal de cleanup care nu reduce exit 4 la exit 3. R2 a necesitat încă o regresie: flagurile apărute în remove non-DB se recitesc chiar înaintea DB. Ambele subcazuri au fost RED, apoi GREEN și PASS independent cu mutantul vechi respins.
+- Proba inițială de SIGTERM la `MIGRATING` a observat corect `UNCERTAIN`, dar observatorul făcea ulterior rescue DB fără să fi închis incertitudinea daemonului. **Acel exit 0 istoric al probei nu este acceptarea cleanupului de întrerupere.** Review-ul B1–B4 a cerut refuzul rescue-ului incert, verificarea `FAILED_CLEANED` înainte de rescue, snapshoturi de restart, locator durabil înainte de launch/finally și refuzul Make flags nesigure. Predicatele/motivele au fost reproduse, nu doar reformulate.
+- Observatorul verifică acum SIGTERM în etapa de produs `VERIFYING`, după operațiile Docker mutante, distinctă de `FORWARDING`; cere exact exit 3 / `FAILED_CLEANED` / `cleanup=[]` și absența resurselor **din cleanupul produsului**, înainte de orice rescue. Timeoutul retry-ului a avut un RED separat care autoriza rescue; incertitudinea este acum setată înainte de fiecare invocare și eliberată numai după răspuns/readback, cu locator păstrat.
+- Această probă mai strictă a găsit defectul real de IPC: pe `s2i-uaey15wf`, toate containerele/rețeaua erau absente, dar `control.sock` și capul privat rămăseseră după întreruperea supervisorului în startup. CLI a raportat corect exit 4; proba a eșuat și a păstrat locatorul. Remediul de produs reclamă numai IPC-ul acestui scope nou după teardown reconciliat, sub lockul serviciului, cu inode/UID/mode verificate și `ECONNREFUSED`; nu șterge lockuri și nu semnalizează PID-uri din fișiere. Testul real dead/live UDS a fost RED→GREEN; re-review IPC PASS bounded. Recuperarea separată a celor două fișiere vechi a confirmat **2 → 0**, cu date păstrate, în `s2i-uaey15wf/ipc-recovery.json`; jurnalul istoric UNCERTAIN nu a fost rescris drept READY.
+
+### Proba instalată reproductibilă
+
+Comanda opt-in, cu pinurile disponibile explicit:
+
+```sh
+export PATH="/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/node-v24.21.0-linux-x64/bin:/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools:/usr/bin:/bin"
+make check-installed-start UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv
+```
+
+Pregătește separat wheeluri/release/imagine din lockuri și apoi execută **console scriptul instalat**, nu `run_probe`. Verificările obișnuite scot flags OCI/start din mediu; `-n/-t/-i/-q` pe ținta nouă sunt refuzate înaintea rețetelor. Proba istorică `check-installed-control` rămâne separată.
+
+Ultimul checkpoint instalat înainte de commitul probei: **exit 0**, log `/home/kali/.hermes/cache/scratch/sl02-proof-final-rerun.log`: **67 teste CLI wheel**, **37 release/observer checks**, apoi **1 integrare OCI instalată reală**. Proiect `omnis-local-3c76429246e14e21ac9aeba1554f9e3f`, imagine `sha256:9a419635684d561320ee52c246a9b622bf6291a1fd61eac2b441d52595af062b`, instance `b58319fe-2c21-4595-9cf2-3bcdda4f3ed2`. Roots păstrate: `s2-537w8q46/s/omnis` și `s2i-yl1oon1s/s/omnis`; receipturi private `probe-receipt.json` leagă proiectul, data home, state root și rezultatele probei/cleanupului separat. SIGTERM: `FAILED_CLEANED`, exit 3, apoi retry exit 4 fără efecte. Tagul imaginii de test este eliminat după readback. Rerularea finală pe cod comis este consemnată separat mai jos.
+
+Acoperire efectivă:
+
+| Criteriu | Canal de dovadă și limită |
+|---|---|
+| Wheel curent / cwd extern / prerechizite explicite | CLI instalat în venv separat, bundle și image receipt reale; `.env`, Compose/config și executabil Docker capcană în cwd |
+| Start / HTTP / assets / control / status | DB PostgreSQL 18.6, job dedicat din imagine, API `omnis.serve`, supervisor și forwarder reale; toate asseturile comparate; status fără schimbarea receipturilor |
+| Reuse / concurență / supraviețuirea launcherului | Două procese CLI de start, un singur set DB/API/supervisor, un singur instance ID; timestamps/restart count/epoch/generație neschimbate la reuse |
+| Refuzuri preflight / identitate | Release corupt, daemon/imagine nepotrivite, cale relativă, port listener și bound-only, metadata contradictorie și intenție stale injectată; fără adopție/restart |
+| Schema / migrare / barieră | Refuz real al schemei incompatibile, fără remigrare; lock DB/cluster ID/non-table data în testele migratorului; shutdown incomplet nu redeschide admiterea |
+| Readiness negativă | Socketuri TCP/UDS reale pentru trickle/deadline total/limite/redirect; API-ready 200 cu dashboard indisponibil și asset corupt testate la consumatorul HTTP (IPC substituit doar în aceste unit teste) |
+| Erori parțiale și cleanup | SIGTERM instalat în VERIFYING; bind race real al forwarderului; dead/live IPC; fault-uri înguste pentru daemon/handle/jurnal/remove și locator, fără mock peste calea pozitivă de produs |
+| Inert și fără secrete | `assessment_ready=false`, `browser_opened=false`, pairing issuance 0, un singur OPEN de instanță; sentinel local provider/proxy necontactat, env allowlisted, output/record/log fără secrete sintetice. Nu este monitorizare exhaustivă de syscalls/egress |
+| Date și resurse | Stop/remove numai pe ownership verificat; CID/rețea/listener/IPC readback; binduri păstrate, fără `down -v` sau reset. Nu este backup/restore ori stop/start operațional |
+
+### Review independent — închis punctual înaintea gate-ului final
+
+Rapoartele complete sunt în scratch; deciziile durabile sunt rezumate aici și în commituri, fără transferul probelor simulate către runtime:
+
+- `sl02-migration-fix-review.md`: F1 CLOSED; lock și identitate pe aceeași conexiune păstrate. Observațiile neblocante despre readbackul obiectelor și ordinea statement-urilor rămân declarate.
+- `sl02-fixes-review.md` + `sl02-r2-final-review.md`: R1–R7 și lock cross-state CLOSED; R2 final a respins independent mutantul vechi în ambele subcazuri.
+- `sl02-ipc-fix-review.md`: PASS pentru cleanup fresh după teardown reconciliat, lockuri existente și peer inactiv; fără acceptare a stopului operațional sau ownerului WIP. Linkcount 1 este verificat pentru lock/cap, nu declarat ca invariant general pentru socketuri.
+- `sl02-proof-fix-review.md` + `sl02-b1-final-review.md`: B1–B4 CLOSED. Ultimul re-review a executat independent numai testul unitar de timeout/retry (fakes și tempdir), nu gate-ul OCI; acesta este executat separat de părinte.
+
+### Gate comun, documente și conservare
+
+Prima încercare `make check` pe codul nou a fost întreruptă de limita toolului foreground la 420 s: runnerul a raportat **exit 130**, nu PASS. Au trecut 54 docs, 35 development și 218 API; migrațiile au fost întrerupte. Root `db-cef8998b562f43cd`, proiect `omnis-p01-fa488bcc98884a22ab4f08bcb33f2423`; receipt/family cleanup și readback container/rețea/socket absente, date păstrate. Nu este timeoutul intern de 3600 s al gate-ului și nu este o regresie dedusă din heartbeat. Execuția finală folosește un proces urmărit, nu repetarea unor suite parțiale ca substitut.
+
+Documente: renderer și `--check`, **54 teste PASS**, **116 controale Chromium PASS**, zero erori JS/cereri externe. O corecție de text a restaurat markerii expliciți P0.1/P0.2 ceruți de testul documentar, fără slăbirea lui. Inspecție vizuală la 1440px a planului §19.2 și arhitecturii §4.1: text lizibil, fără clipping/redesign. Capturi private `sl02-final-plan.png`, `sl02-final-architecture.png` sub scratch. AGENTS și prototipul/designul nu au fost editate.
+
+Readback separat al primelor probe: `/home/kali/.hermes/cache/scratch/sl02-resource-readback.json` confirmă nouă roots/probe fără servicii proprii active și eliminarea celor șase taguri create de pregătirea manuală; datele/receipturile private rămân. Probele suplimentare au locator și readback proprii. Scratch este diagnostic disposable, **nu backup permanent**. Containerele străine de la baseline nu au fost adoptate/oprite.
+
+**Limite încă explicite:** CI remote NOT-RUN, LAN/IPv6/rutare directă spre containere NOT-RUN, SIGKILL în toate etapele și recovery operațional/persistență stop-start sunt SL04, pairing TTY/open/browser sunt SL03. Intenția stale este fault-injected, nu o probă exhaustivă de crash. Predicatele DB-goală nu sunt o certificare a fiecărui catalog PostgreSQL posibil; testele de identity verifică refuzul/readbackul, nu instrumentează toate statement-urile anterioare unui rollback. Actorul malițios same-UID/root rămâne în afara garanției. G00 și L01–L05/L08 complete nu sunt declarate închise.

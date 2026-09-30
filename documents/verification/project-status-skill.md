@@ -37,3 +37,9 @@ Baza produsului rămâne `4113c78`; sursele/configurația/testele de produs nu a
 **INSTRUCTIONS_UPDATE_BLOCKED:** adăugarea unei reguli de încărcare în AGENTS.md a fost refuzată deoarece aprobarea a expirat. Nu s-a reîncercat și nu s-a folosit alt writer. Legăturile deja introduse în delivery/review/CONTRIBUTING sunt integrarea procedurală livrată; nu pretindem că regula protejată a fost instalată. Corectarea statusului vizual istoric din AGENTS nu a fost încercată.
 
 **Limite:** testele verifică acoperirea și contractul textual, nu garantează comportamentul viitor al modelului sau adevărul unui verdict runtime. Skill-ul nu este hook/serviciu. Review-ul de completitudine SL02 este separat și încă fără adjudecare finală în acest checkpoint; harta îl arată în review, păstrând aprobările istorice delimitate. Retrospectiva globală/profilul personal Hermes nu au fost modificate prin această felie. Fără push, Docker/DB/ținte/providere sau resurse externe noi de retras.
+
+## Predare CLOSE
+
+Implementarea de dezvoltare este comisă în `0566436`; readbackul commitului a confirmat numai cele 11 căi intenționate. Tracked curat după commit; numai HTML-ul original protejat rămâne untracked. Harta a fost apoi reconciliată pentru acest rezultat, fără a avansa vreun SL de produs. Review-ul acestei schimbări documentare este verificare structurală/self-review, nu un review independent nou pretins. Auditul independent de completitudine a produsului are snapshot și verdict separate, încă în așteptarea adjudecării părintelui.
+
+Folosire: ORIENT pentru citire/poziționare; CLOSE pentru delta justificată și raportul global la predare. Într-o sesiune Hermes proaspătă legată de repo skillul este descoperit nativ. Sesiunile pornite în afara repo-ului nu primesc promisiunea de autoload; launcherul existent `python scripts/hermes_dev.py` fixează legătura cu proiectul. Nu s-au modificat setările/profilurile personale ca să forțăm disponibilitatea.

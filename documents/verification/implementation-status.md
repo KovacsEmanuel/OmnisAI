@@ -15,7 +15,7 @@ Nu s-au rerulat aici suitele de produs. `PASS_LOCAL_RECORDED` înseamnă rezulta
 - **G00 deschis; CI remote NOT-RUN; assessment_ready=false.** Pair/open în CLI, stop durabil, runtime Hermes, provideri și motorul de assessment nu sunt livrate de SL02.
 - **Review aprobat în scope:** constatările F1/R1–R7/IPC/B1–B4 ale SL02 sunt închise punctual în [registrul SL02](p04-installed-start.md). Acest fapt nu este o garanție că toate cerințele întregului plan au fost implementate sau auditate.
 - **În review separat:** auditul de completitudine cerut după predarea SL02; până la adjudecarea unui raport complet nu îi atribuim verdict. Actualizarea acestei hărți nu îl închide.
-- **Proces de dezvoltare, nu funcție MVP:** skillul de status global este în lucru conform [contractului](project-status-skill.md). Nu schimbă următoarea felie de produs.
+- **Proces de dezvoltare, nu funcție MVP:** `omnis-project-status` este implementat și verificat local în `0566436`, conform [contractului și probelor](project-status-skill.md). Rutarea delivery/review/CONTRIBUTING este livrată; regula suplimentară în AGENTS este INSTRUCTIONS_UPDATE_BLOCKED (aprobare expirată), fără bypass. Nu schimbă următoarea felie de produs și nu reprezintă review independent de completitudine al MVP-ului.
 
 ## Legendă: trei axe independente
 

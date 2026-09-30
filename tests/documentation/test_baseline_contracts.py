@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import unittest
 
+from test_amendment_contracts import section as document_section
+
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "documents"
 
@@ -75,12 +77,12 @@ class BaselineContracts(unittest.TestCase):
     def test_delivery_dependencies_are_acyclic_and_bootstrap_is_inert(self):
         plan = (DOCS / 'Omnis_Implementation_Plan.md').read_text(encoding='utf-8')
         self.assertTrue('### Ordine verificabilă' in plan, 'Missing canonical phase dependency table')
-        section = plan.split('### Ordine verificabilă', 1)[1].split('## 5.', 1)[0]
+        section = document_section(plan, '### Ordine verificabilă')
         rows = re.findall(r'^\| ([A-Za-z0-9+-]+) \| ([^|]+) \|', section, re.M)
         graph = {name: set() if deps.strip() == '—' else set(deps.strip().split(', ')) for name, deps in rows}
         expected = {'P0-control', 'P1-data', 'P1-web', 'P2-inert', 'P4a-minim', 'P2-live',
                     'B01e-build', 'P3a', 'P3-auth', 'P3b', 'P5a+P6a', 'P5b+P6b', 'P4b', 'P7', 'P8',
-                    'P-LOOP', 'P-FOCUS', 'P-PATH', 'P-JEV'}
+                    'P-LOOP', 'P-FOCUS', 'P-PATH', 'P-JEV', 'P-WORDLIST', 'P-RESEARCH', 'P-MAINT'}
         self.assertEqual(set(graph), expected)
         self.assertEqual(len(rows), len(graph))
         self.assertTrue(all(deps <= expected for deps in graph.values()))
@@ -93,6 +95,9 @@ class BaselineContracts(unittest.TestCase):
         self.assertEqual(graph['P-FOCUS'], {'P5a+P6a', 'P-LOOP'})
         self.assertEqual(graph['P-PATH'], {'P-LOOP', 'P5b+P6b'})
         self.assertIn('P3b', graph['P5b+P6b'])
+        self.assertIn('P-WORDLIST', graph['P5b+P6b'])
+        self.assertEqual(graph['P-RESEARCH'], {'P-LOOP'})
+        self.assertEqual(graph['P-MAINT'], {'P4b', 'P-LOOP'})
         for name in ['Omnis_MVP_Architecture.md', 'Omnis_Stack_Baseline.md']:
             text = (DOCS / name).read_text(encoding='utf-8')
             self.assertTrue('B01e-build' in text and 'B01e-integrated' in text, name)

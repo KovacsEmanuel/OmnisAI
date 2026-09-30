@@ -666,7 +666,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p>Registry/compiler adaptează S09/M02/M03/M04/M06 și verificările <code>compile_plan</code> U06 în <strong>același</strong> modul tasks/runs: ID/schema/handler existent, dependency closure, DAG fără ciclu, exclusions și priorități stabile, hooks policy/capture/Stop obligatorii. Re-entry creează o instanță nouă cu cauzalitate către rezultat anterior, nu ciclu de așteptare între taskuri vechi. Max iterations/dedup/stagnare/limite produc LIMITED, nu loop infinit. Cache PURE leagă code/config/input digest/context și nu poate efectua I/O; I/O cere readmitere/buget, UNKNOWN cere reconciliere. Pipeline M07/M08/M09: decode → shape/context → normalize preserving raw → redact/project → persist evidence/event → notify; observer defect nu pierde eventul, guard defect nu permite efectul. Lifecycle instantiate/validate/prepare/claim/admit/execute/capture/persist/notify/close are cleanup testat, nu presupus din upstream.</p>
 <p><strong>Ordinea auxiliarelor:</strong> G-DATA-EARLY-RESEARCH și deny la research sink sunt înaintea primului query B10c; G-DATA din P8 extinde aceeași probă, nu o precedă circular. B14c.1 introduce G-HERMES-BOUND-CORE (slot/admission/Stop/status/inventar) și G-DATA-EARLY-MAINTENANCE înainte de workerul B14c.2/G-IMPROVE; B19 completează recovery/G-HERMES-BOUND, iar B21m adaugă opțional cron după aceea.</p>
 <p><strong>Research contextual:</strong> fingerprint pasiv WebTech pe capturi → identificator/version parse valid → adaptoare OSV/vendor docs/search public → ResearchResult citat → lead/metodă candidată → aceeași frontieră Brain. Queryul conține produs/versiune publicabile, nu URL privat/client/PII/cookie/body/lexic privat. 429/backend fallback neaprobat/surse lipsă sunt blocaje, nu zero advisories. Rezultatul web/PoC este date neîncrezătoare; niciun cod recuperat nu se instalează/execută. Research Worker este copil nativ, intră în plafon și folosește tools Omnis cu egress propriu, nu web stock nelimitat.</p>
-<p><strong>Wordlists:</strong> reuse BBOT/CeWL/Kiterunner + subset Assetnote; generator pasiv determinist, fără spider/password lists. Păstrează raw/Unicode/short version tokens, provenance și caps înainte de admitere; CDN bytes au digest propriu, index SHA nu îi fixează. Input nou poate genera artifact nou sub recipe fixat. Fuzzerul este separat și fiecare request este Action autorizată; soft-404 se leagă de prefix/metodă/persona/epoch și se invalidează la drift. 401/403 nu se șterg generic. Ranking Jev este opțional și măsurat prin descoperiri utile/request, nu mărimea listei.</p>
+<p><strong>Wordlists:</strong> reuse BBOT/CeWL/Kiterunner + subset Assetnote; generator pasiv determinist, fără spider/password lists. Păstrează raw/Unicode/short version tokens, provenance și caps înainte de admitere; CDN bytes au digest propriu, index SHA nu îi fixează. Input nou poate genera artifact nou sub recipe fixat. Fuzzerul este separat și fiecare request este Action autorizată; soft-404 se leagă de prefix/metodă/persona/epoch și se invalidează la drift. 401/403 nu se șterg generic. Ranking Jev este opțional și măsurat prin descoperiri utile/request, nu mărimea listei. B10d califică numai artifactul/baseline-ul pe capturi prin G-WORDLIST-CORE, fără target IO; consumatorul B15 închide ulterior G-WORDLIST complet prin comparația integrată pe fixture. Nu cerem randamentul înainte să existe consumatorul.</p>
 <p><strong>Improvement:</strong> lesson aprobat → draft → review → eval vulnerable/fixed/benign/regresii → Publish exact digest → numai runuri noi. Reporting nu așteaptă improvement. Slot de maintenance serializat după quiescență, home de produs fără arhive de caz sau granturi copiate, <code>WAITING_FOR_RUNTIME_SLOT</code> când ocupat; nu al doilea writer Hermes și nu auto-learning global. Native background review/curator/staging HM03–HM05 oferă intrări editoriale, nu publisher; la pin, write_approval poate fail-open la import failure, curator dry-run este doar prompt în calea de consolidare, iar snapshotul review-ului nu este implicit sanitizat. De aceea releases RO și publisherul Omnis rămân frontiera. Lessons cross-run trec data policy, fără truth held-out sau transcripte brute.</p>
 <p>Cronul HM06 intră după ownership/draft/egress gates: <code>no_agent</code> enqueue cu wrapper trusted, apoi admission maintenance; nu cron LLM direct în home-ul activ și nu scheduler nou. Memoria/MCP/tool inventory se verifică (skip_memory nu este presupus); malformed wake nu este barieră fail-closed. Stop engagement oprește taskuri/research/dispatchuri model-target ale cazului; Stop maintenance oprește admiterea/jobs native și verifică quiescența, <strong>pause schedule ≠ worker stopped</strong>; Stop instance oprește ambele și păstrează datele. Maintenance nu moștenește aprobarea/bugetul cazului oprit. Restore începe stopped/locked, fără autoresume.</p>
 <h3 id="63-replan-rezultate-intarziate-si-obligatii-stabile">6.3. Replan, rezultate întârziate și obligații stabile</h3>
@@ -1280,9 +1280,9 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td><code>tasks/</code></td>
-<td>Task/attempt, bindings, inbox/continuări și priorități</td>
-<td><code>binding.py</code>, <code>continuations.py</code></td>
-<td>B06</td>
+<td>Task/attempt, root/child bindings, registry/briefs, inbox/continuări și chei dedup</td>
+<td><code>binding.py</code>, <code>module_registry.py</code>, <code>handoffs.py</code>, <code>continuations.py</code></td>
+<td>B06, extins B18a/b</td>
 </tr>
 <tr>
 <td><code>policy/</code></td>
@@ -1292,9 +1292,9 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td><code>identities/</code></td>
-<td>Persona/auth context, refresh/lease, epoch, secret refs</td>
-<td><code>vault.py</code>, <code>refresh.py</code></td>
-<td>B09</td>
+<td>Persona/auth context, Verify/check receipts, refresh/lease/epoch și seif</td>
+<td><code>vault.py</code>, <code>refresh.py</code> + routes/DTO cu primul formular</td>
+<td>B09h, apoi B09b browser</td>
 </tr>
 <tr>
 <td><code>surfaces/</code></td>
@@ -1334,15 +1334,16 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tr>
 <tr>
 <td><code>settings/</code></td>
-<td>Readiness provider, publicare catalog și data policy</td>
-<td><code>providers.py</code>, <code>skill_catalog.py</code></td>
-<td>B14/P4a</td>
+<td>Catalog/candidate/eval/publicare, readiness provider, profile/recipes, data policy și improvements</td>
+<td><code>skill_catalog.py</code> la seed, <code>providers.py</code> cu P4a, celelalte cu editor/maintenance</td>
+<td>B06a/b/P4a, apoi B14a/b/c</td>
 </tr>
 </tbody>
 </table></div>
 <p><strong>Șablon de modul, nu generator obligatoriu:</strong> <code>domain.py</code> (stdlib, invariants), <code>service.py</code> (use cases), <code>ports.py</code> (Protocol pentru I/O), <code>models.py</code> (ORM), <code>repository.py</code> (SQL), <code>schemas.py</code> (DTO Pydantic), <code>routes.py</code> (HTTP). Nu creăm cele șapte fișiere dacă felia nu are cele șapte responsabilități. Testele au același nume de modul: <code>api/tests/unit/engagements/test_domain.py</code>, <code>api/tests/integration/engagements/test_repository.py</code>, <code>api/tests/contracts/test_engagements_api.py</code>.</p>
 <p><strong>Navigare de produs:</strong> Home/Dashboard · Engagement · Settings; în engagement <strong>Overview · Brain stream · Findings · Coverage · Reports</strong>. <code>dashboard/</code> deține selecția/rezumatul global, <code>overview/</code> stadiu/atenție/metrici, <code>stream/BrainStreamPage.tsx</code> pagina de evenimente, <code>coverage/CoveragePage.tsx</code> matricea și subvederea <code>EndpointInventory.tsx</code>/<code>OperationInspector.tsx</code>. <code>investigations/</code> și Setup rămân rute secundare; Settings este global. Route map-ul canonic este UI/UX §2; hashurile prototipului, inclusiv <code>#map</code>, nu sunt contracte URL ale aplicației.</p>
 <p><strong>Exemplu web concret:</strong> <code>web/src/features/findings/FindingsPage.tsx</code>, <code>FindingDetail.tsx</code>, <code>EvidenceBundle.tsx</code>, <code>ValidatorDecision.tsx</code>, <code>ReportReview.tsx</code>, <code>api.ts</code>, <code>queryKeys.ts</code>, <code>FindingsPage.module.css</code> și teste <code>*.test.tsx</code> lângă componente. Streamul consumă proiecții de evenimente, nu loguri interne Hermes. <code>shared/ui/RunControls/</code> deține componenta, CSS Module și testele Stop/Pause/Start reutilizate. Portăm compoziția/tokenurile și fonturile locale cu licența, nu HTML-ul, reducerul sau datele DEMO; fixture-urile de teste nu intră în bundle-ul/DB-ul produsului.</p>
+<p><strong>Integrarea extinderilor:</strong> <code>integrations/research/</code> deține numai adaptoarele de surse și proiecția query la B10c; <code>integrations/jev/</code> deține SDK/transportul/controlul răspunsului la B06j/B14j, în mediul fixat separat. <code>executors/recon/</code> și adaptorul Nuclei apar cu B10a/B15n sub portul ToolDefinition comun. Domeniul/persistența rămân în monolit, nu în DB-uri alternative ale acestor adaptoare. <code>supervisor/maintenance.py</code> se introduce la B14c.1 pentru slot/control, nu scheduler nou. Subfeliile, input-output și criteriile pentru fiecare cale sunt în plan §4.2; arborele de mai sus nu cere crearea tuturor directoarelor în P0.</p>
 <p><strong>Executori:</strong> în fiecare pachet, <code>__main__.py</code> pornește workerul inert, <code>runner.py</code> execută numai acțiuni tipizate admise, <code>capture.py</code> păstrează output bounded. Browserul adaugă <code>contexts.py</code> și <code>action_window.py</code>; proxyul are <code>addon.py</code>, <code>policy_client.py</code>, <code>limits.py</code>, <code>readiness.py</code>. Adaptorul nativ Hermes expune numai binding/proiecții/unelte allowlisted. Proxyul rămâne neadmis până la B01e, indiferent că are deja un loc în arbore.</p>
 <h3 id="123-reguli-de-import-date-api-si-ui">12.3. Reguli de import, date, API și UI</h3>
 <ul>
@@ -1379,5 +1380,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [10] https://docs.mitmproxy.org/stable/concepts/how-mitmproxy-works — How mitmproxy works
 [11] https://docs.mitmproxy.org/stable/api/events.html — Event Hooks
 [12] https://docs.mitmproxy.org/stable/concepts/options — Options</p>
-<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>664ad67ae0844d79b84d2b59d1e1ae20f7840e7db2ecc5b20acec56d91d272ed</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_MVP_Architecture.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>96a94b4d0d32c532b5b53a91790662fa0d5d3439f3952c972c4f85da281a060f</code>.</p></footer>
 </main></div></body></html>

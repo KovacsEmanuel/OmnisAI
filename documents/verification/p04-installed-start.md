@@ -1,5 +1,7 @@
 # P0.4b / SL02 — comanda instalată start headless
 
+**Audit ulterior: CHANGES_REQUESTED.** [SC01/SC02](p04-start-completeness-review.md) sunt defecte noi confirmate pe același cod de produs, încă neremediate: incertitudine pierdută la terminarea prin semnal a copilului Docker și manifest imbricat cu excepție în afara protocolului JSON. Execuțiile PASS de mai jos și închiderile istorice rămân adevărate în scope; nu sunt acceptare fără omisiuni. Corecțiile preced SL03.
+
 ## Contract înainte de cod
 
 Bază verificată: `c4e8b4f67c3de715fca673f670e64ddb52a1bba1`, branch `p04-control-topology-wip`, tracked curat. Singurul untracked preexistent: `documents/Omnis_Notite_Originale.html`, protejat/neatins (SHA-256 `783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f`). Integrarea DB este închisă conform registrului său; PASS-ul de pe `bd06bcd` nu se transferă acestei felii.

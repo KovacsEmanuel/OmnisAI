@@ -4,6 +4,8 @@
 
 ## Pregătire explicită, separată de startup
 
+**Acceptare curentă: CHANGES_REQUESTED.** [SC01 și SC02](../documents/verification/p04-start-completeness-review.md) sunt abateri confirmate, neremediate, de la contractul de mai jos: moartea copilului Docker poate pierde incertitudinea cleanupului, iar manifestul JSON foarte adânc poate ieși cu 1/traceback în loc de JSON/exit 2. Gate-urile pozitive istorice nu le acoperă. Nu folosi acel PASS ca dovadă de cleanup universal; corecțiile SL02 preced SL03.
+
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 
 1. Pregătiți mediile din lockuri: `uv sync --locked --no-config --no-python-downloads --python 3.13.15 --directory cli`; API/web conform README-urilor lor.

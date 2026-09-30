@@ -11,10 +11,10 @@ Nu s-au rerulat aici suitele de produs. `PASS_LOCAL_RECORDED` înseamnă rezulta
 ## Unde suntem
 
 - **P0-control parțial:** P0.1/P0.2/P0.3 și SL01/SL02 au implementare și probe locale. Comanda instalată `omnis start --no-open` a trecut traseul real; aplicația nu este încă un MVP complet.
-- **Următorul increment de produs din plan:** SL03 / P0.4c / B01f pair/open, apoi SL04 / P0.4d stop/recovery. B02/P1-data vine după G00, nu după un simplu start reușit.
+- **Prioritate imediată:** remedierea SC01/SC02 în SL02. Următoarea subfelie nouă din plan rămâne SL03 / P0.4c / B01f pair/open, apoi SL04 / P0.4d stop/recovery. B02/P1-data vine după G00, nu după un simplu start reușit.
 - **G00 deschis; CI remote NOT-RUN; assessment_ready=false.** Pair/open în CLI, stop durabil, runtime Hermes, provideri și motorul de assessment nu sunt livrate de SL02.
 - **Review aprobat în scope:** constatările F1/R1–R7/IPC/B1–B4 ale SL02 sunt închise punctual în [registrul SL02](p04-installed-start.md). Acest fapt nu este o garanție că toate cerințele întregului plan au fost implementate sau auditate.
-- **În review separat:** auditul de completitudine cerut după predarea SL02; până la adjudecarea unui raport complet nu îi atribuim verdict. Actualizarea acestei hărți nu îl închide.
+- **Review actual: CHANGES_REQUESTED.** [Auditul de completitudine adjudecat](p04-start-completeness-review.md) a găsit două defecte noi, SC01 (incertitudine pierdută la moartea copilului Docker) și SC02 (manifest imbricat rupe JSON/exit). Părintele le-a reprodus pe codul instalat identic cu HEAD: RED. Sunt confirmate și **neremediate**; aprobările/probele istorice nu sunt șterse și nu le închid. Inventarul global este verificat separat, nu aprobarea produsului.
 - **Proces de dezvoltare, nu funcție MVP:** `omnis-project-status` este implementat și verificat local în `0566436`, conform [contractului și probelor](project-status-skill.md). Rutarea delivery/review/CONTRIBUTING este livrată; regula suplimentară în AGENTS este INSTRUCTIONS_UPDATE_BLOCKED (aprobare expirată), fără bypass. Nu schimbă următoarea felie de produs și nu reprezintă review independent de completitudine al MVP-ului.
 
 ## Legendă: trei axe independente
@@ -44,9 +44,9 @@ Ordinea de mai jos păstrează ID-urile canonice; **nu este o coadă strict lini
 | ID | Fază / ticket canonic | Rezultat urmărit | Cod | Probe | Review | Rest / dependență / limită | Sursă |
 |---|---|---|---|---|---|---|---|
 | SL01 | P0.4a / prerechizit B01c | Fixture PostgreSQL privat și runner comun | IMPLEMENTED | PASS_LOCAL_RECORDED | APPROVED_SCOPED | Date păstrate; nu închide G00 | [DB](p04-test-db-integration.md) |
-| SL02 | P0.4b / B01f start | Start headless instalat, readiness/status, reuse și cleanup propriu | IMPLEMENTED | PASS_LOCAL_RECORDED | APPROVED_SCOPED | Pair/open și stop durabil lipsesc; negativele și limitele sunt în registru | [SL02](p04-installed-start.md) |
+| SL02 | P0.4b / B01f start | Start headless instalat, readiness/status, reuse și cleanup propriu | IMPLEMENTED | PASS_LOCAL_RECORDED | CHANGES_REQUESTED | SC01/SC02 confirmate, neremediate; acceptarea completă blocată. PASS-urile rămân istorice/scoped | [Livrare](p04-installed-start.md), [audit ulterior](p04-start-completeness-review.md) |
 | SL03 | P0.4c / B01f pair/open | Pairing TTY-only și deschiderea browserului verificat | NOT_IMPLEMENTED | NOT_RUN | NOT_REVIEWED | CLI pair/open lipsesc; reutilizează pairingul API/web P0.2–P0.3 | [Plan §4.2/§19.2](../Omnis_Implementation_Plan.md) |
-| SL04 | P0.4d / B01f stop/recovery | Stop/recovery operațional, concurență și persistență | PARTIAL | PARTIAL | NOT_REVIEWED | Există bariera/lease/fencing și status; comenzile și gate-ul lifecycle complet lipsesc | [Plan §4.2/§19.2](../Omnis_Implementation_Plan.md) |
+| SL04 | P0.4d / B01f stop/recovery | Stop/recovery operațional, concurență și persistență | NOT_IMPLEMENTED | NOT_RUN | NOT_REVIEWED | Există fundația barieră/lease/fencing și status; aceasta nu livrează rezultatul stop/recovery al SL04 | [Plan §4.2/§19.2](../Omnis_Implementation_Plan.md) |
 | SL05 | P1-data / B02 | Engagement draft/revizie/scope persistent | NOT_IMPLEMENTED | NOT_RUN | NOT_REVIEWED | După G00; migrare și API B02 | [Plan §6](../Omnis_Implementation_Plan.md) |
 | SL06 | P1-web / B03–B04 | Dashboard/setup pe date reale | NOT_IMPLEMENTED | NOT_RUN | NOT_REVIEWED | După B02; bootstrapul nu este experiența P1 | [Plan §6](../Omnis_Implementation_Plan.md) |
 | SL07 | P2-inert / B05 | Runtime-host Hermes nativ inert | NOT_IMPLEMENTED | NOT_RUN | NOT_REVIEWED | După B02/G00; handshake, pin, home izolat | [Plan §7](../Omnis_Implementation_Plan.md) |

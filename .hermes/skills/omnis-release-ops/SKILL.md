@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.6
+version: 0.1.7
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -46,6 +46,9 @@ Host Playwright/Chromium validation is not certification of the planned executor
 - For a canonical PostgreSQL test gate on Docker Engine <28, a Unix Docker endpoint does not prove the daemon shares the runner's network namespace; `network_mode: host` grants host egress even if PostgreSQL binds `127.0.0.1`, and a matching volume name does not prove fresh disposable data. Prefer an internal/no-network PG18 container exposed to the host only through a private authenticated UDS bind; attest image/volume/socket provenance and permissions before any DDL and preserve the volume on owned teardown. Do not certify an intermediate WIP `make check` as safe while that fixture is unresolved.
 - For an installed control-topology proof, compare the **complete** runtime mount set and security settings, not only an expected mount's presence: DB data writable plus its secret file read-only, API/supervisor exact private binds, mapped UID, read-only rootfs, dropped capabilities, no-new-privileges, internal network and zero Docker ports. Mutate each boundary in both the installed Compose contract and runtime inspect channel, then exercise actual installed containers; static config alone is not confinement. A forwarder exit between `poll()` and `killpg()` or a failed one-off `rm` must not skip other attested cleanup; attempt all owned teardown actions and report combined uncertainty instead of STOPPED, preserving DB data.
 - A socket timeout is per `recv`, not a total HTTP response deadline. `http.client.HTTPResponse.begin()/read()` can be held indefinitely by a peer trickling headers/body; `makefile()` uses `recv_into`. Apply one monotonic remaining budget across connect/send/`recv`/`recv_into`, cap response bytes, refuse redirects and ambient proxies, and test real UDS and fixed-loopback trickle peers on the same evidence channel. The outer readiness loop is a separate budget, not a substitute for bounding one request.
+
+- For installed startup, lock the installation/project as well as the state root: two XDG state roots can share one image receipt/project. Record a fresh attempt nonce before creation, bind services and network to it, and attest IDs/image/daemon/configuration/mounts/IPC together; use no-recreate, never a label or PID alone. Re-read daemon/family uncertainty immediately before DB teardown, including uncertainty raised by an earlier remove. Preserve forwarder handles on failed readiness and preserve exit 4 if the cleanup journal cannot be written.
+- In an installed-command observer, persist a private recovery locator before launch and in an outer finally. Verify FAILED_CLEANED against exact absence before rescue; compare timestamps/restart counts, not only CIDs, on retry. Never rescue an unsettled daemon/writer outcome into a passing cleanup. Exercise a read-only startup phase for a clean SIGTERM proof; uncertainty controls remain explicitly distinct. Reclaim a fresh attempt's stale IPC only after settled container teardown, under the original service locks, with private inode/type/mode checks and a refused UDS connection; never delete lock files or signal their contents.
 
 ## Verification
 A clean checkout reproduces checks/build from locked inputs, deployment scope remains private, restoration has been exercised and every blocked gate is visible. Versioned instructions state what actually ran and how to undo external changes.

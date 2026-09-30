@@ -162,5 +162,25 @@ class SkillPatternContracts(unittest.TestCase):
         self.assertIn("namespace", gate[0])
 
 
+    def test_rework_closes_an_exact_original_obligation_without_overwrite(self):
+        rules = section(document("MVP_Architecture"), "### 9.10. Completitudine metodologică și rework")
+        rows = re.findall(r"(?m)^\| `MethodResolution`[^\n]*$", rules)
+        self.assertEqual(len(rows), 1)
+        for field in ["origin_brief_ref: Ref", "origin_result_ref: Ref",
+                      "origin_requirement: MethodRequirementRef", "successor_result_ref: Ref",
+                      "successor_requirement: MethodRequirementRef", "successor_check_ref: Ref",
+                      "successor_review_ref: Ref?", "qualification_ref: Ref", "resolution_rule_ref: Ref",
+                      "RESOLVED/REVALIDATION_REQUIRED/INELIGIBLE"]:
+            self.assertIn(field, rows[0])
+        for token in ["R0/C0", "R1/C1", "append-only", "StepOutputRef cross-attempt",
+                      "subprocedură publicată", "nu rescrie", "obligația curentă"]:
+            self.assertIn(token, rules)
+        plan = document("Implementation_Plan")
+        gate = re.findall(r"(?m)^\| G-METHOD / B18a\.r \|[^\n]*$", plan)
+        self.assertEqual(len(gate), 1)
+        self.assertIn("MethodResolution", gate[0])
+        self.assertIn("MethodResolution", document("UI_UX_Spec"))
+
+
 if __name__ == "__main__":
     unittest.main()

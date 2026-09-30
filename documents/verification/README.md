@@ -6,6 +6,8 @@
 
 ## Amendamente autorizate, incorporate în canon
 
+[Amendamentul skill-uri/copii din notițele originale](omnis-skill-pattern-amendment.md) păstrează sursa, cele 19 decizii de adaptare și limitele native; contractele și ordinea se introduc în același canon.
+
 [Deep review-ul de flux și livrare](omnis-deep-review.md) urmărește dependențele implicite și scenariile cap-coadă după HF01–HF10; verdictul și remediile sunt separate de gate-urile runtime.
 
 [Verificarea amendamentului HF01–HF10](omnis-amendment-verification.md) consemnează codul documentar schimbat, review-urile, comenzile reale PASS/FAIL/BLOCKED/NOT-RUN și WIP-ul păstrat; nu este un nou plan.

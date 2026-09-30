@@ -1,10 +1,12 @@
 # P0.4 — integrarea autorizată a fixture-ului DB privat
 
-**Contract de lucru, încă în curs.** Bază locală `7916dea86a74ea96932285d65b27ae46b9516fe5`, branch `p04-control-topology-wip`. Operatorul a autorizat explicit integrarea WIP/DB disposable după amendamentele arhitecturale. Nu este autorizarea unui assessment, provider, launcher sau promovarea ownerului exec.
+**Integrare închisă — PASS local.** Gate-ul complet a trecut pe revizia `bd06bcd45671c1d45e804f955bf0abee6d6ef163`, cu review-uri și cleanup independent verificate. Secțiunile inițiale de mai jos păstrează cronologia checkpointurilor, nu blocaje încă active. G00, launcherul și CI remote rămân separate.
+
+**Contract autorizat.** Bază locală `7916dea86a74ea96932285d65b27ae46b9516fe5`, branch `p04-control-topology-wip`. Operatorul a autorizat explicit integrarea WIP/DB disposable după amendamentele arhitecturale. Nu este autorizarea unui assessment, provider, launcher sau promovarea ownerului exec.
 
 ## Scop și conservare
 
-Integrarea adoptă cele șase fișiere WIP enumerate în plan §19.2: suport URL în `api/src/omnis/core/db.py`, testele URL/fixture, `ops/compose.test.yaml`, `ops/run_test_db_gate.py` și testele development ale runnerului. Extinde numai conftest, Make/CI și documentele de utilizare/status necesare aceluiași contract. Sursa `documents/Omnis_Notite_Originale.html` rămâne untracked, nemodificată și nestaged. Fără reset/stash sau includerea altor schimbări.
+Integrarea adoptă cele șase fișiere WIP enumerate în plan §19.2: suport URL în `api/src/omnis/core/db.py`, testele URL/fixture, `ops/compose.test.yaml`, `ops/run_test_db_gate.py` și testele development ale runnerului. Extinde conftest, Make/CI, documentele de utilizare/status și consumatorii necesari aceluiași contract; corecția fixture-ului CLI a primit autorizarea separată documentată mai jos. Sursa `documents/Omnis_Notite_Originale.html` rămâne untracked, nemodificată și nestaged. Fără reset/stash sau includerea altor schimbări.
 
 Backupul WIP și hashurile before sunt în `/home/kali/.hermes/cache/scratch/omnis-db-integration-7916dea/`; nu sunt runtime data și nu se publică drept implementare. La descoperire existau containere pornite străine, inclusiv un proiect DB Omnis anterior; niciunul nu este adoptat/oprit. Imaginea PG18.6 fixată există local. API/CLI venv sunt Python 3.13.15; Node/npm/uv ambientale nu sunt pinurile, deci folosim executabilele izolate verificate, fără schimbarea toolurilor globale.
 
@@ -13,7 +15,7 @@ Backupul WIP și hashurile before sunt în `/home/kali/.hermes/cache/scratch/omn
 1. URL PostgreSQL cu host UDS codificat canonic ajunge la același socket prin SQLAlchemy/psycopg; host absent, query/PG overrides și encodări ambigue refuzate; TCP intern de produs păstrat.
 2. Un root scratch **nou**, privat, cu date/secret sintetice și proiect unic. PG rulează cu UID-ul operatorului, network_mode=none, fără porturi/privileged/capabilities adăugate; SCRAM inclusiv local. Nu migrează date existente.
 3. Runnerul atestă endpoint/daemon, image/container/project/mounts/socket și system_identifier; scrie un manifest privat fără parolă. Același attestor este consumat de conftest înainte de CREATE/DROP, plus verificarea identității conexiunii reale. Configurația nu se rezolvă prin port lookup sau loopback presupus.
-4. Runnerul rulează gate-ul complet existent, nu îl înlocuiește cu o suită redusă; Make/CI folosesc aceeași cale și medii exacte. Timeout/interrupt trebuie să oprească grupul de teste propriu înainte de DB teardown, cu rezultate incerte distincte.
+4. Runnerul rulează gate-ul complet existent, nu îl înlocuiește cu o suită redusă; Make/CI folosesc aceeași cale și medii exacte. Timeout/interrupt trebuie să dreneze familia de procese de test proprie înainte de DB teardown, cu rezultate incerte distincte.
 5. Probe pozitive/negative înainte de DDL, apoi `make check` real pe DB proprie nouă, inclusiv migrări/installed wheel/backend E2E. Review independent pe cod și corecții. Pe lipsă prerechizit se raportează blocker, nu date sintetizate ca output.
 6. La final se verifică absența exactului container/rețelei/socketului propriu și păstrarea PGDATA/manifestului/logurilor private, fără cleanup global. Cod/config/docs în commituri mici; checkoutul de verificare finală fără modificări tracked intenționate.
 
@@ -28,7 +30,7 @@ Before: rootul/proiectul/CID-ul probei sunt absente; intenția și ID-urile nese
 - Conftest/CI TCP versus Compose UDS: incompatibilitatea este prezentă; runnerul este încă probe-only.
 - Nicio DB nouă nu a fost pornită la acest checkpoint. G00 rămâne deschis și launcherul nu intră în această felie.
 
-## Probe de integrare în curs
+## Probe de integrare — cronologie
 
 - Review-ul independent inițial (`preintegration-review.md` în scratch) a identificat virgula libpq în host UDS, nepotrivirea conftest/CI, limitele lifecycle și lungimea căii. Virgula și aliasurile de cale au fost reproduse RED, corectate și verificate în 11 teste URL/dialect; commit `132c6f0`. Niciun driver nu a fost conectat de aceste teste pure.
 - Conftest folosește acum receiptul JSON strict de la același attestor `--attest`, apoi verifică system_identifier pe conexiunea reală; URI-ul encoded rămâne în env/fixture, decode numai în engine/kwargs driver. Controalele unit/config/process ale runnerului au 18 PASS, inclusiv timeout, exit timpuriu cu descendent și SIGTERM real către procesul de test, nu containere străine. Ruff/format și mypy API au trecut; nu este încă verdictul review-ului final.
@@ -62,13 +64,46 @@ Diagnosticul pasiv al aceluiași test a dat 2 PASS/1 FAIL în trei execuții. Î
 
 Remediul din `cli/tests/test_forwarder.py` fixează SO_RCVBUF numai pe listenerul fixture-ului, înainte de accept, cu readback 8192; shim-ul procesului copil execută apoi entrypointul real instalat prin `runpy`, cu aceleași argumente. Nu schimbă sursa produsului, limitele de trafic, deadline-urile, aserțiunile send/drain pending, observarea octeților reali, SIGTERM sau cleanup-ul. Niciun sysctl/global socket tuning. Probe: testul focalizat PASS, apoi trei repetări diagnostice PASS cu rb8192 și ambele direcții pending, 43 teste CLI sursă + 43 în wheel instalat din afara checkoutului PASS, Ruff/format și diff check PASS. Review independent al deltei: **PASS bounded** (`cli-backpressure-review.md`), inclusiv comparație AST care confirmă că toate aserțiunile existente au rămas intacte și entrypointul instalat este cel executat. Verificarea ad-hoc a diagnosticului a trecut separat cu trei observații reale; verificatorul temporar a fost șters. Noul gate complet se rulează după commit; aceste probe nu îl substituie.
 
+## Verdict final și probe pe codul comis
+
+**PASS — `make check`, exit 0**, proces `proc_9a588aebb70a`, revizie testată `bd06bcd45671c1d45e804f955bf0abee6d6ef163`. Checkoutul tracked a fost curat la pornire și după execuție; nu s-a schimbat cod/config/test în timpul gate-ului. Comanda efectivă, cu toolchain-ul izolat deja pregătit:
+
+```sh
+export PATH="/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/node-v24.21.0-linux-x64/bin:/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools:$PATH"
+make check UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv
+```
+
+| Componentă executată în această rulare | Rezultat |
+|---|---|
+| Documente și readers | 54 teste PASS; cinci HTML sincronizate |
+| Development | 35 teste PASS, inclusiv 24 controale ale runnerului; anti-slop PASS |
+| API | 218 teste PASS |
+| Migrări / installed wheel | 10 teste PASS |
+| Web | 6 tooling + 20 unit + 7 E2E pe backend real PASS |
+| CLI | 43 sursă + 43 wheel instalat din afara checkoutului + 1 integrare DB PASS |
+| Release/install checks | 31 teste PASS |
+| Lint / format / typecheck / contracte / audit / build | PASS; `git diff --check` final PASS |
+
+Manifestul și logul execuției sunt în `/home/kali/.hermes/cache/scratch/db-be972dd092e64dcb/` (`fixture.json`, `gate.log`, `gate.log.result.json`). Proiect `omnis-p01-4712316ea42e4e39ae7dfcad5838b573`, CID `40d7f71271c0cf1b682b4c78b149c57dfdab21dc0237f60a0b08697748074a92`, PostgreSQL 18.6, system_identifier `7691317941618749470`; imaginea este pinul atestat de runner, nu un tag floating.
+
+**Cleanup verificat independent:** interogare pe endpointul exact din manifest și comparație daemon_id înainte/după; CID absent, zero containere/rețele pentru proiect, socket absent prin lexists. Receipt `{schema_version:1,code:0,family_drained:true}`; PG_VERSION=18 păstrat. Root 0700, manifest și fișierul de credențiale 0600, toate deținute de operator; conținutul credențialelor nu a fost afișat/comis. Datele rămân în scratch, nu reprezintă backup permanent. Nu s-a adoptat sau oprit un cluster existent.
+
+**Review și conservare:** review-ul de integrare și re-review-urile au toate constatările concrete închise; ultimul guard DB și delta fixture CLI au PASS independent bounded, nu certificare universală. Verificarea separată a cititoarelor a trecut 116 controale Chromium fără erori JS/cereri externe; cititoarele n-au fost schimbate de corecția CLI. Cele șase copii WIP originale au hashurile inițiale, iar HTML-ul original este byte-identic și rămâne untracked/nestaged. Codul produsului CLI nu s-a schimbat; nicio migrare de schemă nouă.
+
+**NOT-RUN / neînchis în această felie:** CI remote, targeturile OCI opt-in `check-control-image` / `check-installed-image` / `check-installed-control`, launcherul, provideri/model/Jev, assessment sau comparație live Omnis–Strix. G00 rămâne deschis; gate-ul local nu produce assessment readiness. `make test` este aliasul aceleiași căi; nu este raportat ca a doua execuție independentă. Nu s-a făcut push.
+
+Următoarea felie de produs rămâne launcherul instalat din plan §19.2, cu autorizare proprie. Eșecurile de mai sus sunt păstrate ca istoric; niciun rezultat parțial sau diagnostic ad-hoc nu a fost substituit acestui gate complet.
+
 ## Commituri și închidere
 
 - `dcb75c3` — autorizare, scope și rollback înainte de efecte.
 - `132c6f0` — URL UDS canonic/single-destination + probe.
 - `3750bff` — consumatorul installed-process guard acceptă numai DB UDS declarată.
 - `0c61a78` — fixture/attestor/runner/Make/CI integrate, inclusiv guardul final de teardown și controalele sale.
+- `afaae96` — documentele de utilizare/status, readers și procedurile de proiect.
+- `e2aab07` — verdictul review-ului DB, eșecul CLI și extinderea punctuală autorizată.
+- `bd06bcd` — fixture CLI determinist pentru backpressure; revizia gate-ului final.
 
 Codul, istoricul erorilor și documentele de utilizare sunt păstrate separat de datele private. Următoarea felie este launcherul instalat din plan §19.2, nu încă o extindere a harnessului.
 
-**Re-review final: PASS bounded.** `final-guard-review.md` confirmă exact cele două atribuiri ale părintelui și regresia PermissionError, plus reap-ul non-blocking al adoptaților morți, fără semnalizare. Reviewerul a verificat AST/fluxul, nu a rerulat probele live. Codul relevant este în `0c61a78`; documentele și cititoarele în `afaae96`. Rerularea pe acel checkout tracked curat (numai HTML-ul original untracked) a eșuat ulterior la precondiția CLI documentată mai sus, fără editări de cod în timpul execuției. Nu schimbă verdictul review-ului punctual, dar blochează acceptarea completă până la remediul autorizat și un nou gate real. Fără push implicit.
+**Re-review final al guardului DB: PASS bounded.** `final-guard-review.md` confirmă exact cele două atribuiri ale părintelui și regresia PermissionError, plus reap-ul non-blocking al adoptaților morți, fără semnalizare. Reviewerul a verificat AST/fluxul, nu a rerulat probele live. Codul relevant este în `0c61a78`; documentele și cititoarele în `afaae96`. Rerularea pe acel checkout tracked curat (numai HTML-ul original untracked) a eșuat ulterior la precondiția CLI documentată mai sus, fără editări de cod în timpul execuției. Eșecul nu a schimbat verdictul review-ului punctual, dar a blocat acceptarea până la remediul `bd06bcd` și gate-ul complet PASS consemnat mai sus. Commitul de închidere care conține acest verdict schimbă doar registrul de dovezi, nu codul testat. Fără push implicit.

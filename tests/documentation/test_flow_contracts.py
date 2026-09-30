@@ -37,5 +37,19 @@ class FlowContracts(unittest.TestCase):
         self.assertIn("OPERATOR_CHECK", document("Implementation_Plan"))
 
 
+    def test_candidate_evaluation_precedes_publish_and_step_outputs_are_typed(self):
+        architecture = document("MVP_Architecture")
+        evaluation = section(architecture, "### 9.8. Evaluarea candidatului și publicarea fără ciclu")
+        for token in ["CandidateSnapshot", "PACKAGE_EVAL", "CONTRACT_PROBE", "ASSESSMENT",
+                      "STATIC_PASS", "PURE_PASS", "FIXTURE_PASS", "EvaluationReceipt",
+                      "același digest", "operatorul unic", "autorul AI"]:
+            self.assertTrue(token in evaluation, f"Missing evaluation rule: {token}")
+        package = section(architecture, "### 9.4. Catalog: pachet, tehnică și procedură")
+        for token in ["StepOutputRef", "STEP_OUTPUT", "output_name", "ciclu", "bound_procedure_ref"]:
+            self.assertTrue(token in package, f"Missing step binding: {token}")
+        self.assertIn("CandidateSnapshot", document("Implementation_Plan"))
+        self.assertIn("candidatul", document("UI_UX_Spec"))
+
+
 if __name__ == "__main__":
     unittest.main()

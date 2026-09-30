@@ -1,10 +1,18 @@
 """Read-only status; a private supervisor ACK is not proof of HTTP ownership."""
 
+import http.client
 import json
+import os
+import subprocess
 import sys
+import time
+from pathlib import Path
 
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
+from .lifecycle import StartError, read_record
+from .start import verify_running
+from .start_runtime import ControlRuntime
 
 
 def status(*, as_json: bool) -> int:
@@ -50,11 +58,42 @@ def status(*, as_json: bool) -> int:
                 reason="HTTP_UNVERIFIED",
             )
             exit_code = 0
+    if os.path.lexists(root / "startup.json"):
+        # Installed lifecycle receipts opt into HTTP only after exact ownership.
+        # Legacy status-only locators remain conservative and never contact a port.
+        try:
+            record = read_record(root / "startup.json")
+            port = record.get("port")
+            if record.get("phase") != "READY" or type(port) is not int:
+                raise StartError("RECOVERY_REQUIRED", 4)
+            data = os.environ.get("XDG_DATA_HOME")
+            runtime = ControlRuntime(
+                Path(data) if data else Path.home() / ".local/share", time.monotonic() + 30
+            )
+            verified = verify_running(runtime, root, control_dir(root), record, port)
+            if read_record(root / "startup.json") != record:
+                raise StartError("LIFECYCLE_CHANGED", 4)
+            result = verified
+            result.pop("reused")
+            exit_code = 0
+        except (
+            OSError,
+            ValueError,
+            ControlUnavailable,
+            http.client.HTTPException,
+            subprocess.SubprocessError,
+        ) as exc:
+            result.update(
+                state="UNAVAILABLE",
+                dashboard_ready=False,
+                reason=exc.reason if isinstance(exc, StartError) else "READINESS_UNAVAILABLE",
+            )
+            exit_code = exc.code if isinstance(exc, StartError) else 3
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:
         print(
-            f"Omnis: {result['state']} (dashboard_ready=false, {result.get('reason', 'no instance')})"
+            f"Omnis: {result['state']} (dashboard_ready={str(result['dashboard_ready']).lower()}, {result.get('reason') or 'verified'})"
         )
         if result.get("origin"):
             print(f"Origin configurat: {result['origin']}")

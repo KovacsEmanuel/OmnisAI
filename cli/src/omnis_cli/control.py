@@ -26,7 +26,9 @@ def _uuid(value: object) -> bool:
         return False
 
 
-def request(directory: Path, command: dict[str, object]) -> dict[str, object]:
+def request(
+    directory: Path, command: dict[str, object], *, deadline: float | None = None
+) -> dict[str, object]:
     try:
         private_dir(directory)
         info = (directory / "control.sock").lstat()
@@ -39,7 +41,9 @@ def request(directory: Path, command: dict[str, object]) -> dict[str, object]:
         cap = private_file(directory / "control.cap", limit=64)
         if not re.fullmatch(r"[0-9a-f]{64}", cap):
             raise ControlUnavailable()
-        deadline = time.monotonic() + 2
+        deadline = (
+            min(deadline, time.monotonic() + 2) if deadline is not None else time.monotonic() + 2
+        )
 
         def remaining() -> float:
             budget = deadline - time.monotonic()

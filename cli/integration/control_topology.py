@@ -763,6 +763,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     env = {
         "PATH": os.environ.get("PATH", ""),
         "OMNIS_PROJECT": project,
+        "OMNIS_START_ATTEMPT": project.removeprefix("omnis-local-"),
         "OMNIS_IMAGE_ID": receipt.image_id,
         "OMNIS_UID": str(os.getuid()),
         "OMNIS_GID": str(os.getgid()),

@@ -626,6 +626,7 @@ class ReleaseBundleTest(unittest.TestCase):
         env = {
             "PATH": os.environ.get("PATH", ""),
             "OMNIS_PROJECT": project,
+            "OMNIS_START_ATTEMPT": uuid4().hex,
             "OMNIS_IMAGE_ID": image,
             "OMNIS_UID": str(os.getuid()),
             "OMNIS_GID": str(os.getgid()),

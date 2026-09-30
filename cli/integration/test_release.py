@@ -568,6 +568,11 @@ class ReleaseBundleTest(unittest.TestCase):
                 from control_topology import run_probe
 
                 run_probe(data, state, scratch, cli)
+            if os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1":
+                from installed_start import run_installed_start, run_interrupted_start
+
+                run_installed_start(data, state, scratch, cli)
+                run_interrupted_start(data, state, cli)
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"

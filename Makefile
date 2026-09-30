@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract check-installed-start,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -131,21 +131,26 @@ check-release-install: check-cli-wheel build-web
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix ops/build_control_bundle.py cli/integration
 	$(API_PY) -I -m ruff format --config api/pyproject.toml --check ops/build_control_bundle.py cli/integration
 	@env -u PYTHONPATH MYPYPATH=cli/src $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json ops/build_control_bundle.py
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
 
 # Explicit OCI proof only: the base must already be pulled by its platform digest.
 check-control-image: check-release-install
 	@$(CLI_PY) -I -c 'import os; assert not any(k.startswith("DOCKER_") for k in os.environ), "Ambient Docker override"'
 	@docker context inspect "$$(docker context show)" --format '{{(index .Endpoints "docker").Host}}' | $(CLI_PY) -I -c 'import pathlib,sys; h=sys.stdin.read().strip(); assert h.startswith("unix://") and pathlib.Path(h[7:]).is_socket()'
 	docker image inspect 'python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a' --format '{{.Id}} {{.Architecture}}'
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_IMAGE_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_IMAGE_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
 
 # Explicit image install/readback in disposable XDG data; never at normal startup.
 check-installed-image: check-release-install
 	@$(CLI_PY) -I -c 'import os; assert not any(k.startswith("DOCKER_") for k in os.environ), "Ambient Docker override"'
 	@docker context inspect "$$(docker context show)" --format '{{(index .Endpoints "docker").Host}}' | $(CLI_PY) -I -c 'import pathlib,sys; h=sys.stdin.read().strip(); assert h.startswith("unix://") and pathlib.Path(h[7:]).is_socket()'
 	docker image inspect 'python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a' --format '{{.Id}} {{.Architecture}}'
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+
+# Opt-in installed product command. Explicit image preparation precedes startup.
+.PHONY: check-installed-start
+check-installed-start: check-release-install
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_START_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -p test_release.py -k test_real_api_web_and_cli_bundle_is_checkout_independent -v
 
 # Opt-in real P0 topology only, isolated bind data and owned teardown; not omnis start.
 check-installed-control: check-release-install
@@ -153,4 +158,4 @@ check-installed-control: check-release-install
 	@docker context inspect "$$(docker context show)" --format '{{(index .Endpoints "docker").Host}}' | $(CLI_PY) -I -c 'import pathlib,sys; h=sys.stdin.read().strip(); assert h.startswith("unix://") and pathlib.Path(h[7:]).is_socket()'
 	docker image inspect 'postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650' --format '{{.Id}} {{.Architecture}}'
 	docker image inspect 'python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a' --format '{{.Id}} {{.Architecture}}'
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_CONTROL_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_CONTROL_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v

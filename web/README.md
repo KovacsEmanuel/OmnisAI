@@ -2,7 +2,7 @@
 
 React/TypeScript/Vite consumă API-ul real pentru pairing, sesiune, logout și statusul instanței. Nu importă modelul/scripturile prototipului, nu creează engagementuri și nu pornește assessmenturi. Funcțiile ulterioare sunt `UNAVAILABLE`/`NOT_RUN`, cu motiv. Launcherul `omnis` și emiterea codului pe TTY aparțin P0.4; nu există endpoint public de emitere.
 
-**HF01–HF10 în specificație, nu în acest bootstrap:** selectorul general/focused, obiectivul Brain, Skills/Jev/Runtime și findingurile se livrează în felii P1+ din plan. Nu activăm butoane false sau date DEMO pentru amendamentul documentar. E2E/backend gate rămân BLOCKED până la integrarea/atestarea fixture-ului DB UDS WIP versus conftest/CI TCP; probele P0.3 de mai jos sunt istorice.
+**HF01–HF10 în specificație, nu în acest bootstrap:** selectorul general/focused, obiectivul Brain, Skills/Jev/Runtime și findingurile se livrează în felii P1+ din plan. Nu activăm butoane false sau date DEMO pentru amendamentul documentar. Fixture-ul DB este acum integrat/atestat pe UDS/no-network; E2E/backend au trecut în gate-ul local de pe `bd06bcd`, conform [registrului final DB](../documents/verification/p04-test-db-integration.md). Probele P0.3 de mai jos rămân istorice; CI remote și G00 nu sunt închise.
 
 ## Mediu și comenzi reproductibile
 

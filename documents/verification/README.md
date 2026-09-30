@@ -10,6 +10,8 @@
 
 [Auditul de completitudine SL02](p04-start-completeness-review.md) este adjudecat ulterior predării: SC01/SC02 confirmate de părinte și încă neremediate, **CHANGES_REQUESTED**. Include distincția între probele pozitive istorice, cele două GAP-uri și limitele PARTIAL; nu reface infrastructura DB și nu inventează un plan concurent.
 
+[Promptul de remediere SC01/SC02](p04-start-remediation-prompt.md) este handoff-ul de execuție pentru agent: scope, regresii, review și gate-uri separate. **Pregătit, NOT_EXECUTED** — existența promptului nu închide defectele; statusul pentru operator se afișează direct în chat, iar documentele păstrează continuitatea implementării.
+
 [Amendamentul skill-uri/copii din notițele originale](omnis-skill-pattern-amendment.md) păstrează sursa, cele 19 decizii de adaptare și limitele native; contractele și ordinea se introduc în același canon.
 
 [Deep review-ul de flux și livrare](omnis-deep-review.md) urmărește dependențele implicite și scenariile cap-coadă după HF01–HF10; verdictul și remediile sunt separate de gate-urile runtime.

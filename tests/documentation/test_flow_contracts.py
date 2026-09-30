@@ -22,5 +22,20 @@ class FlowContracts(unittest.TestCase):
         self.assertIn("B06m", owner[0])
 
 
+    def test_pre_run_checks_and_brain_have_honest_authority_contexts(self):
+        architecture = document("MVP_Architecture")
+        contexts = section(architecture, "### 9.7. Emitent și context înainte de primul copil")
+        for token in ["RUN_TASK", "BRAIN_TURN", "OPERATOR_CHECK", "LOGIN_VERIFY",
+                      "HEALTH_CHECK", "CheckReceipt", "cancel_epoch", "fără copil fictiv",
+                      "snapshot_ref", "mission_ref", "G-AUTH-HTTP"]:
+            self.assertTrue(token in contexts, f"Missing execution context rule: {token}")
+        invocation = re.findall(r"(?m)^\| `ToolInvocation` \|.*$", architecture)
+        self.assertEqual(len(invocation), 1)
+        self.assertIn("context: ExecutionContext", invocation[0])
+        ui = document("UI_UX_Spec")
+        self.assertIn("Cancel check", ui)
+        self.assertIn("OPERATOR_CHECK", document("Implementation_Plan"))
+
+
 if __name__ == "__main__":
     unittest.main()

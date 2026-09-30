@@ -1,7 +1,7 @@
 ---
 name: omnis-project-status
 description: "Use when orienting or closing an Omnis work slice."
-version: 0.1.1
+version: 0.1.2
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -19,7 +19,7 @@ Use repository Git and versioned project memory; no new service, dependency or m
 
 ## When to Use
 
-- At the end of every implementation slice, subphase, phase or review prompt, including a blocked handoff.
+- At the end of every completed Omnis task/prompt: implementation slice, subphase, phase, review, documentation or handoff preparation, including blocked work. Show the matrix in the final chat response, not on every intermediate tool/progress message.
 - At session entry, after context loss, or when the operator asks where Omnis stands.
 - To reconcile a concrete change of plan, implementation, evidence or review status.
 - Not for marking the entire MVP complete from one gate, reopening accepted design, or implementing the next phase without authorization.
@@ -67,7 +67,7 @@ merging, resetting, stashing, adopting or crediting it to the active branch.
 5. **Reconcile CLOSE:** update affected rows and summary in the existing map; put detailed decisions/failures in the slice's verification register and link it. Update README/plan §19 only when their current status actually changed, retaining historical failures. If an authorized plan adjustment is needed, amend the canonical source first and then its projection; otherwise record a proposal/blocker. Do not edit protected files through a bypass or copy secrets/raw private logs into the map.
 6. **Verify:** use `terminal` for `python -m unittest discover -s tests/documentation -v`, `python scripts/render_docs.py --check` and `git diff --check`. Regenerate HTML only for changed normative Markdown. Run the affected product checks when code changed; documentation checks do not rerun or transfer old product gates. A reviewer operating read-only returns the proposed delta to the parent rather than writing the shared map.
 7. **Commit/readback:** commit only intended coherent changes, including the map/evidence delta, under AGENTS rules. Read back `git show --stat --oneline HEAD` and status before reporting. Store the tested/reviewed revision, not an impossible self-reference to the commit containing the status edit. If HEAD changed during review, compare the affected scope before accepting it; an uncommitted intended change prevents a DONE claim.
-8. **Report:** finish with the compact Romanian block in `templates/handoff.md`: current location, delta, approved/pending/not-approved review, real proof and limit, open gates, exact next slice, MVP/post-MVP outlook, Git and owned cleanup. Link the full map instead of printing all rows on every prompt. Completion: the operator can distinguish what works, what is merely planned and what needs review.
+8. **Report:** finish with the compact Romanian **matrix directly in chat** from `templates/handoff.md`, normally 6–8 rows with code, proof, review and next step in separate columns; mark the current slice **AICI**. Cover delivered foundations, current/next slice, open gate, remaining MVP and post-MVP. Put the short task result, Git and cleanup before the table. Documents are persistent support for agents/implementation: a link never replaces the visible matrix, and a chat-only orientation does not force a documentation edit. Completion: the operator sees where Omnis stands without opening a file.
 
 ## Pitfalls
 

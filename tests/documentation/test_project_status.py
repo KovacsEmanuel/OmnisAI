@@ -109,6 +109,22 @@ class ProjectStatusSkillTests(unittest.TestCase):
                        "NOT-RUN", "Următoarea felie", "Scope", "Cleanup"):
             self.assertIn(marker, body)
 
+    def test_chat_handoff_ends_with_an_actual_status_matrix(self):
+        path = ROOT / ".hermes/skills/omnis-project-status/templates/handoff.md"
+        body = path.read_text(encoding="utf-8")
+        headers = [
+            [cell.strip() for cell in line.strip("|").split("|")]
+            for line in body.splitlines()
+            if line.startswith("| Zonă / felie |")
+        ]
+        self.assertEqual(headers, [[
+            "Zonă / felie", "Implementare", "Probe", "Review", "Poziție / pas următor",
+        ]])
+        for marker in ("direct în chat", "nu înlocuiește matricea", "pentru agenți",
+                       "ORIENT", "CLOSE", "fără editări"):
+            self.assertIn(marker, body)
+        self.assertIn("matrix directly in chat", self.skill())
+
     def test_delivery_review_and_contributing_route_to_status(self):
         for relative in (".hermes/skills/omnis-delivery/SKILL.md",
                          ".hermes/skills/omnis-review-qa/SKILL.md", "CONTRIBUTING.md"):

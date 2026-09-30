@@ -238,6 +238,8 @@ Katana devine reutilizare planificată B10/B15, Nuclei adaptor de semnale B15n/E
 
 Buildurile/executabilele și corpusurile cer hashes/licențe/lockuri proprii în felia de import; SHA-ul repo-ului nu certifică binarul sau bytes Assetnote de pe CDN. Engines nu fac auto-update la runtime. BBOT se extrage fără Ansible/scan helpers/_exec_config_class/env/scope merge; Scrapy fără Twisted/Crawler, signals nu sunt inbox durabil; WebTech fără downloader și cu malformed regex/ReDoS controls; CeWL fără Ruby spider/PII/password lists; Kiterunner fără suita de preflight mutatoare. Aceste adaptări sunt cerințe de test, nu invitație să înlocuim implementările cu descrieri conceptuale.
 
+Admission model B06m/G-MODEL se introduce înainte de prima inferență P2-live, în monolitul și adaptorul Hermes existente; B07 și Jev extind același ledger, nu adaugă un serviciu de billing sau runtime paralel. Seam-ul pre-call/limitele/retryurile sunt probă la pin, nu capabilitate native presupusă.
+
 Jev este inclus în produs, configurabil OFF/SHADOW/ADVISORY, nu prerechizit BOLA și nu validator. Modelul/SDK/întrebările/data policy sunt fixate per run; probele live cer cont/date/buget explicit. Licențele/notices exacte se păstrează la import, iar un conflict de distribuție blochează **unitatea afectată**, nu suspendă întregul baseline într-o nouă dezbatere. Nu se introduc dependențe ori module goale acum.
 
 ## Sources

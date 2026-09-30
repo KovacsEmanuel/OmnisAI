@@ -56,7 +56,7 @@ Tabelul definește dependențele de **închidere**; citirile și probele disposa
 | P1-web | P1-data | B03/B04: UI acceptat conectat la datele reale, G01 |
 | P2-inert | P0-control, P1-data | B05/B06 și partea inertă H01–H08; fără adoptare credentiale sau rețea provider |
 | P4a-minim | P2-inert | Configurare/readback/control provider și catalog, înainte de prima probă de inferență |
-| P2-live | P2-inert, P4a-minim | G-DATA-EARLY + acord cont/model/buget, apoi G02-live/G04a; fără target effects |
+| P2-live | P2-inert, P4a-minim | B06m/G-MODEL + G-DATA-EARLY + acord cont/model/buget, apoi G02-live/G04a; fără target effects |
 | B01e-build | — | Build proxy remediat/admis numai pentru testele izolate; nu ASSESSMENT_READY |
 | P3a | P1-web, P2-live, B01e-build | B07 determinist mai întâi, B01e-integrated/G-NET HTTP, apoi tracerul nativ B08 și G03a |
 | P3-auth | P3a | B09h/G-AUTH-HTTP: identități HTTP, seif, principal/epoch/refresh/replay; fără Chromium obligatoriu |
@@ -111,6 +111,8 @@ B05 include adaptorul fix `runtime-host`, părinte al Hermes în containerul run
 
 **B06:** un pachet real nativ, task pregătit, copil nativ, mapping verificat înaintea toolului și rezultat structurat. Livrează contractele minime SkillPackageRevision/TechniqueRevision/ProcedureRevision, PromptBundleRevision/TaskBriefV1/TaskResultV1 din arhitectură §9.4–9.5 și consumul lor real; inbox/ACK/consumed sunt aici, nu amânate la B18. Composerul adaptează S01/S03/S05/S10 din manifestul de reuse, cu golden/negative tests și context îngust, nu întreg istoricul. Importul minim include provenance/notices și BOLA/recon/counterevidence; biblioteca largă se importă în loturi fără activare automată. `LaunchManifest` și lineage după compresie sunt ale Omnis; `task_id` din prompt nu acordă drepturi. Plugin-first, apoi numai patch minimal auditat dacă API-ul nu permite corelarea exactă; fără asociere după goal/FIFO.
 
+**B06m / G-MODEL** — nucleu comun înainte de P2-live/G04a, conform arhitectură §5.2: `policy/admission.py`, `policy/budgets.py`, ModelDispatch/reservations/receipts și seam trusted pre-call din adaptorul Hermes. P2-inert probează ledger/refuz/Stop pe transport sintetic; P2-live probează callul real la pin cu acord. Caps calls/output/deadline și rezerva VALIDATION sunt efective, nu numai în prompt; retry/fallback/auxiliare fie sunt readmise și contabilizate, fie interzise. Lost response păstrează UNKNOWN, nu rambursare fictivă. Lipsa seam-ului pre-send blochează live; nu așteptăm B07 și nu inventăm un al doilea contabil. B07 extinde același ledger la trafic/effects. Nimic din B06m nu se implementează în P0.
+
 **G02 — subprobe obligatorii:**
 
 | ID | Probă | Criteriu |
@@ -122,7 +124,7 @@ B05 include adaptorul fix `runtime-host`, părinte al Hermes în containerul run
 | H05 | Compresie între două apeluri inerte | Lineage de încredere sau refuz explicit; fără pierdere tăcută de autoritate |
 | H06 | Completion/wake în jurul Stop/Pause, submit=False, ACK/crash | Separăm delivered/admitted/consumed; fără dublu wake/efect și fără inferență nouă nepermisă |
 | H07 | Request RPC pierdut + restart host/runtime | Fără retrimitere oarbă a promptului; attempt și rezultate reconciliate |
-| H08 | Inventar Brain/copil și dependențe auxiliare | Numai tooluri/egress aprobate; fallback/provider/model efectiv cunoscute |
+| H08 | Inventar Brain/copil și dependențe auxiliare | Numai tooluri/egress aprobate; fallback/provider/model efectiv cunoscute; G-MODEL refuză calluri fără rezervă înainte de send |
 
 Testele inerte nu contactează ținte. **G02-live** cere o inferență reală, copil și skill, cu cont/model/data policy/buget explicit. Subprobe fără LLM pot trece independent; verdict `VALIDATED/PARTIAL/INVALIDATED/BLOCKED`, cu output sanitizat. Dacă H04/H05 nu sunt rezolvate, P3 nu începe, chiar dacă UI arată un copil.
 

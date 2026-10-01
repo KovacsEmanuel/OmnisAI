@@ -250,6 +250,7 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
     assert runtime.receipt.image_id == receipt["image_id"]
     record = {}
     probe_ok = cleanup_ok = driver_uncertain = False
+    browser_outcome = None
     save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
     outputs = []
     sink = socket.socket()
@@ -424,7 +425,9 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
             # after a timeout or an unknown process-family outcome.
             driver_uncertain = True
             try:
-                prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_code)
+                browser_outcome = prove(
+                    cli, cwd, env, root, control, record, runtime, port, outputs, initial_code
+                )
             except AssertionError:
                 # Every assertion in the observer follows a joined CLI/browser
                 # child; timeouts, I/O faults and missing close receipts do not.
@@ -551,6 +554,13 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
                 probe="PASS" if probe_ok else "FAIL",
                 cleanup="VERIFIED" if cleanup_ok else "UNCERTAIN",
             )
+    if pair_open and probe_ok and cleanup_ok:
+        assert browser_outcome is not None
+        print(
+            "INSTALLED_PAIR_OPEN_VERIFIED tty=true one_use=true expiry=database "
+            f"browser_session=lab opener={browser_outcome} cleanup=verified",
+            flush=True,
+        )
 
 
 def run_interrupted_start(data, receipt, cli, *, phase="VERIFYING", expire_dashboard=False):

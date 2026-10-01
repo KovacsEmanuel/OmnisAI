@@ -19,6 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
+class ObserverUncertain(RuntimeError):
+    """A PTY child/family did not reach a verified normal join."""
+
+
 def command(cli, args, cwd, env, *, expected):
     process = subprocess.run(
         [cli, *args], cwd=cwd, env=env, capture_output=True, text=True, timeout=50
@@ -31,6 +35,7 @@ def tty_run(cli, args, cwd, env, *, limit):
     master, slave = pty.openpty()
     process = None
     output = bytearray()
+    joined = False
     try:
         process = subprocess.Popen(
             [cli, *args],
@@ -59,8 +64,9 @@ def tty_run(cli, args, cwd, env, *, limit):
         else:
             raise TimeoutError("Installed TTY deadline exceeded")
         _, stderr = process.communicate(timeout=2)
+        joined = True
         return process.returncode, bytes(output), stderr
-    except BaseException:
+    except BaseException as exc:
         if process is not None and process.poll() is None:
             os.killpg(process.pid, signal.SIGTERM)  # Owned, unreaped session only.
             try:
@@ -68,6 +74,8 @@ def tty_run(cli, args, cwd, env, *, limit):
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.communicate(timeout=3)
+        if isinstance(exc, AssertionError) and not joined:
+            raise ObserverUncertain("TTY observer failed before owned-family readback") from None
         raise
     finally:
         os.close(master)
@@ -263,7 +271,4 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     if opened.returncode:
         assert "serviciile rămân pornite" in stderr
     outputs.append(stdout + stderr)
-    print(
-        f"INSTALLED_PAIR_OPEN_VERIFIED tty=true one_use=true expiry=database browser_session=lab opener={outcome}",
-        flush=True,
-    )
+    return outcome  # Final verdict belongs to the caller after owned teardown/readback.

@@ -1,15 +1,28 @@
 """Acceptance observer must not manufacture cleanup after uncertainty."""
 
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+from installed_pair_open import tty_run
 from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_pty_overflow_before_join_is_uncertain_not_an_assertion_cleanup(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            script = root / "noisy-owned-child"
+            script.write_text(
+                f"#!{sys.executable}\nimport os,time\nos.write(1,b'x'*128)\ntime.sleep(5)\n"
+            )
+            script.chmod(0o700)
+            with self.assertRaises(RuntimeError):
+                tty_run(str(script), [], root, {"PATH": "/usr/bin:/bin"}, limit=32)
+
     def test_retry_timeout_retains_uncertainty_before_any_rescue(self):
         import json
         import subprocess

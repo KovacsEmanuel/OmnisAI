@@ -5,15 +5,17 @@ import os
 import sys
 from pathlib import Path
 
+from .browser import open_verified
 from .compose import ImageInstallError, install_control_image
+from .pairing import pair
 from .release import ReleaseError, install_release
-from .start import start
+from .start import start, start_result
 from .status import status
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="omnis")
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
     status_parser = commands.add_parser("status", help="Read private local instance status")
     status_parser.add_argument(
         "--json", action="store_true", help="Sanitized machine-readable status"
@@ -35,12 +37,29 @@ def main(argv: list[str] | None = None) -> int:
         "--port", type=int, help="Explicit loopback port for a new, stopped instance"
     )
     start_parser.add_argument("--json", action="store_true", help="Sanitized startup result")
+    pair_parser = commands.add_parser("pair", help="Emit a one-use code on a private TTY")
+    pair_parser.add_argument("--json", action="store_true", help="Refused: pairing is TTY-only")
+    commands.add_parser("open", help="Open the verified, ready installed dashboard")
     commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
+    if args.command is None:
+        code, result = start_result(None)
+        if code:
+            print(f"{result['reason']}: browserul nu a fost invocat.", file=sys.stderr)
+            return code
+        if result.get("reused") is False and sys.stdin.isatty() and sys.stdout.isatty():
+            issuance = pair()
+            if issuance:
+                return issuance  # Services remain READY; never open after uncertain disclosure.
+        return open_verified(expected=result)
     if args.command == "start":
         return start(port=args.port, as_json=args.json)
     if args.command == "status":
         return status(as_json=args.json)
+    if args.command == "pair":
+        return pair(as_json=args.json)
+    if args.command == "open":
+        return open_verified()
     if args.command == "install":
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"

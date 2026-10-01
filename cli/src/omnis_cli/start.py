@@ -761,7 +761,7 @@ def _interrupt(signum: int, frame: FrameType | None) -> None:
     raise KeyboardInterrupt()
 
 
-def start(*, port: int | None, as_json: bool) -> int:
+def start_result(port: int | None) -> tuple[int, dict[str, object]]:
     previous = {sig: signal.signal(sig, _interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
     try:
         result = start_instance(port)
@@ -785,6 +785,11 @@ def start(*, port: int | None, as_json: bool) -> int:
     finally:
         for sig, handler in previous.items():
             signal.signal(sig, handler)
+    return code, result
+
+
+def start(*, port: int | None, as_json: bool) -> int:
+    code, result = start_result(port)
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:

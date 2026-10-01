@@ -85,6 +85,19 @@ def request(
             if not isinstance(key, str):
                 raise ControlUnavailable()
             status[key] = value
+        if set(status) != {
+            "instance_id",
+            "generation",
+            "admission_open",
+            "shutdown_command_id",
+            "quiesced_generation",
+            "supervisor_epoch",
+            "supervisor_ready",
+            "shutdown_finalized",
+            "assessment_ready",
+            "dashboard_ready",
+        }:
+            raise ControlUnavailable()
         generation = status.get("generation")
         epoch = status.get("supervisor_epoch")
         if (

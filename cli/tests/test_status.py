@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 from uuid import uuid4
 
+from omnis_cli.control import ControlUnavailable, request
 from omnis_cli.main import main
 
 
@@ -112,6 +113,39 @@ class StatusTest(unittest.TestCase):
         self.assertFalse(status["dashboard_ready"])
         self.assertEqual(status["reason"], "HTTP_UNVERIFIED")
         self.assertNotIn("a" * 64, json.dumps(status) + err)
+
+    def test_private_control_reply_missing_shutdown_field_is_not_accepted(self):
+        (self.control / "control.cap").write_text("a" * 64)
+        (self.control / "control.cap").chmod(0o600)
+        status = {
+            "instance_id": self.identity,
+            "generation": 1,
+            "admission_open": True,
+            "quiesced_generation": None,
+            "supervisor_epoch": 1,
+            "supervisor_ready": True,
+            "shutdown_finalized": False,
+            "assessment_ready": False,
+            "dashboard_ready": False,
+        }
+        reply = {"ok": True, "correlation_id": str(uuid4()), "status": status}
+        with socket.socket(socket.AF_UNIX) as listener:
+            listener.bind(str(self.control / "control.sock"))
+            (self.control / "control.sock").chmod(0o600)
+            listener.listen(1)
+
+            def serve():
+                connection, _ = listener.accept()
+                with connection:
+                    connection.recv(4096)
+                    connection.sendall(json.dumps(reply).encode() + b"\n")
+
+            worker = threading.Thread(target=serve, daemon=True)
+            worker.start()
+            with self.assertRaises(ControlUnavailable):
+                request(self.control, {"op": "status"})
+            worker.join(timeout=2)
+            self.assertFalse(worker.is_alive())
 
     def test_wrong_instance_identity_is_not_adopted(self):
         self.write_instance()

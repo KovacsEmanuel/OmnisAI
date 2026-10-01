@@ -26,6 +26,8 @@ Rollback documentar: revert al fiecărui commit coerent după verificarea depend
 
 ## Verdict adjudecat: CHANGES_REQUESTED înainte de continuarea SL03
 
+**Prompt de remediere pregătit:** [execuție completă și review după remedii](p04-deep-remediation-prompt.md). Acoperă toate constatările și dispozițiile de mai jos; starea sa este NOT_EXECUTED, nu dovadă că defectele au fost reparate.
+
 **Patru defecte confirmate și încă neremediate: două P1 de lifecycle și două P2 de validare.** Părintele a inspectat reproducerile și le-a executat separat; nu preia doar rezumatele subagenților. Începerea unei noi felii de produs se pune în așteptare pentru corectarea P1-urilor în SL02. Motivul nu este circularul «SL03 trebuie deja livrat» și nici simpla existență a șase PARTIAL: sunt contraexemple noi asupra produsului curent.
 
 Review independent `deleg_02eee67a`: task 1 lifecycle (RT-*), task 2 acceptare/date/calitate (AR-*). Snapshot `b7cc556`; produs `b8217cb`; sursele/testele/ops nu s-au schimbat în audit. SC01/SC02 și faza VERIFYING rămân remediate **în scenariile lor probate**, iar make check/OCI PASS din registrul anterior sunt reale, dar nu acoperă aceste frontiere noi. Niciun remediu de produs nu este livrat de acest document.

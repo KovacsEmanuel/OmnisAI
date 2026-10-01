@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .browser import open_verified
 from .compose import ImageInstallError, install_control_image
-from .pairing import pair
+from .pairing import interactive_tty, pair
 from .release import ReleaseError, install_release
 from .start import start, start_result
 from .status import status
@@ -31,7 +31,7 @@ def main(argv: list[str] | None = None) -> int:
         "--no-open",
         action="store_true",
         required=True,
-        help="Headless startup; pairing/open are not yet delivered",
+        help="Headless startup; use omnis pair/open separately",
     )
     start_parser.add_argument(
         "--port", type=int, help="Explicit loopback port for a new, stopped instance"
@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         if code:
             print(f"{result['reason']}: browserul nu a fost invocat.", file=sys.stderr)
             return code
-        if result.get("reused") is False and sys.stdin.isatty() and sys.stdout.isatty():
+        if result.get("reused") is False and interactive_tty():
             issuance = pair()
             if issuance:
                 return issuance  # Services remain READY; never open after uncertain disclosure.

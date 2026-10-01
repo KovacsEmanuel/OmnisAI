@@ -10,12 +10,20 @@ from .lifecycle import StartError
 from .verified import verified_instance
 
 
+def interactive_tty() -> bool:
+    """A failed terminal probe is not permission to create or disclose a code."""
+    try:
+        return sys.stdin.isatty() and sys.stdout.isatty()
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
 def pair(*, as_json: bool = False) -> int:
     # No code may exist before the disclosure channel is proven interactive.
     if as_json:
         print("PAIRING_FORMAT_REFUSED: codul nu este disponibil în JSON.", file=sys.stderr)
         return 2
-    if not sys.stdin.isatty() or not sys.stdout.isatty():
+    if not interactive_tty():
         print("PAIRING_TTY_REQUIRED: folosiți un terminal interactiv.", file=sys.stderr)
         return 2
     try:

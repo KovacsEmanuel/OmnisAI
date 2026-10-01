@@ -13,6 +13,14 @@ from omnis_cli.main import main
 
 
 class StartTest(unittest.TestCase):
+    def test_headless_help_does_not_advertise_delivered_commands_as_missing(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), self.assertRaises(SystemExit) as result:
+            main(["start", "--help"])
+        self.assertEqual(result.exception.code, 0)
+        self.assertIn("--no-open", output.getvalue())
+        self.assertNotIn("not yet delivered", output.getvalue())
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="sl02-", dir=os.environ["TMPDIR"])
         self.addCleanup(self.temp.cleanup)

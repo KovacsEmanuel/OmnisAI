@@ -43,6 +43,9 @@ def launch(origin: str) -> str:
         )
     except FileNotFoundError:
         return "BROWSER_UNAVAILABLE"
+    except subprocess.TimeoutExpired:
+        # The direct opener timed out; a detached browser may still have opened.
+        return "BROWSER_LAUNCH_UNCONFIRMED"
     except (OSError, subprocess.SubprocessError):
         return "BROWSER_LAUNCH_FAILED"
     return "BROWSER_LAUNCH_ACCEPTED" if result.returncode == 0 else "BROWSER_LAUNCH_FAILED"
@@ -70,6 +73,12 @@ def open_verified(*, expected: dict[str, object] | None = None) -> int:
     if outcome == "BROWSER_UNAVAILABLE":
         print("Deschideți manual originul afișat; serviciile rămân pornite.", file=sys.stderr)
         return 2
+    if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
+        print(
+            "Openerul a depășit termenul; fereastra poate exista sau lipsi. Serviciile rămân pornite.",
+            file=sys.stderr,
+        )
+        return 3
     if outcome != "BROWSER_LAUNCH_ACCEPTED":
         print("Deschiderea a eșuat; serviciile rămân pornite.", file=sys.stderr)
         return 3

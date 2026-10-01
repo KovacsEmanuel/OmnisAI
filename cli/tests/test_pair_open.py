@@ -60,6 +60,28 @@ class PairTest(unittest.TestCase):
         verify.assert_not_called()
         issuer.assert_not_called()
 
+    def test_unreadable_tty_probe_refuses_before_issuer(self):
+        class BrokenTty(TtyOutput):
+            def isatty(self) -> bool:
+                raise OSError("synthetic TTY error")
+
+        for input_stream, output_stream in (
+            (BrokenTty(), TtyOutput()),
+            (TtyOutput(), BrokenTty()),
+        ):
+            with (
+                self.subTest(stream="stdin" if isinstance(input_stream, BrokenTty) else "stdout"),
+                patch("omnis_cli.pairing.verified_instance") as verify,
+                patch("omnis_cli.pairing.request") as issuer,
+                patch("sys.stdin", input_stream),
+                contextlib.redirect_stdout(output_stream),
+                contextlib.redirect_stderr(io.StringIO()) as error,
+            ):
+                self.assertEqual(main(["pair"]), 2)
+                self.assertIn("PAIRING_TTY_REQUIRED", error.getvalue())
+                verify.assert_not_called()
+                issuer.assert_not_called()
+
     def test_interactive_pair_sends_digest_only_after_verification(self):
         from omnis_cli import pairing
 

@@ -3,6 +3,7 @@
 import contextlib
 import io
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -58,6 +59,23 @@ class BrowserTest(unittest.TestCase):
         ):
             self.assertEqual(main([]), 3)
         issuer.assert_not_called()
+
+    def test_implicit_unreadable_tty_probe_never_issues_code(self):
+        class BrokenInput(io.StringIO):
+            def isatty(self):
+                raise OSError("synthetic TTY error")
+
+        ready = {"origin": "http://127.0.0.1:8765", "reused": False}
+        with (
+            patch("omnis_cli.main.start_result", return_value=(0, ready)),
+            patch("omnis_cli.main.pair") as issuer,
+            patch("omnis_cli.main.open_verified", return_value=3) as opener,
+            patch("sys.stdin", BrokenInput()),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(main([]), 3)
+        issuer.assert_not_called()
+        opener.assert_called_once_with(expected=ready)
 
     def test_implicit_pair_failure_does_not_invoke_opener(self):
         class Tty(io.StringIO):
@@ -133,6 +151,27 @@ class BrowserTest(unittest.TestCase):
         ):
             process.return_value.returncode = 1
             self.assertEqual(browser.launch("http://127.0.0.1:8765"), "BROWSER_LAUNCH_FAILED")
+
+    def test_timed_out_opener_reports_uncertain_window_not_definite_failure(self):
+        from omnis_cli import browser
+
+        @contextlib.contextmanager
+        def verified():
+            yield ({"origin": "http://127.0.0.1:8765"}, Path("/private"))
+
+        with (
+            patch.object(browser, "verified_instance", side_effect=verified),
+            patch.object(browser.shutil, "which", return_value="/usr/bin/xdg-open"),
+            patch.object(
+                browser.subprocess, "run", side_effect=subprocess.TimeoutExpired("xdg-open", 8)
+            ),
+            contextlib.redirect_stdout(io.StringIO()) as output,
+            contextlib.redirect_stderr(io.StringIO()) as error,
+        ):
+            self.assertEqual(main(["open"]), 3)
+        self.assertIn("BROWSER_LAUNCH_UNCONFIRMED", output.getvalue())
+        self.assertIn("poate", error.getvalue())
+        self.assertNotIn("Deschiderea a eșuat", error.getvalue())
 
     def test_open_uses_only_verified_origin_and_never_starts_services(self):
         from omnis_cli import browser

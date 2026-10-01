@@ -105,6 +105,12 @@ class ControlRuntime:
     ) -> subprocess.CompletedProcess[str]:
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
         argv = [str(self.docker), "--config", str(self.release / "ops"), "--host", self.host, *args]
+        previous_uncertain, previous_drained = self.uncertain, self.family_drained
+        # Fail closed before spawn, through wait, decoding and fallible pipe cleanup.
+        if effect:
+            self.uncertain = True
+        self.family_drained = False
+        reaping = False
         process = subprocess.Popen(
             argv,
             cwd=self.release,
@@ -134,31 +140,47 @@ class ControlRuntime:
                         if total > 4 * 1024 * 1024:
                             raise StartError("DOCKER_OUTPUT_LIMIT", 3)
                         buffers[key.data].extend(part)
+            # Observe exit without releasing the leader's identity. EOF alone may
+            # precede exit; on that timeout group cleanup is still safe before reap.
+            while os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is None:
+                time.sleep(min(0.01, remaining(end, cap)))
+            # Revoke numeric signal authority BEFORE waitpid can release the PID,
+            # not after Popen eventually publishes returncode (interruptible).
+            reaping = True
             process.wait(timeout=remaining(end, cap))
         except BaseException:
             if effect:
                 self.uncertain = True  # Killing a CLI cannot settle a daemon-side operation.
-            # Keep the leader unreaped through BOTH group signals: PGID cannot be recycled.
-            for sig in (signal.SIGTERM, signal.SIGKILL):
+            # Even successful group signals/reap do not attest detached descendants.
+            self.family_drained = False
+            if not reaping:
+                # Keep the leader unreaped through BOTH signals. Never poll here.
+                for sig in (signal.SIGTERM, signal.SIGKILL):
+                    try:
+                        os.killpg(process.pid, sig)
+                    except OSError:
+                        pass  # Already uncertain; still attempt the other signal and reap.
                 try:
-                    os.killpg(process.pid, sig)
-                except ProcessLookupError:
-                    pass
-                except OSError:
-                    self.family_drained = False
-            try:
-                process.wait(timeout=5)
-            except (OSError, subprocess.SubprocessError):
-                self.family_drained = False
+                    process.wait(timeout=5)
+                except (OSError, subprocess.SubprocessError):
+                    pass  # Preserve the original error and conservative family state.
             raise
         finally:
-            if process.stdout is not None:
-                process.stdout.close()
-            if process.stderr is not None:
-                process.stderr.close()
+            try:
+                if process.stdout is not None:
+                    process.stdout.close()
+            finally:
+                if process.stderr is not None:
+                    process.stderr.close()
         result = subprocess.CompletedProcess(
             argv, process.returncode, buffers[0].decode(), buffers[1].decode()
         )
+        if result.returncode >= 0:
+            self.family_drained = previous_drained  # Trusted CLI's ordinary completed path.
+        if result.returncode == 0 or not effect:
+            self.uncertain = previous_uncertain
+        # A generic nonzero effect is not a known refusal. Negative returncode
+        # never proves family drainage, even for a read-only command.
         if success and result.returncode:
             raise StartError("LOCAL_SERVICE_COMMAND_FAILED", 3)
         return result  # Never print raw Docker output or environment (may contain DSN).

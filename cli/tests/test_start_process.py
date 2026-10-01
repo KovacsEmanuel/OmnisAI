@@ -1,6 +1,7 @@
 """Narrow regressions for startup subprocess and cleanup error boundaries."""
 
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,246 @@ class StartupProcessTest(unittest.TestCase):
         runtime.release = Path(os.environ["TMPDIR"])
         runtime.host = "unix:///run/docker.sock"
         return runtime
+
+    def test_signal_exit_marks_uncertainty_even_when_success_is_not_required(self):
+        original = subprocess.Popen
+        for success in (True, False):
+            with self.subTest(success=success):
+                runtime = self.runtime(time.monotonic() + 5)
+                children = []
+
+                def launch(argv, owned=children, **kwargs):
+                    child = original(
+                        [sys.executable, "-I", "-c", "import os,signal; os.kill(os.getpid(),9)"],
+                        **kwargs,
+                    )
+                    owned.append(child)
+                    return child
+
+                with (
+                    patch("subprocess.Popen", side_effect=launch),
+                    patch("os.killpg") as group_signal,
+                ):
+                    if success:
+                        with self.assertRaisesRegex(StartError, "LOCAL_SERVICE_COMMAND_FAILED"):
+                            runtime.run("start", "synthetic", effect=True, success=success)
+                    else:
+                        result = runtime.run("start", "synthetic", effect=True, success=success)
+                        self.assertEqual(result.returncode, -9)
+                self.assertEqual(children[0].returncode, -9)
+                group_signal.assert_not_called()  # The leader has already been reaped.
+                self.assertTrue(runtime.uncertain, "Signal exit lost the daemon ACK")
+                self.assertFalse(runtime.family_drained, "Leader reap is not family drainage")
+
+    def test_signal_producer_reaches_uncertain_startup_without_database_teardown(self):
+        self.check_signal_startup(interrupt_close=False)
+
+    def test_interrupt_at_pipe_close_keeps_database_and_uncertain_journal(self):
+        self.check_signal_startup(interrupt_close=True)
+
+    def check_signal_startup(self, *, interrupt_close):
+        import contextlib
+        import importlib
+        import io
+        import json
+        from types import SimpleNamespace
+
+        from omnis_cli.main import main
+
+        start = importlib.import_module("omnis_cli.start")
+        original = subprocess.Popen
+        with tempfile.TemporaryDirectory(prefix="sc-", dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            (root / "d/omnis").mkdir(parents=True, mode=0o700)
+            runtime = self.runtime(time.monotonic() + 5)
+            runtime.receipt = SimpleNamespace(
+                project="omnis-local-" + "a" * 32,
+                image_id="sha256:" + "b" * 64,
+                docker_id="test-daemon",
+            )
+            runtime.digest = "c" * 64
+            children, effects = [], []
+
+            def launch(argv, **kwargs):
+                child = original(
+                    [sys.executable, "-I", "-c", "import os; os.kill(os.getpid(),9)"], **kwargs
+                )
+                children.append(child)
+                close = child.stdout.close
+
+                def interrupted_close():
+                    close()
+                    if interrupt_close:
+                        self.assertEqual(child.returncode, -9)
+                        os.kill(os.getpid(), signal.SIGTERM)
+
+                child.stdout.close = interrupted_close
+                return child
+
+            def create(*args, **kwargs):
+                return ControlRuntime.run(runtime, "create", "synthetic", effect=True)
+
+            def effect(*args, **kwargs):
+                effects.append(args)
+                return subprocess.CompletedProcess(args, 0, "", "")
+
+            def inspect(kind, ident):
+                if kind == "network":
+                    return None
+                return {
+                    "Config": {"Labels": {"com.docker.compose.service": "db"}},
+                    "State": {"Running": False},
+                }
+
+            out = io.StringIO()
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_DATA_HOME": str(root / "d"),
+                        "XDG_STATE_HOME": str(root / "s"),
+                        "XDG_RUNTIME_DIR": str(root / "r"),
+                    },
+                ),
+                patch.object(start, "ControlRuntime", return_value=runtime),
+                patch.object(start, "preflight_port"),
+                patch.object(start, "validate_config"),
+                patch.object(runtime, "compose", side_effect=create),
+                patch.object(runtime, "ids", side_effect=lambda: ["db-owned"] if children else []),
+                patch.object(runtime, "inspect", side_effect=inspect),
+                patch.object(runtime, "attest", return_value={}),
+                patch.object(runtime, "run", side_effect=effect),
+                patch("subprocess.Popen", side_effect=launch),
+                patch("os.killpg") as group_signal,
+                contextlib.redirect_stdout(out),
+            ):
+                code = main(["start", "--no-open", "--json"])
+            self.assertEqual(children[0].returncode, -9)
+            group_signal.assert_not_called()
+            self.assertEqual(effects, [], "Unreconciled effect must retain DB before exit 4")
+            self.assertEqual(code, 4)
+            result = json.loads(out.getvalue())
+            self.assertEqual(result["state"], "UNCERTAIN")
+            self.assertEqual(result["reason"], "STARTUP_CLEANUP_UNCERTAIN")
+            journal = json.loads((root / "s/omnis/startup.json").read_text())
+            self.assertEqual(journal["phase"], "UNCERTAIN")
+            self.assertEqual(
+                journal["failure"],
+                "STARTUP_FAILED" if interrupt_close else "LOCAL_SERVICE_COMMAND_FAILED",
+            )
+            self.assertEqual(journal["failed_phase"], "STARTING")
+            self.assertEqual(journal["project"], runtime.receipt.project)
+            self.assertIn("database retained under uncertain writers", journal["cleanup"])
+            self.assertTrue((root / "s/omnis/postgres").is_dir())
+
+    def test_command_outcomes_do_not_confuse_refusal_with_lost_ack(self):
+        original = subprocess.Popen
+        cases = (
+            ("success", "print('ack')", True, 0, False, True, None),
+            ("known_read_refusal", "import sys; sys.exit(1)", False, 1, False, True, None),
+            ("lost_ack", "import sys; sys.exit(1)", True, 1, True, True, None),
+            ("decode", r"import os; os.write(1,b'\xff')", True, 0, True, False, UnicodeError),
+            ("signal_read", "import os; os.kill(os.getpid(),9)", False, -9, False, False, None),
+            ("timeout", "import time; time.sleep(30)", True, None, True, False, StartError),
+            (
+                "eof_before_exit",
+                "import os,time; os.close(1); os.close(2); time.sleep(30)",
+                True,
+                None,
+                True,
+                False,
+                StartError,
+            ),
+        )
+        for label, script, effect, code, uncertain, drained, error in cases:
+            with self.subTest(outcome=label):
+                runtime = self.runtime(time.monotonic() + 5)
+                children = []
+
+                def launch(argv, program=script, owned=children, **kwargs):
+                    child = original([sys.executable, "-I", "-c", program], **kwargs)
+                    owned.append(child)
+                    return child
+
+                with patch("subprocess.Popen", side_effect=launch):
+                    if error is not None:
+                        with self.assertRaises(error):
+                            runtime.run("synthetic", success=False, effect=effect, cap=0.3)
+                    else:
+                        result = runtime.run("synthetic", success=False, effect=effect, cap=1)
+                        self.assertEqual(result.returncode, code)
+                self.assertIsNotNone(children[0].returncode)
+                self.assertEqual(runtime.uncertain, uncertain)
+                self.assertEqual(runtime.family_drained, drained)
+
+    def test_exception_after_reap_never_signals_recycled_group(self):
+        original = subprocess.Popen
+        runtime = self.runtime(time.monotonic() + 5)
+        children = []
+
+        def launch(argv, **kwargs):
+            child = original([sys.executable, "-I", "-c", "pass"], **kwargs)
+            children.append(child)
+            wait = child.wait
+
+            def interrupted_wait(*args, **kwargs):
+                wait(*args, **kwargs)
+                raise StartError("SYNTHETIC_AFTER_REAP", 3)
+
+            child.wait = interrupted_wait
+            return child
+
+        with patch("subprocess.Popen", side_effect=launch), patch("os.killpg") as group_signal:
+            with self.assertRaisesRegex(StartError, "SYNTHETIC_AFTER_REAP"):
+                runtime.run("synthetic", effect=True)
+        self.assertEqual(children[0].returncode, 0)
+        group_signal.assert_not_called()
+        self.assertTrue(runtime.uncertain)
+        self.assertFalse(runtime.family_drained)
+
+    def test_repeated_interrupt_between_kernel_reap_and_returncode_never_signals(self):
+        import importlib
+
+        interrupt = importlib.import_module("omnis_cli.start")._interrupt
+        original = subprocess.Popen
+        for interrupts in (1, 2):
+            with self.subTest(interrupts=interrupts):
+                runtime = self.runtime(time.monotonic() + 5)
+                children, events = [], []
+
+                def launch(argv, count=interrupts, owned=children, observed=events, **kwargs):
+                    child = original([sys.executable, "-I", "-c", "pass"], **kwargs)
+                    owned.append(child)
+                    handle = child._handle_exitstatus
+
+                    def interrupted_status(status):
+                        if len(observed) < count:
+                            with self.assertRaises(ChildProcessError):
+                                os.waitpid(child.pid, os.WNOHANG)
+                            observed.append(child.returncode)
+                            os.kill(os.getpid(), signal.SIGTERM)
+                        handle(status)
+
+                    child._handle_exitstatus = interrupted_status
+                    return child
+
+                previous = signal.signal(signal.SIGTERM, interrupt)
+                try:
+                    with patch("subprocess.Popen", side_effect=launch), patch("os.killpg") as kill:
+                        with self.assertRaises(KeyboardInterrupt):
+                            runtime.run("synthetic", effect=True)
+                    kill.assert_not_called()
+                    self.assertEqual(events, [None] * interrupts)
+                    self.assertTrue(runtime.uncertain)
+                    self.assertFalse(runtime.family_drained)
+                finally:
+                    signal.signal(signal.SIGTERM, previous)
+                    for child in children:
+                        child.wait(timeout=2)
+                        if child.stdout:
+                            child.stdout.close()
+                        if child.stderr:
+                            child.stderr.close()
 
     def test_matching_migration_shape_without_attempt_identity_is_not_owned(self):
         from types import SimpleNamespace

@@ -96,6 +96,25 @@ def exercise_installed_control(python: Path, database_url: URL) -> None:
                 "issuance_id": str(uuid4()),
                 "digest": hashlib.sha256(code.encode()).hexdigest(),
             }
+            assert asyncio.run(control(issuance)).get("error") == "INSTANCE_SHUTTING_DOWN"
+            # This is a private protocol process test, not CLI dashboard readiness:
+            # explicitly open the inert admission barrier before issuer use.
+            opened = asyncio.run(
+                control(
+                    {
+                        "op": "open",
+                        "instance_id": status["instance_id"],
+                        "command_id": str(uuid4()),
+                        "expected_generation": status["generation"],
+                    }
+                )
+            )
+            opened_status = opened.get("status")
+            assert (
+                opened["ok"]
+                and opened_status is not None
+                and opened_status["admission_open"] is True
+            )
             paired = asyncio.run(control(issuance))
             assert paired["ok"] and code not in str(paired)
             with socket.socket() as listener:
@@ -163,7 +182,7 @@ def exercise_installed_control(python: Path, database_url: URL) -> None:
                     actual = client.get("/api/instance").json()
                     assert actual["instance_id"] == status["instance_id"]
                     assert actual["supervisor_epoch"] == status["supervisor_epoch"]
-                    assert actual["supervisor_ready"] and not actual["admission_open"]
+                    assert actual["supervisor_ready"] and actual["admission_open"]
                     # Actual API process restart: session persists, no new supervisor/admission.
                     stop_process(api)
                     replacement = launch_api()

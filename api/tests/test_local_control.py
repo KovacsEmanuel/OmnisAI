@@ -3,17 +3,23 @@ import json
 import os
 import secrets
 import stat
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
+from contextlib import asynccontextmanager
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Required, TypedDict
+from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
 
 import pytest
 from pydantic import ConfigDict, TypeAdapter, ValidationError, with_config
 from sqlalchemy.engine import URL
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from omnis.core.db import database_engine
+from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
+from omnis.security.sessions import SessionStore
 
 
 @with_config(ConfigDict(extra="allow"))
@@ -40,6 +46,42 @@ class ControlReply(TypedDict, total=False):
 
 
 CONTROL_REPLY = TypeAdapter(ControlReply)
+
+
+@pytest.mark.parametrize("admission_open", [True, False])
+@pytest.mark.asyncio
+async def test_pairing_issuer_uses_instance_transaction_before_write(
+    monkeypatch: pytest.MonkeyPatch, admission_open: bool
+) -> None:
+    """The DB integration test below proves the same ordering on PostgreSQL."""
+    engine = Mock(spec=AsyncEngine)
+    service = InstanceService(engine)
+    identity, owner, issuance = uuid4(), uuid4(), uuid4()
+    connection = object()
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[object, SimpleNamespace, object]]:
+        yield (
+            connection,
+            SimpleNamespace(
+                instance_id=identity, admission_open=admission_open, shutdown_command_id=None
+            ),
+            object(),
+        )
+
+    owner_check = AsyncMock()
+    register = AsyncMock()
+    monkeypatch.setattr(service, "_locked", locked)
+    monkeypatch.setattr(service, "_require_owner", owner_check)
+    monkeypatch.setattr(SessionStore, "register_on", register, raising=False)
+    if admission_open:
+        await service.register_pairing(identity, "a" * 64, issuance, owner, 1)
+        register.assert_awaited_once_with(connection, "a" * 64, issuance_id=issuance)
+    else:
+        with pytest.raises(ControlConflict, match="INSTANCE_SHUTTING_DOWN"):
+            await service.register_pairing(identity, "a" * 64, issuance, owner, 1)
+        register.assert_not_awaited()
+    owner_check.assert_awaited_once()
 
 
 async def request(

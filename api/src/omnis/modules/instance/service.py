@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from omnis.core.persistence import read_datetime, read_integer, read_record
 from omnis.modules.instance.domain import ControlCode, ControlConflict, InstanceStatus
 from omnis.modules.instance.records import CommandKind, CommandRecord, InstanceRecord, LeaseRecord
+from omnis.security.sessions import SessionStore
 
 
 class InstanceService:
@@ -257,6 +258,18 @@ class InstanceService:
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
             return await self._status(connection, instance, lease)
+
+    async def register_pairing(
+        self, instance_id: UUID, digest: str, issuance_id: UUID, owner: UUID, epoch: int
+    ) -> None:
+        """Serialize issuance and shutdown under the same durable instance row lock."""
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            if instance.instance_id != instance_id:
+                raise ControlConflict(ControlCode.INSTANCE_MISMATCH)
+            if not instance.admission_open or instance.shutdown_command_id is not None:
+                raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+            await SessionStore(self.engine).register_on(connection, digest, issuance_id=issuance_id)
 
     async def _status(
         self, connection: AsyncConnection, instance: InstanceRecord, lease: LeaseRecord

@@ -9,7 +9,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.core.persistence import DatabaseRecord, read_datetime, read_record
 
@@ -57,60 +57,63 @@ class SessionStore:
         self.engine = engine
 
     async def register(self, digest: str, *, issuance_id: UUID) -> datetime:
+        async with self.engine.begin() as connection:
+            return await self.register_on(connection, digest, issuance_id=issuance_id)
+
+    async def register_on(
+        self, connection: AsyncConnection, digest: str, *, issuance_id: UUID
+    ) -> datetime:
+        """Register within an owner transaction when instance admission is required."""
         if not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise ValueError("Invalid pairing digest")
-        async with self.engine.begin() as connection:
-            await connection.execute(
-                text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE")
-            )
-            previous_data = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT digest, expires_at FROM pairing_issuance WHERE issuance_id = :issuance"
-                        ),
-                        {"issuance": issuance_id},
-                    )
-                )
-                .mappings()
-                .one_or_none()
-            )
-            previous = (
-                read_record(_IssuanceRecord, previous_data) if previous_data is not None else None
-            )
-            if previous is not None:
-                if previous.digest != digest:
-                    raise PairingConflict()
-                return previous.expires_at
-            reused = (
-                await connection.execute(
-                    text("SELECT 1 FROM pairing_issuance WHERE digest = :digest"),
-                    {"digest": digest},
-                )
-            ).scalar_one_or_none()
-            if reused:
-                raise PairingConflict()
-            expires_data = (
+        await connection.execute(text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE"))
+        previous_data = (
+            (
                 await connection.execute(
                     text(
-                        "INSERT INTO pairing_issuance VALUES (:issuance, :digest, clock_timestamp() + interval '5 minutes') "
-                        "RETURNING expires_at"
+                        "SELECT digest, expires_at FROM pairing_issuance WHERE issuance_id = :issuance"
                     ),
-                    {"issuance": issuance_id, "digest": digest},
+                    {"issuance": issuance_id},
                 )
-            ).scalar_one()
-            expires = read_datetime(expires_data)
-            # New code invalidates the old one but never resets the rate limit.
-            result = await connection.execute(
-                text(
-                    "UPDATE pairing_challenge SET digest = :digest, "
-                    "expires_at = :expires WHERE id = 1"
-                ),
-                {"digest": digest, "expires": expires},
             )
-            if result.rowcount != 1:
-                raise PairingDenied()
-            return expires
+            .mappings()
+            .one_or_none()
+        )
+        previous = (
+            read_record(_IssuanceRecord, previous_data) if previous_data is not None else None
+        )
+        if previous is not None:
+            if previous.digest != digest:
+                raise PairingConflict()
+            return previous.expires_at
+        reused = (
+            await connection.execute(
+                text("SELECT 1 FROM pairing_issuance WHERE digest = :digest"),
+                {"digest": digest},
+            )
+        ).scalar_one_or_none()
+        if reused:
+            raise PairingConflict()
+        expires_data = (
+            await connection.execute(
+                text(
+                    "INSERT INTO pairing_issuance VALUES (:issuance, :digest, clock_timestamp() + interval '5 minutes') "
+                    "RETURNING expires_at"
+                ),
+                {"issuance": issuance_id, "digest": digest},
+            )
+        ).scalar_one()
+        expires = read_datetime(expires_data)
+        # New code invalidates the old one but never resets the rate limit.
+        result = await connection.execute(
+            text(
+                "UPDATE pairing_challenge SET digest = :digest, expires_at = :expires WHERE id = 1"
+            ),
+            {"digest": digest, "expires": expires},
+        )
+        if result.rowcount != 1:
+            raise PairingDenied()
+        return expires
 
     async def exchange(self, code: str) -> SessionGrant:
         grant = None

@@ -33,7 +33,7 @@ from omnis.modules.instance.schemas import (
     StatusCommand,
 )
 from omnis.modules.instance.service import InstanceService
-from omnis.security.sessions import PairingConflict, SessionStore
+from omnis.security.sessions import PairingConflict
 
 
 def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -134,8 +134,8 @@ class LocalControl:
             if command.instance_id != status.instance_id:
                 return {"ok": False, "error": "INSTANCE_MISMATCH"}
             if isinstance(command, PairingCommand):
-                await SessionStore(self.service.engine).register(
-                    command.digest, issuance_id=command.issuance_id
+                await self.service.register_pairing(
+                    command.instance_id, command.digest, command.issuance_id, self.owner, self.epoch
                 )
             elif command.op == "open":
                 result_generation = await self.service.open(

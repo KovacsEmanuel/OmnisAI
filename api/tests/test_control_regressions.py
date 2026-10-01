@@ -23,6 +23,40 @@ from test_supervisor import start_supervisor, stop_process, wait_ready
 
 
 @pytest.mark.asyncio
+async def test_private_pairing_issuance_is_serialized_with_shutdown(
+    migrated_database_url: URL,
+) -> None:
+    """A closed instance cannot register a digest through the owner control plane."""
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner, issuance = uuid4(), uuid4()
+    try:
+        epoch = await service.acquire(owner)
+        identity = (await service.status()).instance_id
+        generation = await service.open(uuid4(), 0, owner, epoch)
+        digest = code_digest("synthetic-before-shutdown-code")
+        await service.register_pairing(identity, digest, issuance, owner, epoch)
+        async with engine.connect() as connection:
+            assert (
+                await connection.execute(text("SELECT digest FROM pairing_challenge WHERE id = 1"))
+            ).scalar_one() == digest
+        await service.shutdown(uuid4(), generation)
+        with pytest.raises(ControlConflict, match="INSTANCE_SHUTTING_DOWN"):
+            await service.register_pairing(
+                identity, code_digest("synthetic-after-shutdown-code"), uuid4(), owner, epoch
+            )
+        async with engine.connect() as connection:
+            assert (
+                await connection.execute(text("SELECT digest FROM pairing_challenge WHERE id = 1"))
+            ).scalar_one() == digest
+            assert (
+                await connection.execute(text("SELECT count(*) FROM pairing_issuance"))
+            ).scalar_one() == 1
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_pairing_rechecks_expiry_after_waiting_for_the_row(
     migrated_database_url: URL,
 ) -> None:

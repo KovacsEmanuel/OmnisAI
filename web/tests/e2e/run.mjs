@@ -129,6 +129,18 @@ async function screenshot(name) {
 
 let blocker;
 try {
+  if (scenario !== 'accessibility') {
+    // The E2E fixture boots API/supervisor without the installed launcher.
+    // Open the inert admission barrier only after API/dashboard readiness;
+    // this is fixture setup, not proof of installed CLI lifecycle.
+    const initial = (await control({ op: 'status' })).status;
+    assert.equal(initial.admission_open, false);
+    assert.equal(initial.generation, 0);
+    const opened = (await control({ op: 'open', instance_id: initial.instance_id,
+      command_id: randomUUID(), expected_generation: initial.generation })).status;
+    assert.equal(opened.admission_open, true);
+    assert.equal(opened.generation, 1);
+  }
   await page.goto(origin);
   await check(page.getByLabel('Pairing code')).toBeVisible();
   if (scenario === 'flow') {

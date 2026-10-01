@@ -19,7 +19,7 @@ services:
         target: /var/lib/postgresql # PostgreSQL 18 PGDATA is /var/lib/postgresql/18/docker
     networks: [control]
     healthcheck:
-      test: [CMD, pg_isready, -U, omnis, -d, omnis]
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, omnis, -d, omnis]
       interval: 2s
       timeout: 2s
       retries: 30

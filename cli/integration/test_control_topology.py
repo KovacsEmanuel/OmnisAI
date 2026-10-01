@@ -37,6 +37,17 @@ from control_topology import (
 
 
 class InstalledControlPreflightTest(unittest.TestCase):
+    def test_postgres_health_requires_final_tcp_server(self):
+        # Contract guard; the PG18 temporary/final server probe is separate live evidence.
+        source = Path(__file__).resolve().parents[2] / "ops/compose.control.yaml"
+        db = source.read_text().split("\n  supervisor:", 1)[0]
+        test = db.split("healthcheck:\n", 1)[1].splitlines()[0].strip()
+        self.assertTrue(test.startswith("test: [") and test.endswith("]"))
+        argv = [word.strip() for word in test.removeprefix("test: [").removesuffix("]").split(",")]
+        self.assertEqual(
+            argv, ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "omnis", "-d", "omnis"]
+        )
+
     def test_installed_stalled_api_stop_requires_exit_four_and_recovery(self):
         project = "omnis-local-" + "a" * 32
         expected = {"api_ready": True, "dashboard_ready": True}

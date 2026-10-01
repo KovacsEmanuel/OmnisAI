@@ -70,6 +70,15 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    oracle only, never the installed product's elapsed deadline. Measure readiness
    expiry from the observed phase and separately from fault resume: SIGSTOP does
    not pause a monotonic deadline, and launcher elapsed includes unrelated work.
+   Do not hold a launcher across a graceful test-DB shutdown: its independent
+   Docker-client cap can expire during that grace instead of DB readiness failing.
+   Use a prompt external fault on the exact attested first-start CID; a slow or
+   missed boundary stays FAIL/UNCERTAIN, never retry/rescue into PASS.
+   Admit an effectful test CLI only after the observer owns its pidfd. A same-child
+   anonymous EOF gate can refuse exec and permit bounded reap when pinning fails,
+   without numeric fallback or another supervisor. Test missing-pin with a real
+   child, no CLI effects, the original error and FAIL/UNCERTAIN receipt preserved;
+   keep the admitted positive on the same channel and label DB seams separately.
 
 ## Verify the installed refusal protocol
 

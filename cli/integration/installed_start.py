@@ -6,6 +6,7 @@ import select
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -487,8 +488,13 @@ def run_installed_start(data, receipt, scratch, cli):
             )
 
 
-def run_interrupted_start(data, receipt, cli):
-    """Interrupt the read-only VERIFYING stage after all daemon mutations completed."""
+def run_interrupted_start(data, receipt, cli, *, phase="VERIFYING", expire_dashboard=False):
+    """Interrupt VERIFYING or post-spawn FORWARDING; only the pinned CLI is paused.
+
+    Its real child reaches a listener before TERM/CONT, without a product bypass.
+    """
+    assert phase in {"VERIFYING", "FORWARDING"}
+    assert not expire_dashboard or phase == "VERIFYING"
     state = Path(tempfile.mkdtemp(prefix="s2i-", dir=os.environ["TMPDIR"]))
     root, control = state / "s/omnis", state / "r/omnis"
     env = {
@@ -508,6 +514,11 @@ def run_interrupted_start(data, receipt, cli):
     runtime = ControlRuntime(data, time.monotonic() + 180)
     process = None
     pidfd = -1
+    observer = None
+    paused = False
+    begin = time.monotonic()
+    stage_observed = None
+    fault_resumed = None
     try:
         process = subprocess.Popen(
             [cli, "start", "--no-open", "--port", str(port), "--json"],
@@ -518,27 +529,70 @@ def run_interrupted_start(data, receipt, cli):
             text=True,
         )
         pidfd = os.pidfd_open(process.pid)
+        observer = ForwarderObservation(root, port, process.pid)
         deadline = time.monotonic() + 45
         while time.monotonic() < deadline:
             if (root / "startup.json").exists():
                 record = json.loads((root / "startup.json").read_text())
-                if record.get("phase") == "VERIFYING":
+                if record.get("phase") == phase:
+                    stage_observed = time.monotonic()
+                    if phase == "FORWARDING":
+                        observer.discover()
+                        if not observer.pins:
+                            continue
+                        signal.pidfd_send_signal(pidfd, signal.SIGSTOP)
+                        paused = True
+                        until = time.monotonic() + 8
+                        while not observer.inodes and time.monotonic() < until:
+                            observer.snapshot_listener()
+                            time.sleep(0.002)
+                        assert observer.inodes, "Forwarder produced no observed listener"
                     break
             assert process.poll() is None, "Startup exited before the read-only interruption stage"
             time.sleep(0.005)
         else:
             raise AssertionError("Startup did not reach read-only VERIFYING")
-        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+        if expire_dashboard:
+            signal.pidfd_send_signal(pidfd, signal.SIGSTOP)
+            paused = True
+            runtime.attempt = record["attempt"]
+            cid = record["containers"]["api"]
+            runtime.attest(cid, "api", root, control, port)
+            runtime.run("container", "stop", "--time", "15", cid, cap=22, effect=True)
+            assert runtime.attest(cid, "api", root, control, port)["State"]["Running"] is False
+        else:
+            signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+        if paused:
+            signal.pidfd_send_signal(pidfd, signal.SIGCONT)
+            paused = False
+        if expire_dashboard:
+            fault_resumed = time.monotonic()
         out, err = process.communicate(timeout=125)
         record = json.loads((root / "startup.json").read_text())
         runtime.attempt = record["attempt"]
         assert process.returncode == 3, "Unreconciled interruption: preserve DB, not a cleanup PASS"
         assert record["phase"] == "FAILED_CLEANED" and record["cleanup"] == []
-        assert record["failed_phase"] == "VERIFYING", "Interruption missed the read-only stage"
+        assert record["failed_phase"] == phase, "Interruption missed the selected stage"
         assert not json.loads(out)["dashboard_ready"]
+        elapsed = time.monotonic() - begin
+        if expire_dashboard:
+            assert json.loads(out)["reason"] == "DASHBOARD_READINESS_FAILED"
+            assert fault_resumed is not None
+            assert stage_observed is not None
+            fault_elapsed = time.monotonic() - fault_resumed
+            expiry_elapsed = time.monotonic() - stage_observed
+            # The product's 30s wait starts at VERIFYING, before the API stop.
+            # Pausing the CLI does not pause that monotonic deadline.
+            assert 29 <= expiry_elapsed < 30 + 100, "Readiness expiry outside declared budgets"
+            assert 0 <= fault_elapsed < 30 + 100, "Post-resume cleanup allowance exceeded"
+            assert elapsed < 180 + 100, "Startup plus cleanup allowance exceeded"
+            print(
+                f"INSTALLED_READINESS_EXPIRY stage_elapsed={expiry_elapsed:.3f}s post_resume={fault_elapsed:.3f}s wait_budget=30s cleanup_allowance=100s",
+                flush=True,
+            )
         runtime.deadline = time.monotonic() + 30
         # The product must have removed its own resources BEFORE any test rescue.
-        assert_resources_absent(runtime, root, control, record)
+        assert_resources_absent(runtime, root, control, record, observer=observer)
         driver_uncertain = False
         before = resource_snapshot(runtime, root, control, port)
         journal_before_retry = (root / "startup.json").read_bytes()
@@ -563,11 +617,14 @@ def run_interrupted_start(data, receipt, cli):
         assert (root / "postgres").is_dir()
         probe_ok = True
         print(
-            f"INSTALLED_START_INTERRUPT project={receipt['project']} phase=FAILED_CLEANED exit=3",
+            f"INSTALLED_START_INTERRUPT project={receipt['project']} interrupted={phase} expiry={expire_dashboard} elapsed={elapsed:.3f}s phase=FAILED_CLEANED exit=3",
             flush=True,
         )
     finally:
+        original_failure = sys.exception()
         try:
+            if paused and pidfd >= 0:
+                signal.pidfd_send_signal(pidfd, signal.SIGCONT)
             if process is not None and process.poll() is None:
                 if pidfd >= 0:
                     signal.pidfd_send_signal(pidfd, signal.SIGTERM)
@@ -583,13 +640,15 @@ def run_interrupted_start(data, receipt, cli):
                 record = json.loads((root / "startup.json").read_text())
                 runtime.attempt = record["attempt"]
                 if driver_uncertain or record.get("phase") == "UNCERTAIN":
-                    raise AssertionError(
-                        "Unreconciled interruption: DB retained at recovery locator"
-                    )
-                if runtime.ids() or record.get("forwarder"):
-                    teardown(runtime, root, control, port, record)
-                assert_resources_absent(runtime, root, control, record)
-            cleanup_ok = True
+                    if original_failure is None:
+                        raise AssertionError(
+                            "Unreconciled interruption: DB retained at recovery locator"
+                        )
+                else:
+                    if runtime.ids() or record.get("forwarder"):
+                        teardown(runtime, root, control, port, record)
+                    assert_resources_absent(runtime, root, control, record, observer=observer)
+                    cleanup_ok = True
         finally:
             if process is not None:
                 for stream in (process.stdout, process.stderr):
@@ -597,13 +656,20 @@ def run_interrupted_start(data, receipt, cli):
                         stream.close()
             if pidfd >= 0:
                 os.close(pidfd)
-            save_probe(
-                state,
-                data,
-                receipt["project"],
-                root,
-                record,
-                probe="PASS" if probe_ok else "FAIL",
-                cleanup="VERIFIED" if cleanup_ok else "UNCERTAIN",
-            )
+            try:
+                if observer is not None:
+                    try:
+                        observer.rescue()
+                    finally:
+                        observer.close()
+            finally:
+                save_probe(
+                    state,
+                    data,
+                    receipt["project"],
+                    root,
+                    record,
+                    probe="PASS" if probe_ok else "FAIL",
+                    cleanup="VERIFIED" if cleanup_ok else "UNCERTAIN",
+                )
         print(f"INSTALLED_START_INTERRUPT_CLEANUP data_retained={root}", flush=True)

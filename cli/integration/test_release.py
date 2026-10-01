@@ -573,6 +573,12 @@ class ReleaseBundleTest(unittest.TestCase):
 
                 run_installed_start(data, state, scratch, cli)
                 run_interrupted_start(data, state, cli)
+                run_interrupted_start(data, state, cli, phase="FORWARDING")
+                run_interrupted_start(data, state, cli, expire_dashboard=True)
+                from installed_start_failures import run_database_readiness_failure, run_lock_expiry
+
+                run_database_readiness_failure(data, state, cli)
+                run_lock_expiry(data, state, cli)
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"

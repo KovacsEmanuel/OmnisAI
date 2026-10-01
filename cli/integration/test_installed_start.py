@@ -13,6 +13,207 @@ from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_unknown_pair_child_exit_keeps_family_uncertain(self):
+        import subprocess
+        from unittest.mock import patch
+
+        for code in (-9, 99):
+            with self.subTest(code=code):
+                with patch.object(probe, "tty_run", return_value=(code, b"", b"")):
+                    with self.assertRaises(probe.ObserverUncertain):
+                        probe.tty_pair("/synthetic/omnis", Path("/synthetic"), {}, expected=3)
+                with patch.object(
+                    probe.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        ["/synthetic/omnis", "pair"], code, "", ""
+                    ),
+                ):
+                    with self.assertRaises(probe.ObserverUncertain):
+                        probe.command(
+                            "/synthetic/omnis", ["pair"], Path("/synthetic"), {}, expected=3
+                        )
+        with patch.object(probe, "tty_run", return_value=(4, b"", b"")):
+            with self.assertRaises(AssertionError):
+                probe.tty_pair("/synthetic/omnis", Path("/synthetic"), {}, expected=3)
+        with patch.object(
+            probe.subprocess,
+            "run",
+            return_value=subprocess.CompletedProcess(["/synthetic/omnis", "pair"], 4, "", ""),
+        ):
+            with self.assertRaises(AssertionError):
+                probe.command("/synthetic/omnis", ["pair"], Path("/synthetic"), {}, expected=3)
+
+    def test_explicit_open_observer_keeps_signalled_family_uncertain(self):
+        import subprocess
+        from unittest.mock import patch
+
+        observer = probe.observed_open
+        cli = "/synthetic/omnis"
+        origin = "http://127.0.0.1:8765"
+        env = {"PATH": "/usr/bin:/bin"}
+        for result, error in (
+            (subprocess.CompletedProcess([cli, "open"], -9, "", ""), probe.ObserverUncertain),
+            (
+                subprocess.CompletedProcess(
+                    [cli, "open"],
+                    0,
+                    f"Omnis READY: {origin}/ — BROWSER_LAUNCH_ACCEPTED; "
+                    "fereastra/sesiunea nu sunt verificate.\n",
+                    "Deschiderea a eșuat; serviciile rămân pornite.\n",
+                ),
+                AssertionError,
+            ),
+        ):
+            with (
+                self.subTest(returncode=result.returncode),
+                patch.object(probe.subprocess, "run", return_value=result),
+            ):
+                with self.assertRaises(error):
+                    observer(cli, Path("/synthetic"), env, origin)
+        accepted = subprocess.CompletedProcess(
+            [cli, "open"],
+            3,
+            f"Omnis READY: {origin}/ — BROWSER_LAUNCH_FAILED; "
+            "fereastra/sesiunea nu sunt verificate.\n",
+            "Deschiderea a eșuat; serviciile rămân pornite.\n",
+        )
+        with patch.object(probe.subprocess, "run", return_value=accepted):
+            outcome, text = observer(cli, Path("/synthetic"), env, origin)
+        self.assertEqual(outcome, "BROWSER_LAUNCH_FAILED")
+        self.assertEqual(text, accepted.stdout + accepted.stderr)
+
+    def test_joined_tty_report_rejection_marks_owned_cli_settled(self):
+        from unittest.mock import patch
+
+        events = []
+        mismatched = (
+            "Cod pairing Omnis (expiră în 5 minute): " + "A" * 32 + "\r\n"
+            "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_UNCONFIRMED; "
+            "fereastra/sesiunea nu sunt verificate.\r\n"
+        ).encode()
+        with patch.object(probe, "tty_run", return_value=(0, mismatched, b"")):
+            try:
+                probe.tty_default(
+                    "/synthetic/omnis",
+                    Path("/synthetic"),
+                    {},
+                    8765,
+                    on_joined=lambda: events.append("joined"),
+                )
+            except TypeError as error:
+                self.fail(f"No joined-child boundary for TTY parser: {error}")
+            except AssertionError:
+                pass
+            else:
+                self.fail("Mismatched opener outcome was accepted")
+        self.assertEqual(events, ["joined"])
+        with patch.object(probe, "tty_run", side_effect=probe.ObserverUncertain("unjoined")):
+            with self.assertRaises(probe.ObserverUncertain):
+                probe.tty_default(
+                    "/synthetic/omnis",
+                    Path("/synthetic"),
+                    {},
+                    8765,
+                    on_joined=lambda: events.append("not-joined"),
+                )
+        self.assertEqual(events, ["joined"])
+        with patch.object(probe, "tty_run", return_value=(-9, mismatched, b"")):
+            with self.assertRaises(AssertionError):
+                probe.tty_default(
+                    "/synthetic/omnis",
+                    Path("/synthetic"),
+                    {},
+                    8765,
+                    on_joined=lambda: events.append("signalled-child"),
+                )
+        self.assertEqual(events, ["joined"], "Signalled child family is not reconciled")
+
+    def test_reused_implicit_console_consumer_checks_exact_opener_result(self):
+        import subprocess
+        from unittest.mock import patch
+
+        import installed_start as harness
+
+        observer = harness.run_reused_default
+        origin = "http://127.0.0.1:8765"
+        joins = []
+        for result in (
+            subprocess.CompletedProcess(
+                ["/synthetic/omnis"],
+                0,
+                f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; "
+                "fereastra/sesiunea nu sunt verificate.\n",
+                "",
+            ),
+            subprocess.CompletedProcess(
+                ["/synthetic/omnis"],
+                0,
+                f"Omnis READY: {origin}/ — BROWSER_LAUNCH_ACCEPTED; "
+                "fereastra/sesiunea nu sunt verificate.\nEXTRA",
+                "",
+            ),
+            subprocess.CompletedProcess(
+                ["/synthetic/omnis"],
+                0,
+                f"Omnis READY: {origin}/ — BROWSER_LAUNCH_ACCEPTED; "
+                "fereastra/sesiunea nu sunt verificate.\n",
+                "Deschiderea a eșuat; serviciile rămân pornite.\n",
+            ),
+        ):
+            with (
+                self.subTest(stdout=result.stdout),
+                patch.object(harness.subprocess, "run", return_value=result) as launched,
+            ):
+                with self.assertRaises(AssertionError):
+                    observer(
+                        "/synthetic/omnis",
+                        Path("/synthetic"),
+                        {},
+                        8765,
+                        on_joined=lambda: joins.append("joined"),
+                    )
+                launched.assert_called_once()
+        self.assertEqual(joins, ["joined"] * 3)
+        accepted = subprocess.CompletedProcess(
+            ["/synthetic/omnis"],
+            3,
+            f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; "
+            "fereastra/sesiunea nu sunt verificate.\n",
+            "Openerul a depășit termenul; fereastra poate exista sau lipsi. "
+            "Serviciile rămân pornite.\n",
+        )
+        with patch.object(harness.subprocess, "run", return_value=accepted):
+            self.assertIs(observer("/synthetic/omnis", Path("/synthetic"), {}, 8765), accepted)
+        with patch.object(
+            harness.subprocess,
+            "run",
+            side_effect=subprocess.TimeoutExpired(["/synthetic/omnis"], 50),
+        ):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                observer(
+                    "/synthetic/omnis",
+                    Path("/synthetic"),
+                    {},
+                    8765,
+                    on_joined=lambda: joins.append("not-joined"),
+                )
+        self.assertEqual(joins, ["joined"] * 3)
+        with patch.object(
+            harness.subprocess,
+            "run",
+            return_value=subprocess.CompletedProcess(["/synthetic/omnis"], -9, "", ""),
+        ):
+            with self.assertRaises(AssertionError):
+                observer(
+                    "/synthetic/omnis",
+                    Path("/synthetic"),
+                    {},
+                    8765,
+                    on_joined=lambda: joins.append("signalled-child"),
+                )
+        self.assertEqual(joins, ["joined"] * 3)
+
     def test_tty_default_rejects_exit_outcome_mismatch_and_extra_bytes(self):
         from unittest.mock import patch
 
@@ -28,6 +229,21 @@ class InstalledStartObserverTest(unittest.TestCase):
             ):
                 with self.assertRaises(AssertionError):
                     probe.tty_default("/synthetic/omnis", Path("/synthetic"), {}, 8765)
+        contradictory = (
+            prefix + f"Omnis READY: {origin}/ — BROWSER_LAUNCH_ACCEPTED; "
+            "fereastra/sesiunea nu sunt verificate.\r\n"
+        )
+        with patch.object(
+            probe,
+            "tty_run",
+            return_value=(
+                0,
+                contradictory.encode(),
+                "Deschiderea a eșuat; serviciile rămân pornite.\n".encode(),
+            ),
+        ):
+            with self.assertRaises(AssertionError):
+                probe.tty_default("/synthetic/omnis", Path("/synthetic"), {}, 8765)
         accepted = (
             prefix + f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; "
             "fereastra/sesiunea nu sunt verificate.\r\n"
@@ -95,16 +311,34 @@ class InstalledStartObserverTest(unittest.TestCase):
                 runtime.deadline = deadline
                 return runtime
 
+            implicit_replies = [
+                subprocess.CompletedProcess(
+                    [cli],
+                    3,
+                    "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
+                    "fereastra/sesiunea nu sunt verificate.\n",
+                    "Deschiderea a eșuat; serviciile rămân pornite.\n",
+                ),
+                subprocess.CompletedProcess(
+                    [cli],
+                    0,
+                    "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_UNCONFIRMED; "
+                    "fereastra/sesiunea nu sunt verificate.\n",
+                    "",
+                ),
+                subprocess.CompletedProcess(
+                    [cli],
+                    0,
+                    "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_ACCEPTED; "
+                    "fereastra/sesiunea nu sunt verificate.\n",
+                    "Deschiderea a eșuat; serviciile rămân pornite.\n",
+                ),
+            ]
+
             def invoke(argv, **_kwargs):
                 if argv == [cli]:
                     clock["now"] = 40.0  # A valid CLI may take > initial observer budget.
-                    return subprocess.CompletedProcess(
-                        argv,
-                        3,
-                        "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
-                        "fereastra/sesiunea nu sunt verificate.\n",
-                        "Deschiderea a eșuat; serviciile rămân pornite.\n",
-                    )
+                    return implicit_replies.pop(0)
                 if argv == [cli, "status", "--json"]:
                     return subprocess.CompletedProcess(
                         argv,
@@ -128,36 +362,63 @@ class InstalledStartObserverTest(unittest.TestCase):
                 patch.object(harness, "ControlRuntime", side_effect=make_runtime),
                 patch.object(harness.subprocess, "run", side_effect=invoke),
                 patch.object(harness, "opener_outcome", wraps=probe.opener_outcome) as parsed,
-                patch.object(harness, "save_probe"),
+                patch.object(harness, "save_probe") as receipt_writer,
                 patch.object(harness, "teardown") as teardown,
                 patch.object(harness, "assert_resources_absent") as absent,
                 contextlib.redirect_stdout(io.StringIO()) as output,
             ):
                 harness.run_installed_non_tty_default(data, receipt, cli)
-            teardown.assert_called_once()
-            absent.assert_called_once()
-            parsed.assert_called_once_with(
-                3,
-                "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
-                "fereastra/sesiunea nu sunt verificate.\n",
-                "http://127.0.0.1:8765",
-            )
+                teardown.assert_called_once()
+                absent.assert_called_once()
+                parsed.assert_called_once_with(
+                    3,
+                    "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
+                    "fereastra/sesiunea nu sunt verificate.\n",
+                    "http://127.0.0.1:8765",
+                    "Deschiderea a eșuat; serviciile rămân pornite.\n",
+                )
+                # Same subprocess/READY/attestation channel with a contradictory
+                # opener result: rejection must still clean its joined family.
+                (state / "cwd").rmdir()
+                with self.assertRaises(AssertionError):
+                    harness.run_installed_non_tty_default(data, receipt, cli)
+                self.assertEqual(teardown.call_count, 2)
+                self.assertEqual(absent.call_count, 2)
+                self.assertEqual(parsed.call_count, 2)
+                self.assertEqual(receipt_writer.call_args.kwargs["probe"], "FAIL")
+                self.assertEqual(receipt_writer.call_args.kwargs["cleanup"], "VERIFIED")
+                (state / "cwd").rmdir()
+                with self.assertRaises(AssertionError):
+                    harness.run_installed_non_tty_default(data, receipt, cli)
+                self.assertEqual(teardown.call_count, 3)
+                self.assertEqual(absent.call_count, 3)
+                self.assertEqual(parsed.call_count, 3)
+                self.assertEqual(receipt_writer.call_args.kwargs["probe"], "FAIL")
+                self.assertEqual(receipt_writer.call_args.kwargs["cleanup"], "VERIFIED")
             self.assertIn("INSTALLED_DEFAULT_NON_TTY_VERIFIED", output.getvalue())
 
     def test_opener_observer_accepts_only_exact_outcome_for_exit_and_origin(self):
         origin = "http://127.0.0.1:8765"
         cases = (
-            (0, "BROWSER_LAUNCH_ACCEPTED"),
-            (2, "BROWSER_UNAVAILABLE"),
-            (3, "BROWSER_LAUNCH_FAILED"),
-            (3, "BROWSER_LAUNCH_UNCONFIRMED"),
+            (0, "BROWSER_LAUNCH_ACCEPTED", ""),
+            (
+                2,
+                "BROWSER_UNAVAILABLE",
+                "Deschideți manual originul afișat; serviciile rămân pornite.\n",
+            ),
+            (3, "BROWSER_LAUNCH_FAILED", "Deschiderea a eșuat; serviciile rămân pornite.\n"),
+            (
+                3,
+                "BROWSER_LAUNCH_UNCONFIRMED",
+                "Openerul a depășit termenul; fereastra poate exista sau lipsi. Serviciile rămân pornite.\n",
+            ),
         )
-        for exit_code, outcome in cases:
+        for exit_code, outcome, stderr in cases:
             with self.subTest(outcome=outcome):
                 line = (
                     f"Omnis READY: {origin}/ — {outcome}; fereastra/sesiunea nu sunt verificate.\n"
                 )
-                self.assertEqual(probe.opener_outcome(exit_code, line, origin), outcome)
+                self.assertEqual(probe.opener_outcome(exit_code, line, origin, stderr), outcome)
         for exit_code, line in (
             (
                 0,
@@ -178,7 +439,7 @@ class InstalledStartObserverTest(unittest.TestCase):
         ):
             with self.subTest(exit_code=exit_code, line=line):
                 with self.assertRaises(AssertionError):
-                    probe.opener_outcome(exit_code, line, origin)
+                    probe.opener_outcome(exit_code, line, origin, "")
 
     def test_pty_overflow_before_join_is_uncertain_not_an_assertion_cleanup(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:

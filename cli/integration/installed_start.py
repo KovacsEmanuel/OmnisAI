@@ -224,6 +224,15 @@ def teardown(runtime, root, control, port, record, *, uncertain=False):
     )
 
 
+def run_reused_default(cli, cwd, env, port, *, on_joined=None):
+    """Observe the installed reused implicit command, not just its READY prefix."""
+    result = subprocess.run([cli], cwd=cwd, env=env, capture_output=True, text=True, timeout=50)
+    if result.returncode in {0, 2, 3} and on_joined is not None:
+        on_joined()
+    opener_outcome(result.returncode, result.stdout, f"http://127.0.0.1:{port}", result.stderr)
+    return result
+
+
 def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
     state = Path(tempfile.mkdtemp(prefix="s2-", dir=os.environ["TMPDIR"]))
     root, control = state / "s/omnis", state / "r/omnis"
@@ -337,11 +346,18 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
                 assert not (root / "startup.json").exists()
                 assert not runtime.ids()
         initial_code = initial_public = None
+
+        def joined_implicit_cli():
+            nonlocal driver_uncertain
+            driver_uncertain = runtime.uncertain or not runtime.family_drained
+
         if pair_open:
             # Exercise the actual no-subcommand console entry on a NEW instance.
             # An unavailable desktop affects opener exit, never startup readiness.
             driver_uncertain = True
-            initial_code, initial_public, _ = tty_default(cli, cwd, env, port)
+            initial_code, initial_public, _ = tty_default(
+                cli, cwd, env, port, on_joined=joined_implicit_cli
+            )
             outputs.append(initial_public)  # Never persist the captured code.
             assert (root / "startup.json").exists()
         # Two fresh concurrent console commands, not two calls to an in-process harness.
@@ -404,12 +420,9 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         assert repeated["reused"] is True
         assert snapshot() == before
         if pair_open:
-            default_reuse = subprocess.run(
-                [cli], cwd=cwd, env=env, capture_output=True, text=True, timeout=50
-            )
+            driver_uncertain = True
+            default_reuse = run_reused_default(cli, cwd, env, port, on_joined=joined_implicit_cli)
             outputs.append(default_reuse.stdout + default_reuse.stderr)
-            assert default_reuse.returncode in {0, 2, 3}
-            assert f"Omnis READY: http://127.0.0.1:{port}/" in default_reuse.stdout
             assert snapshot() == before
         assert status["generation"] == repeated["generation"] == 1
         assert status["supervisor_epoch"] == repeated["supervisor_epoch"] == 1
@@ -645,11 +658,9 @@ def run_installed_non_tty_default(data, receipt, cli):
             runtime.attest(cid, role, root, control, 8765)
         driver_uncertain = runtime.uncertain or not runtime.family_drained
         assert not driver_uncertain
-        outcome = opener_outcome(launched.returncode, launched.stdout, "http://127.0.0.1:8765")
-        if launched.returncode:
-            assert "serviciile rămân pornite" in launched.stderr.lower()
-        if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
-            assert "poate" in launched.stderr
+        opener_outcome(
+            launched.returncode, launched.stdout, "http://127.0.0.1:8765", launched.stderr
+        )
         assert "Cod pairing Omnis" not in launched.stdout + launched.stderr, (
             "Non-TTY implicit launch disclosed a pairing code"
         )

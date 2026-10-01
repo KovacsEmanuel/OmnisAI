@@ -27,6 +27,8 @@ def command(cli, args, cwd, env, *, expected):
     process = subprocess.run(
         [cli, *args], cwd=cwd, env=env, capture_output=True, text=True, timeout=50
     )
+    if process.returncode not in {0, 2, 3, 4}:
+        raise ObserverUncertain("Installed CLI child exit is not recognized")
     assert process.returncode == expected, f"Installed {args[0]} exit {process.returncode}"
     return process.stdout, process.stderr
 
@@ -88,6 +90,8 @@ CODE_LINE = rb"Cod pairing Omnis \(expir\xc4\x83 \xc3\xaen 5 minute\): ([A-Za-z0
 
 def tty_pair(cli, cwd, env, *, expected=0):
     exit_code, output, stderr = tty_run(cli, ["pair"], cwd, env, limit=256)
+    if exit_code not in {0, 2, 3, 4}:
+        raise ObserverUncertain("Installed pair child exit is not recognized")
     assert exit_code == expected, f"Installed pair exit {exit_code}"
     if expected:
         assert not output, "Pairing denial must not print a code"
@@ -99,18 +103,21 @@ def tty_pair(cli, cwd, env, *, expected=0):
     return match.group(1).decode("ascii")
 
 
-def tty_default(cli, cwd, env, port):
+def tty_default(cli, cwd, env, port, *, on_joined=None):
     exit_code, output, stderr = tty_run(cli, [], cwd, env, limit=512)
+    if exit_code in {0, 2, 3} and on_joined is not None:
+        on_joined()  # A signalled/unknown child exit does not settle its descendants.
     # GUI absence is distinct from the successful startup and TTY issuance.
     match = re.match(CODE_LINE, output)
     assert match is not None, "Fresh TTY launch did not disclose exactly one initial code"
     code = match.group(1).decode("ascii")
     public = output[match.end() :].decode("utf-8")
-    outcome = opener_outcome(exit_code, public.replace("\r\n", "\n"), f"http://127.0.0.1:{port}")
-    if exit_code:
-        assert "serviciile rămân pornite" in stderr.decode("utf-8").lower()
-    if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
-        assert "poate" in stderr.decode("utf-8")
+    opener_outcome(
+        exit_code,
+        public.replace("\r\n", "\n"),
+        f"http://127.0.0.1:{port}",
+        stderr.decode("utf-8"),
+    )
     assert code not in public + stderr.decode("utf-8"), "Code escaped TTY line"
     return code, public, exit_code
 
@@ -132,7 +139,7 @@ def http_request(port, path, *, method="GET", body=None, headers=None):
         connection.close()
 
 
-def opener_outcome(exit_code: int, stdout: str, origin: str) -> str:
+def opener_outcome(exit_code: int, stdout: str, origin: str, stderr: str) -> str:
     """Check the installed command's exact sanitized consumer result."""
     allowed = {
         0: {"BROWSER_LAUNCH_ACCEPTED"},
@@ -147,7 +154,33 @@ def opener_outcome(exit_code: int, stdout: str, origin: str) -> str:
     assert match is not None and match.group(1) in allowed.get(exit_code, set()), (
         "Installed opener exit/origin/outcome mismatch"
     )
+    expected_stderr = {
+        "BROWSER_LAUNCH_ACCEPTED": "",
+        "BROWSER_UNAVAILABLE": "Deschideți manual originul afișat; serviciile rămân pornite.\n",
+        "BROWSER_LAUNCH_FAILED": "Deschiderea a eșuat; serviciile rămân pornite.\n",
+        "BROWSER_LAUNCH_UNCONFIRMED": (
+            "Openerul a depășit termenul; fereastra poate exista sau lipsi. "
+            "Serviciile rămân pornite.\n"
+        ),
+    }
+    assert stderr == expected_stderr[match.group(1)], "Installed opener diagnostic mismatch"
     return match.group(1)
+
+
+def observed_open(cli, cwd, env, origin):
+    """Separate a joined normal CLI report from an unknown child family."""
+    no_display = {
+        key: value
+        for key, value in env.items()
+        if key not in ("DISPLAY", "WAYLAND_DISPLAY", "DBUS_SESSION_BUS_ADDRESS")
+    }
+    opened = subprocess.run(
+        [cli, "open"], cwd=cwd, env=no_display, capture_output=True, text=True, timeout=50
+    )
+    if opened.returncode not in {0, 2, 3}:
+        raise ObserverUncertain("Installed open child family not reconciled")
+    outcome = opener_outcome(opened.returncode, opened.stdout, origin, opened.stderr)
+    return outcome, opened.stdout + opened.stderr
 
 
 def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_code):
@@ -274,19 +307,6 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     )
     assert code not in browser.stdout + browser.stderr, "Browser log leaked code"
     # No browser-success claim from xdg-open; this only tests the installed command's report.
-    no_display = {
-        key: value
-        for key, value in env.items()
-        if key not in ("DISPLAY", "WAYLAND_DISPLAY", "DBUS_SESSION_BUS_ADDRESS")
-    }
-    opened = subprocess.run(
-        [cli, "open"], cwd=cwd, env=no_display, capture_output=True, text=True, timeout=50
-    )
-    stdout, stderr = opened.stdout, opened.stderr
-    outcome = opener_outcome(opened.returncode, stdout, origin)
-    if opened.returncode:
-        assert "serviciile rămân pornite" in stderr.lower()
-    if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
-        assert "poate" in stderr and "Deschiderea a eșuat" not in stderr
-    outputs.append(stdout + stderr)
+    outcome, report = observed_open(cli, cwd, env, origin)
+    outputs.append(report)
     return outcome  # Final verdict belongs to the caller after owned teardown/readback.

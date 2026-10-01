@@ -21,6 +21,18 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    signalling a numeric PID/PGID after reap; preserve owned identity through any
    signal operation. Follow the existing ownership model and do not promote a
    WIP owner merely to make this regression green.
+   - Inject interruption at pipe close/finally as well as inside wait: an exception
+     in finally can bypass the preceding handler. Establish conservative flags
+     before effects and keep them until acknowledgement, decoding and cleanup
+     all complete; successful later commands must preserve earlier uncertainty.
+   - Revoke numeric signal authority before entering a reap-capable operation.
+     `Popen.returncode is None` is not proof of an unreaped child: Python can be
+     interrupted between kernel waitpid and publishing returncode, including
+     during its KeyboardInterrupt retry. Test one and repeated interrupts there
+     with real reap and intercepted signal attempts. If using WNOWAIT to retain
+     identity, bound the pre-reap wait and test EOF before a still-live child exits.
+     This assumes the existing exclusive child owner, not an arbitrary concurrent
+     reaper or proof of daemon cancellation/detached-descendant drainage.
 5. Keep boundary evidence separate: real child termination + mocked daemon
    proves a branch and its consumer, not Docker-side cancellation. A delayed
    daemon effect needs its own authorized isolated probe and exact cleanup

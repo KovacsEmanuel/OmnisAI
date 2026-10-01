@@ -460,6 +460,7 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
                 ("epoch-bool", {"supervisor_epoch": True}),
                 ("unknown-field", {"ignored_admin": "synthetic-marker"}),
                 ("socket-bool", {"api_socket": [True, 123]}),
+                ("socket-length", {"control_socket": [2049]}),
             ):
                 changed = json.loads(original_journal)
                 changed.update(change)
@@ -635,6 +636,9 @@ def run_installed_non_tty_default(data, receipt, cli):
         record = json.loads((root / "startup.json").read_text())
         assert record["phase"] == "READY" and record["port"] == 8765
         runtime.attempt = record["attempt"]
+        # Attestation has its own finite budget after the CLI has joined; the
+        # initial runtime preflight deadline must not expire during startup.
+        runtime.deadline = time.monotonic() + 30
         assert set(record["containers"]) == {"db", "api", "supervisor"}
         assert set(runtime.ids()) == set(record["containers"].values())
         for role, cid in record["containers"].items():

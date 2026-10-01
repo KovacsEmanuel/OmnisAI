@@ -13,6 +13,97 @@ from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_slow_joined_implicit_start_gets_fresh_attestation_deadline(self):
+        """Observer time is substituted; product startup and Docker are not proved here."""
+        import contextlib
+        import io
+        import json
+        import subprocess
+        from unittest.mock import MagicMock, patch
+
+        import installed_start as harness
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            root = state / "s/omnis"
+            root.mkdir(parents=True, mode=0o700)
+            record = {
+                "phase": "READY",
+                "port": 8765,
+                "attempt": "synthetic-attempt",
+                "instance_id": "synthetic-instance",
+                "containers": {"db": "db-id", "api": "api-id", "supervisor": "supervisor-id"},
+            }
+            (root / "startup.json").write_text(json.dumps(record))
+            clock = {"now": 0.0}
+
+            class Runtime:
+                receipt = SimpleNamespace(image_id="sha256:" + "a" * 64)
+                uncertain = False
+                family_drained = True
+                deadline = 0.0
+
+                def ids(self):
+                    assert self.deadline > clock["now"], "Stale observer deadline"
+                    return list(record["containers"].values())
+
+                def attest(self, *_args):
+                    return {}
+
+                def psql(self, *_args):
+                    return "0"
+
+            runtime = Runtime()
+            data = state / "data"
+            receipt = {"image_id": runtime.receipt.image_id, "project": "omnis-local-synthetic"}
+            cli = "/synthetic/omnis"
+
+            def make_runtime(_data, deadline):
+                runtime.deadline = deadline
+                return runtime
+
+            def invoke(argv, **_kwargs):
+                if argv == [cli]:
+                    clock["now"] = 40.0  # A valid CLI may take > initial observer budget.
+                    return subprocess.CompletedProcess(
+                        argv,
+                        3,
+                        "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
+                        "fereastra/sesiunea nu sunt verificate.\n",
+                        "Deschiderea a eșuat; serviciile rămân pornite.\n",
+                    )
+                if argv == [cli, "status", "--json"]:
+                    return subprocess.CompletedProcess(
+                        argv,
+                        0,
+                        json.dumps(
+                            {
+                                "instance_id": record["instance_id"],
+                                "dashboard_ready": True,
+                                "assessment_ready": False,
+                                "browser_opened": False,
+                            }
+                        ),
+                        "",
+                    )
+                self.fail("Unexpected observer subprocess")
+
+            with (
+                patch.object(harness.time, "monotonic", side_effect=lambda: clock["now"]),
+                patch.object(harness.socket, "socket", return_value=MagicMock()),
+                patch.object(harness.tempfile, "mkdtemp", return_value=name),
+                patch.object(harness, "ControlRuntime", side_effect=make_runtime),
+                patch.object(harness.subprocess, "run", side_effect=invoke),
+                patch.object(harness, "save_probe"),
+                patch.object(harness, "teardown") as teardown,
+                patch.object(harness, "assert_resources_absent") as absent,
+                contextlib.redirect_stdout(io.StringIO()) as output,
+            ):
+                harness.run_installed_non_tty_default(data, receipt, cli)
+            teardown.assert_called_once()
+            absent.assert_called_once()
+            self.assertIn("INSTALLED_DEFAULT_NON_TTY_VERIFIED", output.getvalue())
+
     def test_opener_observer_accepts_only_exact_outcome_for_exit_and_origin(self):
         origin = "http://127.0.0.1:8765"
         cases = (

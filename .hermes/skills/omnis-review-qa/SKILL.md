@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.8
+version: 0.1.9
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -23,7 +23,9 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 4. Reject findings based only on style preference unless they conflict with a committed rule. Verify suspected bugs with a test. Fix blockers in minimal separate changes; rerun affected checks after the LAST edit. Two failed fix attempts trigger a narrower investigation, not blind repetition.
    Bound the review loop to the affected product acceptance criterion: re-review a concrete fix, not the entire growing harness. If two cycles expose new test-oracle blockers without advancing that criterion, mark the slice WIP/BLOCKED and reconsider the proof boundary before adding another process supervisor or mutation layer. This does not approve unresolved findings.
 5. For UI inspect the actual screenshot against the user's reference at agreed viewports. Test keyboard/focus, modal/drawer Stop, resize, loading/empty/error/unavailable, reduced motion, long content and real state transitions. Chromium smoke does not certify screen readers, all browsers or aesthetics.
-6. Use Reticle optionally for instrumented local runtime evidence; keep Playwright/DOM and screenshot checks independent. An INCONCLUSIVE result remains inconclusive. Do not install instrumentation into a production build or use it on unrelated sites.
+6. At every Omnis review, load `omnis-reticle` and `omnis-chisel` and report their applicability explicitly: scope/artifact, command (if executed), result and limitation. These are tools, not independent reviewers with opinions; never fabricate a second verdict from their presence.
+   - Use Reticle for admitted, instrumented local UI runtime evidence; keep Playwright/DOM and screenshot checks independent. If the application is not instrumented, state NOT_INTEGRATED; for a CLI/process-only property state NOT_APPLICABLE. A separately executed synthetic smoke is TOOLING_ONLY, not product acceptance, and need not be rerun for every finding. INCONCLUSIVE remains inconclusive. Do not install production instrumentation or use unrelated sites.
+   - Apply Chisel's current NO-GO: BLOCKED on the repository/home/runtime profile until its adoption controls pass. If a bounded reevaluation is authorized, follow its skill using an exact artifact and OS-isolated disposable fixture; no unsandboxed fallback or automatic registration. Missing binary/probe infrastructure is NOT_RUN, not a fresh failure/pass measurement. Use native file tools while blocked.
 7. Audit added lines and staged paths for credentials, sensitive evidence, unsupported dependencies and accidental files. Review generated changes against their source. Keep external revisions/licenses and actual failures in the change record.
 8. Parent reproduces critical assertions and commits the accepted slice. Record exact commands, counts, exit codes, limitations and base/head; final reporting distinguishes implementation, integration and visual acceptance.
 9. Use `omnis-project-status` for ORIENT before review and a scoped status delta at handoff. A read-only reviewer reports proposed changes; only the parent reconciles the map in CLOSE after adjudication. Bind approval to the reviewed snapshot/files, preserve genuinely open findings and compare delayed reports with later fixes. End with approved/in-review/not-reviewed or changes-requested scope, global gates and the next canonical slice; a review is not a runtime PASS.

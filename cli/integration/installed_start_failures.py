@@ -6,6 +6,7 @@ import select
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -79,15 +80,41 @@ def run_database_readiness_failure(data, receipt, cli):
     save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
     begin = time.monotonic()
     try:
-        process = subprocess.Popen(
-            [cli, "start", "--no-open", "--port", str(port), "--json"],
-            cwd=state,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        pin = os.pidfd_open(process.pid)
+        # Admit the same child to exec the installed CLI only after pinning.
+        # EOF exits before CLI effects if pinning fails; no numeric fallback or
+        # additional supervisor process is needed by this test-only gate.
+        reader, writer = os.pipe2(os.O_CLOEXEC)
+        try:
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-I",
+                    "-c",
+                    "import os,sys; fd=int(sys.argv[1]); admitted=os.read(fd,1)==b'G'; "
+                    "os.close(fd); "
+                    "os.execv(sys.argv[2],sys.argv[2:]) if admitted else sys.exit(3)",
+                    str(reader),
+                    cli,
+                    "start",
+                    "--no-open",
+                    "--port",
+                    str(port),
+                    "--json",
+                ],
+                pass_fds=(reader,),
+                cwd=state,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            pin = os.pidfd_open(process.pid)
+            os.write(writer, b"G")
+        finally:
+            try:
+                os.close(reader)
+            finally:
+                os.close(writer)
         until = begin + 40
         while time.monotonic() < until:
             journal = root / "startup.json"
@@ -144,9 +171,12 @@ def run_database_readiness_failure(data, receipt, cli):
         try:
             if paused and pin >= 0:
                 signal.pidfd_send_signal(pin, signal.SIGCONT)
-            if process is not None and not select.select([pin], [], [], 0)[0]:
-                signal.pidfd_send_signal(pin, signal.SIGTERM)
-                process.wait(timeout=125)
+            if process is not None:
+                if pin < 0:
+                    process.wait(timeout=5)  # Unadmitted child exits on gate EOF.
+                elif not select.select([pin], [], [], 0)[0]:
+                    signal.pidfd_send_signal(pin, signal.SIGTERM)
+                    process.wait(timeout=125)
             if (root / "startup.json").exists():
                 record = json.loads((root / "startup.json").read_text())
         finally:

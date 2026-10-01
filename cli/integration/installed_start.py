@@ -11,7 +11,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from installed_pair_open import command, prove, tty_default, tty_pair
+from installed_pair_open import command, opener_outcome, prove, tty_default, tty_pair
 from omnis_cli.control import request
 from omnis_cli.lifecycle import process_identity, write_record
 from omnis_cli.start_runtime import ControlRuntime
@@ -645,7 +645,11 @@ def run_installed_non_tty_default(data, receipt, cli):
             runtime.attest(cid, role, root, control, 8765)
         driver_uncertain = runtime.uncertain or not runtime.family_drained
         assert not driver_uncertain
-        assert launched.stdout.startswith("Omnis READY: http://127.0.0.1:8765/ — ")
+        outcome = opener_outcome(launched.returncode, launched.stdout, "http://127.0.0.1:8765")
+        if launched.returncode:
+            assert "serviciile rămân pornite" in launched.stderr.lower()
+        if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
+            assert "poate" in launched.stderr
         assert "Cod pairing Omnis" not in launched.stdout + launched.stderr, (
             "Non-TTY implicit launch disclosed a pairing code"
         )

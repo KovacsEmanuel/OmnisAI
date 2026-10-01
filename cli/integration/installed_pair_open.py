@@ -102,12 +102,15 @@ def tty_pair(cli, cwd, env, *, expected=0):
 def tty_default(cli, cwd, env, port):
     exit_code, output, stderr = tty_run(cli, [], cwd, env, limit=512)
     # GUI absence is distinct from the successful startup and TTY issuance.
-    assert exit_code in {0, 2, 3}, f"Installed implicit exit {exit_code}"
     match = re.match(CODE_LINE, output)
     assert match is not None, "Fresh TTY launch did not disclose exactly one initial code"
     code = match.group(1).decode("ascii")
     public = output[match.end() :].decode("utf-8")
-    assert public.startswith(f"Omnis READY: http://127.0.0.1:{port}/ — ")
+    outcome = opener_outcome(exit_code, public.replace("\r\n", "\n"), f"http://127.0.0.1:{port}")
+    if exit_code:
+        assert "serviciile rămân pornite" in stderr.decode("utf-8").lower()
+    if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
+        assert "poate" in stderr.decode("utf-8")
     assert code not in public + stderr.decode("utf-8"), "Code escaped TTY line"
     return code, public, exit_code
 

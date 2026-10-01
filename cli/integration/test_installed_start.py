@@ -13,6 +13,39 @@ from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_tty_default_rejects_exit_outcome_mismatch_and_extra_bytes(self):
+        from unittest.mock import patch
+
+        origin = "http://127.0.0.1:8765"
+        prefix = "Cod pairing Omnis (expiră în 5 minute): " + "A" * 32 + "\r\n"
+        for suffix in (
+            f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; fereastra/sesiunea nu sunt verificate.\r\n",
+            f"Omnis READY: {origin}/ — BROWSER_LAUNCH_ACCEPTED; fereastra/sesiunea nu sunt verificate.\r\nEXTRA",
+        ):
+            with (
+                self.subTest(suffix=suffix),
+                patch.object(probe, "tty_run", return_value=(0, (prefix + suffix).encode(), b"")),
+            ):
+                with self.assertRaises(AssertionError):
+                    probe.tty_default("/synthetic/omnis", Path("/synthetic"), {}, 8765)
+        accepted = (
+            prefix + f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; "
+            "fereastra/sesiunea nu sunt verificate.\r\n"
+        )
+        diagnostic = (
+            "Openerul a depășit termenul; fereastra poate exista sau lipsi. "
+            "Serviciile rămân pornite.\n"
+        )
+        with patch.object(
+            probe, "tty_run", return_value=(3, accepted.encode(), diagnostic.encode())
+        ):
+            code, public, exit_code = probe.tty_default(
+                "/synthetic/omnis", Path("/synthetic"), {}, 8765
+            )
+        self.assertEqual(exit_code, 3)
+        self.assertEqual(len(code), 32)
+        self.assertIn("BROWSER_LAUNCH_UNCONFIRMED", public)
+
     def test_slow_joined_implicit_start_gets_fresh_attestation_deadline(self):
         """Observer time is substituted; product startup and Docker are not proved here."""
         import contextlib
@@ -94,6 +127,7 @@ class InstalledStartObserverTest(unittest.TestCase):
                 patch.object(harness.tempfile, "mkdtemp", return_value=name),
                 patch.object(harness, "ControlRuntime", side_effect=make_runtime),
                 patch.object(harness.subprocess, "run", side_effect=invoke),
+                patch.object(harness, "opener_outcome", wraps=probe.opener_outcome) as parsed,
                 patch.object(harness, "save_probe"),
                 patch.object(harness, "teardown") as teardown,
                 patch.object(harness, "assert_resources_absent") as absent,
@@ -102,6 +136,12 @@ class InstalledStartObserverTest(unittest.TestCase):
                 harness.run_installed_non_tty_default(data, receipt, cli)
             teardown.assert_called_once()
             absent.assert_called_once()
+            parsed.assert_called_once_with(
+                3,
+                "Omnis READY: http://127.0.0.1:8765/ — BROWSER_LAUNCH_FAILED; "
+                "fereastra/sesiunea nu sunt verificate.\n",
+                "http://127.0.0.1:8765",
+            )
             self.assertIn("INSTALLED_DEFAULT_NON_TTY_VERIFIED", output.getvalue())
 
     def test_opener_observer_accepts_only_exact_outcome_for_exit_and_origin(self):

@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.11
+version: 0.1.12
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -53,6 +53,9 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 
 - Test teardown after an ordinary early driver exit, not only a live-driver timeout. A PPID snapshot taken after the leader exits loses reparented/detached children. Establish owned adoption or a managed scope before launch, exercise real SIGTERM-resistant children in both orderings, attempt all cleanup before exit-code assertions, and restore any per-test process attribute. Do not adopt preexisting/foreign work; publish final PASS only after teardown and parent-owned leak checks.
 - In a signal/stop oracle, do not use a short child `sleep()` as proof the signal caused exit: under scheduler delay the child can finish naturally and return a misleading code before the observation. Hold a synthetic owned child on a parent-held pipe until the signal/exit assertion, close the release end in `finally`, and reap/kill only its verified process group if the assertion fails. An assertion after all CLI/browser children joined is a product/test failure, not automatically an uncertain writer; a PTY overflow/assertion **before join**, timeout or missing browser-close receipt remains uncertain even if a best-effort direct-child kill returned.
+- For terminal-only secrets, treat the first attempted write through context-manager exit as one disclosure boundary: a writer may emit the whole code and then raise `ValueError`, `OSError` or `KeyboardInterrupt`, and a lock/finalizer can fail after `flush()`. Test each failure after actual bytes reach a TTY seam; never label it “not displayed,” retry issuance or echo the code in diagnostics. Keep pre-ACK denials distinct and test first-launch implicit `omnis` does not call the opener after uncertain disclosure.
+- For private JSON lifecycle receipts, Python `True == 1` is not an authority check: require exact field sets/types (including socket identity lists) before Docker/HTTP attestation. Prove a valid READY receipt reaches the resource oracle, then mutate bool/unknown fields on the SAME installed start/status/pair/open channel and require refusal without code, browser or lifecycle effects.
+- Test installed GUI outcomes as exact `(exit, origin, status)` pairs, not a prefix; a timed-out opener may have detached a browser and is `UNCONFIRMED`, not definite failure. Distinguish this consumer test from proving an OS window, and exercise a fresh non-TTY implicit launcher separately from fresh PTY/reuse with `pairing_issuance=0`, exact owned cleanup and data retained.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

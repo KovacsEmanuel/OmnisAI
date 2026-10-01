@@ -29,7 +29,7 @@ Independent review caught that the first reusable gate accepted any negative rea
 - `.reticle/hooks.json` and dev-server commands are executable inputs; the fresh fixture copies neither arbitrary project config nor hooks. Never start it in an unreviewed downloaded project.
 - This is network/process isolation, **not filesystem sandboxing of hostile tooling**. The helper and dependency code are trusted reviewed local tools; Chisel-like untrusted effects need a separate filesystem boundary.
 - Measured host: Node 22.22.0, CPython 3.13.12, Playwright 1.60.0, Chromium headless shell 148.0.7778.96. These are development-probe versions, not an amendment of the future application/executor stack. Full Chromium variants crashed in the original isolated probe; only headless shell is validated here.
-- No React/Vite instrumentation, source `file:line`, native browser lease, saved replay, production tree-shaking or visual approval has been certified. Omnis has no app to instrument yet. Wiring it later is its own tested commit.
+- No React/Vite instrumentation, source `file:line`, native browser lease, saved replay, production tree-shaking or visual approval has been certified. The P0.3 application exists, but Reticle application instrumentation remains unimplemented and unverified. Wiring it later is its own tested commit.
 
 ## Licensing / update
 

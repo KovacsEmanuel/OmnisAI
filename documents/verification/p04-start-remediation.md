@@ -53,4 +53,70 @@ Resursă păstrată: DB CID `7bc89950a39362bd13b8909887f02cc2434b28666ae863a94aa
 
 Cauză verificată în cod: `start.py` publica `VERIFYING`, apoi executa `api_process`/atestări Docker, apoi începea `wait_dashboard` HTTP. Oracle-ul instalat așteaptă VERIFYING pentru întreruperea read-only fără subprocess, dar markerul precede frontiera reală. Aceasta este interacțiunea PROOF-GATE anticipată în reviewul de completitudine, acum reprodusă. **Extindere permisă de contract:** atingem minimal `cli/src/omnis_cli/start.py` și un test startup pentru a publica VERIFYING după atestarea API, înainte de wait_dashboard; aceeași ordine a efectelor, aceleași aserțiuni OCI și cleanup conservator. RED→GREEN pe jurnal la ambele frontiere, review independent punctual, commit separat și rerulare secvențială a gate-urilor pe noul cod. Nu refacem harness DB/owner, nu schimbăm oracle-ul ca să accepte exit 4 drept cleanup PASS.
 
-Rollback: inspectare dependențe și `git revert <commit>` pentru fiecare schimbare coerentă, rebuild și revalidare. Git nu inversează efecte Docker/DB; acestea cer reatestarea ownershipului exact și păstrarea datelor. Fără privilegii/modificări daemon/firewall/toolchain global. Logurile sunt private în `/home/kali/.hermes/cache/scratch/omnis-sc-remediation/`; concluziile sanitizate vor fi persistate aici după rezultate reale.
+## Acceptare finală delimitată — cod `b8217cb`
+
+**SC01 și SC02 CLOSED / APPROVED_SCOPED; SL02 acceptat în perimetrul documentat, nu «fără orice omisiune».** SC01 este comis în `0c2a373`, SC02 în `7c22374`, corecția de fază în `b8217cb631e567df496b1e128d14ae202fe0afa9`. Reviewuri distincte: SC01/R1/R2 `deleg_d03af3c7` (14 teste independente), SC02 `deleg_1eb4728a` task 1 (13 teste focalizate +6 controale suplimentare în sursă și wheel), fază `deleg_d041bd94` (3 teste). Părintele a verificat hashurile și adjudecat fără blocante în aceste delte; C1 sticky flags rămâne limită automată neblocantă, verificată static. Nu s-a rescris vreun verdict RED istoric.
+
+Reordonarea fazei a avut RED real în test: subprocess observa VERIFYING, în loc de SERVICES; apoi GREEN **31 startup / 76 CLI**, Ruff/format/mypy. Reviewul aprobă numai ordinea markerului; pollingul poate încă rata fereastra și trebuie să eșueze onest. Oracle-ul OCI și predicatele conservative sunt nemodificate.
+
+### Gate-uri finale, secvențiale
+
+PATH pin-uit: `/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/node-v24.21.0-linux-x64/bin`, apoi `.../dependency-probe/tools`, `/usr/bin:/bin`. UV exact: `/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv`.
+
+| Comandă / proces | Rezultat real | Frontieră |
+|---|---|---|
+| `make check UV=<calea exactă de mai sus>` / `proc_b759e3662b3d` | **exit 0** | 62 docs, 35 development, anti-slop, 218 API, 17 migrări/wheel API, 6 web tooling +20 web unit +7 E2E, 76 CLI sursă +76 wheel extern +1 live CLI/DB, 37 release/observer; locks/audits/Ruff/format/mypy/TS/contracts/build PASS |
+| `make check-installed-start UV=<aceeași cale>` / `proc_7c363bef2aa5` | **exit 0**, după primul proces | Wheel nou, 76 teste instalate, 37 release/observer, apoi 1 probă OCI reală a console scriptului; fără `run_probe` în locul comenzii |
+| Console script din ultimul wheel, cwd extern | **exit 2 / REFUSED**, verifier exit 0 | Manifest 30001 bytes, `RELEASE_OR_IMAGE_INVALID`, toate flags false, stderr gol, state/runtime absente; 12 module instalate identice cu sursa finală |
+
+Primul gate a început la `16a39c9` + diff-ul de fază fixat prin hash; aceiași bytes au fost comiși ca `b8217cb` în timpul execuției, **fără editări de fișiere**. Hashurile înainte/după coincid: start.py `bb29bf2141705b1139503504cfbd7375542fe905be1b8cf64b16ffce656797ff`, test_start.py `046998204112727b099af7b6dc36e656ac40f92ac97814e02a6c13a6514c5a18`. Nu pretind checkout comis încă de la lansare; atribuirea este byte-bound. OCI a rulat ulterior pe commitul curat.
+
+Loguri private: `phase-final-make-check.log`, `phase-final-installed-start.log`, `final-sc02-installed.log` în rootul scratch al remedierii. Exit-urile au fost citite din procesele exacte, nu din heartbeat. Readbackul ad-hoc a selectat inițial și două locatoare mock din prerechizitele unitare și a refuzat totalul; selecția a fost corectată la secțiunea invocării OCI reale, cu exact două locatoare, fără schimbarea produsului/oracle-ului. O comandă Git anexată ulterior probei externe a eșuat din cwd scratch (128); verifierul console scriptului terminase cu exit 0. Git a fost recitit din repo, nu tratat ca regresie a CLI-ului.
+
+### Readback resurse/date
+
+- **Gate DB final:** root `/home/kali/.hermes/cache/scratch/db-517bada8ff384c3b`, proiect `omnis-p01-297e0735e0d94ed9978c65e42d0ef3d4`, CID `08978e94d6478b5a5539dd6a14e7ec6d189e5cb0ad420a867e16bbf255f54804`, system ID `7691575294029750302`. Receipt `{schema_version:1,code:0,family_drained:true}`; readback exact al daemonului și absenței CID/inventar/rețea/socket, PG_VERSION 18 păstrat. `final-db-readback.json`.
+- **OCI final:** proiect `omnis-local-a6c462b79ddb4a91808b749ed16715b7`, image ID `sha256:9adbee79d9baf571752e30fd6beeea2b7cd3c313be89bb49a00d5810cb7a1636`. Start/reuse/concurență: `s2-7m7ayuos`, instance `972a2e4a-36df-483a-8263-5a9a505963b2`; întrerupere: `s2i-7i54r1v1`, instance `8ff2c551-9048-423d-9eb2-869e14fd7fbb`, `FAILED_CLEANED`/exit 3, retry exit 4 fără efect nou. Ambele receipturi `probe=PASS,cleanup=VERIFIED`. Readback părinte: toate CID-urile/inventarul proiectului, rețeaua, tagul imaginii, IPC și forwarder/listener propriu absente; directoarele PostgreSQL18 păstrate. `final-oci-readback.json`. Nu este backup/restore ori stop operațional.
+- **Încercarea OCI veche rămâne UNCERTAIN:** DB `7bc89950…` din `s2i-841796q5` este încă running, atestată prin CID/project/attempt/daemon; API/supervisor acelei încercări sunt absente. Locatorul complet și CID sunt în secțiunea de eșec de mai sus. **RECOVERY_PENDING separat**: nu avem dovadă retrospectivă de drenare a familiei acelui launcher; nu semnalizăm PID-uri/nu oprim DB și nu rescriem jurnalul ca PASS. O recuperare distinctă cere reconciliere/autorizație; datele și diagnosticul rămân private. Această resursă nu este folosită de gate-urile noi și nu este confundată cu cleanupul lor.
+- Containerele preexistente ale operatorului nu au fost adoptate/oprite; fără down -v/prune, autostart, daemon/firewall/profile changes, conturi/provider/ținte sau push. Scratchul nu este backup permanent.
+
+### Matrice finală a celor 26 de cerințe
+
+Review de completitudine `deleg_1eb4728a` task 2 a reconciliat 26/26 și a păstrat cele șase PARTIAL și patru DEFERRED. Reviewul separat SC02 este adjudecat ulterior aici. Numărare programatică a părintelui: **16 COVERED, 6 PARTIAL, 4 DEFERRED_BY_SCOPE**, zero IDs lipsă/duplicate. COVERED este scoped; gate-ul final nu extinde automat fiecare negativ de componentă la OCI.
+
+| ID | Clasificare actuală | Dovadă / limită păstrată |
+|---|---|---|
+| M01 | COVERED | Wheel nou/cwd extern/omnis.serve și OCI final |
+| M02 | COVERED | SC02 decoder și console script; validări stricte păstrate |
+| M03 | PARTIAL | Atestări/preflight; nu toate incompatibilitățile probate OCI |
+| M04 | COVERED | No implicit pull/build/install; argv/env/cwd fixe, capcane instalate |
+| M05 | COVERED | XDG/căi/UID/mode private; nu toate FS/distribuțiile |
+| M06 | COVERED | Lock/nonce/intent, concurență reală; cross-state componentă |
+| M07 | COVERED | Reuse fără restart/migrare/OPEN nou; nu restart operațional |
+| M08 | COVERED | Port listener/bound-only/bind race; nu toate cursele OCI |
+| M09 | PARTIAL | PG18 pozitiv; lipsă proba installed DB-readiness failure first-start completă |
+| M10 | COVERED | Migrare/cluster/lock/empty-only, 17 teste; nu catalog exhaustiv |
+| M11 | COVERED | API + supervisor inert, fără owner WIP/runtime promoted |
+| M12 | COVERED | Detached și citire după launcher exit; nu reboot/autostart |
+| M13 | COVERED | HTTP/assets/control/identitate comună; IPC substituit în unele negative |
+| M14 | COVERED | Deadline total/byte caps/no redirect/proxy; nu peer OCI ostil peste tot |
+| M15 | COVERED | Status read-only și fără lease refresh; nu zero atime/syscall |
+| M16 | COVERED | READY atomic verificat, flags false; nu fault la fiecare fsync |
+| M17 | COVERED | Bootstrap inert/canale sintetice fără secrete; nu tracing exhaustiv |
+| M18 | PARTIAL | Timeout/flood/EOF/reap componente; nu toate etapele instalate |
+| M19 | COVERED | SC01/R1/R2 producător→cleanup/zero DB effects; nu delayed Docker ACK sau familie exhaustivă |
+| M20 | PARTIAL | Cleanup final și date păstrate; nu toate faulturile; vechea DB incertă păstrată separat |
+| M21 | PARTIAL | SIGTERM VERIFYING real + sticky intent; nu crash în fiecare etapă |
+| M22 | PARTIAL | Port CLI/bundle, nu config.toml XDG/toate bugetele țintă |
+| D01 | DEFERRED_BY_SCOPE | SL03 pair TTY/open/browser implicit |
+| D02 | DEFERRED_BY_SCOPE | SL04 stop/recovery operațional și G00 complet |
+| D03 | DEFERRED_BY_SCOPE | Hermes runtime/assessment/target effects ulterioare |
+| D04 | DEFERRED_BY_SCOPE | Vault/catalog/backup/update/restore/doctor și CI remote ulterioare |
+
+**Concordanța cu planul până aici:** fundațiile P0.1–P0.3 și SL01 sunt păstrate; SL02 are acceptare delimitată și limitele de mai sus, nu implementarea întregii arhitecturi §4. Auditul independent a verificat cod/test/evidence și inventarul global; nu a găsit alt defect confirmat în scope. Nu putem spune «toate lucrurile fără omisiuni»: cele șase PARTIAL sunt explicite, iar G00 rămâne deschis. Următoarea subfelie nouă: **SL03**, apoi SL04; B02/P1-data după G00. Restul SL05–SL36 și E1–E4 nu sunt implementate; B21m opțional/ulterior, metodologia execution-unscheduled nu este catalog executabil.
+
+### Verificarea documentării finale
+
+Rendererul a regenerat cititoarele plan/readiness, apoi `python scripts/render_docs.py --check` și `python -m unittest discover -s tests/documentation -v` au trecut: **62 teste, exit 0**. `python tests/documentation/browser_check.py --include-documents --output <scratch>/omnis-sc-remediation/final-docs-browser.json`: **116 checks PASS**, zero erori JavaScript sau cereri externe. Plan §19.2 și statusul readiness au fost inspectate vizual la 1440×1000 (`final-plan.png`, `final-readiness.png`): paragrafele inspectate și linkurile sunt lizibile, fără suprapuneri; nu este aprobare estetică sau runtime. Diff-ul de produs după `b8217cb` este gol; updateurile ulterioare sunt skill/documentare. HTML-ul original păstrează hashul baseline și rămâne untracked/nestaged; AGENTS și componentele protejate nu sunt schimbate.
+
+Rollback: inspectare dependențe și `git revert <commit>` pentru fiecare schimbare coerentă, rebuild și revalidare. Git nu inversează efecte Docker/DB; acestea cer reatestarea ownershipului exact și păstrarea datelor. Fără privilegii/modificări daemon/firewall/toolchain global. Logurile sunt private în `/home/kali/.hermes/cache/scratch/omnis-sc-remediation/`; concluziile sanitizate și limitele sunt persistate aici din rezultatele reale.

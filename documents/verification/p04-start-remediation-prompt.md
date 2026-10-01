@@ -1,6 +1,6 @@
 # Prompt de execuție — închiderea SC01/SC02 în SL02
 
-**Rol:** handoff pentru agentul de implementare, derivat din plan și audit, nu plan alternativ și nu probă de remediere. **Stare la pregătire: NOT_EXECUTED; SC01/SC02 rămân deschise.** Pregătirea acestui prompt nu execută comenzile de mai jos. Se folosește la cererea operatorului pentru sesiunea de remediere.
+**Rol:** handoff pentru agentul de implementare, derivat din plan și audit, nu plan alternativ și nu probă de remediere. **Stare la pregătire: NOT_EXECUTED; SC01/SC02 rămâneau deschise.** Executat ulterior: [remedii, reviewuri, gate-uri reale și limite](p04-start-remediation.md), cod `b8217cb`; SC01/SC02 CLOSED scoped. Textul de mai jos păstrează instrucțiunile inițiale, nu o nouă cerere de rerulare. Pregătirea acestui prompt nu executase comenzile de mai jos.
 
 ---
 

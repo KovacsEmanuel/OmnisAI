@@ -4,7 +4,7 @@
 
 ## Pregătire explicită, separată de startup
 
-**Acceptare curentă: CHANGES_REQUESTED.** [SC01 și SC02](../documents/verification/p04-start-completeness-review.md) sunt abateri confirmate, neremediate, de la contractul de mai jos: moartea copilului Docker poate pierde incertitudinea cleanupului, iar manifestul JSON foarte adânc poate ieși cu 1/traceback în loc de JSON/exit 2. Gate-urile pozitive istorice nu le acoperă. Nu folosi acel PASS ca dovadă de cleanup universal; corecțiile SL02 preced SL03.
+**Acceptare curentă: APPROVED_SCOPED.** [Remedierea SC01/SC02](../documents/verification/p04-start-remediation.md) are RED→GREEN, review separat și gate comun + OCI secvențiale PASS pe codul `b8217cb`. Incertitudinea copilului/efectului păstrează DB; nestingul excesiv în limita de bytes produce JSON REFUSED/exit 2. [Auditul inițial](../documents/verification/p04-start-completeness-review.md) și eșecul OCI intermediar rămân istorice. Cele șase PARTIAL nu devin cleanup universal; o DB de probă mai veche rămâne RECOVERY_PENDING sub incertitudine, fără rescue fabricat. Ultimele probe au cleanup verificat, date păstrate. G00 rămâne deschis; urmează SL03.
 
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 

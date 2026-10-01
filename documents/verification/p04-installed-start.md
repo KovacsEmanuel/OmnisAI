@@ -1,6 +1,6 @@
 # P0.4b / SL02 — comanda instalată start headless
 
-**Audit ulterior: CHANGES_REQUESTED.** [SC01/SC02](p04-start-completeness-review.md) sunt defecte noi confirmate pe același cod de produs, încă neremediate: incertitudine pierdută la terminarea prin semnal a copilului Docker și manifest imbricat cu excepție în afara protocolului JSON. Execuțiile PASS de mai jos și închiderile istorice rămân adevărate în scope; nu sunt acceptare fără omisiuni. Corecțiile preced SL03.
+**Acceptare actuală: APPROVED_SCOPED după [remedierea SC01/SC02](p04-start-remediation.md).** Cod final `b8217cb`, reviewuri distincte și make check + OCI secvențiale PASS, cu limitele 16 COVERED / 6 PARTIAL / 4 DEFERRED. [Auditul RED](p04-start-completeness-review.md), execuțiile de mai jos la `1dfa022` și eșecul intermediar rămân istorice, nu se rescriu. O DB din proba incertă intermediară rămâne RECOVERY_PENDING, locator în noul registru; ultimele probe au cleanup verificat/date păstrate. Nu este acceptare fără omisiuni și nu închide G00; urmează SL03.
 
 ## Contract înainte de cod
 

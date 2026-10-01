@@ -1,5 +1,6 @@
 """Narrow regressions for startup subprocess and cleanup error boundaries."""
 
+import json
 import os
 import signal
 import subprocess
@@ -24,6 +25,354 @@ class StartupProcessTest(unittest.TestCase):
         runtime.release = Path(os.environ["TMPDIR"])
         runtime.host = "unix:///run/docker.sock"
         return runtime
+
+    def signal_policy_probe(self, mode):
+        from omnis_cli import start_runtime
+
+        helper = Path(__file__).with_name("start_signal_probe.py")
+        argv = [sys.executable, "-I", str(helper), mode]
+        if mode == "ignored":
+            argv = [
+                sys.executable,
+                "-I",
+                "-c",
+                "import os,signal,sys; signal.signal(signal.SIGCHLD,signal.SIG_IGN); "
+                "os.execv(sys.executable,[sys.executable,'-I',*sys.argv[1:]])",
+                str(helper),
+                mode,
+            ]
+        result = subprocess.run(argv, capture_output=True, text=True, timeout=8, check=True)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["module"], start_runtime.__file__)
+        self.assertTrue(report["policy_unchanged"], "Library must not normalize caller signals")
+        self.assertEqual(report["attempts"], [], "No signal may target a freed numeric group")
+        return report
+
+    def test_default_sigchld_real_child_completes(self):
+        report = self.signal_policy_probe("default")
+        self.assertEqual(report["spawned"], 1)
+        self.assertEqual(report["outcome"], "completed")
+        self.assertEqual(report["returncode"], 0)
+        self.assertFalse(report["uncertain"])
+        self.assertTrue(report["drained"])
+
+    def test_exec_inherited_ignored_sigchld_refused_before_spawn(self):
+        report = self.signal_policy_probe("ignored")
+        self.assertTrue(report["kernel_echild"], "Fresh exec must prove real auto-reap")
+        self.assertEqual(report["outcome"], "StartError")
+        self.assertEqual(report["reason"], "CHILD_SIGNAL_POLICY_UNSUPPORTED")
+        self.assertEqual(report["spawned"], 0)
+        self.assertFalse(report["uncertain"])
+        self.assertTrue(report["drained"])
+
+    def test_sigchld_reaper_handler_refused_before_spawn(self):
+        report = self.signal_policy_probe("handler")
+        self.assertTrue(report["kernel_echild"])
+        self.assertTrue(report["handler_reaped"])
+        self.assertEqual(report["outcome"], "StartError")
+        self.assertEqual(report["reason"], "CHILD_SIGNAL_POLICY_UNSUPPORTED")
+        self.assertEqual(report["spawned"], 0)
+        self.assertFalse(report["uncertain"])
+        self.assertTrue(report["drained"])
+
+    def test_unexpected_reap_revokes_numeric_authority_on_each_error_boundary(self):
+        import errno
+        import selectors
+
+        original_spawn, original_waitid, original_read = subprocess.Popen, os.waitid, os.read
+        for boundary in ("waitid", "timeout", "flood"):
+            with self.subTest(boundary=boundary):
+                runtime = self.runtime(time.monotonic() + 3)
+                children, pins, held_writers, observed = [], [], [], []
+                script = (
+                    "import os; os.write(1,b'x'*(4*1024*1024+1))"
+                    if boundary == "flood"
+                    else "import time; time.sleep(0.05)"
+                )
+
+                def launch(
+                    argv,
+                    program=script,
+                    owned=children,
+                    handles=pins,
+                    waiting=held_writers,
+                    mode=boundary,
+                    **kwargs,
+                ):
+                    child = original_spawn([sys.executable, "-I", "-c", program], **kwargs)
+                    owned.append(child)
+                    handles.append(os.pidfd_open(child.pid))
+                    if mode == "timeout":
+                        # A held output pipe exercises the genuine selector timeout
+                        # after the real leader is reaped, without another child.
+                        for name in ("stdout", "stderr"):
+                            getattr(child, name).close()
+                            read_fd, write_fd = os.pipe()
+                            setattr(child, name, os.fdopen(read_fd, "rb"))
+                            waiting.append(write_fd)
+                    return child
+
+                def reap(owned=children, events=observed):
+                    if events:
+                        return
+                    child = owned[0]
+                    os.waitpid(child.pid, 0)  # Real kernel reap; do not publish returncode.
+                    with self.assertRaises(ChildProcessError) as caught:
+                        original_waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                    self.assertEqual(caught.exception.errno, errno.ECHILD)
+                    events.append(child.returncode)
+
+                def lost_wait(*args):
+                    reap()
+                    return original_waitid(*args)  # Product encounters the real ECHILD.
+
+                class ReapingSelector(selectors.DefaultSelector):
+                    def select(self, timeout=None):
+                        reap()
+                        return super().select(timeout)
+
+                total = 0
+
+                def flood_read(fd, size, owned=children):
+                    nonlocal total
+                    part = original_read(fd, size)
+                    if owned and fd == owned[0].stdout.fileno():
+                        total += len(part)
+                        if total > 4 * 1024 * 1024:
+                            reap()  # Exit can precede processing the buffered flood.
+                    return part
+
+                try:
+                    with (
+                        patch("subprocess.Popen", side_effect=launch),
+                        patch("os.killpg") as numeric,
+                        patch("os.kill") as pid_numeric,
+                        patch(
+                            "os.waitid",
+                            side_effect=lost_wait if boundary == "waitid" else original_waitid,
+                        ),
+                        patch(
+                            "selectors.DefaultSelector",
+                            ReapingSelector if boundary == "timeout" else selectors.DefaultSelector,
+                        ),
+                        patch(
+                            "os.read",
+                            side_effect=flood_read if boundary == "flood" else original_read,
+                        ),
+                    ):
+                        reason = {
+                            "waitid": "CHILD_OWNERSHIP_LOST",
+                            "timeout": "STARTUP_TIMEOUT",
+                            "flood": "DOCKER_OUTPUT_LIMIT",
+                        }[boundary]
+                        with self.assertRaises((StartError, OSError)) as caught:
+                            runtime.run("synthetic", effect=True, cap=0.25)
+                    self.assertEqual(observed, [None], "returncode=None is not wait ownership")
+                    numeric.assert_not_called()
+                    pid_numeric.assert_not_called()
+                    self.assertIsInstance(caught.exception, StartError)
+                    self.assertEqual(str(caught.exception), reason)
+                    self.assertTrue(runtime.uncertain)
+                    self.assertFalse(runtime.family_drained)
+                finally:
+                    for fd in held_writers:
+                        os.close(fd)
+                    for child, fd in zip(children, pins, strict=True):
+                        try:
+                            signal.pidfd_send_signal(fd, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                        child.wait(timeout=2)
+                        for pipe in (child.stdout, child.stderr):
+                            if pipe is not None:
+                                pipe.close()
+                        os.close(fd)
+
+    def test_reaper_between_wnowait_and_wait_cannot_forge_zero_exit(self):
+        original = subprocess.Popen
+        for script in ("import sys; sys.exit(1)", "import os; os.kill(os.getpid(),9)"):
+            with self.subTest(script=script):
+                runtime = self.runtime(time.monotonic() + 3)
+                children, observed = [], []
+
+                def launch(argv, program=script, owned=children, events=observed, **kwargs):
+                    child = original([sys.executable, "-I", "-c", program], **kwargs)
+                    owned.append(child)
+                    wait = child.wait
+
+                    def competing_wait(*args, **kwargs):
+                        os.waitpid(child.pid, 0)
+                        with self.assertRaises(ChildProcessError):
+                            os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                        events.append(child.returncode)
+                        return wait(*args, **kwargs)  # Popen hides ECHILD by returning zero.
+
+                    child.wait = competing_wait
+                    return child
+
+                try:
+                    with (
+                        patch("subprocess.Popen", side_effect=launch),
+                        patch("os.killpg") as group_signal,
+                        patch("os.kill") as pid_signal,
+                    ):
+                        with self.assertRaisesRegex(StartError, "CHILD_OWNERSHIP_LOST"):
+                            runtime.run("synthetic", effect=True, success=False)
+                    self.assertEqual(observed, [None])
+                    group_signal.assert_not_called()
+                    pid_signal.assert_not_called()
+                    self.assertTrue(runtime.uncertain)
+                    self.assertFalse(runtime.family_drained)
+                finally:
+                    for child in children:
+                        # Already reaped by the controlled competing wait, not a PID rescue.
+                        with self.assertRaises(ChildProcessError):
+                            os.waitpid(child.pid, os.WNOHANG)
+                        for pipe in (child.stdout, child.stderr):
+                            if pipe is not None:
+                                pipe.close()
+
+    def test_pidfd_unavailable_has_no_numeric_signal_fallback(self):
+        original_spawn, original_pin = subprocess.Popen, os.pidfd_open
+        runtime = self.runtime(time.monotonic() + 3)
+        children, pins = [], []
+
+        def launch(argv, **kwargs):
+            child = original_spawn(
+                [sys.executable, "-I", "-c", "import time; time.sleep(0.1)"], **kwargs
+            )
+            children.append(child)
+            pins.append(original_pin(child.pid))
+            return child
+
+        try:
+            with (
+                patch("subprocess.Popen", side_effect=launch),
+                patch("os.pidfd_open", side_effect=OSError("synthetic pin failure")),
+                patch("os.killpg") as numeric,
+                patch("os.kill") as pid_numeric,
+            ):
+                with self.assertRaisesRegex(StartError, "CHILD_OWNERSHIP_UNAVAILABLE"):
+                    runtime.run("synthetic", effect=True)
+            numeric.assert_not_called()
+            pid_numeric.assert_not_called()
+            self.assertTrue(runtime.uncertain)
+            self.assertFalse(runtime.family_drained)
+        finally:
+            for child, fd in zip(children, pins, strict=True):
+                try:
+                    signal.pidfd_send_signal(fd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                child.wait(timeout=2)
+                for pipe in (child.stdout, child.stderr):
+                    if pipe is not None:
+                        pipe.close()
+                os.close(fd)
+
+    def test_later_completed_commands_preserve_both_sticky_flags(self):
+        original = subprocess.Popen
+        for uncertain in (False, True):
+            for drained in (False, True):
+                for effect, exit_code in ((True, 0), (False, 0), (False, 1)):
+                    with self.subTest(
+                        uncertain=uncertain, drained=drained, effect=effect, code=exit_code
+                    ):
+                        runtime = self.runtime(time.monotonic() + 3)
+                        runtime.uncertain, runtime.family_drained = uncertain, drained
+
+                        def launch(argv, code=exit_code, **kwargs):
+                            return original(
+                                [sys.executable, "-I", "-c", f"import sys; sys.exit({code})"],
+                                **kwargs,
+                            )
+
+                        with patch("subprocess.Popen", side_effect=launch):
+                            result = runtime.run("synthetic", effect=effect, success=False)
+                        self.assertEqual(result.returncode, exit_code)
+                        self.assertEqual(runtime.uncertain, uncertain)
+                        self.assertEqual(runtime.family_drained, drained)
+
+    def test_real_non_db_removal_failure_continues_safe_cleanup_and_retains_db(self):
+        from omnis_cli.start import cleanup_attempt
+
+        original = subprocess.Popen
+        for exit_code in (1, -9):
+            with (
+                self.subTest(exit_code=exit_code),
+                tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as directory,
+            ):
+                runtime = self.runtime(time.monotonic() + 3)
+                calls, removed, children = [], set(), []
+                identities = ["api-id", "supervisor-id", "db-id"]
+
+                def launch(argv, code=exit_code, owned=children, **kwargs):
+                    failed = argv[-3:] == ["container", "rm", "api-id"]
+                    script = (
+                        (
+                            "import sys; sys.exit(1)"
+                            if code == 1
+                            else "import os; os.kill(os.getpid(),9)"
+                        )
+                        if failed
+                        else "pass"
+                    )
+                    child = original([sys.executable, "-I", "-c", script], **kwargs)
+                    owned.append(child)
+                    return child
+
+                def command(*args, owner=runtime, history=calls, removed_ids=removed, **kwargs):
+                    history.append(args)
+                    result = ControlRuntime.run(owner, *args, **kwargs)
+                    if args[:2] == ("container", "rm"):
+                        removed_ids.add(args[-1])
+                    return result
+
+                def inspect(kind, ident, removed_ids=removed):
+                    if ident in removed_ids:
+                        return None
+                    return {
+                        "Config": {
+                            "Labels": {"com.docker.compose.service": ident.removesuffix("-id")}
+                        },
+                        "State": {"Running": False},
+                    }
+
+                with (
+                    patch("subprocess.Popen", side_effect=launch),
+                    patch.object(runtime, "run", side_effect=command),
+                    patch.object(
+                        runtime,
+                        "ids",
+                        side_effect=lambda inventory=identities, removed_ids=removed: [
+                            i for i in inventory if i not in removed_ids
+                        ],
+                    ),
+                    patch.object(runtime, "inspect", side_effect=inspect),
+                    patch.object(runtime, "attest", return_value={}),
+                    patch("os.killpg") as numeric,
+                    patch("os.kill") as pid_numeric,
+                ):
+                    root = Path(directory)
+                    problems = cleanup_attempt(runtime, root, root, 8765, None, -1)
+                numeric.assert_not_called()
+                pid_numeric.assert_not_called()
+                self.assertEqual([c.returncode for c in children], [0, exit_code, 0, 0])
+                self.assertIn("container removal", problems)
+                self.assertIn("database retained under uncertain writers", problems)
+                self.assertEqual(removed, {"supervisor-id"})
+                self.assertEqual(
+                    calls,
+                    [
+                        ("container", "stop", "--time", "15", "api-id"),
+                        ("container", "rm", "api-id"),
+                        ("container", "stop", "--time", "15", "supervisor-id"),
+                        ("container", "rm", "supervisor-id"),
+                    ],
+                    "Safe independent supervisor cleanup must continue, with zero DB effects",
+                )
+                self.assertTrue(runtime.uncertain)
+                self.assertEqual(runtime.family_drained, exit_code == 1)
 
     def test_signal_exit_marks_uncertainty_even_when_success_is_not_required(self):
         original = subprocess.Popen

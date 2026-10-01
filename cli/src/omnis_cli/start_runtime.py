@@ -104,6 +104,10 @@ class ControlRuntime:
         effect: bool = False,
     ) -> subprocess.CompletedProcess[str]:
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
+        # Library callers retain their signal policy. Auto-reap and SIGCHLD
+        # handlers invalidate exclusive wait ownership, so refuse before effects.
+        if signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL:
+            raise StartError("CHILD_SIGNAL_POLICY_UNSUPPORTED")
         argv = [str(self.docker), "--config", str(self.release / "ops"), "--host", self.host, *args]
         previous_uncertain, previous_drained = self.uncertain, self.family_drained
         # Fail closed before spawn, through wait, decoding and fallible pipe cleanup.
@@ -121,7 +125,12 @@ class ControlRuntime:
             start_new_session=True,
         )
         buffers = [bytearray(), bytearray()]
+        pidfd = -1
         try:
+            try:
+                pidfd = os.pidfd_open(process.pid)
+            except OSError:
+                raise StartError("CHILD_OWNERSHIP_UNAVAILABLE", 4) from None
             assert process.stdout is not None and process.stderr is not None
             with selectors.DefaultSelector() as reader:
                 reader.register(process.stdout, selectors.EVENT_READ, 0)
@@ -140,38 +149,53 @@ class ControlRuntime:
                         if total > 4 * 1024 * 1024:
                             raise StartError("DOCKER_OUTPUT_LIMIT", 3)
                         buffers[key.data].extend(part)
-            # Observe exit without releasing the leader's identity. EOF alone may
-            # precede exit; on that timeout group cleanup is still safe before reap.
-            while os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is None:
+            # EOF is not exit. ECHILD is not a successful acknowledgement.
+            while (
+                exited := os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            ) is None:
                 time.sleep(min(0.01, remaining(end, cap)))
-            # Revoke numeric signal authority BEFORE waitpid can release the PID,
-            # not after Popen eventually publishes returncode (interruptible).
+            # Popen.wait hides ECHILD as exit 0. Preserve the observed status so
+            # a competing reaper cannot turn a nonzero/signal exit into an ACK.
+            expected = exited.si_status if exited.si_code == os.CLD_EXITED else -exited.si_status
+            # Entering wait can reap before Popen publishes returncode; an
+            # interrupted reap never restores stop authority.
             reaping = True
-            process.wait(timeout=remaining(end, cap))
-        except BaseException:
+            if process.wait(timeout=remaining(end, cap)) != expected:
+                raise StartError("CHILD_OWNERSHIP_LOST", 4)
+        except BaseException as exc:
             if effect:
                 self.uncertain = True  # Killing a CLI cannot settle a daemon-side operation.
-            # Even successful group signals/reap do not attest detached descendants.
+            # Leader stop/reap does not attest descendants, including its old group.
             self.family_drained = False
+            if isinstance(exc, ChildProcessError):
+                raise StartError("CHILD_OWNERSHIP_LOST", 4) from None
             if not reaping:
-                # Keep the leader unreaped through BOTH signals. Never poll here.
-                for sig in (signal.SIGTERM, signal.SIGKILL):
-                    try:
-                        os.killpg(process.pid, sig)
-                    except OSError:
-                        pass  # Already uncertain; still attempt the other signal and reap.
+                # Numeric PGIDs cannot be pinned across an unexpected reaper or
+                # a policy change during timeout/flood. Stop only the pinned leader;
+                # leave family/daemon uncertainty sticky. Never fall back to killpg.
+                if pidfd >= 0:
+                    for sig in (signal.SIGTERM, signal.SIGKILL):
+                        try:
+                            signal.pidfd_send_signal(pidfd, sig)
+                        except OSError:
+                            pass  # Still attempt the other signal and bounded reap.
                 try:
+                    reaping = True
                     process.wait(timeout=5)
                 except (OSError, subprocess.SubprocessError):
                     pass  # Preserve the original error and conservative family state.
             raise
         finally:
             try:
-                if process.stdout is not None:
-                    process.stdout.close()
+                if pidfd >= 0:
+                    os.close(pidfd)
             finally:
-                if process.stderr is not None:
-                    process.stderr.close()
+                try:
+                    if process.stdout is not None:
+                        process.stdout.close()
+                finally:
+                    if process.stderr is not None:
+                        process.stderr.close()
         result = subprocess.CompletedProcess(
             argv, process.returncode, buffers[0].decode(), buffers[1].decode()
         )

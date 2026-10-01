@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.9
+version: 0.1.10
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -51,7 +51,8 @@ For exception-based test guards, record each attempted violation to an independe
 
 When typing a test observer/decoder, preserve unknown fields before leak/completeness assertions. A parser that strips unrecognized fields can manufacture a clean result. Exercise an unexpected synthetic marker at both top-level and nested payload positions, while rejecting wrong types; this evidence-preserving test policy does not replace strict allowlists on production inputs.
 
-Test teardown after an ordinary early driver exit, not only a live-driver timeout. A PPID snapshot taken after the leader exits loses reparented/detached children. Establish owned adoption or a managed scope before launch, exercise real SIGTERM-resistant children in both orderings, attempt all cleanup before exit-code assertions, and restore any per-test process attribute. Do not adopt preexisting/foreign work; publish final PASS only after teardown and parent-owned leak checks.
+- Test teardown after an ordinary early driver exit, not only a live-driver timeout. A PPID snapshot taken after the leader exits loses reparented/detached children. Establish owned adoption or a managed scope before launch, exercise real SIGTERM-resistant children in both orderings, attempt all cleanup before exit-code assertions, and restore any per-test process attribute. Do not adopt preexisting/foreign work; publish final PASS only after teardown and parent-owned leak checks.
+- In a signal/stop oracle, do not use a short child `sleep()` as proof the signal caused exit: under scheduler delay the child can finish naturally and return a misleading code before the observation. Hold a synthetic owned child on a parent-held pipe until the signal/exit assertion, close the release end in `finally`, and reap/kill only its verified process group if the assertion fails. An assertion after all CLI/browser children joined is a product/test failure, not automatically an uncertain writer; timeouts or missing browser-close receipts remain uncertain.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

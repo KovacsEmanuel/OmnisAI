@@ -1,7 +1,7 @@
 ---
 name: omnis-delivery
 description: "Use when delivering an Omnis implementation slice."
-version: 0.1.2
+version: 0.1.3
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -41,6 +41,7 @@ Use hypotheses instead of confidence claims; prefer removing accidental complexi
 - Prompt wording cannot enforce commits or make side effects reversible. Git readback and external-state checks remain necessary.
 - Name the product command and acceptance row advanced by each slice. If two review/repair cycles improve only harness evidence without advancing that row, checkpoint the WIP honestly, stop expanding the harness, and choose the next product or prerequisite slice. A blocked process proof remains `UNCERTAIN`, not an invitation to simulate a clean result.
 - Project-local `.hermes/skills/` are versioned repo files, not the active profile's personal catalog. If `skill_manage` cannot find a project skill, use `patch` on its repo `SKILL.md` instead of creating a duplicate personal skill; verify with `skill_view`, then stage only the intended repo path.
+- Before settling a command's default behavior, read the architecture's numbered startup flow as well as the handoff's short bullets: an explicit `pair` command does not replace the architecture's first interactive-launch code issuance. Record a conflict in the slice contract before changing code, share the same issuer, and test fresh TTY versus reuse/non-TTY; otherwise a green explicit-pair test can hide a missing operator bootstrap.
 
 ## Verification
 Every claimed acceptance criterion has real output; every intended change belongs to a verified commit; independent review issues are resolved or explicitly block delivery. A fresh session can recover the decision from Git and versioned notes, without chat history.

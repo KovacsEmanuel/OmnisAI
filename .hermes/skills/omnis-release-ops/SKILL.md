@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.8
+version: 0.1.9
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -49,6 +49,7 @@ Host Playwright/Chromium validation is not certification of the planned executor
 
 - For installed startup, lock the installation/project as well as the state root: two XDG state roots can share one image receipt/project. Record a fresh attempt nonce before creation, bind services and network to it, and attest IDs/image/daemon/configuration/mounts/IPC together; use no-recreate, never a label or PID alone. Re-read daemon/family uncertainty immediately before DB teardown, including uncertainty raised by an earlier remove. Preserve forwarder handles on failed readiness and preserve exit 4 if the cleanup journal cannot be written.
 - In an installed-command observer, persist a private recovery locator before launch and in an outer finally. Verify FAILED_CLEANED against exact absence before rescue; compare timestamps/restart counts, not only CIDs, on retry. Never rescue an unsettled daemon/writer outcome into a passing cleanup. Exercise a read-only startup phase for a clean SIGTERM proof; uncertainty controls remain explicitly distinct. Reclaim a fresh attempt's stale IPC only after settled container teardown, under the original service locks, with private inode/type/mode checks and a refused UDS connection; never delete lock files or signal their contents.
+- For installed implicit `omnis`, test the real default port under a bounded exclusive-bind preflight; a random test port supplied only to later `start --port` commands manufactures a `PORT_CHANGE_REQUIRES_STOP` failure and does not exercise the default. In a private HOME browser fixture, set Playwright's pinned executable cache path explicitly while keeping profile and TMPDIR disposable. Pass pairing codes only through private PTY/stdin/body, never argv/env/reports; log a sanitized result and require an owned browser-close receipt before declaring cleanup. A completed OS opener request is not proof of a visible window.
 
 ## Verification
 

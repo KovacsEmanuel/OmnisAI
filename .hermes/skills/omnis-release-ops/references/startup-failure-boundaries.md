@@ -38,6 +38,13 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    daemon effect needs its own authorized isolated probe and exact cleanup
    readback. Retain diagnostics/data rather than rescuing uncertainty into PASS.
 
+6. Bind an installed interruption oracle to the actual phase boundary, not just
+   its name. Publish an HTTP/control-wait marker only after preceding subprocess
+   attestations complete: even a read-only Docker client can leave an unknown
+   family if interrupted. Reproduce the ordering with real journal reads and
+   rerun the installed command; keep missed-phase and UNCERTAIN outcomes failing,
+   without reset/rescue of an older uncertain attempt or weakening its DB gate.
+
 ## Verify the installed refusal protocol
 
 1. Choose malformed input that reaches the intended decoder/validation branch

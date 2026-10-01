@@ -8,6 +8,8 @@ Afișează matricea **direct în chat**, la finalul răspunsului în care termin
 
 Scrie înaintea matricei rezultatul scurt al sarcinii, comenzile/probele relevante, commiturile și Cleanup-ul propriu sau N/A. Nu repeta apoi întregul raport sub tabel.
 
+Când operatorul cere cât mai este dintr-o fază sau un prompt următor, explică **înaintea promptului** în limbaj simplu: ce funcționează acum, ce livrează următoarea felie, pașii canonici rămași și poarta de închidere. Explică ID-urile prin rezultate observabile; separă funcțiile nelivrate, probele/configurarea restante și defectele confirmate. Nu calcula procente sau durate din numărul de subfelii. Promptul pregătit nu înseamnă implementare începută; matricea compactă de la final rămâne suportul acestei explicații, nu substitutul ei.
+
 **Status global Omnis — HEAD `<sha>` / `<branch>`**
 
 | Zonă / felie | Implementare | Probe | Review | Poziție / pas următor |

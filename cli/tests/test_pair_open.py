@@ -228,3 +228,57 @@ class PairTest(unittest.TestCase):
         self.assertIn("Cod pairing Omnis", output.getvalue())
         self.assertIn("PAIRING_DISPLAY_UNCERTAIN", error.getvalue())
         self.assertNotIn("codul nu a fost afișat", error.getvalue())
+
+    def check_disclosure_failure(
+        self, *, write_error: BaseException | None = None, exit_error: BaseException | None = None
+    ) -> None:
+        from omnis_cli import pairing
+
+        class FaultyTty(TtyOutput):
+            def write(self, value):
+                if write_error is not None and value.startswith("Cod pairing Omnis"):
+                    super().write(value[:-1])
+                    raise write_error
+                return super().write(value)
+
+        identity = "00000000-0000-0000-0000-000000000001"
+
+        @contextlib.contextmanager
+        def verified():
+            yield (
+                {"instance_id": identity, "generation": 1, "supervisor_epoch": 1},
+                Path("/private"),
+            )
+            if exit_error is not None:
+                raise exit_error
+
+        reply = {
+            "instance_id": identity,
+            "generation": 1,
+            "supervisor_epoch": 1,
+            "admission_open": True,
+            "shutdown_command_id": None,
+        }
+        output = FaultyTty()
+        with (
+            patch.object(pairing, "verified_instance", side_effect=verified),
+            patch.object(pairing, "request", return_value=reply),
+            patch("sys.stdin", TtyOutput()),
+            contextlib.redirect_stdout(output),
+            contextlib.redirect_stderr(io.StringIO()) as error,
+        ):
+            self.assertEqual(main(["pair"]), 4)
+        self.assertIn("Cod pairing Omnis", output.getvalue())
+        self.assertIn("PAIRING_DISPLAY_UNCERTAIN", error.getvalue())
+        self.assertNotIn("codul nu a fost afișat", error.getvalue())
+        code = output.getvalue().strip().rsplit(" ", 1)[-1]
+        self.assertFalse(code in error.getvalue())
+
+    def test_tty_value_error_after_partial_code_reports_uncertain_disclosure(self):
+        self.check_disclosure_failure(write_error=ValueError("synthetic closed writer"))
+
+    def test_tty_interrupt_after_partial_code_reports_uncertain_disclosure(self):
+        self.check_disclosure_failure(write_error=KeyboardInterrupt())
+
+    def test_context_exit_after_full_code_reports_uncertain_disclosure(self):
+        self.check_disclosure_failure(exit_error=OSError("synthetic close failure"))

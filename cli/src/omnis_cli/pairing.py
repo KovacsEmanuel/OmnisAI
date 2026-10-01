@@ -18,6 +18,14 @@ def interactive_tty() -> bool:
         return False
 
 
+def _uncertain_disclosure() -> int:
+    print(
+        "PAIRING_DISPLAY_UNCERTAIN: verificați terminalul; nu reutilizați codul.",
+        file=sys.stderr,
+    )
+    return 4
+
+
 def pair(*, as_json: bool = False) -> int:
     # No code may exist before the disclosure channel is proven interactive.
     if as_json:
@@ -26,6 +34,7 @@ def pair(*, as_json: bool = False) -> int:
     if not interactive_tty():
         print("PAIRING_TTY_REQUIRED: folosiți un terminal interactiv.", file=sys.stderr)
         return 2
+    disclosure_started = False
     try:
         with verified_instance() as (ready, control):
             code = secrets.token_urlsafe(24)
@@ -47,22 +56,23 @@ def pair(*, as_json: bool = False) -> int:
             ):
                 raise StartError("PAIRING_STATE_CHANGED", 4)
             message = f"Cod pairing Omnis (expiră în 5 minute): {code}\n"
-            try:
-                if sys.stdout.write(message) != len(message):
-                    raise OSError("Short TTY write")
-                sys.stdout.flush()
-            except (OSError, UnicodeError):
-                # A partial write may already have disclosed the code; never
-                # state that it was not shown or retry issuance automatically.
-                print(
-                    "PAIRING_DISPLAY_UNCERTAIN: verificați terminalul; nu reutilizați codul.",
-                    file=sys.stderr,
-                )
-                return 4
+            disclosure_started = True
+            if sys.stdout.write(message) != len(message):
+                raise OSError("Short TTY write")
+            sys.stdout.flush()
             return 0
-    except StartError as exc:
-        print(f"{exc.reason}: codul nu a fost afișat.", file=sys.stderr)
-        return exc.code
-    except (ControlUnavailable, OSError, ValueError):
-        print("PAIRING_UNAVAILABLE: codul nu a fost afișat.", file=sys.stderr)
-        return 3
+    except BaseException as exc:
+        # Includes a context-manager finalizer or SIGINT after the first byte.
+        # Once disclosure starts, no exception may claim the code was unseen.
+        if disclosure_started:
+            return _uncertain_disclosure()
+        if isinstance(exc, StartError):
+            print(f"{exc.reason}: codul nu a fost afișat.", file=sys.stderr)
+            return exc.code
+        if isinstance(exc, (ControlUnavailable, OSError, ValueError)):
+            print("PAIRING_UNAVAILABLE: codul nu a fost afișat.", file=sys.stderr)
+            return 3
+        if isinstance(exc, KeyboardInterrupt):
+            print("PAIRING_INTERRUPTED: codul nu a fost afișat.", file=sys.stderr)
+            return 3
+        raise

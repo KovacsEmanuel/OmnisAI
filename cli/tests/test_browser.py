@@ -93,6 +93,46 @@ class BrowserTest(unittest.TestCase):
             self.assertEqual(main([]), 4)
         opener.assert_not_called()
 
+    def test_implicit_tty_context_close_after_code_never_invokes_opener(self):
+        class Tty(io.StringIO):
+            def isatty(self):
+                return True
+
+        @contextlib.contextmanager
+        def verified():
+            yield (
+                {
+                    "instance_id": "00000000-0000-0000-0000-000000000001",
+                    "generation": 1,
+                    "supervisor_epoch": 1,
+                },
+                Path("/private"),
+            )
+            raise OSError("synthetic close after display")
+
+        ready = {"origin": "http://127.0.0.1:8765", "reused": False}
+        reply = {
+            "instance_id": "00000000-0000-0000-0000-000000000001",
+            "generation": 1,
+            "supervisor_epoch": 1,
+            "admission_open": True,
+            "shutdown_command_id": None,
+        }
+        output = Tty()
+        with (
+            patch("omnis_cli.main.start_result", return_value=(0, ready)),
+            patch("omnis_cli.pairing.verified_instance", side_effect=verified),
+            patch("omnis_cli.pairing.request", return_value=reply),
+            patch("omnis_cli.main.open_verified") as opener,
+            patch("sys.stdin", Tty()),
+            contextlib.redirect_stdout(output),
+            contextlib.redirect_stderr(io.StringIO()) as error,
+        ):
+            self.assertEqual(main([]), 4)
+        self.assertIn("Cod pairing Omnis", output.getvalue())
+        self.assertIn("PAIRING_DISPLAY_UNCERTAIN", error.getvalue())
+        opener.assert_not_called()
+
     def test_open_without_installed_instance_refuses_without_invoking_opener(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as state:
             with (

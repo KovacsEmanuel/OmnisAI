@@ -1,10 +1,10 @@
-# CLI P0.4 — SL02: start headless instalat
+# CLI P0.4 — SL02 start headless + SL03 pair/open instalate
 
-`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. Rezultatele, reviziile, eșecurile și limitele sunt în [registrul SL02](../documents/verification/p04-installed-start.md). G00 și CI remote nu sunt închise.
+`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. Rezultatele și limitele sunt în [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md). G00 și CI remote nu sunt închise.
 
 ## Pregătire explicită, separată de startup
 
-**Acceptare curentă: REMEDIATION_PASS în scope / READY_FOR_SL03: YES pentru dezvoltare.** [Registrul remedierii](../documents/verification/p04-deep-remediation.md) adjudecă RT-F01/RT-F02, AR01/AR02 și remediile ulterioare după reviewurile scoped și perechea canonică pe `c914fda`: `make check` exit0 → `make check-installed-start` exit0, 308 intrări versionate identice înainte/între/după. Niciun P1/P2 confirmat rămas în perimetrul remediat; [auditul aprofundat](../documents/verification/p04-pre-sl03-deep-review.md) și FAIL-urile anterioare rămân istorice, nu verdict curent neremediat. [Matricea finală](../documents/verification/p04-deep-remediation-matrix.json) păstrează M03/config, M21/SL04 și M22/parser PARTIAL înainte G00. Pair/open și stop/recovery nu sunt implementate; G00 deschis, CI remote NOT_RUN, assessment_ready=false. Cele două recuperări istorice rămân RECOVERY_PENDING separat, cu date păstrate; nu ALL_CLEAN și nu autorizație de recovery/push.
+**SL02:** REMEDIATION_PASS în scope pe `c914fda`, nu transferat automat noilor bytes; [registrul remedierii](../documents/verification/p04-deep-remediation.md) și [matricea](../documents/verification/p04-deep-remediation-matrix.json) păstrează M03/config, M21/SL04 și M22/parser PARTIAL înainte G00. **SL03:** comenzile pair/open/implicit și L05-control pe artefact instalat au probe locale în [registrul SL03](../documents/verification/p04-pair-open.md); `stop`/recovery operațional nu este implementat. G00 deschis, CI remote NOT_RUN, assessment_ready=false. Cele două recuperări istorice rămân RECOVERY_PENDING separat, fără ALL_CLEAN sau autorizație de recovery/push.
 
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 
@@ -26,6 +26,11 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 <venv-cli>/bin/omnis install-image
 <venv-cli>/bin/omnis start --no-open --json
 <venv-cli>/bin/omnis status --json
+# Dintr-un TTY interactiv, cu instanța verificată și READY:
+<venv-cli>/bin/omnis pair
+# Deschidere fără pornire, respectiv pornire/reutilizare + deschidere:
+<venv-cli>/bin/omnis open
+<venv-cli>/bin/omnis
 ```
 
 `install` copiază idempotent releaseul; `install-image` construiește explicit imaginea și păstrează receiptul. Numai buildul explicit poate descărca dependențele cu hashes. **Start/status nu fac pull, build, instalare sau upgrade.** Releaseul este input local trusted al operatorului: checksumurile verifică consistența, nu o semnătură independentă. [Istoric bundle](../documents/verification/p04-bundle-install.md), [artefact imagine](../documents/verification/p04-image-artifact.md), [receipt imagine](../documents/verification/p04-image-install.md).
@@ -53,12 +58,13 @@ Exit startup: **0** READY verificat, **2** precondiție/config/port refuzat, **3
 
 `SO_REUSEADDR=False` rămâne strict. TIME_WAIT nu este listener și nici promisiune de rebind imediat; proba de teardown citește absența resurselor/listenerului propriu, nu adoptă orice răspunde pe port.
 
-**Ulterior:** SL03 pairing TTY/open/browser verificat; SL04 stop durabil/crash/recovery/persistență. Comenzile respective nu sunt expuse ca stuburi. L01–L05/L08 complete, peer LAN/IPv6 și G00 rămân distincte. Nu există runtime Hermes, provideri/Jev, proxy/executori, conturi sau trafic de assessment în această felie.
+**SL03:** `pair` refuză non-TTY/JSON înainte de emitere (exit 2), codul se consumă o dată și expiră după 5 minute în PostgreSQL. La `omnis` nou în TTY se emite codul inițial prin același issuer; la reuse sau non-TTY nu se invalidează codul și pairingul ulterior se cere explicit. Un write TTY parțial raportează disclosure incertă/exit 4, nu pretinde că nu s-a afișat codul. `open`/`omnis` fac readback complet identitate/receipt/HTTP/asset înainte de originul local; opener absent exit 2, eșuat exit 3, acceptat exit 0. Acceptarea `xdg-open` nu dovedește o fereastră ori sesiunea web: browserul de laborator și sesiunea au probă separată. Serviciile READY rămân pornite când openerul eșuează. **Ulterior:** SL04 stop durabil/crash/recovery/persistență. L01–L05/L08 complete, peer LAN/IPv6 și G00 rămân distincte. Nu există runtime Hermes, provideri/Jev, proxy/executori, conturi sau trafic de assessment în această felie.
 
 ## Verificare
 
 - `make check UV=/cale/uv-0.12.19` (alias `make test`): gate canonic cu runnerul DB UDS/no-network integrat; nu este implicit testul OCI. [Baseline DB închis](../documents/verification/p04-test-db-integration.md); verdictul lui nu se transferă codului nou.
 - **`make check-installed-start UV=/cale/uv-0.12.19`**: opt-in Docker/OCI, construiește/instalează explicit artefactele curente, apoi execută comanda de produs din alt cwd, concurență/reuse/status/negative/SIGTERM și cleanup/readback cu date păstrate. Fără `run_probe` în locul comenzii.
+- **`make check-installed-pair-open UV=/cale/uv-0.12.19`**: gate distinct L05-control, build din wheelul curent, TTY/PTY real, one-use/expiry, Host/Origin, sesiune/logout în browser propriu, refuzuri stale/foreign/closed, `omnis` nou/reuse și open headless; nu certifică fereastra OS `xdg-open` ori G00.
 - `check-control-image`, `check-installed-image`, `check-installed-control` rămân probe opt-in separate. Ultimul este [harnessul istoric de topologie](../documents/verification/p04-host-uds.md), nu dovada SL02 sau `omnis stop`.
 
 Rollback cod: inspectați commitul și dependențele, `git revert <sha>`, reconstruiți artefactele și rerulați probele. Git nu inversează DB/imaginile/procesele externe. Recuperarea lor cere readback exact al ownershipului; nu se deduce din port, prefix sau un PID dintr-un fișier. Probe numai în XDG scratch noi; nu se reutilizează automat clusterele disposable păstrate.

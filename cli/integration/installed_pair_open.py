@@ -129,6 +129,24 @@ def http_request(port, path, *, method="GET", body=None, headers=None):
         connection.close()
 
 
+def opener_outcome(exit_code: int, stdout: str, origin: str) -> str:
+    """Check the installed command's exact sanitized consumer result."""
+    allowed = {
+        0: {"BROWSER_LAUNCH_ACCEPTED"},
+        2: {"BROWSER_UNAVAILABLE"},
+        3: {"BROWSER_LAUNCH_FAILED", "BROWSER_LAUNCH_UNCONFIRMED"},
+    }
+    match = re.fullmatch(
+        rf"Omnis READY: {re.escape(origin)}/ — (BROWSER_[A-Z_]+); "
+        r"fereastra/sesiunea nu sunt verificate.\n",
+        stdout,
+    )
+    assert match is not None and match.group(1) in allowed.get(exit_code, set()), (
+        "Installed opener exit/origin/outcome mismatch"
+    )
+    return match.group(1)
+
+
 def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_code):
     """Use current installed CLI and actual private HTTP/DB; mock only opener in unit tests."""
     origin = f"http://127.0.0.1:{port}"
@@ -262,13 +280,10 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
         [cli, "open"], cwd=cwd, env=no_display, capture_output=True, text=True, timeout=50
     )
     stdout, stderr = opened.stdout, opened.stderr
-    outcome = {
-        0: "BROWSER_LAUNCH_ACCEPTED",
-        2: "BROWSER_UNAVAILABLE",
-        3: "BROWSER_LAUNCH_FAILED",
-    }.get(opened.returncode)
-    assert outcome is not None and stdout.startswith(f"Omnis READY: {origin}/ — {outcome}")
+    outcome = opener_outcome(opened.returncode, stdout, origin)
     if opened.returncode:
-        assert "serviciile rămân pornite" in stderr
+        assert "serviciile rămân pornite" in stderr.lower()
+    if outcome == "BROWSER_LAUNCH_UNCONFIRMED":
+        assert "poate" in stderr and "Deschiderea a eșuat" not in stderr
     outputs.append(stdout + stderr)
     return outcome  # Final verdict belongs to the caller after owned teardown/readback.

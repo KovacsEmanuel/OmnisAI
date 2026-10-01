@@ -572,7 +572,11 @@ class ReleaseBundleTest(unittest.TestCase):
                 os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1"
                 or os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1"
             ):
-                from installed_start import run_installed_start, run_interrupted_start
+                from installed_start import (
+                    run_installed_non_tty_default,
+                    run_installed_start,
+                    run_interrupted_start,
+                )
 
                 run_installed_start(
                     data,
@@ -581,6 +585,8 @@ class ReleaseBundleTest(unittest.TestCase):
                     cli,
                     pair_open=os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1",
                 )
+                if os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1":
+                    run_installed_non_tty_default(data, state, cli)
                 if os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1":
                     run_interrupted_start(data, state, cli)
                     run_interrupted_start(data, state, cli, phase="FORWARDING")

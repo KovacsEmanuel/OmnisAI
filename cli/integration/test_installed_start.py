@@ -7,11 +7,48 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+import installed_pair_open as probe
 from installed_pair_open import tty_run
 from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_opener_observer_accepts_only_exact_outcome_for_exit_and_origin(self):
+        origin = "http://127.0.0.1:8765"
+        cases = (
+            (0, "BROWSER_LAUNCH_ACCEPTED"),
+            (2, "BROWSER_UNAVAILABLE"),
+            (3, "BROWSER_LAUNCH_FAILED"),
+            (3, "BROWSER_LAUNCH_UNCONFIRMED"),
+        )
+        for exit_code, outcome in cases:
+            with self.subTest(outcome=outcome):
+                line = (
+                    f"Omnis READY: {origin}/ — {outcome}; fereastra/sesiunea nu sunt verificate.\n"
+                )
+                self.assertEqual(probe.opener_outcome(exit_code, line, origin), outcome)
+        for exit_code, line in (
+            (
+                0,
+                f"Omnis READY: {origin}/ — BROWSER_LAUNCH_UNCONFIRMED; fereastra/sesiunea nu sunt verificate.\n",
+            ),
+            (
+                3,
+                f"Omnis READY: {origin}/ — BROWSER_UNAVAILABLE; fereastra/sesiunea nu sunt verificate.\n",
+            ),
+            (
+                3,
+                "Omnis READY: http://127.0.0.1:9999/ — BROWSER_LAUNCH_FAILED; fereastra/sesiunea nu sunt verificate.\n",
+            ),
+            (
+                3,
+                f"Omnis READY: {origin}/ — BROWSER_LAUNCH_FAILED; fereastra/sesiunea nu sunt verificate.\nEXTRA",
+            ),
+        ):
+            with self.subTest(exit_code=exit_code, line=line):
+                with self.assertRaises(AssertionError):
+                    probe.opener_outcome(exit_code, line, origin)
+
     def test_pty_overflow_before_join_is_uncertain_not_an_assertion_cleanup(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             root = Path(name)

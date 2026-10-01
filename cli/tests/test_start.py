@@ -28,6 +28,66 @@ class StartTest(unittest.TestCase):
         self.environment.start()
         self.addCleanup(self.environment.stop)
 
+    def test_verifying_journal_starts_after_subprocess_attestation_before_http(self):
+        """Phase ordering only; Docker/readiness are substituted, not a live gate."""
+        import importlib
+        import subprocess
+        import time
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        runtime = Mock(
+            receipt=SimpleNamespace(
+                project="omnis-local-" + "a" * 32,
+                image_id="sha256:" + "b" * 64,
+                docker_id="test-daemon",
+            ),
+            digest="c" * 64,
+            host="unix:///run/docker.sock",
+            deadline=time.monotonic() + 5,
+        )
+        runtime.ids.return_value = []
+        runtime.inspect.return_value = None
+        runtime.psql.return_value = "1234"
+        runtime.run.return_value = subprocess.CompletedProcess([], 0, "migration-id", "")
+        runtime.wait_container.return_value = {"ExitCode": 0}
+        phases = []
+        journal = self.root / "state/omnis/startup.json"
+
+        def api_attestation(*args):
+            phases.append(("subprocess", json.loads(journal.read_text())["phase"]))
+            return 4242
+
+        def http_wait(*args):
+            phases.append(("http", json.loads(journal.read_text())["phase"]))
+            raise start.StartError("SYNTHETIC_READINESS_FAILED", 3)
+
+        out = io.StringIO()
+        with (
+            patch.object(start, "ControlRuntime", return_value=runtime),
+            patch.object(start, "preflight_port"),
+            patch.object(start, "validate_config"),
+            patch.object(
+                start,
+                "service_ids",
+                side_effect=[
+                    {"db": "db-id"},
+                    {"db": "db-id", "api": "api-id", "supervisor": "supervisor-id"},
+                ],
+            ),
+            patch.object(start, "database_identity", return_value=("1234", "instance-id")),
+            patch.object(start, "api_process", side_effect=api_attestation),
+            patch.object(start, "wait_dashboard", side_effect=http_wait),
+            patch.object(start, "cleanup_attempt", return_value=[]),
+            contextlib.redirect_stdout(out),
+        ):
+            code = main(["start", "--no-open", "--json"])
+        self.assertEqual(code, 3)
+        self.assertEqual(phases, [("subprocess", "SERVICES"), ("http", "VERIFYING")])
+        self.assertEqual(json.loads(journal.read_text())["failed_phase"], "VERIFYING")
+
     def test_cleanup_journal_error_does_not_downgrade_uncertainty(self):
         import importlib
         import types

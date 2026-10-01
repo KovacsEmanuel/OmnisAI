@@ -596,9 +596,10 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             record["containers"] = ids
             write_record(journal, record, replace=True)
             runtime.run("start", ids["supervisor"], ids["api"], effect=True)
+            api_pid = api_process(runtime, ids["api"], root, control, selected)
+            # VERIFYING is the HTTP/control wait, after the last Docker attestation.
             record["phase"] = "VERIFYING"
             write_record(journal, record, replace=True)
-            api_pid = api_process(runtime, ids["api"], root, control, selected)
             current = wait_dashboard(runtime, root, control, selected, identity, api_pid)
             if (
                 current["admission_open"] is not False

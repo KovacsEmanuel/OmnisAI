@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.6
+version: 0.1.7
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -36,6 +36,7 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - On PostgreSQL 18, `attnotnull=true` can coexist with `NOT NULL NOT VALID` and existing NULL rows. A compatible-schema probe must compare the exact authority column/**every default**/constraint set including `pg_constraint.convalidated` and `conenforced`; a revision stamp, partial default map or subset check can report a false ready. Exercise the real DDL mutation on an isolated DB before trusting the negative test.
 - Bound connection, lock and statement waits **and the downstream coroutine** for every DB-backed HTTP operation. A PostgreSQL statement timeout does not bound a stalled client connection. Fault-inject a stall after a real transactional write; require bounded sanitized failure, rollback readback and no success cookie. Keep test subprocess deadlines finite.
 - Preserve one-use issuance as well as consumption: retain an immutable receipt binding issuance ID, digest and original expiry. Replay after consumption, supersession or expiry must neither reactivate a code nor extend its TTL; a fresh ID must not reuse the same code. Commit failed-attempt counters before raising denial, and check expiry with current DB time after acquiring the lock.
+- A private issuer's initial owner/lease check is not authority through a later blocking challenge-row lock: recheck the same pinned owner/epoch with PostgreSQL's current time **after** the wait and before transaction commit, so expiry rolls back both challenge and issuance receipt. Prove it with a real locked disposable DB row, an observed successful first check, real DB-clock expiry, and a rollback readback; a short production statement timeout may hide this race by failing earlier, so any test-only `SET LOCAL` timeout extension must be labeled and must never change production admission limits.
 - Establish listener ownership, inode and permissions before an asynchronous serving call can yield. On the pinned Python, create a non-serving Unix server first, then start serving; inject cancellation at the first yield and verify the listener is gone and restart succeeds. A successful normal shutdown does not cover partial startup.
 - When typing SQL results, validate driver values into strict records/scalars rather than casting dynamic values. Strict Pydantic models may reject `RowMapping` even when its fields are correct: normalize only the Mapping container to a dict, preserve every field, and retain strict value checks. Prove acceptance on real driver rows and rejection of coercions; sanitize validation failures as storage failures, not invalid client requests.
 - Test cancellation together with a transport-close failure. A `return` inside cleanup can erase the original exception; suppress only the expected close error without returning from `finally`, and require the original cancellation to propagate.

@@ -1,0 +1,20 @@
+# SL02 — remedierea SC01/SC02 și acceptarea delimitată
+
+## Contract înainte de cod
+
+Bază reală: `d940864c5ec9db56bfdc96237c71ef4f68d7aa81`, branch `p04-control-topology-wip`; index și tracked curate. `documents/Omnis_Notite_Originale.html` rămâne untracked/protejat, SHA-256 `783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f`. AGENTS nemodificat. Referințe: [prompt](p04-start-remediation-prompt.md), [audit/26 cerințe](p04-start-completeness-review.md), plan §4.2/§19.2, arhitectură §4.1–4.5. **La acest checkpoint remediile și gate-urile noi sunt NOT_EXECUTED.**
+
+- **SC01:** copil propriu real terminat prin semnal → starea producătorului `ControlRuntime.run` → cleanup real cu efecte/inventar Docker substituite → zero stop/remove DB și `UNCERTAIN`/exit 4/jurnal păstrat. Returncode negativ independent de `success`; diferențiere succes, refuz read-only cunoscut, nonzero mutant nereconciliat, timeout și decoding. Fără semnale PID/PGID după reap; familia necunoscută nu devine drenată din simplul reap al liderului.
+- **SC02:** decoder JSON real pe manifest profund imbricat sub 32768 bytes; conversie îngustă la `ReleaseError`. Console script din wheelul nou, cwd extern, XDG privat: exit 2, JSON `REFUSED`/`RELEASE_OR_IMAGE_INVALID`, flags false, fără traceback/payload/secrete/stare nouă. Păstrăm release valid și refuzurile obișnuite.
+- **Fișiere:** `cli/src/omnis_cli/start_runtime.py`, `release.py`, testele CLI relevante; `start.py` numai dacă regresia o cere. Integrarea instalată existentă și documentele/statusurile numai după probe. Nicio modificare a DB/migrărilor 0001–0004, `omnis.serve`, runnerului DB/owner WIP sau gate-urilor pentru a fabrica GREEN.
+- **Ordine:** pentru fiecare defect RED → minim GREEN → review independent read-only pe snapshot exact → commit local. Apoi `make test-cli`, lint/format/mypy existente, `make check-cli-wheel`, console script extern; secvențial `make check` și `make check-installed-start` pe codul final, fără gates concurente pe artefacte/venvuri.
+- **Review final:** direcție SC01, direcție SC02/26 cerințe și inventar independent plan până la P0.4/SL02. Defect, probă parțială și scope deferred rămân distincte; fără „tot MVP implementat”. Nu SL03/SL04, push, conturi, model calls sau target traffic.
+- **Unelte:** skill-urile locale delivery/release-ops/failure-boundaries/review-qa/project-status/Reticle/Chisel citite. Chisel este NO-GO și nu primește acces la repo. Reticle poate verifica numai fixture-ul instrumentat separat; nu certifică defecte CLI și nu este cablat implicit în produs.
+
+## Prerechizite și efecte externe
+
+Verificat înaintea editărilor: API/CLI Python 3.13.15, uv 0.12.19, Node 24.21.0/npm 11.19.0; import CLI din checkoutul curent. Docker client/server 27.5.1+dfsg4, endpoint Unix `/var/run/docker.sock`; imaginile PG18.6 și Python3.13.15 din pinurile Makefile există amd64. Fără overrides ambientale Docker/Compose/PG/test DB. PATH pin-uit folosește tools din `/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/`.
+
+Baseline extern read-only: două containere active preexistente `8143ec40ecabf29d13c78d9114206732b56a550796548d478f594c240eb9ceb6` și `dabab333533ba7010ffd623bbf2fe94cb7ce2f04cb5a9c04c2edb2e82914ad27`; plus containere oprite preexistente, neatinse. Probele creează numai roots/proiecte/resurse proprii noi în scratch. Nicio adopție a DB-urilor vechi. Cleanup/readback exact prin runnerul existent; date/diagnostic păstrate, fără down -v/prune. Dacă daemonul/familia rămân incerte, păstrăm resursele și locatorul, nu rescue pentru PASS.
+
+Rollback: inspectare dependențe și `git revert <commit>` pentru fiecare schimbare coerentă, rebuild și revalidare. Git nu inversează efecte Docker/DB; acestea cer reatestarea ownershipului exact și păstrarea datelor. Fără privilegii/modificări daemon/firewall/toolchain global. Logurile sunt private în `/home/kali/.hermes/cache/scratch/omnis-sc-remediation/`; concluziile sanitizate vor fi persistate aici după rezultate reale.

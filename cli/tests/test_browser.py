@@ -85,6 +85,29 @@ class BrowserTest(unittest.TestCase):
                 self.assertEqual(main(["open"]), 3)
         self.assertIn("INSTANCE_UNAVAILABLE", error.getvalue())
 
+    def test_missing_journal_does_not_create_lifecycle_locks(self):
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            base = Path(name)
+            data, state = base / "data/omnis", base / "state/omnis"
+            data.mkdir(parents=True, mode=0o700)
+            state.mkdir(parents=True, mode=0o700)
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_DATA_HOME": str(base / "data"),
+                        "XDG_STATE_HOME": str(base / "state"),
+                    },
+                ),
+                patch("omnis_cli.verified.ControlRuntime"),
+                contextlib.redirect_stdout(io.StringIO()),
+                contextlib.redirect_stderr(io.StringIO()) as error,
+            ):
+                self.assertEqual(main(["open"]), 3)
+            self.assertIn("INSTANCE_UNAVAILABLE", error.getvalue())
+            self.assertFalse((data / "lifecycle.lock").exists())
+            self.assertFalse((state / "lifecycle.lock").exists())
+
     def test_opener_acceptance_is_not_claimed_as_visible_window(self):
         from omnis_cli import browser
 

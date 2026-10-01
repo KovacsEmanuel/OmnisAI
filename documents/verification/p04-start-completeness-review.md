@@ -2,6 +2,8 @@
 
 ## Verdict actual și auditul istoric
 
+**Cea mai nouă adjudecare:** [auditul aprofundat](p04-pre-sl03-deep-review.md) redeschide SL02 ca CHANGES_REQUESTED pentru RT-F01/RT-F02 și AR01/AR02. Închiderile SC01/SC02 de mai jos rămân scoped; nu închid noile scenarii.
+
 **Actualizare ulterioară: SC01/SC02 CLOSED / APPROVED_SCOPED**, conform [registrului remedierii](p04-start-remediation.md): cod `b8217cb`, review separat, gate comun și OCI curente PASS; 16 COVERED / 6 PARTIAL / 4 DEFERRED. O probă intermediară a păstrat corect DB sub incertitudine și rămâne RECOVERY_PENDING separat, fără rescrierea istoricului. **Restul acestui document este auditul istoric CHANGES_REQUESTED — SC01 și SC02 erau confirmate, neremediate la snapshotul de mai jos.** Calea principală instalată există și are PASS-uri reale în [registrul livrării](p04-installed-start.md), dar afirmația „SL02 complet fără omisiuni” nu este susținută. Nu anulăm execuțiile istorice; restrângem verdictul de acceptare pe baza a două contraexemple noi. Nu sunt notificările vechi F1/R1–R7/B1–B4 deja închise.
 
 **Bază audit independent:** `4113c785ae8cacccb44ba8db79e1805d271c21dd`. **HEAD la reproducerea părintelui:** `15fc030ab2c23dc423a423714fac1271a444f6ee`. Diff-ul `4113c78..15fc030 -- cli/src cli/tests cli/integration` este gol; cele 12 module Python ale CLI-ului instalat păstrat au fost comparate byte-for-byte cu sursa curentă: identice. Schimbările intermediare sunt numai skill/status/documentare. Nicio constatare nu este declarată închisă prin această adjudecare.

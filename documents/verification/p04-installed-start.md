@@ -1,6 +1,6 @@
 # P0.4b / SL02 — comanda instalată start headless
 
-**Acceptare actuală: APPROVED_SCOPED după [remedierea SC01/SC02](p04-start-remediation.md).** Cod final `b8217cb`, reviewuri distincte și make check + OCI secvențiale PASS, cu limitele 16 COVERED / 6 PARTIAL / 4 DEFERRED. [Auditul RED](p04-start-completeness-review.md), execuțiile de mai jos la `1dfa022` și eșecul intermediar rămân istorice, nu se rescriu. O DB din proba incertă intermediară rămâne RECOVERY_PENDING, locator în noul registru; ultimele probe au cleanup verificat/date păstrate. Nu este acceptare fără omisiuni și nu închide G00; urmează SL03.
+**Acceptare actuală: CHANGES_REQUESTED**, conform [auditului aprofundat](p04-pre-sl03-deep-review.md): două P1 de lifecycle și două P2 de validare confirmate/neremediate. SC01/SC02 și corecția VERIFYING din [registrul remedierii](p04-start-remediation.md) rămân închise în scenariile lor; gate-urile la `b8217cb` și istoricul de mai jos nu certifică frontierele noi. Prioritate: remedii SL02 înainte SL03; 13 COVERED / 4 GAP / 5 PARTIAL / 4 DEFERRED. DB probei intermediare rămâne RECOVERY_PENDING, fără rescue implicit; G00 deschis.
 
 ## Contract înainte de cod
 

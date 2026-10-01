@@ -1,5 +1,7 @@
 # SL02 — remedierea SC01/SC02 și acceptarea delimitată
 
+**Audit ulterior: CHANGES_REQUESTED pentru SL02**, vezi [RT-F01/RT-F02 și AR01/AR02](p04-pre-sl03-deep-review.md), confirmate și neremediate. SC01/SC02 și corecția VERIFYING din acest registru rămân închise în scenariile probate; acceptarea și matricea 16/6/4 de mai jos sunt checkpointul istoric înaintea noilor contraexemple. Matricea actuală este 13 COVERED / 4 GAP / 5 PARTIAL / 4 DEFERRED. Nu relansa un gate vechi ca substitut pentru noile regresii.
+
 ## Contract înainte de cod
 
 Bază reală: `d940864c5ec9db56bfdc96237c71ef4f68d7aa81`, branch `p04-control-topology-wip`; index și tracked curate. `documents/Omnis_Notite_Originale.html` rămâne untracked/protejat, SHA-256 `783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f`. AGENTS nemodificat. Referințe: [prompt](p04-start-remediation-prompt.md), [audit/26 cerințe](p04-start-completeness-review.md), plan §4.2/§19.2, arhitectură §4.1–4.5. **La acest checkpoint remediile și gate-urile noi sunt NOT_EXECUTED.**

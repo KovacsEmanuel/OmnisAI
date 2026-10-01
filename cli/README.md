@@ -4,7 +4,7 @@
 
 ## Pregătire explicită, separată de startup
 
-**Acceptare curentă: APPROVED_SCOPED.** [Remedierea SC01/SC02](../documents/verification/p04-start-remediation.md) are RED→GREEN, review separat și gate comun + OCI secvențiale PASS pe codul `b8217cb`. Incertitudinea copilului/efectului păstrează DB; nestingul excesiv în limita de bytes produce JSON REFUSED/exit 2. [Auditul inițial](../documents/verification/p04-start-completeness-review.md) și eșecul OCI intermediar rămân istorice. Cele șase PARTIAL nu devin cleanup universal; o DB de probă mai veche rămâne RECOVERY_PENDING sub incertitudine, fără rescue fabricat. Ultimele probe au cleanup verificat, date păstrate. G00 rămâne deschis; urmează SL03.
+**Acceptare curentă: CHANGES_REQUESTED.** [Audit aprofundat](../documents/verification/p04-pre-sl03-deep-review.md): RT-F01/P1 pierde handle-ul forwarderului la close/finally și poate publica FAILED_CLEANED cu listener viu; RT-F02/P1 condițional permite tentative killpg după auto-reap SIGCHLD ignorat. AR01/AR02 sunt P2 de validare bool/int/float. Confirmate de părinte, neremediate în acest audit; corecțiile SL02 preced SL03. [SC01/SC02](../documents/verification/p04-start-remediation.md) rămân reparate în scenariile probate, iar PASS-urile istorice nu se transferă la noile frontiere. DB veche RECOVERY_PENDING păstrată; G00 deschis.
 
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 

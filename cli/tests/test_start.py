@@ -89,6 +89,12 @@ class StartTest(unittest.TestCase):
         self.assertEqual(json.loads(journal.read_text())["failed_phase"], "VERIFYING")
 
     def test_cleanup_journal_error_does_not_downgrade_uncertainty(self):
+        self.check_cleanup_journal_error(["forwarder"])
+
+    def test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict(self):
+        self.check_cleanup_journal_error([])
+
+    def check_cleanup_journal_error(self, problems):
         import importlib
         import types
 
@@ -108,7 +114,7 @@ class StartTest(unittest.TestCase):
         original = start.write_record
 
         def record(path, value, **kwargs):
-            if value.get("phase") == "UNCERTAIN":
+            if value.get("phase") in {"UNCERTAIN", "FAILED_CLEANED"}:
                 raise OSError("synthetic private disk failure")
             original(path, value, **kwargs)
 
@@ -119,7 +125,7 @@ class StartTest(unittest.TestCase):
             patch.object(
                 start, "validate_config", side_effect=start.StartError("CONFIG_TEST_FAILURE")
             ),
-            patch.object(start, "cleanup_attempt", return_value=["forwarder"]),
+            patch.object(start, "cleanup_attempt", return_value=problems),
             patch.object(start, "write_record", side_effect=record),
             contextlib.redirect_stdout(out),
         ):

@@ -11,8 +11,9 @@ import socket
 import subprocess
 import sys
 import time
-from contextlib import ExitStack
-from dataclasses import asdict
+from collections.abc import Iterator
+from contextlib import ExitStack, contextmanager
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
@@ -185,70 +186,124 @@ class ForwarderStartError(StartError):
         self.pidfd = pidfd
 
 
+@dataclass
+class ForwarderOwnership:
+    """Caller-owned before spawn; a failed return/finally cannot erase these handles."""
+
+    process: subprocess.Popen[bytes] | None = None
+    pidfd: int = -1
+
+
+@contextmanager
+def _publish_forwarder() -> Iterator[None]:
+    """Defer CLI Python interrupts through birth/publication, not via thread masks.
+
+    Python handlers run on the main thread even if delivery is to another thread.
+    Record every stop here, restore the previous handlers, then enter cleanup once
+    ownership is published. Do not replace an arbitrary library caller's handler.
+    """
+    pending = False
+
+    def defer(signum: int, frame: FrameType | None) -> None:
+        nonlocal pending
+        pending = True
+
+    previous = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    if any(
+        handler not in (_interrupt, signal.default_int_handler, signal.SIG_DFL, signal.SIG_IGN)
+        for handler in previous.values()
+    ):
+        raise StartError("FORWARDER_SIGNAL_POLICY_UNSUPPORTED")
+    changed = []
+    try:
+        for sig, handler in previous.items():
+            if handler in (_interrupt, signal.default_int_handler):
+                signal.signal(sig, defer)  # Main-thread restriction enforced before spawn.
+                changed.append(sig)
+        yield
+    finally:
+        for sig in changed:
+            signal.signal(sig, previous[sig])
+    if pending:
+        raise KeyboardInterrupt()
+
+
 def launch_forwarder(
-    root: Path, port: int, deadline: float
+    root: Path, port: int, deadline: float, *, ownership: ForwarderOwnership | None = None
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
-    # The private intent already exists. On crash it prevents a second launch.
+    # The private intent and caller holder exist before birth. The tuple is NOT
+    # the ownership transfer: finally/close and tuple unpacking remain interruptible.
+    owner = ownership if ownership is not None else ForwarderOwnership()
     remaining(deadline)
     log_fd = os.open(
         root / "forwarder.log", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600
     )
-    with os.fdopen(log_fd, "wb") as log:
-        process = subprocess.Popen(
-            [
-                sys.executable,
-                "-I",
-                "-m",
-                "omnis_cli.forwarder",
-                "--socket-dir",
-                str(root / "http"),
-                "--port",
-                str(port),
-            ],
-            cwd=root,
-            env={"PATH": SAFE_PATH},
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=log,
-            start_new_session=True,
-        )
-    pidfd = -1
     try:
-        pidfd = os.pidfd_open(process.pid)
-        assert process.stdout is not None
-        end = min(deadline, time.monotonic() + 8)
-        message = bytearray()
-        while b"\n" not in message and len(message) <= 128:
-            if not select.select([process.stdout], [], [], remaining(end, 8))[0]:
-                raise StartError("FORWARDER_READINESS_TIMEOUT", 3)
-            chunk = os.read(process.stdout.fileno(), 129 - len(message))
-            if not chunk:
-                raise StartError("FORWARDER_EXITED", 3)
-            message.extend(chunk)
-        if bytes(message) != b"FORWARDER_READY\n" or process.poll() is not None:
-            raise StartError("FORWARDER_READINESS_FAILED", 3)
-        identity = process_identity(process.pid)
-        inodes = process_sockets(process.pid)
-        rows = Path("/proc/net/tcp").read_text().splitlines()[1:]
-        listeners = [
-            int(row.split()[9])
-            for row in rows
-            if row.split()[1] == f"0100007F:{port:04X}"
-            and row.split()[3] == "0A"
-            and int(row.split()[9]) in inodes
-        ]
-        if len(listeners) != 1:
-            raise StartError("FORWARDER_LISTENER_UNVERIFIED", 3)
-        listener_owned(identity, port, listeners[0])
-        return process, pidfd, identity, listeners[0]
-    except BaseException as exc:
-        # No inner stop can lose the handle. The caller owns cleanup and closes pidfd.
-        raise ForwarderStartError(
-            process, pidfd, exc.reason if isinstance(exc, StartError) else "FORWARDER_START_FAILED"
-        ) from None
-    finally:
-        if process.stdout is not None:
+        with os.fdopen(log_fd, "wb") as log:
+            with _publish_forwarder():
+                owner.process = subprocess.Popen(
+                    [
+                        sys.executable,
+                        "-I",
+                        "-m",
+                        "omnis_cli.forwarder",
+                        "--socket-dir",
+                        str(root / "http"),
+                        "--port",
+                        str(port),
+                    ],
+                    cwd=root,
+                    env={"PATH": SAFE_PATH},
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=log,
+                    start_new_session=True,
+                )
+                owner.pidfd = os.pidfd_open(owner.process.pid)
+        process = owner.process
+        assert process is not None and process.stdout is not None
+        try:
+            end = min(deadline, time.monotonic() + 8)
+            message = bytearray()
+            while b"\n" not in message and len(message) <= 128:
+                if not select.select([process.stdout], [], [], remaining(end, 8))[0]:
+                    raise StartError("FORWARDER_READINESS_TIMEOUT", 3)
+                chunk = os.read(process.stdout.fileno(), 129 - len(message))
+                if not chunk:
+                    raise StartError("FORWARDER_EXITED", 3)
+                message.extend(chunk)
+            if bytes(message) != b"FORWARDER_READY\n" or process.poll() is not None:
+                raise StartError("FORWARDER_READINESS_FAILED", 3)
+            identity = process_identity(process.pid)
+            inodes = process_sockets(process.pid)
+            rows = Path("/proc/net/tcp").read_text().splitlines()[1:]
+            listeners = [
+                int(row.split()[9])
+                for row in rows
+                if row.split()[1] == f"0100007F:{port:04X}"
+                and row.split()[3] == "0A"
+                and int(row.split()[9]) in inodes
+            ]
+            if len(listeners) != 1:
+                raise StartError("FORWARDER_LISTENER_UNVERIFIED", 3)
+            listener_owned(identity, port, listeners[0])
+        finally:
             process.stdout.close()
+        return process, owner.pidfd, identity, listeners[0]
+    except BaseException as exc:
+        if owner.process is None:
+            raise
+        # Includes log/pipe finalizers. Outer holder remains authoritative even
+        # if a second interrupt cancels construction/delivery of this exception.
+        try:
+            if owner.process.stdout is not None and not owner.process.stdout.closed:
+                owner.process.stdout.close()
+        finally:
+            raise ForwarderStartError(
+                owner.process,
+                owner.pidfd,
+                exc.reason if isinstance(exc, StartError) else "FORWARDER_START_FAILED",
+            ) from None
 
 
 def stop_forwarder(process: subprocess.Popen[bytes], pidfd: int) -> None:
@@ -500,8 +555,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         }
         runtime.attempt = str(record["attempt"])
         write_record(journal, record)
-        process: subprocess.Popen[bytes] | None = None
-        pidfd = -1
+        owner = ForwarderOwnership()
         try:
             ensure_private(control)
             ensure_private(root / "http")
@@ -609,7 +663,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 raise StartError("INITIAL_ADMISSION_CONFLICT", 4)
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
-            process, pidfd, forwarder, inode = launch_forwarder(root, selected, deadline)
+            _, _, forwarder, inode = launch_forwarder(root, selected, deadline, ownership=owner)
             record.update(
                 forwarder=forwarder,
                 listener_inode=inode,
@@ -664,14 +718,15 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             result["reused"] = False
             return result
         except BaseException as exc:
-            if isinstance(exc, ForwarderStartError):
-                process, pidfd = exc.process, exc.pidfd
             # Repeated terminal interrupts cannot abandon this attempt's bounded cleanup.
             for sig in (signal.SIGTERM, signal.SIGINT):
                 if signal.getsignal(sig) is _interrupt:
                     signal.signal(sig, signal.SIG_IGN)
             failed_phase = record["phase"]
-            problems = cleanup_attempt(runtime, root, control, selected, process, pidfd)
+            if owner.process is not None:
+                # Locator only, never authority to signal a metadata PID on retry.
+                record["forwarder_spawn_pid"] = owner.process.pid
+            problems = cleanup_attempt(runtime, root, control, selected, owner.process, owner.pidfd)
             record.update(
                 failed_phase=failed_phase,
                 failure=exc.reason if isinstance(exc, StartError) else "STARTUP_FAILED",
@@ -686,11 +741,23 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 raise StartError("STARTUP_CLEANUP_UNCERTAIN", 4) from None
             raise
         finally:
-            if pidfd >= 0:
-                os.close(pidfd)
+            if owner.pidfd >= 0:
+                os.close(owner.pidfd)
 
 
 def _interrupt(signum: int, frame: FrameType | None) -> None:
+    # A handled retry exception is NOT cancellation. Only an existing stop,
+    # failed forwarder handoff, or failure already propagated to start_instance
+    # commits startup to unwind/cleanup. Its traceback exists even before the
+    # outer except binds `exc`, so a repeated stop cannot skip cleanup entry.
+    failure = sys.exception()
+    if isinstance(failure, (KeyboardInterrupt, ForwarderStartError)):
+        return
+    trace = failure.__traceback__ if failure is not None else None
+    while trace is not None:
+        if trace.tb_frame.f_code is start_instance.__code__:
+            return
+        trace = trace.tb_next
     raise KeyboardInterrupt()
 
 

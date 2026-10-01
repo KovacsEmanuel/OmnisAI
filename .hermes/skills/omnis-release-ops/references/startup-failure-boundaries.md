@@ -43,6 +43,16 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
      can cancel the handoff after spawn. Use an independently pinned observer to
      detect a live owned listener even when the journal never got its identity;
      an absence oracle based only on that journal cannot certify this boundary.
+   - Distinguish the first stop during a handled readiness retry from a repeated
+     stop during failure unwind. `sys.exception() != None` is not cancellation.
+     Keep controls for both signals, retry without stop, repeated cleanup entry,
+     and a propagated non-stop failure before the outer except binds its value;
+     otherwise a type-only guard can still abandon caller-owned handles.
+   - Preserve the original failed resource readback and rescue every already
+     verified observer pidfd before closing it, even when DB teardown is refused.
+     A successful observer rescue leaves product FAIL and recovery UNCERTAIN;
+     it is not a clean verdict. Aggregate per-handle rescue/readback failures.
+     Test a live unjournaled child through the complete failed-probe finally.
 5. Keep boundary evidence separate: real child termination + mocked daemon
    proves a branch and its consumer, not Docker-side cancellation. A delayed
    daemon effect needs its own authorized isolated probe and exact cleanup
@@ -54,6 +64,12 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    family if interrupted. Reproduce the ordering with real journal reads and
    rerun the installed command; keep missed-phase and UNCERTAIN outcomes failing,
    without reset/rescue of an older uncertain attempt or weakening its DB gate.
+   For before-effects expiry, inventory all fresh contractual roots, including
+   runtime/HOME rather than only state. Exercise an unexpected runtime write and
+   a no-write control through the same oracle; a synthetic clock verifies that
+   oracle only, never the installed product's elapsed deadline. Measure readiness
+   expiry from the observed phase and separately from fault resume: SIGSTOP does
+   not pause a monotonic deadline, and launcher elapsed includes unrelated work.
 
 ## Verify the installed refusal protocol
 

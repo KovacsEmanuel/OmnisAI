@@ -1023,7 +1023,7 @@ def main() -> int:
     parser.add_argument("--uv", default="uv")
     parser.add_argument(
         "--target",
-        choices=("check-components", "test-db-contract", "test-migrations"),
+        choices=("check-components", "test-db-contract", "test-migrations", "test-e2e"),
         default="check-components",
     )
     parser.add_argument("--timeout-seconds", type=int, default=3600)

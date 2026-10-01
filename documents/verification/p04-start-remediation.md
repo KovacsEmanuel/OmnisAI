@@ -17,4 +17,30 @@ Verificat înaintea editărilor: API/CLI Python 3.13.15, uv 0.12.19, Node 24.21.
 
 Baseline extern read-only: două containere active preexistente `8143ec40ecabf29d13c78d9114206732b56a550796548d478f594c240eb9ceb6` și `dabab333533ba7010ffd623bbf2fe94cb7ce2f04cb5a9c04c2edb2e82914ad27`; plus containere oprite preexistente, neatinse. Probele creează numai roots/proiecte/resurse proprii noi în scratch. Nicio adopție a DB-urilor vechi. Cleanup/readback exact prin runnerul existent; date/diagnostic păstrate, fără down -v/prune. Dacă daemonul/familia rămân incerte, păstrăm resursele și locatorul, nu rescue pentru PASS.
 
+## Probe și adjudecare înainte de gate-urile finale
+
+### SC01 — commit `0c2a373`
+
+- RED al părintelui, `cli/.venv/bin/python -I -m unittest discover -s cli/tests -p test_start_process.py -k test_signal -v`: 2 metode, 3 failures/subteste; copil real `returncode=-9`, `uncertain=false`, două efecte DB substituite. RED suplimentar: nonzero mutant, UnicodeError după exit, timeout/family și excepție post-reap.
+- Primul review independent `deleg_e9184a74` a găsit două P1 reale în remediul intermediar: SIGTERM la close/finally ocolea flagurile; două SIGTERM între kernel reap și publicarea returncode permiteau semnale numerice după reap. Părintele le-a reprodus: `-k interrupt` → 2 failures, înainte de corecție. Tentativele killpg post-reap au fost interceptate, nu executate.
+- Remediu final: starea conservatoare începe înainte de spawn și durează până după wait/close/decode; nonzero mutant nu dovedește refuzul efectului. `waitid(WNOWAIT)` păstrează identitatea până la revocarea autorității numerice înainte de wait. EOF înainte de ieșire are deadline; excepțiile păstrează familia incertă. Succesul/refuzul read-only ordinar păstrează flagurile anterioare; nu se promovează ownerul WIP și nu se schimbă `start.py`.
+- GREEN: 30 teste startup și apoi `make test-cli` **73 PASS**, Ruff/format/mypy CLI exit 0. Re-review `deleg_d03af3c7`: **APPROVED_SCOPED SC01/R1/R2**, 14 teste proces rulate independent; părinte adjudecat fără blocante. Snapshot diff SHA-256 `3e2607984d2cb0630f66cd5dfc73765f90bd107026a23d98776d38e0cfdaddca` este comis în `0c2a373`. C1 neblocant: flagurile anterioare sticky sunt verificate static, fără subtest dedicat în acel snapshot.
+- Limite: copil/semnal/kernel reap/main/cleanup/jurnal reale, daemon/inventar/atestare DB substituite. Nu s-a oprit DB reală în reproducer, nu s-a măsurat delayed Docker ACK sau drenarea tuturor descendenților detached. Exit 4 fără zero efecte DB nu a fost acceptat.
+
+### SC02 — probe înainte de review/commit
+
+- Manifestul sintetic are 30001 bytes, sub limita 32768. Testele permanente `cli/tests/test_manifest_boundary.py` au dat RED: RecursionError real din decoder și exit 1 al console scriptului, nu import/dependință absentă. Wheelul pre-remediu, proaspăt construit cu `make check-cli-wheel`, a reprodus exit 1/stdout gol/traceback din cwd extern; 12 module instalate identice cu sursa.
+- Conversie îngustă numai `RecursionError` la decoder → `ReleaseError("Invalid release manifest") from None`; schema/checksum/path/unique keys și frontiera startup existente sunt neschimbate.
+- GREEN: `make test-cli` **75 PASS**, `make check-cli-wheel UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv` **75 teste instalate PASS** din cwd scratch. Ruff/format/mypy exit 0.
+- Console script instalat real: `omnis start --no-open --json` → **exit 2**, JSON exact `state=REFUSED`, `reason=RELEASE_OR_IMAGE_INVALID`, `dashboard_ready=false`, `assessment_ready=false`, `browser_opened=false`; stderr gol, state/runtime absente, manifest nemodificat și niciun lock/receipt nou. Toate cele 12 module wheel coincid byte-for-byte cu sursa; SHA release.py `af962c411958d0d2c3f0a6973b4f2c203b743d36bf93fbc1e8af9aad0fa05142`. Script verificator `check_installed_sc02.py` în scratch; regresiile permanente afirmă contractul sigur, nu defectul vechi.
+- La acest checkpoint review-ul SC02 și review-ul matricei 26 sunt **IN_REVIEW** (`deleg_1eb4728a`); `make check` și OCI final sunt **NOT_RUN**. Niciun PASS istoric nu este transferat.
+
+### Review de plan și unelte de dezvoltare
+
+Audit independent read-only `deleg_3d365048` la `d940864`: 36/36 SL, E1–E4, B21m și 13 EXECUTION_UNSCHEDULED concordante cu planul; niciun defect de produs nou confirmat. Părintele a comparat programatic cele 36 de ID-uri unice cu planul canonic, nu numai totalul declarat în JSON. Fundațiile P0.1–P0.3/SL01 sunt păstrate; SL03/SL04 și restul MVP rămân nelivrate la nivelul livrabilelor de produs. Ramura `chore/p02-test-typing` are un commit exclusiv; nu este integrată sau creditată implicit. Nu s-au făcut merge/switch/fetch/push.
+
+DOC-R01, formularea Reticle «no app», este adjudecată și corectată separat în `f19de18`: aplicația P0.3 există, instrumentarea Reticle a ei nu. Smoke Reticle real rulat în namespace loopback-only cu Node22.22.0/Playwright1.60.0/headless148.0.7778.96: exit 0, state `verified=yes`, controale HTTP200/500 corecte, count=1, listener-ele 14400/14401 absente după cleanup. Root `/home/kali/.hermes/cache/scratch/omnis-reticle-l54fneqt`; dovadă sintetică separată, nu certificat UI produs sau SC01/SC02. Chisel rămâne NO-GO/neactivat, fără reevaluare sau bypass.
+
+Lecțiile R1/R2 sunt păstrate în referința skillului local release-ops, commit `9f3d32a`; 35 teste development PASS. Nicio configurație/profil Hermes global schimbată.
+
 Rollback: inspectare dependențe și `git revert <commit>` pentru fiecare schimbare coerentă, rebuild și revalidare. Git nu inversează efecte Docker/DB; acestea cer reatestarea ownershipului exact și păstrarea datelor. Fără privilegii/modificări daemon/firewall/toolchain global. Logurile sunt private în `/home/kali/.hermes/cache/scratch/omnis-sc-remediation/`; concluziile sanitizate vor fi persistate aici după rezultate reale.

@@ -8,9 +8,9 @@
 
 ## Amendamente autorizate, incorporate în canon
 
-[Auditul de completitudine SL02](p04-start-completeness-review.md) este adjudecat ulterior predării: SC01/SC02 confirmate de părinte și încă neremediate, **CHANGES_REQUESTED**. Include distincția între probele pozitive istorice, cele două GAP-uri și limitele PARTIAL; nu reface infrastructura DB și nu inventează un plan concurent.
+[Auditul de completitudine SL02](p04-start-completeness-review.md) păstrează istoricul SC01/SC02, ulterior remediate în [registrul lor](p04-start-remediation.md). [Remedierea aprofundată actuală](p04-deep-remediation.md) consemnează și RT-F01/RT-F02/AR01/AR02/AR03/RT-PG01/RT-M01, reviewurile adjudecate și perechea canonică finală exit0/exit0 pe c914fda: REMEDIATION_PASS / READY_FOR_SL03: YES numai pentru dezvoltarea următoarei felii. [Matrice26/26](p04-deep-remediation-matrix.json) păstrează 19 COVERED scoped/3 PARTIAL/4 DEFERRED, fără G00/CI remote/ALL_CLEAN ori SL03/SL04 livrate.
 
-[Promptul de remediere SC01/SC02](p04-start-remediation-prompt.md) este handoff-ul de execuție pentru agent: scope, regresii, review și gate-uri separate. **Pregătit, NOT_EXECUTED** — existența promptului nu închide defectele; statusul pentru operator se afișează direct în chat, iar documentele păstrează continuitatea implementării.
+[Promptul de remediere SC01/SC02](p04-start-remediation-prompt.md) și [promptul aprofundat](p04-deep-remediation-prompt.md) sunt handoffuri istorice: scope, regresii, review și gate-uri separate. Existența lor nu închide defectele; execuțiile și dispozițiile curente sunt în registrele de mai sus, iar statusul pentru operator se afișează direct în chat.
 
 [Amendamentul skill-uri/copii din notițele originale](omnis-skill-pattern-amendment.md) păstrează sursa, cele 19 decizii de adaptare și limitele native; contractele și ordinea se introduc în același canon.
 

@@ -17,7 +17,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from omnis.core.db import database_engine
-from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import SessionStore
 
@@ -81,7 +81,35 @@ async def test_pairing_issuer_uses_instance_transaction_before_write(
         with pytest.raises(ControlConflict, match="INSTANCE_SHUTTING_DOWN"):
             await service.register_pairing(identity, "a" * 64, issuance, owner, 1)
         register.assert_not_awaited()
-    owner_check.assert_awaited_once()
+    assert owner_check.await_count == (2 if admission_open else 1)
+
+
+@pytest.mark.asyncio
+async def test_pairing_issuer_rechecks_lease_after_challenge_write(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine = Mock(spec=AsyncEngine)
+    service = InstanceService(engine)
+    identity, owner, issuance = uuid4(), uuid4(), uuid4()
+    connection = object()
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[object, SimpleNamespace, object]]:
+        yield (
+            connection,
+            SimpleNamespace(instance_id=identity, admission_open=True, shutdown_command_id=None),
+            object(),
+        )
+
+    owner_check = AsyncMock(side_effect=[None, ControlConflict(ControlCode.LEASE_LOST)])
+    register = AsyncMock()
+    monkeypatch.setattr(service, "_locked", locked)
+    monkeypatch.setattr(service, "_require_owner", owner_check)
+    monkeypatch.setattr(SessionStore, "register_on", register)
+    with pytest.raises(ControlConflict, match="LEASE_LOST"):
+        await service.register_pairing(identity, "a" * 64, issuance, owner, 1)
+    register.assert_awaited_once_with(connection, "a" * 64, issuance_id=issuance)
+    assert owner_check.await_count == 2
 
 
 async def request(

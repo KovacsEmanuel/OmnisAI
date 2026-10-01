@@ -270,6 +270,9 @@ class InstanceService:
             if not instance.admission_open or instance.shutdown_command_id is not None:
                 raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
             await SessionStore(self.engine).register_on(connection, digest, issuance_id=issuance_id)
+            # A challenge-row wait can outlive the lease checked above. Roll back
+            # both challenge and immutable issuance receipt if authority expired.
+            await self._require_owner(connection, lease, owner, epoch)
 
     async def _status(
         self, connection: AsyncConnection, instance: InstanceRecord, lease: LeaseRecord

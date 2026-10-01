@@ -6,20 +6,96 @@ import secrets
 import subprocess
 import sys
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.engine import URL
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from conftest import connect_test_database
 from omnis.api import create_app
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.records import LeaseRecord
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingDenied, SessionStore, code_digest
 from test_supervisor import start_supervisor, stop_process, wait_ready
+
+
+@pytest.mark.asyncio
+async def test_private_pairing_waits_for_challenge_then_refuses_expired_lease(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    """The first owner check must not authorize a later DB commit after expiry.
+
+    The transaction-local statement timeout is lengthened only in this
+    adversarial fixture so PostgreSQL does not abort the blocked read before
+    the real DB lease expires; production keeps its 2s statement budget.
+    """
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    first_check = asyncio.Event()
+    original = service._require_owner
+
+    async def observed(
+        connection: AsyncConnection, lease: LeaseRecord, expected_owner: UUID, epoch: int
+    ) -> None:
+        await original(connection, lease, expected_owner, epoch)
+        await connection.execute(text("SET LOCAL statement_timeout = 10000"))
+        first_check.set()
+
+    task: asyncio.Task[None] | None = None
+    try:
+        epoch = await service.acquire(owner)
+        identity = (await service.status()).instance_id
+        await service.open(uuid4(), 0, owner, epoch)
+        monkeypatch.setattr(service, "_require_owner", observed)
+        async with engine.begin() as blocker:
+            await blocker.execute(text("SELECT id FROM pairing_challenge WHERE id = 1 FOR UPDATE"))
+            task = asyncio.create_task(
+                service.register_pairing(
+                    identity,
+                    code_digest("synthetic-pairing-waiting-for-expired-lease"),
+                    uuid4(),
+                    owner,
+                    epoch,
+                )
+            )
+            await asyncio.wait_for(first_check.wait(), 5)
+            assert not task.done(), "Issuance did not wait on the challenge lock"
+            deadline = asyncio.get_running_loop().time() + 8
+            while asyncio.get_running_loop().time() < deadline:
+                async with engine.connect() as reader:
+                    expired = (
+                        await reader.execute(
+                            text(
+                                "SELECT expires_at <= clock_timestamp() FROM supervisor_lease WHERE id = 1"
+                            )
+                        )
+                    ).scalar_one()
+                if expired is True:
+                    break
+                await asyncio.sleep(0.1)
+            else:
+                pytest.fail("Real PostgreSQL lease did not expire within bounded wait")
+            assert not task.done()
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await asyncio.wait_for(task, 5)
+        async with engine.connect() as reader:
+            assert (
+                await reader.execute(text("SELECT digest FROM pairing_challenge WHERE id = 1"))
+            ).scalar_one() is None
+            assert (
+                await reader.execute(text("SELECT count(*) FROM pairing_issuance"))
+            ).scalar_one() == 0
+    finally:
+        if task is not None and not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        await engine.dispose()
 
 
 @pytest.mark.asyncio

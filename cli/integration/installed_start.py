@@ -43,7 +43,104 @@ def resource_snapshot(runtime, root, control, port):
     return result
 
 
-def assert_resources_absent(runtime, root, control, record):
+class ForwarderObservation:
+    """Test-only pins captured from a verified direct child, never a journal PID."""
+
+    def __init__(self, root, port, parent):
+        self.root, self.port, self.parent = root, port, parent
+        self.pins = {}
+        self.inodes = set()
+
+    def pin(self, pid):
+        if pid in self.pins:
+            return
+        pin = os.pidfd_open(pid)
+        try:
+            identity = process_identity(pid)
+            details = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+            assert int(details[1]) == self.parent, "Unowned forwarder parent"
+            assert identity["argv"][1:] == [
+                "-I",
+                "-m",
+                "omnis_cli.forwarder",
+                "--socket-dir",
+                str(self.root / "http"),
+                "--port",
+                str(self.port),
+            ], "Unowned forwarder argv"
+            self.pins[pid] = pin
+        except BaseException:
+            os.close(pin)
+            raise
+
+    def discover(self):
+        # The installed CLI creates only Docker clients and its one forwarder.
+        for word in Path(f"/proc/{self.parent}/task/{self.parent}/children").read_text().split():
+            pid = int(word)
+            argv = Path(f"/proc/{pid}/cmdline").read_bytes().split(b"\0")
+            if b"omnis_cli.forwarder" in argv:
+                self.pin(pid)
+        self.snapshot_listener()
+
+    def snapshot_listener(self):
+        owned = set()
+        for pid, pin in self.pins.items():
+            if not select.select([pin], [], [], 0)[0]:
+                for fd in Path(f"/proc/{pid}/fd").iterdir():
+                    try:
+                        link = os.readlink(fd)
+                    except FileNotFoundError:
+                        continue
+                    if link.startswith("socket:["):
+                        owned.add(int(link[8:-1]))
+        for table in ("tcp", "tcp6"):
+            for row in Path(f"/proc/net/{table}").read_text().splitlines()[1:]:
+                fields = row.split()
+                if fields[3] == "0A" and int(fields[9]) in owned:
+                    self.inodes.add(int(fields[9]))
+
+    def assert_absent(self):
+        problems = []
+        for pid, pin in self.pins.items():
+            if not select.select([pin], [], [], 0)[0]:
+                problems.append(f"forwarder {pid} alive")
+        for table in ("tcp", "tcp6"):
+            for row in Path(f"/proc/net/{table}").read_text().splitlines()[1:]:
+                fields = row.split()
+                if fields[3] == "0A" and (
+                    int(fields[9]) in self.inodes or int(fields[1].split(":")[1], 16) == self.port
+                ):
+                    problems.append("forwarder listener alive")
+        assert not problems, f"Claimed cleanup left {problems}"
+
+    def close(self):
+        for pin in self.pins.values():
+            os.close(pin)
+        self.pins.clear()
+
+    def rescue(self):
+        """Observer-only safety net after failed readback; never a product PASS."""
+        problems = []
+        for pid, pin in self.pins.items():
+            try:
+                if not select.select([pin], [], [], 0)[0]:
+                    signal.pidfd_send_signal(pin, signal.SIGTERM)
+                    if not select.select([pin], [], [], 2)[0]:
+                        signal.pidfd_send_signal(pin, signal.SIGKILL)
+                    if not select.select([pin], [], [], 3)[0]:
+                        problems.append(f"forwarder {pid} rescue incomplete")
+            except OSError as error:
+                problems.append(f"forwarder {pid} rescue {type(error).__name__}")
+        try:
+            self.assert_absent()
+        except (AssertionError, OSError) as error:
+            problems.append(str(error))
+        assert not problems, f"Observer rescue uncertain: {problems}"
+
+
+def assert_resources_absent(runtime, root, control, record, *, observer=None):
+    if observer is not None:
+        observer.assert_absent()
     assert runtime.ids() == [], "Claimed cleanup left containers"
     assert runtime.network(set()) is None, "Claimed cleanup left network"
     for cid in record.get("containers", {}).values():

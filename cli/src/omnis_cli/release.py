@@ -48,7 +48,10 @@ def _bytes(path: Path, *, limit: int = 2 * 1024 * 1024) -> bytes:
 def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     private_dir(root)
     source = _bytes(root / "release.json", limit=32768)
-    raw: object = json.loads(source, object_pairs_hook=unique_pairs)
+    try:
+        raw: object = json.loads(source, object_pairs_hook=unique_pairs)
+    except RecursionError:
+        raise ReleaseError("Invalid release manifest") from None
     if not isinstance(raw, dict) or set(raw) != {
         "format",
         "release",

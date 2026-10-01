@@ -133,13 +133,16 @@ def dashboard(
     if body != private_body:
         raise StartError("HTTP_ROUTE_MISMATCH", 3)
     projection = json.loads(body, object_pairs_hook=unique_pairs)
-    if projection != {
-        "api_ready": True,
-        "dashboard_ready": True,
-        "assessment_ready": False,
-        "reason": None,
-        "dashboard_reason": None,
-    }:
+    if (
+        not isinstance(projection, dict)
+        or set(projection)
+        != {"api_ready", "dashboard_ready", "assessment_ready", "reason", "dashboard_reason"}
+        or projection["api_ready"] is not True
+        or projection["dashboard_ready"] is not True
+        or projection["assessment_ready"] is not False
+        or projection["reason"] is not None
+        or projection["dashboard_reason"] is not None
+    ):
         raise StartError("DASHBOARD_NOT_READY", 3)
     for name, content in files.items():
         if name == "web/index.html" or name.startswith("web/assets/"):

@@ -39,6 +39,28 @@ from .release import _put
 from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
 
 EXPECTED_SCHEMA = "0004_pairing_receipts"
+READY_FIELDS = {
+    "format",
+    "phase",
+    "attempt",
+    "project",
+    "release_digest",
+    "image_id",
+    "docker_host",
+    "docker_id",
+    "control_dir",
+    "port",
+    "containers",
+    "system_id",
+    "instance_id",
+    "forwarder",
+    "listener_inode",
+    "api_socket",
+    "control_socket",
+    "open_command",
+    "generation",
+    "supervisor_epoch",
+}
 
 
 def preflight_port(port: int) -> None:
@@ -398,10 +420,25 @@ def cleanup_attempt(
     return problems
 
 
+def _socket_receipt(value: object) -> bool:
+    return type(value) is list and len(value) == 2 and all(type(part) is int for part in value)
+
+
 def verify_running(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
 ) -> dict[str, object]:
-    if record.get("phase") != "READY":
+    if (
+        set(record) != READY_FIELDS
+        or record.get("phase") != "READY"
+        or type(record.get("format")) is not int
+        or record["format"] != 1
+        or type(record.get("generation")) is not int
+        or type(record.get("supervisor_epoch")) is not int
+        or type(record.get("containers")) is not dict
+        or type(record.get("forwarder")) is not dict
+        or not _socket_receipt(record.get("api_socket"))
+        or not _socket_receipt(record.get("control_socket"))
+    ):
         raise StartError("RECOVERY_REQUIRED", 4)
     attempt = record.get("attempt")
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:

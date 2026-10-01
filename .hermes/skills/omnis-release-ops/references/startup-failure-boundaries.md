@@ -33,6 +33,16 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
      identity, bound the pre-reap wait and test EOF before a still-live child exits.
      This assumes the existing exclusive child owner, not an arbitrary concurrent
      reaper or proof of daemon cancellation/detached-descendant drainage.
+   - Check the inherited SIGCHLD policy as part of that ownership assumption:
+     SIG_IGN survives exec and can auto-reap before WNOWAIT. ECHILD is loss of
+     numeric signal authority even before the program's own wait. Test default
+     and exec-inherited ignored disposition with all unsafe signal attempts
+     intercepted; never induce PID reuse against an unrelated process.
+   - Cover forwarder handle transfer as well as Docker-client flags. A tuple
+     returned inside try is not delivered until finally succeeds: log/pipe close
+     can cancel the handoff after spawn. Use an independently pinned observer to
+     detect a live owned listener even when the journal never got its identity;
+     an absence oracle based only on that journal cannot certify this boundary.
 5. Keep boundary evidence separate: real child termination + mocked daemon
    proves a branch and its consumer, not Docker-side cancellation. A delayed
    daemon effect needs its own authorized isolated probe and exact cleanup
@@ -61,6 +71,10 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    retain its strict schema/path/checksum checks. A byte cap is not a nesting
    bound, an internal checksum is not independent provenance, and a refusal is
    not correct just because no service started.
+   Enforce exact scalar types at schema boundaries: Python dict equality accepts
+   true/1/1.0 as equal. Exercise numeric readiness flags and boolean/float format
+   versions against the actual parser, with valid controls on the same channel;
+   a typed producer is not a substitute for validation by its consumer.
 
 ## Close the review, not just its last finding
 

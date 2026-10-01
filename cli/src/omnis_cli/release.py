@@ -216,7 +216,13 @@ def _installed_pointer(path: Path) -> bool:
     if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600:
         raise ReleaseError("Unsafe installed pointer")
     value: object = json.loads(_bytes(path, limit=1024), object_pairs_hook=unique_pairs)
-    if value != {"format": 1, "release": _RELEASE}:
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"format", "release"}
+        or type(value["format"]) is not int
+        or value["format"] != 1
+        or value["release"] != _RELEASE
+    ):
         raise ReleaseError("Another release is installed")
     return True
 

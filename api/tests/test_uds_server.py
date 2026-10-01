@@ -543,6 +543,7 @@ def test_inherited_ignored_sigchld_never_forwards_to_an_auto_reaped_pid() -> Non
 
 
 def test_inherited_blocked_stop_signals_do_not_wait_for_natural_child_exit() -> None:
+    read_fd, release_fd = os.pipe()
     code = (
         "import os, signal, time\n"
         "import omnis.serve as m\n"
@@ -553,19 +554,27 @@ def test_inherited_blocked_stop_signals_do_not_wait_for_natural_child_exit() -> 
         "    print('OWNER_CHILD', pid, flush=True)\n"
         "    return fd\n"
         "def child():\n"
-        "    time.sleep(2)\n"
+        "    os.read(int(os.environ['OMNIS_TEST_WAIT_FD']), 1)\n"
         "    return 0\n"
         "os.pidfd_open = ready\n"
         "m._child_main = child\n"
         "raise SystemExit(m.main())\n"
     )
-    process = subprocess.Popen(
-        [sys.executable, "-I", "-c", code],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        start_new_session=True,
-    )
+    try:
+        process = subprocess.Popen(
+            [sys.executable, "-I", "-c", code],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+            pass_fds=(read_fd,),
+            env={**os.environ, "OMNIS_TEST_WAIT_FD": str(read_fd)},
+        )
+    except BaseException:
+        os.close(read_fd)
+        os.close(release_fd)
+        raise
+    os.close(read_fd)
     try:
         assert process.stdout is not None
         readable, _, _ = select.select([process.stdout], [], [], 5)
@@ -577,6 +586,9 @@ def test_inherited_blocked_stop_signals_do_not_wait_for_natural_child_exit() -> 
         assert process.returncode == 4
         assert not Path(f"/proc/{pid}").exists()
     finally:
+        # Rescue the owned child on any assertion failure; it cannot finish
+        # naturally before the stop observation, even under a delayed scheduler.
+        os.close(release_fd)
         if process.poll() is None:
             assert os.getpgid(process.pid) == process.pid
             os.killpg(process.pid, signal.SIGKILL)

@@ -104,7 +104,9 @@ def run_database_readiness_failure(data, receipt, cli):
                         signal.pidfd_send_signal(pin, signal.SIGSTOP)
                         paused = True
                         assert runtime.ids() == [cid], "Fault missed DB-only first start"
-                        runtime.run("container", "stop", "--time", "15", cid, cap=22, effect=True)
+                        # Crash the attested test DB immediately: a graceful stop
+                        # can suspend the launcher past its active Docker-client cap.
+                        runtime.run("container", "kill", "--signal", "KILL", cid, effect=True)
                         assert (
                             runtime.attest(cid, "db", root, control, port)["State"]["Status"]
                             == "exited"

@@ -1,6 +1,14 @@
 """Host-only lifecycle of the installed, fixed P0 Compose topology.
 
 No Docker socket is passed to a service. No pull/build, cwd config or shell.
+
+Owner contract: the standalone CLI exclusively owns child waits continuously
+from spawn through pidfd acquisition and reap. Concurrent library reapers/child
+producers or signal-policy replacement in that interval are unsupported; a
+SIGCHLD snapshot does not impose that exclusivity on an arbitrary embedding.
+WNOWAIT's observed exit status authorizes ACK, not a claim that every later
+ECHILD is detected. Error stop pins only the leader and never certifies family
+drainage or daemon completion.
 """
 
 import hashlib
@@ -105,7 +113,7 @@ class ControlRuntime:
     ) -> subprocess.CompletedProcess[str]:
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
         # Library callers retain their signal policy. Auto-reap and SIGCHLD
-        # handlers invalidate exclusive wait ownership, so refuse before effects.
+        # handlers invalidate the declared owner contract; refuse before effects.
         if signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL:
             raise StartError("CHILD_SIGNAL_POLICY_UNSUPPORTED")
         argv = [str(self.docker), "--config", str(self.release / "ops"), "--host", self.host, *args]

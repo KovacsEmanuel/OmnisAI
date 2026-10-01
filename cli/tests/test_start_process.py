@@ -190,7 +190,7 @@ class StartupProcessTest(unittest.TestCase):
 
     def test_reaper_between_wnowait_and_wait_cannot_forge_zero_exit(self):
         original = subprocess.Popen
-        for script in ("import sys; sys.exit(1)", "import os; os.kill(os.getpid(),9)"):
+        for script in ("import sys; sys.exit(1)", "import os; os.kill(os.getpid(),9)", "pass"):
             with self.subTest(script=script):
                 runtime = self.runtime(time.monotonic() + 3)
                 children, observed = [], []
@@ -216,13 +216,17 @@ class StartupProcessTest(unittest.TestCase):
                         patch("os.killpg") as group_signal,
                         patch("os.kill") as pid_signal,
                     ):
-                        with self.assertRaisesRegex(StartError, "CHILD_OWNERSHIP_LOST"):
-                            runtime.run("synthetic", effect=True, success=False)
+                        if script == "pass":
+                            result = runtime.run("synthetic", effect=True, success=False)
+                            self.assertEqual(result.returncode, 0, "Observed WNOWAIT exit0 is ACK")
+                        else:
+                            with self.assertRaisesRegex(StartError, "CHILD_OWNERSHIP_LOST"):
+                                runtime.run("synthetic", effect=True, success=False)
                     self.assertEqual(observed, [None])
                     group_signal.assert_not_called()
                     pid_signal.assert_not_called()
-                    self.assertTrue(runtime.uncertain)
-                    self.assertFalse(runtime.family_drained)
+                    self.assertEqual(runtime.uncertain, script != "pass")
+                    self.assertEqual(runtime.family_drained, script == "pass")
                 finally:
                     for child in children:
                         # Already reaped by the controlled competing wait, not a PID rescue.

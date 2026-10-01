@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract check-installed-start,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract check-installed-start check-installed-pair-open,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -131,7 +131,7 @@ check-release-install: check-cli-wheel build-web
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix ops/build_control_bundle.py cli/integration
 	$(API_PY) -I -m ruff format --config api/pyproject.toml --check ops/build_control_bundle.py cli/integration
 	@env -u PYTHONPATH MYPYPATH=cli/src $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json ops/build_control_bundle.py
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALL_IMAGE_PROBE -u OMNIS_INSTALLED_START_PROBE -u OMNIS_INSTALLED_PAIR_OPEN_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -v
 
 # Explicit OCI proof only: the base must already be pulled by its platform digest.
 check-control-image: check-release-install
@@ -150,7 +150,12 @@ check-installed-image: check-release-install
 # Opt-in installed product command. Explicit image preparation precedes startup.
 .PHONY: check-installed-start
 check-installed-start: check-release-install
-	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_START_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -p test_release.py -k test_real_api_web_and_cli_bundle_is_checkout_independent -v
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE -u OMNIS_INSTALLED_PAIR_OPEN_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_START_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -p test_release.py -k test_real_api_web_and_cli_bundle_is_checkout_independent -v
+
+# Distinct installed L05-control gate: same current wheel, real PTY/API/shell/browser.
+.PHONY: check-installed-pair-open
+check-installed-pair-open: check-release-install
+	env -u PYTHONPATH -u MYPYPATH -u OMNIS_IMAGE_PROBE -u OMNIS_INSTALLED_CONTROL_PROBE -u OMNIS_INSTALLED_START_PROBE OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_PAIR_OPEN_PROBE=1 OMNIS_UV="$(UV)" OMNIS_CLI_BIN="$$TMPDIR/omnis-p04-cli-check/bin/omnis" $(CLI_PY) -I -m unittest discover -s cli/integration -p test_release.py -k test_real_api_web_and_cli_bundle_is_checkout_independent -v
 
 # Opt-in real P0 topology only, isolated bind data and owned teardown; not omnis start.
 check-installed-control: check-release-install

@@ -11,6 +11,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from installed_pair_open import command, prove, tty_default, tty_pair
 from omnis_cli.control import request
 from omnis_cli.lifecycle import process_identity, write_record
 from omnis_cli.start_runtime import ControlRuntime
@@ -223,7 +224,7 @@ def teardown(runtime, root, control, port, record, *, uncertain=False):
     )
 
 
-def run_installed_start(data, receipt, scratch, cli):
+def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
     state = Path(tempfile.mkdtemp(prefix="s2-", dir=os.environ["TMPDIR"]))
     root, control = state / "s/omnis", state / "r/omnis"
     cwd = state / "cwd"
@@ -241,7 +242,9 @@ def run_installed_start(data, receipt, scratch, cli):
         "XDG_RUNTIME_DIR": str(state / "r"),
     }
     with socket.socket() as selected:
-        selected.bind(("127.0.0.1", 0))
+        # No-subcommand omnis has the documented default 8765 until M22;
+        # an occupied default is a precondition conflict, not a test rebind.
+        selected.bind(("127.0.0.1", 8765 if pair_open else 0))
         port = selected.getsockname()[1]
     runtime = ControlRuntime(data, time.monotonic() + 30)
     assert runtime.receipt.image_id == receipt["image_id"]
@@ -332,6 +335,14 @@ def run_installed_start(data, receipt, scratch, cli):
                 assert denied["reason"] == "PORT_CONFLICT"
                 assert not (root / "startup.json").exists()
                 assert not runtime.ids()
+        initial_code = initial_public = None
+        if pair_open:
+            # Exercise the actual no-subcommand console entry on a NEW instance.
+            # An unavailable desktop affects opener exit, never startup readiness.
+            driver_uncertain = True
+            initial_code, initial_public, _ = tty_default(cli, cwd, env, port)
+            outputs.append(initial_public)  # Never persist the captured code.
+            assert (root / "startup.json").exists()
         # Two fresh concurrent console commands, not two calls to an in-process harness.
         driver_uncertain = True
         processes = [
@@ -363,7 +374,9 @@ def run_installed_start(data, receipt, scratch, cli):
                         raise
                 if p.returncode not in {0, 2, 3}:
                     driver_uncertain = True
-        assert {r["reused"] for r in replies} == {False, True}
+        if all(p.returncode in {0, 2, 3} for p in processes):
+            driver_uncertain = False  # All direct CLI outcomes settled; assertions can still fail.
+        assert {r["reused"] for r in replies} == ({True} if pair_open else {False, True})
         assert len({r["instance_id"] for r in replies}) == 1
         assert all(
             r["dashboard_ready"] and r["assessment_ready"] is False and r["browser_opened"] is False
@@ -371,6 +384,9 @@ def run_installed_start(data, receipt, scratch, cli):
         )
         record = json.loads((root / "startup.json").read_text())
         assert set(record["containers"]) == {"db", "api", "supervisor"}
+        if pair_open:
+            assert initial_code is not None and initial_public is not None
+            assert f"Omnis READY: http://127.0.0.1:{port}/" in initial_public
         runtime.attempt = record["attempt"]
         before = snapshot()
         driver_uncertain = False
@@ -386,15 +402,36 @@ def run_installed_start(data, receipt, scratch, cli):
         repeated = invoke(["start", "--no-open", "--json"])
         assert repeated["reused"] is True
         assert snapshot() == before
+        if pair_open:
+            default_reuse = subprocess.run(
+                [cli], cwd=cwd, env=env, capture_output=True, text=True, timeout=50
+            )
+            outputs.append(default_reuse.stdout + default_reuse.stderr)
+            assert default_reuse.returncode in {0, 2, 3}
+            assert f"Omnis READY: http://127.0.0.1:{port}/" in default_reuse.stdout
+            assert snapshot() == before
         assert status["generation"] == repeated["generation"] == 1
         assert status["supervisor_epoch"] == repeated["supervisor_epoch"] == 1
         assert not status["assessment_ready"] and not status["browser_opened"]
-        assert (
-            runtime.psql(record["containers"]["db"], "SELECT count(*) FROM pairing_issuance") == "0"
-        )
+        assert runtime.psql(
+            record["containers"]["db"], "SELECT count(*) FROM pairing_issuance"
+        ) == ("1" if pair_open else "0")
         assert (
             runtime.psql(record["containers"]["db"], "SELECT count(*) FROM instance_command") == "1"
         )
+        if pair_open:
+            # Until the installed child and browser return, never promote teardown
+            # after a timeout or an unknown process-family outcome.
+            driver_uncertain = True
+            try:
+                prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_code)
+            except AssertionError:
+                # Every assertion in the observer follows a joined CLI/browser
+                # child; timeouts, I/O faults and missing close receipts do not.
+                driver_uncertain = runtime.uncertain or not runtime.family_drained
+                raise
+            driver_uncertain = False
+            assert snapshot() == before
         # A stale crash/start intent cannot adopt even otherwise healthy resources.
         journal = root / "startup.json"
         original_journal = journal.read_bytes()
@@ -403,6 +440,9 @@ def run_installed_start(data, receipt, scratch, cli):
         journal.write_text(json.dumps(stale))
         try:
             assert invoke(["start", "--no-open", "--json"], 4)["reason"] == "RECOVERY_REQUIRED"
+            if pair_open:
+                assert "RECOVERY_REQUIRED" in (tty_pair(cli, cwd, env, expected=4) or "")
+                assert "RECOVERY_REQUIRED" in command(cli, ["open"], cwd, env, expected=4)[1]
             assert snapshot() == before
         finally:
             journal.write_bytes(original_journal)
@@ -414,8 +454,30 @@ def run_installed_start(data, receipt, scratch, cli):
         path.write_text(json.dumps(changed))
         try:
             assert invoke(["start", "--no-open", "--json"], 4)["reason"] == "RECOVERY_REQUIRED"
+            if pair_open:
+                assert "RECOVERY_REQUIRED" in (tty_pair(cli, cwd, env, expected=4) or "")
+                assert "RECOVERY_REQUIRED" in command(cli, ["open"], cwd, env, expected=4)[1]
         finally:
             path.write_bytes(original)
+        if pair_open:
+            with socket.socket() as foreign:
+                foreign.bind(("127.0.0.1", 0))
+                foreign.listen(1)
+                foreign.settimeout(0.2)
+                changed = json.loads(original)
+                changed["origin"] = f"http://127.0.0.1:{foreign.getsockname()[1]}"
+                path.write_text(json.dumps(changed))
+                try:
+                    assert "RECOVERY_REQUIRED" in (tty_pair(cli, cwd, env, expected=4) or "")
+                    assert "RECOVERY_REQUIRED" in command(cli, ["open"], cwd, env, expected=4)[1]
+                    try:
+                        foreign.accept()
+                    except TimeoutError:
+                        pass
+                    else:
+                        raise AssertionError("Pair/open contacted foreign listener")
+                finally:
+                    path.write_bytes(original)
         assert snapshot() == before
         # Incomplete durable shutdown is not undone by another start.
         current = request(control, {"op": "status"})
@@ -432,6 +494,9 @@ def run_installed_start(data, receipt, scratch, cli):
         )
         denied = invoke(["start", "--no-open", "--json"], 3)
         assert denied["reason"] == "INSTANCE_CONTROL_MISMATCH"
+        if pair_open:
+            assert "INSTANCE_CONTROL_MISMATCH" in (tty_pair(cli, cwd, env, expected=3) or "")
+            assert "INSTANCE_CONTROL_MISMATCH" in command(cli, ["open"], cwd, env, expected=3)[1]
         after = request(control, {"op": "status"})
         assert after["admission_open"] is False and after["generation"] == stopped["generation"]
         assert snapshot() == before

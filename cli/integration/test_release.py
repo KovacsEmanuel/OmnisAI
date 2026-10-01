@@ -568,17 +568,30 @@ class ReleaseBundleTest(unittest.TestCase):
                 from control_topology import run_probe
 
                 run_probe(data, state, scratch, cli)
-            if os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1":
+            if (
+                os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1"
+                or os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1"
+            ):
                 from installed_start import run_installed_start, run_interrupted_start
 
-                run_installed_start(data, state, scratch, cli)
-                run_interrupted_start(data, state, cli)
-                run_interrupted_start(data, state, cli, phase="FORWARDING")
-                run_interrupted_start(data, state, cli, expire_dashboard=True)
-                from installed_start_failures import run_database_readiness_failure, run_lock_expiry
+                run_installed_start(
+                    data,
+                    state,
+                    scratch,
+                    cli,
+                    pair_open=os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1",
+                )
+                if os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1":
+                    run_interrupted_start(data, state, cli)
+                    run_interrupted_start(data, state, cli, phase="FORWARDING")
+                    run_interrupted_start(data, state, cli, expire_dashboard=True)
+                    from installed_start_failures import (
+                        run_database_readiness_failure,
+                        run_lock_expiry,
+                    )
 
-                run_database_readiness_failure(data, state, cli)
-                run_lock_expiry(data, state, cli)
+                    run_database_readiness_failure(data, state, cli)
+                    run_lock_expiry(data, state, cli)
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"

@@ -21,6 +21,86 @@ from stop_owner_fixture import Fixture, owner_test_argv
 
 
 class StopProductTests(unittest.TestCase):
+    def test_eof_after_ready_with_live_launcher_has_zero_effect(self):
+        from omnis_cli.lifecycle import process_identity
+        from omnis_cli.stop_owner import _process_stamp
+        from omnis_cli.stop_receipt import encoded, persist
+
+        fixture = Fixture()
+        try:
+            with (
+                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
+                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
+            ):
+                inventory = prepare_stop_inventory(
+                    fixture.runtime, fixture.root, fixture.control, fixture.record
+                )
+                grant = fixture.grant(inventory)
+                persist(
+                    receipt_path(fixture.root, fixture.record),
+                    {
+                        "version": 1,
+                        "grant": grant,
+                        "owner": None,
+                        "launcher": _process_stamp(process_identity(os.getpid())),
+                        "state": "PREPARED",
+                        "pending": None,
+                        "completed": [],
+                    },
+                )
+                parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                process = subprocess.Popen(
+                    [
+                        sys.executable,
+                        "-I",
+                        "-m",
+                        "omnis_cli.stop_owner",
+                        str(child.fileno()),
+                        str(data_fd),
+                        str(state_fd),
+                    ],
+                    pass_fds=(child.fileno(), data_fd, state_fd),
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                try:
+                    child.close()
+                    parent.send(
+                        encoded(
+                            {
+                                "root": str(fixture.root),
+                                "control": str(fixture.control),
+                                "data_home": str(fixture.data),
+                                "record": fixture.record,
+                                "grant": grant,
+                                "deadline_ns": int(fixture.runtime.deadline * 1e9),
+                            }
+                        )
+                    )
+                    parent.settimeout(4)
+                    self.assertEqual(parent.recv(128), b"READY")
+                    parent.close()
+                    self.assertEqual(process.wait(timeout=3), 4)
+                    self.assertIsNone(fixture.forwarder.poll())
+                    self.assertFalse(
+                        any(x.startswith(("POST", "DELETE")) for x in fixture.requests)
+                    )
+                    with self.assertRaisesRegex(StartError, "STOP_OWNER_REPLAY_REFUSED"):
+                        run_stop_owner(
+                            fixture.runtime,
+                            fixture.root,
+                            fixture.control,
+                            fixture.record,
+                            grant,
+                            lock_fds=(data_fd, state_fd),
+                        )
+                finally:
+                    parent.close()
+                    child.close()
+                    process.wait(timeout=3)
+        finally:
+            fixture.close()
+
     def test_unverifiable_container_family_refuses_before_host_effect(self):
         fixture = Fixture()
         try:

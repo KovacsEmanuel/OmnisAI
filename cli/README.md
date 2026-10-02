@@ -1,10 +1,10 @@
-# CLI P0.4 — SL02 start headless + SL03 pair/open instalate
+# CLI P0.4 — SL02/SL03 locale + SL04 stop/recovery parțial
 
-`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. Rezultatele și limitele sunt în [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md). G00 și CI remote nu sunt închise.
+`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) este încă PARTIAL/IN_REVIEW, nu certificat pentru toate crash-cut-urile. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) au verdicte istorice separate. G00 și CI remote nu sunt închise.
 
 ## Pregătire explicită, separată de startup
 
-**SL02:** REMEDIATION_PASS în scope pe `c914fda`, nu transferat automat noilor bytes; [registrul remedierii](../documents/verification/p04-deep-remediation.md) și [matricea](../documents/verification/p04-deep-remediation-matrix.json) păstrează M03/config, M21/SL04 și M22/parser PARTIAL înainte G00. **SL03:** comenzile pair/open/implicit și L05-control pe artefact instalat au probe locale în [registrul SL03](../documents/verification/p04-pair-open.md); `stop`/recovery operațional nu este implementat. G00 deschis, CI remote NOT_RUN, assessment_ready=false. Cele două recuperări istorice rămân RECOVERY_PENDING separat, fără ALL_CLEAN sau autorizație de recovery/push.
+**SL02:** REMEDIATION_PASS în scope pe `c914fda`, nu transferat automat noilor bytes; [registrul remedierii](../documents/verification/p04-deep-remediation.md) și [matricea](../documents/verification/p04-deep-remediation-matrix.json) păstrează M03/config, M21/SL04 și M22/parser PARTIAL înainte G00. **SL03:** comenzile pair/open/implicit și L05-control pe artefact instalat au probe locale în [registrul SL03](../documents/verification/p04-pair-open.md). **SL04 WIP:** Stop normal/repetat, restart explicit și urgență exit 4 probate punctual pe fixture-uri proprii; faulturile neacoperite și reviewul final blochează PASS integral. G00 deschis, CI remote NOT_RUN, assessment_ready=false. Cele două recuperări istorice rămân RECOVERY_PENDING separat, fără ALL_CLEAN sau autorizație de recovery/push.
 
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 
@@ -26,6 +26,9 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 <venv-cli>/bin/omnis install-image
 <venv-cli>/bin/omnis start --no-open --json
 <venv-cli>/bin/omnis status --json
+<venv-cli>/bin/omnis stop --json
+# Numai după STOPPED verificat, pornire nouă explicită (nu autoresume):
+<venv-cli>/bin/omnis start --no-open --json
 # Dintr-un TTY interactiv, cu instanța verificată și READY:
 <venv-cli>/bin/omnis pair
 # Deschidere fără pornire, respectiv pornire/reutilizare + deschidere:
@@ -50,7 +53,7 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 
 State root: `$XDG_STATE_HOME/omnis` (implicit `~/.local/state/omnis`). `instance.json` păstrează formatul strict existent; `startup.json` este jurnalul privat al încercării/resurselor. IPC: `$XDG_RUNTIME_DIR/omnis`, sau `runtime-ipc/` sub state. Directoare private/canonice, fișiere 0600, fără symlinkuri sau adopție a resurselor vechi.
 
-`STARTING`/`MIGRATING` nu înseamnă READY. Un jurnal neREADY, un PID stale, alt release/daemon/instance sau admiterea închisă cer reconciliere explicită, nu retry care lansează duplicate. SL02 **nu implementează** restartul unei instanțe oprite, recuperarea operațională sau comanda `omnis stop`.
+`STARTING`/`MIGRATING` nu înseamnă READY. Un jurnal neREADY, un PID stale, alt release/daemon/instance sau admiterea închisă cer reconciliere explicită, nu retry care lansează duplicate. SL02 istoric **nu implementa** Stop/restart; traseul SL04 nou permite Start explicit numai după `STOPPED` local + readbackul exact și o generație/epoch nou, păstrând PGDATA fără migrare. Un marker `unreconciled.json` refuză Start și statusul este `RECOVERY_REQUIRED`, niciodată `STOPPED` dedus din absența serviciului.
 
 Buget startup 180 s, cu limite individuale mai mici; cleanup are buget separat finit. La eșec se încearcă numai cleanupul resurselor proprii, fără a opri o instanță sănătoasă preexistentă. Procesele/writerii proprii preced DB; o operație daemon/familie incertă păstrează DB pentru recuperare. Eroarea unei operații sau a jurnalului nu produce succes fals. Datele și diagnosticul privat rămân; niciodată `down -v`/prune/reset DB.
 
@@ -65,6 +68,7 @@ Exit startup: **0** READY verificat, **2** precondiție/config/port refuzat, **3
 - `make check UV=/cale/uv-0.12.19` (alias `make test`): gate canonic cu runnerul DB UDS/no-network integrat; nu este implicit testul OCI. [Baseline DB închis](../documents/verification/p04-test-db-integration.md); verdictul lui nu se transferă codului nou.
 - **`make check-installed-start UV=/cale/uv-0.12.19`**: opt-in Docker/OCI, construiește/instalează explicit artefactele curente, apoi execută comanda de produs din alt cwd, concurență/reuse/status/negative/SIGTERM și cleanup/readback cu date păstrate. Fără `run_probe` în locul comenzii.
 - **`make check-installed-pair-open UV=/cale/uv-0.12.19`**: gate distinct L05-control, build din wheelul curent, TTY/PTY real, one-use/expiry, Host/Origin, sesiune/logout în browser propriu, refuzuri stale/foreign/closed, `omnis` nou/reuse și open headless; nu certifică fereastra OS `xdg-open` ori G00.
+- **`make check-installed-stop UV=/cale/uv-0.12.19`**: gate SL04 opt-in, wheel/bundle din cwd extern și XDG noi; Stop normal/idempotent → Start nou cu sentinel PG păstrat, Start concurent Stop-first refuzat, status STOPPING/STOPPED și urgență API indisponibilă cu marker durabil/exit4. Nu acoperă încă toate crash-cut-urile, topologia/UID/LAN/IPv6 sau G00.
 - `check-control-image`, `check-installed-image`, `check-installed-control` rămân probe opt-in separate. Ultimul este [harnessul istoric de topologie](../documents/verification/p04-host-uds.md), nu dovada SL02 sau `omnis stop`.
 
 Rollback cod: inspectați commitul și dependențele, `git revert <sha>`, reconstruiți artefactele și rerulați probele. Git nu inversează DB/imaginile/procesele externe. Recuperarea lor cere readback exact al ownershipului; nu se deduce din port, prefix sau un PID dintr-un fișier. Probe numai în XDG scratch noi; nu se reutilizează automat clusterele disposable păstrate.

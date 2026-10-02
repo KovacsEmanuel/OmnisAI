@@ -234,7 +234,13 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url: URL, tmp_
 
 
 @pytest.mark.parametrize(
-    "previous_revision", ["0001_instance_control", "0002_local_sessions", "0003_instance_lifecycle"]
+    "previous_revision",
+    [
+        "0001_instance_control",
+        "0002_local_sessions",
+        "0003_instance_lifecycle",
+        "0004_pairing_receipts",
+    ],
 )
 def test_upgrade_from_previous_revision_preserves_instance_identity(
     empty_database_url: URL, tmp_path: Path, previous_revision: str
@@ -284,9 +290,10 @@ def test_upgrade_from_previous_revision_preserves_instance_identity(
             SCHEMA_REVISION,
         )
         assert connection.execute("SELECT digest, attempts FROM pairing_challenge").fetchone() == (
-            None,
+            "synthetic_pending_digest" if previous_revision == "0004_pairing_receipts" else None,
             0,
         )
+        assert connection.execute("SELECT count(*) FROM instance_stop_fence").fetchone() == (0,)
         assert connection.execute("SELECT count(*) FROM ui_session").fetchone() == (
             int(previous_revision != "0001_instance_control"),
         )

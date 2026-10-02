@@ -6,6 +6,7 @@ same admission transaction AND provide real adapters before extending quiescence
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from json import dumps
 from uuid import UUID, uuid4
 
 from sqlalchemy import text
@@ -13,8 +14,25 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.core.persistence import read_datetime, read_integer, read_record
 from omnis.modules.instance.domain import ControlCode, ControlConflict, InstanceStatus
-from omnis.modules.instance.records import CommandKind, CommandRecord, InstanceRecord, LeaseRecord
+from omnis.modules.instance.records import (
+    CommandKind,
+    CommandRecord,
+    InstanceRecord,
+    LeaseRecord,
+    StopFenceRecord,
+    StopFenceState,
+)
 from omnis.security.sessions import SessionStore
+
+
+def _exact_json_shape(value: object) -> bool:
+    # json.dumps otherwise coerces integer keys and tuples, changing an owned
+    # resource identity between the caller and durable JSONB.
+    if type(value) is dict:
+        return all(type(key) is str and _exact_json_shape(item) for key, item in value.items())
+    if type(value) is list:
+        return all(_exact_json_shape(item) for item in value)
+    return type(value) in (str, int, float, bool, type(None))
 
 
 class InstanceService:
@@ -72,8 +90,17 @@ class InstanceService:
                 {"command": uuid4()},
             )
 
+    async def _stop_fence(self, connection: AsyncConnection) -> None:
+        # The instance row is already locked. A fence has no expiry and must be
+        # checked before lease takeover can close admission or increment epoch.
+        if (
+            await connection.execute(text("SELECT 1 FROM instance_stop_fence WHERE id = 1"))
+        ).scalar_one_or_none() is not None:
+            raise ControlConflict(ControlCode.STOP_IN_PROGRESS)
+
     async def acquire(self, owner: UUID) -> int:
         async with self._locked() as (connection, instance, lease):
+            await self._stop_fence(connection)
             if await self._live(connection, lease):
                 raise ControlConflict(ControlCode.SUPERVISOR_OWNED)
             await self._close_after_owner_loss(connection, instance)
@@ -164,6 +191,7 @@ class InstanceService:
 
     async def open(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
         async with self._locked() as (connection, instance, lease):
+            await self._stop_fence(connection)
             await self._require_owner(connection, lease, owner, epoch)
             previous = await self._receipt(connection, command_id, "OPEN", expected)
             await self._require_owner(connection, lease, owner, epoch)
@@ -260,6 +288,112 @@ class InstanceService:
             await self._record(connection, command_id, "FINALIZE", expected, expected, lease.epoch)
             await self._require_owner(connection, lease, owner, epoch)
             return expected
+
+    async def arm_stop(
+        self,
+        command_id: UUID,
+        finalize_command_id: UUID,
+        generation: int,
+        instance_id: UUID,
+        owner: UUID,
+        epoch: int,
+        daemon_id: str,
+        inventory: dict[str, object],
+    ) -> StopFenceState:
+        """Commit the sole Stop authority before any host effect; never expire it.
+
+        The caller must independently attest the daemon and exact owned inventory.
+        This DB slice records their identity, but grants no Docker capability.
+        """
+        if (
+            not isinstance(daemon_id, str)
+            or not daemon_id
+            or type(inventory) is not dict
+            or not inventory
+            or not _exact_json_shape(inventory)
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        try:
+            inventory_json = dumps(
+                inventory, sort_keys=True, separators=(",", ":"), allow_nan=False
+            )
+        except (TypeError, ValueError):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT) from None
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            existing = (
+                (await connection.execute(text("SELECT * FROM instance_stop_fence WHERE id = 1")))
+                .mappings()
+                .one_or_none()
+            )
+            if existing is not None:
+                fence = read_record(StopFenceRecord, existing)
+                if (
+                    fence.instance_id != instance_id
+                    or fence.command_id != command_id
+                    or fence.finalize_command_id != finalize_command_id
+                    or fence.generation != generation
+                    or fence.owner_epoch != epoch
+                    or fence.daemon_id != daemon_id
+                    # Python dict equality treats True == 1; Stop identities do not.
+                    or dumps(fence.inventory, sort_keys=True, separators=(",", ":"))
+                    != inventory_json
+                ):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                return fence.state
+            if instance.instance_id != instance_id:
+                raise ControlConflict(ControlCode.INSTANCE_MISMATCH)
+            self._require_generation(instance, generation)
+            if (
+                instance.admission_open
+                or instance.shutdown_command_id != command_id
+                or instance.quiesced_generation != generation
+                or instance.quiesced_at is None
+            ):
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+            shutdown = await connection.execute(
+                text(
+                    "SELECT 1 FROM instance_command WHERE command_id = :command "
+                    "AND kind = 'SHUTDOWN' AND result_generation = :generation "
+                    "AND expected_generation = :expected AND owner_epoch = :epoch"
+                ),
+                {
+                    "command": command_id,
+                    "generation": generation,
+                    "expected": generation - 1,
+                    "epoch": epoch,
+                },
+            )
+            finalized = await connection.execute(
+                text(
+                    "SELECT 1 FROM instance_command WHERE command_id = :command "
+                    "AND kind = 'FINALIZE' AND expected_generation = :generation "
+                    "AND result_generation = :generation AND owner_epoch = :epoch"
+                ),
+                {"command": finalize_command_id, "generation": generation, "epoch": epoch},
+            )
+            if shutdown.scalar_one_or_none() is None or finalized.scalar_one_or_none() is None:
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+            await connection.execute(
+                text(
+                    "INSERT INTO instance_stop_fence "
+                    "(id, instance_id, command_id, finalize_command_id, generation, "
+                    "owner_epoch, daemon_id, inventory, state) VALUES "
+                    "(1, :instance, :command, :finalized, :generation, :epoch, "
+                    ":daemon, CAST(:inventory AS jsonb), 'STOP_PENDING')"
+                ),
+                {
+                    "instance": instance_id,
+                    "command": command_id,
+                    "finalized": finalize_command_id,
+                    "generation": generation,
+                    "epoch": epoch,
+                    "daemon": daemon_id,
+                    "inventory": inventory_json,
+                },
+            )
+            await self._require_owner(connection, lease, owner, epoch)
+            return "STOP_PENDING"
 
     async def command_readback(
         self,

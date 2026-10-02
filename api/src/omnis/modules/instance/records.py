@@ -7,6 +7,7 @@ from uuid import UUID
 from omnis.core.persistence import DatabaseRecord
 
 type CommandKind = Literal["OPEN", "SHUTDOWN", "FINALIZE"]
+type StopFenceState = Literal["STOP_PENDING", "STOP_UNCERTAIN"]
 
 
 class InstanceRecord(DatabaseRecord):
@@ -32,3 +33,15 @@ class CommandRecord(DatabaseRecord):
     expected_generation: int
     result_generation: int
     owner_epoch: int
+
+
+class StopFenceRecord(DatabaseRecord):
+    id: int
+    instance_id: UUID
+    command_id: UUID
+    finalize_command_id: UUID
+    generation: int
+    owner_epoch: int
+    daemon_id: str
+    inventory: dict[str, object]
+    state: StopFenceState

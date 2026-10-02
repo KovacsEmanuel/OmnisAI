@@ -9,6 +9,58 @@ type AuthoritySpec = tuple[dict[str, ColumnSpec], set[ConstraintSpec]]
 
 # Each column is (type, required, exact default). Tables are never inferred from a stamp alone.
 AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
+    "instance_stop_fence": (
+        {
+            "id": ("smallint", True, None),
+            "instance_id": ("uuid", True, None),
+            "command_id": ("uuid", True, None),
+            "finalize_command_id": ("uuid", True, None),
+            "generation": ("bigint", True, None),
+            "owner_epoch": ("bigint", True, None),
+            "daemon_id": ("text", True, None),
+            "inventory": ("jsonb", True, None),
+            "state": ("text", True, None),
+        },
+        {
+            ("instance_stop_fence_pkey", "p", "PRIMARY KEY (id)", True, True),
+            ("instance_stop_fence_id_check", "c", "CHECK ((id = 1))", True, True),
+            (
+                "instance_stop_fence_generation_check",
+                "c",
+                "CHECK ((generation >= 0))",
+                True,
+                True,
+            ),
+            (
+                "instance_stop_fence_owner_epoch_check",
+                "c",
+                "CHECK ((owner_epoch > 0))",
+                True,
+                True,
+            ),
+            (
+                "instance_stop_fence_daemon_id_check",
+                "c",
+                "CHECK ((daemon_id <> ''::text))",
+                True,
+                True,
+            ),
+            (
+                "instance_stop_fence_inventory_check",
+                "c",
+                "CHECK (((jsonb_typeof(inventory) = 'object'::text) AND (inventory <> '{}'::jsonb)))",
+                True,
+                True,
+            ),
+            (
+                "instance_stop_fence_state_check",
+                "c",
+                "CHECK ((state = ANY (ARRAY['STOP_PENDING'::text, 'STOP_UNCERTAIN'::text])))",
+                True,
+                True,
+            ),
+        },
+    ),
     "pairing_issuance": (
         {
             "issuance_id": ("uuid", True, None),

@@ -18,6 +18,7 @@ from .stop import _stopping_record, readback_stopped
 
 def status(*, as_json: bool) -> int:
     root = state_dir()
+    unreconciled = os.path.lexists(root / "unreconciled.json")
     result: dict[str, object] = {
         "state": "NOT_INSTALLED",
         "control_ready": False,
@@ -42,24 +43,33 @@ def status(*, as_json: bool) -> int:
             origin=instance.origin,
             reason="CONTROL_UNAVAILABLE",
         )
-        try:
-            current = request(control_dir(root), {"op": "status"})
-            if current["instance_id"] != instance.instance_id:
-                raise ControlUnavailable()
-        except ControlUnavailable:
-            pass
-        else:
-            result.update(
-                state="RUNNING",
-                control_ready=True,
-                generation=current["generation"],
-                supervisor_epoch=current["supervisor_epoch"],
-                admission_open=current["admission_open"],
-                shutdown_finalized=current["shutdown_finalized"],
-                reason="HTTP_UNVERIFIED",
-            )
-            exit_code = 0
-    if os.path.lexists(root / "startup.json"):
+        if not unreconciled:
+            try:
+                current = request(control_dir(root), {"op": "status"})
+                if current["instance_id"] != instance.instance_id:
+                    raise ControlUnavailable()
+            except ControlUnavailable:
+                pass
+            else:
+                result.update(
+                    state="RUNNING",
+                    control_ready=True,
+                    generation=current["generation"],
+                    supervisor_epoch=current["supervisor_epoch"],
+                    admission_open=current["admission_open"],
+                    shutdown_finalized=current["shutdown_finalized"],
+                    reason="HTTP_UNVERIFIED",
+                )
+                exit_code = 0
+    if unreconciled:
+        result.update(
+            state="RECOVERY_REQUIRED",
+            control_ready=False,
+            dashboard_ready=False,
+            reason="UNRECONCILED_STOP",
+        )
+        exit_code = 4
+    elif os.path.lexists(root / "startup.json"):
         # Installed lifecycle receipts opt into HTTP only after exact ownership.
         # Legacy status-only locators remain conservative and never contact a port.
         try:

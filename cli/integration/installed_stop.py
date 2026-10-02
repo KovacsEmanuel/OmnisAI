@@ -250,6 +250,16 @@ def run_emergency_stop(data, receipt, cli):
         )
         assert refused.returncode == 4 and json.loads(refused.stdout)["state"] == "UNCERTAIN"
         assert marker.read_bytes() == receipt_bytes, "Retry erased unreconciled intent"
+        status = subprocess.run(
+            [cli, "status", "--json"],
+            cwd=state,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=50,
+        )
+        assert status.returncode == 4
+        assert json.loads(status.stdout)["state"] == "RECOVERY_REQUIRED"
         assert (root / "postgres").is_dir()
         proof = cleanup = True
     finally:

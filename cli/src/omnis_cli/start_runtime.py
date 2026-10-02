@@ -189,7 +189,7 @@ class ControlRuntime:
                             pass  # Still attempt the other signal and bounded reap.
                 try:
                     reaping = True
-                    process.wait(timeout=5)
+                    process.wait(timeout=max(0, min(5, self.deadline - time.monotonic())))
                 except (OSError, subprocess.SubprocessError):
                     pass  # Preserve the original error and conservative family state.
             raise

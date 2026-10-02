@@ -7,9 +7,11 @@ import select
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from omnis_cli.lifecycle import StartError, process_identity, write_record
@@ -54,6 +56,40 @@ def resistant_child():
 
 
 class ConfigDeadlineTest(unittest.TestCase):
+    def test_runtime_timeout_reap_does_not_add_fixed_five_seconds(self):
+        from omnis_cli.start_runtime import ControlRuntime
+
+        with tempfile.TemporaryDirectory(prefix="m22-run-", dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            executable = root / "owned-child"
+            executable.write_text(f"#!{sys.executable}\nimport time\ntime.sleep(60)\n")
+            executable.chmod(0o700)
+            runtime = ControlRuntime.__new__(ControlRuntime)
+            runtime.docker = executable
+            runtime.release = root
+            runtime.host = "unix:///unused-owned-fixture"
+            runtime.deadline = time.monotonic() + 0.15
+            runtime.uncertain = False
+            runtime.family_drained = True
+            observed, children = [], []
+            original = subprocess.Popen.wait
+
+            def wait(child, timeout=None):
+                observed.append(timeout)
+                children.append(child)
+                return original(child, timeout=timeout)
+
+            try:
+                with patch.object(subprocess.Popen, "wait", wait), self.assertRaises(StartError):
+                    runtime.run("fixture", effect=True)
+                self.assertTrue(observed)
+                self.assertLessEqual(max(observed), 0.15)
+                self.assertTrue(runtime.uncertain)
+                self.assertFalse(runtime.family_drained)
+            finally:
+                for child in children:
+                    child.wait(timeout=3)  # Parent-owned readback, not product deadline credit.
+
     def test_stop_forwarder_waits_share_remaining_deadline_on_both_paths(self):
         stop = importlib.import_module("omnis_cli.stop")
         for path in ("normal", "emergency"):

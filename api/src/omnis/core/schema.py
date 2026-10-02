@@ -192,7 +192,8 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
         await connection.execute(
             text(
                 "SELECT t.tgname, t.tgtype, t.tgenabled, p.proname, p.prosrc, "
-                "l.lanname, p.prosecdef, p.pronargs, t.tgnargs "
+                "l.lanname, p.prosecdef, p.pronargs, t.tgnargs, t.tgqual IS NULL, "
+                "t.tgattr::text, p.prorettype::regtype::text "
                 "FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
                 "JOIN pg_language l ON l.oid = p.prolang "
                 "WHERE t.tgrelid = 'instance_stop_reconciliation'::regclass AND NOT t.tgisinternal"
@@ -210,6 +211,9 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             False,
             0,
             0,
+            True,
+            "",
+            "trigger",
         )
     ]:
         return False

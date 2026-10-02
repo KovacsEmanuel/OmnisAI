@@ -21,4 +21,8 @@ Scope: U21–U23, parser strict și consumatorii P0 actuali; nu aprobă SL04/G00
 
 ## Rezultate
 
+### Extindere minimă justificată înainte de editare
+
+`ControlRuntime.run` în `cli/src/omnis_cli/start_runtime.py` este consumatorul real al deadline-urilor Start/Stop/cleanup. La timeout, reap-ul liderului folosește încă `process.wait(timeout=5)` după expirarea deadline-ului; astfel propagarea din start/stop singură nu poate satisface U23. Se admite aici strict înlocuirea acelui timeout cu timpul rămas în bugetul runtime, cu RED pe un child propriu și observarea argumentului `wait`, fără schimbarea autorității/familiei/ACK Docker și fără refactor. Dacă reap-ul nu se poate confirma în buget, incertitudinea existentă rămâne sticky; această probă nu certifică daemonul fizic.
+
 ÎN LUCRU. Probe source/wheel și SHA-uri se consemnează după execuție. G00 rămâne deschis, integrarea neaprobată.

@@ -17,6 +17,7 @@ class EnginePeer:
     def __init__(self, path: Path, status: int = 204, *, trickle: bool = False) -> None:
         self.path, self.status, self.trickle = path, status, trickle
         self.requests: list[str] = []
+        self.raw_reply: bytes | None = None
         self.done = threading.Event()
         self.sock = socket.socket(socket.AF_UNIX)
         self.sock.bind(str(path))
@@ -47,6 +48,8 @@ class EnginePeer:
                     f"HTTP/1.1 {code} Synthetic\r\nContent-Length: {len(body)}\r\n\r\n".encode()
                     + body
                 )
+                if self.raw_reply is not None:
+                    response = self.raw_reply
                 try:
                     if self.trickle:
                         for byte in response:
@@ -67,6 +70,39 @@ class EnginePeer:
 
 
 class StopEngineTests(unittest.TestCase):
+    def test_caps_deep_json_and_chunked_reply_on_same_socket(self):
+        from omnis_cli.stop_engine import StopEngine
+
+        body = b'{"ID":"synthetic-stop-daemon"}'
+        chunked = (
+            b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+            + f"{len(body):x}\r\n".encode()
+            + body
+            + b"\r\n0\r\n\r\n"
+        )
+        deep = b'{"ID":"synthetic-stop-daemon","extra":' + b"[" * 1100 + b"0" + b"]" * 1100 + b"}"
+        deep_response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(deep)}\r\n\r\n".encode() + deep
+        for response in (
+            chunked,
+            b"HTTP/1.1 200 OK\r\nContent-Length: 1048577\r\n\r\n",
+            deep_response,
+        ):
+            with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+                peer = EnginePeer(Path(name) / "e")
+                peer.raw_reply = response
+                try:
+                    engine = StopEngine(
+                        "unix://" + str(peer.path), "synthetic-stop-daemon", time.monotonic() + 1
+                    )
+                    if response == chunked:
+                        engine.check_daemon()
+                    else:
+                        with self.assertRaises(StartError):
+                            engine.check_daemon()
+                    self.assertEqual(len(peer.requests), 1)
+                finally:
+                    peer.close()
+
     def test_typed_mutation_requires_204_and_never_retries(self) -> None:
         self.assertIsNotNone(
             importlib.util.find_spec("omnis_cli.stop_engine"), "missing typed Engine"

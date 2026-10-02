@@ -146,9 +146,20 @@ class StopEngine:
         if status == 404:
             return None
         try:
-            return json.loads(raw, object_pairs_hook=unique_pairs)
-        except (ValueError, UnicodeError):
+            value: object = json.loads(raw, object_pairs_hook=unique_pairs)
+        except (ValueError, UnicodeError, RecursionError):
             raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4) from None
+        pending = [(value, 0)]
+        while pending:
+            item, depth = pending.pop()
+            self._remaining()
+            if depth > 32:
+                raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
+            if isinstance(item, dict):
+                pending.extend((child, depth + 1) for child in item.values())
+            elif isinstance(item, list):
+                pending.extend((child, depth + 1) for child in item)
+        return value
 
     def check_daemon(self) -> None:
         if mapping(self._json("/info")).get("ID") != self.daemon_id:

@@ -555,6 +555,91 @@ async def test_uncertain_fence_survives_lost_ack_and_refuses_even_a_forced_succe
 
 
 @pytest.mark.parametrize("state", ["STOP_PENDING", "STOP_UNCERTAIN"])
+@pytest.mark.asyncio
+async def test_stop_replay_rechecks_owner_after_real_fence_select_wait(
+    migrated_database_url: URL, monkeypatch: pytest.MonkeyPatch, state: str
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    checked = asyncio.Event()
+    original = service._require_owner
+    task: asyncio.Task[str] | None = None
+
+    async def observed(
+        connection: AsyncConnection, lease: LeaseRecord, owner: UUID, epoch: int
+    ) -> None:
+        await original(connection, lease, owner, epoch)
+        # Only this adversarial fixture extends the SQL wait beyond the lease;
+        # the product still has its ordinary two-second statement timeout.
+        await connection.execute(text("SET LOCAL statement_timeout = 10000"))
+        checked.set()
+
+    try:
+        instance, owner, command, finalized, epoch, stopped = await stopped_instance(service)
+        inventory: dict[str, object] = {"db": "a" * 64}
+        await service.arm_stop(
+            command, finalized, stopped, instance, owner, epoch, "daemon-a", inventory
+        )
+        async with engine.begin() as writer:
+            await writer.execute(
+                text("UPDATE instance_stop_fence SET state = :state WHERE id = 1"),
+                {"state": state},
+            )
+        before = await db_snapshot(engine)
+        monkeypatch.setattr(service, "_require_owner", observed)
+        async with engine.begin() as blocker:
+            await blocker.execute(text("LOCK TABLE instance_stop_fence IN ACCESS EXCLUSIVE MODE"))
+            blocker_pid = read_integer(
+                (await blocker.execute(text("SELECT pg_backend_pid()"))).scalar_one()
+            )
+            task = asyncio.create_task(
+                service.arm_stop(
+                    command, finalized, stopped, instance, owner, epoch, "daemon-a", inventory
+                )
+            )
+            await asyncio.wait_for(checked.wait(), 2)
+            async with asyncio.timeout(1):
+                while True:
+                    async with engine.connect() as reader:
+                        waiting = (
+                            await reader.execute(
+                                text(
+                                    "SELECT count(*) FROM pg_stat_activity "
+                                    "WHERE datname = current_database() AND wait_event_type = 'Lock' "
+                                    "AND :blocker = ANY(pg_blocking_pids(pid))"
+                                ),
+                                {"blocker": blocker_pid},
+                            )
+                        ).scalar_one()
+                    if waiting == 1:
+                        break
+                    await asyncio.sleep(0.01)
+            async with asyncio.timeout(8):
+                while True:
+                    async with engine.connect() as reader:
+                        expired = (
+                            await reader.execute(
+                                text(
+                                    "SELECT expires_at <= clock_timestamp() "
+                                    "FROM supervisor_lease WHERE id = 1"
+                                )
+                            )
+                        ).scalar_one()
+                    if expired is True:
+                        break
+                    await asyncio.sleep(0.1)
+            assert not task.done(), "the replay must still wait on the real fence SELECT"
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await asyncio.wait_for(task, 2)
+        assert await db_snapshot(engine) == before
+    finally:
+        if task is not None and not task.done():
+            task.cancel()
+            await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 3)
+        await engine.dispose()
+
+
+@pytest.mark.parametrize("state", ["STOP_PENDING", "STOP_UNCERTAIN"])
 @pytest.mark.parametrize(
     ("generation", "epoch"),
     [

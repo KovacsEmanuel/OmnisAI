@@ -346,6 +346,7 @@ class InstanceService:
                     != inventory_json
                 ):
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                await self._require_owner(connection, lease, owner, epoch)
                 return fence.state
             if instance.instance_id != instance_id:
                 raise ControlConflict(ControlCode.INSTANCE_MISMATCH)

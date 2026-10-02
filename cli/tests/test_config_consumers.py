@@ -18,6 +18,56 @@ class ConfigConsumersTest(unittest.TestCase):
     setUp = config_tests.ConfigTest.setUp
     write_config = config_tests.ConfigTest.write_config
 
+    def test_cleanup_has_separate_configured_allowance_after_startup_expiry(self):
+        from types import SimpleNamespace
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        self.write_config("startup_timeout_seconds=30\ncleanup_timeout_seconds=31")
+        for index, (flags, allowance) in enumerate((([], 31), (["--cleanup-timeout", "40"], 40))):
+            runtime = SimpleNamespace(
+                receipt=SimpleNamespace(
+                    project="omnis-local-" + "a" * 32,
+                    image_id="sha256:" + "b" * 64,
+                    docker_id="test-daemon",
+                ),
+                digest="c" * 64,
+                host="unix:///run/docker.sock",
+                uncertain=False,
+                family_drained=True,
+                inspect=lambda *args: None,
+                network=lambda *args: None,
+            )
+            deadlines = []
+
+            def construct(_data, deadline):
+                runtime.deadline = deadline
+                return runtime
+
+            def inventory():
+                deadlines.append(runtime.deadline)
+                return []
+
+            runtime.ids = inventory
+            with (
+                self.subTest(flags=flags),
+                patch.dict(os.environ, {"XDG_STATE_HOME": str(self.root / f"s{index}")}),
+                patch.object(start, "ControlRuntime", side_effect=construct),
+                patch.object(start, "preflight_port"),
+                patch.object(start.time, "monotonic", return_value=100) as clock,
+                contextlib.redirect_stdout(io.StringIO()) as output,
+            ):
+
+                def expire(*args):
+                    clock.return_value = 500
+                    raise StartError("STARTUP_TIMEOUT", 3)
+
+                with patch.object(start, "validate_config", side_effect=expire):
+                    self.assertEqual(main(["start", "--no-open", "--json", *flags]), 3)
+            self.assertEqual(deadlines[0], 130)
+            self.assertEqual(deadlines[1:], [500 + allowance, 500 + allowance])
+            self.assertEqual(json.loads(output.getvalue())["reason"], "STARTUP_TIMEOUT")
+
     def test_fresh_start_config_and_cli_precedence_reaches_port_and_deadline(self):
         from types import SimpleNamespace
 

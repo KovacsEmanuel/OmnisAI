@@ -448,11 +448,13 @@ def cleanup_attempt(
     port: int,
     process: subprocess.Popen[bytes] | None,
     pidfd: int,
+    *,
+    cleanup_timeout: int = 100,
 ) -> list[str]:
     """Not omnis stop: only this fresh attempt, with no adopted running instance."""
     problems: list[str] = []
     drained = not runtime.uncertain and runtime.family_drained
-    runtime.deadline = time.monotonic() + 100  # Separate finite cleanup allowance.
+    runtime.deadline = time.monotonic() + config_integer(cleanup_timeout, 30, 180)
     if process is not None:
         try:
             stop_forwarder(process, pidfd)
@@ -787,13 +789,19 @@ def projection(
 
 
 def start_instance(
-    port: int | None = None, *, startup_timeout: int | None = None
+    port: int | None = None,
+    *,
+    startup_timeout: int | None = None,
+    cleanup_timeout: int | None = None,
 ) -> dict[str, object]:
     from .stop import _integer, _preflight_record, readback_stopped
 
     config = load_config()
     startup_seconds = config_integer(
         config.startup_timeout_seconds if startup_timeout is None else startup_timeout, 30, 300
+    )
+    cleanup_seconds = config_integer(
+        config.cleanup_timeout_seconds if cleanup_timeout is None else cleanup_timeout, 30, 180
     )
     root = state_dir()
     config.check_instance(root, port)
@@ -1119,7 +1127,15 @@ def start_instance(
             if owner.process is not None:
                 # Locator only, never authority to signal a metadata PID on retry.
                 record["forwarder_spawn_pid"] = owner.process.pid
-            problems = cleanup_attempt(runtime, root, control, selected, owner.process, owner.pidfd)
+            problems = cleanup_attempt(
+                runtime,
+                root,
+                control,
+                selected,
+                owner.process,
+                owner.pidfd,
+                cleanup_timeout=cleanup_seconds,
+            )
             record.update(
                 failed_phase=failed_phase,
                 failure=exc.reason if isinstance(exc, StartError) else "STARTUP_FAILED",
@@ -1155,11 +1171,13 @@ def _interrupt(signum: int, frame: FrameType | None) -> None:
 
 
 def start_result(
-    port: int | None, *, startup_timeout: int | None = None
+    port: int | None, *, startup_timeout: int | None = None, cleanup_timeout: int | None = None
 ) -> tuple[int, dict[str, object]]:
     previous = {sig: signal.signal(sig, _interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
     try:
-        result = start_instance(port, startup_timeout=startup_timeout)
+        result = start_instance(
+            port, startup_timeout=startup_timeout, cleanup_timeout=cleanup_timeout
+        )
         code = 0
     except (
         OSError,
@@ -1183,8 +1201,16 @@ def start_result(
     return code, result
 
 
-def start(*, port: int | None, as_json: bool, startup_timeout: int | None = None) -> int:
-    code, result = start_result(port, startup_timeout=startup_timeout)
+def start(
+    *,
+    port: int | None,
+    as_json: bool,
+    startup_timeout: int | None = None,
+    cleanup_timeout: int | None = None,
+) -> int:
+    code, result = start_result(
+        port, startup_timeout=startup_timeout, cleanup_timeout=cleanup_timeout
+    )
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:

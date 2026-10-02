@@ -9,6 +9,7 @@ from pathlib import Path
 from .browser import open_verified
 from .compose import ImageInstallError, install_control_image
 from .config import load_config
+from .instance import state_dir
 from .lifecycle import StartError
 from .pairing import interactive_tty, pair
 from .release import ReleaseError, install_release
@@ -49,7 +50,9 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
     try:
-        load_config()
+        config = load_config()
+        if args.command in {None, "start", "stop", "status", "pair", "open"}:
+            config.check_instance(state_dir(), getattr(args, "port", None))
     except StartError as exc:
         if getattr(args, "json", False):
             print(

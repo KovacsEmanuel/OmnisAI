@@ -539,12 +539,17 @@ def _publish_stopped(
 
 
 def stop_instance() -> dict[str, object]:
+    from .config import load_config
+
+    config = load_config()
     root = state_dir()
+    config.check_instance(root)
     # A legacy receipt has no original inode: refuse before even creating a lock.
     preflight = None
     if os.path.lexists(root / "startup.json"):
         preflight = read_record(root / "startup.json")
         _preflight_record(preflight)
+        config.check_port(preflight.get("port"))
         _check_pgdata(root, preflight)
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
@@ -558,6 +563,7 @@ def stop_instance() -> dict[str, object]:
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
+        config.check_port(record.get("port"))
         _check_pgdata(root, record)
         _bound_instance(runtime, root, control, record)
         if os.path.lexists(root / "unreconciled.json"):

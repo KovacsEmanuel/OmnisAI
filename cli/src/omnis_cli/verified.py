@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
+from .config import load_config
 from .control import ControlUnavailable
 from .instance import control_dir, private_dir, state_dir
 from .lifecycle import StartError, lifecycle_lock, read_record
@@ -18,7 +19,9 @@ from .start_runtime import ControlRuntime
 @contextmanager
 def verified_instance() -> Iterator[tuple[dict[str, object], Path]]:
     """Reuse SL02's full OCI/DB/IPC/HTTP/asset proof, not status's legacy ACK."""
+    config = load_config()
     root = state_dir()
+    config.check_instance(root)
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
     deadline = time.monotonic() + 30
@@ -30,6 +33,7 @@ def verified_instance() -> Iterator[tuple[dict[str, object], Path]]:
             raise StartError("RECOVERY_REQUIRED", 4)
         preflight = read_record(root / "startup.json")
         _ready_record(preflight)
+        config.check_port(preflight.get("port"))
         _check_pgdata(root, preflight)
         runtime = ControlRuntime(data_home, deadline)
         with ExitStack() as locks:

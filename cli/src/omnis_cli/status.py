@@ -8,6 +8,7 @@ import sys
 import time
 from pathlib import Path
 
+from .config import load_config
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
 from .lifecycle import StartError, read_record
@@ -18,12 +19,27 @@ from .stop import _stopping_record, readback_stopped
 
 def status(*, as_json: bool) -> int:
     root = state_dir()
+    try:
+        config = load_config()
+        config.check_instance(root)
+    except StartError as exc:
+        refused = {
+            "state": "REFUSED",
+            "reason": exc.reason,
+            "dashboard_ready": False,
+            "control_ready": False,
+            "assessment_ready": False,
+            "browser_opened": False,
+        }
+        print(json.dumps(refused, sort_keys=True) if as_json else f"Omnis: REFUSED ({exc.reason})")
+        return exc.code
     unreconciled = os.path.lexists(root / "unreconciled.json")
     record: dict[str, object] | None = None
     preflight_error: OSError | ValueError | None = None
     if not unreconciled and os.path.lexists(root / "startup.json"):
         try:
             record = read_record(root / "startup.json")
+            config.check_port(record.get("port"))
             if record.get("phase") == "READY":
                 _ready_record(record)
             elif type(record.get("phase")) is str and record["phase"] in {"STOPPING", "STOPPED"}:

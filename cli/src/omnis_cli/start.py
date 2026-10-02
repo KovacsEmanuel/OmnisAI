@@ -19,6 +19,7 @@ from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
 
+from .config import load_config
 from .control import ControlUnavailable, request
 from .health import dashboard
 from .instance import Instance, control_dir, load_instance, private_dir, private_file, state_dir
@@ -787,7 +788,9 @@ def projection(
 def start_instance(port: int | None = None) -> dict[str, object]:
     from .stop import _integer, _preflight_record, readback_stopped
 
+    config = load_config()
     root = state_dir()
+    config.check_instance(root, port)
     # Capture the operator's invocation side of a queued Start. Reading again
     # after Stop releases the local lock must not turn that old Start into a
     # fresh explicit restart.
@@ -795,6 +798,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
     if os.path.lexists(root / "startup.json"):
         initial_record = read_record(root / "startup.json")
         _preflight_record(initial_record)
+        config.check_port(initial_record.get("port"), port)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
     if initial_phase == "STOPPING":
@@ -833,6 +837,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         if os.path.lexists(journal):
             record = read_record(journal)
             _preflight_record(record)
+            config.check_port(record.get("port"), port)
             _check_pgdata(root, record)
             selected = record.get("port")
             if type(selected) is not int or (port is not None and selected != port):

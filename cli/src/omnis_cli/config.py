@@ -6,7 +6,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from .instance import private_dir, private_file
+from .instance import load_instance, private_dir, private_file
 from .lifecycle import StartError
 
 _KEYS = {"port", "startup_timeout_seconds", "shutdown_timeout_seconds", "cleanup_timeout_seconds"}
@@ -19,6 +19,24 @@ class Config:
     startup_timeout_seconds: int = 180
     shutdown_timeout_seconds: int = 180
     cleanup_timeout_seconds: int = 100
+
+    def check_port(self, actual: object, explicit: int | None = None) -> None:
+        if explicit is not None:
+            _integer(explicit, 1024, 65535)
+        if any(value is not None and value != actual for value in (self.port, explicit)):
+            raise StartError("PORT_CHANGE_REQUIRES_STOP", 2)
+
+    def check_instance(self, root: Path, explicit: int | None = None) -> None:
+        if explicit is not None:
+            _integer(explicit, 1024, 65535)
+        if self.port is None and explicit is None:
+            return
+        if os.path.lexists(root / "instance.json"):
+            try:
+                instance = load_instance(root)
+            except (OSError, ValueError):
+                raise StartError("RECOVERY_REQUIRED", 4) from None
+            self.check_port(int(instance.origin.rsplit(":", 1)[1]), explicit)
 
 
 def _integer(value: object, lower: int, upper: int) -> int:

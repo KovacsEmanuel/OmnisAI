@@ -664,6 +664,14 @@ def stop_instance() -> dict[str, object]:
                 if record["finalized_generation"] is None and record["teardown_completed"] == []:
                     _emergency_stop(runtime, root, control, record)
                 raise StartError("STOP_UNCERTAIN", 4) from None
+            except StartError as exc:
+                if (
+                    exc.reason == "LOCAL_SERVICE_COMMAND_FAILED"
+                    and record["finalized_generation"] is None
+                    and record["teardown_completed"] == []
+                ):
+                    _emergency_stop(runtime, root, control, record)
+                raise StartError("STOP_UNCERTAIN", 4) from None
             except (OSError, ValueError, subprocess.SubprocessError):
                 raise StartError("STOP_UNCERTAIN", 4) from None
         instance = load_instance(root)

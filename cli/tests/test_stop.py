@@ -113,6 +113,51 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_db_unavailable_after_stopping_intent_is_emergency_not_stopped(self) -> None:
+        """A failed DB readback must retain a blocker before owned paths are drained."""
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            record.update(
+                phase="STOPPING",
+                stop_generation=None,
+                finalized_generation=None,
+                teardown_completed=[],
+            )
+            journal = root / "startup.json"
+            write_record(journal, record)
+            ids = record["containers"]
+            assert isinstance(ids, dict)
+            runtime.ids = lambda: list(ids.values())
+            runtime.attest = lambda *_args: {"State": {"Running": True}}
+            runtime.network = lambda _allowed: "n" * 64
+            runtime.psql = lambda *_args: (_ for _ in ()).throw(
+                StartError("LOCAL_SERVICE_COMMAND_FAILED", 3)
+            )
+            stop_module = importlib.import_module("omnis_cli.stop")
+            seen: list[str] = []
+
+            def drain(*_args: object) -> None:
+                assert read_record(root / "unreconciled.json")["attempt"] == record["attempt"]
+                seen.append(str(read_record(journal)["phase"]))
+                raise StartError("DRAIN_UNCERTAIN", 4)
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(stop_module, "service_ids", return_value=ids),
+                patch.object(stop_module, "_emergency_drain", side_effect=drain),
+            ):
+                with self.assertRaisesRegex(StartError, "DRAIN_UNCERTAIN"):
+                    stop_module.stop_instance()
+            self.assertEqual(seen, ["UNCERTAIN"])
+            self.assertEqual(read_record(journal)["phase"], "UNCERTAIN")
+
     def test_emergency_inventory_failure_still_closes_local_ready_reuse(self) -> None:
         """A transient Docker inventory outage cannot leave READY reusable."""
         with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):

@@ -884,6 +884,7 @@ class StopTest(unittest.TestCase):
             states = {cids["supervisor"]: True, cids["db"]: True}
             effects: list[tuple[str, ...]] = []
             network_active = True
+            lease_epoch = 2  # Simulate takeover after historical FINALIZE at epoch 1.
 
             def ids() -> list[str]:
                 return list(states)
@@ -909,6 +910,8 @@ class StopTest(unittest.TestCase):
                 if "SELECT version_num FROM alembic_version" in query:
                     return "0004_pairing_receipts"
                 if "SELECT generation" in query:
+                    if "supervisor_lease" in query:
+                        return f"2|f|{record['stop_command']}|2|1|{lease_epoch}"
                     return f"2|f|{record['stop_command']}|2|1"
                 raise AssertionError("Unexpected DB readback")
 
@@ -948,6 +951,14 @@ class StopTest(unittest.TestCase):
                 patch.object(stop_module, "ControlRuntime", return_value=runtime),
                 contextlib.redirect_stdout(output),
             ):
+                self.assertEqual(main(["stop", "--json"]), 4)
+                self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                self.assertEqual(effects, [], "Lease takeover must preempt the first Docker effect")
+                self.assertEqual(read_record(root / "startup.json")["phase"], "STOPPING")
+                self.assertEqual(states, {cids["supervisor"]: True, cids["db"]: True})
+                lease_epoch = 1  # The same channel's valid owner is allowed to finish.
+                output.seek(0)
+                output.truncate()
                 code = main(["stop", "--json"])
             assert code == 0, "A finalized, attested partial stop must be resumable"
             assert json.loads(output.getvalue())["state"] == "STOPPED"

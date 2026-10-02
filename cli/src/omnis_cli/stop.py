@@ -390,10 +390,18 @@ def _finalized_db_readback(
         "(SELECT count(*)::text FROM instance_command WHERE "
         f"command_id = '{finalized}'::uuid AND kind = 'FINALIZE' "
         f"AND expected_generation = {generation} AND result_generation = {generation} "
-        f"AND owner_epoch = {_integer(record, 'supervisor_epoch')}) "
+        f"AND owner_epoch = {_integer(record, 'supervisor_epoch')}) || '|' || "
+        "(SELECT epoch::text FROM supervisor_lease WHERE id = 1) "
         "FROM instance_control WHERE id = 1"
     )
-    expected = [str(generation), "f", record["stop_command"], str(generation), "1"]
+    expected = [
+        str(generation),
+        "f",
+        record["stop_command"],
+        str(generation),
+        "1",
+        str(_integer(record, "supervisor_epoch")),
+    ]
     if runtime.psql(db, query).split("|") != expected:
         raise StartError("FINALIZE_READBACK_UNVERIFIED", 4)
 

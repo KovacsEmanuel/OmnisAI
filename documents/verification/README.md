@@ -12,6 +12,8 @@
 
 [Promptul de remediere SC01/SC02](p04-start-remediation-prompt.md) și [promptul aprofundat](p04-deep-remediation-prompt.md) sunt handoffuri istorice: scope, regresii, review și gate-uri separate. Existența lor nu închide defectele; execuțiile și dispozițiile curente sunt în registrele de mai sus, iar statusul pentru operator se afișează direct în chat.
 
+[Handofful SL04 stop/recovery](p04-stop-recovery-implementation-prompt.md) pregătește următoarea sesiune după SL03 acceptat scoped; nu constituie implementare, review de cod sau PASS pentru G00.
+
 [Amendamentul skill-uri/copii din notițele originale](omnis-skill-pattern-amendment.md) păstrează sursa, cele 19 decizii de adaptare și limitele native; contractele și ordinea se introduc în același canon.
 
 [Deep review-ul de flux și livrare](omnis-deep-review.md) urmărește dependențele implicite și scenariile cap-coadă după HF01–HF10; verdictul și remediile sunt separate de gate-urile runtime.

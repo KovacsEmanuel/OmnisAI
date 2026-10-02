@@ -10,8 +10,10 @@ import stat
 import struct
 import sys
 from pathlib import Path
+from uuid import UUID
 
 from .instance import private_dir
+from .lifecycle import process_identity, read_record, write_record
 
 _MAX_REQUEST_BYTES = 2 * 1024 * 1024
 # One trusted asset can be 2 MiB; keep room for headers and successive responses.
@@ -22,11 +24,16 @@ class ForwarderListener:
     """Own the listening socket and all accepted client tasks through shutdown."""
 
     def __init__(
-        self, server: asyncio.Server, clients: set[asyncio.Task[None]], closing: asyncio.Event
+        self,
+        server: asyncio.Server,
+        clients: set[asyncio.Task[None]],
+        closing: asyncio.Event,
+        uncertain: asyncio.Event | None = None,
     ) -> None:
         self._server = server
         self._clients = clients
         self._closing = closing
+        self._uncertain = uncertain
 
     @property
     def sockets(self) -> tuple[socket.socket, ...]:
@@ -50,6 +57,8 @@ class ForwarderListener:
             if pending:
                 raise TimeoutError("Private clients did not drain")
         await asyncio.wait_for(self._server.wait_closed(), timeout=2)
+        if self._uncertain is not None and self._uncertain.is_set():
+            raise ValueError("Private transport drainage unverified")
 
 
 def private_api_socket(directory: Path) -> Path:
@@ -92,6 +101,7 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
     active = 0
     clients: set[asyncio.Task[None]] = set()
     closing = asyncio.Event()
+    uncertain = asyncio.Event()
 
     async def handle(client: asyncio.StreamReader, browser: asyncio.StreamWriter) -> None:
         nonlocal active
@@ -99,7 +109,7 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
             browser.transport.abort()
             return
         if active >= 16:
-            browser.close()
+            browser.transport.abort()
             return
         active += 1  # No await before admission; the event loop serializes this counter.
         current = asyncio.current_task()
@@ -145,13 +155,23 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
                         writer.transport.abort()
                         try:
                             await asyncio.wait_for(asyncio.shield(writer.wait_closed()), timeout=1)
-                        except (OSError, TimeoutError):
+                        except TimeoutError:
+                            uncertain.set()
                             logging.getLogger("omnis.forwarder").warning(
                                 "FORWARDER_CLOSE_UNAVAILABLE"
                             )
+                        except OSError:
+                            pass  # connection_lost completed with an error: transport is closed.
             except asyncio.CancelledError:
                 for writer in writers:
                     writer.transport.abort()
+                for writer in writers:
+                    try:
+                        await asyncio.wait_for(asyncio.shield(writer.wait_closed()), timeout=1)
+                    except (TimeoutError, asyncio.CancelledError):
+                        uncertain.set()
+                    except OSError:
+                        pass  # Closed with a reset is drained, not a successful response.
                 raise
             finally:
                 active -= 1
@@ -173,13 +193,17 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
         listener.close()
         await listener.wait_closed()
         raise
-    return ForwarderListener(listener, clients, closing)
+    return ForwarderListener(listener, clients, closing, uncertain)
 
 
-async def run(directory: Path, port: int) -> None:
+async def run(directory: Path, port: int, *, stop_attempt: str | None = None) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("Explicit local port required")
+    if stop_attempt is not None and str(UUID(stop_attempt)) != stop_attempt:
+        raise ValueError("Invalid Stop attempt")
     listener = await start_forwarder(directory, port=port)
+    identity = process_identity(os.getpid()) if stop_attempt is not None else None
+    inode = os.fstat(listener.sockets[0].fileno()).st_ino
     stopped = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -191,6 +215,32 @@ async def run(directory: Path, port: int) -> None:
         listener.close()
         try:
             await asyncio.wait_for(listener.wait_closed(), timeout=20)
+            # A fixed private Stop intent is optional for ordinary startup cleanup.
+            # Never publish evidence before listener, copy tasks and transports drain.
+            if stop_attempt is not None:
+                root = directory.parent
+                intent_path = root / f"stop-forwarder-{stop_attempt}.json"
+                if os.path.lexists(intent_path):
+                    intent = read_record(intent_path)
+                    command = intent.get("command_id")
+                    if (
+                        type(command) is not str
+                        or str(UUID(command)) != command
+                        or intent
+                        != {
+                            "version": 1,
+                            "attempt": stop_attempt,
+                            "command_id": command,
+                            "forwarder": identity,
+                            "listener_inode": inode,
+                        }
+                    ):
+                        raise ValueError("Stop drain identity changed")
+                    receipt = {**intent, "drained": True}
+                    path = root / f"stop-forwarder-{stop_attempt}-drained.json"
+                    write_record(path, receipt)
+                    if read_record(path) != receipt:
+                        raise ValueError("Stop drain receipt unverified")
         finally:
             for sig in (signal.SIGTERM, signal.SIGINT):
                 loop.remove_signal_handler(sig)
@@ -200,9 +250,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="omnis-forwarder")
     parser.add_argument("--socket-dir", type=Path, required=True)
     parser.add_argument("--port", type=int, required=True)
+    parser.add_argument("--stop-attempt")
     args = parser.parse_args(argv)
     try:
-        asyncio.run(run(args.socket_dir, args.port))
+        asyncio.run(run(args.socket_dir, args.port, stop_attempt=args.stop_attempt))
     except (OSError, ValueError, TimeoutError):
         print("FORWARDER_UNAVAILABLE", file=sys.stderr)
         return 3

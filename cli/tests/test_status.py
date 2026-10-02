@@ -333,6 +333,7 @@ class StatusTest(unittest.TestCase):
             {"command_id": str(uuid4())},
             {"expected_generation": 0},
             {"result_generation": 1},
+            {"result_generation": 1, "status": {**valid["status"], "generation": 1}},
             {"owner_epoch": 2},
             {"status": {**valid["status"], "generation": 3}},
             {"status": {**valid["status"], "admission_open": True}},

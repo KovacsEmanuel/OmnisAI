@@ -121,6 +121,49 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_nonincremented_shutdown_receipt_cannot_claim_offline_stopped(self) -> None:
+        """SHUTDOWN always advances generation; a fabricated equal value is not STOPPED."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            record["stop_generation"] = record["stop_expected"]
+            record["finalized_generation"] = record["stop_expected"]
+            journal = root / "startup.json"
+            write_record(journal, record)
+            before = journal.read_bytes()
+            env = {
+                "XDG_STATE_HOME": str(base / "s"),
+                "XDG_DATA_HOME": str(base / "d"),
+                "XDG_RUNTIME_DIR": "",
+            }
+            with (
+                patch.dict(os.environ, env),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(status_module, "ControlRuntime", return_value=runtime),
+                patch.object(
+                    start_module, "ControlRuntime", side_effect=AssertionError("Docker reached")
+                ),
+                patch.object(runtime, "ids", wraps=runtime.ids) as inventory,
+            ):
+                for command in (
+                    ["stop", "--json"],
+                    ["status", "--json"],
+                    ["start", "--no-open", "--json"],
+                ):
+                    with self.subTest(command=command[0]):
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
+                            code = main(command)
+                        outcome = json.loads(output.getvalue())
+                        self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                        self.assertNotEqual(outcome["state"], "STOPPED")
+                inventory.assert_not_called()
+            self.assertEqual(journal.read_bytes(), before)
+            self.assertFalse((root / "unreconciled.json").exists())
+            self.assertFalse((root / "lifecycle.lock").exists())
+            self.assertFalse((base / "d/omnis/lifecycle.lock").exists())
+
     def test_cli_stopped_identity_binding_refuses_foreign_instance_before_effects(self) -> None:
         """An intact PGDATA pin cannot bind a different instance project or release."""
         start_module = importlib.import_module("omnis_cli.start")

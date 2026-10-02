@@ -159,7 +159,7 @@ def request(
                 )
             elif op == "shutdown":
                 valid = (
-                    result in {expected, expected + 1}
+                    result == expected + 1
                     and status["admission_open"] is False
                     and status["shutdown_command_id"] is not None
                 )

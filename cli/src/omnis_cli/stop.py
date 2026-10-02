@@ -137,8 +137,7 @@ def _stopping_record(record: dict[str, object]) -> None:
     if _integer(record, "stop_expected") < 0 or (
         _integer(record, "generation") != _integer(record, "stop_expected")
         or record["stop_generation"] is not None
-        and record["stop_generation"]
-        not in {_integer(record, "stop_expected"), _integer(record, "stop_expected") + 1}
+        and record["stop_generation"] != _integer(record, "stop_expected") + 1
         or _integer(record, "supervisor_epoch") < 1
         or not 1024 <= _integer(record, "port") <= 65535
     ):

@@ -351,6 +351,67 @@ async def test_uncertain_fence_survives_lost_ack_and_refuses_even_a_forced_succe
         await engine.dispose()
 
 
+@pytest.mark.parametrize("state", ["STOP_PENDING", "STOP_UNCERTAIN"])
+@pytest.mark.parametrize(
+    ("generation", "epoch"),
+    [
+        (True, 1),
+        (1.0, 1),
+        (1, True),
+        (1, 1.0),
+        (0, 1),
+        (-1, 1),
+        (1, 0),
+        (1, -1),
+        (2**63, 1),
+        (1, 2**63),
+    ],
+)
+@pytest.mark.asyncio
+async def test_replay_requires_exact_positive_bigint_authority(
+    migrated_database_url: URL, state: str, generation: int, epoch: int
+) -> None:
+    # Pytest supplies deliberately invalid runtime values to the typed service
+    # boundary; bool/float equality must never turn them into the original grant.
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner, command, finalized = uuid4(), uuid4(), uuid4()
+    inventory: dict[str, object] = {"db": "a" * 64}
+    try:
+        instance = (await service.status()).instance_id
+        owned_epoch = await service.acquire(owner)
+        stopped = await service.shutdown(command, 0, owner, owned_epoch)
+        assert (stopped, owned_epoch) == (1, 1)
+        await service.quiesce(owner, owned_epoch)
+        await service.finalize(finalized, stopped, owner, owned_epoch)
+        assert (
+            await service.arm_stop(
+                command, finalized, stopped, instance, owner, owned_epoch, "daemon-a", inventory
+            )
+            == "STOP_PENDING"
+        )
+        if state == "STOP_UNCERTAIN":
+            # Consumer-state control only; not a claim to produce a lost Docker ACK.
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text("UPDATE instance_stop_fence SET state = 'STOP_UNCERTAIN' WHERE id = 1")
+                )
+        before = await db_snapshot(engine)
+        assert (
+            await service.arm_stop(
+                command, finalized, stopped, instance, owner, owned_epoch, "daemon-a", inventory
+            )
+            == state
+        )
+        with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
+            await service.arm_stop(
+                command, finalized, generation, instance, owner, epoch, "daemon-a", inventory
+            )
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
+
+
 @pytest.mark.asyncio
 async def test_replay_distinguishes_boolean_from_numeric_inventory_identity(
     migrated_database_url: URL,

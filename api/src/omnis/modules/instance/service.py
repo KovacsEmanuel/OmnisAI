@@ -306,7 +306,11 @@ class InstanceService:
         This DB slice records their identity, but grants no Docker capability.
         """
         if (
-            not isinstance(daemon_id, str)
+            type(generation) is not int
+            or not 1 <= generation <= 9223372036854775807
+            or type(epoch) is not int
+            or not 1 <= epoch <= 9223372036854775807
+            or not isinstance(daemon_id, str)
             or not daemon_id
             or type(inventory) is not dict
             or not inventory

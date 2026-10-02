@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.14
+version: 0.1.15
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -65,6 +65,8 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 - For a fixed-entrypoint owner, make authorization negatives reach the actual lock/identity guard with **valid argv arity and untrusted FDs**; wrong-argument refusal only tests the parser. Hold an ACK-emitting child live beyond the deadline under an independent test fuse: blocking `waitid(WEXITED)` after ACK never reaches a later `wait(timeout=...)`, and closing pidfd/pipe without bounded signal/reap may leak a child that still holds lifecycle locks.
 - On malformed lifecycle receipts, test that schema denial precedes **both** normal and emergency effects: a READY validator's exception must not be interpreted as service outage that authorizes emergency teardown. Mutate exact types/field sets for STOPPING/STOPPED and verify status/pair/open reject legacy records before creating locks, contacting control or retaining stale `admission_open=true` in a failure projection.
 - Strict fields are not sufficient for a lifecycle receipt: bind `instance.json` project/release/origin to the installed release/runtime receipt and current journal **before** offline STOPPED credit or an explicit Start's first Docker effect. Challenge a well-typed same-UID fixture with only project or release changed, and keep a valid matching control on the same installed consumer; a late comparison after `compose create db` does not prove pre-effect refusal.
+- In offline lifecycle receipts, validate **domain transition arithmetic**, not only exact field types and plausible ranges: SHUTDOWN always increments generation, so a STOPPED receipt or correlated control reply with result equal to expected must refuse even when both reply/status agree. Put a matching positive and this negative through the same installed Stop/Status/Start and private UDS paths; an impossible receipt with absent CIDs must not become success without DB.
+- Guard exact string type before set/dict membership on untrusted JSON lifecycle phases in every preflight/status consumer. A list or object can raise `TypeError` outside sanitized `StartError` handling; test both at real CLI entrypoints for exit 4, unchanged journal and zero lock/control/Docker effects rather than adding a broad `TypeError` catch that masks internal defects.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

@@ -72,9 +72,13 @@ Un override valid nu ascunde un config invalid.
 Pentru instanță **nouă**, CLI explicit > config > defaults. Pe instanța deja
 înregistrată, inclusiv STOPPED/restart, receiptul și originul verificat rămân
 autoritate: omiterea portului reutilizează portul existent, nu defaultul 8765.
-Config/CLI cu port divergent refuză `PORT_CHANGE_REQUIRES_STOP`; nici măcar un
-override CLI nu adoptă un config divergent față de receipt. Nu editați journalul
-sau `instance.json` pentru rebind; acesta cere recovery/reconciliere explicită.
+Config/CLI cu port divergent refuză `CONFIG_PORT_CONFLICT`, inclusiv la `stop`;
+nici măcar un override CLI nu adoptă un config divergent față de receipt. Pentru
+a opera instanța existentă, eliminați cheia `port` din config (și flagul divergent)
+sau readuceți selecția la portul originului înregistrat, apoi rulați Status/Stop.
+Un Stop complet **nu** autorizează singur schimbarea portului la următorul Start.
+Nu editați journalul sau `instance.json` pentru rebind; acesta cere o procedură
+explicită de recovery/reconciliere.
 
 Startup și shutdown propagă un singur deadline monotonic; cleanup începe un
 allowance separat numai după eșecul încercării noi și nu prelungește startupul.

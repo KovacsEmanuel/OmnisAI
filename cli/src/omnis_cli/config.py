@@ -24,7 +24,7 @@ class Config:
         if explicit is not None:
             _integer(explicit, 1024, 65535)
         if any(value is not None and value != actual for value in (self.port, explicit)):
-            raise StartError("PORT_CHANGE_REQUIRES_STOP", 2)
+            raise StartError("CONFIG_PORT_CONFLICT", 2)
 
     def check_instance(self, root: Path, explicit: int | None = None) -> None:
         if explicit is not None:

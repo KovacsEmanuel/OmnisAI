@@ -860,7 +860,7 @@ def start_instance(
             _check_pgdata(root, record)
             selected = record.get("port")
             if type(selected) is not int or (port is not None and selected != port):
-                raise StartError("PORT_CHANGE_REQUIRES_STOP")
+                raise StartError("CONFIG_PORT_CONFLICT")
             if record.get("phase") == "STOPPED":
                 if initial_phase != "STOPPED":
                     raise StartError("INSTANCE_SHUTTING_DOWN", 4)

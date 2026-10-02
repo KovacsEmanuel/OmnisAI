@@ -166,7 +166,10 @@ class ConfigConsumersTest(unittest.TestCase):
                         stack.enter_context(contextlib.redirect_stdout(out))
                         stack.enter_context(contextlib.redirect_stderr(err))
                         self.assertEqual(main(command), 2)
-                        self.assertIn("PORT_CHANGE_REQUIRES_STOP", out.getvalue() + err.getvalue())
+                        self.assertIn("CONFIG_PORT_CONFLICT", out.getvalue() + err.getvalue())
+                        self.assertNotIn(
+                            "PORT_CHANGE_REQUIRES_STOP", out.getvalue() + err.getvalue()
+                        )
                         for resource in resources:
                             resource.assert_not_called()
                         self.assertFalse((root / "lifecycle.lock").exists())

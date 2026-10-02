@@ -13,6 +13,60 @@ from omnis_cli.main import main
 
 
 class ConfigTest(unittest.TestCase):
+    def test_unsafe_config_location_is_not_treated_as_absent(self):
+        from omnis_cli.config import load_config
+        from omnis_cli.lifecycle import StartError
+
+        for base in (
+            "relative-m22",
+            str(self.root / "absent/../config"),
+            str(self.root / "config") + "/.",
+        ):
+            with self.subTest(base=base), patch.dict(os.environ, {"XDG_CONFIG_HOME": base}):
+                with self.assertRaises(StartError) as raised:
+                    load_config()
+                self.assertEqual(raised.exception.reason, "CONFIG_INVALID")
+        self.config.parent.chmod(0o777)
+        with self.assertRaises(StartError):
+            load_config()
+        self.config.parent.chmod(0o700)
+        self.config.parent.rmdir()
+        self.config.parent.symlink_to(self.root / "missing")
+        with self.assertRaises(StartError):
+            load_config()
+
+    def test_private_file_rejections_are_sanitized(self):
+        from omnis_cli.config import load_config
+        from omnis_cli.lifecycle import StartError
+
+        for text in (
+            "port = 8765\nport = 8766",
+            '[unknown]\nvalue = "marker"',
+            'port = "unterminated',
+            "# oversize\n" + " " * 5000,
+        ):
+            self.write_config(text)
+            with self.subTest(kind="syntax"), self.assertRaises(StartError):
+                load_config()
+        self.write_config("port = 8765")
+        for mode in (0o644, 0o400, 0o666):
+            self.config.chmod(mode)
+            with self.subTest(mode=mode), self.assertRaises(StartError):
+                load_config()
+        self.config.chmod(0o600)
+        linked = self.config.with_name("linked")
+        os.link(self.config, linked)
+        with self.assertRaises(StartError):
+            load_config()
+        self.config.unlink()
+        self.config.symlink_to(linked)
+        with self.assertRaises(StartError):
+            load_config()
+        self.config.unlink()
+        os.mkfifo(self.config, 0o600)
+        with self.assertRaises(StartError):
+            load_config()
+
     def test_exact_integer_schema_with_defaults_and_bounded_overrides(self):
         from omnis_cli.config import load_config
         from omnis_cli.lifecycle import StartError

@@ -1,6 +1,7 @@
 """Non-secret operator configuration, independent of the working directory."""
 
 import os
+import stat
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,9 +32,31 @@ def load_config() -> Config:
     root = (Path(base) if base else Path.home() / ".config") / "omnis"
     path = root / "config.toml"
     try:
+        if (
+            (base and ("\x00" in base or str(Path(base)) != base))
+            or not root.is_absolute()
+            or root.resolve() != root
+        ):
+            raise ValueError("Noncanonical configuration location")
+        protected = False
+        for ancestor in (*reversed(root.parents), root):
+            try:
+                info = ancestor.lstat()
+            except FileNotFoundError:
+                break
+            if (
+                not stat.S_ISDIR(info.st_mode)
+                or info.st_uid not in {0, os.getuid()}
+                or info.st_mode & 0o002
+                or (info.st_mode & 0o020 and not protected)
+            ):
+                raise ValueError("Replaceable configuration location")
+            if info.st_uid == os.getuid() and info.st_mode & 0o077 == 0:
+                protected = True
+        if os.path.lexists(root):
+            private_dir(root)
         if not os.path.lexists(path):
             return Config()
-        private_dir(root)
         raw: dict[str, object] = tomllib.loads(private_file(path, limit=4096))
         if set(raw) - _KEYS:
             raise ValueError("Unknown configuration field")

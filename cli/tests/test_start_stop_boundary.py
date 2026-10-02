@@ -13,6 +13,22 @@ start = importlib.import_module("omnis_cli.start")
 
 
 class FirstStopBoundaryTest(unittest.TestCase):
+    def test_dashboard_retry_deadline_reports_readiness_failure_not_startup_timeout(self):
+        """A peer failure just before the 30s edge cannot change its verdict."""
+        with (
+            patch.object(start, "dashboard", side_effect=OSError("fixture peer unavailable")),
+            patch.object(start.time, "monotonic", side_effect=[100, 100.01, 130.01, 130.02]),
+        ):
+            with self.assertRaisesRegex(start.StartError, "DASHBOARD_READINESS_FAILED"):
+                start.wait_dashboard(
+                    SimpleNamespace(deadline=200, files={}),
+                    Path("/unused"),
+                    Path("/unused"),
+                    23456,
+                    "fixture",
+                    os.getpid(),
+                )
+
     def test_first_stop_in_recoverable_retry_never_attempts_second_peer(self):
         for sig in (signal.SIGTERM, signal.SIGINT):
             with self.subTest(signal=sig):

@@ -203,7 +203,9 @@ def wait_dashboard(
                 allow_closed=allow_closed,
             )
         except (OSError, ValueError, ControlUnavailable, http.client.HTTPException):
-            time.sleep(min(0.2, remaining(end)))
+            delay = end - time.monotonic()
+            if delay > 0:
+                time.sleep(min(0.2, delay))
     raise StartError("DASHBOARD_READINESS_FAILED", 3)
 
 

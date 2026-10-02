@@ -239,6 +239,9 @@ class InstanceService:
                         "WHERE id = 1 AND quiesced_generation IS DISTINCT FROM generation"
                     )
                 )
+                # An UPDATE table-lock wait can outlive the lease checked above.
+                # Roll back the quiescence receipt before transaction commit.
+                await self._require_owner(connection, lease, owner, epoch)
 
     async def finalize(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
         async with self._locked() as (connection, instance, lease):

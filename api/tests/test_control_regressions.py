@@ -102,6 +102,61 @@ async def test_lifecycle_owner_expiry_during_command_receipt_lock_wait_rolls_bac
 
 
 @pytest.mark.asyncio
+async def test_quiesce_owner_expiry_during_update_lock_wait_rolls_back(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    """A real SHARE table lock delays only UPDATE, after the owner was checked."""
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    checked = asyncio.Event()
+    original = service._require_owner
+    task: asyncio.Task[None] | None = None
+
+    async def observed(
+        connection: AsyncConnection, lease: LeaseRecord, expected_owner: UUID, epoch: int
+    ) -> None:
+        await original(connection, lease, expected_owner, epoch)
+        await connection.execute(text("SET LOCAL statement_timeout = 10000"))
+        checked.set()
+
+    try:
+        epoch = await service.acquire(owner)
+        generation = await service.open(uuid4(), 0, owner, epoch)
+        await service.shutdown(uuid4(), generation, owner, epoch)
+        monkeypatch.setattr(service, "_require_owner", observed)
+        async with engine.begin() as blocker:
+            await blocker.execute(text("LOCK TABLE instance_control IN SHARE MODE"))
+            task = asyncio.create_task(service.quiesce(owner, epoch))
+            await asyncio.wait_for(checked.wait(), 5)
+            assert not task.done(), "quiesce did not wait on the real UPDATE table lock"
+            deadline = asyncio.get_running_loop().time() + 8
+            while asyncio.get_running_loop().time() < deadline:
+                async with engine.connect() as reader:
+                    expired = (
+                        await reader.execute(
+                            text(
+                                "SELECT expires_at <= clock_timestamp() FROM supervisor_lease WHERE id = 1"
+                            )
+                        )
+                    ).scalar_one()
+                if expired is True:
+                    break
+                await asyncio.sleep(0.1)
+            else:
+                pytest.fail("PostgreSQL lease did not expire during the bounded quiesce wait")
+            assert not task.done()
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await asyncio.wait_for(task, 5)
+        assert (await service.status()).quiesced_generation is None
+    finally:
+        if task is not None and not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_private_pairing_waits_for_challenge_then_refuses_expired_lease(
     monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
 ) -> None:

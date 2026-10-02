@@ -134,3 +134,97 @@ def run_installed_stop(data, receipt, cli):
             probe="PASS" if proof else "FAIL",
             cleanup="VERIFIED" if cleanup else "UNCERTAIN",
         )
+
+
+def run_emergency_stop(data, receipt, cli):
+    """Unavailable own API is not a DB STOPPED receipt or permission to adopt peers."""
+    state = Path(tempfile.mkdtemp(prefix="s4e-", dir=os.environ["TMPDIR"]))
+    root, control = state / "s/omnis", state / "r/omnis"
+    env = {
+        "PATH": "/usr/bin:/bin",
+        "HOME": str(state),
+        "XDG_DATA_HOME": str(data),
+        "XDG_STATE_HOME": str(state / "s"),
+        "XDG_RUNTIME_DIR": str(state / "r"),
+    }
+    with socket.socket() as reservation:
+        reservation.bind(("127.0.0.1", 0))
+        port = reservation.getsockname()[1]
+    runtime = ControlRuntime(data, time.monotonic() + 30)
+    record = {}
+    proof = cleanup = False
+    save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
+    try:
+        started = subprocess.run(
+            [cli, "start", "--no-open", "--port", str(port), "--json"],
+            cwd=state,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=330,
+        )
+        assert started.returncode == 0
+        record = json.loads((root / "startup.json").read_text())
+        runtime.attempt = record["attempt"]
+        runtime.deadline = time.monotonic() + 35
+        assert set(resource_snapshot(runtime, root, control, port)) == set(
+            record["containers"].values()
+        )
+        api = record["containers"]["api"]
+        runtime.attest(api, "api", root, control, port)
+        runtime.run("container", "stop", "--time", "15", api, cap=25, effect=True)
+        assert runtime.attest(api, "api", root, control, port)["State"]["Running"] is False
+        stopped = subprocess.run(
+            [cli, "stop", "--json"],
+            cwd=state,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=220,
+        )
+        assert stopped.returncode == 4, f"Emergency must be UNCERTAIN, got {stopped.returncode}"
+        result = json.loads(stopped.stdout)
+        assert result["state"] == "UNCERTAIN" and result["dashboard_ready"] is False
+        marker = root / "unreconciled.json"
+        assert marker.is_file(), "Emergency took no durable unreconciled marker"
+        receipt_bytes = marker.read_bytes()
+        evidence = json.loads(receipt_bytes)
+        assert evidence["instance_id"] == record["instance_id"]
+        assert evidence["attempt"] == record["attempt"]
+        assert evidence["project"] == receipt["project"]
+        runtime.deadline = time.monotonic() + 30
+        assert_resources_absent(runtime, root, control, record)
+        refused = subprocess.run(
+            [cli, "start", "--no-open", "--port", str(port), "--json"],
+            cwd=state,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=50,
+        )
+        assert refused.returncode == 4 and json.loads(refused.stdout)["state"] == "UNCERTAIN"
+        assert marker.read_bytes() == receipt_bytes, "Retry erased unreconciled intent"
+        assert (root / "postgres").is_dir()
+        proof = cleanup = True
+    finally:
+        if not cleanup and os.path.lexists(root / "startup.json"):
+            record = json.loads((root / "startup.json").read_text())
+            runtime.attempt = record["attempt"]
+            runtime.deadline = time.monotonic() + 110
+            if runtime.ids():
+                # Observer-only rescue of this exact fresh fixture is not proof
+                # of the emergency implementation; its probe remains FAIL.
+                teardown(runtime, root, control, port, record)
+            assert_resources_absent(runtime, root, control, record)
+            cleanup = True
+        save_probe(
+            state,
+            data,
+            receipt["project"],
+            root,
+            record,
+            probe="PASS" if proof else "FAIL",
+            cleanup="VERIFIED" if cleanup else "UNCERTAIN",
+        )
+    if proof and cleanup:
+        print(f"INSTALLED_EMERGENCY_UNCERTAIN project={receipt['project']} marker=retained")

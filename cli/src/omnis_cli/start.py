@@ -567,6 +567,8 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         ensure_private(root)
         locks.enter_context(lifecycle_lock(root, deadline))
         journal = root / "startup.json"
+        if os.path.lexists(root / "unreconciled.json"):
+            raise StartError("RECOVERY_REQUIRED", 4)
         restarting: dict[str, object] | None = None
         if os.path.lexists(journal):
             record = read_record(journal)

@@ -50,6 +50,39 @@ def _containers(record: dict[str, object]) -> dict[str, str]:
     return value
 
 
+def _marker(root: Path, record: dict[str, object], runtime: ControlRuntime) -> None:
+    """A durable unreconciled locator blocks all future ordinary Start attempts."""
+    payload = {
+        "format": 1,
+        "project": runtime.receipt.project,
+        "attempt": record["attempt"],
+        "instance_id": record["instance_id"],
+        "docker_id": runtime.receipt.docker_id,
+        "release_digest": runtime.digest,
+        "containers": _containers(record),
+        "reason": "CONTROL_UNAVAILABLE",
+    }
+    path = root / "unreconciled.json"
+    if os.path.lexists(path):
+        if read_record(path) != payload:
+            raise StartError("RECOVERY_REQUIRED", 4)
+    else:
+        write_record(path, payload)
+    if read_record(path) != payload:
+        raise StartError("RECOVERY_REQUIRED", 4)
+
+
+def _listener_absent(record: dict[str, object]) -> None:
+    inode, port = _integer(record, "listener_inode"), _integer(record, "port")
+    for name in ("tcp", "tcp6"):
+        for row in Path(f"/proc/net/{name}").read_text().splitlines()[1:]:
+            fields = row.split()
+            if fields[3] == "0A" and (
+                fields[9] == str(inode) or int(fields[1].split(":")[1], 16) == port
+            ):
+                raise StartError("STOP_READBACK_UNCERTAIN", 4)
+
+
 def _stopping_record(record: dict[str, object]) -> None:
     if (
         set(record) != STOP_FIELDS
@@ -80,6 +113,8 @@ def readback_stopped(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     """Offline receipt is usable only while its exact owned resources stay absent."""
+    if os.path.lexists(root / "unreconciled.json"):
+        raise StartError("RECOVERY_REQUIRED", 4)
     _stopping_record(record)
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
@@ -108,15 +143,7 @@ def readback_stopped(
     for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
         if os.path.lexists(path):
             raise StartError("STOP_READBACK_UNCERTAIN", 4)
-    inode = _integer(record, "listener_inode")
-    port = _integer(record, "port")
-    for name in ("tcp", "tcp6"):
-        for row in Path(f"/proc/net/{name}").read_text().splitlines()[1:]:
-            fields = row.split()
-            if fields[3] == "0A" and (
-                fields[9] == str(inode) or int(fields[1].split(":")[1], 16) == port
-            ):
-                raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    _listener_absent(record)
     if runtime.uncertain or not runtime.family_drained:
         raise StartError("STOP_READBACK_UNCERTAIN", 4)
 
@@ -160,6 +187,113 @@ def _running_for_stop(
     if current["instance_id"] != instance.instance_id or current["assessment_ready"] is not False:
         raise StartError("INSTANCE_CONTROL_MISMATCH", 4)
     return current
+
+
+def _emergency_inventory(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> None:
+    """Pin this exact attempt even if its API, supervisor or DB cannot reply."""
+    if (
+        set(record) != READY_FIELDS
+        or record.get("phase") != "READY"
+        or type(record.get("format")) is not int
+        or record["format"] != 1
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    attempt = record["attempt"]
+    if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
+        raise StartError("RECOVERY_REQUIRED", 4)
+    instance = load_instance(root)
+    port = _integer(record, "port")
+    if (
+        record["project"] != runtime.receipt.project
+        or record["release_digest"] != runtime.digest
+        or record["image_id"] != runtime.receipt.image_id
+        or record["docker_host"] != runtime.host
+        or record["docker_id"] != runtime.receipt.docker_id
+        or record["control_dir"] != str(control)
+        or record["instance_id"] != instance.instance_id
+        or port != int(instance.origin.rsplit(":", 1)[1])
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.attempt = attempt
+    ids = _containers(record)
+    if set(runtime.ids()) != set(ids.values()):
+        raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+    for role, cid in ids.items():
+        runtime.attest(cid, role, root, control, port)
+    if runtime.network(set(ids.values())) is None:
+        raise StartError("NETWORK_IDENTITY_MISMATCH", 4)
+
+
+def _emergency_drain(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> None:
+    """Remove only pinned P0 effect paths; never publish a DB STOPPED receipt."""
+    ids = _containers(record)
+    port = _integer(record, "port")
+    identity = mapping(record["forwarder"])
+    pid = identity.get("pid")
+    if type(pid) is not int:
+        raise StartError("FORWARDER_IDENTITY_INVALID", 4)
+    try:
+        fd = os.pidfd_open(pid)
+    except ProcessLookupError:
+        _listener_absent(record)
+    else:
+        try:
+            if process_identity(pid) != identity:
+                raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
+            listener_owned(identity, port, _integer(record, "listener_inode"))
+            signal.pidfd_send_signal(fd, signal.SIGTERM)
+            if not select.select([fd], [], [], 25)[0]:
+                signal.pidfd_send_signal(fd, signal.SIGKILL)
+                raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
+        finally:
+            os.close(fd)
+    for role in ("api", "supervisor", "db"):
+        cid = ids[role]
+        if role == "db" and (runtime.uncertain or not runtime.family_drained):
+            raise StartError("DATABASE_RETAINED_UNCERTAIN_WRITERS", 4)
+        before = runtime.attest(cid, role, root, control, port)
+        if mapping(before.get("State")).get("Running") is True:
+            runtime.run("stop", "--time", "15", cid, cap=25, effect=True)
+        after = runtime.inspect("container", cid)
+        if after is None or mapping(after.get("State")).get("Running") is not False:
+            raise StartError("CONTAINER_STOP_UNCERTAIN", 4)
+        runtime.attest(cid, role, root, control, port)
+        runtime.run("container", "rm", cid, effect=True)
+        if runtime.inspect("container", cid) is not None:
+            raise StartError("CONTAINER_REMOVAL_UNCERTAIN", 4)
+    if runtime.ids():
+        raise StartError("CONTAINERS_REMAIN", 4)
+    network = runtime.network(set())
+    if network is not None:
+        runtime.run("network", "rm", network, effect=True)
+    if runtime.network(set()) is not None:
+        raise StartError("NETWORK_REMAINS", 4)
+    if runtime.uncertain or not runtime.family_drained or cleanup_startup_ipc(root, control):
+        raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
+    for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+        if os.path.lexists(path):
+            raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    _listener_absent(record)
+    if not (root / "postgres").is_dir():
+        raise StartError("DATA_READBACK_UNCERTAIN", 4)
+
+
+def _emergency_stop(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> None:
+    _emergency_inventory(runtime, root, control, record)
+    marked = False
+    try:
+        _marker(root, record, runtime)
+        marked = True
+    except (OSError, ValueError):
+        pass  # Still eliminate only attested own effect paths, never claim success.
+    _emergency_drain(runtime, root, control, record)
+    raise StartError("RECOVERY_REQUIRED" if marked else "UNRECONCILED_MARKER_UNAVAILABLE", 4)
 
 
 def _drain_owned(
@@ -222,12 +356,18 @@ def stop_instance() -> dict[str, object]:
     with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
         path = root / "startup.json"
         record = read_record(path)
+        if os.path.lexists(root / "unreconciled.json"):
+            raise StartError("RECOVERY_REQUIRED", 4)
         if record.get("phase") == "STOPPED":
             readback_stopped(runtime, root, control, record)
         else:
             if record.get("phase") == "READY":
-                verify_running(runtime, root, control, record, _integer(record, "port"))
-                current = request(control, {"op": "status"}, deadline=deadline)
+                try:
+                    verify_running(runtime, root, control, record, _integer(record, "port"))
+                    current = request(control, {"op": "status"}, deadline=deadline)
+                except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
+                    _emergency_stop(runtime, root, control, record)
+                    raise StartError("RECOVERY_REQUIRED", 4) from None
                 if (
                     current["instance_id"] != record["instance_id"]
                     or current["generation"] != record["generation"]

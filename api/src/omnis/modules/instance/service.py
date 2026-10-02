@@ -32,7 +32,9 @@ def _exact_json_shape(value: object) -> bool:
         return all(type(key) is str and _exact_json_shape(item) for key, item in value.items())
     if type(value) is list:
         return all(_exact_json_shape(item) for item in value)
-    return type(value) in (str, int, float, bool, type(None))
+    # Resource identities are discrete. JSONB can normalize a floating-point
+    # representation, so accepting floats would make exact replay ambiguous.
+    return type(value) in (str, int, bool, type(None))
 
 
 class InstanceService:

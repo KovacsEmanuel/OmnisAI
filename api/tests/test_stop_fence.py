@@ -433,6 +433,49 @@ async def test_replay_distinguishes_boolean_from_numeric_inventory_identity(
         await engine.dispose()
 
 
+@pytest.mark.parametrize("value", [1.0, 1e20, -0.0, float("nan"), float("inf")])
+@pytest.mark.asyncio
+async def test_stop_inventory_refuses_float_identity_before_arm(
+    migrated_database_url: URL, value: float
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        instance, owner, command, finalized, epoch, stopped = await stopped_instance(service)
+        before = await db_snapshot(engine)
+        with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
+            await service.arm_stop(
+                command,
+                finalized,
+                stopped,
+                instance,
+                owner,
+                epoch,
+                "daemon-a",
+                {"forwarder": {"identity": [value]}},
+            )
+        assert await db_snapshot(engine) == before
+        # The same boundary accepts and replays exact integral identity, not a
+        # serialized float that PostgreSQL JSONB may normalize to another type.
+        inventory: dict[str, object] = {"forwarder": {"identity": [100000000000000000000]}}
+        assert (
+            await service.arm_stop(
+                command, finalized, stopped, instance, owner, epoch, "daemon-a", inventory
+            )
+            == "STOP_PENDING"
+        )
+        armed = await db_snapshot(engine)
+        assert (
+            await service.arm_stop(
+                command, finalized, stopped, instance, owner, epoch, "daemon-a", inventory
+            )
+            == "STOP_PENDING"
+        )
+        assert await db_snapshot(engine) == armed
+    finally:
+        await engine.dispose()
+
+
 @pytest.mark.asyncio
 async def test_inventory_with_coercible_nested_keys_cannot_be_armed(
     migrated_database_url: URL,

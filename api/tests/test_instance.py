@@ -42,21 +42,21 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
         work = asyncio.create_task(admitted())
         await entered.wait()
         stop_id = uuid4()
-        stopping = asyncio.create_task(service.shutdown(stop_id, generation))
+        stopping = asyncio.create_task(service.shutdown(stop_id, generation, owner, epoch))
         await asyncio.sleep(0.05)
         assert not stopping.done()
         finish.set()
         await work
         closed_generation = await stopping
         assert closed_generation == 2
-        assert await service.shutdown(stop_id, generation) == closed_generation
+        assert await service.shutdown(stop_id, generation, owner, epoch) == closed_generation
         with pytest.raises(ControlConflict, match="INSTANCE_SHUTTING_DOWN"):
             async with service.admission(closed_generation, owner, epoch):
                 pytest.fail("closed instance admitted work")
         with pytest.raises(ControlConflict, match="SHUTDOWN_INCOMPLETE"):
             await service.open(uuid4(), closed_generation, owner, epoch)
         await service.quiesce(owner, epoch)
-        await service.finalize(uuid4(), closed_generation)
+        await service.finalize(uuid4(), closed_generation, owner, epoch)
         with pytest.raises(ControlConflict, match="RESTART_REQUIRED"):
             await service.open(uuid4(), closed_generation, owner, epoch)
         await service.release(owner, epoch)
@@ -67,12 +67,14 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
         reopened = await service.open(uuid4(), closed_generation, new_owner, new_epoch)
         assert reopened == 3
         # A historical retry never reopens, shuts down or changes a new generation.
-        assert await service.shutdown(stop_id, generation) == closed_generation
+        assert (
+            await service.shutdown(stop_id, generation, new_owner, new_epoch) == closed_generation
+        )
         assert (await service.status()).generation == reopened
         with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
-            await service.shutdown(stop_id, reopened)
+            await service.shutdown(stop_id, reopened, new_owner, new_epoch)
         with pytest.raises(ControlConflict, match="GENERATION_CONFLICT"):
-            await service.shutdown(uuid4(), generation)
+            await service.shutdown(uuid4(), generation, new_owner, new_epoch)
         async with engine.connect() as connection:
             assert (
                 await connection.execute(text("SELECT generation FROM inert_marker"))

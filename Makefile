@@ -7,7 +7,7 @@ API_CHECK_PATHS = api/src api/tests
 CLI_PY = cli/.venv/bin/python
 
 .DEFAULT_GOAL := check
-.PHONY: check-components test-db-contract
+.PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
 ifneq ($(filter check test check-components test-db-contract check-installed-start check-installed-pair-open,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
@@ -25,6 +25,11 @@ check-components: check-docs check-development check-api test-api test-migration
 
 test-db-contract:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_fixture_ownership.py api/tests/test_database_url.py -v
+
+# Opt-in disposable PostgreSQL regression; only the shared attested DB runner admits it.
+test-sl04-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_instance.py api/tests/test_control_regressions.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
 
 test: check
 

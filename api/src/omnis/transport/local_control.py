@@ -143,11 +143,11 @@ class LocalControl:
                 )
             elif command.op == "shutdown":
                 result_generation = await self.service.shutdown(
-                    command.command_id, command.expected_generation
+                    command.command_id, command.expected_generation, self.owner, self.epoch
                 )
             elif command.op == "finalize":
                 result_generation = await self.service.finalize(
-                    command.command_id, command.expected_generation
+                    command.command_id, command.expected_generation, self.owner, self.epoch
                 )
             status = await self.service.status()
         return {

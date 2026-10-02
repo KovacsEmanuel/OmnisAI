@@ -202,9 +202,11 @@ class InstanceService:
             # Long-running transactions cannot publish work after their lease expired.
             await self._require_owner(connection, lease, owner, epoch)
 
-    async def shutdown(self, command_id: UUID, expected: int) -> int:
+    async def shutdown(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
         async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
             previous = await self._receipt(connection, command_id, "SHUTDOWN", expected)
+            await self._require_owner(connection, lease, owner, epoch)
             if previous is not None:
                 return previous
             self._require_generation(instance, expected)
@@ -219,6 +221,7 @@ class InstanceService:
                     {"command": command_id, "generation": result},
                 )
             await self._record(connection, command_id, "SHUTDOWN", expected, result, lease.epoch)
+            await self._require_owner(connection, lease, owner, epoch)
             return result
 
     async def quiesce(self, owner: UUID, epoch: int) -> None:
@@ -234,9 +237,11 @@ class InstanceService:
                     )
                 )
 
-    async def finalize(self, command_id: UUID, expected: int) -> int:
+    async def finalize(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
         async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
             previous = await self._receipt(connection, command_id, "FINALIZE", expected)
+            await self._require_owner(connection, lease, owner, epoch)
             if previous is not None:
                 return previous
             self._require_generation(instance, expected)
@@ -247,6 +252,7 @@ class InstanceService:
             ):
                 raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
             await self._record(connection, command_id, "FINALIZE", expected, expected, lease.epoch)
+            await self._require_owner(connection, lease, owner, epoch)
             return expected
 
     async def status(self) -> InstanceStatus:

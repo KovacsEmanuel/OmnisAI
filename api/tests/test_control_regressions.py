@@ -18,10 +18,85 @@ from conftest import connect_test_database
 from omnis.api import create_app
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.domain import ControlConflict
-from omnis.modules.instance.records import LeaseRecord
+from omnis.modules.instance.records import CommandKind, LeaseRecord
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingDenied, SessionStore, code_digest
 from test_supervisor import start_supervisor, stop_process, wait_ready
+
+
+@pytest.mark.parametrize("operation", ["shutdown", "finalize"])
+@pytest.mark.asyncio
+async def test_stop_owner_expiry_during_command_receipt_lock_wait_rolls_back(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, operation: str
+) -> None:
+    """A pinned owner cannot publish a stop receipt after its DB lease expires.
+
+    Hold the command table after acquiring the instance/lease row locks. Only
+    this test extends PostgreSQL's statement budget beyond the five-second
+    lease; the product's two-second statement budget is unchanged.
+    """
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    entered = asyncio.Event()
+    original = service._receipt
+    task: asyncio.Task[int] | None = None
+
+    async def blocked_receipt(
+        connection: AsyncConnection, command_id: UUID, kind: CommandKind, expected: int
+    ) -> int | None:
+        await connection.execute(text("SET LOCAL statement_timeout = 10000"))
+        entered.set()
+        return await original(connection, command_id, kind, expected)
+
+    try:
+        epoch = await service.acquire(owner)
+        generation = await service.open(uuid4(), 0, owner, epoch)
+        if operation == "finalize":
+            generation = await service.shutdown(uuid4(), generation, owner, epoch)
+            await service.quiesce(owner, epoch)
+        monkeypatch.setattr(service, "_receipt", blocked_receipt)
+        command = uuid4()
+        async with engine.begin() as blocker:
+            await blocker.execute(text("LOCK TABLE instance_command IN ACCESS EXCLUSIVE MODE"))
+            task = asyncio.create_task(
+                getattr(service, operation)(command, generation, owner, epoch)
+            )
+            await asyncio.wait_for(entered.wait(), 5)
+            assert not task.done(), "Command did not wait on the real PostgreSQL lock"
+            deadline = asyncio.get_running_loop().time() + 8
+            while asyncio.get_running_loop().time() < deadline:
+                async with engine.connect() as reader:
+                    expired = (
+                        await reader.execute(
+                            text(
+                                "SELECT expires_at <= clock_timestamp() FROM supervisor_lease WHERE id = 1"
+                            )
+                        )
+                    ).scalar_one()
+                if expired is True:
+                    break
+                await asyncio.sleep(0.1)
+            else:
+                pytest.fail("PostgreSQL lease did not expire during bounded lock wait")
+            assert not task.done()
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await asyncio.wait_for(task, 5)
+        async with engine.connect() as reader:
+            assert (
+                await reader.execute(
+                    text("SELECT count(*) FROM instance_command WHERE command_id = :id"),
+                    {"id": command},
+                )
+            ).scalar_one() == 0
+        current = await service.status()
+        assert current.admission_open is (operation == "shutdown")
+        assert current.shutdown_finalized is False
+    finally:
+        if task is not None and not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        await engine.dispose()
 
 
 @pytest.mark.asyncio
@@ -116,7 +191,7 @@ async def test_private_pairing_issuance_is_serialized_with_shutdown(
             assert (
                 await connection.execute(text("SELECT digest FROM pairing_challenge WHERE id = 1"))
             ).scalar_one() == digest
-        await service.shutdown(uuid4(), generation)
+        await service.shutdown(uuid4(), generation, owner, epoch)
         with pytest.raises(ControlConflict, match="INSTANCE_SHUTTING_DOWN"):
             await service.register_pairing(
                 identity, code_digest("synthetic-after-shutdown-code"), uuid4(), owner, epoch

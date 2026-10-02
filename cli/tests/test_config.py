@@ -13,6 +13,36 @@ from omnis_cli.main import main
 
 
 class ConfigTest(unittest.TestCase):
+    def test_exact_integer_schema_with_defaults_and_bounded_overrides(self):
+        from omnis_cli.config import load_config
+        from omnis_cli.lifecycle import StartError
+
+        self.assertEqual(getattr(load_config(), "startup_timeout_seconds", None), 180)
+        bounds = {
+            "port": (1024, 65535),
+            "startup_timeout_seconds": (30, 300),
+            "shutdown_timeout_seconds": (15, 180),
+            "cleanup_timeout_seconds": (30, 180),
+        }
+        for key, (low, high) in bounds.items():
+            for value in ("true", "false", "30.0", '"30"', "[]", "{}", str(low - 1), str(high + 1)):
+                with self.subTest(key=key, value=value):
+                    self.write_config(f"{key} = {value}\n")
+                    with self.assertRaises(StartError) as raised:
+                        load_config()
+                    self.assertEqual(
+                        (raised.exception.reason, raised.exception.code), ("CONFIG_INVALID", 2)
+                    )
+            for value in (low, high):
+                self.write_config(f"{key} = {value}\n")
+                self.assertEqual(getattr(load_config(), key), value)
+        self.write_config("")
+        options = load_config()
+        self.assertIsNone(options.port)
+        self.assertEqual(options.startup_timeout_seconds, 180)
+        self.assertEqual(options.shutdown_timeout_seconds, 180)
+        self.assertEqual(options.cleanup_timeout_seconds, 100)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="m22-", dir=os.environ["TMPDIR"])
         self.addCleanup(self.temp.cleanup)

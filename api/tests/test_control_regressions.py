@@ -1,15 +1,18 @@
 """Additional negative/recovery controls from the P0.2 acceptance matrix."""
 
 import asyncio
+import importlib
 import os
 import secrets
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import UUID, uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from psycopg import sql
 from sqlalchemy import text
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -22,6 +25,102 @@ from omnis.modules.instance.records import CommandKind, LeaseRecord
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import PairingDenied, SessionStore, code_digest
 from test_supervisor import start_supervisor, stop_process, wait_ready
+
+
+@pytest.mark.asyncio
+async def test_finalized_stop_readback_refuses_committed_current_lease_takeover(
+    migrated_database_url: URL, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Source-level Stop SQL must reject E+1 even if E's FINALIZE remains committed.
+
+    This is a private PostgreSQL readback of the CLI source, not an installed Stop
+    or a Docker teardown. The only runtime capability supplied is read-only psql.
+    """
+    cli_source = Path(__file__).resolve().parents[2] / "cli/src/omnis_cli/stop.py"
+    monkeypatch.syspath_prepend(str(cli_source.parents[1]))
+    stop_source = importlib.import_module("omnis_cli.stop")
+    assert stop_source.__file__ is not None
+    assert Path(stop_source.__file__).resolve() == cli_source
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner, successor = uuid4(), uuid4()
+    shutdown_command, finalize_command = uuid4(), uuid4()
+    db_alias = "attested-private-db"
+    try:
+        epoch = await service.acquire(owner)
+        instance_id = str((await service.status()).instance_id)
+        generation = await service.open(uuid4(), 0, owner, epoch)
+        generation = await service.shutdown(shutdown_command, generation, owner, epoch)
+        await service.quiesce(owner, epoch)
+        assert await service.finalize(finalize_command, generation, owner, epoch) == generation
+
+        with connect_test_database(migrated_database_url, autocommit=True) as connection:
+            connection.execute("SET default_transaction_read_only = on")
+            assert connection.execute("SHOW default_transaction_read_only").fetchone() == ("on",)
+            system_id_row = connection.execute(
+                "SELECT system_identifier FROM pg_control_system()"
+            ).fetchone()
+            assert system_id_row is not None
+            record: dict[str, object] = {
+                "system_id": str(system_id_row[0]),
+                "finalized_generation": generation,
+                "stop_command": str(shutdown_command),
+                "finalize_command": str(finalize_command),
+                "supervisor_epoch": epoch,
+            }
+
+            def state() -> tuple[object, ...]:
+                row = connection.execute(
+                    "SELECT c.generation, c.admission_open, c.shutdown_command_id::text, "
+                    "c.quiesced_generation, f.kind, f.expected_generation, "
+                    "f.result_generation, f.owner_epoch FROM instance_control c "
+                    "JOIN instance_command f ON f.command_id = %s WHERE c.id = 1",
+                    (finalize_command,),
+                ).fetchone()
+                assert row is not None
+                return row
+
+            committed = state()
+            assert committed == (
+                generation,
+                False,
+                str(shutdown_command),
+                generation,
+                "FINALIZE",
+                generation,
+                generation,
+                epoch,
+            )
+
+            def psql(ident: str, query: str) -> str:
+                assert ident == db_alias
+                assert query.startswith("SELECT "), "Readback must never issue a Stop effect"
+                # SQL is emitted by the trusted CLI source; all UUIDs came from this fixture.
+                row = connection.execute(sql.SQL(query)).fetchone()  # pyright: ignore[reportArgumentType]
+                assert row is not None and len(row) == 1
+                return str(row[0])
+
+            runtime = SimpleNamespace(psql=psql)
+            stop_source._finalized_db_readback(runtime, record, db_alias, instance_id)
+
+            await service.release(owner, epoch)
+            next_epoch = await service.acquire(successor)
+            assert next_epoch == epoch + 1
+            assert connection.execute(
+                "SELECT owner, epoch FROM supervisor_lease WHERE id = 1"
+            ).fetchone() == (
+                successor,
+                next_epoch,
+            )
+            assert state() == committed  # No new shutdown generation or FINALIZE receipt.
+            with pytest.raises(stop_source.StartError) as failure:
+                stop_source._finalized_db_readback(runtime, record, db_alias, instance_id)
+            assert failure.value.reason == "FINALIZE_READBACK_UNVERIFIED"
+            assert failure.value.code == 4
+            assert state() == committed  # Readback did not write or initiate Stop.
+    finally:
+        await engine.dispose()
 
 
 @pytest.mark.parametrize("operation", ["open", "shutdown", "finalize"])

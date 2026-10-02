@@ -232,7 +232,11 @@ def _emergency_inventory(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     """Pin this exact attempt even if its API, supervisor or DB cannot reply."""
-    if (
+    if record.get("phase") == "STOPPING":
+        _stopping_record(record)
+        if record["finalized_generation"] is not None or record["teardown_completed"] != []:
+            raise StartError("RECOVERY_REQUIRED", 4)
+    elif (
         set(record) != READY_FIELDS
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
@@ -637,7 +641,11 @@ def stop_instance() -> dict[str, object]:
                     raise StartError("FINALIZE_RECEIPT_UNVERIFIED", 4)
                 _resume_owned(runtime, root, control, path, record)
                 _publish_stopped(runtime, root, control, path, record)
-            except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
+            except ControlUnavailable:
+                if record["finalized_generation"] is None and record["teardown_completed"] == []:
+                    _emergency_stop(runtime, root, control, record)
+                raise StartError("STOP_UNCERTAIN", 4) from None
+            except (OSError, ValueError, subprocess.SubprocessError):
                 raise StartError("STOP_UNCERTAIN", 4) from None
         instance = load_instance(root)
         return {

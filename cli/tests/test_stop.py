@@ -17,6 +17,7 @@ from typing import Iterator
 from unittest.mock import patch
 from uuid import uuid4
 
+from omnis_cli.control import ControlUnavailable
 from omnis_cli.lifecycle import (
     StartError,
     cleanup_startup_ipc,
@@ -111,6 +112,52 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_control_loss_after_stopping_journal_uses_emergency_intent(self) -> None:
+        """A lost shutdown ACK must not leave a live unmarked STOPPING fixture."""
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            record.update(
+                phase="STOPPING",
+                stop_generation=None,
+                finalized_generation=None,
+                teardown_completed=[],
+            )
+            journal = root / "startup.json"
+            write_record(journal, record)
+            ids = record["containers"]
+            assert isinstance(ids, dict)
+            runtime.ids = lambda: list(ids.values())
+            runtime.attest = lambda *_args: {"State": {"Running": True}}
+            runtime.network = lambda _allowed: "n" * 64
+            stop_module = importlib.import_module("omnis_cli.stop")
+            seen: list[tuple[str, str]] = []
+
+            def drain(*_args: object) -> None:
+                seen.append(
+                    (
+                        str(read_record(journal)["phase"]),
+                        str(read_record(root / "unreconciled.json")["instance_id"]),
+                    )
+                )
+                raise StartError("DRAIN_UNCERTAIN", 4)
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(stop_module, "_running_for_stop", side_effect=ControlUnavailable),
+                patch.object(stop_module, "_emergency_drain", side_effect=drain),
+            ):
+                with self.assertRaisesRegex(StartError, "DRAIN_UNCERTAIN"):
+                    stop_module.stop_instance()
+            self.assertEqual(seen, [("UNCERTAIN", str(record["instance_id"]))])
+            self.assertEqual(read_record(journal)["phase"], "UNCERTAIN")
+
     def test_failed_emergency_marker_and_drain_cannot_leave_ready_journal(self) -> None:
         """A transiently recovered peer cannot reuse READY after failed emergency Stop."""
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):

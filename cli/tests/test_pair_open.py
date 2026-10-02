@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from omnis_cli import browser, pairing, verified
 from omnis_cli.lifecycle import write_record
@@ -22,6 +22,46 @@ class TtyOutput(io.StringIO):
 
 
 class PairTest(unittest.TestCase):
+    def test_legacy_pair_open_refuse_before_creating_locks_or_effects(self):
+        with tempfile.TemporaryDirectory(prefix="sl04-legacy-", dir=os.environ["TMPDIR"]) as name:
+            base = Path(name)
+            root, data = base / "state/omnis", base / "data/omnis"
+            root.mkdir(parents=True, mode=0o700)
+            data.mkdir(parents=True, mode=0o700)
+            pg = root / "postgres"
+            pg.mkdir(mode=0o711)
+            pg.chmod(0o711)
+            (pg / "PG_VERSION").write_text("18\n")
+            journal = root / "startup.json"
+            write_record(journal, {"format": 1, "phase": "READY", "port": 8765})
+            before = journal.read_bytes()
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "state"),
+                        "XDG_DATA_HOME": str(base / "data"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(verified, "ControlRuntime", return_value=SimpleNamespace()),
+                patch.object(pairing, "request") as issuer,
+                patch.object(browser, "launch") as opener,
+                patch("sys.stdin", TtyOutput()),
+                contextlib.redirect_stdout(TtyOutput()) as output,
+                contextlib.redirect_stderr(io.StringIO()) as error,
+            ):
+                self.assertEqual(main(["pair"]), 4)
+                self.assertEqual(main(["open"]), 4)
+                issuer.assert_not_called()
+                opener.assert_not_called()
+                self.assertEqual(output.getvalue(), "")
+                self.assertIn("RECOVERY_REQUIRED", error.getvalue())
+            self.assertFalse((root / "lifecycle.lock").exists())
+            self.assertFalse((data / "lifecycle.lock").exists())
+            self.assertEqual(journal.read_bytes(), before)
+            self.assertEqual((pg / "PG_VERSION").read_text(), "18\n")
+
     def test_unreconciled_stop_refuses_pair_and_open_before_effects(self):
         """A recovered private peer cannot override an emergency Stop marker."""
         with tempfile.TemporaryDirectory(prefix="sl04-verified-", dir=os.environ["TMPDIR"]) as name:
@@ -30,7 +70,42 @@ class PairTest(unittest.TestCase):
             root = state / "omnis"
             (data / "omnis").mkdir(parents=True, mode=0o700)
             root.mkdir(parents=True, mode=0o700)
-            write_record(root / "startup.json", {"phase": "READY", "port": 8765})
+            pg = root / "postgres"
+            pg.mkdir(mode=0o711)
+            pg.chmod(0o711)
+            info = pg.lstat()
+            write_record(
+                root / "startup.json",
+                {
+                    "format": 2,
+                    "phase": "READY",
+                    "attempt": str(uuid4()),
+                    "project": "omnis-local-" + "a" * 32,
+                    "release_digest": "b" * 64,
+                    "image_id": "sha256:" + "c" * 64,
+                    "docker_host": "unix:///run/docker.sock",
+                    "docker_id": "synthetic-daemon",
+                    "control_dir": str(root / "runtime-ipc"),
+                    "port": 8765,
+                    "containers": {"db": "d" * 64, "api": "e" * 64, "supervisor": "f" * 64},
+                    "system_id": "12345",
+                    "pgdata_identity": [info.st_dev, info.st_ino],
+                    "instance_id": "00000000-0000-0000-0000-000000000001",
+                    "forwarder": {
+                        "pid": 321,
+                        "start_ticks": "123",
+                        "boot_id": str(uuid4()),
+                        "executable": "/usr/bin/python3",
+                        "argv": ["python3", "-I"],
+                    },
+                    "listener_inode": 123,
+                    "api_socket": [1, 2],
+                    "control_socket": [3, 4],
+                    "open_command": str(uuid4()),
+                    "generation": 1,
+                    "supervisor_epoch": 1,
+                },
+            )
             marker = root / "unreconciled.json"
             write_record(marker, {"reason": "fixture-emergency"})
             ready = {

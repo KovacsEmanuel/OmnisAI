@@ -11,7 +11,7 @@ from pathlib import Path
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
 from .lifecycle import StartError, read_record
-from .start import _check_pgdata, verify_running
+from .start import _check_pgdata, _ready_record, verify_running
 from .start_runtime import ControlRuntime
 from .stop import _stopping_record, readback_stopped
 
@@ -19,6 +19,20 @@ from .stop import _stopping_record, readback_stopped
 def status(*, as_json: bool) -> int:
     root = state_dir()
     unreconciled = os.path.lexists(root / "unreconciled.json")
+    record: dict[str, object] | None = None
+    preflight_error: OSError | ValueError | None = None
+    if not unreconciled and os.path.lexists(root / "startup.json"):
+        try:
+            record = read_record(root / "startup.json")
+            if record.get("phase") == "READY":
+                _ready_record(record)
+            elif record.get("phase") in {"STOPPING", "STOPPED"}:
+                _stopping_record(record)
+            else:
+                raise StartError("RECOVERY_REQUIRED", 4)
+            _check_pgdata(root, record)
+        except (OSError, ValueError) as exc:
+            preflight_error = exc
     result: dict[str, object] = {
         "state": "NOT_INSTALLED",
         "control_ready": False,
@@ -43,7 +57,7 @@ def status(*, as_json: bool) -> int:
             origin=instance.origin,
             reason="CONTROL_UNAVAILABLE",
         )
-        if not unreconciled:
+        if not unreconciled and preflight_error is None:
             try:
                 current = request(control_dir(root), {"op": "status"})
                 if current["instance_id"] != instance.instance_id:
@@ -69,11 +83,22 @@ def status(*, as_json: bool) -> int:
             reason="UNRECONCILED_STOP",
         )
         exit_code = 4
-    elif os.path.lexists(root / "startup.json"):
+    elif preflight_error is not None:
+        result.update(
+            state="UNAVAILABLE",
+            control_ready=False,
+            dashboard_ready=False,
+            reason=(
+                preflight_error.reason
+                if isinstance(preflight_error, StartError)
+                else "READINESS_UNAVAILABLE"
+            ),
+        )
+        exit_code = preflight_error.code if isinstance(preflight_error, StartError) else 4
+    elif record is not None:
         # Installed lifecycle receipts opt into HTTP only after exact ownership.
         # Legacy status-only locators remain conservative and never contact a port.
         try:
-            record = read_record(root / "startup.json")
             port = record.get("port")
             data = os.environ.get("XDG_DATA_HOME")
             runtime = ControlRuntime(
@@ -100,6 +125,13 @@ def status(*, as_json: bool) -> int:
                 _stopping_record(record)
                 _check_pgdata(root, record)
                 instance = load_instance(root)
+                if (
+                    record["project"] != instance.project
+                    or record["instance_id"] != instance.instance_id
+                    or record["control_dir"] != str(control_dir(root))
+                    or instance.origin != f"http://127.0.0.1:{record['port']}"
+                ):
+                    raise StartError("RECOVERY_REQUIRED", 4)
                 barrier_committed = record["stop_generation"] is not None
                 verified = {
                     "state": "STOPPING" if barrier_committed else "STOP_REQUESTED",
@@ -136,9 +168,12 @@ def status(*, as_json: bool) -> int:
         ) as exc:
             result.update(
                 state="UNAVAILABLE",
+                control_ready=False,
                 dashboard_ready=False,
                 reason=exc.reason if isinstance(exc, StartError) else "READINESS_UNAVAILABLE",
             )
+            for key in ("generation", "supervisor_epoch", "admission_open", "shutdown_finalized"):
+                result.pop(key, None)
             exit_code = exc.code if isinstance(exc, StartError) else 3
     if as_json:
         print(json.dumps(result, sort_keys=True))

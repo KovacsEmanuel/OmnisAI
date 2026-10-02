@@ -15,7 +15,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from omnis_cli.control import ControlUnavailable, request
-from omnis_cli.lifecycle import write_record
+from omnis_cli.lifecycle import StartError, write_record
 from omnis_cli.main import main
 from omnis_cli.start import READY_FIELDS
 from omnis_cli.stop import STOP_FIELDS
@@ -84,8 +84,26 @@ class StatusTest(unittest.TestCase):
             system_id="12345",
             phase="STOPPING",
             attempt=str(uuid4()),
+            project="omnis-local-1",
+            release_digest="b" * 64,
+            image_id="sha256:" + "c" * 64,
+            docker_host="unix:///run/docker.sock",
+            docker_id="synthetic-daemon",
+            control_dir=str(self.control),
             port=8765,
-            containers={"db": "d" * 64, "api": "a" * 64, "supervisor": "s" * 64},
+            containers={"db": "d" * 64, "api": "a" * 64, "supervisor": "f" * 64},
+            instance_id=self.identity,
+            forwarder={
+                "pid": 321,
+                "start_ticks": "123",
+                "boot_id": str(uuid4()),
+                "executable": "/usr/bin/python3",
+                "argv": ["python3", "-I"],
+            },
+            listener_inode=123,
+            api_socket=[1, 2],
+            control_socket=[3, 4],
+            open_command=str(uuid4()),
             generation=1,
             supervisor_epoch=1,
             stop_command=str(uuid4()),
@@ -112,6 +130,83 @@ class StatusTest(unittest.TestCase):
         self.assertEqual(code, 4)
         self.assertEqual(status["state"], "STOPPING")
         self.assertEqual(status["reason"], "INSTANCE_SHUTTING_DOWN")
+        record["stop_generation"] = 42
+        write_record(journal, record, replace=True)
+        with patch("omnis_cli.status.ControlRuntime") as runtime:
+            code, status, _ = self.run_status()
+        self.assertEqual((code, status["reason"]), (4, "RECOVERY_REQUIRED"))
+        self.assertEqual(status["state"], "UNAVAILABLE")
+        self.assertFalse(status["control_ready"])
+        self.assertNotIn("generation", status)
+        runtime.assert_not_called()
+        for field, value in (
+            ("project", "foreign-project"),
+            ("instance_id", str(uuid4())),
+            ("control_dir", str(self.state / "foreign-ipc")),
+            ("port", 8766),
+        ):
+            with self.subTest(field=field):
+                changed = {**record, "stop_generation": None, field: value}
+                write_record(journal, changed, replace=True)
+                with patch("omnis_cli.status.ControlRuntime"):
+                    code, status, _ = self.run_status()
+                self.assertEqual((code, status["reason"]), (4, "RECOVERY_REQUIRED"))
+                self.assertEqual(status["state"], "UNAVAILABLE")
+                self.assertNotIn("generation", status)
+        for key in STOP_FIELDS - READY_FIELDS:
+            record.pop(key)
+        record["phase"] = "READY"
+        write_record(journal, record, replace=True)
+        current = {
+            "instance_id": self.identity,
+            "generation": 1,
+            "supervisor_epoch": 1,
+            "admission_open": True,
+            "shutdown_finalized": False,
+        }
+        with (
+            patch("omnis_cli.status.ControlRuntime"),
+            patch("omnis_cli.status.request", return_value=current),
+            patch(
+                "omnis_cli.status.verify_running", side_effect=StartError("RECOVERY_REQUIRED", 4)
+            ),
+        ):
+            code, status, _ = self.run_status()
+        self.assertEqual((code, status["reason"]), (4, "RECOVERY_REQUIRED"))
+        self.assertFalse(status["control_ready"])
+        self.assertNotIn("generation", status)
+        self.assertNotIn("admission_open", status)
+
+    def test_legacy_journal_never_contacts_control_or_leaks_ready_fields(self):
+        self.write_instance()
+        pg = self.state / "postgres"
+        pg.mkdir(mode=0o711)
+        pg.chmod(0o711)
+        (pg / "PG_VERSION").write_text("18\n")
+        journal = self.state / "startup.json"
+        write_record(journal, {"format": 1, "phase": "READY", "port": 8765})
+        before = journal.read_bytes()
+        current = {
+            "instance_id": self.identity,
+            "generation": 3,
+            "supervisor_epoch": 2,
+            "admission_open": True,
+            "shutdown_finalized": False,
+        }
+        with (
+            patch("omnis_cli.status.request", return_value=current) as contacted,
+            patch("omnis_cli.status.ControlRuntime") as runtime,
+        ):
+            code, status, _ = self.run_status()
+        self.assertEqual((code, status["reason"]), (4, "RECOVERY_REQUIRED"))
+        self.assertFalse(status["control_ready"])
+        self.assertFalse(status["dashboard_ready"])
+        self.assertNotIn("generation", status)
+        self.assertNotIn("admission_open", status)
+        contacted.assert_not_called()
+        runtime.assert_not_called()
+        self.assertEqual(journal.read_bytes(), before)
+        self.assertEqual((pg / "PG_VERSION").read_text(), "18\n")
 
     def test_live_private_status_does_not_claim_unverified_http(self):
         self.write_instance()

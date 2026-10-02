@@ -11,7 +11,7 @@ from pathlib import Path
 from .control import ControlUnavailable
 from .instance import control_dir, private_dir, state_dir
 from .lifecycle import StartError, lifecycle_lock, read_record
-from .start import verify_running
+from .start import _check_pgdata, _ready_record, verify_running
 from .start_runtime import ControlRuntime
 
 
@@ -29,6 +29,8 @@ def verified_instance() -> Iterator[tuple[dict[str, object], Path]]:
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         preflight = read_record(root / "startup.json")
+        _ready_record(preflight)
+        _check_pgdata(root, preflight)
         runtime = ControlRuntime(data_home, deadline)
         with ExitStack() as locks:
             locks.enter_context(lifecycle_lock(data_home / "omnis", deadline))

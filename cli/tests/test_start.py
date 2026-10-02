@@ -13,6 +13,58 @@ from omnis_cli.main import main
 
 
 class StartTest(unittest.TestCase):
+    def test_fresh_pgdata_identity_is_durable_before_first_mount(self):
+        """The first Compose create must see the original, fsynced bind-root identity."""
+        import importlib
+        import time
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+
+        from omnis_cli.lifecycle import StartError, read_record
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        root = self.root / "state/omnis"
+        runtime = Mock(
+            receipt=SimpleNamespace(
+                project="omnis-local-" + "a" * 32,
+                image_id="sha256:" + "b" * 64,
+                docker_id="test-daemon",
+            ),
+            digest="c" * 64,
+            host="unix:///run/docker.sock",
+            deadline=time.monotonic() + 30,
+        )
+        runtime.ids.return_value = []
+        runtime.inspect.return_value = None
+        observed = []
+
+        def first_create(_env, *args, **kwargs):
+            self.assertEqual(
+                args, ("create", "--no-recreate", "--no-build", "--pull", "never", "db")
+            )
+            self.assertIs(kwargs.get("effect"), True)
+            receipt = read_record(root / "startup.json")
+            pg = (root / "postgres").lstat()
+            observed.append(
+                (receipt.get("format"), receipt.get("pgdata_identity"), [pg.st_dev, pg.st_ino])
+            )
+            raise StartError("SYNTHETIC_CUT_BEFORE_FIRST_MOUNT", 3)
+
+        with (
+            patch.object(start, "ControlRuntime", return_value=runtime),
+            patch.object(start, "preflight_port"),
+            patch.object(start, "validate_config"),
+            patch.object(start, "cleanup_attempt", return_value=[]),
+        ):
+            runtime.compose.side_effect = first_create
+            code, result = start.start_result(None)
+        self.assertEqual((code, result["reason"]), (3, "SYNTHETIC_CUT_BEFORE_FIRST_MOUNT"))
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0][0], 2)
+        self.assertEqual(observed[0][1], observed[0][2])
+        self.assertEqual(read_record(root / "startup.json")["pgdata_identity"], observed[0][2])
+
     def test_fresh_instance_identity_is_durable_before_open_can_commit(self):
         """An OPEN ACK cut must leave an instance ID for a later fenced Stop."""
         import importlib

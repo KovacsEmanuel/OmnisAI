@@ -8,6 +8,7 @@ import secrets
 import select
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import time
@@ -52,6 +53,7 @@ READY_FIELDS = {
     "port",
     "containers",
     "system_id",
+    "pgdata_identity",
     "instance_id",
     "forwarder",
     "listener_inode",
@@ -434,6 +436,49 @@ def _socket_receipt(value: object) -> bool:
     return type(value) is list and len(value) == 2 and all(type(part) is int for part in value)
 
 
+def _pgdata_identity(root: Path) -> list[int]:
+    try:
+        info = (root / "postgres").lstat()
+        if (
+            not stat.S_ISDIR(info.st_mode)
+            or info.st_uid != os.getuid()
+            or stat.S_IMODE(info.st_mode) != 0o711
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+    except OSError:
+        raise StartError("RECOVERY_REQUIRED", 4) from None
+    return [info.st_dev, info.st_ino]
+
+
+def _pgdata_receipt(record: dict[str, object]) -> list[int]:
+    value = record.get("pgdata_identity")
+    phase = record.get("phase")
+    system_id = record.get("system_id")
+    if (
+        not isinstance(phase, str)
+        or type(record.get("format")) is not int
+        or record["format"] != 2
+        or type(value) is not list
+        or len(value) != 2
+        or any(type(part) is not int or part < 0 for part in value)
+        or value[1] == 0
+        or (
+            (
+                "system_id" in record
+                or record.get("phase") in {"READY", "STOPPING", "STOPPED", "FORWARDING"}
+            )
+            and (not isinstance(system_id, str) or re.fullmatch(r"[0-9]{1,20}", system_id) is None)
+        )
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    return value
+
+
+def _check_pgdata(root: Path, record: dict[str, object]) -> None:
+    if _pgdata_identity(root) != _pgdata_receipt(record):
+        raise StartError("RECOVERY_REQUIRED", 4)
+
+
 def verify_running(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
 ) -> dict[str, object]:
@@ -441,7 +486,7 @@ def verify_running(
         set(record) != READY_FIELDS
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
-        or record["format"] != 1
+        or record["format"] != 2
         or type(record.get("generation")) is not int
         or type(record.get("supervisor_epoch")) is not int
         or type(record.get("containers")) is not dict
@@ -451,13 +496,14 @@ def verify_running(
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     attempt = record.get("attempt")
+    _check_pgdata(root, record)
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
         raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = attempt
     instance = load_instance(root)
     if (
         record.get("phase") != "READY"
-        or record.get("format") != 1
+        or record.get("format") != 2
         or record.get("release_digest") != runtime.digest
         or record.get("image_id") != runtime.receipt.image_id
         or record.get("docker_id") != runtime.receipt.docker_id
@@ -546,7 +592,9 @@ def start_instance(port: int | None = None) -> dict[str, object]:
     # fresh explicit restart.
     initial_phase = None
     if os.path.lexists(root / "startup.json"):
-        initial_phase = read_record(root / "startup.json").get("phase")
+        initial_record = read_record(root / "startup.json")
+        _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
+        initial_phase = initial_record.get("phase")
     if initial_phase == "STOPPING":
         raise StartError("INSTANCE_SHUTTING_DOWN", 4)
     deadline = time.monotonic() + 180
@@ -582,6 +630,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         restarting: dict[str, object] | None = None
         if os.path.lexists(journal):
             record = read_record(journal)
+            _check_pgdata(root, record)
             selected = record.get("port")
             if type(selected) is not int or (port is not None and selected != port):
                 raise StartError("PORT_CHANGE_REQUIRES_STOP")
@@ -623,7 +672,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             elif not os.path.lexists(archive):
                 raise StartError("RECOVERY_REQUIRED", 4)
         record = {
-            "format": 1,
+            "format": 2,
             "phase": "STARTING",
             "attempt": str(uuid4()),
             "project": runtime.receipt.project,
@@ -634,7 +683,10 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             "control_dir": str(control),
             "port": selected,
             "containers": {},
+            "pgdata_identity": restarting["pgdata_identity"] if restarting is not None else None,
         }
+        if restarting is not None:
+            record["system_id"] = restarting["system_id"]
         runtime.attempt = str(record["attempt"])
         write_record(journal, record, replace=restarting is not None)
         owner = ForwarderOwnership()
@@ -645,6 +697,11 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 (root / "postgres").mkdir(mode=0o711)
                 (root / "postgres").chmod(0o711)  # Only PG18's bind; root stays 0700.
                 _put(root / "db-password", (secrets.token_hex(24) + "\n").encode())
+                record["pgdata_identity"] = _pgdata_identity(root)
+                write_record(journal, record, replace=True)
+            if read_record(journal) != record:
+                raise StartError("RECOVERY_REQUIRED", 4)
+            _check_pgdata(root, record)
             env = environment(runtime, root, control, selected)
             validate_config(runtime, env)
             runtime.compose(
@@ -653,6 +710,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             ids = service_ids(runtime, root, control, selected)
             if set(ids) != {"db"}:
                 raise StartError("UNEXPECTED_INITIAL_SERVICES", 3)
+            _check_pgdata(root, record)
             record["containers"] = ids
             write_record(journal, record, replace=True)
             runtime.run("start", ids["db"], effect=True)
@@ -832,6 +890,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             )
             # Verify the candidate receipt before atomically publishing READY.
             result = verify_running(runtime, root, control, record, selected)
+            _check_pgdata(root, record)
             write_record(journal, record, replace=True)
             result["reused"] = False
             return result

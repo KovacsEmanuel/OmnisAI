@@ -11,7 +11,7 @@ from pathlib import Path
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
 from .lifecycle import StartError, read_record
-from .start import verify_running
+from .start import _check_pgdata, verify_running
 from .start_runtime import ControlRuntime
 from .stop import _stopping_record, readback_stopped
 
@@ -98,6 +98,7 @@ def status(*, as_json: bool) -> int:
                 }
             elif record.get("phase") == "STOPPING":
                 _stopping_record(record)
+                _check_pgdata(root, record)
                 instance = load_instance(root)
                 barrier_committed = record["stop_generation"] is not None
                 verified = {

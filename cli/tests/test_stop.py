@@ -61,7 +61,7 @@ def private_stop_fixture() -> Iterator[
             },
         )
         record: dict[str, object] = {
-            "format": 1,
+            "format": 2,
             "phase": "STOPPED",
             "attempt": attempt,
             "project": project,
@@ -109,10 +109,234 @@ def private_stop_fixture() -> Iterator[
         password.chmod(0o600)
         (root / "postgres").mkdir(mode=0o711)
         (root / "postgres").chmod(0o711)  # mkdir mode is narrowed by an inherited umask.
+        pg = (root / "postgres").lstat()
+        record["pgdata_identity"] = [pg.st_dev, pg.st_ino]
         yield base, root, foreign, control, record, runtime
 
 
 class StopTest(unittest.TestCase):
+    def test_explicit_restart_preserves_both_identities_before_new_mount(self) -> None:
+        """Replacing STOPPED with STARTING must not erase the saved logical or physical ID."""
+        start_module = importlib.import_module("omnis_cli.start")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            journal = root / "startup.json"
+            write_record(journal, record)
+            log = root / "forwarder.log"
+            log.write_text("synthetic prior forwarder\n")
+            log.chmod(0o600)
+            observed: list[dict[str, object]] = []
+
+            def before_mount(_env: object, *args: object, **kwargs: object) -> None:
+                self.assertEqual(args[0], "create")
+                self.assertIs(kwargs.get("effect"), True)
+                observed.append(read_record(journal))
+                raise StartError("SYNTHETIC_RESTART_CUT", 3)
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(start_module, "ControlRuntime", return_value=runtime),
+                patch.object(start_module, "preflight_port"),
+                patch.object(start_module, "environment", return_value={}),
+                patch.object(start_module, "validate_config"),
+                patch.object(start_module, "cleanup_attempt", return_value=[]),
+                patch.object(runtime, "compose", side_effect=before_mount, create=True),
+            ):
+                code, outcome = start_module.start_result(None)
+            self.assertEqual((code, outcome["reason"]), (3, "SYNTHETIC_RESTART_CUT"))
+            self.assertEqual(len(observed), 1)
+            self.assertEqual(observed[0]["format"], 2)
+            self.assertEqual(observed[0]["pgdata_identity"], record["pgdata_identity"])
+            self.assertEqual(observed[0].get("system_id"), record["system_id"])
+            self.assertEqual(read_record(journal)["pgdata_identity"], record["pgdata_identity"])
+            self.assertEqual(read_record(journal).get("system_id"), record["system_id"])
+
+    def test_replaced_bind_root_blocks_stop_status_and_explicit_start_without_effects(self) -> None:
+        """A copied marker and the same logical ID cannot authorize a new mount."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            pg = root / "postgres"
+            (pg / "18/docker").mkdir(parents=True)
+            (pg / "18/docker/PG_VERSION").write_text("18\n")
+            saved = root / "saved-postgres"
+            pg.rename(saved)
+            pg.mkdir(mode=0o711)
+            pg.chmod(0o711)
+            (pg / "18/docker").mkdir(parents=True)
+            (pg / "18/docker/PG_VERSION").write_text("18\n")
+            self.assertEqual(
+                (pg.stat().st_uid, pg.stat().st_mode & 0o777),
+                (saved.stat().st_uid, saved.stat().st_mode & 0o777),
+            )
+            self.assertNotEqual([pg.stat().st_dev, pg.stat().st_ino], record["pgdata_identity"])
+            env = {
+                "XDG_STATE_HOME": str(base / "s"),
+                "XDG_DATA_HOME": str(base / "d"),
+                "XDG_RUNTIME_DIR": "",
+            }
+            for phase in ("READY", "STOPPING", "STOPPED"):
+                with self.subTest(phase=phase):
+                    candidate = dict(record)
+                    candidate["phase"] = phase
+                    if phase == "READY":
+                        for key in stop_module.STOP_FIELDS - start_module.READY_FIELDS:
+                            candidate.pop(key)
+                    journal = root / "startup.json"
+                    write_record(journal, candidate, replace=journal.exists())
+                    before = journal.read_bytes()
+                    with (
+                        patch.dict(os.environ, env),
+                        patch.object(start_module, "ControlRuntime", return_value=runtime),
+                        patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                        patch.object(status_module, "ControlRuntime", return_value=runtime),
+                        patch.object(
+                            runtime, "ids", side_effect=AssertionError("replaced root reached OCI")
+                        ),
+                    ):
+                        with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                            stop_module.stop_instance()
+                        code, result = start_module.start_result(None)
+                        self.assertEqual((code, result["reason"]), (4, "RECOVERY_REQUIRED"))
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
+                            status_code = status_module.status(as_json=True)
+                        status_result = json.loads(output.getvalue())
+                        self.assertEqual(
+                            (status_code, status_result["reason"]), (4, "RECOVERY_REQUIRED")
+                        )
+                        self.assertNotEqual(status_result["state"], "STOPPED")
+                    self.assertEqual(journal.read_bytes(), before)
+                    self.assertEqual((saved / "18/docker/PG_VERSION").read_text(), "18\n")
+                    self.assertFalse((root / "unreconciled.json").exists())
+
+    def test_bad_physical_receipt_schema_is_refused_before_offline_resources(self) -> None:
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            original = record["pgdata_identity"]
+            assert isinstance(original, list)
+            bad = (
+                None,
+                [True, original[1]],
+                [original[0], 1.0],
+                [original[0]],
+                [*original, 3],
+                {"dev": original[0], "ino": original[1]},
+                [original[0], 0],
+                [original[0], -1],
+            )
+            for value in bad:
+                with self.subTest(value=value):
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        readback_stopped(
+                            runtime, root, control, {**record, "pgdata_identity": value}
+                        )
+            for value in (True, 1.0, "2", 1):
+                with self.subTest(format=value):
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        readback_stopped(runtime, root, control, {**record, "format": value})
+            with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                readback_stopped(runtime, root, control, {**record, "extra": "untrusted"})
+            for phase in ([], {}, None, 2):
+                with self.subTest(phase=phase):
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        readback_stopped(runtime, root, control, {**record, "phase": phase})
+
+    def test_physical_pin_never_substitutes_a_missing_logical_system_id(self) -> None:
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            for bad in (None, True, 12345, "not-decimal", "9" * 21):
+                with self.subTest(system_id=bad):
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        readback_stopped(runtime, root, control, {**record, "system_id": bad})
+
+    def test_copied_cluster_in_new_ordinary_directory_refuses_offline_readback(self) -> None:
+        """Matching UID/mode/PG_VERSION and logical system_id do not bind the mount."""
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            pg = root / "postgres"
+            (pg / "18/docker").mkdir(parents=True)
+            (pg / "18/docker/PG_VERSION").write_text("18\n")
+            original = root / "original-postgres"
+            pg.rename(original)
+            pg.mkdir(mode=0o711)
+            pg.chmod(0o711)
+            (pg / "18/docker").mkdir(parents=True)
+            (pg / "18/docker/PG_VERSION").write_bytes(
+                (original / "18/docker/PG_VERSION").read_bytes()
+            )
+            self.assertEqual(
+                (pg.lstat().st_uid, pg.lstat().st_mode & 0o777),
+                (original.lstat().st_uid, original.lstat().st_mode & 0o777),
+            )
+            self.assertNotEqual([pg.lstat().st_dev, pg.lstat().st_ino], record["pgdata_identity"])
+            self.assertEqual(
+                (pg / "18/docker/PG_VERSION").read_bytes(),
+                (original / "18/docker/PG_VERSION").read_bytes(),
+            )
+            with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                readback_stopped(runtime, root, control, record)
+            self.assertEqual((original / "18/docker/PG_VERSION").read_text(), "18\n")
+
+    def test_legacy_format_one_start_stop_refuse_without_mutating_receipt_or_data(self) -> None:
+        """There is no provenance for adopting today's inode into an old receipt."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        for phase in ("READY", "STOPPING", "STOPPED"):
+            with (
+                self.subTest(phase=phase),
+                private_stop_fixture() as (base, root, _foreign, control, record, runtime),
+            ):
+                pg = root / "postgres"
+                (pg / "18/docker").mkdir(parents=True)
+                (pg / "18/docker/PG_VERSION").write_text("18\n")
+                record.pop("pgdata_identity")
+                record["format"] = 1
+                if phase == "READY":
+                    for key in stop_module.STOP_FIELDS - start_module.READY_FIELDS:
+                        record.pop(key)
+                record["phase"] = phase
+                path = root / "startup.json"
+                write_record(path, record)
+                before = path.read_bytes()
+                data_before = (pg / "18/docker/PG_VERSION").read_bytes()
+                with (
+                    patch.dict(
+                        os.environ,
+                        {
+                            "XDG_STATE_HOME": str(base / "s"),
+                            "XDG_DATA_HOME": str(base / "d"),
+                            "XDG_RUNTIME_DIR": "",
+                        },
+                    ),
+                    patch.object(start_module, "ControlRuntime", return_value=runtime),
+                    patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                    patch.object(status_module, "ControlRuntime", return_value=runtime),
+                    patch.object(
+                        runtime, "ids", side_effect=AssertionError("legacy reached resources")
+                    ),
+                ):
+                    code, outcome = start_module.start_result(None)
+                    self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        stop_module.stop_instance()
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        status_code = status_module.status(as_json=True)
+                    self.assertEqual(
+                        (status_code, json.loads(output.getvalue())["reason"]),
+                        (4, "RECOVERY_REQUIRED"),
+                    )
+                self.assertEqual(path.read_bytes(), before)
+                self.assertEqual((pg / "18/docker/PG_VERSION").read_bytes(), data_before)
+                self.assertFalse((root / "unreconciled.json").exists())
+                self.assertFalse((root / "lifecycle.lock").exists())
+
     def test_db_unavailable_after_stopping_intent_is_emergency_not_stopped(self) -> None:
         """A failed DB readback must retain a blocker before owned paths are drained."""
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
@@ -415,13 +639,14 @@ class StopTest(unittest.TestCase):
         """Offline STOPPED readback must not follow a replacement data root."""
         with private_stop_fixture() as (_base, root, foreign, control, record, runtime):
             password = root / "db-password"
-            (root / "postgres").rmdir()
-            (root / "postgres").symlink_to(foreign, target_is_directory=True)
+            pg = root / "postgres"
+            saved = root / "saved-postgres"
+            pg.rename(saved)
+            pg.symlink_to(foreign, target_is_directory=True)
             with self.assertRaises(StartError):
                 readback_stopped(runtime, root, control, record)
-            (root / "postgres").unlink()
-            (root / "postgres").mkdir(mode=0o711)
-            (root / "postgres").chmod(0o711)
+            pg.unlink()
+            saved.rename(pg)
             other_secret = foreign / "password"
             other_secret.write_text("synthetic\n")
             other_secret.chmod(0o600)

@@ -1,4 +1,4 @@
-"""Opt-in RED for legacy offline PGDATA readback; no Docker or PostgreSQL."""
+"""Opt-in offline PGDATA identity regression; no Docker or PostgreSQL."""
 
 import os
 import socket
@@ -48,7 +48,7 @@ class PGDataReadback(unittest.TestCase):
             },
         )
         self.record = {
-            "format": 1,
+            "format": 2,
             "phase": "STOPPED",
             "attempt": str(uuid4()),
             "project": project,
@@ -62,6 +62,7 @@ class PGDataReadback(unittest.TestCase):
                 key: char * 64 for key, char in zip(("db", "api", "supervisor"), "def", strict=True)
             },
             "system_id": "12345",
+            "pgdata_identity": [self.pg.lstat().st_dev, self.pg.lstat().st_ino],
             "instance_id": iid,
             "forwarder": {},
             "listener_inode": 123,
@@ -104,18 +105,29 @@ class PGDataReadback(unittest.TestCase):
         self.readback()
         self.assertEqual((self.pg / "18/docker/PG_VERSION").read_text(), "18\n")
 
-    def test_replacement_with_empty_directory_same_uid_mode_is_rejected(self) -> None:
+    def test_legacy_format_one_cannot_adopt_current_inode(self) -> None:
+        self.record["format"] = 1
+        self.record.pop("pgdata_identity")
+        with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+            self.readback()
+        self.assertEqual((self.pg / "18/docker/PG_VERSION").read_text(), "18\n")
+
+    def test_replacement_with_copied_marker_same_uid_mode_is_rejected(self) -> None:
         original = self.root / "saved-postgres"
         self.pg.rename(original)
         self.pg.mkdir(mode=0o711)
         self.pg.chmod(0o711)
+        (self.pg / "18/docker").mkdir(parents=True)
+        (self.pg / "18/docker/PG_VERSION").write_bytes(
+            (original / "18/docker/PG_VERSION").read_bytes()
+        )
         self.assertEqual(self.pg.lstat().st_uid, original.lstat().st_uid)
         self.assertEqual(self.pg.lstat().st_mode & 0o777, original.lstat().st_mode & 0o777)
         self.assertNotEqual(
             (self.pg.lstat().st_dev, self.pg.lstat().st_ino),
             (original.lstat().st_dev, original.lstat().st_ino),
         )
-        self.assertFalse((self.pg / "18/docker/PG_VERSION").exists())
+        self.assertEqual((self.pg / "18/docker/PG_VERSION").read_text(), "18\n")
         self.assertTrue((original / "18/docker/PG_VERSION").exists())
         with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
             self.readback()

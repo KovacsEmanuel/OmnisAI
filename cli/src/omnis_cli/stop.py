@@ -4,7 +4,6 @@ import json
 import os
 import select
 import signal
-import stat
 import subprocess
 import sys
 import time
@@ -24,7 +23,14 @@ from .lifecycle import (
     socket_identity,
     write_record,
 )
-from .start import READY_FIELDS, database_identity, service_ids, verify_running
+from .start import (
+    READY_FIELDS,
+    _check_pgdata,
+    _pgdata_receipt,
+    database_identity,
+    service_ids,
+    verify_running,
+)
 from .start_runtime import ControlRuntime
 
 STOP_FIELDS = READY_FIELDS | {
@@ -102,6 +108,7 @@ def _listener_absent(record: dict[str, object]) -> None:
 
 
 def _stopping_record(record: dict[str, object]) -> None:
+    _pgdata_receipt(record)
     completed = record.get("teardown_completed")
     finalized = record.get("finalized_generation")
     if (
@@ -146,6 +153,7 @@ def readback_stopped(
     if os.path.lexists(root / "unreconciled.json"):
         raise StartError("RECOVERY_REQUIRED", 4)
     _stopping_record(record)
+    _check_pgdata(root, record)
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
     instance = load_instance(root)
@@ -163,13 +171,6 @@ def readback_stopped(
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     try:
-        data_root = (root / "postgres").lstat()
-        if (
-            not stat.S_ISDIR(data_root.st_mode)
-            or data_root.st_uid != os.getuid()
-            or stat.S_IMODE(data_root.st_mode) != 0o711
-        ):
-            raise StartError("RECOVERY_REQUIRED", 4)
         private_file(root / "db-password", limit=64)  # O_NOFOLLOW, owner/mode/link count.
     except (OSError, ValueError):
         raise StartError("RECOVERY_REQUIRED", 4) from None
@@ -191,6 +192,7 @@ def _running_for_stop(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> dict[str, object]:
     _stopping_record(record)
+    _check_pgdata(root, record)
     instance = load_instance(root)
     port = _integer(record, "port")
     if (
@@ -232,6 +234,7 @@ def _emergency_inventory(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     """Pin this exact attempt even if its API, supervisor or DB cannot reply."""
+    _check_pgdata(root, record)
     if record.get("phase") == "STOPPING":
         _stopping_record(record)
         if record["finalized_generation"] is not None or record["teardown_completed"] != []:
@@ -241,7 +244,7 @@ def _emergency_inventory(
         if (
             set(record) != READY_FIELDS - {"generation", "supervisor_epoch"}
             or type(record.get("format")) is not int
-            or record["format"] != 1
+            or record["format"] != 2
             or not isinstance(command, str)
         ):
             raise StartError("RECOVERY_REQUIRED", 4)
@@ -254,7 +257,7 @@ def _emergency_inventory(
         set(record) != READY_FIELDS
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
-        or record["format"] != 1
+        or record["format"] != 2
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     attempt = record["attempt"]
@@ -288,6 +291,7 @@ def _emergency_drain(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     """Remove only pinned P0 effect paths; never publish a DB STOPPED receipt."""
+    _check_pgdata(root, record)
     ids = _containers(record)
     port = _integer(record, "port")
     identity = mapping(record["forwarder"])
@@ -347,6 +351,7 @@ def _emergency_drain(
 def _emergency_stop(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
+    _check_pgdata(root, record)
     # The marker path can be unwritable independently of the private journal.
     # Persist before inventory: an outage there must not leave READY reusable.
     journaled = False
@@ -413,6 +418,7 @@ def _resume_owned(
 ) -> None:
     """Resume only fsynced completed stages; an unacknowledged effect is uncertain."""
     _stopping_record(record)
+    _check_pgdata(root, record)
     if record["finalized_generation"] is None or record["phase"] != "STOPPING":
         raise StartError("FINALIZE_UNVERIFIED", 4)
     instance = load_instance(root)
@@ -539,6 +545,7 @@ def _resume_owned(
 def _publish_stopped(
     runtime: ControlRuntime, root: Path, control: Path, path: Path, record: dict[str, object]
 ) -> None:
+    _check_pgdata(root, record)
     record["phase"] = "STOPPED"
     write_record(path, record, replace=True)
     if read_record(path) != record:
@@ -547,16 +554,20 @@ def _publish_stopped(
 
 
 def stop_instance() -> dict[str, object]:
+    root = state_dir()
+    # A legacy receipt has no original inode: refuse before even creating a lock.
+    if os.path.lexists(root / "startup.json"):
+        _check_pgdata(root, read_record(root / "startup.json"))
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
     runtime = ControlRuntime(data_home, time.monotonic() + 180)
-    root = state_dir()
     control = control_dir(root)
     private_dir(root)
     deadline = runtime.deadline
     with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
         path = root / "startup.json"
         record = read_record(path)
+        _check_pgdata(root, record)
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         if record.get("phase") == "STOPPED":

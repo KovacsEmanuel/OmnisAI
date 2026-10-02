@@ -1,6 +1,8 @@
 """READY startup receipts must be strict before OCI/HTTP attestation."""
 
 import importlib
+import os
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,8 +17,15 @@ start = importlib.import_module("omnis_cli.start")
 
 class ReadyJournalTest(unittest.TestCase):
     def setUp(self):
-        self.root = Path("/synthetic-private-state")
-        self.control = Path("/synthetic-private-control")
+        self.temp = tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"])
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name) / "omnis"
+        self.root.mkdir(mode=0o700)
+        pg = self.root / "postgres"
+        pg.mkdir(mode=0o711)
+        pg.chmod(0o711)
+        info = pg.lstat()
+        self.control = self.root / "runtime-ipc"
         self.port = 8765
         identity = str(uuid4())
         project = "omnis-local-" + "a" * 32
@@ -31,7 +40,7 @@ class ReadyJournalTest(unittest.TestCase):
             ),
         )
         self.record = {
-            "format": 1,
+            "format": 2,
             "phase": "READY",
             "attempt": str(uuid4()),
             "project": project,
@@ -43,6 +52,7 @@ class ReadyJournalTest(unittest.TestCase):
             "port": self.port,
             "containers": {"db": "d" * 64, "api": "e" * 64, "supervisor": "f" * 64},
             "system_id": "123456789",
+            "pgdata_identity": [info.st_dev, info.st_ino],
             "instance_id": identity,
             "forwarder": {"pid": 321},
             "listener_inode": 123,
@@ -71,6 +81,15 @@ class ReadyJournalTest(unittest.TestCase):
         cases = []
         for key in ("format", "generation", "supervisor_epoch"):
             cases.append((key, {**self.record, key: True}))
+        pg = self.record["pgdata_identity"]
+        assert isinstance(pg, list)
+        cases.append(("pgdata-bool", {**self.record, "pgdata_identity": [True, pg[1]]}))
+        cases.append(
+            (
+                "pgdata-missing",
+                {key: value for key, value in self.record.items() if key != "pgdata_identity"},
+            )
+        )
         cases.extend(
             [
                 ("unknown", {**self.record, "ignored_admin": "synthetic-marker"}),

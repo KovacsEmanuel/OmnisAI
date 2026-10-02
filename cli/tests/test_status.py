@@ -73,8 +73,15 @@ class StatusTest(unittest.TestCase):
 
     def test_stop_requested_does_not_claim_a_committed_database_barrier(self):
         self.write_instance()
+        pg = self.state / "postgres"
+        pg.mkdir(mode=0o711)
+        pg.chmod(0o711)
+        info = pg.lstat()
         record: dict[str, object] = {key: None for key in READY_FIELDS}
         record.update(
+            format=2,
+            pgdata_identity=[info.st_dev, info.st_ino],
+            system_id="12345",
             phase="STOPPING",
             attempt=str(uuid4()),
             port=8765,

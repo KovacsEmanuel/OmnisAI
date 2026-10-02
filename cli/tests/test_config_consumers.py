@@ -18,6 +18,21 @@ class ConfigConsumersTest(unittest.TestCase):
     setUp = config_tests.ConfigTest.setUp
     write_config = config_tests.ConfigTest.write_config
 
+    def test_stop_config_and_explicit_cli_budget_reach_runtime(self):
+        stop = importlib.import_module("omnis_cli.stop")
+        self.write_config("shutdown_timeout_seconds=15")
+        for flags, seconds in (([], 15), (["--shutdown-timeout", "17"], 17)):
+            with (
+                self.subTest(flags=flags),
+                patch.object(stop.time, "monotonic", return_value=100),
+                patch.object(
+                    stop, "ControlRuntime", side_effect=StartError("BUDGET_OBSERVED", 3)
+                ) as runtime,
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                self.assertEqual(main(["stop", "--json", *flags]), 3)
+                self.assertEqual(runtime.call_args.args[1], 100 + seconds)
+
     def test_cleanup_has_separate_configured_allowance_after_startup_expiry(self):
         from types import SimpleNamespace
 

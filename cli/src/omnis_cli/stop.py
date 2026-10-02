@@ -538,10 +538,14 @@ def _publish_stopped(
     readback_stopped(runtime, root, control, record)
 
 
-def stop_instance() -> dict[str, object]:
+def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
+    from .config import _integer as config_integer
     from .config import load_config
 
     config = load_config()
+    shutdown_seconds = config_integer(
+        config.shutdown_timeout_seconds if shutdown_timeout is None else shutdown_timeout, 15, 180
+    )
     root = state_dir()
     config.check_instance(root)
     # A legacy receipt has no original inode: refuse before even creating a lock.
@@ -553,7 +557,7 @@ def stop_instance() -> dict[str, object]:
         _check_pgdata(root, preflight)
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
-    runtime = ControlRuntime(data_home, time.monotonic() + 180)
+    runtime = ControlRuntime(data_home, time.monotonic() + shutdown_seconds)
     control = control_dir(root)
     private_dir(root)
     if preflight is not None:
@@ -697,9 +701,9 @@ def stop_instance() -> dict[str, object]:
         }
 
 
-def stop(*, as_json: bool) -> int:
+def stop(*, as_json: bool, shutdown_timeout: int | None = None) -> int:
     try:
-        result = stop_instance()
+        result = stop_instance(shutdown_timeout=shutdown_timeout)
         code = 0
     except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError) as exc:
         code = exc.code if isinstance(exc, StartError) else 4

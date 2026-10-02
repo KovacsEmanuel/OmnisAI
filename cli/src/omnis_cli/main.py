@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("open", help="Open the verified, ready installed dashboard")
     stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
+    stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
     commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
     try:
@@ -98,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "open":
         return open_verified()
     if args.command == "stop":
-        return stop(as_json=args.json)
+        return stop(as_json=args.json, shutdown_timeout=args.shutdown_timeout)
     if args.command == "install":
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"

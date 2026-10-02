@@ -1,5 +1,6 @@
 """Stop-only IPC contract tests; service IO is substituted, not a PostgreSQL proof."""
 
+import os
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
@@ -8,10 +9,44 @@ import pytest
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.schemas import ControlRequest
 from omnis.modules.instance.service import InstanceService
 from omnis.transport.local_control import LocalControl
 from test_local_control import request
+
+
+@pytest.mark.asyncio
+async def test_arm_stop_peer_denial_has_zero_service_contact(ipc_directory: Path) -> None:
+    engine = Mock(spec=AsyncEngine)
+    service = InstanceService(engine)
+    async with LocalControl(
+        ipc_directory, service, uuid4(), 1, peer_uid=os.getuid() + 1
+    ) as control:
+        reply = await request(ipc_directory, control.capability, arm_command())
+    assert reply.get("error") == "CONTROL_DENIED"
+    engine.begin.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_arm_stop_lost_authority_on_readback_never_emits_grant(
+    ipc_directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = InstanceService(Mock(spec=AsyncEngine))
+    monkeypatch.setattr(service, "arm_stop", AsyncMock(return_value="STOP_PENDING"))
+    monkeypatch.setattr(
+        service,
+        "stop_grant_readback",
+        AsyncMock(side_effect=ControlConflict(ControlCode.LEASE_LOST)),
+    )
+    monkeypatch.setattr(
+        "omnis.transport.local_control.readiness_reason", AsyncMock(return_value=None)
+    )
+    async with LocalControl(ipc_directory, service, uuid4(), 1) as control:
+        reply = await request(ipc_directory, control.capability, arm_command())
+    assert reply.get("error") == "LEASE_LOST" and reply["ok"] is False
+    assert set(reply) == {"ok", "correlation_id", "error"}
 
 
 def arm_command() -> dict[str, object]:

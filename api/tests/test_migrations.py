@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -10,8 +11,45 @@ from alembic.script import ScriptDirectory
 from sqlalchemy.engine import URL
 
 from conftest import connect_test_database, verify_test_database
-from omnis.core.db import SCHEMA_REVISION
+from omnis.core.db import SCHEMA_REVISION, database_engine
+from omnis.modules.instance.service import InstanceService
 from process_probe import exercise_installed_control
+from test_stop_fence import db_snapshot, pending_reconciliation
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_job_commits_then_replays_exactly(
+    migrated_database_url: URL,
+    tmp_path: Path,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        request = await pending_reconciliation(service)
+        await service.release(request.grant.owner_uuid, request.grant.owner_epoch)
+        env = {
+            "OMNIS_DATABASE_URL": migrated_database_url.render_as_string(hide_password=False),
+            "OMNIS_EXPECTED_SYSTEM_ID": request.system_identifier,
+        }
+        for _ in range(2):
+            result = subprocess.run(
+                [sys.executable, "-I", "-m", "omnis.stop_reconcile"],
+                input=request.model_dump_json().encode(),
+                env=env,
+                cwd=tmp_path,
+                capture_output=True,
+                timeout=20,
+            )
+            assert result.returncode == 0 and result.stderr == b""
+            assert json.loads(result.stdout) == {
+                "ok": True,
+                "correlation_id": str(request.reconciliation_id),
+                "receipt": request.model_dump(mode="json"),
+            }
+        snapshot = await db_snapshot(engine)
+        assert snapshot[2] == () and isinstance(snapshot[4], tuple) and len(snapshot[4]) == 1
+    finally:
+        await engine.dispose()
 
 
 def test_startup_migration_refuses_wrong_cluster_before_ddl(empty_database_url: URL) -> None:
@@ -270,6 +308,13 @@ def test_upgrade_from_previous_revision_preserves_instance_identity(
     assert first.returncode == 0
     with connect_test_database(empty_database_url) as connection:
         before = connection.execute("SELECT * FROM instance_control").fetchone()
+        legacy_fence = None
+        if previous_revision == "0005_stop_fence":
+            connection.execute("""INSERT INTO instance_stop_fence
+                SELECT 1, instance_id, gen_random_uuid(), gen_random_uuid(), 2, 1,
+                'synthetic-daemon', '{"db":"synthetic-owned-id"}'::jsonb, 'STOP_PENDING'
+                FROM instance_control WHERE id=1""")
+            legacy_fence = connection.execute("SELECT * FROM instance_stop_fence").fetchone()
         if previous_revision != "0001_instance_control":
             connection.execute(
                 "INSERT INTO ui_session VALUES ('synthetic_digest', clock_timestamp() + interval '12 hours')"
@@ -296,7 +341,17 @@ def test_upgrade_from_previous_revision_preserves_instance_identity(
             else None,
             0,
         )
-        assert connection.execute("SELECT count(*) FROM instance_stop_fence").fetchone() == (0,)
+        assert connection.execute("SELECT count(*) FROM instance_stop_fence").fetchone() == (
+            int(legacy_fence is not None),
+        )
+        if legacy_fence is not None:
+            assert connection.execute("SELECT * FROM instance_stop_fence").fetchone() == (
+                *legacy_fence,
+                None,
+            )
+        assert connection.execute(
+            "SELECT count(*) FROM instance_stop_reconciliation"
+        ).fetchone() == (0,)
         assert connection.execute("SELECT count(*) FROM ui_session").fetchone() == (
             int(previous_revision != "0001_instance_control"),
         )

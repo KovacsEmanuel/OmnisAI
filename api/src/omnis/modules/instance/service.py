@@ -13,6 +13,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from omnis.core.db import schema_reason_on
 from omnis.core.persistence import read_datetime, read_integer, read_record
 from omnis.modules.instance.domain import ControlCode, ControlConflict, InstanceStatus
 from omnis.modules.instance.records import (
@@ -23,7 +24,12 @@ from omnis.modules.instance.records import (
     StopFenceRecord,
     StopFenceState,
 )
-from omnis.modules.instance.stop_contract import ArmStopCommand, StopGrant, canonical_json
+from omnis.modules.instance.stop_contract import (
+    ArmStopCommand,
+    StopGrant,
+    StopReconciliation,
+    canonical_json,
+)
 from omnis.security.sessions import SessionStore
 
 
@@ -519,6 +525,128 @@ class InstanceService:
             await self._closed_stop(connection, instance, lease, grant)
             await self._require_owner(connection, lease, owner, command.owner_epoch)
             return grant.model_dump(mode="json")
+
+    async def _reconciliation_context(
+        self,
+        connection: AsyncConnection,
+        request: StopReconciliation,
+    ) -> None:
+        actual = (
+            await connection.execute(
+                text(
+                    "SELECT system_identifier::text, pg_catalog.current_database() "
+                    "FROM pg_catalog.pg_control_system()"
+                )
+            )
+        ).one()
+        if tuple(actual) != (request.system_identifier, self.engine.url.database):
+            raise ControlConflict(ControlCode.INSTANCE_MISMATCH)
+        if await schema_reason_on(connection) is not None:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+
+    async def _reconciliation_receipt(
+        self,
+        connection: AsyncConnection,
+        request: StopReconciliation,
+    ) -> bool:
+        row = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM instance_stop_reconciliation WHERE reconciliation_id = :id"
+                    ),
+                    {"id": request.reconciliation_id},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            return False
+        try:
+            receipt = StopReconciliation.model_validate({**row, "version": 1})
+        except ValidationError:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT) from None
+        if canonical_json(receipt.model_dump(mode="json")) != canonical_json(
+            request.model_dump(mode="json")
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        return True
+
+    async def _reconciled_readback(
+        self,
+        connection: AsyncConnection,
+        request: StopReconciliation,
+    ) -> None:
+        if not await self._reconciliation_receipt(connection, request):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        if await self._grant(connection) is not None:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+
+    async def reconcile_stop(self, request: StopReconciliation) -> dict[str, object]:
+        """Correlate host evidence, not attest it; never acquire, OPEN or renew.
+
+        An absent fence is insufficient. Exact historical replay additionally
+        requires the same closed generation/epoch, even after this receipt exists.
+        """
+        request = StopReconciliation.model_validate(request.model_dump(mode="json"))
+        if request.grant.state != "STOP_PENDING":
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        async with self._locked() as (connection, instance, lease):
+            await self._reconciliation_context(connection, request)
+            await self._closed_stop(connection, instance, lease, request.grant)
+            replay = await self._reconciliation_receipt(connection, request)
+            if not replay:
+                fence = await self._grant(connection)
+                if fence is None or canonical_json(fence.model_dump(mode="json")) != canonical_json(
+                    request.grant.model_dump(mode="json")
+                ):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                await connection.execute(
+                    text(
+                        "INSERT INTO instance_stop_reconciliation "
+                        '(reconciliation_id, system_identifier, "grant", completion_sha256) '
+                        "VALUES (:id, :system, CAST(:grant AS jsonb), :completion)"
+                    ),
+                    {
+                        "id": request.reconciliation_id,
+                        "system": request.system_identifier,
+                        "grant": canonical_json(request.grant.model_dump(mode="json")),
+                        "completion": request.completion_sha256,
+                    },
+                )
+                grant = request.grant
+                removed = (
+                    await connection.execute(
+                        text(
+                            "DELETE FROM instance_stop_fence WHERE id = 1 "
+                            "AND instance_id = :instance AND command_id = :command "
+                            "AND finalize_command_id = :finalized AND generation = :generation "
+                            "AND owner_epoch = :epoch AND owner_uuid = :owner AND daemon_id = :daemon "
+                            "AND inventory = CAST(:inventory AS jsonb) AND state = 'STOP_PENDING' RETURNING id"
+                        ),
+                        {
+                            "instance": grant.instance_id,
+                            "command": grant.command_id,
+                            "finalized": grant.finalize_command_id,
+                            "generation": grant.generation,
+                            "epoch": grant.owner_epoch,
+                            "owner": grant.owner_uuid,
+                            "daemon": grant.daemon_id,
+                            "inventory": canonical_json(grant.inventory),
+                        },
+                    )
+                ).scalar_one_or_none()
+                if removed != 1:
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            await self._reconciled_readback(connection, request)
+        # Commit has completed. A takeover in this gap causes refusal, never a
+        # successful acknowledgement tied to an old generation or new owner.
+        async with self._locked() as (connection, instance, lease):
+            await self._reconciliation_context(connection, request)
+            await self._closed_stop(connection, instance, lease, request.grant)
+            await self._reconciled_readback(connection, request)
+        return request.model_dump(mode="json")
 
     async def command_readback(
         self,

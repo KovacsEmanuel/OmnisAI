@@ -143,7 +143,9 @@ def listener_owned(identity: dict[str, object], port: int, inode: int) -> None:
         raise StartError("FORWARDER_LISTENER_MISMATCH", 3)
 
 
-def cleanup_startup_ipc(root: Path, control: Path) -> list[str]:
+def cleanup_startup_ipc(
+    root: Path, control: Path, *, expected: dict[str, list[int]] | None = None
+) -> list[str]:
     """Only after this fresh attempt's containers and daemon operations are settled.
 
     Reuse the P0 socket rule: private inode + exclusive service lock + refused
@@ -170,6 +172,8 @@ def cleanup_startup_ipc(root: Path, control: Path) -> list[str]:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 if os.path.lexists(path):
                     identity = socket_identity(path)
+                    if expected is not None and identity != expected.get(stem):
+                        raise StartError("IPC_REPLACED", 4)
                     with socket.socket(socket.AF_UNIX) as peer:
                         peer.settimeout(0.2)
                         try:

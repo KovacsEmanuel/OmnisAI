@@ -50,6 +50,20 @@ def _containers(record: dict[str, object]) -> dict[str, str]:
     return value
 
 
+def _expected_sockets(record: dict[str, object]) -> dict[str, list[int]]:
+    result: dict[str, list[int]] = {}
+    for stem, key in (("api", "api_socket"), ("control", "control_socket")):
+        value = record.get(key)
+        if (
+            not isinstance(value, list)
+            or len(value) != 2
+            or any(type(part) is not int or part < 0 for part in value)
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        result[stem] = value
+    return result
+
+
 def _marker(root: Path, record: dict[str, object], runtime: ControlRuntime) -> None:
     """A durable unreconciled locator blocks all future ordinary Start attempts."""
     payload = {
@@ -217,6 +231,7 @@ def _emergency_inventory(
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = attempt
+    _expected_sockets(record)
     ids = _containers(record)
     if set(runtime.ids()) != set(ids.values()):
         raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
@@ -272,7 +287,11 @@ def _emergency_drain(
         runtime.run("network", "rm", network, effect=True)
     if runtime.network(set()) is not None:
         raise StartError("NETWORK_REMAINS", 4)
-    if runtime.uncertain or not runtime.family_drained or cleanup_startup_ipc(root, control):
+    if (
+        runtime.uncertain
+        or not runtime.family_drained
+        or cleanup_startup_ipc(root, control, expected=_expected_sockets(record))
+    ):
         raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
     for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
         if os.path.lexists(path):
@@ -337,7 +356,11 @@ def _drain_owned(
             runtime.run("network", "rm", network, effect=True)
         if runtime.network(set()) is not None:
             raise StartError("NETWORK_REMAINS", 4)
-        if runtime.uncertain or not runtime.family_drained or cleanup_startup_ipc(root, control):
+        if (
+            runtime.uncertain
+            or not runtime.family_drained
+            or cleanup_startup_ipc(root, control, expected=_expected_sockets(record))
+        ):
             raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
         if not select.select([fd], [], [], 0)[0]:
             raise StartError("FORWARDER_STILL_LIVE", 4)

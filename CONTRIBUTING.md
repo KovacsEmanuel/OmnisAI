@@ -6,7 +6,7 @@ Acest fișier descrie modul de lucru; arhitectura și planul din `documents/` r�
 
 Skill-urile de dezvoltare trăiesc în `.hermes/skills/`, versionate împreună cu proiectul. Hermes le descoperă numai în proiectele trusted și numai când sesiunea este legată de checkout; în rest nu încarcă această metodologie peste alte proiecte.[1]
 
-`AGENTS.md` este locul regulilor de proiect; `SOUL.md` este identitatea globală și nu a fost modificat. Loaderul instalat a fost verificat direct: încarcă regula inclusiv din subdirectorul `tests/documentation`. Nu adăugăm o a doua sursă `.hermes.md`.[2]
+`AGENTS.md` este locul regulilor de proiect: reviewul independent pe bytes exacți duce la remediere, rerulare și re-review când apar blocante, până la acceptare scoped sau raportarea unui blocker real. `SOUL.md` rămâne identitatea globală și păstrează același principiu general, fără a pretinde absența absolută a gap-urilor. Loaderul instalat a fost verificat direct: încarcă regula inclusiv din subdirectorul `tests/documentation`. Nu adăugăm o a doua sursă `.hermes.md`.[2]
 
 După revizuirea skill-urilor, activarea pe un checkout nou se face cu:
 

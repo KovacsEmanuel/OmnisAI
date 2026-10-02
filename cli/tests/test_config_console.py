@@ -86,3 +86,25 @@ class ConfigConsoleTest(unittest.TestCase):
                     self.assertEqual(self.config.read_bytes(), before)
                     for directory in ("state", "data", "ipc"):
                         self.assertFalse((self.root / directory).exists())
+
+    def test_excessive_toml_depth_is_refused_before_every_consumer(self):
+        text = "port = " + "[" * 1200 + "1" + "]" * 1200 + "\n"
+        self.assertLessEqual(len(text.encode()), 4096)
+        self.write_config(text)
+        before = self.config.read_bytes()
+        for args in (
+            [],
+            ["start", "--no-open", "--json"],
+            ["stop", "--json"],
+            ["status", "--json"],
+            ["pair"],
+            ["open"],
+        ):
+            with self.subTest(args=args):
+                result = self.invoke(args)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("CONFIG_INVALID", result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                self.assertEqual(self.config.read_bytes(), before)
+                for directory in ("state", "data", "ipc"):
+                    self.assertFalse((self.root / directory).exists())

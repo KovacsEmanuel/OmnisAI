@@ -84,5 +84,5 @@ def load_config() -> Config:
             shutdown_timeout_seconds=_integer(raw.get("shutdown_timeout_seconds", 180), 15, 180),
             cleanup_timeout_seconds=_integer(raw.get("cleanup_timeout_seconds", 100), 30, 180),
         )
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
         raise StartError("CONFIG_INVALID", 2) from None

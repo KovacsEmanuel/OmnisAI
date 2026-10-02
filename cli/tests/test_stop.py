@@ -113,6 +113,23 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_emergency_inventory_failure_still_closes_local_ready_reuse(self) -> None:
+        """A transient Docker inventory outage cannot leave READY reusable."""
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            stop_module = importlib.import_module("omnis_cli.stop")
+            start_module = importlib.import_module("omnis_cli.start")
+            for key in stop_module.STOP_FIELDS - start_module.READY_FIELDS:
+                record.pop(key)
+            record["phase"] = "READY"
+            journal = root / "startup.json"
+            write_record(journal, record)
+            runtime.ids = lambda: (_ for _ in ()).throw(ControlUnavailable())
+            with self.assertRaises(ControlUnavailable):
+                stop_module._emergency_stop(runtime, root, control, record)
+            self.assertEqual(read_record(journal)["phase"], "UNCERTAIN")
+            marker = read_record(root / "unreconciled.json")
+            self.assertEqual(marker["attempt"], record["attempt"])
+
     def test_complete_forwarding_intent_after_start_crash_gets_emergency_marker(self) -> None:
         """A possible OPEN ACK cannot be abandoned with admission potentially open."""
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):

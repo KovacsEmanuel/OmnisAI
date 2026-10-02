@@ -39,7 +39,7 @@ from .lifecycle import (
 from .release import _RELEASE, _put
 from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
 
-EXPECTED_SCHEMA = "0004_pairing_receipts"
+EXPECTED_SCHEMA = "0005_stop_fence"
 READY_FIELDS = {
     "format",
     "phase",

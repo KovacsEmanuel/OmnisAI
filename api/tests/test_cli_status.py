@@ -42,7 +42,7 @@ def test_installed_cli_status_has_private_identity_and_no_http_claim(
             "version": 1,
             "instance_id": identity,
             "release": "0.1.0",
-            "schema": "0004_pairing_receipts",
+            "schema": "0005_stop_fence",
             "project": "omnis-local-1",
             "origin": f"http://127.0.0.1:{foreign.getsockname()[1]}",
         }

@@ -100,7 +100,7 @@ def load_instance(root: Path) -> Instance:
         or str(UUID(identity)) != identity
         or not isinstance(raw["release"], str)
         or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", raw["release"])
-        or raw["schema"] != "0004_pairing_receipts"
+        or raw["schema"] != "0005_stop_fence"
         or not isinstance(raw["project"], str)
         or not re.fullmatch(r"omnis-[a-z0-9-]{1,42}", raw["project"])
         or not isinstance(raw["origin"], str)

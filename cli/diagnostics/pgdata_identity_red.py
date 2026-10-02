@@ -42,7 +42,7 @@ class PGDataReadback(unittest.TestCase):
                 "version": 1,
                 "instance_id": iid,
                 "release": "0.1.0",
-                "schema": "0004_pairing_receipts",
+                "schema": "0005_stop_fence",
                 "project": project,
                 "origin": f"http://127.0.0.1:{port}",
             },

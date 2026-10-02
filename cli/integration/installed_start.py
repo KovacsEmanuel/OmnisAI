@@ -565,7 +565,7 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
                 == "synthetic_incompatible"
             )
         finally:
-            runtime.psql(db, "UPDATE alembic_version SET version_num='0004_pairing_receipts'")
+            runtime.psql(db, "UPDATE alembic_version SET version_num='0005_stop_fence'")
         assert not select.select([sink], [], [], 0)[0], (
             "Startup/status contacted the provider/proxy sentinel"
         )

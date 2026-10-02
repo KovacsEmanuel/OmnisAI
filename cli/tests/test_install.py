@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0004_pairing_receipts",
+            "schema": "0005_stop_fence",
             "platform": "linux/amd64",
             "files": {},
         }

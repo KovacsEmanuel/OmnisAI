@@ -176,6 +176,8 @@ class ProductAttestationTest(unittest.TestCase):
         self.runtime.run.assert_not_called()
 
     def config(self):
+        # Shape observed from the installed Compose renderer with no daemon
+        # endpoint. Image defaults (API/DB command and WEB_ROOT) are not overrides.
         services = {}
         for role in ("api", "supervisor", "db"):
             item = self.item(role)
@@ -186,26 +188,48 @@ class ProductAttestationTest(unittest.TestCase):
                 "restart": "no",
                 "networks": {"control": None},
                 "labels": {"org.omnis.start-attempt": self.runtime.attempt},
-                "command": item["Config"]["Cmd"],
+                "command": item["Config"]["Cmd"] if role == "supervisor" else None,
                 "user": item["Config"]["User"],
                 "read_only": True,
                 "cap_drop": ["ALL"],
                 "security_opt": ["no-new-privileges:true"],
-                "environment": dict(v.split("=", 1) for v in item["Config"]["Env"]),
+                "environment": {
+                    key: value
+                    for key, value in (v.split("=", 1) for v in item["Config"]["Env"])
+                    if key != "OMNIS_WEB_ROOT"
+                },
                 "volumes": [
                     {
                         "type": m["Type"],
                         "source": m["Source"],
                         "target": m["Destination"],
-                        "read_only": not m["RW"],
-                        "bind": {"create_host_path": True},
+                        **({"read_only": True} if not m["RW"] else {}),
                     }
                     for m in item["Mounts"]
+                    if m["Destination"] != "/run/secrets/db_password"
                 ],
             }
+            if role == "db":
+                for key in ("user", "read_only", "cap_drop", "security_opt"):
+                    services[role].pop(key)
+                services[role]["environment"] = {
+                    "POSTGRES_USER": "omnis",
+                    "POSTGRES_DB": "omnis",
+                    "POSTGRES_PASSWORD_FILE": "/run/secrets/db_password",
+                    "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256",
+                }
+                services[role]["secrets"] = [
+                    {"source": "db_password", "target": "/run/secrets/db_password"}
+                ]
         return {
             "name": self.runtime.receipt.project,
             "services": services,
+            "secrets": {
+                "db_password": {
+                    "name": self.runtime.receipt.project + "_db_password",
+                    "file": self.env["OMNIS_DB_PASSWORD_FILE"],
+                }
+            },
             "networks": {
                 "control": {
                     "name": self.runtime.receipt.project + "_control",
@@ -215,6 +239,67 @@ class ProductAttestationTest(unittest.TestCase):
                 }
             },
         }
+
+    def test_config_mount_command_environment_and_secret_boundaries(self):
+        valid = self.config()
+        self.runtime.compose = Mock(
+            return_value=subprocess.CompletedProcess([], 0, json.dumps(valid))
+        )
+        start.validate_config(self.runtime, self.env)
+        mutations = [
+            ("missing-bind", lambda s: s["volumes"].pop()),
+            (
+                "extra-bind",
+                lambda s: s["volumes"].append(
+                    {"type": "bind", "source": "/foreign", "target": "/extra"}
+                ),
+            ),
+            ("foreign-source", lambda s: s["volumes"][0].update(source="/foreign")),
+            ("foreign-target", lambda s: s["volumes"][0].update(target="/foreign")),
+            (
+                "write-mode",
+                lambda s: s["volumes"][0].update(
+                    read_only=not s["volumes"][0].get("read_only", False)
+                ),
+            ),
+            ("boolean-alias", lambda s: s["volumes"][0].update(read_only=1)),
+            ("bind-options", lambda s: s["volumes"][0].update(bind={"propagation": "rshared"})),
+            ("command", lambda s: s.update(command=["sleep", "90"])),
+            ("missing-env", lambda s: s["environment"].pop(next(iter(s["environment"])))),
+            ("extra-env", lambda s: s["environment"].update(LD_PRELOAD="/foreign")),
+            (
+                "changed-env",
+                lambda s: s["environment"].update({next(iter(s["environment"])): "foreign"}),
+            ),
+            ("secret-binding", lambda s: s.update(secrets=[{"source": "foreign"}])),
+        ]
+        for role in ("api", "supervisor", "db"):
+            for name, mutate in mutations:
+                with self.subTest(role=role, boundary=name):
+                    bad = deepcopy(valid)
+                    mutate(bad["services"][role])
+                    self.runtime.compose.return_value = subprocess.CompletedProcess(
+                        [], 0, json.dumps(bad)
+                    )
+                    with self.assertRaises(StartError):
+                        start.validate_config(self.runtime, self.env)
+        root_mutations = [
+            ("secret-missing", lambda c: c.pop("secrets")),
+            ("secret-path", lambda c: c["secrets"]["db_password"].update(file="/foreign")),
+            ("secret-name", lambda c: c["secrets"]["db_password"].update(name="foreign")),
+            ("secret-extra", lambda c: c["secrets"].update(foreign={"file": "/foreign"})),
+            ("named-volume", lambda c: c.update(volumes={"foreign": {}})),
+        ]
+        for name, mutate in root_mutations:
+            with self.subTest(boundary=name):
+                bad = deepcopy(valid)
+                mutate(bad)
+                self.runtime.compose.return_value = subprocess.CompletedProcess(
+                    [], 0, json.dumps(bad)
+                )
+                with self.assertRaises(StartError):
+                    start.validate_config(self.runtime, self.env)
+        self.runtime.run.assert_not_called()
 
     def test_config_validator_valid_and_supported_boundary_mutations(self):
         valid = self.config()

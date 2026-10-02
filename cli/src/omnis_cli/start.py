@@ -121,8 +121,16 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
     services = mapping(config.get("services"))
     networks = mapping(config.get("networks"))
     if (
-        config.get("name") != runtime.receipt.project
+        set(config) != {"name", "services", "networks", "secrets"}
+        or config.get("name") != runtime.receipt.project
         or set(services) != {"db", "api", "supervisor"}
+        or config.get("secrets")
+        != {
+            "db_password": {
+                "name": f"{runtime.receipt.project}_db_password",
+                "file": env["OMNIS_DB_PASSWORD_FILE"],
+            }
+        }
         or set(networks) != {"control"}
         or mapping(networks["control"])
         != {
@@ -135,6 +143,62 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
         raise StartError("COMPOSE_TOPOLOGY_INVALID")
     for role, raw in services.items():
         service = mapping(raw)
+        expected_command = (
+            ["python", "-I", "-m", "omnis.supervisor"] if role == "supervisor" else None
+        )
+        expected_secrets = (
+            [{"source": "db_password", "target": "/run/secrets/db_password"}]
+            if role == "db"
+            else []
+        )
+        if role == "db":
+            expected_environment = {
+                "POSTGRES_USER": "omnis",
+                "POSTGRES_DB": "omnis",
+                "POSTGRES_PASSWORD_FILE": "/run/secrets/db_password",
+                "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256",
+            }
+            expected_mounts: list[dict[str, object]] = [
+                {
+                    "type": "bind",
+                    "source": f"{env['OMNIS_STATE_ROOT']}/postgres",
+                    "target": "/var/lib/postgresql",
+                }
+            ]
+        else:
+            expected_environment = {
+                "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
+                "OMNIS_CONTROL_DIR": "/run/omnis-control",
+            }
+            expected_mounts = [
+                {
+                    "type": "bind",
+                    "source": env["OMNIS_CONTROL_DIR"],
+                    "target": "/run/omnis-control",
+                    **({"read_only": True} if role == "api" else {}),
+                }
+            ]
+            if role == "api":
+                expected_environment.update(
+                    OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=env["OMNIS_HTTP_PORT"]
+                )
+                expected_mounts.append(
+                    {
+                        "type": "bind",
+                        "source": env["OMNIS_HTTP_BIND_DIR"],
+                        "target": "/run/omnis-http",
+                    }
+                )
+        mounts = service.get("volumes")
+        if (
+            not isinstance(mounts, list)
+            or any(type(mapping(mount).get("read_only", False)) is not bool for mount in mounts)
+            or mounts != expected_mounts
+            or service.get("environment") != expected_environment
+            or service.get("command") != expected_command
+            or service.get("secrets", []) != expected_secrets
+        ):
+            raise StartError("COMPOSE_SERVICE_BINDING_INVALID")
         if (
             mapping(service.get("labels")) != {"org.omnis.start-attempt": runtime.attempt}
             or service.get("image") != (POSTGRES if role == "db" else runtime.receipt.image_id)

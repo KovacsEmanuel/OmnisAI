@@ -4,6 +4,7 @@ import json
 import os
 import select
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -11,7 +12,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from .control import ControlUnavailable, request
-from .instance import control_dir, load_instance, private_dir, state_dir
+from .instance import control_dir, load_instance, private_dir, private_file, state_dir
 from .lifecycle import (
     StartError,
     cleanup_startup_ipc,
@@ -144,10 +145,19 @@ def readback_stopped(
         or _integer(record, "port") != int(instance.origin.rsplit(":", 1)[1])
         or _integer(record, "stop_generation")
         not in {_integer(record, "stop_expected"), _integer(record, "stop_expected") + 1}
-        or not (root / "postgres").is_dir()
-        or not (root / "db-password").is_file()
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
+    try:
+        data_root = (root / "postgres").lstat()
+        if (
+            not stat.S_ISDIR(data_root.st_mode)
+            or data_root.st_uid != os.getuid()
+            or stat.S_IMODE(data_root.st_mode) != 0o711
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        private_file(root / "db-password", limit=64)  # O_NOFOLLOW, owner/mode/link count.
+    except (OSError, ValueError):
+        raise StartError("RECOVERY_REQUIRED", 4) from None
     runtime.attempt = str(record["attempt"])
     if runtime.ids() or runtime.network(set()) is not None:
         raise StartError("STOP_READBACK_UNCERTAIN", 4)

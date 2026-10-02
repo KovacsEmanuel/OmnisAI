@@ -8,13 +8,102 @@ import socket
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
+from uuid import uuid4
 
-from omnis_cli.lifecycle import cleanup_startup_ipc, socket_identity
+from omnis_cli.lifecycle import StartError, cleanup_startup_ipc, socket_identity, write_record
 from omnis_cli.main import main
+from omnis_cli.stop import readback_stopped
 
 
 class StopTest(unittest.TestCase):
+    def test_stopped_receipt_refuses_symlinked_pgdata_or_database_secret(self) -> None:
+        """Offline STOPPED readback must not follow a replacement data root."""
+        with tempfile.TemporaryDirectory(prefix="sl04-data-", dir=os.environ["TMPDIR"]) as name:
+            base = Path(name)
+            root, foreign = base / "omnis", base / "foreign"
+            root.mkdir(mode=0o700)
+            foreign.mkdir(mode=0o700)
+            with socket.socket() as reservation:
+                reservation.bind(("127.0.0.1", 0))
+                port = reservation.getsockname()[1]
+            project = "omnis-local-" + "a" * 32
+            instance_id, attempt = str(uuid4()), str(uuid4())
+            control = root / "runtime-ipc"
+            write_record(
+                root / "instance.json",
+                {
+                    "version": 1,
+                    "instance_id": instance_id,
+                    "release": "0.1.0",
+                    "schema": "0004_pairing_receipts",
+                    "project": project,
+                    "origin": f"http://127.0.0.1:{port}",
+                },
+            )
+            record = {
+                "format": 1,
+                "phase": "STOPPED",
+                "attempt": attempt,
+                "project": project,
+                "release_digest": "b" * 64,
+                "image_id": "sha256:" + "c" * 64,
+                "docker_host": "unix:///run/docker.sock",
+                "docker_id": "synthetic-daemon",
+                "control_dir": str(control),
+                "port": port,
+                "containers": {
+                    key: char * 64
+                    for key, char in zip(("db", "api", "supervisor"), "def", strict=True)
+                },
+                "system_id": "12345",
+                "instance_id": instance_id,
+                "forwarder": {},
+                "listener_inode": 123,
+                "api_socket": [1, 2],
+                "control_socket": [3, 4],
+                "open_command": str(uuid4()),
+                "generation": 1,
+                "supervisor_epoch": 1,
+                "stop_command": str(uuid4()),
+                "stop_expected": 1,
+                "stop_generation": 2,
+                "finalize_command": str(uuid4()),
+            }
+            runtime = SimpleNamespace(
+                receipt=SimpleNamespace(
+                    project=project, image_id=record["image_id"], docker_id=record["docker_id"]
+                ),
+                digest=record["release_digest"],
+                host=record["docker_host"],
+                attempt=None,
+                uncertain=False,
+                family_drained=True,
+                ids=lambda: [],
+                network=lambda _allowed: None,
+                inspect=lambda _kind, _cid: None,
+            )
+            password = root / "db-password"
+            password.write_text("synthetic\n")
+            password.chmod(0o600)
+            (root / "postgres").symlink_to(foreign, target_is_directory=True)
+            with self.assertRaises(StartError):
+                readback_stopped(runtime, root, control, record)
+            (root / "postgres").unlink()
+            (root / "postgres").mkdir(mode=0o711)
+            other_secret = foreign / "password"
+            other_secret.write_text("synthetic\n")
+            other_secret.chmod(0o600)
+            password.unlink()
+            password.symlink_to(other_secret)
+            with self.assertRaises(StartError):
+                readback_stopped(runtime, root, control, record)
+            password.unlink()
+            password.write_text("synthetic\n")
+            password.chmod(0o600)
+            readback_stopped(runtime, root, control, record)
+
     def test_stale_owned_socket_receipt_never_unlinks_replaced_private_peer(self) -> None:
         with tempfile.TemporaryDirectory(prefix="sl04-ipc-", dir=os.environ["TMPDIR"]) as name:
             root = Path(name) / "omnis"

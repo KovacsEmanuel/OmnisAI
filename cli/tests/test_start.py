@@ -68,7 +68,8 @@ class StartTest(unittest.TestCase):
             phases.append(("subprocess", json.loads(journal.read_text())["phase"]))
             return 4242
 
-        def http_wait(*args):
+        def http_wait(*args, **kwargs):
+            self.assertIs(kwargs.get("allow_closed"), False)
             phases.append(("http", json.loads(journal.read_text())["phase"]))
             raise start.StartError("SYNTHETIC_READINESS_FAILED", 3)
 

@@ -179,7 +179,14 @@ def api_process(runtime: ControlRuntime, ident: str, root: Path, control: Path, 
 
 
 def wait_dashboard(
-    runtime: ControlRuntime, root: Path, control: Path, port: int, instance_id: str, api_pid: int
+    runtime: ControlRuntime,
+    root: Path,
+    control: Path,
+    port: int,
+    instance_id: str,
+    api_pid: int,
+    *,
+    allow_closed: bool = False,
 ) -> dict[str, object]:
     end = min(runtime.deadline, time.monotonic() + 30)
     while time.monotonic() < end:
@@ -193,6 +200,7 @@ def wait_dashboard(
                 end,
                 forwarded=False,
                 api_pid=api_pid,
+                allow_closed=allow_closed,
             )
         except (OSError, ValueError, ControlUnavailable, http.client.HTTPException):
             time.sleep(min(0.2, remaining(end)))
@@ -528,6 +536,8 @@ def projection(
 
 
 def start_instance(port: int | None = None) -> dict[str, object]:
+    from .stop import _integer, readback_stopped  # Import after start's module initialization.
+
     deadline = time.monotonic() + 180
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
@@ -557,15 +567,25 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         ensure_private(root)
         locks.enter_context(lifecycle_lock(root, deadline))
         journal = root / "startup.json"
+        restarting: dict[str, object] | None = None
         if os.path.lexists(journal):
             record = read_record(journal)
             selected = record.get("port")
             if type(selected) is not int or (port is not None and selected != port):
                 raise StartError("PORT_CHANGE_REQUIRES_STOP")
-            return verify_running(runtime, root, control, record, selected)
-        if os.path.lexists(root / "instance.json") or os.path.lexists(root / "postgres"):
+            if record.get("phase") == "STOPPED":
+                readback_stopped(runtime, root, control, record)
+                restarting = record
+            else:
+                return verify_running(runtime, root, control, record, selected)
+        if restarting is None and (
+            os.path.lexists(root / "instance.json") or os.path.lexists(root / "postgres")
+        ):
             raise StartError("UNOWNED_STATE_RECOVERY_REQUIRED", 4)
-        selected = port if port is not None else 8765
+        if restarting is None:
+            selected = port if port is not None else 8765
+        else:
+            selected = _integer(restarting, "port")
         preflight_port(selected)
         if (
             runtime.ids()
@@ -575,8 +595,19 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         for path in (control, root / "http"):
             if os.path.lexists(path):
                 private_dir(path)
-                if any(path.iterdir()):
+                allowed = {"control.lock"} if path == control else {"api.lock"}
+                if any(item.name not in allowed for item in path.iterdir()):
                     raise StartError("PREEXISTING_IPC_REFUSED", 4)
+        if restarting is not None:
+            previous_log = root / "forwarder.log"
+            archive = root / f"forwarder-{restarting['attempt']}.log"
+            if os.path.lexists(previous_log):
+                if os.path.lexists(archive):
+                    raise StartError("RECOVERY_REQUIRED", 4)
+                private_file(previous_log, limit=4 * 1024 * 1024)
+                previous_log.rename(archive)
+            elif not os.path.lexists(archive):
+                raise StartError("RECOVERY_REQUIRED", 4)
         record = {
             "format": 1,
             "phase": "STARTING",
@@ -591,14 +622,15 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             "containers": {},
         }
         runtime.attempt = str(record["attempt"])
-        write_record(journal, record)
+        write_record(journal, record, replace=restarting is not None)
         owner = ForwarderOwnership()
         try:
             ensure_private(control)
             ensure_private(root / "http")
-            (root / "postgres").mkdir(mode=0o711)
-            (root / "postgres").chmod(0o711)  # Only PG18's dedicated bind; root stays 0700.
-            _put(root / "db-password", (secrets.token_hex(24) + "\n").encode())
+            if restarting is None:
+                (root / "postgres").mkdir(mode=0o711)
+                (root / "postgres").chmod(0o711)  # Only PG18's bind; root stays 0700.
+                _put(root / "db-password", (secrets.token_hex(24) + "\n").encode())
             env = environment(runtime, root, control, selected)
             validate_config(runtime, env)
             runtime.compose(
@@ -616,58 +648,63 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             if not re.fullmatch(r"[0-9]{1,20}", system_id):
                 raise StartError("DATABASE_IDENTITY_INVALID", 3)
             record["system_id"] = system_id
-            record["phase"] = "MIGRATING"
-            write_record(journal, record, replace=True)
-            migration_env = {
-                "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
-                "OMNIS_EXPECTED_SYSTEM_ID": system_id,
-            }
-            job = runtime.run(
-                "create",
-                "--name",
-                f"{runtime.receipt.project}-migrate",
-                "--label",
-                f"com.docker.compose.project={runtime.receipt.project}",
-                "--label",
-                "com.docker.compose.service=migrate",
-                "--label",
-                f"org.omnis.start-attempt={runtime.attempt}",
-                "--network",
-                f"{runtime.receipt.project}_control",
-                "--read-only",
-                "--cap-drop",
-                "ALL",
-                "--security-opt",
-                "no-new-privileges:true",
-                "--user",
-                f"{os.getuid()}:{os.getgid()}",
-                "--env",
-                "OMNIS_DATABASE_URL",
-                "--env",
-                "OMNIS_EXPECTED_SYSTEM_ID",
-                runtime.receipt.image_id,
-                "python",
-                "-I",
-                "-m",
-                "omnis.migrate",
-                "--initialize",
-                env=migration_env,
-                effect=True,
-            ).stdout.strip()
-            runtime.attest(job, "migrate", root, control, selected)
-            ids["migrate"] = job
-            record["containers"] = ids
-            write_record(journal, record, replace=True)
-            runtime.run("start", job, effect=True)
-            if runtime.wait_container(job).get("ExitCode") != 0:
-                raise StartError("MIGRATION_FAILED_UPDATE_REQUIRED", 3)
-            runtime.attest(job, "migrate", root, control, selected)
-            runtime.run("container", "rm", job, effect=True)
-            if runtime.inspect("container", job) is not None:
-                raise StartError("MIGRATION_CLEANUP_UNCERTAIN", 4)
+            if restarting is None:
+                record["phase"] = "MIGRATING"
+                write_record(journal, record, replace=True)
+                migration_env = {
+                    "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
+                    "OMNIS_EXPECTED_SYSTEM_ID": system_id,
+                }
+                job = runtime.run(
+                    "create",
+                    "--name",
+                    f"{runtime.receipt.project}-migrate",
+                    "--label",
+                    f"com.docker.compose.project={runtime.receipt.project}",
+                    "--label",
+                    "com.docker.compose.service=migrate",
+                    "--label",
+                    f"org.omnis.start-attempt={runtime.attempt}",
+                    "--network",
+                    f"{runtime.receipt.project}_control",
+                    "--read-only",
+                    "--cap-drop",
+                    "ALL",
+                    "--security-opt",
+                    "no-new-privileges:true",
+                    "--user",
+                    f"{os.getuid()}:{os.getgid()}",
+                    "--env",
+                    "OMNIS_DATABASE_URL",
+                    "--env",
+                    "OMNIS_EXPECTED_SYSTEM_ID",
+                    runtime.receipt.image_id,
+                    "python",
+                    "-I",
+                    "-m",
+                    "omnis.migrate",
+                    "--initialize",
+                    env=migration_env,
+                    effect=True,
+                ).stdout.strip()
+                runtime.attest(job, "migrate", root, control, selected)
+                ids["migrate"] = job
+                record["containers"] = ids
+                write_record(journal, record, replace=True)
+                runtime.run("start", job, effect=True)
+                if runtime.wait_container(job).get("ExitCode") != 0:
+                    raise StartError("MIGRATION_FAILED_UPDATE_REQUIRED", 3)
+                runtime.attest(job, "migrate", root, control, selected)
+                runtime.run("container", "rm", job, effect=True)
+                if runtime.inspect("container", job) is not None:
+                    raise StartError("MIGRATION_CLEANUP_UNCERTAIN", 4)
+            elif system_id != restarting["system_id"]:
+                raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             verified_system, identity = database_identity(runtime, ids["db"])
-            if verified_system != system_id:
-                raise StartError("DATABASE_IDENTITY_MISMATCH", 3)
+            if verified_system != system_id or (
+                restarting is not None and identity != restarting["instance_id"]
+            ):
+                raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             record.update(phase="SERVICES", instance_id=identity)
             write_record(journal, record, replace=True)
             runtime.compose(
@@ -691,13 +728,31 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             # VERIFYING is the HTTP/control wait, after the last Docker attestation.
             record["phase"] = "VERIFYING"
             write_record(journal, record, replace=True)
-            current = wait_dashboard(runtime, root, control, selected, identity, api_pid)
-            if (
+            current = wait_dashboard(
+                runtime,
+                root,
+                control,
+                selected,
+                identity,
+                api_pid,
+                allow_closed=restarting is not None,
+            )
+            if restarting is None:
+                if (
+                    current["admission_open"] is not False
+                    or current["generation"] != 0
+                    or current["shutdown_command_id"] is not None
+                ):
+                    raise StartError("INITIAL_ADMISSION_CONFLICT", 4)
+            elif (
                 current["admission_open"] is not False
-                or current["generation"] != 0
-                or current["shutdown_command_id"] is not None
+                or current["generation"] != restarting["stop_generation"]
+                or current["shutdown_command_id"] != restarting["stop_command"]
+                or current["quiesced_generation"] != restarting["stop_generation"]
+                or current["shutdown_finalized"] is not True
+                or _integer(current, "supervisor_epoch") <= _integer(restarting, "supervisor_epoch")
             ):
-                raise StartError("INITIAL_ADMISSION_CONFLICT", 4)
+                raise StartError("RESTART_ADMISSION_CONFLICT", 4)
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
             _, _, forwarder, inode = launch_forwarder(root, selected, deadline, ownership=owner)
@@ -718,23 +773,30 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 deadline,
                 forwarded=True,
                 api_pid=api_pid,
+                allow_closed=restarting is not None,
             )
             # Only this verified new instance may open; never reopen an existing closed barrier.
             remaining(deadline)
             command_id = str(uuid4())
             record["open_command"] = command_id
             write_record(journal, record, replace=True)
+            opening_generation = (
+                0 if restarting is None else _integer(restarting, "stop_generation")
+            )
             current = request(
                 control,
                 {
                     "op": "open",
                     "instance_id": identity,
                     "command_id": command_id,
-                    "expected_generation": 0,
+                    "expected_generation": opening_generation,
                 },
                 deadline=deadline,
             )
-            if current["admission_open"] is not True or current["generation"] != 1:
+            if (
+                current["admission_open"] is not True
+                or current["generation"] != opening_generation + 1
+            ):
                 raise StartError("ADMISSION_OPEN_UNVERIFIED", 4)
             instance = Instance(
                 identity,
@@ -743,7 +805,10 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 runtime.receipt.project,
                 f"http://127.0.0.1:{selected}",
             )
-            write_record(root / "instance.json", {"version": 1, **asdict(instance)})
+            if restarting is None:
+                write_record(root / "instance.json", {"version": 1, **asdict(instance)})
+            elif load_instance(root) != instance:
+                raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             record.update(
                 phase="READY",
                 generation=current["generation"],

@@ -111,12 +111,14 @@ def dashboard(
     *,
     forwarded: bool,
     api_pid: int,
+    allow_closed: bool = False,
 ) -> dict[str, object]:
     current = request(control, {"op": "status"}, deadline=deadline)
     if (
         current["instance_id"] != identity
         or current["assessment_ready"] is not False
-        or current["shutdown_command_id"] is not None
+        or not allow_closed
+        and current["shutdown_command_id"] is not None
     ):
         raise StartError("INSTANCE_CONTROL_MISMATCH", 3)
     directory = None if forwarded else http_dir

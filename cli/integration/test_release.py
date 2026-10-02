@@ -598,6 +598,10 @@ class ReleaseBundleTest(unittest.TestCase):
 
                     run_database_readiness_failure(data, state, cli)
                     run_lock_expiry(data, state, cli)
+            if os.environ.get("OMNIS_INSTALLED_STOP_PROBE") == "1":
+                from installed_stop import run_installed_stop
+
+                run_installed_stop(data, state, cli)
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"

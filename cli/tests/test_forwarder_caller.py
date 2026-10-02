@@ -92,7 +92,8 @@ class ForwarderCallerTest(unittest.TestCase):
                     "State": {"Running": item["running"]},
                 }
 
-            def ready(*args):
+            def ready(*args, **kwargs):
+                self.assertIs(kwargs.get("allow_closed"), False)
                 api.bind(str(root / "http/api.sock"))
                 (root / "http/api.sock").chmod(0o600)
                 api.listen(1)

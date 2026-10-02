@@ -1,0 +1,344 @@
+"""Host-owned instance Stop; no run Stop, Docker socket or assessment runtime."""
+
+import json
+import os
+import select
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+from uuid import UUID, uuid4
+
+from .control import ControlUnavailable, request
+from .instance import control_dir, load_instance, private_dir, state_dir
+from .lifecycle import (
+    StartError,
+    cleanup_startup_ipc,
+    lifecycle_lock,
+    listener_owned,
+    mapping,
+    process_identity,
+    read_record,
+    socket_identity,
+    write_record,
+)
+from .start import READY_FIELDS, database_identity, service_ids, verify_running
+from .start_runtime import ControlRuntime
+
+STOP_FIELDS = READY_FIELDS | {
+    "stop_command",
+    "stop_expected",
+    "stop_generation",
+    "finalize_command",
+}
+
+
+def _integer(record: dict[str, object], key: str) -> int:
+    value = record.get(key)
+    if type(value) is not int:
+        raise StartError("RECOVERY_REQUIRED", 4)
+    return value
+
+
+def _containers(record: dict[str, object]) -> dict[str, str]:
+    value = record.get("containers")
+    if not isinstance(value, dict) or set(value) != {"db", "api", "supervisor"}:
+        raise StartError("RECOVERY_REQUIRED", 4)
+    if any(not isinstance(cid, str) for cid in value.values()):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    return value
+
+
+def _stopping_record(record: dict[str, object]) -> None:
+    if (
+        set(record) != STOP_FIELDS
+        or record.get("phase") not in {"STOPPING", "STOPPED"}
+        or record.get("stop_generation") is not None
+        and type(record["stop_generation"]) is not int
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    for key in ("attempt", "stop_command", "finalize_command"):
+        value = record[key]
+        if not isinstance(value, str):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        try:
+            if str(UUID(value)) != value:
+                raise ValueError()
+        except ValueError:
+            raise StartError("RECOVERY_REQUIRED", 4) from None
+    if _integer(record, "stop_expected") < 0 or (
+        _integer(record, "generation") != _integer(record, "stop_expected")
+        or _integer(record, "supervisor_epoch") < 1
+        or not 1024 <= _integer(record, "port") <= 65535
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    _containers(record)
+
+
+def readback_stopped(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> None:
+    """Offline receipt is usable only while its exact owned resources stay absent."""
+    _stopping_record(record)
+    if record["phase"] != "STOPPED" or record["stop_generation"] is None:
+        raise StartError("RECOVERY_REQUIRED", 4)
+    instance = load_instance(root)
+    if (
+        record["project"] != runtime.receipt.project
+        or record["release_digest"] != runtime.digest
+        or record["image_id"] != runtime.receipt.image_id
+        or record["docker_id"] != runtime.receipt.docker_id
+        or record["docker_host"] != runtime.host
+        or record["control_dir"] != str(control)
+        or record["instance_id"] != instance.instance_id
+        or _integer(record, "port") != int(instance.origin.rsplit(":", 1)[1])
+        or _integer(record, "stop_generation")
+        not in {_integer(record, "stop_expected"), _integer(record, "stop_expected") + 1}
+        or not (root / "postgres").is_dir()
+        or not (root / "db-password").is_file()
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.attempt = str(record["attempt"])
+    if runtime.ids() or runtime.network(set()) is not None:
+        raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    for cid in _containers(record).values():
+        if runtime.inspect("container", cid) is not None:
+            raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+        if os.path.lexists(path):
+            raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    inode = _integer(record, "listener_inode")
+    port = _integer(record, "port")
+    for name in ("tcp", "tcp6"):
+        for row in Path(f"/proc/net/{name}").read_text().splitlines()[1:]:
+            fields = row.split()
+            if fields[3] == "0A" and (
+                fields[9] == str(inode) or int(fields[1].split(":")[1], 16) == port
+            ):
+                raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    if runtime.uncertain or not runtime.family_drained:
+        raise StartError("STOP_READBACK_UNCERTAIN", 4)
+
+
+def _running_for_stop(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> dict[str, object]:
+    _stopping_record(record)
+    instance = load_instance(root)
+    port = _integer(record, "port")
+    if (
+        record["project"] != runtime.receipt.project
+        or record["release_digest"] != runtime.digest
+        or record["image_id"] != runtime.receipt.image_id
+        or record["docker_id"] != runtime.receipt.docker_id
+        or record["docker_host"] != runtime.host
+        or record["control_dir"] != str(control)
+        or record["instance_id"] != instance.instance_id
+        or port != int(instance.origin.rsplit(":", 1)[1])
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.attempt = str(record["attempt"])
+    ids = service_ids(runtime, root, control, port)
+    if ids != _containers(record):
+        raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+    if database_identity(runtime, ids["db"]) != (record["system_id"], instance.instance_id):
+        raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
+    for role, cid in ids.items():
+        if (
+            mapping(runtime.attest(cid, role, root, control, port).get("State")).get("Running")
+            is not True
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+    listener_owned(mapping(record["forwarder"]), port, _integer(record, "listener_inode"))
+    if (
+        socket_identity(root / "http/api.sock") != record["api_socket"]
+        or socket_identity(control / "control.sock") != record["control_socket"]
+    ):
+        raise StartError("IPC_IDENTITY_MISMATCH", 4)
+    current = request(control, {"op": "status"}, deadline=runtime.deadline)
+    if current["instance_id"] != instance.instance_id or current["assessment_ready"] is not False:
+        raise StartError("INSTANCE_CONTROL_MISMATCH", 4)
+    return current
+
+
+def _drain_owned(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> None:
+    """Only the host launcher stops the pinned forwarder and attested fixed CIDs."""
+    port = _integer(record, "port")
+    ids = _containers(record)
+    if service_ids(runtime, root, control, port) != ids:
+        raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+    identity = mapping(record["forwarder"])
+    pid = identity.get("pid")
+    if type(pid) is not int:
+        raise StartError("FORWARDER_IDENTITY_INVALID", 4)
+    fd = os.pidfd_open(pid)
+    try:
+        if process_identity(pid) != identity:
+            raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
+        listener_owned(identity, port, _integer(record, "listener_inode"))
+        signal.pidfd_send_signal(fd, signal.SIGTERM)
+        if not select.select([fd], [], [], 25)[0]:
+            signal.pidfd_send_signal(fd, signal.SIGKILL)
+            raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
+        for role in ("api", "supervisor", "db"):
+            cid = ids[role]
+            if role == "db" and (runtime.uncertain or not runtime.family_drained):
+                raise StartError("DATABASE_RETAINED_UNCERTAIN_WRITERS", 4)
+            runtime.attest(cid, role, root, control, port)
+            runtime.run("stop", "--time", "15", cid, cap=25, effect=True)
+            after = runtime.inspect("container", cid)
+            if after is None or mapping(after.get("State")).get("Running") is not False:
+                raise StartError("CONTAINER_STOP_UNCERTAIN", 4)
+            runtime.attest(cid, role, root, control, port)
+            runtime.run("container", "rm", cid, effect=True)
+            if runtime.inspect("container", cid) is not None:
+                raise StartError("CONTAINER_REMOVAL_UNCERTAIN", 4)
+        if runtime.ids():
+            raise StartError("CONTAINERS_REMAIN", 4)
+        network = runtime.network(set())
+        if network is not None:
+            runtime.run("network", "rm", network, effect=True)
+        if runtime.network(set()) is not None:
+            raise StartError("NETWORK_REMAINS", 4)
+        if runtime.uncertain or not runtime.family_drained or cleanup_startup_ipc(root, control):
+            raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
+        if not select.select([fd], [], [], 0)[0]:
+            raise StartError("FORWARDER_STILL_LIVE", 4)
+    finally:
+        os.close(fd)
+
+
+def stop_instance() -> dict[str, object]:
+    data = os.environ.get("XDG_DATA_HOME")
+    data_home = Path(data) if data else Path.home() / ".local/share"
+    runtime = ControlRuntime(data_home, time.monotonic() + 180)
+    root = state_dir()
+    control = control_dir(root)
+    private_dir(root)
+    deadline = runtime.deadline
+    with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
+        path = root / "startup.json"
+        record = read_record(path)
+        if record.get("phase") == "STOPPED":
+            readback_stopped(runtime, root, control, record)
+        else:
+            if record.get("phase") == "READY":
+                verify_running(runtime, root, control, record, _integer(record, "port"))
+                current = request(control, {"op": "status"}, deadline=deadline)
+                if (
+                    current["instance_id"] != record["instance_id"]
+                    or current["generation"] != record["generation"]
+                    or current["supervisor_epoch"] != record["supervisor_epoch"]
+                    or current["admission_open"] is not True
+                ):
+                    raise StartError("RECOVERY_REQUIRED", 4)
+                record.update(
+                    phase="STOPPING",
+                    stop_command=str(uuid4()),
+                    stop_expected=current["generation"],
+                    stop_generation=None,
+                    finalize_command=str(uuid4()),
+                )
+                write_record(path, record, replace=True)
+            elif record.get("phase") != "STOPPING":
+                raise StartError("RECOVERY_REQUIRED", 4)
+            try:
+                current = _running_for_stop(runtime, root, control, record)
+                expected = _integer(record, "stop_expected")
+                if current["generation"] not in {expected, expected + 1}:
+                    raise StartError("RECOVERY_REQUIRED", 4)
+                closed = request(
+                    control,
+                    {
+                        "op": "shutdown",
+                        "instance_id": record["instance_id"],
+                        "command_id": record["stop_command"],
+                        "expected_generation": expected,
+                    },
+                    deadline=deadline,
+                )
+                if (
+                    closed["shutdown_command_id"] != record["stop_command"]
+                    or closed["admission_open"] is not False
+                    or closed["supervisor_epoch"] != current["supervisor_epoch"]
+                ):
+                    raise StartError("STOP_BARRIER_UNVERIFIED", 4)
+                record["stop_generation"] = closed["generation"]
+                write_record(path, record, replace=True)
+                until = min(deadline, time.monotonic() + 15)
+                while time.monotonic() < until:
+                    current = request(control, {"op": "status"}, deadline=until)
+                    if (
+                        current["instance_id"] != record["instance_id"]
+                        or current["generation"] != closed["generation"]
+                        or current["shutdown_command_id"] != record["stop_command"]
+                        or current["supervisor_epoch"] != closed["supervisor_epoch"]
+                    ):
+                        raise StartError("STOP_CONTROL_CHANGED", 4)
+                    if current["quiesced_generation"] == closed["generation"]:
+                        break
+                    time.sleep(0.1)
+                else:
+                    raise StartError("QUIESCENCE_UNVERIFIED", 4)
+                finalized = request(
+                    control,
+                    {
+                        "op": "finalize",
+                        "instance_id": record["instance_id"],
+                        "command_id": record["finalize_command"],
+                        "expected_generation": closed["generation"],
+                    },
+                    deadline=deadline,
+                )
+                if (
+                    finalized["generation"] != closed["generation"]
+                    or finalized["shutdown_finalized"] is not True
+                    or finalized["quiesced_generation"] != closed["generation"]
+                    or finalized["supervisor_epoch"] != closed["supervisor_epoch"]
+                ):
+                    raise StartError("FINALIZE_UNVERIFIED", 4)
+                _drain_owned(runtime, root, control, record)
+                record["phase"] = "STOPPED"
+                write_record(path, record, replace=True)
+                if read_record(path) != record:
+                    raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+                readback_stopped(runtime, root, control, record)
+            except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
+                raise StartError("STOP_UNCERTAIN", 4) from None
+        instance = load_instance(root)
+        return {
+            "state": "STOPPED",
+            "instance_id": instance.instance_id,
+            "origin": instance.origin,
+            "generation": record["stop_generation"],
+            "admission_open": False,
+            "dashboard_ready": False,
+            "assessment_ready": False,
+            "browser_opened": False,
+            "reason": None,
+        }
+
+
+def stop(*, as_json: bool) -> int:
+    try:
+        result = stop_instance()
+        code = 0
+    except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError) as exc:
+        code = exc.code if isinstance(exc, StartError) else 4
+        result = {
+            "state": "REFUSED" if code == 2 else "UNCERTAIN",
+            "reason": exc.reason if isinstance(exc, StartError) else "STOP_UNCERTAIN",
+            "dashboard_ready": False,
+            "assessment_ready": False,
+            "browser_opened": False,
+        }
+    if as_json:
+        print(json.dumps(result, sort_keys=True))
+    else:
+        print(f"Omnis: {result['state']} ({result.get('reason') or 'stopped'})")
+        if code:
+            print("Verificați starea privată; fără retry distructiv.", file=sys.stderr)
+    return code

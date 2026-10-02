@@ -13,6 +13,7 @@ from .instance import control_dir, load_instance, state_dir
 from .lifecycle import StartError, read_record
 from .start import verify_running
 from .start_runtime import ControlRuntime
+from .stop import _stopping_record, readback_stopped
 
 
 def status(*, as_json: bool) -> int:
@@ -64,17 +65,38 @@ def status(*, as_json: bool) -> int:
         try:
             record = read_record(root / "startup.json")
             port = record.get("port")
-            if record.get("phase") != "READY" or type(port) is not int:
-                raise StartError("RECOVERY_REQUIRED", 4)
             data = os.environ.get("XDG_DATA_HOME")
             runtime = ControlRuntime(
                 Path(data) if data else Path.home() / ".local/share", time.monotonic() + 30
             )
-            verified = verify_running(runtime, root, control_dir(root), record, port)
+            if record.get("phase") == "STOPPED":
+                instance = load_instance(root)
+                readback_stopped(runtime, root, control_dir(root), record)
+                verified = {
+                    "state": "STOPPED",
+                    "instance_id": instance.instance_id,
+                    "release": instance.release,
+                    "schema": instance.schema,
+                    "origin": instance.origin,
+                    "generation": record["stop_generation"],
+                    "admission_open": False,
+                    "control_ready": False,
+                    "dashboard_ready": False,
+                    "assessment_ready": False,
+                    "browser_opened": False,
+                    "reason": None,
+                }
+            elif record.get("phase") == "STOPPING":
+                _stopping_record(record)
+                raise StartError("INSTANCE_SHUTTING_DOWN", 4)
+            elif record.get("phase") == "READY" and type(port) is int:
+                verified = verify_running(runtime, root, control_dir(root), record, port)
+                verified.pop("reused")
+            else:
+                raise StartError("RECOVERY_REQUIRED", 4)
             if read_record(root / "startup.json") != record:
                 raise StartError("LIFECYCLE_CHANGED", 4)
             result = verified
-            result.pop("reused")
             exit_code = 0
         except (
             OSError,

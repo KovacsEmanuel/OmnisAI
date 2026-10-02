@@ -11,6 +11,7 @@ from .pairing import interactive_tty, pair
 from .release import ReleaseError, install_release
 from .start import start, start_result
 from .status import status
+from .stop import stop
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -40,6 +41,8 @@ def main(argv: list[str] | None = None) -> int:
     pair_parser = commands.add_parser("pair", help="Emit a one-use code on a private TTY")
     pair_parser.add_argument("--json", action="store_true", help="Refused: pairing is TTY-only")
     commands.add_parser("open", help="Open the verified, ready installed dashboard")
+    stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
+    stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
     if args.command is None:
@@ -60,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         return pair(as_json=args.json)
     if args.command == "open":
         return open_verified()
+    if args.command == "stop":
+        return stop(as_json=args.json)
     if args.command == "install":
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"

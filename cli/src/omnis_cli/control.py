@@ -123,6 +123,55 @@ def request(
             )
         ):
             raise ControlUnavailable()
+        op = command.get("op")
+        if op in {"open", "shutdown", "finalize"}:
+            expected = command.get("expected_generation")
+            result = reply.get("result_generation")
+            owner_epoch = reply.get("owner_epoch")
+            if (
+                set(reply)
+                != {
+                    "ok",
+                    "correlation_id",
+                    "status",
+                    "result_generation",
+                    "command_id",
+                    "expected_generation",
+                    "owner_epoch",
+                }
+                or not _uuid(command.get("command_id"))
+                or reply.get("command_id") != command["command_id"]
+                or status["instance_id"] != command.get("instance_id")
+                or type(expected) is not int
+                or reply.get("expected_generation") != expected
+                or type(reply.get("expected_generation")) is not int
+                or type(result) is not int
+                or result != generation
+                or type(owner_epoch) is not int
+                or owner_epoch != epoch
+            ):
+                raise ControlUnavailable()
+            if op == "open":
+                valid = (
+                    result == expected + 1
+                    and status["admission_open"] is True
+                    and status["shutdown_command_id"] is None
+                )
+            elif op == "shutdown":
+                valid = (
+                    result in {expected, expected + 1}
+                    and status["admission_open"] is False
+                    and status["shutdown_command_id"] is not None
+                )
+            else:
+                valid = (
+                    result == expected
+                    and status["admission_open"] is False
+                    and status["quiesced_generation"] == result
+                    and status["shutdown_finalized"] is True
+                )
+            if not valid:
+                raise ControlUnavailable()
         return status
     except (OSError, TimeoutError, ValueError, UnicodeError, RecursionError) as exc:
         raise ControlUnavailable() from exc

@@ -17,7 +17,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from omnis.core.db import database_engine
-from omnis.modules.instance.domain import ControlCode, ControlConflict
+from omnis.modules.instance.domain import ControlCode, ControlConflict, InstanceStatus
 from omnis.modules.instance.service import InstanceService
 from omnis.security.sessions import SessionStore
 
@@ -43,6 +43,9 @@ class ControlReply(TypedDict, total=False):
     error: str
     status: ControlStatus
     result_generation: int | None
+    command_id: str
+    expected_generation: int
+    owner_epoch: int
 
 
 CONTROL_REPLY = TypeAdapter(ControlReply)
@@ -181,6 +184,53 @@ async def test_request_validates_reply_without_discarding_evidence(
         else:
             with pytest.raises(ValidationError):
                 await request(ipc_directory, "synthetic-capability", {"op": "status"})
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_reply_cannot_mix_an_open_receipt_with_a_later_shutdown(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, ipc_directory: Path
+) -> None:
+    """A separate status transaction can report another command's generation."""
+    from omnis.transport.local_control import LocalControl
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    try:
+        epoch = await service.acquire(owner)
+        async with LocalControl(ipc_directory, service, owner, epoch):
+            capability = (ipc_directory / "control.cap").read_text()
+            identity = (await service.owned_status(owner, epoch)).instance_id
+            original = service.status
+
+            async def interleaved_status() -> InstanceStatus:
+                await service.shutdown(uuid4(), 1, owner, epoch)
+                return await original()
+
+            monkeypatch.setattr(service, "status", interleaved_status)
+            command_id = uuid4()
+            reply = await request(
+                ipc_directory,
+                capability,
+                {
+                    "op": "open",
+                    "instance_id": str(identity),
+                    "command_id": str(command_id),
+                    "expected_generation": 0,
+                },
+            )
+            assert reply["ok"] is True
+            status = reply.get("status")
+            assert status is not None
+            assert reply.get("command_id") == str(command_id)
+            assert reply.get("expected_generation") == 0
+            assert reply.get("result_generation") == status["generation"] == 1
+            assert reply.get("owner_epoch") == status["supervisor_epoch"] == epoch
+            assert status["admission_open"] is True
+            current = await original()
+            assert current.generation == 1 and current.admission_open is True
+    finally:
+        await engine.dispose()
 
 
 @pytest.mark.asyncio

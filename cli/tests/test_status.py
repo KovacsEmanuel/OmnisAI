@@ -147,6 +147,71 @@ class StatusTest(unittest.TestCase):
             worker.join(timeout=2)
             self.assertFalse(worker.is_alive())
 
+    def test_command_reply_is_bound_to_id_generation_and_epoch(self):
+        (self.control / "control.cap").write_text("a" * 64)
+        (self.control / "control.cap").chmod(0o600)
+        command = str(uuid4())
+        sent = {
+            "op": "shutdown",
+            "instance_id": self.identity,
+            "command_id": command,
+            "expected_generation": 1,
+        }
+        valid = {
+            "ok": True,
+            "correlation_id": str(uuid4()),
+            "command_id": command,
+            "expected_generation": 1,
+            "result_generation": 2,
+            "owner_epoch": 3,
+            "status": {
+                "instance_id": self.identity,
+                "generation": 2,
+                "admission_open": False,
+                "shutdown_command_id": command,
+                "quiesced_generation": None,
+                "supervisor_epoch": 3,
+                "supervisor_ready": True,
+                "shutdown_finalized": False,
+                "assessment_ready": False,
+                "dashboard_ready": False,
+            },
+        }
+        for change in (
+            {},
+            {"command_id": str(uuid4())},
+            {"expected_generation": 0},
+            {"result_generation": 1},
+            {"owner_epoch": 2},
+            {"status": {**valid["status"], "generation": 3}},
+            {"status": {**valid["status"], "admission_open": True}},
+        ):
+            reply = {**valid, **change}
+            with socket.socket(socket.AF_UNIX) as listener:
+                path = self.control / "control.sock"
+                listener.bind(str(path))
+                path.chmod(0o600)
+                listener.listen(1)
+
+                def serve(reply=reply):
+                    connection, _ = listener.accept()
+                    with connection:
+                        connection.recv(4096)
+                        connection.sendall(json.dumps(reply).encode() + b"\n")
+
+                worker = threading.Thread(target=serve, daemon=True)
+                worker.start()
+                try:
+                    if not change:
+                        self.assertEqual(request(self.control, sent), valid["status"])
+                    else:
+                        with self.assertRaises(ControlUnavailable):
+                            request(self.control, sent)
+                finally:
+                    worker.join(timeout=2)
+                    self.assertFalse(worker.is_alive())
+            path.unlink()
+
     def test_wrong_instance_identity_is_not_adopted(self):
         self.write_instance()
         # A foreign/non-socket path or capability must not be used as a live control plane.

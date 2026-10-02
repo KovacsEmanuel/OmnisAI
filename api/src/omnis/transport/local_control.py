@@ -25,6 +25,7 @@ from omnis.core.paths import (
     unlink_owned_inode,
 )
 from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.records import CommandKind
 from omnis.modules.instance.schemas import (
     ControlRequest,
     InstanceView,
@@ -130,6 +131,7 @@ class LocalControl:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
         status = await self.service.owned_status(self.owner, self.epoch)
         result_generation: int | None = None
+        receipt: dict[str, object] = {}
         if not isinstance(command, StatusCommand):
             if command.instance_id != status.instance_id:
                 return {"ok": False, "error": "INSTANCE_MISMATCH"}
@@ -149,11 +151,35 @@ class LocalControl:
                 result_generation = await self.service.finalize(
                     command.command_id, command.expected_generation, self.owner, self.epoch
                 )
-            status = await self.service.status()
+            if isinstance(command, LifecycleCommand):
+                assert result_generation is not None
+                kind: CommandKind
+                if command.op == "open":
+                    kind = "OPEN"
+                elif command.op == "shutdown":
+                    kind = "SHUTDOWN"
+                else:
+                    kind = "FINALIZE"
+                status = await self.service.command_readback(
+                    command.command_id,
+                    kind,
+                    command.expected_generation,
+                    result_generation,
+                    self.owner,
+                    self.epoch,
+                )
+                receipt = {
+                    "command_id": str(command.command_id),
+                    "expected_generation": command.expected_generation,
+                    "owner_epoch": self.epoch,
+                }
+            else:
+                status = await self.service.owned_status(self.owner, self.epoch)
         return {
             "ok": True,
             "result_generation": result_generation,
             "status": InstanceView.model_validate(status).model_dump(mode="json"),
+            **receipt,
         }
 
     async def _handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:

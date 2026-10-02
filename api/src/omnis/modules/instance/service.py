@@ -255,6 +255,60 @@ class InstanceService:
             await self._require_owner(connection, lease, owner, epoch)
             return expected
 
+    async def command_readback(
+        self,
+        command_id: UUID,
+        kind: CommandKind,
+        expected: int,
+        result: int,
+        owner: UUID,
+        epoch: int,
+    ) -> InstanceStatus:
+        """Bind a committed receipt and current state under one DB row lock.
+
+        Another command between commit and this read can only cause refusal,
+        never a successful reply mixing two generations or owner epochs.
+        """
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            data = (
+                (
+                    await connection.execute(
+                        text("SELECT * FROM instance_command WHERE command_id = :command"),
+                        {"command": command_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if data is None:
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            receipt = read_record(CommandRecord, data)
+            if (
+                receipt.kind != kind
+                or receipt.expected_generation != expected
+                or receipt.result_generation != result
+                or receipt.owner_epoch != epoch
+                or instance.generation != result
+            ):
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            status = await self._status(connection, instance, lease)
+            if (
+                kind == "OPEN"
+                and (not status.admission_open or status.shutdown_command_id is not None)
+                or kind == "SHUTDOWN"
+                and (status.admission_open or status.shutdown_command_id is None)
+                or kind == "FINALIZE"
+                and (
+                    status.admission_open
+                    or status.quiesced_generation != result
+                    or not status.shutdown_finalized
+                )
+            ):
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            await self._require_owner(connection, lease, owner, epoch)
+            return status
+
     async def status(self) -> InstanceStatus:
         async with self._locked() as (connection, instance, lease):
             return await self._status(connection, instance, lease)

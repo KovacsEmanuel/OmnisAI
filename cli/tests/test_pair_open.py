@@ -3,11 +3,16 @@
 import contextlib
 import hashlib
 import io
+import os
+import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 from uuid import UUID
 
+from omnis_cli import browser, pairing, verified
+from omnis_cli.lifecycle import write_record
 from omnis_cli.main import main
 
 
@@ -17,6 +22,63 @@ class TtyOutput(io.StringIO):
 
 
 class PairTest(unittest.TestCase):
+    def test_unreconciled_stop_refuses_pair_and_open_before_effects(self):
+        """A recovered private peer cannot override an emergency Stop marker."""
+        with tempfile.TemporaryDirectory(prefix="sl04-verified-", dir=os.environ["TMPDIR"]) as name:
+            base = Path(name)
+            state, data = base / "state", base / "data"
+            root = state / "omnis"
+            (data / "omnis").mkdir(parents=True, mode=0o700)
+            root.mkdir(parents=True, mode=0o700)
+            write_record(root / "startup.json", {"phase": "READY", "port": 8765})
+            marker = root / "unreconciled.json"
+            write_record(marker, {"reason": "fixture-emergency"})
+            ready = {
+                "instance_id": "00000000-0000-0000-0000-000000000001",
+                "origin": "http://127.0.0.1:8765",
+                "generation": 1,
+                "supervisor_epoch": 1,
+            }
+            reply = {
+                "instance_id": ready["instance_id"],
+                "generation": 1,
+                "supervisor_epoch": 1,
+                "admission_open": True,
+                "shutdown_command_id": None,
+            }
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(state),
+                        "XDG_DATA_HOME": str(data),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(verified, "ControlRuntime", return_value=SimpleNamespace()),
+                patch.object(verified, "verify_running", return_value=ready) as attested,
+                patch.object(pairing, "request", return_value=reply) as issuer,
+                patch.object(browser, "launch", return_value="BROWSER_LAUNCH_ACCEPTED") as opener,
+                patch("sys.stdin", TtyOutput()),
+                contextlib.redirect_stdout(TtyOutput()) as output,
+                contextlib.redirect_stderr(io.StringIO()) as error,
+            ):
+                self.assertEqual(main(["pair"]), 4)
+                self.assertEqual(main(["open"]), 4)
+                attested.assert_not_called()
+                issuer.assert_not_called()
+                opener.assert_not_called()
+                self.assertEqual(output.getvalue(), "")
+                self.assertIn("RECOVERY_REQUIRED", error.getvalue())
+                self.assertTrue(marker.is_file())
+
+                marker.unlink()  # Only this test-owned marker; positive control on same channel.
+                self.assertEqual(main(["pair"]), 0)
+                self.assertEqual(main(["open"]), 0)
+                self.assertEqual(attested.call_count, 2)
+                issuer.assert_called_once()
+                opener.assert_called_once_with(ready["origin"])
+
     def test_redirected_output_refuses_before_issuer_or_state_lookup(self):
         output = io.StringIO()
         with (

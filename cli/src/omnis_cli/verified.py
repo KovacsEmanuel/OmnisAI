@@ -26,11 +26,15 @@ def verified_instance() -> Iterator[tuple[dict[str, object], Path]]:
         # Unlike start, no directory or lifecycle journal may be created here.
         private_dir(data_home / "omnis")
         private_dir(root)
+        if os.path.lexists(root / "unreconciled.json"):
+            raise StartError("RECOVERY_REQUIRED", 4)
         preflight = read_record(root / "startup.json")
         runtime = ControlRuntime(data_home, deadline)
         with ExitStack() as locks:
             locks.enter_context(lifecycle_lock(data_home / "omnis", deadline))
             locks.enter_context(lifecycle_lock(root, deadline))
+            if os.path.lexists(root / "unreconciled.json"):
+                raise StartError("RECOVERY_REQUIRED", 4)
             record = read_record(root / "startup.json")
             if record != preflight:
                 raise StartError("LIFECYCLE_CHANGED", 4)

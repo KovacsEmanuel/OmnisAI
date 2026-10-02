@@ -31,6 +31,7 @@ def resistant_child():
         stderr=subprocess.DEVNULL,
     )
     fd = os.pidfd_open(child.pid)
+    assert child.stdout is not None
     finished, rescued = threading.Event(), threading.Event()
 
     def rescue():
@@ -104,7 +105,8 @@ class ConfigDeadlineTest(unittest.TestCase):
                 journal = root / "startup.json"
                 write_record(journal, record)
                 ids = record["containers"]
-                runtime.ids = lambda: list(ids.values())
+                assert isinstance(ids, dict)
+                runtime.ids = lambda ids=ids: list(ids.values())
                 runtime.inspect = lambda *args: {"State": {"Running": True}}
                 runtime.attest = lambda *args: {"State": {"Running": True}}
                 runtime.network = lambda *args: "test-network"

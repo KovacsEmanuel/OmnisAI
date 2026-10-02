@@ -8,9 +8,9 @@ import os
 import unittest
 from unittest.mock import patch
 
+import test_config as config_tests
 from omnis_cli.lifecycle import StartError, write_record
 from omnis_cli.main import main
-import test_config as config_tests
 from test_stop import private_stop_fixture
 
 
@@ -55,11 +55,11 @@ class ConfigConsumersTest(unittest.TestCase):
             )
             deadlines = []
 
-            def construct(_data, deadline):
+            def construct(_data, deadline, runtime=runtime):
                 runtime.deadline = deadline
                 return runtime
 
-            def inventory():
+            def inventory(runtime=runtime, deadlines=deadlines):
                 deadlines.append(runtime.deadline)
                 return []
 
@@ -174,8 +174,8 @@ class ConfigConsumersTest(unittest.TestCase):
 
     def test_invalid_config_cannot_bypass_admission_via_direct_consumers(self):
         from omnis_cli.start import start_result
-        from omnis_cli.stop import stop
         from omnis_cli.status import status
+        from omnis_cli.stop import stop
         from omnis_cli.verified import verified_instance
 
         self.write_config("port = true\n")

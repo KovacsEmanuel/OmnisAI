@@ -11,7 +11,7 @@ from pathlib import Path
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
 from .lifecycle import StartError, read_record
-from .start import _check_pgdata, _ready_record, verify_running
+from .start import _bound_instance, _check_pgdata, _ready_record, verify_running
 from .start_runtime import ControlRuntime
 from .stop import _stopping_record, readback_stopped
 
@@ -124,14 +124,7 @@ def status(*, as_json: bool) -> int:
             elif record.get("phase") == "STOPPING":
                 _stopping_record(record)
                 _check_pgdata(root, record)
-                instance = load_instance(root)
-                if (
-                    record["project"] != instance.project
-                    or record["instance_id"] != instance.instance_id
-                    or record["control_dir"] != str(control_dir(root))
-                    or instance.origin != f"http://127.0.0.1:{record['port']}"
-                ):
-                    raise StartError("RECOVERY_REQUIRED", 4)
+                instance = _bound_instance(runtime, root, control_dir(root), record)
                 barrier_committed = record["stop_generation"] is not None
                 verified = {
                     "state": "STOPPING" if barrier_committed else "STOP_REQUESTED",

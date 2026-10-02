@@ -121,6 +121,200 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_cli_stopped_identity_binding_refuses_foreign_instance_before_effects(self) -> None:
+        """An intact PGDATA pin cannot bind a different instance project or release."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        for field, foreign in (("project", "omnis-foreign"), ("release", "0.2.0")):
+            with (
+                self.subTest(field=field),
+                private_stop_fixture() as (base, root, _foreign, _control, record, runtime),
+            ):
+                journal = root / "startup.json"
+                write_record(journal, record)
+                (root / "forwarder.log").write_text("prior forwarder\n")
+                (root / "forwarder.log").chmod(0o600)
+                instance_path = root / "instance.json"
+                instance = read_record(instance_path)
+                instance[field] = foreign
+                write_record(instance_path, instance, replace=True)
+                before = journal.read_bytes()
+                pg_pin = record["pgdata_identity"]
+                env = {
+                    "XDG_STATE_HOME": str(base / "s"),
+                    "XDG_DATA_HOME": str(base / "d"),
+                    "XDG_RUNTIME_DIR": "",
+                }
+                stale = {
+                    "instance_id": record["instance_id"],
+                    "generation": 2,
+                    "supervisor_epoch": 1,
+                    "admission_open": True,
+                    "shutdown_finalized": False,
+                }
+                with (
+                    patch.dict(os.environ, env),
+                    patch.object(start_module, "ControlRuntime", return_value=runtime),
+                    patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                    patch.object(status_module, "ControlRuntime", return_value=runtime),
+                    patch.object(status_module, "request", return_value=stale),
+                    patch.object(runtime, "ids", wraps=runtime.ids) as inventory,
+                    patch.object(runtime, "network", wraps=runtime.network) as network,
+                    patch.object(runtime, "inspect", wraps=runtime.inspect) as inspect,
+                    patch.object(runtime, "compose", create=True) as compose,
+                    patch.object(start_module, "preflight_port"),
+                    patch.object(start_module, "environment", return_value={}),
+                    patch.object(start_module, "validate_config"),
+                    patch.object(start_module, "cleanup_attempt", return_value=[]),
+                ):
+                    for command in (
+                        ["stop", "--json"],
+                        ["status", "--json"],
+                        ["start", "--no-open", "--json"],
+                    ):
+                        with self.subTest(field=field, command=command[0]):
+                            output = io.StringIO()
+                            with contextlib.redirect_stdout(output):
+                                code = main(command)
+                            outcome = json.loads(output.getvalue())
+                            self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                            self.assertNotEqual(outcome["state"], "STOPPED")
+                            for ready in (
+                                "generation",
+                                "supervisor_epoch",
+                                "admission_open",
+                                "shutdown_finalized",
+                            ):
+                                self.assertNotIn(ready, outcome)
+                            self.assertFalse(outcome.get("control_ready", False))
+                            self.assertFalse(outcome["dashboard_ready"])
+                    inventory.assert_not_called()
+                    network.assert_not_called()
+                    inspect.assert_not_called()
+                    compose.assert_not_called()
+                self.assertEqual(journal.read_bytes(), before)
+                pg = (root / "postgres").lstat()
+                self.assertEqual([pg.st_dev, pg.st_ino], pg_pin)
+                self.assertFalse((root / "unreconciled.json").exists())
+
+    def test_cli_stopped_matching_binding_controls_stop_status_and_explicit_start(self) -> None:
+        """The same installed-receipt channel still credits a matching STOPPED."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            write_record(root / "startup.json", record)
+            (root / "forwarder.log").write_text("prior forwarder\n")
+            (root / "forwarder.log").chmod(0o600)
+            env = {
+                "XDG_STATE_HOME": str(base / "s"),
+                "XDG_DATA_HOME": str(base / "d"),
+                "XDG_RUNTIME_DIR": "",
+            }
+
+            def cut_before_mount(_env: object, *args: object, **kwargs: object) -> None:
+                self.assertEqual(args[0], "create")
+                self.assertIs(kwargs.get("effect"), True)
+                raise StartError("SYNTHETIC_RESTART_CUT", 3)
+
+            with (
+                patch.dict(os.environ, env),
+                patch.object(start_module, "ControlRuntime", return_value=runtime),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(status_module, "ControlRuntime", return_value=runtime),
+                patch.object(start_module, "preflight_port"),
+                patch.object(start_module, "environment", return_value={}),
+                patch.object(start_module, "validate_config"),
+                patch.object(start_module, "cleanup_attempt", return_value=[]),
+                patch.object(
+                    runtime, "compose", side_effect=cut_before_mount, create=True
+                ) as compose,
+            ):
+                for command in (["stop", "--json"], ["status", "--json"]):
+                    with self.subTest(command=command[0]):
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
+                            code = main(command)
+                        outcome = json.loads(output.getvalue())
+                        self.assertEqual((code, outcome["state"]), (0, "STOPPED"))
+                        self.assertFalse(outcome["dashboard_ready"])
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    code = main(["start", "--no-open", "--json"])
+                self.assertEqual(
+                    (code, json.loads(output.getvalue())["reason"]), (3, "SYNTHETIC_RESTART_CUT")
+                )
+                compose.assert_called_once()
+
+    def test_cli_stopping_status_and_stop_refuse_installed_project_or_release_drift(self) -> None:
+        """A matching receipt and instance cannot project STOPPING on another daemon project."""
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            record.update(
+                phase="STOPPING",
+                stop_generation=None,
+                finalized_generation=None,
+                teardown_completed=[],
+            )
+            journal = root / "startup.json"
+            write_record(journal, record)
+            env = {
+                "XDG_STATE_HOME": str(base / "s"),
+                "XDG_DATA_HOME": str(base / "d"),
+                "XDG_RUNTIME_DIR": "",
+            }
+            stale = {
+                "instance_id": record["instance_id"],
+                "generation": 1,
+                "supervisor_epoch": 1,
+                "admission_open": True,
+                "shutdown_finalized": False,
+            }
+            with (
+                patch.dict(os.environ, env),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(status_module, "ControlRuntime", return_value=runtime),
+                patch.object(status_module, "request", return_value=stale),
+                patch.object(runtime, "ids", wraps=runtime.ids) as inventory,
+                patch.object(runtime, "compose", create=True) as compose,
+            ):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    code = main(["status", "--json"])
+                self.assertEqual(
+                    (code, json.loads(output.getvalue())["state"]), (4, "STOP_REQUESTED")
+                )
+                original_project = runtime.receipt.project
+                for field in ("project", "release"):
+                    with self.subTest(field=field):
+                        if field == "project":
+                            runtime.receipt.project = "omnis-other-installed"
+                        else:
+                            runtime.receipt.project = original_project
+                            instance_path = root / "instance.json"
+                            instance = read_record(instance_path)
+                            instance["release"] = "0.2.0"
+                            write_record(instance_path, instance, replace=True)
+                        before = journal.read_bytes()
+                        for command in (["status", "--json"], ["stop", "--json"]):
+                            with self.subTest(command=command[0]):
+                                output = io.StringIO()
+                                with contextlib.redirect_stdout(output):
+                                    code = main(command)
+                                outcome = json.loads(output.getvalue())
+                                self.assertEqual(
+                                    (code, outcome["reason"]), (4, "RECOVERY_REQUIRED")
+                                )
+                                self.assertNotIn(outcome["state"], ("STOPPING", "STOPPED"))
+                                for key in ("generation", "admission_open", "supervisor_epoch"):
+                                    self.assertNotIn(key, outcome)
+                        self.assertEqual(journal.read_bytes(), before)
+                inventory.assert_not_called()
+                compose.assert_not_called()
+            self.assertFalse((root / "unreconciled.json").exists())
+
     def test_explicit_restart_preserves_both_identities_before_new_mount(self) -> None:
         """Replacing STOPPED with STARTING must not erase the saved logical or physical ID."""
         start_module = importlib.import_module("omnis_cli.start")

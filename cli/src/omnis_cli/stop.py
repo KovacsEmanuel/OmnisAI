@@ -26,6 +26,7 @@ from .lifecycle import (
 from .start import (
     READY_FIELDS,
     STOP_FIELDS,
+    _bound_instance,
     _check_pgdata,
     _owned_record,
     _pgdata_receipt,
@@ -169,20 +170,7 @@ def readback_stopped(
     _check_pgdata(root, record)
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
-    instance = load_instance(root)
-    if (
-        record["project"] != runtime.receipt.project
-        or record["release_digest"] != runtime.digest
-        or record["image_id"] != runtime.receipt.image_id
-        or record["docker_id"] != runtime.receipt.docker_id
-        or record["docker_host"] != runtime.host
-        or record["control_dir"] != str(control)
-        or record["instance_id"] != instance.instance_id
-        or _integer(record, "port") != int(instance.origin.rsplit(":", 1)[1])
-        or _integer(record, "stop_generation")
-        not in {_integer(record, "stop_expected"), _integer(record, "stop_expected") + 1}
-    ):
-        raise StartError("RECOVERY_REQUIRED", 4)
+    _bound_instance(runtime, root, control, record)
     try:
         private_file(root / "db-password", limit=64)  # O_NOFOLLOW, owner/mode/link count.
     except (OSError, ValueError):
@@ -206,19 +194,8 @@ def _running_for_stop(
 ) -> dict[str, object]:
     _stopping_record(record)
     _check_pgdata(root, record)
-    instance = load_instance(root)
+    instance = _bound_instance(runtime, root, control, record)
     port = _integer(record, "port")
-    if (
-        record["project"] != runtime.receipt.project
-        or record["release_digest"] != runtime.digest
-        or record["image_id"] != runtime.receipt.image_id
-        or record["docker_id"] != runtime.receipt.docker_id
-        or record["docker_host"] != runtime.host
-        or record["control_dir"] != str(control)
-        or record["instance_id"] != instance.instance_id
-        or port != int(instance.origin.rsplit(":", 1)[1])
-    ):
-        raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = str(record["attempt"])
     ids = service_ids(runtime, root, control, port)
     if ids != _containers(record):
@@ -272,19 +249,8 @@ def _emergency_inventory(
     attempt = record["attempt"]
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
         raise StartError("RECOVERY_REQUIRED", 4)
-    instance = load_instance(root)
+    _bound_instance(runtime, root, control, record)
     port = _integer(record, "port")
-    if (
-        record["project"] != runtime.receipt.project
-        or record["release_digest"] != runtime.digest
-        or record["image_id"] != runtime.receipt.image_id
-        or record["docker_host"] != runtime.host
-        or record["docker_id"] != runtime.receipt.docker_id
-        or record["control_dir"] != str(control)
-        or record["instance_id"] != instance.instance_id
-        or port != int(instance.origin.rsplit(":", 1)[1])
-    ):
-        raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = attempt
     _expected_sockets(record)
     ids = _containers(record)
@@ -370,6 +336,7 @@ def _emergency_stop(
     else:
         raise StartError("RECOVERY_REQUIRED", 4)
     _check_pgdata(root, record)
+    _bound_instance(runtime, root, control, record)
     # The marker path can be unwritable independently of the private journal.
     # Persist before inventory: an outage there must not leave READY reusable.
     journaled = False
@@ -439,19 +406,9 @@ def _resume_owned(
     _check_pgdata(root, record)
     if record["finalized_generation"] is None or record["phase"] != "STOPPING":
         raise StartError("FINALIZE_UNVERIFIED", 4)
-    instance = load_instance(root)
+    instance = _bound_instance(runtime, root, control, record)
     port = _integer(record, "port")
-    if (
-        record["project"] != runtime.receipt.project
-        or record["release_digest"] != runtime.digest
-        or record["image_id"] != runtime.receipt.image_id
-        or record["docker_id"] != runtime.receipt.docker_id
-        or record["docker_host"] != runtime.host
-        or record["control_dir"] != str(control)
-        or record["instance_id"] != instance.instance_id
-        or port != int(instance.origin.rsplit(":", 1)[1])
-        or read_record(path) != record
-    ):
+    if read_record(path) != record:
         raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = str(record["attempt"])
     ids = _containers(record)
@@ -574,6 +531,7 @@ def _publish_stopped(
 def stop_instance() -> dict[str, object]:
     root = state_dir()
     # A legacy receipt has no original inode: refuse before even creating a lock.
+    preflight = None
     if os.path.lexists(root / "startup.json"):
         preflight = read_record(root / "startup.json")
         _preflight_record(preflight)
@@ -583,12 +541,15 @@ def stop_instance() -> dict[str, object]:
     runtime = ControlRuntime(data_home, time.monotonic() + 180)
     control = control_dir(root)
     private_dir(root)
+    if preflight is not None:
+        _bound_instance(runtime, root, control, preflight)
     deadline = runtime.deadline
     with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
         _check_pgdata(root, record)
+        _bound_instance(runtime, root, control, record)
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         if record.get("phase") == "STOPPED":

@@ -36,7 +36,7 @@ from .lifecycle import (
     socket_identity,
     write_record,
 )
-from .release import _put
+from .release import _RELEASE, _put
 from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
 
 EXPECTED_SCHEMA = "0004_pairing_receipts"
@@ -618,6 +618,30 @@ def _ready_record(record: dict[str, object]) -> None:
     _owned_record(record)
 
 
+def _bound_instance(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+) -> Instance:
+    """Bind a typed lifecycle receipt to instance.json and the installed daemon/release."""
+    _pgdata_receipt(record)
+    _owned_record(record)
+    instance = load_instance(root)
+    if (
+        record["project"] != instance.project
+        or instance.project != runtime.receipt.project
+        or instance.release != _RELEASE
+        or instance.schema != EXPECTED_SCHEMA
+        or record["release_digest"] != runtime.digest
+        or record["image_id"] != runtime.receipt.image_id
+        or record["docker_id"] != runtime.receipt.docker_id
+        or record["docker_host"] != runtime.host
+        or record["control_dir"] != str(control)
+        or record["instance_id"] != instance.instance_id
+        or instance.origin != f"http://127.0.0.1:{record['port']}"
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    return instance
+
+
 def verify_running(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
 ) -> dict[str, object]:
@@ -627,22 +651,8 @@ def verify_running(
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
         raise StartError("RECOVERY_REQUIRED", 4)
     runtime.attempt = attempt
-    instance = load_instance(root)
-    if (
-        record.get("phase") != "READY"
-        or record.get("format") != 2
-        or record.get("release_digest") != runtime.digest
-        or record.get("image_id") != runtime.receipt.image_id
-        or record.get("docker_id") != runtime.receipt.docker_id
-        or record.get("docker_host") != runtime.host
-        or record.get("control_dir") != str(control)
-        or record.get("port") != port
-        or record.get("project") != runtime.receipt.project
-        or instance.project != runtime.receipt.project
-        or instance.release != "0.1.0"
-        or instance.origin != f"http://127.0.0.1:{port}"
-        or record.get("instance_id") != instance.instance_id
-    ):
+    instance = _bound_instance(runtime, root, control, record)
+    if record.get("phase") != "READY" or record.get("port") != port:
         raise StartError("RECOVERY_REQUIRED", 4)
     ids = service_ids(runtime, root, control, port)
     if set(ids) != {"db", "api", "supervisor"} or ids != record.get("containers"):

@@ -11,6 +11,7 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -116,7 +117,16 @@ class StatusTest(unittest.TestCase):
         self.assertEqual(set(record), STOP_FIELDS)
         journal = self.state / "startup.json"
         write_record(journal, record)
-        with patch("omnis_cli.status.ControlRuntime"):
+        installed = SimpleNamespace(
+            receipt=SimpleNamespace(
+                project=record["project"],
+                image_id=record["image_id"],
+                docker_id=record["docker_id"],
+            ),
+            digest=record["release_digest"],
+            host=record["docker_host"],
+        )
+        with patch("omnis_cli.status.ControlRuntime", return_value=installed):
             code, status, _ = self.run_status()
         self.assertEqual(code, 4)
         self.assertEqual(status["state"], "STOP_REQUESTED")
@@ -125,7 +135,7 @@ class StatusTest(unittest.TestCase):
         self.assertFalse(status["dashboard_ready"])
         record["stop_generation"] = 2
         write_record(journal, record, replace=True)
-        with patch("omnis_cli.status.ControlRuntime"):
+        with patch("omnis_cli.status.ControlRuntime", return_value=installed):
             code, status, _ = self.run_status()
         self.assertEqual(code, 4)
         self.assertEqual(status["state"], "STOPPING")

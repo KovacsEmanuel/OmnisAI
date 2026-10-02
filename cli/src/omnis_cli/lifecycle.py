@@ -41,7 +41,7 @@ def ensure_private(path: Path) -> None:
 
 
 @contextmanager
-def lifecycle_lock(root: Path, deadline: float) -> Iterator[None]:
+def lifecycle_lock(root: Path, deadline: float) -> Iterator[int]:
     private_dir(root)
     fd = os.open(
         root / "lifecycle.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600
@@ -63,7 +63,7 @@ def lifecycle_lock(root: Path, deadline: float) -> Iterator[None]:
                 if time.monotonic() >= deadline:
                     raise StartError("LIFECYCLE_BUSY") from None
                 time.sleep(min(0.05, deadline - time.monotonic()))
-        yield  # Lock contents/PIDs are never authority; do not delete stale locks.
+        yield fd  # Transfer this OFD, never reopen it or explicitly LOCK_UN.
     finally:
         os.close(fd)
 

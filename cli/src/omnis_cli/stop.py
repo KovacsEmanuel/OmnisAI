@@ -32,7 +32,10 @@ STOP_FIELDS = READY_FIELDS | {
     "stop_expected",
     "stop_generation",
     "finalize_command",
+    "finalized_generation",
+    "teardown_completed",
 }
+STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
 
 
 def _integer(record: dict[str, object], key: str) -> int:
@@ -99,11 +102,23 @@ def _listener_absent(record: dict[str, object]) -> None:
 
 
 def _stopping_record(record: dict[str, object]) -> None:
+    completed = record.get("teardown_completed")
+    finalized = record.get("finalized_generation")
     if (
         set(record) != STOP_FIELDS
         or record.get("phase") not in {"STOPPING", "STOPPED"}
         or record.get("stop_generation") is not None
         and type(record["stop_generation"]) is not int
+        or finalized is not None
+        and type(finalized) is not int
+        or not isinstance(completed, list)
+        or completed != list(STOP_STAGES[: len(completed)])
+        or finalized is not None
+        and finalized != record.get("stop_generation")
+        or completed
+        and finalized is None
+        or record.get("phase") == "STOPPED"
+        and (finalized is None or completed != list(STOP_STAGES))
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     for key in ("attempt", "stop_command", "finalize_command"):
@@ -325,57 +340,179 @@ def _emergency_stop(
     raise StartError("RECOVERY_REQUIRED" if marked else "UNRECONCILED_MARKER_UNAVAILABLE", 4)
 
 
-def _drain_owned(
-    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+def _complete_stage(path: Path, record: dict[str, object], stage: str) -> None:
+    completed = record.get("teardown_completed")
+    if not isinstance(completed, list) or len(completed) >= len(STOP_STAGES):
+        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+    if STOP_STAGES[len(completed)] != stage:
+        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+    record["teardown_completed"] = [*completed, stage]
+    write_record(path, record, replace=True)
+    if read_record(path) != record:
+        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+
+
+def _finalized_db_readback(
+    runtime: ControlRuntime, record: dict[str, object], db: str, instance_id: str
 ) -> None:
-    """Only the host launcher stops the pinned forwarder and attested fixed CIDs."""
+    generation = _integer(record, "finalized_generation")
+    system_id, identity = database_identity(runtime, db)
+    if (system_id, identity) != (record["system_id"], instance_id):
+        raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
+    # UUIDs were canonicalized by _stopping_record; integers are exact at this
+    # boundary. The host has read-only DB authority here, never a new writer.
+    finalized = record["finalize_command"]
+    query = (
+        "SELECT generation::text || '|' || "
+        "CASE WHEN admission_open THEN 't' ELSE 'f' END || '|' || "
+        "shutdown_command_id::text || '|' || quiesced_generation::text || '|' || "
+        "(SELECT count(*)::text FROM instance_command WHERE "
+        f"command_id = '{finalized}'::uuid AND kind = 'FINALIZE' "
+        f"AND expected_generation = {generation} AND result_generation = {generation} "
+        f"AND owner_epoch = {_integer(record, 'supervisor_epoch')}) "
+        "FROM instance_control WHERE id = 1"
+    )
+    expected = [str(generation), "f", record["stop_command"], str(generation), "1"]
+    if runtime.psql(db, query).split("|") != expected:
+        raise StartError("FINALIZE_READBACK_UNVERIFIED", 4)
+
+
+def _resume_owned(
+    runtime: ControlRuntime, root: Path, control: Path, path: Path, record: dict[str, object]
+) -> None:
+    """Resume only fsynced completed stages; an unacknowledged effect is uncertain."""
+    _stopping_record(record)
+    if record["finalized_generation"] is None or record["phase"] != "STOPPING":
+        raise StartError("FINALIZE_UNVERIFIED", 4)
+    instance = load_instance(root)
     port = _integer(record, "port")
+    if (
+        record["project"] != runtime.receipt.project
+        or record["release_digest"] != runtime.digest
+        or record["image_id"] != runtime.receipt.image_id
+        or record["docker_id"] != runtime.receipt.docker_id
+        or record["docker_host"] != runtime.host
+        or record["control_dir"] != str(control)
+        or record["instance_id"] != instance.instance_id
+        or port != int(instance.origin.rsplit(":", 1)[1])
+        or read_record(path) != record
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.attempt = str(record["attempt"])
     ids = _containers(record)
-    if service_ids(runtime, root, control, port) != ids:
+    present = set(runtime.ids())
+    if present - set(ids.values()):
         raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+    completed = record["teardown_completed"]
+    if not isinstance(completed, list):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    for role in ("api", "supervisor", "db"):
+        cid = ids[role]
+        item = runtime.inspect("container", cid)
+        if role in completed:
+            if cid in present or item is not None:
+                raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+        elif cid not in present or item is None:
+            raise StartError("STOP_EFFECT_UNCERTAIN", 4)
+        else:
+            runtime.attest(cid, role, root, control, port)
+    network = runtime.network(present)
+    if network is None and "network" not in completed:
+        raise StartError("NETWORK_READBACK_UNCERTAIN", 4)
+    db = ids["db"]
+    if db in present:
+        state = mapping(runtime.attest(db, "db", root, control, port).get("State"))
+        if state.get("Running") is not True:
+            raise StartError("STOP_EFFECT_UNCERTAIN", 4)
+        _finalized_db_readback(runtime, record, db, instance.instance_id)
+
     identity = mapping(record["forwarder"])
     pid = identity.get("pid")
     if type(pid) is not int:
         raise StartError("FORWARDER_IDENTITY_INVALID", 4)
-    fd = os.pidfd_open(pid)
-    try:
-        if process_identity(pid) != identity:
-            raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
-        listener_owned(identity, port, _integer(record, "listener_inode"))
-        signal.pidfd_send_signal(fd, signal.SIGTERM)
-        if not select.select([fd], [], [], 25)[0]:
-            signal.pidfd_send_signal(fd, signal.SIGKILL)
-            raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
-        for role in ("api", "supervisor", "db"):
-            cid = ids[role]
-            if role == "db" and (runtime.uncertain or not runtime.family_drained):
-                raise StartError("DATABASE_RETAINED_UNCERTAIN_WRITERS", 4)
-            runtime.attest(cid, role, root, control, port)
-            runtime.run("stop", "--time", "15", cid, cap=25, effect=True)
-            after = runtime.inspect("container", cid)
-            if after is None or mapping(after.get("State")).get("Running") is not False:
-                raise StartError("CONTAINER_STOP_UNCERTAIN", 4)
-            runtime.attest(cid, role, root, control, port)
-            runtime.run("container", "rm", cid, effect=True)
-            if runtime.inspect("container", cid) is not None:
-                raise StartError("CONTAINER_REMOVAL_UNCERTAIN", 4)
-        if runtime.ids():
-            raise StartError("CONTAINERS_REMAIN", 4)
+    if "forwarder" in completed:
+        try:
+            fd = os.pidfd_open(pid)
+        except ProcessLookupError:
+            pass
+        else:
+            try:
+                try:
+                    same = process_identity(pid) == identity
+                except (OSError, ValueError):
+                    same = False
+                if same:
+                    raise StartError("FORWARDER_STILL_LIVE", 4)
+            finally:
+                os.close(fd)
+        _listener_absent(record)
+    else:
+        fd = os.pidfd_open(pid)
+        try:
+            if process_identity(pid) != identity:
+                raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
+            listener_owned(identity, port, _integer(record, "listener_inode"))
+            signal.pidfd_send_signal(fd, signal.SIGTERM)
+            if not select.select([fd], [], [], 25)[0]:
+                signal.pidfd_send_signal(fd, signal.SIGKILL)
+                raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
+        finally:
+            os.close(fd)
+        _listener_absent(record)
+        _complete_stage(path, record, "forwarder")
+
+    for role in ("api", "supervisor", "db"):
+        if role in completed:
+            continue
+        cid = ids[role]
+        if role == "db" and (runtime.uncertain or not runtime.family_drained):
+            raise StartError("DATABASE_RETAINED_UNCERTAIN_WRITERS", 4)
+        item = runtime.attest(cid, role, root, control, port)
+        if mapping(item.get("State")).get("Running") is not True:
+            raise StartError("STOP_EFFECT_UNCERTAIN", 4)
+        runtime.run("stop", "--time", "15", cid, cap=25, effect=True)
+        after = runtime.inspect("container", cid)
+        if after is None or mapping(after.get("State")).get("Running") is not False:
+            raise StartError("CONTAINER_STOP_UNCERTAIN", 4)
+        runtime.attest(cid, role, root, control, port)
+        runtime.run("container", "rm", cid, effect=True)
+        if runtime.inspect("container", cid) is not None or cid in runtime.ids():
+            raise StartError("CONTAINER_REMOVAL_UNCERTAIN", 4)
+        _complete_stage(path, record, role)
+
+    if runtime.ids():
+        raise StartError("CONTAINERS_REMAIN", 4)
+    if "network" not in completed:
         network = runtime.network(set())
-        if network is not None:
-            runtime.run("network", "rm", network, effect=True)
+        if network is None:
+            raise StartError("NETWORK_READBACK_UNCERTAIN", 4)
+        runtime.run("network", "rm", network, effect=True)
         if runtime.network(set()) is not None:
             raise StartError("NETWORK_REMAINS", 4)
-        if (
-            runtime.uncertain
-            or not runtime.family_drained
-            or cleanup_startup_ipc(root, control, expected=_expected_sockets(record))
-        ):
+        _complete_stage(path, record, "network")
+    elif runtime.network(set()) is not None:
+        raise StartError("NETWORK_REMAINS", 4)
+
+    if runtime.uncertain or not runtime.family_drained:
+        raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
+    if "ipc" not in completed:
+        if cleanup_startup_ipc(root, control, expected=_expected_sockets(record)):
             raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
-        if not select.select([fd], [], [], 0)[0]:
-            raise StartError("FORWARDER_STILL_LIVE", 4)
-    finally:
-        os.close(fd)
+        _complete_stage(path, record, "ipc")
+    for candidate in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+        if os.path.lexists(candidate):
+            raise StartError("STOP_READBACK_UNCERTAIN", 4)
+    _listener_absent(record)
+
+
+def _publish_stopped(
+    runtime: ControlRuntime, root: Path, control: Path, path: Path, record: dict[str, object]
+) -> None:
+    record["phase"] = "STOPPED"
+    write_record(path, record, replace=True)
+    if read_record(path) != record:
+        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+    readback_stopped(runtime, root, control, record)
 
 
 def stop_instance() -> dict[str, object]:
@@ -393,6 +530,12 @@ def stop_instance() -> dict[str, object]:
             raise StartError("RECOVERY_REQUIRED", 4)
         if record.get("phase") == "STOPPED":
             readback_stopped(runtime, root, control, record)
+        elif record.get("phase") == "STOPPING" and record.get("finalized_generation") is not None:
+            try:
+                _resume_owned(runtime, root, control, path, record)
+                _publish_stopped(runtime, root, control, path, record)
+            except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
+                raise StartError("STOP_UNCERTAIN", 4) from None
         else:
             if record.get("phase") == "READY":
                 try:
@@ -414,6 +557,8 @@ def stop_instance() -> dict[str, object]:
                     stop_expected=current["generation"],
                     stop_generation=None,
                     finalize_command=str(uuid4()),
+                    finalized_generation=None,
+                    teardown_completed=[],
                 )
                 write_record(path, record, replace=True)
             elif record.get("phase") != "STOPPING":
@@ -473,12 +618,12 @@ def stop_instance() -> dict[str, object]:
                     or finalized["supervisor_epoch"] != closed["supervisor_epoch"]
                 ):
                     raise StartError("FINALIZE_UNVERIFIED", 4)
-                _drain_owned(runtime, root, control, record)
-                record["phase"] = "STOPPED"
+                record["finalized_generation"] = closed["generation"]
                 write_record(path, record, replace=True)
                 if read_record(path) != record:
-                    raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-                readback_stopped(runtime, root, control, record)
+                    raise StartError("FINALIZE_RECEIPT_UNVERIFIED", 4)
+                _resume_owned(runtime, root, control, path, record)
+                _publish_stopped(runtime, root, control, path, record)
             except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
                 raise StartError("STOP_UNCERTAIN", 4) from None
         instance = load_instance(root)

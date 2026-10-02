@@ -85,6 +85,8 @@ class StatusTest(unittest.TestCase):
             stop_expected=1,
             stop_generation=None,
             finalize_command=str(uuid4()),
+            finalized_generation=None,
+            teardown_completed=[],
         )
         self.assertEqual(set(record), STOP_FIELDS)
         journal = self.state / "startup.json"

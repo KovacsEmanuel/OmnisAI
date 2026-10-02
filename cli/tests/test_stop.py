@@ -1,92 +1,223 @@
 """Instance Stop is distinct from run Stop and never guesses an installation."""
 
 import contextlib
+import importlib
 import io
 import json
 import os
 import socket
+import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Iterator
 from unittest.mock import patch
 from uuid import uuid4
 
-from omnis_cli.lifecycle import StartError, cleanup_startup_ipc, socket_identity, write_record
+from omnis_cli.lifecycle import (
+    StartError,
+    cleanup_startup_ipc,
+    process_identity,
+    socket_identity,
+    write_record,
+)
 from omnis_cli.main import main
 from omnis_cli.stop import readback_stopped
 
 
+@contextlib.contextmanager
+def private_stop_fixture() -> Iterator[
+    tuple[Path, Path, Path, Path, dict[str, object], SimpleNamespace]
+]:
+    with tempfile.TemporaryDirectory(prefix="sl04-data-", dir=os.environ["TMPDIR"]) as name:
+        base = Path(name)
+        state, data = base / "s", base / "d"
+        state.mkdir(mode=0o700)
+        data.mkdir(mode=0o700)
+        (data / "omnis").mkdir(mode=0o700)
+        root, foreign = state / "omnis", base / "foreign"
+        root.mkdir(mode=0o700)
+        foreign.mkdir(mode=0o700)
+        with socket.socket() as reservation:
+            reservation.bind(("127.0.0.1", 0))
+            port = reservation.getsockname()[1]
+        project = "omnis-local-" + "a" * 32
+        instance_id, attempt = str(uuid4()), str(uuid4())
+        control = root / "runtime-ipc"
+        write_record(
+            root / "instance.json",
+            {
+                "version": 1,
+                "instance_id": instance_id,
+                "release": "0.1.0",
+                "schema": "0004_pairing_receipts",
+                "project": project,
+                "origin": f"http://127.0.0.1:{port}",
+            },
+        )
+        record: dict[str, object] = {
+            "format": 1,
+            "phase": "STOPPED",
+            "attempt": attempt,
+            "project": project,
+            "release_digest": "b" * 64,
+            "image_id": "sha256:" + "c" * 64,
+            "docker_host": "unix:///run/docker.sock",
+            "docker_id": "synthetic-daemon",
+            "control_dir": str(control),
+            "port": port,
+            "containers": {
+                key: char * 64 for key, char in zip(("db", "api", "supervisor"), "def", strict=True)
+            },
+            "system_id": "12345",
+            "instance_id": instance_id,
+            "forwarder": {},
+            "listener_inode": 123,
+            "api_socket": [1, 2],
+            "control_socket": [3, 4],
+            "open_command": str(uuid4()),
+            "generation": 1,
+            "supervisor_epoch": 1,
+            "stop_command": str(uuid4()),
+            "stop_expected": 1,
+            "stop_generation": 2,
+            "finalize_command": str(uuid4()),
+            "finalized_generation": 2,
+            "teardown_completed": ["forwarder", "api", "supervisor", "db", "network", "ipc"],
+        }
+        runtime = SimpleNamespace(
+            receipt=SimpleNamespace(
+                project=project, image_id=record["image_id"], docker_id=record["docker_id"]
+            ),
+            digest=record["release_digest"],
+            host=record["docker_host"],
+            attempt=None,
+            deadline=time.monotonic() + 180,
+            uncertain=False,
+            family_drained=True,
+            ids=lambda: [],
+            network=lambda _allowed: None,
+            inspect=lambda _kind, _cid: None,
+        )
+        password = root / "db-password"
+        password.write_text("synthetic\n")
+        password.chmod(0o600)
+        (root / "postgres").mkdir(mode=0o711)
+        yield base, root, foreign, control, record, runtime
+
+
 class StopTest(unittest.TestCase):
+    def test_finalized_stop_resumes_only_remaining_owned_resources(self) -> None:
+        """A partial host teardown after FINALIZE is not a new DB shutdown."""
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            record.update(phase="STOPPING", teardown_completed=["forwarder", "api"])
+            child = subprocess.Popen(
+                [sys.executable, "-I", "-c", "import time; time.sleep(60)"],
+                cwd=base,
+                env={"PATH": "/usr/bin:/bin"},
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+            try:
+                record["forwarder"] = process_identity(child.pid)
+            finally:
+                child.terminate()  # This is the exact test-owned and unreaped child.
+                child.wait(timeout=5)
+            write_record(root / "startup.json", record)
+            cids = record["containers"]
+            assert isinstance(cids, dict)
+            states = {cids["supervisor"]: True, cids["db"]: True}
+            effects: list[tuple[str, ...]] = []
+            network_active = True
+
+            def ids() -> list[str]:
+                return list(states)
+
+            def inspect(kind: str, cid: str) -> dict[str, object] | None:
+                assert kind == "container"
+                return {"State": {"Running": states[cid]}} if cid in states else None
+
+            def attest(cid: str, role: str, *_args: object) -> dict[str, object]:
+                assert cid == cids[role] and cid in states, "Foreign identity was adopted"
+                return {"State": {"Running": states[cid]}}
+
+            def network(allowed: set[str]) -> str | None:
+                assert not set(states) - allowed, "Foreign network member was accepted"
+                return "n" * 64 if network_active else None
+
+            def psql(cid: str, query: str) -> str:
+                assert cid == cids["db"]
+                if "pg_control_system()" in query:
+                    return str(record["system_id"])
+                if "SELECT instance_id FROM instance_control" in query:
+                    return str(record["instance_id"])
+                if "SELECT version_num FROM alembic_version" in query:
+                    return "0004_pairing_receipts"
+                if "SELECT generation" in query:
+                    return f"2|f|{record['stop_command']}|2|1"
+                raise AssertionError("Unexpected DB readback")
+
+            def run(*args: str, **_kwargs: object) -> subprocess.CompletedProcess[str]:
+                nonlocal network_active
+                effects.append(args)
+                if args[0] == "stop":
+                    assert args[-1] in states
+                    states[args[-1]] = False
+                elif args[:2] == ("container", "rm"):
+                    assert states[args[-1]] is False
+                    del states[args[-1]]
+                elif args[:2] == ("network", "rm"):
+                    assert not states
+                    network_active = False
+                else:
+                    raise AssertionError("Unexpected lifecycle effect")
+                return subprocess.CompletedProcess(args, 0, "", "")
+
+            runtime.ids = ids
+            runtime.inspect = inspect
+            runtime.attest = attest
+            runtime.network = network
+            runtime.psql = psql
+            runtime.run = run
+            output = io.StringIO()
+            stop_module = importlib.import_module("omnis_cli.stop")
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                contextlib.redirect_stdout(output),
+            ):
+                code = main(["stop", "--json"])
+            assert code == 0, "A finalized, attested partial stop must be resumable"
+            assert json.loads(output.getvalue())["state"] == "STOPPED"
+            assert json.loads((root / "startup.json").read_text())["phase"] == "STOPPED"
+            assert not os.path.lexists(root / "unreconciled.json")
+            assert [event[:2] for event in effects] == [
+                ("stop", "--time"),
+                ("container", "rm"),
+                ("stop", "--time"),
+                ("container", "rm"),
+                ("network", "rm"),
+            ]
+            assert not states and not network_active
+            assert (root / "postgres").is_dir()
+
     def test_stopped_receipt_refuses_symlinked_pgdata_or_database_secret(self) -> None:
         """Offline STOPPED readback must not follow a replacement data root."""
-        with tempfile.TemporaryDirectory(prefix="sl04-data-", dir=os.environ["TMPDIR"]) as name:
-            base = Path(name)
-            root, foreign = base / "omnis", base / "foreign"
-            root.mkdir(mode=0o700)
-            foreign.mkdir(mode=0o700)
-            with socket.socket() as reservation:
-                reservation.bind(("127.0.0.1", 0))
-                port = reservation.getsockname()[1]
-            project = "omnis-local-" + "a" * 32
-            instance_id, attempt = str(uuid4()), str(uuid4())
-            control = root / "runtime-ipc"
-            write_record(
-                root / "instance.json",
-                {
-                    "version": 1,
-                    "instance_id": instance_id,
-                    "release": "0.1.0",
-                    "schema": "0004_pairing_receipts",
-                    "project": project,
-                    "origin": f"http://127.0.0.1:{port}",
-                },
-            )
-            record = {
-                "format": 1,
-                "phase": "STOPPED",
-                "attempt": attempt,
-                "project": project,
-                "release_digest": "b" * 64,
-                "image_id": "sha256:" + "c" * 64,
-                "docker_host": "unix:///run/docker.sock",
-                "docker_id": "synthetic-daemon",
-                "control_dir": str(control),
-                "port": port,
-                "containers": {
-                    key: char * 64
-                    for key, char in zip(("db", "api", "supervisor"), "def", strict=True)
-                },
-                "system_id": "12345",
-                "instance_id": instance_id,
-                "forwarder": {},
-                "listener_inode": 123,
-                "api_socket": [1, 2],
-                "control_socket": [3, 4],
-                "open_command": str(uuid4()),
-                "generation": 1,
-                "supervisor_epoch": 1,
-                "stop_command": str(uuid4()),
-                "stop_expected": 1,
-                "stop_generation": 2,
-                "finalize_command": str(uuid4()),
-            }
-            runtime = SimpleNamespace(
-                receipt=SimpleNamespace(
-                    project=project, image_id=record["image_id"], docker_id=record["docker_id"]
-                ),
-                digest=record["release_digest"],
-                host=record["docker_host"],
-                attempt=None,
-                uncertain=False,
-                family_drained=True,
-                ids=lambda: [],
-                network=lambda _allowed: None,
-                inspect=lambda _kind, _cid: None,
-            )
+        with private_stop_fixture() as (_base, root, foreign, control, record, runtime):
             password = root / "db-password"
-            password.write_text("synthetic\n")
-            password.chmod(0o600)
+            (root / "postgres").rmdir()
             (root / "postgres").symlink_to(foreign, target_is_directory=True)
             with self.assertRaises(StartError):
                 readback_stopped(runtime, root, control, record)

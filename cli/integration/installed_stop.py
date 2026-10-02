@@ -100,7 +100,12 @@ def run_installed_stop(data, receipt, cli):
             assert queued.returncode == 4, "Start queued behind Stop must not become restart"
             assert json.loads(queued.stdout)["reason"] == "INSTANCE_SHUTTING_DOWN"
             assert stopping_status.returncode == 4
-            assert json.loads(stopping_status.stdout)["state"] == "STOPPING"
+            stopping_view = json.loads(stopping_status.stdout)
+            assert (stopping_view["state"], stopping_view["reason"]) in {
+                ("STOP_REQUESTED", "STOP_BARRIER_UNCONFIRMED"),
+                ("STOPPING", "INSTANCE_SHUTTING_DOWN"),
+            }
+            assert "admission_open" not in stopping_view and not stopping_view["dashboard_ready"]
         finally:
             if stopper.poll() is None:
                 stopper.terminate()  # Only this direct, still-live test child.

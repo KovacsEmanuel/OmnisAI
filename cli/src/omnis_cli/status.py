@@ -99,8 +99,9 @@ def status(*, as_json: bool) -> int:
             elif record.get("phase") == "STOPPING":
                 _stopping_record(record)
                 instance = load_instance(root)
+                barrier_committed = record["stop_generation"] is not None
                 verified = {
-                    "state": "STOPPING",
+                    "state": "STOPPING" if barrier_committed else "STOP_REQUESTED",
                     "instance_id": instance.instance_id,
                     "release": instance.release,
                     "schema": instance.schema,
@@ -110,7 +111,11 @@ def status(*, as_json: bool) -> int:
                     "dashboard_ready": False,
                     "assessment_ready": False,
                     "browser_opened": False,
-                    "reason": "INSTANCE_SHUTTING_DOWN",
+                    "reason": (
+                        "INSTANCE_SHUTTING_DOWN"
+                        if barrier_committed
+                        else "STOP_BARRIER_UNCONFIRMED"
+                    ),
                 }
             elif record.get("phase") == "READY" and type(port) is int:
                 verified = verify_running(runtime, root, control_dir(root), record, port)

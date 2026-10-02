@@ -11,10 +11,14 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 from uuid import uuid4
 
 from omnis_cli.control import ControlUnavailable, request
+from omnis_cli.lifecycle import write_record
 from omnis_cli.main import main
+from omnis_cli.start import READY_FIELDS
+from omnis_cli.stop import STOP_FIELDS
 
 
 class StatusTest(unittest.TestCase):
@@ -66,6 +70,39 @@ class StatusTest(unittest.TestCase):
         self.assertFalse(status["dashboard_ready"])
         self.assertEqual(err, "")
         self.assertFalse((self.state / "instance.json").exists())
+
+    def test_stop_requested_does_not_claim_a_committed_database_barrier(self):
+        self.write_instance()
+        record: dict[str, object] = {key: None for key in READY_FIELDS}
+        record.update(
+            phase="STOPPING",
+            attempt=str(uuid4()),
+            port=8765,
+            containers={"db": "d" * 64, "api": "a" * 64, "supervisor": "s" * 64},
+            generation=1,
+            supervisor_epoch=1,
+            stop_command=str(uuid4()),
+            stop_expected=1,
+            stop_generation=None,
+            finalize_command=str(uuid4()),
+        )
+        self.assertEqual(set(record), STOP_FIELDS)
+        journal = self.state / "startup.json"
+        write_record(journal, record)
+        with patch("omnis_cli.status.ControlRuntime"):
+            code, status, _ = self.run_status()
+        self.assertEqual(code, 4)
+        self.assertEqual(status["state"], "STOP_REQUESTED")
+        self.assertEqual(status["reason"], "STOP_BARRIER_UNCONFIRMED")
+        self.assertNotIn("admission_open", status)
+        self.assertFalse(status["dashboard_ready"])
+        record["stop_generation"] = 2
+        write_record(journal, record, replace=True)
+        with patch("omnis_cli.status.ControlRuntime"):
+            code, status, _ = self.run_status()
+        self.assertEqual(code, 4)
+        self.assertEqual(status["state"], "STOPPING")
+        self.assertEqual(status["reason"], "INSTANCE_SHUTTING_DOWN")
 
     def test_live_private_status_does_not_claim_unverified_http(self):
         self.write_instance()

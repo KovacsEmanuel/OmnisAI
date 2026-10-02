@@ -20,6 +20,7 @@ from .lifecycle import (
     mapping,
     process_identity,
     read_record,
+    remaining,
     socket_identity,
     write_record,
 )
@@ -284,8 +285,9 @@ def _emergency_drain(
             if process_identity(pid) != identity:
                 raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
             listener_owned(identity, port, _integer(record, "listener_inode"))
+            remaining(runtime.deadline)
             signal.pidfd_send_signal(fd, signal.SIGTERM)
-            if not select.select([fd], [], [], 25)[0]:
+            if not select.select([fd], [], [], remaining(runtime.deadline, 25))[0]:
                 signal.pidfd_send_signal(fd, signal.SIGKILL)
                 raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
         finally:
@@ -474,8 +476,9 @@ def _resume_owned(
             if process_identity(pid) != identity:
                 raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
             listener_owned(identity, port, _integer(record, "listener_inode"))
+            remaining(runtime.deadline)
             signal.pidfd_send_signal(fd, signal.SIGTERM)
-            if not select.select([fd], [], [], 25)[0]:
+            if not select.select([fd], [], [], remaining(runtime.deadline, 25))[0]:
                 signal.pidfd_send_signal(fd, signal.SIGKILL)
                 raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
         finally:

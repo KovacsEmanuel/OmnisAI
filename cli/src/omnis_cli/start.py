@@ -428,14 +428,19 @@ def launch_forwarder(
             ) from None
 
 
-def stop_forwarder(process: subprocess.Popen[bytes], pidfd: int) -> None:
+def stop_forwarder(
+    process: subprocess.Popen[bytes], pidfd: int, *, deadline: float | None = None
+) -> None:
+    end = time.monotonic() + 27 if deadline is None else deadline
     if process.poll() is None:
+        remaining(end)
         signal.pidfd_send_signal(pidfd, signal.SIGTERM)
         try:
-            process.wait(timeout=22)
+            # Reserve a reap margin inside, never after, the cleanup allowance.
+            process.wait(timeout=max(0, min(22, end - time.monotonic() - 1)))
         except subprocess.TimeoutExpired:
             signal.pidfd_send_signal(pidfd, signal.SIGKILL)
-            process.wait(timeout=5)
+            process.wait(timeout=max(0, min(5, end - time.monotonic())))
             raise StartError("FORWARDER_CLEANUP_UNCERTAIN", 4) from None
     if process.returncode not in {0, 3}:
         raise StartError("FORWARDER_CLEANUP_UNCERTAIN", 4)
@@ -457,7 +462,7 @@ def cleanup_attempt(
     runtime.deadline = time.monotonic() + config_integer(cleanup_timeout, 30, 180)
     if process is not None:
         try:
-            stop_forwarder(process, pidfd)
+            stop_forwarder(process, pidfd, deadline=runtime.deadline)
         except (OSError, ValueError, subprocess.SubprocessError):
             problems.append("forwarder")
             drained = False

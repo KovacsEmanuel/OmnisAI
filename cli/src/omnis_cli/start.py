@@ -19,6 +19,7 @@ from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
 
+from .config import _integer as config_integer
 from .config import load_config
 from .control import ControlUnavailable, request
 from .health import dashboard
@@ -785,10 +786,15 @@ def projection(
     }
 
 
-def start_instance(port: int | None = None) -> dict[str, object]:
+def start_instance(
+    port: int | None = None, *, startup_timeout: int | None = None
+) -> dict[str, object]:
     from .stop import _integer, _preflight_record, readback_stopped
 
     config = load_config()
+    startup_seconds = config_integer(
+        config.startup_timeout_seconds if startup_timeout is None else startup_timeout, 30, 300
+    )
     root = state_dir()
     config.check_instance(root, port)
     # Capture the operator's invocation side of a queued Start. Reading again
@@ -803,7 +809,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         initial_phase = initial_record.get("phase")
     if initial_phase == "STOPPING":
         raise StartError("INSTANCE_SHUTTING_DOWN", 4)
-    deadline = time.monotonic() + 180
+    deadline = time.monotonic() + startup_seconds
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
     try:
@@ -854,7 +860,9 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         ):
             raise StartError("UNOWNED_STATE_RECOVERY_REQUIRED", 4)
         if restarting is None:
-            selected = port if port is not None else 8765
+            selected = (
+                port if port is not None else config.port if config.port is not None else 8765
+            )
         else:
             selected = _integer(restarting, "port")
         preflight_port(selected)
@@ -1146,10 +1154,12 @@ def _interrupt(signum: int, frame: FrameType | None) -> None:
     raise KeyboardInterrupt()
 
 
-def start_result(port: int | None) -> tuple[int, dict[str, object]]:
+def start_result(
+    port: int | None, *, startup_timeout: int | None = None
+) -> tuple[int, dict[str, object]]:
     previous = {sig: signal.signal(sig, _interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
     try:
-        result = start_instance(port)
+        result = start_instance(port, startup_timeout=startup_timeout)
         code = 0
     except (
         OSError,
@@ -1173,8 +1183,8 @@ def start_result(port: int | None) -> tuple[int, dict[str, object]]:
     return code, result
 
 
-def start(*, port: int | None, as_json: bool) -> int:
-    code, result = start_result(port)
+def start(*, port: int | None, as_json: bool, startup_timeout: int | None = None) -> int:
+    code, result = start_result(port, startup_timeout=startup_timeout)
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:

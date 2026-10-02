@@ -18,6 +18,40 @@ class ConfigConsumersTest(unittest.TestCase):
     setUp = config_tests.ConfigTest.setUp
     write_config = config_tests.ConfigTest.write_config
 
+    def test_fresh_start_config_and_cli_precedence_reaches_port_and_deadline(self):
+        from types import SimpleNamespace
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        cases = [
+            (None, [], 8765, 180),
+            ("port=9010\nstartup_timeout_seconds=31", [], 9010, 31),
+            (
+                "port=9010\nstartup_timeout_seconds=31",
+                ["--port", "9011", "--startup-timeout", "40"],
+                9011,
+                40,
+            ),
+        ]
+        for text, options, port, seconds in cases:
+            with self.subTest(options=options, text=text):
+                if text is not None:
+                    self.write_config(text)
+                with (
+                    patch.object(start.time, "monotonic", return_value=100),
+                    patch.object(
+                        start, "ControlRuntime", return_value=SimpleNamespace()
+                    ) as constructor,
+                    patch.object(
+                        start, "preflight_port", side_effect=StartError("PORT_OBSERVED", 3)
+                    ) as selected,
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    code = main(["start", "--no-open", "--json", *options])
+                self.assertEqual(code, 3)
+                selected.assert_called_once_with(port)
+                self.assertEqual(constructor.call_args.args[1], 100 + seconds)
+
     def test_port_conflict_preserves_receipts_before_resource_or_lock(self):
         with private_stop_fixture() as (base, root, _foreign, _control, record, _runtime):
             write_record(root / "startup.json", record)

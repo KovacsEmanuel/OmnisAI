@@ -32,7 +32,7 @@ class StartBoundaryTest(unittest.TestCase):
         program = (
             "import importlib,os,signal\n"
             "s=importlib.import_module('omnis_cli.start')\n"
-            "def interrupted(port):\n"
+            "def interrupted(port, **budgets):\n"
             " os.kill(os.getpid(),signal.SIGTERM)\n"
             " raise AssertionError('signal was ignored')\n"
             "s.start_instance=interrupted\n"

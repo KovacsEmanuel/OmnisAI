@@ -178,7 +178,9 @@ class ReadinessSchemaTest(unittest.TestCase):
                 self.subTest(value=value),
                 self.peer(json.dumps(value).encode()) as routes,
                 patch("omnis_cli.health.request", return_value=self.control),
-                patch.object(start, "start_instance", side_effect=lambda port: self.probe()),
+                patch.object(
+                    start, "start_instance", side_effect=lambda port, **_budgets: self.probe()
+                ),
                 contextlib.redirect_stdout(io.StringIO()) as output,
                 contextlib.redirect_stderr(io.StringIO()) as errors,
             ):

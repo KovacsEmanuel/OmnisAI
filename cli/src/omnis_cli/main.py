@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
         "--port", type=int, help="Explicit loopback port for a new, stopped instance"
     )
     start_parser.add_argument("--json", action="store_true", help="Sanitized startup result")
+    start_parser.add_argument("--startup-timeout", type=int, help="Startup budget, 30–300 seconds")
     pair_parser = commands.add_parser("pair", help="Emit a one-use code on a private TTY")
     pair_parser.add_argument("--json", action="store_true", help="Refused: pairing is TTY-only")
     commands.add_parser("open", help="Open the verified, ready installed dashboard")
@@ -81,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
                 return issuance  # Services remain READY; never open after uncertain disclosure.
         return open_verified(expected=result)
     if args.command == "start":
-        return start(port=args.port, as_json=args.json)
+        return start(port=args.port, as_json=args.json, startup_timeout=args.startup_timeout)
     if args.command == "status":
         return status(as_json=args.json)
     if args.command == "pair":

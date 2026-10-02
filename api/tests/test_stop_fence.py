@@ -1,15 +1,20 @@
 """Real PostgreSQL checks for the durable, non-expiring Stop admission fence."""
 
+import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from conftest import connect_test_database
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
+from omnis.core.persistence import read_integer
 from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.records import InstanceRecord, LeaseRecord
 from omnis.modules.instance.service import InstanceService
 
 
@@ -35,6 +40,204 @@ async def db_snapshot(engine: AsyncEngine) -> tuple[object, ...]:
         ):
             rows.append(tuple((await connection.execute(text(f"SELECT * FROM {table}"))).all()))
         return tuple(rows)
+
+
+class PausedService(InstanceService):
+    """Pause after both real row locks; do not replace any product decision."""
+
+    def __init__(self, engine: AsyncEngine) -> None:
+        super().__init__(engine)
+        self.entered = asyncio.Event()
+        self.proceed = asyncio.Event()
+        self.backend_pid: int | None = None
+
+    @asynccontextmanager
+    async def _locked(self) -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
+        async with super()._locked() as locked:
+            self.backend_pid = read_integer(
+                (await locked[0].execute(text("SELECT pg_backend_pid()"))).scalar_one()
+            )
+            self.entered.set()
+            await asyncio.wait_for(self.proceed.wait(), 3)
+            yield locked
+
+
+async def observe_blocked_on(engine: AsyncEngine, first: PausedService) -> None:
+    await asyncio.wait_for(first.entered.wait(), 2)
+    assert first.backend_pid is not None
+    async with asyncio.timeout(1):
+        while True:
+            async with engine.connect() as reader:
+                waiting = (
+                    await reader.execute(
+                        text(
+                            "SELECT count(*) FROM pg_stat_activity "
+                            "WHERE datname = current_database() AND wait_event_type = 'Lock' "
+                            "AND :blocker = ANY(pg_blocking_pids(pid))"
+                        ),
+                        {"blocker": first.backend_pid},
+                    )
+                ).scalar_one()
+            if waiting == 1:
+                return
+            await asyncio.sleep(0.01)
+
+
+@pytest.mark.parametrize("contender", ["acquire", "open"])
+@pytest.mark.asyncio
+async def test_arm_commits_before_waiting_acquire_or_open_replay(
+    migrated_database_url: URL, contender: str
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service, first = InstanceService(engine), PausedService(engine)
+    tasks: list[asyncio.Task[object]] = []
+    try:
+        instance, owner, command, finalized, epoch, stopped = await stopped_instance(service)
+        async with engine.connect() as reader:
+            opened = (
+                await reader.execute(
+                    text("SELECT command_id FROM instance_command WHERE kind='OPEN'")
+                )
+            ).scalar_one()
+        assert isinstance(opened, UUID)
+        before = await db_snapshot(engine)
+        arming = asyncio.create_task(
+            first.arm_stop(
+                command, finalized, stopped, instance, owner, epoch, "daemon-a", {"db": "a" * 64}
+            )
+        )
+        tasks.append(arming)
+        await asyncio.wait_for(first.entered.wait(), 2)
+        waiting = asyncio.create_task(
+            service.acquire(uuid4())
+            if contender == "acquire"
+            else service.open(opened, 0, owner, epoch)
+        )
+        tasks.append(waiting)
+        await observe_blocked_on(engine, first)
+        assert not arming.done() and not waiting.done()
+        first.proceed.set()
+        assert await asyncio.wait_for(arming, 2) == "STOP_PENDING"
+        with pytest.raises(ControlConflict, match="STOP_IN_PROGRESS"):
+            await asyncio.wait_for(waiting, 2)
+        after = await db_snapshot(engine)
+        assert after[:2] == before[:2] and after[3] == before[3]
+        assert before[2] == ()
+        assert isinstance(after[2], tuple) and len(after[2]) == 1
+    finally:
+        first.proceed.set()
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), 3)
+        await engine.dispose()
+
+
+@pytest.mark.parametrize("winner", ["acquire", "open"])
+@pytest.mark.asyncio
+async def test_new_owner_commits_before_waiting_old_stop_arm(
+    migrated_database_url: URL, winner: str
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service, first = InstanceService(engine), PausedService(engine)
+    tasks: list[asyncio.Task[object]] = []
+    try:
+        instance, owner, command, finalized, epoch, stopped = await stopped_instance(service)
+        await service.release(owner, epoch)
+        successor, reopened_command = uuid4(), uuid4()
+        if winner == "open":
+            assert await service.acquire(successor) == epoch + 1
+        winning = asyncio.create_task(
+            first.acquire(successor)
+            if winner == "acquire"
+            else first.open(reopened_command, stopped, successor, epoch + 1)
+        )
+        tasks.append(winning)
+        await asyncio.wait_for(first.entered.wait(), 2)
+        arming = asyncio.create_task(
+            service.arm_stop(
+                command, finalized, stopped, instance, owner, epoch, "daemon-a", {"db": "a" * 64}
+            )
+        )
+        tasks.append(arming)
+        await observe_blocked_on(engine, first)
+        assert not winning.done() and not arming.done()
+        first.proceed.set()
+        assert await asyncio.wait_for(winning, 2) == (
+            epoch + 1 if winner == "acquire" else stopped + 1
+        )
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await asyncio.wait_for(arming, 2)
+        async with engine.connect() as reader:
+            assert (
+                await reader.execute(text("SELECT count(*) FROM instance_stop_fence"))
+            ).scalar_one() == 0
+            assert (
+                await reader.execute(text("SELECT owner, epoch FROM supervisor_lease WHERE id=1"))
+            ).one() == (successor, epoch + 1)
+        current = await service.status()
+        assert current.generation == stopped + (winner == "open")
+        assert current.admission_open is (winner == "open")
+    finally:
+        first.proceed.set()
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), 3)
+        await engine.dispose()
+
+
+@pytest.mark.parametrize("state", ["STOP_PENDING", "STOP_UNCERTAIN"])
+@pytest.mark.parametrize("departure", ["expiry", "release"])
+@pytest.mark.asyncio
+async def test_fence_blocks_every_acquire_and_open_after_owner_departure(
+    migrated_database_url: URL, state: str, departure: str
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        instance, owner, command, finalized, epoch, stopped = await stopped_instance(service)
+        async with engine.connect() as reader:
+            opened = (
+                await reader.execute(
+                    text("SELECT command_id FROM instance_command WHERE kind='OPEN'")
+                )
+            ).scalar_one()
+        assert isinstance(opened, UUID)
+        await service.arm_stop(
+            command, finalized, stopped, instance, owner, epoch, "daemon-a", {"db": "a" * 64}
+        )
+        # State injection tests both consumers, not the future ACK-loss producer.
+        async with engine.begin() as writer:
+            await writer.execute(
+                text("UPDATE instance_stop_fence SET state = :state WHERE id=1"), {"state": state}
+            )
+        if departure == "release":
+            await service.release(owner, epoch)
+        else:
+            async with engine.begin() as writer:
+                await writer.execute(
+                    text(
+                        "UPDATE supervisor_lease SET expires_at = clock_timestamp() - interval '1 second'"
+                    )
+                )
+        before = await db_snapshot(engine)
+        with pytest.raises(ControlConflict, match="STOP_IN_PROGRESS"):
+            await service.acquire(uuid4())
+        assert await db_snapshot(engine) == before
+        with pytest.raises(ControlConflict, match="STOP_IN_PROGRESS"):
+            await service.open(uuid4(), stopped, owner, epoch)
+        assert await db_snapshot(engine) == before
+        with pytest.raises(ControlConflict, match="STOP_IN_PROGRESS"):
+            await service.open(opened, 0, owner, epoch)
+        assert await db_snapshot(engine) == before
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await service.arm_stop(
+                command, finalized, stopped, instance, uuid4(), epoch, "daemon-a", {"db": "a" * 64}
+            )
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
 
 
 def test_migration_creates_empty_persistent_stop_fence(migrated_database_url: URL) -> None:

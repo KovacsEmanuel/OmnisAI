@@ -166,6 +166,7 @@ class InstanceService:
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
             previous = await self._receipt(connection, command_id, "OPEN", expected)
+            await self._require_owner(connection, lease, owner, epoch)
             if previous is not None:
                 return previous
             self._require_generation(instance, expected)
@@ -186,6 +187,7 @@ class InstanceService:
                 {"generation": result},
             )
             await self._record(connection, command_id, "OPEN", expected, result, epoch)
+            await self._require_owner(connection, lease, owner, epoch)
             return result
 
     @asynccontextmanager

@@ -24,12 +24,12 @@ from omnis.security.sessions import PairingDenied, SessionStore, code_digest
 from test_supervisor import start_supervisor, stop_process, wait_ready
 
 
-@pytest.mark.parametrize("operation", ["shutdown", "finalize"])
+@pytest.mark.parametrize("operation", ["open", "shutdown", "finalize"])
 @pytest.mark.asyncio
-async def test_stop_owner_expiry_during_command_receipt_lock_wait_rolls_back(
+async def test_lifecycle_owner_expiry_during_command_receipt_lock_wait_rolls_back(
     monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL, operation: str
 ) -> None:
-    """A pinned owner cannot publish a stop receipt after its DB lease expires.
+    """A pinned owner cannot publish OPEN/Stop after its DB lease expires.
 
     Hold the command table after acquiring the instance/lease row locks. Only
     this test extends PostgreSQL's statement budget beyond the five-second
@@ -51,7 +51,9 @@ async def test_stop_owner_expiry_during_command_receipt_lock_wait_rolls_back(
 
     try:
         epoch = await service.acquire(owner)
-        generation = await service.open(uuid4(), 0, owner, epoch)
+        generation = 0
+        if operation != "open":
+            generation = await service.open(uuid4(), generation, owner, epoch)
         if operation == "finalize":
             generation = await service.shutdown(uuid4(), generation, owner, epoch)
             await service.quiesce(owner, epoch)

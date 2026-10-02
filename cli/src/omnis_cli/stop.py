@@ -330,12 +330,25 @@ def _emergency_stop(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     _emergency_inventory(runtime, root, control, record)
+    # The marker path can be unwritable independently of the private journal.
+    # Never leave a reusable READY receipt if emergency teardown fails early.
+    journaled = False
+    try:
+        pending = {**record, "phase": "UNCERTAIN"}
+        write_record(root / "startup.json", pending, replace=True)
+        journaled = read_record(root / "startup.json") == pending
+    except (OSError, ValueError):
+        pass
     marked = False
     try:
         _marker(root, record, runtime)
         marked = True
     except (OSError, ValueError):
-        pass  # Still eliminate only attested own effect paths, never claim success.
+        pass
+    if not (journaled or marked):
+        # Neither durable channel can block a later Start. No effect may be
+        # credited as clean; external recovery is required before retry.
+        raise StartError("UNRECONCILED_INTENT_UNAVAILABLE", 4)
     _emergency_drain(runtime, root, control, record)
     raise StartError("RECOVERY_REQUIRED" if marked else "UNRECONCILED_MARKER_UNAVAILABLE", 4)
 

@@ -21,6 +21,7 @@ from omnis_cli.lifecycle import (
     StartError,
     cleanup_startup_ipc,
     process_identity,
+    read_record,
     socket_identity,
     write_record,
 )
@@ -110,6 +111,52 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_failed_emergency_marker_and_drain_cannot_leave_ready_journal(self) -> None:
+        """A transiently recovered peer cannot reuse READY after failed emergency Stop."""
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            stop_module = importlib.import_module("omnis_cli.stop")
+            start_module = importlib.import_module("omnis_cli.start")
+            for key in stop_module.STOP_FIELDS - start_module.READY_FIELDS:
+                record.pop(key)
+            record["phase"] = "READY"
+            journal = root / "startup.json"
+            write_record(journal, record)
+            ids = record["containers"]
+            assert isinstance(ids, dict)
+            runtime.ids = lambda: list(ids.values())
+            runtime.attest = lambda *_args: {"State": {"Running": True}}
+            runtime.network = lambda _allowed: "n" * 64
+            observed: list[str] = []
+
+            def failed_drain(*_args: object) -> None:
+                observed.append(str(read_record(journal)["phase"]))
+                raise StartError("DRAIN_FAILED", 4)
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(stop_module, "_marker", side_effect=OSError("fixture marker ENOSPC")),
+                patch.object(stop_module, "_emergency_drain", side_effect=failed_drain),
+            ):
+                with self.assertRaisesRegex(StartError, "DRAIN_FAILED"):
+                    stop_module._emergency_stop(runtime, root, control, record)
+                self.assertEqual(observed, ["UNCERTAIN"])
+                self.assertEqual(read_record(journal)["phase"], "UNCERTAIN")
+                self.assertFalse(os.path.lexists(root / "unreconciled.json"))
+                with (
+                    patch.object(start_module, "ControlRuntime", return_value=runtime),
+                    patch.object(start_module, "service_ids") as services,
+                ):
+                    code, outcome = start_module.start_result(None)
+                self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                services.assert_not_called()
+
     def test_finalized_stop_resumes_only_remaining_owned_resources(self) -> None:
         """A partial host teardown after FINALIZE is not a new DB shutdown."""
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):

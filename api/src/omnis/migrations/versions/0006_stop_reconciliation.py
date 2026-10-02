@@ -16,7 +16,7 @@ def upgrade() -> None:
         CREATE TABLE instance_stop_reconciliation (
             reconciliation_id uuid PRIMARY KEY,
             system_identifier text NOT NULL,
-            grant jsonb NOT NULL,
+            "grant" jsonb NOT NULL,
             completion_sha256 text NOT NULL
         )
     """)

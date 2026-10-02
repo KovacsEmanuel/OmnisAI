@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from uuid import UUID
 
-from .lifecycle import StartError, read_record, write_record
+from .lifecycle import StartError, mapping, read_record, write_record
 
 STAGES = (
     "forwarder",
@@ -84,6 +84,96 @@ def validate_grant(
         raise StartError("STOP_GRANT_INVALID", 4)
 
 
+def validate_inventory(inventory: dict[str, object], record: dict[str, object]) -> None:
+    if set(inventory) != {
+        "version",
+        "release",
+        "project",
+        "attempt",
+        "pgdata",
+        "system_id",
+        "containers",
+        "network",
+        "forwarder",
+        "ipc",
+    }:
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    for key, expected in (
+        ("version", 1),
+        ("release", record["release_digest"]),
+        ("project", record["project"]),
+        ("attempt", record["attempt"]),
+        ("pgdata", record["pgdata_identity"]),
+        ("system_id", record["system_id"]),
+    ):
+        if encoded(inventory[key]) != encoded(expected):
+            raise StartError("STOP_INVENTORY_INVALID", 4)
+
+    def digest(value: object) -> bool:
+        return type(value) is str and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+    containers = inventory["containers"]
+    ids = mapping(record["containers"])
+    if type(containers) is not list or len(containers) != 3:
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    for role, row in zip(("api", "supervisor", "db"), containers, strict=True):
+        if (
+            type(row) is not dict
+            or set(row) != {"role", "id", "image", "config", "run"}
+            or row["role"] != role
+            or row["id"] != ids[role]
+            or type(row["image"]) is not str
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", row["image"]) is None
+            or role != "db"
+            and row["image"] != record["image_id"]
+            or not digest(row["config"])
+            or not digest(row["run"])
+        ):
+            raise StartError("STOP_INVENTORY_INVALID", 4)
+    network = inventory["network"]
+    if (
+        type(network) is not dict
+        or set(network) != {"id", "config"}
+        or not all(digest(v) for v in network.values())
+    ):
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    process = mapping(record["forwarder"])
+    expected_forwarder = {
+        **{key: process[key] for key in ("pid", "start_ticks", "boot_id")},
+        "identity": fingerprint(process),
+        "listener": record["listener_inode"],
+        "port": record["port"],
+    }
+    if encoded(inventory["forwarder"]) != encoded(expected_forwarder):
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    ipc = inventory["ipc"]
+    if type(ipc) is not dict or set(ipc) != {
+        "api",
+        "control",
+        "api_lock",
+        "control_lock",
+        "cap",
+        "cap_digest",
+    }:
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    for key in ("api", "control", "api_lock", "control_lock", "cap"):
+        pair = ipc[key]
+        if (
+            type(pair) is not list
+            or len(pair) != 2
+            or any(type(v) is not int or v < 0 for v in pair)
+            or pair[1] == 0
+        ):
+            raise StartError("STOP_INVENTORY_INVALID", 4)
+    if (
+        ipc["api"] != record["api_socket"]
+        or ipc["control"] != record["control_socket"]
+        or not digest(ipc["cap_digest"])
+        or len(encoded(inventory)) > 2900
+    ):
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+
+
 def receipt_path(root: Path, record: dict[str, object]) -> Path:
     return root / f"stop-{uuid(record.get('stop_command'))}.json"
 
@@ -106,12 +196,18 @@ def completed_receipt(path: Path, grant: dict[str, object]) -> dict[str, object]
         or value["pending"] is not None
     ):
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-    owner = value["owner"]
-    if type(owner) is not dict or set(owner) != {"pid", "start_ticks", "boot_id"}:
-        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-    if type(owner["pid"]) is not int or owner["pid"] <= 1 or type(owner["start_ticks"]) is not str:
-        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-    uuid(owner["boot_id"])
+    for key in ("owner", "launcher"):
+        owner = value[key]
+        if type(owner) is not dict or set(owner) != {"pid", "start_ticks", "boot_id"}:
+            raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+        if (
+            type(owner["pid"]) is not int
+            or owner["pid"] <= 1
+            or type(owner["start_ticks"]) is not str
+            or not owner["start_ticks"].isdecimal()
+        ):
+            raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+        uuid(owner["boot_id"])
     steps = value["completed"]
     if type(steps) is not list or len(steps) != len(STAGES):
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)

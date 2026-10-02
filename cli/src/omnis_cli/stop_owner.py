@@ -42,6 +42,7 @@ from .stop_receipt import (
     persist,
     receipt_path,
     validate_grant,
+    validate_inventory,
 )
 
 
@@ -577,6 +578,7 @@ def verify_stop_completion(
     if grant is not None and encoded(grant) != encoded(saved_grant):
         raise StartError("STOP_GRANT_DRIFT", 4)
     inventory = mapping(saved_grant.get("inventory"))
+    validate_inventory(inventory, record)
     validate_grant(saved_grant, record, inventory)
     completed_receipt(path, saved_grant)
     if (

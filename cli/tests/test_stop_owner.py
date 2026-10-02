@@ -366,6 +366,24 @@ class StopProductTests(unittest.TestCase):
                 verify_stop_completion(
                     fixture.runtime, fixture.root, fixture.control, fixture.record, grant
                 )
+                from copy import deepcopy
+
+                from omnis_cli.lifecycle import write_record
+
+                path = receipt_path(fixture.root, fixture.record)
+                clean = read_record(path)
+                for where in ("inventory", "launcher"):
+                    changed = deepcopy(clean)
+                    if where == "inventory":
+                        changed["grant"]["inventory"]["unknown"] = 1
+                    else:
+                        changed["launcher"] = {"pid": True}
+                    write_record(path, changed, replace=True)
+                    with self.assertRaises(StartError, msg=f"strict {where} schema"):
+                        verify_stop_completion(
+                            fixture.runtime, fixture.root, fixture.control, fixture.record
+                        )
+                    write_record(path, clean, replace=True)
                 self.assertEqual(
                     effects, [x for x in fixture.requests if x.startswith(("POST", "DELETE"))]
                 )

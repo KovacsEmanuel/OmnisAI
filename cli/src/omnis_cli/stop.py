@@ -236,6 +236,20 @@ def _emergency_inventory(
         _stopping_record(record)
         if record["finalized_generation"] is not None or record["teardown_completed"] != []:
             raise StartError("RECOVERY_REQUIRED", 4)
+    elif record.get("phase") == "FORWARDING":
+        command = record.get("open_command")
+        if (
+            set(record) != READY_FIELDS - {"generation", "supervisor_epoch"}
+            or type(record.get("format")) is not int
+            or record["format"] != 1
+            or not isinstance(command, str)
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        try:
+            if str(UUID(command)) != command:
+                raise ValueError()
+        except ValueError:
+            raise StartError("RECOVERY_REQUIRED", 4) from None
     elif (
         set(record) != READY_FIELDS
         or record.get("phase") != "READY"
@@ -578,6 +592,11 @@ def stop_instance() -> dict[str, object]:
                     teardown_completed=[],
                 )
                 write_record(path, record, replace=True)
+            elif record.get("phase") == "FORWARDING":
+                # OPEN may have committed even if the launcher died before READY.
+                # This is never a normal STOPPED DB receipt; fence it locally and
+                # eliminate only the exact attested effect paths.
+                _emergency_stop(runtime, root, control, record)
             elif record.get("phase") != "STOPPING":
                 raise StartError("RECOVERY_REQUIRED", 4)
             try:

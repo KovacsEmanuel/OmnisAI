@@ -34,6 +34,7 @@ from omnis.modules.instance.schemas import (
     StatusCommand,
 )
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.security.sessions import PairingConflict
 
 
@@ -125,10 +126,25 @@ class LocalControl:
             self.lock_fd = None
 
     async def _dispatch(
-        self, command: StatusCommand | PairingCommand | LifecycleCommand
+        self, command: StatusCommand | PairingCommand | LifecycleCommand | ArmStopCommand
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, ArmStopCommand):
+            if command.owner_epoch != self.epoch:
+                return {"ok": False, "error": "LEASE_LOST"}
+            await self.service.arm_stop(
+                command.command_id,
+                command.finalize_command_id,
+                command.generation,
+                command.instance_id,
+                self.owner,
+                self.epoch,
+                command.daemon_id,
+                command.inventory,
+            )
+            grant = await self.service.stop_grant_readback(command, self.owner)
+            return {"ok": True, "grant": grant}
         status = await self.service.owned_status(self.owner, self.epoch)
         result_generation: int | None = None
         receipt: dict[str, object] = {}

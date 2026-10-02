@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from json import dumps
 from uuid import UUID, uuid4
 
+from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
@@ -22,6 +23,7 @@ from omnis.modules.instance.records import (
     StopFenceRecord,
     StopFenceState,
 )
+from omnis.modules.instance.stop_contract import ArmStopCommand, StopGrant, canonical_json
 from omnis.security.sessions import SessionStore
 
 
@@ -320,6 +322,20 @@ class InstanceService:
         ):
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         try:
+            expected_grant = StopGrant.model_validate(
+                {
+                    "version": 1,
+                    "state": "STOP_PENDING",
+                    "instance_id": instance_id,
+                    "command_id": command_id,
+                    "finalize_command_id": finalize_command_id,
+                    "generation": generation,
+                    "owner_epoch": epoch,
+                    "owner_uuid": owner,
+                    "daemon_id": daemon_id,
+                    "inventory": inventory,
+                }
+            )
             inventory_json = dumps(
                 inventory, sort_keys=True, separators=(",", ":"), allow_nan=False
             )
@@ -335,7 +351,8 @@ class InstanceService:
             if existing is not None:
                 fence = read_record(StopFenceRecord, existing)
                 if (
-                    fence.instance_id != instance_id
+                    fence.owner_uuid != owner
+                    or fence.instance_id != instance_id
                     or fence.command_id != command_id
                     or fence.finalize_command_id != finalize_command_id
                     or fence.generation != generation
@@ -346,6 +363,7 @@ class InstanceService:
                     != inventory_json
                 ):
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                await self._closed_stop(connection, instance, lease, expected_grant)
                 await self._require_owner(connection, lease, owner, epoch)
                 return fence.state
             if instance.instance_id != instance_id:
@@ -385,9 +403,9 @@ class InstanceService:
                 text(
                     "INSERT INTO instance_stop_fence "
                     "(id, instance_id, command_id, finalize_command_id, generation, "
-                    "owner_epoch, daemon_id, inventory, state) VALUES "
+                    "owner_epoch, daemon_id, inventory, state, owner_uuid) VALUES "
                     "(1, :instance, :command, :finalized, :generation, :epoch, "
-                    ":daemon, CAST(:inventory AS jsonb), 'STOP_PENDING')"
+                    ":daemon, CAST(:inventory AS jsonb), 'STOP_PENDING', :owner)"
                 ),
                 {
                     "instance": instance_id,
@@ -397,10 +415,110 @@ class InstanceService:
                     "epoch": epoch,
                     "daemon": daemon_id,
                     "inventory": inventory_json,
+                    "owner": owner,
                 },
             )
+            stored = await self._grant(connection)
+            if stored is None or canonical_json(stored.model_dump(mode="json")) != canonical_json(
+                expected_grant.model_dump(mode="json")
+            ):
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            await self._closed_stop(connection, instance, lease, stored)
             await self._require_owner(connection, lease, owner, epoch)
             return "STOP_PENDING"
+
+    async def _closed_stop(
+        self,
+        connection: AsyncConnection,
+        instance: InstanceRecord,
+        lease: LeaseRecord,
+        grant: StopGrant,
+    ) -> None:
+        if instance.instance_id != grant.instance_id:
+            raise ControlConflict(ControlCode.INSTANCE_MISMATCH)
+        if (
+            instance.generation != grant.generation
+            or lease.epoch != grant.owner_epoch
+            or (lease.owner is not None and lease.owner != grant.owner_uuid)
+            or instance.admission_open
+            or instance.shutdown_command_id != grant.command_id
+            or instance.quiesced_generation != grant.generation
+            or instance.quiesced_at is None
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        for command_id, kind, expected in (
+            (grant.command_id, "SHUTDOWN", grant.generation - 1),
+            (grant.finalize_command_id, "FINALIZE", grant.generation),
+        ):
+            row = (
+                (
+                    await connection.execute(
+                        text("SELECT * FROM instance_command WHERE command_id = :command"),
+                        {"command": command_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+            receipt = read_record(CommandRecord, row)
+            if (
+                receipt.kind != kind
+                or receipt.expected_generation != expected
+                or receipt.result_generation != grant.generation
+                or receipt.owner_epoch != grant.owner_epoch
+            ):
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+
+    async def _grant(self, connection: AsyncConnection) -> StopGrant | None:
+        row = (
+            (await connection.execute(text("SELECT * FROM instance_stop_fence WHERE id = 1")))
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            return None
+        fence = read_record(StopFenceRecord, row)
+        if fence.owner_uuid is None:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        try:
+            return StopGrant.model_validate(
+                {
+                    **fence.model_dump(exclude={"id"}),
+                    "version": 1,
+                }
+            )
+        except ValidationError:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT) from None
+
+    async def stop_grant_readback(
+        self,
+        command: ArmStopCommand,
+        owner: UUID,
+    ) -> dict[str, object]:
+        # A second transaction after arm commit. Never build a reply by mixing
+        # command input with a later unrelated status/epoch.
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, command.owner_epoch)
+            grant = await self._grant(connection)
+            if grant is None:
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            expected = StopGrant.model_validate(
+                {
+                    **command.model_dump(exclude={"op"}),
+                    "version": 1,
+                    "state": grant.state,
+                    "owner_uuid": owner,
+                }
+            )
+            if canonical_json(grant.model_dump(mode="json")) != canonical_json(
+                expected.model_dump(mode="json")
+            ):
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+            await self._closed_stop(connection, instance, lease, grant)
+            await self._require_owner(connection, lease, owner, command.owner_epoch)
+            return grant.model_dump(mode="json")
 
     async def command_readback(
         self,

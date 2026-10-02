@@ -16,6 +16,7 @@ from omnis.core.persistence import read_integer
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.records import InstanceRecord, LeaseRecord
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.instance.stop_contract import ArmStopCommand
 
 
 async def stopped_instance(service: InstanceService) -> tuple[UUID, UUID, UUID, UUID, int, int]:
@@ -40,6 +41,56 @@ async def db_snapshot(engine: AsyncEngine) -> tuple[object, ...]:
         ):
             rows.append(tuple((await connection.execute(text(f"SELECT * FROM {table}"))).all()))
         return tuple(rows)
+
+
+@pytest.mark.asyncio
+async def test_arm_stop_readback_binds_issuer_and_exact_closed_state(
+    migrated_database_url: URL,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        instance, owner, command, finalized, epoch, generation = await stopped_instance(service)
+        request = ArmStopCommand.model_validate(
+            {
+                "op": "arm_stop",
+                "instance_id": instance,
+                "command_id": command,
+                "finalize_command_id": finalized,
+                "generation": generation,
+                "owner_epoch": epoch,
+                "daemon_id": "daemon-a",
+                "inventory": {"db": "a" * 64},
+            }
+        )
+        await service.arm_stop(
+            command,
+            finalized,
+            generation,
+            instance,
+            owner,
+            epoch,
+            request.daemon_id,
+            request.inventory,
+        )
+        grant = await service.stop_grant_readback(request, owner)
+        assert grant == {
+            **request.model_dump(mode="json", exclude={"op"}),
+            "owner_uuid": str(owner),
+            "version": 1,
+            "state": "STOP_PENDING",
+        }
+        async with engine.begin() as connection:
+            await connection.execute(
+                text("UPDATE instance_stop_fence SET state = 'STOP_UNCERTAIN'")
+            )
+        assert (await service.stop_grant_readback(request, owner))["state"] == "STOP_UNCERTAIN"
+        before = await db_snapshot(engine)
+        with pytest.raises(ControlConflict):
+            await service.stop_grant_readback(request, uuid4())
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
 
 
 class PausedService(InstanceService):

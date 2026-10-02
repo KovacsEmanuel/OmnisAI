@@ -9,7 +9,7 @@ from urllib.parse import quote, unquote
 from sqlalchemy import text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from omnis.core.schema import authority_schema_matches
 
@@ -80,55 +80,59 @@ async def readiness_reason(engine: AsyncEngine | None) -> ReadinessReason | None
 
 async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
     async with engine.connect() as connection:
-        await connection.execute(text("SELECT 1"))
-        try:
-            revisions = (
-                (await connection.execute(text("SELECT version_num FROM alembic_version")))
-                .scalars()
-                .all()
+        return await schema_reason_on(connection)
+
+
+async def schema_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
+    await connection.execute(text("SELECT 1"))
+    try:
+        revisions = (
+            (await connection.execute(text("SELECT version_num FROM alembic_version")))
+            .scalars()
+            .all()
+        )
+        instance = (
+            await connection.execute(
+                text(
+                    "SELECT id, instance_id, admission_open, shutdown_command_id, "
+                    "generation, quiesced_generation, quiesced_at "
+                    "FROM instance_control WHERE id = 1"
+                )
             )
-            instance = (
-                await connection.execute(
-                    text(
-                        "SELECT id, instance_id, admission_open, shutdown_command_id, "
-                        "generation, quiesced_generation, quiesced_at "
-                        "FROM instance_control WHERE id = 1"
-                    )
+        ).first()
+        if revisions != [SCHEMA_REVISION] or instance is None:
+            return ReadinessReason.SCHEMA_INCOMPATIBLE
+        if not await authority_schema_matches(connection):
+            return ReadinessReason.SCHEMA_INCOMPATIBLE
+        columns = (
+            await connection.execute(
+                text(
+                    "SELECT a.attname, format_type(a.atttypid, a.atttypmod), "
+                    "a.attnotnull, pg_get_expr(d.adbin, d.adrelid) "
+                    "FROM pg_attribute a LEFT JOIN pg_attrdef d "
+                    "ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
+                    "WHERE a.attrelid = 'instance_control'::regclass "
+                    "AND a.attnum > 0 AND NOT a.attisdropped"
                 )
-            ).first()
-            if revisions != [SCHEMA_REVISION] or instance is None:
-                return ReadinessReason.SCHEMA_INCOMPATIBLE
-            if not await authority_schema_matches(connection):
-                return ReadinessReason.SCHEMA_INCOMPATIBLE
-            columns = (
-                await connection.execute(
-                    text(
-                        "SELECT a.attname, format_type(a.atttypid, a.atttypmod), "
-                        "a.attnotnull, pg_get_expr(d.adbin, d.adrelid) "
-                        "FROM pg_attribute a LEFT JOIN pg_attrdef d "
-                        "ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
-                        "WHERE a.attrelid = 'instance_control'::regclass "
-                        "AND a.attnum > 0 AND NOT a.attisdropped"
-                    )
+            )
+        ).all()
+        constraints = (
+            await connection.execute(
+                text(
+                    "SELECT conname, contype, pg_get_constraintdef(oid), "
+                    "convalidated, conenforced "
+                    "FROM pg_constraint "
+                    "WHERE conrelid = 'instance_control'::regclass"
                 )
-            ).all()
-            constraints = (
-                await connection.execute(
-                    text(
-                        "SELECT conname, contype, pg_get_constraintdef(oid), "
-                        "convalidated, conenforced "
-                        "FROM pg_constraint "
-                        "WHERE conrelid = 'instance_control'::regclass"
-                    )
-                )
-            ).all()
-        except SQLAlchemyError as exc:
-            if isinstance(exc, DBAPIError) and getattr(exc.orig, "sqlstate", None) in {
-                "42P01",
-                "42703",
-            }:
-                return ReadinessReason.SCHEMA_INCOMPATIBLE
-            return ReadinessReason.DATABASE_UNAVAILABLE
+            )
+        ).all()
+    except SQLAlchemyError as exc:
+        if isinstance(exc, DBAPIError) and getattr(exc.orig, "sqlstate", None) in {
+            "42P01",
+            "42703",
+        }:
+            return ReadinessReason.SCHEMA_INCOMPATIBLE
+        return ReadinessReason.DATABASE_UNAVAILABLE
     expected_columns = {
         ("id", "smallint", True),
         ("instance_id", "uuid", True),

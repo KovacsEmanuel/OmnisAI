@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import URL
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from conftest import connect_test_database
@@ -16,7 +17,7 @@ from omnis.core.persistence import read_integer
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.records import InstanceRecord, LeaseRecord
 from omnis.modules.instance.service import InstanceService
-from omnis.modules.instance.stop_contract import ArmStopCommand
+from omnis.modules.instance.stop_contract import ArmStopCommand, StopReconciliation
 
 
 async def stopped_instance(service: InstanceService) -> tuple[UUID, UUID, UUID, UUID, int, int]:
@@ -38,6 +39,7 @@ async def db_snapshot(engine: AsyncEngine) -> tuple[object, ...]:
             "supervisor_lease",
             "instance_stop_fence",
             "instance_command",
+            "instance_stop_reconciliation",
         ):
             rows.append(tuple((await connection.execute(text(f"SELECT * FROM {table}"))).all()))
         return tuple(rows)
@@ -93,6 +95,220 @@ async def test_arm_stop_readback_binds_issuer_and_exact_closed_state(
         await engine.dispose()
 
 
+async def pending_reconciliation(service: InstanceService) -> StopReconciliation:
+    instance, owner, command, finalized, epoch, generation = await stopped_instance(service)
+    await service.arm_stop(
+        command,
+        finalized,
+        generation,
+        instance,
+        owner,
+        epoch,
+        "daemon-a",
+        {"db": "a" * 64, "inode": 1},
+    )
+    async with service.engine.connect() as connection:
+        identity = (
+            await connection.execute(
+                text("SELECT system_identifier::text FROM pg_catalog.pg_control_system()")
+            )
+        ).scalar_one()
+    return StopReconciliation.model_validate(
+        {
+            "version": 1,
+            "reconciliation_id": uuid4(),
+            "system_identifier": identity,
+            "grant": {
+                "version": 1,
+                "state": "STOP_PENDING",
+                "instance_id": instance,
+                "owner_uuid": owner,
+                "command_id": command,
+                "finalize_command_id": finalized,
+                "generation": generation,
+                "owner_epoch": epoch,
+                "daemon_id": "daemon-a",
+                "inventory": {"db": "a" * 64, "inode": 1},
+            },
+            "completion_sha256": "b" * 64,
+        }
+    )
+
+
+@pytest.mark.parametrize("departure", ["release", "expiry"])
+@pytest.mark.asyncio
+async def test_reconcile_commits_without_live_owner_then_exact_replay_only(
+    migrated_database_url: URL,
+    departure: str,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        request = await pending_reconciliation(service)
+        if departure == "release":
+            await service.release(request.grant.owner_uuid, request.grant.owner_epoch)
+        else:
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE supervisor_lease SET expires_at = clock_timestamp() - interval '1 second'"
+                    )
+                )
+        before = await db_snapshot(engine)
+        assert await service.reconcile_stop(request) == request.model_dump(mode="json")
+        after = await db_snapshot(engine)
+        assert after[:2] == before[:2] and after[3] == before[3]
+        assert after[2] == () and isinstance(after[4], tuple) and len(after[4]) == 1
+        assert await service.reconcile_stop(request) == request.model_dump(mode="json")
+        assert await db_snapshot(engine) == after
+        successor = uuid4()
+        assert await service.acquire(successor) == request.grant.owner_epoch + 1
+        changed = await db_snapshot(engine)
+        with pytest.raises(ControlConflict):
+            await service.reconcile_stop(request)
+        assert await db_snapshot(engine) == changed
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "state",
+        "inventory",
+        "owner_uuid",
+        "owner_epoch",
+        "generation",
+        "command_id",
+        "finalize_command_id",
+        "instance_id",
+        "daemon_id",
+        "system_identifier",
+        "absent",
+        "db_epoch",
+        "db_open",
+        "db_uncertain",
+        "db_schema",
+    ],
+)
+@pytest.mark.asyncio
+async def test_reconciliation_denial_preserves_every_authority_row(
+    migrated_database_url: URL,
+    mutation: str,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        original = await pending_reconciliation(service)
+        body = original.model_dump(mode="json")
+        grant = original.grant.model_dump(mode="json")
+        if mutation == "system_identifier":
+            body[mutation] = "1"
+        elif mutation in {"absent", "db_epoch", "db_open", "db_uncertain", "db_schema"}:
+            statement = {
+                "absent": "DELETE FROM instance_stop_fence",
+                "db_epoch": "UPDATE supervisor_lease SET epoch = epoch + 1",
+                "db_open": "UPDATE instance_control SET admission_open = true",
+                "db_uncertain": "UPDATE instance_stop_fence SET state = 'STOP_UNCERTAIN'",
+                "db_schema": "ALTER TABLE instance_stop_reconciliation DISABLE TRIGGER stop_reconciliation_immutable",
+            }[mutation]
+            async with engine.begin() as connection:
+                await connection.execute(text(statement))
+        elif mutation == "inventory":
+            grant[mutation] = {"db": "a" * 64, "inode": True}
+        elif mutation == "state":
+            grant[mutation] = "STOP_UNCERTAIN"
+        elif mutation in {"owner_epoch", "generation"}:
+            grant[mutation] = 99
+        elif mutation == "daemon_id":
+            grant[mutation] = "foreign-daemon"
+        else:
+            grant[mutation] = str(uuid4())
+        body["grant"] = grant
+        request = StopReconciliation.model_validate(body)
+        before = await db_snapshot(engine)
+        with pytest.raises(ControlConflict):
+            await service.reconcile_stop(request)
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.parametrize("mutation", ["completion_sha256", "reconciliation_id", "inventory"])
+@pytest.mark.asyncio
+async def test_reconciliation_receipt_cannot_authorize_foreign_replay(
+    migrated_database_url: URL,
+    mutation: str,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        request = await pending_reconciliation(service)
+        await service.reconcile_stop(request)
+        body = request.model_dump(mode="json")
+        if mutation == "inventory":
+            body["grant"] = {**request.grant.model_dump(mode="json"), "inventory": {"db": "c" * 64}}
+        else:
+            body[mutation] = "c" * 64 if mutation == "completion_sha256" else str(uuid4())
+        before = await db_snapshot(engine)
+        with pytest.raises(ControlConflict):
+            await service.reconcile_stop(StopReconciliation.model_validate(body))
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_insert_and_fence_delete_roll_back_together(
+    migrated_database_url: URL,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        request = await pending_reconciliation(service)
+        async with engine.begin() as connection:
+            await connection.execute(
+                text("""CREATE FUNCTION synthetic_refuse_delete() RETURNS trigger
+                LANGUAGE plpgsql AS $$BEGIN RAISE EXCEPTION 'synthetic refusal'; END;$$""")
+            )
+            await connection.execute(
+                text("""CREATE TRIGGER synthetic_refuse_delete BEFORE DELETE
+                ON instance_stop_fence FOR EACH STATEMENT EXECUTE FUNCTION synthetic_refuse_delete()""")
+            )
+        before = await db_snapshot(engine)
+        with pytest.raises(SQLAlchemyError):
+            await service.reconcile_stop(request)
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "UPDATE instance_stop_reconciliation SET completion_sha256 = repeat('c', 64)",
+        "DELETE FROM instance_stop_reconciliation",
+        "TRUNCATE instance_stop_reconciliation",
+    ],
+)
+@pytest.mark.asyncio
+async def test_reconciliation_receipt_is_database_immutable(
+    migrated_database_url: URL, sql: str
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    try:
+        request = await pending_reconciliation(service)
+        await service.reconcile_stop(request)
+        before = await db_snapshot(engine)
+        with pytest.raises(SQLAlchemyError):
+            async with engine.begin() as connection:
+                await connection.execute(text(sql))
+        assert await db_snapshot(engine) == before
+    finally:
+        await engine.dispose()
+
+
 class PausedService(InstanceService):
     """Pause after both real row locks; do not replace any product decision."""
 
@@ -132,6 +348,46 @@ async def observe_blocked_on(engine: AsyncEngine, first: PausedService) -> None:
             if waiting == 1:
                 return
             await asyncio.sleep(0.01)
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_and_takeover_serialize_on_existing_lock_order(
+    migrated_database_url: URL,
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service, first = InstanceService(engine), PausedService(engine)
+    tasks: list[asyncio.Task[object]] = []
+    try:
+        request = await pending_reconciliation(service)
+        await service.release(request.grant.owner_uuid, request.grant.owner_epoch)
+        reconciliation = asyncio.create_task(first.reconcile_stop(request))
+        tasks.append(reconciliation)
+        await asyncio.wait_for(first.entered.wait(), 2)
+        takeover = asyncio.create_task(service.acquire(uuid4()))
+        tasks.append(takeover)
+        await observe_blocked_on(engine, first)
+        first.proceed.set()
+        # Acquire may win before the second readback; that readback must then
+        # refuse, despite having committed a valid reconciliation receipt.
+        results = await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), 4)
+        assert results[1] == request.grant.owner_epoch + 1
+        assert results[0] == request.model_dump(mode="json") or isinstance(
+            results[0], ControlConflict
+        )
+        async with engine.connect() as connection:
+            assert (
+                await connection.execute(text("SELECT count(*) FROM instance_stop_fence"))
+            ).scalar_one() == 0
+            assert (
+                await connection.execute(text("SELECT count(*) FROM instance_stop_reconciliation"))
+            ).scalar_one() == 1
+    finally:
+        first.proceed.set()
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        await engine.dispose()
 
 
 @pytest.mark.parametrize("contender", ["acquire", "open"])
@@ -308,6 +564,7 @@ def test_migration_creates_empty_persistent_stop_fence(migrated_database_url: UR
             "finalize_command_id",
             "generation",
             "owner_epoch",
+            "owner_uuid",
             "daemon_id",
             "inventory",
             "state",
@@ -368,6 +625,7 @@ async def test_arm_stop_persists_exact_finalized_owner_and_inventory(
                 "finalize_command_id": finalized,
                 "generation": stopped,
                 "owner_epoch": epoch,
+                "owner_uuid": owner,
                 "daemon_id": "daemon-a",
                 "inventory": inventory,
                 "state": "STOP_PENDING",

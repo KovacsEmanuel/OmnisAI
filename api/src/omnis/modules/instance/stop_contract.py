@@ -69,5 +69,14 @@ class StopGrant(StopBinding):
     owner_uuid: CanonicalUUID
 
 
+class StopReconciliation(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+    version: VersionOne
+    reconciliation_id: CanonicalUUID
+    system_identifier: str = Field(pattern=r"^[0-9]{1,20}$")
+    grant: StopGrant
+    completion_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 def canonical_json(value: object) -> str:
     return dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)

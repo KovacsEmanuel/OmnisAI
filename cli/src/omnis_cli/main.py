@@ -1,12 +1,15 @@
 """Operator-facing console script."""
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
 
 from .browser import open_verified
 from .compose import ImageInstallError, install_control_image
+from .config import load_config
+from .lifecycle import StartError
 from .pairing import interactive_tty, pair
 from .release import ReleaseError, install_release
 from .start import start, start_result
@@ -45,6 +48,25 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     commands.add_parser("install-image", help="Explicitly build the pinned local control image")
     args = parser.parse_args(argv)
+    try:
+        load_config()
+    except StartError as exc:
+        if getattr(args, "json", False):
+            print(
+                json.dumps(
+                    {
+                        "state": "REFUSED",
+                        "reason": exc.reason,
+                        "dashboard_ready": False,
+                        "assessment_ready": False,
+                        "browser_opened": False,
+                    },
+                    sort_keys=True,
+                )
+            )
+        else:
+            print(f"{exc.reason}: verificați configurația non-secretă privată.", file=sys.stderr)
+        return exc.code
     if args.command is None:
         code, result = start_result(None)
         if code:

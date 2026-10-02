@@ -76,7 +76,13 @@ def private_stop_fixture() -> Iterator[
             },
             "system_id": "12345",
             "instance_id": instance_id,
-            "forwarder": {},
+            "forwarder": {
+                "pid": 321,
+                "start_ticks": "123",
+                "boot_id": str(uuid4()),
+                "executable": "/usr/bin/python3",
+                "argv": ["python3", "-I"],
+            },
             "listener_inode": 123,
             "api_socket": [1, 2],
             "control_socket": [3, 4],
@@ -248,6 +254,59 @@ class StopTest(unittest.TestCase):
                     with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
                         readback_stopped(runtime, root, control, {**record, "phase": phase})
 
+    def test_stop_receipt_types_cannot_claim_stopped_or_reach_resource_readback(self) -> None:
+        stop_module = importlib.import_module("omnis_cli.stop")
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            readback_stopped(runtime, root, control, record)  # Valid offline control.
+            assert isinstance(record["forwarder"], dict)
+            cases = {
+                "open-bool": {"open_command": True},
+                "forwarder-list": {"forwarder": []},
+                "forwarder-empty": {"forwarder": {}},
+                "forwarder-extra": {"forwarder": {**record["forwarder"], "extra": 1}},
+                "socket-string": {"api_socket": "1,2"},
+                "socket-zero-inode": {"control_socket": [3, 0]},
+                "cid-arbitrary": {
+                    "containers": {"db": "alien", "api": "e" * 64, "supervisor": "f" * 64}
+                },
+                "cid-bool": {"containers": {"db": True, "api": "e" * 64, "supervisor": "f" * 64}},
+                "project-bool": {"project": True},
+                "release-hash": {"release_digest": "unsigned"},
+                "image-hash": {"image_id": "sha256:foreign"},
+                "host-bool": {"docker_host": True},
+                "daemon-bool": {"docker_id": True},
+                "control-list": {"control_dir": []},
+                "generation-bool": {"generation": True, "stop_expected": 1},
+                "unexpected": {"untrusted": "ignored"},
+            }
+            with patch.object(
+                runtime, "ids", side_effect=AssertionError("offline inventory reached")
+            ) as ids:
+                for phase in ("STOPPING", "STOPPED"):
+                    valid = {**record, "phase": phase}
+                    if phase == "STOPPING":
+                        valid.update(
+                            stop_generation=None, finalized_generation=None, teardown_completed=[]
+                        )
+                        stop_module._stopping_record(valid)  # Valid unfinished intent.
+                    for label, change in cases.items():
+                        with self.subTest(phase=phase, case=label):
+                            with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                                candidate = {**valid, **change}
+                                if phase == "STOPPING":
+                                    stop_module._stopping_record(candidate)
+                                else:
+                                    readback_stopped(runtime, root, control, candidate)
+            ids.assert_not_called()
+
+    def test_pgdata_receipt_rejects_unknown_phase_or_extra_fields(self) -> None:
+        start_module = importlib.import_module("omnis_cli.start")
+        with private_stop_fixture() as (_base, _root, _foreign, _control, record, _runtime):
+            for change in ({"phase": "REBOUND"}, {"surprise": 1}, {"phase": "READY"}):
+                with self.subTest(change=change):
+                    with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                        start_module._pgdata_receipt({**record, **change})
+
     def test_physical_pin_never_substitutes_a_missing_logical_system_id(self) -> None:
         with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
             for bad in (None, True, 12345, "not-decimal", "9" * 21):
@@ -398,6 +457,81 @@ class StopTest(unittest.TestCase):
             self.assertEqual(read_record(journal)["phase"], "UNCERTAIN")
             marker = read_record(root / "unreconciled.json")
             self.assertEqual(marker["attempt"], record["attempt"])
+
+    def test_invalid_ready_generation_cannot_enter_emergency_or_attempt_effects(self) -> None:
+        stop_module = importlib.import_module("omnis_cli.stop")
+        start_module = importlib.import_module("omnis_cli.start")
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            for key in stop_module.STOP_FIELDS - start_module.READY_FIELDS:
+                record.pop(key)
+            record.update(phase="READY", generation=True)
+            journal = root / "startup.json"
+            write_record(journal, record)
+            before = journal.read_bytes()
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(stop_module, "ControlRuntime", return_value=runtime),
+                patch.object(start_module, "ControlRuntime", return_value=runtime),
+                patch.object(
+                    runtime, "ids", side_effect=AssertionError("OCI inventory reached")
+                ) as ids,
+                patch.object(
+                    stop_module, "_emergency_drain", side_effect=AssertionError("effect reached")
+                ) as drain,
+            ):
+                with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                    stop_module.stop_instance()
+                code, outcome = start_module.start_result(None)
+                self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                    stop_module._emergency_stop(runtime, root, control, record)
+            ids.assert_not_called()
+            drain.assert_not_called()
+            self.assertEqual(journal.read_bytes(), before)
+            self.assertFalse((root / "unreconciled.json").exists())
+            self.assertFalse((root / "lifecycle.lock").exists())
+            self.assertFalse((base / "d/omnis/lifecycle.lock").exists())
+
+    def test_malformed_stopping_intent_refuses_before_locks_control_and_marker(self) -> None:
+        stop_module = importlib.import_module("omnis_cli.stop")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            record.update(
+                phase="STOPPING",
+                open_command=True,
+                stop_generation=None,
+                finalized_generation=None,
+                teardown_completed=[],
+            )
+            journal = root / "startup.json"
+            write_record(journal, record)
+            before = journal.read_bytes()
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                    },
+                ),
+                patch.object(
+                    stop_module, "ControlRuntime", return_value=runtime
+                ) as control_runtime,
+            ):
+                with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                    stop_module.stop_instance()
+            control_runtime.assert_not_called()
+            self.assertEqual(journal.read_bytes(), before)
+            self.assertFalse((root / "unreconciled.json").exists())
+            self.assertFalse((root / "lifecycle.lock").exists())
+            self.assertFalse((base / "d/omnis/lifecycle.lock").exists())
 
     def test_complete_forwarding_intent_after_start_crash_gets_emergency_marker(self) -> None:
         """A possible OPEN ACK cannot be abandoned with admission potentially open."""

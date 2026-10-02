@@ -25,22 +25,17 @@ from .lifecycle import (
 )
 from .start import (
     READY_FIELDS,
+    STOP_FIELDS,
     _check_pgdata,
+    _owned_record,
     _pgdata_receipt,
+    _ready_record,
     database_identity,
     service_ids,
     verify_running,
 )
 from .start_runtime import ControlRuntime
 
-STOP_FIELDS = READY_FIELDS | {
-    "stop_command",
-    "stop_expected",
-    "stop_generation",
-    "finalize_command",
-    "finalized_generation",
-    "teardown_completed",
-}
 STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
 
 
@@ -109,6 +104,7 @@ def _listener_absent(record: dict[str, object]) -> None:
 
 def _stopping_record(record: dict[str, object]) -> None:
     _pgdata_receipt(record)
+    _owned_record(record)
     completed = record.get("teardown_completed")
     finalized = record.get("finalized_generation")
     if (
@@ -139,11 +135,28 @@ def _stopping_record(record: dict[str, object]) -> None:
             raise StartError("RECOVERY_REQUIRED", 4) from None
     if _integer(record, "stop_expected") < 0 or (
         _integer(record, "generation") != _integer(record, "stop_expected")
+        or record["stop_generation"] is not None
+        and record["stop_generation"]
+        not in {_integer(record, "stop_expected"), _integer(record, "stop_expected") + 1}
         or _integer(record, "supervisor_epoch") < 1
         or not 1024 <= _integer(record, "port") <= 65535
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     _containers(record)
+
+
+def _preflight_record(record: dict[str, object]) -> None:
+    """Reject unauthoritative journal shapes before locks, control or intents."""
+    phase = record.get("phase")
+    if phase == "READY":
+        _ready_record(record)
+    elif phase in {"STOPPING", "STOPPED"}:
+        _stopping_record(record)
+    elif phase == "FORWARDING":
+        _pgdata_receipt(record)
+        _owned_record(record)
+    else:
+        raise StartError("RECOVERY_REQUIRED", 4)
 
 
 def readback_stopped(
@@ -253,13 +266,9 @@ def _emergency_inventory(
                 raise ValueError()
         except ValueError:
             raise StartError("RECOVERY_REQUIRED", 4) from None
-    elif (
-        set(record) != READY_FIELDS
-        or record.get("phase") != "READY"
-        or type(record.get("format")) is not int
-        or record["format"] != 2
-    ):
-        raise StartError("RECOVERY_REQUIRED", 4)
+        _owned_record(record)
+    else:
+        _ready_record(record)
     attempt = record["attempt"]
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
         raise StartError("RECOVERY_REQUIRED", 4)
@@ -351,6 +360,15 @@ def _emergency_drain(
 def _emergency_stop(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
+    if record.get("phase") == "READY":
+        _ready_record(record)
+    elif record.get("phase") == "STOPPING":
+        _stopping_record(record)
+    elif record.get("phase") == "FORWARDING":
+        _pgdata_receipt(record)
+        _owned_record(record)
+    else:
+        raise StartError("RECOVERY_REQUIRED", 4)
     _check_pgdata(root, record)
     # The marker path can be unwritable independently of the private journal.
     # Persist before inventory: an outage there must not leave READY reusable.
@@ -557,7 +575,9 @@ def stop_instance() -> dict[str, object]:
     root = state_dir()
     # A legacy receipt has no original inode: refuse before even creating a lock.
     if os.path.lexists(root / "startup.json"):
-        _check_pgdata(root, read_record(root / "startup.json"))
+        preflight = read_record(root / "startup.json")
+        _preflight_record(preflight)
+        _check_pgdata(root, preflight)
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
     runtime = ControlRuntime(data_home, time.monotonic() + 180)
@@ -567,6 +587,7 @@ def stop_instance() -> dict[str, object]:
     with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
         path = root / "startup.json"
         record = read_record(path)
+        _preflight_record(record)
         _check_pgdata(root, record)
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)

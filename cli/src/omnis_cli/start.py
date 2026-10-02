@@ -63,6 +63,28 @@ READY_FIELDS = {
     "generation",
     "supervisor_epoch",
 }
+STOP_FIELDS = READY_FIELDS | {
+    "stop_command",
+    "stop_expected",
+    "stop_generation",
+    "finalize_command",
+    "finalized_generation",
+    "teardown_completed",
+}
+START_FIELDS = {
+    "format",
+    "phase",
+    "attempt",
+    "project",
+    "release_digest",
+    "image_id",
+    "docker_host",
+    "docker_id",
+    "control_dir",
+    "port",
+    "containers",
+    "pgdata_identity",
+}
 
 
 def preflight_port(port: int) -> None:
@@ -433,7 +455,94 @@ def cleanup_attempt(
 
 
 def _socket_receipt(value: object) -> bool:
-    return type(value) is list and len(value) == 2 and all(type(part) is int for part in value)
+    return (
+        type(value) is list
+        and len(value) == 2
+        and all(type(part) is int for part in value)
+        and value[0] >= 0
+        and value[1] > 0
+    )
+
+
+def _receipt_uuid(value: object) -> bool:
+    if type(value) is not str:
+        return False
+    try:
+        return str(UUID(value)) == value
+    except ValueError:
+        return False
+
+
+def _receipt_int(value: object, lower: int, upper: int | None = None) -> bool:
+    return (
+        type(value) is int
+        and isinstance(value, int)
+        and value >= lower
+        and (upper is None or value <= upper)
+    )
+
+
+def _owned_record(record: dict[str, object]) -> None:
+    """Type-check persisted effect locators before OCI, control or teardown."""
+    containers = record.get("containers")
+    forwarder = record.get("forwarder")
+    project = record.get("project")
+    digest = record.get("release_digest")
+    image = record.get("image_id")
+    host = record.get("docker_host")
+    daemon = record.get("docker_id")
+    control = record.get("control_dir")
+    if (
+        not _receipt_uuid(record.get("attempt"))
+        or not _receipt_uuid(record.get("instance_id"))
+        or not _receipt_uuid(record.get("open_command"))
+        or type(project) is not str
+        or not isinstance(project, str)
+        or not project
+        or type(digest) is not str
+        or not isinstance(digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        or type(image) is not str
+        or not isinstance(image, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", image) is None
+        or type(host) is not str
+        or not isinstance(host, str)
+        or not host
+        or type(daemon) is not str
+        or not isinstance(daemon, str)
+        or not daemon
+        or type(control) is not str
+        or not isinstance(control, str)
+        or not Path(control).is_absolute()
+        or not _receipt_int(record.get("port"), 1024, 65535)
+        or type(containers) is not dict
+        or set(containers) != {"db", "api", "supervisor"}
+        or any(
+            type(cid) is not str or re.fullmatch(r"[0-9a-f]{64}", cid) is None
+            for cid in containers.values()
+        )
+        or len(set(containers.values())) != 3
+        or type(forwarder) is not dict
+        or set(forwarder) != {"pid", "start_ticks", "boot_id", "executable", "argv"}
+        or not _receipt_int(forwarder["pid"], 2)
+        or type(forwarder["start_ticks"]) is not str
+        or re.fullmatch(r"[0-9]+", forwarder["start_ticks"]) is None
+        or not _receipt_uuid(forwarder["boot_id"])
+        or type(forwarder["executable"]) is not str
+        or not Path(forwarder["executable"]).is_absolute()
+        or type(forwarder["argv"]) is not list
+        or not forwarder["argv"]
+        or any(type(arg) is not str for arg in forwarder["argv"])
+        or not _receipt_int(record.get("listener_inode"), 1)
+        or not _socket_receipt(record.get("api_socket"))
+        or not _socket_receipt(record.get("control_socket"))
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    if record.get("phase") != "FORWARDING" and (
+        not _receipt_int(record.get("generation"), 1)
+        or not _receipt_int(record.get("supervisor_epoch"), 1)
+    ):
+        raise StartError("RECOVERY_REQUIRED", 4)
 
 
 def _pgdata_identity(root: Path) -> list[int]:
@@ -454,8 +563,20 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
     value = record.get("pgdata_identity")
     phase = record.get("phase")
     system_id = record.get("system_id")
+    fields = {
+        "STARTING": (START_FIELDS, START_FIELDS | {"system_id"}),
+        "MIGRATING": (START_FIELDS | {"system_id"},),
+        "SERVICES": (START_FIELDS | {"system_id", "instance_id"},),
+        "VERIFYING": (START_FIELDS | {"system_id", "instance_id"},),
+        "FORWARDING": (READY_FIELDS - {"generation", "supervisor_epoch"},),
+        "READY": (READY_FIELDS,),
+        "STOPPING": (STOP_FIELDS,),
+        "STOPPED": (STOP_FIELDS,),
+    }
     if (
-        not isinstance(phase, str)
+        type(phase) is not str
+        or phase not in fields
+        or set(record) not in fields[phase]
         or type(record.get("format")) is not int
         or record["format"] != 2
         or type(value) is not list
@@ -479,9 +600,7 @@ def _check_pgdata(root: Path, record: dict[str, object]) -> None:
         raise StartError("RECOVERY_REQUIRED", 4)
 
 
-def verify_running(
-    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
-) -> dict[str, object]:
+def _ready_record(record: dict[str, object]) -> None:
     if (
         set(record) != READY_FIELDS
         or record.get("phase") != "READY"
@@ -495,6 +614,14 @@ def verify_running(
         or not _socket_receipt(record.get("control_socket"))
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
+    _pgdata_receipt(record)
+    _owned_record(record)
+
+
+def verify_running(
+    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
+) -> dict[str, object]:
+    _ready_record(record)
     attempt = record.get("attempt")
     _check_pgdata(root, record)
     if not isinstance(attempt, str) or str(UUID(attempt)) != attempt:
@@ -584,7 +711,7 @@ def projection(
 
 
 def start_instance(port: int | None = None) -> dict[str, object]:
-    from .stop import _integer, readback_stopped  # Import after start's module initialization.
+    from .stop import _integer, _preflight_record, readback_stopped
 
     root = state_dir()
     # Capture the operator's invocation side of a queued Start. Reading again
@@ -593,6 +720,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
     initial_phase = None
     if os.path.lexists(root / "startup.json"):
         initial_record = read_record(root / "startup.json")
+        _preflight_record(initial_record)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
     if initial_phase == "STOPPING":
@@ -630,6 +758,7 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         restarting: dict[str, object] | None = None
         if os.path.lexists(journal):
             record = read_record(journal)
+            _preflight_record(record)
             _check_pgdata(root, record)
             selected = record.get("port")
             if type(selected) is not int or (port is not None and selected != port):

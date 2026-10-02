@@ -13,6 +13,74 @@ from omnis_cli.main import main
 
 
 class StartTest(unittest.TestCase):
+    def test_fresh_instance_identity_is_durable_before_open_can_commit(self):
+        """An OPEN ACK cut must leave an instance ID for a later fenced Stop."""
+        import importlib
+        import subprocess
+        import time
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from uuid import uuid4
+
+        from omnis_cli.lifecycle import StartError
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        identity = str(uuid4())
+        project = "omnis-local-" + "a" * 32
+        runtime = Mock(
+            receipt=SimpleNamespace(
+                project=project,
+                image_id="sha256:" + "b" * 64,
+                docker_id="test-daemon",
+            ),
+            digest="c" * 64,
+            host="unix:///run/docker.sock",
+            deadline=time.monotonic() + 30,
+        )
+        runtime.ids.return_value = []
+        runtime.inspect.return_value = None
+        runtime.psql.return_value = "1234"
+        runtime.run.return_value = subprocess.CompletedProcess([], 0, "migration-id", "")
+        runtime.wait_container.return_value = {"ExitCode": 0}
+        closed = {"admission_open": False, "generation": 0, "shutdown_command_id": None}
+        root = self.root / "state/omnis"
+
+        def before_open(_control, command, **_kwargs):
+            self.assertEqual(command["op"], "open")
+            try:
+                installed = start.load_instance(root)
+            except FileNotFoundError:
+                raise StartError("INSTANCE_RECORD_MISSING_BEFORE_OPEN", 4) from None
+            self.assertEqual((installed.instance_id, installed.project), (identity, project))
+            raise StartError("CUT_AFTER_OPEN_WOULD_BE_SAFE", 4)
+
+        with (
+            patch.object(start, "ControlRuntime", return_value=runtime),
+            patch.object(start, "preflight_port"),
+            patch.object(start, "validate_config"),
+            patch.object(
+                start,
+                "service_ids",
+                side_effect=[
+                    {"db": "db-id"},
+                    {"db": "db-id", "api": "api-id", "supervisor": "supervisor-id"},
+                ],
+            ),
+            patch.object(start, "database_identity", return_value=("1234", identity)),
+            patch.object(start, "api_process", return_value=4242),
+            patch.object(start, "wait_dashboard", return_value=closed),
+            patch.object(start, "dashboard", return_value=closed),
+            patch.object(start, "launch_forwarder", return_value=(None, -1, {"pid": 4242}, 101)),
+            patch.object(start, "listener_owned"),
+            patch.object(start, "socket_identity", return_value=[1, 2]),
+            patch.object(start, "request", side_effect=before_open),
+            patch.object(start, "cleanup_attempt", return_value=[]),
+        ):
+            code, result = start.start_result(None)
+        self.assertEqual((code, result["reason"]), (4, "CUT_AFTER_OPEN_WOULD_BE_SAFE"))
+        self.assertEqual(json.loads((root / "startup.json").read_text())["phase"], "FAILED_CLEANED")
+
     def test_headless_help_does_not_advertise_delivered_commands_as_missing(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output), self.assertRaises(SystemExit) as result:

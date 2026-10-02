@@ -797,6 +797,19 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             opening_generation = (
                 0 if restarting is None else _integer(restarting, "stop_generation")
             )
+            # A committed OPEN may outlive this launcher even if its ACK/READY
+            # publication does not. Persist the exact identity before the effect.
+            instance = Instance(
+                identity,
+                "0.1.0",
+                EXPECTED_SCHEMA,
+                runtime.receipt.project,
+                f"http://127.0.0.1:{selected}",
+            )
+            if restarting is None:
+                write_record(root / "instance.json", {"version": 1, **asdict(instance)})
+            elif load_instance(root) != instance:
+                raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             current = request(
                 control,
                 {
@@ -812,17 +825,6 @@ def start_instance(port: int | None = None) -> dict[str, object]:
                 or current["generation"] != opening_generation + 1
             ):
                 raise StartError("ADMISSION_OPEN_UNVERIFIED", 4)
-            instance = Instance(
-                identity,
-                "0.1.0",
-                EXPECTED_SCHEMA,
-                runtime.receipt.project,
-                f"http://127.0.0.1:{selected}",
-            )
-            if restarting is None:
-                write_record(root / "instance.json", {"version": 1, **asdict(instance)})
-            elif load_instance(root) != instance:
-                raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             record.update(
                 phase="READY",
                 generation=current["generation"],

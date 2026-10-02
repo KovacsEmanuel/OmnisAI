@@ -26,7 +26,7 @@ def status(*, as_json: bool) -> int:
             record = read_record(root / "startup.json")
             if record.get("phase") == "READY":
                 _ready_record(record)
-            elif record.get("phase") in {"STOPPING", "STOPPED"}:
+            elif type(record.get("phase")) is str and record["phase"] in {"STOPPING", "STOPPED"}:
                 _stopping_record(record)
             else:
                 raise StartError("RECOVERY_REQUIRED", 4)

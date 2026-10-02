@@ -110,7 +110,8 @@ def _stopping_record(record: dict[str, object]) -> None:
     finalized = record.get("finalized_generation")
     if (
         set(record) != STOP_FIELDS
-        or record.get("phase") not in {"STOPPING", "STOPPED"}
+        or type(record.get("phase")) is not str
+        or record["phase"] not in {"STOPPING", "STOPPED"}
         or record.get("stop_generation") is not None
         and type(record["stop_generation"]) is not int
         or finalized is not None
@@ -148,6 +149,8 @@ def _stopping_record(record: dict[str, object]) -> None:
 def _preflight_record(record: dict[str, object]) -> None:
     """Reject unauthoritative journal shapes before locks, control or intents."""
     phase = record.get("phase")
+    if type(phase) is not str:
+        raise StartError("RECOVERY_REQUIRED", 4)
     if phase == "READY":
         _ready_record(record)
     elif phase in {"STOPPING", "STOPPED"}:

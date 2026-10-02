@@ -121,6 +121,52 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
+    def test_unhashable_journal_phase_refuses_all_installed_entrypoints(self) -> None:
+        """Malformed JSON types must not escape as tracebacks or contact Docker/control."""
+        start_module = importlib.import_module("omnis_cli.start")
+        stop_module = importlib.import_module("omnis_cli.stop")
+        status_module = importlib.import_module("omnis_cli.status")
+        for phase in ([], {}):
+            with (
+                self.subTest(phase_type=type(phase).__name__),
+                private_stop_fixture() as (base, root, _foreign, _control, record, _runtime),
+            ):
+                record["phase"] = phase
+                journal = root / "startup.json"
+                write_record(journal, record)
+                before = journal.read_bytes()
+                env = {
+                    "XDG_STATE_HOME": str(base / "s"),
+                    "XDG_DATA_HOME": str(base / "d"),
+                    "XDG_RUNTIME_DIR": "",
+                }
+                blocked = AssertionError("Malformatted phase contacted a resource")
+                with (
+                    patch.dict(os.environ, env),
+                    patch.object(start_module, "ControlRuntime", side_effect=blocked),
+                    patch.object(stop_module, "ControlRuntime", side_effect=blocked),
+                    patch.object(status_module, "ControlRuntime", side_effect=blocked),
+                    patch.object(status_module, "request", side_effect=blocked),
+                ):
+                    for command in (
+                        ["start", "--no-open", "--json"],
+                        ["stop", "--json"],
+                        ["status", "--json"],
+                    ):
+                        with self.subTest(command=command[0]):
+                            output = io.StringIO()
+                            with contextlib.redirect_stdout(output):
+                                code = main(command)
+                            outcome = json.loads(output.getvalue())
+                            self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
+                            self.assertFalse(outcome["dashboard_ready"])
+                            for key in ("generation", "admission_open", "supervisor_epoch"):
+                                self.assertNotIn(key, outcome)
+                self.assertEqual(journal.read_bytes(), before)
+                self.assertFalse((root / "unreconciled.json").exists())
+                self.assertFalse((root / "lifecycle.lock").exists())
+                self.assertFalse((base / "d/omnis/lifecycle.lock").exists())
+
     def test_nonincremented_shutdown_receipt_cannot_claim_offline_stopped(self) -> None:
         """SHUTDOWN always advances generation; a fabricated equal value is not STOPPED."""
         start_module = importlib.import_module("omnis_cli.start")

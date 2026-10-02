@@ -9,12 +9,22 @@ type AuthoritySpec = tuple[dict[str, ColumnSpec], set[ConstraintSpec]]
 
 # Each column is (type, required, exact default). Tables are never inferred from a stamp alone.
 AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
+    "instance_stop_reconciliation": (
+        {
+            "reconciliation_id": ("uuid", True, None),
+            "system_identifier": ("text", True, None),
+            "grant": ("jsonb", True, None),
+            "completion_sha256": ("text", True, None),
+        },
+        {("instance_stop_reconciliation_pkey", "p", "PRIMARY KEY (reconciliation_id)", True, True)},
+    ),
     "instance_stop_fence": (
         {
             "id": ("smallint", True, None),
             "instance_id": ("uuid", True, None),
             "command_id": ("uuid", True, None),
             "finalize_command_id": ("uuid", True, None),
+            "owner_uuid": ("uuid", False, None),
             "generation": ("bigint", True, None),
             "owner_epoch": ("bigint", True, None),
             "daemon_id": ("text", True, None),
@@ -178,6 +188,31 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             return False
         if set(constraints) != expected_constraints | required:
             return False
+    immutable = (
+        await connection.execute(
+            text(
+                "SELECT t.tgname, t.tgtype, t.tgenabled, p.proname, p.prosrc, "
+                "l.lanname, p.prosecdef, p.pronargs, t.tgnargs "
+                "FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
+                "JOIN pg_language l ON l.oid = p.prolang "
+                "WHERE t.tgrelid = 'instance_stop_reconciliation'::regclass AND NOT t.tgisinternal"
+            )
+        )
+    ).all()
+    if [tuple(row) for row in immutable] != [
+        (
+            "stop_reconciliation_immutable",
+            58,
+            "O",
+            "reject_stop_reconciliation_mutation",
+            "BEGIN\n        RAISE EXCEPTION 'Stop reconciliation receipts are immutable';\n        END;",
+            "plpgsql",
+            False,
+            0,
+            0,
+        )
+    ]:
+        return False
     return all(
         (
             await connection.execute(

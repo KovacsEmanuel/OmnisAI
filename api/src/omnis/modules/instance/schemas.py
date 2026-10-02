@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
+
 
 class InstanceView(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -43,6 +45,9 @@ class LifecycleCommand(StrictBody):
 
 
 class ControlRequest(StrictBody):
-    version: Literal[1]
+    version: VersionOne
     capability: str = Field(min_length=64, max_length=64, repr=False)
-    command: Annotated[StatusCommand | PairingCommand | LifecycleCommand, Field(discriminator="op")]
+    command: Annotated[
+        StatusCommand | PairingCommand | LifecycleCommand | ArmStopCommand,
+        Field(discriminator="op"),
+    ]

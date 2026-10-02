@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from omnis.core.schema import authority_schema_matches
 
-SCHEMA_REVISION = "0005_stop_fence"
+SCHEMA_REVISION = "0006_stop_reconciliation"
 
 
 class ReadinessReason(StrEnum):

@@ -37,6 +37,7 @@ class CommandRecord(DatabaseRecord):
 
 class StopFenceRecord(DatabaseRecord):
     id: int
+    owner_uuid: UUID | None
     instance_id: UUID
     command_id: UUID
     finalize_command_id: UUID

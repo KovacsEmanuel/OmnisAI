@@ -108,6 +108,7 @@ def private_stop_fixture() -> Iterator[
         password.write_text("synthetic\n")
         password.chmod(0o600)
         (root / "postgres").mkdir(mode=0o711)
+        (root / "postgres").chmod(0o711)  # mkdir mode is narrowed by an inherited umask.
         yield base, root, foreign, control, record, runtime
 
 
@@ -358,6 +359,7 @@ class StopTest(unittest.TestCase):
                 readback_stopped(runtime, root, control, record)
             (root / "postgres").unlink()
             (root / "postgres").mkdir(mode=0o711)
+            (root / "postgres").chmod(0o711)
             other_secret = foreign / "password"
             other_secret.write_text("synthetic\n")
             other_secret.chmod(0o600)

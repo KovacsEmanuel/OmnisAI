@@ -223,6 +223,12 @@ class StopProductTests(unittest.TestCase):
                         self.assertIsNone(fixture.forwarder.poll())
                     else:
                         self.assertTrue(fixture.mutation_seen.wait(4))
+                        self.assertEqual(
+                            Path(f"/proc/{owner_pid}/task/{owner_pid}/children")
+                            .read_text()
+                            .strip(),
+                            "",
+                        )
                         signal.pidfd_send_signal(
                             parent_fd if mode == "parent-death" else owner_fd, signal.SIGKILL
                         )
@@ -372,10 +378,14 @@ class StopProductTests(unittest.TestCase):
 
                 path = receipt_path(fixture.root, fixture.record)
                 clean = read_record(path)
-                for where in ("inventory", "launcher"):
+                for where in ("inventory", "launcher", "db_image"):
                     changed = deepcopy(clean)
                     if where == "inventory":
                         changed["grant"]["inventory"]["unknown"] = 1
+                    elif where == "db_image":
+                        changed["grant"]["inventory"]["containers"][2]["image"] = (
+                            "sha256:" + "0" * 64
+                        )
                     else:
                         changed["launcher"] = {"pid": True}
                     write_record(path, changed, replace=True)

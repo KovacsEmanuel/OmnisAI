@@ -590,7 +590,11 @@ def verify_stop_completion(
     ):
         raise StartError("STOP_INVENTORY_DRIFT", 4)
     rows = inventory.get("containers")
-    if not isinstance(rows, list) or len(rows) != 3:
+    if (
+        not isinstance(rows, list)
+        or len(rows) != 3
+        or mapping(rows[2]).get("image") != runtime.pg_image
+    ):
         raise StartError("STOP_INVENTORY_DRIFT", 4)
     if {str(mapping(row).get("role")): mapping(row).get("id") for row in rows} != record[
         "containers"

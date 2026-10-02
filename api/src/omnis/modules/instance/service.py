@@ -212,16 +212,17 @@ class InstanceService:
             if previous is not None:
                 return previous
             self._require_generation(instance, expected)
+            if instance.shutdown_command_id is not None:
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
             result = expected
-            if instance.shutdown_command_id is None:
-                result += 1
-                await connection.execute(
-                    text(
-                        "UPDATE instance_control SET admission_open = false, shutdown_command_id = :command, "
-                        "generation = :generation, quiesced_generation = NULL, quiesced_at = NULL WHERE id = 1"
-                    ),
-                    {"command": command_id, "generation": result},
-                )
+            result += 1
+            await connection.execute(
+                text(
+                    "UPDATE instance_control SET admission_open = false, shutdown_command_id = :command, "
+                    "generation = :generation, quiesced_generation = NULL, quiesced_at = NULL WHERE id = 1"
+                ),
+                {"command": command_id, "generation": result},
+            )
             await self._record(connection, command_id, "SHUTDOWN", expected, result, lease.epoch)
             await self._require_owner(connection, lease, owner, epoch)
             return result

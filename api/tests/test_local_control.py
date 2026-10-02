@@ -13,6 +13,7 @@ from uuid import UUID, uuid4
 
 import pytest
 from pydantic import ConfigDict, TypeAdapter, ValidationError, with_config
+from sqlalchemy import text
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -283,6 +284,41 @@ async def test_real_unix_control_peer_capability_and_allowlist(
                 },
             )
             assert stale["error"] == "GENERATION_CONFLICT"
+            first_stop = str(uuid4())
+            closed = await request(
+                ipc_directory,
+                capability,
+                {
+                    "op": "shutdown",
+                    "instance_id": instance_id,
+                    "command_id": first_stop,
+                    "expected_generation": 1,
+                },
+            )
+            assert closed["ok"] and closed.get("result_generation") == 2
+            closed_status = closed.get("status")
+            assert closed_status is not None and closed_status["shutdown_command_id"] == first_stop
+            second_stop = str(uuid4())
+            mixed = await request(
+                ipc_directory,
+                capability,
+                {
+                    "op": "shutdown",
+                    "instance_id": instance_id,
+                    "command_id": second_stop,
+                    "expected_generation": 2,
+                },
+            )
+            assert mixed.get("error") == "COMMAND_CONFLICT", (
+                "Second stop must not attest first intent"
+            )
+            async with engine.connect() as connection:
+                assert (
+                    await connection.execute(
+                        text("SELECT count(*) FROM instance_command WHERE command_id = :id"),
+                        {"id": second_stop},
+                    )
+                ).scalar_one() == 0
         assert not (ipc_directory / "control.sock").exists()
         assert not (ipc_directory / "control.cap").exists()
         # Exercise SO_PEERCRED denial on the same real socket/positive channel.

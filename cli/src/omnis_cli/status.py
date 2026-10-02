@@ -88,7 +88,20 @@ def status(*, as_json: bool) -> int:
                 }
             elif record.get("phase") == "STOPPING":
                 _stopping_record(record)
-                raise StartError("INSTANCE_SHUTTING_DOWN", 4)
+                instance = load_instance(root)
+                verified = {
+                    "state": "STOPPING",
+                    "instance_id": instance.instance_id,
+                    "release": instance.release,
+                    "schema": instance.schema,
+                    "origin": instance.origin,
+                    "generation": record["stop_generation"],
+                    "control_ready": False,
+                    "dashboard_ready": False,
+                    "assessment_ready": False,
+                    "browser_opened": False,
+                    "reason": "INSTANCE_SHUTTING_DOWN",
+                }
             elif record.get("phase") == "READY" and type(port) is int:
                 verified = verify_running(runtime, root, control_dir(root), record, port)
                 verified.pop("reused")
@@ -97,7 +110,7 @@ def status(*, as_json: bool) -> int:
             if read_record(root / "startup.json") != record:
                 raise StartError("LIFECYCLE_CHANGED", 4)
             result = verified
-            exit_code = 0
+            exit_code = 4 if record["phase"] == "STOPPING" else 0
         except (
             OSError,
             ValueError,

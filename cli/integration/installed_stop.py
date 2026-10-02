@@ -61,7 +61,50 @@ def run_installed_stop(data, receipt, cli):
         runtime.psql(db, "CREATE TABLE sl04_sentinel (value integer NOT NULL)")
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
 
-        stopped = command("stop", "--json")
+        stopper = subprocess.Popen(
+            [cli, "stop", "--json"],
+            cwd=cwd,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            until = time.monotonic() + 40
+            while time.monotonic() < until:
+                if json.loads((root / "startup.json").read_text())["phase"] == "STOPPING":
+                    break
+                assert stopper.poll() is None, "Stop finished before durable intent was observed"
+                time.sleep(0.005)
+            else:
+                raise AssertionError("Installed Stop did not publish STOPPING")
+            stopping_status = subprocess.run(
+                [cli, "status", "--json"],
+                cwd=cwd,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=50,
+            )
+            queued = subprocess.run(
+                [cli, "start", "--no-open", "--port", str(port), "--json"],
+                cwd=cwd,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=220,
+            )
+            stop_out, stop_err = stopper.communicate(timeout=220)
+            assert stopper.returncode == 0 and "Traceback" not in stop_err
+            stopped = json.loads(stop_out)
+            assert queued.returncode == 4, "Start queued behind Stop must not become restart"
+            assert json.loads(queued.stdout)["reason"] == "INSTANCE_SHUTTING_DOWN"
+            assert stopping_status.returncode == 4
+            assert json.loads(stopping_status.stdout)["state"] == "STOPPING"
+        finally:
+            if stopper.poll() is None:
+                stopper.terminate()  # Only this direct, still-live test child.
+                stopper.wait(timeout=30)
         assert stopped["state"] == "STOPPED"
         assert stopped["dashboard_ready"] is False and stopped["assessment_ready"] is False
         record = json.loads((root / "startup.json").read_text())
@@ -119,7 +162,10 @@ def run_installed_stop(data, receipt, cli):
             elif record["phase"] == "READY":
                 current = request(control, {"op": "status"})
                 if current["admission_open"] is True and current["shutdown_command_id"] is None:
-                    if before_journal is not None:
+                    if (
+                        before_journal is not None
+                        and record["attempt"] == json.loads(before_journal)["attempt"]
+                    ):
                         assert (root / "startup.json").read_bytes() == before_journal
                         assert resource_snapshot(runtime, root, control, port) == before
                     teardown(runtime, root, control, port, record)

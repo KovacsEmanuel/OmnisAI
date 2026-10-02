@@ -538,6 +538,15 @@ def projection(
 def start_instance(port: int | None = None) -> dict[str, object]:
     from .stop import _integer, readback_stopped  # Import after start's module initialization.
 
+    root = state_dir()
+    # Capture the operator's invocation side of a queued Start. Reading again
+    # after Stop releases the local lock must not turn that old Start into a
+    # fresh explicit restart.
+    initial_phase = None
+    if os.path.lexists(root / "startup.json"):
+        initial_phase = read_record(root / "startup.json").get("phase")
+    if initial_phase == "STOPPING":
+        raise StartError("INSTANCE_SHUTTING_DOWN", 4)
     deadline = time.monotonic() + 180
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
@@ -547,7 +556,6 @@ def start_instance(port: int | None = None) -> dict[str, object]:
         raise
     except (OSError, ValueError, subprocess.SubprocessError):
         raise StartError("RELEASE_OR_IMAGE_INVALID") from None
-    root = state_dir()
     control = control_dir(root)
     # Validate canonical paths before mkdir; no symlink aliases or partial Unix names.
     for path in (root, control, root / "http"):
@@ -576,6 +584,8 @@ def start_instance(port: int | None = None) -> dict[str, object]:
             if type(selected) is not int or (port is not None and selected != port):
                 raise StartError("PORT_CHANGE_REQUIRES_STOP")
             if record.get("phase") == "STOPPED":
+                if initial_phase != "STOPPED":
+                    raise StartError("INSTANCE_SHUTTING_DOWN", 4)
                 readback_stopped(runtime, root, control, record)
                 restarting = record
             else:

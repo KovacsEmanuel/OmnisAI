@@ -37,7 +37,6 @@ from .start import (
     verify_running,
 )
 from .start_runtime import ControlRuntime
-from .stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
 from .stop_receipt import receipt_path, validate_grant
 
 STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
@@ -169,6 +168,8 @@ def readback_stopped(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> None:
     """Offline receipt is usable only while its exact owned resources stay absent."""
+    from .stop_owner import verify_stop_completion
+
     if os.path.lexists(root / "unreconciled.json"):
         raise StartError("RECOVERY_REQUIRED", 4)
     _stopping_record(record)
@@ -539,6 +540,8 @@ def _resume_owned(
 def _publish_stopped(
     runtime: ControlRuntime, root: Path, control: Path, path: Path, record: dict[str, object]
 ) -> None:
+    from .stop_owner import verify_stop_completion
+
     _check_pgdata(root, record)
     verify_stop_completion(runtime, root, control, record)
     record["teardown_completed"] = list(STOP_STAGES)
@@ -552,6 +555,7 @@ def _publish_stopped(
 def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
     from .config import _integer as config_integer
     from .config import load_config
+    from .stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
 
     config = load_config()
     shutdown_seconds = config_integer(

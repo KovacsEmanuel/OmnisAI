@@ -15,9 +15,32 @@ from test_stop import private_stop_fixture
 
 stop = importlib.import_module("omnis_cli.stop")
 start = importlib.import_module("omnis_cli.start")
+stop_owner = importlib.import_module("omnis_cli.stop_owner")
 
 
 class StopWiringTest(unittest.TestCase):
+    def test_owner_can_import_the_strict_stop_validator_without_cycle(self):
+        import subprocess
+        import sys
+
+        # Explicit integration seam for the reviewed owner import dependency;
+        # no owner commit is copied into this worktree.
+        code = (
+            "import builtins\n"
+            "original = builtins.__import__\n"
+            "def importing(name, globals=None, locals=None, fromlist=(), level=0):\n"
+            "    if name == 'stop_owner' and level == 1:\n"
+            "        from omnis_cli.stop import _stopping_record\n"
+            "        assert callable(_stopping_record)\n"
+            "    return original(name, globals, locals, fromlist, level)\n"
+            "builtins.__import__ = importing\n"
+            "import omnis_cli.stop\n"
+        )
+        result = subprocess.run(
+            [sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=5
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_normal_stop_hands_original_locks_to_owner_after_authenticated_arm(self):
         self.normal_stop()
 
@@ -119,9 +142,9 @@ class StopWiringTest(unittest.TestCase):
                 patch.object(stop, "_running_for_stop", return_value=current()),
                 patch.object(stop, "_finalized_db_readback"),
                 patch.object(stop, "request", side_effect=control_request),
-                patch.object(stop, "prepare_stop_inventory", side_effect=prepare, create=True),
-                patch.object(stop, "run_stop_owner", side_effect=owner, create=True) as run_owner,
-                patch.object(stop, "verify_stop_completion", side_effect=verify, create=True),
+                patch.object(stop_owner, "prepare_stop_inventory", side_effect=prepare),
+                patch.object(stop_owner, "run_stop_owner", side_effect=owner) as run_owner,
+                patch.object(stop_owner, "verify_stop_completion", side_effect=verify),
                 patch.object(stop, "_resume_owned", side_effect=AssertionError("legacy teardown")),
                 patch.object(stop, "_emergency_stop", side_effect=AssertionError("emergency")),
             ):
@@ -219,10 +242,10 @@ class StopWiringTest(unittest.TestCase):
                         },
                     ),
                     patch.object(stop, "ControlRuntime", return_value=runtime),
-                    patch.object(stop, "verify_stop_completion", side_effect=verify, create=True),
+                    patch.object(stop_owner, "verify_stop_completion", side_effect=verify),
                     patch.object(stop, "request", side_effect=AssertionError("reissued control")),
                     patch.object(
-                        stop,
+                        stop_owner,
                         "run_stop_owner",
                         side_effect=AssertionError("reissued owner"),
                         create=True,

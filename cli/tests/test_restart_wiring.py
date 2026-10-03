@@ -180,7 +180,6 @@ class RestartWiringTest(unittest.TestCase):
                         },
                     ),
                     patch.object(start, "ControlRuntime", return_value=runtime),
-                    patch.object(stop, "verify_stop_completion"),
                     patch("omnis_cli.stop_owner.verify_stop_completion"),
                     patch.object(start, "preflight_port"),
                     patch.object(

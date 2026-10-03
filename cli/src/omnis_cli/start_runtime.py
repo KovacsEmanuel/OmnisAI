@@ -80,6 +80,7 @@ class ControlRuntime:
             or image.get("Architecture") != "amd64"
             or image.get("Os") != "linux"
             or config.get("User") != "65532:65532"
+            or config.get("Entrypoint") not in (None, [])
             or config.get("Cmd") != ["python", "-I", "-m", "omnis.serve"]
             or labels.get("org.omnis.project") != receipt.project
             or labels.get("org.omnis.bundle_sha256") != self.digest
@@ -358,6 +359,11 @@ class ControlRuntime:
             or labels.get("com.docker.compose.service") != role
             or item.get("Image") != (self.pg_image if role == "db" else self.receipt.image_id)
             or config.get("Cmd") != expected_command
+            or (
+                config.get("Entrypoint") != ["docker-entrypoint.sh"]
+                if role == "db"
+                else config.get("Entrypoint") not in (None, [])
+            )
             or host.get("Privileged") is not False
             or host.get("PortBindings")
             or any(mapping(net.get("Ports")).values())
@@ -428,8 +434,7 @@ class ControlRuntime:
         if actual_env != expected_env:
             raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
         if role == "reconcile" and (
-            config.get("Entrypoint") not in (None, [])
-            or config.get("Volumes")
+            config.get("Volumes")
             or config.get("Tty") is not False
             or any(
                 config.get(key) is not True

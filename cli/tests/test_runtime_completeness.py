@@ -217,6 +217,23 @@ class RuntimeCompletenessTest(unittest.TestCase):
                     item["Config"]["Env"].append("LD_PRELOAD=/foreign")
                     self.check(role, reject=True, consumer=consumer)
 
+    def test_f02_exact_entrypoint_for_each_role(self):
+        for role in ROLES:
+            for entrypoint in (["sh", "-c", "exit 0"], "", {}, False, ["python"]):
+                with self.subTest(role=role, entrypoint=entrypoint):
+                    item = self.install(role)
+                    item["Config"]["Entrypoint"] = entrypoint
+                    self.check(role, reject=True)
+            if role == "db":
+                for entrypoint in (None, []):
+                    with self.subTest(role=role, entrypoint=entrypoint):
+                        self.install(role)["Config"]["Entrypoint"] = entrypoint
+                        self.check(role, reject=True)
+            else:
+                for entrypoint in (None, []):
+                    self.install(role)["Config"]["Entrypoint"] = entrypoint
+                    self.check(role)
+
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()
         self.assertEqual(

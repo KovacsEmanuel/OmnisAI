@@ -54,6 +54,7 @@ class RuntimePreflightTest(unittest.TestCase):
                 "socket",
                 "daemon",
                 "image",
+                "image-entrypoint",
                 "tag",
                 "receipt",
                 "compose-v1",
@@ -76,6 +77,8 @@ class RuntimePreflightTest(unittest.TestCase):
                 def inspect(owner, kind, ident, mode=fault):
                     if ident == POSTGRES:
                         return pg
+                    if mode == "image-entrypoint" and ident == receipt.image_id:
+                        return {**image, "Config": {**image["Config"], "Entrypoint": ["sh"]}}
                     if mode == "image" and ident == receipt.image_id:
                         return {**image, "Architecture": "foreign"}
                     if mode == "tag" and ident == receipt.tag:

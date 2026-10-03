@@ -94,7 +94,10 @@ class _View(ControlRuntime):
         item = self.engine.network(ident)
         if item is None or item.get("Id") != ident:
             raise StartError("STOP_NETWORK_DRIFT", 4)
-        return _network_identity(item, self.receipt.project, self.attempt, allowed)
+        try:
+            return _network_identity(item, self.receipt.project, self.attempt, allowed)
+        except StartError:
+            raise StartError("STOP_NETWORK_DRIFT", 4) from None
 
 
 def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -> ControlRuntime:

@@ -733,6 +733,17 @@ class RuntimeCompletenessTest(unittest.TestCase):
             item["Config"]["Env"].append("LD_PRELOAD=/foreign")
             self.check(role, reject=True)
 
+    def test_owner_network_policy_refusal_preserves_stop_error_contract(self):
+        self.install("db")
+        owner = self.owner()
+        for field, value in (("Options", {"foreign": "true"}), ("Internal", False)):
+            original = self.network[field]
+            self.network[field] = value
+            with self.assertRaisesRegex(StartError, "STOP_NETWORK_DRIFT") as caught:
+                owner.network({self.cid})
+            self.assertEqual(caught.exception.code, 4)
+            self.network[field] = original
+
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()
         self.assertEqual(

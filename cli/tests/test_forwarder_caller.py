@@ -100,6 +100,8 @@ class ForwarderCallerTest(unittest.TestCase):
                 return {"admission_open": False, "generation": 0, "shutdown_command_id": None}
 
             def observed_spawn(argv, **kwargs):
+                attempt = json.loads((root / "startup.json").read_text())["attempt"]
+                self.assertEqual(argv[-2:], ["--stop-attempt", str(attempt)])
                 child = spawn(argv, **kwargs)
                 children.append((child, pin(child.pid)))
                 close = child.stdout.close

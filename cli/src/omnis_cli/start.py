@@ -351,7 +351,12 @@ def _publish_forwarder() -> Iterator[None]:
 
 
 def launch_forwarder(
-    root: Path, port: int, deadline: float, *, ownership: ForwarderOwnership | None = None
+    root: Path,
+    port: int,
+    deadline: float,
+    *,
+    ownership: ForwarderOwnership | None = None,
+    stop_attempt: str | None = None,
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
     # The private intent and caller holder exist before birth. The tuple is NOT
     # the ownership transfer: finally/close and tuple unpacking remain interruptible.
@@ -373,6 +378,7 @@ def launch_forwarder(
                         str(root / "http"),
                         "--port",
                         str(port),
+                        *(["--stop-attempt", stop_attempt] if stop_attempt is not None else []),
                     ],
                     cwd=root,
                     env={"PATH": SAFE_PATH},
@@ -1056,7 +1062,9 @@ def start_instance(
                 raise StartError("RESTART_ADMISSION_CONFLICT", 4)
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
-            _, _, forwarder, inode = launch_forwarder(root, selected, deadline, ownership=owner)
+            _, _, forwarder, inode = launch_forwarder(
+                root, selected, deadline, ownership=owner, stop_attempt=str(record["attempt"])
+            )
             record.update(
                 forwarder=forwarder,
                 listener_inode=inode,

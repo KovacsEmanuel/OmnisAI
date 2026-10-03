@@ -268,7 +268,7 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
             or service.get("image") != (POSTGRES if role == "db" else runtime.receipt.image_id)
             or service.get("pull_policy") != "never"
             or service.get("platform") != "linux/amd64"
-            or set(mapping(service.get("networks"))) != {"control"}
+            or mapping(service.get("networks")) != {"control": None}
             or any(
                 service.get(key) is not None
                 for key in (

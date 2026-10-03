@@ -10,6 +10,8 @@ Baza principală verificată: `3c22d8192025781930941c8e3913b0d79ba0661b`, branch
 
 Toolchain observat: Python `3.13.15`, uv `0.12.19`, Node `24.21.0`, npm `11.19.0`; Vitest și tsx prezente. Nu instalăm dependențe ambientale și nu schimbăm daemon/firewall/UID global. Fără push, P1, runtime Hermes, provider, proxy, assessment sau trafic target.
 
+**Citire ulterioară:** verdicturile de mai jos sunt cele de la înghețarea criteriilor, nu statusul curent. Integrarea `bd5ee23`, nominalul fizic și gate-ul canonic pe `e336b7b` sunt consemnate în [registrul SL04](p04-stop-recovery.md) și [harta curentă](implementation-status.md). Niciun rând U/C nu este eliminat sau închis implicit prin aceste rezultate.
+
 ## Convenții de execuție și evidență
 
 Prefixe: **I** = `api/src/omnis/modules/instance/`; **C** = `cli/src/omnis_cli/`; **T** = `api/src/omnis/transport/local_control.py`; **V** = `api/src/omnis/migrations/versions/`. „Toți consumatorii” de mai jos înseamnă toți consumatorii existenți în P0 și consumatorul nou numit în felie; producătorii P1/P2 rămân neimplementați, nu primesc credit.

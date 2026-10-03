@@ -917,7 +917,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         _docker(host, "container", "rm", job_id, cwd=scratch)
         if (
             _psql(host, release, project, empty_env, env, "SELECT version_num FROM alembic_version")
-            != "0005_stop_fence"
+            != "0006_stop_reconciliation"
         ):
             raise AssertionError("Installed migration revision mismatch")
         if (

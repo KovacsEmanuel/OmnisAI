@@ -1148,6 +1148,19 @@ def start_instance(
                     signal.signal(sig, signal.SIG_IGN)
             failed_phase = record["phase"]
             if restarting is not None:
+                # The new host child still belongs to this caller, even while
+                # the DB must remain available for reconciliation. Never use
+                # a numeric PID fallback or container cleanup here.
+                if owner.process is not None:
+                    record["forwarder_spawn_pid"] = owner.process.pid
+                    try:
+                        stop_forwarder(
+                            owner.process,
+                            owner.pidfd,
+                            deadline=time.monotonic() + cleanup_seconds,
+                        )
+                    except (OSError, ValueError, subprocess.SubprocessError, KeyboardInterrupt):
+                        pass  # Outcome stays UNCERTAIN; the locator is not signal authority.
                 # Do not erase the only running DB/readback path after a possibly
                 # committed reconciliation. No cleanup, rebind or blind job retry.
                 record.update(

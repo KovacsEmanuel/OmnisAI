@@ -5,7 +5,9 @@ import hashlib
 import importlib
 import json
 import os
+import select
 import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
@@ -54,6 +56,9 @@ class RestartWiringTest(unittest.TestCase):
     def test_post_ack_service_failure_keeps_database_and_blocks_replay(self):
         self.restart("post-ack")
 
+    def test_restart_forwarder_failure_reaps_held_child_without_database_teardown(self):
+        self.restart("forwarder-fault")
+
     def restart(self, fault=None):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             # Owner proof is synthetic; DB/OCI/HTTP/forwarder seams are enumerated below.
@@ -81,6 +86,7 @@ class RestartWiringTest(unittest.TestCase):
             (root / "forwarder.log").write_text("prior\n")
             (root / "forwarder.log").chmod(0o600)
             events, resources, requests = [], {}, []
+            children = []
             db, job = "1" * 64, "2" * 64
             api, supervisor = "4" * 64, "5" * 64
             runtime.files = {}
@@ -237,6 +243,35 @@ class RestartWiringTest(unittest.TestCase):
                 self.assertEqual(stop_attempt, read_record(journal)["attempt"])
                 self.assertEqual(read_record(intent_path)["state"], "ACKED")
                 events.append("forwarder")
+                if fault == "forwarder-fault":
+                    reader, writer = os.pipe()
+                    process = subprocess.Popen(
+                        [
+                            sys.executable,
+                            "-I",
+                            "-c",
+                            "import os,signal,sys; signal.signal(signal.SIGTERM,lambda *_:sys.exit(0)); "
+                            "os.write(1,b'R'); os.read(int(sys.argv[1]),1)",
+                            str(reader),
+                        ],
+                        pass_fds=(reader,),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    os.close(reader)
+                    ownership.process = process
+                    ownership.pidfd = os.pidfd_open(process.pid)
+                    children.append(process)
+
+                    def rescue():
+                        os.close(writer)
+                        process.wait(timeout=3)
+                        process.stdout.close()
+
+                    self.addCleanup(rescue)
+                    self.assertTrue(select.select([process.stdout], [], [], 3)[0])
+                    self.assertEqual(os.read(process.stdout.fileno(), 1), b"R")
+                    raise OSError("synthetic forwarder handoff interruption")
                 return None, -1, old["forwarder"], old["listener_inode"]
 
             def opening(_control, command, **_kwargs):
@@ -327,13 +362,16 @@ class RestartWiringTest(unittest.TestCase):
                 if restart is not None:
                     scope.enter_context(patch.object(restart, "write_record", side_effect=saved))
                 code, result = start.start_result(None)
+                if fault == "forwarder-fault":
+                    self.assertEqual(children[0].returncode, 0, "Restart abandoned its held child")
                 self.assertEqual(code, 4 if fault else 0)
                 self.assertEqual(copy_path.read_bytes(), old_raw)
                 self.assertEqual(read_record(intent_path)["old_stop_command"], old["stop_command"])
                 if fault:
-                    if fault != "post-ack":
+                    if fault not in {"post-ack", "forwarder-fault"}:
                         self.assertNotIn("create-services", events)
-                    self.assertNotIn("start-services", events)
+                    if fault != "forwarder-fault":
+                        self.assertNotIn("start-services", events)
                     self.assertNotIn("open", events)
                     if fault not in {"crash", "journal-write"}:
                         self.assertIn(db, resources)

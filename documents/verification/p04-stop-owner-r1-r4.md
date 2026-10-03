@@ -58,7 +58,24 @@ faultul vizează exact inspect pe ID, nu listele. Nicio mutație după pozitivul
 - R2 GREEN: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p 'test_stop_*.py' -v`
   → exit0/18 teste OK, `r2-green.log`; Ruff check/format scoped exit0/0.
 
-R3–R4 și gate-urile finale source/wheel/Ruff/format/mypy: în lucru.
+## R3 — buget întreg bloc status/headers
+
+`line(limit)` verifică inclusiv delimitatorul pentru linii deja coalesced;
+parserul scade statusul, fiecare CRLF și terminatorul gol din același 16384 bytes.
+Test permanent: reason lung, câmp lung, multe câmpuri distincte, la 16383/16384/
+16385/20500 bytes, atât un send coalesced cât și fragmente de 137 bytes. Positivele
+la limita exactă trec; excesul refuză înainte de credit ACK, fără retry.
+
+- R2 commit: `50ad705a039506e5a19b5cf44a0a18bfa872a0d1`.
+- RED: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_stop_engine.py -k entire_status -v`
+  → exit1, 7 subcazuri acceptau excesul, `r3-red.log`.
+- Control înainte de cod: aceeași descoperire `-k wire_response_cap` → exit0,
+  `r3-cap-control.log`, cap global exact 1048576 bytes inclusiv headers și +1.
+- GREEN: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p 'test_stop_*.py' -v`
+  → exit0/20 teste, `r3-green.log`; include 1MiB exact/+1, trickle deadline,
+  chunked/nesting și 204 vs 304/404/500. Ruff check/format scoped exit0/0.
+
+R4 și gate-urile finale source/wheel/Ruff/format/mypy: în lucru.
 Reticle NOT_APPLICABLE (CLI/procese); Chisel BLOCKED/NO-GO, neexecutat.
 `make check` și gate-urile installed-start/pair-open/stop fizice: NOT_RUN aici.
 Rollback numai prin reverturile locale în ordine inversă; Git nu reconciliază DB.

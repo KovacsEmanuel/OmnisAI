@@ -18,6 +18,8 @@ class EnginePeer:
         self.path, self.status, self.trickle = path, status, trickle
         self.requests: list[str] = []
         self.raw_reply: bytes | None = None
+        self.mutation_reply: bytes | None = None
+        self.fragment_size = 0
         self.done = threading.Event()
         self.sock = socket.socket(socket.AF_UNIX)
         self.sock.bind(str(path))
@@ -50,11 +52,18 @@ class EnginePeer:
                 )
                 if self.raw_reply is not None:
                     response = self.raw_reply
+                elif self.mutation_reply is not None and not line.startswith("GET /info "):
+                    response = self.mutation_reply
                 try:
                     if self.trickle:
                         for byte in response:
                             peer.sendall(bytes([byte]))
                             if self.done.wait(0.03):
+                                break
+                    elif self.fragment_size:
+                        for offset in range(0, len(response), self.fragment_size):
+                            peer.sendall(response[offset : offset + self.fragment_size])
+                            if self.done.wait(0.001):
                                 break
                     else:
                         peer.sendall(response)
@@ -70,6 +79,78 @@ class EnginePeer:
 
 
 class StopEngineTests(unittest.TestCase):
+    def test_wire_response_cap_still_includes_headers(self):
+        from omnis_cli.stop_engine import MAX_RESPONSE, StopEngine
+
+        for size in (MAX_RESPONSE, MAX_RESPONSE + 1):
+            with (
+                self.subTest(size=size),
+                tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name,
+            ):
+                body = b'{"ID":"synthetic-stop-daemon"}'
+                length = size
+                for _ in range(3):
+                    header = f"HTTP/1.1 200 OK\r\nContent-Length: {length}\r\n\r\n".encode()
+                    length = size - len(header)
+                response = header + body + b" " * (length - len(body))
+                self.assertEqual(len(response), size)
+                peer = EnginePeer(Path(name) / "e")
+                peer.raw_reply = response
+                try:
+                    engine = StopEngine(
+                        "unix://" + str(peer.path), "synthetic-stop-daemon", time.monotonic() + 3
+                    )
+                    if size == MAX_RESPONSE:
+                        engine.check_daemon()
+                    else:
+                        with self.assertRaisesRegex(StartError, "STOP_ENGINE_RESPONSE_INVALID"):
+                            engine.check_daemon()
+                finally:
+                    peer.close()
+
+    def test_entire_status_header_block_cap_exact_and_fragmented(self):
+        from omnis_cli.stop_engine import StopEngine
+
+        for fragment_size in (0, 137):
+            for shape in ("status", "field", "many"):
+                for size in (16383, 16384, 16385, 20500):
+                    with (
+                        self.subTest(fragment_size=fragment_size, shape=shape, size=size),
+                        tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name,
+                    ):
+                        prefix = b"HTTP/1.1 204 "
+                        if shape != "status":
+                            prefix += b"OK\r\n"
+                            if shape == "many":
+                                prefix += b"".join(f"x-{i}:\r\n".encode() for i in range(1200))
+                            prefix += b"X-Pad: "
+                        reply = prefix + b"A" * (size - len(prefix) - 4) + b"\r\n\r\n"
+                        self.assertEqual(len(reply), size)
+                        peer = EnginePeer(Path(name) / "e")
+                        peer.mutation_reply, peer.fragment_size = reply, fragment_size
+                        try:
+                            engine = StopEngine(
+                                "unix://" + str(peer.path),
+                                "synthetic-stop-daemon",
+                                time.monotonic() + 3,
+                            )
+                            if size <= 16384:
+                                self.assertEqual(engine.stop_container("a" * 64), 204)
+                            else:
+                                with self.assertRaisesRegex(
+                                    StartError, "STOP_ENGINE_RESPONSE_INVALID"
+                                ):
+                                    engine.stop_container("a" * 64)
+                            self.assertEqual(
+                                peer.requests,
+                                [
+                                    "GET /info HTTP/1.1",
+                                    f"POST /containers/{'a' * 64}/stop?t=15 HTTP/1.1",
+                                ],
+                            )
+                        finally:
+                            peer.close()
+
     def test_caps_deep_json_and_chunked_reply_on_same_socket(self):
         from omnis_cli.stop_engine import StopEngine
 

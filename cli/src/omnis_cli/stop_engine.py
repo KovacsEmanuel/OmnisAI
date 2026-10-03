@@ -70,12 +70,14 @@ class StopEngine:
                     raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
                 buffer.extend(part)
 
-            def line() -> bytes:
+            def line(limit: int = 16384) -> bytes:
                 while b"\r\n" not in buffer:
-                    if len(buffer) > 16384:
+                    if len(buffer) >= limit:
                         raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
                     receive()
                 end = buffer.index(b"\r\n")
+                if end + 2 > limit:
+                    raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
                 result = bytes(buffer[:end])
                 del buffer[: end + 2]
                 return result
@@ -85,10 +87,13 @@ class StopEngine:
                 raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
             status = int(status_line.split(b" ", 2)[1])
             headers: dict[bytes, bytes] = {}
-            header_bytes = len(status_line)
-            while field := line():
-                header_bytes += len(field)
-                if b":" not in field or header_bytes > 16384:
+            header_bytes = len(status_line) + 2
+            while True:
+                field = line(16384 - header_bytes)
+                header_bytes += len(field) + 2
+                if not field:
+                    break
+                if b":" not in field:
                     raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
                 key, value = field.split(b":", 1)
                 key, value = key.lower(), value.strip()

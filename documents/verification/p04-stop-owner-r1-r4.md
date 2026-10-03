@@ -2,7 +2,7 @@
 
 Scope exclusiv worktree `omnis-sl04-owner-integration`, branch
 `sl04-stop-owner-integration`, bază `97d6c4f0cded396616098d8c3f631e6e84c3bd77`.
-Raport incremental; **nu aprobă SL04**, nu integrează în main. Reviewul independent
+Raport final scoped; **nu aprobă SL04**, nu integrează în main. Reviewul independent
 și Docker/PG real rămân ale părintelui. Oracle-ul, grantul (inclusiv `owner_uuid`),
 IPC, cgroup și supervisorul nu sunt redesenate.
 
@@ -75,7 +75,124 @@ la limita exactă trec; excesul refuză înainte de credit ACK, fără retry.
   → exit0/20 teste, `r3-green.log`; include 1MiB exact/+1, trickle deadline,
   chunked/nesting și 204 vs 304/404/500. Ruff check/format scoped exit0/0.
 
-R4 și gate-urile finale source/wheel/Ruff/format/mypy: în lucru.
+## R4 — cleanup independent, diagnosticul inițial păstrat
+
+`run_stop_owner` păstrează excepția inițială, închide ambele canale independent,
+închide pidfd în finally exterior și încearcă reap bounded după eșec de semnal.
+Eșecul primului wait nu sare peste semnal/reap. Cleanup-ul eșuat adaugă
+`STOP_OWNER_CLEANUP_UNCERTAIN`, nu maschează motivul inițial și nu produce succes.
+Dacă nu exista eroare inițială, cleanup incert produce STOP_OWNER_UNCERTAIN/4.
+Niciun fallback PID numeric și niciun LOCK_UN/OFD reopen.
+
+Test permanent nou `cli/tests/test_stop_owner_cleanup.py`:
+
+- ACK child propriu, originalele FD moștenite; ținut viu pe pipe-ul observerului,
+  alarmă 12s numai ca fuse de ultimă instanță. Observerul deține pidfd independent
+  înainte de handoff, nu împrumută handle-ul produsului după eroare.
+- Signal OSError, al doilea wait OSError și primul wait OSError sunt cazuri separate.
+  În cazurile wait syscall-ul de semnal este explicit no-op ca să nu lase moartea
+  procesului să ascundă lipsa reap-ului. Nu este semnal fizic de produs reușit.
+- În toate trei: două wait-uri bounded încercate, canale închise, pidfd fără leak,
+  motiv inițial STOP_OWNER_TIMEOUT/4 + nota UNCERTAIN, PREPARED, zero mutații;
+  copil încă viu la observație. Observerul face SIGKILL real, citește
+  `waitid(P_PIDFD)` CLD_KILLED/SIGKILL, reap=-9 și apoi ECHILD. Rescue-ul nu este
+  creditat ca succes al produsului.
+- RED înainte de cod: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_stop_owner_cleanup.py -v`
+  → exit1/3 failures, `r4-red.log`; fiecare a verificat rescue/reap înainte de FAIL.
+- GREEN aceeași comandă → exit0/3 teste, `r4-green.log`; ulterior aserțiunea notei
+  UNCERTAIN a fost inclusă în toate gate-urile finale de mai jos.
+
+R3 commit: `a017909282a4b0e98ffc648e23741f01212b3b51`. R4 este commitul care
+conține această secțiune și testul cleanup; SHA-ul se citește prin
+`git log -1 --format=%H -- cli/tests/test_stop_owner_cleanup.py` (fără auto-referință).
+
+## Gate-uri finale după ultima editare de cod/test
+
+Toate rulările au umask077 și TMPDIR scratch. Interpretoare Python3.13.15,
+Ruff0.16.9, mypy2.3.1, uv0.12.19. Comenzile/exits/logurile integrale sunt salvate
+și în `owner-r1r4-evidence/commands.jsonl`; raportul păstrează rezultatele importante
+independent de retenția scratchului.
+
+```sh
+# cwd worktree owner; P=cli/.venv/bin/python, Q=api/.venv/bin/python
+$P -I -B -m unittest discover -s cli/tests -p 'test_stop_*.py' -v
+# exit0, 23 teste OK; final-targeted.log
+$P -I -B -m unittest discover -s cli/tests -v
+# exit0, 201 teste OK; final-source.log
+$Q -I -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests
+# exit0; final-ruff.log
+$Q -I -m ruff format --config api/pyproject.toml --check cli/src cli/tests
+# exit0, 48 fișiere deja formatate; final-format.log
+env -u PYTHONPATH -u MYPYPATH $Q -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json cli/src
+# exit0, fără diagnostice; final-mypy.log
+```
+
+Wheel nou, construit după ultima editare și instalat într-un venv nou, fără rețea:
+
+```sh
+UV=/home/kali/.hermes/cache/scratch/omnis-final-readiness/dependency-probe/tools/uv
+E=/home/kali/.hermes/cache/scratch/owner-r1r4-evidence
+$UV build --no-config --offline --wheel cli --out-dir "$E/dist"
+$UV venv --no-config --no-python-downloads --python 3.13.15 "$E/wheel-env"
+$UV pip install --no-config --offline --python "$E/wheel-env/bin/python" --no-deps "$E/dist/omnis_cli-0.1.0-py3-none-any.whl"
+# toate exit0; wheel-build.log, wheel-venv.log, wheel-install.log
+# cwd extern $E:
+$E/wheel-env/bin/python -I -B /home/kali/.hermes/cache/scratch/owner-r1r4-artifact.py
+$E/wheel-env/bin/python -I -B -m unittest discover -s /home/kali/.hermes/cache/scratch/omnis-sl04-owner-integration/cli/tests -v
+$E/wheel-env/bin/python -I -B /home/kali/.hermes/cache/scratch/owner-r1r4-artifact.py
+# exit0/0/0; 201 teste OK; wheel-provenance/final-wheel/wheel-stable-inputs.log
+```
+
+Proveniență verificată: import din `wheel-env/lib/python3.13/site-packages`,
+19 module identice byte-for-byte sursă → wheel → instalare; 48 intrări sursă/test
+stabile între începutul și sfârșitul gate-ului wheel. Numărătoarea logurilor a fost
+recalculată programatic: 201 nume unice, aceleași în sursă și wheel; 23 targeted,
+fără ResourceWarning/FAIL/ERROR. Nu sunt 402 teste distincte.
+
+| Artefact | SHA256 |
+|---|---|
+| `dist/omnis_cli-0.1.0-py3-none-any.whl` | `c0e0c1b7c88a68dc7d861277d40671788a5765b9f60919a093db648227a948a3` |
+| `stop_owner.py` | `3a6c84b00894aaa4bd75fe14c9415ae570581aa3d2c5810d486099020957ec9b` |
+| `stop_engine.py` | `d8d99cf01f8bd71c1d3fb032b5077d2f648f7a622464cf572fd92e2e3116445f` |
+| `stop_receipt.py` nemodificat | `286d82f827b1a755b8315ca999cfe1173adae5f36fe592e0477b768faf727e79` |
+
+Reproducerul părintelui, nemodificat, a fost rerulat de implementer pe bytes noi:
+
+`cli/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/owner-review-97d6c4f-probes.py MODE`
+
+MODE `offline_schema`, `null_absence`, `headers`, `fd_cleanup`,
+`no_effect_without_grant` → **exit0 fiecare**; loguri `parent-probe-MODE.log`.
+Nu se pretinde review independent doar pentru rerularea acestor probe. R1 are zero
+requesturi noi pe fiecare refuz; R2 null refuzat, 404 absent păstrat; R3 toate
+supradimensionările refuzate; R4 nu pierde pidfd și păstrează TIMEOUT/4, cu rescue
+verificat; granturile invalide și fsync failure au zero efect.
+
+Self-review diff: doar două module produs, teste și acest raport; scanul liniilor
+adăugate pentru shell=True/os.system/eval/pickle/SQL interpolat nu are match.
+Fără oracle modificat, fără modificare grant/issuer UUID. Re-review independent
+al părintelui este încă necesar, nu APPROVED_SCOPED implicit.
+
+Documentare: `python scripts/render_docs.py --check` → exit0;
+`python -m unittest discover -s tests/documentation -v` → exit0/62 teste OK
+(`docs-render.log`, `docs-tests.log`). Nu s-a modificat Markdown normativ/HTML.
+După gate-urile produsului s-au schimbat numai notele de verificare, nu codul,
+testele sau artefactul. `git diff --check` → exit0.
+
+## Predare / NOT_RUN
+
+| Perimetru | Cod / probe | Review / limită |
+|---|---|---|
+| P0.1–P0.3, SL01–SL03 | Neschimbate; credit istoric netransferat | Nu se redeschid/arbitrează aici |
+| **AICI: R1–R4 owner neactivat** | Implementate; RED→GREEN; source201/wheel201/targeted23 | Părinte: re-review pe SHA final |
+| SL04 integrare Stop/Start | PARTIAL, neactivată în acest scope | NOT_RUN: grant DB real, fence/reconcile, Docker/cgroup/PG |
+| S04–S06 fizice | NOT_RUN | Nu certifică ACK/drain Docker, crash/fsync cuts, sentinel PG |
+| G00/M03/M22/CI remote | Niciun credit nou | Rămân deschise |
+| P1/runtime/provider/target | În afara scopului, NOT_RUN | Niciun efect sau trafic |
+
 Reticle NOT_APPLICABLE (CLI/procese); Chisel BLOCKED/NO-GO, neexecutat.
-`make check` și gate-urile installed-start/pair-open/stop fizice: NOT_RUN aici.
+`make check`, `check-installed-start`, `check-installed-pair-open`,
+`check-installed-stop`: NOT_RUN aici (interzise); gate-urile fizice sunt ale
+părintelui. Nicio integrare în main, niciun push, nicio aprobare SL04.
+Lecția generică signal/reap/finally a fost păstrată în skillul
+`local-service-lifecycle`, fără modificare a altui profil sau checkout produs.
 Rollback numai prin reverturile locale în ordine inversă; Git nu reconciliază DB.

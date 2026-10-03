@@ -681,6 +681,7 @@ def run_stop_owner(
     process: subprocess.Popen[bytes] | None = None
     pidfd = -1
     admitted = False
+    failure: BaseException | None = None
     try:
         process = subprocess.Popen(
             [
@@ -725,22 +726,45 @@ def run_stop_owner(
             raise StartError("STOP_OWNER_UNCERTAIN", 4)
         _wait_owner(process, end)
         verify_stop_completion(runtime, root, control, record, grant)
+    except BaseException as exc:
+        failure = exc
+        raise
     finally:
-        parent.close()
-        child.close()
-        if process is not None and process.returncode is None:
-            # EOF is not an exit acknowledgement. Reap nonblocking/bounded even
-            # on the failed-reply path; after ADMIT allow the owner its budget.
-            try:
-                process.wait(timeout=max(0.1, end - time.monotonic() + 1) if admitted else 3)
-            except subprocess.TimeoutExpired:
-                if pidfd >= 0:
-                    signal.pidfd_send_signal(pidfd, signal.SIGKILL)
-                    process.wait(timeout=2)
-                # Missing pin never authorizes a numeric PID signal. Pre-ADMIT
-                # EOF and the child's independent admission deadline fail closed.
-        if pidfd >= 0:
-            os.close(pidfd)
+        cleanup_failed = False
+        try:
+            for channel in (parent, child):
+                try:
+                    channel.close()
+                except OSError:
+                    cleanup_failed = True
+            if process is not None and process.returncode is None:
+                # EOF is not an exit acknowledgement. After ADMIT allow the
+                # owner's budget, then attempt pinned signal and reap separately.
+                try:
+                    process.wait(timeout=max(0.1, end - time.monotonic() + 1) if admitted else 3)
+                except (OSError, subprocess.SubprocessError):
+                    cleanup_failed = True
+                    if pidfd >= 0:
+                        try:
+                            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+                        except OSError:
+                            cleanup_failed = True
+                    # A failed signal never skips bounded reap. Missing pin
+                    # never authorizes numeric PID signalling, even after wait.
+                    try:
+                        process.wait(timeout=2)
+                    except (OSError, subprocess.SubprocessError):
+                        cleanup_failed = True
+        finally:
+            if pidfd >= 0:
+                try:
+                    os.close(pidfd)
+                except OSError:
+                    cleanup_failed = True
+        if cleanup_failed:
+            if failure is None:
+                raise StartError("STOP_OWNER_UNCERTAIN", 4)
+            failure.add_note("STOP_OWNER_CLEANUP_UNCERTAIN")
 
 
 def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:

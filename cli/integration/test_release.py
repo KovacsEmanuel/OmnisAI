@@ -534,6 +534,7 @@ class ReleaseBundleTest(unittest.TestCase):
 
     def assert_image_install(self, cli, env, data, scratch):
         uncertain = False
+        runtime_pending = False
         try:
             result = self.run_cli_scope(
                 [cli, "install-image"],
@@ -567,7 +568,9 @@ class ReleaseBundleTest(unittest.TestCase):
             if os.environ.get("OMNIS_INSTALLED_CONTROL_PROBE") == "1":
                 from control_topology import run_probe
 
+                runtime_pending = True
                 run_probe(data, state, scratch, cli)
+                runtime_pending = False
             if (
                 os.environ.get("OMNIS_INSTALLED_START_PROBE") == "1"
                 or os.environ.get("OMNIS_INSTALLED_PAIR_OPEN_PROBE") == "1"
@@ -578,6 +581,7 @@ class ReleaseBundleTest(unittest.TestCase):
                     run_interrupted_start,
                 )
 
+                runtime_pending = True
                 run_installed_start(
                     data,
                     state,
@@ -598,11 +602,14 @@ class ReleaseBundleTest(unittest.TestCase):
 
                     run_database_readiness_failure(data, state, cli)
                     run_lock_expiry(data, state, cli)
+                runtime_pending = False
             if os.environ.get("OMNIS_INSTALLED_STOP_PROBE") == "1":
                 from installed_stop import run_emergency_stop, run_installed_stop
 
+                runtime_pending = True
                 run_installed_stop(data, state, cli)
                 run_emergency_stop(data, state, cli)
+                runtime_pending = False
             docker_binary = shutil.which("docker")
             self.assertIsNotNone(docker_binary)
             denial = scratch / "deny-image-rebuild"
@@ -642,7 +649,10 @@ class ReleaseBundleTest(unittest.TestCase):
             uncertain = True
             raise
         finally:
-            self.cleanup_image_install(data, uncertain=uncertain)
+            # An unverified runtime may still need this exact image for recovery.
+            # Keep its receipt/bundle and propagate the original probe failure.
+            if not runtime_pending:
+                self.cleanup_image_install(data, uncertain=uncertain)
         print(f"IMAGE_INSTALLED_VERIFIED id={state['image_id']} project={state['project']}")
 
     def assert_compose_config(self, installed_root, scratch):

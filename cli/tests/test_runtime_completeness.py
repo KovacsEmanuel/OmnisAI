@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import time
 import unittest
+from contextlib import ExitStack
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
@@ -105,8 +106,9 @@ class RuntimeCompletenessTest(unittest.TestCase):
         return item
 
     def snapshot(self):
+        root = getattr(self, "snapshot_root", self.root)
         return {
-            str(path.relative_to(self.root)): (
+            str(path.relative_to(root)): (
                 path.read_bytes() if path.is_file() else None,
                 path.stat().st_mode,
                 path.stat().st_uid,
@@ -116,7 +118,7 @@ class RuntimeCompletenessTest(unittest.TestCase):
                 path.stat().st_size,
                 path.stat().st_mtime_ns,
             )
-            for path in [self.root, *self.root.rglob("*")]
+            for path in [root, *root.rglob("*")]
         }
 
     def check(self, role, *, reject=False, consumer=None):
@@ -440,6 +442,296 @@ class RuntimeCompletenessTest(unittest.TestCase):
         self.check("db", reject=True)
         item["Config"]["User"] = "postgres"
         self.check("db")
+
+    def test_service_inventory_and_owner_propagate_each_runtime_category(self):
+        faults = (
+            ("Config", "Env", lambda item: [*item["Config"]["Env"], "PGHOST=foreign"]),
+            ("Config", "Entrypoint", lambda item: ["sh"]),
+            ("HostConfig", "PublishAllPorts", lambda item: True),
+            ("HostConfig", "DeviceRequests", lambda item: [{"Count": -1}]),
+            ("NetworkSettings", "Networks", lambda item: {"foreign": {}}),
+            ("HostConfig", "ReadonlyRootfs", lambda item: not item["HostConfig"]["ReadonlyRootfs"]),
+        )
+        for role in ROLES:
+            for state in ("created", "running", "exited"):
+                for boundary in ("service_ids", "owner"):
+                    self.install(role, state)
+                    owner = self.owner()
+
+                    def consume(role=role, boundary=boundary, owner=owner):
+                        if boundary == "service_ids":
+                            return start.service_ids(
+                                self.runtime, self.root, self.control, self.port
+                            )
+                        return owner.attest(self.cid, role, self.root, self.control, self.port)
+
+                    self.check(role, consumer=consume)
+                    for section, field, change in faults:
+                        with self.subTest(role=role, state=state, boundary=boundary, field=field):
+                            item = self.install(role, state)
+                            item[section][field] = change(item)
+                            self.check(role, reject=True, consumer=consume)
+
+    def test_start_reuse_and_stop_inventories_refuse_drift_without_effects(self):
+        from test_stop import private_stop_fixture
+
+        stop = importlib.import_module("omnis_cli.stop")
+        with private_stop_fixture() as (base, root, _foreign, control, stopped, _unused):
+            self.root, self.control, self.port = root, control, stopped["port"]
+            self.snapshot_root = base
+            control.mkdir(mode=0o700)
+            (root / "http").mkdir(mode=0o700)
+            (root / "db-password").write_text("a" * 48)
+            for path in (root / "lifecycle.lock", base / "d/omnis/lifecycle.lock"):
+                path.touch(mode=0o600)
+            runtime = self.runtime
+            runtime.receipt = SimpleNamespace(
+                project=stopped["project"],
+                image_id=stopped["image_id"],
+                docker_id=stopped["docker_id"],
+            )
+            runtime.attempt, runtime.digest = stopped["attempt"], stopped["release_digest"]
+            runtime.host, runtime.files = stopped["docker_host"], {}
+            self.images = {
+                runtime.pg_image: image_item(runtime, "db"),
+                runtime.receipt.image_id: image_item(runtime, "api"),
+            }
+            self.network.update(
+                Name=runtime.receipt.project + "_control",
+                Labels={
+                    "com.docker.compose.project": runtime.receipt.project,
+                    "org.omnis.start-attempt": runtime.attempt,
+                },
+                Containers={cid: {} for cid in stopped["containers"].values()},
+            )
+            ready = {key: value for key, value in stopped.items() if key in start.READY_FIELDS}
+            ready["phase"] = "READY"
+            stopping = {
+                **stopped,
+                "phase": "STOPPING",
+                "teardown_completed": [],
+                "finalized_generation": None,
+            }
+            status = {
+                "instance_id": ready["instance_id"],
+                "assessment_ready": False,
+                "admission_open": True,
+                "generation": 1,
+                "supervisor_epoch": 1,
+            }
+            # Real journal/PGDATA/instance checks and real shared attestation;
+            # substitute only unrelated DB/HTTP/process/socket observations.
+            with ExitStack() as scope:
+                scope.enter_context(patch.dict(os.environ, {"XDG_DATA_HOME": str(base / "d")}))
+                scope.enter_context(patch.object(start, "ControlRuntime", return_value=runtime))
+                scope.enter_context(patch.object(start, "state_dir", return_value=root))
+                scope.enter_context(patch.object(start, "control_dir", return_value=control))
+                scope.enter_context(patch.object(start, "api_process", return_value=42))
+                scope.enter_context(patch.object(start, "dashboard", return_value=status))
+                scope.enter_context(patch.object(stop, "request", return_value=status))
+                for module in (start, stop):
+                    scope.enter_context(
+                        patch.object(
+                            module,
+                            "database_identity",
+                            return_value=("12345", ready["instance_id"]),
+                        )
+                    )
+                    scope.enter_context(patch.object(module, "listener_owned"))
+                    scope.enter_context(
+                        patch.object(
+                            module,
+                            "socket_identity",
+                            side_effect=lambda path: (
+                                ready["api_socket"]
+                                if path.name == "api.sock"
+                                else ready["control_socket"]
+                            ),
+                        )
+                    )
+                for boundary in ("start-reuse", "reuse", "stop", "emergency"):
+                    record = stopping if boundary == "stop" else ready
+                    write_record(
+                        root / "startup.json", record, replace=(root / "startup.json").exists()
+                    )
+
+                    def consume(boundary=boundary, record=record):
+                        if boundary == "start-reuse":
+                            return start.start_instance(self.port)
+                        if boundary == "reuse":
+                            return start.verify_running(runtime, root, control, record, self.port)
+                        if boundary == "stop":
+                            return stop._running_for_stop(runtime, root, control, record)
+                        return stop._emergency_inventory(runtime, root, control, record)
+
+                    for role in ROLES[:3]:
+                        valid = {
+                            cid: container_item(runtime, service, cid, root, control, self.port)
+                            for service, cid in stopped["containers"].items()
+                        }
+                        self.items = deepcopy(valid)
+                        self.check(role, consumer=consume)
+                        for section, field, value in (
+                            ("Config", "Entrypoint", ["sh"]),
+                            ("HostConfig", "PublishAllPorts", True),
+                            ("HostConfig", "DeviceCgroupRules", ["a *:* rwm"]),
+                            ("NetworkSettings", "Networks", {"foreign": {}}),
+                            ("HostConfig", "ReadonlyRootfs", role == "db"),
+                        ):
+                            with self.subTest(boundary=boundary, role=role, field=field):
+                                self.items = deepcopy(valid)
+                                self.items[stopped["containers"][role]][section][field] = value
+                                self.check(role, reject=True, consumer=consume)
+                        self.items = deepcopy(valid)
+                        self.items[stopped["containers"][role]]["Config"]["Env"].append(
+                            "PGHOST=foreign"
+                        )
+                        self.check(role, reject=True, consumer=consume)
+
+    def test_real_job_create_producers_feed_the_shared_attestor(self):
+        """Execute producer Python, not Docker: materialize only its recorded argv/env."""
+        import hashlib
+
+        from omnis_cli import restart
+
+        base, runtime = self.root, self.runtime
+        for role in ("migrate", "reconcile"):
+            self.root = base / role
+            self.control = self.root / "runtime-ipc"
+            data = base / (role + "-data")
+            (data / "omnis").mkdir(parents=True, mode=0o700)
+            captured = []
+
+            def capture(*args, captured=captured, **kwargs):
+                if args[0] == "create":
+                    captured.append((args, kwargs["env"]))
+                    raise StartError("SYNTHETIC_CREATE_CAPTURE", 3)
+                self.assertEqual(args, ("start", "2" * 64))
+                return subprocess.CompletedProcess(args, 0, "", "")
+
+            if role == "migrate":
+                # Only advance the unrelated DB/bootstrap boundaries. The create
+                # argv below is emitted by start_instance itself, not this test.
+                with (
+                    patch.dict(os.environ, {"XDG_DATA_HOME": str(data)}),
+                    patch.object(start, "state_dir", return_value=self.root),
+                    patch.object(start, "control_dir", return_value=self.control),
+                    patch.object(start, "ControlRuntime", return_value=runtime),
+                    patch.object(start, "preflight_port"),
+                    patch.object(start, "validate_config"),
+                    patch.object(start, "service_ids", return_value={"db": "2" * 64}),
+                    patch.object(start, "cleanup_attempt", return_value=[]),
+                    patch.object(runtime, "ids", return_value=[]),
+                    patch.object(runtime, "inspect", return_value=None),
+                    patch.object(runtime, "attest", return_value={}),
+                    patch.object(runtime, "wait_container", return_value={}),
+                    patch.object(runtime, "psql", return_value="12345"),
+                    patch.object(
+                        runtime, "compose", return_value=subprocess.CompletedProcess([], 0, "")
+                    ),
+                    patch.object(runtime, "run", side_effect=capture),
+                    self.assertRaisesRegex(StartError, "SYNTHETIC_CREATE_CAPTURE"),
+                ):
+                    start.start_instance(self.port)
+            else:
+                self.root.mkdir(mode=0o700)
+                self.control.mkdir(mode=0o700)
+                (self.root / "db-password").write_text("a" * 48)
+                (self.root / "db-password").chmod(0o600)
+                write_record(self.root / "startup.json", {"system_id": "12345"})
+                command = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+                for stem in ("stop", "stopped"):
+                    write_record(self.root / f"{stem}-{command}.json", {})
+                digest = hashlib.sha256(
+                    (self.root / f"stop-{command}.json").read_bytes()
+                ).hexdigest()
+                record = {
+                    "attempt": runtime.attempt,
+                    "system_id": "12345",
+                    "containers": {"db": "2" * 64},
+                    "port": self.port,
+                }
+                intent = {
+                    "state": "PREPARED",
+                    "new_attempt": runtime.attempt,
+                    "old_stop_command": command,
+                    "stopped_sha256": digest,
+                    "request": {"system_identifier": "12345", "completion_sha256": digest},
+                }
+                write_record(self.root / f"restart-{command}.json", intent)
+                with (
+                    patch.object(runtime, "ids", return_value=["2" * 64]),
+                    patch.object(runtime, "network", return_value="1" * 64),
+                    patch.object(runtime, "run", side_effect=capture),
+                    self.assertRaisesRegex(StartError, "SYNTHETIC_CREATE_CAPTURE"),
+                ):
+                    restart.reconcile_database(
+                        runtime,
+                        self.root,
+                        self.control,
+                        record,
+                        intent,
+                        {
+                            "OMNIS_DATABASE_URL": "postgresql+psycopg://omnis:"
+                            + "a" * 48
+                            + "@db:5432/omnis"
+                        },
+                    )
+            self.assertEqual(len(captured), 1)
+            args, environment = captured[0]
+            item = self.install(role, "created")
+            self.network["Labels"]["org.omnis.start-attempt"] = runtime.attempt
+            image = self.images[runtime.receipt.image_id]
+            emitted_env = dict(value.split("=", 1) for value in image["Config"]["Env"])
+            labels, options, flags, index = {}, {}, set(), 1
+            while args[index] != runtime.receipt.image_id:
+                option = args[index]
+                if option in ("--read-only", "--interactive"):
+                    flags.add(option)
+                    index += 1
+                    continue
+                self.assertIn(
+                    option,
+                    {
+                        "--name",
+                        "--label",
+                        "--network",
+                        "--cap-drop",
+                        "--security-opt",
+                        "--user",
+                        "--env",
+                        "--pull",
+                        "--platform",
+                        "--restart",
+                        "--attach",
+                    },
+                )
+                value = args[index + 1]
+                if option == "--env":
+                    emitted_env[value] = environment[value]
+                elif option == "--label":
+                    key, setting = value.split("=", 1)
+                    labels[key] = setting
+                else:
+                    options[option] = value
+                index += 2
+            item["Name"] = "/" + options["--name"]
+            item["Config"].update(
+                Cmd=list(args[index + 1 :]),
+                User=options["--user"],
+                Labels=labels,
+                Env=[f"{key}={value}" for key, value in emitted_env.items()],
+            )
+            item["HostConfig"].update(
+                NetworkMode=options["--network"],
+                ReadonlyRootfs="--read-only" in flags,
+                CapDrop=[options["--cap-drop"]],
+                SecurityOpt=[options["--security-opt"]],
+                RestartPolicy={"Name": options.get("--restart", "no"), "MaximumRetryCount": 0},
+            )
+            self.check(role)
+            item["Config"]["Env"].append("LD_PRELOAD=/foreign")
+            self.check(role, reject=True)
 
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()

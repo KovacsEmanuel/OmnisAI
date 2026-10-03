@@ -116,7 +116,9 @@ class ControlRuntime:
         if (
             pg is None
             or pg.get("Architecture") != "amd64"
+            or pg.get("Os") != "linux"
             or not isinstance(pg.get("Id"), str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", str(pg.get("Id"))) is None
             or not isinstance(pg_digests, list)
             or POSTGRES.replace(":18.6-bookworm", "") not in pg_digests
         ):
@@ -450,7 +452,16 @@ class ControlRuntime:
         image = self.inspect("image", image_id)
         if image is None or image.get("Id") != image_id:
             raise StartError("IMAGE_IDENTITY_MISMATCH", 4)
-        inherited = mapping(image.get("Config")).get("Env")
+        image_config = mapping(image.get("Config"))
+        if role == "db" and (
+            not isinstance(image_config.get("User"), str)
+            or config.get("User") != image_config["User"]
+            or host.get("ReadonlyRootfs") is not False
+            or host.get("CapDrop") not in (None, [])
+            or host.get("SecurityOpt") not in (None, [])
+        ):
+            raise StartError("DATABASE_CONFINEMENT_MISMATCH", 3)
+        inherited = image_config.get("Env")
         environment = config.get("Env")
         if (
             not isinstance(inherited, list)

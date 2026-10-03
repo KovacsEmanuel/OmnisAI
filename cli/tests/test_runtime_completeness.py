@@ -413,6 +413,34 @@ class RuntimeCompletenessTest(unittest.TestCase):
             self.network["Containers"] = {}
             self.check("db", consumer=consumer)
 
+    def test_f06_database_uses_its_image_user_and_docker_defaults_not_api_policy(self):
+        for section, field, bad in (
+            ("Config", "User", "999:999"),
+            ("Config", "User", "0:999"),
+            ("Config", "User", None),
+            ("HostConfig", "ReadonlyRootfs", True),
+            ("HostConfig", "ReadonlyRootfs", 0),
+            ("HostConfig", "CapDrop", ["ALL"]),
+            ("HostConfig", "CapDrop", {}),
+            ("HostConfig", "CapDrop", False),
+            ("HostConfig", "SecurityOpt", ["seccomp=unconfined"]),
+            ("HostConfig", "SecurityOpt", ["no-new-privileges:true"]),
+            ("HostConfig", "SecurityOpt", {}),
+            ("HostConfig", "SecurityOpt", False),
+        ):
+            with self.subTest(field=field, bad=bad):
+                self.install("db")[section][field] = bad
+                self.check("db", reject=True)
+        for value in (None, []):
+            item = self.install("db")
+            item["HostConfig"].update(CapDrop=value, SecurityOpt=value)
+            self.check("db")
+        # Inheritance is tied to actual metadata, not a copied user from this fixture.
+        self.images[self.runtime.pg_image]["Config"]["User"] = "postgres"
+        self.check("db", reject=True)
+        item["Config"]["User"] = "postgres"
+        self.check("db")
+
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()
         self.assertEqual(

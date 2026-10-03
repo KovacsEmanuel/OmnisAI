@@ -42,6 +42,7 @@ class RuntimePreflightTest(unittest.TestCase):
             pg = {
                 "Id": "sha256:" + "c" * 64,
                 "Architecture": "amd64",
+                "Os": "linux",
                 "RepoDigests": [POSTGRES.replace(":18.6-bookworm", "")],
             }
             for fault in (
@@ -55,6 +56,8 @@ class RuntimePreflightTest(unittest.TestCase):
                 "daemon",
                 "image",
                 "image-entrypoint",
+                "pg-os",
+                "pg-id",
                 "tag",
                 "receipt",
                 "compose-v1",
@@ -76,6 +79,10 @@ class RuntimePreflightTest(unittest.TestCase):
 
                 def inspect(owner, kind, ident, mode=fault):
                     if ident == POSTGRES:
+                        if mode == "pg-os":
+                            return {**pg, "Os": "windows"}
+                        if mode == "pg-id":
+                            return {**pg, "Id": "malformed"}
                         return pg
                     if mode == "image-entrypoint" and ident == receipt.image_id:
                         return {**image, "Config": {**image["Config"], "Entrypoint": ["sh"]}}

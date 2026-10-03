@@ -3,13 +3,17 @@
 import contextlib
 import fcntl
 import importlib
+import io
+import json
 import os
+import signal
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
 
 from omnis_cli.control import ControlUnavailable
 from omnis_cli.lifecycle import StartError, read_record, write_record
+from omnis_cli.main import main
 from omnis_cli.stop_receipt import receipt_path
 from test_stop import private_stop_fixture
 
@@ -48,6 +52,15 @@ class StopWiringTest(unittest.TestCase):
         for fault in ("arm", "owner", "wrong-grant"):
             with self.subTest(fault=fault):
                 self.normal_stop(fault)
+
+    def test_post_grant_sigint_is_uncertain_without_fallback_or_retry(self):
+        previous = signal.signal(signal.SIGINT, signal.default_int_handler)
+        try:
+            for fault in ("oserror", "sigint"):
+                with self.subTest(fault=fault):
+                    self.normal_stop(fault)
+        finally:
+            signal.signal(signal.SIGINT, previous)
 
     def normal_stop(self, fault=None):
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
@@ -120,6 +133,10 @@ class StopWiringTest(unittest.TestCase):
                             fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 if fault == "owner":
                     raise StartError("SYNTHETIC_OWNER_FAILURE", 4)
+                if fault == "oserror":
+                    raise OSError("synthetic owner error")
+                if fault == "sigint":
+                    signal.raise_signal(signal.SIGINT)
                 write_record(receipt_path(root, saved), {"state": "COMPLETED", "grant": grant})
 
             def verify(_runtime, _root, _control, saved, grant=None):
@@ -148,7 +165,32 @@ class StopWiringTest(unittest.TestCase):
                 patch.object(stop, "_resume_owned", side_effect=AssertionError("legacy teardown")),
                 patch.object(stop, "_emergency_stop", side_effect=AssertionError("emergency")),
             ):
-                if fault:
+                if fault in {"sigint", "oserror"}:
+                    output, errors = io.StringIO(), io.StringIO()
+                    with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+                        try:
+                            code = main(["stop", "--json"])
+                        except KeyboardInterrupt:
+                            self.fail("post-grant cancellation escaped the CLI projection")
+                    self.assertEqual(code, 4)
+                    result = json.loads(output.getvalue())
+                    self.assertEqual(
+                        (result["state"], result["reason"]), ("UNCERTAIN", "STOP_UNCERTAIN")
+                    )
+                    self.assertFalse(result["dashboard_ready"] or result["assessment_ready"])
+                    self.assertEqual(errors.getvalue(), "")
+                    saved = read_record(root / "startup.json")
+                    self.assertEqual(
+                        (saved["phase"], saved["finalized_generation"]), ("STOPPING", 2)
+                    )
+                    self.assertEqual(events[-2:], ["arm_stop", "owner"])
+                    before = list(events)
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(main(["stop", "--json"]), 4)
+                    self.assertEqual(events, before)
+                    self.assertEqual(read_record(root / "startup.json"), saved)
+                    run_owner.assert_called_once()
+                elif fault:
                     with self.assertRaises(StartError) as caught:
                         stop.stop_instance()
                     self.assertEqual(caught.exception.code, 4)
@@ -178,11 +220,6 @@ class StopWiringTest(unittest.TestCase):
                     run_owner.assert_called_once()
 
     def test_missing_owner_proof_is_exit_four_on_start_and_status(self):
-        import io
-        import json
-
-        from omnis_cli.main import main
-
         status = importlib.import_module("omnis_cli.status")
         with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
             write_record(root / "startup.json", record)

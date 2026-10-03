@@ -754,7 +754,13 @@ def stop(*, as_json: bool, shutdown_timeout: int | None = None) -> int:
     try:
         result = stop_instance(shutdown_timeout=shutdown_timeout)
         code = 0
-    except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError) as exc:
+    except (
+        OSError,
+        ValueError,
+        ControlUnavailable,
+        subprocess.SubprocessError,
+        KeyboardInterrupt,
+    ) as exc:
         code = exc.code if isinstance(exc, StartError) else 4
         result = {
             "state": "REFUSED" if code == 2 else "UNCERTAIN",

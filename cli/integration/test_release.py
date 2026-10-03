@@ -1151,6 +1151,8 @@ class ReleaseBundleTest(unittest.TestCase):
             data = scratch / "data"
             env = {
                 "PATH": os.environ.get("PATH", ""),
+                "HOME": str(scratch),
+                "XDG_CONFIG_HOME": str(scratch / "config"),
                 "XDG_DATA_HOME": str(data),
                 "XDG_STATE_HOME": str(scratch / "absent"),
             }

@@ -149,7 +149,7 @@ class Fixture:
         manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0005_stop_fence",
+            "schema": "0006_stop_reconciliation",
             "platform": "linux/amd64",
             "files": files,
         }
@@ -186,7 +186,7 @@ class Fixture:
                 "version": 1,
                 "instance_id": instance,
                 "release": "0.1.0",
-                "schema": "0005_stop_fence",
+                "schema": "0006_stop_reconciliation",
                 "project": self.project,
                 "origin": f"http://127.0.0.1:{self.port}",
             },

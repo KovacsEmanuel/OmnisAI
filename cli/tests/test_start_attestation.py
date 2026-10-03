@@ -525,6 +525,23 @@ class ProductAttestationTest(unittest.TestCase):
                         start.validate_config(self.runtime, self.env)
         self.runtime.run.assert_not_called()
 
+    def test_config_requires_exact_internal_boolean(self):
+        valid = self.config()
+        self.runtime.compose = Mock(
+            return_value=subprocess.CompletedProcess([], 0, json.dumps(valid))
+        )
+        start.validate_config(self.runtime, self.env)
+        for value in (1, 1.0, False, "true", None, [], {}):
+            with self.subTest(internal=value):
+                bad = deepcopy(valid)
+                bad["networks"]["control"]["internal"] = value
+                self.runtime.compose.return_value = subprocess.CompletedProcess(
+                    [], 0, json.dumps(bad)
+                )
+                with self.assertRaisesRegex(StartError, "COMPOSE_TOPOLOGY_INVALID"):
+                    start.validate_config(self.runtime, self.env)
+        self.runtime.run.assert_not_called()
+
     def test_config_validator_valid_and_supported_boundary_mutations(self):
         valid = self.config()
         self.runtime.compose = Mock(

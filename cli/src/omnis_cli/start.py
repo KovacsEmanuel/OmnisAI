@@ -141,6 +141,7 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
             }
         }
         or set(networks) != {"control"}
+        or mapping(networks["control"]).get("internal") is not True
         or mapping(networks["control"])
         != {
             "name": f"{runtime.receipt.project}_control",

@@ -85,7 +85,10 @@ class ProductAttestationTest(unittest.TestCase):
             "OMNIS_CONTROL_DIR=/run/omnis-control",
         ]
         if role == "api":
-            environment += ["OMNIS_HTTP_DIR=/run/omnis-http", f"OMNIS_HTTP_PORT={self.port}"]
+            environment += [
+                "OMNIS_HTTP_DIR=/run/omnis-http",
+                f"OMNIS_HTTP_PORT={self.port}",
+            ]
         return {
             "Id": self.cid,
             "Image": self.runtime.pg_image if role == "db" else self.runtime.receipt.image_id,
@@ -126,7 +129,12 @@ class ProductAttestationTest(unittest.TestCase):
                 "extra-bind",
                 ("Mounts",),
                 lambda x: x.append(
-                    {"Type": "bind", "Source": "/foreign", "Destination": "/extra", "RW": True}
+                    {
+                        "Type": "bind",
+                        "Source": "/foreign",
+                        "Destination": "/extra",
+                        "RW": True,
+                    }
                 ),
             ),
             ("wrong-bind", ("Mounts", 0), lambda x: x.update(Source="/foreign")),
@@ -140,7 +148,11 @@ class ProductAttestationTest(unittest.TestCase):
                 ("HostConfig",),
                 lambda x: x.update(PortBindings={"8765/tcp": [{"HostPort": "8765"}]}),
             ),
-            ("network", ("NetworkSettings", "Networks"), lambda x: x.update(foreign={})),
+            (
+                "network",
+                ("NetworkSettings", "Networks"),
+                lambda x: x.update(foreign={}),
+            ),
             ("image", (), lambda x: x.update(Image="sha256:" + "0" * 64)),
             ("command", ("Config",), lambda x: x.update(Cmd=["sleep", "99"])),
             (
@@ -159,10 +171,17 @@ class ProductAttestationTest(unittest.TestCase):
             valid = self.item(role)
             self.runtime.inspect = Mock(return_value=valid)
             self.assertEqual(
-                self.runtime.attest(self.cid, role, self.root, self.control, self.port), valid
+                self.runtime.attest(self.cid, role, self.root, self.control, self.port),
+                valid,
             )
             for name, path, mutate in mutations:
-                if role == "db" and name in {"rootfs", "caps", "privileges", "uid", "environment"}:
+                if role == "db" and name in {
+                    "rootfs",
+                    "caps",
+                    "privileges",
+                    "uid",
+                    "environment",
+                }:
                     continue  # DB entrypoint has a different declared security contract.
                 with self.subTest(role=role, boundary=name):
                     bad = deepcopy(valid)
@@ -221,6 +240,27 @@ class ProductAttestationTest(unittest.TestCase):
                 services[role]["secrets"] = [
                     {"source": "db_password", "target": "/run/secrets/db_password"}
                 ]
+                services[role]["healthcheck"] = {
+                    "test": [
+                        "CMD",
+                        "pg_isready",
+                        "-h",
+                        "127.0.0.1",
+                        "-U",
+                        "omnis",
+                        "-d",
+                        "omnis",
+                    ],
+                    "timeout": "2s",
+                    "interval": "2s",
+                    "retries": 30,
+                }
+            else:
+                services[role]["depends_on"] = {
+                    "db": {"condition": "service_healthy", "required": True}
+                }
+                if role == "api":
+                    services[role]["stop_grace_period"] = "15s"
         return {
             "name": self.runtime.receipt.project,
             "services": services,
@@ -263,9 +303,15 @@ class ProductAttestationTest(unittest.TestCase):
                 ),
             ),
             ("boolean-alias", lambda s: s["volumes"][0].update(read_only=1)),
-            ("bind-options", lambda s: s["volumes"][0].update(bind={"propagation": "rshared"})),
+            (
+                "bind-options",
+                lambda s: s["volumes"][0].update(bind={"propagation": "rshared"}),
+            ),
             ("command", lambda s: s.update(command=["sleep", "90"])),
-            ("missing-env", lambda s: s["environment"].pop(next(iter(s["environment"])))),
+            (
+                "missing-env",
+                lambda s: s["environment"].pop(next(iter(s["environment"]))),
+            ),
             ("extra-env", lambda s: s["environment"].update(LD_PRELOAD="/foreign")),
             (
                 "changed-env",
@@ -285,15 +331,81 @@ class ProductAttestationTest(unittest.TestCase):
                         start.validate_config(self.runtime, self.env)
         root_mutations = [
             ("secret-missing", lambda c: c.pop("secrets")),
-            ("secret-path", lambda c: c["secrets"]["db_password"].update(file="/foreign")),
-            ("secret-name", lambda c: c["secrets"]["db_password"].update(name="foreign")),
-            ("secret-extra", lambda c: c["secrets"].update(foreign={"file": "/foreign"})),
+            (
+                "secret-path",
+                lambda c: c["secrets"]["db_password"].update(file="/foreign"),
+            ),
+            (
+                "secret-name",
+                lambda c: c["secrets"]["db_password"].update(name="foreign"),
+            ),
+            (
+                "secret-extra",
+                lambda c: c["secrets"].update(foreign={"file": "/foreign"}),
+            ),
             ("named-volume", lambda c: c.update(volumes={"foreign": {}})),
         ]
         for name, mutate in root_mutations:
             with self.subTest(boundary=name):
                 bad = deepcopy(valid)
                 mutate(bad)
+                self.runtime.compose.return_value = subprocess.CompletedProcess(
+                    [], 0, json.dumps(bad)
+                )
+                with self.assertRaises(StartError):
+                    start.validate_config(self.runtime, self.env)
+        self.runtime.run.assert_not_called()
+
+    def test_config_rejects_alternate_effect_channels_and_changed_lifecycle_commands(
+        self,
+    ):
+        valid = self.config()
+        self.runtime.compose = Mock(
+            return_value=subprocess.CompletedProcess([], 0, json.dumps(valid))
+        )
+        start.validate_config(self.runtime, self.env)
+        cases = []
+        for role in ("api", "supervisor", "db"):
+            for field, value in (
+                ("volumes_from", ["container:foreign"]),
+                ("configs", [{"source": "foreign"}]),
+                ("tmpfs", ["/foreign"]),
+                ("gpus", "all"),
+                ("post_start", [{"command": "sleep 90"}]),
+            ):
+                cases.append((role, field, value))
+        cases.extend(
+            [
+                (
+                    "db",
+                    "healthcheck",
+                    {
+                        **valid["services"]["db"]["healthcheck"],
+                        "test": ["CMD", "sleep", "90"],
+                    },
+                ),
+                (
+                    "db",
+                    "healthcheck",
+                    {**valid["services"]["db"]["healthcheck"], "retries": 30.0},
+                ),
+                ("api", "stop_grace_period", "1s"),
+                (
+                    "supervisor",
+                    "depends_on",
+                    {"db": {"condition": "service_started", "required": True}},
+                ),
+                (
+                    "api",
+                    "depends_on",
+                    {"db": {"condition": "service_healthy", "required": 1}},
+                ),
+            ]
+        )
+        for role, field, value in cases:
+            with self.subTest(role=role, field=field, value=value):
+                bad = deepcopy(valid)
+                bad["services"][role][field] = value
                 self.runtime.compose.return_value = subprocess.CompletedProcess(
                     [], 0, json.dumps(bad)
                 )
@@ -315,7 +427,10 @@ class ProductAttestationTest(unittest.TestCase):
             ("rootfs", lambda x: x.update(read_only=False)),
             ("caps", lambda x: x.update(cap_drop=[])),
             ("privileges", lambda x: x.update(security_opt=[])),
-            ("attempt", lambda x: x.update(labels={"org.omnis.start-attempt": "foreign"})),
+            (
+                "attempt",
+                lambda x: x.update(labels={"org.omnis.start-attempt": "foreign"}),
+            ),
         ]
         for name, mutate in mutations:
             with self.subTest(boundary=name):

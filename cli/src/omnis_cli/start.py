@@ -23,7 +23,14 @@ from .config import _integer as config_integer
 from .config import load_config
 from .control import ControlUnavailable, request
 from .health import dashboard
-from .instance import Instance, control_dir, load_instance, private_dir, private_file, state_dir
+from .instance import (
+    Instance,
+    control_dir,
+    load_instance,
+    private_dir,
+    private_file,
+    state_dir,
+)
 from .lifecycle import (
     StartError,
     cleanup_startup_ipc,
@@ -145,6 +152,60 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
         raise StartError("COMPOSE_TOPOLOGY_INVALID")
     for role, raw in services.items():
         service = mapping(raw)
+        allowed = {
+            "image",
+            "pull_policy",
+            "platform",
+            "restart",
+            "networks",
+            "labels",
+            "command",
+            "entrypoint",
+            "environment",
+            "volumes",
+        }
+        lifecycle: dict[str, object] = {
+            "healthcheck": None,
+            "depends_on": None,
+            "stop_grace_period": None,
+        }
+        if role == "db":
+            allowed |= {"secrets", "healthcheck"}
+            lifecycle["healthcheck"] = {
+                "test": [
+                    "CMD",
+                    "pg_isready",
+                    "-h",
+                    "127.0.0.1",
+                    "-U",
+                    "omnis",
+                    "-d",
+                    "omnis",
+                ],
+                "timeout": "2s",
+                "interval": "2s",
+                "retries": 30,
+            }
+        else:
+            allowed |= {"user", "read_only", "cap_drop", "security_opt", "depends_on"}
+            lifecycle["depends_on"] = {"db": {"condition": "service_healthy", "required": True}}
+            if role == "api":
+                allowed.add("stop_grace_period")
+                lifecycle["stop_grace_period"] = "15s"
+        if set(service) - allowed:
+            raise StartError("COMPOSE_SERVICE_INVALID")
+        # A fixed service may not add an alternate mount/hook/health command.
+        # JSON equality preserves bool/int/float distinctions in these settings.
+        try:
+            actual_lifecycle = json.dumps(
+                {key: service.get(key) for key in lifecycle},
+                sort_keys=True,
+                allow_nan=False,
+            )
+        except (ValueError, RecursionError):
+            raise StartError("COMPOSE_SERVICE_INVALID") from None
+        if actual_lifecycle != json.dumps(lifecycle, sort_keys=True, allow_nan=False):
+            raise StartError("COMPOSE_SERVICE_INVALID")
         expected_command = (
             ["python", "-I", "-m", "omnis.supervisor"] if role == "supervisor" else None
         )
@@ -182,7 +243,8 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
             ]
             if role == "api":
                 expected_environment.update(
-                    OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=env["OMNIS_HTTP_PORT"]
+                    OMNIS_HTTP_DIR="/run/omnis-http",
+                    OMNIS_HTTP_PORT=env["OMNIS_HTTP_PORT"],
                 )
                 expected_mounts.append(
                     {
@@ -351,14 +413,20 @@ def _publish_forwarder() -> Iterator[None]:
 
 
 def launch_forwarder(
-    root: Path, port: int, deadline: float, *, ownership: ForwarderOwnership | None = None
+    root: Path,
+    port: int,
+    deadline: float,
+    *,
+    ownership: ForwarderOwnership | None = None,
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
     # The private intent and caller holder exist before birth. The tuple is NOT
     # the ownership transfer: finally/close and tuple unpacking remain interruptible.
     owner = ownership if ownership is not None else ForwarderOwnership()
     remaining(deadline)
     log_fd = os.open(
-        root / "forwarder.log", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600
+        root / "forwarder.log",
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+        0o600,
     )
     try:
         with os.fdopen(log_fd, "wb") as log:
@@ -517,7 +585,11 @@ def cleanup_attempt(
         problems.append("network readback")
     if not problems and not runtime.uncertain and runtime.family_drained:
         problems.extend(cleanup_startup_ipc(root, control))
-    for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+    for path in (
+        root / "http/api.sock",
+        control / "control.sock",
+        control / "control.cap",
+    ):
         if os.path.lexists(path):
             problems.append("IPC retained")  # Never unlink an uncertain/stale peer.
     if not runtime.family_drained:
@@ -716,7 +788,11 @@ def _bound_instance(
 
 
 def verify_running(
-    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object], port: int
+    runtime: ControlRuntime,
+    root: Path,
+    control: Path,
+    record: dict[str, object],
+    port: int,
 ) -> dict[str, object]:
     _ready_record(record)
     attempt = record.get("attempt")
@@ -730,7 +806,10 @@ def verify_running(
     ids = service_ids(runtime, root, control, port)
     if set(ids) != {"db", "api", "supervisor"} or ids != record.get("containers"):
         raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
-    if database_identity(runtime, ids["db"]) != (record.get("system_id"), instance.instance_id):
+    if database_identity(runtime, ids["db"]) != (
+        record.get("system_id"),
+        instance.instance_id,
+    ):
         raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
     for role, ident in ids.items():
         if (
@@ -803,10 +882,14 @@ def start_instance(
 
     config = load_config()
     startup_seconds = config_integer(
-        config.startup_timeout_seconds if startup_timeout is None else startup_timeout, 30, 300
+        config.startup_timeout_seconds if startup_timeout is None else startup_timeout,
+        30,
+        300,
     )
     cleanup_seconds = config_integer(
-        config.cleanup_timeout_seconds if cleanup_timeout is None else cleanup_timeout, 30, 180
+        config.cleanup_timeout_seconds if cleanup_timeout is None else cleanup_timeout,
+        30,
+        180,
     )
     root = state_dir()
     config.check_instance(root, port)
@@ -934,7 +1017,14 @@ def start_instance(
             env = environment(runtime, root, control, selected)
             validate_config(runtime, env)
             runtime.compose(
-                env, "create", "--no-recreate", "--no-build", "--pull", "never", "db", effect=True
+                env,
+                "create",
+                "--no-recreate",
+                "--no-build",
+                "--pull",
+                "never",
+                "db",
+                effect=True,
             )
             ids = service_ids(runtime, root, control, selected)
             if set(ids) != {"db"}:
@@ -1176,7 +1266,10 @@ def _interrupt(signum: int, frame: FrameType | None) -> None:
 
 
 def start_result(
-    port: int | None, *, startup_timeout: int | None = None, cleanup_timeout: int | None = None
+    port: int | None,
+    *,
+    startup_timeout: int | None = None,
+    cleanup_timeout: int | None = None,
 ) -> tuple[int, dict[str, object]]:
     previous = {sig: signal.signal(sig, _interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
     try:

@@ -411,7 +411,7 @@ class _ContainerFamily:
     def drained(self) -> None:
         if not select.select([self.fd], [], [], 0)[0]:
             raise StartError("STOP_CONTAINER_FAMILY_LIVE", 4)
-        if os.path.lexists(self.path):
+        try:
             info = self.path.stat()
             if (info.st_dev, info.st_ino) != self.identity:
                 raise StartError("STOP_CONTAINER_FAMILY_UNVERIFIED", 4)
@@ -421,6 +421,15 @@ class _ContainerFamily:
             )
             if events.get("populated") != "0":
                 raise StartError("STOP_CONTAINER_FAMILY_LIVE", 4)
+        except FileNotFoundError:
+            # Kernel/daemon removal of an empty group may race either read.
+            # Confirm the group itself is absent; missing events, replacement,
+            # dangling symlinks and access failures do not prove drainage.
+            try:
+                self.path.lstat()
+            except FileNotFoundError:
+                return
+            raise StartError("STOP_CONTAINER_FAMILY_UNVERIFIED", 4) from None
 
     def close(self) -> None:
         os.close(self.fd)

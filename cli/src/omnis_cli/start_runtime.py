@@ -33,6 +33,28 @@ POSTGRES = (
 SAFE_PATH = "/usr/bin:/bin"
 
 
+def _network_identity(
+    item: dict[str, object], project: str, attempt: str | None, allowed: set[str]
+) -> str:
+    """One pure policy for CLI inspect and the typed Stop Engine view."""
+    if attempt is None or mapping(item.get("Labels")).get("org.omnis.start-attempt") != attempt:
+        raise StartError("ATTEMPT_IDENTITY_MISMATCH", 4)
+    members = item.get("Containers")
+    if (
+        mapping(item.get("Labels")).get("com.docker.compose.project") != project
+        or item.get("Name") != project + "_control"
+        or item.get("Internal") is not True
+        or item.get("Driver") != "bridge"
+        or item.get("Options") not in (None, {})
+        or (members is not None and set(mapping(members)) - allowed)
+    ):
+        raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+    ident = item.get("Id")
+    if not isinstance(ident, str) or not re.fullmatch(r"[0-9a-f]{64}", ident):
+        raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+    return ident
+
+
 class ControlRuntime:
     def __init__(self, data_home: Path, deadline: float) -> None:
         self.deadline = deadline
@@ -80,6 +102,7 @@ class ControlRuntime:
             or image.get("Architecture") != "amd64"
             or image.get("Os") != "linux"
             or config.get("User") != "65532:65532"
+            or config.get("Entrypoint") not in (None, [])
             or config.get("Cmd") != ["python", "-I", "-m", "omnis.serve"]
             or labels.get("org.omnis.project") != receipt.project
             or labels.get("org.omnis.bundle_sha256") != self.digest
@@ -93,7 +116,9 @@ class ControlRuntime:
         if (
             pg is None
             or pg.get("Architecture") != "amd64"
+            or pg.get("Os") != "linux"
             or not isinstance(pg.get("Id"), str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", str(pg.get("Id"))) is None
             or not isinstance(pg_digests, list)
             or POSTGRES.replace(":18.6-bookworm", "") not in pg_digests
         ):
@@ -110,7 +135,10 @@ class ControlRuntime:
         cap: float = 15,
         success: bool = True,
         effect: bool = False,
+        stdin: bytes | None = None,
     ) -> subprocess.CompletedProcess[str]:
+        if stdin is not None and (type(stdin) is not bytes or len(stdin) > 16384):
+            raise StartError("COMMAND_INPUT_LIMIT", 4)
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
         # Library callers retain their signal policy. Auto-reap and SIGCHLD
         # handlers invalidate the declared owner contract; refuse before effects.
@@ -127,7 +155,7 @@ class ControlRuntime:
             argv,
             cwd=self.release,
             env={"PATH": SAFE_PATH, **(env or {})},
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             start_new_session=True,
@@ -143,12 +171,29 @@ class ControlRuntime:
             with selectors.DefaultSelector() as reader:
                 reader.register(process.stdout, selectors.EVENT_READ, 0)
                 reader.register(process.stderr, selectors.EVENT_READ, 1)
+                sent = 0
+                if process.stdin is not None:
+                    os.set_blocking(process.stdin.fileno(), False)
+                    if stdin:
+                        reader.register(process.stdin, selectors.EVENT_WRITE, 2)
+                    else:
+                        process.stdin.close()
                 total = 0
                 while reader.get_map():
                     events = reader.select(remaining(end, cap))
                     if not events:
                         raise StartError("STARTUP_TIMEOUT", 3)
                     for key, _ in events:
+                        if key.data == 2:
+                            assert stdin is not None and process.stdin is not None
+                            try:
+                                sent += os.write(key.fd, stdin[sent:])
+                            except BlockingIOError:
+                                continue
+                            if sent == len(stdin):
+                                reader.unregister(key.fd)
+                                process.stdin.close()  # Real EOF, not a JSON delimiter.
+                            continue
                         part = os.read(key.fd, min(65536, 4 * 1024 * 1024 + 1 - total))
                         if not part:
                             reader.unregister(key.fd)
@@ -202,8 +247,12 @@ class ControlRuntime:
                     if process.stdout is not None:
                         process.stdout.close()
                 finally:
-                    if process.stderr is not None:
-                        process.stderr.close()
+                    try:
+                        if process.stderr is not None:
+                            process.stderr.close()
+                    finally:
+                        if process.stdin is not None:
+                            process.stdin.close()
         result = subprocess.CompletedProcess(
             argv, process.returncode, buffers[0].decode(), buffers[1].decode()
         )
@@ -272,22 +321,7 @@ class ControlRuntime:
         item = self.inspect("network", f"{self.receipt.project}_control")
         if item is None:
             return None
-        if (
-            self.attempt is None
-            or mapping(item.get("Labels")).get("org.omnis.start-attempt") != self.attempt
-        ):
-            raise StartError("ATTEMPT_IDENTITY_MISMATCH", 4)
-        if (
-            mapping(item.get("Labels")).get("com.docker.compose.project") != self.receipt.project
-            or item.get("Internal") is not True
-            or item.get("Driver") != "bridge"
-            or set(mapping(item.get("Containers"))) - allowed
-        ):
-            raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
-        ident = item.get("Id")
-        if not isinstance(ident, str) or not re.fullmatch(r"[0-9a-f]{64}", ident):
-            raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
-        return ident
+        return _network_identity(item, self.receipt.project, self.attempt, allowed)
 
     def attest(
         self, ident: str, role: str, root: Path, control: Path, port: int
@@ -303,11 +337,18 @@ class ControlRuntime:
         mounts = item.get("Mounts")
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
-        actual = {
-            (m.get("Type"), m.get("Source"), m.get("Destination"), m.get("RW"))
-            for raw in mounts
-            for m in [mapping(raw)]
-        }
+        actual: set[tuple[object, object, object, object]] = set()
+        for raw in mounts:
+            mount = mapping(raw)
+            if (
+                any(
+                    not isinstance(mount.get(key), str) for key in ("Type", "Source", "Destination")
+                )
+                or type(mount.get("RW")) is not bool
+                or mount.get("Propagation") != "rprivate"
+            ):
+                raise StartError("CONTAINER_MOUNTS_INVALID", 3)
+            actual.add((mount["Type"], mount["Source"], mount["Destination"], mount["RW"]))
         expected: set[tuple[object, object, object, object]] = set()
         if role == "db":
             expected = {
@@ -318,36 +359,88 @@ class ControlRuntime:
             expected = {("bind", str(control), "/run/omnis-control", role == "supervisor")}
             if role == "api":
                 expected.add(("bind", str(root / "http"), "/run/omnis-http", True))
-        elif role != "migrate":
+        elif role not in {"migrate", "reconcile"}:
             raise StartError("CONTAINER_ROLE_INVALID", 3)
         expected_command = {
             "db": ["postgres"],
             "api": ["python", "-I", "-m", "omnis.serve"],
             "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
             "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
+            "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
-        running = mapping(item.get("State")).get("Running") is True
+        state = mapping(item.get("State"))
+        networks = mapping(net.get("Networks"))
+        network_name = self.receipt.project + "_control"
+        exited = state.get("Status") == "exited" and state.get("Running") is False
         if (
             item.get("Id") != ident
             or labels.get("com.docker.compose.project") != self.receipt.project
             or labels.get("com.docker.compose.service") != role
             or item.get("Image") != (self.pg_image if role == "db" else self.receipt.image_id)
             or config.get("Cmd") != expected_command
-            or host.get("Privileged") is not False
-            or host.get("PortBindings")
-            or any(mapping(net.get("Ports")).values())
-            or host.get("NetworkMode") != f"{self.receipt.project}_control"
             or (
-                running and set(mapping(net.get("Networks"))) != {f"{self.receipt.project}_control"}
+                config.get("Entrypoint") != ["docker-entrypoint.sh"]
+                if role == "db"
+                else config.get("Entrypoint") not in (None, [])
             )
-            or host.get("PidMode")
-            or host.get("IpcMode") == "host"
-            or host.get("CapAdd")
-            or host.get("Devices")
+            or host.get("Privileged") is not False
+            or host.get("PublishAllPorts") is not False
+            or host.get("PortBindings") not in (None, {})
+            or (
+                net.get("Ports") is not None
+                and any(value not in (None, []) for value in mapping(net["Ports"]).values())
+            )
+            or host.get("NetworkMode") != f"{self.receipt.project}_control"
+            or (set(networks) != {network_name} and not (exited and networks == {}))
+            or host.get("PidMode") not in (None, "")
+            or host.get("IpcMode") != "private"
+            or any(
+                host.get(key) not in (None, [])
+                for key in ("CapAdd", "Devices", "DeviceRequests", "DeviceCgroupRules")
+            )
+            or host.get("Tmpfs") not in (None, {})
+            or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
+            or type(mapping(host.get("RestartPolicy")).get("MaximumRetryCount")) is not int
+            or (
+                role in {"migrate", "reconcile"}
+                and (host.get("Binds") not in (None, []) or config.get("Volumes") not in (None, {}))
+            )
             or actual != expected
             or len(mounts) != len(expected)
         ):
             raise StartError("CONTAINER_IDENTITY_MISMATCH", 3)
+        network_id = self.network(set(self.ids()))
+        if networks:
+            endpoint = mapping(networks[network_name])
+            # Created/exited endpoints can have no allocated NetworkID. In that
+            # case bind the exact requested name/NetworkMode to the attested
+            # network object; a running endpoint must carry that object's ID.
+            unallocated = (
+                state.get("Status") in ("created", "exited")
+                and state.get("Running") is False
+                and endpoint.get("NetworkID") == ""
+            )
+            if (
+                network_id is None
+                or (endpoint.get("NetworkID") != network_id and not unallocated)
+                or endpoint.get("DriverOpts") not in (None, {})
+                or endpoint.get("IPAMConfig") not in (None, {})
+                or endpoint.get("Links") not in (None, [])
+            ):
+                raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+            name = item.get("Name")
+            if not isinstance(name, str) or not name.startswith("/") or len(name) < 2:
+                raise StartError("CONTAINER_IDENTITY_MISMATCH", 3)
+            aliases = {name[1:], ident, ident[:12]}
+            if role in {"db", "api", "supervisor"}:
+                aliases.add(role)  # Compose's service alias, not a custom alias.
+            for key in ("Aliases", "DNSNames"):
+                values = endpoint.get(key)
+                if values is not None and (
+                    not isinstance(values, list)
+                    or any(not isinstance(value, str) or value not in aliases for value in values)
+                ):
+                    raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
         if role != "db" and (
             config.get("User") != f"{os.getuid()}:{os.getgid()}"
             or host.get("ReadonlyRootfs") is not True
@@ -355,29 +448,69 @@ class ControlRuntime:
             or host.get("SecurityOpt") != ["no-new-privileges:true"]
         ):
             raise StartError("CONTROL_CONFINEMENT_MISMATCH", 3)
+        image_id = self.pg_image if role == "db" else self.receipt.image_id
+        image = self.inspect("image", image_id)
+        if image is None or image.get("Id") != image_id:
+            raise StartError("IMAGE_IDENTITY_MISMATCH", 4)
+        image_config = mapping(image.get("Config"))
+        if role == "db" and (
+            not isinstance(image_config.get("User"), str)
+            or config.get("User") != image_config["User"]
+            or host.get("ReadonlyRootfs") is not False
+            or host.get("CapDrop") not in (None, [])
+            or host.get("SecurityOpt") not in (None, [])
+        ):
+            raise StartError("DATABASE_CONFINEMENT_MISMATCH", 3)
+        inherited = image_config.get("Env")
         environment = config.get("Env")
-        if not isinstance(environment, list):
-            raise StartError("CONTROL_ENV_INVALID", 3)
-        if role != "db":
+        if (
+            not isinstance(inherited, list)
+            or not isinstance(environment, list)
+            or any(
+                not isinstance(value, str) or "=" not in value or not value.split("=", 1)[0]
+                for value in [*inherited, *environment]
+            )
+        ):
+            raise StartError("CONTROL_ENV_INVALID", 4)
+        expected_env = dict(value.split("=", 1) for value in inherited)
+        actual_env = dict(value.split("=", 1) for value in environment)
+        if len(expected_env) != len(inherited) or len(actual_env) != len(environment):
+            raise StartError("CONTROL_ENV_INVALID", 4)
+        # Image defaults are read by verified content ID, never copied from a fixture.
+        # Only the overrides actually emitted by Compose/create belong here.
+        if role == "db":
+            expected_env.update(
+                POSTGRES_USER="omnis",
+                POSTGRES_DB="omnis",
+                POSTGRES_PASSWORD_FILE="/run/secrets/db_password",
+                POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256",
+            )
+        else:
             password = private_file(root / "db-password", limit=64).strip()
             if not re.fullmatch(r"[0-9a-f]{48}", password):
                 raise StartError("DATABASE_SECRET_INVALID")
-            expected_env = {
-                f"OMNIS_DATABASE_URL=postgresql+psycopg://omnis:{password}@db:5432/omnis",
-                "OMNIS_WEB_ROOT=/opt/omnis/web",
-            }
-            if role == "migrate":
+            expected_env["OMNIS_DATABASE_URL"] = (
+                f"postgresql+psycopg://omnis:{password}@db:5432/omnis"
+            )
+            if role in {"migrate", "reconcile"}:
                 system_id = read_record(root / "startup.json").get("system_id")
                 if not isinstance(system_id, str) or not system_id.isdecimal():
                     raise StartError("DATABASE_IDENTITY_INVALID", 4)
-                expected_env.add(f"OMNIS_EXPECTED_SYSTEM_ID={system_id}")
+                expected_env["OMNIS_EXPECTED_SYSTEM_ID"] = system_id
             else:
-                expected_env.add("OMNIS_CONTROL_DIR=/run/omnis-control")
+                expected_env["OMNIS_CONTROL_DIR"] = "/run/omnis-control"
             if role == "api":
-                expected_env.update({"OMNIS_HTTP_DIR=/run/omnis-http", f"OMNIS_HTTP_PORT={port}"})
-            actual_env = [v for v in environment if isinstance(v, str) and v.startswith("OMNIS_")]
-            if len(actual_env) != len(expected_env) or set(actual_env) != expected_env:
-                raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
+                expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
+        if actual_env != expected_env:
+            raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
+        if role == "reconcile" and (
+            config.get("Tty") is not False
+            or any(
+                config.get(key) is not True
+                for key in ("OpenStdin", "StdinOnce", "AttachStdin", "AttachStdout", "AttachStderr")
+            )
+        ):
+            raise StartError("RECONCILIATION_CONFINEMENT_MISMATCH", 4)
         return item
 
     def psql(self, ident: str, query: str) -> str:

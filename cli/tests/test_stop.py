@@ -28,6 +28,7 @@ from omnis_cli.lifecycle import (
 )
 from omnis_cli.main import main
 from omnis_cli.stop import readback_stopped
+from stopped_fixture import completed_fixture
 
 
 @contextlib.contextmanager
@@ -292,8 +293,9 @@ class StopTest(unittest.TestCase):
         start_module = importlib.import_module("omnis_cli.start")
         stop_module = importlib.import_module("omnis_cli.stop")
         status_module = importlib.import_module("omnis_cli.status")
-        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
             write_record(root / "startup.json", record)
+            self.enterContext(completed_fixture(root, control, record, runtime))
             (root / "forwarder.log").write_text("prior forwarder\n")
             (root / "forwarder.log").chmod(0o600)
             env = {
@@ -332,7 +334,8 @@ class StopTest(unittest.TestCase):
                 with contextlib.redirect_stdout(output):
                     code = main(["start", "--no-open", "--json"])
                 self.assertEqual(
-                    (code, json.loads(output.getvalue())["reason"]), (3, "SYNTHETIC_RESTART_CUT")
+                    (code, json.loads(output.getvalue())["reason"]),
+                    (4, "RESTART_RECONCILIATION_REQUIRED"),
                 )
                 compose.assert_called_once()
 
@@ -407,9 +410,10 @@ class StopTest(unittest.TestCase):
     def test_explicit_restart_preserves_both_identities_before_new_mount(self) -> None:
         """Replacing STOPPED with STARTING must not erase the saved logical or physical ID."""
         start_module = importlib.import_module("omnis_cli.start")
-        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
             journal = root / "startup.json"
             write_record(journal, record)
+            self.enterContext(completed_fixture(root, control, record, runtime))
             log = root / "forwarder.log"
             log.write_text("synthetic prior forwarder\n")
             log.chmod(0o600)
@@ -438,7 +442,7 @@ class StopTest(unittest.TestCase):
                 patch.object(runtime, "compose", side_effect=before_mount, create=True),
             ):
                 code, outcome = start_module.start_result(None)
-            self.assertEqual((code, outcome["reason"]), (3, "SYNTHETIC_RESTART_CUT"))
+            self.assertEqual((code, outcome["reason"]), (4, "RESTART_RECONCILIATION_REQUIRED"))
             self.assertEqual(len(observed), 1)
             self.assertEqual(observed[0]["format"], 2)
             self.assertEqual(observed[0]["pgdata_identity"], record["pgdata_identity"])
@@ -540,6 +544,7 @@ class StopTest(unittest.TestCase):
     def test_stop_receipt_types_cannot_claim_stopped_or_reach_resource_readback(self) -> None:
         stop_module = importlib.import_module("omnis_cli.stop")
         with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            self.enterContext(completed_fixture(root, control, record, runtime))
             readback_stopped(runtime, root, control, record)  # Valid offline control.
             assert isinstance(record["forwarder"], dict)
             cases = {
@@ -949,8 +954,8 @@ class StopTest(unittest.TestCase):
                 self.assertEqual((code, outcome["reason"]), (4, "RECOVERY_REQUIRED"))
                 services.assert_not_called()
 
-    def test_finalized_stop_resumes_only_remaining_owned_resources(self) -> None:
-        """A partial host teardown after FINALIZE is not a new DB shutdown."""
+    def test_legacy_partial_stop_never_resumes_even_when_old_lease_matches(self) -> None:
+        """Old stage lists are not owner ACKs; neither epoch grants legacy replay."""
         with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
             record.update(phase="STOPPING", teardown_completed=["forwarder", "api"])
             child = subprocess.Popen(
@@ -1045,27 +1050,23 @@ class StopTest(unittest.TestCase):
                 self.assertEqual(effects, [], "Lease takeover must preempt the first Docker effect")
                 self.assertEqual(read_record(root / "startup.json")["phase"], "STOPPING")
                 self.assertEqual(states, {cids["supervisor"]: True, cids["db"]: True})
-                lease_epoch = 1  # The same channel's valid owner is allowed to finish.
+                lease_epoch = 1  # A matching lease cannot substitute owner completion.
                 output.seek(0)
                 output.truncate()
                 code = main(["stop", "--json"])
-            assert code == 0, "A finalized, attested partial stop must be resumable"
-            assert json.loads(output.getvalue())["state"] == "STOPPED"
-            assert json.loads((root / "startup.json").read_text())["phase"] == "STOPPED"
+            assert code == 4, "Legacy partial teardown has no durable owner authority"
+            assert json.loads(output.getvalue())["state"] == "UNCERTAIN"
+            assert json.loads((root / "startup.json").read_text())["phase"] == "STOPPING"
             assert not os.path.lexists(root / "unreconciled.json")
-            assert [event[:2] for event in effects] == [
-                ("stop", "--time"),
-                ("container", "rm"),
-                ("stop", "--time"),
-                ("container", "rm"),
-                ("network", "rm"),
-            ]
-            assert not states and not network_active
+            assert effects == []
+            assert states == {cids["supervisor"]: True, cids["db"]: True}
+            assert network_active
             assert (root / "postgres").is_dir()
 
     def test_stopped_receipt_refuses_symlinked_pgdata_or_database_secret(self) -> None:
         """Offline STOPPED readback must not follow a replacement data root."""
         with private_stop_fixture() as (_base, root, foreign, control, record, runtime):
+            self.enterContext(completed_fixture(root, control, record, runtime))
             password = root / "db-password"
             pg = root / "postgres"
             saved = root / "saved-postgres"

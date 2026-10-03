@@ -14,6 +14,7 @@ from unittest.mock import Mock
 
 from omnis_cli.lifecycle import StartError
 from omnis_cli.start_runtime import POSTGRES, ControlRuntime
+from runtime_inspect_fixture import container_item, image_item
 
 start = importlib.import_module("omnis_cli.start")
 
@@ -39,88 +40,108 @@ class ProductAttestationTest(unittest.TestCase):
         self.runtime.run = Mock(side_effect=AssertionError("No resource effects permitted"))
         self.port = 48765
         self.cid = "f" * 64
+        self.runtime.ids = Mock(return_value=[self.cid])
+        self.network = {
+            "Id": "1" * 64,
+            "Name": self.runtime.receipt.project + "_control",
+            "Internal": True,
+            "Driver": "bridge",
+            "Options": {},
+            "Containers": {},
+            "Labels": {
+                "org.omnis.start-attempt": self.runtime.attempt,
+                "com.docker.compose.project": self.runtime.receipt.project,
+            },
+        }
         self.env = start.environment(self.runtime, self.root, self.control, self.port)
 
     def item(self, role):
-        command = {
-            "db": ["postgres"],
-            "api": ["python", "-I", "-m", "omnis.serve"],
-            "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
-        }[role]
-        mounts = [
-            {
-                "Type": "bind",
-                "Source": str(self.control),
-                "Destination": "/run/omnis-control",
-                "RW": role == "supervisor",
-            }
-        ]
-        if role == "api":
-            mounts.append(
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "http"),
-                    "Destination": "/run/omnis-http",
-                    "RW": True,
-                }
+        return container_item(self.runtime, role, self.cid, self.root, self.control, self.port)
+
+    def test_reconciliation_role_requires_exact_job_confinement_and_stdin(self):
+        from omnis_cli.lifecycle import write_record
+
+        write_record(self.root / "startup.json", {"system_id": "12345"})
+        base_env = ["PATH=/usr/local/bin:/usr/bin:/bin", "OMNIS_WEB_ROOT=/opt/omnis/web"]
+        item = self.item("reconcile")
+        item["Mounts"] = []
+        item["State"]["Running"] = False  # Must attest the created job BEFORE start.
+        item["Config"].update(
+            Cmd=["python", "-I", "-m", "omnis.stop_reconcile"],
+            Entrypoint=None,
+            OpenStdin=True,
+            StdinOnce=True,
+            Tty=False,
+            AttachStdin=True,
+            AttachStdout=True,
+            AttachStderr=True,
+            Env=[
+                *base_env,
+                "OMNIS_DATABASE_URL=" + self.env["OMNIS_DATABASE_URL"],
+                "OMNIS_EXPECTED_SYSTEM_ID=12345",
+            ],
+        )
+        item["Config"]["Labels"]["com.docker.compose.service"] = "reconcile"
+        item["HostConfig"]["RestartPolicy"] = {"Name": "no", "MaximumRetryCount": 0}
+
+        def inspect(kind, _ident):
+            if kind == "network":
+                return self.network
+            return (
+                {"Id": self.runtime.receipt.image_id, "Config": {"Env": base_env}}
+                if kind == "image"
+                else candidate
             )
-        if role == "db":
-            mounts = [
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "postgres"),
-                    "Destination": "/var/lib/postgresql",
-                    "RW": True,
-                },
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "db-password"),
-                    "Destination": "/run/secrets/db_password",
-                    "RW": False,
-                },
-            ]
-        environment = [
-            "OMNIS_DATABASE_URL=" + self.env["OMNIS_DATABASE_URL"],
-            "OMNIS_WEB_ROOT=/opt/omnis/web",
-            "OMNIS_CONTROL_DIR=/run/omnis-control",
-        ]
-        if role == "api":
-            environment += [
-                "OMNIS_HTTP_DIR=/run/omnis-http",
-                f"OMNIS_HTTP_PORT={self.port}",
-            ]
-        return {
-            "Id": self.cid,
-            "Image": self.runtime.pg_image if role == "db" else self.runtime.receipt.image_id,
-            "Config": {
-                "Cmd": command,
-                "User": f"{os.getuid()}:{os.getgid()}",
-                "Labels": {
-                    "com.docker.compose.project": self.runtime.receipt.project,
-                    "com.docker.compose.service": role,
-                    "org.omnis.start-attempt": self.runtime.attempt,
-                },
-                "Env": environment,
-            },
-            "HostConfig": {
-                "Privileged": False,
-                "PortBindings": {},
-                "NetworkMode": self.runtime.receipt.project + "_control",
-                "PidMode": "",
-                "IpcMode": "private",
-                "CapAdd": [],
-                "Devices": [],
-                "ReadonlyRootfs": True,
-                "CapDrop": ["ALL"],
-                "SecurityOpt": ["no-new-privileges:true"],
-            },
-            "NetworkSettings": {
-                "Ports": {},
-                "Networks": {self.runtime.receipt.project + "_control": {}},
-            },
-            "State": {"Running": True},
-            "Mounts": mounts,
-        }
+
+        candidate = item
+        self.runtime.inspect = Mock(side_effect=inspect)
+        self.assertEqual(
+            self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port), item
+        )
+        changes = (
+            ("Cmd", ["python", "-I", "-m", "omnis.migrate"]),
+            ("Entrypoint", ["sh"]),
+            ("OpenStdin", False),
+            ("StdinOnce", False),
+            ("Tty", True),
+            ("AttachStdin", False),
+            ("AttachStdout", False),
+            ("AttachStderr", False),
+            ("User", "0:0"),
+            ("Env", [*item["Config"]["Env"], "PGHOST=foreign"]),
+            ("Env", [*item["Config"]["Env"], "LD_PRELOAD=/foreign"]),
+            ("Env", [*item["Config"]["Env"], "OMNIS_EXPECTED_SYSTEM_ID=12345"]),
+        )
+        for field, value in changes:
+            with self.subTest(field=field, value=value):
+                candidate = deepcopy(item)
+                candidate["Config"][field] = value
+                with self.assertRaises(StartError):
+                    self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        for section, change in (
+            ("HostConfig", {"RestartPolicy": {"Name": "always", "MaximumRetryCount": 0}}),
+            ("HostConfig", {"ReadonlyRootfs": False}),
+            ("HostConfig", {"CapDrop": []}),
+            ("HostConfig", {"SecurityOpt": []}),
+            ("HostConfig", {"NetworkMode": "host"}),
+            ("HostConfig", {"Binds": ["/var/run/docker.sock:/docker"]}),
+            ("HostConfig", {"Tmpfs": {"/tmp": "rw"}}),
+            ("NetworkSettings", {"Networks": {"foreign": {}}}),
+            (
+                "Config",
+                {"Labels": {**item["Config"]["Labels"], "org.omnis.start-attempt": "foreign"}},
+            ),
+        ):
+            with self.subTest(section=section, change=change):
+                candidate = deepcopy(item)
+                candidate[section].update(change)
+                with self.assertRaises(StartError):
+                    self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        candidate = deepcopy(item)
+        candidate["Image"] = "sha256:" + "0" * 64
+        with self.assertRaises(StartError):
+            self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        self.runtime.run.assert_not_called()
 
     def test_runtime_attestation_valid_and_one_boundary_mutations(self):
         mutations = [
@@ -169,7 +190,15 @@ class ProductAttestationTest(unittest.TestCase):
         ]
         for role in ("api", "supervisor", "db"):
             valid = self.item(role)
-            self.runtime.inspect = Mock(return_value=valid)
+            self.runtime.inspect = Mock(
+                side_effect=lambda kind, ident, role=role, valid=valid: (
+                    image_item(self.runtime, role)
+                    if kind == "image"
+                    else self.network
+                    if kind == "network"
+                    else valid
+                )
+            )
             self.assertEqual(
                 self.runtime.attest(self.cid, role, self.root, self.control, self.port),
                 valid,
@@ -189,7 +218,15 @@ class ProductAttestationTest(unittest.TestCase):
                     for key in path:
                         target = target[key]
                     mutate(target)
-                    self.runtime.inspect = Mock(return_value=bad)
+                    self.runtime.inspect = Mock(
+                        side_effect=lambda kind, ident, role=role, bad=bad: (
+                            image_item(self.runtime, role)
+                            if kind == "image"
+                            else self.network
+                            if kind == "network"
+                            else bad
+                        )
+                    )
                     with self.assertRaises(StartError):
                         self.runtime.attest(self.cid, role, self.root, self.control, self.port)
         self.runtime.run.assert_not_called()
@@ -215,7 +252,7 @@ class ProductAttestationTest(unittest.TestCase):
                 "environment": {
                     key: value
                     for key, value in (v.split("=", 1) for v in item["Config"]["Env"])
-                    if key != "OMNIS_WEB_ROOT"
+                    if key.startswith("OMNIS_") and key != "OMNIS_WEB_ROOT"
                 },
                 "volumes": [
                     {

@@ -492,6 +492,39 @@ class ProductAttestationTest(unittest.TestCase):
                     start.validate_config(self.runtime, self.env)
         self.runtime.run.assert_not_called()
 
+    def test_config_rejects_nondefault_network_attachments(self):
+        valid = self.config()
+        self.runtime.compose = Mock(
+            return_value=subprocess.CompletedProcess([], 0, json.dumps(valid))
+        )
+        start.validate_config(self.runtime, self.env)
+        for role in ("api", "supervisor", "db"):
+            for attachment in (
+                {"aliases": ["db"]},
+                {
+                    "driver_opts": {
+                        "com.docker.network.endpoint.sysctls": "net.ipv4.conf.IFNAME.forwarding=1"
+                    }
+                },
+                {"mac_address": "02:42:ac:11:00:02"},
+                {"ipv4_address": "172.28.0.200"},
+                {"unknown": True},
+                {},
+                [],
+                True,
+                1,
+                "control",
+            ):
+                with self.subTest(role=role, attachment=attachment):
+                    bad = deepcopy(valid)
+                    bad["services"][role]["networks"]["control"] = attachment
+                    self.runtime.compose.return_value = subprocess.CompletedProcess(
+                        [], 0, json.dumps(bad)
+                    )
+                    with self.assertRaisesRegex(StartError, "COMPOSE_SERVICE_INVALID"):
+                        start.validate_config(self.runtime, self.env)
+        self.runtime.run.assert_not_called()
+
     def test_config_validator_valid_and_supported_boundary_mutations(self):
         valid = self.config()
         self.runtime.compose = Mock(

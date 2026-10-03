@@ -33,8 +33,15 @@ async def test_schema_refuses_conditional_immutability_trigger(unconditional: bo
         column_result = Mock()
         column_result.all.return_value = [(name, *spec) for name, spec in columns.items()]
         constraint_result = Mock()
+        quoted_names = {"grant": '"grant"'}  # Observed PostgreSQL catalog form, not product output.
         required = {
-            (f"{table}_{name}_not_null", "n", f"NOT NULL {name}", True, True)
+            (
+                f"{table}_{name}_not_null",
+                "n",
+                f"NOT NULL {quoted_names.get(name, name)}",
+                True,
+                True,
+            )
             for name, (_, not_null, _) in columns.items()
             if not_null
         }

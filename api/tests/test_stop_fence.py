@@ -572,6 +572,26 @@ def test_migration_creates_empty_persistent_stop_fence(migrated_database_url: UR
 
 
 @pytest.mark.asyncio
+async def test_fresh_reconciliation_schema_accepts_server_quoted_not_null(
+    migrated_database_url: URL,
+) -> None:
+    # PostgreSQL deparses the reserved identifier with quotes. Do not generate
+    # the expected catalog row from the product's own formatting expression.
+    with connect_test_database(migrated_database_url) as connection:
+        definition = connection.execute(
+            "SELECT pg_get_constraintdef(oid) FROM pg_constraint "
+            "WHERE conrelid = 'instance_stop_reconciliation'::regclass "
+            "AND conname = 'instance_stop_reconciliation_grant_not_null'"
+        ).fetchone()
+    assert definition == ('NOT NULL "grant"',)
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    try:
+        assert await readiness_reason(engine) is None
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_readiness_rejects_a_fence_without_its_state_constraint(
     migrated_database_url: URL,
 ) -> None:

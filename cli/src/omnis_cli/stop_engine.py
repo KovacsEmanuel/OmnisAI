@@ -149,6 +149,10 @@ class StopEngine:
             value: object = json.loads(raw, object_pairs_hook=unique_pairs)
         except (ValueError, UnicodeError, RecursionError):
             raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4) from None
+        # Only inspect endpoints allow 404. For their 200 replies, require an
+        # object before returning: decoded null must never become absence.
+        if absent and not isinstance(value, dict):
+            raise StartError("STOP_ENGINE_RESPONSE_INVALID", 4)
         pending = [(value, 0)]
         while pending:
             item, depth = pending.pop()

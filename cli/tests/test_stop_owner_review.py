@@ -1,18 +1,99 @@
 """Review regressions on real private files and a synthetic Engine, not Docker."""
 
 import subprocess
+import time
 import unittest
 from copy import deepcopy
 from unittest.mock import patch
 
 from omnis_cli.lifecycle import StartError, lifecycle_lock, read_record, write_record
 from omnis_cli.stop import STOP_STAGES
+from omnis_cli.stop_engine import StopEngine
 from omnis_cli.stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
 from omnis_cli.stop_receipt import receipt_path
 from stop_owner_fixture import Fixture, owner_test_argv
 
 
 class StopOwnerReviewTests(unittest.TestCase):
+    def test_inspect_null_is_not_absence_in_decoder_or_offline_consumer(self):
+        fixture = Fixture()
+        try:
+            with (
+                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
+                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
+            ):
+                self.complete(fixture, data_fd, state_fd)
+                original = fixture.response
+                effects = [x for x in fixture.requests if x.startswith(("POST", "DELETE"))]
+                for method, ident, target in (
+                    ("container", fixture.ids["api"], f"/containers/{fixture.ids['api']}/json"),
+                    ("network", fixture.network_id, f"/networks/{fixture.network_id}"),
+                ):
+                    for status, value in (
+                        (404, {}),
+                        (200, {}),
+                        (200, None),
+                        (200, []),
+                        (200, False),
+                    ):
+
+                        def response(verb, path, *, wanted=target, status=status, value=value):
+                            if verb == "GET" and path == wanted:
+                                return status, value
+                            return original(verb, path)
+
+                        with patch.object(fixture, "response", side_effect=response):
+                            engine = StopEngine(
+                                fixture.runtime.host,
+                                fixture.runtime.receipt.docker_id,
+                                time.monotonic() + 2,
+                            )
+                            with self.subTest(
+                                method=method, status=status, value=value, consumer="decoder"
+                            ):
+                                if status == 404:
+                                    self.assertIsNone(getattr(engine, method)(ident))
+                                elif isinstance(value, dict):
+                                    self.assertEqual(getattr(engine, method)(ident), value)
+                                else:
+                                    with self.assertRaisesRegex(
+                                        StartError, "STOP_ENGINE_RESPONSE_INVALID"
+                                    ):
+                                        getattr(engine, method)(ident)
+                            with self.subTest(
+                                method=method, status=status, value=value, consumer="offline"
+                            ):
+                                before = len(fixture.requests)
+                                if status == 404:
+                                    verify_stop_completion(
+                                        fixture.runtime,
+                                        fixture.root,
+                                        fixture.control,
+                                        fixture.record,
+                                    )
+                                else:
+                                    reason = (
+                                        "STOP_RESOURCES_REMAIN"
+                                        if isinstance(value, dict)
+                                        else "STOP_ENGINE_RESPONSE_INVALID"
+                                    )
+                                    with self.assertRaisesRegex(StartError, reason):
+                                        verify_stop_completion(
+                                            fixture.runtime,
+                                            fixture.root,
+                                            fixture.control,
+                                            fixture.record,
+                                        )
+                                self.assertIn(f"GET {target} HTTP/1.1", fixture.requests[before:])
+                self.assertEqual(
+                    effects, [x for x in fixture.requests if x.startswith(("POST", "DELETE"))]
+                )
+                self.assertEqual(
+                    read_record(receipt_path(fixture.root, fixture.record))["state"], "COMPLETED"
+                )
+        finally:
+            fixture.close()
+
     def complete(self, fixture, data_fd, state_fd):
         inventory = prepare_stop_inventory(
             fixture.runtime, fixture.root, fixture.control, fixture.record

@@ -41,7 +41,24 @@ sunt sintetice; pozitivele complete substituie numai `_ContainerFamily` cu
 `SyntheticFamily`. Nu reprezintă dovadă Docker/cgroup/PG. Niciun provider, target,
 serviciu existent, push ori mutare de resurse istorice.
 
-R2–R4 și gate-urile finale source/wheel/Ruff/format/mypy: în lucru.
+## R2 — 200 inspect cere obiect, 404 rămâne distinct
+
+Decoderul decide absența din status404 înainte de JSON; pentru `absent=True`
+(endpointuri inspect) orice 200 non-obiect produce STOP_ENGINE_RESPONSE_INVALID.
+Listele și politica ACK-urilor de mutație sunt neschimbate. Testul permanent
+`test_inspect_null_is_not_absence_in_decoder_or_offline_consumer` trece 404,
+200/obiect, 200/null/list/bool prin decoder și consumatorul offline pe același UDS;
+faultul vizează exact inspect pe ID, nu listele. Nicio mutație după pozitivul inițial.
+
+- R1 commit: `0a94e4fd4e33f32e5a6e218d354608e32800cbcf`.
+- R1 după formatter: aceeași comandă focalizată → exit0/1 test, `r1-green-formatted.log`.
+- R2 RED: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_stop_owner_review.py -k inspect_null -v`
+  → exit1, null acceptat de ambele frontiere pentru ambele tipuri; liste/bool aveau
+  diagnosticul generic INVALID_RECORD, `r2-red.log`.
+- R2 GREEN: `cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p 'test_stop_*.py' -v`
+  → exit0/18 teste OK, `r2-green.log`; Ruff check/format scoped exit0/0.
+
+R3–R4 și gate-urile finale source/wheel/Ruff/format/mypy: în lucru.
 Reticle NOT_APPLICABLE (CLI/procese); Chisel BLOCKED/NO-GO, neexecutat.
 `make check` și gate-urile installed-start/pair-open/stop fizice: NOT_RUN aici.
 Rollback numai prin reverturile locale în ordine inversă; Git nu reconciliază DB.

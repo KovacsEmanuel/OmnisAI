@@ -37,6 +37,8 @@ from .start import (
     verify_running,
 )
 from .start_runtime import ControlRuntime
+from .stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
+from .stop_receipt import receipt_path, validate_grant
 
 STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
 
@@ -174,6 +176,7 @@ def readback_stopped(
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
     _bound_instance(runtime, root, control, record)
+    verify_stop_completion(runtime, root, control, record)
     try:
         private_file(root / "db-password", limit=64)  # O_NOFOLLOW, owner/mode/link count.
     except (OSError, ValueError):
@@ -534,6 +537,8 @@ def _publish_stopped(
     runtime: ControlRuntime, root: Path, control: Path, path: Path, record: dict[str, object]
 ) -> None:
     _check_pgdata(root, record)
+    verify_stop_completion(runtime, root, control, record)
+    record["teardown_completed"] = list(STOP_STAGES)
     record["phase"] = "STOPPED"
     write_record(path, record, replace=True)
     if read_record(path) != record:
@@ -566,7 +571,10 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
     if preflight is not None:
         _bound_instance(runtime, root, control, preflight)
     deadline = runtime.deadline
-    with lifecycle_lock(data_home / "omnis", deadline), lifecycle_lock(root, deadline):
+    with (
+        lifecycle_lock(data_home / "omnis", deadline) as data_fd,
+        lifecycle_lock(root, deadline) as state_fd,
+    ):
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
@@ -579,7 +587,10 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
             readback_stopped(runtime, root, control, record)
         elif record.get("phase") == "STOPPING" and record.get("finalized_generation") is not None:
             try:
-                _resume_owned(runtime, root, control, path, record)
+                # Only an independently completed owner can survive caller death.
+                # Missing/PREPARED receipts never authorize replay of an effect.
+                if not os.path.lexists(receipt_path(root, record)):
+                    raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
                 _publish_stopped(runtime, root, control, path, record)
             except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
                 raise StartError("STOP_UNCERTAIN", 4) from None
@@ -674,7 +685,35 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
                 write_record(path, record, replace=True)
                 if read_record(path) != record:
                     raise StartError("FINALIZE_RECEIPT_UNVERIFIED", 4)
-                _resume_owned(runtime, root, control, path, record)
+                _finalized_db_readback(
+                    runtime, record, _containers(record)["db"], str(record["instance_id"])
+                )
+                inventory = prepare_stop_inventory(runtime, root, control, record)
+                grant = request(
+                    control,
+                    {
+                        "op": "arm_stop",
+                        "instance_id": record["instance_id"],
+                        "command_id": record["stop_command"],
+                        "finalize_command_id": record["finalize_command"],
+                        "generation": record["stop_generation"],
+                        "owner_epoch": record["supervisor_epoch"],
+                        "daemon_id": runtime.receipt.docker_id,
+                        "inventory": inventory,
+                    },
+                    deadline=deadline,
+                )
+                validate_grant(grant, record, inventory)
+                run_stop_owner(
+                    runtime,
+                    root,
+                    control,
+                    record,
+                    grant,
+                    lock_fds=(data_fd, state_fd),
+                    deadline=deadline,
+                )
+                verify_stop_completion(runtime, root, control, record, grant)
                 _publish_stopped(runtime, root, control, path, record)
             except ControlUnavailable:
                 if record["finalized_generation"] is None and record["teardown_completed"] == []:

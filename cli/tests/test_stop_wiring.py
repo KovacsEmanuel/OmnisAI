@@ -1,0 +1,204 @@
+"""Real Stop consumer, file/flock; explicit control/owner effect seams, NOT OCI/PG."""
+
+import contextlib
+import fcntl
+import importlib
+import os
+import unittest
+from unittest.mock import patch
+from uuid import uuid4
+
+from omnis_cli.control import ControlUnavailable
+from omnis_cli.lifecycle import StartError, read_record, write_record
+from omnis_cli.stop_receipt import receipt_path
+from test_stop import private_stop_fixture
+
+stop = importlib.import_module("omnis_cli.stop")
+start = importlib.import_module("omnis_cli.start")
+
+
+class StopWiringTest(unittest.TestCase):
+    def test_normal_stop_hands_original_locks_to_owner_after_authenticated_arm(self):
+        self.normal_stop()
+
+    def test_arm_loss_or_owner_failure_never_falls_back_to_emergency(self):
+        for fault in ("arm", "owner", "wrong-grant"):
+            with self.subTest(fault=fault):
+                self.normal_stop(fault)
+
+    def normal_stop(self, fault=None):
+        with private_stop_fixture() as (base, root, _foreign, control, record, runtime):
+            for key in stop.STOP_FIELDS - start.READY_FIELDS:
+                record.pop(key)
+            record["phase"] = "READY"
+            write_record(root / "startup.json", record)
+            events, originals = [], []
+            inventory = {"synthetic-public-inventory": True}
+            real_lock = stop.lifecycle_lock
+
+            @contextlib.contextmanager
+            def locks(path, deadline):
+                with real_lock(path, deadline) as fd:
+                    originals.append(fd)
+                    yield fd
+
+            def current(generation=1, **changes):
+                return dict(
+                    instance_id=record["instance_id"],
+                    generation=generation,
+                    supervisor_epoch=1,
+                    assessment_ready=False,
+                    admission_open=generation == 1,
+                    **changes,
+                )
+
+            def control_request(_directory, command, **_kwargs):
+                events.append(command["op"])
+                saved = read_record(root / "startup.json")
+                if command["op"] == "status":
+                    return (
+                        current()
+                        if saved["phase"] == "READY"
+                        else current(
+                            2, shutdown_command_id=saved["stop_command"], quiesced_generation=2
+                        )
+                    )
+                if command["op"] == "shutdown":
+                    return current(2, shutdown_command_id=saved["stop_command"])
+                if command["op"] == "finalize":
+                    return current(2, quiesced_generation=2, shutdown_finalized=True)
+                self.assertEqual(command["op"], "arm_stop")
+                self.assertEqual(saved["finalized_generation"], 2)
+                self.assertEqual(command["inventory"], inventory)
+                if fault == "arm":
+                    raise ControlUnavailable()
+                grant = {key: value for key, value in command.items() if key != "op"}
+                grant.update(version=1, state="STOP_PENDING", owner_uuid=str(uuid4()))
+                if fault == "wrong-grant":
+                    grant["generation"] = 3
+                return grant
+
+            def prepare(_runtime, _root, _control, saved):
+                self.assertEqual(read_record(root / "startup.json"), saved)
+                self.assertEqual(saved["finalized_generation"], 2)
+                events.append("inventory")
+                return inventory
+
+            def owner(_runtime, _root, _control, saved, grant, *, lock_fds, deadline):
+                events.append("owner")
+                self.assertEqual(lock_fds, tuple(originals))
+                self.assertEqual(deadline, runtime.deadline)
+                for fd, directory in zip(lock_fds, (base / "d/omnis", root), strict=True):
+                    self.assertEqual(
+                        os.fstat(fd).st_ino, (directory / "lifecycle.lock").stat().st_ino
+                    )
+                    with (directory / "lifecycle.lock").open("rb") as other:
+                        with self.assertRaises(BlockingIOError):
+                            fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if fault == "owner":
+                    raise StartError("SYNTHETIC_OWNER_FAILURE", 4)
+                write_record(receipt_path(root, saved), {"state": "COMPLETED", "grant": grant})
+
+            def verify(_runtime, _root, _control, saved, grant=None):
+                events.append("verify")
+                self.assertEqual(read_record(receipt_path(root, saved))["state"], "COMPLETED")
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                        "XDG_CONFIG_HOME": str(base / "config"),
+                    },
+                ),
+                patch.object(stop, "ControlRuntime", return_value=runtime),
+                patch.object(stop, "lifecycle_lock", side_effect=locks),
+                patch.object(stop, "verify_running"),
+                patch.object(stop, "_running_for_stop", return_value=current()),
+                patch.object(stop, "_finalized_db_readback"),
+                patch.object(stop, "request", side_effect=control_request),
+                patch.object(stop, "prepare_stop_inventory", side_effect=prepare, create=True),
+                patch.object(stop, "run_stop_owner", side_effect=owner, create=True) as run_owner,
+                patch.object(stop, "verify_stop_completion", side_effect=verify, create=True),
+                patch.object(stop, "_resume_owned", side_effect=AssertionError("legacy teardown")),
+                patch.object(stop, "_emergency_stop", side_effect=AssertionError("emergency")),
+            ):
+                if fault:
+                    with self.assertRaises(StartError) as caught:
+                        stop.stop_instance()
+                    self.assertEqual(caught.exception.code, 4)
+                    if fault in {"arm", "wrong-grant"}:
+                        run_owner.assert_not_called()
+                    self.assertEqual(read_record(root / "startup.json")["phase"], "STOPPING")
+                else:
+                    self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                    self.assertEqual(
+                        events[:8],
+                        [
+                            "status",
+                            "shutdown",
+                            "status",
+                            "finalize",
+                            "inventory",
+                            "arm_stop",
+                            "owner",
+                            "verify",
+                        ],
+                    )
+                    self.assertEqual(
+                        read_record(root / "startup.json")["teardown_completed"],
+                        list(stop.STOP_STAGES),
+                    )
+                    self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                    run_owner.assert_called_once()
+
+    def test_stopped_without_owner_receipt_is_not_authority(self):
+        with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
+            with self.assertRaises((StartError, OSError)):
+                stop.readback_stopped(runtime, root, control, record)
+
+    def test_completed_owner_after_dead_cli_publishes_without_reemission(self):
+        for completed in (True, False):
+            with (
+                self.subTest(completed=completed),
+                private_stop_fixture() as (base, root, _foreign, _control, record, runtime),
+            ):
+                record.update(phase="STOPPING", teardown_completed=[])
+                write_record(root / "startup.json", record)
+                write_record(
+                    receipt_path(root, record), {"state": "COMPLETED" if completed else "PREPARED"}
+                )
+
+                def verify(*_args, complete=completed):
+                    if not complete:
+                        raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
+
+                with (
+                    patch.dict(
+                        os.environ,
+                        {
+                            "XDG_STATE_HOME": str(base / "s"),
+                            "XDG_DATA_HOME": str(base / "d"),
+                            "XDG_RUNTIME_DIR": "",
+                            "XDG_CONFIG_HOME": str(base / "config"),
+                        },
+                    ),
+                    patch.object(stop, "ControlRuntime", return_value=runtime),
+                    patch.object(stop, "verify_stop_completion", side_effect=verify, create=True),
+                    patch.object(stop, "request", side_effect=AssertionError("reissued control")),
+                    patch.object(
+                        stop,
+                        "run_stop_owner",
+                        side_effect=AssertionError("reissued owner"),
+                        create=True,
+                    ),
+                    patch.object(stop, "_resume_owned", side_effect=AssertionError("legacy retry")),
+                ):
+                    if completed:
+                        self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                    else:
+                        with self.assertRaises(StartError):
+                            stop.stop_instance()
+                        self.assertEqual(read_record(root / "startup.json"), record)

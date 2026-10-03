@@ -40,6 +40,19 @@ class ProductAttestationTest(unittest.TestCase):
         self.runtime.run = Mock(side_effect=AssertionError("No resource effects permitted"))
         self.port = 48765
         self.cid = "f" * 64
+        self.runtime.ids = Mock(return_value=[self.cid])
+        self.network = {
+            "Id": "1" * 64,
+            "Name": self.runtime.receipt.project + "_control",
+            "Internal": True,
+            "Driver": "bridge",
+            "Options": {},
+            "Containers": {},
+            "Labels": {
+                "org.omnis.start-attempt": self.runtime.attempt,
+                "com.docker.compose.project": self.runtime.receipt.project,
+            },
+        }
         self.env = start.environment(self.runtime, self.root, self.control, self.port)
 
     def item(self, role):
@@ -50,7 +63,7 @@ class ProductAttestationTest(unittest.TestCase):
 
         write_record(self.root / "startup.json", {"system_id": "12345"})
         base_env = ["PATH=/usr/local/bin:/usr/bin:/bin", "OMNIS_WEB_ROOT=/opt/omnis/web"]
-        item = self.item("supervisor")
+        item = self.item("reconcile")
         item["Mounts"] = []
         item["State"]["Running"] = False  # Must attest the created job BEFORE start.
         item["Config"].update(
@@ -72,6 +85,8 @@ class ProductAttestationTest(unittest.TestCase):
         item["HostConfig"]["RestartPolicy"] = {"Name": "no", "MaximumRetryCount": 0}
 
         def inspect(kind, _ident):
+            if kind == "network":
+                return self.network
             return (
                 {"Id": self.runtime.receipt.image_id, "Config": {"Env": base_env}}
                 if kind == "image"
@@ -177,7 +192,11 @@ class ProductAttestationTest(unittest.TestCase):
             valid = self.item(role)
             self.runtime.inspect = Mock(
                 side_effect=lambda kind, ident, role=role, valid=valid: (
-                    image_item(self.runtime, role) if kind == "image" else valid
+                    image_item(self.runtime, role)
+                    if kind == "image"
+                    else self.network
+                    if kind == "network"
+                    else valid
                 )
             )
             self.assertEqual(
@@ -201,7 +220,11 @@ class ProductAttestationTest(unittest.TestCase):
                     mutate(target)
                     self.runtime.inspect = Mock(
                         side_effect=lambda kind, ident, role=role, bad=bad: (
-                            image_item(self.runtime, role) if kind == "image" else bad
+                            image_item(self.runtime, role)
+                            if kind == "image"
+                            else self.network
+                            if kind == "network"
+                            else bad
                         )
                     )
                     with self.assertRaises(StartError):

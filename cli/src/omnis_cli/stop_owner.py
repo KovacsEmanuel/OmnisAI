@@ -32,7 +32,7 @@ from .lifecycle import (
 )
 from .release import _installed_pointer, _manifest
 from .start import _bound_instance, _check_pgdata
-from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
+from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime, _network_identity
 from .stop import _stopping_record
 from .stop_engine import StopEngine, identifier
 from .stop_receipt import (
@@ -92,16 +92,9 @@ class _View(ControlRuntime):
             raise StartError("STOP_NETWORK_DRIFT", 4)
         ident = identifier(str(rows[0].get("Id")))
         item = self.engine.network(ident)
-        if item is None or (
-            item.get("Name") != self.receipt.project + "_control"
-            or mapping(item.get("Labels")).get("org.omnis.start-attempt") != self.attempt
-            or mapping(item.get("Labels")).get("com.docker.compose.project") != self.receipt.project
-            or item.get("Internal") is not True
-            or item.get("Driver") != "bridge"
-            or set(mapping(item.get("Containers"))) - allowed
-        ):
+        if item is None or item.get("Id") != ident:
             raise StartError("STOP_NETWORK_DRIFT", 4)
-        return ident
+        return _network_identity(item, self.receipt.project, self.attempt, allowed)
 
 
 def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -> ControlRuntime:

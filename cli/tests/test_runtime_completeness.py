@@ -87,7 +87,9 @@ class RuntimeCompletenessTest(unittest.TestCase):
             elif kind == "image":
                 value = self.images[ident]
             elif kind == "network":
-                self.assertIn(ident, (self.network["Name"], self.network["Id"]))
+                self.assertIn(
+                    ident, (self.runtime.receipt.project + "_control", self.network["Id"])
+                )
                 value = self.network
             else:
                 self.fail("unexpected inspect kind")
@@ -322,6 +324,94 @@ class RuntimeCompletenessTest(unittest.TestCase):
                     with self.subTest(role=role, field=field, value=value):
                         self.install(role)[section][field] = value
                         self.check(role, reject=value in invalid)
+
+    def test_f05_created_attachments_and_nested_bindings_all_roles(self):
+        for role in ROLES:
+            for state in ("created", "running", "exited"):
+                for change in ("extra", "foreign", "id", "alias", "dns", "driver", "ipam", "links"):
+                    with self.subTest(role=role, state=state, change=change):
+                        item = self.install(role, state)
+                        nets = item["NetworkSettings"]["Networks"]
+                        endpoint = nets[self.network["Name"]]
+                        if change == "extra":
+                            nets["foreign"] = deepcopy(endpoint)
+                        elif change == "foreign":
+                            nets["foreign"] = nets.pop(self.network["Name"])
+                        else:
+                            field, value = {
+                                "id": ("NetworkID", "0" * 64),
+                                "alias": ("Aliases", ["foreign"]),
+                                "dns": ("DNSNames", ["foreign"]),
+                                "driver": ("DriverOpts", {"foreign": "true"}),
+                                "ipam": ("IPAMConfig", {"IPv4Address": "192.0.2.1"}),
+                                "links": ("Links", ["foreign"]),
+                            }[change]
+                            endpoint[field] = value
+                        self.check(role, reject=True)
+
+    def test_f05_generated_aliases_and_unallocated_endpoints(self):
+        for role in ROLES:
+            for state in ("created", "running", "exited"):
+                item = self.install(role, state)
+                endpoint = item["NetworkSettings"]["Networks"][self.network["Name"]]
+                for names in (None, [], [item["Name"][1:], self.cid, self.cid[:12]]):
+                    endpoint["Aliases"] = names
+                    endpoint["DNSNames"] = names
+                    self.check(role)
+                for field, values in (
+                    ("Aliases", (False, {}, "", [7])),
+                    ("DNSNames", (False, {}, "", [7])),
+                    ("DriverOpts", (False, [], "")),
+                    ("IPAMConfig", (False, [], "")),
+                    ("Links", (False, {}, "")),
+                ):
+                    original = endpoint[field]
+                    for value in values:
+                        with self.subTest(role=role, state=state, field=field, value=value):
+                            endpoint[field] = value
+                            self.check(role, reject=True)
+                    endpoint[field] = original
+                endpoint["NetworkID"] = ""
+                self.check(role, reject=state == "running")
+                endpoint["NetworkID"] = None
+                self.check(role, reject=True)
+            item = self.install(role, "exited")
+            item["NetworkSettings"]["Networks"] = {}
+            self.check(role)
+            for state in ("created", "running"):
+                item["State"].update(Status=state, Running=state == "running")
+                self.check(role, reject=True)
+
+    def test_f05_network_object_policy_is_shared_with_owner(self):
+        self.install("db")
+        valid = deepcopy(self.network)
+        for boundary in (self.runtime, self.owner()):
+
+            def consumer(boundary=boundary):
+                return boundary.network({self.cid})
+
+            for options in (None, {}):
+                self.network["Options"] = options
+                self.check("db", consumer=consumer)
+            for field, value in (
+                ("Options", {"com.docker.network.bridge.enable_icc": "false"}),
+                ("Options", []),
+                ("Options", False),
+                ("Options", ""),
+                ("Name", "foreign"),
+                ("Internal", 1),
+                ("Driver", "host"),
+                ("Id", "not-an-id"),
+                ("Containers", {"0" * 64: {}}),
+            ):
+                with self.subTest(boundary=type(boundary).__name__, field=field, value=value):
+                    self.network = deepcopy(valid)
+                    self.network[field] = value
+                    self.check("db", reject=True, consumer=consumer)
+            self.network = deepcopy(valid)
+            # allowed is a maximum: created/exited containers need not be members.
+            self.network["Containers"] = {}
+            self.check("db", consumer=consumer)
 
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()

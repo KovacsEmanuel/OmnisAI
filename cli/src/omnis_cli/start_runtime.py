@@ -33,6 +33,28 @@ POSTGRES = (
 SAFE_PATH = "/usr/bin:/bin"
 
 
+def _network_identity(
+    item: dict[str, object], project: str, attempt: str | None, allowed: set[str]
+) -> str:
+    """One pure policy for CLI inspect and the typed Stop Engine view."""
+    if attempt is None or mapping(item.get("Labels")).get("org.omnis.start-attempt") != attempt:
+        raise StartError("ATTEMPT_IDENTITY_MISMATCH", 4)
+    members = item.get("Containers")
+    if (
+        mapping(item.get("Labels")).get("com.docker.compose.project") != project
+        or item.get("Name") != project + "_control"
+        or item.get("Internal") is not True
+        or item.get("Driver") != "bridge"
+        or item.get("Options") not in (None, {})
+        or (members is not None and set(mapping(members)) - allowed)
+    ):
+        raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+    ident = item.get("Id")
+    if not isinstance(ident, str) or not re.fullmatch(r"[0-9a-f]{64}", ident):
+        raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+    return ident
+
+
 class ControlRuntime:
     def __init__(self, data_home: Path, deadline: float) -> None:
         self.deadline = deadline
@@ -297,22 +319,7 @@ class ControlRuntime:
         item = self.inspect("network", f"{self.receipt.project}_control")
         if item is None:
             return None
-        if (
-            self.attempt is None
-            or mapping(item.get("Labels")).get("org.omnis.start-attempt") != self.attempt
-        ):
-            raise StartError("ATTEMPT_IDENTITY_MISMATCH", 4)
-        if (
-            mapping(item.get("Labels")).get("com.docker.compose.project") != self.receipt.project
-            or item.get("Internal") is not True
-            or item.get("Driver") != "bridge"
-            or set(mapping(item.get("Containers"))) - allowed
-        ):
-            raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
-        ident = item.get("Id")
-        if not isinstance(ident, str) or not re.fullmatch(r"[0-9a-f]{64}", ident):
-            raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
-        return ident
+        return _network_identity(item, self.receipt.project, self.attempt, allowed)
 
     def attest(
         self, ident: str, role: str, root: Path, control: Path, port: int
@@ -359,7 +366,10 @@ class ControlRuntime:
             "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
             "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
-        running = mapping(item.get("State")).get("Running") is True
+        state = mapping(item.get("State"))
+        networks = mapping(net.get("Networks"))
+        network_name = self.receipt.project + "_control"
+        exited = state.get("Status") == "exited" and state.get("Running") is False
         if (
             item.get("Id") != ident
             or labels.get("com.docker.compose.project") != self.receipt.project
@@ -379,10 +389,7 @@ class ControlRuntime:
                 and any(value not in (None, []) for value in mapping(net["Ports"]).values())
             )
             or host.get("NetworkMode") != f"{self.receipt.project}_control"
-            or (
-                (running or role == "reconcile")
-                and set(mapping(net.get("Networks"))) != {f"{self.receipt.project}_control"}
-            )
+            or (set(networks) != {network_name} and not (exited and networks == {}))
             or host.get("PidMode") not in (None, "")
             or host.get("IpcMode") != "private"
             or any(
@@ -400,6 +407,38 @@ class ControlRuntime:
             or len(mounts) != len(expected)
         ):
             raise StartError("CONTAINER_IDENTITY_MISMATCH", 3)
+        network_id = self.network(set(self.ids()))
+        if networks:
+            endpoint = mapping(networks[network_name])
+            # Created/exited endpoints can have no allocated NetworkID. In that
+            # case bind the exact requested name/NetworkMode to the attested
+            # network object; a running endpoint must carry that object's ID.
+            unallocated = (
+                state.get("Status") in ("created", "exited")
+                and state.get("Running") is False
+                and endpoint.get("NetworkID") == ""
+            )
+            if (
+                network_id is None
+                or (endpoint.get("NetworkID") != network_id and not unallocated)
+                or endpoint.get("DriverOpts") not in (None, {})
+                or endpoint.get("IPAMConfig") not in (None, {})
+                or endpoint.get("Links") not in (None, [])
+            ):
+                raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
+            name = item.get("Name")
+            if not isinstance(name, str) or not name.startswith("/") or len(name) < 2:
+                raise StartError("CONTAINER_IDENTITY_MISMATCH", 3)
+            aliases = {name[1:], ident, ident[:12]}
+            if role in {"db", "api", "supervisor"}:
+                aliases.add(role)  # Compose's service alias, not a custom alias.
+            for key in ("Aliases", "DNSNames"):
+                values = endpoint.get(key)
+                if values is not None and (
+                    not isinstance(values, list)
+                    or any(not isinstance(value, str) or value not in aliases for value in values)
+                ):
+                    raise StartError("NETWORK_IDENTITY_MISMATCH", 3)
         if role != "db" and (
             config.get("User") != f"{os.getuid()}:{os.getgid()}"
             or host.get("ReadonlyRootfs") is not True

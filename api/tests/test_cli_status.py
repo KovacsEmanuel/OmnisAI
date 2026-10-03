@@ -51,6 +51,9 @@ def test_installed_cli_status_has_private_identity_and_no_http_claim(
         metadata.chmod(0o600)
         environment = {
             "PATH": os.environ.get("PATH", ""),
+            "HOME": str(ipc_directory),
+            "XDG_CONFIG_HOME": str(ipc_directory / "config"),
+            "XDG_DATA_HOME": str(ipc_directory / "data"),
             "XDG_STATE_HOME": str(state.parent),
             "XDG_RUNTIME_DIR": str(ipc_directory),
         }
@@ -84,6 +87,22 @@ def test_installed_cli_status_has_private_identity_and_no_http_claim(
         )
         assert wrong.returncode == 3
         assert json.loads(wrong.stdout)["control_ready"] is False
+        config = ipc_directory / "config" / "omnis" / "config.toml"
+        config.parent.mkdir(parents=True, mode=0o700)
+        config.write_text("port = true\n")
+        config.chmod(0o600)
+        refused = subprocess.run(
+            [binary, "status", "--json"],
+            cwd=ipc_directory,
+            env=environment,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        assert refused.returncode == 2 and refused.stderr == ""
+        assert json.loads(refused.stdout)["reason"] == "CONFIG_INVALID"
+        assert cap not in refused.stdout
     finally:
         if foreign is not None:
             foreign.close()

@@ -26,10 +26,85 @@ def _uuid(value: object) -> bool:
         return False
 
 
+def _discrete_json(value: object, depth: int = 0) -> bool:
+    if depth > 16:
+        return False
+    if type(value) is dict:
+        return all(
+            type(key) is str and _discrete_json(item, depth + 1) for key, item in value.items()
+        )
+    if type(value) is list:
+        return all(_discrete_json(item, depth + 1) for item in value)
+    return type(value) in (str, int, bool, type(None))
+
+
+def _stop_binding(command: dict[str, object]) -> dict[str, object]:
+    fields = {
+        "instance_id",
+        "command_id",
+        "finalize_command_id",
+        "generation",
+        "owner_epoch",
+        "daemon_id",
+        "inventory",
+    }
+    if set(command) != fields | {"op"} or command.get("op") != "arm_stop":
+        raise ControlUnavailable()
+    for key in ("instance_id", "command_id", "finalize_command_id"):
+        if not _uuid(command[key]):
+            raise ControlUnavailable()
+    for key in ("generation", "owner_epoch"):
+        value = command[key]
+        if type(value) is not int or not 1 <= value <= 9223372036854775807:
+            raise ControlUnavailable()
+    daemon = command["daemon_id"]
+    inventory = command["inventory"]
+    if (
+        type(daemon) is not str
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", daemon) is None
+        or type(inventory) is not dict
+        or not inventory
+        or not _discrete_json(inventory)
+    ):
+        raise ControlUnavailable()
+    # The real capability has the same fixed ASCII length. Bound the full frame
+    # before opening a socket, not after sending an unbounded inventory.
+    frame = {"version": 1, "capability": "0" * 64, "command": command}
+    if len(json.dumps(frame).encode()) + 1 > 4096:
+        raise ControlUnavailable()
+    return {key: command[key] for key in fields}
+
+
+def _stop_grant(reply: dict[str, object], command: dict[str, object]) -> dict[str, object]:
+    grant = reply.get("grant")
+    if (
+        set(reply) != {"ok", "correlation_id", "grant"}
+        or reply.get("ok") is not True
+        or type(grant) is not dict
+        or not _discrete_json(grant)
+        or not _uuid(grant.get("owner_uuid"))
+    ):
+        raise ControlUnavailable()
+    expected = {
+        **_stop_binding(command),
+        "version": 1,
+        "state": "STOP_PENDING",
+        "owner_uuid": grant["owner_uuid"],
+    }
+    actual = json.dumps(grant, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    if len(actual.encode()) > 3600 or actual != json.dumps(
+        expected, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ):
+        raise ControlUnavailable()
+    return expected
+
+
 def request(
     directory: Path, command: dict[str, object], *, deadline: float | None = None
 ) -> dict[str, object]:
     try:
+        if command.get("op") == "arm_stop":
+            _stop_binding(command)
         private_dir(directory)
         info = (directory / "control.sock").lstat()
         if (
@@ -77,6 +152,8 @@ def request(
         reply = raw
         if not isinstance(reply, dict) or not _uuid(reply.get("correlation_id")):
             raise ControlUnavailable()
+        if command.get("op") == "arm_stop":
+            return _stop_grant(reply, command)
         raw_status: object = reply.get("status")
         if reply.get("ok") is not True or not isinstance(raw_status, dict):
             raise ControlUnavailable()

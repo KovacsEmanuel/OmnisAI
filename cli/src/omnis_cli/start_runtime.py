@@ -342,13 +342,14 @@ class ControlRuntime:
             expected = {("bind", str(control), "/run/omnis-control", role == "supervisor")}
             if role == "api":
                 expected.add(("bind", str(root / "http"), "/run/omnis-http", True))
-        elif role != "migrate":
+        elif role not in {"migrate", "reconcile"}:
             raise StartError("CONTAINER_ROLE_INVALID", 3)
         expected_command = {
             "db": ["postgres"],
             "api": ["python", "-I", "-m", "omnis.serve"],
             "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
             "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
+            "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
         running = mapping(item.get("State")).get("Running") is True
         if (
@@ -390,7 +391,7 @@ class ControlRuntime:
                 f"OMNIS_DATABASE_URL=postgresql+psycopg://omnis:{password}@db:5432/omnis",
                 "OMNIS_WEB_ROOT=/opt/omnis/web",
             }
-            if role == "migrate":
+            if role in {"migrate", "reconcile"}:
                 system_id = read_record(root / "startup.json").get("system_id")
                 if not isinstance(system_id, str) or not system_id.isdecimal():
                     raise StartError("DATABASE_IDENTITY_INVALID", 4)
@@ -402,6 +403,42 @@ class ControlRuntime:
             actual_env = [v for v in environment if isinstance(v, str) and v.startswith("OMNIS_")]
             if len(actual_env) != len(expected_env) or set(actual_env) != expected_env:
                 raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
+            if role == "reconcile":
+                if (
+                    config.get("Entrypoint") not in (None, [])
+                    or config.get("Volumes")
+                    or config.get("Tty") is not False
+                    or any(
+                        config.get(key) is not True
+                        for key in (
+                            "OpenStdin",
+                            "StdinOnce",
+                            "AttachStdin",
+                            "AttachStdout",
+                            "AttachStderr",
+                        )
+                    )
+                    or host.get("Binds")
+                    or host.get("Tmpfs")
+                    or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
+                ):
+                    raise StartError("RECONCILIATION_CONFINEMENT_MISMATCH", 4)
+                image = self.inspect("image", self.receipt.image_id)
+                inherited = mapping(image.get("Config") if image else None).get("Env")
+                if not isinstance(inherited, list) or any(
+                    not isinstance(value, str) or "=" not in value
+                    for value in [*inherited, *environment]
+                ):
+                    raise StartError("CONTROL_ENV_INVALID", 4)
+                base = dict(value.split("=", 1) for value in inherited)
+                actual_values = dict(value.split("=", 1) for value in environment)
+                if len(base) != len(inherited) or len(actual_values) != len(environment):
+                    raise StartError("CONTROL_ENV_INVALID", 4)
+                for value in expected_env:
+                    key, setting = value.split("=", 1)
+                    base[key] = setting
+                if base != actual_values:
+                    raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
         return item
 
     def psql(self, ident: str, query: str) -> str:

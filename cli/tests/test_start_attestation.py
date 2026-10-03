@@ -119,6 +119,83 @@ class ProductAttestationTest(unittest.TestCase):
             "Mounts": mounts,
         }
 
+    def test_reconciliation_role_requires_exact_job_confinement_and_stdin(self):
+        from omnis_cli.lifecycle import write_record
+
+        write_record(self.root / "startup.json", {"system_id": "12345"})
+        base_env = ["PATH=/usr/local/bin:/usr/bin:/bin", "OMNIS_WEB_ROOT=/opt/omnis/web"]
+        item = self.item("supervisor")
+        item["Mounts"] = []
+        item["Config"].update(
+            Cmd=["python", "-I", "-m", "omnis.stop_reconcile"],
+            Entrypoint=None,
+            OpenStdin=True,
+            StdinOnce=True,
+            Tty=False,
+            AttachStdin=True,
+            AttachStdout=True,
+            AttachStderr=True,
+            Env=[
+                *base_env,
+                "OMNIS_DATABASE_URL=" + self.env["OMNIS_DATABASE_URL"],
+                "OMNIS_EXPECTED_SYSTEM_ID=12345",
+            ],
+        )
+        item["Config"]["Labels"]["com.docker.compose.service"] = "reconcile"
+        item["HostConfig"]["RestartPolicy"] = {"Name": "no", "MaximumRetryCount": 0}
+
+        def inspect(kind, _ident):
+            return {"Config": {"Env": base_env}} if kind == "image" else candidate
+
+        candidate = item
+        self.runtime.inspect = Mock(side_effect=inspect)
+        self.assertEqual(
+            self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port), item
+        )
+        changes = (
+            ("Cmd", ["python", "-I", "-m", "omnis.migrate"]),
+            ("Entrypoint", ["sh"]),
+            ("OpenStdin", False),
+            ("StdinOnce", False),
+            ("Tty", True),
+            ("AttachStdin", False),
+            ("AttachStdout", False),
+            ("AttachStderr", False),
+            ("User", "0:0"),
+            ("Env", [*item["Config"]["Env"], "PGHOST=foreign"]),
+            ("Env", [*item["Config"]["Env"], "LD_PRELOAD=/foreign"]),
+            ("Env", [*item["Config"]["Env"], "OMNIS_EXPECTED_SYSTEM_ID=12345"]),
+        )
+        for field, value in changes:
+            with self.subTest(field=field, value=value):
+                candidate = deepcopy(item)
+                candidate["Config"][field] = value
+                with self.assertRaises(StartError):
+                    self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        for section, change in (
+            ("HostConfig", {"RestartPolicy": {"Name": "always", "MaximumRetryCount": 0}}),
+            ("HostConfig", {"ReadonlyRootfs": False}),
+            ("HostConfig", {"CapDrop": []}),
+            ("HostConfig", {"SecurityOpt": []}),
+            ("HostConfig", {"NetworkMode": "host"}),
+            ("HostConfig", {"Binds": ["/var/run/docker.sock:/docker"]}),
+            ("HostConfig", {"Tmpfs": {"/tmp": "rw"}}),
+            (
+                "Config",
+                {"Labels": {**item["Config"]["Labels"], "org.omnis.start-attempt": "foreign"}},
+            ),
+        ):
+            with self.subTest(section=section, change=change):
+                candidate = deepcopy(item)
+                candidate[section].update(change)
+                with self.assertRaises(StartError):
+                    self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        candidate = deepcopy(item)
+        candidate["Image"] = "sha256:" + "0" * 64
+        with self.assertRaises(StartError):
+            self.runtime.attest(self.cid, "reconcile", self.root, self.control, self.port)
+        self.runtime.run.assert_not_called()
+
     def test_runtime_attestation_valid_and_one_boundary_mutations(self):
         mutations = [
             ("missing-bind", ("Mounts",), lambda x: x.pop()),

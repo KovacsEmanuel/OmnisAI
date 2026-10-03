@@ -805,6 +805,7 @@ def start_instance(
     startup_timeout: int | None = None,
     cleanup_timeout: int | None = None,
 ) -> dict[str, object]:
+    from .restart import prepare_restart, reconcile_database
     from .stop import _integer, _preflight_record, readback_stopped
 
     config = load_config()
@@ -920,8 +921,15 @@ def start_instance(
             "containers": {},
             "pgdata_identity": restarting["pgdata_identity"] if restarting is not None else None,
         }
+        restart_intent = None
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
+            try:
+                restart_intent = prepare_restart(
+                    runtime, root, control, restarting, str(record["attempt"])
+                )
+            except (OSError, ValueError, KeyboardInterrupt):
+                raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
         runtime.attempt = str(record["attempt"])
         write_record(journal, record, replace=restarting is not None)
         owner = ForwarderOwnership()
@@ -1012,6 +1020,8 @@ def start_instance(
                 restarting is not None and identity != restarting["instance_id"]
             ):
                 raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
+            if restart_intent is not None:
+                reconcile_database(runtime, root, control, record, restart_intent, env)
             record.update(phase="SERVICES", instance_id=identity)
             write_record(journal, record, replace=True)
             runtime.compose(
@@ -1137,6 +1147,19 @@ def start_instance(
                 if signal.getsignal(sig) is _interrupt:
                     signal.signal(sig, signal.SIG_IGN)
             failed_phase = record["phase"]
+            if restarting is not None:
+                # Do not erase the only running DB/readback path after a possibly
+                # committed reconciliation. No cleanup, rebind or blind job retry.
+                record.update(
+                    phase="UNCERTAIN",
+                    failed_phase=failed_phase,
+                    failure="RESTART_RECONCILIATION_REQUIRED",
+                )
+                try:
+                    write_record(journal, record, replace=True)
+                except (OSError, ValueError):
+                    pass  # Separate immutable STOPPED copy and restart intent survive.
+                raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
             if owner.process is not None:
                 # Locator only, never authority to signal a metadata PID on retry.
                 record["forwarder_spawn_pid"] = owner.process.pid

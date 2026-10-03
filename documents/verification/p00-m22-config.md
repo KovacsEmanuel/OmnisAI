@@ -3,6 +3,8 @@
 Bază: `ad3e1f28825ab6ff38361b940bbf3482493d03e4`, branch `p0-m22-config`.
 Scope: U21–U23, parser strict și consumatorii P0 actuali; nu aprobă SL04/G00.
 
+**Delta de integrare, după predarea istorică de mai jos:** parserul și fixurile `58aa37a`/`e767a87` sunt integrate local până la `ffbdd6a`. Re-reviewul independent `deleg_8f90ae49` pe exact `e767a87` a dat APPROVED_SCOPED pentru TOML/diagnostic: wheel195 și40 scenarii proprii, fără rebind, nu OCI sau deadline-uri fizice. Compoziția principală a trecut ulterior CLI202 sursă/wheel, dar `make check` pe `d81a396` a eșuat la fixture-ul status care omitea HOME/XDG_CONFIG_HOME. `7192172` repară mediul testului, nu parserul; pozitivul PG post-fix încă așteaptă gate-ul serial. U22/U23 fizice și G00 rămân deschise; [registrul curent](p04-stop-recovery.md) separă cod/probe/review.
+
 ## Contract de implementare și probă
 
 - Config numai `$XDG_CONFIG_HOME/omnis/config.toml`, implicit `~/.config/omnis/config.toml`; lipsa nu creează directoare/fișiere.

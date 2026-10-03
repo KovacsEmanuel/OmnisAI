@@ -1,6 +1,7 @@
 """Physical authority schema contracts, including validated PostgreSQL 18 constraints."""
 
 from sqlalchemy import text
+from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 type ColumnSpec = tuple[str, bool, str | None]
@@ -156,6 +157,7 @@ AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
+    quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
         columns = (
             await connection.execute(
@@ -178,7 +180,7 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             )
         ).all()
         required = {
-            (f"{table}_{name}_not_null", "n", f"NOT NULL {name}", True, True)
+            (f"{table}_{name}_not_null", "n", f"NOT NULL {quote_identifier(name)}", True, True)
             for name, (_, not_null, _) in expected_columns.items()
             if not_null
         }

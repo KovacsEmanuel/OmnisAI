@@ -363,7 +363,8 @@ class ControlRuntime:
             or any(mapping(net.get("Ports")).values())
             or host.get("NetworkMode") != f"{self.receipt.project}_control"
             or (
-                running and set(mapping(net.get("Networks"))) != {f"{self.receipt.project}_control"}
+                (running or role == "reconcile")
+                and set(mapping(net.get("Networks"))) != {f"{self.receipt.project}_control"}
             )
             or host.get("PidMode")
             or host.get("IpcMode") == "host"

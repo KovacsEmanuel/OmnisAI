@@ -126,6 +126,7 @@ class ProductAttestationTest(unittest.TestCase):
         base_env = ["PATH=/usr/local/bin:/usr/bin:/bin", "OMNIS_WEB_ROOT=/opt/omnis/web"]
         item = self.item("supervisor")
         item["Mounts"] = []
+        item["State"]["Running"] = False  # Must attest the created job BEFORE start.
         item["Config"].update(
             Cmd=["python", "-I", "-m", "omnis.stop_reconcile"],
             Entrypoint=None,
@@ -180,6 +181,7 @@ class ProductAttestationTest(unittest.TestCase):
             ("HostConfig", {"NetworkMode": "host"}),
             ("HostConfig", {"Binds": ["/var/run/docker.sock:/docker"]}),
             ("HostConfig", {"Tmpfs": {"/tmp": "rw"}}),
+            ("NetworkSettings", {"Networks": {"foreign": {}}}),
             (
                 "Config",
                 {"Labels": {**item["Config"]["Labels"], "org.omnis.start-attempt": "foreign"}},

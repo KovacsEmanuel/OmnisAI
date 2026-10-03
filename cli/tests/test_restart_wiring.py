@@ -30,6 +30,9 @@ class RestartWiringTest(unittest.TestCase):
     def test_old_bytes_survive_crash_before_first_db_effect(self):
         self.restart("crash")
 
+    def test_startup_journal_write_loss_keeps_copy_and_intent_and_exit_four(self):
+        self.restart("journal-write")
+
     def restart(self, fault=None):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             # This fixture replaces ONLY owner proof for wiring; real owner tests are separate.
@@ -164,6 +167,12 @@ class RestartWiringTest(unittest.TestCase):
                 }
 
             def saved(path, value, **kwargs):
+                if (
+                    fault == "journal-write"
+                    and path == journal
+                    and value.get("phase") == "STARTING"
+                ):
+                    raise OSError("synthetic startup journal write loss")
                 if fault == "ack-write" and path == intent_path and value.get("state") == "ACKED":
                     raise OSError("synthetic ENOSPC at ACK")
                 write_record(path, value, **kwargs)
@@ -180,6 +189,7 @@ class RestartWiringTest(unittest.TestCase):
                         },
                     ),
                     patch.object(start, "ControlRuntime", return_value=runtime),
+                    patch.object(start, "write_record", side_effect=saved),
                     patch("omnis_cli.stop_owner.verify_stop_completion"),
                     patch.object(start, "preflight_port"),
                     patch.object(
@@ -234,7 +244,7 @@ class RestartWiringTest(unittest.TestCase):
                 self.assertEqual(read_record(intent_path)["old_stop_command"], old["stop_command"])
                 if fault:
                     self.assertNotIn("create-services", events)
-                    if fault != "crash":
+                    if fault not in {"crash", "journal-write"}:
                         self.assertIn(db, resources)
                     before = list(events)
                     again, _ = start.start_result(None)

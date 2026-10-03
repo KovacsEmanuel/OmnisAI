@@ -931,9 +931,9 @@ def start_instance(
             except (OSError, ValueError, KeyboardInterrupt):
                 raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
         runtime.attempt = str(record["attempt"])
-        write_record(journal, record, replace=restarting is not None)
         owner = ForwarderOwnership()
         try:
+            write_record(journal, record, replace=restarting is not None)
             ensure_private(control)
             ensure_private(root / "http")
             if restarting is None:

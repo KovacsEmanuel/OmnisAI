@@ -58,6 +58,10 @@ def validate_grant(
     grant: dict[str, object], record: dict[str, object], inventory: dict[str, object]
 ) -> None:
     raw = encoded(grant)
+    try:
+        issuer = uuid(grant.get("owner_uuid"))
+    except ValueError:
+        raise StartError("STOP_GRANT_INVALID", 4) from None
     for key in ("stop_command", "finalize_command", "instance_id"):
         uuid(record.get(key))
     for key in ("stop_generation", "finalized_generation", "stop_expected", "supervisor_epoch"):
@@ -71,6 +75,7 @@ def validate_grant(
         "finalize_command_id": record["finalize_command"],
         "generation": record["stop_generation"],
         "owner_epoch": record["supervisor_epoch"],
+        "owner_uuid": issuer,
         "daemon_id": record["docker_id"],
         "inventory": inventory,
     }

@@ -39,7 +39,9 @@ verify_stop_completion(runtime, root, control, record, grant=None) -> None
   supervisorului. `startup.json` trebuie să fie identic cu obiectul transmis.
   Ownerul **nu scrie niciodată `startup.json`**.
 - Grantul are exact cheile `version`, `state`, `instance_id`, `command_id`,
-  `finalize_command_id`, `generation`, `owner_epoch`, `daemon_id`, `inventory`;
+  `finalize_command_id`, `generation`, `owner_epoch`, `owner_uuid`, `daemon_id`, `inventory`;
+  `owner_uuid` păstrează UUID-ul canonic al issuerului din grantul DB autentificat;
+  validatorul local nu pretinde că îl poate reautoriza fără DB.
   `version=1`, `state=STOP_PENDING`, tipuri discrete exacte. Un grant mixt,
   `STOP_UNCERTAIN`, bool în loc de int, float sau cheie suplimentară refuză.
 - Receiptul separat este `root / f"stop-{stop_command}.json"`, derivat prin

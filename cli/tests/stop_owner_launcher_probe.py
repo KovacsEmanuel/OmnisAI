@@ -38,6 +38,7 @@ def main():
             "finalize_command_id": record["finalize_command"],
             "generation": 2,
             "owner_epoch": 1,
+            "owner_uuid": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
             "daemon_id": record["docker_id"],
             "inventory": inventory,
         }

@@ -33,15 +33,26 @@ class StopReceiptTests(unittest.TestCase):
             "finalize_command_id": record["finalize_command"],
             "generation": 2,
             "owner_epoch": 1,
+            "owner_uuid": str(uuid4()),
             "daemon_id": record["docker_id"],
             "inventory": inventory,
         }
         validate_grant(grant, record, inventory)
+        with self.assertRaises(StartError):
+            validate_grant(
+                {key: value for key, value in grant.items() if key != "owner_uuid"},
+                record,
+                inventory,
+            )
         for key, value in (
             ("version", True),
             ("generation", 2.0),
             ("state", "STOP_UNCERTAIN"),
             ("command_id", str(uuid4())),
+            ("owner_uuid", None),
+            ("owner_uuid", True),
+            ("owner_uuid", "not-a-uuid"),
+            ("owner_uuid", "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA"),
             ("extra", 1),
         ):
             with self.subTest(key=key), self.assertRaises(StartError):

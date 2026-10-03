@@ -401,6 +401,7 @@ class Fixture:
             "finalize_command_id": self.record["finalize_command"],
             "generation": 2,
             "owner_epoch": 1,
+            "owner_uuid": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
             "daemon_id": "synthetic-stop-daemon",
             "inventory": inventory,
         }

@@ -110,7 +110,10 @@ class ControlRuntime:
         cap: float = 15,
         success: bool = True,
         effect: bool = False,
+        stdin: bytes | None = None,
     ) -> subprocess.CompletedProcess[str]:
+        if stdin is not None and (type(stdin) is not bytes or len(stdin) > 16384):
+            raise StartError("COMMAND_INPUT_LIMIT", 4)
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
         # Library callers retain their signal policy. Auto-reap and SIGCHLD
         # handlers invalidate the declared owner contract; refuse before effects.
@@ -127,7 +130,7 @@ class ControlRuntime:
             argv,
             cwd=self.release,
             env={"PATH": SAFE_PATH, **(env or {})},
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             start_new_session=True,
@@ -143,12 +146,29 @@ class ControlRuntime:
             with selectors.DefaultSelector() as reader:
                 reader.register(process.stdout, selectors.EVENT_READ, 0)
                 reader.register(process.stderr, selectors.EVENT_READ, 1)
+                sent = 0
+                if process.stdin is not None:
+                    os.set_blocking(process.stdin.fileno(), False)
+                    if stdin:
+                        reader.register(process.stdin, selectors.EVENT_WRITE, 2)
+                    else:
+                        process.stdin.close()
                 total = 0
                 while reader.get_map():
                     events = reader.select(remaining(end, cap))
                     if not events:
                         raise StartError("STARTUP_TIMEOUT", 3)
                     for key, _ in events:
+                        if key.data == 2:
+                            assert stdin is not None and process.stdin is not None
+                            try:
+                                sent += os.write(key.fd, stdin[sent:])
+                            except BlockingIOError:
+                                continue
+                            if sent == len(stdin):
+                                reader.unregister(key.fd)
+                                process.stdin.close()  # Real EOF, not a JSON delimiter.
+                            continue
                         part = os.read(key.fd, min(65536, 4 * 1024 * 1024 + 1 - total))
                         if not part:
                             reader.unregister(key.fd)
@@ -202,8 +222,12 @@ class ControlRuntime:
                     if process.stdout is not None:
                         process.stdout.close()
                 finally:
-                    if process.stderr is not None:
-                        process.stderr.close()
+                    try:
+                        if process.stderr is not None:
+                            process.stderr.close()
+                    finally:
+                        if process.stdin is not None:
+                            process.stdin.close()
         result = subprocess.CompletedProcess(
             argv, process.returncode, buffers[0].decode(), buffers[1].decode()
         )

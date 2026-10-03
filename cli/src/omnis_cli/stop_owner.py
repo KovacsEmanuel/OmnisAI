@@ -170,22 +170,27 @@ def _process_stamp(identity: dict[str, object]) -> dict[str, object]:
 
 
 def _container_fingerprint(item: dict[str, object]) -> str:
-    return fingerprint(
-        {
-            key: item.get(key)
-            for key in (
-                "Id",
-                "Image",
-                "Config",
-                "HostConfig",
-                "Mounts",
-                "Path",
-                "Args",
-                "Name",
-                "Created",
-            )
-        }
-    )
+    fields = {
+        key: item.get(key)
+        for key in (
+            "Id",
+            "Image",
+            "Config",
+            "HostConfig",
+            "Mounts",
+            "Path",
+            "Args",
+            "Name",
+            "Created",
+        )
+    }
+    mounts = fields["Mounts"]
+    if not isinstance(mounts, list):
+        raise StartError("STOP_CONTAINER_DRIFT", 4)
+    # Engine inspect can reorder Mounts between reads of the same container.
+    # Keep every entry/field (including duplicates); normalize only the ordering.
+    fields["Mounts"] = sorted(mounts, key=encoded)
+    return fingerprint(fields)
 
 
 def _network_fingerprint(item: dict[str, object]) -> str:

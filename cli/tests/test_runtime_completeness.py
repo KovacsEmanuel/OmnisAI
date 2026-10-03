@@ -234,6 +234,35 @@ class RuntimeCompletenessTest(unittest.TestCase):
                     self.install(role)["Config"]["Entrypoint"] = entrypoint
                     self.check(role)
 
+    def test_f03_no_publish_all_or_nested_port_bindings_before_start(self):
+        for role in ROLES:
+            for state in ("created", "running", "exited"):
+                for section, field, bad in (
+                    ("HostConfig", "PublishAllPorts", True),
+                    ("HostConfig", "PublishAllPorts", 0),
+                    ("HostConfig", "PublishAllPorts", None),
+                    ("HostConfig", "PortBindings", []),
+                    ("HostConfig", "PortBindings", ""),
+                    ("HostConfig", "PortBindings", False),
+                    ("HostConfig", "PortBindings", {"5432/tcp": [{"HostPort": "1234"}]}),
+                    ("NetworkSettings", "Ports", {"5432/tcp": [{"HostPort": "1234"}]}),
+                    ("NetworkSettings", "Ports", {"5432/tcp": {}}),
+                    ("NetworkSettings", "Ports", {"5432/tcp": False}),
+                    ("NetworkSettings", "Ports", {"5432/tcp": ""}),
+                ):
+                    with self.subTest(role=role, state=state, field=field, bad=bad):
+                        item = self.install(role, state)
+                        item["Config"]["ExposedPorts"] = {"5432/tcp": {}}
+                        item[section][field] = bad
+                        self.check(role, reject=True)
+            for bindings in (None, {}):
+                for ports in (None, {}, {"5432/tcp": None}, {"5432/tcp": []}):
+                    item = self.install(role, "created")
+                    item["Config"]["ExposedPorts"] = {"5432/tcp": {}}
+                    item["HostConfig"]["PortBindings"] = bindings
+                    item["NetworkSettings"]["Ports"] = ports
+                    self.check(role)
+
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()
         self.assertEqual(

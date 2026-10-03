@@ -365,8 +365,12 @@ class ControlRuntime:
                 else config.get("Entrypoint") not in (None, [])
             )
             or host.get("Privileged") is not False
-            or host.get("PortBindings")
-            or any(mapping(net.get("Ports")).values())
+            or host.get("PublishAllPorts") is not False
+            or host.get("PortBindings") not in (None, {})
+            or (
+                net.get("Ports") is not None
+                and any(value not in (None, []) for value in mapping(net["Ports"]).values())
+            )
             or host.get("NetworkMode") != f"{self.receipt.project}_control"
             or (
                 (running or role == "reconcile")

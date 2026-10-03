@@ -19,16 +19,24 @@ def run_installed_stop(data, receipt, cli):
     cwd = state / "cwd"
     cwd.mkdir(mode=0o700)
     (cwd / "compose.yaml").write_text("foreign: ignored\n")
+    config_home = state / "config"
+    config_dir = config_home / "omnis"
+    config_dir.mkdir(parents=True, mode=0o700)
+    config_home.chmod(0o700)
     env = {
         "PATH": "/usr/bin:/bin",
         "HOME": str(state),
         "XDG_DATA_HOME": str(data),
+        "XDG_CONFIG_HOME": str(config_home),
         "XDG_STATE_HOME": str(state / "s"),
         "XDG_RUNTIME_DIR": str(state / "r"),
     }
     with socket.socket() as reservation:
         reservation.bind(("127.0.0.1", 0))
         port = reservation.getsockname()[1]
+    config = config_dir / "config.toml"
+    config.write_text(f"port = {port}\n")
+    config.chmod(0o600)
     runtime = ControlRuntime(data, time.monotonic() + 30)
     assert runtime.receipt.image_id == receipt["image_id"]
     record = {}
@@ -48,15 +56,30 @@ def run_installed_stop(data, receipt, cli):
         return json.loads(result.stdout)
 
     try:
-        started = command("start", "--no-open", "--port", str(port), "--json")
+        started = command("start", "--no-open", "--json")
         assert started["state"] == "READY" and started["assessment_ready"] is False
+        assert started["origin"] == f"http://127.0.0.1:{port}"
         record = json.loads((root / "startup.json").read_text())
+        assert record["port"] == port
         runtime.attempt = record["attempt"]
         runtime.deadline = time.monotonic() + 30
         before = resource_snapshot(runtime, root, control, port)
+        before_journal = (root / "startup.json").read_bytes()
+        before_instance = (root / "instance.json").read_bytes()
+        original_config = config.read_bytes()
+        conflict_port = port + 1 if port < 65535 else port - 1
+        try:
+            config.write_text(f"port = {conflict_port}\n")
+            conflicting = command("start", "--no-open", "--json", expected=2)
+            assert conflicting["reason"] == "CONFIG_PORT_CONFLICT"
+            assert (root / "startup.json").read_bytes() == before_journal
+            assert (root / "instance.json").read_bytes() == before_instance
+            assert resource_snapshot(runtime, root, control, port) == before
+        finally:
+            config.write_bytes(original_config)
+            assert config.read_bytes() == original_config
         initial = request(control, {"op": "status"})
         assert initial["admission_open"] is True and initial["generation"] == 1
-        before_journal = (root / "startup.json").read_bytes()
         db = record["containers"]["db"]
         runtime.psql(db, "CREATE TABLE sl04_sentinel (value integer NOT NULL)")
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
@@ -87,7 +110,7 @@ def run_installed_stop(data, receipt, cli):
                 timeout=50,
             )
             queued = subprocess.run(
-                [cli, "start", "--no-open", "--port", str(port), "--json"],
+                [cli, "start", "--no-open", "--json"],
                 cwd=cwd,
                 env=env,
                 capture_output=True,
@@ -134,8 +157,9 @@ def run_installed_stop(data, receipt, cli):
                     if time.monotonic() >= until:
                         raise AssertionError("Owned listener did not release its port") from None
             time.sleep(0.2)
-        restarted = command("start", "--no-open", "--port", str(port), "--json")
+        restarted = command("start", "--no-open", "--json")
         assert restarted["state"] == "READY" and restarted["generation"] > initial["generation"]
+        assert restarted["origin"] == started["origin"]
         assert restarted["supervisor_epoch"] > initial["supervisor_epoch"]
         assert restarted["instance_id"] == started["instance_id"]
         record = json.loads((root / "startup.json").read_text())

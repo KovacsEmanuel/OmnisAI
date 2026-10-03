@@ -10,6 +10,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from uuid import UUID
 
 from installed_pair_open import command, opener_outcome, prove, tty_default, tty_pair
 from omnis_cli.control import request
@@ -48,8 +49,10 @@ def resource_snapshot(runtime, root, control, port):
 class ForwarderObservation:
     """Test-only pins captured from a verified direct child, never a journal PID."""
 
-    def __init__(self, root, port, parent):
+    def __init__(self, root, port, parent, attempt):
+        assert type(attempt) is str and str(UUID(attempt)) == attempt, "Unowned forwarder attempt"
         self.root, self.port, self.parent = root, port, parent
+        self.attempt = attempt
         self.pins = {}
         self.inodes = set()
 
@@ -69,6 +72,8 @@ class ForwarderObservation:
                 str(self.root / "http"),
                 "--port",
                 str(self.port),
+                "--stop-attempt",
+                self.attempt,
             ], "Unowned forwarder argv"
             self.pins[pid] = pin
         except BaseException:
@@ -742,12 +747,13 @@ def run_interrupted_start(data, receipt, cli, *, phase="VERIFYING", expire_dashb
             text=True,
         )
         pidfd = os.pidfd_open(process.pid)
-        observer = ForwarderObservation(root, port, process.pid)
         deadline = time.monotonic() + 45
         while time.monotonic() < deadline:
             if (root / "startup.json").exists():
                 record = json.loads((root / "startup.json").read_text())
                 if record.get("phase") == phase:
+                    if observer is None:
+                        observer = ForwarderObservation(root, port, process.pid, record["attempt"])
                     stage_observed = time.monotonic()
                     if phase == "FORWARDING":
                         observer.discover()

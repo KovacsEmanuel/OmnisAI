@@ -11,6 +11,7 @@ import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import installed_start as probe
@@ -45,6 +46,7 @@ def leaking_cli():
         (root / "http/api.sock").chmod(0o600)
         peer.listen(1)
         port = sys.argv[sys.argv.index("--port") + 1]
+        attempt = str(uuid4())
         subprocess.Popen(
             [
                 sys.executable,
@@ -55,11 +57,13 @@ def leaking_cli():
                 str(root / "http"),
                 "--port",
                 port,
+                "--stop-attempt",
+                attempt,
             ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        record = {"phase": "FORWARDING", "containers": {}, "attempt": "test-only"}
+        record = {"phase": "FORWARDING", "containers": {}, "attempt": attempt}
         (root / "startup.json").write_text(json.dumps(record))
         stopped = False
 

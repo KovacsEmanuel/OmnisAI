@@ -10,14 +10,30 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from uuid import uuid4
 
 import installed_start
 
 
 class IndependentForwarderOracleTest(unittest.TestCase):
+    def test_invalid_attempt_is_not_observer_authority(self):
+        for attempt in (
+            None,
+            True,
+            1,
+            {},
+            [],
+            "test-only",
+            uuid4().hex,
+            "ABCDEFAB-1234-4567-89ab-ABCDEFABCDEF",
+        ):
+            with self.subTest(attempt=attempt), self.assertRaises((AssertionError, ValueError)):
+                installed_start.ForwarderObservation(Path("/unused"), 8765, os.getpid(), attempt)
+
     def test_missing_journal_identity_does_not_hide_live_forwarder(self):
         with tempfile.TemporaryDirectory(prefix="fo-", dir=os.environ["TMPDIR"]) as name:
             root = Path(name)
+            attempt = str(uuid4())
             http = root / "http"
             http.mkdir(mode=0o700)
             with socket.socket(socket.AF_UNIX) as peer, socket.socket() as reservation:
@@ -37,6 +53,8 @@ class IndependentForwarderOracleTest(unittest.TestCase):
                         str(http),
                         "--port",
                         str(port),
+                        "--stop-attempt",
+                        attempt,
                     ],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -46,9 +64,32 @@ class IndependentForwarderOracleTest(unittest.TestCase):
                 try:
                     self.assertTrue(select.select([child.stdout], [], [], 5)[0])
                     self.assertEqual(child.stdout.readline(), b"FORWARDER_READY\n")
+                    # The new flag is exact identity, not an arbitrary argv suffix.
+                    for observed_root, observed_port, parent, nonce, reason in (
+                        (root, port, os.getpid(), str(uuid4()), "argv"),
+                        (root / "foreign", port, os.getpid(), attempt, "argv"),
+                        (root, port + 1, os.getpid(), attempt, "argv"),
+                        (root, port, os.getpid() + 1, attempt, "parent"),
+                    ):
+                        with self.subTest(boundary=reason, root=observed_root, nonce=nonce):
+                            denied = installed_start.ForwarderObservation(
+                                observed_root, observed_port, parent, nonce
+                            )
+                            before = set(Path("/proc/self/fd").iterdir())
+                            try:
+                                with self.assertRaisesRegex(
+                                    AssertionError, "Unowned forwarder " + reason
+                                ):
+                                    denied.pin(child.pid)
+                                self.assertEqual(denied.pins, {})
+                                self.assertEqual(set(Path("/proc/self/fd").iterdir()), before)
+                                self.assertIsNone(child.poll())
+                            finally:
+                                denied.close()
                     # Snapshot is observer-owned, not taken from a product journal.
-                    observer_type = getattr(installed_start, "ForwarderObservation", None)
-                    observer = observer_type(root, port, os.getpid()) if observer_type else None
+                    observer = installed_start.ForwarderObservation(
+                        root, port, os.getpid(), attempt
+                    )
                     if observer is not None:
                         observer.pin(child.pid)
                         observer.snapshot_listener()

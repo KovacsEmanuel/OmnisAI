@@ -464,7 +464,11 @@ class InstalledStartObserverTest(unittest.TestCase):
             root = state / "s/omnis"
             root.mkdir(parents=True, mode=0o700)
             journal = root / "startup.json"
-            initial = {"attempt": "synthetic", "phase": "VERIFYING", "containers": {}}
+            initial = {
+                "attempt": "11111111-1111-4111-8111-111111111111",
+                "phase": "VERIFYING",
+                "containers": {},
+            }
             journal.write_text(json.dumps(initial))
             journal.chmod(0o600)
             survivors = []
@@ -507,7 +511,7 @@ class InstalledStartObserverTest(unittest.TestCase):
                     patch.object(probe.tempfile, "mkdtemp", return_value=str(state)),
                     patch.object(probe, "ControlRuntime", return_value=runtime),
                     patch.object(probe.subprocess, "Popen", return_value=process),
-                    patch.object(probe.subprocess, "run", side_effect=retry),
+                    patch.object(probe.subprocess, "run", side_effect=retry) as retry_call,
                     patch.object(probe.os, "pidfd_open", return_value=fd),
                     patch.object(probe.signal, "pidfd_send_signal"),
                     patch.object(probe, "teardown", side_effect=rescue) as teardown_call,
@@ -519,6 +523,7 @@ class InstalledStartObserverTest(unittest.TestCase):
                 self.assertFalse(
                     teardown_call.called, "Timed-out retry must not authorize DB rescue"
                 )
+                retry_call.assert_called_once()
                 self.assertEqual(
                     json.loads((state / "probe-receipt.json").read_text())["cleanup"], "UNCERTAIN"
                 )

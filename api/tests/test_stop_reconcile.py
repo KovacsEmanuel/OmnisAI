@@ -2,6 +2,9 @@
 
 import importlib.util
 import json
+import os
+import select
+import signal
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -234,6 +237,99 @@ def test_stdin_exact_byte_boundary(tmp_path: Path, size: int, accepted: bool) ->
         else:
             with pytest.raises(ValueError):
                 read_request(stream.fileno())
+
+
+@pytest.mark.parametrize("mode", ["success", "cancel_db", "cancel_dispose"])
+def test_job_cancellation_is_sanitized_at_process_boundary(tmp_path: Path, mode: str) -> None:
+    # Real main/execute/asyncio; only DB service and engine are substituted.
+    script = """import asyncio, signal, sys
+from types import SimpleNamespace
+import omnis.stop_reconcile as job
+mode = sys.argv[1]
+sys.argv = ["stop_reconcile"]
+async def cancel():
+    asyncio.current_task().cancel("synthetic-cancel-secret")
+    await asyncio.sleep(0)
+async def dispose():
+    if mode == "cancel_dispose":
+        await cancel()
+class Service:
+    def __init__(self, engine): pass
+    async def reconcile_stop(self, request):
+        if mode == "cancel_db":
+            await cancel()
+        return request.model_dump(mode="json")
+job.database_engine = lambda url: SimpleNamespace(dispose=dispose)
+job.InstanceService = Service
+result = job.main()
+assert signal.alarm(0) == 0, "job left its alarm armed"
+raise SystemExit(result)
+"""
+    body = reconciliation_payload()
+    result = subprocess.run(
+        [sys.executable, "-I", "-c", script, mode],
+        input=json.dumps(body).encode(),
+        env={"OMNIS_DATABASE_URL": "synthetic", "OMNIS_EXPECTED_SYSTEM_ID": "123456789"},
+        cwd=tmp_path,
+        capture_output=True,
+        timeout=5,
+    )
+    assert result.returncode == (0 if mode == "success" else 4)
+    assert result.stderr == b""
+    assert b"synthetic-cancel-secret" not in result.stdout + result.stderr
+    reply = json.loads(result.stdout)
+    assert reply["correlation_id"] == body["reconciliation_id"]
+    if mode == "success":
+        assert reply["ok"] is True and reply["receipt"] == body
+    else:
+        assert reply == {
+            "ok": False,
+            "correlation_id": body["reconciliation_id"],
+            "error": "RECONCILIATION_REFUSED",
+        }
+
+
+def test_job_sigint_during_open_stdin_is_sanitized(tmp_path: Path) -> None:
+    reader, writer = os.pipe()
+    script = """import os, signal, sys
+import omnis.stop_reconcile as job
+signal.signal(signal.SIGINT, signal.default_int_handler)
+sys.argv = ["stop_reconcile"]
+original = job.read_request
+def ready():
+    os.write(int(os.environ["READY_FD"]), b"R")
+    return original()
+job.read_request = ready
+raise SystemExit(job.main())
+"""
+    try:
+        with subprocess.Popen(
+            [sys.executable, "-I", "-c", script],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={"READY_FD": str(writer)},
+            pass_fds=(writer,),
+            cwd=tmp_path,
+        ) as process:
+            pin = os.pidfd_open(process.pid)
+            try:
+                assert select.select([reader], [], [], 4)[0]
+                assert os.read(reader, 1) == b"R"
+                signal.pidfd_send_signal(pin, signal.SIGINT)
+                assert process.wait(timeout=4) == 4
+                assert process.stdout is not None and process.stderr is not None
+                reply = json.loads(process.stdout.read())
+                assert reply["ok"] is False and reply["error"] == "RECONCILIATION_REFUSED"
+                assert process.stderr.read() == b""
+            finally:
+                if process.poll() is None:
+                    signal.pidfd_send_signal(pin, signal.SIGKILL)
+                    process.wait(timeout=2)
+                os.close(pin)
+    finally:
+        os.close(reader)
+        os.close(writer)
 
 
 def test_reconciliation_has_real_service_and_fixed_entrypoint() -> None:

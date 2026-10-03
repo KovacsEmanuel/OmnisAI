@@ -62,7 +62,7 @@ async def execute(request: StopReconciliation) -> dict[str, object]:
             await engine.dispose()
 
 
-def main() -> int:
+def _run_job() -> int:
     correlation = str(uuid4())
 
     def deadline(_signum: int, _frame: FrameType | None) -> None:
@@ -97,7 +97,7 @@ def main() -> int:
     except (ValueError, RecursionError, OSError):
         response = {"ok": False, "correlation_id": correlation, "error": "INVALID_RECONCILIATION"}
         result = 4
-    except ControlConflict:
+    except (ControlConflict, asyncio.CancelledError, KeyboardInterrupt):
         response = {"ok": False, "correlation_id": correlation, "error": "RECONCILIATION_REFUSED"}
         result = 4
     except SQLAlchemyError:
@@ -110,11 +110,18 @@ def main() -> int:
     try:
         sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\n")
         sys.stdout.flush()
-    except (OSError, ValueError):
+    except (OSError, ValueError, KeyboardInterrupt):
         return 4
+    return result
+
+
+def main() -> int:
+    # Cancellation still unwinds execute()/the DB transaction and disposal.
+    # Only the process boundary translates it; never expose its message.
+    try:
+        return _run_job()
     finally:
         signal.alarm(0)
-    return result
 
 
 if __name__ == "__main__":

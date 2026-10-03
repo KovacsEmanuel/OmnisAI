@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import patch
 from uuid import uuid4
 
-from omnis_cli.lifecycle import read_record, write_record
+from omnis_cli.lifecycle import StartError, read_record, write_record
 from omnis_cli.stop_owner import _view
 from omnis_cli.stop_receipt import receipt_path
 from stop_owner_fixture import Fixture, owner_test_argv
@@ -24,6 +24,14 @@ stop = importlib.import_module("omnis_cli.stop")
 
 class LifecycleConsumerProcessTest(unittest.TestCase):
     def test_real_stop_client_owner_and_repeat_use_completed_receipt(self):
+        self.stop_cycle()
+
+    def test_completed_owner_survives_both_sides_of_stopped_publication(self):
+        for cut in ("before", "after"):
+            with self.subTest(cut=cut):
+                self.stop_cycle(cut)
+
+    def stop_cycle(self, cut=None):
         fixture = Fixture()
         original = subprocess.Popen
         operations, failures = [], []
@@ -88,6 +96,16 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
 
             server = threading.Thread(target=serve)
             server.start()
+            injected = []
+
+            def publish(path, value, **kwargs):
+                if cut and value.get("phase") == "STOPPED" and not injected:
+                    injected.append(cut)
+                    if cut == "after":
+                        write_record(path, value, **kwargs)
+                    raise OSError("synthetic interrupted STOPPED publication")
+                write_record(path, value, **kwargs)
+
             try:
                 with (
                     patch.dict(
@@ -103,6 +121,7 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                     patch.object(stop, "verify_running"),
                     patch.object(stop, "_running_for_stop", return_value=status(ready)),
                     patch.object(stop, "_finalized_db_readback"),
+                    patch.object(stop, "write_record", side_effect=publish),
                     patch.object(fixture.runtime, "ids", side_effect=view.ids),
                     patch.object(fixture.runtime, "inspect", side_effect=view.inspect),
                     patch.object(fixture.runtime, "network", side_effect=view.network),
@@ -117,7 +136,17 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                         stop, "_emergency_stop", side_effect=AssertionError("unexpected emergency")
                     ),
                 ):
-                    self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                    if cut:
+                        with self.assertRaises(StartError) as caught:
+                            stop.stop_instance()
+                        self.assertEqual(caught.exception.code, 4)
+                        self.assertEqual(injected, [cut])
+                        self.assertEqual(
+                            read_record(fixture.root / "startup.json")["phase"],
+                            "STOPPING" if cut == "before" else "STOPPED",
+                        )
+                    else:
+                        self.assertEqual(stop.stop_instance()["state"], "STOPPED")
                     complete = read_record(receipt_path(fixture.root, fixture.record))
                     self.assertEqual(complete["state"], "COMPLETED")
                     effects = [

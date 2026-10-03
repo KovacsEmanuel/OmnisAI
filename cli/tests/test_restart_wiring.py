@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 from uuid import uuid4
 
+from omnis_cli.instance import load_instance
 from omnis_cli.lifecycle import StartError, read_record, write_record
 from omnis_cli.stop_receipt import receipt_path
 from test_stop import private_stop_fixture
@@ -33,9 +34,13 @@ class RestartWiringTest(unittest.TestCase):
     def test_startup_journal_write_loss_keeps_copy_and_intent_and_exit_four(self):
         self.restart("journal-write")
 
+    def test_post_ack_service_failure_keeps_database_and_blocks_replay(self):
+        self.restart("post-ack")
+
     def restart(self, fault=None):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
-            # This fixture replaces ONLY owner proof for wiring; real owner tests are separate.
+            # Owner proof is synthetic; DB/OCI/HTTP/forwarder seams are enumerated below.
+            # Real owner/client/forwarder and death probes run separately.
             journal = root / "startup.json"
             old_raw = (json.dumps(old, indent=2) + "\r\n").encode()
             journal.write_bytes(old_raw)
@@ -60,6 +65,8 @@ class RestartWiringTest(unittest.TestCase):
             (root / "forwarder.log").chmod(0o600)
             events, resources, requests = [], {}, []
             db, job = "1" * 64, "2" * 64
+            api, supervisor = "4" * 64, "5" * 64
+            runtime.files = {}
             intent_path = root / f"restart-{old['stop_command']}.json"
             copy_path = root / f"stopped-{old['stop_command']}.json"
 
@@ -78,12 +85,17 @@ class RestartWiringTest(unittest.TestCase):
                     events.append("create-services")
                     self.assertEqual(read_record(intent_path)["state"], "ACKED")
                     self.assertEqual(read_record(intent_path)["ack"]["receipt"], requests[0])
-                    raise StartError("SYNTHETIC_AFTER_ACK_CUT", 3)
+                    if fault == "post-ack":
+                        raise StartError("SYNTHETIC_AFTER_ACK_CUT", 3)
+                    resources.update({api: "api", supervisor: "supervisor"})
                 return subprocess.CompletedProcess(args, 0, "", "")
 
             def run(*args, **kwargs):
                 if args == ("start", db):
                     events.append("start-db")
+                elif args == ("start", supervisor, api):
+                    self.assertEqual(read_record(intent_path)["state"], "ACKED")
+                    events.append("start-services")
                 elif args[0] == "create":
                     events.append("create-reconcile")
                     self.assertEqual(
@@ -177,6 +189,34 @@ class RestartWiringTest(unittest.TestCase):
                     raise OSError("synthetic ENOSPC at ACK")
                 write_record(path, value, **kwargs)
 
+            closed = dict(
+                admission_open=False,
+                generation=2,
+                supervisor_epoch=2,
+                shutdown_command_id=old["stop_command"],
+                quiesced_generation=2,
+                shutdown_finalized=True,
+            )
+            opened = {**closed, "admission_open": True, "generation": 3}
+
+            def forwarder(_root, _port, _deadline, *, ownership, stop_attempt):
+                self.assertEqual(stop_attempt, read_record(journal)["attempt"])
+                self.assertEqual(read_record(intent_path)["state"], "ACKED")
+                events.append("forwarder")
+                return None, -1, old["forwarder"], old["listener_inode"]
+
+            def opening(_control, command, **_kwargs):
+                self.assertEqual(command["op"], "open")
+                self.assertEqual(command["expected_generation"], 2)
+                self.assertEqual(read_record(intent_path)["state"], "ACKED")
+                events.append("open")
+                return opened
+
+            def final_verify(_runtime, _root, _control, candidate, _port):
+                start._ready_record(candidate)
+                start._bound_instance(runtime, root, control, candidate)
+                return start.projection(load_instance(root), opened, reused=False)
+
             with contextlib.ExitStack() as scope:
                 for seam in (
                     patch.dict(
@@ -196,6 +236,20 @@ class RestartWiringTest(unittest.TestCase):
                         start, "environment", return_value={"OMNIS_DATABASE_URL": "synthetic-dsn"}
                     ),
                     patch.object(start, "validate_config"),
+                    patch.object(start, "wait_dashboard", return_value=closed),
+                    patch.object(start, "api_process", return_value=os.getpid()),
+                    patch.object(start, "launch_forwarder", side_effect=forwarder),
+                    patch.object(start, "listener_owned"),
+                    patch.object(
+                        start,
+                        "socket_identity",
+                        side_effect=lambda path: (
+                            old["api_socket"] if path.name == "api.sock" else old["control_socket"]
+                        ),
+                    ),
+                    patch.object(start, "dashboard", return_value=closed),
+                    patch.object(start, "request", side_effect=opening),
+                    patch.object(start, "verify_running", side_effect=final_verify),
                     patch.object(
                         start,
                         "service_ids",
@@ -239,11 +293,14 @@ class RestartWiringTest(unittest.TestCase):
                 if restart is not None:
                     scope.enter_context(patch.object(restart, "write_record", side_effect=saved))
                 code, result = start.start_result(None)
-                self.assertEqual(code, 4)
+                self.assertEqual(code, 4 if fault else 0)
                 self.assertEqual(copy_path.read_bytes(), old_raw)
                 self.assertEqual(read_record(intent_path)["old_stop_command"], old["stop_command"])
                 if fault:
-                    self.assertNotIn("create-services", events)
+                    if fault != "post-ack":
+                        self.assertNotIn("create-services", events)
+                    self.assertNotIn("start-services", events)
+                    self.assertNotIn("open", events)
                     if fault not in {"crash", "journal-write"}:
                         self.assertIn(db, resources)
                     before = list(events)
@@ -260,6 +317,11 @@ class RestartWiringTest(unittest.TestCase):
                             "reconcile",
                             "remove-reconcile",
                             "create-services",
+                            "start-services",
+                            "forwarder",
+                            "open",
                         ],
                     )
-                    self.assertEqual(result["state"], "UNCERTAIN")
+                    self.assertEqual(result["state"], "READY")
+                    self.assertEqual(read_record(journal)["phase"], "READY")
+                    self.assertEqual(read_record(journal)["generation"], 3)

@@ -45,6 +45,36 @@ def _render_config(paths):
 
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
+    def test_gate_uses_private_operator_config_not_ambient_or_caller_config(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            foreign = root / "operator-config"
+            foreign.mkdir(mode=0o700)
+            marker = foreign / "config-marker"
+            marker.write_text("synthetic operator configuration; never consume")
+            before = marker.read_bytes()
+            for index, inherited in enumerate((False, True)):
+                with self.subTest(inherited=inherited):
+                    paths = module["prepare_paths"](root / f"db{index}")
+                    base = {"HOME": str(root), "PATH": os.environ.get("PATH", "")}
+                    if inherited:
+                        base["XDG_CONFIG_HOME"] = str(foreign)
+                    with patch.dict(os.environ, {"XDG_CONFIG_HOME": str(foreign)}):
+                        result = module["_gate_environment"](
+                            paths, base, paths.root / "fixture.json", "synthetic"
+                        )
+                    self.assertTrue(
+                        "XDG_CONFIG_HOME" in result, "Canonical gate must isolate operator config"
+                    )
+                    selected = Path(result["XDG_CONFIG_HOME"])
+                    self.assertEqual(selected, paths.root / "xdg-config")
+                    self.assertTrue(selected.is_dir())
+                    self.assertEqual(selected.stat().st_uid, os.getuid())
+                    self.assertEqual(stat.S_IMODE(selected.stat().st_mode), 0o700)
+                    self.assertFalse((selected / "omnis").exists())
+                    self.assertEqual(marker.read_bytes(), before)
+
     def test_attestor_binds_private_manifest_socket_and_runtime_identity(self) -> None:
         import socket
 

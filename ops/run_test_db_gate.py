@@ -853,8 +853,11 @@ def _gate_environment(
     paths: Paths, env: dict[str, str], manifest: Path, password: str
 ) -> dict[str, str]:
     # Never pass ambient Make/pytest/Python/proxy/DB/probe configuration into the gate.
+    config_home = paths.root / "xdg-config"
+    config_home.mkdir(mode=0o700)
     result = {
         **env,
+        "XDG_CONFIG_HOME": str(config_home),
         "TMPDIR": str(Path(os.environ["TMPDIR"]).resolve()),
         "OMNIS_TEST_FIXTURE": str(manifest),
         "OMNIS_TEST_DB_PASSWORD": password,

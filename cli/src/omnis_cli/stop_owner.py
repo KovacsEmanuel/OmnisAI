@@ -31,8 +31,9 @@ from .lifecycle import (
     socket_identity,
 )
 from .release import _installed_pointer, _manifest
-from .start import _bound_instance, _check_pgdata, _owned_record, _pgdata_receipt
+from .start import _bound_instance, _check_pgdata
 from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
+from .stop import _stopping_record
 from .stop_engine import StopEngine, identifier
 from .stop_receipt import (
     STAGES,
@@ -148,8 +149,7 @@ def _view(runtime: ControlRuntime, deadline: float | None = None) -> _View:
 
 
 def _static(runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]) -> None:
-    _pgdata_receipt(record)
-    _owned_record(record)
+    _stopping_record(record)
     _check_pgdata(root, record)
     _bound_instance(runtime, root, control, record)
     private_dir(root)

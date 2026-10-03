@@ -210,6 +210,53 @@ class StopWiringTest(unittest.TestCase):
                         self.assertNotEqual(json.loads(output.getvalue())["state"], "STOPPED")
             self.assertEqual((root / "startup.json").read_bytes(), before)
 
+    def test_incomplete_or_foreign_owner_proof_blocks_real_consumers(self):
+        from stopped_fixture import completed_fixture
+
+        changes = (
+            ("prepared", lambda r: r.update(state="PREPARED")),
+            ("pending", lambda r: r.update(pending="db.stop")),
+            ("partial", lambda r: r["completed"].pop()),
+            ("foreign-grant", lambda r: r["grant"].update(generation=3)),
+            ("uncertain-grant", lambda r: r["grant"].update(state="STOP_UNCERTAIN")),
+            ("extra", lambda r: r.update(untrusted=True)),
+        )
+        for label, mutate in changes:
+            with (
+                self.subTest(proof=label),
+                private_stop_fixture() as (base, root, _foreign, control, record, runtime),
+                completed_fixture(root, control, record, runtime),
+            ):
+                path = receipt_path(root, record)
+                owner_receipt = read_record(path)
+                mutate(owner_receipt)
+                write_record(path, owner_receipt, replace=True)
+                before = (root / "startup.json").read_bytes()
+                with (
+                    patch.dict(
+                        os.environ,
+                        {
+                            "XDG_STATE_HOME": str(base / "s"),
+                            "XDG_DATA_HOME": str(base / "d"),
+                            "XDG_RUNTIME_DIR": "",
+                            "XDG_CONFIG_HOME": str(base / "config"),
+                        },
+                    ),
+                    patch.object(start, "ControlRuntime", return_value=runtime),
+                    patch.object(stop, "ControlRuntime", return_value=runtime),
+                    patch.object(
+                        runtime, "compose", side_effect=AssertionError("effect"), create=True
+                    ),
+                    patch.object(stop, "request", side_effect=AssertionError("control retry")),
+                ):
+                    with self.assertRaises(StartError):
+                        stop.readback_stopped(runtime, root, control, record)
+                    with self.assertRaises(StartError):
+                        stop.stop_instance()
+                    self.assertEqual(start.start_result(None)[0], 4)
+                self.assertEqual((root / "startup.json").read_bytes(), before)
+                self.assertEqual(read_record(path), owner_receipt)
+
     def test_stopped_without_owner_receipt_is_not_authority(self):
         with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
             with self.assertRaises((StartError, OSError)):

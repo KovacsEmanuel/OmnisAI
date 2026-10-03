@@ -24,7 +24,24 @@ class RestartWiringTest(unittest.TestCase):
         self.restart()
 
     def test_lost_mixed_wrong_ack_nonzero_oom_and_cancel_retain_db_no_retry(self):
-        for fault in ("lost", "mixed", "wrong", "exit", "oom", "cancel", "drain", "ack-write"):
+        for fault in (
+            "lost",
+            "mixed",
+            "wrong",
+            "exit",
+            "oom",
+            "cancel",
+            "drain",
+            "ack-write",
+            "foreign-receipt",
+            "bool-receipt",
+            "extra",
+            "duplicate",
+            "stderr",
+            "container-exit",
+            "foreign-resource",
+            "uncertain",
+        ):
             with self.subTest(fault=fault):
                 self.restart(fault)
 
@@ -143,6 +160,10 @@ class RestartWiringTest(unittest.TestCase):
                         raise KeyboardInterrupt()
                     if fault == "drain":
                         runtime.family_drained = False
+                    if fault == "uncertain":
+                        runtime.uncertain = True
+                    if fault == "foreign-resource":
+                        resources["6" * 64] = "foreign"
                     reply = {
                         "ok": True,
                         "correlation_id": payload["reconciliation_id"],
@@ -150,12 +171,25 @@ class RestartWiringTest(unittest.TestCase):
                     }
                     if fault == "wrong":
                         reply["correlation_id"] = str(uuid4())
+                    if fault == "foreign-receipt":
+                        reply["receipt"] = {**payload, "completion_sha256": "0" * 64}
+                    if fault == "bool-receipt":
+                        reply["receipt"] = {**payload, "version": True}
+                    if fault == "extra":
+                        reply["unexpected"] = 1
                     raw = json.dumps(reply) + "\n"
+                    if fault == "duplicate":
+                        raw = raw.replace('"ok": true', '"ok": true, "ok": true')
                     if fault == "mixed":
                         raw = "untrusted log\n" + raw
                     if fault == "lost":
                         raw = ""
-                    return subprocess.CompletedProcess(args, 7 if fault == "exit" else 0, raw, "")
+                    return subprocess.CompletedProcess(
+                        args,
+                        7 if fault == "exit" else 0,
+                        raw,
+                        "unexpected\n" if fault == "stderr" else "",
+                    )
                 elif args[:2] == ("container", "rm"):
                     events.append("remove-reconcile")
                     del resources[job]
@@ -170,7 +204,7 @@ class RestartWiringTest(unittest.TestCase):
                         "Status": "exited" if requests else "created",
                         "Running": False,
                         "Pid": 0,
-                        "ExitCode": 0,
+                        "ExitCode": 1 if fault == "container-exit" and requests else 0,
                         "OOMKilled": fault == "oom",
                         "Dead": False,
                         "Restarting": False,

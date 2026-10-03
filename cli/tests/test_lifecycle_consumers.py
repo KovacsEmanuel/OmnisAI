@@ -1,5 +1,6 @@
 """Actual consumer/owner processes and crash durability; synthetic Engine/DB only."""
 
+import contextlib
 import importlib
 import json
 import os
@@ -7,7 +8,9 @@ import select
 import signal
 import subprocess
 import threading
+import time
 import unittest
+from typing import cast
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -26,16 +29,28 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
     def test_real_stop_client_owner_and_repeat_use_completed_receipt(self):
         self.stop_cycle()
 
+    def test_configured_shutdown_stall_reaches_real_stop_owner(self):
+        self.stop_cycle(stall=True)
+
     def test_completed_owner_survives_both_sides_of_stopped_publication(self):
         for cut in ("before", "after"):
             with self.subTest(cut=cut):
                 self.stop_cycle(cut)
 
-    def stop_cycle(self, cut=None):
+    def stop_cycle(self, cut=None, *, stall=False):
         fixture = Fixture()
         original = subprocess.Popen
         operations, failures = [], []
+        release_stall = threading.Event()
+        owner_pins = []
+        owner_deadlines = []
         try:
+            if stall:
+                config = fixture.base / "config/omnis"
+                config.mkdir(parents=True, mode=0o700)
+                (config / "config.toml").write_text("shutdown_timeout_seconds=15\n")
+                (config / "config.toml").chmod(0o600)
+                fixture.pause_mutation = True
             ready = {
                 key: value for key, value in fixture.record.items() if key in start.READY_FIELDS
             }
@@ -106,8 +121,45 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                     raise OSError("synthetic interrupted STOPPED publication")
                 write_record(path, value, **kwargs)
 
+            def construct_runtime(_data, deadline):
+                fixture.runtime.deadline = deadline
+                return fixture.runtime
+
+            def spawn_owner(argv, **kwargs):
+                process = original(owner_test_argv(argv), **kwargs)
+                if stall:
+                    # The child is ours even if pinning fails before Popen returns.
+                    owner_pins.append([process, -1])
+                    owner_pins[-1][1] = os.pidfd_open(process.pid)
+                return process
+
+            owner_module = importlib.import_module("omnis_cli.stop_owner")
+            real_owner = owner_module.run_stop_owner
+
+            def observed_owner(*args, **kwargs):
+                owner_deadlines.append(kwargs["deadline"])
+                return real_owner(*args, **kwargs)
+
+            owner_probe = (
+                patch.object(owner_module, "run_stop_owner", side_effect=observed_owner)
+                if stall
+                else contextlib.nullcontext()
+            )
+
+            stall_peer = (
+                patch.object(
+                    fixture.release_mutation,
+                    "wait",
+                    side_effect=lambda _seconds: release_stall.wait(22),
+                )
+                if stall
+                else contextlib.nullcontext()
+            )
+
             try:
                 with (
+                    stall_peer,
+                    owner_probe,
                     patch.dict(
                         os.environ,
                         {
@@ -117,7 +169,12 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                     ),
                     patch.object(stop, "state_dir", return_value=fixture.root),
                     patch.object(stop, "control_dir", return_value=fixture.control),
-                    patch.object(stop, "ControlRuntime", return_value=fixture.runtime),
+                    patch.object(
+                        stop,
+                        "ControlRuntime",
+                        side_effect=construct_runtime if stall else None,
+                        return_value=fixture.runtime,
+                    ),
                     patch.object(stop, "verify_running"),
                     patch.object(stop, "_running_for_stop", return_value=status(ready)),
                     patch.object(stop, "_finalized_db_readback"),
@@ -127,16 +184,46 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                     patch.object(fixture.runtime, "network", side_effect=view.network),
                     patch(
                         "omnis_cli.stop_owner.subprocess.Popen",
-                        side_effect=lambda argv, **kwargs: original(
-                            owner_test_argv(argv), **kwargs
-                        ),
+                        side_effect=spawn_owner,
                     ) as owner_spawn,
                     patch.object(stop, "_resume_owned", side_effect=AssertionError("legacy path")),
                     patch.object(
                         stop, "_emergency_stop", side_effect=AssertionError("unexpected emergency")
                     ),
                 ):
-                    if cut:
+                    if stall:
+                        began = time.monotonic()
+                        with self.assertRaises(StartError) as caught:
+                            stop.stop_instance()
+                        elapsed = time.monotonic() - began
+                        self.assertEqual(
+                            (caught.exception.reason, caught.exception.code), ("STOP_UNCERTAIN", 4)
+                        )
+                        self.assertTrue(
+                            fixture.mutation_seen.is_set(), "Engine stall was not reached"
+                        )
+                        self.assertEqual(owner_deadlines, [fixture.runtime.deadline])
+                        self.assertGreater(owner_deadlines[0] - began, 14)
+                        self.assertGreater(elapsed, 12, "owner ended before configured deadline")
+                        self.assertLess(elapsed, 19, "configured owner deadline was ignored")
+                        self.assertEqual(
+                            read_record(fixture.root / "startup.json")["phase"], "STOPPING"
+                        )
+                        receipt = read_record(receipt_path(fixture.root, fixture.record))
+                        self.assertEqual(receipt["state"], "PREPARED")
+                        self.assertEqual(receipt["pending"], "api.stop")
+                        completed = cast(list[dict[str, object]], receipt["completed"])
+                        self.assertEqual([entry["stage"] for entry in completed], ["forwarder"])
+                        grant = cast(dict[str, object], receipt["grant"])
+                        owner = cast(dict[str, object], receipt["owner"])
+                        self.assertEqual(grant["command_id"], fixture.record["stop_command"])
+                        self.assertEqual(owner["pid"], owner_pins[0][0].pid)
+                        self.assertTrue(any(event.startswith("POST") for event in fixture.requests))
+                        self.assertFalse(
+                            any(event.startswith("DELETE") for event in fixture.requests)
+                        )
+                        owner_spawn.assert_called_once()
+                    elif cut:
                         with self.assertRaises(StartError) as caught:
                             stop.stop_instance()
                         self.assertEqual(caught.exception.code, 4)
@@ -147,31 +234,48 @@ class LifecycleConsumerProcessTest(unittest.TestCase):
                         )
                     else:
                         self.assertEqual(stop.stop_instance()["state"], "STOPPED")
-                    complete = read_record(receipt_path(fixture.root, fixture.record))
-                    self.assertEqual(complete["state"], "COMPLETED")
-                    effects = [
-                        event for event in fixture.requests if event.startswith(("POST", "DELETE"))
-                    ]
-                    self.assertEqual(len(effects), 7)
-                    self.assertEqual(stop.stop_instance()["state"], "STOPPED")
-                    self.assertEqual(
-                        [
+                    if not stall:
+                        complete = read_record(receipt_path(fixture.root, fixture.record))
+                        self.assertEqual(complete["state"], "COMPLETED")
+                        effects = [
                             event
                             for event in fixture.requests
                             if event.startswith(("POST", "DELETE"))
-                        ],
-                        effects,
-                    )
-                    owner_spawn.assert_called_once()
+                        ]
+                        self.assertEqual(len(effects), 7)
+                        self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                        self.assertEqual(
+                            [
+                                event
+                                for event in fixture.requests
+                                if event.startswith(("POST", "DELETE"))
+                            ],
+                            effects,
+                        )
+                        owner_spawn.assert_called_once()
                 self.assertEqual(
                     operations, ["status", "shutdown", "status", "finalize", "arm_stop"]
                 )
             finally:
+                release_stall.set()
                 server.join(6)
                 self.assertFalse(server.is_alive())
             self.assertEqual(failures, [])
         finally:
-            fixture.close()
+            release_stall.set()
+            try:
+                for process, pin in owner_pins:
+                    try:
+                        if pin >= 0 and not select.select([pin], [], [], 0)[0]:
+                            signal.pidfd_send_signal(pin, signal.SIGKILL)
+                        process.wait(timeout=3)
+                        self.assertGreaterEqual(pin, 0, "owner spawned without an observer pin")
+                        self.assertTrue(select.select([pin], [], [], 0)[0])
+                    finally:
+                        if pin >= 0:
+                            os.close(pin)
+            finally:
+                fixture.close()
 
     def test_abrupt_start_exit_preserves_old_bytes_and_new_intent(self):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):

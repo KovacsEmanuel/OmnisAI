@@ -263,6 +263,66 @@ class RuntimeCompletenessTest(unittest.TestCase):
                     item["NetworkSettings"]["Ports"] = ports
                     self.check(role)
 
+    def test_f04_fixed_host_confinement_all_roles(self):
+        mutations = [
+            ("RestartPolicy", {"Name": "always", "MaximumRetryCount": 0}),
+            ("RestartPolicy", {"Name": "no", "MaximumRetryCount": False}),
+            ("RestartPolicy", {"Name": "no", "MaximumRetryCount": 0.0}),
+            ("RestartPolicy", {"Name": "no", "MaximumRetryCount": 1}),
+            ("RestartPolicy", None),
+            ("Tmpfs", {"/extra": "rw"}),
+            ("Tmpfs", []),
+            ("Tmpfs", False),
+            ("IpcMode", "container:" + "0" * 64),
+            ("IpcMode", "host"),
+            ("IpcMode", "shareable"),
+            ("IpcMode", None),
+        ]
+        for field in ("DeviceRequests", "DeviceCgroupRules", "Devices", "CapAdd"):
+            mutations.extend((field, v) for v in (["foreign"], {}, "", False, 0))
+        for role in ROLES:
+            for field, bad in mutations:
+                with self.subTest(role=role, field=field, bad=bad):
+                    item = self.install(role)
+                    item["HostConfig"][field] = bad
+                    self.check(role, reject=True)
+            for value in (None, []):
+                item = self.install(role)
+                for field in ("DeviceRequests", "DeviceCgroupRules", "Devices", "CapAdd"):
+                    item["HostConfig"][field] = value
+                for tmpfs in (None, {}):
+                    item["HostConfig"]["Tmpfs"] = tmpfs
+                    self.check(role)
+
+    def test_f04_bind_propagation_and_exact_rw_type(self):
+        for role in ROLES[:3]:
+            for index in range(len(self.install(role)["Mounts"])):
+                for field, bad in (
+                    ("Propagation", "rshared"),
+                    ("Propagation", "rslave"),
+                    ("Propagation", ""),
+                    ("Propagation", None),
+                    ("RW", 0),
+                    ("RW", 1),
+                    ("RW", 1.0),
+                    ("Source", []),
+                    ("Destination", {}),
+                ):
+                    with self.subTest(role=role, index=index, field=field, bad=bad):
+                        self.install(role)["Mounts"][index][field] = bad
+                        self.check(role, reject=True)
+
+    def test_f04_empty_job_binds_and_volumes_are_typed(self):
+        for role in ROLES[3:]:
+            for section, field, valid, invalid in (
+                ("HostConfig", "Binds", (None, []), ({}, "", False, ["/extra:/extra"])),
+                ("Config", "Volumes", (None, {}), ([], "", False, {"/extra": {}})),
+            ):
+                for value in (*valid, *invalid):
+                    with self.subTest(role=role, field=field, value=value):
+                        self.install(role)[section][field] = value
+                        self.check(role, reject=value in invalid)
+
     def test_owner_image_read_is_typed_and_run_stays_forbidden(self):
         owner = self.owner()
         self.assertEqual(

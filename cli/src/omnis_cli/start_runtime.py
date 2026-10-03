@@ -328,11 +328,18 @@ class ControlRuntime:
         mounts = item.get("Mounts")
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
-        actual = {
-            (m.get("Type"), m.get("Source"), m.get("Destination"), m.get("RW"))
-            for raw in mounts
-            for m in [mapping(raw)]
-        }
+        actual: set[tuple[object, object, object, object]] = set()
+        for raw in mounts:
+            mount = mapping(raw)
+            if (
+                any(
+                    not isinstance(mount.get(key), str) for key in ("Type", "Source", "Destination")
+                )
+                or type(mount.get("RW")) is not bool
+                or mount.get("Propagation") != "rprivate"
+            ):
+                raise StartError("CONTAINER_MOUNTS_INVALID", 3)
+            actual.add((mount["Type"], mount["Source"], mount["Destination"], mount["RW"]))
         expected: set[tuple[object, object, object, object]] = set()
         if role == "db":
             expected = {
@@ -376,10 +383,19 @@ class ControlRuntime:
                 (running or role == "reconcile")
                 and set(mapping(net.get("Networks"))) != {f"{self.receipt.project}_control"}
             )
-            or host.get("PidMode")
-            or host.get("IpcMode") == "host"
-            or host.get("CapAdd")
-            or host.get("Devices")
+            or host.get("PidMode") not in (None, "")
+            or host.get("IpcMode") != "private"
+            or any(
+                host.get(key) not in (None, [])
+                for key in ("CapAdd", "Devices", "DeviceRequests", "DeviceCgroupRules")
+            )
+            or host.get("Tmpfs") not in (None, {})
+            or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
+            or type(mapping(host.get("RestartPolicy")).get("MaximumRetryCount")) is not int
+            or (
+                role in {"migrate", "reconcile"}
+                and (host.get("Binds") not in (None, []) or config.get("Volumes") not in (None, {}))
+            )
             or actual != expected
             or len(mounts) != len(expected)
         ):
@@ -438,15 +454,11 @@ class ControlRuntime:
         if actual_env != expected_env:
             raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
         if role == "reconcile" and (
-            config.get("Volumes")
-            or config.get("Tty") is not False
+            config.get("Tty") is not False
             or any(
                 config.get(key) is not True
                 for key in ("OpenStdin", "StdinOnce", "AttachStdin", "AttachStdout", "AttachStderr")
             )
-            or host.get("Binds")
-            or host.get("Tmpfs")
-            or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
         ):
             raise StartError("RECONCILIATION_CONFINEMENT_MISMATCH", 4)
         return item

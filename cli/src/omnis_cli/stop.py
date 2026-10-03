@@ -176,7 +176,10 @@ def readback_stopped(
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
     _bound_instance(runtime, root, control, record)
-    verify_stop_completion(runtime, root, control, record)
+    try:
+        verify_stop_completion(runtime, root, control, record)
+    except (OSError, ValueError):
+        raise StartError("STOP_RECEIPT_UNVERIFIED", 4) from None
     try:
         private_file(root / "db-password", limit=64)  # O_NOFOLLOW, owner/mode/link count.
     except (OSError, ValueError):

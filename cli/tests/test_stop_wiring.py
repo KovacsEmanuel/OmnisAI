@@ -154,6 +154,39 @@ class StopWiringTest(unittest.TestCase):
                     self.assertEqual(stop.stop_instance()["state"], "STOPPED")
                     run_owner.assert_called_once()
 
+    def test_missing_owner_proof_is_exit_four_on_start_and_status(self):
+        import io
+        import json
+
+        from omnis_cli.main import main
+
+        status = importlib.import_module("omnis_cli.status")
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            write_record(root / "startup.json", record)
+            before = (root / "startup.json").read_bytes()
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "XDG_STATE_HOME": str(base / "s"),
+                        "XDG_DATA_HOME": str(base / "d"),
+                        "XDG_RUNTIME_DIR": "",
+                        "XDG_CONFIG_HOME": str(base / "config"),
+                    },
+                ),
+                patch.object(start, "ControlRuntime", return_value=runtime),
+                patch.object(status, "ControlRuntime", return_value=runtime),
+                patch.object(runtime, "compose", side_effect=AssertionError("effect"), create=True),
+            ):
+                for command in (["start", "--no-open", "--json"], ["status", "--json"]):
+                    with self.subTest(command=command):
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
+                            code = main(command)
+                        self.assertEqual(code, 4)
+                        self.assertNotEqual(json.loads(output.getvalue())["state"], "STOPPED")
+            self.assertEqual((root / "startup.json").read_bytes(), before)
+
     def test_stopped_without_owner_receipt_is_not_authority(self):
         with private_stop_fixture() as (_base, root, _foreign, control, record, runtime):
             with self.assertRaises((StartError, OSError)):

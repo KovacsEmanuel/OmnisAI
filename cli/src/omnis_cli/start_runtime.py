@@ -381,65 +381,65 @@ class ControlRuntime:
             or host.get("SecurityOpt") != ["no-new-privileges:true"]
         ):
             raise StartError("CONTROL_CONFINEMENT_MISMATCH", 3)
+        image_id = self.pg_image if role == "db" else self.receipt.image_id
+        image = self.inspect("image", image_id)
+        if image is None or image.get("Id") != image_id:
+            raise StartError("IMAGE_IDENTITY_MISMATCH", 4)
+        inherited = mapping(image.get("Config")).get("Env")
         environment = config.get("Env")
-        if not isinstance(environment, list):
-            raise StartError("CONTROL_ENV_INVALID", 3)
-        if role != "db":
+        if (
+            not isinstance(inherited, list)
+            or not isinstance(environment, list)
+            or any(
+                not isinstance(value, str) or "=" not in value or not value.split("=", 1)[0]
+                for value in [*inherited, *environment]
+            )
+        ):
+            raise StartError("CONTROL_ENV_INVALID", 4)
+        expected_env = dict(value.split("=", 1) for value in inherited)
+        actual_env = dict(value.split("=", 1) for value in environment)
+        if len(expected_env) != len(inherited) or len(actual_env) != len(environment):
+            raise StartError("CONTROL_ENV_INVALID", 4)
+        # Image defaults are read by verified content ID, never copied from a fixture.
+        # Only the overrides actually emitted by Compose/create belong here.
+        if role == "db":
+            expected_env.update(
+                POSTGRES_USER="omnis",
+                POSTGRES_DB="omnis",
+                POSTGRES_PASSWORD_FILE="/run/secrets/db_password",
+                POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256",
+            )
+        else:
             password = private_file(root / "db-password", limit=64).strip()
             if not re.fullmatch(r"[0-9a-f]{48}", password):
                 raise StartError("DATABASE_SECRET_INVALID")
-            expected_env = {
-                f"OMNIS_DATABASE_URL=postgresql+psycopg://omnis:{password}@db:5432/omnis",
-                "OMNIS_WEB_ROOT=/opt/omnis/web",
-            }
+            expected_env["OMNIS_DATABASE_URL"] = (
+                f"postgresql+psycopg://omnis:{password}@db:5432/omnis"
+            )
             if role in {"migrate", "reconcile"}:
                 system_id = read_record(root / "startup.json").get("system_id")
                 if not isinstance(system_id, str) or not system_id.isdecimal():
                     raise StartError("DATABASE_IDENTITY_INVALID", 4)
-                expected_env.add(f"OMNIS_EXPECTED_SYSTEM_ID={system_id}")
+                expected_env["OMNIS_EXPECTED_SYSTEM_ID"] = system_id
             else:
-                expected_env.add("OMNIS_CONTROL_DIR=/run/omnis-control")
+                expected_env["OMNIS_CONTROL_DIR"] = "/run/omnis-control"
             if role == "api":
-                expected_env.update({"OMNIS_HTTP_DIR=/run/omnis-http", f"OMNIS_HTTP_PORT={port}"})
-            actual_env = [v for v in environment if isinstance(v, str) and v.startswith("OMNIS_")]
-            if len(actual_env) != len(expected_env) or set(actual_env) != expected_env:
-                raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
-            if role == "reconcile":
-                if (
-                    config.get("Entrypoint") not in (None, [])
-                    or config.get("Volumes")
-                    or config.get("Tty") is not False
-                    or any(
-                        config.get(key) is not True
-                        for key in (
-                            "OpenStdin",
-                            "StdinOnce",
-                            "AttachStdin",
-                            "AttachStdout",
-                            "AttachStderr",
-                        )
-                    )
-                    or host.get("Binds")
-                    or host.get("Tmpfs")
-                    or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
-                ):
-                    raise StartError("RECONCILIATION_CONFINEMENT_MISMATCH", 4)
-                image = self.inspect("image", self.receipt.image_id)
-                inherited = mapping(image.get("Config") if image else None).get("Env")
-                if not isinstance(inherited, list) or any(
-                    not isinstance(value, str) or "=" not in value
-                    for value in [*inherited, *environment]
-                ):
-                    raise StartError("CONTROL_ENV_INVALID", 4)
-                base = dict(value.split("=", 1) for value in inherited)
-                actual_values = dict(value.split("=", 1) for value in environment)
-                if len(base) != len(inherited) or len(actual_values) != len(environment):
-                    raise StartError("CONTROL_ENV_INVALID", 4)
-                for value in expected_env:
-                    key, setting = value.split("=", 1)
-                    base[key] = setting
-                if base != actual_values:
-                    raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
+                expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
+        if actual_env != expected_env:
+            raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
+        if role == "reconcile" and (
+            config.get("Entrypoint") not in (None, [])
+            or config.get("Volumes")
+            or config.get("Tty") is not False
+            or any(
+                config.get(key) is not True
+                for key in ("OpenStdin", "StdinOnce", "AttachStdin", "AttachStdout", "AttachStderr")
+            )
+            or host.get("Binds")
+            or host.get("Tmpfs")
+            or host.get("RestartPolicy") != {"Name": "no", "MaximumRetryCount": 0}
+        ):
+            raise StartError("RECONCILIATION_CONFINEMENT_MISMATCH", 4)
         return item
 
     def psql(self, ident: str, query: str) -> str:

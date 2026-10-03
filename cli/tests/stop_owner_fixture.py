@@ -7,6 +7,7 @@ HTTP, daemon pinning, entry handoff, forwarder and durable receipt code is real.
 import hashlib
 import json
 import os
+import runpy
 import select
 import signal
 import socket
@@ -16,13 +17,18 @@ import tempfile
 import threading
 import time
 from pathlib import Path
+from types import SimpleNamespace
+from urllib.parse import unquote
 from uuid import uuid4
 
 from omnis_cli.compose import ImageReceipt, _put_record
 from omnis_cli.lifecycle import StartError, process_identity, socket_identity, write_record
 from omnis_cli.release import _BASE_FILES
-from omnis_cli.start_runtime import POSTGRES
 from omnis_cli.stop_owner import _load_runtime
+
+# This fixture is also loaded by an isolated (-I) child via runpy.
+_shapes = runpy.run_path(str(Path(__file__).with_name("runtime_inspect_fixture.py")))
+container_item, image_item = _shapes["container_item"], _shapes["image_item"]
 
 
 class SyntheticFamily:
@@ -230,79 +236,17 @@ class Fixture:
         self.runtime = _load_runtime(self.data, self.record, time.monotonic() + 15)
 
     def item(self, role, cid, pid):
-        mounts = [
-            {
-                "Type": "bind",
-                "Source": str(self.control),
-                "Destination": "/run/omnis-control",
-                "RW": role == "supervisor",
-            }
-        ]
-        if role == "api":
-            mounts.append(
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "http"),
-                    "Destination": "/run/omnis-http",
-                    "RW": True,
-                }
-            )
-        if role == "db":
-            mounts = [
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "postgres"),
-                    "Destination": "/var/lib/postgresql",
-                    "RW": True,
-                },
-                {
-                    "Type": "bind",
-                    "Source": str(self.root / "db-password"),
-                    "Destination": "/run/secrets/db_password",
-                    "RW": False,
-                },
-            ]
-        env = [
-            "OMNIS_DATABASE_URL=postgresql+psycopg://omnis:" + "a" * 48 + "@db:5432/omnis",
-            "OMNIS_WEB_ROOT=/opt/omnis/web",
-            "OMNIS_CONTROL_DIR=/run/omnis-control",
-        ]
-        if role == "api":
-            env.extend(["OMNIS_HTTP_DIR=/run/omnis-http", f"OMNIS_HTTP_PORT={self.port}"])
-        return {
-            "Id": cid,
-            "Image": self.pg_image if role == "db" else self.image,
-            "Config": {
-                "Cmd": ["postgres"]
-                if role == "db"
-                else ["python", "-I", "-m", "omnis.serve" if role == "api" else "omnis.supervisor"],
-                "User": f"{os.getuid()}:{os.getgid()}",
-                "Env": env,
-                "Labels": {
-                    "com.docker.compose.project": self.project,
-                    "com.docker.compose.service": role,
-                    "org.omnis.start-attempt": self.attempt,
-                },
-            },
-            "HostConfig": {
-                "Privileged": False,
-                "PortBindings": {},
-                "NetworkMode": self.project + "_control",
-                "PidMode": "",
-                "IpcMode": "private",
-                "CapAdd": [],
-                "Devices": [],
-                "ReadonlyRootfs": True,
-                "CapDrop": ["ALL"],
-                "SecurityOpt": ["no-new-privileges:true"],
-            },
-            "NetworkSettings": {
-                "Ports": {},
-                "Networks": {self.project + "_control": {"NetworkID": self.network_id}},
-            },
-            "State": {"Running": True, "Paused": False, "Restarting": False, "Pid": pid},
-            "Mounts": mounts,
-        }
+        runtime = SimpleNamespace(
+            receipt=SimpleNamespace(project=self.project, image_id=self.image),
+            pg_image=self.pg_image,
+            attempt=self.attempt,
+        )
+        item = container_item(runtime, role, cid, self.root, self.control, self.port)
+        item["State"].update(Paused=False, Restarting=False, Pid=pid)
+        item["NetworkSettings"]["Networks"][self.project + "_control"]["NetworkID"] = (
+            self.network_id
+        )
+        return item
 
     def response(self, method, target):
         path = target.split("?", 1)[0]
@@ -310,12 +254,12 @@ class Fixture:
             if path == "/info":
                 return 200, {"ID": "synthetic-stop-daemon"}
             if path.startswith("/images/"):
-                return 200, {
-                    "Id": self.pg_image,
-                    "Architecture": "amd64",
-                    "Os": "linux",
-                    "RepoDigests": [POSTGRES.replace(":18.6-bookworm", "")],
-                }
+                runtime = SimpleNamespace(
+                    receipt=SimpleNamespace(image_id=self.image), pg_image=self.pg_image
+                )
+                ident = unquote(path.split("/")[2])
+                assert ident in (self.pg_image, self.image)
+                return 200, image_item(runtime, "db" if ident == self.pg_image else "api")
             if path == "/containers/json":
                 return 200, [{"Id": cid} for cid in self.items]
             if path == "/networks":

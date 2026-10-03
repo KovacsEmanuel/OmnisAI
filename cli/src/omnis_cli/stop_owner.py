@@ -76,6 +76,8 @@ class _View(ControlRuntime):
             return self.engine.container(ident)
         if kind == "network":
             return self.engine.network(ident)
+        if kind == "image":
+            return self.engine.image(ident)
         raise StartError("STOP_INSPECT_FORBIDDEN", 4)
 
     def ids(self) -> list[str]:

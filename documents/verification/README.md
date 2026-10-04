@@ -4,7 +4,7 @@
 
 `stack-probe.json` păstrează output real și limitele probelor de dependențe din 25 septembrie 2026. `stack-probe-inputs/` conține inputurile și lockurile reproducerii; nu este scaffoldul aplicației și nu pornește Hermes sau o scanare. Nu se copiază aceste probe ca implementare de domeniu.
 
-**Implementare locală actuală:** [P0.1](p01-local-readiness.md) · [P0.2](p02-local-control.md) · [calitate Python](p02-python-quality.md) · [P0.3 bootstrap/pairing](p03-local-bootstrap.md), cu [rezultate browser](p03-browser.json) și capturi în `p03-ui/` · [P0.4 topologie host-only parțială](p04-host-uds.md) · [fixture PostgreSQL fără publicație Docker](p04-safe-test-db.md) · [adjudecarea buclei P0.4 și calea critică](p04-loop-adjudication.md). [SL02 — comanda instalată start headless](p04-installed-start.md) și [SL03 — pair/open/implicit pe CLI instalat](p04-pair-open.md) consemnează distinct probele comenzilor, nu ale harnessului. Aceste dovezi sunt separate de probele istorice de mai jos. G00/P0.4 și CI remote nu sunt închise implicit de existența unui raport.
+**Implementare locală actuală:** [P0.1](p01-local-readiness.md) · [P0.2](p02-local-control.md) · [calitate Python](p02-python-quality.md) · [P0.3 bootstrap/pairing](p03-local-bootstrap.md), cu [rezultate browser](p03-browser.json) și capturi în `p03-ui/` · [P0.4 topologie host-only parțială](p04-host-uds.md) · [fixture PostgreSQL fără publicație Docker](p04-safe-test-db.md) · [adjudecarea buclei P0.4 și calea critică](p04-loop-adjudication.md). [SL02 — comanda instalată start headless](p04-installed-start.md) și [SL03 — pair/open/implicit pe CLI instalat](p04-pair-open.md) consemnează distinct probele comenzilor, nu ale harnessului. Aceste dovezi sunt separate de probele istorice de mai jos. G00 local este închis numai prin [adjudecarea probelor instalate](p04-stop-recovery.md), nu prin existența acestor rapoarte; CI remote este separat pentru distribuire.
 
 ## Amendamente autorizate, incorporate în canon
 
@@ -20,7 +20,7 @@
 
 [Verificarea amendamentului HF01–HF10](omnis-amendment-verification.md) consemnează codul documentar schimbat, review-urile, comenzile reale PASS/FAIL/BLOCKED/NOT-RUN și WIP-ul păstrat; nu este un nou plan.
 
-HF01–HF10 sunt în [arhitectură](../Omnis_MVP_Architecture.md), [plan §17](../Omnis_Implementation_Plan.md), [UI/UX](../Omnis_UI_UX_Spec.md) și [stack §10](../Omnis_Stack_Baseline.md). Un singur baseline, nu încă un plan alternativ. Contractele noi sunt **SPECIFICATE / RUNTIME NOT-RUN**; P0.4/G00 rămân deschise și WIP-ul DB nu este integrat prin documentare.
+HF01–HF10 sunt în [arhitectură](../Omnis_MVP_Architecture.md), [plan §17](../Omnis_Implementation_Plan.md), [UI/UX](../Omnis_UI_UX_Spec.md) și [stack §10](../Omnis_Stack_Baseline.md). Un singur baseline, nu încă un plan alternativ. Contractele viitoare sunt **SPECIFICATE / RUNTIME NOT-RUN**; P0 local a fost adjudecat separat pe artefact instalat, nu de acest amendament documentar.
 
 Surse și rațiuni **istorice, adjudecate**:
 - [Dosarul Sol](omnis-pentest-review-proposal.md), cu recomandări înlocuite explicit în plan §17.

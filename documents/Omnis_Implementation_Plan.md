@@ -232,7 +232,7 @@ Nu construim aici un motor generic de workflow sau toate tabelele proiectului. M
 
 **B04:** formularul conectat la API, erori per câmp, dirty-state, optimistic concurrency și refresh/restart. Matricea business poate fi introdusă ca date nesensibile; formularul securizat de credențiale HTTP se activează cu B09h/G-AUTH-HTTP (P3-auth), înainte de prima BOLA API-only; numai assisted browser login așteaptă P3b. Până atunci câmpurile secret sunt indisponibile, nu mutate în prompt.
 
-**G01:** create/edit/reload/restart păstrează exact datele; două taburi nu suprascriu fără 409; cross-origin/Host fals/CSRF absent sunt refuzate. Scope/politică/model/catalog nu se editează cu run activ. Paginile viitoare nu conțin metrici inventate, iar Start explică gate-ul lipsă. E2E keyboard/focus și mobil pentru fluxul de creare.
+**G01:** create/edit/reload/restart păstrează exact datele; două taburi nu suprascriu fără 409; cross-origin/Host fals/CSRF absent sunt refuzate. Scope/politică/model/catalog nu se editează cu run activ; **în P1 nu există încă run**, deci acest negativ rămâne `NOT_RUN` până la primul consumator real B06 și nu blochează G01 pentru drafturile inerte. Nu se creează un run/tabel fals doar ca să fie bifat testul. Paginile viitoare nu conțin metrici inventate, iar Start explică gate-ul lipsă. E2E keyboard/focus și mobil pentru fluxul de creare.
 
 ## 7. P2 — contracte Hermes și riscuri eliminate devreme
 

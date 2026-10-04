@@ -10,7 +10,29 @@ from pathlib import Path
 
 from installed_start import assert_resources_absent, resource_snapshot, save_probe, teardown
 from omnis_cli.control import request
+from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
+
+
+def _lock_effect_snapshot(runtime, root, control, port, record):
+    """Read the Stop lock boundary, including effects outside container state."""
+    network_id = runtime.network(set(record["containers"].values()))
+    assert network_id is not None
+    network = runtime.inspect("network", network_id)
+    assert network is not None and network["Id"] == network_id
+    return {
+        "containers": resource_snapshot(runtime, root, control, port),
+        "network_id": network_id,
+        "network": network,
+        "control": request(control, {"op": "status"}),
+        "db_barrier": runtime.psql(
+            record["containers"]["db"],
+            "SELECT instance_id, admission_open, shutdown_command_id, generation, "
+            "quiesced_generation, quiesced_at FROM instance_control WHERE id = 1",
+        ),
+        "stop_receipts": sorted(path.name for path in root.glob("stop-*.json")),
+        "unreconciled": os.path.lexists(root / "unreconciled.json"),
+    }
 
 
 def run_installed_stop(data, receipt, cli):
@@ -43,6 +65,7 @@ def run_installed_stop(data, receipt, cli):
     before = None
     before_journal = None
     proof = cleanup = False
+    lock_probe_pending = False
     save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
 
     def command(*args, expected=0, timeout=330):
@@ -83,6 +106,33 @@ def run_installed_stop(data, receipt, cli):
         db = record["containers"]["db"]
         runtime.psql(db, "CREATE TABLE sl04_sentinel (value integer NOT NULL)")
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
+
+        runtime.deadline = time.monotonic() + 30
+        before_lock = _lock_effect_snapshot(runtime, root, control, port, record)
+        assert before_lock["control"]["admission_open"] is True
+        assert not before_lock["stop_receipts"] and not before_lock["unreconciled"]
+        original_config = config.read_bytes()
+        try:
+            config.write_text(f"port = {port}\nshutdown_timeout_seconds = 15\n")
+            began = time.monotonic()
+            with lifecycle_lock(data / "omnis", began + 30):
+                lock_probe_pending = True
+                refused = command("stop", "--json", expected=2, timeout=25)
+            elapsed = time.monotonic() - began
+            assert refused["reason"] == "LIFECYCLE_BUSY" and not refused["dashboard_ready"]
+            assert 14 <= elapsed < 22, "Configured Stop lock deadline was not measured"
+            assert (root / "startup.json").read_bytes() == before_journal
+            assert (root / "instance.json").read_bytes() == before_instance
+            runtime.deadline = time.monotonic() + 30
+            assert _lock_effect_snapshot(runtime, root, control, port, record) == before_lock
+        finally:
+            config.write_bytes(original_config)
+            assert config.read_bytes() == original_config
+        lock_probe_pending = False
+        print(
+            f"INSTALLED_STOP_LOCK_EXPIRY project={receipt['project']} exit=2 elapsed={elapsed:.3f}s shutdown_budget=15s effects=none",
+            flush=True,
+        )
 
         stopper = subprocess.Popen(
             [cli, "stop", "--json"],
@@ -181,7 +231,9 @@ def run_installed_stop(data, receipt, cli):
         # An ordinary RED refusal with unchanged READY authority remains a
         # test-owned healthy instance. Only then can the existing observer
         # dismantle it; a partial Stop keeps its locator and UNCERTAIN verdict.
-        if not cleanup and os.path.lexists(root / "startup.json"):
+        # A timed-out or malformed lock probe may have an unsettled child family;
+        # preserve its locator instead of retiring an apparently unchanged READY.
+        if not cleanup and not lock_probe_pending and os.path.lexists(root / "startup.json"):
             record = json.loads((root / "startup.json").read_text())
             runtime.attempt = record["attempt"]
             runtime.deadline = time.monotonic() + 110

@@ -238,7 +238,7 @@ def request(
                 valid = (
                     result == expected + 1
                     and status["admission_open"] is False
-                    and status["shutdown_command_id"] is not None
+                    and status["shutdown_command_id"] == command["command_id"]
                 )
             else:
                 valid = (

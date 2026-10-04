@@ -336,6 +336,7 @@ class StatusTest(unittest.TestCase):
             {"result_generation": 1, "status": {**valid["status"], "generation": 1}},
             {"owner_epoch": 2},
             {"status": {**valid["status"], "generation": 3}},
+            {"status": {**valid["status"], "shutdown_command_id": str(uuid4())}},
             {"status": {**valid["status"], "admission_open": True}},
         ):
             reply = {**valid, **change}

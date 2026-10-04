@@ -534,6 +534,10 @@ def run_installed_start(
         finally:
             path.write_bytes(original)
         if pair_open:
+            local_db = record["containers"]["db"]
+            issuance_at_foreign_origin = runtime.psql(
+                local_db, "SELECT count(*) FROM pairing_issuance"
+            )
             with socket.socket() as foreign:
                 foreign.bind(("127.0.0.1", 0))
                 foreign.listen(1)
@@ -542,8 +546,23 @@ def run_installed_start(
                 changed["origin"] = f"http://127.0.0.1:{foreign.getsockname()[1]}"
                 path.write_text(json.dumps(changed))
                 try:
-                    assert "RECOVERY_REQUIRED" in (tty_pair(cli, cwd, env, expected=4) or "")
-                    assert "RECOVERY_REQUIRED" in command(cli, ["open"], cwd, env, expected=4)[1]
+                    # A configured port conflicts before the foreign-origin identity
+                    # check; the unconfigured TTY fixture covers RECOVERY_REQUIRED.
+                    if configured_pair_open:
+                        assert "CONFIG_PORT_CONFLICT" in (tty_pair(cli, cwd, env, expected=2) or "")
+                        assert (
+                            "CONFIG_PORT_CONFLICT"
+                            in command(cli, ["open"], cwd, env, expected=2)[1]
+                        )
+                    else:
+                        assert "RECOVERY_REQUIRED" in (tty_pair(cli, cwd, env, expected=4) or "")
+                        assert (
+                            "RECOVERY_REQUIRED" in command(cli, ["open"], cwd, env, expected=4)[1]
+                        )
+                    assert (
+                        runtime.psql(local_db, "SELECT count(*) FROM pairing_issuance")
+                        == issuance_at_foreign_origin
+                    )
                     try:
                         foreign.accept()
                     except TimeoutError:

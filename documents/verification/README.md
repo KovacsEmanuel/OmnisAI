@@ -14,6 +14,8 @@
 
 **Criteriul activ pentru P0 pe această VM:** [arhitectura §4.5](../Omnis_MVP_Architecture.md) și [planul §5](../Omnis_Implementation_Plan.md) cer comenzi instalate reale Start/Stop/Start explicit, date păstrate, refuzul resurselor străine, control local și `UNCERTAIN` conservator. [Harta curentă](implementation-status.md) păstrează verdictul. Vechiul inventar numerotat de faulturi și mandatul de a-l executa integral au fost scoase din arborele activ prin decizia operatorului; ele rămân în istoria Git numai ca proveniență, **nu** criterii de implementare sau review. [Registrul SL04](p04-stop-recovery.md), [M22](p00-m22-config.md) și [SL03](p04-pair-open.md) păstrează rezultate și FAIL-uri istorice, fără a transforma etichetele lor vechi în porți noi. CI remote și izolarea altui host/UID sunt distincte pentru distribuire/portare, nu blocaje pentru folosirea locală inertă.
 
+Pentru următoarea fază, [promptul de execuție P1](p1-implementation-prompt.md) împarte B02→B03/B04→G01 în felii verticale și citează sursele canonice. Este pregătire, **nu** implementare P1 și nu un verdict CI pentru commitul P0 împins.
+
 [Amendamentul skill-uri/copii din notițele originale](omnis-skill-pattern-amendment.md) păstrează sursa, cele 19 decizii de adaptare și limitele native; contractele și ordinea se introduc în același canon.
 
 [Deep review-ul de flux și livrare](omnis-deep-review.md) urmărește dependențele implicite și scenariile cap-coadă după HF01–HF10; verdictul și remediile sunt separate de gate-urile runtime.

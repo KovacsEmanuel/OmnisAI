@@ -22,7 +22,7 @@ from omnis_cli.compose import ImageReceipt, _put_record
 GATES = {
     "CONTROL": ["control"],
     "START": ["start", "interrupt", "interrupt-FORWARDING", "interrupt-dashboard", "db", "lock"],
-    "PAIR_OPEN": ["start", "non-tty"],
+    "PAIR_OPEN": ["start", "start-config", "non-tty"],
     "STOP": ["stop", "emergency"],
 }
 
@@ -72,6 +72,9 @@ class ReleaseImageCleanupTest(unittest.TestCase):
                         label += "-" + kwargs["phase"]
                 if label == "start":
                     self.assertEqual(kwargs["pair_open"], "PAIR_OPEN" in enabled)
+                    if kwargs.get("configured_pair_open"):
+                        self.assertIn("PAIR_OPEN", enabled)
+                        label = "start-config"
                 events.append(label)
                 if label == fail_at:
                     assert error is not None
@@ -160,7 +163,7 @@ class ReleaseImageCleanupTest(unittest.TestCase):
             if "START" in enabled or "PAIR_OPEN" in enabled:
                 sequence += ["start"]
                 if "PAIR_OPEN" in enabled:
-                    sequence += ["non-tty"]
+                    sequence += GATES["PAIR_OPEN"][1:]
                 if "START" in enabled:
                     sequence += GATES["START"][1:]
             if "STOP" in enabled:

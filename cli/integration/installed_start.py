@@ -238,7 +238,10 @@ def run_reused_default(cli, cwd, env, port, *, on_joined=None):
     return result
 
 
-def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
+def run_installed_start(
+    data, receipt, scratch, cli, *, pair_open=False, configured_pair_open=False
+):
+    assert not configured_pair_open or pair_open
     state = Path(tempfile.mkdtemp(prefix="s2-", dir=os.environ["TMPDIR"]))
     root, control = state / "s/omnis", state / "r/omnis"
     cwd = state / "cwd"
@@ -256,10 +259,10 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         "XDG_RUNTIME_DIR": str(state / "r"),
     }
     with socket.socket() as selected:
-        selected.bind(("127.0.0.1", 0))
+        selected.bind(("127.0.0.1", 8765 if pair_open and not configured_pair_open else 0))
         port = selected.getsockname()[1]
     config_path = None
-    if pair_open:
+    if configured_pair_open:
         assert port != 8765, "Configured pair/open must not use the default origin"
         config_home = state / "config"
         config_dir = config_home / "omnis"
@@ -426,7 +429,7 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         before = snapshot()
         driver_uncertain = False
         metadata_paths = [root / "startup.json", root / "instance.json", data / "omnis/image.json"]
-        if pair_open:
+        if configured_pair_open:
             assert config_path is not None
             metadata_paths.append(config_path)
         metadata_before = {str(p): (p.read_bytes(), p.stat().st_mtime_ns) for p in metadata_paths}

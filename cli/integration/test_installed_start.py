@@ -14,6 +14,48 @@ from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_pair_open_default_tty_fixture_is_not_replaced_by_configured_origin(self):
+        """The canonical implicit TTY/default path remains a separate installed fixture."""
+        from unittest.mock import patch
+
+        import installed_start as harness
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            binds = []
+
+            class Selection:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *_args):
+                    return False
+
+                def bind(self, address):
+                    binds.append(address)
+
+                def getsockname(self):
+                    return ("127.0.0.1", 8765 if binds[-1][1] == 8765 else 9101)
+
+            def inspect_fixture(_data, _deadline):
+                self.assertEqual(binds, [("127.0.0.1", 8765)])
+                self.assertFalse((state / "config").exists(), "Default TTY path was replaced")
+                raise RuntimeError("default fixture inspected before OCI")
+
+            with (
+                patch.object(harness.tempfile, "mkdtemp", return_value=name),
+                patch.object(harness.socket, "socket", return_value=Selection()),
+                patch.object(harness, "ControlRuntime", side_effect=inspect_fixture),
+                self.assertRaisesRegex(RuntimeError, "default fixture inspected before OCI"),
+            ):
+                harness.run_installed_start(
+                    state / "data",
+                    {"project": "synthetic-project", "image_id": "synthetic-image"},
+                    state,
+                    "/synthetic/omnis",
+                    pair_open=True,
+                )
+
     def test_pair_open_fixture_selects_private_configured_nondefault_port(self):
         """Fail before OCI; the opt-in installed gate exercises TTY/HTTP on this fixture."""
         from unittest.mock import patch
@@ -48,6 +90,7 @@ class InstalledStartObserverTest(unittest.TestCase):
                     state,
                     "/synthetic/omnis",
                     pair_open=True,
+                    configured_pair_open=True,
                 )
 
     def test_unknown_pair_child_exit_keeps_family_uncertain(self):

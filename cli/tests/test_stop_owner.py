@@ -26,7 +26,14 @@ class StopProductTests(unittest.TestCase):
             with self.subTest(lock=("data", "state")[index]):
                 self._swapped_candidate_refused_before_ready(index)
 
-    def _swapped_candidate_refused_before_ready(self, index):
+    def test_swapped_candidate_without_guard_validation_reaches_ready(self):
+        # Same payload/FDs/entrypoint; remove only the acquisition guard check.
+        # This control would have caught an observer-only, false-green refusal.
+        for index in (0, 1):
+            with self.subTest(lock=("data", "state")[index]):
+                self._swapped_candidate_refused_before_ready(index, without_guard=True)
+
+    def _swapped_candidate_refused_before_ready(self, index, *, without_guard=False):
         from omnis_cli.lifecycle import process_identity
         from omnis_cli.stop_owner import _process_stamp
         from omnis_cli.stop_receipt import encoded, persist
@@ -68,15 +75,24 @@ class StopProductTests(unittest.TestCase):
                     process = None
                     pin = -1
                     try:
+                        argv = [
+                            sys.executable,
+                            "-I",
+                            "-m",
+                            "omnis_cli.stop_owner",
+                            str(child.fileno()),
+                            *(str(fd) for fd in locks),
+                        ]
+                        if without_guard:
+                            code = (
+                                "import sys; import omnis_cli.stop_owner as m; "
+                                "m._validate_guarded_lock=lambda fd,guard,root,parent: "
+                                "m._validate_lock(fd,root,parent); "
+                                "sys.argv=['stop-owner',*sys.argv[1:]]; sys.exit(m.main())"
+                            )
+                            argv = [*argv[:2], "-c", code, *argv[4:]]
                         process = subprocess.Popen(
-                            [
-                                sys.executable,
-                                "-I",
-                                "-m",
-                                "omnis_cli.stop_owner",
-                                str(child.fileno()),
-                                *(str(fd) for fd in locks),
-                            ],
+                            argv,
                             pass_fds=(child.fileno(), *locks, *guards),
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL,
@@ -97,10 +113,20 @@ class StopProductTests(unittest.TestCase):
                             )
                         )
                         self.assertTrue(select.select([parent], [], [], 3)[0])
-                        self.assertEqual(parent.recv(128), b"", "no READY for replaced OFD")
+                        reply = parent.recv(128)
+                        if without_guard:
+                            self.assertEqual(reply, b"READY", "mutant did not reach owner boundary")
+                            self.assertIsNotNone(
+                                read_record(receipt_path(fixture.root, fixture.record))["owner"]
+                            )
+                            parent.close()  # No ADMIT: a READY mutant gets no effect.
+                        else:
+                            self.assertEqual(reply, b"", "no READY for replaced OFD")
                         self.assertEqual(process.wait(timeout=3), 4)
                         receipt = read_record(receipt_path(fixture.root, fixture.record))
-                        self.assertEqual((receipt["state"], receipt["owner"]), ("PREPARED", None))
+                        self.assertEqual(receipt["state"], "PREPARED")
+                        if not without_guard:
+                            self.assertIsNone(receipt["owner"])
                         self.assertFalse(
                             any(r.startswith(("POST", "DELETE")) for r in fixture.requests)
                         )

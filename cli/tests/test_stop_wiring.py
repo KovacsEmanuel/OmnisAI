@@ -24,6 +24,55 @@ stop_owner = importlib.import_module("omnis_cli.stop_owner")
 
 
 class StopWiringTest(unittest.TestCase):
+    def test_guard_signal_registration_interrupt_restores_previous_handler(self):
+        with private_stop_fixture() as (base, root, _foreign, _control, record, runtime):
+            for key in stop.STOP_FIELDS - start.READY_FIELDS:
+                record.pop(key)
+            record["phase"] = "READY"
+            write_record(root / "startup.json", record)
+            original = (root / "startup.json").read_bytes()
+            real_signal = signal.signal
+            previous = real_signal(signal.SIGINT, signal.default_int_handler)
+            original_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+            installed = []
+
+            def set_then_interrupt(signum, handler):
+                value = real_signal(signum, handler)
+                if signum == signal.SIGINT and getattr(handler, "__name__", "") == "defer":
+                    installed.append(signum)
+                    raise KeyboardInterrupt("handler installed before registration returned")
+                return value
+
+            env = {
+                "XDG_STATE_HOME": str(base / "s"),
+                "XDG_DATA_HOME": str(base / "d"),
+                "XDG_RUNTIME_DIR": "",
+                "XDG_CONFIG_HOME": str(base / "config"),
+            }
+            try:
+                with (
+                    patch.dict(os.environ, env),
+                    patch.object(stop, "ControlRuntime", return_value=runtime),
+                    patch.object(stop.signal, "signal", side_effect=set_then_interrupt),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    self.assertEqual(main(["stop", "--json"]), 4)
+                self.assertEqual(installed, [signal.SIGINT])
+                self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                self.assertEqual((root / "startup.json").read_bytes(), original)
+                self.assertIs(signal.getsignal(signal.SIGINT), signal.default_int_handler)
+                self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK, set()), original_mask)
+                for directory in (base / "d/omnis", root):
+                    path = directory / "lifecycle.lock"
+                    if path.exists():
+                        challenger = os.open(path, os.O_RDWR)
+                        try:
+                            fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        finally:
+                            os.close(challenger)
+            finally:
+                real_signal(signal.SIGINT, previous)
+
     def test_real_sigint_during_guard_dup_is_deferred_until_alias_registered(self):
         self._guard_sigint(from_peer=False)
 

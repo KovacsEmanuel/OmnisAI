@@ -403,8 +403,8 @@ def _publish_forwarder() -> Iterator[None]:
     try:
         for sig, handler in previous.items():
             if handler in (_interrupt, signal.default_int_handler):
+                changed.append(sig)  # Restore even if setter installs then is interrupted.
                 signal.signal(sig, defer)  # Main-thread restriction enforced before spawn.
-                changed.append(sig)
         yield
     finally:
         for sig in changed:

@@ -68,12 +68,29 @@ class StopWiringTest(unittest.TestCase):
                 record.pop(key)
             record["phase"] = "READY"
             write_record(root / "startup.json", record)
-            events, originals = [], []
+            events, originals, handed_guards, early_data_guards = [], [], [], []
             inventory = {"synthetic-public-inventory": True}
             real_lock = stop.lifecycle_lock
 
             @contextlib.contextmanager
             def locks(path, deadline):
+                if len(originals) == 1:
+                    original = os.fstat(originals[0])
+                    with os.scandir("/proc/self/fd") as entries:
+                        for entry in entries:
+                            try:
+                                candidate = int(entry.name)
+                                info = os.fstat(candidate)
+                                if candidate != originals[0] and (info.st_dev, info.st_ino) == (
+                                    original.st_dev,
+                                    original.st_ino,
+                                ):
+                                    with open(f"/proc/self/fdinfo/{candidate}") as details:
+                                        if "lock:" in details.read():
+                                            early_data_guards.append(candidate)
+                            except OSError:  # /proc/self/fd's own enumeration FD closes.
+                                continue
+                    self.assertEqual(len(early_data_guards), 1)
                 with real_lock(path, deadline) as fd:
                     originals.append(fd)
                     yield fd
@@ -120,14 +137,22 @@ class StopWiringTest(unittest.TestCase):
                 events.append("inventory")
                 return inventory
 
-            def owner(_runtime, _root, _control, saved, grant, *, lock_fds, deadline):
+            def owner(_runtime, _root, _control, saved, grant, *, lock_fds, guard_fds, deadline):
                 events.append("owner")
                 self.assertEqual(lock_fds, tuple(originals))
                 self.assertEqual(deadline, runtime.deadline)
-                for fd, directory in zip(lock_fds, (base / "d/omnis", root), strict=True):
+                self.assertEqual(len(set((*lock_fds, *guard_fds))), 4)
+                self.assertEqual(early_data_guards, [guard_fds[0]])
+                handed_guards.extend(guard_fds)
+                for fd, guard, directory in zip(
+                    lock_fds, guard_fds, (base / "d/omnis", root), strict=True
+                ):
                     self.assertEqual(
                         os.fstat(fd).st_ino, (directory / "lifecycle.lock").stat().st_ino
                     )
+                    self.assertEqual(os.fstat(guard).st_ino, os.fstat(fd).st_ino)
+                    with open(f"/proc/self/fdinfo/{guard}") as info:
+                        self.assertIn("lock:", info.read())
                     with (directory / "lifecycle.lock").open("rb") as other:
                         with self.assertRaises(BlockingIOError):
                             fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -199,6 +224,9 @@ class StopWiringTest(unittest.TestCase):
                     self.assertEqual(read_record(root / "startup.json")["phase"], "STOPPING")
                 else:
                     self.assertEqual(stop.stop_instance()["state"], "STOPPED")
+                    for guard in handed_guards:
+                        with self.assertRaises(OSError):
+                            os.fstat(guard)
                     self.assertEqual(
                         events[:8],
                         [

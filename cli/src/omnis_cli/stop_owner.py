@@ -292,10 +292,10 @@ def prepare_stop_inventory(
     return inventory
 
 
-def _validate_lock(fd: int, root: Path, parent: int) -> None:
+def _validate_lock(fd: int, root: Path, parent: int | None) -> None:
     private_dir(root)
     info, current = os.fstat(fd), (root / "lifecycle.lock").lstat()
-    parent_info = Path(f"/proc/{parent}/fd/{fd}").stat()
+    parent_info = Path(f"/proc/{parent}/fd/{fd}").stat() if parent is not None else info
     if (
         not stat.S_ISREG(info.st_mode)
         or info.st_uid != os.getuid()
@@ -310,14 +310,27 @@ def _validate_lock(fd: int, root: Path, parent: int) -> None:
         for line in Path(f"/proc/self/fdinfo/{fd}").read_text().splitlines()
         if line.startswith("lock:")
     ]
-    original = [
-        line.split()[2:]
-        for line in Path(f"/proc/{parent}/fdinfo/{fd}").read_text().splitlines()
-        if line.startswith("lock:")
-    ]
+    original = (
+        [
+            line.split()[2:]
+            for line in Path(f"/proc/{parent}/fdinfo/{fd}").read_text().splitlines()
+            if line.startswith("lock:")
+        ]
+        if parent is not None
+        else local
+    )
     if len(local) != 1 or local != original or local[0][:3] != ["FLOCK", "ADVISORY", "WRITE"]:
         raise StartError("STOP_ORIGINAL_LOCK_REQUIRED", 4)
     fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def _validate_guarded_lock(fd: int, guard: int, root: Path, parent: int | None) -> None:
+    """Keep the lexical acquisition alias held while challenging the candidate."""
+    first, second = os.fstat(guard), os.fstat(fd)
+    if (first.st_dev, first.st_ino) != (second.st_dev, second.st_ino):
+        raise StartError("STOP_ORIGINAL_LOCK_REQUIRED", 4)
+    _validate_lock(guard, root, parent)
+    _validate_lock(fd, root, parent)
 
 
 def _remaining(deadline: float) -> float:
@@ -666,14 +679,17 @@ def run_stop_owner(
     grant: dict[str, object],
     *,
     lock_fds: tuple[int, int],
+    guard_fds: tuple[int, int],
     deadline: float | None = None,
 ) -> None:
     end = min(
         runtime.deadline, time.monotonic() + 180, runtime.deadline if deadline is None else deadline
     )
     _remaining(end)
-    _validate_lock(lock_fds[0], runtime.release.parents[1], os.getpid())
-    _validate_lock(lock_fds[1], root, os.getpid())
+    if len({*lock_fds, *guard_fds}) != 4:
+        raise StartError("STOP_ORIGINAL_LOCK_REQUIRED", 4)
+    _validate_guarded_lock(lock_fds[0], guard_fds[0], runtime.release.parents[1], os.getpid())
+    _validate_guarded_lock(lock_fds[1], guard_fds[1], root, os.getpid())
     inventory = prepare_stop_inventory(runtime, root, control, record)
     validate_grant(grant, record, inventory)
     path = receipt_path(root, record)
@@ -705,7 +721,7 @@ def run_stop_owner(
                 str(lock_fds[0]),
                 str(lock_fds[1]),
             ],
-            pass_fds=(child.fileno(), *lock_fds),
+            pass_fds=(child.fileno(), *lock_fds, *guard_fds),
             cwd=root,
             env={"PATH": SAFE_PATH},
             stdin=subprocess.DEVNULL,
@@ -722,6 +738,7 @@ def run_stop_owner(
             "record": record,
             "grant": grant,
             "deadline_ns": int(end * 1_000_000_000),
+            "guard_fds": list(guard_fds),
         }
         parent.settimeout(_remaining(end))
         if parent.send(encoded(payload)) != len(encoded(payload)):
@@ -798,8 +815,13 @@ def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:
         raw = _receive(channel, time.monotonic() + 5, parent_fd)
         payload = mapping(json.loads(raw, object_pairs_hook=unique_pairs))
         if (
-            set(payload) != {"root", "control", "data_home", "record", "grant", "deadline_ns"}
+            set(payload)
+            != {"root", "control", "data_home", "record", "grant", "deadline_ns", "guard_fds"}
             or type(payload["deadline_ns"]) is not int
+            or not isinstance(payload["guard_fds"], list)
+            or len(payload["guard_fds"]) != 2
+            or any(type(fd) is not int or fd < 0 for fd in payload["guard_fds"])
+            or len({channel_fd, data_fd, state_fd, *payload["guard_fds"]}) != 5
         ):
             raise StartError("STOP_HANDOFF_REFUSED", 4)
         end = int(str(payload["deadline_ns"])) / 1_000_000_000
@@ -811,8 +833,9 @@ def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:
         root, control, data_home = (
             Path(str(payload[key])) for key in ("root", "control", "data_home")
         )
-        _validate_lock(data_fd, data_home / "omnis", pid)
-        _validate_lock(state_fd, root, pid)
+        data_guard, state_guard = payload["guard_fds"]
+        _validate_guarded_lock(data_fd, data_guard, data_home / "omnis", pid)
+        _validate_guarded_lock(state_fd, state_guard, root, pid)
         record, grant = mapping(payload["record"]), mapping(payload["grant"])
         runtime = _load_runtime(data_home, record, end)
         inventory = prepare_stop_inventory(runtime, root, control, record)
@@ -835,8 +858,8 @@ def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:
         listener_owned(forwarder, int(str(record["port"])), int(str(record["listener_inode"])))
         receipt["owner"] = _process_stamp(process_identity(os.getpid()))
         persist(path, receipt, replace=True)
-        _validate_lock(data_fd, data_home / "omnis", pid)
-        _validate_lock(state_fd, root, pid)
+        _validate_guarded_lock(data_fd, data_guard, data_home / "omnis", pid)
+        _validate_guarded_lock(state_fd, state_guard, root, pid)
         if select.select([parent_fd], [], [], 0)[0]:
             raise StartError("STOP_HANDOFF_REFUSED", 4)
         channel.sendall(b"READY")
@@ -844,6 +867,8 @@ def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:
             raise StartError("STOP_HANDOFF_REFUSED", 4)
         os.close(parent_fd)
         parent_fd = -1  # No parent-death kill or parent liveness requirement after admission.
+        _validate_guarded_lock(data_fd, data_guard, data_home / "omnis", None)
+        _validate_guarded_lock(state_fd, state_guard, root, None)
         if encoded(prepare_stop_inventory(runtime, root, control, record)) != encoded(inventory):
             raise StartError("STOP_INVENTORY_DRIFT", 4)
         _execute(_view(runtime), root, control, record, grant, receipt, forwarder_fd)

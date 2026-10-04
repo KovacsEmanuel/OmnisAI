@@ -7,6 +7,7 @@ import signal
 import subprocess
 import sys
 import time
+from contextlib import ExitStack
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -578,10 +579,13 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
     if preflight is not None:
         _bound_instance(runtime, root, control, preflight)
     deadline = runtime.deadline
-    with (
-        lifecycle_lock(data_home / "omnis", deadline) as data_fd,
-        lifecycle_lock(root, deadline) as state_fd,
-    ):
+    with ExitStack() as held:
+        data_fd = held.enter_context(lifecycle_lock(data_home / "omnis", deadline))
+        data_guard = os.dup(data_fd)  # Lexical original, before the state acquisition.
+        held.callback(os.close, data_guard)
+        state_fd = held.enter_context(lifecycle_lock(root, deadline))
+        state_guard = os.dup(state_fd)
+        held.callback(os.close, state_guard)
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
@@ -718,6 +722,7 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
                     record,
                     grant,
                     lock_fds=(data_fd, state_fd),
+                    guard_fds=(data_guard, state_guard),
                     deadline=deadline,
                 )
                 verify_stop_completion(runtime, root, control, record, grant)

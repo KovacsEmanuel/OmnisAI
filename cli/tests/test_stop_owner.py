@@ -21,6 +21,303 @@ from stop_owner_fixture import Fixture, owner_test_argv
 
 
 class StopProductTests(unittest.TestCase):
+    def test_same_parent_swapped_locked_candidate_refused_before_ready(self):
+        for index in (0, 1):
+            with self.subTest(lock=("data", "state")[index]):
+                self._swapped_candidate_refused_before_ready(index)
+
+    def _swapped_candidate_refused_before_ready(self, index):
+        from omnis_cli.lifecycle import process_identity
+        from omnis_cli.stop_owner import _process_stamp
+        from omnis_cli.stop_receipt import encoded, persist
+
+        fixture = Fixture()
+        try:
+            with fixture.original_locks() as (locks, guards):
+                inventory = prepare_stop_inventory(
+                    fixture.runtime, fixture.root, fixture.control, fixture.record
+                )
+                grant = fixture.grant(inventory)
+                persist(
+                    receipt_path(fixture.root, fixture.record),
+                    {
+                        "version": 1,
+                        "grant": grant,
+                        "owner": None,
+                        "launcher": _process_stamp(process_identity(os.getpid())),
+                        "state": "PREPARED",
+                        "pending": None,
+                        "completed": [],
+                    },
+                )
+                # Deliberately unlock the acquisition-time OFD before taking an
+                # independent same-inode exclusive lock and replacing the number.
+                # This adversarial fault is not a legitimate Stop call sequence.
+                directory = (fixture.data / "omnis", fixture.root)[index]
+                independent = os.open(directory / "lifecycle.lock", os.O_RDWR)
+                try:
+                    fcntl.flock(locks[index], fcntl.LOCK_UN)
+                    fcntl.flock(independent, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    os.dup2(independent, locks[index])
+                    self.assertEqual(os.fstat(guards[index]).st_ino, os.fstat(locks[index]).st_ino)
+                    self.assertNotIn(
+                        "lock:", Path(f"/proc/self/fdinfo/{guards[index]}").read_text()
+                    )
+                    self.assertIn("lock:", Path(f"/proc/self/fdinfo/{locks[index]}").read_text())
+                    parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                    process = None
+                    pin = -1
+                    try:
+                        process = subprocess.Popen(
+                            [
+                                sys.executable,
+                                "-I",
+                                "-m",
+                                "omnis_cli.stop_owner",
+                                str(child.fileno()),
+                                *(str(fd) for fd in locks),
+                            ],
+                            pass_fds=(child.fileno(), *locks, *guards),
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
+                        pin = os.pidfd_open(process.pid)
+                        child.close()
+                        parent.send(
+                            encoded(
+                                {
+                                    "root": str(fixture.root),
+                                    "control": str(fixture.control),
+                                    "data_home": str(fixture.data),
+                                    "record": fixture.record,
+                                    "grant": grant,
+                                    "deadline_ns": int(fixture.runtime.deadline * 1_000_000_000),
+                                    "guard_fds": list(guards),
+                                }
+                            )
+                        )
+                        self.assertTrue(select.select([parent], [], [], 3)[0])
+                        self.assertEqual(parent.recv(128), b"", "no READY for replaced OFD")
+                        self.assertEqual(process.wait(timeout=3), 4)
+                        receipt = read_record(receipt_path(fixture.root, fixture.record))
+                        self.assertEqual((receipt["state"], receipt["owner"]), ("PREPARED", None))
+                        self.assertFalse(
+                            any(r.startswith(("POST", "DELETE")) for r in fixture.requests)
+                        )
+                        self.assertIsNone(fixture.forwarder.poll())
+                        for locked_directory in (fixture.data / "omnis", fixture.root):
+                            challenger = os.open(locked_directory / "lifecycle.lock", os.O_RDWR)
+                            try:
+                                with self.assertRaises(BlockingIOError):
+                                    fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                            finally:
+                                os.close(challenger)
+                    finally:
+                        parent.close()
+                        child.close()
+                        if pin >= 0:
+                            if process is not None and process.poll() is None:
+                                signal.pidfd_send_signal(pin, signal.SIGKILL)
+                            os.close(pin)
+                        if process is not None:
+                            process.wait(timeout=3)
+                finally:
+                    # Restore the acquisition-time FD before its context exits;
+                    # the guard was never replaced, and no owner keeps the swap.
+                    os.dup2(guards[index], locks[index])
+                    os.close(independent)
+                challenger = os.open(directory / "lifecycle.lock", os.O_RDWR)
+                try:
+                    fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                finally:
+                    os.close(challenger)
+        finally:
+            fixture.close()
+
+    def test_guarded_original_alias_reaches_ready_and_admit_completion(self):
+        from omnis_cli.lifecycle import process_identity
+        from omnis_cli.stop_owner import _process_stamp
+        from omnis_cli.stop_receipt import encoded, persist
+
+        fixture = Fixture()
+        try:
+            with fixture.original_locks() as (locks, guards):
+                inventory = prepare_stop_inventory(
+                    fixture.runtime, fixture.root, fixture.control, fixture.record
+                )
+                grant = fixture.grant(inventory)
+                persist(
+                    receipt_path(fixture.root, fixture.record),
+                    {
+                        "version": 1,
+                        "grant": grant,
+                        "owner": None,
+                        "launcher": _process_stamp(process_identity(os.getpid())),
+                        "state": "PREPARED",
+                        "pending": None,
+                        "completed": [],
+                    },
+                )
+                parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                process = None
+                pin = -1
+                try:
+                    argv = [
+                        sys.executable,
+                        "-I",
+                        "-m",
+                        "omnis_cli.stop_owner",
+                        str(child.fileno()),
+                        *(str(fd) for fd in locks),
+                    ]
+                    process = subprocess.Popen(
+                        owner_test_argv(argv),
+                        pass_fds=(child.fileno(), *locks, *guards),
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    pin = os.pidfd_open(process.pid)
+                    child.close()
+                    parent.send(
+                        encoded(
+                            {
+                                "root": str(fixture.root),
+                                "control": str(fixture.control),
+                                "data_home": str(fixture.data),
+                                "record": fixture.record,
+                                "grant": grant,
+                                "deadline_ns": int(fixture.runtime.deadline * 1_000_000_000),
+                                "guard_fds": list(guards),
+                            }
+                        )
+                    )
+                    parent.settimeout(5)
+                    self.assertEqual(parent.recv(128), b"READY")
+                    self.assertEqual(
+                        read_record(receipt_path(fixture.root, fixture.record))["state"], "PREPARED"
+                    )
+                    for directory in (fixture.data / "omnis", fixture.root):
+                        challenger = os.open(directory / "lifecycle.lock", os.O_RDWR)
+                        try:
+                            with self.assertRaises(BlockingIOError):
+                                fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        finally:
+                            os.close(challenger)
+                    self.assertEqual(parent.send(b"ADMIT"), 5)
+                    self.assertEqual(parent.recv(128), b"DONE")
+                    self.assertEqual(process.wait(timeout=5), 0)
+                    verify_stop_completion(
+                        fixture.runtime, fixture.root, fixture.control, fixture.record, grant
+                    )
+                    self.assertEqual(
+                        read_record(receipt_path(fixture.root, fixture.record))["state"],
+                        "COMPLETED",
+                    )
+                    self.assertEqual(
+                        len([r for r in fixture.requests if r.startswith(("POST", "DELETE"))]), 7
+                    )
+                finally:
+                    parent.close()
+                    child.close()
+                    if pin >= 0:
+                        if process is not None and process.poll() is None:
+                            signal.pidfd_send_signal(pin, signal.SIGKILL)
+                        os.close(pin)
+                    if process is not None:
+                        process.wait(timeout=3)
+        finally:
+            fixture.close()
+
+    def test_post_admit_unlocked_original_refuses_before_host_effect(self):
+        from omnis_cli.lifecycle import process_identity
+        from omnis_cli.stop_owner import _process_stamp
+        from omnis_cli.stop_receipt import encoded, persist
+
+        fixture = Fixture()
+        try:
+            with fixture.original_locks() as (locks, guards):
+                inventory = prepare_stop_inventory(
+                    fixture.runtime, fixture.root, fixture.control, fixture.record
+                )
+                grant = fixture.grant(inventory)
+                persist(
+                    receipt_path(fixture.root, fixture.record),
+                    {
+                        "version": 1,
+                        "grant": grant,
+                        "owner": None,
+                        "launcher": _process_stamp(process_identity(os.getpid())),
+                        "state": "PREPARED",
+                        "pending": None,
+                        "completed": [],
+                    },
+                )
+                parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                process = None
+                pin = -1
+                try:
+                    argv = [
+                        sys.executable,
+                        "-I",
+                        "-m",
+                        "omnis_cli.stop_owner",
+                        str(child.fileno()),
+                        *(str(fd) for fd in locks),
+                    ]
+                    process = subprocess.Popen(
+                        owner_test_argv(argv),
+                        pass_fds=(child.fileno(), *locks, *guards),
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    pin = os.pidfd_open(process.pid)
+                    child.close()
+                    parent.send(
+                        encoded(
+                            {
+                                "root": str(fixture.root),
+                                "control": str(fixture.control),
+                                "data_home": str(fixture.data),
+                                "record": fixture.record,
+                                "grant": grant,
+                                "deadline_ns": int(fixture.runtime.deadline * 1_000_000_000),
+                                "guard_fds": list(guards),
+                            }
+                        )
+                    )
+                    parent.settimeout(5)
+                    self.assertEqual(parent.recv(128), b"READY")
+                    # Both owner-held aliases share this OFD; unlocking the
+                    # launcher copy revokes it before the post-ADMIT challenge.
+                    fcntl.flock(locks[1], fcntl.LOCK_UN)
+                    self.assertNotIn("lock:", Path(f"/proc/self/fdinfo/{guards[1]}").read_text())
+                    self.assertEqual(parent.send(b"ADMIT"), 5)
+                    self.assertEqual(parent.recv(128), b"", "no DONE after original unlock")
+                    self.assertEqual(process.wait(timeout=3), 4)
+                    receipt = read_record(receipt_path(fixture.root, fixture.record))
+                    self.assertEqual(receipt["state"], "PREPARED")
+                    self.assertIsNotNone(receipt["owner"])
+                    self.assertFalse(
+                        any(r.startswith(("POST", "DELETE")) for r in fixture.requests)
+                    )
+                    self.assertIsNone(fixture.forwarder.poll())
+                    challenger = os.open(fixture.root / "lifecycle.lock", os.O_RDWR)
+                    try:
+                        fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    finally:
+                        os.close(challenger)
+                finally:
+                    parent.close()
+                    child.close()
+                    if pin >= 0:
+                        if process is not None and process.poll() is None:
+                            signal.pidfd_send_signal(pin, signal.SIGKILL)
+                        os.close(pin)
+                    if process is not None:
+                        process.wait(timeout=3)
+        finally:
+            fixture.close()
+
     def test_eof_after_ready_with_live_launcher_has_zero_effect(self):
         from omnis_cli.lifecycle import process_identity
         from omnis_cli.stop_owner import _process_stamp
@@ -28,10 +325,7 @@ class StopProductTests(unittest.TestCase):
 
         fixture = Fixture()
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
+            with fixture.original_locks() as (locks, guards):
                 inventory = prepare_stop_inventory(
                     fixture.runtime, fixture.root, fixture.control, fixture.record
                 )
@@ -56,10 +350,9 @@ class StopProductTests(unittest.TestCase):
                         "-m",
                         "omnis_cli.stop_owner",
                         str(child.fileno()),
-                        str(data_fd),
-                        str(state_fd),
+                        *(str(fd) for fd in locks),
                     ],
-                    pass_fds=(child.fileno(), data_fd, state_fd),
+                    pass_fds=(child.fileno(), *locks, *guards),
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
@@ -74,6 +367,7 @@ class StopProductTests(unittest.TestCase):
                                 "record": fixture.record,
                                 "grant": grant,
                                 "deadline_ns": int(fixture.runtime.deadline * 1e9),
+                                "guard_fds": list(guards),
                             }
                         )
                     )
@@ -92,7 +386,8 @@ class StopProductTests(unittest.TestCase):
                             fixture.control,
                             fixture.record,
                             grant,
-                            lock_fds=(data_fd, state_fd),
+                            lock_fds=locks,
+                            guard_fds=guards,
                         )
                 finally:
                     parent.close()
@@ -104,10 +399,7 @@ class StopProductTests(unittest.TestCase):
     def test_unverifiable_container_family_refuses_before_host_effect(self):
         fixture = Fixture()
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
+            with fixture.original_locks() as (locks, guards):
                 inventory = prepare_stop_inventory(
                     fixture.runtime, fixture.root, fixture.control, fixture.record
                 )
@@ -118,12 +410,45 @@ class StopProductTests(unittest.TestCase):
                         fixture.control,
                         fixture.record,
                         fixture.grant(inventory),
-                        lock_fds=(data_fd, state_fd),
+                        lock_fds=locks,
+                        guard_fds=guards,
                     )
                 self.assertIsNone(
                     fixture.forwarder.poll(), "unproved family must not close admission transport"
                 )
                 self.assertFalse(any(x.startswith(("POST", "DELETE")) for x in fixture.requests))
+        finally:
+            fixture.close()
+
+    def test_launcher_rejects_swapped_lock_before_receipt_or_engine(self):
+        fixture = Fixture()
+        try:
+            with fixture.original_locks() as (locks, guards):
+                inventory = prepare_stop_inventory(
+                    fixture.runtime, fixture.root, fixture.control, fixture.record
+                )
+                independent = os.open(fixture.root / "lifecycle.lock", os.O_RDWR)
+                try:
+                    fcntl.flock(locks[1], fcntl.LOCK_UN)
+                    fcntl.flock(independent, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    os.dup2(independent, locks[1])
+                    with self.assertRaisesRegex(StartError, "STOP_ORIGINAL_LOCK_REQUIRED"):
+                        run_stop_owner(
+                            fixture.runtime,
+                            fixture.root,
+                            fixture.control,
+                            fixture.record,
+                            fixture.grant(inventory),
+                            lock_fds=locks,
+                            guard_fds=guards,
+                        )
+                    self.assertFalse(os.path.lexists(receipt_path(fixture.root, fixture.record)))
+                    self.assertFalse(
+                        any(r.startswith(("POST", "DELETE")) for r in fixture.requests)
+                    )
+                finally:
+                    os.dup2(guards[1], locks[1])
+                    os.close(independent)
         finally:
             fixture.close()
 
@@ -155,10 +480,7 @@ class StopProductTests(unittest.TestCase):
             return process
 
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
+            with fixture.original_locks() as (locks, guards):
                 inventory = prepare_stop_inventory(
                     fixture.runtime, fixture.root, fixture.control, fixture.record
                 )
@@ -172,7 +494,8 @@ class StopProductTests(unittest.TestCase):
                             fixture.control,
                             fixture.record,
                             fixture.grant(inventory),
-                            lock_fds=(data_fd, independent),
+                            lock_fds=(locks[0], independent),
+                            guard_fds=guards,
                         )
                 finally:
                     os.close(independent)
@@ -191,7 +514,8 @@ class StopProductTests(unittest.TestCase):
                         fixture.control,
                         fixture.record,
                         fixture.grant(inventory),
-                        lock_fds=(data_fd, state_fd),
+                        lock_fds=locks,
+                        guard_fds=guards,
                     )
                 self.assertIsNotNone(created[0].returncode)
                 self.assertEqual(len(list(Path("/proc/self/fd").iterdir())), baseline)
@@ -362,10 +686,7 @@ class StopProductTests(unittest.TestCase):
 
         fixture = Fixture()
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline),
-                lifecycle_lock(fixture.root, fixture.runtime.deadline),
-            ):
+            with fixture.original_locks() as (_locks, guards):
                 fds = []
                 parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
                 process = None
@@ -381,7 +702,7 @@ class StopProductTests(unittest.TestCase):
                             str(child.fileno()),
                             *(str(fd) for fd in fds),
                         ],
-                        pass_fds=(child.fileno(), *fds),
+                        pass_fds=(child.fileno(), *fds, *guards),
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                     )
@@ -395,6 +716,7 @@ class StopProductTests(unittest.TestCase):
                                 "record": fixture.record,
                                 "grant": {},
                                 "deadline_ns": int(fixture.runtime.deadline * 1e9),
+                                "guard_fds": list(guards),
                             }
                         ).encode()
                     )
@@ -421,10 +743,7 @@ class StopProductTests(unittest.TestCase):
             return original_popen(owner_test_argv(argv), **kwargs)
 
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
+            with fixture.original_locks() as (locks, guards):
                 inventory = prepare_stop_inventory(
                     fixture.runtime, fixture.root, fixture.control, fixture.record
                 )
@@ -441,7 +760,8 @@ class StopProductTests(unittest.TestCase):
                         fixture.control,
                         fixture.record,
                         grant,
-                        lock_fds=(data_fd, state_fd),
+                        lock_fds=locks,
+                        guard_fds=guards,
                     )
                 self.assertEqual((fixture.root / "startup.json").read_bytes(), before)
                 self.assertEqual(
@@ -494,10 +814,7 @@ class StopProductTests(unittest.TestCase):
                     return process
 
                 try:
-                    with (
-                        lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                        lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-                    ):
+                    with fixture.original_locks() as (locks, guards):
                         inventory = prepare_stop_inventory(
                             fixture.runtime, fixture.root, fixture.control, fixture.record
                         )
@@ -511,7 +828,8 @@ class StopProductTests(unittest.TestCase):
                                 fixture.control,
                                 fixture.record,
                                 fixture.grant(inventory),
-                                lock_fds=(data_fd, state_fd),
+                                lock_fds=locks,
+                                guard_fds=guards,
                             )
                         self.assertIsNotNone(
                             created[0].returncode, "failed owner must be boundedly reaped"
@@ -538,7 +856,8 @@ class StopProductTests(unittest.TestCase):
                                 fixture.control,
                                 fixture.record,
                                 fixture.grant(inventory),
-                                lock_fds=(data_fd, state_fd),
+                                lock_fds=locks,
+                                guard_fds=guards,
                             )
                         self.assertEqual(
                             count,

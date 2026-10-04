@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import time
+from contextlib import ExitStack
 from pathlib import Path
 
 from omnis_cli.lifecycle import lifecycle_lock, process_identity
@@ -25,10 +26,13 @@ def main():
     record = payload["record"]
     runtime = _load_runtime(data, record, time.monotonic() + 12)
     helper = runpy.run_path(payload["fixture_module"])
-    with (
-        lifecycle_lock(data / "omnis", runtime.deadline) as data_fd,
-        lifecycle_lock(root, runtime.deadline) as state_fd,
-    ):
+    with ExitStack() as held:
+        data_fd = held.enter_context(lifecycle_lock(data / "omnis", runtime.deadline))
+        data_guard = os.dup(data_fd)
+        held.callback(os.close, data_guard)
+        state_fd = held.enter_context(lifecycle_lock(root, runtime.deadline))
+        state_guard = os.dup(state_fd)
+        held.callback(os.close, state_guard)
         inventory = prepare_stop_inventory(runtime, root, control, record)
         grant = {
             "version": 1,
@@ -66,7 +70,7 @@ def main():
                     str(data_fd),
                     str(state_fd),
                 ],
-                pass_fds=(child.fileno(), data_fd, state_fd),
+                pass_fds=(child.fileno(), data_fd, state_fd, data_guard, state_guard),
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
@@ -81,6 +85,7 @@ def main():
                         "record": record,
                         "grant": grant,
                         "deadline_ns": int(runtime.deadline * 1_000_000_000),
+                        "guard_fds": [data_guard, state_guard],
                     }
                 )
             )
@@ -109,7 +114,15 @@ def main():
             return owner
 
         subprocess.Popen = popen
-        run_stop_owner(runtime, root, control, record, grant, lock_fds=(data_fd, state_fd))
+        run_stop_owner(
+            runtime,
+            root,
+            control,
+            record,
+            grant,
+            lock_fds=(data_fd, state_fd),
+            guard_fds=(data_guard, state_guard),
+        )
 
 
 if __name__ == "__main__":

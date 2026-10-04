@@ -10,7 +10,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from omnis_cli.lifecycle import StartError, lifecycle_lock, read_record
+from omnis_cli.lifecycle import StartError, read_record
 from omnis_cli.stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
 from omnis_cli.stop_receipt import receipt_path
 from stop_owner_fixture import Fixture
@@ -79,10 +79,7 @@ class StopOwnerCleanupTests(unittest.TestCase):
             # The independent observer below must actually kill and reap it.
 
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
+            with fixture.original_locks() as (locks, guards):
                 inventory = prepare_stop_inventory(
                     fixture.runtime, fixture.root, fixture.control, fixture.record
                 )
@@ -104,7 +101,8 @@ class StopOwnerCleanupTests(unittest.TestCase):
                             fixture.control,
                             fixture.record,
                             fixture.grant(inventory),
-                            lock_fds=(data_fd, state_fd),
+                            lock_fds=locks,
+                            guard_fds=guards,
                             deadline=start + 0.3,
                         )
                     except Exception as exc:

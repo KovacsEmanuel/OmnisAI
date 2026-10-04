@@ -6,7 +6,7 @@ import unittest
 from copy import deepcopy
 from unittest.mock import patch
 
-from omnis_cli.lifecycle import StartError, lifecycle_lock, read_record, write_record
+from omnis_cli.lifecycle import StartError, read_record, write_record
 from omnis_cli.stop import STOP_STAGES
 from omnis_cli.stop_engine import StopEngine
 from omnis_cli.stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
@@ -18,11 +18,8 @@ class StopOwnerReviewTests(unittest.TestCase):
     def test_inspect_null_is_not_absence_in_decoder_or_offline_consumer(self):
         fixture = Fixture()
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
-                self.complete(fixture, data_fd, state_fd)
+            with fixture.original_locks() as (locks, guards):
+                self.complete(fixture, locks, guards)
                 original = fixture.response
                 effects = [x for x in fixture.requests if x.startswith(("POST", "DELETE"))]
                 for method, ident, target in (
@@ -94,7 +91,7 @@ class StopOwnerReviewTests(unittest.TestCase):
         finally:
             fixture.close()
 
-    def complete(self, fixture, data_fd, state_fd):
+    def complete(self, fixture, locks, guards):
         inventory = prepare_stop_inventory(
             fixture.runtime, fixture.root, fixture.control, fixture.record
         )
@@ -109,7 +106,8 @@ class StopOwnerReviewTests(unittest.TestCase):
                 fixture.control,
                 fixture.record,
                 fixture.grant(inventory),
-                lock_fds=(data_fd, state_fd),
+                lock_fds=locks,
+                guard_fds=guards,
             )
         self.assertEqual(
             read_record(receipt_path(fixture.root, fixture.record))["state"], "COMPLETED"
@@ -118,11 +116,8 @@ class StopOwnerReviewTests(unittest.TestCase):
     def test_offline_stop_journal_strict_before_engine(self):
         fixture = Fixture()
         try:
-            with (
-                lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-                lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-            ):
-                self.complete(fixture, data_fd, state_fd)
+            with fixture.original_locks() as (locks, guards):
+                self.complete(fixture, locks, guards)
                 clean = deepcopy(fixture.record)
                 effects = [x for x in fixture.requests if x.startswith(("POST", "DELETE"))]
                 self.assertEqual(len(effects), 7)

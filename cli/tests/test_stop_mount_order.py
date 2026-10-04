@@ -5,7 +5,7 @@ import unittest
 from copy import deepcopy
 from unittest.mock import patch
 
-from omnis_cli.lifecycle import lifecycle_lock, read_record
+from omnis_cli.lifecycle import read_record
 from omnis_cli.stop_owner import (
     _container_fingerprint,
     prepare_stop_inventory,
@@ -54,10 +54,7 @@ class StopMountOrderTest(unittest.TestCase):
         def launch(argv, **kwargs):
             return spawn(owner_test_argv(argv), **kwargs)
 
-        with (
-            lifecycle_lock(fixture.data / "omnis", fixture.runtime.deadline) as data_fd,
-            lifecycle_lock(fixture.root, fixture.runtime.deadline) as state_fd,
-        ):
+        with fixture.original_locks() as (locks, guards):
             inventory = prepare_stop_inventory(
                 fixture.runtime, fixture.root, fixture.control, fixture.record
             )
@@ -71,7 +68,8 @@ class StopMountOrderTest(unittest.TestCase):
                     fixture.control,
                     fixture.record,
                     grant,
-                    lock_fds=(data_fd, state_fd),
+                    lock_fds=locks,
+                    guard_fds=guards,
                 )
             verify_stop_completion(
                 fixture.runtime, fixture.root, fixture.control, fixture.record, grant

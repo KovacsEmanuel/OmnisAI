@@ -16,13 +16,20 @@ import sys
 import tempfile
 import threading
 import time
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import unquote
 from uuid import uuid4
 
 from omnis_cli.compose import ImageReceipt, _put_record
-from omnis_cli.lifecycle import StartError, process_identity, socket_identity, write_record
+from omnis_cli.lifecycle import (
+    StartError,
+    lifecycle_lock,
+    process_identity,
+    socket_identity,
+    write_record,
+)
 from omnis_cli.release import _BASE_FILES
 from omnis_cli.stop_owner import _load_runtime
 
@@ -54,6 +61,20 @@ def owner_test_argv(argv):
 
 
 class Fixture:
+    @contextmanager
+    def original_locks(self):
+        # Keep the acquisition-time aliases before acquiring the next lock.
+        with ExitStack() as stack:
+            data_fd = stack.enter_context(
+                lifecycle_lock(self.data / "omnis", self.runtime.deadline)
+            )
+            data_guard = os.dup(data_fd)
+            stack.callback(os.close, data_guard)
+            state_fd = stack.enter_context(lifecycle_lock(self.root, self.runtime.deadline))
+            state_guard = os.dup(state_fd)
+            stack.callback(os.close, state_guard)
+            yield (data_fd, state_fd), (data_guard, state_guard)
+
     def __init__(self):
         self.temp = tempfile.TemporaryDirectory(prefix="s4o-", dir=os.environ["TMPDIR"])
         self.base = Path(self.temp.name)

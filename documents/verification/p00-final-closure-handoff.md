@@ -6,6 +6,8 @@ Cererea operatorului este închiderea **întregii faze P0**, nu încă o felie d
 
 Ținta finală: niciun criteriu obligatoriu P0 rămas PARTIAL/FAIL/BLOCKED/NOT_RUN, niciun blocker de review rămas în scope, cod/teste/documente comise, dovezi reale pentru artefactul final și verdict CI real. **BLOCKED este o escaladare intermediară, nu finalizarea fazei.** Dacă o decizie sau dovadă externă este indispensabilă și indisponibilă, descrie exact condiția și cere decizia necesară; nu inventa succesul și nu extinde singur autorizația.
 
+**Decizie explicită ulterioară acestui handoff — numai U18 external-peer:** operatorul păstrează P0/G00 strict local, single-user, și mută proba fizică din alt peer LAN IPv4/IPv6 și sub alt UID la `NEED_TO_TEST_PUBLIC_EXPOSURE`, obligatorie înainte ca serviciul să fie deployat sau operat pentru alte hosturi/UID-uri (LAN/remote/public, bind non-loopback, multi-user). Un commit/push de cod pentru CI local-only nu declanșează proba peer, dar necesită acordul separat de push. Nu devine PASS și nu autorizează expunere; topologia/negativele **locale**, zero porturi Docker, Host/Origin/capability și zero provider/target/refresh IO la sink rămân obligatorii în G00, la fel ca U/C restante, M22, reviewul și CI. [Arhitectura §4.5](../Omnis_MVP_Architecture.md), [planul §5](../Omnis_Implementation_Plan.md) și [matricea U18 revizia 2](p00-closure-matrix.md) sunt autoritatea actualizată pentru acest unic amendament; secțiunile istorice de mai jos rămân citabile la revizia lor, nu cerințe peer curente pentru G00 local.
+
 ## 1. Punctul de plecare verificat
 
 - Repo: `/home/kali/OmnisAI`, branch `p04-control-topology-wip`.

@@ -1,5 +1,7 @@
 # SL04 / P0.4d / B01f — contract și registru stop/recovery
 
+**REGISTRU ISTORIC, NU POARTĂ ACTIVĂ:** etichetele numerotate U/C și comenzile de fault exhaustive de mai jos descriu încercările la reviziile lor. Operatorul a retras inventarul numerotat; pentru implementare/review curent folosește numai [arhitectura §4.5](../Omnis_MVP_Architecture.md), [planul §5](../Omnis_Implementation_Plan.md) și [harta de status](implementation-status.md). Păstrează FAIL/UNCERTAIN, datele și receipturile istorice; nu reporni cut-urile ca să obții un PASS cosmetic.
+
 ## Contract înainte de cod
 
 Bază `d08bcafeaeb1567dfb4f8b320fc53481a0d1b4c2`, branch `p04-control-topology-wip`. La intrare diff tracked/index gol; `documents/Omnis_Notite_Originale.html` este preexistent, neversionat și protejat. Worktree-urile `remediation-ar` și `remediation-rtf02` la `9dd45ea` sunt separate. Nu atingem recuperările istorice `s2i-841796q5`/`s2db-3od0cvym` (RECOVERY_PENDING), nici alte instanțe; nu facem push. Arhitectura §4.1–4.5 este autoritatea pentru comportament, planul §4.2/§5/§19 pentru ordinea și gates; handofful versionat definește perimetrul probei.
@@ -131,7 +133,7 @@ Analiza read-only `deleg_cfaa90ac` a recomandat un handoff unic cu FD-urile **re
 
 ### Reluare P0: verificare HEAD, review și remedierea prerechizitului DB izolat
 
-La intrare principalul era `3c22d81`, fără modificări tracked; sesiunea anterioară nu integrase fence-ul și nu închisese SL04. [Matricea înainte de cod](p00-closure-matrix.md), comisă în `ad3e1f2`, păstrează U01–U26/C01–C17 și toate obligațiile S/M/L, cu producători/consumatori/canale/readback separate. Pe principal, `test-sl04-pg` a trecut **41/41** cu runnerul PG18.6 (`db-fbab9f61e8eb481b`, exit0); testul E→E+1 din `32e3656` a fost astfel rerulat real, dar **nu** Stop instalat sub takeover.
+La intrare principalul era `3c22d81`, fără modificări tracked; sesiunea anterioară nu integrase fence-ul și nu închisese SL04. Inventarul numerotat istoric (Git `ad3e1f2`), retras ca poartă activă, consemna vechile scenarii de fault și canalele/readback separate. Pe principal, `test-sl04-pg` a trecut **41/41** cu runnerul PG18.6 (`db-fbab9f61e8eb481b`, exit0); testul E→E+1 din `32e3656` a fost astfel rerulat real, dar **nu** Stop instalat sub takeover.
 
 Reviewul independent read-only `deleg_2d9ca975` pe ramura `1e118b4` a dat **CHANGES_REQUESTED_SCOPED**: replayul grantului accepta bool/float pentru generație și epoch din cauza egalității Python, iar probele descrise ca două ordini erau secvențiale, nu lock-wait concurent. Părintele a reprodus defectul pe PostgreSQL, nu numai seam-ul în memorie al reviewerului. Remediile sunt **numai în worktree-ul `sl04-stop-fence-v1`**, nu credit în produsul principal:
 

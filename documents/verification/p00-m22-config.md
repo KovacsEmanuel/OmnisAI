@@ -1,5 +1,7 @@
 # M22 — config non-secret în worktree izolat
 
+**REGISTRU ISTORIC:** numerotarea U din probele de mai jos a fost retrasă ca gate; implementarea/reviewul curent urmează [planul §5](../Omnis_Implementation_Plan.md) și [statusul](implementation-status.md). Rezultatele, eșecurile și limitele rămân la reviziile lor, nu sunt o listă nouă de teste obligatorii.
+
 Bază: `ad3e1f28825ab6ff38361b940bbf3482493d03e4`, branch `p0-m22-config`.
 Scope: U21–U23, parser strict și consumatorii P0 actuali; nu aprobă SL04/G00.
 

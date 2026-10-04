@@ -1,5 +1,7 @@
 # SL03 / P0.4c / B01f — registru pair/open
 
+**REGISTRU ISTORIC:** etichetele numerotate U din rezultatele de mai jos nu mai sunt porți active. Folosește [planul §5](../Omnis_Implementation_Plan.md) și [statusul curent](implementation-status.md) pentru acceptarea locală; păstrează verdicturile la SHA-ul/scenariul lor, fără relansări pentru o etichetă veche.
+
 ## Contract înainte de modificarea codului
 
 Bază: `0a38cb22d7efb36cfe03ab85a47102cdb73da020`, branch `p04-control-topology-wip`; singurul fișier preexistent neversionat `documents/Omnis_Notite_Originale.html` este protejat și nu intră în felie. Recuperările istorice rămân neatinse. Autoritate: arhitectură §4.1–4.5 pentru comportament, plan §4.2/§5/§19.2 pentru ordine și gates, handofful `p04-pair-open-implementation-prompt.md` pentru dovada cerută. SL02 PASS istoric nu certifică noii bytes.

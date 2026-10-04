@@ -7,6 +7,7 @@ import io
 import json
 import os
 import signal
+import threading
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
@@ -23,6 +24,117 @@ stop_owner = importlib.import_module("omnis_cli.stop_owner")
 
 
 class StopWiringTest(unittest.TestCase):
+    def test_real_sigint_during_guard_dup_is_deferred_until_alias_registered(self):
+        self._guard_sigint(from_peer=False)
+
+    def test_peer_sigint_during_guard_dup_is_deferred_until_alias_registered(self):
+        self._guard_sigint(from_peer=True)
+
+    def _guard_sigint(self, *, from_peer):
+        for interrupted_guard in (1, 2):
+            with (
+                self.subTest(interrupted_guard=interrupted_guard),
+                private_stop_fixture() as (
+                    base,
+                    root,
+                    _foreign,
+                    _control,
+                    record,
+                    runtime,
+                ),
+            ):
+                for key in stop.STOP_FIELDS - start.READY_FIELDS:
+                    record.pop(key)
+                record["phase"] = "READY"
+                write_record(root / "startup.json", record)
+                original = (root / "startup.json").read_bytes()
+                allocated = []
+                real_dup = os.dup
+                trigger, sent, abort = threading.Event(), threading.Event(), threading.Event()
+
+                def send_signal(event=trigger, done=sent, cancelled=abort):
+                    if event.wait(3) and not cancelled.is_set():
+                        os.kill(os.getpid(), signal.SIGINT)  # Only this test interpreter.
+                        done.set()
+
+                worker = threading.Thread(target=send_signal) if from_peer else None
+
+                def duplicate(
+                    fd,
+                    *,
+                    _dup=real_dup,
+                    _seen=allocated,
+                    _target=interrupted_guard,
+                    _peer=from_peer,
+                    _trigger=trigger,
+                    _sent=sent,
+                ):
+                    guard = _dup(fd)
+                    _seen.append(guard)  # Independent observer before signal delivery.
+                    if len(_seen) == _target:
+                        if _peer:
+                            _trigger.set()
+                            self.assertTrue(_sent.wait(3), "peer signal was not sent")
+                        else:
+                            signal.raise_signal(signal.SIGINT)
+                    return guard
+
+                env = {
+                    "XDG_STATE_HOME": str(base / "s"),
+                    "XDG_DATA_HOME": str(base / "d"),
+                    "XDG_RUNTIME_DIR": "",
+                    "XDG_CONFIG_HOME": str(base / "config"),
+                }
+                previous_handler = signal.signal(signal.SIGINT, signal.default_int_handler)
+                previous_mask = signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})
+                test_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+                try:
+                    if worker:
+                        worker.start()  # Inherits an unblocked SIGINT disposition.
+                    with (
+                        patch.dict(os.environ, env),
+                        patch.object(stop, "ControlRuntime", return_value=runtime),
+                        patch.object(stop.os, "dup", side_effect=duplicate),
+                        contextlib.redirect_stdout(io.StringIO()) as output,
+                    ):
+                        self.assertEqual(main(["stop", "--json"]), 4)
+                    self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                    self.assertEqual((root / "startup.json").read_bytes(), original)
+                    self.assertEqual(len(allocated), interrupted_guard)
+                    if worker:
+                        self.assertTrue(sent.wait(1), "peer signal was not delivered")
+                    self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK, set()), test_mask)
+                    for guard in allocated:
+                        with self.assertRaises(OSError):
+                            os.fstat(guard)
+                    for directory in (base / "d/omnis", root):
+                        path = directory / "lifecycle.lock"
+                        if path.exists():
+                            challenger = os.open(path, os.O_RDWR)
+                            try:
+                                fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                            finally:
+                                os.close(challenger)
+                finally:
+                    if worker:
+                        abort.set()
+                        trigger.set()
+                        worker.join(3)
+                        self.assertFalse(worker.is_alive())
+                    signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+                    signal.signal(signal.SIGINT, previous_handler)
+                    for guard, directory in zip(allocated, (base / "d/omnis", root), strict=False):
+                        try:
+                            info = os.fstat(guard)
+                        except OSError:
+                            continue
+                        path = directory / "lifecycle.lock"
+                        if path.exists() and (info.st_dev, info.st_ino) == (
+                            path.stat().st_dev,
+                            path.stat().st_ino,
+                        ):
+                            os.close(guard)  # Test-owned RED rescue only.
+
     def test_registered_callback_interrupt_never_closes_reused_fd_canary(self):
         for failing_guard in (1, 2):
             with (

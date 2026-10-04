@@ -37,6 +37,7 @@ from .start import (
     service_ids,
     verify_running,
 )
+from .start import _publish_forwarder as _defer_guard_interrupts
 from .start_runtime import ControlRuntime
 from .stop_receipt import receipt_path, validate_grant
 
@@ -583,12 +584,27 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
         data_fd = held.enter_context(lifecycle_lock(data_home / "omnis", deadline))
         data_guard_slot = [-1]
         held.callback(lambda: os.close(data_guard_slot[0]) if data_guard_slot[0] >= 0 else None)
-        data_guard_slot[0] = os.dup(data_fd)
+        # Thread masks alone do not defer a Python handler scheduled by a peer thread.
+        with _defer_guard_interrupts():
+            previous_mask = signal.pthread_sigmask(
+                signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM}
+            )
+            try:
+                data_guard_slot[0] = os.dup(data_fd)
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
         data_guard = data_guard_slot[0]
         state_fd = held.enter_context(lifecycle_lock(root, deadline))
         state_guard_slot = [-1]
         held.callback(lambda: os.close(state_guard_slot[0]) if state_guard_slot[0] >= 0 else None)
-        state_guard_slot[0] = os.dup(state_fd)
+        with _defer_guard_interrupts():
+            previous_mask = signal.pthread_sigmask(
+                signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM}
+            )
+            try:
+                state_guard_slot[0] = os.dup(state_fd)
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
         state_guard = state_guard_slot[0]
         path = root / "startup.json"
         record = read_record(path)

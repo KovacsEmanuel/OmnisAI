@@ -256,10 +256,19 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         "XDG_RUNTIME_DIR": str(state / "r"),
     }
     with socket.socket() as selected:
-        # No-subcommand omnis has the documented default 8765 until M22;
-        # an occupied default is a precondition conflict, not a test rebind.
-        selected.bind(("127.0.0.1", 8765 if pair_open else 0))
+        selected.bind(("127.0.0.1", 0))
         port = selected.getsockname()[1]
+    config_path = None
+    if pair_open:
+        assert port != 8765, "Configured pair/open must not use the default origin"
+        config_home = state / "config"
+        config_dir = config_home / "omnis"
+        config_dir.mkdir(parents=True, mode=0o700)
+        config_home.chmod(0o700)
+        config_path = config_dir / "config.toml"
+        config_path.write_text(f"port = {port}\n")
+        config_path.chmod(0o600)
+        env["XDG_CONFIG_HOME"] = str(config_home)
     runtime = ControlRuntime(data, time.monotonic() + 30)
     assert runtime.receipt.image_id == receipt["image_id"]
     record = {}
@@ -406,16 +415,21 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         )
         record = json.loads((root / "startup.json").read_text())
         assert set(record["containers"]) == {"db", "api", "supervisor"}
+        assert record["port"] == port
+        origin = f"http://127.0.0.1:{port}"
         if pair_open:
             assert initial_code is not None and initial_public is not None
-            assert f"Omnis READY: http://127.0.0.1:{port}/" in initial_public
+            assert f"Omnis READY: {origin}/" in initial_public
+            assert json.loads((root / "instance.json").read_text())["origin"] == origin
+            assert all(reply["origin"] == origin for reply in replies)
         runtime.attempt = record["attempt"]
         before = snapshot()
         driver_uncertain = False
-        metadata_before = {
-            str(p): (p.read_bytes(), p.stat().st_mtime_ns)
-            for p in (root / "startup.json", root / "instance.json", data / "omnis/image.json")
-        }
+        metadata_paths = [root / "startup.json", root / "instance.json", data / "omnis/image.json"]
+        if pair_open:
+            assert config_path is not None
+            metadata_paths.append(config_path)
+        metadata_before = {str(p): (p.read_bytes(), p.stat().st_mtime_ns) for p in metadata_paths}
         status = invoke(["status", "--json"])
         assert status["instance_id"] == record["instance_id"] and status["dashboard_ready"]
         assert metadata_before == {
@@ -423,6 +437,8 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
         }
         repeated = invoke(["start", "--no-open", "--json"])
         assert repeated["reused"] is True
+        if pair_open:
+            assert status["origin"] == repeated["origin"] == origin
         assert snapshot() == before
         if pair_open:
             driver_uncertain = True
@@ -453,6 +469,9 @@ def run_installed_start(data, receipt, scratch, cli, *, pair_open=False):
                 raise
             driver_uncertain = False
             assert snapshot() == before
+            assert metadata_before == {
+                p: (Path(p).read_bytes(), Path(p).stat().st_mtime_ns) for p in metadata_before
+            }
         # A stale crash/start intent cannot adopt even otherwise healthy resources.
         journal = root / "startup.json"
         original_journal = journal.read_bytes()

@@ -3,6 +3,7 @@
 import os
 import sys
 import tempfile
+import tomllib
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +14,42 @@ from installed_start import teardown
 
 
 class InstalledStartObserverTest(unittest.TestCase):
+    def test_pair_open_fixture_selects_private_configured_nondefault_port(self):
+        """Fail before OCI; the opt-in installed gate exercises TTY/HTTP on this fixture."""
+        from unittest.mock import patch
+
+        import installed_start as harness
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            state = Path(name)
+            config_home = state / "config"
+            config = config_home / "omnis/config.toml"
+
+            def inspect_fixture(_data, _deadline):
+                self.assertTrue(config.is_file(), "Pair/open lacks a private config file")
+                selected = tomllib.loads(config.read_text())
+                self.assertEqual(set(selected), {"port"})
+                self.assertIs(type(selected["port"]), int)
+                self.assertTrue(1024 <= selected["port"] <= 65535)
+                self.assertNotEqual(selected["port"], 8765, "Default origin masks config wiring")
+                self.assertEqual(config_home.stat().st_mode & 0o777, 0o700)
+                self.assertEqual(config.parent.stat().st_mode & 0o777, 0o700)
+                self.assertEqual(config.stat().st_mode & 0o777, 0o600)
+                raise RuntimeError("fixture inspected before OCI")
+
+            with (
+                patch.object(harness.tempfile, "mkdtemp", return_value=name),
+                patch.object(harness, "ControlRuntime", side_effect=inspect_fixture),
+                self.assertRaisesRegex(RuntimeError, "fixture inspected before OCI"),
+            ):
+                harness.run_installed_start(
+                    state / "data",
+                    {"project": "synthetic-project", "image_id": "synthetic-image"},
+                    state,
+                    "/synthetic/omnis",
+                    pair_open=True,
+                )
+
     def test_unknown_pair_child_exit_keeps_family_uncertain(self):
         import subprocess
         from unittest.mock import patch

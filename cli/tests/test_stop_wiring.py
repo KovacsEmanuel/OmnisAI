@@ -23,6 +23,83 @@ stop_owner = importlib.import_module("omnis_cli.stop_owner")
 
 
 class StopWiringTest(unittest.TestCase):
+    def test_guard_callback_failure_closes_every_new_original_lock_copy(self):
+        for failing_guard in (1, 2):
+            with (
+                self.subTest(failing_guard=failing_guard),
+                private_stop_fixture() as (
+                    base,
+                    root,
+                    _foreign,
+                    _control,
+                    record,
+                    runtime,
+                ),
+            ):
+                for key in stop.STOP_FIELDS - start.READY_FIELDS:
+                    record.pop(key)
+                record["phase"] = "READY"
+                write_record(root / "startup.json", record)
+                original = (root / "startup.json").read_bytes()
+                guards = []
+                exit_stack = stop.ExitStack
+
+                class InterruptCallback(exit_stack):
+                    seen = guards
+                    fail_on = failing_guard
+
+                    def callback(self, callback, *args, **kwargs):
+                        if callback is os.close:
+                            self.seen.append(args[0])
+                            if len(self.seen) == self.fail_on:
+                                raise KeyboardInterrupt("injected guard registration failure")
+                        return super().callback(callback, *args, **kwargs)
+
+                env = {
+                    "XDG_STATE_HOME": str(base / "s"),
+                    "XDG_DATA_HOME": str(base / "d"),
+                    "XDG_RUNTIME_DIR": "",
+                    "XDG_CONFIG_HOME": str(base / "config"),
+                }
+                with (
+                    patch.dict(os.environ, env),
+                    patch.object(stop, "ControlRuntime", return_value=runtime),
+                    patch.object(stop, "ExitStack", InterruptCallback),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    self.assertEqual(main(["stop", "--json"]), 4)
+                self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                self.assertEqual((root / "startup.json").read_bytes(), original)
+                self.assertEqual(len(guards), failing_guard)
+                try:
+                    for guard in guards:
+                        with self.assertRaises(OSError):
+                            os.fstat(guard)
+                    for directory in (base / "d/omnis", root):
+                        lock_path = directory / "lifecycle.lock"
+                        if not lock_path.exists():
+                            self.assertEqual(failing_guard, 1)
+                            self.assertEqual(directory, root)
+                            continue  # State lock was never acquired or created.
+                        challenger = os.open(lock_path, os.O_RDWR)
+                        try:
+                            fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        finally:
+                            os.close(challenger)
+                finally:
+                    # Rescue only an actual leaked alias of this private lock.
+                    for guard, directory in zip(guards, (base / "d/omnis", root), strict=False):
+                        try:
+                            info = os.fstat(guard)
+                        except OSError:
+                            continue
+                        original_lock = (directory / "lifecycle.lock").stat()
+                        if (info.st_dev, info.st_ino) == (
+                            original_lock.st_dev,
+                            original_lock.st_ino,
+                        ):
+                            os.close(guard)
+
     def test_owner_can_import_the_strict_stop_validator_without_cycle(self):
         import subprocess
         import sys

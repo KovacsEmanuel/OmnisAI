@@ -582,10 +582,18 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
     with ExitStack() as held:
         data_fd = held.enter_context(lifecycle_lock(data_home / "omnis", deadline))
         data_guard = os.dup(data_fd)  # Lexical original, before the state acquisition.
-        held.callback(os.close, data_guard)
+        try:
+            held.callback(os.close, data_guard)
+        except BaseException:
+            os.close(data_guard)
+            raise
         state_fd = held.enter_context(lifecycle_lock(root, deadline))
         state_guard = os.dup(state_fd)
-        held.callback(os.close, state_guard)
+        try:
+            held.callback(os.close, state_guard)
+        except BaseException:
+            os.close(state_guard)
+            raise
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)

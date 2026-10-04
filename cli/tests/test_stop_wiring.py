@@ -23,6 +23,120 @@ stop_owner = importlib.import_module("omnis_cli.stop_owner")
 
 
 class StopWiringTest(unittest.TestCase):
+    def test_registered_callback_interrupt_never_closes_reused_fd_canary(self):
+        for failing_guard in (1, 2):
+            with (
+                self.subTest(failing_guard=failing_guard),
+                private_stop_fixture() as (
+                    base,
+                    root,
+                    _foreign,
+                    _control,
+                    record,
+                    runtime,
+                ),
+            ):
+                for key in stop.STOP_FIELDS - start.READY_FIELDS:
+                    record.pop(key)
+                record["phase"] = "READY"
+                write_record(root / "startup.json", record)
+                original = (root / "startup.json").read_bytes()
+                canary_path = base / "test-only-canary"
+                canary = os.open(canary_path, os.O_CREAT | os.O_RDWR, 0o600)
+                registered = []
+                duplicates = []
+                reused = []
+                real_dup, real_close = os.dup, os.close
+                stack = stop.ExitStack
+
+                class AfterRegistration(stack):
+                    seen = registered
+                    fail_on = failing_guard
+
+                    def callback(self, callback, *args, **kwargs):
+                        result = super().callback(callback, *args, **kwargs)
+                        self.seen.append(callback)
+                        if len(self.seen) == self.fail_on:
+                            raise KeyboardInterrupt("after callback registered")
+                        return result
+
+                def duplicate(fd, *, _dup=real_dup, _seen=duplicates):
+                    new = _dup(fd)
+                    _seen.append(new)
+                    return new
+
+                def close(
+                    fd,
+                    *,
+                    _seen=duplicates,
+                    _fail_on=failing_guard,
+                    _reused=reused,
+                    _close=real_close,
+                    _canary=canary,
+                ):
+                    target = _seen[_fail_on - 1] if len(_seen) >= _fail_on else -1
+                    if fd == target and not _reused:
+                        _close(fd)
+                        os.dup2(_canary, fd)  # A different owned FD reuses the number.
+                        _reused.append(fd)
+                    else:
+                        _close(fd)
+
+                env = {
+                    "XDG_STATE_HOME": str(base / "s"),
+                    "XDG_DATA_HOME": str(base / "d"),
+                    "XDG_RUNTIME_DIR": "",
+                    "XDG_CONFIG_HOME": str(base / "config"),
+                }
+                try:
+                    with (
+                        patch.dict(os.environ, env),
+                        patch.object(stop, "ControlRuntime", return_value=runtime),
+                        patch.object(stop, "ExitStack", AfterRegistration),
+                        patch.object(stop.os, "dup", side_effect=duplicate),
+                        patch.object(stop.os, "close", side_effect=close),
+                        contextlib.redirect_stdout(io.StringIO()) as output,
+                    ):
+                        self.assertEqual(main(["stop", "--json"]), 4)
+                    self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                    self.assertEqual((root / "startup.json").read_bytes(), original)
+                    self.assertEqual(len(registered), failing_guard)
+                    self.assertEqual(os.fstat(canary).st_ino, canary_path.stat().st_ino)
+                    if reused:
+                        self.assertEqual(
+                            os.fstat(reused[0]).st_ino,
+                            os.fstat(canary).st_ino,
+                            "registered cleanup closed a different FD at the reused number",
+                        )
+                    for directory in (base / "d/omnis", root):
+                        path = directory / "lifecycle.lock"
+                        if path.exists():
+                            challenger = os.open(path, os.O_RDWR)
+                            try:
+                                fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                            finally:
+                                os.close(challenger)
+                finally:
+                    # RED rescue of only test-owned aliases; never touch an operator FD.
+                    for fd in reused:
+                        try:
+                            if os.fstat(fd).st_ino == os.fstat(canary).st_ino:
+                                real_close(fd)
+                        except OSError:
+                            pass
+                    for fd, directory in zip(duplicates, (base / "d/omnis", root), strict=False):
+                        try:
+                            info = os.fstat(fd)
+                        except OSError:
+                            continue
+                        path = directory / "lifecycle.lock"
+                        if path.exists() and (info.st_dev, info.st_ino) == (
+                            path.stat().st_dev,
+                            path.stat().st_ino,
+                        ):
+                            real_close(fd)
+                    real_close(canary)
+
     def test_guard_callback_failure_closes_every_new_original_lock_copy(self):
         for failing_guard in (1, 2):
             with (
@@ -43,17 +157,25 @@ class StopWiringTest(unittest.TestCase):
                 original = (root / "startup.json").read_bytes()
                 guards = []
                 exit_stack = stop.ExitStack
+                real_dup = os.dup
 
                 class InterruptCallback(exit_stack):
-                    seen = guards
                     fail_on = failing_guard
 
+                    def __init__(self):
+                        super().__init__()
+                        self.registered = 0
+
                     def callback(self, callback, *args, **kwargs):
-                        if callback is os.close:
-                            self.seen.append(args[0])
-                            if len(self.seen) == self.fail_on:
-                                raise KeyboardInterrupt("injected guard registration failure")
+                        self.registered += 1
+                        if self.registered == self.fail_on:
+                            raise KeyboardInterrupt("before guard callback registration")
                         return super().callback(callback, *args, **kwargs)
+
+                def duplicate(fd, *, _dup=real_dup, _seen=guards):
+                    guard = _dup(fd)
+                    _seen.append(guard)
+                    return guard
 
                 env = {
                     "XDG_STATE_HOME": str(base / "s"),
@@ -65,12 +187,13 @@ class StopWiringTest(unittest.TestCase):
                     patch.dict(os.environ, env),
                     patch.object(stop, "ControlRuntime", return_value=runtime),
                     patch.object(stop, "ExitStack", InterruptCallback),
+                    patch.object(stop.os, "dup", side_effect=duplicate),
                     contextlib.redirect_stdout(io.StringIO()) as output,
                 ):
                     self.assertEqual(main(["stop", "--json"]), 4)
                 self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
                 self.assertEqual((root / "startup.json").read_bytes(), original)
-                self.assertEqual(len(guards), failing_guard)
+                self.assertEqual(len(guards), failing_guard - 1)
                 try:
                     for guard in guards:
                         with self.assertRaises(OSError):

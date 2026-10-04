@@ -17,13 +17,22 @@ from omnis_cli.start_runtime import ControlRuntime
 
 
 def run_lock_expiry(data, receipt, cli):
-    """Real 180s installed startup deadline, before any project/state creation."""
+    """Configured 30s installed startup deadline, before project/state effects."""
     state = Path(tempfile.mkdtemp(prefix="s2lock-", dir=os.environ["TMPDIR"]))
     root = state / "s/omnis"
+    config_home = state / "config"
+    config_dir = config_home / "omnis"
+    config_dir.mkdir(parents=True, mode=0o700)
+    config_home.chmod(0o700)
+    config = config_dir / "config.toml"
+    config.write_text("startup_timeout_seconds=30\ncleanup_timeout_seconds=31\n")
+    config.chmod(0o600)
+    config_before = config.read_bytes()
     env = {
         "PATH": "/usr/bin:/bin",
         "HOME": str(state),
         "XDG_DATA_HOME": str(data),
+        "XDG_CONFIG_HOME": str(config_home),
         "XDG_STATE_HOME": str(state / "s"),
         "XDG_RUNTIME_DIR": str(state / "r"),
     }
@@ -32,28 +41,31 @@ def run_lock_expiry(data, receipt, cli):
     assert runtime.inspect("network", receipt["project"] + "_control") is None
     image_before = (data / "omnis/image.json").read_bytes()
     begin = time.monotonic()
-    with lifecycle_lock(data / "omnis", begin + 200):
+    with lifecycle_lock(data / "omnis", begin + 45):
         p = subprocess.run(
             [cli, "start", "--no-open", "--json"],
             cwd=state,
             env=env,
             capture_output=True,
             text=True,
-            timeout=200,
+            timeout=45,
         )
     elapsed = time.monotonic() - begin
     result = json.loads(p.stdout)
     assert p.returncode == 2 and result["reason"] == "LIFECYCLE_BUSY"
     assert result["dashboard_ready"] is False and result["assessment_ready"] is False
-    assert 178 <= elapsed < 195, "Product lock deadline was not measured"
+    assert 29 <= elapsed < 42, "Configured product lock deadline was not measured"
     assert not root.exists(), "Expired before-effects lock created state"
-    assert not list(state.iterdir()), "Expired lock created runtime/HOME root effects"
+    assert set(state.iterdir()) == {config_home}, "Expired lock created runtime/HOME effects"
+    assert set(config_home.iterdir()) == {config_dir}
+    assert set(config_dir.iterdir()) == {config}
+    assert config.read_bytes() == config_before and config.stat().st_mode & 0o777 == 0o600
     assert (data / "omnis/image.json").read_bytes() == image_before
     runtime.deadline = time.monotonic() + 30
     assert runtime.ids() == []
     assert runtime.inspect("network", receipt["project"] + "_control") is None
     print(
-        f"INSTALLED_START_LOCK_EXPIRY project={receipt['project']} exit=2 elapsed={elapsed:.3f}s effects=none cleanup_allowance=not_entered",
+        f"INSTALLED_START_LOCK_EXPIRY project={receipt['project']} exit=2 elapsed={elapsed:.3f}s startup_budget=30s effects=none cleanup_allowance=not_entered",
         flush=True,
     )
 

@@ -38,6 +38,14 @@ class InstalledFailureOracleTest(unittest.TestCase):
             def run(argv, **kw):
                 state = Path(kw["env"]["HOME"])
                 states.append(state)
+                self.assertIn("XDG_CONFIG_HOME", kw["env"], "configured home not passed")
+                config = Path(kw["env"]["XDG_CONFIG_HOME"]) / "omnis/config.toml"
+                self.assertEqual(config, state / "config/omnis/config.toml")
+                self.assertEqual(
+                    config.read_text(),
+                    "startup_timeout_seconds=30\ncleanup_timeout_seconds=31\n",
+                )
+                self.assertEqual(config.stat().st_mode & 0o777, 0o600)
                 if effect:
                     control = Path(kw["env"]["XDG_RUNTIME_DIR"]) / "omnis"
                     control.mkdir(parents=True)
@@ -59,7 +67,7 @@ class InstalledFailureOracleTest(unittest.TestCase):
                 with (
                     patch.object(failures, "ControlRuntime", NoDocker),
                     patch.object(failures.subprocess, "run", run),
-                    patch.object(failures.time, "monotonic", side_effect=[10, 10, 190, 190]),
+                    patch.object(failures.time, "monotonic", side_effect=[10, 10, 40, 40]),
                 ):
                     if effect:
                         with self.assertRaisesRegex(AssertionError, "runtime|root|effect"):

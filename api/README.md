@@ -4,7 +4,7 @@ Acesta este control plane-ul API/PostgreSQL cu supervisor **inert**, reutilizat 
 
 ## P1-A — draftul inert
 
-`POST /api/v1/engagements` cere sesiune, Origin și CSRF și persistă prima revizie imutabilă; `GET /api/v1/engagements/{id}` citește revizia, iar lista GET folosește paginare keyset bounded. `workflow_profile_ref=null` este valid; Save nu pornește run/model/requesturi țintă. Migrarea din 0006 este explicită, numai după backup/restaurare verificată pentru date reale; `omnis start` nu face auto-upgrade. [Probe și limite](../documents/verification/p1-data.md). Nu instalați acest bundle peste datele P0 ale operatorului fără o cale de upgrade explicită; wizardul și 409 vin în B02b/B04.
+`POST /api/v1/engagements` cere sesiune, Origin și CSRF și persistă prima revizie imutabilă; `GET /api/v1/engagements/{id}` citește revizia, iar lista GET folosește paginare keyset bounded. Payloadul canonic are maxim 1.000.000 bytes, iar corpul HTTP maxim 1 MiB numai pe această rută; peste ele răspunsurile sunt 422 per corp, respectiv 413, fără creșterea plafonului Pairing. `workflow_profile_ref=null` este valid; Save nu pornește run/model/requesturi țintă. Migrarea din 0006 este explicită, numai după backup/restaurare verificată pentru date reale; `omnis start` nu face auto-upgrade. [Probe și limite](../documents/verification/p1-data.md). Nu instalați acest bundle peste datele P0 ale operatorului fără o cale de upgrade explicită; wizardul și 409 vin în B02b/B04.
 
 ## Stop fence SL04 — istoricul feliei DB, nu statusul curent
 

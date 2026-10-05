@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from alembic.config import Config
@@ -12,6 +12,8 @@ from sqlalchemy.engine import URL
 
 from conftest import connect_test_database, verify_test_database
 from omnis.core.db import SCHEMA_REVISION, database_engine
+from omnis.modules.engagements.schemas import EngagementDraft
+from omnis.modules.engagements.service import canonical_json, revision_digest
 from omnis.modules.instance.service import InstanceService
 from process_probe import exercise_installed_control
 from test_stop_fence import db_snapshot, pending_reconciliation
@@ -50,6 +52,95 @@ async def test_reconciliation_job_commits_then_replays_exactly(
         assert snapshot[2] == () and isinstance(snapshot[4], tuple) and len(snapshot[4]) == 1
     finally:
         await engine.dispose()
+
+
+def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
+    empty_database_url: URL, tmp_path: Path
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "OMNIS_DATABASE_URL": empty_database_url.render_as_string(hide_password=False),
+    }
+    verify_test_database(empty_database_url.set(database="omnis_test"))
+    first = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            str(root / "alembic.ini"),
+            "upgrade",
+            "0007_engagement_drafts",
+        ],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        timeout=30,
+    )
+    assert first.returncode == 0
+    engagement_id, revision_id = uuid4(), uuid4()
+    draft = EngagementDraft.model_validate(
+        {
+            "name": "Synthetic migration case",
+            "authorization": {
+                "owner": "Synthetic operator",
+                "statement": "Disposable DB only",
+                "valid_from": "2030-01-01T00:00:00Z",
+                "valid_until": "2030-12-31T00:00:00Z",
+            },
+            "scope": [
+                {
+                    "origin": "https://lab.example",
+                    "port": 443,
+                    "path_prefix": "/",
+                    "exclusions": [],
+                    "access": "BLOCKED",
+                }
+            ],
+            "assessment_mode": "FOCUSED_TEST",
+            "objective_text": "Synthetic test",
+            "objective_constraints": [],
+            "workflow_profile_ref": None,
+        }
+    )
+    digest = revision_digest(revision_id, 1, draft)
+    with connect_test_database(empty_database_url) as connection:
+        connection.execute(
+            "INSERT INTO engagement (id,current_revision) VALUES (%s,1)", (engagement_id,)
+        )
+        connection.execute(
+            "INSERT INTO engagement_revision "
+            "(id,engagement_id,revision,schema_version,kind,digest,payload) "
+            "VALUES (%s,%s,1,1,'engagement-revision',%s,%s::jsonb)",
+            (revision_id, engagement_id, digest, canonical_json(draft.model_dump(mode="json"))),
+        )
+        before = connection.execute(
+            "SELECT id,engagement_id,revision,digest,payload,created_at "
+            "FROM engagement_revision WHERE id=%s",
+            (revision_id,),
+        ).fetchone()
+    upgraded = subprocess.run(
+        [sys.executable, "-I", "-m", "omnis.migrate"],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        timeout=30,
+    )
+    assert upgraded.returncode == 0
+    with connect_test_database(empty_database_url) as connection:
+        after = connection.execute(
+            "SELECT id,engagement_id,revision,digest,payload,created_at "
+            "FROM engagement_revision WHERE id=%s",
+            (revision_id,),
+        ).fetchone()
+        assert after == before
+        assert connection.execute(
+            "SELECT command_id FROM engagement_revision WHERE id=%s", (revision_id,)
+        ).fetchone() == (None,)
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
+            SCHEMA_REVISION,
+        )
 
 
 def test_startup_migration_refuses_wrong_cluster_before_ddl(empty_database_url: URL) -> None:

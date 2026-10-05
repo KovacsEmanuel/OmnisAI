@@ -14,6 +14,7 @@ export const errorCopy: Record<ErrorCode, string> = {
   PAIRING_DENIED: 'Pairing refused. The code is invalid, expired or already used. Request a new local code.',
   PAIRING_RATE_LIMITED: 'Too many attempts. Wait at least 60 seconds before trying again.',
   INVALID_INPUT: 'Check the pairing code format and try again.',
+  ENGAGEMENT_CONFLICT: 'This draft changed in another tab. Reload before saving; local edits were not overwritten.',
   NOT_FOUND: 'This operation is not available in the installed API.',
   METHOD_NOT_ALLOWED: 'This operation is not supported.',
   HTTP_ERROR: 'The API refused the request.',

@@ -24,6 +24,7 @@ class ErrorCode(StrEnum):
     PAIRING_DENIED = "PAIRING_DENIED"
     PAIRING_RATE_LIMITED = "PAIRING_RATE_LIMITED"
     INVALID_INPUT = "INVALID_INPUT"
+    ENGAGEMENT_CONFLICT = "ENGAGEMENT_CONFLICT"
     NOT_FOUND = "NOT_FOUND"
     METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED"
     HTTP_ERROR = "HTTP_ERROR"
@@ -69,6 +70,8 @@ _FIELDS = {
     "workflow_profile_ref",
     "after",
     "limit",
+    "if-match",
+    "x-command-id",
 }
 
 

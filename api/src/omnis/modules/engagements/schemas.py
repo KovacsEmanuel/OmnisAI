@@ -201,3 +201,9 @@ class EngagementPage(DraftRecord):
     items: list[EngagementSummary]
     has_more: bool
     next_page: UUID | None
+
+
+class RevisionPage(DraftRecord):
+    items: list[EngagementView]
+    has_more: bool
+    next_page: int | None

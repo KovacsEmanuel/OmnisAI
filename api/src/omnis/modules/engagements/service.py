@@ -1,4 +1,4 @@
-"""Transactional draft create/read/list; revision digests bind exact authored payloads."""
+"""Transactional draft history and CAS; revision digests bind exact authored payloads."""
 
 import hashlib
 import json
@@ -13,10 +13,15 @@ from omnis.modules.engagements.schemas import (
     EngagementPage,
     EngagementSummary,
     EngagementView,
+    RevisionPage,
 )
 
 
 class EngagementNotFound(Exception):
+    pass
+
+
+class EngagementConflict(Exception):
     pass
 
 
@@ -92,6 +97,137 @@ class EngagementService:
             )
         if row is None:
             raise EngagementNotFound()
+        return checked_view(row)
+
+    async def revision_page(
+        self, engagement_id: UUID, limit: int, after: int | None
+    ) -> RevisionPage:
+        async with self.engine.connect() as connection:
+            exists = await connection.scalar(
+                text("SELECT 1 FROM engagement WHERE id = :id"), {"id": engagement_id}
+            )
+            if exists is None:
+                raise EngagementNotFound()
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT engagement_id, schema_version, kind, id, revision, "
+                            "digest, payload, created_at FROM engagement_revision "
+                            "WHERE engagement_id = :id AND revision > :after "
+                            "ORDER BY revision LIMIT :page_size"
+                        ),
+                        {"id": engagement_id, "after": after or 0, "page_size": limit + 1},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        items = [checked_view(row) for row in rows[:limit]]
+        more = len(rows) > limit
+        return RevisionPage(
+            items=items, has_more=more, next_page=items[-1].revision if more else None
+        )
+
+    async def edit(
+        self,
+        engagement_id: UUID,
+        expected_revision: int,
+        expected_digest: str,
+        command_id: UUID,
+        payload: EngagementDraft,
+    ) -> EngagementView:
+        # Serialize writers on the engagement row, including duplicate commands.
+        # A receipt is the revision itself; no mutable command cache is needed.
+        async with self.engine.begin() as connection:
+            current = await connection.scalar(
+                text("SELECT current_revision FROM engagement WHERE id = :id FOR UPDATE"),
+                {"id": engagement_id},
+            )
+            if current is None:
+                raise EngagementNotFound()
+            previous = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT engagement_id, schema_version, kind, id, revision, "
+                            "digest, payload, created_at FROM engagement_revision "
+                            "WHERE engagement_id = :id AND revision = :revision"
+                        ),
+                        {"id": engagement_id, "revision": expected_revision},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            receipt = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT engagement_id, schema_version, kind, id, revision, "
+                            "digest, payload, created_at FROM engagement_revision "
+                            "WHERE engagement_id = :id AND command_id = :command"
+                        ),
+                        {"id": engagement_id, "command": command_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if receipt is not None:
+                saved = checked_view(receipt)
+                if (
+                    saved.revision != expected_revision + 1
+                    or previous is None
+                    or checked_view(previous).digest != expected_digest
+                    or saved.payload != payload
+                ):
+                    raise EngagementConflict()
+                return saved
+            if (
+                current != expected_revision
+                or previous is None
+                or checked_view(previous).digest != expected_digest
+            ):
+                raise EngagementConflict()
+            next_revision = expected_revision + 1
+            revision_id = uuid4()
+            digest = revision_digest(revision_id, next_revision, payload)
+            await connection.execute(
+                text(
+                    "INSERT INTO engagement_revision "
+                    "(id, engagement_id, revision, command_id, schema_version, kind, digest, payload) "
+                    "VALUES (:revision_id, :id, :revision, :command, 1, "
+                    "'engagement-revision', :digest, CAST(:payload AS jsonb))"
+                ),
+                {
+                    "revision_id": revision_id,
+                    "id": engagement_id,
+                    "revision": next_revision,
+                    "command": command_id,
+                    "digest": digest,
+                    "payload": canonical_json(payload.model_dump(mode="json")),
+                },
+            )
+            await connection.execute(
+                text("UPDATE engagement SET current_revision = :revision WHERE id = :id"),
+                {"revision": next_revision, "id": engagement_id},
+            )
+        # Read the committed immutable receipt, not the possibly newer head.
+        async with self.engine.connect() as connection:
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT engagement_id, schema_version, kind, id, revision, "
+                            "digest, payload, created_at FROM engagement_revision WHERE id = :id"
+                        ),
+                        {"id": revision_id},
+                    )
+                )
+                .mappings()
+                .one()
+            )
         return checked_view(row)
 
     async def list_page(self, limit: int, after: UUID | None) -> EngagementPage:

@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0007_engagement_drafts",
+            "schema": "0008_engagement_edit",
             "platform": "linux/amd64",
             "files": {},
         }

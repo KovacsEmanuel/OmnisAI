@@ -1033,6 +1033,7 @@ def main() -> int:
             "test-e2e",
             "test-sl04-pg",
             "test-p1-api",
+            "test-p1-concurrency",
         ),
         default="check-components",
     )

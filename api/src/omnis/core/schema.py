@@ -33,6 +33,7 @@ AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
             "id": ("uuid", True, None),
             "engagement_id": ("uuid", True, None),
             "revision": ("integer", True, None),
+            "command_id": ("uuid", False, None),
             "schema_version": ("smallint", True, None),
             "kind": ("text", True, None),
             "digest": ("text", True, None),
@@ -42,6 +43,14 @@ AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
         {
             ("engagement_revision_pkey", "p", "PRIMARY KEY (id)", True, True),
             ("uq_engagement_revision_order", "u", "UNIQUE (engagement_id, revision)", True, True),
+            ("uq_revision_command", "u", "UNIQUE (engagement_id, command_id)", True, True),
+            (
+                "ck_revision_command",
+                "c",
+                "CHECK ((((revision = 1) AND (command_id IS NULL)) OR ((revision > 1) AND (command_id IS NOT NULL))))",
+                True,
+                True,
+            ),
             (
                 "fk_revision_engagement",
                 "f",

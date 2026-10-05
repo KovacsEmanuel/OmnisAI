@@ -100,10 +100,15 @@ class LocalBoundary:
         is_api = scope["path"] == "/api" or scope["path"].startswith("/api/")
         query = scope.get("query_string", b"")
         if denied is None and is_api and query:
-            # One bounded, explicit keyset query. Every other API route keeps
+            # Bounded keyset queries only. Every other API route keeps
             # the P0 no-query boundary, including pairing and session routes.
+            revisions_query = (
+                scope["path"].startswith("/api/v1/engagements/")
+                and scope["path"].endswith("/revisions")
+                and len(scope["path"].split("/")) == 6
+            )
             if (
-                scope["path"] != "/api/v1/engagements"
+                not (scope["path"] == "/api/v1/engagements" or revisions_query)
                 or scope["method"] != "GET"
                 or len(query) > 256
             ):
@@ -133,7 +138,14 @@ class LocalBoundary:
                     body = bytearray()
                     body_limit = (
                         1048576
-                        if scope["path"] == "/api/v1/engagements" and scope["method"] == "POST"
+                        if (
+                            (scope["path"] == "/api/v1/engagements" and scope["method"] == "POST")
+                            or (
+                                scope["path"].startswith("/api/v1/engagements/")
+                                and len(scope["path"].split("/")) == 5
+                                and scope["method"] == "PUT"
+                            )
+                        )
                         else 4096
                     )
                     async with asyncio.timeout(3):

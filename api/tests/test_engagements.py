@@ -1,11 +1,13 @@
 """P1 draft persistence through the real local HTTP and PostgreSQL boundaries."""
 
+import asyncio
 import hashlib
 import json
 import os
 import secrets
 import subprocess
 import sys
+import time
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -115,6 +117,236 @@ async def test_first_save_has_canonical_revision_and_survives_new_app(
             assert "payload" not in listing.json()["items"][0]
             assert listing.json()["has_more"] is False
             assert listing.json()["next_page"] is None
+
+
+@pytest.mark.asyncio
+async def test_edit_creates_one_revision_and_replays_original_receipt(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            original = await client.post(
+                "/api/v1/engagements",
+                json=draft(),
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert original.status_code == 201
+            url = f"/api/v1/engagements/{original.json()['engagement_id']}"
+            etag = f'"rev-1-{original.json()["digest"]}"'
+            assert original.headers["etag"] == etag
+            edit = draft()
+            edit["objective_text"] = "Synthetic edit — byte-for-byte 😀"
+            command_id = str(uuid4())
+            headers = {
+                "origin": ORIGIN,
+                "x-csrf-token": csrf,
+                "if-match": etag,
+                "x-command-id": command_id,
+            }
+            updated = await client.put(url, json=edit, headers=headers)
+            assert updated.status_code == 200, updated.text
+            assert updated.json()["revision"] == 2
+            assert updated.json()["payload"] == edit
+            assert updated.headers["etag"] == f'"rev-2-{updated.json()["digest"]}"'
+            assert (await client.get(url)).json() == updated.json()
+            with connect_test_database(migrated_database_url) as connection:
+                assert connection.execute(
+                    "SELECT current_revision FROM engagement WHERE id = %s",
+                    (original.json()["engagement_id"],),
+                ).fetchone() == (2,)
+                assert connection.execute(
+                    "SELECT revision, digest, payload FROM engagement_revision "
+                    "WHERE engagement_id = %s ORDER BY revision",
+                    (original.json()["engagement_id"],),
+                ).fetchall() == [
+                    (1, original.json()["digest"], draft()),
+                    (2, updated.json()["digest"], edit),
+                ]
+            history = await client.get(url + "/revisions?limit=1")
+            assert history.status_code == 200
+            assert history.json()["items"][0] == original.json()
+            assert history.json()["next_page"] == 1
+            next_page = await client.get(url + "/revisions?limit=1&after=1")
+            assert next_page.status_code == 200
+            assert next_page.json()["items"] == [updated.json()]
+            assert next_page.json()["has_more"] is False
+            replay = await client.put(url, json=edit, headers=headers)
+            assert replay.status_code == 200 and replay.json() == updated.json()
+            conflicting = dict(edit)
+            conflicting["objective_text"] = "Different request"
+            denied = await client.put(url, json=conflicting, headers=headers)
+            assert denied.status_code == 409
+            stale = await client.put(
+                url, json=conflicting, headers={**headers, "x-command-id": str(uuid4())}
+            )
+            assert stale.status_code == 409
+            assert (await client.get(url)).json() == updated.json()
+            saved = updated.json()
+            cookie = client.cookies["omnis_session"]
+
+    fresh_app = create_app()
+    async with fresh_app.router.lifespan_context(fresh_app):
+        async with AsyncClient(
+            transport=ASGITransport(app=fresh_app),
+            base_url=ORIGIN,
+            cookies={"omnis_session": cookie},
+        ) as fresh:
+            read = await fresh.get(url)
+            assert read.status_code == 200 and read.json() == saved
+            assert read.headers["etag"] == f'"rev-2-{saved["digest"]}"'
+            history = await fresh.get(url + "/revisions")
+            assert history.status_code == 200
+            assert [item["revision"] for item in history.json()["items"]] == [1, 2]
+
+
+@pytest.mark.asyncio
+async def test_two_editors_overlap_on_the_real_postgres_row_lock(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as first:
+            csrf = await pair_session(app, first)
+            original = await first.post(
+                "/api/v1/engagements",
+                json=draft(),
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert original.status_code == 201
+            url = f"/api/v1/engagements/{original.json()['engagement_id']}"
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf, "if-match": original.headers["etag"]}
+            cookie = first.cookies["omnis_session"]
+            async with AsyncClient(
+                transport=ASGITransport(app=app),
+                base_url=ORIGIN,
+                cookies={"omnis_session": cookie},
+            ) as second:
+                left, right = draft(), draft()
+                left["name"], right["name"] = "Left editor", "Right editor"
+                with (
+                    connect_test_database(migrated_database_url) as holder,
+                    connect_test_database(migrated_database_url, autocommit=True) as observer,
+                ):
+                    holder.execute(
+                        "SELECT current_revision FROM engagement WHERE id = %s FOR UPDATE",
+                        (original.json()["engagement_id"],),
+                    )
+                    owner_pid = holder.info.backend_pid
+                    a = asyncio.create_task(
+                        first.put(
+                            url,
+                            json=left,
+                            headers={**headers, "x-command-id": str(uuid4())},
+                        )
+                    )
+                    b = asyncio.create_task(
+                        second.put(
+                            url,
+                            json=right,
+                            headers={**headers, "x-command-id": str(uuid4())},
+                        )
+                    )
+                    try:
+                        deadline = time.monotonic() + 1.5
+                        waiting = 0
+                        direct = 0
+                        while time.monotonic() < deadline:
+                            row = observer.execute(
+                                "SELECT count(*), count(*) FILTER "
+                                "(WHERE pg_blocking_pids(pid) @> ARRAY[%s::int]) "
+                                "FROM pg_stat_activity WHERE datname = current_database() "
+                                "AND pid <> pg_backend_pid() "
+                                "AND cardinality(pg_blocking_pids(pid)) > 0",
+                                (owner_pid,),
+                            ).fetchone()
+                            assert (
+                                row is not None
+                                and isinstance(row[0], int)
+                                and isinstance(row[1], int)
+                            )
+                            waiting, direct = row[0], row[1]
+                            if waiting >= 2 and direct >= 1:
+                                break
+                            await asyncio.sleep(0.05)
+                        if not (waiting >= 2 and direct >= 1):
+                            active = observer.execute(
+                                "SELECT wait_event_type, left(query, 90), pg_blocking_pids(pid) "
+                                "FROM pg_stat_activity WHERE datname=current_database() "
+                                "AND pid <> pg_backend_pid()"
+                            ).fetchall()
+                            pytest.fail(f"Both editors must overlap in PG lock queue: {active}")
+                    finally:
+                        holder.commit()
+                    results = await asyncio.wait_for(asyncio.gather(a, b), timeout=6)
+                assert sorted(response.status_code for response in results) == [200, 409]
+                accepted = next(
+                    response.json() for response in results if response.status_code == 200
+                )
+                assert (await first.get(url)).json() == accepted
+                history = await first.get(url + "/revisions")
+                assert history.status_code == 200
+                assert [item["revision"] for item in history.json()["items"]] == [1, 2]
+
+
+@pytest.mark.asyncio
+async def test_edit_headers_and_local_boundary_deny_without_mutation(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            original = await client.post(
+                "/api/v1/engagements",
+                json=draft(),
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert original.status_code == 201
+            url = f"/api/v1/engagements/{original.json()['engagement_id']}"
+            valid = {
+                "origin": ORIGIN,
+                "x-csrf-token": csrf,
+                "if-match": original.headers["etag"],
+                "x-command-id": str(uuid4()),
+            }
+            for changed, status in (
+                ({"origin": "http://foreign.invalid"}, 403),
+                ({"host": "foreign.invalid"}, 400),
+                ({"x-csrf-token": "bad"}, 403),
+                ({"if-match": "W/" + original.headers["etag"]}, 422),
+                ({"if-match": "*"}, 422),
+                ({"if-match": '"rev-01-' + original.json()["digest"] + '"'}, 422),
+                ({"x-command-id": str(uuid4()).upper()}, 422),
+            ):
+                denied = await client.put(url, json=draft(), headers={**valid, **changed})
+                assert denied.status_code == status
+            for missing in ("if-match", "x-command-id"):
+                denied = await client.put(
+                    url,
+                    json=draft(),
+                    headers={key: value for key, value in valid.items() if key != missing},
+                )
+                assert denied.status_code == 422
+            oversized = await client.put(url, content=b"x" * 1048577, headers=valid)
+            assert oversized.status_code == 413
+            malformed = await client.put(
+                url,
+                content=b"{",
+                headers={**valid, "content-type": "application/json"},
+            )
+            assert malformed.status_code == 422
+            assert (await client.get(url)).json() == original.json()
 
 
 @pytest.mark.asyncio

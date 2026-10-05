@@ -20,6 +20,19 @@ from omnis.security.sessions import SessionStore
 COOKIE = "omnis_session"
 
 
+def unique_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for name, value in pairs:
+        if name in result:
+            raise ValueError("Duplicate JSON member")
+        result[name] = value
+    return result
+
+
+def reject_json_constant(value: str) -> None:
+    raise ValueError("Non-finite JSON number")
+
+
 def local_origin() -> str:
     raw = os.environ.get("OMNIS_HTTP_PORT", "8765")
     if not raw.isascii() or not raw.isdecimal() or not 1 <= int(raw) <= 65535:
@@ -98,6 +111,13 @@ class LocalBoundary:
         elif (origins and origins != [self.origin]) or (mutation and origins != [self.origin]):
             denied = error_response("INVALID_ORIGIN", 403)
         is_api = scope["path"] == "/api" or scope["path"].startswith("/api/")
+        engagement_write = (
+            scope["path"] == "/api/v1/engagements" and scope["method"] == "POST"
+        ) or (
+            scope["path"].startswith("/api/v1/engagements/")
+            and len(scope["path"].split("/")) == 5
+            and scope["method"] == "PUT"
+        )
         query = scope.get("query_string", b"")
         if denied is None and is_api and query:
             # Bounded keyset queries only. Every other API route keeps
@@ -134,20 +154,9 @@ class LocalBoundary:
 
         if is_api:
             try:
+                body = bytearray()
                 if mutation:
-                    body = bytearray()
-                    body_limit = (
-                        1048576
-                        if (
-                            (scope["path"] == "/api/v1/engagements" and scope["method"] == "POST")
-                            or (
-                                scope["path"].startswith("/api/v1/engagements/")
-                                and len(scope["path"].split("/")) == 5
-                                and scope["method"] == "PUT"
-                            )
-                        )
-                        else 4096
-                    )
+                    body_limit = 1048576 if engagement_write else 4096
                     async with asyncio.timeout(3):
                         while True:
                             message = await receive()
@@ -196,6 +205,20 @@ class LocalBoundary:
                         await error_response("INVALID_CSRF", 403)(scope, receive, send)
                         return
                     scope.setdefault("state", {})["session_grant"] = grant
+                if engagement_write:
+                    try:
+                        json.loads(
+                            body,
+                            object_pairs_hook=unique_json_object,
+                            parse_constant=reject_json_constant,
+                        )
+                    except (ValueError, UnicodeError, RecursionError):
+                        await error_response(
+                            "INVALID_INPUT",
+                            422,
+                            field_errors=[FieldError(field="body", code="INVALID_VALUE")],
+                        )(scope, receive, send)
+                        return
             except TimeoutError:
                 await error_response("CONTROL_TIMEOUT", 503)(scope, receive, send)
                 return

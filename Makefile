@@ -39,7 +39,7 @@ test-p1-concurrency:
 .PHONY: test-p1-fields
 test-p1-fields:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_engagements.py -q -k 'declarative_context_and_matrix or foreign_refs_and_nested or legacy_first_save'
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_engagements.py -q -k 'declarative_context_and_matrix or foreign_refs_and_nested or legacy_first_save or duplicate_json_keys or escaped_unpaired_surrogate'
 
 # Opt-in disposable PostgreSQL regression; only the shared attested DB runner admits it.
 test-sl04-pg:

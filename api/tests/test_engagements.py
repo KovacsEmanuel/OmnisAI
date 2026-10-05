@@ -603,6 +603,79 @@ async def test_edit_headers_and_local_boundary_deny_without_mutation(
 
 
 @pytest.mark.asyncio
+async def test_duplicate_json_keys_are_rejected_recursively_on_create_and_edit(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    source = json.dumps(draft(), separators=(",", ":"), ensure_ascii=True)
+    assert '"name":"Synthetic invoice lab"' in source
+    assert '"expected":"ALLOW"' in source
+    bodies = [
+        source.replace(
+            '"name":"Synthetic invoice lab"',
+            '"name":"synthetic_marker","name":"Synthetic invoice lab"',
+            1,
+        ).encode(),
+        source.replace('"expected":"ALLOW"', '"expected":"DENY","expected":"ALLOW"', 1).encode(),
+    ]
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf, "content-type": "application/json"}
+            for body in bodies:
+                denied = await client.post("/api/v1/engagements", content=body, headers=headers)
+                assert denied.status_code == 422
+                assert "synthetic_marker" not in denied.text
+            assert (await client.get("/api/v1/engagements")).json()["items"] == []
+            created = await client.post("/api/v1/engagements", json=draft(), headers=headers)
+            assert created.status_code == 201
+            url = f"/api/v1/engagements/{created.json()['engagement_id']}"
+            for body in bodies:
+                denied = await client.put(
+                    url,
+                    content=body,
+                    headers={
+                        **headers,
+                        "if-match": created.headers["etag"],
+                        "x-command-id": str(uuid4()),
+                    },
+                )
+                assert denied.status_code == 422
+                assert "synthetic_marker" not in denied.text
+            assert (await client.get(url)).json() == created.json()
+
+
+@pytest.mark.asyncio
+async def test_escaped_unpaired_surrogate_returns_sanitized_422_not_500(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    invalid = draft()
+    context = invalid["application_context"]
+    assert isinstance(context, dict)
+    context["priority_workflows"] = ["synthetic_marker\ud800"]
+    body = json.dumps(invalid, ensure_ascii=True).encode("ascii")
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf, "content-type": "application/json"}
+            denied = await client.post("/api/v1/engagements", content=body, headers=headers)
+            assert denied.status_code == 422
+            assert {"field": "body", "code": "INVALID_VALUE"} in denied.json()["error"][
+                "field_errors"
+            ]
+            assert "synthetic_marker" not in denied.text
+            valid = await client.post("/api/v1/engagements", json=draft(), headers=headers)
+            assert valid.status_code == 201 and valid.json()["payload"] == draft()
+
+
+@pytest.mark.asyncio
 async def test_focused_whitespace_is_a_sanitized_objective_field_error(
     monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
 ) -> None:

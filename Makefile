@@ -34,7 +34,7 @@ test-p1-api:
 .PHONY: test-p1-concurrency
 test-p1-concurrency:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_engagements.py -q -k two_editors_overlap
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_engagements.py -q -k 'two_editors_overlap or edit_service_rejects_noninteger'
 
 .PHONY: test-p1-fields
 test-p1-fields:

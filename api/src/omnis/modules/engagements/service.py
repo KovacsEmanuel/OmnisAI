@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import re
 from uuid import UUID, uuid4
 
 from sqlalchemy import text
@@ -138,6 +139,16 @@ class EngagementService:
         command_id: UUID,
         payload: EngagementDraft,
     ) -> EngagementView:
+        if (
+            type(engagement_id) is not UUID
+            or type(expected_revision) is not int
+            or not 1 <= expected_revision < 2147483647
+            or type(expected_digest) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", expected_digest) is None
+            or type(command_id) is not UUID
+            or type(payload) is not EngagementDraft
+        ):
+            raise ValueError("Invalid engagement edit authority")
         # Serialize writers on the engagement row, including duplicate commands.
         # A receipt is the revision itself; no mutable command cache is needed.
         async with self.engine.begin() as connection:

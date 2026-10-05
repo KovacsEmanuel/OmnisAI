@@ -20,8 +20,9 @@ from sqlalchemy.engine import URL
 
 from conftest import connect_test_database
 from omnis.api import create_app
+from omnis.core.db import database_engine
 from omnis.modules.engagements.schemas import EngagementDraft, LegacyEngagementDraft
-from omnis.modules.engagements.service import canonical_json, revision_digest
+from omnis.modules.engagements.service import EngagementService, canonical_json, revision_digest
 from omnis.security.sessions import SessionStore, code_digest
 
 ORIGIN = "http://127.0.0.1:8765"
@@ -431,6 +432,29 @@ async def test_edit_creates_one_revision_and_replays_original_receipt(
             history = await fresh.get(url + "/revisions")
             assert history.status_code == 200
             assert [item["revision"] for item in history.json()["items"]] == [1, 2]
+
+
+@pytest.mark.parametrize("bad_revision", [True, 1.0, "1"])
+@pytest.mark.asyncio
+async def test_edit_service_rejects_noninteger_revision_before_write_and_replay(
+    migrated_database_url: URL, bad_revision: int
+) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    try:
+        service = EngagementService(engine)
+        payload = EngagementDraft.model_validate(draft())
+        first = await service.create(payload)
+        with pytest.raises(ValueError):
+            await service.edit(first.engagement_id, bad_revision, first.digest, uuid4(), payload)
+        assert await service.read(first.engagement_id) == first
+        command = uuid4()
+        updated = await service.edit(first.engagement_id, 1, first.digest, command, payload)
+        with pytest.raises(ValueError):
+            await service.edit(first.engagement_id, bad_revision, first.digest, command, payload)
+        assert await service.read(first.engagement_id) == updated
+        assert await service.edit(first.engagement_id, 1, first.digest, command, payload) == updated
+    finally:
+        await engine.dispose()
 
 
 @pytest.mark.asyncio

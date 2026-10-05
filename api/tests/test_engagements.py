@@ -20,7 +20,8 @@ from sqlalchemy.engine import URL
 
 from conftest import connect_test_database
 from omnis.api import create_app
-from omnis.modules.engagements.schemas import EngagementDraft
+from omnis.modules.engagements.schemas import EngagementDraft, LegacyEngagementDraft
+from omnis.modules.engagements.service import canonical_json, revision_digest
 from omnis.security.sessions import SessionStore, code_digest
 
 ORIGIN = "http://127.0.0.1:8765"
@@ -48,6 +49,47 @@ def draft() -> dict[str, object]:
         "objective_text": "  Test only invoice ownership. Do not change data.  ",
         "objective_constraints": [],
         "workflow_profile_ref": None,
+        **declarative_fields(),
+    }
+
+
+def declarative_fields() -> dict[str, object]:
+    return {
+        "application_context": {
+            "seed_urls": ["https://lab.example/api/invoices"],
+            "priority_workflows": ["Invoice review 😀"],
+            "test_objects": ["private invoice", "shared invoice"],
+            "import_ref": None,
+        },
+        "effect_rules": [
+            {"effect_class": "LIMITED_WRITE", "decision": "DENY", "note": "No writes"},
+        ],
+        "budgets": {
+            "max_requests": 100,
+            "max_duration_seconds": 3600,
+            "max_storage_bytes": 1048576,
+            "validation_reserved_requests": 20,
+            "max_model_calls": 0,
+        },
+        "data_policy": {
+            "model_projection": "NONE",
+            "research_egress": "NONE",
+            "retention_days": 30,
+        },
+        "business_matrix": [
+            {
+                "id": "11111111-1111-1111-1111-111111111111",
+                "principal": "synthetic-owner",
+                "role": "owner",
+                "tenant": "synthetic-tenant",
+                "object": "private invoice",
+                "operation": "READ",
+                "expected": "ALLOW",
+                "source": "synthetic operator statement",
+                "source_revision": 1,
+            }
+        ],
+        "business_rules_ref": None,
     }
 
 
@@ -59,6 +101,193 @@ async def pair_session(app: FastAPI, client: AsyncClient) -> str:
     csrf = pairing.json()["csrf_token"]
     assert isinstance(csrf, str)
     return csrf
+
+
+@pytest.mark.asyncio
+async def test_declarative_context_and_matrix_persist_at_first_save_and_edit(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    initial = draft()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            created = await client.post(
+                "/api/v1/engagements",
+                json=initial,
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert created.status_code == 201, created.text
+            assert created.json()["payload"] == initial
+            url = f"/api/v1/engagements/{created.json()['engagement_id']}"
+            changed = {**initial, "objective_text": "Only read private invoice 😀"}
+            changed["effect_rules"] = [
+                {"effect_class": "SESSION_CHANGE", "decision": "UNKNOWN", "note": "No login yet"},
+            ]
+            budgets = initial["budgets"]
+            matrix = initial["business_matrix"]
+            assert isinstance(budgets, dict) and isinstance(matrix, list)
+            assert matrix and isinstance(matrix[0], dict)
+            changed["budgets"] = {**budgets, "max_requests": 50}
+            changed["business_matrix"] = [
+                {**matrix[0], "expected": "DENY", "source_revision": 2},
+            ]
+            updated = await client.put(
+                url,
+                json=changed,
+                headers={
+                    "origin": ORIGIN,
+                    "x-csrf-token": csrf,
+                    "if-match": created.headers["etag"],
+                    "x-command-id": str(uuid4()),
+                },
+            )
+            assert updated.status_code == 200 and updated.json()["payload"] == changed
+            cookie = client.cookies["omnis_session"]
+    fresh_app = create_app()
+    async with fresh_app.router.lifespan_context(fresh_app):
+        async with AsyncClient(
+            transport=ASGITransport(app=fresh_app),
+            base_url=ORIGIN,
+            cookies={"omnis_session": cookie},
+        ) as client:
+            read = await client.get(url)
+            assert read.status_code == 200 and read.json() == updated.json()
+            history = await client.get(url + "/revisions")
+            assert history.status_code == 200
+            assert [item["payload"] for item in history.json()["items"]] == [initial, changed]
+
+
+@pytest.mark.asyncio
+async def test_foreign_refs_and_nested_invalid_fields_cannot_advance_the_head(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf}
+            first = await client.post("/api/v1/engagements", json=draft(), headers=headers)
+            other = await client.post("/api/v1/engagements", json=draft(), headers=headers)
+            assert first.status_code == other.status_code == 201
+            url = f"/api/v1/engagements/{first.json()['engagement_id']}"
+            foreign = {
+                "kind": "business-rules",
+                "id": other.json()["engagement_id"],
+                "revision": 1,
+                "digest": other.json()["digest"],
+            }
+            cases: list[tuple[str, dict[str, object]]] = []
+            for field in ("workflow_profile_ref", "business_rules_ref"):
+                invalid = draft()
+                invalid[field] = foreign
+                cases.append((field, invalid))
+            invalid = draft()
+            context = invalid["application_context"]
+            assert isinstance(context, dict)
+            context["import_ref"] = foreign
+            cases.append(("application_context.import_ref", invalid))
+            invalid = draft()
+            invalid["objective_constraints"] = [
+                {
+                    "id": str(uuid4()),
+                    "kind": "READ_ONLY",
+                    "text": "No guessed operations",
+                    "operation_refs": [foreign],
+                }
+            ]
+            cases.append(("objective_constraints.0.operation_refs", invalid))
+            invalid = draft()
+            context = invalid["application_context"]
+            assert isinstance(context, dict)
+            context["seed_urls"] = ["https://lab.example:"]
+            cases.append(("application_context.seed_urls", invalid))
+            invalid = draft()
+            effects = invalid["effect_rules"]
+            assert isinstance(effects, list) and isinstance(effects[0], dict)
+            effects[0]["note"] = "synthetic_marker\x00"
+            cases.append(("effect_rules.0.note", invalid))
+            invalid = draft()
+            matrix = invalid["business_matrix"]
+            assert isinstance(matrix, list) and isinstance(matrix[0], dict)
+            matrix[0]["source"] = "synthetic_marker\x00"
+            cases.append(("business_matrix.0.source", invalid))
+            invalid = draft()
+            budgets = invalid["budgets"]
+            assert isinstance(budgets, dict)
+            budgets["validation_reserved_requests"] = 101
+            cases.append(("budgets.validation_reserved_requests", invalid))
+            for field, invalid in cases:
+                response = await client.put(
+                    url,
+                    json=invalid,
+                    headers={
+                        **headers,
+                        "if-match": first.headers["etag"],
+                        "x-command-id": str(uuid4()),
+                    },
+                )
+                assert response.status_code == 422, field
+                assert field in {item["field"] for item in response.json()["error"]["field_errors"]}
+                assert "synthetic_marker" not in response.text
+            assert (await client.get(url)).json() == first.json()
+            with connect_test_database(migrated_database_url) as connection:
+                assert connection.execute(
+                    "SELECT current_revision FROM engagement WHERE id=%s",
+                    (first.json()["engagement_id"],),
+                ).fetchone() == (1,)
+
+
+@pytest.mark.asyncio
+async def test_legacy_first_save_remains_exact_and_editable_without_backfill(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    raw = {key: value for key, value in draft().items() if key not in declarative_fields()}
+    legacy = LegacyEngagementDraft.model_validate(raw)
+    engagement_id, revision_id = uuid4(), uuid4()
+    digest = revision_digest(revision_id, 1, legacy)
+    with connect_test_database(migrated_database_url) as connection:
+        connection.execute(
+            "INSERT INTO engagement (id,current_revision) VALUES (%s,1)", (engagement_id,)
+        )
+        connection.execute(
+            "INSERT INTO engagement_revision "
+            "(id,engagement_id,revision,schema_version,kind,digest,payload) "
+            "VALUES (%s,%s,1,1,'engagement-revision',%s,%s::jsonb)",
+            (revision_id, engagement_id, digest, canonical_json(legacy.model_dump(mode="json"))),
+        )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            url = f"/api/v1/engagements/{engagement_id}"
+            before = await client.get(url)
+            assert before.status_code == 200
+            assert before.json()["payload"] == raw
+            assert before.json()["digest"] == digest
+            edited = await client.put(
+                url,
+                json=draft(),
+                headers={
+                    "origin": ORIGIN,
+                    "x-csrf-token": csrf,
+                    "if-match": before.headers["etag"],
+                    "x-command-id": str(uuid4()),
+                },
+            )
+            assert edited.status_code == 200
+            history = await client.get(url + "/revisions")
+            assert history.status_code == 200
+            assert history.json()["items"] == [before.json(), edited.json()]
 
 
 @pytest.mark.asyncio
@@ -887,6 +1116,21 @@ async def test_large_objective_and_context_roundtrip_within_declared_aggregate_l
             assert created.json()["payload"] == payload
             read = await client.get(f"/api/v1/engagements/{created.json()['engagement_id']}")
             assert read.status_code == 200 and read.json() == created.json()
+            changed = {**payload, "name": "Large context edited"}
+            updated = await client.put(
+                f"/api/v1/engagements/{created.json()['engagement_id']}",
+                json=changed,
+                headers={
+                    "origin": ORIGIN,
+                    "x-csrf-token": csrf,
+                    "if-match": created.headers["etag"],
+                    "x-command-id": str(uuid4()),
+                },
+            )
+            assert updated.status_code == 200 and updated.json()["payload"] == changed
+            assert (
+                await client.get(f"/api/v1/engagements/{created.json()['engagement_id']}")
+            ).json() == updated.json()
 
 
 @pytest.mark.asyncio
@@ -931,3 +1175,28 @@ async def test_aggregate_overflow_within_http_cap_is_a_sanitized_body_error(
             assert "x" * 128 not in denied.text
             listing = await client.get("/api/v1/engagements")
             assert listing.status_code == 200 and listing.json()["items"] == []
+            original = await client.post(
+                "/api/v1/engagements",
+                json=draft(),
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert original.status_code == 201
+            url = f"/api/v1/engagements/{original.json()['engagement_id']}"
+            headers = {
+                "origin": ORIGIN,
+                "x-csrf-token": csrf,
+                "if-match": original.headers["etag"],
+                "x-command-id": str(uuid4()),
+            }
+            edit_denied = await client.put(
+                url,
+                content=encoded,
+                headers={**headers, "content-type": "application/json"},
+            )
+            assert edit_denied.status_code == 422
+            assert {"field": "body", "code": "TOO_LONG"} in edit_denied.json()["error"][
+                "field_errors"
+            ]
+            wire_denied = await client.put(url, content=b"x" * 1048577, headers=headers)
+            assert wire_denied.status_code == 413
+            assert (await client.get(url)).json() == original.json()

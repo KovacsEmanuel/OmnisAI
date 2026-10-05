@@ -68,6 +68,35 @@ _FIELDS = {
     "text",
     "operation_refs",
     "workflow_profile_ref",
+    "application_context",
+    "seed_urls",
+    "priority_workflows",
+    "test_objects",
+    "import_ref",
+    "effect_rules",
+    "effect_class",
+    "decision",
+    "note",
+    "budgets",
+    "max_requests",
+    "max_duration_seconds",
+    "max_storage_bytes",
+    "validation_reserved_requests",
+    "max_model_calls",
+    "data_policy",
+    "model_projection",
+    "research_egress",
+    "retention_days",
+    "business_matrix",
+    "business_rules_ref",
+    "principal",
+    "role",
+    "tenant",
+    "object",
+    "operation",
+    "expected",
+    "source",
+    "source_revision",
     "after",
     "limit",
     "if-match",
@@ -95,6 +124,8 @@ def validation_field_errors(errors: Iterable[Mapping[str, object]]) -> list[Fiel
             field = "objective_text"
         elif issue_type == "authorization_window":
             field = "authorization.valid_until"
+        elif issue_type == "invalid_budget_reserve":
+            field = "budgets.validation_reserved_requests"
         code: FieldErrorCode
         if issue_type in {"missing", "string_too_short", "list_too_short"}:
             code = "REQUIRED"

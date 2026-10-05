@@ -1034,6 +1034,7 @@ def main() -> int:
             "test-sl04-pg",
             "test-p1-api",
             "test-p1-concurrency",
+            "test-p1-fields",
         ),
         default="check-components",
     )

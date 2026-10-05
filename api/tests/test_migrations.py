@@ -12,7 +12,7 @@ from sqlalchemy.engine import URL
 
 from conftest import connect_test_database, verify_test_database
 from omnis.core.db import SCHEMA_REVISION, database_engine
-from omnis.modules.engagements.schemas import EngagementDraft
+from omnis.modules.engagements.schemas import LegacyEngagementDraft
 from omnis.modules.engagements.service import canonical_json, revision_digest
 from omnis.modules.instance.service import InstanceService
 from process_probe import exercise_installed_control
@@ -80,7 +80,7 @@ def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
     )
     assert first.returncode == 0
     engagement_id, revision_id = uuid4(), uuid4()
-    draft = EngagementDraft.model_validate(
+    draft = LegacyEngagementDraft.model_validate(
         {
             "name": "Synthetic migration case",
             "authorization": {

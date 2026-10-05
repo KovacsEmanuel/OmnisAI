@@ -1,5 +1,6 @@
 """Strict declarative P1 draft DTOs; saving never grants target or model effects."""
 
+import builtins
 import json
 from datetime import datetime
 from typing import Annotated, Literal
@@ -119,7 +120,7 @@ class ObjectiveConstraint(DraftRecord):
         return identity
 
 
-class EngagementDraft(DraftRecord):
+class LegacyEngagementDraft(DraftRecord):
     model_config = ConfigDict(
         extra="forbid",
         strict=True,
@@ -146,7 +147,7 @@ class EngagementDraft(DraftRecord):
         return value
 
     @model_validator(mode="after")
-    def objective_for_mode(self) -> "EngagementDraft":
+    def objective_for_mode(self) -> "LegacyEngagementDraft":
         if self.assessment_mode == "FULL_ASSESSMENT" and not self.objective_text:
             self.objective_text = FULL_OBJECTIVE
         if not self.objective_text or (
@@ -163,7 +164,7 @@ class EngagementDraft(DraftRecord):
         return value
 
     @model_validator(mode="after")
-    def bounded_total(self) -> "EngagementDraft":
+    def bounded_total(self) -> "LegacyEngagementDraft":
         canonical = json.dumps(
             self.model_dump(mode="json"),
             sort_keys=True,
@@ -176,6 +177,128 @@ class EngagementDraft(DraftRecord):
         return self
 
 
+class ApplicationContext(DraftRecord):
+    seed_urls: list[DraftText] = Field(max_length=32)
+    priority_workflows: list[DraftText] = Field(max_length=32)
+    test_objects: list[DraftText] = Field(max_length=64)
+    # No import identity/revision exists in B02b; never accept a guessed ref.
+    import_ref: Literal[None]
+
+    @field_validator("seed_urls")
+    @classmethod
+    def valid_seeds(cls, value: list[str]) -> list[str]:
+        for seed in value:
+            if len(seed) > 2048:
+                raise ValueError("Invalid seed URL")
+            try:
+                parsed = urlsplit(seed)
+                valid = (
+                    parsed.scheme in {"http", "https"}
+                    and parsed.hostname is not None
+                    and parsed.username is None
+                    and parsed.password is None
+                    and parsed.fragment == ""
+                    and parsed.netloc.isascii()
+                    and not parsed.netloc.endswith(":")
+                    and (parsed.port is None or 1 <= parsed.port <= 65535)
+                )
+            except ValueError:
+                valid = False
+            if not valid:
+                raise ValueError("Invalid seed URL")
+        return value
+
+    @field_validator("priority_workflows", "test_objects")
+    @classmethod
+    def bounded_labels(cls, value: list[str]) -> list[str]:
+        if any(not 1 <= len(item) <= 1024 for item in value):
+            raise ValueError("Invalid application context label")
+        return value
+
+
+type EffectClass = Literal[
+    "READ_ONLY_KNOWN", "SESSION_CHANGE", "LIMITED_WRITE", "DESTRUCTIVE", "UNKNOWN"
+]
+type DeclaredDecision = Literal["ALLOW", "DENY", "UNKNOWN"]
+
+
+class EffectRule(DraftRecord):
+    effect_class: EffectClass
+    decision: DeclaredDecision
+    note: DraftText = Field(max_length=1024)
+
+
+class DraftBudgets(DraftRecord):
+    max_requests: int = Field(ge=0, le=100000)
+    max_duration_seconds: int = Field(ge=0, le=86400)
+    max_storage_bytes: int = Field(ge=0, le=1073741824)
+    validation_reserved_requests: int = Field(ge=0, le=100000)
+    max_model_calls: int = Field(ge=0, le=10000)
+
+    @model_validator(mode="after")
+    def valid_reserve(self) -> "DraftBudgets":
+        if self.validation_reserved_requests > self.max_requests:
+            raise PydanticCustomError("invalid_budget_reserve", "Invalid draft budget reserve")
+        return self
+
+
+class DraftDataPolicy(DraftRecord):
+    model_projection: Literal["NONE", "REDACTED"]
+    research_egress: Literal["NONE", "PUBLIC_FACTS"]
+    retention_days: int = Field(ge=0, le=365)
+
+
+class BusinessMatrixEntry(DraftRecord):
+    id: UUID
+    principal: DraftText = Field(min_length=1, max_length=128)
+    role: DraftText = Field(min_length=1, max_length=128)
+    tenant: DraftText = Field(min_length=1, max_length=128)
+    object: DraftText = Field(min_length=1, max_length=256)
+    operation: DraftText = Field(min_length=1, max_length=128)
+    expected: DeclaredDecision
+    source: DraftText = Field(min_length=1, max_length=1024)
+    source_revision: int = Field(ge=1, le=2147483647)
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def exact_id(cls, value: builtins.object) -> UUID:
+        if type(value) is not str:
+            raise ValueError("Invalid matrix entry ID")
+        try:
+            identity = UUID(value)
+        except ValueError:
+            raise ValueError("Invalid matrix entry ID") from None
+        if str(identity) != value:
+            raise ValueError("Invalid matrix entry ID")
+        return identity
+
+
+class EngagementDraft(LegacyEngagementDraft):
+    """B02b authored payload. Legacy rows remain exactly readable, not backfilled."""
+
+    application_context: ApplicationContext
+    effect_rules: list[EffectRule] = Field(max_length=16)
+    budgets: DraftBudgets
+    data_policy: DraftDataPolicy
+    business_matrix: list[BusinessMatrixEntry] = Field(max_length=64)
+    # Inline matrix is draft data; no published BusinessRuleRevision exists yet.
+    business_rules_ref: Literal[None]
+
+    @field_validator("effect_rules")
+    @classmethod
+    def unique_effects(cls, value: list[EffectRule]) -> list[EffectRule]:
+        if len({item.effect_class for item in value}) != len(value):
+            raise ValueError("Duplicate effect class")
+        return value
+
+    @field_validator("business_matrix")
+    @classmethod
+    def unique_matrix_ids(cls, value: list[BusinessMatrixEntry]) -> list[BusinessMatrixEntry]:
+        if len({item.id for item in value}) != len(value):
+            raise ValueError("Duplicate business matrix entry")
+        return value
+
+
 class EngagementView(DatabaseRecord):
     engagement_id: UUID
     schema_version: Literal[1]
@@ -183,7 +306,7 @@ class EngagementView(DatabaseRecord):
     id: UUID
     revision: int = Field(ge=1)
     digest: str = Field(pattern=r"^[0-9a-f]{64}$")
-    payload: EngagementDraft
+    payload: LegacyEngagementDraft | EngagementDraft
     created_at: datetime
 
 

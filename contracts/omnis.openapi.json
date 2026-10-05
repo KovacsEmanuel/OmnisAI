@@ -1,6 +1,47 @@
 {
   "components": {
     "schemas": {
+      "ApplicationContext": {
+        "additionalProperties": false,
+        "properties": {
+          "import_ref": {
+            "title": "Import Ref",
+            "type": "null"
+          },
+          "priority_workflows": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Priority Workflows",
+            "type": "array"
+          },
+          "seed_urls": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Seed Urls",
+            "type": "array"
+          },
+          "test_objects": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64,
+            "title": "Test Objects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "seed_urls",
+          "priority_workflows",
+          "test_objects",
+          "import_ref"
+        ],
+        "title": "ApplicationContext",
+        "type": "object"
+      },
       "AssessmentMode": {
         "enum": [
           "FULL_ASSESSMENT",
@@ -43,6 +84,74 @@
         "title": "Authorization",
         "type": "object"
       },
+      "BusinessMatrixEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "expected": {
+            "$ref": "#/components/schemas/DeclaredDecision"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "object": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Object",
+            "type": "string"
+          },
+          "operation": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Operation",
+            "type": "string"
+          },
+          "principal": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Principal",
+            "type": "string"
+          },
+          "role": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Role",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          },
+          "source_revision": {
+            "maximum": 2147483647.0,
+            "minimum": 1.0,
+            "title": "Source Revision",
+            "type": "integer"
+          },
+          "tenant": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Tenant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "principal",
+          "role",
+          "tenant",
+          "object",
+          "operation",
+          "expected",
+          "source",
+          "source_revision"
+        ],
+        "title": "BusinessMatrixEntry",
+        "type": "object"
+      },
       "ConstraintKind": {
         "enum": [
           "READ_ONLY",
@@ -59,14 +168,163 @@
         "title": "DashboardReason",
         "type": "string"
       },
-      "EngagementDraft": {
+      "DeclaredDecision": {
+        "enum": [
+          "ALLOW",
+          "DENY",
+          "UNKNOWN"
+        ],
+        "type": "string"
+      },
+      "DraftBudgets": {
         "additionalProperties": false,
         "properties": {
+          "max_duration_seconds": {
+            "maximum": 86400.0,
+            "minimum": 0.0,
+            "title": "Max Duration Seconds",
+            "type": "integer"
+          },
+          "max_model_calls": {
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Max Model Calls",
+            "type": "integer"
+          },
+          "max_requests": {
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Max Requests",
+            "type": "integer"
+          },
+          "max_storage_bytes": {
+            "maximum": 1073741824.0,
+            "minimum": 0.0,
+            "title": "Max Storage Bytes",
+            "type": "integer"
+          },
+          "validation_reserved_requests": {
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Validation Reserved Requests",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_requests",
+          "max_duration_seconds",
+          "max_storage_bytes",
+          "validation_reserved_requests",
+          "max_model_calls"
+        ],
+        "title": "DraftBudgets",
+        "type": "object"
+      },
+      "DraftDataPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "model_projection": {
+            "enum": [
+              "NONE",
+              "REDACTED"
+            ],
+            "title": "Model Projection",
+            "type": "string"
+          },
+          "research_egress": {
+            "enum": [
+              "NONE",
+              "PUBLIC_FACTS"
+            ],
+            "title": "Research Egress",
+            "type": "string"
+          },
+          "retention_days": {
+            "maximum": 365.0,
+            "minimum": 0.0,
+            "title": "Retention Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "model_projection",
+          "research_egress",
+          "retention_days"
+        ],
+        "title": "DraftDataPolicy",
+        "type": "object"
+      },
+      "EffectClass": {
+        "enum": [
+          "READ_ONLY_KNOWN",
+          "SESSION_CHANGE",
+          "LIMITED_WRITE",
+          "DESTRUCTIVE",
+          "UNKNOWN"
+        ],
+        "type": "string"
+      },
+      "EffectRule": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/DeclaredDecision"
+          },
+          "effect_class": {
+            "$ref": "#/components/schemas/EffectClass"
+          },
+          "note": {
+            "maxLength": 1024,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "effect_class",
+          "decision",
+          "note"
+        ],
+        "title": "EffectRule",
+        "type": "object"
+      },
+      "EngagementDraft": {
+        "additionalProperties": false,
+        "description": "B02b authored payload. Legacy rows remain exactly readable, not backfilled.",
+        "properties": {
+          "application_context": {
+            "$ref": "#/components/schemas/ApplicationContext"
+          },
           "assessment_mode": {
             "$ref": "#/components/schemas/AssessmentMode"
           },
           "authorization": {
             "$ref": "#/components/schemas/Authorization"
+          },
+          "budgets": {
+            "$ref": "#/components/schemas/DraftBudgets"
+          },
+          "business_matrix": {
+            "items": {
+              "$ref": "#/components/schemas/BusinessMatrixEntry"
+            },
+            "maxItems": 64,
+            "title": "Business Matrix",
+            "type": "array"
+          },
+          "business_rules_ref": {
+            "title": "Business Rules Ref",
+            "type": "null"
+          },
+          "data_policy": {
+            "$ref": "#/components/schemas/DraftDataPolicy"
+          },
+          "effect_rules": {
+            "items": {
+              "$ref": "#/components/schemas/EffectRule"
+            },
+            "maxItems": 16,
+            "title": "Effect Rules",
+            "type": "array"
           },
           "name": {
             "maxLength": 128,
@@ -108,7 +366,13 @@
           "assessment_mode",
           "objective_text",
           "objective_constraints",
-          "workflow_profile_ref"
+          "workflow_profile_ref",
+          "application_context",
+          "effect_rules",
+          "budgets",
+          "data_policy",
+          "business_matrix",
+          "business_rules_ref"
         ],
         "title": "EngagementDraft",
         "type": "object",
@@ -228,7 +492,15 @@
             "type": "string"
           },
           "payload": {
-            "$ref": "#/components/schemas/EngagementDraft"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegacyEngagementDraft"
+              },
+              {
+                "$ref": "#/components/schemas/EngagementDraft"
+              }
+            ],
+            "title": "Payload"
           },
           "revision": {
             "minimum": 1.0,
@@ -462,6 +734,61 @@
         ],
         "title": "InstanceView",
         "type": "object"
+      },
+      "LegacyEngagementDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_mode": {
+            "$ref": "#/components/schemas/AssessmentMode"
+          },
+          "authorization": {
+            "$ref": "#/components/schemas/Authorization"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "objective_constraints": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectiveConstraint"
+            },
+            "maxItems": 64,
+            "title": "Objective Constraints",
+            "type": "array"
+          },
+          "objective_text": {
+            "maxLength": 8192,
+            "title": "Objective Text",
+            "type": "string"
+          },
+          "scope": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeEntry"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Scope",
+            "type": "array"
+          },
+          "workflow_profile_ref": {
+            "title": "Workflow Profile Ref",
+            "type": "null"
+          }
+        },
+        "required": [
+          "name",
+          "authorization",
+          "scope",
+          "assessment_mode",
+          "objective_text",
+          "objective_constraints",
+          "workflow_profile_ref"
+        ],
+        "title": "LegacyEngagementDraft",
+        "type": "object",
+        "x-max-canonical-payload-bytes": 1000000
       },
       "ObjectiveConstraint": {
         "additionalProperties": false,

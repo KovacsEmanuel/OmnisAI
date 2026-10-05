@@ -13,6 +13,7 @@ from omnis.modules.engagements.schemas import (
     EngagementPage,
     EngagementSummary,
     EngagementView,
+    LegacyEngagementDraft,
     RevisionPage,
 )
 
@@ -31,7 +32,7 @@ def canonical_json(value: object) -> str:
     )
 
 
-def revision_digest(revision_id: UUID, revision: int, payload: EngagementDraft) -> str:
+def revision_digest(revision_id: UUID, revision: int, payload: LegacyEngagementDraft) -> str:
     envelope = {
         "schema_version": 1,
         "kind": "engagement-revision",

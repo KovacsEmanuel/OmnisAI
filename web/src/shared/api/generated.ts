@@ -159,6 +159,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApplicationContext */
+        ApplicationContext: {
+            /** Import Ref */
+            import_ref: null;
+            /** Priority Workflows */
+            priority_workflows: string[];
+            /** Seed Urls */
+            seed_urls: string[];
+            /** Test Objects */
+            test_objects: string[];
+        };
         /** @enum {string} */
         AssessmentMode: "FULL_ASSESSMENT" | "FOCUSED_TEST";
         /** Authorization */
@@ -172,6 +183,29 @@ export interface components {
             /** Valid Until */
             valid_until: string;
         };
+        /** BusinessMatrixEntry */
+        BusinessMatrixEntry: {
+            expected: components["schemas"]["DeclaredDecision"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Object */
+            object: string;
+            /** Operation */
+            operation: string;
+            /** Principal */
+            principal: string;
+            /** Role */
+            role: string;
+            /** Source */
+            source: string;
+            /** Source Revision */
+            source_revision: number;
+            /** Tenant */
+            tenant: string;
+        };
         /** @enum {string} */
         ConstraintKind: "READ_ONLY" | "EXCLUDE_FEATURE" | "REQUIRE_CRITERION";
         /**
@@ -179,10 +213,61 @@ export interface components {
          * @enum {string}
          */
         DashboardReason: "ASSETS_UNAVAILABLE" | "CONTROL_UNAVAILABLE";
-        /** EngagementDraft */
+        /** @enum {string} */
+        DeclaredDecision: "ALLOW" | "DENY" | "UNKNOWN";
+        /** DraftBudgets */
+        DraftBudgets: {
+            /** Max Duration Seconds */
+            max_duration_seconds: number;
+            /** Max Model Calls */
+            max_model_calls: number;
+            /** Max Requests */
+            max_requests: number;
+            /** Max Storage Bytes */
+            max_storage_bytes: number;
+            /** Validation Reserved Requests */
+            validation_reserved_requests: number;
+        };
+        /** DraftDataPolicy */
+        DraftDataPolicy: {
+            /**
+             * Model Projection
+             * @enum {string}
+             */
+            model_projection: "NONE" | "REDACTED";
+            /**
+             * Research Egress
+             * @enum {string}
+             */
+            research_egress: "NONE" | "PUBLIC_FACTS";
+            /** Retention Days */
+            retention_days: number;
+        };
+        /** @enum {string} */
+        EffectClass: "READ_ONLY_KNOWN" | "SESSION_CHANGE" | "LIMITED_WRITE" | "DESTRUCTIVE" | "UNKNOWN";
+        /** EffectRule */
+        EffectRule: {
+            decision: components["schemas"]["DeclaredDecision"];
+            effect_class: components["schemas"]["EffectClass"];
+            /** Note */
+            note: string;
+        };
+        /**
+         * EngagementDraft
+         * @description B02b authored payload. Legacy rows remain exactly readable, not backfilled.
+         */
         EngagementDraft: {
+            application_context: components["schemas"]["ApplicationContext"];
             assessment_mode: components["schemas"]["AssessmentMode"];
             authorization: components["schemas"]["Authorization"];
+            budgets: components["schemas"]["DraftBudgets"];
+            /** Business Matrix */
+            business_matrix: components["schemas"]["BusinessMatrixEntry"][];
+            /** Business Rules Ref */
+            business_rules_ref: null;
+            data_policy: components["schemas"]["DraftDataPolicy"];
+            /** Effect Rules */
+            effect_rules: components["schemas"]["EffectRule"][];
             /** Name */
             name: string;
             /** Objective Constraints */
@@ -252,7 +337,8 @@ export interface components {
              * @constant
              */
             kind: "engagement-revision";
-            payload: components["schemas"]["EngagementDraft"];
+            /** Payload */
+            payload: components["schemas"]["LegacyEngagementDraft"] | components["schemas"]["EngagementDraft"];
             /** Revision */
             revision: number;
             /**
@@ -328,6 +414,21 @@ export interface components {
             supervisor_epoch: number;
             /** Supervisor Ready */
             supervisor_ready: boolean;
+        };
+        /** LegacyEngagementDraft */
+        LegacyEngagementDraft: {
+            assessment_mode: components["schemas"]["AssessmentMode"];
+            authorization: components["schemas"]["Authorization"];
+            /** Name */
+            name: string;
+            /** Objective Constraints */
+            objective_constraints: components["schemas"]["ObjectiveConstraint"][];
+            /** Objective Text */
+            objective_text: string;
+            /** Scope */
+            scope: components["schemas"]["ScopeEntry"][];
+            /** Workflow Profile Ref */
+            workflow_profile_ref: null;
         };
         /** ObjectiveConstraint */
         ObjectiveConstraint: {

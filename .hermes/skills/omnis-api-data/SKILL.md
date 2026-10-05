@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.8
+version: 0.1.9
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -31,6 +31,9 @@ Read the active architecture, relevant ticket and stack pins. Inspect actual man
 ## Pitfalls
 Do not swallow exceptions, retry uncertain external effects as if they were safe, return success for queued completion, or weaken validation to satisfy a linter. An in-memory smoke is not durability; a restart test must restart the owning process and read real state.
 
+- Reject U+0000 in every authored string destined for PostgreSQL JSONB, including nested list items, before a Save transaction. PostgreSQL rejects it after DTO acceptance and otherwise turns invalid input into a misleading 503; exercise the real HTTP field error and a valid control on the same route.
+- For an exact origin stored separately from its port, reject an empty port delimiter explicitly: `urlsplit("https://host:").port` is `None`. A `port is None` check alone accepts ambiguous scope data; test the negative and a valid origin through the same API.
+- After adding shared Pydantic `Annotated` validators, compare two fresh-process OpenAPI exports byte-for-byte before trusting contract drift checks. A PEP 695 `type` alias combined with field metadata can embed runtime identity in `$ref` names; use a stable alias assignment when needed, then regenerate OpenAPI/TS from the source.
 - Before fixture CREATE/DROP, use the shared private-manifest attestor: exact local daemon/CID/image/project/binds/UID/no-network/UDS, then compare the **connected PostgreSQL system identifier**. Keep the encoded URI in fixtures and decode only at the engine or explicit driver kwargs; serializing an already-decoded Unix host loses URI authority. Reject query/PG overrides, noncanonical paths and commas (libpq multi-host semantics) before connection. Never adopt an existing DB or fall back to TCP; re-attest before migration and teardown.
 - A migration *failure* test must not send a valid DSN to an arbitrary fixed port hoping the connection fails: an unrelated DB there could accept it and receive DDL before the assertion. Exercise wrong-password failure on an attested UUID-named disposable DB; for config denials use inputs rejected before socket I/O. Re-attest ownership immediately before a long build-to-migration handoff.
 - On PostgreSQL 18, `attnotnull=true` can coexist with `NOT NULL NOT VALID` and existing NULL rows. A compatible-schema probe must compare the exact authority column/**every default**/constraint set including `pg_constraint.convalidated` and `conenforced`; a revision stamp, partial default map or subset check can report a false ready. Exercise the real DDL mutation on an isolated DB before trusting the negative test.

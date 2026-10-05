@@ -37,3 +37,22 @@ def test_committed_contract_matches_current_routes() -> None:
     path = ROOT / "contracts/omnis.openapi.json"
     assert path.is_file(), "The first web consumer requires a versioned OpenAPI contract"
     assert json.loads(path.read_text()) == create_app().openapi()
+
+
+def test_contract_bytes_are_stable_across_fresh_processes(tmp_path: Path) -> None:
+    outputs = [tmp_path / "first.json", tmp_path / "second.json"]
+    for path in outputs:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-I",
+                str(ROOT / "scripts/export_contracts.py"),
+                "--output",
+                str(path),
+            ],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+        assert completed.returncode == 0
+    assert outputs[0].read_bytes() == outputs[1].read_bytes()

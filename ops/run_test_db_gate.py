@@ -1032,6 +1032,7 @@ def main() -> int:
             "test-migrations",
             "test-e2e",
             "test-sl04-pg",
+            "test-p1-api",
         ),
         default="check-components",
     )

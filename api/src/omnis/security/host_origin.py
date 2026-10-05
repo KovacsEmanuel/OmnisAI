@@ -5,6 +5,7 @@ import hmac
 import json
 import logging
 import os
+from urllib.parse import parse_qsl
 from uuid import uuid4
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,7 +14,7 @@ from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from omnis.core.db import readiness_reason
-from omnis.core.errors import ErrorCode, ErrorDetail, ErrorEnvelope, request_correlation
+from omnis.core.errors import ErrorCode, ErrorDetail, ErrorEnvelope, FieldError, request_correlation
 from omnis.security.sessions import SessionStore
 
 COOKIE = "omnis_session"
@@ -26,9 +27,15 @@ def local_origin() -> str:
     return f"http://127.0.0.1:{int(raw)}"
 
 
-def error_response(code: str, status: int) -> JSONResponse:
+def error_response(
+    code: str, status: int, *, field_errors: list[FieldError] | None = None
+) -> JSONResponse:
     error = ErrorEnvelope(
-        error=ErrorDetail(code=ErrorCode(code), correlation_id=request_correlation.get() or uuid4())
+        error=ErrorDetail(
+            code=ErrorCode(code),
+            correlation_id=request_correlation.get() or uuid4(),
+            field_errors=field_errors or [],
+        )
     )
     return JSONResponse(
         error.model_dump(mode="json"), status_code=status, headers={"Cache-Control": "no-store"}
@@ -91,8 +98,31 @@ class LocalBoundary:
         elif (origins and origins != [self.origin]) or (mutation and origins != [self.origin]):
             denied = error_response("INVALID_ORIGIN", 403)
         is_api = scope["path"] == "/api" or scope["path"].startswith("/api/")
-        if denied is None and is_api and scope.get("query_string"):
-            denied = error_response("QUERY_NOT_ALLOWED", 400)
+        query = scope.get("query_string", b"")
+        if denied is None and is_api and query:
+            # One bounded, explicit keyset query. Every other API route keeps
+            # the P0 no-query boundary, including pairing and session routes.
+            if (
+                scope["path"] != "/api/v1/engagements"
+                or scope["method"] != "GET"
+                or len(query) > 256
+            ):
+                denied = error_response("QUERY_NOT_ALLOWED", 400)
+            else:
+                try:
+                    pairs = parse_qsl(
+                        query.decode("ascii"),
+                        keep_blank_values=True,
+                        strict_parsing=True,
+                        max_num_fields=2,
+                        errors="strict",
+                    )
+                except (UnicodeError, ValueError):
+                    denied = error_response("QUERY_NOT_ALLOWED", 400)
+                else:
+                    keys = [key for key, _ in pairs]
+                    if len(keys) != len(set(keys)) or not set(keys) <= {"after", "limit"}:
+                        denied = error_response("QUERY_NOT_ALLOWED", 400)
         if denied is not None:
             await denied(scope, receive, send)
             return
@@ -101,13 +131,18 @@ class LocalBoundary:
             try:
                 if mutation:
                     body = bytearray()
+                    body_limit = (
+                        1048576
+                        if scope["path"] == "/api/v1/engagements" and scope["method"] == "POST"
+                        else 4096
+                    )
                     async with asyncio.timeout(3):
                         while True:
                             message = await receive()
                             if message["type"] == "http.disconnect":
                                 return
                             body.extend(message.get("body", b""))
-                            if len(body) > 4096:
+                            if len(body) > body_limit:
                                 await error_response("BODY_TOO_LARGE", 413)(scope, receive, send)
                                 return
                             if not message.get("more_body", False):

@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0006_stop_reconciliation",
+            "schema": "0007_engagement_drafts",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -82,6 +82,13 @@ class InstallTest(unittest.TestCase):
         self.assertEqual((self.data_home / "omnis/installed.json").stat().st_mode & 0o777, 0o600)
         self.assertFalse((self.root / "instance.json").exists())
         self.assertEqual(install_release(self.bundle, self.data_home), result)
+
+    def test_pre_p1_schema_bundle_is_refused_before_install(self):
+        self.manifest["schema"] = "0006_stop_reconciliation"
+        self.write_manifest()
+        with self.assertRaises(ReleaseError):
+            install_release(self.bundle, self.data_home)
+        self.assertFalse((self.data_home / "omnis/installed.json").exists())
 
     def test_changed_payload_refused_without_partial_install(self):
         (self.bundle / "web/index.html").write_bytes(b"different")

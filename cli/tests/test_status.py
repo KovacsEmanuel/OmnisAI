@@ -55,7 +55,7 @@ class StatusTest(unittest.TestCase):
             "version": 1,
             "instance_id": self.identity,
             "release": "0.1.0",
-            "schema": "0006_stop_reconciliation",
+            "schema": "0007_engagement_drafts",
             "project": "omnis-local-1",
             "origin": origin,
         }

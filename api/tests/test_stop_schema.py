@@ -24,9 +24,14 @@ def test_reconciliation_migration_quotes_reserved_grant_identifier(
     assert '"grant" jsonb NOT NULL' in sql
 
 
+@pytest.mark.parametrize(
+    "table_under_test", ["instance_stop_reconciliation", "engagement_revision"]
+)
 @pytest.mark.parametrize("unconditional", [True, False])
 @pytest.mark.asyncio
-async def test_schema_refuses_conditional_immutability_trigger(unconditional: bool) -> None:
+async def test_schema_refuses_conditional_immutability_trigger(
+    table_under_test: str, unconditional: bool
+) -> None:
     # Driver rows are substituted; this exercises the real schema decision.
     responses = []
     for table, (columns, constraints) in AUTHORITY_TABLES.items():
@@ -47,30 +52,44 @@ async def test_schema_refuses_conditional_immutability_trigger(unconditional: bo
         }
         constraint_result.all.return_value = list(constraints | required)
         responses.extend([column_result, constraint_result])
-    trigger = Mock()
-    trigger.all.return_value = [
-        (
+    triggers = {
+        "instance_stop_reconciliation": (
             "stop_reconciliation_immutable",
-            58,
-            "O",
             "reject_stop_reconciliation_mutation",
-            "BEGIN\n        RAISE EXCEPTION 'Stop reconciliation receipts are immutable';\n        END;",
-            "plpgsql",
-            False,
-            0,
-            0,
-            unconditional,
-            "",
-            "trigger",
-        )
-    ]
+            "Stop reconciliation receipts are immutable",
+        ),
+        "engagement_revision": (
+            "engagement_revision_immutable",
+            "reject_engagement_revision_mutation",
+            "Engagement revisions are immutable",
+        ),
+    }
     singleton = Mock()
     singleton.one.return_value = (True, True)
 
     async def execute(statement: object, parameters: object = None) -> Mock:
         if "FROM pg_trigger" in str(statement):
+            assert isinstance(parameters, dict) and parameters.get("table") in triggers
+            table = parameters["table"]
+            name, function, message = triggers[table]
+            row = (
+                name,
+                58,
+                "O",
+                function,
+                f"BEGIN\n        RAISE EXCEPTION '{message}';\n        END;",
+                "plpgsql",
+                False,
+                0,
+                0,
+                unconditional if table == table_under_test else True,
+                "",
+                "trigger",
+            )
+            trigger = Mock()
+            trigger.all.return_value = [row]
             if "t.tgqual IS NULL" not in str(statement):
-                trigger.all.return_value = [row[:9] for row in trigger.all.return_value]
+                trigger.all.return_value = [row[:9]]
             return trigger
         if not responses:
             return singleton
@@ -85,6 +104,6 @@ def test_stop_reconciliation_is_new_schema_authority() -> None:
     script = ScriptDirectory.from_config(
         Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     )
-    assert script.get_current_head() == SCHEMA_REVISION == "0006_stop_reconciliation"
+    assert script.get_current_head() == SCHEMA_REVISION == "0007_engagement_drafts"
     assert "instance_stop_reconciliation" in AUTHORITY_TABLES
     assert AUTHORITY_TABLES["instance_stop_fence"][0]["owner_uuid"] == ("uuid", False, None)

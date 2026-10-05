@@ -1,6 +1,56 @@
 {
   "components": {
     "schemas": {
+      "AssessmentMode": {
+        "enum": [
+          "FULL_ASSESSMENT",
+          "FOCUSED_TEST"
+        ],
+        "type": "string"
+      },
+      "Authorization": {
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Owner",
+            "type": "string"
+          },
+          "statement": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          },
+          "valid_from": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_until": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "title": "Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "statement",
+          "valid_from",
+          "valid_until"
+        ],
+        "title": "Authorization",
+        "type": "object"
+      },
+      "ConstraintKind": {
+        "enum": [
+          "READ_ONLY",
+          "EXCLUDE_FEATURE",
+          "REQUIRE_CRITERION"
+        ],
+        "type": "string"
+      },
       "DashboardReason": {
         "enum": [
           "ASSETS_UNAVAILABLE",
@@ -8,6 +58,200 @@
         ],
         "title": "DashboardReason",
         "type": "string"
+      },
+      "EngagementDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_mode": {
+            "$ref": "#/components/schemas/AssessmentMode"
+          },
+          "authorization": {
+            "$ref": "#/components/schemas/Authorization"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "objective_constraints": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectiveConstraint"
+            },
+            "maxItems": 64,
+            "title": "Objective Constraints",
+            "type": "array"
+          },
+          "objective_text": {
+            "maxLength": 8192,
+            "title": "Objective Text",
+            "type": "string"
+          },
+          "scope": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeEntry"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Scope",
+            "type": "array"
+          },
+          "workflow_profile_ref": {
+            "title": "Workflow Profile Ref",
+            "type": "null"
+          }
+        },
+        "required": [
+          "name",
+          "authorization",
+          "scope",
+          "assessment_mode",
+          "objective_text",
+          "objective_constraints",
+          "workflow_profile_ref"
+        ],
+        "title": "EngagementDraft",
+        "type": "object"
+      },
+      "EngagementPage": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EngagementSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_page": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Page"
+          }
+        },
+        "required": [
+          "items",
+          "has_more",
+          "next_page"
+        ],
+        "title": "EngagementPage",
+        "type": "object"
+      },
+      "EngagementSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_mode": {
+            "$ref": "#/components/schemas/AssessmentMode"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "engagement_id": {
+            "format": "uuid",
+            "title": "Engagement Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "engagement_id",
+          "id",
+          "revision",
+          "digest",
+          "name",
+          "assessment_mode",
+          "created_at"
+        ],
+        "title": "EngagementSummary",
+        "type": "object"
+      },
+      "EngagementView": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "engagement_id": {
+            "format": "uuid",
+            "title": "Engagement Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "engagement-revision",
+            "title": "Kind",
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/EngagementDraft"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "schema_version": {
+            "const": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "engagement_id",
+          "schema_version",
+          "kind",
+          "id",
+          "revision",
+          "digest",
+          "payload",
+          "created_at"
+        ],
+        "title": "EngagementView",
+        "type": "object"
       },
       "ErrorCode": {
         "enum": [
@@ -40,6 +284,13 @@
             "format": "uuid",
             "title": "Correlation Id",
             "type": "string"
+          },
+          "field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            },
+            "title": "Field Errors",
+            "type": "array"
           }
         },
         "required": [
@@ -59,6 +310,32 @@
           "error"
         ],
         "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "FieldError": {
+        "properties": {
+          "code": {
+            "enum": [
+              "REQUIRED",
+              "INVALID_VALUE",
+              "TOO_LONG",
+              "TOO_MANY",
+              "UNKNOWN_FIELD"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "field": {
+            "maxLength": 96,
+            "title": "Field",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "code"
+        ],
+        "title": "FieldError",
         "type": "object"
       },
       "HealthReady": {
@@ -184,6 +461,39 @@
         "title": "InstanceView",
         "type": "object"
       },
+      "ObjectiveConstraint": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ConstraintKind"
+          },
+          "operation_refs": {
+            "items": {},
+            "maxItems": 0,
+            "title": "Operation Refs",
+            "type": "array"
+          },
+          "text": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "text",
+          "operation_refs"
+        ],
+        "title": "ObjectiveConstraint",
+        "type": "object"
+      },
       "PairingBody": {
         "additionalProperties": false,
         "properties": {
@@ -208,6 +518,58 @@
         ],
         "title": "ReadinessReason",
         "type": "string"
+      },
+      "ScopeAccess": {
+        "enum": [
+          "ATTACKABLE",
+          "VISIT_ONLY",
+          "BLOCKED"
+        ],
+        "type": "string"
+      },
+      "ScopeEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/ScopeAccess"
+          },
+          "exclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Exclusions",
+            "type": "array"
+          },
+          "origin": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Origin",
+            "type": "string"
+          },
+          "path_prefix": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "pattern": "^/[^?#]*$",
+            "title": "Path Prefix",
+            "type": "string"
+          },
+          "port": {
+            "maximum": 65535.0,
+            "minimum": 1.0,
+            "title": "Port",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "origin",
+          "port",
+          "path_prefix",
+          "exclusions",
+          "access"
+        ],
+        "title": "ScopeEntry",
+        "type": "object"
       },
       "SessionView": {
         "properties": {
@@ -548,6 +910,311 @@
           }
         },
         "summary": "Session"
+      }
+    },
+    "/api/v1/engagements": {
+      "get": {
+        "operationId": "list_engagements_api_v1_engagements_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngagementPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "List Engagements"
+      },
+      "post": {
+        "operationId": "create_engagement_api_v1_engagements_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngagementDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngagementView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Create Engagement"
+      }
+    },
+    "/api/v1/engagements/{engagement_id}": {
+      "get": {
+        "operationId": "read_engagement_api_v1_engagements__engagement_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "engagement_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Engagement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngagementView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Engagement"
       }
     },
     "/health/live": {

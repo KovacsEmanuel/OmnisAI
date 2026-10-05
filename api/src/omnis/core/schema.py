@@ -10,6 +10,70 @@ type AuthoritySpec = tuple[dict[str, ColumnSpec], set[ConstraintSpec]]
 
 # Each column is (type, required, exact default). Tables are never inferred from a stamp alone.
 AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
+    "engagement": (
+        {
+            "id": ("uuid", True, None),
+            "current_revision": ("integer", True, None),
+            "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
+        },
+        {
+            ("engagement_pkey", "p", "PRIMARY KEY (id)", True, True),
+            ("ck_engagement_revision", "c", "CHECK ((current_revision >= 1))", True, True),
+            (
+                "fk_engagement_current_revision",
+                "f",
+                "FOREIGN KEY (id, current_revision) REFERENCES engagement_revision(engagement_id, revision) DEFERRABLE INITIALLY DEFERRED",
+                True,
+                True,
+            ),
+        },
+    ),
+    "engagement_revision": (
+        {
+            "id": ("uuid", True, None),
+            "engagement_id": ("uuid", True, None),
+            "revision": ("integer", True, None),
+            "schema_version": ("smallint", True, None),
+            "kind": ("text", True, None),
+            "digest": ("text", True, None),
+            "payload": ("jsonb", True, None),
+            "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
+        },
+        {
+            ("engagement_revision_pkey", "p", "PRIMARY KEY (id)", True, True),
+            ("uq_engagement_revision_order", "u", "UNIQUE (engagement_id, revision)", True, True),
+            (
+                "fk_revision_engagement",
+                "f",
+                "FOREIGN KEY (engagement_id) REFERENCES engagement(id)",
+                True,
+                True,
+            ),
+            ("ck_revision_number", "c", "CHECK ((revision >= 1))", True, True),
+            ("ck_revision_schema", "c", "CHECK ((schema_version = 1))", True, True),
+            (
+                "ck_revision_kind",
+                "c",
+                "CHECK ((kind = 'engagement-revision'::text))",
+                True,
+                True,
+            ),
+            (
+                "ck_revision_digest",
+                "c",
+                "CHECK ((digest ~ '^[0-9a-f]{64}$'::text))",
+                True,
+                True,
+            ),
+            (
+                "ck_revision_payload",
+                "c",
+                "CHECK ((jsonb_typeof(payload) = 'object'::text))",
+                True,
+                True,
+            ),
+        },
+    ),
     "instance_stop_reconciliation": (
         {
             "reconciliation_id": ("uuid", True, None),
@@ -190,35 +254,50 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             return False
         if set(constraints) != expected_constraints | required:
             return False
-    immutable = (
-        await connection.execute(
-            text(
-                "SELECT t.tgname, t.tgtype, t.tgenabled, p.proname, p.prosrc, "
-                "l.lanname, p.prosecdef, p.pronargs, t.tgnargs, t.tgqual IS NULL, "
-                "t.tgattr::text, p.prorettype::regtype::text "
-                "FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
-                "JOIN pg_language l ON l.oid = p.prolang "
-                "WHERE t.tgrelid = 'instance_stop_reconciliation'::regclass AND NOT t.tgisinternal"
-            )
-        )
-    ).all()
-    if [tuple(row) for row in immutable] != [
+    for table, name, function, message in (
         (
+            "instance_stop_reconciliation",
             "stop_reconciliation_immutable",
-            58,
-            "O",
             "reject_stop_reconciliation_mutation",
-            "BEGIN\n        RAISE EXCEPTION 'Stop reconciliation receipts are immutable';\n        END;",
-            "plpgsql",
-            False,
-            0,
-            0,
-            True,
-            "",
-            "trigger",
-        )
-    ]:
-        return False
+            "Stop reconciliation receipts are immutable",
+        ),
+        (
+            "engagement_revision",
+            "engagement_revision_immutable",
+            "reject_engagement_revision_mutation",
+            "Engagement revisions are immutable",
+        ),
+    ):
+        immutable = (
+            await connection.execute(
+                text(
+                    "SELECT t.tgname, t.tgtype, t.tgenabled, p.proname, p.prosrc, "
+                    "l.lanname, p.prosecdef, p.pronargs, t.tgnargs, t.tgqual IS NULL, "
+                    "t.tgattr::text, p.prorettype::regtype::text "
+                    "FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
+                    "JOIN pg_language l ON l.oid = p.prolang "
+                    "WHERE t.tgrelid = to_regclass(:table) AND NOT t.tgisinternal"
+                ),
+                {"table": table},
+            )
+        ).all()
+        if [tuple(row) for row in immutable] != [
+            (
+                name,
+                58,
+                "O",
+                function,
+                f"BEGIN\n        RAISE EXCEPTION '{message}';\n        END;",
+                "plpgsql",
+                False,
+                0,
+                0,
+                True,
+                "",
+                "trigger",
+            )
+        ]:
+            return False
     return all(
         (
             await connection.execute(

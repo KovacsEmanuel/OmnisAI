@@ -14,9 +14,10 @@ from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from omnis.core.db import ReadinessReason, database_engine, readiness_reason
-from omnis.core.errors import error_responses
+from omnis.core.errors import error_responses, validation_field_errors
 from omnis.core.readiness import DashboardReason, dashboard_reason
 from omnis.core.web_assets import CONTENT_TYPES, WEB_HEADERS, WebAssets
+from omnis.modules.engagements.routes import router as engagement_router
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
@@ -58,9 +59,14 @@ def create_app() -> FastAPI:
 
     app.add_middleware(LocalBoundary, origin=local_origin())
     app.include_router(session_router)
+    app.include_router(engagement_router)
 
     @app.exception_handler(RequestValidationError)
     async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:
+        if request.url.path.startswith("/api/v1/engagements"):
+            return error_response(
+                "INVALID_INPUT", 422, field_errors=validation_field_errors(exc.errors())
+            )
         return error_response("INVALID_INPUT", 422)
 
     @app.exception_handler(HTTPException)

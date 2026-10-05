@@ -26,6 +26,11 @@ check-components: check-docs check-development check-api test-api test-migration
 test-db-contract:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_fixture_ownership.py api/tests/test_database_url.py -v
 
+.PHONY: test-p1-api
+test-p1-api:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_engagements.py -q
+
 # Opt-in disposable PostgreSQL regression; only the shared attested DB runner admits it.
 test-sl04-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }

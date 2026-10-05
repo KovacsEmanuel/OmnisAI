@@ -279,6 +279,7 @@ def test_installed_wheel_migrates_without_checkout(empty_database_url: URL, tmp_
         "0003_instance_lifecycle",
         "0004_pairing_receipts",
         "0005_stop_fence",
+        "0006_stop_reconciliation",
     ],
 )
 def test_upgrade_from_previous_revision_preserves_instance_identity(
@@ -337,7 +338,8 @@ def test_upgrade_from_previous_revision_preserves_instance_identity(
         )
         assert connection.execute("SELECT digest, attempts FROM pairing_challenge").fetchone() == (
             "synthetic_pending_digest"
-            if previous_revision in {"0004_pairing_receipts", "0005_stop_fence"}
+            if previous_revision
+            in {"0004_pairing_receipts", "0005_stop_fence", "0006_stop_reconciliation"}
             else None,
             0,
         )

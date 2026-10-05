@@ -125,7 +125,7 @@ def build_bundle(
     manifest = {
         "format": 1,
         "release": "0.1.0",
-        "schema": "0006_stop_reconciliation",
+        "schema": "0007_engagement_drafts",
         "platform": "linux/amd64",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }

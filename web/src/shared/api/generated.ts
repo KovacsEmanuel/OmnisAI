@@ -68,6 +68,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/engagements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Engagements */
+        get: operations["list_engagements_api_v1_engagements_get"];
+        put?: never;
+        /** Create Engagement */
+        post: operations["create_engagement_api_v1_engagements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/engagements/{engagement_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Engagement */
+        get: operations["read_engagement_api_v1_engagements__engagement_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -106,11 +141,108 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        AssessmentMode: "FULL_ASSESSMENT" | "FOCUSED_TEST";
+        /** Authorization */
+        Authorization: {
+            /** Owner */
+            owner: string;
+            /** Statement */
+            statement: string;
+            /** Valid From */
+            valid_from: string;
+            /** Valid Until */
+            valid_until: string;
+        };
+        /** @enum {string} */
+        ConstraintKind: "READ_ONLY" | "EXCLUDE_FEATURE" | "REQUIRE_CRITERION";
         /**
          * DashboardReason
          * @enum {string}
          */
         DashboardReason: "ASSETS_UNAVAILABLE" | "CONTROL_UNAVAILABLE";
+        /** EngagementDraft */
+        EngagementDraft: {
+            assessment_mode: components["schemas"]["AssessmentMode"];
+            authorization: components["schemas"]["Authorization"];
+            /** Name */
+            name: string;
+            /** Objective Constraints */
+            objective_constraints: components["schemas"]["ObjectiveConstraint"][];
+            /** Objective Text */
+            objective_text: string;
+            /** Scope */
+            scope: components["schemas"]["ScopeEntry"][];
+            /** Workflow Profile Ref */
+            workflow_profile_ref: null;
+        };
+        /** EngagementPage */
+        EngagementPage: {
+            /** Has More */
+            has_more: boolean;
+            /** Items */
+            items: components["schemas"]["EngagementSummary"][];
+            /** Next Page */
+            next_page: string | null;
+        };
+        /** EngagementSummary */
+        EngagementSummary: {
+            assessment_mode: components["schemas"]["AssessmentMode"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Digest */
+            digest: string;
+            /**
+             * Engagement Id
+             * Format: uuid
+             */
+            engagement_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Revision */
+            revision: number;
+        };
+        /** EngagementView */
+        EngagementView: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Digest */
+            digest: string;
+            /**
+             * Engagement Id
+             * Format: uuid
+             */
+            engagement_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "engagement-revision";
+            payload: components["schemas"]["EngagementDraft"];
+            /** Revision */
+            revision: number;
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: 1;
+        };
         /**
          * ErrorCode
          * @enum {string}
@@ -124,10 +256,22 @@ export interface components {
              * Format: uuid
              */
             correlation_id: string;
+            /** Field Errors */
+            field_errors?: components["schemas"]["FieldError"][];
         };
         /** ErrorEnvelope */
         ErrorEnvelope: {
             error: components["schemas"]["ErrorDetail"];
+        };
+        /** FieldError */
+        FieldError: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "REQUIRED" | "INVALID_VALUE" | "TOO_LONG" | "TOO_MANY" | "UNKNOWN_FIELD";
+            /** Field */
+            field: string;
         };
         /** HealthReady */
         HealthReady: {
@@ -167,6 +311,19 @@ export interface components {
             /** Supervisor Ready */
             supervisor_ready: boolean;
         };
+        /** ObjectiveConstraint */
+        ObjectiveConstraint: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["ConstraintKind"];
+            /** Operation Refs */
+            operation_refs: unknown[];
+            /** Text */
+            text: string;
+        };
         /** PairingBody */
         PairingBody: {
             /** Code */
@@ -177,6 +334,20 @@ export interface components {
          * @enum {string}
          */
         ReadinessReason: "DATABASE_UNAVAILABLE" | "SCHEMA_INCOMPATIBLE";
+        /** @enum {string} */
+        ScopeAccess: "ATTACKABLE" | "VISIT_ONLY" | "BLOCKED";
+        /** ScopeEntry */
+        ScopeEntry: {
+            access: components["schemas"]["ScopeAccess"];
+            /** Exclusions */
+            exclusions: string[];
+            /** Origin */
+            origin: string;
+            /** Path Prefix */
+            path_prefix: string;
+            /** Port */
+            port: number;
+        };
         /** SessionView */
         SessionView: {
             /**
@@ -467,6 +638,255 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_engagements_api_v1_engagements_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                after?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngagementPage"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_engagement_api_v1_engagements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngagementDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngagementView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Content Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_engagement_api_v1_engagements__engagement_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                engagement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngagementView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

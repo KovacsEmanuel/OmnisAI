@@ -42,7 +42,7 @@ class PGDataReadback(unittest.TestCase):
                 "version": 1,
                 "instance_id": iid,
                 "release": "0.1.0",
-                "schema": "0006_stop_reconciliation",
+                "schema": "0007_engagement_drafts",
                 "project": project,
                 "origin": f"http://127.0.0.1:{port}",
             },

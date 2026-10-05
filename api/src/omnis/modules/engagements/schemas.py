@@ -1,5 +1,6 @@
 """Strict declarative P1 draft DTOs; saving never grants target or model effects."""
 
+import json
 from datetime import datetime
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
@@ -11,6 +12,7 @@ from pydantic_core import PydanticCustomError
 from omnis.core.persistence import DatabaseRecord
 
 FULL_OBJECTIVE = "Evaluează suprafața Web/API autorizată în limitele profilului selectat."
+MAX_DRAFT_PAYLOAD_BYTES = 1_000_000
 
 
 def no_nul(value: str) -> str:
@@ -118,6 +120,12 @@ class ObjectiveConstraint(DraftRecord):
 
 
 class EngagementDraft(DraftRecord):
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+        json_schema_extra={"x-max-canonical-payload-bytes": MAX_DRAFT_PAYLOAD_BYTES},
+    )
+
     name: DraftText = Field(min_length=1, max_length=128)
     authorization: Authorization
     scope: list[ScopeEntry] = Field(min_length=1, max_length=64)
@@ -153,6 +161,19 @@ class EngagementDraft(DraftRecord):
         if len({item.id for item in value}) != len(value):
             raise ValueError("Duplicate objective constraint")
         return value
+
+    @model_validator(mode="after")
+    def bounded_total(self) -> "EngagementDraft":
+        canonical = json.dumps(
+            self.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        if len(canonical) > MAX_DRAFT_PAYLOAD_BYTES:
+            raise PydanticCustomError("draft_too_large", "Draft exceeds aggregate size limit")
+        return self
 
 
 class EngagementView(DatabaseRecord):

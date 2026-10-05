@@ -13,10 +13,12 @@ import psycopg
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from pydantic import ValidationError
 from sqlalchemy.engine import URL
 
 from conftest import connect_test_database
 from omnis.api import create_app
+from omnis.modules.engagements.schemas import EngagementDraft
 from omnis.security.sessions import SessionStore, code_digest
 
 ORIGIN = "http://127.0.0.1:8765"
@@ -600,3 +602,100 @@ async def test_origin_with_empty_port_is_denied_with_a_valid_control(
                 headers={"origin": ORIGIN, "x-csrf-token": csrf},
             )
             assert accepted.status_code == 201
+
+
+def test_combined_draft_budget_rejects_the_cartesian_field_maximum() -> None:
+    oversized = draft()
+    oversized["scope"] = [
+        {
+            "origin": "https://lab.example",
+            "port": 443,
+            "path_prefix": "/api",
+            "exclusions": ["/" + "x" * 2047 for _ in range(32)],
+            "access": "BLOCKED",
+        }
+        for _ in range(64)
+    ]
+    with pytest.raises(ValidationError) as caught:
+        EngagementDraft.model_validate(oversized)
+    assert any(error["type"] == "draft_too_large" for error in caught.value.errors())
+    assert EngagementDraft.model_validate(draft()).assessment_mode == "FOCUSED_TEST"
+
+
+@pytest.mark.asyncio
+async def test_large_objective_and_context_roundtrip_within_declared_aggregate_limit(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    payload = draft()
+    payload["objective_text"] = "😀" * 8192
+    payload["scope"] = [
+        {
+            "origin": "https://lab.example",
+            "port": 443,
+            "path_prefix": "/api",
+            "exclusions": ["/" + "x" * 2047 for _ in range(32)],
+            "access": "BLOCKED",
+        }
+        for _ in range(8)
+    ]
+    assert EngagementDraft.model_validate(payload)
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            created = await client.post(
+                "/api/v1/engagements",
+                json=payload,
+                headers={"origin": ORIGIN, "x-csrf-token": csrf},
+            )
+            assert created.status_code == 201
+            assert created.json()["payload"] == payload
+            read = await client.get(f"/api/v1/engagements/{created.json()['engagement_id']}")
+            assert read.status_code == 200 and read.json() == created.json()
+
+
+@pytest.mark.asyncio
+async def test_aggregate_overflow_within_http_cap_is_a_sanitized_body_error(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    payload = draft()
+    entries = [
+        {
+            "origin": "https://lab.example",
+            "port": 443,
+            "path_prefix": "/api",
+            "exclusions": ["/" + "x" * 2047 for _ in range(32)],
+            "access": "BLOCKED",
+        }
+        for _ in range(16)
+    ]
+    last_exclusions = entries[-1]["exclusions"]
+    assert isinstance(last_exclusions, list)
+    entries[-1]["exclusions"] = last_exclusions[:12]
+    payload["scope"] = entries
+    encoded = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    assert 1_000_000 < len(encoded) < 1_048_576
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            denied = await client.post(
+                "/api/v1/engagements",
+                content=encoded,
+                headers={
+                    "origin": ORIGIN,
+                    "x-csrf-token": csrf,
+                    "content-type": "application/json",
+                },
+            )
+            assert denied.status_code == 422
+            assert {"field": "body", "code": "TOO_LONG"} in denied.json()["error"]["field_errors"]
+            assert "x" * 128 not in denied.text
+            listing = await client.get("/api/v1/engagements")
+            assert listing.status_code == 200 and listing.json()["items"] == []

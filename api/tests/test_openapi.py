@@ -36,6 +36,11 @@ def test_health_degradation_keeps_its_distinct_readiness_payload() -> None:
     }
 
 
+def test_engagement_declares_aggregate_payload_budget() -> None:
+    schema = create_app().openapi()["components"]["schemas"]["EngagementDraft"]
+    assert schema["x-max-canonical-payload-bytes"] == 1_000_000
+
+
 @pytest.mark.asyncio
 async def test_documented_validation_error_matches_the_real_route(
     monkeypatch: pytest.MonkeyPatch,

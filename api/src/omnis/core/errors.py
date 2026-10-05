@@ -95,8 +95,10 @@ def validation_field_errors(errors: Iterable[Mapping[str, object]]) -> list[Fiel
         code: FieldErrorCode
         if issue_type in {"missing", "string_too_short", "list_too_short"}:
             code = "REQUIRED"
-        elif issue_type == "string_too_long" or (
-            issue_type == "too_long" and isinstance(issue.get("input"), str)
+        elif (
+            issue_type == "string_too_long"
+            or (issue_type == "too_long" and isinstance(issue.get("input"), str))
+            or issue_type == "draft_too_large"
         ):
             code = "TOO_LONG"
         elif issue_type in {"too_long", "list_too_long"}:

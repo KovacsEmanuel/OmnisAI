@@ -85,10 +85,12 @@ await context.route('**/*', async route => {
   if (!url.startsWith(`${origin}/`)) { external.push(url); await route.abort(); }
   else await route.continue();
 });
+context.on('request', request => requests.push(request.url()));
+context.on('page', opened => {
+  opened.on('console', message => consoleMessages.push(message.text()));
+  opened.on('pageerror', error => pageErrors.push(error.message));
+});
 const page = await context.newPage();
-page.on('request', request => requests.push(request.url()));
-page.on('console', message => consoleMessages.push(message.text()));
-page.on('pageerror', error => pageErrors.push(error.message));
 
 async function pair(code) {
   remember(code);
@@ -112,8 +114,8 @@ async function paired() {
   return grant;
 }
 
-async function secretChecks() {
-  const storage = await page.evaluate(async () => ({ local: localStorage.length, session: sessionStorage.length,
+async function secretChecks(inspected = page) {
+  const storage = await inspected.evaluate(async () => ({ local: localStorage.length, session: sessionStorage.length,
     cookies: document.cookie, caches: await caches.keys(), databases: await indexedDB.databases(),
     workers: (await navigator.serviceWorker.getRegistrations()).length }));
   assert.equal(storage.local, 0);
@@ -122,8 +124,8 @@ async function secretChecks() {
   assert.deepEqual(storage.caches, []);
   assert.deepEqual(storage.databases, []);
   assert.equal(storage.workers, 0);
-  const content = await page.content();
-  const liveValues = await page.locator('input, textarea').evaluateAll(elements => elements.map(element => element.value));
+  const content = await inspected.content();
+  const liveValues = await inspected.locator('input, textarea').evaluateAll(elements => elements.map(element => element.value));
   assertSecretFree(sensitive, [...requests, ...consoleMessages, ...pageErrors, content, ...liveValues]);
   assert.deepEqual(external, [], 'Browser attempted an external request');
   assert.deepEqual(pageErrors, [], 'Browser JavaScript failure');

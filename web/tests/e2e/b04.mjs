@@ -42,9 +42,20 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     console.log('B04_G01_RESTART_PASS same DB, new backend PID, fresh browser, exact revision/digest/objective');
     return;
   }
+  await page.setViewportSize({ width: 390, height: 900 });
   await page.goto(`${origin}/engagements/new`);
   await check(page.getByRole('heading', { name: 'New engagement' })).toBeVisible();
-  await page.getByLabel('Engagement name').fill('G01 synthetic draft');
+  await page.keyboard.press('Tab');
+  await check(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await check(page.locator('main')).toBeFocused();
+  const name = page.getByLabel('Engagement name');
+  await name.focus();
+  await page.keyboard.type('G01 synthetic draft');
+  await check(name).toHaveValue('G01 synthetic draft');
+  const box = await name.boundingBox();
+  assert.ok(box && box.width >= 44 && box.height >= 44, 'Mobile create input touch target below 44px');
+  assert.equal(await name.evaluate(element => getComputedStyle(element).outlineWidth), '2px');
   await page.getByLabel('Authorization owner').fill('Fixture operator');
   await page.getByLabel('Authorization statement').fill('Disposable synthetic only');
   await page.getByLabel('Valid from (UTC)').fill('2030-01-01T00:00:00Z');
@@ -52,13 +63,44 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await check(page.getByLabel('Scope access')).toHaveValue('BLOCKED');
   await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
-  await page.getByRole('button', { name: 'Save draft' }).click();
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Mobile create overflow ${width}`);
+  }
+  const skip = await page.getByRole('link', { name: 'Skip to content' }).evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    return { bottom: rect.bottom, focused: document.activeElement === element };
+  });
+  assert.ok(skip.bottom <= 0 && !skip.focused, 'Skip link obscures the mobile form after focus moves');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: join(output, 'b04-create-viewport-390.png'), fullPage: false });
+  await screenshot('b04-create-390');
+  const save = page.getByRole('button', { name: 'Save draft' });
+  await save.focus();
+  await check(save).toBeFocused();
+  await page.keyboard.press('Enter');
   await check(page.getByText('Saved · revision 1')).toBeVisible();
   const id = page.url().match(/\/engagements\/([0-9a-f-]{36})\/setup$/)?.[1];
   assert.ok(id, 'POST must lead to an authenticated, confirmed engagement readback');
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await check(page.getByRole('heading', { name: 'Application context' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back' }).click();
+  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
+  await page.getByLabel('Scope origin').fill('https://synthetic.invalid:');
+  const [invalid] = await Promise.all([
+    page.waitForResponse(response => response.request().method() === 'PUT' &&
+      response.url() === `${origin}/api/v1/engagements/${id}`),
+    page.getByRole('button', { name: 'Save draft' }).click(),
+  ]);
+  assert.equal(invalid.status(), 422, 'Invalid scope origin must reach the real API field validator');
+  await check(page.getByLabel('Scope origin')).toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('button', { name: 'scope.0.origin: Invalid value.' }).click();
+  await check(page.getByLabel('Scope origin')).toBeFocused();
+  await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await page.getByLabel('Test focalizat').check();
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('');
+  // A persisted General objective has no provenance flag in B02; switching modes must not delete saved text by literal equality.
+  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
   await page.getByLabel('Obiectiv / instrucțiuni pentru Brain').fill('   ');
   await page.getByRole('button', { name: 'Save draft' }).click();
   await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveAttribute('aria-invalid', 'true');
@@ -107,6 +149,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     await check(second.getByText(/Server revision 3/)).toBeVisible();
     await check(second.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective + '\nSecond editor');
     await check(second.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+    await secretChecks(second);
   } finally { await second.close(); }
   const session = await page.evaluate(async () => (await fetch('/api/session')).json());
   const latest = await page.evaluate(async target => (await fetch(`/api/v1/engagements/${target}`)).json(), id);

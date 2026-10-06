@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "report_id": "omnis-b03-a02-focused-independent-rereview",
+  "report_path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-review.json",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "summary": "A02 remediat minimal: regiunea nativă numită expune true cât timp citirea Engagement este în curs și false după succes/eroare, pe Overview/Setup. A01 rămâne închis scoped, cu regresie reală și control geometric pozitiv/negativ actual. N01 rămâne neblocant și amânat. Nu se închide integrarea sau gate-ul canonic prin acest review.",
+  "blocking_findings": [],
+  "scope": {
+    "repository": "/home/kali/OmnisAI",
+    "slice": "P1-C / SL06-B03: corecție A02 și regresie A01",
+    "mode": "READ_ONLY_PRODUCT",
+    "changed_files_reviewed_vs_base": [
+      "web/src/app/Engagement.test.tsx",
+      "web/src/features/engagement/Engagement.tsx",
+      "web/tests/e2e/b03.mjs"
+    ],
+    "criteria": [
+      "documents/Omnis_UI_UX_Spec.md:178 — aria-busy pentru încărcare/revalidare",
+      "documents/Omnis_UI_UX_Spec.md:194 — ținte minimum44px"
+    ],
+    "read_local_skills": [
+      "omnis-review-qa",
+      "omnis-accessibility",
+      "omnis-frontend",
+      "omnis-reticle",
+      "omnis-chisel",
+      "omnis-project-status"
+    ],
+    "additional_skill": "requesting-code-review",
+    "protected_original_html_read_or_touched": false,
+    "product_docs_git_edited": false,
+    "services_database_docker_started_or_contacted_by_reviewer": false,
+    "packages_installed": false,
+    "only_deliverable_write": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-review.json"
+  },
+  "snapshot": {
+    "manifest_path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-snapshot.json",
+    "manifest_sha256": "c4d1b01417fa9ab798049f8a176bfbc6a8851c4da728593447ca9721b5fe6472",
+    "base_head": "0feb498c397f01488df6f44acb854fd15be41f12",
+    "head_at_start": "76a02bb4b38d2823d626da63ab8411e26d182994",
+    "head_at_end": "76a02bb4b38d2823d626da63ab8411e26d182994",
+    "branch": "p04-control-topology-wip",
+    "product_changes_uncommitted": true,
+    "fingerprint": "9eb1695323702e42c9ac96460857bbb4c6532b0a34d948eb1607fedcfa77bab7",
+    "fingerprint_algorithm": "SHA256(json.dumps(files,sort_keys=True,separators=(',',':')).encode()); cele6 integration_bindings sunt verificate individual, separat de agregatul31",
+    "verification_start": {
+      "source_hashes_checked": 31,
+      "dependency_bindings_checked": 6,
+      "all_match": true,
+      "manifest_sha256": "c4d1b01417fa9ab798049f8a176bfbc6a8851c4da728593447ca9721b5fe6472"
+    },
+    "verification_end": {
+      "source_hashes_checked": 31,
+      "dependency_bindings_checked": 6,
+      "all_match": true,
+      "fingerprint_match": true,
+      "manifest_sha256": "c4d1b01417fa9ab798049f8a176bfbc6a8851c4da728593447ca9721b5fe6472"
+    },
+    "start_end_identical": true,
+    "mismatches": [],
+    "files": {
+      "Makefile": "91c04c0349fd76d4533d272f1ab8c53e15a9ce9fda094f85de62e293037ae518",
+      "api/src/omnis/api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "api/tests/test_web_assets.py": "8d810e2f30599fc1d39ed5c151fb3160a8ad9f1e0ba0c1acd3dcbd2a0a40f279",
+      "api/tests/test_web_e2e.py": "984f41f4bdcf637933717cc93e10330223125b2e273bb12916d0778c015947da",
+      "api/tests/web_fault.py": "e5430893eefa786d2eaeac83e6bbf8f6913c79383cb14450c0302835a60e94cc",
+      "ops/run_test_db_gate.py": "9b1a70cca957d3d40bbcbde8e01eae86f82443964f647528f0b334315a736120",
+      "web/src/app/App.test.tsx": "5ec96bf5ed8993ca538134d09eb02a302f666229cde8a23e5753709f851a6dd1",
+      "web/src/app/App.tsx": "31f95b5114ba3057129f05baf3cb55ccb1896f45ad3c899072639340a67e2413",
+      "web/src/app/Dashboard.test.tsx": "d2f873f8efae4b392e3fd66688971cedafb248a747cd9246f440deb178a8b2a7",
+      "web/src/app/Engagement.test.tsx": "4614c2f0cd5180ecd903d39f5d3e4e9508589b8155788ae209bcf49fc0a5b353",
+      "web/src/app/ProjectionStates.test.tsx": "e749bb91afed2d0dc6da01382a16a9560a9651811db1eb42821d118aef49dd57",
+      "web/src/app/Shell.module.css": "3a8267ff8e651fe5907634f2ab83513c103c923212bfcbdbc92f02723d28e478",
+      "web/src/app/Shell.test.tsx": "775ba1a6c9d6ee926e511651b1632e94967d901ab6ed79e470d7cb388a210d60",
+      "web/src/features/bootstrap/Bootstrap.tsx": "5f1e915546a27101d9fd3a8727ef5b70527e2ade7a76dd35cfe48ea8149f2f21",
+      "web/src/features/bootstrap/BrowserSession.tsx": "615081dc55b064f94981e80aa1cb6072a2d68f2894248d7eeafe2af0c5172b24",
+      "web/src/features/bootstrap/useBrowserSession.ts": "0a39a3716b30f5499806008425b8e95d72c61d6b794080a2cec197f5781160e7",
+      "web/src/features/dashboard/Dashboard.module.css": "4fbbfa7f75639bba2349ac58e1564b09f5689e99c0f84ac1a3290c2c8b79b899",
+      "web/src/features/dashboard/Dashboard.tsx": "e7e5b7b6e6244899c6b32d511196a7a574a9b6dfdc80d106106553ee3d225641",
+      "web/src/features/dashboard/copy.ts": "0990590684fcac1d889296c5b33731f9ec249adf8256579ea0474f565e25b81e",
+      "web/src/features/engagement/Engagement.module.css": "8e6ebf45e56a40612cf9ec38b8f869730f6bc35a79be9de3cea42c7822c01845",
+      "web/src/features/engagement/Engagement.tsx": "bb573c85fb45b9d1f0ea68d02046918fd596f6b2873ea9c0a1a0f44da5824bd7",
+      "web/src/features/engagement/Settings.tsx": "26ca0f6a66e69a90ac1ae5d831d2571a5f76ace4d4ea1908d803cc1bcd0e1bc3",
+      "web/src/features/engagement/copy.ts": "7897718101f45f396688847c791940a41d17ced65b5f7de28f4fc41ddca5f481",
+      "web/src/shared/api/client.ts": "6203d9ab36802886912dc4854d44ebf11c9f0b5b4f2c7274e2f3f8b95093ddab",
+      "web/src/shared/api/projections.test.ts": "1a8dcd8c6145a0d74bcb5b84e9290d1e5dfe1d0caa69fc8197fca0046eab6546",
+      "web/src/shared/api/projections.ts": "ff53150e13add798768be23e3dafbf9781f3053f1778d401e3c3f16e15ee6ecd",
+      "web/src/shared/useObservationClock.ts": "be473d8438d44ff5c9816fb45a3056c3ab518d3c2d2cf2083623b93e2ad419ab",
+      "web/tests/e2e/b03.mjs": "a81ccc05c2e52b6d2d1a5460f18c519354ef7f5f905a6a823869d691ccf379e6",
+      "web/tests/e2e/run.mjs": "a4136317e14103c35304abc612ad18f66f50c25926692be26c9c6db3e023fe63",
+      "web/tests/projection-fixtures.ts": "652ba8a91d8fb9bcabd4744264f8768d680d39ea92370d99bc1fd39311fec3d5",
+      "web/tests/setup.ts": "e802ed3915f4e201c843356d58840d61e1f204935fc13b0dfcbffe9f427e90f1"
+    },
+    "integration_bindings": {
+      "api/src/omnis/modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "api/src/omnis/modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "api/src/omnis/security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "api/tests/test_dashboard.py": "16456de1b9ec636cfde6e3de9b6afa52061581e3e7378c5b1d087ef6e9940b32",
+      "contracts/omnis.openapi.json": "1e38d00a36d60f4486339e579e63f3ad7fc0d66d2172252d0c8836dd4cbdf37e",
+      "web/src/shared/api/generated.ts": "810e43825c0df175af7da1e86ef7fd26576a4bf5675667e527ce08387a6594ec"
+    },
+    "binding_limit": "Aprobarea este pe acești bytes și criterii, nu pe un HEAD ulterior cu surse schimbate; commitul76a02bb este numai documentar. Nicio promovare din raportul anterior cu findings goale."
+  },
+  "finding_dispositions": [
+    {
+      "id": "B03-A01",
+      "blocking_originally": true,
+      "status": "CLOSED_SCOPED",
+      "requirement": "UI/UX:194 — backlinkurile Dashboard din New/Setup minimum44×44",
+      "code": [
+        "web/src/features/engagement/Engagement.tsx:12,25",
+        "web/src/features/engagement/Engagement.module.css:2"
+      ],
+      "adjudication": "Fixul anterior styles.back inline-flex/min-height44/min-width44 este păstrat. Wrapperul nou nu schimbă regula locală ori accessible name. Assertions E2E caută linkul după rol/nume, nu main > a.",
+      "evidence": "E2E real actual verifică New/Setup la320/390/1280/1440. Reviewerul a măsurat independent New/Overview/Setup la aceleași4 lățimi:12/12 cu44px înălțime și lățime≥44; shrink inline pe linkul accesibil este respins12/12 (21px mobil,19px desktop).",
+      "limit": "Geometria independentă este component-only/SSR cu stare seeduită și fără API/PG; integrarea reală aparține probei părintelui."
+    },
+    {
+      "id": "B03-A02",
+      "blocking_originally": true,
+      "status": "CLOSED_SCOPED",
+      "requirement": "UI/UX:178; true în încărcarea/revalidarea Overview/Setup, false după succes sau eroare",
+      "code": [
+        "web/src/features/engagement/Engagement.tsx:17-18,24-48",
+        "web/src/app/Engagement.test.tsx:42-78",
+        "web/tests/e2e/b03.mjs:44-60,75-84,162-165"
+      ],
+      "adjudication": "Fragmentul exterior devine section aria-label=\"Engagement projection\" aria-busy={query.isFetching}. Section numită are rol region nativ implicit și include output/alert/draft/controale. isFetching, nu isPending, acoperă și refetchul cu date cached; nu există stare locală/effect/temporizator nou care să rămână busy după eșec.",
+      "evidence": "7/7 teste Engagement rulate independent, inclusiv ambele cazuri Overview/Setup pending→success, refresh→success și refresh503→idle. E2E real citit: initial Overview/Setup, refresh success pe ambele și revalidare sub lockPG real cu eroare/heading cached păstrat. RED al părintelui pe0feb498:2 failed/5 passed pentru regiune absentă; sursa de bază Fragment este confirmată prin Git și revers byte-exact.",
+      "limit": "Eroarea de revalidare503 este exercitată pe ambele suprafețe în componente; traseul503 browser folosește revenirea pe Overview cached. O eroare inițială separată nu a fost rerulată în browser: false derivă din aceeași expresie isFetching. Nu certifică toate interleavings."
+    },
+    {
+      "id": "N01",
+      "blocking_originally": false,
+      "status": "DEFERRED_NONBLOCKING",
+      "code": [
+        "web/src/features/engagement/Engagement.module.css:1,3",
+        "web/src/features/engagement/Engagement.tsx:30-32"
+      ],
+      "adjudication": "Se confirmă dispoziția neblocantă, nu remedierea: comprimarea butonului Start inactiv lângă titlul lung rămâne sugestie de layout. Headingul/CSS-ul și disabled + motivul rămân neschimbate; fixul A02 nu justifică un redesign. Nu declar o nouă certificare vizuală."
+    }
+  ],
+  "original_finding_provenance": {
+    "original_report": "deleg_2920df54",
+    "accounted_ids": [
+      "B03-A01",
+      "B03-A02",
+      "N01"
+    ],
+    "basis": "Contextul complet al delegării și corecția explicită p1-web.md:7-13; raportul istoric p1-web-review.json a fost citit și recunoscut ca incomplet pentru adjudecarea A02.",
+    "no_disposition_inferred_from_empty_newer_findings": true
+  },
+  "minimality_and_oracle_review": {
+    "source_fix": "Exact2 înlocuiri de delimitator exterior; reversul în memorie reproduce byte-exact Engagement.tsx din0feb498, SHA256 d267a1b20ab6352806266b683e7837102f3a301ee9cefd6260727074030ad648",
+    "diff_counts": "73 inserări/7 ștergeri în3 fișiere: test39/1, componentă2/2, E2E32/4. Restul31+6 bindings neschimbate față de bază, în afara acestor3.",
+    "dependencies_css_api_routes_query_policy_changed": false,
+    "unit_oracle": "Promise held pentru GET selectat; fiecare ciclu cere explicit true înaintea release și false după settle. waitFor observă notificarea asincronă Query, nu slăbește valoarea cerută. isPending ar rata refreshul; always-true/always-false ar încălca assertionurile. finally eliberează promisea curentă; setup.afterEach unmount/cleanup și unstub globals. Unit fetch este mock: nu reprezintă API/PG și nu simulează toate aborturile.",
+    "race_boundary": "Starea busy derivă din observerul Query existent, cu retryfalse/networkModealways; nu există o cursă nouă în sursa modificată. Regresiile held-selected/logout/late401 și auth fencing din ProjectionStates au fost inspectate și rerulate. Nu se acordă o garanție universală de scheduling.",
+    "real_e2e_oracle": "observeBusy ține temporar GET-ul exact al engagementului și folosește route.continue, niciun route.fulfill sau payload inventat. Cere true→false prin named region, iar content heading/alert verifică rezultatul; finally release/unroute. LockulPG folosește helperul existent block-dashboard și este eliberat/joined; nu s-a creat un harness/proiect nou.",
+    "wrapper_geometry": "Fără CSS cu main > a sau selectori direcți de section în layoutul afectat; styles.back rămâne pe elementul actual. Selectorul main > a din negativul istoric NU a fost reutilizat: negativul curent schimbă numai inline style al linkului accesibil."
+  },
+  "checks_executed_by_reviewer": [
+    {
+      "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH npm --prefix web test -- --no-cache src/app/Engagement.test.tsx --reporter=verbose",
+      "exit_code": 0,
+      "result": "7 passed/1file, ambele cazuri A02"
+    },
+    {
+      "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH npm --prefix web test -- --no-cache src/app/Engagement.test.tsx src/app/ProjectionStates.test.tsx src/app/Shell.test.tsx",
+      "exit_code": 0,
+      "result": "18 passed/3files"
+    },
+    {
+      "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH npm --prefix web run typecheck",
+      "exit_code": 0,
+      "result": "tsc --noEmit"
+    },
+    {
+      "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH npm --prefix web run lint",
+      "exit_code": 0,
+      "result": "lint.mjs fără diagnostics"
+    },
+    {
+      "command": "git diff --check; git diff --numstat 0feb498c397f01488df6f44acb854fd15be41f12 -- cele3fișiere; PATH=<reboot-bin> node --check web/tests/e2e/b03.mjs",
+      "exit_code": 0,
+      "result": "Diff verificat și E2E syntax valid"
+    },
+    {
+      "command": "Python SHA256 + git show0feb498 pentru37 paths și reversul minim în memorie, la început/final",
+      "exit_code": 0,
+      "result": "31/31 surse +6/6 bindings identice manifestului; fingerprint exact; numai3 diferite față de bază"
+    }
+  ],
+  "geometry_independent": {
+    "probe_path": "/home/kali/.hermes/cache/scratch/omnis-b03-backlink-probe.cjs",
+    "command_positive": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH node -e 'const fs=require('\"'\"'node:fs'\"'\"');const Module=require('\"'\"'node:module'\"'\"');const name='\"'\"'/home/kali/.hermes/cache/scratch/omnis-b03-backlink-probe.cjs'\"'\"';let source=fs.readFileSync(name,'\"'\"'utf8'\"'\"');const changes=[[\"[[390, '\"'\"'/engagements/new'\"'\"'], [390, `/engagements/${id}/setup`], [1440, `/engagements/${id}/setup`]]\", \"[320,390,1280,1440].flatMap(width=>[[width,'\"'\"'/engagements/new'\"'\"'],[width,`/engagements/${id}/overview`],[width,`/engagements/${id}/setup`]])\"], [\"const mutation = process.env.OMNIS_GEOMETRY_CONTROL === '\"'\"'shrink'\"'\"' ? '\"'\"'\\\\nmain > a { display: inline !important; min-height: 0 !important; }'\"'\"' : '\"'\"''\"'\"';\", \"const mutation = '\"'\"''\"'\"';\"], [\"const box = await link.boundingBox();\", \"if(process.env.OMNIS_GEOMETRY_CONTROL==='\"'\"'shrink'\"'\"') await link.evaluate(element=>{element.style.setProperty('\"'\"'display'\"'\"','\"'\"'inline'\"'\"','\"'\"'important'\"'\"');element.style.setProperty('\"'\"'min-height'\"'\"','\"'\"'0'\"'\"','\"'\"'important'\"'\"');element.style.setProperty('\"'\"'min-width'\"'\"','\"'\"'0'\"'\"','\"'\"'important'\"'\"');}); const box = await link.boundingBox();\"]];for(const [before,after] of changes){if(!source.includes(before)||source.split(before).length!==2)throw Error('\"'\"'Probe adaptation mismatch: '\"'\"'+before);source=source.replace(before,after);}const mod=new Module(name);mod.filename=name;mod.paths=Module._nodeModulePaths(require('\"'\"'node:path'\"'\"').dirname(name));mod._compile(source,name);'",
+    "command_negative": "Aceeași comandă cu OMNIS_GEOMETRY_CONTROL=shrink",
+    "adapter_persisted": false,
+    "boundary": "real App/CSS/font component geometry; unit-seeded auth/draft; no API/PG evidence",
+    "browser_network_attempts_positive": 0,
+    "browser_network_attempts_negative": 0,
+    "positive_exit_code": 0,
+    "negative_expected_exit_code": 1,
+    "negative_actual_exit_code": 1,
+    "positive_samples": 12,
+    "negative_samples": 12,
+    "measurements": [
+      {
+        "viewport_width": 320,
+        "surface": "new",
+        "positive_height_px": 44,
+        "positive_width_px": 78.421875,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 320,
+        "surface": "overview",
+        "positive_height_px": 44,
+        "positive_width_px": 98.078125,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 320,
+        "surface": "setup",
+        "positive_height_px": 44,
+        "positive_width_px": 98.078125,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 390,
+        "surface": "new",
+        "positive_height_px": 44,
+        "positive_width_px": 78.421875,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 390,
+        "surface": "overview",
+        "positive_height_px": 44,
+        "positive_width_px": 98.078125,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 390,
+        "surface": "setup",
+        "positive_height_px": 44,
+        "positive_width_px": 98.078125,
+        "shrink_height_px": 21
+      },
+      {
+        "viewport_width": 1280,
+        "surface": "new",
+        "positive_height_px": 44,
+        "positive_width_px": 71.578125,
+        "shrink_height_px": 19
+      },
+      {
+        "viewport_width": 1280,
+        "surface": "overview",
+        "positive_height_px": 44,
+        "positive_width_px": 89.75,
+        "shrink_height_px": 19
+      },
+      {
+        "viewport_width": 1280,
+        "surface": "setup",
+        "positive_height_px": 44,
+        "positive_width_px": 89.75,
+        "shrink_height_px": 19
+      },
+      {
+        "viewport_width": 1440,
+        "surface": "new",
+        "positive_height_px": 44,
+        "positive_width_px": 71.578125,
+        "shrink_height_px": 19
+      },
+      {
+        "viewport_width": 1440,
+        "surface": "overview",
+        "positive_height_px": 44,
+        "positive_width_px": 89.75,
+        "shrink_height_px": 19
+      },
+      {
+        "viewport_width": 1440,
+        "surface": "setup",
+        "positive_height_px": 44,
+        "positive_width_px": 89.75,
+        "shrink_height_px": 19
+      }
+    ],
+    "cleanup": "browser.close în finally; fără capturi sau servicii",
+    "attempt_issue": "Prima pregătire node-e a refuzat un mismatch de escape în înlocuirea textului înainte de pornirea browserului (exit1), necreditată ca negativ. Serializarea exactă JSON a adapărilor în memorie a reparat numai apelul probei; apoi pozitiv0/negativ1 geometric pe același canal."
+  },
+  "parent_real_e2e_evidence_read": {
+    "gate_log": "/home/kali/.hermes/cache/scratch/db-354348c0e2c9418a/gate.log",
+    "command": "ops/run_test_db_gate.py --check --target test-b03-e2e --uv /home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv, PATH reboot-bin; logul arată build apoi pytest -I -q -s -k b03",
+    "exit_code": 0,
+    "pytest_result": "1 passed,7 deselected in23.77s",
+    "busy_marker": "B03_A02_BUSY_PASS initial_overview initial_setup refresh_success both_surfaces revalidation_real_503",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "browser_result": {
+      "scenario": "b03",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 155,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    },
+    "browser_result_matches_manifest": true,
+    "a01_actual_api_pg_browser_assertions": "New și Setup boundingBox height≥44,width≥44 fiecare la320/390/1280/1440",
+    "physical_cleanup_provenance": "Părinte/context și registrul actual: CID/rețea/socket absente, uncertainfalse. Reviewerul a citit receiptul family_drained și cleanup_verified, dar nu a contactat Docker/PG pentru reatestare fizică.",
+    "parent_check_web": "Context/registru: make check-web exit0,50tests/7files +6tooling/type/lint/build/drift/npm audit0. Reviewerul a rerulat numai verificările listate mai sus.",
+    "new_canonical_gate": {
+      "process": "proc_62f936922564",
+      "fixture": "db-d05a7448648d43c0",
+      "status": "IN_PROGRESS_UNCREDITED",
+      "source": "mesaj explicit părinte; nerulat/necreditat/poll absent de reviewer"
+    }
+  },
+  "evidence_sha256": {
+    "/home/kali/.hermes/cache/scratch/db-354348c0e2c9418a/gate.log": "423d12c403580c5059aa924d494a79128b60a6dcc23edeac986f5188c8debb4c",
+    "/home/kali/.hermes/cache/scratch/db-354348c0e2c9418a/gate.log.result.json": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/result.json": "d6cf5bc082944d667a8183f4663b165f00e194e3dab7e02291bfbfdef3eba625",
+    "/home/kali/.hermes/cache/scratch/omnis-b03-backlink-probe.cjs": "92eaeb56fdbed5b9ff0bf7cd6bb8c74dc6fdfa3d7c465dc94b47c8d39e38cfff"
+  },
+  "optional_tool_applicability": [
+    {
+      "tool": "Reticle",
+      "scope": "B03 UI",
+      "command_executed": null,
+      "result": "NOT_INTEGRATED",
+      "limit": "README/upstream și mcp-smoke citite; instrumentarea aplicației nu există. Smoke-ul sintetic este TOOLING_ONLY, nu dovadă A02/A01."
+    },
+    {
+      "tool": "Chisel",
+      "scope": "repo/home/runtime",
+      "command_executed": null,
+      "result": "NO-GO/BLOCKED",
+      "limit": "README/audit citite; adopția rămâne blocată. Numai unelte native, fără activare sau reevaluare incidentală."
+    }
+  ],
+  "limits": [
+    "Aprobarea este numai re-review al criteriului A02 și regresiei A01; niciun audit general/fidelitate vizuală sau afirmație de zero buguri.",
+    "Fără aprobare estetică nouă, certificareWCAG, screen-reader, cross-browser sau toate stările/timingurile.",
+    "B04/G01/B05, runuri/assessment/SSE, provider/model/țintă, CIremote/deployment/rollout/upgrade rămân excluse și nepromovate.",
+    "Sursele sunt încă necomise; reviewerul nu închide statusul global. Gate-ul canonic în curs nu primește PASS din E2E-ul focalizat sau gate-urile istorice.",
+    "Scratchul comun result.json poate fi rescris ulterior; hashes și rezultatul inclus în manifest fixează dovezile citite acum."
+  ],
+  "proposed_parent_delta_read_only": {
+    "AICI": "SL06/B03: A02 CLOSED_SCOPED; A01 CLOSED_SCOPED/regresie confirmată; N01 DEFERRED_NONBLOCKING",
+    "code": "IMPLEMENTED în snapshotul curent necomis",
+    "proof": "PASS_TARGETED_LOCAL: unit7+regresii18, type/lint, geometrie+control negativ și E2E real al părintelui",
+    "review": "APPROVED_SCOPED propus părintelui, nu integrare autoaprobată",
+    "global_scope": "SL06 rămâne PARTIAL; B04/G01/B05 neschimbate",
+    "next": "Părintele adjudecă, citește receipt/cleanup gate canonic după finalizare, comite bytes acceptați și reconciliază registrul; următoarea felie nouă B04→G01 numai după reacceptare."
+  }
+}

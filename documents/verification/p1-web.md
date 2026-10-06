@@ -2,14 +2,16 @@
 
 Scope autorizat: `p1-implementation-prompt.md` §P1-C, plan §6, arhitectură §9.1, UI/UX §0/§2–3. B03 nu închide B04/G01, nu începe B05 și nu creează runuri. Intrare reală: `5b0ab7a3b9f653db1f2be21c0d298ab5f259c2a1`, branch `p04-control-topology-wip`, fără modificări versionate; `documents/Omnis_Notite_Originale.html` neversionat a rămas neatins. Commituri locale, fără push.
 
-## Stare curentă — reacceptare focalizată A02
+## Stare curentă — PAUSED la cererea operatorului
+
+**Checkpoint de reluare:** [pauză și pași rămași](p1-web-pause.md), [surse/probe durabile](p1-web-a02-checkpoint.json), [re-review complet A02](p1-web-a02-review.json). Codul este comis în `d66b3db`; cele37 bindings coincid cu probele. Reviewerul a încheiat APPROVED_SCOPED, A01/A02 CLOSED_SCOPED; acceptarea finală B03 rămâne suspendată. Noul `make check` a încheiat **exit2/BLOCKED** la OSV/NSS înainte de API pytest, cu cleanup propriu verificat; nu rulează. Zero subagenți live. Nu relua automat la boot și nu începe B04/G01/B05/runuri. Detaliile următoare păstrează cronologia de dinaintea pauzei.
 
 **B03 IN_REVIEW, acceptarea precedentă redeschisă pentru B03-A02.** Livrarea completă întârziată `deleg_2920df54` conține două blocante, nu numai A01. A02 cere `aria-busy` în încărcarea/revalidarea Engagement (UI/UX:178); re-reviewul `deleg_56409a31` nu a adjudecat explicit această constatare. Verdictul și gate-urile de mai jos rămân istorice la snapshotul lor, nu certifică absența A02. Închiderea declarată în `69091f3`/`0feb498` a fost prematură pentru acest criteriu.
 
 - RED pe HEAD `0feb498`, `npm --prefix web run test -- src/app/Engagement.test.tsx`: **exit1 / 2 failed, 5 passed**, regiunea accesibilă `Engagement projection` lipsea pe Overview și Setup cu GET ținut în așteptare.
 - Fix minim: Fragmentul exterior devine secțiune nativă numită, `aria-busy={query.isFetching}`; două teste verifică pending→succes, refresh→succes și refresh→503→idle pe ambele rute. Prima încercare după fix a eșuat fiindcă testul verifica înaintea notificării Query; `waitFor` a corectat numai observarea asincronă, nu criteriul produsului. GREEN **7/7**, apoi `make check-web` **exit0 / 50 teste, 7 fișiere**, tooling6, type/lint/build/drift/audit0.
 - E2E real după ultimele editări: `--target test-b03-e2e`, fixture nou `db-354348c0e2c9418a`, **exit0 / 1 passed, 7 deselected in 23.77s**; marker `B03_A02_BUSY_PASS`, true→false pe loading/refresh Overview/Setup și revalidare cu 503 PostgreSQL real. Transportul ține temporar GET-ul apoi `route.continue`; nu inventează răspunsuri API. Browser: requests155/externe0/JS errors0, secret/server-log/cleanup true; receipt code0/family_drained=true și readback propriu CID/rețea/socket absente/uncertain=false, PGDATA sintetice păstrate.
-- Snapshot curent: **31 surse + 6 bindings neschimbate**, fingerprint `9eb1695323702e42c9ac96460857bbb4c6532b0a34d948eb1607fedcfa77bab7`. Numai Engagement.tsx, Engagement.test.tsx și b03.mjs diferă față de `b9fde3d`. Re-review focalizat `deleg_324ff2aa` în curs; noul gate canonic pe acești bytes încă **NOT_RUN**.
+- Snapshot curent: **31 surse + 6 bindings neschimbate**, fingerprint `9eb1695323702e42c9ac96460857bbb4c6532b0a34d948eb1607fedcfa77bab7`. Numai Engagement.tsx, Engagement.test.tsx și b03.mjs diferă față de `b9fde3d`. La checkpointul `76a02bb`, re-reviewul `deleg_324ff2aa` era în curs și noul gate canonic NOT_RUN; starea ulterioară din pauză este cea de mai sus.
 - A01 rămâne remediat; geometria New/Setup ≥44×44 este rerulată la 320/390/1280/1440 în E2E. N01, comprimarea butonului inactiv cu titlu lung, rămâne sugestie **neblocantă/deferred**, fără redesign în fixul A02. B04/G01/B05/runuri nu au fost începute.
 
 ## API și contract

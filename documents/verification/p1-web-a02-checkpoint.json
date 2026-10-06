@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "status": "PAUSED_AT_OPERATOR_REQUEST",
+  "product_commit": "d66b3db113de2bbfa9f15e2cb9d29b585ed84f36",
+  "source_snapshot": {
+    "schema_version": 1,
+    "base_head": "0feb498c397f01488df6f44acb854fd15be41f12",
+    "source_count": 31,
+    "files": {
+      "Makefile": "91c04c0349fd76d4533d272f1ab8c53e15a9ce9fda094f85de62e293037ae518",
+      "api/src/omnis/api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "api/tests/test_web_assets.py": "8d810e2f30599fc1d39ed5c151fb3160a8ad9f1e0ba0c1acd3dcbd2a0a40f279",
+      "api/tests/test_web_e2e.py": "984f41f4bdcf637933717cc93e10330223125b2e273bb12916d0778c015947da",
+      "api/tests/web_fault.py": "e5430893eefa786d2eaeac83e6bbf8f6913c79383cb14450c0302835a60e94cc",
+      "ops/run_test_db_gate.py": "9b1a70cca957d3d40bbcbde8e01eae86f82443964f647528f0b334315a736120",
+      "web/src/app/App.test.tsx": "5ec96bf5ed8993ca538134d09eb02a302f666229cde8a23e5753709f851a6dd1",
+      "web/src/app/App.tsx": "31f95b5114ba3057129f05baf3cb55ccb1896f45ad3c899072639340a67e2413",
+      "web/src/app/Dashboard.test.tsx": "d2f873f8efae4b392e3fd66688971cedafb248a747cd9246f440deb178a8b2a7",
+      "web/src/app/Engagement.test.tsx": "4614c2f0cd5180ecd903d39f5d3e4e9508589b8155788ae209bcf49fc0a5b353",
+      "web/src/app/ProjectionStates.test.tsx": "e749bb91afed2d0dc6da01382a16a9560a9651811db1eb42821d118aef49dd57",
+      "web/src/app/Shell.module.css": "3a8267ff8e651fe5907634f2ab83513c103c923212bfcbdbc92f02723d28e478",
+      "web/src/app/Shell.test.tsx": "775ba1a6c9d6ee926e511651b1632e94967d901ab6ed79e470d7cb388a210d60",
+      "web/src/features/bootstrap/Bootstrap.tsx": "5f1e915546a27101d9fd3a8727ef5b70527e2ade7a76dd35cfe48ea8149f2f21",
+      "web/src/features/bootstrap/BrowserSession.tsx": "615081dc55b064f94981e80aa1cb6072a2d68f2894248d7eeafe2af0c5172b24",
+      "web/src/features/bootstrap/useBrowserSession.ts": "0a39a3716b30f5499806008425b8e95d72c61d6b794080a2cec197f5781160e7",
+      "web/src/features/dashboard/Dashboard.module.css": "4fbbfa7f75639bba2349ac58e1564b09f5689e99c0f84ac1a3290c2c8b79b899",
+      "web/src/features/dashboard/Dashboard.tsx": "e7e5b7b6e6244899c6b32d511196a7a574a9b6dfdc80d106106553ee3d225641",
+      "web/src/features/dashboard/copy.ts": "0990590684fcac1d889296c5b33731f9ec249adf8256579ea0474f565e25b81e",
+      "web/src/features/engagement/Engagement.module.css": "8e6ebf45e56a40612cf9ec38b8f869730f6bc35a79be9de3cea42c7822c01845",
+      "web/src/features/engagement/Engagement.tsx": "bb573c85fb45b9d1f0ea68d02046918fd596f6b2873ea9c0a1a0f44da5824bd7",
+      "web/src/features/engagement/Settings.tsx": "26ca0f6a66e69a90ac1ae5d831d2571a5f76ace4d4ea1908d803cc1bcd0e1bc3",
+      "web/src/features/engagement/copy.ts": "7897718101f45f396688847c791940a41d17ced65b5f7de28f4fc41ddca5f481",
+      "web/src/shared/api/client.ts": "6203d9ab36802886912dc4854d44ebf11c9f0b5b4f2c7274e2f3f8b95093ddab",
+      "web/src/shared/api/projections.test.ts": "1a8dcd8c6145a0d74bcb5b84e9290d1e5dfe1d0caa69fc8197fca0046eab6546",
+      "web/src/shared/api/projections.ts": "ff53150e13add798768be23e3dafbf9781f3053f1778d401e3c3f16e15ee6ecd",
+      "web/src/shared/useObservationClock.ts": "be473d8438d44ff5c9816fb45a3056c3ab518d3c2d2cf2083623b93e2ad419ab",
+      "web/tests/e2e/b03.mjs": "a81ccc05c2e52b6d2d1a5460f18c519354ef7f5f905a6a823869d691ccf379e6",
+      "web/tests/e2e/run.mjs": "a4136317e14103c35304abc612ad18f66f50c25926692be26c9c6db3e023fe63",
+      "web/tests/projection-fixtures.ts": "652ba8a91d8fb9bcabd4744264f8768d680d39ea92370d99bc1fd39311fec3d5",
+      "web/tests/setup.ts": "e802ed3915f4e201c843356d58840d61e1f204935fc13b0dfcbffe9f427e90f1"
+    },
+    "integration_bindings": {
+      "api/src/omnis/modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "api/src/omnis/modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "api/src/omnis/security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "api/tests/test_dashboard.py": "16456de1b9ec636cfde6e3de9b6afa52061581e3e7378c5b1d087ef6e9940b32",
+      "contracts/omnis.openapi.json": "1e38d00a36d60f4486339e579e63f3ad7fc0d66d2172252d0c8836dd4cbdf37e",
+      "web/src/shared/api/generated.ts": "810e43825c0df175af7da1e86ef7fd26576a4bf5675667e527ce08387a6594ec"
+    },
+    "snapshot_fingerprint": "9eb1695323702e42c9ac96460857bbb4c6532b0a34d948eb1607fedcfa77bab7",
+    "changed_vs_b9fde3d": [
+      "web/src/app/Engagement.test.tsx",
+      "web/src/features/engagement/Engagement.tsx",
+      "web/tests/e2e/b03.mjs"
+    ],
+    "targeted_gate": "/home/kali/.hermes/cache/scratch/db-354348c0e2c9418a/gate.log",
+    "browser_result": {
+      "scenario": "b03",
+      "passed": true,
+      "browser": "153.0.8010.12",
+      "requestCount": 155,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "secretChecks": true,
+      "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+      "server_log_secret_check": true,
+      "cleanup_verified": true
+    }
+  },
+  "source_bindings_verified_in_commit": 37,
+  "review_artifact": "p1-web-a02-review.json",
+  "review_sha256": "65e6b3026b4438277027c187bebe881786bd8ecbd9fbf63ad7cb02a5378daf93",
+  "review_verdict": "APPROVED_SCOPED",
+  "parent_acceptance": "PENDING_CANONICAL_GATE_AND_RESUME",
+  "finding_ids_original": [
+    "B03-A01",
+    "B03-A02",
+    "B03-N01"
+  ],
+  "review_local_nonblocking_label": "N01",
+  "targeted_gate": {
+    "fixture": "db-354348c0e2c9418a",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "pytest": "1 passed, 7 deselected in 23.77s",
+    "owned_cleanup": {
+      "container_absent": true,
+      "network_absent": true,
+      "socket_absent": true,
+      "uncertain": false
+    },
+    "data_retained": true
+  },
+  "canonical_gate": {
+    "process": "proc_62f936922564",
+    "fixture": "db-d05a7448648d43c0",
+    "receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "status": "BLOCKED_NETWORK_NSS",
+    "failure": "uv audit: api.osv.dev querybatch Connect operation timed out, before API tests",
+    "owned_cid": "c2b86a9e415c4a1e6f865df233297b34f09f19301ab93e2b6f59f2da12ea2994",
+    "owned_cleanup": {
+      "container_absent": true,
+      "network_absent": true,
+      "socket_absent": true,
+      "uncertain": false
+    },
+    "data_retained": true
+  },
+  "pause_live_subagents": 0,
+  "resume_only_after_operator_request": true
+}

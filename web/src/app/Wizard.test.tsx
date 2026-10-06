@@ -279,3 +279,28 @@ it('fences a late old-session Save GET after expiry and re-pair before accepting
   expect(screen.queryByDisplayValue('Old session edit')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
 });
+
+it('rehydrates the confirmed revision after leaving Setup and returning in the same session', async () => {
+  let stored = revision;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (init?.method === 'PUT') {
+      stored = { ...revision, revision: 2, digest: 'c'.repeat(64), payload: JSON.parse(String(init.body)) };
+      return new Response(JSON.stringify(stored));
+    }
+    return new Response(JSON.stringify(stored));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
+  await user.clear(objective);
+  await user.type(objective, 'Edited on this tab');
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await waitFor(() => expect(screen.getByText('Saved · revision 2')).toBeVisible());
+  await user.click(screen.getByRole('link', { name: 'Overview' }));
+  await user.click(screen.getByRole('link', { name: 'Setup' }));
+  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Edited on this tab'));
+  expect(screen.getByText('Saved · revision 2')).toBeVisible();
+});

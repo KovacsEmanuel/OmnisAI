@@ -103,6 +103,7 @@ export function Wizard({ id }: { id?: string }) {
     setErrors([]);
     setNotice(null);
     client.setQueryData(['private', 'engagement', verified.engagement_id], verified);
+    client.setQueryData(['private', 'draft', verified.engagement_id], verified);
     void client.invalidateQueries({ queryKey: ['private', 'dashboard'] });
     return verified;
   }

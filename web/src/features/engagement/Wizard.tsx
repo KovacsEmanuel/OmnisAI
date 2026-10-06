@@ -25,6 +25,12 @@ const empty = (): Draft => ({
   data_policy: { model_projection: 'NONE', research_egress: 'NONE', retention_days: 0 },
   business_matrix: [], business_rules_ref: null,
 });
+function editableLegacy(payload: Revision['payload']): Draft {
+  const defaults = empty();
+  return { ...payload, application_context: defaults.application_context, effect_rules: defaults.effect_rules,
+    budgets: defaults.budgets, data_policy: defaults.data_policy, business_matrix: defaults.business_matrix,
+    business_rules_ref: null };
+}
 function equal(a: unknown, b: unknown): boolean {
   if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((item, i) => equal(item, b[i]));
   if (isRecord(a) || isRecord(b)) return isRecord(a) && isRecord(b) && Object.keys(a).length === Object.keys(b).length &&
@@ -64,6 +70,7 @@ export function Wizard({ id }: { id?: string }) {
   const [step, setStep] = useState(initialStep);
   const [form, setForm] = useState<Draft>(empty);
   const [defaultUntouched, setDefaultUntouched] = useState(!id);
+  const [legacyActivated, setLegacyActivated] = useState(false);
   const [saved, setSaved] = useState<Revision | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'saving' | 'checking' | 'conflict' | 'stale' | 'uncertain'>('idle');
@@ -84,7 +91,8 @@ export function Wizard({ id }: { id?: string }) {
       (hydrated && lastObserved.current === query.data.id)) return;
     lastObserved.current = query.data.id;
     if (!hydrated) {
-      if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setSaved(query.data); setDefaultUntouched(false); }
+      if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setDefaultUntouched(false); }
+      setSaved(query.data);
       setHydrated(true);
     } else if (saved && query.data.id !== saved.id) {
       if (dirty || !isFullDraft(query.data.payload)) {
@@ -185,7 +193,13 @@ export function Wizard({ id }: { id?: string }) {
   const lock = phase === 'saving' || phase === 'checking' || transition !== 'idle';
   if (id && query.isPending && !hydrated) return <section aria-busy="true"><p>Loading draft…</p></section>;
   if (id && query.isError && !hydrated) return <div role="alert">{query.error instanceof ApiError ? query.error.message : 'Draft unavailable.'}</div>;
-  if (id && hydrated && !saved) return <div role="alert">Legacy draft is read-only here. No automatic revision or migration was written.</div>;
+  if (id && hydrated && !saved) return <div role="alert">Draft unavailable. No revision was accepted.</div>;
+  if (id && saved && !isFullDraft(saved.payload) && !legacyActivated) return <section aria-label="Legacy draft conversion">
+    <p>Legacy draft is read-only until you explicitly convert it. Revision {saved.revision} and digest {saved.digest} remain unchanged.</p>
+    <p>Conversion adds only declarative empty context/rules/matrix, zero budgets and NONE data policy. Review these before Save; no provider, catalog or target effect is granted.</p>
+    <button type="button" onClick={() => { setForm(editableLegacy(saved.payload)); setDefaultUntouched(false); setLegacyActivated(true); }}>
+      Convert legacy draft to editable revision</button>
+  </section>;
   return <section className={styles.wizard} aria-label="Draft setup" aria-busy={lock}>
     {!id && <><h1>{dashboardCopy.new}</h1><Link className={styles.back} to="/">← {engagementCopy.dashboard}</Link></>}
     <div className={styles.layout}>
@@ -193,6 +207,7 @@ export function Wizard({ id }: { id?: string }) {
         <button key={label} type="button" aria-current={step === index ? 'step' : undefined} onClick={() => setStep(index)}>{index + 1}. {label}</button>)}</nav>
       <div className={styles.panel}>
         <h2>{steps[step]}</h2>
+        {legacyActivated && saved && !isFullDraft(saved.payload) && <p>Declarative defaults: zero budgets, empty context/rules/matrix and NONE data policy. Your original legacy revision is unchanged until Save creates a new CAS revision.</p>}
         <output aria-live="polite">{phase === 'checking' ? 'Checking saved revision…' : lock ? 'Saving…' : phase === 'conflict' ? 'Conflict · local edits preserved' :
           phase === 'stale' ? 'Unconfirmed readback' : phase === 'uncertain' ? 'Save outcome uncertain' :
           dirty ? 'Unsaved changes' : `Saved · revision ${saved?.revision}`}</output>

@@ -439,3 +439,38 @@ it('revalidates the complete clean draft when polling observes a newer selected 
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
   expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(0);
 });
+
+it('converts a legacy draft only after an explicit operator choice and a new CAS revision', async () => {
+  const legacy = { name: payload.name, authorization: payload.authorization, scope: payload.scope,
+    assessment_mode: payload.assessment_mode, objective_text: payload.objective_text,
+    objective_constraints: payload.objective_constraints, workflow_profile_ref: null };
+  const old = { ...revision, payload: legacy };
+  let stored: unknown = old;
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (init?.method === 'PUT') {
+      writes++;
+      expect(init.headers).toMatchObject({ 'If-Match': `"rev-1-${revision.digest}"`, 'X-CSRF-Token': csrf });
+      const authored: unknown = JSON.parse(String(init.body));
+      expect(authored).toMatchObject({ name: payload.name, objective_text: payload.objective_text,
+        application_context: { seed_urls: [], import_ref: null }, budgets: { max_requests: 0, validation_reserved_requests: 0 },
+        data_policy: { model_projection: 'NONE', research_egress: 'NONE' }, business_matrix: [] });
+      stored = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64), payload: authored };
+      return new Response(JSON.stringify(stored));
+    }
+    return new Response(JSON.stringify(stored));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  expect(await screen.findByText(/Legacy draft is read-only/)).toBeVisible();
+  expect(writes).toBe(0);
+  await user.click(screen.getByRole('button', { name: 'Convert legacy draft to editable revision' }));
+  expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
+  expect(screen.getByText(/Declarative defaults: zero budgets/)).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await waitFor(() => expect(screen.getByText('Saved · revision 2')).toBeVisible());
+  expect(writes).toBe(1);
+  expect(old.payload).toEqual(legacy);
+});

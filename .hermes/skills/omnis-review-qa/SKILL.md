@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.15
+version: 0.1.16
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -75,6 +75,8 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 
 - On a C10 lock/owner negative, prove the *actual owner* refuses before READY/ADMIT on the same exact payload as its positive. An observer withholding a gate proves only observer refusal. When the product protocol adds a required field, the raw old owner will reject the new schema before reaching the changed check; use a same-schema mutation of only the guard comparison and require that it reaches READY, while the stock owner denies the identical locked-independent OFD. Pin/reap both test-owned processes; a helper that reaps inside its Popen wrapper does not certify `run_stop_owner` cleanup.
 - When duplicating a lifecycle lock FD before registering its `ExitStack.callback`, a BaseException during callback registration leaves the fresh alias and FLOCK live even though the stack unwinds older handles. Inject the first and second registration failures through the real Stop consumer on private roots, assert unchanged journal, closed guard FDs and reacquirable locks, and rescue only exact test-owned leaked aliases in RED. A failure of the second `dup` is a separate boundary and does not test callback registration.
+
+- Before accepting a truncated or delayed review delivery, obtain the complete snapshot-bound report through a verifiable scratch JSON handle and read it back after the child completes. Missing text is not an empty findings list; persist the adjudicated verdict, concrete findings and limits in versioned slice notes before scratch expires. Do not poll a running child's transcript or report to wait for completion.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

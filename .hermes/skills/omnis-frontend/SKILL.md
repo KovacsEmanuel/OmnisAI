@@ -34,6 +34,11 @@ Read the relevant UI/UX flow and data/state contract. Use `vision_analyze` for a
    Capture screens reached through real navigation, including re-entry from a long page or an existing wizard's final step. Direct-load screenshots can hide retained scroll, obscured tabs or leaked draft-step state.
 
 ## Pitfalls
+
+Preserve native first-entry tab order: do not focus `main` unconditionally on mount, which makes the first Tab bypass the skip link. Reset scroll/focus only on an actual client route transition; test initial Tab/skip independently from post-navigation focus.
+
+Before crediting a reload/resize screenshot, await the intended route's authenticated content and exact object identity, not just document load or absence of overflow. A bootstrap/loading capture can satisfy geometry checks while proving nothing about the named target screen.
+
 Serialize browser-auth transitions and fence every asynchronous continuation, including direct readbacks outside Query. Cancel pending session/instance reads on expiry/logout and pause polling during pairing/logout; reproduce held older responses arriving after a newer denial or confirmed logout, allowing Query notification batches to flush before assertions.
 
 Use an explicit loopback network policy rather than assuming Internet connectivity determines localhost availability. Exercise the browser offline flag and Query pause behavior; display paused/aged/error observations as unverified or stale, and never claim a previous confirmed response when the first request failed.

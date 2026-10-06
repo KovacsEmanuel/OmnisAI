@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.16
+version: 0.1.17
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -19,7 +19,7 @@ Before accepting an implementation slice, resolving a regression, or declaring a
 1. Use `terminal` to identify base/head and `git diff`; include owned untracked files, relevant surrounding code and acceptance criteria. Establish existing failures without stashing someone else's work. A detached clean worktree can reproduce a baseline.
 2. Run the cheapest relevant deterministic checks first: syntax, schema, lint/type, targeted unit/integration, then regression and browser/E2E. Missing commands are NOT-RUN/BLOCKED, never silent green. A tool's exit 0 is only evidence for the property it tested.
 3. Ask an independent reviewer via `delegate_task` for concrete findings: severity, file:line, reproducer, violated requirement, remedy. First ask whether the slice meets the spec; then inspect authorization, input boundaries, races, persistence, error handling and complexity. The reviewer is read-only in the shared checkout.
-   Maintain a requirement→code→evidence matrix for the declared slice. A focused fix re-review closes its findings, not requirements that were never reviewed. Separate confirmed defects, incomplete proof and explicitly deferred scope; do not infer completeness from the last blocker being closed. Compare snapshot/scenario, not reused issue IDs, when a later review arrives.
+   Maintain a requirement→code→evidence matrix and an explicit disposition for every concrete finding from the original and later reports. A newer empty findings list does not close an older named reproducer: compare it against current bytes, and require RED→GREEN plus focused re-review for each surviving blocker before acceptance. A focused fix re-review closes its findings, not requirements that were never reviewed. Separate confirmed defects, incomplete proof and explicitly deferred scope; do not infer completeness from the last blocker being closed. Compare snapshot/scenario, not reused issue IDs, when a later review arrives.
 4. Reject findings based only on style preference unless they conflict with a committed rule. Verify suspected bugs with a test. Fix blockers in minimal separate changes; rerun affected checks after the LAST edit. Two failed fix attempts trigger a narrower investigation, not blind repetition.
    Bound the review loop to the affected product acceptance criterion: re-review a concrete fix, not the entire growing harness. If two cycles expose new test-oracle blockers without advancing that criterion, mark the slice WIP/BLOCKED and reconsider the proof boundary before adding another process supervisor or mutation layer. This does not approve unresolved findings.
 5. For UI inspect the actual screenshot against the user's reference at agreed viewports. Test keyboard/focus, modal/drawer Stop, resize, loading/empty/error/unavailable, reduced motion, long content and real state transitions. Chromium smoke does not certify screen readers, all browsers or aesthetics.

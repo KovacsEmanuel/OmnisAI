@@ -33,8 +33,10 @@ export function useBrowserSession() {
     hadSession.current = false;
     void client.cancelQueries({ queryKey: ['session'] });
     void client.cancelQueries({ queryKey: ['instance'] });
+    void client.cancelQueries({ queryKey: ['private'] });
     client.setQueryData(['session'], null);
     client.removeQueries({ queryKey: ['instance'] });
+    client.removeQueries({ queryKey: ['private'] });
     setNotice(copy.expired);
   }, [client]);
 
@@ -51,6 +53,8 @@ export function useBrowserSession() {
     setTransition(next);
     await client.cancelQueries({ queryKey: ['session'] });
     await client.cancelQueries({ queryKey: ['instance'] });
+    await client.cancelQueries({ queryKey: ['private'] });
+    client.removeQueries({ queryKey: ['private'] });
     return operation;
   }
 
@@ -97,6 +101,7 @@ export function useBrowserSession() {
       hadSession.current = false;
       client.setQueryData(['session'], null);
       client.removeQueries({ queryKey: ['instance'] });
+      client.removeQueries({ queryKey: ['private'] });
       setNotice(copy.loggedOut);
     } catch (error) {
       if (operation === epoch.current) setLogoutError(error);
@@ -105,5 +110,28 @@ export function useBrowserSession() {
     }
   }
 
-  return { session, transition, notice, logoutError, pair, logout, expire };
+  async function readPrivate<T>(read: () => Promise<T>, signal: AbortSignal): Promise<T> {
+    const observed = epoch.current;
+    const cancelled = () => observed !== epoch.current || signal.aborted || phase.current !== 'idle';
+    if (!session.data || session.isError || cancelled()) throw new CancelledError({ silent: true });
+    try {
+      const value = await read();
+      if (cancelled()) throw new CancelledError({ silent: true });
+      return value;
+    } catch (error) {
+      if (cancelled()) throw new CancelledError({ silent: true });
+      if (error instanceof ApiError && error.code === 'UNAUTHENTICATED') expire();
+      throw error;
+    }
+  }
+  useEffect(() => {
+    if (session.isError) {
+      void client.cancelQueries({ queryKey: ['private'] });
+      client.removeQueries({ queryKey: ['private'] });
+      void client.cancelQueries({ queryKey: ['instance'] });
+      client.removeQueries({ queryKey: ['instance'] });
+    }
+  }, [session.isError, client]);
+
+  return { session, transition, notice, logoutError, pair, logout, expire, readPrivate };
 }

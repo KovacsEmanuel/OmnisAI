@@ -1,11 +1,13 @@
 import type { components, paths } from './generated';
-import { ApiError, decodeError, isRecord } from './errors';
+import { ApiError, decodeError, isRecord, isUuid } from './errors';
 import { decodeHealth, decodeInstance } from './decoders';
+import { decodeProjection, decodeSelectedDraft, isDashboardCursor } from './projections';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
+type RequestPath = ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
-async function request(path: ApiPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
+async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
     return await fetch(path, {
       ...init, credentials: 'same-origin', cache: 'no-store', redirect: 'error',
@@ -35,6 +37,22 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async engagement(id: string, signal?: AbortSignal) {
+    if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/engagements/${id}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeSelectedDraft(value, id);
+  },
+  async dashboard(after: string | null, signal?: AbortSignal) {
+    if (after !== null && !isDashboardCursor(after)) throw new ApiError('INVALID_INPUT');
+    const query = new URLSearchParams({ limit: '20' });
+    if (after !== null) query.set('after', after);
+    const response = await request(`/api/v1/dashboard?${query}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProjection(value);
+  },
   async health(signal?: AbortSignal) {
     const response = await request('/health/ready', {}, signal);
     const value = await body(response);

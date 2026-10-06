@@ -77,18 +77,19 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   await observeBusy(() => page.getByRole('button', { name: 'Refresh engagement', exact: true }).click());
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await page.getByRole('link', { name: 'Setup', exact: true }).click();
-  await check(page.getByText(/B04/).first()).toBeVisible();
+  await check(page.getByRole('region', { name: 'Draft setup' })).toBeVisible();
+  await check(page.getByLabel('Engagement name')).toHaveValue(selected.payload.name);
   assert.ok(page.url().endsWith(`/${selected.engagement_id}/setup`));
   await observeBusy(() => page.reload());
   await check(page.getByRole('heading', { name: selected.payload.name })).toBeVisible();
   await observeBusy(() => page.getByRole('button', { name: 'Refresh engagement', exact: true }).click());
   assert.equal(await page.locator('script').filter({ hasText: 'never execute' }).count(), 0);
   assert.equal(await page.locator('img[src="x"]').count(), 0);
-  assert.equal(await page.getByRole('button', { name: /^(Save draft|Next|Back)$/ }).count(), 0);
+  await check(page.getByRole('button', { name: 'Save draft' })).toBeDisabled();
   for (const width of [320, 390, 1280, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     await check(page.getByRole('heading', { name: selected.payload.name })).toBeVisible();
-    await check(page.getByText(/B04/).first()).toBeVisible();
+    await check(page.getByLabel('Engagement name')).toHaveValue(selected.payload.name);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Setup overflow ${width}`);
     const setupBack = await page.getByRole('link', { name: /Dashboard/ }).boundingBox();
     assert.ok(setupBack && setupBack.height >= 44 && setupBack.width >= 44, `Setup backlink target below 44px at ${width}`);
@@ -98,7 +99,7 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Dashboard overflow ${width}`);
     await screenshot(`b03-dashboard-${width}`);
     await page.getByRole('link', { name: /New engagement/i }).first().click();
-    await check(page.getByText(/B04/).first()).toBeVisible();
+    await check(page.getByLabel('Engagement name')).toBeVisible();
     assert.ok(page.url().endsWith('/engagements/new'));
     const newBack = await page.getByRole('link', { name: /Dashboard/ }).boundingBox();
     assert.ok(newBack && newBack.height >= 44 && newBack.width >= 44, `New backlink target below 44px at ${width}`);

@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 import { assertSecretFree } from './leaks.mjs';
 import { runB03 } from './b03.mjs';
+import { runB04 } from './b04.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -20,7 +21,8 @@ assert.ok(directory && output && process.env.OMNIS_E2E_DATABASE_URL, 'Run via ma
 const sensitive = [];
 const markerFd = Number(process.env.OMNIS_E2E_MARKER_FD);
 assert.ok(Number.isInteger(markerFd) && markerFd >= 3, 'Private marker channel is required');
-writeSync(markerFd, 'READY\n');
+// The second B04 browser joins the same parent-owned marker channel after a real API restart.
+if (!(scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) writeSync(markerFd, 'READY\n');
 function remember(value) {
   assert.ok(typeof value === 'string' && /^[A-Za-z0-9_-]{16,128}$/.test(value), 'Invalid synthetic marker');
   if (sensitive.includes(value)) return;
@@ -138,17 +140,33 @@ try {
     // Open the inert admission barrier only after API/dashboard readiness;
     // this is fixture setup, not proof of installed CLI lifecycle.
     const initial = (await control({ op: 'status' })).status;
-    assert.equal(initial.admission_open, false);
-    assert.equal(initial.generation, 0);
-    const opened = (await control({ op: 'open', instance_id: initial.instance_id,
-      command_id: randomUUID(), expected_generation: initial.generation })).status;
-    assert.equal(opened.admission_open, true);
-    assert.equal(opened.generation, 1);
+    if (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after') {
+      assert.equal(initial.admission_open, true, 'Backend restart must preserve the same admitted instance');
+      assert.equal(initial.generation, 1);
+    } else {
+      assert.equal(initial.admission_open, false);
+      assert.equal(initial.generation, 0);
+      const opened = (await control({ op: 'open', instance_id: initial.instance_id,
+        command_id: randomUUID(), expected_generation: initial.generation })).status;
+      assert.equal(opened.admission_open, true);
+      assert.equal(opened.generation, 1);
+    }
   }
-  await page.goto(origin);
+  try {
+    await page.goto(origin);
+  } catch (error) {
+    // Initial navigation is before pairing: log only local pathnames/statuses, never values.
+    console.error('E2E_BOOT_NAVIGATION_DIAGNOSTIC ' + JSON.stringify({
+      paths: requests.filter(url => url.startsWith(`${origin}/`)).map(url => new URL(url).pathname).slice(0, 20),
+      externalCount: external.length, pageErrorCount: pageErrors.length,
+    }));
+    throw error;
+  }
   await check(page.getByLabel('Pairing code')).toBeVisible();
   if (scenario === 'b03') {
     await runB03({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
+  } else if (scenario === 'b04') {
+    await runB04({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
   } else if (scenario === 'flow') {
     const foreignHost = await context.request.get(`${origin}/health/live`, { headers: { Host: 'attacker.invalid', 'X-Forwarded-Host': new URL(origin).host } });
     assert.equal(foreignHost.status(), 400);
@@ -286,6 +304,7 @@ try {
   } else throw new Error('Unknown E2E case');
   await secretChecks();
   await writeFile(join(output, 'browser-result.json'), JSON.stringify({ scenario, passed: true, browser: browser.version(),
+    ...(scenario === 'b04' ? { stage: process.env.OMNIS_E2E_STAGE } : {}),
     requestCount: requests.length, externalRequests: external.length, pageErrors: pageErrors.length,
     secretChecks: true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
   console.log(`E2E PASS ${scenario}: real backend, synthetic pairing, browser ${browser.version()}`);

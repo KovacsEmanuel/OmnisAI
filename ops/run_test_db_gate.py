@@ -1037,6 +1037,7 @@ def main() -> int:
             "test-p1-fields",
             "test-dashboard",
             "test-b03-e2e",
+            "test-b04-e2e",
         ),
         default="check-components",
     )

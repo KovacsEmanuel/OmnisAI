@@ -37,6 +37,10 @@ Păstrăm modelul/providerul, politica de aprobări, limitele globale de delegar
 
 Template-ul de sarcină și roluri este în [.hermes/skills/omnis-delivery/templates/task.md](.hermes/skills/omnis-delivery/templates/task.md). Nu folosim un prompt monolitic de „expert perfect”; lucrăm cu criterii falsificabile și rezultate măsurabile.
 
+### Echipă per felie de implementare
+
+[Contractul de echipă](.hermes/skills/omnis-delivery/templates/team-slice.md) fixează ordinea: arhitect read-only cu plan bounded și proprietatea fișierelor → doi dezvoltatori pe căi disjuncte/worktree-uri din HEAD local (al doilea poate deține numai teste/cercetare dacă schimbarea are un singur autor) → integrare și snapshot exact → doi revieweri independenți cu mandate complementare → QA live pe consumatorul real după remedierea blocantelor. Pentru UI, QA live înseamnă browser real cu clickuri, tastatură/focus, reload și viewporturi pe build/API/DB proprii; un screenshot sau un test componentă nu înlocuiește acest parcurs. Părintele distribuie sarcinile, transferă byte-exact, adjudecă findings, verifică resursele, face commiturile și închide registrul. Nu delegăm recursiv implicit și nu reluăm reviewul întreg pentru fiecare fix punctual; proba focalizată și re-reviewul urmăresc numai bytes schimbați, iar gate-ul canonic rulează pe snapshotul final la limita feliei. Lipsa unei probe păstrează `BLOCKED/NOT_RUN`, nu un PASS prin numărul agenților.
+
 ## Status global la orientare și predare
 
 Încarcă [omnis-project-status](.hermes/skills/omnis-project-status/SKILL.md) la început pentru **ORIENT/read-only** și la finalul fiecărei felii, subfaze, faze ori prompt de review pentru **CLOSE/predare**. [Harta globală MVP/post-MVP](documents/verification/implementation-status.md) păstrează toate SL-urile și E1–E4, fundațiile, milestone-urile și capabilitățile execution-unscheduled, ca proiecție a planului, nu backlog concurent.

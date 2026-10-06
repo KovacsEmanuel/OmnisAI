@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Version2 development-tool DNS prerequisite; not product/runtime modification and not canonical PASS.",
+  "scope": "Version2 development-tool prerequisite evidence. Standalone probes do not certify canonical acceptance; the later separately attributed canonical receipt is recorded below. No product/runtime modification.",
   "supersedes_helper_evidence": "p1-web-a02-dns.json",
   "previous_canonical": {
     "process": "proc_626a88af74a0",
@@ -121,7 +121,7 @@
     "status": "APPROVED_SCOPED",
     "artifact": "p1-web-a02-dns-review-v2.json",
     "sha256": "e5d0430ff0647bcbc49f72223f1a8e961250650d8b6abe57ec164f518a03ccca",
-    "parent_snapshot_adjudication": "All three report hashes match; product37bindings unchanged. Review limits preserved, canonical uncredited."
+    "parent_snapshot_adjudication": "All three report hashes match; product37bindings unchanged. Review limits preserved; canonical was uncredited at review adjudication and later accepted separately in p1-web-a02-gate.json."
   },
   "ad_hoc_routing_check": {
     "tests_passed": 4,
@@ -132,8 +132,16 @@
   },
   "current_canonical": {
     "process": "proc_90e1826f2cd7",
-    "status": "RUNNING_UNCREDITED",
-    "source_bindings_verified_before": 37
+    "status": "PASS_LOCAL_RECORDED",
+    "source_bindings_verified_before": 37,
+    "source_bindings_verified_after": 37,
+    "artifact": "p1-web-a02-gate.json",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "owned_cleanup": "cid/network/socket absent; uncertain false"
   },
   "limits": [
     "Only exact canonical first argv audit, pip sync and pip install route into the namespace; global options before subcommand unsupported.",

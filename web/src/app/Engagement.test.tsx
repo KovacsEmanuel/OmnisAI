@@ -8,7 +8,7 @@ import { draft, id, projection, summary } from '../../tests/projection-fixtures'
 import { api } from '../shared/api/client';
 import { App } from './App';
 
-it('selects a persisted draft, preserves identity and scope, and navigates inert Setup / New', async () => {
+it('selects a persisted draft, preserves identity and scope, and navigates editable Setup / New without implicit writes', async () => {
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
     const path = String(input);
     return new Response(JSON.stringify(path === '/api/session' ? session : path === '/health/ready' ? health : path === `/api/v1/engagements/${id}` ? draft : projection));
@@ -25,17 +25,18 @@ it('selects a persisted draft, preserves identity and scope, and navigates inert
   expect(screen.getByText('https://synthetic.invalid')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Setup' }));
-  expect(await screen.findByText(/B04 setup editing/)).toBeVisible();
+  expect(await screen.findByRole('region', { name: 'Draft setup' })).toBeVisible();
+  expect(await screen.findByLabelText('Engagement name')).toHaveValue(summary.name);
   expect(screen.getByRole('heading', { name: summary.name })).toBeVisible();
-  expect(screen.queryByRole('button', { name: /Save|Next|Back/ })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Brain stream' }));
   expect(await screen.findByText(/not implemented for this draft/)).toBeVisible();
   expect(screen.queryByText(draft.payload.objective_text)).not.toBeInTheDocument();
   await user.click(screen.getByRole('link', { name: 'Home' }));
   await user.click((await screen.findAllByRole('link', { name: /New engagement/ }))[0]!);
   expect(await screen.findByRole('heading', { name: 'New engagement' })).toBeVisible();
-  expect(screen.getByText(/B04 setup editing/)).toBeVisible();
-  expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Engagement name')).toHaveValue('');
+  expect(screen.getByText('Unsaved changes')).toBeVisible();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
 });
 

@@ -1,4 +1,5 @@
 import type { components } from '../src/shared/api/generated';
+import { payload as authored } from './draft-fixtures';
 // Synthetic component/HTTP-boundary fixtures, not product or E2E data.
 export const id = '00000000-0000-4000-8000-000000000010';
 export const revisionId = '00000000-0000-4000-8000-000000000011';
@@ -18,6 +19,6 @@ export const projection: components['schemas']['ProjectionEnvelope'] = {
 export const draft = {
   schema_version: 1, kind: 'engagement-revision', id: revisionId, engagement_id: id,
   revision: 2, digest: summary.digest, created_at: summary.created_at,
-  payload: { name: summary.name, assessment_mode: 'FOCUSED_TEST', objective_text: 'Preserve this exact objective.\nNo writes.',
+  payload: { ...authored, name: summary.name, assessment_mode: 'FOCUSED_TEST', objective_text: 'Preserve this exact objective.\nNo writes.',
     scope: [{ origin: 'https://synthetic.invalid', port: 443, path_prefix: '/api', access: 'ATTACKABLE', exclusions: ['/api/private'] }] },
 };

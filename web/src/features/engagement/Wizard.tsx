@@ -65,7 +65,7 @@ export function Wizard({ id }: { id?: string }) {
   const [form, setForm] = useState<Draft>(empty);
   const [saved, setSaved] = useState<Revision | null>(null);
   const [hydrated, setHydrated] = useState(false);
-  const [phase, setPhase] = useState<'idle' | 'saving' | 'conflict' | 'stale' | 'uncertain'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'saving' | 'checking' | 'conflict' | 'stale' | 'uncertain'>('idle');
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [server, setServer] = useState<Revision | null>(null);
@@ -79,7 +79,7 @@ export function Wizard({ id }: { id?: string }) {
     refetchOnWindowFocus: false, refetchOnMount: 'always' });
   const dirty = !saved || !equal(form, saved.payload);
   useEffect(() => {
-    if (!query.data || query.isFetching || query.isError || phase === 'saving' ||
+    if (!query.data || query.isFetching || query.isError || phase === 'saving' || phase === 'checking' ||
       (hydrated && lastObserved.current === query.data.id)) return;
     lastObserved.current = query.data.id;
     if (!hydrated) {
@@ -158,6 +158,9 @@ export function Wizard({ id }: { id?: string }) {
     if (!session.data || saving.current) return;
     const target = id ?? pending.current?.engagement_id;
     if (!target) return;
+    const priorPhase = phase;
+    saving.current = true;
+    setPhase('checking');
     const controller = new AbortController();
     abort.current = controller;
     try {
@@ -166,10 +169,14 @@ export function Wizard({ id }: { id?: string }) {
         await confirm(pending.current, form, controller.signal);
         if (!id) navigate(`/engagements/${target}/setup`, { state: { step } });
       } else { setServer(latest); setPhase('conflict'); setNotice('Server revision differs. Choose explicitly whether to discard or keep your local edits.'); }
-    } catch (error) { if (!controller.signal.aborted) setNotice(error instanceof ApiError ? error.message : 'Readback unavailable.'); }
-    finally { abort.current = null; }
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        setPhase(priorPhase);
+        setNotice(error instanceof ApiError ? error.message : 'Readback unavailable.');
+      }
+    } finally { saving.current = false; abort.current = null; }
   }
-  const lock = phase === 'saving' || transition !== 'idle';
+  const lock = phase === 'saving' || phase === 'checking' || transition !== 'idle';
   if (id && query.isPending && !hydrated) return <section aria-busy="true"><p>Loading draft…</p></section>;
   if (id && query.isError && !hydrated) return <div role="alert">{query.error instanceof ApiError ? query.error.message : 'Draft unavailable.'}</div>;
   if (id && hydrated && !saved) return <div role="alert">Legacy draft is read-only here. No automatic revision or migration was written.</div>;
@@ -180,7 +187,7 @@ export function Wizard({ id }: { id?: string }) {
         <button key={label} type="button" aria-current={step === index ? 'step' : undefined} onClick={() => setStep(index)}>{index + 1}. {label}</button>)}</nav>
       <div className={styles.panel}>
         <h2>{steps[step]}</h2>
-        <output aria-live="polite">{lock ? 'Saving…' : phase === 'conflict' ? 'Conflict · local edits preserved' :
+        <output aria-live="polite">{phase === 'checking' ? 'Checking saved revision…' : lock ? 'Saving…' : phase === 'conflict' ? 'Conflict · local edits preserved' :
           phase === 'stale' ? 'Unconfirmed readback' : phase === 'uncertain' ? 'Save outcome uncertain' :
           dirty ? 'Unsaved changes' : `Saved · revision ${saved?.revision}`}</output>
         {notice && <p role="alert">{notice}</p>}

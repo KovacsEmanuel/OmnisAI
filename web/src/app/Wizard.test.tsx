@@ -234,6 +234,45 @@ it('requires an exact GET after a write receipt and retries only the readback', 
   expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(1);
 });
 
+it('blocks edits while an explicit GET reconciliation is pending and never replays the PUT', async () => {
+  let written: typeof revision | null = null;
+  let readbacks = 0;
+  let release!: (value: Response) => void;
+  const held = new Promise<Response>(resolve => { release = resolve; });
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (init?.method === 'PUT') {
+      written = { ...revision, revision: 2, digest: 'c'.repeat(64), payload: JSON.parse(String(init.body)) };
+      return new Response(JSON.stringify(written));
+    }
+    if (written) {
+      readbacks++;
+      return readbacks === 1 ? new Response(JSON.stringify(revision)) :
+        readbacks === 2 ? held : new Response(JSON.stringify(written));
+    }
+    return new Response(JSON.stringify(revision));
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
+  await user.clear(objective);
+  await user.type(objective, 'Readback must keep this exact edit');
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await waitFor(() => expect(screen.getByText('Unconfirmed readback')).toBeVisible());
+  await user.click(screen.getByRole('button', { name: 'Retry exact GET readback' }));
+  try {
+    await waitFor(() => expect(readbacks).toBe(2));
+    expect(objective).toBeDisabled();
+    expect(screen.getByRole('region', { name: 'Draft setup' })).toHaveAttribute('aria-busy', 'true');
+  } finally { release(new Response(JSON.stringify(written))); }
+  await waitFor(() => expect(screen.getByText('Saved · revision 2')).toBeVisible());
+  expect(objective).toHaveValue('Readback must keep this exact edit');
+  expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(1);
+});
+
 it('fences a late old-session Save GET after expiry and re-pair before accepting the new session revision', async () => {
   const newCsrf = 'd'.repeat(64);
   const oldReceipt = { ...revision, revision: 2, digest: 'c'.repeat(64), payload: { ...payload, name: 'Old session edit' } };

@@ -110,6 +110,24 @@ it('keeps the general default separate from a focused objective and edits typed 
   expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
 });
 
+it('does not erase authored focused text that happens to equal the General default', async () => {
+  const defaultText = 'Evaluează suprafața Web/API autorizată în limitele profilului selectat.';
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => new Response(JSON.stringify(
+    String(input) === '/api/session' ? { authenticated: true, csrf_token: csrf } : {},
+  ))));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/engagements/new']}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  expect(objective).toHaveValue(defaultText);
+  await user.click(screen.getByLabelText('Test focalizat'));
+  expect(objective).toHaveValue('');
+  await user.type(objective, defaultText);
+  await user.click(screen.getByLabelText('Evaluare generală'));
+  await user.click(screen.getByLabelText('Test focalizat'));
+  expect(objective).toHaveValue(defaultText);
+});
+
 it('keeps a nested 422 near its field and links the accessible error summary to focus', async () => {
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));

@@ -63,6 +63,7 @@ export function Wizard({ id }: { id?: string }) {
     location.state.step >= 0 && location.state.step < steps.length ? location.state.step : 0;
   const [step, setStep] = useState(initialStep);
   const [form, setForm] = useState<Draft>(empty);
+  const [defaultUntouched, setDefaultUntouched] = useState(!id);
   const [saved, setSaved] = useState<Revision | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'saving' | 'checking' | 'conflict' | 'stale' | 'uncertain'>('idle');
@@ -83,7 +84,7 @@ export function Wizard({ id }: { id?: string }) {
       (hydrated && lastObserved.current === query.data.id)) return;
     lastObserved.current = query.data.id;
     if (!hydrated) {
-      if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setSaved(query.data); }
+      if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setSaved(query.data); setDefaultUntouched(false); }
       setHydrated(true);
     } else if (saved && query.data.id !== saved.id) {
       if (dirty || !isFullDraft(query.data.payload)) {
@@ -98,6 +99,7 @@ export function Wizard({ id }: { id?: string }) {
   }, [hydrated, query.data, query.isFetching, query.isError, saved, dirty, phase]);
   function change(next: Draft, field?: string) {
     setForm(next);
+    if (field === 'objective_text') setDefaultUntouched(false);
     if (field) setErrors(current => current.filter(error => focusField(error.field) !== field));
     if (phase !== 'conflict' && phase !== 'uncertain') setPhase('idle');
     setNotice(null);
@@ -203,8 +205,14 @@ export function Wizard({ id }: { id?: string }) {
             <Field path="authorization.valid_from" label="Valid from (UTC)" hint="YYYY-MM-DDTHH:MM:SSZ" errors={errors}>{props => <input {...props} value={form.authorization.valid_from} onChange={event => change({ ...form, authorization: { ...form.authorization, valid_from: event.target.value } }, 'authorization.valid_from')} />}</Field>
             <Field path="authorization.valid_until" label="Valid until (UTC)" hint="YYYY-MM-DDTHH:MM:SSZ" errors={errors}>{props => <input {...props} value={form.authorization.valid_until} onChange={event => change({ ...form, authorization: { ...form.authorization, valid_until: event.target.value } }, 'authorization.valid_until')} />}</Field>
             <fieldset className={styles.mode}><legend>Assessment mode</legend>
-              <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FULL_ASSESSMENT'} onChange={() => change({ ...form, assessment_mode: 'FULL_ASSESSMENT', objective_text: form.objective_text || DEFAULT_OBJECTIVE })} />Evaluare generală</label>
-              <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FOCUSED_TEST'} onChange={() => change({ ...form, assessment_mode: 'FOCUSED_TEST', objective_text: form.objective_text === DEFAULT_OBJECTIVE ? '' : form.objective_text })} />Test focalizat</label>
+              <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FULL_ASSESSMENT'} onChange={() => {
+                if (!form.objective_text) setDefaultUntouched(true);
+                change({ ...form, assessment_mode: 'FULL_ASSESSMENT', objective_text: form.objective_text || DEFAULT_OBJECTIVE });
+              }} />Evaluare generală</label>
+              <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FOCUSED_TEST'} onChange={() => {
+                change({ ...form, assessment_mode: 'FOCUSED_TEST', objective_text: defaultUntouched ? '' : form.objective_text });
+                setDefaultUntouched(false);
+              }} />Test focalizat</label>
             </fieldset>
             <Field path="objective_text" label="Obiectiv / instrucțiuni pentru Brain" hint="1–8192 code points; at most 32768 UTF-8 bytes. Do not enter credentials." errors={errors}>{props => <textarea {...props} rows={6} value={form.objective_text} onChange={event => change({ ...form, objective_text: event.target.value }, 'objective_text')} />}</Field>
             <p>{Array.from(form.objective_text).length} / 8192 code points · {new TextEncoder().encode(form.objective_text).length} / 32768 UTF-8 bytes</p>

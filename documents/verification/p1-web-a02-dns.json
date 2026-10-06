@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "purpose": "Real OSV audit with audit-only private NSS; no host/global or product code change",
+  "wrapper_source": "#!/bin/sh\nset -eu\nuv=/home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv\nif [ \"${1-}\" = audit ]; then\n    exec /usr/bin/unshare --user --map-root-user --mount --propagation private /bin/sh -eu -c '\n        /usr/bin/mount --bind \"$1\" /etc/nsswitch.conf\n        /usr/bin/mount -o remount,bind,ro /etc/nsswitch.conf\n        shift\n        exec \"$@\"\n    ' sh /home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf \"$uv\" \"$@\"\nfi\nexec \"$uv\" \"$@\"\n",
+  "nss_override_source": "# Private NSS override for the audit child only.\npasswd: files systemd winbind\ngroup: files systemd winbind\nshadow: files systemd\ngshadow: files systemd\nhosts: files dns myhostname\nnetworks: files\nprotocols: db files\nservices: db files\nethers: db files\nrpc: db files\nnetgroup: nis\n",
+  "probe": {
+    "host_nss_sha256_before": "fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6",
+    "host_nss_sha256_after": "fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6",
+    "host_unchanged": true,
+    "uv_version": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+    "invalid_arg_exit": 2,
+    "audit_exit": 0,
+    "audit_stdout": "",
+    "audit_stderr": "Resolved 38 packages in 5ms\nFound no known vulnerabilities and no adverse project statuses in 37 packages\n",
+    "wrapper_sha256": "3fe53762510a86b19ca9198aced3742567011fabfd93294601b2e29367b699a6",
+    "nss_override_sha256": "cd777a7073b67961979e3ef0768df255e139d1243d4f3ced7ea5ef197c528b55"
+  },
+  "independent_review": {
+    "verdict": "APPROVED_SCOPED",
+    "scope": "Review independent read-only al wrapperului NSS audit-only \u0219i al probelor existente; nu acceptare de produs sau gate canonic.",
+    "blockers": [],
+    "snapshot": {
+      "wrapper": {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "sha256": "3fe53762510a86b19ca9198aced3742567011fabfd93294601b2e29367b699a6",
+        "bytes": 456
+      },
+      "nss_override": {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf",
+        "sha256": "cd777a7073b67961979e3ef0768df255e139d1243d4f3ced7ea5ef197c528b55",
+        "bytes": 281
+      },
+      "evidence": {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-dns-evidence.json",
+        "sha256": "f4050dfb186e80e4e7c4e63c1cf51188f11624ceb73ccefbf5f09c30b8e0a688"
+      },
+      "uv": {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv",
+        "sha256": "242e462a63f5a3c0421d68557006193ecbfb61321cba0fe8542213ac62d92563",
+        "version": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+        "elf_and_installed_record_match": true
+      },
+      "host_nss_before_after_and_review_sha256": "fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6"
+    },
+    "findings": {
+      "real_pinned_uv": "Cale absolut\u0103 c\u0103tre binarul ELF, digest \u0219i dimensiune conforme cu RECORD al distribu\u021biei uv 0.12.19; --version real exit 0, identic pinului din Makefile.",
+      "argv_and_exit": "Argumentele sunt transmise prin quoted $@, f\u0103r\u0103 eval sau rescriere. Shift elimin\u0103 numai calea configului din shellul interior; exec p\u0103streaz\u0103 rezultatul uv prin unshare, f\u0103r\u0103 for\u021bare exit 0. set -eu refuz\u0103 continuarea dac\u0103 izolarea sau mountul e\u0219ueaz\u0103.",
+      "audit_integrity": "Nu exist\u0103 \u00eenlocuire de rezultate, filtrare stdout/stderr, ignorare de vulnerabilit\u0103\u021bi sau fallback la un audit fals; este executat acela\u0219i uv cu argumentele originale.",
+      "namespace": "Numai primul argument exact audit activeaz\u0103 unshare --user --map-root-user --mount --propagation private. Bindul configului \u0219i remount,bind,ro afecteaz\u0103 /etc/nsswitch.conf numai \u00een namespace-ul privat al auditului \u0219i descenden\u021bilor s\u0103i.",
+      "nss_delta": "Singura diferen\u021b\u0103 semantic\u0103 fa\u021b\u0103 de NSS host este hosts: files dns myhostname; celelalte baze NSS sunt identice.",
+      "non_audit": "Ramura alternativ\u0103 execut\u0103 direct acela\u0219i uv, f\u0103r\u0103 unshare sau mount."
+    },
+    "existing_probe_evidence": {
+      "snapshot_hashes_match": true,
+      "audit_exit": 0,
+      "audit_packages_checked": 37,
+      "audit_stdout": "",
+      "audit_stderr": "Resolved 38 packages in 5ms\nFound no known vulnerabilities and no adverse project statuses in 37 packages\n",
+      "invalid_arg_exit": 2,
+      "host_unchanged": true
+    },
+    "review_checks": {
+      "shell_syntax_exit": 0,
+      "offline_snapshot_consistency_exit": 0,
+      "new_network_calls": false,
+      "wrapper_or_audit_rerun": false,
+      "product_or_host_configuration_edits": false
+    },
+    "limits": [
+      "Verdict legat de bytes \u0219i binarul de mai sus; c\u0103ile sunt trusted de operator, iar wrapperul nu revalideaz\u0103 SHA la fiecare execu\u021bie. Modific\u0103rile cer re-review.",
+      "Dispatchul acoper\u0103 forma canonic\u0103 uv audit ...; op\u021biunile globale \u00eenainte de audit nu activeaz\u0103 namespace-ul.",
+      "Rezultatele auditului \u0219i argumentului invalid provin din JSON-ul preexistent, citit efectiv, nu dintr-un audit nou. Dovada nu include argv-ul probei invalide sau o matrice complet\u0103 de exituri/semnale.",
+      "RECORD verific\u0103 consisten\u021ba instal\u0103rii locale, nu reatest\u0103 independent provenien\u021ba upstream.",
+      "Namespace-ul nu este sandbox general sau izolare de re\u021bea; bindul read-only nu face sursa privat\u0103 imuabil\u0103.",
+      "Nu certific\u0103 make check, DB/Docker/servicii, securitatea general\u0103 a produsului sau absen\u021ba tuturor vulnerabilit\u0103\u021bilor."
+    ]
+  },
+  "invalid_probe_argv": [
+    "audit",
+    "--omnis-invalid-control"
+  ],
+  "canonical_gate": {
+    "process": "proc_626a88af74a0",
+    "fixture": "db-3946c1dc9a78454e",
+    "status": "RUNNING_UNCREDITED"
+  },
+  "parent_adjudication": "APPROVED_SCOPED test-environment helper only",
+  "limits": "No canonical PASS until receipt/cleanup, no universal sandbox, no TLS bypass or fabricated audit"
+}

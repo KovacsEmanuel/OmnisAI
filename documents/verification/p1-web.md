@@ -2,7 +2,11 @@
 
 Scope autorizat: `p1-implementation-prompt.md` §P1-C, plan §6, arhitectură §9.1, UI/UX §0/§2–3. B03 nu închide B04/G01, nu începe B05 și nu creează runuri. Intrare reală: `5b0ab7a3b9f653db1f2be21c0d298ab5f259c2a1`, branch `p04-control-topology-wip`, fără modificări versionate; `documents/Omnis_Notite_Originale.html` neversionat a rămas neatins. Commituri locale, fără push.
 
-## Stare curentă — PAUSED la cererea operatorului
+## Stare curentă — reluare autorizată, gate canonic în curs
+
+Operatorul a cerut finalizarea după checkpoint. Cele37 bindings din `d66b3db` sunt identice; părintele adjudecă re-reviewul complet `deleg_324ff2aa` pentru **A01/A02 CLOSED_SCOPED**, cu B03-N01 neblocant/deferred. NSS-ul hostului încă expiră; auditul real uv0.12.19 a trecut în namespace user+mount privat, cu bind NSS read-only și propagare privată, fără schimbarea hostului. Controlul argv invalid păstrează exit2, auditul real37 pachete exit0, hashes NSS host înainte/după identice. Nu este un bypass sau o probă substituită. Wrapperul numai pentru `uv audit` este în review read-only `deleg_d0627db9`; celelalte comenzi uv rămân directe.
+
+Noul `make check` rulează: **proc_626a88af74a0 / db-3946c1dc9a78454e**, `UV=/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv`, PATH pin-uit. **Nu primește PASS înainte de receipt/cleanup și verificarea surselor finale.** Notele următoare păstrează checkpointul istoric de pauză, nu starea activă de execuție.
 
 **Checkpoint de reluare:** [pauză și pași rămași](p1-web-pause.md), [surse/probe durabile](p1-web-a02-checkpoint.json), [re-review complet A02](p1-web-a02-review.json). Codul este comis în `d66b3db`; cele37 bindings coincid cu probele. Reviewerul a încheiat APPROVED_SCOPED, A01/A02 CLOSED_SCOPED; acceptarea finală B03 rămâne suspendată. Noul `make check` a încheiat **exit2/BLOCKED** la OSV/NSS înainte de API pytest, cu cleanup propriu verificat; nu rulează. Zero subagenți live. Nu relua automat la boot și nu începe B04/G01/B05/runuri. Detaliile următoare păstrează cronologia de dinaintea pauzei.
 

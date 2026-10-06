@@ -1,6 +1,6 @@
 # Pauză solicitată de operator — B03 / A02
 
-**PAUSED. Nu relua automat la boot.** Operatorul a cerut oprirea lucrului înainte de închiderea laptopului. Reluarea cere mesajul său explicit; nu există cron sau job de reluare.
+**Checkpoint istoric de pauză; reluare autorizată ulterior de operator.** Nu a existat reluare automată sau cron. Starea activă este în [registrul B03](p1-web.md); probele și blocajul de mai jos păstrează exact punctul pauzei.
 
 ## Checkpoint durabil
 

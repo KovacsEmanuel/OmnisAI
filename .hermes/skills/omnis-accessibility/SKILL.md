@@ -1,7 +1,7 @@
 ---
 name: omnis-accessibility
 description: "Use when auditing Omnis keyboard and accessibility."
-version: 0.1.1
+version: 0.1.2
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -31,3 +31,5 @@ Radix usage and automated a11y checks are not WCAG certification. Report screen-
 
 ## Verification
 Each reported issue has a before/after reproducer and concrete code location. The affected operator journey remains usable by keyboard with visible focus, persistent errors and reachable Stop. Keep unrelated visual redesign out of the correction.
+
+- Measure contextual/back links on each affected page, not only the global navigation or first dashboard Tab sequence. Bind geometry checks to the real accessible link at every agreed viewport; an in-memory CSS shrink negative can validate the oracle without altering product bytes. A component rendered with seeded unit state is ad-hoc geometry evidence, not API/PostgreSQL integration.

@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.18
+version: 0.1.19
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -50,7 +50,9 @@ For process-cleanup mutation controls, hold the synthetic child alive beyond the
 
 When Hermes verify-on-stop names `make test`/`make check` but their prerequisites are unsafe or absent, report that canonical gate once as BLOCKED with the last relevant command, exit and limit. Focused checks remain targeted evidence even if the workspace ledger says unverified. Do not repeat them solely for the nudge or change the Makefile into a false-green alias; move to the prerequisite or stop the slice.
 
-For a confirmed host NSS path failure blocking a real audit, use the bounded [private NSS audit procedure](references/private-nss-audit.md). Keep helper review and standalone audit distinct from the canonical suite; do not change the host or bypass audit results.
+If a successful temporary verifier's own creation/deletion triggers another ad-hoc nudge, compare the tested source hashes once and retain its explicit nonzero test count and scoped PASS. Do not create a verifier for the verifier or replay unchanged checks to satisfy the ledger; continue the actual owned canonical gate separately.
+
+For a confirmed host NSS path failure blocking a real audit or hash-locked dependency install, use the bounded [private NSS procedure](references/private-nss-audit.md). Keep helper review and targeted positives distinct from the canonical suite; do not change the host or bypass audit/hash results.
 
 For exception-based test guards, record each attempted violation to an independent parent-owned channel **before** raising. Test a child that catches the exception and exits successfully: its report must still fail the clean verdict. Require observer readiness, known event tags and positive/negative controls; missing evidence is not zero attempts. Fail closed if recording fails, and distinguish Python audit events from native syscalls/OS confinement.
 

@@ -39,6 +39,8 @@ Preserve native first-entry tab order: do not focus `main` unconditionally on mo
 
 Before crediting a reload/resize screenshot, await the intended route's authenticated content and exact object identity, not just document load or absence of overflow. A bootstrap/loading capture can satisfy geometry checks while proving nothing about the named target screen.
 
+A Playwright `fullPage` capture after scrolling can paint a fixed, off-viewport skip link over an unrelated form field in the stitched image. Before filing an obstruction or changing CSS, compare a viewport-only capture at the same scroll/focus state and the link's live `getBoundingClientRect()`/activeElement. Keep the real skip-link keyboard path; a stitched screenshot alone is not an overlay reproducer.
+
 Serialize browser-auth transitions and fence every asynchronous continuation, including direct readbacks outside Query. Cancel pending session/instance reads on expiry/logout and pause polling during pairing/logout; reproduce held older responses arriving after a newer denial or confirmed logout, allowing Query notification batches to flush before assertions.
 
 Use an explicit loopback network policy rather than assuming Internet connectivity determines localhost availability. Exercise the browser offline flag and Query pause behavior; display paused/aged/error observations as unverified or stale, and never claim a previous confirmed response when the first request failed.

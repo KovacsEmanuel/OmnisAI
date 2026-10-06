@@ -118,7 +118,17 @@
   },
   "independent_review": {
     "delegation": "deleg_74b1eb2b",
-    "status": "PENDING"
+    "status": "APPROVED_SCOPED",
+    "artifact": "p1-web-a02-dns-review-v2.json",
+    "sha256": "e5d0430ff0647bcbc49f72223f1a8e961250650d8b6abe57ec164f518a03ccca",
+    "parent_snapshot_adjudication": "All three report hashes match; product37bindings unchanged. Review limits preserved, canonical uncredited."
+  },
+  "ad_hoc_routing_check": {
+    "tests_passed": 4,
+    "exit_code": 0,
+    "script": "hermes-verify-b03-dns-4plz0fiq.py",
+    "script_removed": true,
+    "scope": "Copied dispatch with a controlled recorder replaces only the uv pathname; namespace/mount, quoted argv and exit7 propagation are real. Direct paths keep host UID/NSS; audit-only negative misses install namespace. Actual uv invalid pip install argument returns2. Host and original helper hashes unchanged. Not OSV/package or suite acceptance."
   },
   "current_canonical": {
     "process": "proc_90e1826f2cd7",

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent read-only review of the exact v2 helper, private NSS config and supplied v2 probe; supported canonical first-argument shapes only.",
+  "snapshot_hashes": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+      "sha256": "06815211db9e269aa43f125092ea854009a7025f7a21ebf4de91d58f38f0d90b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf",
+      "sha256": "cd777a7073b67961979e3ef0768df255e139d1243d4f3ced7ea5ef197c528b55"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-dns-probe-v2.json",
+      "sha256": "567b66cccd1df7850b99dc94adf89fbf8507e99ff3170d7601751d1896f92997"
+    }
+  ],
+  "findings": [
+    {
+      "property": "dispatch",
+      "status": "CONFIRMED_SCOPED",
+      "detail": "Lines 5-8 route audit, pip sync and pip install into the private NSS branch. Other supported canonical commands use direct exec. Global-option-prefixed command forms are not covered."
+    },
+    {
+      "property": "quoted_argv_and_exit",
+      "status": "CONFIRMED",
+      "detail": "Quoted $uv and $@ preserve arguments in both paths. The child consumes only the NSS pathname with shift, then execs the original uv argv. Both layers use exec; set -eu fails closed on namespace/mount failure without direct fallback. Probe records version/sync/audit exits 0 and invalid pip install argv exit 2. /bin/sh -n returned 0."
+    },
+    {
+      "property": "audit_tls_hash_and_package_semantics",
+      "status": "CONFIRMED_SCOPED",
+      "detail": "No argv rewriting, environment overrides, audit substitution, TLS relaxation or hash bypass. Receipt retains --require-hashes for the successful 20-package sync and --locked for the actual 37-package audit. Existing uv performs validation and determines its exit status."
+    },
+    {
+      "property": "private_nss_and_host",
+      "status": "CONFIRMED_SCOPED",
+      "detail": "Unshare creates a private-propagation mount namespace before binding the supplied NSS file and remounting the bind read-only. Config contains hosts: files dns myhostname; its current hash matches the probe. Reported host NSS before/after hashes are identical: fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6. No fresh live-host readback was performed."
+    },
+    {
+      "property": "product_and_uid",
+      "status": "CONFIRMED_SCOPED",
+      "detail": "Helper targets only the fixed development-tool uv executable; no product/runtime UID override or product configuration edit exists here. --map-root-user gives the tool child namespace-visible UID 0 mapped to the invoking host UID, not host root. Extending dispatch reuses this mapping; product runtime identity was not independently inspected."
+    }
+  ],
+  "verification": {
+    "shell_syntax_exit_code": 0,
+    "helper_and_config_hashes_match_probe": true,
+    "probe_hash_matches_supplied_v2_pin": true,
+    "reported_host_nss_hashes_equal": true,
+    "method": "Static source/config review, local hashing, shell syntax check and parsed receipt validation only; no network, helper execution, generic harness, repository survey or Git operations."
+  },
+  "blockers": [],
+  "limitations": [
+    "The v1 approval does not approve v2; this verdict is independently bound to the three hashes above. No predecessor bytes were reread to establish a historical four-line-only diff or config baseline.",
+    "Probe results are supplied execution evidence, not new reruns. Its uv executable hash was not independently rehashed outside the allowed files.",
+    "A mount/user namespace is not a hostile-code or network sandbox; package operations retain their normal effects.",
+    "Fresh migration-fixture rerun and canonical-suite PASS remain uncredited, as do broader product/runtime acceptance claims."
+  ]
+}

@@ -143,6 +143,7 @@ it('keeps a nested 422 near its field and links the accessible error summary to 
   await user.type(screen.getByLabelText('Seed URLs (one per line)'), 'ftp://invalid');
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   const jump = await screen.findByRole('button', { name: 'application_context.seed_urls.0: Invalid value.' });
+  await waitFor(() => expect(screen.getByText('Check these fields').closest('[role="alert"]')).toHaveFocus());
   expect(screen.getByLabelText('Seed URLs (one per line)')).toHaveAttribute('aria-invalid', 'true');
   await user.click(jump);
   await waitFor(() => expect(screen.getByLabelText('Seed URLs (one per line)')).toHaveFocus());

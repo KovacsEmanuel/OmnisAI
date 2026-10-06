@@ -81,6 +81,7 @@ export function Wizard({ id }: { id?: string }) {
   const pending = useRef<Revision | null>(null);
   const abort = useRef<AbortController | null>(null);
   const lastObserved = useRef<string | null>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
   useEffect(() => () => { abort.current?.abort(); }, []);
   const query = useQuery({ queryKey: ['private', 'draft', id], queryFn: ({ signal }) => readPrivate(() => api.draft(id ?? '', signal), signal),
     enabled: !!id && !!session.data && !session.isError && transition === 'idle', retry: false, networkMode: 'always',
@@ -118,6 +119,7 @@ export function Wizard({ id }: { id?: string }) {
       const firstField = problems.find(problem => problem.field !== 'body');
       if (firstField) setStep(stepFor(firstField.field));
       setNotice('Check the indicated fields before saving.');
+      requestAnimationFrame(() => summaryRef.current?.focus());
     }
   }
   async function confirm(receipt: Revision, snapshot: Draft, signal: AbortSignal) {
@@ -211,8 +213,8 @@ export function Wizard({ id }: { id?: string }) {
         <output aria-live="polite">{phase === 'checking' ? 'Checking saved revision…' : lock ? 'Saving…' : phase === 'conflict' ? 'Conflict · local edits preserved' :
           phase === 'stale' ? 'Unconfirmed readback' : phase === 'uncertain' ? 'Save outcome uncertain' :
           dirty ? 'Unsaved changes' : `Saved · revision ${saved?.revision}`}</output>
-        {notice && <p role="alert">{notice}</p>}
-        {errors.length > 0 && <div role="alert" className={styles.summary} tabIndex={-1}>
+        {notice && <p role={errors.length ? undefined : 'alert'}>{notice}</p>}
+        {errors.length > 0 && <div ref={summaryRef} role="alert" className={styles.summary} tabIndex={-1}>
           <h3>Check these fields</h3><ul>{errors.map((error, index) => <li key={`${error.field}-${index}`}>
             {error.field === 'body' ? <span>Draft exceeds the 1,000,000-byte aggregate limit. Shorten context, scope or matrix entries.</span> :
               <button type="button" onClick={() => { setStep(stepFor(error.field)); requestAnimationFrame(() => document.getElementById(fieldId(error.field))?.focus()); }}>

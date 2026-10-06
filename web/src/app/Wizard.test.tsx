@@ -149,6 +149,26 @@ it('keeps a nested 422 near its field and links the accessible error summary to 
   expect(screen.getByLabelText('Seed URLs (one per line)')).toHaveValue('ftp://invalid');
 });
 
+it('shows an aggregate body 422 as a global error without a broken focus link', async () => {
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (init?.method === 'PUT') return new Response(JSON.stringify({ error: { code: 'INVALID_INPUT', correlation_id: engagementId,
+      field_errors: [{ field: 'body', code: 'TOO_LONG' }] } }), { status: 422 });
+    return new Response(JSON.stringify(revision));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const name = await screen.findByLabelText('Engagement name');
+  await waitFor(() => expect(name).toHaveValue(payload.name));
+  await user.clear(name);
+  await user.type(name, 'Still my local draft');
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  expect(await screen.findByText(/Draft exceeds the 1,000,000-byte aggregate limit/)).toBeVisible();
+  expect(screen.queryByRole('button', { name: /body: Exceeds/ })).not.toBeInTheDocument();
+  expect(name).toHaveValue('Still my local draft');
+});
+
 it('switches between cached engagement IDs without exposing the previous editable draft or accepting its delayed GET', async () => {
   const otherId = '00000000-0000-4000-8000-000000000030';
   const other = { ...revision, engagement_id: otherId, payload: { ...payload, name: 'Other authorized draft' } };

@@ -106,7 +106,11 @@ export function Wizard({ id }: { id?: string }) {
   }
   function showErrors(problems: FieldError[]) {
     setErrors(problems);
-    if (problems.length) { setStep(stepFor(problems[0]!.field)); setNotice('Check the indicated fields before saving.'); }
+    if (problems.length) {
+      const firstField = problems.find(problem => problem.field !== 'body');
+      if (firstField) setStep(stepFor(firstField.field));
+      setNotice('Check the indicated fields before saving.');
+    }
   }
   async function confirm(receipt: Revision, snapshot: Draft, signal: AbortSignal) {
     const verified = await readPrivate(() => api.draft(receipt.engagement_id, signal), signal);
@@ -195,8 +199,9 @@ export function Wizard({ id }: { id?: string }) {
         {notice && <p role="alert">{notice}</p>}
         {errors.length > 0 && <div role="alert" className={styles.summary} tabIndex={-1}>
           <h3>Check these fields</h3><ul>{errors.map((error, index) => <li key={`${error.field}-${index}`}>
-            <button type="button" onClick={() => { setStep(stepFor(error.field)); requestAnimationFrame(() => document.getElementById(fieldId(error.field))?.focus()); }}>
-              {error.field}: {errorText[error.code]}</button></li>)}</ul></div>}
+            {error.field === 'body' ? <span>Draft exceeds the 1,000,000-byte aggregate limit. Shorten context, scope or matrix entries.</span> :
+              <button type="button" onClick={() => { setStep(stepFor(error.field)); requestAnimationFrame(() => document.getElementById(fieldId(error.field))?.focus()); }}>
+                {error.field}: {errorText[error.code]}</button>}</li>)}</ul></div>}
         <fieldset disabled={lock} className={styles.form}>
           {step === 0 && <>
             <Field path="name" label="Engagement name" errors={errors}>{props => <input {...props} value={form.name} onChange={event => change({ ...form, name: event.target.value }, 'name')} />}</Field>

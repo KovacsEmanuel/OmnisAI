@@ -26,6 +26,11 @@ check-components: check-docs check-development check-api test-api test-migration
 test-db-contract:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_fixture_ownership.py api/tests/test_database_url.py -v
 
+.PHONY: test-dashboard
+test-dashboard:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_dashboard.py -q
+
 .PHONY: test-p1-api
 test-p1-api:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }

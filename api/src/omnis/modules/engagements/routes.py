@@ -9,6 +9,12 @@ from fastapi import APIRouter, Header, Query, Request, Response
 from starlette.responses import JSONResponse
 
 from omnis.core.errors import FieldError, error_responses
+from omnis.modules.engagements.dashboard import (
+    PAGE_PATTERN,
+    ProjectionEnvelope,
+    dashboard_projection,
+    page_after,
+)
 from omnis.modules.engagements.schemas import (
     EngagementDraft,
     EngagementPage,
@@ -23,6 +29,25 @@ from omnis.modules.engagements.service import (
 from omnis.security.host_origin import error_response
 
 router = APIRouter(prefix="/api/v1/engagements")
+dashboard_router = APIRouter(prefix="/api/v1")
+
+
+@dashboard_router.get(
+    "/dashboard", response_model=ProjectionEnvelope, responses=error_responses(401, 422, 503)
+)
+async def read_dashboard(
+    request: Request,
+    limit: int = Query(default=20, ge=1, le=50),
+    after: str | None = Query(default=None, max_length=42, pattern=PAGE_PATTERN),
+) -> ProjectionEnvelope | JSONResponse:
+    try:
+        page_after(limit, after)
+    except ValueError:
+        return error_response("INVALID_INPUT", 422)
+    async with asyncio.timeout(3):
+        return await dashboard_projection(request.app.state.db_engine, limit, after)
+
+
 ETAG_PATTERN = r'^"rev-([1-9][0-9]*)-([0-9a-f]{64})"$'
 COMMAND_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 

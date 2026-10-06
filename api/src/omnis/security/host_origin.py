@@ -128,7 +128,9 @@ class LocalBoundary:
                 and len(scope["path"].split("/")) == 6
             )
             if (
-                not (scope["path"] == "/api/v1/engagements" or revisions_query)
+                not (
+                    scope["path"] in {"/api/v1/engagements", "/api/v1/dashboard"} or revisions_query
+                )
                 or scope["method"] != "GET"
                 or len(query) > 256
             ):

@@ -26,8 +26,11 @@ def main() -> None:
             connection.execute(
                 "UPDATE ui_session SET expires_at = clock_timestamp() - interval '1 second'"
             )
-        elif operation == "block-db":
-            connection.execute("LOCK TABLE instance_control IN ACCESS EXCLUSIVE MODE")
+        elif operation in {"block-db", "block-dashboard"}:
+            if operation == "block-dashboard":
+                connection.execute("LOCK TABLE engagement IN ACCESS EXCLUSIVE MODE")
+            else:
+                connection.execute("LOCK TABLE instance_control IN ACCESS EXCLUSIVE MODE")
             print("DB_LOCKED", flush=True)
             select.select([sys.stdin], [], [], 25)
         else:

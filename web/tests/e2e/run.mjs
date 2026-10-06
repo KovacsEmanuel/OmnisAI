@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 import { assertSecretFree } from './leaks.mjs';
+import { runB03 } from './b03.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -96,6 +97,9 @@ async function pair(code) {
 async function paired() {
   const grant = await issue();
   await pair(grant.code);
+  // The diagnostic P0 surface now lives under global Settings, not Home.
+  await check(page.getByLabel('Pairing code')).toHaveCount(0);
+  await page.goto(`${origin}/settings/runtime`);
   await check(page.getByText(grant.status.instance_id, { exact: true })).toBeVisible();
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   const cookie = (await context.cookies()).find(item => item.name === 'omnis_session');
@@ -143,7 +147,9 @@ try {
   }
   await page.goto(origin);
   await check(page.getByLabel('Pairing code')).toBeVisible();
-  if (scenario === 'flow') {
+  if (scenario === 'b03') {
+    await runB03({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
+  } else if (scenario === 'flow') {
     const foreignHost = await context.request.get(`${origin}/health/live`, { headers: { Host: 'attacker.invalid', 'X-Forwarded-Host': new URL(origin).host } });
     assert.equal(foreignHost.status(), 400);
     const foreignOrigin = await context.request.post(`${origin}/api/pairing`, { headers: { Origin: 'null' }, data: { code: 'synthetic-invalid-origin-code' } });

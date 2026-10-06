@@ -10,7 +10,7 @@ import { App } from './App';
 
 function mount() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/runtime']}><App /></MemoryRouter></QueryClientProvider>);
   return client;
 }
 

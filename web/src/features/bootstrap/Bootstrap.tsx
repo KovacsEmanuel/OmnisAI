@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
 import { api } from '../../shared/api/client';
 import { ApiError } from '../../shared/api/errors';
 import { copy, readinessCopy } from './copy';
 import { PairingForm } from './PairingForm';
-import { useBrowserSession } from './useBrowserSession';
+import { useSession } from './BrowserSession';
 import fontLicense from '../../shared/styles/fonts-OFL.txt?url';
 import styles from './Bootstrap.module.css';
 
@@ -23,7 +22,7 @@ function Failure({ error, retry }: { error: unknown; retry: () => void }) {
 }
 
 export function Bootstrap() {
-  const { session, transition, notice, logoutError, pair, logout, expire } = useBrowserSession();
+  const { session, transition, notice, logoutError, pair, logout, readPrivate } = useSession();
   const logoutPending = transition === 'logout';
   const heading = useRef<HTMLHeadingElement>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -32,18 +31,12 @@ export function Bootstrap() {
     return () => clearInterval(timer);
   }, []);
   const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => api.health(signal), networkMode: 'always', retry: false, refetchInterval: 5000 });
-  const status = useQuery({ queryKey: ['instance'], queryFn: ({ signal }) => api.instance(signal),
+  const status = useQuery({ queryKey: ['instance'], queryFn: ({ signal }) => readPrivate(() => api.instance(signal), signal),
     enabled: !!session.data && !session.isError && transition === 'idle', networkMode: 'always', retry: false, refetchInterval: 5000 });
 
   useEffect(() => {
     if (notice) heading.current?.focus();
   }, [notice]);
-
-  useEffect(() => {
-    if (status.error instanceof ApiError && status.error.code === 'UNAUTHENTICATED') {
-      expire();
-    }
-  }, [status.error, expire]);
 
   const ready = health.data;
   const healthUnverified = health.isError || health.fetchStatus === 'paused' || (!!ready && now - health.dataUpdatedAt > 15000);
@@ -54,15 +47,7 @@ export function Bootstrap() {
   const statusLabel = status.data ? (statusUnverified ? copy.stale : copy.live) : copy.noConfirmedStatus;
 
   return <>
-    <a className={styles.skip} href="#content">{copy.skip}</a>
-    <header className={styles.header}><nav className={styles.nav} aria-label="Main navigation">
-      <Link className={styles.brand} to="/">{copy.brand}</Link>
-      <Link to="/" aria-current="page">{copy.home}</Link>
-      <button disabled aria-describedby="engagement-unavailable">{copy.engagement}</button>
-      <button disabled aria-describedby="settings-unavailable">{copy.settings}</button>
-      <span className={styles.small}>{copy.local}</span>
-    </nav></header>
-    <main id="content" tabIndex={-1} className={styles.main}>
+    <div>
       <div className={styles.runbar}>
         <div><span className={styles.eyebrow}>{copy.runControls}</span> <span className={styles.pill}>{copy.notRun}</span></div>
         <div className={styles.actions}><button disabled aria-describedby="run-unavailable">{copy.start}</button><button className={styles.stop} disabled aria-describedby="run-unavailable">{copy.stop}</button></div>
@@ -111,12 +96,7 @@ export function Bootstrap() {
           <div><dt>{copy.finalized}</dt><dd>{status.data.shutdown_finalized ? copy.yes : copy.no}</dd></div>
         </dl>}
       </Panel>}
-      <h2 className={styles.sectionTitle}>{copy.futureTitle}</h2>
-      <div className={styles.future}>
-        <Panel title={copy.engagement}><span className={styles.pill}>{copy.unavailable}</span><p id="engagement-unavailable">{copy.engagementReason}</p></Panel>
-        <Panel title={copy.settings}><span className={styles.pill}>{copy.unavailable}</span><p id="settings-unavailable">{copy.settingsReason}</p></Panel>
-      </div>
       <footer className={styles.footer}>{copy.footer} · <a href={fontLicense}>Font license</a></footer>
-    </main>
+    </div>
   </>;
 }

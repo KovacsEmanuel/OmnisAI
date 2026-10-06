@@ -1,0 +1,25 @@
+.hero { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); align-items: center; gap: 64px; padding: 24px 0 32px; }
+.hero h1 { font-size: 60px; line-height: 1.02; font-weight: 600; letter-spacing: -.04em; margin: 16px 0; }
+.hero h1 span { color: var(--color-primary); }
+.kicker, .metadata { color: var(--color-secondary); }
+.kicker { letter-spacing: .06em; font-size: 14px; }
+.action, .create { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 12px 24px; border: 1px solid var(--color-border); border-radius: var(--radius-pill); text-decoration: none; }
+.panel { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 5px; background: var(--color-elevated); min-width: 0; }
+.core { border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 24px; background: var(--color-surface); height: 100%; }
+.core h2, .metric h2, .pulse h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+.metric { padding: 20px 22px; }
+.metric h2 { font-size: 14px; }
+.unknown { font-size: 20px; font-weight: 500; }
+.start p:last-child { color: var(--color-secondary); font-size: 14px; }
+.start .action { width: fit-content; margin-top: 24px; background: var(--color-selected); color: var(--color-text); }
+.value { font-size: 36px; line-height: 1; font-variant-numeric: tabular-nums; }
+.pulse { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; margin: 24px 0; border: 1px solid var(--color-divider); border-radius: var(--radius-md); background: var(--color-surface); }
+.bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.bento article:first-child { grid-column: span 2; }
+.bento h3 { font-size: 28px; font-weight: 500; margin: 16px 0; }
+.metadata { font-family: var(--font-mono); overflow-wrap: anywhere; font-size: 14px; }
+.bento h3 a { display: inline-flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
+.create { border-radius: var(--radius-lg); background: var(--color-surface); }
+.pages { display: flex; flex-wrap: wrap; gap: 16px; margin: 24px 0; }
+@media (max-width: 1023px) { .hero { grid-template-columns: minmax(0,1fr); gap: 24px; } .pulse { align-items: start; flex-direction: column; } .hero h1 { font-size: 40px; } .metrics, .bento { grid-template-columns: minmax(0, 1fr); } .bento article:first-child { grid-column: auto; } }

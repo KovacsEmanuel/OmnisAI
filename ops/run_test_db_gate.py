@@ -1036,6 +1036,7 @@ def main() -> int:
             "test-p1-concurrency",
             "test-p1-fields",
             "test-dashboard",
+            "test-b03-e2e",
         ),
         default="check-components",
     )

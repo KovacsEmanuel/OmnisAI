@@ -1,0 +1,15 @@
+export const engagementCopy = {
+  overview: 'Overview', stream: 'Brain stream', findings: 'Findings', coverage: 'Coverage', reports: 'Reports', setup: 'Setup',
+  dashboard: 'Dashboard', loading: 'Loading engagement…', retry: 'Try again', refresh: 'Refresh engagement',
+  unavailable: 'UNAVAILABLE', future: 'This surface is not implemented for this draft. No assessment has run.',
+  readOnly: 'Persisted draft · read-only', notRun: 'NOT_RUN', start: 'Start assessment',
+  runReason: 'Assessment execution is unavailable. Selecting this draft does not start a run.',
+  identity: 'Engagement ID', revisionId: 'Scope revision ID', revision: 'Revision', digest: 'Digest',
+  mode: 'Assessment mode', objective: 'Obiectiv / instrucțiuni pentru Brain', scope: 'Authorized scope',
+  port: 'Port', prefix: 'Path prefix', exclusions: 'Exclusions', none: 'None',
+  stale: 'STALE — showing the last confirmed engagement, not current state.',
+  invalid: 'UNAVAILABLE — invalid engagement identifier.',
+  settings: 'Settings', providers: 'Providers', skills: 'Skills', runtime: 'Runtime & data',
+  settingsReason: 'UNAVAILABLE — configuration is not implemented. Startup connects no provider and runs no assessment.',
+  routeReason: 'UNAVAILABLE — this route is not implemented.',
+};

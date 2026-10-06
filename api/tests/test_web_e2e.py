@@ -30,7 +30,7 @@ def e2e_family(migrated_database_url: URL) -> Iterator[OwnedChildren]:
 
 
 @pytest.mark.parametrize(
-    "case", ["flow", "expiry", "control", "database", "api", "offline", "accessibility"]
+    "case", ["flow", "expiry", "control", "database", "api", "offline", "accessibility", "b03"]
 )
 def test_built_web_against_real_control_plane(
     migrated_database_url: URL, ipc_directory: Path, e2e_family: OwnedChildren, case: str

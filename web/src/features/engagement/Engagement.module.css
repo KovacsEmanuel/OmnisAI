@@ -1,0 +1,15 @@
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.back { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+.heading h1 { font-size: 40px; line-height: 1.08; font-weight: 500; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+.tabs a { border: 1px solid var(--color-border); border-radius: var(--radius-pill); text-decoration: none; padding: 12px 16px; min-height: 44px; }
+.tabs a[aria-current=page] { background: var(--color-selected); color: var(--color-text); }
+.panel { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 5px; background: var(--color-elevated); }
+.core { border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 24px; background: var(--color-surface); }
+.details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.details dd, .scope dd { margin: 0; font-family: var(--font-mono); overflow-wrap: anywhere; white-space: pre-wrap; }
+.details dt, .scope dt { color: var(--color-secondary); }
+.objective { white-space: pre-wrap; overflow-wrap: anywhere; }
+.scope { border-top: 1px solid var(--color-divider); }
+.scope h3 { overflow-wrap: anywhere; }
+@media (max-width: 1023px) { .heading { flex-direction: column; align-items: start; } .heading h1 { font-size: 30px; } .details { grid-template-columns: minmax(0, 1fr); } }

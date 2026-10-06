@@ -21,10 +21,11 @@ const nullValue = (value: unknown): value is null => value === null;
 const url = (value: unknown): value is string => {
   if (!text(value, 1, 2048)) return false;
   const authority = value.match(/^https?:\/\/([^/?#]*)/)?.[1];
-  if (!authority || authority.endsWith(':')) return false;
+  if (!authority || authority.endsWith(':') || authority.includes('@')) return false;
   try {
     const parsed = new URL(value);
-    return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.hash;
+    return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.hash &&
+      (parsed.port === '' || Number(parsed.port) >= 1);
   } catch { return false; }
 };
 const origin = (value: unknown): value is string => {

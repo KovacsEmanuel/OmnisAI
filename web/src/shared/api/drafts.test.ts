@@ -80,6 +80,18 @@ it('rejects an origin or seed URL with an invalid empty port delimiter on the sa
   }
 });
 
+it('matches API seed URL denials for empty userinfo and port zero without rejecting a valid port', () => {
+  for (const seed of ['https://@synthetic.invalid:443/api', 'https://synthetic.invalid:0/api']) {
+    const context = { ...payload.application_context, seed_urls: [seed] };
+    expect(() => decodeRevision({ ...view, payload: { ...payload, application_context: context } }, id))
+      .toThrowError(ApiError);
+  }
+  const valid = 'https://synthetic.invalid:443/api';
+  const context = { ...payload.application_context, seed_urls: [valid] };
+  expect(decodeRevision({ ...view, payload: { ...payload, application_context: context } }, id).payload)
+    .toMatchObject({ application_context: { seed_urls: [valid] } });
+});
+
 it('refuses a duplicate revision write receipt rather than reporting a newer confirmed draft', async () => {
   const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ ...view, revision: 1 })));
   vi.stubGlobal('fetch', fetcher);

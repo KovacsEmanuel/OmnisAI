@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "report_id": "omnis-b03-final-acceptance-rereview",
+  "report_path": "/home/kali/.hermes/cache/scratch/omnis-b03-final-review.json",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "blocking_findings": [],
+  "summary": "B03-A01 este remediat minimal pe bytes verificați; controlul pozitiv trece și shrink-ul în memorie este respins pe același canal de geometrie. Re-review-ul independent al întregului perimetru bounded P1-C/B03 nu a confirmat alt blocker. Aprobarea privește codul și comportamentele B03 delimitate, nu închiderea SL06/B04/G01, aprobarea estetică sau certificarea universală de accesibilitate. Integrarea/comiterea și reconcilierea statusului aparțin părintelui.",
+  "scope": {
+    "repo": "/home/kali/OmnisAI",
+    "slice": "P1-C / SL06-B03",
+    "mode": "READ_ONLY_PRODUCT",
+    "normative_sources": [
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "documents/verification/p1-implementation-prompt.md:30-34,42-44",
+      "documents/Omnis_UI_UX_Spec.md:9-48,75-117,173-219,238-240",
+      "documents/Omnis_MVP_Architecture.md:496-513",
+      "documents/Omnis_Implementation_Plan.md:227-233"
+    ],
+    "loaded_local_skills": ["omnis-review-qa", "omnis-project-status", "omnis-reticle", "omnis-chisel", "omnis-accessibility", "omnis-frontend"],
+    "additional_skill": "requesting-code-review",
+    "included": [
+      "Fixul B03-A01 și regresia/controalele de geometrie",
+      "Dashboard global real, tipizat, coerent și paginat bounded",
+      "Contracte OpenAPI și TS generate, decodarea runtime a câmpurilor consumate",
+      "Client same-origin, auth/expiry/cancel/late-response fencing și sanitizarea erorilor",
+      "Listă, selectare, reload și citirea identității/reviziei/obiectivului/scopeului draftului",
+      "Separarea Home/Engagement/Settings; New și Setup navigabile, inerte",
+      "Loading/empty/error/stale/unavailable și interdicția metricilor fictive",
+      "Accesibilitate și responsive bounded, capturi reale și simplitatea implementării"
+    ],
+    "excluded": [
+      "B04: wizard, Save/Next/Back, editări, validare per câmp și G01",
+      "B05 și runtime Hermes, modele, provideri, targets, assessment/run, SSE, findings/coverage/reports reale",
+      "Deployment, instalare peste P0 existent, upgrade/backup/restaurare și CI remote",
+      "Activare Reticle/Chisel sau schimbări ale statusului global"
+    ],
+    "protected_document": "documents/Omnis_Notite_Originale.html — necitit și neatins",
+    "product_files_written": [],
+    "global_status_changed": false,
+    "commits_created": false,
+    "services_database_docker_api_tests_started_by_reviewer": false,
+    "only_deliverable_write": "/home/kali/.hermes/cache/scratch/omnis-b03-final-review.json"
+  },
+  "snapshot": {
+    "base_head": "cdcc590590668a8e9187a59fdd5855bc4312071d",
+    "head_at_final_verification": "cdcc590590668a8e9187a59fdd5855bc4312071d",
+    "branch": "p04-control-topology-wip",
+    "api_commit": "510aa50",
+    "contract_commit": "d7a5443",
+    "manifest_path": "/home/kali/.hermes/cache/scratch/omnis-b03-final-source-snapshot.json",
+    "manifest_file_sha256": "5cce2becb58dd5892b8df34cca5ea7019b1a8b3f9839a62f3d3a3e15948e1be9",
+    "snapshot_fingerprint": "71f28fdd4488ff4101172315f2050c147202b4e51e9237db084190bb0dbd34e6",
+    "fingerprint_algorithm": "SHA256(json.dumps({relative_path: actual_file_sha256}, sort_keys=True, separators=(',', ':')).encode())",
+    "source_count": 31,
+    "modified_tracked": 13,
+    "intended_untracked": 18,
+    "all_file_hashes_match": true,
+    "start_end_identical": true,
+    "mismatches": [],
+    "previous_manifest_path": "/home/kali/.hermes/cache/scratch/omnis-b03-source-snapshot.json",
+    "previous_fingerprint": "996d3a9b8c7588adcb73231ffeee0065c1309d8e4a60f0c0f7555f25610c7b81",
+    "changed_vs_previous_manifest": [
+      "web/src/features/engagement/Engagement.module.css",
+      "web/src/features/engagement/Engagement.tsx",
+      "web/tests/e2e/b03.mjs"
+    ],
+    "files": {
+      "Makefile": "91c04c0349fd76d4533d272f1ab8c53e15a9ce9fda094f85de62e293037ae518",
+      "api/src/omnis/api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "api/tests/test_web_assets.py": "8d810e2f30599fc1d39ed5c151fb3160a8ad9f1e0ba0c1acd3dcbd2a0a40f279",
+      "api/tests/test_web_e2e.py": "984f41f4bdcf637933717cc93e10330223125b2e273bb12916d0778c015947da",
+      "api/tests/web_fault.py": "e5430893eefa786d2eaeac83e6bbf8f6913c79383cb14450c0302835a60e94cc",
+      "ops/run_test_db_gate.py": "9b1a70cca957d3d40bbcbde8e01eae86f82443964f647528f0b334315a736120",
+      "web/src/app/App.test.tsx": "5ec96bf5ed8993ca538134d09eb02a302f666229cde8a23e5753709f851a6dd1",
+      "web/src/app/App.tsx": "31f95b5114ba3057129f05baf3cb55ccb1896f45ad3c899072639340a67e2413",
+      "web/src/app/Dashboard.test.tsx": "d2f873f8efae4b392e3fd66688971cedafb248a747cd9246f440deb178a8b2a7",
+      "web/src/app/Engagement.test.tsx": "9469b45c370c610df2adf42668207f1b4f2b21bb9c28dd63a0edc94b76020645",
+      "web/src/app/ProjectionStates.test.tsx": "e749bb91afed2d0dc6da01382a16a9560a9651811db1eb42821d118aef49dd57",
+      "web/src/app/Shell.module.css": "3a8267ff8e651fe5907634f2ab83513c103c923212bfcbdbc92f02723d28e478",
+      "web/src/app/Shell.test.tsx": "775ba1a6c9d6ee926e511651b1632e94967d901ab6ed79e470d7cb388a210d60",
+      "web/src/features/bootstrap/Bootstrap.tsx": "5f1e915546a27101d9fd3a8727ef5b70527e2ade7a76dd35cfe48ea8149f2f21",
+      "web/src/features/bootstrap/BrowserSession.tsx": "615081dc55b064f94981e80aa1cb6072a2d68f2894248d7eeafe2af0c5172b24",
+      "web/src/features/bootstrap/useBrowserSession.ts": "0a39a3716b30f5499806008425b8e95d72c61d6b794080a2cec197f5781160e7",
+      "web/src/features/dashboard/Dashboard.module.css": "4fbbfa7f75639bba2349ac58e1564b09f5689e99c0f84ac1a3290c2c8b79b899",
+      "web/src/features/dashboard/Dashboard.tsx": "e7e5b7b6e6244899c6b32d511196a7a574a9b6dfdc80d106106553ee3d225641",
+      "web/src/features/dashboard/copy.ts": "0990590684fcac1d889296c5b33731f9ec249adf8256579ea0474f565e25b81e",
+      "web/src/features/engagement/Engagement.module.css": "8e6ebf45e56a40612cf9ec38b8f869730f6bc35a79be9de3cea42c7822c01845",
+      "web/src/features/engagement/Engagement.tsx": "d267a1b20ab6352806266b683e7837102f3a301ee9cefd6260727074030ad648",
+      "web/src/features/engagement/Settings.tsx": "26ca0f6a66e69a90ac1ae5d831d2571a5f76ace4d4ea1908d803cc1bcd0e1bc3",
+      "web/src/features/engagement/copy.ts": "7897718101f45f396688847c791940a41d17ced65b5f7de28f4fc41ddca5f481",
+      "web/src/shared/api/client.ts": "6203d9ab36802886912dc4854d44ebf11c9f0b5b4f2c7274e2f3f8b95093ddab",
+      "web/src/shared/api/projections.test.ts": "1a8dcd8c6145a0d74bcb5b84e9290d1e5dfe1d0caa69fc8197fca0046eab6546",
+      "web/src/shared/api/projections.ts": "ff53150e13add798768be23e3dafbf9781f3053f1778d401e3c3f16e15ee6ecd",
+      "web/src/shared/useObservationClock.ts": "be473d8438d44ff5c9816fb45a3056c3ab518d3c2d2cf2083623b93e2ad419ab",
+      "web/tests/e2e/b03.mjs": "5c19c36b819d651ad154681c7b725975887a10813944859462efb1021015f8da",
+      "web/tests/e2e/run.mjs": "a4136317e14103c35304abc612ad18f66f50c25926692be26c9c6db3e023fe63",
+      "web/tests/projection-fixtures.ts": "652ba8a91d8fb9bcabd4744264f8768d680d39ea92370d99bc1fd39311fec3d5",
+      "web/tests/setup.ts": "e802ed3915f4e201c843356d58840d61e1f204935fc13b0dfcbffe9f427e90f1"
+    },
+    "additional_unchanged_HEAD_bindings": {
+      "api/src/omnis/modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "api/src/omnis/modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "api/src/omnis/security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "api/tests/test_dashboard.py": "16456de1b9ec636cfde6e3de9b6afa52061581e3e7378c5b1d087ef6e9940b32",
+      "contracts/omnis.openapi.json": "1e38d00a36d60f4486339e579e63f3ad7fc0d66d2172252d0c8836dd4cbdf37e",
+      "web/src/shared/api/generated.ts": "810e43825c0df175af7da1e86ef7fd26576a4bf5675667e527ce08387a6594ec"
+    },
+    "binding_limit": "Verdictul nu se transferă unor editări ulterioare, altui worktree sau commituri care schimbă bytes relevante. Checkoutul conține modificări B03 încă necomise; nu declară DONE/integrare finală."
+  },
+  "closed_findings": [
+    {
+      "id": "B03-A01",
+      "severity": "P2",
+      "status": "CLOSED_SCOPED",
+      "locations": ["web/src/features/engagement/Engagement.tsx:12", "web/src/features/engagement/Engagement.tsx:25", "web/src/features/engagement/Engagement.module.css:2"],
+      "requirement": "UI/UX §6:194 — touch targets minimum 44px; U07 pentru fluxurile implementate",
+      "minimal_fix": "Cele două backlinkuri folosesc styles.back; o singură regulă CSS locală display:inline-flex, align-items:center, min-height:44px, min-width:44px. Fără redesign sau logică nouă.",
+      "minimality_verification": "Înlăturarea doar în memorie a celor două className, a regulii .back și a celor patru linii noi de assertions E2E reproduce exact SHA256 anterioare din manifest pentru toate cele trei fișiere; exit0. Nu există altă schimbare ascunsă în aceste fișiere.",
+      "old_hashes": {
+        "web/src/features/engagement/Engagement.tsx": "9d88757a1f787493a92e0f9211173861d04fcef9ce550460bf66d8f1162efae5",
+        "web/src/features/engagement/Engagement.module.css": "64ac766e40d77bc6b5182ee26ecaa4072492d7c3c5a2846f692f990dd6231dc7",
+        "web/tests/e2e/b03.mjs": "3731d9097f524c2c69d95520cccce2e52cfc2b5dec5c0dcd73faca09a95b3acb"
+      },
+      "independent_positive_control": {
+        "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH node /home/kali/.hermes/cache/scratch/omnis-b03-backlink-probe.cjs",
+        "exit_code": 0,
+        "boundary": "App/CSS reale randate SSR cu stare unit seeduită; toate requesturile browserului sunt abortate; fără API/PG. CSS/fonturile sursă sunt incluse; fără a atribui disponibilitatea universală a fonturilor.",
+        "attempted_network_requests": 0,
+        "measurements": [
+          {"viewport_width": 390, "route": "/engagements/new", "height_px": 44, "width_px": 78.421875},
+          {"viewport_width": 390, "route": "/engagements/00000000-0000-4000-8000-000000000010/setup", "height_px": 44, "width_px": 98.078125},
+          {"viewport_width": 1440, "route": "/engagements/00000000-0000-4000-8000-000000000010/setup", "height_px": 44, "width_px": 89.75}
+        ]
+      },
+      "independent_negative_control": {
+        "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH OMNIS_GEOMETRY_CONTROL=shrink node /home/kali/.hermes/cache/scratch/omnis-b03-backlink-probe.cjs",
+        "expected_exit": 1,
+        "actual_exit": 1,
+        "attempted_network_requests": 0,
+        "same_measurement_channel": true,
+        "mutation_only_in_memory": "main > a { display:inline !important; min-height:0 !important; }",
+        "observed_heights_px": [21, 21, 19],
+        "reason": "Observerul trece pe componenta fixată și respinge exact reducerea geometrică a backlinkului; nu este always-rejecting sau un eșec arbitrar."
+      },
+      "real_integration_red": {
+        "owner": "părinte; log și receipt citite de reviewer",
+        "fixture": "db-f780292773654fd8",
+        "exit_code": 2,
+        "result": "1 failed, 7 deselected; AssertionError: Setup backlink target below 44px at 320, b03.mjs:74",
+        "receipt": {"schema_version": 1, "code": 2, "family_drained": true},
+        "cleanup": "Cleanup exact propriu raportat de părinte; reviewerul nu a contactat Docker/PG."
+      },
+      "real_integration_green": {
+        "owner": "părinte; log și receipt citite, nu inferat din procesul anterior în curs",
+        "fixture": "db-52e427d378184f00",
+        "command": "ops/run_test_db_gate.py --check --target test-b03-e2e --uv /home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv, cu PATH reboot-bin",
+        "exit_code": 0,
+        "result": "1 passed, 7 deselected in 21.76s; Chromium 153.0.8010.12",
+        "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+        "regression_locations": ["web/tests/e2e/b03.mjs:68-85"],
+        "assertions": "New și Setup, fiecare la320/390/1280/1440: boundingBox height>=44 și width>=44. Sunt 8 scenarii de backlink pe browser/API/PG reale.",
+        "browser_result": {"scenario": "b03", "passed": true, "requestCount": 150, "externalRequests": 0, "pageErrors": 0, "secretChecks": true, "server_log_secret_check": true, "cleanup_verified": true},
+        "cleanup_limit": "family_drained și cleanup_verified au fost citite; absenta fizică a CID/rețelei/socketului DB este readbackul părintelui, nu o nouă atestare Docker a reviewerului."
+      }
+    }
+  ],
+  "requirement_code_evidence_matrix": [
+    {
+      "area": "Conformitate B03 și inerție",
+      "result": "COVERED_SCOPED",
+      "code": ["web/src/app/App.tsx:24-43", "web/src/features/engagement/Engagement.tsx:11-48", "web/src/features/engagement/Settings.tsx:5-9"],
+      "evidence": "New/Setup explică B04 UNAVAILABLE; niciun formular Save/Next/Back și nicio mutație draft de UI; Start disabled cu motiv. Unit Engagement și traseul E2E real verifică select/reload/Setup/New și lista de mutații goală. Home, engagementul selectat și Settings au scope distinct.",
+      "limit": "B03 nu implementează wizardul sau niciun rezultat de run."
+    },
+    {
+      "area": "Proiecție globală și snapshot coerent",
+      "result": "COVERED_SCOPED",
+      "code": ["api/src/omnis/modules/engagements/dashboard.py:81-129", "api/tests/test_dashboard.py:20-159"],
+      "evidence": "Count global, as_of și headurile drafturilor se citesc într-o singură tranzacție SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY; connection/transaction sunt închise înainte de decodare/răspuns. Testul real separă writerul între count/page și cere repeatable read/on, prima citire goală și următoarea cu noul draft. Testele API fac parte din gate-ul canonic anterior fixului CSS, citit cu394 passed; acest cod API este byte-for-byte HEAD și neschimbat de fix.",
+      "limit": "Nu am rerulat API/PG. Fiecare pagină are snapshot nou; fără time-travel între clickuri."
+    },
+    {
+      "area": "Paginare bounded și autoritate",
+      "result": "COVERED_SCOPED",
+      "code": ["api/src/omnis/modules/engagements/dashboard.py:15-18,70-78,105-128", "web/src/features/dashboard/Dashboard.tsx:14-22,46", "web/src/shared/api/client.ts:47-54"],
+      "evidence": "API limit1..50, query parametrizat, keyset UUID și limit+1; d1.<limit>.<UUID> leagă endpointul/sortarea/limita, nu este autoritate. Web folosește limit20 și păstrează o proiecție completă stale până la înlocuire, fără append sau sumă client. Testele unit și E2E real arată total23 pentru paginile20+3; API testează5 drafturi pe pagini2, fără duplicate și respinge cursor străin/limită modificată.",
+      "limit": "Nu promite ordine cronologică, snapshot identic între pagini sau cursor global SSE."
+    },
+    {
+      "area": "Auth, same-origin și expiry",
+      "result": "COVERED_SCOPED",
+      "code": ["api/src/omnis/security/host_origin.py:104-155,179-209", "web/src/shared/api/client.ts:10-18,76-86", "web/src/features/bootstrap/useBrowserSession.ts:9-136", "web/src/app/App.tsx:35"],
+      "evidence": "Host/Origin, cookie, query allowlist și CSRF la mutații rămân active; GET B03 nu este o excepție de autentificare și nu cere CSRF ca o mutație. Fetch este same-origin/no-store/redirect:error cu timeout și abort. Writer unic de sesiune + epoch/cancel purjează private/instance; teste cu răspunsuri vechi după logout și după pairing, 401 Dashboard/selected și zero fetch privat înaintea sesiunii au trecut. E2E real expire-session prin PG elimină datele private și cere pairing după reload.",
+      "limit": "Sesiunea locală single-user existentă, nu multi-tenant/public deployment; nu dovadă universală de egress."
+    },
+    {
+      "area": "Contract generat și decodare runtime",
+      "result": "COVERED_SCOPED",
+      "code": ["web/src/shared/api/generated.ts:71,228-292,542-612", "web/src/shared/api/projections.ts:1-76", "web/src/shared/api/projections.test.ts", "web/src/app/Engagement.test.tsx:42-45"],
+      "evidence": "DTO-urile provin din components generate. Decoderul verifică schema/context global, null-urile de context/run/cursor, bounds, identități, scope_revision_id, revision/digest, metrici UNAVAILABLE/null/NOT_RUN, has_more/cursor, duplicări și câmpurile citite ale draftului cu binding engagement_id. Rejecția payloadurilor malformate și Unicode valid la limită trece; tsc/lint și generated TS drift au exit0; generatul/OpenAPI sunt identice cu HEAD.",
+      "limit": "SelectedDraft validează numai câmpurile consumate în B03; nu este decoderul complet al wizardului B04 și nici verificare criptografică a digestului în browser."
+    },
+    {
+      "area": "Loading/empty/error/stale/unavailable",
+      "result": "COVERED_SCOPED",
+      "code": ["web/src/features/dashboard/Dashboard.tsx:15-47", "web/src/features/engagement/Engagement.tsx:17-37", "web/src/shared/useObservationClock.ts:2-10", "web/src/app/ProjectionStates.test.tsx"],
+      "evidence": "Loading cu aria-busy pe Dashboard; prima eroare nu inventează zero sau ultim răspuns; empty este răspuns real. Erorile și staleness sunt explicite, ultima proiecție întreagă păstrată, age verificat periodic și la focus/visibility. Home polls bounded fără refetchIntervalInBackground și revalidează la focus/reconnect. Real PG lock produce503 sanitizat, STALE și recovery. Sesiunea expirată este distinctă de indisponibilitatea API.",
+      "limit": "Citire polling, nu SSE. Nu certifică toate combinațiile de timing/rețea."
+    },
+    {
+      "area": "Metrici și stadii fără date fabricate",
+      "result": "COVERED_SCOPED",
+      "code": ["api/src/omnis/modules/engagements/dashboard.py:21-62", "web/src/features/dashboard/Dashboard.tsx:31-43", "web/src/features/dashboard/copy.ts:5-12"],
+      "evidence": "Numai total_engagements este numeric și vine din count PG global. Run/stage NOT_RUN, attention UNAVAILABLE și metrici UNAVAILABLE/value=null/reason=NOT_RUN; UI explică lipsa assessmentului, nu arată findings/coverage/cost zero fictive. Codul sursă nu importă DEMO.",
+      "limit": "Agregatele viitoare de run nu sunt implementate sau aprobate."
+    },
+    {
+      "area": "Sanitizare și deep links",
+      "result": "COVERED_SCOPED",
+      "code": ["api/src/omnis/api.py:66-88,140-159", "api/src/omnis/security/host_origin.py:43-55,85-100", "web/src/shared/api/errors.ts:5-50", "web/src/features/engagement/Engagement.tsx:30-45"],
+      "evidence": "Erorile server sunt allowlisted fără input/traceback; clientul redă copy local, nu mesaj arbitrar. Draft HTML se redă ca text React, nu HTML executabil. E2E verifică absența scriptului/img ostil, cereri externe0 și JS errors0. Allowlist HTML explicită cu UUID pentru rute B03; API/documente/private/unknown nu au catch-all HTML. Testul asset/deep-link verifică manifest/hash/CSP/Host/Origin. Scanarea runtime source a găsit zero raw HTML sinks, storage persistente, remote URL literals sau eval; scanarea liniilor adăugate nu a găsit secrete/shell=True/pickle.",
+      "limit": "Testele folosesc markeri sintetici și payloaduri HTML declarate; nu un audit exhaustiv al tuturor SVG/URL/media/evidence viitoare."
+    },
+    {
+      "area": "Keyboard, responsive și accesibilitate bounded",
+      "result": "COVERED_SCOPED",
+      "code": ["web/src/app/App.tsx:14-23,27-34", "web/src/app/Shell.module.css", "web/src/features/engagement/Engagement.module.css:2-15", "web/tests/e2e/b03.mjs:68-116"],
+      "evidence": "B03-A01 GREEN44 și negative shrink21/19. Skip link păstrează tab order la intrarea inițială; reset scroll/focus numai la navigație client. Native links/buttons cu nume, Start disabled și motiv. E2E real acoperă320/390/1280/1440, tastatură/outline2px/focus în viewport, forced colors/reduced motion și CSS zoom200. Capturile Dashboard1440/390 și Setup1440/320, inclusiv cropuri lizibile, au fost inspectate: scope selectat corect, text HTML inert, identitate/scop lizibile și fără clipping evident al fluxului prezentat.",
+      "limit": "Nu certifică toate screen-reader/browser combinations, native browser zoom, focus pe toate elementele posibile, WCAG universal sau estetica. Capturile nu înlocuiesc probele de geometrie."
+    },
+    {
+      "area": "Simplitate și suprafață de schimbare",
+      "result": "COVERED_SCOPED",
+      "code": ["web/src/features/bootstrap/BrowserSession.tsx", "web/src/shared/useObservationClock.ts", "web/src/features/dashboard/Dashboard.tsx", "api/src/omnis/modules/engagements/dashboard.py"],
+      "evidence": "Reutilizează React Router, TanStack Query, sesiunea și boundary existente, elemente native și CSS Modules. O proiecție de modul, fără framework generic/time-travel, dependențe noi, tabele runs/findings, wizard/run falși sau servicii noi. Correția A01 este exact locală și fără oportunistic refactor.",
+      "limit": "Mentenabilitatea este apreciere scoped a implementării existente, nu garanție de lipsă absolută a bugurilor."
+    }
+  ],
+  "checks": {
+    "executed_by_reviewer": [
+      {"command": "Git ORIENT: status --short --branch; rev-parse HEAD; diff/cached stat; log; worktree list; for-each-ref", "exit_code": 0, "result": "HEAD/branch identificate; dirty B03 și worktree separat inventariate fără modificare"},
+      {"command": "SHA256 pentru toate cele31 fișiere și fingerprint sorted compact JSON, la început și final", "exit_code": 0, "result": "31/31 identice cu manifestul, fingerprint declarat exact, HEAD stabil"},
+      {"command": "Reverse minimal fix în memorie și comparare SHA256 cu manifestul anterior", "exit_code": 0, "result": "Exact cele3 fișiere schimbate; fiecare hash anterior reprodus"},
+      {"command": "node omnis-b03-backlink-probe.cjs, apoi OMNIS_GEOMETRY_CONTROL=shrink pe același script", "positive_exit": 0, "negative_exit": 1, "result": "GREEN44/44/44; negative21/21/19; network attempts0 în ambele; Chromium închis în finally"},
+      {"command": "PATH=<reboot-bin>:$PATH npm --prefix web test -- --run src/app/Dashboard.test.tsx src/app/Engagement.test.tsx src/app/ProjectionStates.test.tsx src/app/Shell.test.tsx src/shared/api/projections.test.ts --no-cache", "exit_code": 0, "result": "28 tests / 5 files passed, pe sursele fixate"},
+      {"command": "PATH=<reboot-bin>:$PATH npm --prefix web test -- --no-cache", "exit_code": 0, "result": "48 tests / 7 files passed, după fix"},
+      {"command": "npm --prefix web run typecheck", "exit_code": 0, "result": "tsc --noEmit"},
+      {"command": "npm --prefix web run lint", "exit_code": 0, "result": "lint.mjs fără diagnostics"},
+      {"command": "npm --prefix web run check:contracts", "exit_code": 0, "result": "Generated TS drift absent; check nu rescrie"},
+      {"command": "npm --prefix web run check:design", "exit_code": 0, "result": "Design/token/font drift absent; check nu rescrie"},
+      {"command": "npm --prefix web run test:tooling", "exit_code": 0, "result": "6 passed,0 failed,0 skipped; inclusiv drift și leak verifier negative controls"},
+      {"command": "git diff --check", "exit_code": 0, "result": "Fără whitespace errors"},
+      {"command": "Scanare read-only a sursei runtime web și liniilor adăugate", "exit_code": 0, "result": "raw_html/persistent_private_storage/remote_literal/eval_exec/suspicious_added_lines: toate liste goale"}
+    ],
+    "parent_evidence_read_or_supplied": [
+      {"command": "make check-web după ultima editare, PATH pinned", "provenance": "context explicit părinte; reviewerul a rerulat independent unit/type/lint/TS drift/design/tooling", "exit_code": 0, "result": "48 tests/7files,6tooling,tsc/lint/build/contracts/design drift/npm audit0"},
+      {"command": "ops/run_test_db_gate.py --check --target test-b03-e2e --uv <pin>", "provenance": "Log exact db-52e427d378184f00 și receipt citite", "exit_code": 0, "result": "1 passed,7 deselected in21.76s; build/TS/design drift și manifest final incluse"},
+      {"command": "make check UV=<pin>, anterior fixului A01", "provenance": "Log exact db-fe3db76d6f854e2e și receipt citite", "exit_code": 0, "result": "394 API/22 migration/48 web/8 real E2E; CLI284+284 și release61, wheels/audits; family_drained=true", "limit": "PASS istoric al snapshotului anterior: NU aprobă bytes CSS/TSX/E2E modificați după el"},
+      {"command": "make check nou, fixture db-cb57f91ba2af41c9", "provenance": "Log citit până la API în curs; receipt final absent la verificarea acestui raport", "result": "IN_PROGRESS_UNCREDITED", "limit": "Nu declar PASS sau numărătoare finală; părintele trebuie să citească receiptul și cleanupul înainte de închidere canonică"}
+    ],
+    "not_executed_by_reviewer": ["API pytest/ASGI", "runner DB", "Docker/PG sau atestare fizică a resurselor", "build/release instalat", "network audit npm/uv", "Reticle runtime", "Chisel runtime", "CI remote"]
+  },
+  "evidence_hashes": {
+    "/home/kali/.hermes/cache/scratch/db-f780292773654fd8/gate.log": "e45e2a5d8bf57864a875fcd99217515f22c748619a138df129a7a4f1089abeb3",
+    "/home/kali/.hermes/cache/scratch/db-f780292773654fd8/gate.log.result.json": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+    "/home/kali/.hermes/cache/scratch/db-fe3db76d6f854e2e/gate.log": "49279b981fee6dcca78f7e82537aa026545dec03ece8425fc92dadcd42cc2fb8",
+    "/home/kali/.hermes/cache/scratch/db-fe3db76d6f854e2e/gate.log.result.json": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "/home/kali/.hermes/cache/scratch/db-52e427d378184f00/gate.log": "80f5880ecc770b0fec8b5b61da2c44f12d4b3cbda1d6713f4dd8c8e66ef64821",
+    "/home/kali/.hermes/cache/scratch/db-52e427d378184f00/gate.log.result.json": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/result.json": "4d4aa118e008c6a2b34c1489e28ba93529087ce3c3c7fec738e31c49bca1eb2e",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/b03-dashboard-1440.png": "8f8a6facbfca46be6a4755f8e00a61744a01b411449d416de6afb2c9e4fd5a89",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/b03-dashboard-390.png": "35d4584b35e1dee7507f814cad460769a64663cc6a0a086cd442110a77a88eb7",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/b03-setup-320.png": "4ab0333f3a0c8b22a7bcddb4c1015666fd1da6a597d290135e2ce33280d082a0",
+    "/home/kali/.hermes/cache/scratch/omnis-p03-e2e/b03/b03-setup-1440.png": "98a3211cc1b1b9d9eb468e9909ffa0aa6eb2fde28e1a4bbb740ac83996be11b5"
+  },
+  "tool_applicability": [
+    {"tool": "Reticle", "scope": "B03 UI", "command_executed": null, "result": "NOT_INTEGRATED", "limit": "Aplicația nu este instrumentată. README/upstream.json/verdictul synthetic MCP citite; vechiul smoke este TOOLING_ONLY, nu dovadă B03. Nu s-a instalat/instrumentat nimic."},
+    {"tool": "Reticle", "scope": "B03 API/snapshot/paginare", "command_executed": null, "result": "NOT_APPLICABLE", "limit": "Nu substituie PostgreSQL, code review sau browser geometry."},
+    {"tool": "Chisel", "scope": "repo/home/runtime", "command_executed": null, "result": "NO-GO/BLOCKED", "limit": "README/audit.json citite: controalele de adopție rămân eșuate. Nu s-a pornit binarul/MCP și nu există un verdict nou măsurat; folosite numai unelte native."}
+  ],
+  "limits": [
+    "Raportul anterior deleg_2920df54 are transcript trunchiat. Am recuperat B03-A01, dar NU am dedus că lipsa restului textului exclude alte constatari; matricea bounded de mai sus provine din re-review direct și verificări proaspete.",
+    "APPROVED_SCOPED înseamnă absența unui blocker confirmat în perimetrul analizat și pe snapshotul exact, nu garanție de zero buguri și nu integrare adjudecată de subagent.",
+    "Gate-ul canonic vechi precedă fixul; noul gate canonic este necreditat până la receipt final și cleanup. Check-web/E2E focalizat după fix sunt probe actuale distincte.",
+    "Reviewerul nu a pornit servicii/API/DB/Docker și nu a executat API tests. Geometria independentă este component-only cu stare seeduită și requesturi abortate, distinctă de E2E real al părintelui.",
+    "Nu există aprobare estetică nouă, certificare WCAG, screen-reader sau universalitate browser. CSS zoom200 nu este zoom nativ; screenshoturile/Chromium nu dovedesc toate tranzițiile sau toate țintele.",
+    "Nu se aprobă CI remote, deployment/public exposure, rollout peste P0, upgrade/backup/restore, assessment, modele sau target traffic. Zero IO în această probă nu este o captură universală a tuturor syscallurilor/egressului.",
+    "B04/G01 și B05/restul MVP/post-MVP rămân nelivrate/nepromovate. Negativul editării cu run activ rămâne NOT_RUN până la B06; nu a fost construit un run fals.",
+    "Registrele README/implementation-status/p1-web precedă concluzia curentă și au rânduri încă vechi; citite numai ORIENT. Părintele reconciliază după adjudecare/comitere, fără promovarea automată a întregului SL06.",
+    "Scratchul poate expira, iar screenshoturile/result.json din locația comună pot fi rescrise de o probă ulterioară; hashurile fixează exact dovezile citite aici. Părintele trebuie să păstreze concluzia adjudecată și limitele în registrul versionat."
+  ],
+  "proposed_status_matrix_read_only": [
+    {"scope": "P0/G00 local", "code": "IMPLEMENTED istoric", "proof": "PASS_LOCAL_RECORDED istoric", "review": "APPROVED_SCOPED istoric, neschimbat", "next": "Nu se redeschide/promovează prin B03"},
+    {"scope": "SL05/B02a–B02b", "code": "IMPLEMENTED", "proof": "PASS_LOCAL_RECORDED draft inert", "review": "APPROVED_SCOPED istoric, neschimbat", "next": "Păstrează limitele run activ/rollout"},
+    {"scope": "AICI: SL06/B03", "code": "IMPLEMENTED în snapshot încă necomis", "proof": "PASS scoped după fix: unit48/tooling6/geometry positive-negative/E2E1; gate nou în curs necreditat", "review": "APPROVED_SCOPED propus părintelui pe fingerprint71f28fdd...", "next": "Adjudecare, receipt/cleanup gate canonic actual, commit/readback și reconciliere registru"},
+    {"scope": "SL06/B04", "code": "NOT_IMPLEMENTED", "proof": "NOT_RUN", "review": "NOT_REVIEWED", "next": "Următoarea felie nouă după acceptarea B03"},
+    {"scope": "G01 / P1 complet", "code": "PARTIAL: B02 și B03, nu B04", "proof": "NOT_RUN pentru gate complet", "review": "NU se închide prin acest report", "next": "B04 → create/edit/reload/restart/409 pe backend real"},
+    {"scope": "SL07/B05, rest MVP și E1–E4/post-MVP", "code": "NOT_IMPLEMENTED în acest scope", "proof": "NOT_RUN/nepromovat", "review": "NOT_REVIEWED de această felie", "next": "Planul canonic și autorizări separate, fără model/target implicite"},
+    {"scope": "CI remote / rollout / aprobări vizuale și universale a11y", "code": "Nu este livrabil B03", "proof": "NOT_VERIFIED/NOT_RUN după caz", "review": "Rămân separate", "next": "Dovezi și aprobări proprii înainte de claim"}
+  ],
+  "handoff": "A01 închis scoped; niciun alt blocker confirmat în B03. Părintele poate adjudeca acest verdict pe fingerprintul exact, dar nu poate atribui vechiul make check noului CSS sau promova B04/G01. Singurul fișier creat de reviewer este acest raport JSON; niciun fișier de produs, document protejat sau status global nu a fost modificat."
+}

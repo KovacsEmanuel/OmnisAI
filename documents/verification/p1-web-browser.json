@@ -1,0 +1,12 @@
+{
+  "scenario": "b03",
+  "passed": true,
+  "browser": "153.0.8010.12",
+  "requestCount": 149,
+  "externalRequests": 0,
+  "pageErrors": 0,
+  "secretChecks": true,
+  "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+  "server_log_secret_check": true,
+  "cleanup_verified": true
+}

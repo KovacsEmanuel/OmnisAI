@@ -21,7 +21,7 @@ export function Engagement() {
   if (!isUuid(id)) return <p>{copy.invalid}</p>;
   const draft = query.data;
   const full = surface === 'overview' || surface === 'setup';
-  return <>
+  return <section aria-label="Engagement projection" aria-busy={query.isFetching}>
     <Link className={styles.back} to="/">← {copy.dashboard}</Link>
     {query.isPending && <output>{copy.loading}</output>}
     {query.isError && <div role="alert"><p>{query.error instanceof ApiError ? query.error.message : copy.unavailable}</p><button onClick={() => { void query.refetch(); }}>{copy.retry}</button></div>}
@@ -45,5 +45,5 @@ export function Engagement() {
         </dl></article>)}
       </div></section>}
     </>}
-  </>;
+  </section>;
 }

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -37,6 +37,44 @@ it('selects a persisted draft, preserves identity and scope, and navigates inert
   expect(screen.getByText(/B04 setup editing/)).toBeVisible();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+});
+
+it.each(['overview', 'setup'])('exposes busy while loading and revalidating %s, then clears it after success or failure', async surface => {
+  let release: ((response: Response) => void) | undefined;
+  const hold = () => new Promise<Response>(resolve => { release = resolve; });
+  let selected = hold();
+  const settle = async (response: Response) => {
+    if (!release) throw new Error('Missing selected-read resolver');
+    await act(async () => { release?.(response); });
+  };
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => {
+    const path = String(input);
+    return path === `/api/v1/engagements/${id}` ? selected : new Response(JSON.stringify(path === '/api/session' ? session : health));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/${surface}`]}><App /></MemoryRouter></QueryClientProvider>);
+  try {
+    await screen.findByText('Loading engagement…');
+    const region = screen.getByRole('region', { name: 'Engagement projection' });
+    expect(region).toHaveAttribute('aria-busy', 'true');
+    await settle(new Response(JSON.stringify(draft)));
+    await screen.findByRole('heading', { name: summary.name });
+    await waitFor(() => expect(region).toHaveAttribute('aria-busy', 'false'));
+    const user = userEvent.setup();
+    selected = hold();
+    await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+    expect(region).toHaveAttribute('aria-busy', 'true');
+    await settle(new Response(JSON.stringify(draft)));
+    await waitFor(() => expect(region).toHaveAttribute('aria-busy', 'false'));
+    selected = hold();
+    await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+    expect(region).toHaveAttribute('aria-busy', 'true');
+    await settle(new Response(JSON.stringify({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: id } }), { status: 503 }));
+    expect(await screen.findByRole('alert')).toBeVisible();
+    await waitFor(() => expect(region).toHaveAttribute('aria-busy', 'false'));
+  } finally {
+    await settle(new Response(JSON.stringify(draft)));
+  }
 });
 
 it.each([null, { ...draft, engagement_id: summary.id }, { ...draft, payload: { ...draft.payload, scope: [{}] } },

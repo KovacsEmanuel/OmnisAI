@@ -1,5 +1,6 @@
 // B03 product journey. Data is created through the real authenticated API,
-// never a route mock or the prototype DEMO model. UI performs no draft writes.
+// never a mocked response or the prototype DEMO model. UI performs no draft writes.
+// Busy probes hold an outgoing GET, then continue it to the real API/PG.
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -40,6 +41,23 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   assert.equal(summary.through_cursor, null);
   assert.ok(await page.getByText('23', { exact: true }).count());
   const selected = created[0];
+  const busy = page.getByRole('region', { name: 'Engagement projection', exact: true });
+  async function observeBusy(action, engagementId = selected.engagement_id) {
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    const readUrl = `${origin}/api/v1/engagements/${engagementId}`;
+    const handler = async route => { await held; await route.continue(); };
+    await page.route(readUrl, handler, { times: 1 });
+    try {
+      await action();
+      await check(busy).toHaveAttribute('aria-busy', 'true');
+      release();
+      await check(busy).toHaveAttribute('aria-busy', 'false');
+    } finally {
+      release();
+      await page.unroute(readUrl, handler);
+    }
+  }
   const visible = created.find(item => item.engagement_id === summary.data.items[0].engagement_id);
   assert.ok(visible, 'Visible draft must have real API identity');
   await page.getByRole('link', { name: visible.payload.name, exact: true }).click();
@@ -54,14 +72,16 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   await page.getByRole('button', { name: 'First page', exact: true }).click();
   await check(page.locator('main article')).toHaveCount(20);
   // Direct entry also tests the long draft even when outside the current bounded page.
-  await page.goto(`${origin}/engagements/${selected.engagement_id}/overview`);
+  await observeBusy(() => page.goto(`${origin}/engagements/${selected.engagement_id}/overview`));
   await check(page.getByRole('heading', { name: selected.payload.name })).toBeVisible();
+  await observeBusy(() => page.getByRole('button', { name: 'Refresh engagement', exact: true }).click());
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await page.getByRole('link', { name: 'Setup', exact: true }).click();
   await check(page.getByText(/B04/).first()).toBeVisible();
   assert.ok(page.url().endsWith(`/${selected.engagement_id}/setup`));
-  await page.reload();
+  await observeBusy(() => page.reload());
   await check(page.getByRole('heading', { name: selected.payload.name })).toBeVisible();
+  await observeBusy(() => page.getByRole('button', { name: 'Refresh engagement', exact: true }).click());
   assert.equal(await page.locator('script').filter({ hasText: 'never execute' }).count(), 0);
   assert.equal(await page.locator('img[src="x"]').count(), 0);
   assert.equal(await page.getByRole('button', { name: /^(Save draft|Next|Back)$/ }).count(), 0);
@@ -116,7 +136,10 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   await page.evaluate(() => { document.documentElement.style.zoom = ''; });
   await secretChecks();
   assert.deepEqual(mutationRequests, [], 'B03 UI unexpectedly mutated a draft');
-  await page.goto(`${origin}/engagements`);
+  // Retain this actual draft in the same query client before the PG lock.
+  await page.goto(`${origin}/engagements/${visible.engagement_id}/setup`);
+  await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
   await check(page.getByText('23', { exact: true })).toBeVisible();
   const faultPath = fileURLToPath(new URL('../../../api/tests/web_fault.py', import.meta.url));
   const blocker = spawn(process.env.OMNIS_E2E_PYTHON, ['-I', faultPath, 'block-dashboard'], { env: process.env, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -136,6 +159,10 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
     assert.equal(denial.status, 503, 'Real locked PG projection should be unavailable');
     assert.ok(['CONTROL_UNAVAILABLE', 'CONTROL_TIMEOUT'].includes(denial.body.error.code));
     await screenshot('b03-projection-stale-503');
+    await observeBusy(() => page.getByRole('link', { name: visible.payload.name, exact: true }).click(), visible.engagement_id);
+    await check(page.getByRole('alert').first()).toContainText(/unavailable|timed out/i);
+    await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+    console.log('B03_A02_BUSY_PASS initial_overview initial_setup refresh_success both_surfaces revalidation_real_503');
   } finally {
     if (blocker.exitCode === null) {
       const exited = new Promise(resolve => blocker.once('exit', resolve));
@@ -146,6 +173,7 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
     }
     assert.equal(blocker.exitCode, 0, 'Owned DB lock helper did not join normally');
   }
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
   await page.getByRole('button', { name: 'Refresh dashboard', exact: true }).click();
   await check(page.getByRole('alert')).toHaveCount(0);
   // Real PG session expiry, not a mocked 401; every private surface must disappear.

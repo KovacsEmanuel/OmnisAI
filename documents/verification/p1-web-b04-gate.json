@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "scope": "P1-D / SL06-B04 and G01, local inert drafts only; no assessment run, provider or target traffic",
+  "base": "47120d1405ea79e7ab65c2f143873adbfac2a736",
+  "tested_product_head": "ddb42d266ee4a3aff408acce72e9ae4a5044ea41",
+  "source_snapshot": {
+    "tracked_bindings": 28,
+    "fingerprint": "abcc0fb36036e38ce1bc4dec339406c5aef39114c25f6426bfc14ba5067a6e21",
+    "before_after_hashes_equal": true,
+    "protected_untracked_html_untouched": true
+  },
+  "canonical": {
+    "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+    "process": "proc_68479e05285c",
+    "fixture": "db-bca4d36920614d09",
+    "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+    "counts": {"documentation": 62, "development": 36, "api": 395, "migrations": 22, "web": 74, "e2e_real_browser": 9, "cli_source": 284, "cli_wheel": 284, "cli_live": 1, "release_integration": 61},
+    "audit": "uv 37 packages with no known advisory; npm 0 vulnerabilities in this run",
+    "owned_cleanup": {
+      "cid": "daca0726fba5a8691bb008159c4edd8682f8ea3ebc2d4ce8c2e654a6d9447767",
+      "cid_absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false,
+      "synthetic_pgdata_retained": true
+    }
+  },
+  "live_qa": {
+    "delegation": "deleg_1ce45ae9",
+    "fixture": "db-aa35817789494c8d",
+    "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/reboot-bin:$PATH api/.venv/bin/python -I ops/run_test_db_gate.py --check --target test-b04-e2e --uv /home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv",
+    "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+    "browser": "Chromium 153.0.8010.12; two Playwright stages with real clicks/keyboard and a restarted API on the same PostgreSQL",
+    "browser_result": {"passed": true, "stage": "after", "backend_restart_verified": true, "external_requests": 0, "page_errors": 0, "secret_checks": true, "server_log_secret_check": true, "cleanup_verified": true},
+    "parent_readback": "Receipt, browser result, gate log, 28/28 unchanged source hashes, absent CID prefix ef332397 and PG socket, retained PG_VERSION=18 were checked independently; the QA agent also attested exact owned network absence.",
+    "verdict": "APPROVED_SCOPED"
+  },
+  "review": {
+    "original": "deleg_9918f86d CHANGES_REQUESTED on 7c95eb7; R1-01..04, R2-01..03, E2 and F2 retained",
+    "focused": "deleg_8867a010 on ddb42d2: all named findings CLOSED_SCOPED on current bytes; read-only and not a standalone entire-product approval",
+    "parent_adjudication": "Original requirement matrix plus tested fixes, focused closure, canonical exit0 and independent live QA support B04/G01 APPROVED_SCOPED for the local inert draft only. No absolute no-gap or visual-approval claim."
+  },
+  "historical_failures": [
+    "Initial B04 browser navigation timed out and API teardown exited -9; duplicating the listener after uvicorn made its shared OFD blocking. Reserve it before startup; retain original failed fixture receipt.",
+    "An APIRequestContext negative without Origin returned 403 before reaching the ref validator; explicit same-origin header and exact error-code controls exposed the intended 422.",
+    "After backend restart, the fixture must observe already-open admission and must not emit a second READY marker; neither was a product run.",
+    "A persisted General default has no authored provenance in B02; the earlier E2E expectation that Focused must erase it was rejected in favor of preserving exact stored text."
+  ],
+  "limits": [
+    "Active-run edit denial NOT_RUN until B06, without a fake run/table.",
+    "Legacy explicit conversion is component plus PostgreSQL API history evidence, not a separate live browser conversion journey; aggregate body 422 is real API plus component UI evidence, while browser G01 exercises another per-field 422.",
+    "This does not approve a new aesthetic direction, WCAG across screen readers, CI remote, installed rollout over the P0 data home, target health, provider calls or model interpretation.",
+    "Reticle NOT_INTEGRATED for product UI; Chisel NO-GO and unused."
+  ]
+}

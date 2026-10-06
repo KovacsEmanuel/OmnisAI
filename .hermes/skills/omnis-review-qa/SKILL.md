@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.17
+version: 0.1.18
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -49,6 +49,8 @@ For process-cleanup mutation controls, hold the synthetic child alive beyond the
 - Before crediting an FD leak oracle, identify the descriptors it owns and quiesce any test peer whose accepted socket may close asynchronously. A global `/proc/self/fd` count can decrease between snapshots even when the product has not closed an owned FD; do not replace equality with a weaker `<=` assertion or infer the lost socket's owner without evidence.
 
 When Hermes verify-on-stop names `make test`/`make check` but their prerequisites are unsafe or absent, report that canonical gate once as BLOCKED with the last relevant command, exit and limit. Focused checks remain targeted evidence even if the workspace ledger says unverified. Do not repeat them solely for the nudge or change the Makefile into a false-green alias; move to the prerequisite or stop the slice.
+
+For a confirmed host NSS path failure blocking a real audit, use the bounded [private NSS audit procedure](references/private-nss-audit.md). Keep helper review and standalone audit distinct from the canonical suite; do not change the host or bypass audit results.
 
 For exception-based test guards, record each attempted violation to an independent parent-owned channel **before** raising. Test a child that catches the exception and exits successfully: its report must still fail the clean verdict. Require observer readiness, known event tags and positive/negative controls; missing evidence is not zero attempts. Fail closed if recording fails, and distinguish Python audit events from native syscalls/OS confinement.
 

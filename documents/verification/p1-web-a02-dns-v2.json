@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "scope": "Version2 development-tool DNS prerequisite; not product/runtime modification and not canonical PASS.",
+  "supersedes_helper_evidence": "p1-web-a02-dns.json",
+  "previous_canonical": {
+    "process": "proc_626a88af74a0",
+    "fixture": "db-3946c1dc9a78454e",
+    "receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "status": "BLOCKED",
+    "api_passed": 394,
+    "migration_passed": 21,
+    "migration_failed": 1,
+    "failure": "Locked installed-wheel dependency sync cannot connect to pypi.org; direct unchanged uv pip sync reproduced exit2 after3 retries43.4s.",
+    "owned_cleanup": "cid/network/socket absent; uncertain false"
+  },
+  "helper_inputs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+      "sha256": "06815211db9e269aa43f125092ea854009a7025f7a21ebf4de91d58f38f0d90b",
+      "source": "#!/bin/sh\nset -eu\nuv=/home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv\nprivate_dns=false\ncase \"${1-}:${2-}\" in\n    audit:*|pip:sync|pip:install) private_dns=true ;;\nesac\nif [ \"$private_dns\" = true ]; then\n    exec /usr/bin/unshare --user --map-root-user --mount --propagation private /bin/sh -eu -c '\n        /usr/bin/mount --bind \"$1\" /etc/nsswitch.conf\n        /usr/bin/mount -o remount,bind,ro /etc/nsswitch.conf\n        shift\n        exec \"$@\"\n    ' sh /home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf \"$uv\" \"$@\"\nfi\nexec \"$uv\" \"$@\"\n"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf",
+      "sha256": "cd777a7073b67961979e3ef0768df255e139d1243d4f3ced7ea5ef197c528b55",
+      "source": "# Private NSS override for the audit child only.\npasswd: files systemd winbind\ngroup: files systemd winbind\nshadow: files systemd\ngshadow: files systemd\nhosts: files dns myhostname\nnetworks: files\nprotocols: db files\nservices: db files\nethers: db files\nrpc: db files\nnetgroup: nis\n"
+    }
+  ],
+  "probe": {
+    "schema_version": 1,
+    "host_nss_before_sha256": "fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6",
+    "host_nss_after_sha256": "fe9f1ec41fd85c042627670712732c0818d25b4b20051aad1bf987bdf43f06b6",
+    "inputs": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "sha256": "06815211db9e269aa43f125092ea854009a7025f7a21ebf4de91d58f38f0d90b"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-b03-a02-nsswitch.conf",
+        "sha256": "cd777a7073b67961979e3ef0768df255e139d1243d4f3ced7ea5ef197c528b55"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/omnis-p1-tools/uv-venv/bin/uv",
+        "sha256": "242e462a63f5a3c0421d68557006193ecbfb61321cba0fe8542213ac62d92563"
+      }
+    ],
+    "checks": [
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+          "--version"
+        ],
+        "exit_code": 0,
+        "stdout": "uv 0.12.19 (x86_64-unknown-linux-gnu)\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+          "pip",
+          "sync",
+          "--python",
+          "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-current/test_installed_wheel_migrates_current/venv/bin/python",
+          "--require-hashes",
+          "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-current/test_installed_wheel_migrates_current/requirements.txt"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Using Python 3.13.15 environment at: /home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-current/test_installed_wheel_migrates_current/venv\nResolved 20 packages in 301ms\nInstalled 20 packages in 37ms\n + alembic==1.20.0\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.15.1\n + click==8.5.0\n + fastapi==0.141.1\n + greenlet==3.5.6\n + h11==0.16.0\n + idna==3.20\n + mako==1.4.3\n + markupsafe==3.0.3\n + psycopg==3.3.6\n + psycopg-binary==3.3.6\n + pydantic==2.13.5\n + pydantic-core==2.46.5\n + sqlalchemy==2.0.54\n + starlette==1.7.0\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.54.0\n"
+      },
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+          "audit",
+          "--preview-features",
+          "audit-command",
+          "--locked",
+          "--no-config",
+          "--directory",
+          "api",
+          "--python-version",
+          "3.13",
+          "--python-platform",
+          "linux"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Resolved 38 packages in 1ms\nFound no known vulnerabilities and no adverse project statuses in 37 packages\n"
+      },
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+          "pip",
+          "install",
+          "--omnis-invalid-control"
+        ],
+        "exit_code": 2,
+        "stdout": "",
+        "stderr": "error: unexpected argument '--omnis-invalid-control' found\n\n  tip: a similar argument exists: '--no-build-isolation'\n\nUsage: uv pip install --no-build-isolation <PACKAGE|--requirements <REQUIREMENTS>|--editable <EDITABLE>|--group <GROUP>>\n\nFor more information, try '--help'.\n"
+      }
+    ],
+    "scope": "Development-tool DNS prerequisite only; product snapshot unchanged. Positive locked sync of the canonical failed wheel fixture, actual audit, negative installer argv. Not canonical suite PASS."
+  },
+  "probe_sha256": "567b66cccd1df7850b99dc94adf89fbf8507e99ff3170d7601751d1896f92997",
+  "original_failed_fixture_requirements_sha256": "e5c4b451fc8065e994b4394810d74f4bad40e68f9873809399e091a02221044d",
+  "fresh_migration_gate": {
+    "fixture": "db-fbcaef662c1849c4",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "result": "22 passed in59.84s",
+    "owned_cleanup": "cid/network/socket absent; uncertain false"
+  },
+  "independent_review": {
+    "delegation": "deleg_74b1eb2b",
+    "status": "PENDING"
+  },
+  "current_canonical": {
+    "process": "proc_90e1826f2cd7",
+    "status": "RUNNING_UNCREDITED",
+    "source_bindings_verified_before": 37
+  },
+  "limits": [
+    "Only exact canonical first argv audit, pip sync and pip install route into the namespace; global options before subcommand unsupported.",
+    "Namespace is not a hostile-code/network sandbox; trusted helper paths must remain unchanged.",
+    "Product tests/runtime UID remain outside the helper; no Makefile, package, lock, host NSS or product change.",
+    "Standalone audit/install and fresh targeted migration are not global acceptance."
+  ]
+}

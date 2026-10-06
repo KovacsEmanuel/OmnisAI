@@ -138,7 +138,24 @@ def create_app() -> FastAPI:
         return Response(content, media_type=CONTENT_TYPES[Path(name).suffix], headers=WEB_HEADERS)
 
     @app.get("/", include_in_schema=False)
+    @app.get("/pair", include_in_schema=False)
+    @app.get("/engagements", include_in_schema=False)
+    @app.get("/engagements/new", include_in_schema=False)
+    @app.get("/settings/providers", include_in_schema=False)
+    @app.get("/settings/skills", include_in_schema=False)
+    @app.get("/settings/runtime", include_in_schema=False)
+    @app.get("/settings/data", include_in_schema=False)
     async def web_index() -> Response:
+        return await serve_asset("index.html")
+
+    @app.get("/engagements/{engagement_id:uuid}/overview", include_in_schema=False)
+    @app.get("/engagements/{engagement_id:uuid}/setup", include_in_schema=False)
+    @app.get("/engagements/{engagement_id:uuid}/stream", include_in_schema=False)
+    @app.get("/engagements/{engagement_id:uuid}/findings", include_in_schema=False)
+    @app.get("/engagements/{engagement_id:uuid}/coverage", include_in_schema=False)
+    @app.get("/engagements/{engagement_id:uuid}/reports", include_in_schema=False)
+    async def web_engagement() -> Response:
+        # Shell only; private engagement data still requires the API session.
         return await serve_asset("index.html")
 
     @app.get("/assets/{name}", include_in_schema=False)

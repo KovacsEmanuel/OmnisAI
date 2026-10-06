@@ -65,6 +65,47 @@ async def test_serves_manifest_bound_assets_with_same_origin_boundary(web_build:
         assert (await client.get("/api/session")).status_code == 401
 
 
+@pytest.mark.asyncio
+async def test_b03_deep_links_serve_only_manifest_bound_shell(web_build: Path) -> None:
+    identity = str(uuid4())
+    routes = [
+        "/pair",
+        "/engagements",
+        "/engagements/new",
+        "/settings/providers",
+        "/settings/skills",
+        "/settings/runtime",
+        "/settings/data",
+    ]
+    routes += [
+        f"/engagements/{identity}/{surface}"
+        for surface in ("overview", "setup", "stream", "findings", "coverage", "reports")
+    ]
+    async with AsyncClient(transport=ASGITransport(app=create_app()), base_url=ORIGIN) as client:
+        for path in routes:
+            response = await client.get(path)
+            assert response.status_code == 200, (path, response.text)
+            assert response.content == (web_build / "index.html").read_bytes()
+            assert response.headers["cache-control"] == "no-store"
+            assert "script-src 'self'" in response.headers["content-security-policy"]
+            assert (await client.get(path, headers={"host": "evil.example"})).status_code == 400
+            assert (await client.get(path, headers={"origin": "null"})).status_code == 403
+        for path in [
+            "/api/unknown",
+            "/documents/private",
+            "/.env",
+            "/unknown",
+            "/settings/unknown",
+            f"/engagements/{identity}/unknown",
+            "/engagements/not-an-id/setup",
+        ]:
+            response = await client.get(path)
+            assert response.status_code in {401, 404}, (path, response.text)
+            assert "<!doctype html>" not in response.text
+        (web_build / "assets/app-test.js").write_bytes(b"changed")
+        assert (await client.get("/engagements")).status_code == 503
+
+
 @pytest.mark.parametrize("failure", ["missing", "changed", "symlink", "unlisted"])
 @pytest.mark.asyncio
 async def test_invalid_or_unlisted_asset_is_not_served(web_build: Path, failure: str) -> None:

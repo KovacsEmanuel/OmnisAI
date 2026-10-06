@@ -68,6 +68,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Dashboard */
+        get: operations["read_dashboard_api_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/engagements": {
         parameters: {
             query?: never;
@@ -208,6 +225,80 @@ export interface components {
         };
         /** @enum {string} */
         ConstraintKind: "READ_ONLY" | "EXCLUDE_FEATURE" | "REQUIRE_CRITERION";
+        /** DashboardData */
+        DashboardData: {
+            /** Active Run */
+            active_run?: null;
+            /**
+             * Attention State
+             * @default UNAVAILABLE
+             * @constant
+             */
+            attention_state: "UNAVAILABLE";
+            /** Items */
+            items: components["schemas"]["DashboardEngagement"][];
+            metrics?: components["schemas"]["DashboardMetrics"];
+            /**
+             * Run State
+             * @default NOT_RUN
+             * @constant
+             */
+            run_state: "NOT_RUN";
+            /** Total Engagements */
+            total_engagements: number;
+        };
+        /** DashboardEngagement */
+        DashboardEngagement: {
+            assessment_mode: components["schemas"]["AssessmentMode"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Digest */
+            digest: string;
+            /**
+             * Engagement Id
+             * Format: uuid
+             */
+            engagement_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Revision */
+            revision: number;
+            /** Run Id */
+            run_id?: null;
+            /**
+             * Run State
+             * @default NOT_RUN
+             * @constant
+             */
+            run_state: "NOT_RUN";
+            /**
+             * Scope Revision Id
+             * Format: uuid
+             */
+            scope_revision_id: string;
+            /**
+             * Stage
+             * @default NOT_RUN
+             * @constant
+             */
+            stage: "NOT_RUN";
+            /** Through Cursor */
+            through_cursor?: null;
+        };
+        /** DashboardMetrics */
+        DashboardMetrics: {
+            confirmed?: components["schemas"]["RunMetric"];
+            cost?: components["schemas"]["RunMetric"];
+            coverage?: components["schemas"]["RunMetric"];
+        };
         /**
          * DashboardReason
          * @enum {string}
@@ -448,6 +539,47 @@ export interface components {
             /** Code */
             code: string;
         };
+        /** ProjectionEnvelope */
+        ProjectionEnvelope: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /**
+             * Context
+             * @default GLOBAL
+             * @constant
+             */
+            context: "GLOBAL";
+            data: components["schemas"]["DashboardData"];
+            /**
+             * Data State
+             * @default AVAILABLE
+             * @constant
+             */
+            data_state: "AVAILABLE";
+            /** Engagement Id */
+            engagement_id?: null;
+            /** Has More */
+            has_more: boolean;
+            /** Limit */
+            limit: number;
+            /** Next Page */
+            next_page?: string | null;
+            /** Run Id */
+            run_id?: null;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Scope Revision Id */
+            scope_revision_id?: null;
+            /** Through Cursor */
+            through_cursor?: null;
+        };
         /**
          * ReadinessReason
          * @enum {string}
@@ -461,6 +593,23 @@ export interface components {
             items: components["schemas"]["EngagementView"][];
             /** Next Page */
             next_page: number | null;
+        };
+        /** RunMetric */
+        RunMetric: {
+            /**
+             * Reason
+             * @default NOT_RUN
+             * @constant
+             */
+            reason: "NOT_RUN";
+            /**
+             * State
+             * @default UNAVAILABLE
+             * @constant
+             */
+            state: "UNAVAILABLE";
+            /** Value */
+            value?: null;
         };
         /** @enum {string} */
         ScopeAccess: "ATTACKABLE" | "VISIT_ONLY" | "BLOCKED";
@@ -766,6 +915,83 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_dashboard_api_v1_dashboard_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                after?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectionEnvelope"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

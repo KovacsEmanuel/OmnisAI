@@ -160,6 +160,141 @@
         ],
         "type": "string"
       },
+      "DashboardData": {
+        "additionalProperties": false,
+        "properties": {
+          "active_run": {
+            "title": "Active Run",
+            "type": "null"
+          },
+          "attention_state": {
+            "const": "UNAVAILABLE",
+            "default": "UNAVAILABLE",
+            "title": "Attention State",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardEngagement"
+            },
+            "maxItems": 50,
+            "title": "Items",
+            "type": "array"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/DashboardMetrics"
+          },
+          "run_state": {
+            "const": "NOT_RUN",
+            "default": "NOT_RUN",
+            "title": "Run State",
+            "type": "string"
+          },
+          "total_engagements": {
+            "minimum": 0.0,
+            "title": "Total Engagements",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_engagements",
+          "items"
+        ],
+        "title": "DashboardData",
+        "type": "object"
+      },
+      "DashboardEngagement": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_mode": {
+            "$ref": "#/components/schemas/AssessmentMode"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "engagement_id": {
+            "format": "uuid",
+            "title": "Engagement Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "null"
+          },
+          "run_state": {
+            "const": "NOT_RUN",
+            "default": "NOT_RUN",
+            "title": "Run State",
+            "type": "string"
+          },
+          "scope_revision_id": {
+            "format": "uuid",
+            "title": "Scope Revision Id",
+            "type": "string"
+          },
+          "stage": {
+            "const": "NOT_RUN",
+            "default": "NOT_RUN",
+            "title": "Stage",
+            "type": "string"
+          },
+          "through_cursor": {
+            "title": "Through Cursor",
+            "type": "null"
+          }
+        },
+        "required": [
+          "engagement_id",
+          "id",
+          "revision",
+          "digest",
+          "name",
+          "assessment_mode",
+          "created_at",
+          "scope_revision_id"
+        ],
+        "title": "DashboardEngagement",
+        "type": "object"
+      },
+      "DashboardMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed": {
+            "$ref": "#/components/schemas/RunMetric"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/RunMetric"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/RunMetric"
+          }
+        },
+        "title": "DashboardMetrics",
+        "type": "object"
+      },
       "DashboardReason": {
         "enum": [
           "ASSETS_UNAVAILABLE",
@@ -840,6 +975,84 @@
         "title": "PairingBody",
         "type": "object"
       },
+      "ProjectionEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "context": {
+            "const": "GLOBAL",
+            "default": "GLOBAL",
+            "title": "Context",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DashboardData"
+          },
+          "data_state": {
+            "const": "AVAILABLE",
+            "default": "AVAILABLE",
+            "title": "Data State",
+            "type": "string"
+          },
+          "engagement_id": {
+            "title": "Engagement Id",
+            "type": "null"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "limit": {
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "next_page": {
+            "anyOf": [
+              {
+                "maxLength": 42,
+                "pattern": "^d1\\.([1-9]|[1-4][0-9]|50)\\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Page"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "null"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "scope_revision_id": {
+            "title": "Scope Revision Id",
+            "type": "null"
+          },
+          "through_cursor": {
+            "title": "Through Cursor",
+            "type": "null"
+          }
+        },
+        "required": [
+          "as_of",
+          "data",
+          "limit",
+          "has_more"
+        ],
+        "title": "ProjectionEnvelope",
+        "type": "object"
+      },
       "ReadinessReason": {
         "enum": [
           "DATABASE_UNAVAILABLE",
@@ -880,6 +1093,29 @@
           "next_page"
         ],
         "title": "RevisionPage",
+        "type": "object"
+      },
+      "RunMetric": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "const": "NOT_RUN",
+            "default": "NOT_RUN",
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "const": "UNAVAILABLE",
+            "default": "UNAVAILABLE",
+            "title": "State",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "null"
+          }
+        },
+        "title": "RunMetric",
         "type": "object"
       },
       "ScopeAccess": {
@@ -1273,6 +1509,116 @@
           }
         },
         "summary": "Session"
+      }
+    },
+    "/api/v1/dashboard": {
+      "get": {
+        "operationId": "read_dashboard_api_v1_dashboard_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 42,
+                  "pattern": "^d1\\.([1-9]|[1-4][0-9]|50)\\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectionEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Dashboard"
       }
     },
     "/api/v1/engagements": {

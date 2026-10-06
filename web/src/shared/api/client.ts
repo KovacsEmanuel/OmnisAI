@@ -2,6 +2,8 @@ import type { components, paths } from './generated';
 import { ApiError, decodeError, isRecord, isUuid } from './errors';
 import { decodeHealth, decodeInstance } from './decoders';
 import { decodeProjection, decodeSelectedDraft, isDashboardCursor } from './projections';
+import { decodeRevision } from './drafts';
+import type { Draft } from './drafts';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
@@ -37,6 +39,34 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async draft(id: string, signal?: AbortSignal) {
+    if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/engagements/${id}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeRevision(value, id);
+  },
+  async createDraft(payload: Draft, csrf: string, signal?: AbortSignal) {
+    const response = await request('/api/v1/engagements', { method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    if (response.status !== 201) throw new ApiError('INVALID_RESPONSE');
+    return decodeRevision(value);
+  },
+  async updateDraft(id: string, payload: Draft, revision: number, digest: string, commandId: string, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(id) || !isUuid(commandId) || !Number.isSafeInteger(revision) || revision < 1 ||
+      !/^[0-9a-f]{64}$/.test(digest)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/engagements/${id}`, { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf, 'If-Match': `"rev-${revision}-${digest}"`, 'X-Command-ID': commandId,
+    }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    if (response.status !== 200) throw new ApiError('INVALID_RESPONSE');
+    const written = decodeRevision(value, id);
+    if (written.revision !== revision + 1) throw new ApiError('INVALID_RESPONSE');
+    return written;
+  },
   async engagement(id: string, signal?: AbortSignal) {
     if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/engagements/${id}`, {}, signal);

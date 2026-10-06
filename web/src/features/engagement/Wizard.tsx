@@ -72,16 +72,30 @@ export function Wizard({ id }: { id?: string }) {
   const saving = useRef(false);
   const pending = useRef<Revision | null>(null);
   const abort = useRef<AbortController | null>(null);
+  const lastObserved = useRef<string | null>(null);
   useEffect(() => () => { abort.current?.abort(); }, []);
   const query = useQuery({ queryKey: ['private', 'draft', id], queryFn: ({ signal }) => readPrivate(() => api.draft(id ?? '', signal), signal),
     enabled: !!id && !!session.data && !session.isError && transition === 'idle', retry: false, networkMode: 'always',
-    refetchOnWindowFocus: false });
-  useEffect(() => {
-    if (hydrated || !query.data) return;
-    if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setSaved(query.data); }
-    setHydrated(true);
-  }, [hydrated, query.data]);
+    refetchOnWindowFocus: false, refetchOnMount: 'always' });
   const dirty = !saved || !equal(form, saved.payload);
+  useEffect(() => {
+    if (!query.data || query.isFetching || query.isError || phase === 'saving' ||
+      (hydrated && lastObserved.current === query.data.id)) return;
+    lastObserved.current = query.data.id;
+    if (!hydrated) {
+      if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setSaved(query.data); }
+      setHydrated(true);
+    } else if (saved && query.data.id !== saved.id) {
+      if (dirty || !isFullDraft(query.data.payload)) {
+        setServer(query.data);
+        setPhase('conflict');
+        setNotice('A newer server revision was observed. Local edits are preserved; compare before saving.');
+      } else {
+        setForm(query.data.payload);
+        setSaved(query.data);
+      }
+    }
+  }, [hydrated, query.data, query.isFetching, query.isError, saved, dirty, phase]);
   function change(next: Draft, field?: string) {
     setForm(next);
     if (field) setErrors(current => current.filter(error => focusField(error.field) !== field));

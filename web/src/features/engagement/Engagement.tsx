@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, useParams } from 'react-router';
 import { useObservationClock } from '../../shared/useObservationClock';
 import { api } from '../../shared/api/client';
+import type { Revision } from '../../shared/api/drafts';
 import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
 import { engagementCopy as copy } from './copy';
@@ -14,8 +16,16 @@ export function NewEngagement() {
 export function Engagement() {
   const { id = '', surface = 'overview' } = useParams();
   const { session, transition, readPrivate } = useSession();
+  const client = useQueryClient();
   const query = useQuery({ queryKey: ['private', 'engagement', id], queryFn: ({ signal }) => readPrivate(() => api.engagement(id, signal), signal),
     enabled: isUuid(id) && !!session.data && !session.isError && transition === 'idle', networkMode: 'always', retry: false, refetchInterval: 5000, refetchIntervalInBackground: false, refetchOnWindowFocus: 'always', refetchOnReconnect: 'always' });
+  const selectedRevisionId = query.data?.id;
+  useEffect(() => {
+    if (surface !== 'setup' || !selectedRevisionId) return;
+    const cached = client.getQueryData<Revision>(['private', 'draft', id]);
+    if (cached && cached.id !== selectedRevisionId)
+      void client.invalidateQueries({ queryKey: ['private', 'draft', id], exact: true });
+  }, [client, id, surface, selectedRevisionId]);
   const now = useObservationClock();
   const stale = !!query.data && (query.isError || query.fetchStatus === 'paused' || now - query.dataUpdatedAt > 15000);
   if (!isUuid(id)) return <p>{copy.invalid}</p>;
@@ -28,7 +38,10 @@ export function Engagement() {
     {stale && <output>{copy.stale}</output>}
     {draft && <>
       <div className={styles.heading}><div><p>{surface === 'setup' ? 'Persisted draft · Setup' : copy.readOnly}</p><h1>{draft.payload.name}</h1><p>{draft.payload.assessment_mode} · {copy.notRun}</p></div>{surface !== 'setup' && <button disabled aria-describedby="run-reason">{copy.start}</button>}</div>
-      <button disabled={query.isFetching} onClick={() => { void query.refetch(); }}>{copy.refresh}</button>
+      <button disabled={query.isFetching} onClick={() => {
+        void query.refetch();
+        if (surface === 'setup') void client.invalidateQueries({ queryKey: ['private', 'draft', id], exact: true });
+      }}>{copy.refresh}</button>
       {surface !== 'setup' && <p id="run-reason">{copy.runReason}</p>}
       <nav aria-label="Engagement navigation" className={styles.tabs}>
         {[[copy.overview, 'overview'], [copy.stream, 'stream'], [copy.findings, 'findings'], [copy.coverage, 'coverage'], [copy.reports, 'reports'], [copy.setup, 'setup']].map(([label, path]) => <NavLink key={path} to={`/engagements/${id}/${path}`}>{label}</NavLink>)}

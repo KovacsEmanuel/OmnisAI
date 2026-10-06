@@ -304,3 +304,61 @@ it('rehydrates the confirmed revision after leaving Setup and returning in the s
   await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Edited on this tab'));
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
 });
+
+it('adopts a newer server revision on explicit Refresh when the Setup form is clean', async () => {
+  let remote = revision;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    return new Response(JSON.stringify(remote));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text));
+  remote = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64),
+    payload: { ...payload, objective_text: 'Remote revision 2' } };
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh engagement' }));
+  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Remote revision 2'));
+  expect(screen.getByText('Saved · revision 2')).toBeVisible();
+});
+
+it('keeps dirty edits and exposes a newer server revision on Refresh without an automatic PUT', async () => {
+  let remote = revision;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    return new Response(JSON.stringify(remote));
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
+  await user.clear(objective);
+  await user.type(objective, 'My unsaved text');
+  remote = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64),
+    payload: { ...payload, objective_text: 'Other editor text' } };
+  await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+  await waitFor(() => expect(screen.getByText('Conflict · local edits preserved')).toBeVisible());
+  expect(objective).toHaveValue('My unsaved text');
+  expect(screen.getByText(/Server revision 2/)).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+  expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(0);
+});
+
+it('revalidates the complete clean draft when polling observes a newer selected revision', async () => {
+  let remote = revision;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    return new Response(JSON.stringify(remote));
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  await waitFor(() => expect(screen.getByText('Saved · revision 1')).toBeVisible());
+  remote = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64),
+    payload: { ...payload, objective_text: 'Polled revision 2' } };
+  client.setQueryData(['private', 'engagement', engagementId], remote);
+  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Polled revision 2'));
+  expect(screen.getByText('Saved · revision 2')).toBeVisible();
+  expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(0);
+});

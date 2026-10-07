@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "slice": "P2-inert / SL07-B05 / bounded remaining H01 qualification",
+  "entry_head": "60d29277ad5a06782dd8f8ed84a60be5be147b3a",
+  "observed_evidence_head": "6c3bb1fd7120faf6dfbd2ebd880b8adb079b910e",
+  "product_head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+  "native_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "parent_acceptance": {
+    "verdict": "CLOSED_SCOPED_B05_INERT",
+    "code": "IMPLEMENTED",
+    "proof": "PASS_LOCAL_RECORDED",
+    "review": "APPROVED_SCOPED_AT_REVIEWED_PRODUCT_AND_HARNESS_BOUNDARIES",
+    "scope": "Inert private fixed native runtime transport, accepted H02/authority and slot/bootstrap plus actual Q1/Q2/Q3 observations; NOT full H01 native-producer or G02 certification",
+    "rationale": "Reachable real installed boundaries passed with exact parent readback. Inaccessible native producers stay NOT_RUN; deterministic transport consumers retain SIMULATION proof. No confirmed product defect reproduced; no product edits or invented B06 consumer.",
+    "SL08_B06a_development_entry": "JUSTIFIED_FOR_FUTURE_EXPLICIT_MANDATE_STATIC_PURE_ONLY",
+    "B06_started": false,
+    "G02_inert": "PARTIAL_NOT_CLOSED",
+    "G02_live": "NOT_RUN_NOT_CLOSED",
+    "assessment_ready": false
+  },
+  "canonical_gate_reuse": {
+    "process": "proc_30c53ccef430",
+    "exit_code": 0,
+    "family_drained": true,
+    "revision": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+    "comparison_paths": 303,
+    "changed": [],
+    "comparison_current_head": "6c3bb1fd7120faf6dfbd2ebd880b8adb079b910e",
+    "limits": "Byte-exact comparison covers tracked api/cli/web/integrations/hermes/ops/scripts/tests/Makefile; does not certify every environment or future external supply-chain state. Canonical suite NOT_RERUN_UNCHANGED_PRODUCT."
+  },
+  "reviewed_artifact_hashes": {
+    "dev-b-v2/q1_driver.py": "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563",
+    "dev-b-v2/source-binding.json": "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682",
+    "ops/launch_q1_v2.py": "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b",
+    "ops/prepare_q1_v2.py": "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41",
+    "ops/test_q1_v2.py": "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6"
+  },
+  "focused_reviews": [
+    {
+      "report_id": "h01-r1-tmpfs-v2-eeb1418",
+      "sha256": "51db3df8d21c84adb2801b769a9aec49fb358730302e3163b314d54f360e8088",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "MINIMAL v2 locator Tmpfs absence fix plus new OWN root; exact two-line driver delta and finite replacement only; static/pure, not product/live PASS"
+    },
+    {
+      "report_id": "h01-r2-focused-tmpfs-v2",
+      "sha256": "80b0a31e0cf6d208fc31f64cb017b6567772797236086bcbcafc3227f14ecdb6",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Minimal security/lifecycle re-review of the Q1 v2 scratch snapshot; static and three pure regression tests only"
+    }
+  ],
+  "Q1_v2": {
+    "delegation": "deleg_17ea4133",
+    "original_report_sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+    "versioned_report": "p2-b05-h01-q1-live.json",
+    "driver_report_sha256": "6baba9e1f0da90eeefe1846e713bdae21b106ddfba293ba4efcdd48e0f8f830d",
+    "cleanup_locator_sha256": "a291f0a08032a44e29a3428146a2dd8e8fb29ed6ed7870fe90075d06bbce7b46",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/launch_q1_v2.py",
+    "launch_attempts": 1,
+    "exit_code": 0,
+    "product_verdict": "PASS_SCOPED",
+    "uncertain": false,
+    "cases": [
+      {
+        "case": "positive",
+        "expected_tuple": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "SUPERVISOR_READY\n"
+        },
+        "native": {
+          "argv": [
+            "/opt/hermes/venv/bin/python",
+            "-I",
+            "-m",
+            "tui_gateway.entry"
+          ],
+          "namespace": "pid:[4026533337]",
+          "pid": 411482,
+          "ppid": 408783,
+          "starttime": 3175105
+        },
+        "supervisor": {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/api-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.supervisor"
+          ],
+          "exit": 0,
+          "joined": true,
+          "namespace": "pid:[4026531836]",
+          "pid": 411460,
+          "ppid": 411012,
+          "starttime": 3174962
+        },
+        "boot": "8fff687f-cf87-4112-919c-e8bf7c8f7997",
+        "fence": [
+          0,
+          1
+        ],
+        "STOPPED_drained": true,
+        "no_release_before_drain_in_samples": true
+      },
+      {
+        "case": "native_eof",
+        "expected_tuple": {
+          "exit": 3,
+          "stderr": "SUPERVISOR_UNAVAILABLE\n",
+          "stdout": "SUPERVISOR_READY\n"
+        },
+        "native": {
+          "argv": [
+            "/opt/hermes/venv/bin/python",
+            "-I",
+            "-m",
+            "tui_gateway.entry"
+          ],
+          "namespace": "pid:[4026533676]",
+          "pid": 411544,
+          "ppid": 408932,
+          "starttime": 3175540
+        },
+        "supervisor": {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/api-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.supervisor"
+          ],
+          "exit": 3,
+          "joined": true,
+          "namespace": "pid:[4026531836]",
+          "pid": 411522,
+          "ppid": 411012,
+          "starttime": 3175408
+        },
+        "boot": "be53075d-10d8-415e-84e8-177a7b21f2a1",
+        "fence": [
+          0,
+          2
+        ],
+        "STOPPED_drained": true,
+        "no_release_before_drain_in_samples": true
+      }
+    ],
+    "limits": [
+      "EOF+exit is one causal fault; native stdout belongs to stock host, not duplicated by observer.",
+      "Handshake/renew/EOF internal path is source-bound inference; READY/process/STOPPED/drain/release are observed.",
+      "No case-mode/archive, task, model/provider, target, restart or historical resource reuse.",
+      "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+      "Parent exclusively owns container/PG removal; PGDATA/images retained.",
+      "Exact stdout/stderr tuple predicate execution is source-bound to frozen driver PASS, not separately persisted raw stream bytes; no raw logs dumped.",
+      "Current owner-only hosts and PG remain running/retained for parent-only final cleanup; no Docker stop/rm/create/retry or PG DDL/reset/lease mutation by QA.",
+      "OomKillDisable false-to-null cgroup2 normalization is outside Q1 and separately source-verified by Q2; no blanket HostConfig equivalence claimed.",
+      "No task/Brain/model/provider/target/profile/r1/P0P1/B06/push or scope expansion.",
+      "Q1-only live scoped result; SL07/B05 remains PARTIAL, G02 not closed; no global B05 approval."
+    ],
+    "protocol_disposition": {
+      "verdict": "NOT_PASS_PROTOCOL_BUDGET_DEVIATION_RETAINED",
+      "basis": "QA completion declared 8 terminal commands against budget7; available live log shows6 terminal tool calls (different denominator). The overrun and read-only construction/readback errors are not waived or relabeled as contract-compliant QA. Product observations are separately retained narrowly, not a clean global execution PASS.",
+      "launch_retry_or_extra_native": "NONE_OBSERVED",
+      "fresh_launch_count": 2
+    }
+  },
+  "Q2_Q3": {
+    "product_verdict": "PASS_SCOPED_STANDALONE_INSTALLED",
+    "QA_attestation_original": "UNCERTAIN_OCI_DIFF_RETAINED",
+    "QA_sha256": "4d5546f73d3eedcaa3ed9b93ad75de3d6de9d213785858f7f4e6e2276a93aed9",
+    "native_receipt_sha256": "129347953756cd7529c75c1834cb73a2ab810e1dddc69f1645af23d940033da6",
+    "parent_adjudication_sha256": "64f08cab4615b1f581f1f4fec6811b27a31fced84678df26b152d780430d6c99",
+    "cleanup_sha256": "11115f3ccd858e72c1b8798c407f932da3e5da264f907df0161c1290ff606630",
+    "native_starts": 1,
+    "pending": 32,
+    "refused_call": 33,
+    "native_container_exit": 0,
+    "scope": "NativePeer installed + real pinned inert native, SIGSTOP/deadline/CONT + stdin EOF; no stock supervisor/PG/watchdog/writer-backpressure attribution",
+    "OCI_adaptation": "Only OomKillDisable false-to-null for unsupported cgroup2, exact Moby27.5.1 source and current compare; all other configuration/identity and canonical mounts equal"
+  },
+  "historical_failures": [
+    {
+      "case": "Q1 original",
+      "verdict": "NOT_PASS",
+      "sha256": "2103657e83477933022610d193926b2e42d004a575f53d8e2dfcbb1b1603396d",
+      "launch_exit": 2,
+      "native_starts": 0,
+      "supervisor_starts": 0,
+      "incident": "Private synthetic capability was exposed in child transcript. Sensitive transcript restricted; exact unused hosts retired before finite fresh replacement; later PASS does not undo disclosure."
+    },
+    {
+      "case": "slot/bootstrap supplementary",
+      "verdict": "NOT_PASS_PROTOCOL_DEVIATION",
+      "source": "p2-b05-slot-gate.json; unchanged historical acceptance and explicit limits"
+    },
+    {
+      "case": "Q2 independent attestation",
+      "verdict": "UNCERTAIN",
+      "disposition": "Separate source-backed parent normalization; original report not rewritten"
+    }
+  ],
+  "original_idle_host_retirement": {
+    "sha256": "28e709f4b93ae2a48d2c15d2408c151acb874c40cae9a5fae561e017709f8255",
+    "scope": "External retirement only, no product drain/release credit"
+  },
+  "parent_final_cleanup": {
+    "command": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/api-env/bin/python -I -B /home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/close_owned.py",
+    "exit_code": 0,
+    "verdict": "PASS_SCOPED_EXACT_OWNED_CLEANUP",
+    "original_ledger_sha256": "3a535f71e62fb825ea2c4ebcd6dbe17bba5d2f61ca3ce7b36171d1383d8cf792",
+    "ledger_path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/q1-v2-pg-cleanup.json",
+    "effects": [
+      {
+        "cid": "cfc9870aefed9a82c471ae348c65b6c23d06bf2e3172bee0915f12e679d7a300",
+        "container_exit": 0,
+        "exit_code": 0,
+        "namespace_empty": true,
+        "operation": "stop",
+        "pidfd_exited": true,
+        "sockets_absent": true,
+        "status": "ACK_READBACK"
+      },
+      {
+        "CID_absent": true,
+        "cid": "cfc9870aefed9a82c471ae348c65b6c23d06bf2e3172bee0915f12e679d7a300",
+        "exit_code": 0,
+        "operation": "rm",
+        "state_unchanged": true,
+        "status": "ACK_READBACK"
+      },
+      {
+        "cid": "dd0a77bd7c959cf067c504578f4d0f36d32e002b5ac5d8870af098ab19e3f8de",
+        "container_exit": 0,
+        "exit_code": 0,
+        "namespace_empty": true,
+        "operation": "stop",
+        "pidfd_exited": true,
+        "sockets_absent": true,
+        "status": "ACK_READBACK"
+      },
+      {
+        "CID_absent": true,
+        "cid": "dd0a77bd7c959cf067c504578f4d0f36d32e002b5ac5d8870af098ab19e3f8de",
+        "exit_code": 0,
+        "operation": "rm",
+        "state_unchanged": true,
+        "status": "ACK_READBACK"
+      },
+      {
+        "cid": "9e1635ee818e1246ec343b1e53191b770c0f584374e5371e5b5fae8c6d81467f",
+        "container_exit": 0,
+        "exit_code": 0,
+        "namespace_empty": true,
+        "operation": "stop",
+        "socket_absent": true,
+        "status": "ACK_READBACK"
+      },
+      {
+        "CID_absent": true,
+        "PGDATA_unchanged_after_stop": true,
+        "cid": "9e1635ee818e1246ec343b1e53191b770c0f584374e5371e5b5fae8c6d81467f",
+        "exit_code": 0,
+        "operation": "rm",
+        "status": "ACK_READBACK"
+      }
+    ],
+    "PG_release_before_stop": {
+      "admission_open": false,
+      "epoch": 2,
+      "expires_at": null,
+      "generation": 0,
+      "owner": null,
+      "system_identifier": "7694014314355752990"
+    },
+    "runtimes": [
+      {
+        "cid": "cfc9870aefed9a82c471ae348c65b6c23d06bf2e3172bee0915f12e679d7a300",
+        "owner": {
+          "argv": [
+            "/opt/hermes/venv/bin/python",
+            "-I",
+            "-m",
+            "omnis_hermes.runtime_host"
+          ],
+          "namespace": "pid:[4026533337]",
+          "pid": 408783,
+          "ppid": 408758,
+          "starttime": 3157809
+        },
+        "state_hashes": {
+          "active/SOUL.md": "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f",
+          "active/logs/tui_gateway_crash.log": "195526fbc030ea9436fcca2df6a70fc24f920eab86b519f9656c93e7505e1e9b"
+        },
+        "state_root": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/sp"
+      },
+      {
+        "cid": "dd0a77bd7c959cf067c504578f4d0f36d32e002b5ac5d8870af098ab19e3f8de",
+        "owner": {
+          "argv": [
+            "/opt/hermes/venv/bin/python",
+            "-I",
+            "-m",
+            "omnis_hermes.runtime_host"
+          ],
+          "namespace": "pid:[4026533676]",
+          "pid": 408932,
+          "ppid": 408909,
+          "starttime": 3157906
+        },
+        "state_hashes": {
+          "active/SOUL.md": "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f",
+          "active/logs/tui_gateway_crash.log": "249577007173e92721cdb21da46cc6f36a8e99917e3dca13100978f45f39ddcc"
+        },
+        "state_root": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/sn"
+      }
+    ],
+    "PGDATA_root": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/pg2/data",
+    "PGDATA_retained_file_count": 1618,
+    "PGDATA_stopped_hash_manifest_sha256": "d95a0f342a17e72533f8e2841110580d904f069344b26333cfce6587092362a2",
+    "PGDATA_compare_boundary": "AFTER_GRACEFUL_STOP_BEFORE_RM_VS_AFTER_RM; not compared to running mutable database",
+    "foreign_ids": [
+      "0367cb63fb5de95fbcca203b144ccaf8ec98c8305b63128958e645b2033f0987",
+      "33920a00d697247d5afeb0b66d8bcaac46c49702d2168fd761736ed90d1eec48",
+      "5774b503fea18f677e8d5d06c23e9a3aa84a9c7c4192d2b9fc17fa72c4cd54db",
+      "5cc11aaa75e914ea35cfdbe6fd2963b36b45eedb865bae010f58999a36a936b9",
+      "684bd0a388334b1ff680059d88d9248a0c91f10350db0aa7bde71f94e964c764",
+      "7bc89950a39362bd13b8909887f02cc2434b28666ae863a94aa72a253e6af8f0",
+      "8143ec40ecabf29d13c78d9114206732b56a550796548d478f594c240eb9ceb6",
+      "97088d9799036b95184f34cfb8551e24c582aab25d21716b3757d98c1ee0b1cd",
+      "c0910f77867856796cf92c0147e0dfab0df730b30c7509ea9172c1b3df898e26",
+      "d7e3b8a97640b815554267401e59cabcafd50ef655fa14de8c5245319eae6734",
+      "dabab333533ba7010ffd623bbf2fe94cb7ce2f04cb5a9c04c2edb2e82914ad27",
+      "dd21ee5bd0d109b4c9ec7ce64a1cabaf0b58bb2458572631b4800861fbb3cf75",
+      "effc0e771fc2ed79bda4eddcc767ccb3c4bbe93dbf3ee1b44cf8fc6561c877a6"
+    ],
+    "foreign_unchanged": true,
+    "historical_reports_unchanged": true,
+    "retained_images": [
+      "sha256:0c2d1599d0f0fd720fa3c5197c782d91871625b24e6035f4303ecaed0d9ae5a4",
+      "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+    ],
+    "inverse": "No automatic restart; reconstruction of retained data/images needs separate authorization"
+  },
+  "finite_dispositions": [
+    {
+      "id": "H01-01",
+      "consumer": "NativePeer.handshake; native entry/rpc_dispatch",
+      "evidence": "Q1 stock READY source-bound + Q2 actual capabilities/ping/unknown -32601",
+      "status": "PASS_SCOPED_INSTALLED"
+    },
+    {
+      "id": "H01-02",
+      "consumer": "encode/decode/NativePeer._read",
+      "evidence": "Unchanged canonical deterministic wire tests; Q2 native valid frames",
+      "status": "PASS_SIMULATION_NEGATIVES; NATIVE_MALFORMED_NOT_RUN"
+    },
+    {
+      "id": "H01-03",
+      "consumer": "NativePeer._read; server_requests.send/send_async",
+      "evidence": "Approval deny and unknown reverse deterministic tests; no admitted inert native caller",
+      "status": "PASS_SIMULATION; NATIVE_PRODUCER_NOT_RUN",
+      "dependency": "B06b admitted PURE/session/child caller if seam permits, otherwise B06m/P2-live authorized turn; no library injection credit"
+    },
+    {
+      "id": "H01-04",
+      "consumer": "NativePeer tombstones/response-drain; server_requests.cancel",
+      "evidence": "Unchanged65+65/cancel/replay/drain deterministic tests; no pending reverse stock caller",
+      "status": "PASS_SIMULATION; NATIVE_PRODUCER_NOT_RUN",
+      "dependency": "Same as H01-03; not Task delivered/admitted/consumed ACK"
+    },
+    {
+      "id": "H01-05",
+      "consumer": "NativePeer.call/handshake; RuntimeHost watchdog",
+      "evidence": "Q2 32 real RPC deadlines/CONT/ping; accepted authority watchdog evidence reused",
+      "status": "PASS_SCOPED_INSTALLED; READY_STALL_SIMULATION"
+    },
+    {
+      "id": "H01-06",
+      "consumer": "NativePeer._read; entry.readline; stock RuntimeHost/supervisor",
+      "evidence": "Q1 native exit/stdout EOF -> exit3 + drain; Q3 owned stdin close -> exit0/reap",
+      "status": "PASS_SCOPED_INSTALLED"
+    },
+    {
+      "id": "H01-07",
+      "consumer": "NativePeer bounded pending/writer/stderr",
+      "evidence": "Q2 32 pending/33rd refusal before allocation+bytes; unchanged byte-queue/stderr wire tests",
+      "status": "PENDING_PASS_SCOPED; WRITER_1MIB_STDERR_FLOOD_SIMULATION_NATIVE_NOT_RUN",
+      "dependency": "No allowed inert native producer identified. Do not claim pending saturation proves writer drain; qualify before an effectful consumer needs it."
+    },
+    {
+      "id": "H01-08",
+      "consumer": "RuntimeHost.stop; RuntimeClient; supervisor/InstanceService; case_slot archive",
+      "evidence": "Q1 both boots STOPPED/drained, pidfd/proc/namespace, PG epoch1→2 released; historical slot archive after drain",
+      "status": "PASS_SCOPED_INSTALLED; ALL_CRASH_CUTS_NOT_RUN"
+    }
+  ],
+  "limits": [
+    "H01 native-producer breadth PARTIAL; G02-inert includes future H03-H08 and is NOT_CLOSED.",
+    "No universal zero-attempted-I/O, hostile same-UID/root sandbox, all crash cuts, provider/model/tool-facing bootstrap approval or aesthetics certification.",
+    "No Task/Attempt, Brain/copil, executable catalog, Settings, account/login, product model budget, target traffic, r1 restart, P0/P1 rollout, profile modification, remote CI or push.",
+    "Scratch state and PGDATA retained locally, not a certified backup; immutable adjudicated result persists in Git.",
+    "No further runtime launch or harness extension authorized."
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_PROCESS_ONLY_NOT_RUN",
+    "Chisel": "BLOCKED_NO_GO_NOT_RUN"
+  }
+}

@@ -25,11 +25,19 @@ NATIVE_ENV = {
     "HOME": "/state/os-home",
     "HERMES_HOME": "/state/active",
     "CODEX_HOME": "/state/codex",
+    "XDG_CONFIG_HOME": "/state/xdg/config",
+    "XDG_CACHE_HOME": "/state/xdg/cache",
+    "XDG_STATE_HOME": "/state/xdg/state",
+    "XDG_DATA_HOME": "/state/xdg/data",
+    "TMPDIR": "/state/tmp",
     "PATH": "/opt/hermes/venv/bin:/usr/bin:/bin",
     "LANG": "C.UTF-8",
     "PYTHONUNBUFFERED": "1",
     "PYTHONNOUSERSITE": "1",
     "HERMES_OMNIS_INERT": "1",
+    "HERMES_MANAGED_DIR": "/state/managed-empty",
+    "HERMES_DISABLE_LAZY_INSTALLS": "1",
+    "HERMES_SKIP_NODE_BOOTSTRAP": "1",
 }
 OPS = frozenset({"launch", "status", "renew", "stop"})
 

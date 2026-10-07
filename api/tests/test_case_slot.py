@@ -472,3 +472,92 @@ def test_policy_schema_requires_exact_integer(tmp_path: Path, schema_version: ob
     case_slot.Policy.model_validate(value)
     with pytest.raises(ValueError):
         case_slot.Policy.model_validate({**value, "schema_version": schema_version})
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("cut", ["active", "archive", "guard_exit"])
+async def test_failed_final_authority_cannot_leave_an_adoptable_crash_commit(
+    tmp_path: Path, cut: str
+) -> None:
+    import subprocess
+    import sys
+
+    instance, selected = uuid4(), uuid4()
+    root = tmp_path / "slot"
+    provision(root, instance)
+    script = """
+import asyncio, os, runpy, sys, time
+from contextlib import asynccontextmanager
+from pathlib import Path
+from types import SimpleNamespace
+from uuid import UUID, uuid4
+from omnis.supervisor import case_slot
+helpers = runpy.run_path(sys.argv[4])
+root, instance, selected = Path(sys.argv[1]), UUID(sys.argv[2]), UUID(sys.argv[3])
+cut = sys.argv[5]
+async def run():
+    slot = case_slot.CaseSlot(root, selected, instance, uuid4(), 1, 0, str(uuid4()))
+    await slot.prepare(helpers['authority']())
+    await slot.observe(helpers['snapshot'](slot))
+    helpers['private_write'](root / 'active/state.db', b'preserved-case')
+    expiry = 0
+    @asynccontextmanager
+    async def guard(*args, **kwargs):
+        nonlocal expiry
+        expiry = time.monotonic_ns() + 500_000_000
+        async def verify():
+            if time.monotonic_ns() >= expiry:
+                raise ValueError('simulated lease expired')
+        yield SimpleNamespace(deadline_ns=expiry, verify=verify)
+        if cut == 'guard_exit':
+            os.write(1, b'cut reached\\n')
+            os._exit(74)
+        await verify()
+    real_write = case_slot._write
+    def write(path, value):
+        real_write(path, value)
+        target = 'active.json' if cut == 'active' else 'receipt.json'
+        if cut != 'guard_exit' and path.name == target and value.state == 'ARCHIVED':
+            os.write(1, b'cut reached\\n')
+            time.sleep(max(0, (expiry - time.monotonic_ns()) / 1e9) + 0.015)
+        if path.name == 'journal.json' and value.state == 'COMMITTED':
+            os._exit(73)
+    case_slot._write = write
+    service = helpers['authority']()
+    service.case_transition = guard
+    try:
+        await slot.archive(service, 0, helpers['snapshot'](slot, 'STOPPED'))
+    except ValueError:
+        os._exit(72)
+    os._exit(75)
+asyncio.run(run())
+"""
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            script,
+            str(root),
+            str(instance),
+            str(selected),
+            str(Path(__file__).resolve()),
+            cut,
+        ],
+        timeout=8,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.stdout == "cut reached\n", completed.stderr
+    assert completed.returncode == (74 if cut == "guard_exit" else 72), completed.stderr
+    assert json.loads((root / "control/journal.json").read_bytes())["state"] == "PREPARED"
+    assert (
+        root / "archives" / str(selected) / "data/active/state.db"
+    ).read_bytes() == b"preserved-case"
+    restored = case_slot.CaseSlot(root, uuid4(), instance, uuid4(), 2, 0, str(uuid4()))
+    try:
+        with pytest.raises(ValueError, match="Incomplete"):
+            await restored.prepare(authority())
+        assert not (root / "active/state.db").exists()
+    finally:
+        await restored.close()

@@ -733,18 +733,29 @@ class CaseSlot:
             if _tree(target / move.leaf / move.name, budget, normalize=True) != move.tree:
                 raise ValueError("Case move readback failed")
 
-    def _commit(self, budget: Budget) -> None:
+    def _stage_receipts(self, budget: Budget) -> None:
         if self.journal is None:
             raise ValueError("Missing case journal")
         self._validate_roots(budget)
         self.receipt = self.journal.receipt
+        budget.check()
         _write(self.root / "control/active.json", self.receipt)
+        budget.check()
         if self.journal.operation == "ARCHIVE":
             _write(self.archive_root / "receipt.json", self.receipt)
+            budget.check()
+
+    def _commit(self, budget: Budget) -> None:
+        if self.journal is None:
+            raise ValueError("Missing case journal")
+        # PREPARED remains the recovery authority until the DB guard has exited
+        # successfully. This is not an atomic DB/filesystem transaction.
+        budget.check()
         _write(
             self.root / "control/journal.json",
             self.journal.model_copy(update={"state": "COMMITTED"}),
         )
+        budget.check()
 
     async def _transition(self, service: InstanceService, generation: int, restoring: bool) -> None:
         self.journal = None
@@ -760,8 +771,9 @@ class CaseSlot:
                 await _worker(lambda: self._moves(source, target, budget))
                 await guard.verify()
                 budget.check()
-                await _worker(lambda: self._commit(budget))
+                await _worker(lambda: self._stage_receipts(budget))
                 await guard.verify()
+            await _worker(lambda: self._commit(budget))
         except BaseException:
             await _worker(self._invalidate)
             raise

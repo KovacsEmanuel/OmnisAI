@@ -1,0 +1,138 @@
+{
+  "DB_admission_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+  "api_source_hashes": {
+    "modules/instance/schemas.py": "65102c2c11a68dbf98328068bd0adefb4a0d6ae187db20605ca1daa2e7c6869c",
+    "modules/instance/service.py": "71c5608392c79cccd1f2e96e3b290b46e88911bf0bf5d16a054b2185b25d0b11",
+    "supervisor/__main__.py": "b5102ebdc414f4aaa758b3cb119b08a7c1421e2c0b655994fe11743394fad57a",
+    "supervisor/runtime_client.py": "926761c21162629d317b5a6c248f22f306a850e055aedfdd202928d2f71f9861",
+    "transport/local_control.py": "89dc03a344d273174adc41592769fefff1fffc56ae1d4b96d851268b03b903ff"
+  },
+  "checks": {
+    "UDS_SHUTDOWN_quiescence_FINALIZE_durable_readback": true,
+    "fresh_attested_PG_18_6": true,
+    "installed_cwd_shadow_isolation_and_sensitive_negative": true,
+    "installed_source_binding": true,
+    "native_continuity_over_5_5_seconds_and_multiple_owner_renewals": true,
+    "native_namespace_family_drained_before_finalize": true,
+    "stock_NativePeer_handshake_and_unknown_refusal": true,
+    "supervisor_exit_zero_release_readback": true
+  },
+  "cleanup": {
+    "DB_exact_removed": true,
+    "fixture_data_retained": "/home/kali/.hermes/cache/scratch/b5-20b595c70048/db",
+    "native_family_settled": true,
+    "owned_database_absent": true,
+    "runtime_exact_removed_socket_absent": true,
+    "supervisor_joined": true
+  },
+  "code_commit": "3c496e866bc055bd3576c945a8f3aa27069eb8da",
+  "cwd_shadow_control": {
+    "installed_nonisolated_sensitivity": {
+      "hermes_bootstrap": true,
+      "markers_removed": true,
+      "tui_gateway": true
+    },
+    "pre_native_marker_absence": true,
+    "real_isolated_native_marker_absence": true,
+    "scope": "Synthetic imports only on exact installed image; no native mutation or product edit.",
+    "shadow_hashes": {
+      "hermes_bootstrap.py": "5a44d5b359ef95723a5963aa55a2c6c85424d81aaefbac20aa6f7de52bb742e8",
+      "tui_gateway/__init__.py": "6a3089a573495809b263b17cfd65052e3a50c1dfdd910fd9ad32df09e1f65805",
+      "tui_gateway/entry.py": "6a3089a573495809b263b17cfd65052e3a50c1dfdd910fd9ad32df09e1f65805"
+    }
+  },
+  "durable_commands": [
+    {
+      "command_id": "dfabaddf-0afe-46a1-9abb-daec91b7555e",
+      "expected_generation": 0,
+      "kind": "SHUTDOWN",
+      "owner_epoch": 1,
+      "result_generation": 1
+    },
+    {
+      "command_id": "83eb58b4-dfa4-4c3b-a2ee-5520c7b7e521",
+      "expected_generation": 1,
+      "kind": "FINALIZE",
+      "owner_epoch": 1,
+      "result_generation": 1
+    }
+  ],
+  "fixture": {
+    "cid": "942df49f2ca6c3398f14504ba7ecd9c40439739d2afcd65a0c42faf677013961",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "manifest": "/home/kali/.hermes/cache/scratch/b5-20b595c70048/db/fixture.json",
+    "project": "omnis-p01-18892d39363a457fb0364fd34cee2d8a",
+    "system_identifier": "7693803707601149982"
+  },
+  "fixture_runner_sha256": "29af7443eaa7290455688838b13c01f2fdbc042299678d22b394b7d8eefc13d4",
+  "image_id": "sha256:13ed9df8cb014aadd406514f4d5764a1676ed2f7d42e3adab46ebe8d5e7e7c0f",
+  "installed_adapter_hashes": {
+    "integrations/hermes/src/omnis_hermes/private_paths.py": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "90c5df75829427e24748eb725ad7e8941329ca435fd3eba6bfdd1ac826423816",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "4a968046fe7cfb993120b3473c906c4a7aeea5c8eb45d909c485591c1b19e772"
+  },
+  "installed_provenance_manifest_sha256": {
+    "build-manifest.json": "4d24ebaeceaf375893e3065e8a77213d79fd160169fde93e3d6da2fb635250d0",
+    "source-manifest.json": "7b6044ad3a09839b9625343421812d735f2ec30cd1d18794d9e26f62cf00cdc4"
+  },
+  "lease_samples": [
+    {
+      "at_seconds": 0.204,
+      "expires_at": "2026-10-07T06:08:02.940297+00:00"
+    },
+    {
+      "at_seconds": 0.92,
+      "expires_at": "2026-10-07T06:08:03.975286+00:00"
+    },
+    {
+      "at_seconds": 2.004,
+      "expires_at": "2026-10-07T06:08:05.008336+00:00"
+    },
+    {
+      "at_seconds": 3.114,
+      "expires_at": "2026-10-07T06:08:06.041330+00:00"
+    },
+    {
+      "at_seconds": 4.194,
+      "expires_at": "2026-10-07T06:08:07.069009+00:00"
+    },
+    {
+      "at_seconds": 5.271,
+      "expires_at": "2026-10-07T06:08:08.099366+00:00"
+    }
+  ],
+  "limits": [
+    "No fault/mutation inventory, consumer UI or gate-wide acceptance.",
+    "Native handshake/unknown refusal follows byte-bound stock NativePeer launch; no raw RPC capture.",
+    "Runtime renew inferred from byte-bound owner loop, multiple durable PG heartbeats and native continuity beyond maximum grant.",
+    "Fixture synthetic password/PGDATA retained by canonical fixture policy."
+  ],
+  "native_command": [
+    "/opt/hermes/venv/bin/python",
+    "-I",
+    "-m",
+    "tui_gateway.entry"
+  ],
+  "native_pin_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "original_probe_sha256": "039a17d853584da7aecfb30fcc7464f4f6dad4c4557cee9821e8918cc84eb301",
+  "owned_root": "/home/kali/.hermes/cache/scratch/b5-20b595c70048",
+  "provider_model_target_traffic": "NOT_RUN",
+  "runtime": {
+    "cid": "8f3727a353e0b57eb8442982006696081982731f894144372a7c8fdcae3b6b3b",
+    "label": "0170690aae34422199d02692c574bf98",
+    "name": "omnis-b05-54bac3d1bd554da0bf5a2c4ef1726704",
+    "native_host_pid": 261284,
+    "owner_host_pid": 260906,
+    "private_directory": "/home/kali/.hermes/cache/scratch/b5-20b595c70048/rt"
+  },
+  "runtime_owner_command": [
+    "/opt/hermes/venv/bin/python",
+    "-I",
+    "-m",
+    "omnis_hermes.runtime_host"
+  ],
+  "schema_version": 1,
+  "scope": "B05.1 real DB/native happy path only",
+  "script_sha256": "f4e27ed639c9de84ea7fcabc08d88299bcdbddbe751256de88fdb1c0395560d8",
+  "verdict": "PASS_SCOPED"
+}

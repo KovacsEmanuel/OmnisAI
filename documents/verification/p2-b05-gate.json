@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "scope": "B05.1 installed inert runtime happy path only",
+  "code_commit": "3c496e866bc055bd3576c945a8f3aa27069eb8da",
+  "adjudication": {
+    "code": "IMPLEMENTED_SCOPED",
+    "proof": "PASS_LOCAL_RECORDED",
+    "review": "APPROVED_SCOPED",
+    "verdict": "CLOSED_SCOPED",
+    "whole_B05": "PARTIAL",
+    "G02_inert": "NOT_CLOSED",
+    "G02_live": "NOT_RUN"
+  },
+  "canonical_gate": {
+    "session_id": "proc_730a103a0403",
+    "command": "PATH=/home/kali/.hermes/cache/scratch/omnis-p1-tools/node-prefix/node_modules/node-linux-x64/bin:/home/kali/.hermes/cache/scratch/omnis-p1-tools/node-prefix/node_modules/.bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+    "exit_code": 0,
+    "log_path": "/home/kali/.hermes/cache/scratch/db-fedd1a7786a342b0/gate.log",
+    "log_sha256": "03c39db27acfc31068a55fcfde07c68da134618826e84927497363c04c79ac67",
+    "pytest_results": [
+      [
+        "402",
+        "572.29s (0:09:32)"
+      ],
+      [
+        "22",
+        "56.82s"
+      ],
+      [
+        "9",
+        "80.43s (0:01:20)"
+      ],
+      [
+        "1",
+        "3.04s"
+      ],
+      [
+        "44",
+        "5.55s"
+      ]
+    ],
+    "unittest_results": [
+      [
+        "62",
+        "1.453s"
+      ],
+      [
+        "42",
+        "7.818s"
+      ],
+      [
+        "284",
+        "69.804s"
+      ],
+      [
+        "284",
+        "70.093s"
+      ],
+      [
+        "61",
+        "18.698s"
+      ],
+      [
+        "6",
+        "0.057s"
+      ]
+    ],
+    "web_unit_tests": 74,
+    "fixture": {
+      "project": "omnis-p01-90698fc07aa1428f95df295e15a159a0",
+      "cid": "17ee2aefa4c0695172fd2d60b9c340ff056a3b7b89c70aa977063b64954a4af9",
+      "system_identifier": "7693801543046778910",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+    },
+    "cleanup": {
+      "owned_DB_absent": true,
+      "project_networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false,
+      "data_retained": "/home/kali/.hermes/cache/scratch/db-fedd1a7786a342b0"
+    }
+  },
+  "reviewed_file_sha256": {
+    "CONTRIBUTING.md": "4f3ada18dbdf56177ee7ff059141043b11f48944ea78da725a31488e574bc6b6",
+    "Makefile": "1b629dbacee07118b6500a47a5aca466435ca8f0d04dea9751ac7eb05ccc89c2",
+    "README.md": "8a6ee679872ff17a249366f434adb59ec13a92cabfefc2d1d4916fd8c69e928e",
+    "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+    "api/src/omnis/modules/instance/models.py": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc",
+    "api/src/omnis/modules/instance/records.py": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222",
+    "api/src/omnis/modules/instance/schemas.py": "65102c2c11a68dbf98328068bd0adefb4a0d6ae187db20605ca1daa2e7c6869c",
+    "api/src/omnis/modules/instance/service.py": "71c5608392c79cccd1f2e96e3b290b46e88911bf0bf5d16a054b2185b25d0b11",
+    "api/src/omnis/modules/instance/stop_contract.py": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9",
+    "api/src/omnis/supervisor/__main__.py": "b5102ebdc414f4aaa758b3cb119b08a7c1421e2c0b655994fe11743394fad57a",
+    "api/src/omnis/supervisor/runtime_client.py": "926761c21162629d317b5a6c248f22f306a850e055aedfdd202928d2f71f9861",
+    "api/tests/test_runtime_service.py": "734fe73e8c58802ac81fa7c8257130180d4d96c6971a68899e9ffc92bd0460b0",
+    "api/tests/test_runtime_supervisor.py": "0cf6fbeb7f95bc180982048a5a4e931607c8eebc6135d897e8f251ec68a31013",
+    "documents/Omnis_Implementation_Plan.md": "92ed09a9bf989a9d2f76adf1ac2cb79d5a9c8d59dda64cc9da02474e9dc9d15f",
+    "documents/Omnis_MVP_Architecture.md": "70ed6e66d818d8cc6d4e284aa4f08a414bb98cca4b95b06f5199722036fffb63",
+    "documents/verification/implementation-status.md": "d6fbab85465883939020330e4fe2824aed50d9fc4fe111437fe2fab9dd2dbfbf",
+    "documents/verification/p2-b05.md": "98d2281b57f7648999b5dc00249d59b8426db62595320e999eff3ea5e55e4a26",
+    "integrations/hermes/pin.json": "fcdc5f2483182a37dcef8f500a60aafef7676e8fbd0efe2a771cdd443c4533a1",
+    "integrations/hermes/pyproject.toml": "c1c43dc9efe7387b49593527e2f655edc25f24c5dfcf51b62c6d2b0b808531a9",
+    "integrations/hermes/requirements-native.txt": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273",
+    "integrations/hermes/runtime-override/audit.json": "802265a32f5144d0261af973990836fc8d017bbc2611961db8aa2a2185bcc006",
+    "integrations/hermes/runtime-override/installed-core-packages.json": "eefa9031839d19a264f6a0d588df82a3ccc9c6a6b1e1875acb03e69dd9d30e3a",
+    "integrations/hermes/runtime-override/provenance.json": "a6c831bd7829a53940faec5ab265e58fdad96cc17f845c309acd0427639a1416",
+    "integrations/hermes/runtime-override/published-fixes.json": "bb567f8553a1cd94367308cf606d3a07d8b7f9937f6e28bffef10742407bf072",
+    "integrations/hermes/runtime-override/pyproject.toml": "f38aee5cf9529a550b6be119c00261f4787c8ec0f8f853f0efaf7394029dc335",
+    "integrations/hermes/runtime-override/requirements-native.txt": "3576a98dcfd2332c741ae2f8d63f14c461aa3a4f8e69ecd5a7226f1d7e23669d",
+    "integrations/hermes/runtime-override/uv.lock": "a7b8c05fc3657b305ce9a21421fc891ac1fb3c88ce266d0a187ee338ee3f5b20",
+    "integrations/hermes/src/omnis_hermes/__init__.py": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59",
+    "integrations/hermes/src/omnis_hermes/private_paths.py": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "90c5df75829427e24748eb725ad7e8941329ca435fd3eba6bfdd1ac826423816",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "4a968046fe7cfb993120b3473c906c4a7aeea5c8eb45d909c485591c1b19e772",
+    "integrations/hermes/tests/family_fixture.py": "78660eca82d5de2bc51d17e0500f14f1d4d42db6da6e26a6aebbe1072cd1d0a8",
+    "integrations/hermes/tests/installed_fixture.py": "74cdb0ef70dd55632915b24839ee0fa4448a9fc367e92c84ec4fc6e1cc2e61c9",
+    "integrations/hermes/tests/peer_fixture.py": "89661be09d2f785488acba2f89971b486566dbdf6b54ca3b46377b6634b3ed09",
+    "integrations/hermes/tests/test_client.py": "4b4b986f18bc7a41e8290dd9ca962a5bfa208db90d1c0f974f8a99dee88f0c15",
+    "integrations/hermes/tests/test_host.py": "60c8e1d11bc613e109792339ad412994ab77c744045b63a861ab873fdc6de5d3",
+    "integrations/hermes/tests/test_native_build.py": "416c92ae73a45b0f64cc5c6b2733e9ebc551fcec7c3c8818d086f690d35c8a1e",
+    "integrations/hermes/tests/test_protocol.py": "cb5fd552de7bbaf8adddc00d50f33213fa2aa78ad9301f875fbfee2918aec9b6",
+    "integrations/hermes/tests/test_startup_budget.py": "2c4c700f10431839c0a92559c73120aefb24149338a13ff9ed3b776f3e8199e1",
+    "integrations/hermes/upstream/.gitignore": "d9c6a6e21c4087bcdc5e9dc98bd2caae3c78e18c367c755f79d021562a15e22a",
+    "integrations/hermes/upstream/LICENSE": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+    "integrations/hermes/upstream/NOTICE.md": "b67185e2d4c1bb79bde4897fd98340a9c4ba47da58a5c77837607c918b362cbe",
+    "integrations/hermes/upstream/dependency-audit.json": "dd0cbad13a208dbb7e14253f219e6f4e0b76cc6bf86705c97678f152d50ac249",
+    "integrations/hermes/upstream/inert-config.yaml": "14fe19b9866da73875d1342cb3649b94204d56e3bbef091d5e181a0e9ec8ae67",
+    "integrations/hermes/upstream/inert-source/hermes_cli/env_loader.py": "2bb251025590b17ae13cc50dd8f6961ee5b20015791225355c0f2b0d3ce8da07",
+    "integrations/hermes/upstream/inert-source/tools/lazy_deps.py": "45b0ec8f8fb6d5f5041e25a890637b25de3d8c5c37dc83304f8cca84baa535a1",
+    "integrations/hermes/upstream/inert-source/tui_gateway/entry.py": "021ecdcf96745845b19d0b27635f46c0db3359adf8a842961fc210944cf19d4c",
+    "integrations/hermes/upstream/inert-source/tui_gateway/rpc_dispatch.py": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
+    "integrations/hermes/upstream/inert-source/tui_gateway/server.py": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+    "integrations/hermes/upstream/native-build-receipt.json": "c1f1c77fe1736ab38a30fec016690011a2a1a1aed5f7f35fbb5abe2d8c8a16ca",
+    "integrations/hermes/upstream/omnis-inert.patch": "a0a0a21eba96bd1123c36a08e3e10b1a0587159c5576a25265d5117fd5b08550",
+    "integrations/hermes/upstream/patch-manifest.json": "72335701313f724cbc3c29ce65b414a098ddab78d4073b789a40b13a4e9fc4e1",
+    "integrations/hermes/upstream/pyproject.toml": "6f969b9fdff95e7269ec808361e3ae8be5357036e6257e53a3306878cf8c41dd",
+    "integrations/hermes/upstream/state-tool-inventory.json": "a2020b35cf5cee08d671c3421b81119b8fc7b1beaae4b39cc488eab4c1874cad",
+    "integrations/hermes/upstream/test-receipts.json": "57327bf5c05e4752145b5db2562c15d1011a5b1050f07065e3a3303ab42b810c",
+    "integrations/hermes/upstream/uv.lock": "5b3798f326209475abca8ef7cbf7c9406f12e687c28c0b540dfe597466f48590",
+    "ops/Dockerfile.hermes": "c81439705cbed5dfc297d3b054ec4ab59717d78bce7e7c420cb24136d1b1e2b4",
+    "ops/prepare_hermes_runtime.py": "6719369c369e58b519bc4ad1d1d29c0019f4fc56b1616dd26e034090c490ba52",
+    "tests/development/test_hermes_launch.py": "feaa0c638ac9d405626dd01054476b1523475baccda7bf4c117afe464849bc27",
+    "tests/development/test_hermes_runtime_build.py": "7b9e3e04c6e23bc88fa4565da322d982a7d2a69d5ccd92c414b7259edc803e31"
+  },
+  "reviews": [
+    {
+      "report_id": "b05-normative-rereview-69ccd0db104a456bac7d49460794c771",
+      "report_sha256": "cae5b92447ae9f132d7c1b89cc9fb04e11e93bfe3ff15dfe2346c13ebdd40ea9",
+      "snapshot": "3c496e866bc055bd3576c945a8f3aa27069eb8da",
+      "verdict": "APPROVED_SCOPED",
+      "findings_disposition": [
+        {
+          "id": "NORM-B05-01",
+          "original_severity": "P1",
+          "disposition": "RESOLVED_CODE_AND_SIMULATED_CONSUMER",
+          "blocking_code_defect_remaining": false,
+          "fix": "539c0bb: NATIVE_COMMAND uses /opt/hermes/venv/bin/python -I -m tui_gateway.entry; isolated mode excludes writable cwd before module bootstrap.",
+          "locations": [
+            "integrations/hermes/src/omnis_hermes/runtime_host.py:22,157–169",
+            "integrations/hermes/tests/test_host.py:82–115",
+            "ops/Dockerfile.hermes:28–34"
+          ],
+          "evidence": "test_fixed_native_argv_does_not_import_a_writable_cwd_package passed. Real owned synthetic cwd package did not execute marker; launch process joined/reaped. Static installed prepared native .pth points to approved runtime-source; Dockerfile places .pth inside installed venv.",
+          "limits": "API interpreter substituted for unavailable OCI interpreter, installed Hermes absent in API environment. Refusal is not a real native handshake positive. Final OCI exact-pin handshake plus cwd shadow negative still required."
+        },
+        {
+          "id": "NORM-B05-02",
+          "original_severity": "P2",
+          "disposition": "RESOLVED_CODE_AND_SIMULATED_WIRE",
+          "blocking_code_defect_remaining": false,
+          "fix": "3c496e8: pending reverse slots retire only after successful writer.drain; separate insertion-ordered typed method tombstones capped at 32; cancellation consumes correlation without freeing undrained quota.",
+          "locations": [
+            "integrations/hermes/src/omnis_hermes/runtime_protocol.py:100–109,137–150,180–215",
+            "integrations/hermes/tests/test_protocol.py:126–162,231–337"
+          ],
+          "evidence": "65 sequential approvals and 65 sequential unknown reverse requests without cancellation pass, all same-ID deny/-32601 replies observed, no pending reverse slots retained, final tombstones exactly IDs34–65. Controlled real async reader/writer path with substituted drain blocks request33 at 32 undrained slots even after cancellation. Matching late cancel accepted; method mismatch/duplicate/unknown/wrong-ID-type/invalid-ID/replay refused; pending cancel held until drain.",
+          "native_contract": "Prepared exact-pin server_requests.py:167–176,201–236 settles successful/error responses without emitting request.cancel; file equals source-manifest original hash.",
+          "limits": "Wire peer synthetic; drain/backpressure seam explicitly substituted. Native inert allowlist forbids sessions/approval production. Only 32 recent tombstones correlate late cancellation; older cancellation fails closed. Not a live native reverse stress proof."
+        },
+        {
+          "id": "CONC-DEADLINE-02",
+          "disposition": "RESOLVED_SCOPED_STATIC_AND_SIMULATION",
+          "blocking_code_defect_remaining": false,
+          "fix": "f4f1537: after inert launch, non-READY is permitted only if runtime is actually STOPPED and current owned DB projection contains shutdown_command_id plus quiesced_generation == generation; no relaunch or renewal after stop.",
+          "locations": [
+            "api/src/omnis/supervisor/__main__.py:65–78",
+            "api/tests/test_runtime_supervisor.py:75–148"
+          ],
+          "evidence": "Three unavailable negatives (unexpected STOPPED, UNCERTAIN despite receipt, unquiesced STOPPED) plus valid durable-stop positive passed through actual supervisor.run with DB/client seams. Renew count remains only initial postlaunch refresh.",
+          "limits": "Durable state injected by mocks, no real PG receipt/concurrent Stop/runtime death proved."
+        }
+      ],
+      "blocking_defects": [],
+      "limits": "Static/deterministic named fixes only; later live QA supplies only the B05.1 positive boundary."
+    },
+    {
+      "report_id": "B05-FOCUSED-SECURITY-3c496e8-iz1srvux",
+      "report_sha256": "d90dc9fda8300f54d3b15b37fca1fe5f7e2b6d3917f1775926d715dfca27ff46",
+      "snapshot": "3c496e866bc055bd3576c945a8f3aa27069eb8da",
+      "verdict": "APPROVED_SCOPED",
+      "dispositions": [
+        {
+          "id": "SEC-CWD-01",
+          "disposition": "CLOSED_SCOPED",
+          "blocking": false,
+          "code": "integrations/hermes/src/omnis_hermes/runtime_host.py:22,157-173",
+          "reason": "-I excludes writable cwd before -m resolution; fixed argv cannot be selected through IPC. Independent scratch-venv .pth positive loads trusted synthetic tui_gateway AND hermes_bootstrap while conflicting cwd modules remain unexecuted. Removing only -I selects cwd and reaches READY, so the negative control remains sensitive.",
+          "evidence": [
+            "targeted.log::test_fixed_native_argv_does_not_import_a_writable_cwd_package",
+            "probe-results.json::cwd_current",
+            "probe-results.json::cwd_unsafe_mutation"
+          ],
+          "limit": "Actual pinned wheel/OCI source provenance with -I NOT_RUN; synthetic installed .pth mechanics only. No same-UID/root adversary isolation claim."
+        },
+        {
+          "id": "CONC-DEADLINE-02",
+          "disposition": "CLOSED_SCOPED",
+          "blocking": false,
+          "code": "api/src/omnis/modules/instance/service.py:65-99; api/src/omnis/supervisor/__main__.py:49-78; integrations/hermes/src/omnis_hermes/runtime_host.py:170-187; integrations/hermes/src/omnis_hermes/runtime_protocol.py:251-277; api/src/omnis/supervisor/runtime_client.py:131-136",
+          "reason": "Current grant capped at min(4.5s, current DB remaining), monotonic start precedes DB timestamp read, expired grants refused. Startup waits within absolute grant separately from 0.8s RPCs; supervisor heartbeats and renews immediately after launch before ordinary 1s interval. Original 0.6s startup/DB cases and combined case each observe three grants (launch/post-launch/loop) rather than one. Lost READY no longer silently continues except STOPPED backed by actual current owned SHUTDOWN and quiesced_generation==generation.",
+          "evidence": [
+            "targeted.log::test_runtime_authority_checks_current_db_lease_and_exact_generation",
+            "targeted.log::test_installed_client_waits_for_startup_within_absolute_grant",
+            "targeted.log::test_supervisor_does_not_silently_continue_after_unexpected_runtime_loss",
+            "probe-results.json::timing"
+          ],
+          "limit": "Timing service grants substitute current full-lease budget; no PostgreSQL latency, lock-wait, lease takeover or concurrency proof. Arbitrarily slow I/O beyond authority is intentionally fail-closed, not promised live."
+        },
+        {
+          "id": "SHUTDOWN-BOUNDARY",
+          "disposition": "PASS_SCOPED",
+          "blocking": false,
+          "reason": "Executed STOPPED/no SHUTDOWN, UNCERTAIN/even matching SHUTDOWN, STOPPED/unquiesced negatives; only STOPPED/current SHUTDOWN/current quiescence continues, with no ordinary renewal or resurrection. Drain result must be True before DB quiescence update, owner rechecked after drain/update. Final non-OCI cleanup remains Runtime drain uncertain despite exact child reaping; cannot certify namespace drain.",
+          "limit": "State combinations injected with mocks; real producer/DB shutdown race NOT_RUN."
+        },
+        {
+          "id": "RESPONSE-DRAIN-REPLAY",
+          "disposition": "PASS_SCOPED",
+          "blocking": false,
+          "code": "integrations/hermes/src/omnis_hermes/runtime_protocol.py:100-109,137-151,180-215",
+          "reason": "Reverse pending slot is retired only after successful writer drain; cancellation consumes matching method but keeps reserved slot until drain. 32 pending includes queued/in-flight/cancelled-undrained replies; 33rd fails closed. After drain, typed 32-entry tombstones correlate late cancel and reject retained request/cancel replays. 65 sequential approvals and unknown requests avoid cumulative quota exhaustion. Independent write-then-drain-failure retains pending/no tombstone and fails transport; int 7 and string 7 cancel independently.",
+          "limit": "Replay protection is a bounded recent 32-completion window, not lifetime uniqueness: after eviction an old request ID is accepted anew; a cancellation for the evicted ID fails closed. This is observed and disclosed, not a new blocker against the bounded B05 contract. Successful drain is local transport backpressure completion, not native application receipt/ACK or permission to retry effectful RPCs."
+        }
+      ],
+      "new_reproducible_blocking_defects": [],
+      "limits": [
+        "44 targeted tests passed plus 6 AST controls; no canonical make check claim. --noconftest and disabled pytest cache intentionally avoid DB conftest/product provisioning and shared writes; all explicit tests collected/executed.",
+        "No services, native Hermes, containers, model, target or network started. Only finite synthetic peers, in-process owned private UDS test fixtures and flow-control seams.",
+        "No full audit re-expansion, new dependency audit, supply-chain approval, real PostgreSQL transaction-overlap, installed OCI confinement/cleanup, native engagement A-B-A or provider validation.",
+        "APPROVED_SCOPED closes these named synthetic/static findings only. It is not B05/G02 product integration PASS or integration acceptance by parent.",
+        "README/implementation-status still project B05 as unstarted; p2-b05/code/history show WIP. Read-only reviewer proposes reconciliation after parent adjudication, no shared edits.",
+        "Report and exact hashes must be preserved/adjudicated by parent before scratch expiry."
+      ]
+    }
+  ],
+  "live_QA": {
+    "delegation_id": "deleg_f1b723e3",
+    "exit_code": 0,
+    "verdict": "PASS_SCOPED",
+    "report": "p2-b05-live.json",
+    "report_sha256": "65ef60273737aeaaa12002ddf5de4523471a2eca0a248f10118599e45fe3b6e6",
+    "probe_sha256": "f4e27ed639c9de84ea7fcabc08d88299bcdbddbe751256de88fdb1c0395560d8",
+    "installed_image_id": "sha256:13ed9df8cb014aadd406514f4d5764a1676ed2f7d42e3adab46ebe8d5e7e7c0f",
+    "adapter_wheel_sha256": "b2be062ae16cd790638c0e4c78077b7f9af3be690d045b8cf2d9f2bc61e43767",
+    "reader_review": "APPROVED_SCOPED"
+  },
+  "historical_live_QA": [
+    {
+      "report": "report.json",
+      "verdict": "NOT_PASS",
+      "failure": {
+        "class": "JSONDecodeError",
+        "reason": "sanitized_failure"
+      },
+      "cleanup": {
+        "DB_exact_removed": true,
+        "fixture_data_retained": "/home/kali/.hermes/cache/scratch/b5-317a347626a2/db",
+        "native_family_settled": true,
+        "owned_database_absent": true,
+        "runtime_exact_removed_socket_absent": true,
+        "supervisor_joined": true
+      }
+    },
+    {
+      "report": "report-v2.json",
+      "verdict": "NOT_PASS",
+      "failure": {
+        "class": "Refusal",
+        "reason": "command_failed"
+      },
+      "cleanup": {
+        "DB_exact_removed": true,
+        "fixture_data_retained": "/home/kali/.hermes/cache/scratch/b5-f23d99cb05a8/db",
+        "native_family_settled": true,
+        "owned_database_absent": true,
+        "runtime_exact_removed_socket_absent": true,
+        "supervisor_joined": true
+      }
+    },
+    {
+      "report": "report-v3.json",
+      "verdict": "NOT_PASS",
+      "failure": {
+        "class": "FileNotFoundError",
+        "reason": "sanitized_failure"
+      },
+      "cleanup": {
+        "DB_exact_removed": true,
+        "fixture_data_retained": "/home/kali/.hermes/cache/scratch/b5-16d128c8fdfc/db",
+        "native_family_settled": true,
+        "owned_database_absent": true,
+        "runtime_exact_removed_socket_absent": true,
+        "supervisor_joined": true
+      }
+    }
+  ],
+  "open_evidence": [
+    {
+      "id": "E-B05-01",
+      "disposition": "CLOSED_SCOPED_B05_1",
+      "evidence": "p2-b05-live.json: real PG/installed OCI/native/Stop/drain"
+    },
+    {
+      "id": "E-B05-02",
+      "disposition": "CLOSED_SCOPED_CURRENT_IMAGE",
+      "evidence": "p2-b05-live.json: installed source/overlay/dependency provenance binding"
+    },
+    {
+      "id": "E-B05-03",
+      "disposition": "OPEN_BEYOND_B05_1",
+      "needed": "Native failure/watchdog/stale-authority, credential canaries and clean restart/A-B-A/effective inventory; synthetic framing/reverse tests remain simulation."
+    },
+    {
+      "id": "E-B05-04",
+      "disposition": "CLOSED_SCOPED_B05_1",
+      "evidence": "final canonical exit0 on frozen3c496e8 plus independent live QA exit0"
+    },
+    {
+      "id": "E-B05-05",
+      "disposition": "POINT_IN_TIME_OVERRIDE_AUDIT_ONLY",
+      "evidence": "6eaa23a retained original audit and frozen three-package override audit (62 packages/zero advisories); no new supply-chain/full-graph audit claimed here."
+    }
+  ],
+  "limits": [
+    "No fault/mutation inventory, consumer UI or gate-wide acceptance.",
+    "Native handshake/unknown refusal follows byte-bound stock NativePeer launch; no raw RPC capture.",
+    "Runtime renew inferred from byte-bound owner loop, multiple durable PG heartbeats and native continuity beyond maximum grant.",
+    "Fixture synthetic password/PGDATA retained by canonical fixture policy.",
+    "No proof of zero attempted startup I/O at OS sink. Network-none is confinement, not a syscall trace.",
+    "No B06/catalog/task/child/model-dispatch/Settings, provider/model/target, P0 rollout, push or remote CI acceptance.",
+    "Historical reviewed hashes bind3c496e8, including then-current documents; documentation closure later is not a new product gate.",
+    "Driver archive is VM/HEAD-bound historical source, not a portable public command."
+  ]
+}

@@ -1,0 +1,635 @@
+#!/usr/bin/env python3
+"""B05.1 disposable real-PG / installed-OCI / stock supervisor probe.
+
+Preparation is not acceptance. Run with the locked API Python 3.13.15:
+  api/.venv/bin/python -I /absolute/scratch/omnis_b05_1_real_probe.py \
+    --image sha256:<64 hex> --report /absolute/scratch/new-report.json
+
+No builds, installation, model/provider calls, management RPC or target traffic.
+Only an explicitly supplied local image and the repository's fresh DB fixture
+are used. PGDATA and its generated synthetic password are retained following
+run_test_db_gate.py policy; neither passwords nor raw DSNs enter this report.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import platform
+import re
+import select
+import signal
+import socket
+import stat
+import subprocess
+import sys
+import time
+from pathlib import Path
+from uuid import uuid4
+
+REPO = Path('/home/kali/OmnisAI')
+COMMAND = ['/opt/hermes/venv/bin/python', '-I', '-m', 'omnis_hermes.runtime_host']
+STATE_DIRS = ('work', 'os-home', 'active', 'codex', 'tmp', 'managed-empty',
+              'xdg/config', 'xdg/cache', 'xdg/state', 'xdg/data')
+
+
+class Refusal(RuntimeError):
+    pass
+
+
+def require(condition, message):
+    if not condition:
+        raise Refusal(message)
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_file(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, 'module_spec')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module  # dataclasses resolve __module__ through sys.modules.
+    spec.loader.exec_module(module)
+    return module
+
+
+def run(argv, env, timeout=20):
+    result = subprocess.run(argv, env=env, capture_output=True, timeout=timeout,
+                            stdin=subprocess.DEVNULL, check=False)
+    require(result.returncode == 0, 'command_failed')
+    require(len(result.stdout) + len(result.stderr) <= 16 * 1024 * 1024,
+            'command_output_limit')
+    return result.stdout.decode('utf-8')
+
+
+def private(path, directory=False):
+    info = path.lstat()
+    require(info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) ==
+            (0o700 if directory else 0o600), 'private_path')
+    require(stat.S_ISDIR(info.st_mode) if directory else
+            stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'private_path_type')
+
+
+def control(directory, command):
+    private(directory, True)
+    private(directory / 'control.cap')
+    info = (directory / 'control.sock').lstat()
+    require(stat.S_ISSOCK(info.st_mode) and info.st_uid == os.getuid() and
+            stat.S_IMODE(info.st_mode) == 0o600, 'control_socket')
+    capability = (directory / 'control.cap').read_text()
+    require(re.fullmatch('[0-9a-f]{64}', capability) is not None, 'control_capability')
+    with socket.socket(socket.AF_UNIX) as channel:
+        channel.settimeout(4)
+        channel.connect(str(directory / 'control.sock'))
+        import struct
+        peer = struct.unpack('3i', channel.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+        require(peer[1] == os.getuid(), 'control_peer')
+        channel.sendall(json.dumps({'version': 1, 'capability': capability,
+                                   'command': command}).encode() + b'\n')
+        with channel.makefile('rb') as stream:
+            raw = stream.readline(8193)
+        require(len(raw) <= 8192 and raw.endswith(b'\n'), 'control_frame')
+        reply = json.loads(raw)
+        require(type(reply) is dict and reply.get('ok') is True, 'control_refused')
+        require(str(__import__('uuid').UUID(reply['correlation_id'])) == reply['correlation_id'],
+                'control_correlation')
+        return reply
+
+
+def poll_until(fn, seconds, message):
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        result = fn()
+        if result:
+            return result
+        time.sleep(0.05)
+    raise Refusal(message)
+
+
+def write_report(path, report):
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'w') as file:
+        json.dump(report, file, indent=2, sort_keys=True)
+        file.write('\n')
+        file.flush()
+        os.fsync(file.fileno())
+
+
+def probe(args):
+    require(platform.python_version() == '3.13.15', 'locked_API_python_required')
+    require(os.getuid() > 0 and os.getgid() > 0, 'nonroot_host_required')
+    require(not any(k.startswith(('DOCKER_', 'COMPOSE_', 'PG')) for k in os.environ),
+            'ambient_overrides_forbidden')
+    scratch = Path(os.environ['TMPDIR']).resolve(strict=True)
+    report_path = args.report
+    require(report_path.is_absolute() and report_path.resolve() == report_path and
+            scratch in report_path.parents and not report_path.exists() and
+            not report_path.is_symlink() and report_path.parent.is_dir(), 'new_scratch_report_required')
+    old_env = dict(os.environ)
+    base = {'PATH': '/usr/bin:/bin', 'HOME': old_env['HOME'], 'TMPDIR': str(scratch),
+            'PYTHONDONTWRITEBYTECODE': '1', 'LANG': 'C.UTF-8'}
+    os.environ.clear()
+    os.environ.update(base)
+    gate = load_file('b05_fixture_gate', REPO / 'ops/run_test_db_gate.py')
+    report = {'schema_version': 1, 'scope': 'B05.1 real DB/native happy path only',
+              'verdict': 'NOT_PASS', 'image_id': args.image, 'script_sha256': digest(Path(__file__)),
+              'provider_model_target_traffic': 'NOT_RUN', 'checks': {}, 'cleanup': {},
+              'limits': ['No fault/mutation inventory, consumer UI or gate-wide acceptance.',
+                         'Native handshake/unknown refusal follows byte-bound stock NativePeer launch; no raw RPC capture.',
+                         'Runtime renew inferred from byte-bound owner loop, multiple durable PG heartbeats and native continuity beyond maximum grant.',
+                         'Fixture synthetic password/PGDATA retained by canonical fixture policy.']}
+    checks, cleanup = report['checks'], report['cleanup']
+    paths = db_cid = rt_cid = docker = daemon_id = db_image = project = None
+    supervisor = supervisor_fd = None
+    native_fds = []
+    conftest = url = None
+    db_name = None
+    root = runtime = control_dir = None
+    runtime_name = 'omnis-b05-' + uuid4().hex
+    runtime_label = uuid4().hex
+    normal = False
+    family_clean = True
+
+    def daemon():
+        require(run([*docker, 'info', '--format', '{{.ID}}'], base).strip() == daemon_id,
+                'daemon_identity_changed')
+
+    def runtime_attest():
+        daemon()
+        obj = json.loads(run([*docker, 'inspect', rt_cid], base))[0]
+        cfg, host = obj['Config'], obj['HostConfig']
+        require(obj['Id'] == rt_cid and obj['Image'] == args.image and
+                cfg.get('Labels', {}).get('org.omnis.b05.probe') == runtime_label and
+                cfg['Cmd'] == COMMAND and cfg.get('Entrypoint') in (None, []) and
+                cfg['User'] == f'{os.getuid()}:{os.getgid()}', 'runtime_identity')
+        require(host['NetworkMode'] == 'none' and host['ReadonlyRootfs'] is True and
+                host['Privileged'] is False and host['PortBindings'] in (None, {}) and
+                set(host['CapDrop'] or []) == {'ALL'} and host.get('CapAdd') in (None, []) and
+                host.get('SecurityOpt') in (['no-new-privileges'], ['no-new-privileges:true']) and
+                host.get('PidMode') in ('', None) and host.get('IpcMode') == 'private' and
+                host.get('UTSMode') in ('', None) and host.get('UsernsMode') in ('', None) and
+                host['PidsLimit'] == 128 and host['Memory'] == 512 * 1024 * 1024,
+                'runtime_confinement')
+        mounts = obj['Mounts']
+        require(len(mounts) == 1 and mounts[0]['Type'] == 'bind' and
+                mounts[0]['Source'] == str(runtime) and mounts[0]['Destination'] == '/runtime' and
+                mounts[0]['RW'] is True, 'runtime_private_UDS_only_bind')
+        expected_tmpfs = {'/state/' + name: f'rw,nosuid,nodev,noexec,size=16m,mode=0700,uid={os.getuid()},gid={os.getgid()}'
+                          for name in STATE_DIRS}
+        require(host.get('Tmpfs') == expected_tmpfs, 'runtime_state_tmpfs')
+        networks = obj['NetworkSettings']['Networks']
+        require(type(networks) is dict and set(networks) <= {'none'} and all(
+            not item.get('IPAddress') and not item.get('GlobalIPv6Address') and
+            not item.get('Gateway') for item in networks.values()), 'runtime_no_network')
+        daemon()
+        return obj
+
+    def top():
+        obj = runtime_attest()
+        require(obj['State']['Running'] is True, 'runtime_not_running')
+        # Docker CLI top returns a text table (Engine API returns JSON).
+        # Preserve the exact three-column contract; args is the unsplit remainder.
+        lines = run([*docker, 'top', rt_cid, '-eo', 'pid,ppid,args'], base).splitlines()
+        require(bool(lines) and lines[0].split() == ['PID', 'PPID', 'COMMAND'], 'runtime_top_shape')
+        rows = [line.split(None, 2) for line in lines[1:] if line.strip()]
+        require(all(len(row) == 3 and row[0].isdigit() and row[1].isdigit() for row in rows),
+                'runtime_top_rows')
+        owner = [r for r in rows if r[2] == ' '.join(COMMAND)]
+        require(len(owner) == 1 and int(owner[0][0]) == obj['State']['Pid'], 'runtime_PID1_owner')
+        return rows, int(owner[0][0])
+
+    def connect():
+        return conftest.connect_test_database(url, autocommit=True)
+
+    def snapshot():
+        with connect() as db:
+            row = db.execute('SELECT instance_id,generation,admission_open,shutdown_command_id,'
+                             'quiesced_generation,quiesced_at FROM instance_control WHERE id=1').fetchone()
+            lease = db.execute('SELECT owner,epoch,expires_at,clock_timestamp() FROM supervisor_lease WHERE id=1').fetchone()
+            return row, lease
+
+    try:
+        require(not Path(REPO / 'api/.venv/bin/python').is_symlink() or
+                Path(REPO / 'api/.venv/bin/python').is_file(), 'API_interpreter')
+        # Pin the actual installed API consumer to the current repository bytes.
+        sources = ['supervisor/__main__.py', 'supervisor/runtime_client.py',
+                   'modules/instance/service.py', 'transport/local_control.py',
+                   'modules/instance/schemas.py']
+        api_hashes = {p: digest(REPO / 'api/src/omnis' / p) for p in sources}
+        code = ('import hashlib,json,pathlib,omnis; '
+                'r=pathlib.Path(omnis.__file__).parent; '
+                'print(json.dumps({p:hashlib.sha256((r/p).read_bytes()).hexdigest() for p in ' + repr(sources) + '}))')
+        actual = json.loads(run([sys.executable, '-I', '-c', code], base))
+        require(actual == api_hashes, 'installed_API_not_current')
+        report['api_source_hashes'] = actual
+        pin = json.loads((REPO / 'integrations/hermes/pin.json').read_text())
+        report['native_pin_commit'] = pin['commit']
+        report['code_commit'] = run(['git', '-C', str(REPO), 'rev-parse', 'HEAD'], base).strip()
+        require(report['code_commit'] == '3c496e866bc055bd3576c945a8f3aa27069eb8da', 'frozen_HEAD_changed')
+        report['original_probe_sha256'] = '039a17d853584da7aecfb30fcc7464f4f6dad4c4557cee9821e8918cc84eb301'
+        report['fixture_runner_sha256'] = digest(REPO / 'ops/run_test_db_gate.py')
+        report['DB_admission_sha256'] = digest(REPO / 'api/tests/conftest.py')
+        endpoint = gate._docker_endpoint(base)
+        docker = ['docker', '--host', endpoint]
+        daemon_id = run([*docker, 'info', '--format', '{{.ID}}'], base).strip()
+        require(bool(daemon_id), 'daemon_identity')
+        runtime_image = json.loads(run([*docker, 'image', 'inspect', args.image], base))[0]
+        require(runtime_image['Id'] == args.image and runtime_image['Architecture'] == 'amd64' and
+                runtime_image['Os'] == 'linux' and runtime_image['Config']['Cmd'] == COMMAND and
+                runtime_image['Config'].get('Entrypoint') in (None, []), 'installed_runtime_image')
+        allowed_env = {'PATH', 'LANG', 'GPG_KEY', 'PYTHON_VERSION', 'PYTHON_SHA256',
+                       'PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED', 'OMNIS_RUNTIME_DIR',
+                       'HERMES_OMNIS_INERT', 'HERMES_DISABLE_LAZY_INSTALLS',
+                       'HERMES_SKIP_NODE_BOOTSTRAP', 'HERMES_MANAGED_DIR', 'HOME',
+                       'HERMES_HOME', 'CODEX_HOME', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME',
+                       'XDG_STATE_HOME', 'XDG_DATA_HOME', 'TMPDIR'}
+        image_env = runtime_image['Config'].get('Env') or []
+        require(all(type(item) is str and '=' in item and item.split('=', 1)[0] in allowed_env
+                    for item in image_env), 'runtime_image_ambient_env')
+        env_values = dict(item.split('=', 1) for item in image_env)
+        require(len(env_values) == len(image_env) and env_values.get('HERMES_OMNIS_INERT') == '1'
+                and env_values.get('OMNIS_RUNTIME_DIR') == '/runtime', 'runtime_image_inert_env')
+        db_image_output = run([*docker, 'image', 'inspect', gate._IMAGE, '--format', '{{.Id}} {{.Architecture}}'], base).strip()
+        require(db_image_output.endswith(' amd64'), 'pinned_PG_image')
+        db_image = db_image_output.split()[0]
+        root = scratch / ('b5-' + uuid4().hex[:12])
+        root.mkdir(mode=0o700)
+        report['owned_root'] = str(root)
+        runtime, control_dir = root / 'rt', root / 'ctl'
+        runtime.mkdir(mode=0o700)
+        control_dir.mkdir(mode=0o700)
+        # Leaf tmpfs mounts preserve prebuilt parent directories. A single /state
+        # tmpfs would hide /state/work and fail the fixed native cwd before launch.
+        create = [*docker, 'create', '--pull', 'never', '--name', runtime_name,
+                  '--label', 'org.omnis.b05.probe=' + runtime_label,
+                  '--user', f'{os.getuid()}:{os.getgid()}', '--network', 'none',
+                  '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges:true',
+                  '--pids-limit', '128', '--memory', '512m', '--memory-swap', '512m',
+                  '--mount', f'type=bind,src={runtime},dst=/runtime']
+        for name in STATE_DIRS:
+            create += ['--tmpfs', f'/state/{name}:rw,nosuid,nodev,noexec,size=16m,mode=0700,uid={os.getuid()},gid={os.getgid()}']
+        create.append(args.image)
+        rt_cid = run(create, base, 30).strip()
+        require(re.fullmatch('[0-9a-f]{64}', rt_cid) is not None, 'runtime_CID')
+        report['runtime'] = {'cid': rt_cid, 'name': runtime_name, 'label': runtime_label,
+                             'private_directory': str(runtime)}
+        runtime_attest()
+        # Inspect installed bytes before startup. No extra runtime exec/harness.
+        attested = root / 'installed'
+        attested.mkdir(mode=0o700)
+        pairs = [(f'/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/{name}',
+                  REPO / 'integrations/hermes/src/omnis_hermes' / name)
+                 for name in ('runtime_host.py', 'runtime_protocol.py', 'private_paths.py')]
+        installed_hashes = {}
+        for index, (source, expected) in enumerate(pairs):
+            target = attested / str(index)
+            run([*docker, 'cp', f'{rt_cid}:{source}', str(target)], base)
+            require(digest(target) == digest(expected), 'installed_adapter_stale')
+            installed_hashes[str(expected.relative_to(REPO))] = digest(target)
+        for name in ('source-manifest.json', 'build-manifest.json'):
+            run([*docker, 'cp', f'{rt_cid}:/opt/hermes/provenance/{name}', str(attested / name)], base)
+        source_manifest = json.loads((attested / 'source-manifest.json').read_text())
+        build_manifest = json.loads((attested / 'build-manifest.json').read_text())
+        require(source_manifest['pin'] == pin and build_manifest['python'] == pin['python'] and
+                build_manifest['adapter_injected'] is True, 'native_provenance')
+        override = json.loads((REPO / 'integrations/hermes/runtime-override/provenance.json').read_text())
+        require(source_manifest['dependency_override'] == override and
+                build_manifest['dependency_override'] == override, 'dependency_override')
+        patch_manifest = json.loads((REPO / 'integrations/hermes/upstream/patch-manifest.json').read_text())
+        for index, (name, hashes) in enumerate(patch_manifest['files'].items()):
+            target = attested / f'overlay-{index}'
+            run([*docker, 'cp', f'{rt_cid}:/opt/hermes/source/{name}', str(target)], base)
+            require(digest(target) == hashes['patched_sha256'] and
+                    build_manifest['native_source_files'][name] == hashes['patched_sha256'], 'native_overlay_stale')
+        report['installed_adapter_hashes'] = installed_hashes
+        report['installed_provenance_manifest_sha256'] = {
+            name: digest(attested / name) for name in ('source-manifest.json', 'build-manifest.json')}
+        report['native_command'] = ['/opt/hermes/venv/bin/python', '-I', '-m', 'tui_gateway.entry']
+        report['runtime_owner_command'] = COMMAND
+        checks['installed_source_binding'] = True
+        paths = gate.prepare_paths(root / 'db')
+        project = 'omnis-p01-' + uuid4().hex
+        env = {**base, 'OMNIS_TEST_PROJECT': project, 'OMNIS_TEST_UID': str(os.getuid()),
+               'OMNIS_TEST_GID': str(os.getgid()), 'OMNIS_TEST_DATA_DIR': str(paths.data),
+               'OMNIS_TEST_SOCKET_DIR': str(paths.socket), 'OMNIS_TEST_PASSWORD_FILE': str(paths.password)}
+        compose = [*docker, 'compose', '--env-file', '/dev/null', '--project-directory', str(paths.root),
+                   '-f', str(gate._COMPOSE), '-p', project]
+        gate.validate_compose_config(json.loads(run([*compose, 'config', '--format', 'json'], env)), paths)
+        require(not gate._find_owned(docker, base, project) and not gate._project_networks(docker, base, project), 'fresh_DB_project')
+        run([*compose, 'up', '--no-build', '--pull', 'never', '-d', 'db'], env, 60)
+        matches = gate._find_owned(docker, base, project)
+        require(len(matches) == 1, 'one_owned_DB')
+        db_cid = matches[0]
+        gate._container(db_cid, docker, base, paths, project, db_image)
+        password = paths.password.read_text().strip()
+        identity = gate._authenticated(paths, password, base, docker, db_cid)
+        daemon()
+        manifest = gate.write_fixture_manifest(paths, project, db_cid, db_image, endpoint, daemon_id, identity)
+        gate.attest_fixture(manifest)
+        report['fixture'] = {'project': project, 'cid': db_cid, 'image_id': db_image,
+                             'system_identifier': identity, 'manifest': str(manifest)}
+        checks['fresh_attested_PG_18_6'] = True
+        from sqlalchemy.engine import URL
+        from urllib.parse import quote
+        from psycopg import sql
+        conftest = load_file('b05_test_DB_admission', REPO / 'api/tests/conftest.py')
+        os.environ.update(env)
+        os.environ['OMNIS_TEST_FIXTURE'] = str(manifest)
+        url = URL.create('postgresql+psycopg', username='omnis_test', password=password,
+                         host=quote(str(paths.socket), safe=''), database='omnis_test')
+        db_name = 'omnis_p01_' + uuid4().hex
+        with connect() as db:
+            db.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(db_name)))
+        url = url.set(database=db_name)
+        migration_env = {**base, 'OMNIS_DATABASE_URL': url.render_as_string(hide_password=False)}
+        run([sys.executable, '-I', '-m', 'alembic', '-c', str(REPO / 'api/alembic.ini'), 'upgrade', 'head'],
+            migration_env, 30)
+        row, lease = snapshot()
+        require(row[1:] == (0, False, None, None, None) and lease[:3] == (None, 0, None), 'fresh_schema_state')
+        run([*docker, 'start', rt_cid], base, 20)
+        poll_until(lambda: (runtime / 'runtime.sock').exists() and (runtime / 'runtime.boot').exists(), 5, 'runtime_start_deadline')
+        rows, owner_pid = top()
+        report['runtime']['owner_host_pid'] = owner_pid
+        require(len(rows) == 1, 'runtime_idle_family')
+        # Narrow installed-cwd shadow challenge before native launch.
+        # The idle runtime owner remains stock PID1; no model or gateway task is used.
+        shadow = root / 'cwd-shadow'
+        shadow.mkdir(mode=0o700)
+        package = shadow / 'tui_gateway'
+        package.mkdir(mode=0o700)
+        tags = ('tui_gateway', 'hermes_bootstrap')
+        def trap(tag):
+            return ("from pathlib import Path\n"
+                    "Path('/state/work/B05_CWD_SHADOW_" + tag + "').write_text('B05_CWD_SHADOW_" + tag + "')\n"
+                    "raise RuntimeError('B05_CWD_SHADOW_" + tag + "')\n")
+        for file, tag in ((package / '__init__.py', 'tui_gateway'),
+                          (package / 'entry.py', 'tui_gateway'),
+                          (shadow / 'hermes_bootstrap.py', 'hermes_bootstrap')):
+            file.write_text(trap(tag))
+            file.chmod(0o600)
+        shadow_hashes = {str(p.relative_to(shadow)): digest(p)
+                         for p in (package / '__init__.py', package / 'entry.py', shadow / 'hermes_bootstrap.py')}
+        # Engine archive copy may refuse a read-only root even at a tmpfs path.
+        # Only an inert, isolated installed-interpreter fixture writer is used.
+        shadow_payload = {p: (shadow / p).read_text() for p in shadow_hashes}
+        writer_code = (
+            "import json,os,pathlib,sys\n"
+            "files=json.loads(sys.argv[1])\n"
+            "expected={'tui_gateway/__init__.py','tui_gateway/entry.py','hermes_bootstrap.py'}\n"
+            "if set(files)!=expected: raise RuntimeError('shadow paths')\n"
+            "root=pathlib.Path('/state/work')\n"
+            "(root/'tui_gateway').mkdir(mode=0o700)\n"
+            "for name,text in files.items():\n"
+            " path=root/name\n"
+            " with path.open('x') as f: f.write(text)\n"
+            " path.chmod(0o600)\n")
+        run([*docker, 'exec', '--user', f'{os.getuid()}:{os.getgid()}',
+             '--workdir', '/state/work', rt_cid, '/opt/hermes/venv/bin/python', '-I', '-c',
+             writer_code, json.dumps(shadow_payload)], base)
+        def shadow_readback(name):
+            # Docker archive copy does not attest live tmpfs contents here.
+            # Read only the fixed synthetic files from the running mount namespace.
+            reader_code = (
+                "import hashlib,json,os\nfrom pathlib import Path\n"
+                "root=Path('/state/work')\n"
+                "names=('tui_gateway/__init__.py','tui_gateway/entry.py','hermes_bootstrap.py')\n"
+                "tags=('tui_gateway','hermes_bootstrap')\n"
+                "print(json.dumps({'hashes':{name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in names},"
+                "'markers':{tag:os.path.lexists(root/('B05_CWD_SHADOW_'+tag)) for tag in tags}}))\n"
+            )
+            observed = json.loads(run([*docker, 'exec', '--user', f'{os.getuid()}:{os.getgid()}',
+                '--workdir', '/state/work', rt_cid, '/opt/hermes/venv/bin/python', '-I', '-c',
+                reader_code], base))
+            require(type(observed) is dict and set(observed) == {'hashes', 'markers'},
+                    'cwd_shadow_readback_shape')
+            require(observed['hashes'] == shadow_hashes,
+                    'cwd_shadow_bytes_changed')
+            require(type(observed['markers']) is dict and set(observed['markers']) == set(tags) and
+                    all(type(value) is bool and value is False for value in observed['markers'].values()),
+                    'synthetic_shadow_marker_present')
+            (root / (name + '.json')).write_text(json.dumps(observed, sort_keys=True) + '\n')
+            return True
+        shadow_readback('cwd-before')
+        # Sensitivity control uses the installed interpreter with isolation omitted
+        # ONLY for these synthetic imports; never native gateway task execution.
+        sensitivity_code = (
+            "import importlib,json,pathlib\n"
+            "seen={}\n"
+            "for name in ('tui_gateway','hermes_bootstrap'):\n"
+            " marker=pathlib.Path('B05_CWD_SHADOW_'+name)\n"
+            " try:\n"
+            "  importlib.import_module(name)\n"
+            " except RuntimeError as exc:\n"
+            "  if str(exc)!='B05_CWD_SHADOW_'+name: raise\n"
+            " else: raise RuntimeError('shadow sensitivity missing')\n"
+            " if marker.read_text()!='B05_CWD_SHADOW_'+name: raise RuntimeError('wrong marker')\n"
+            " seen[name]=True\n"
+            " marker.unlink()\n"
+            "seen['markers_removed']=True\n"
+            "print(json.dumps(seen))\n")
+        sensitivity = json.loads(run([*docker, 'exec', '--user', f'{os.getuid()}:{os.getgid()}',
+            '--workdir', '/state/work', rt_cid, '/opt/hermes/venv/bin/python', '-c', sensitivity_code], base))
+        require(sensitivity == {'tui_gateway': True, 'hermes_bootstrap': True, 'markers_removed': True},
+                'cwd_shadow_sensitivity_failed')
+        shadow_readback('cwd-after-negative')
+        rows, _ = top()
+        require(len(rows) == 1, 'sensitivity_process_not_joined')
+        report['cwd_shadow_control'] = {'shadow_hashes': shadow_hashes,
+            'installed_nonisolated_sensitivity': sensitivity,
+            'pre_native_marker_absence': True,
+            'scope': 'Synthetic imports only on exact installed image; no native mutation or product edit.'}
+        # Stock installed supervisor owns the only runtime connection.
+        supervisor = subprocess.Popen([sys.executable, '-I', '-m', 'omnis.supervisor'],
+            cwd=root, env={**migration_env, 'OMNIS_CONTROL_DIR': str(control_dir),
+                           'OMNIS_RUNTIME_DIR': str(runtime), 'OMNIS_RUNTIME_INERT_PROBE': '1'},
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True)
+        supervisor_fd = os.pidfd_open(supervisor.pid)
+        require(select.select([supervisor.stdout], [], [], 8)[0], 'supervisor_start_deadline')
+        require(supervisor.stdout.readline() == b'SUPERVISOR_READY\n', 'supervisor_ready_marker')
+        initial = control(control_dir, {'op': 'status'})['status']
+        require(initial['generation'] == 0 and initial['supervisor_epoch'] == 1 and
+                initial['supervisor_ready'] is True and initial['admission_open'] is False and
+                initial['assessment_ready'] is False and initial['shutdown_command_id'] is None,
+                'inert_supervisor_state')
+        rows, _ = top()
+        native = [r for r in rows if r[2] == '/opt/hermes/venv/bin/python -I -m tui_gateway.entry']
+        require(len(rows) == 2 and len(native) == 1 and int(native[0][1]) == owner_pid, 'real_native_process')
+        native_pid = int(native[0][0])
+        report['runtime']['native_host_pid'] = native_pid
+        native_fds.append(os.pidfd_open(native_pid))
+        checks['stock_NativePeer_handshake_and_unknown_refusal'] = True
+        started = time.monotonic()
+        lease_samples = []
+        previous_expiry = None
+        while time.monotonic() - started < 5.5:
+            require(supervisor.poll() is None and not select.select(native_fds, [], [], 0)[0], 'continuity_lost')
+            row, lease = snapshot()
+            require(row[1] == 0 and row[2] is False and row[3] is None and lease[0] is not None and
+                    lease[1] == 1 and lease[2] > lease[3], 'current_lease')
+            if previous_expiry != lease[2]:
+                lease_samples.append({'at_seconds': round(time.monotonic() - started, 3),
+                                      'expires_at': lease[2].isoformat()})
+                previous_expiry = lease[2]
+            time.sleep(0.15)
+        require(len(lease_samples) >= 3 and lease_samples[-1]['at_seconds'] - lease_samples[0]['at_seconds'] >= 2,
+                'two_renew_intervals_not_observed')
+        rows, _ = top()
+        require(len(rows) == 2 and any(int(r[0]) == native_pid for r in rows), 'native_not_continuous')
+        shadow_readback('cwd-after-real-native')
+        report['cwd_shadow_control']['real_isolated_native_marker_absence'] = True
+        checks['installed_cwd_shadow_isolation_and_sensitive_negative'] = True
+        report['lease_samples'] = lease_samples
+        checks['native_continuity_over_5_5_seconds_and_multiple_owner_renewals'] = True
+        shutdown_id, finalize_id = uuid4(), uuid4()
+        shutdown = control(control_dir, {'op': 'shutdown', 'instance_id': initial['instance_id'],
+                            'command_id': str(shutdown_id), 'expected_generation': 0})
+        require(shutdown['command_id'] == str(shutdown_id) and shutdown['expected_generation'] == 0 and
+                shutdown['owner_epoch'] == 1 and shutdown['result_generation'] == 1 and
+                shutdown['status']['generation'] == 1 and shutdown['status']['admission_open'] is False and
+                shutdown['status']['shutdown_command_id'] == str(shutdown_id), 'SHUTDOWN_receipt')
+        def quiesced():
+            view = control(control_dir, {'op': 'status'})['status']
+            return view if view['quiesced_generation'] == 1 else None
+        poll_until(quiesced, 5, 'quiescence_missing')
+        rows, _ = top()
+        require(len(rows) == 1 and select.select(native_fds, [], [], 0)[0] == native_fds, 'native_family_not_drained')
+        row, lease = snapshot()
+        require(row[1] == 1 and row[2] is False and row[3] == shutdown_id and
+                row[4] == 1 and row[5] is not None, 'durable_quiescence')
+        final = control(control_dir, {'op': 'finalize', 'instance_id': initial['instance_id'],
+                         'command_id': str(finalize_id), 'expected_generation': 1})
+        require(final['command_id'] == str(finalize_id) and final['expected_generation'] == 1 and
+                final['owner_epoch'] == 1 and final['result_generation'] == 1 and
+                final['status']['shutdown_finalized'] is True and
+                final['status']['quiesced_generation'] == 1, 'FINALIZE_receipt')
+        with connect() as db:
+            receipts = db.execute('SELECT command_id,kind,expected_generation,result_generation,owner_epoch '
+                                  'FROM instance_command ORDER BY expected_generation').fetchall()
+        require(receipts == [(shutdown_id, 'SHUTDOWN', 0, 1, 1), (finalize_id, 'FINALIZE', 1, 1, 1)], 'durable_command_readback')
+        report['durable_commands'] = [{'command_id': str(r[0]), 'kind': r[1], 'expected_generation': r[2],
+                                       'result_generation': r[3], 'owner_epoch': r[4]} for r in receipts]
+        checks['UDS_SHUTDOWN_quiescence_FINALIZE_durable_readback'] = True
+        checks['native_namespace_family_drained_before_finalize'] = True
+        signal.pidfd_send_signal(supervisor_fd, signal.SIGTERM)
+        out, err = supervisor.communicate(timeout=8)
+        require(supervisor.returncode == 0 and out == err == b'', 'supervisor_normal_join')
+        row, lease = snapshot()
+        require(lease[:3] == (None, 1, None) and row[1] == 1 and row[4] == 1, 'supervisor_release_readback')
+        require(not (control_dir / 'control.sock').exists() and not (control_dir / 'control.cap').exists(), 'control_cleanup')
+        checks['supervisor_exit_zero_release_readback'] = True
+        require({p: digest(REPO / 'api/src/omnis' / p) for p in sources} == api_hashes,
+                'API_snapshot_changed_during_probe')
+        require(all(digest(REPO / p) == value for p, value in installed_hashes.items()),
+                'adapter_snapshot_changed_during_probe')
+        require(run(['git', '-C', str(REPO), 'rev-parse', 'HEAD'], base).strip() == report['code_commit'],
+                'HEAD_changed_during_probe')
+        normal = True
+    except BaseException as exc:
+        report['failure'] = {'class': type(exc).__name__, 'reason': str(exc) if isinstance(exc, Refusal) else 'sanitized_failure'}
+    finally:
+        # Join only our exact pidfd-pinned supervisor; uncertain cleanup is never PASS.
+        if supervisor is not None and supervisor.poll() is None:
+            try:
+                signal.pidfd_send_signal(supervisor_fd, signal.SIGTERM)
+                supervisor.communicate(timeout=8)
+            except BaseException:
+                normal = False
+                try:
+                    signal.pidfd_send_signal(supervisor_fd, signal.SIGKILL)
+                    supervisor.communicate(timeout=3)
+                except BaseException:
+                    family_clean = False
+        if supervisor_fd is not None:
+            os.close(supervisor_fd)
+        cleanup['supervisor_joined'] = supervisor is None or supervisor.returncode is not None
+        if rt_cid is None and docker is not None and root is not None:
+            try:
+                candidate = json.loads(run([*docker, 'inspect', runtime_name], base))[0]
+                rt_cid = candidate['Id']
+            except BaseException:
+                pass
+        if rt_cid is not None:
+            try:
+                runtime_attest()
+                run([*docker, 'stop', '--time', '5', rt_cid], base, 15)
+                stopped = runtime_attest()
+                require(stopped['State']['Running'] is False and stopped['State']['Pid'] == 0, 'runtime_stop_readback')
+                run([*docker, 'rm', rt_cid], base)
+                daemon()
+                absent = subprocess.run([*docker, 'inspect', rt_cid], env=base, capture_output=True, timeout=10)
+                require(absent.returncode != 0 and f'No such object: {rt_cid}'.encode() in absent.stderr, 'runtime_absence')
+                require(not run([*docker, 'ps', '-a', '--no-trunc', '--filter',
+                                 'label=org.omnis.b05.probe=' + runtime_label, '--format', '{{.ID}}'], base).strip(), 'runtime_label_absence')
+                require(not (runtime / 'runtime.sock').exists() and not (runtime / 'runtime.boot').exists(), 'runtime_UDS_cleanup')
+                cleanup['runtime_exact_removed_socket_absent'] = True
+            except BaseException:
+                cleanup['runtime_exact_removed_socket_absent'] = False
+                family_clean = False
+        for fd in native_fds:
+            if not select.select([fd], [], [], 0)[0]:
+                family_clean = False
+            os.close(fd)
+        cleanup['native_family_settled'] = family_clean
+        if paths is not None and docker is not None and project is not None:
+            try:
+                if db_cid is None:
+                    matches = gate._find_owned(docker, base, project)
+                    require(len(matches) <= 1, 'unresolved_DB_candidates')
+                    db_cid = matches[0] if matches else None
+                if family_clean and db_cid is not None:
+                    if db_name is not None and conftest is not None and url is not None:
+                        gate.attest_fixture(paths.root / 'fixture.json')
+                        from psycopg import sql
+                        with conftest.connect_test_database(url.set(database='omnis_test'), autocommit=True) as db:
+                            db.execute(sql.SQL('DROP DATABASE IF EXISTS {}').format(sql.Identifier(db_name)))
+                            require(db.execute('SELECT 1 FROM pg_database WHERE datname=%s', (db_name,)).fetchone() is None,
+                                    'owned_schema_drop_readback')
+                        cleanup['owned_database_absent'] = True
+                    cleanup['DB_exact_removed'] = gate.cleanup_owned(db_cid, docker, base, paths, project, db_image, daemon_id)
+                elif db_cid is not None:
+                    cleanup['DB_retained_due_unresolved_family'] = True
+                else:
+                    cleanup['DB_not_created'] = not gate._find_owned(docker, base, project)
+            except BaseException:
+                cleanup['DB_exact_removed'] = False
+            cleanup['fixture_data_retained'] = str(paths.root)
+        required_cleanup = (cleanup.get('supervisor_joined') is True and family_clean and
+                            cleanup.get('runtime_exact_removed_socket_absent') is True and
+                            cleanup.get('owned_database_absent') is True and cleanup.get('DB_exact_removed') is True)
+        report['verdict'] = 'PASS_SCOPED' if normal and required_cleanup else 'NOT_PASS'
+        os.environ.clear()
+        os.environ.update(old_env)
+        write_report(report_path, report)
+    print(json.dumps({'verdict': report['verdict'], 'report': str(report_path)}))
+    return 0 if report['verdict'] == 'PASS_SCOPED' else 2
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--image', required=True, help='Already installed immutable OCI sha256: ID; never pulls/builds.')
+    parser.add_argument('--report', required=True, type=Path, help='New absolute JSON path under $TMPDIR (0600).')
+    args = parser.parse_args()
+    if re.fullmatch(r'sha256:[0-9a-f]{64}', args.image) is None:
+        parser.error('--image must be an exact lowercase sha256: image ID')
+    previous_term = signal.getsignal(signal.SIGTERM)
+
+    def interrupt(_signum, _frame):
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, interrupt)
+    try:
+        return probe(args)
+    except BaseException as exc:
+        print('B05_PROBE_BLOCKED:' + type(exc).__name__, file=sys.stderr)
+        return 2
+    finally:
+        signal.signal(signal.SIGTERM, previous_term)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

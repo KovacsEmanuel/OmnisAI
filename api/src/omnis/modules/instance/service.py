@@ -55,12 +55,77 @@ class RuntimeAuthority:
     deadline_ns: int
 
 
+@dataclass(frozen=True)
+class CaseTransitionGuard:
+    deadline_ns: int
+    verify: Callable[[], Awaitable[None]]
+
+
 class InstanceService:
     def __init__(
         self, engine: AsyncEngine, *, runtime_drain: Callable[[], Awaitable[bool]] | None = None
     ) -> None:
         self.engine = engine
         self.runtime_drain = runtime_drain
+
+    @asynccontextmanager
+    async def case_transition(
+        self,
+        owner: UUID,
+        epoch: int,
+        generation: int,
+        instance_id: UUID,
+        *,
+        restoring: bool,
+    ) -> AsyncIterator[CaseTransitionGuard]:
+        """Hold the existing instance→lease lock order across finite slot I/O.
+
+        No renewal, OPEN or authority at physical filesystem/DB commit is
+        implied. The caller must retain PREPARED on every incomplete move.
+        """
+        if (
+            type(owner) is not UUID
+            or type(instance_id) is not UUID
+            or type(epoch) is not int
+            or not 1 <= epoch <= 2**63 - 1
+            or type(generation) is not int
+            or not 0 <= generation <= 2**63 - 1
+            or type(restoring) is not bool
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            await self._stop_fence(connection)
+            self._require_generation(instance, generation)
+            if instance.instance_id != instance_id:
+                raise ControlConflict(ControlCode.INSTANCE_MISMATCH)
+            if (
+                instance.admission_open
+                or (restoring and instance.shutdown_command_id is not None)
+                or (
+                    not restoring
+                    and instance.shutdown_command_id is not None
+                    and instance.quiesced_generation != generation
+                )
+            ):
+                raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+            started = time.monotonic_ns()
+            now = read_datetime(
+                (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()
+            )
+            if lease.expires_at is None:
+                raise ControlConflict(ControlCode.LEASE_LOST)
+            remaining = min(1.5, (lease.expires_at - now).total_seconds())
+            deadline = started + int(remaining * 1_000_000_000)
+
+            async def verify() -> None:
+                await self._require_owner(connection, lease, owner, epoch)
+                if time.monotonic_ns() >= deadline:
+                    raise ControlConflict(ControlCode.LEASE_LOST)
+
+            await verify()
+            yield CaseTransitionGuard(deadline, verify)
+            await verify()
 
     async def runtime_authority(
         self, owner: UUID, epoch: int, generation: int, *, inert_probe: bool = False

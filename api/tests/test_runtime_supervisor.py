@@ -13,6 +13,96 @@ from omnis.supervisor import __main__ as consumer
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("initial_state", ["IDLE", "READY"])
+async def test_case_consumer_restores_before_launch_and_archives_before_release(
+    monkeypatch: pytest.MonkeyPatch,
+    initial_state: str,
+) -> None:
+    events: list[str] = []
+    engine = Mock(dispose=AsyncMock())
+    service = Mock()
+    instance_id, case_id, boot = uuid4(), uuid4(), str(uuid4())
+    service.acquire = AsyncMock(return_value=1)
+    service.owned_status = AsyncMock(return_value=Mock(generation=0, instance_id=instance_id))
+    service.quiesce = AsyncMock()
+    service.heartbeat = AsyncMock()
+
+    async def released(*args: object) -> None:
+        events.append("release")
+
+    service.release = AsyncMock(side_effect=released)
+    client = Mock(boot=boot)
+    client.connect = AsyncMock()
+    client.renew = AsyncMock()
+    client.close = AsyncMock()
+    stopped: dict[str, object] = {"state": "STOPPED", "drained": True}
+    client.status = AsyncMock(side_effect=[{"state": initial_state}, stopped])
+
+    async def launched(*args: object) -> dict[str, object]:
+        events.append("launch")
+        return {"state": "READY"}
+
+    async def drained() -> bool:
+        events.append("drain")
+        return True
+
+    client.launch_inert = AsyncMock(side_effect=launched)
+    client.drain = AsyncMock(side_effect=drained)
+    slot = Mock(close=AsyncMock())
+
+    async def prepared(*args: object) -> None:
+        events.append("restore")
+
+    async def archived(*args: object) -> None:
+        events.append("archive")
+
+    slot.prepare = AsyncMock(side_effect=prepared)
+    slot.observe = AsyncMock()
+    slot.archive = AsyncMock(side_effect=archived)
+    engagement = Mock(read=AsyncMock())
+
+    @asynccontextmanager
+    async def control(*args: object) -> AsyncIterator[None]:
+        yield
+
+    class Stopped:
+        def set(self) -> None:
+            pass
+
+        def is_set(self) -> bool:
+            return True
+
+    monkeypatch.setattr(asyncio, "Event", Stopped)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.setattr(consumer, "EngagementService", lambda raw: engagement, raising=False)
+    monkeypatch.setattr(consumer, "CaseSlot", lambda *args: slot, raising=False)
+    monkeypatch.setattr(consumer, "LocalControl", control)
+    monkeypatch.setattr(consumer, "RuntimeClient", lambda *args, **kwargs: client)
+    for key, value in {
+        "OMNIS_DATABASE_URL": "synthetic",
+        "OMNIS_CONTROL_DIR": "/synthetic",
+        "OMNIS_RUNTIME_DIR": "/synthetic-runtime",
+        "OMNIS_RUNTIME_INERT_PROBE": "1",
+        "OMNIS_RUNTIME_CASE_ID": str(case_id),
+        "OMNIS_RUNTIME_STATE_ROOT": "/synthetic-state",
+    }.items():
+        monkeypatch.setenv(key, value)
+    if initial_state == "READY":
+        with pytest.raises(ValueError, match="Fresh runtime"):
+            await consumer.run()
+        slot.prepare.assert_not_awaited()
+        slot.archive.assert_not_awaited()
+        return
+    await consumer.run()
+    assert events == ["restore", "launch", "drain", "archive", "release"]
+    engagement.read.assert_awaited_once_with(case_id)
+    slot.observe.assert_awaited_once_with({"state": "READY"})
+    slot.archive.assert_awaited_once_with(service, 0, stopped)
+
+
+@pytest.mark.asyncio
 async def test_supervisor_runtime_is_opt_in_and_drained_before_release(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

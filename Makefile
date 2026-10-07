@@ -51,6 +51,12 @@ test-sl04-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_instance.py api/tests/test_stop_fence.py api/tests/test_control_regressions.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
 
+.PHONY: test-b05-case-pg
+# Focused real PostgreSQL guards; invoke only through the owned private DB runner.
+test-b05-case-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest -c api/pyproject.toml api/tests/test_case_slot_service.py -q
+
 .PHONY: check-runtime
 # Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
 check-runtime:

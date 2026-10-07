@@ -5,13 +5,15 @@ import os
 import signal
 import sys
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlalchemy.exc import SQLAlchemyError
 
 from omnis.core.db import database_engine, readiness_reason
+from omnis.modules.engagements.service import EngagementNotFound, EngagementService
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
+from omnis.supervisor.case_slot import CaseSlot
 from omnis.supervisor.runtime_client import RuntimeClient
 from omnis.transport.local_control import LocalControl
 
@@ -27,6 +29,21 @@ async def run() -> None:
         raise ValueError("Invalid explicit runtime opt-in")
     if raw_runtime is not None and (not raw_runtime or Path(raw_runtime) == Path(raw_directory)):
         raise ValueError("Runtime requires a distinct private directory")
+    raw_case = os.environ.get("OMNIS_RUNTIME_CASE_ID")
+    raw_state = os.environ.get("OMNIS_RUNTIME_STATE_ROOT")
+    case_id = None
+    if raw_case is not None or raw_state is not None:
+        if not raw_case or not raw_state or probe != "1":
+            raise ValueError("Invalid paired case opt-in")
+        case_id = UUID(raw_case)
+        if (
+            str(case_id) != raw_case
+            or not Path(raw_state).is_absolute()
+            or str(Path(raw_state)) != raw_state
+        ):
+            raise ValueError("Invalid case identity")
+    slot: CaseSlot | None = None
+    nominal_close = False
     runtime: RuntimeClient | None = None
     engine = database_engine(raw_url)
     service = InstanceService(engine)
@@ -46,11 +63,27 @@ async def run() -> None:
             await runtime.connect()
             service.runtime_drain = runtime.drain
             if probe == "1":
-                await runtime.launch_inert(service, owner)
+                if case_id is not None and raw_state is not None:
+                    if (await runtime.status())["state"] != "IDLE":
+                        raise ValueError("Fresh runtime boot required")
+                    await EngagementService(engine).read(case_id)
+                    slot = CaseSlot(
+                        Path(raw_state),
+                        case_id,
+                        status.instance_id,
+                        owner,
+                        epoch,
+                        status.generation,
+                        runtime.boot,
+                    )
+                    await slot.prepare(service)
+                launched = await runtime.launch_inert(service, owner)
                 # Startup consumed the initial grant; refresh CURRENT authority
                 # before entering the ordinary heartbeat interval.
                 await service.heartbeat(owner, epoch)
                 await runtime.renew(service, owner)
+                if slot is not None:
+                    await slot.observe(launched)
             else:
                 await runtime.status()
         async with LocalControl(Path(raw_directory), service, owner, epoch):
@@ -76,26 +109,42 @@ async def run() -> None:
                                 or observed.quiesced_generation != observed.generation
                             ):
                                 raise ValueError("Runtime unavailable") from None
+            nominal_close = True
     finally:
         try:
             if runtime is not None:
                 try:
                     if not await runtime.drain():
                         raise ValueError("Runtime drain uncertain")
+                    if slot is not None and nominal_close and epoch is not None:
+                        stopped = await runtime.status()
+                        current = await service.owned_status(owner, epoch)
+                        await slot.archive(service, current.generation, stopped)
                 finally:
                     await runtime.close()
             if epoch is not None:
                 await service.release(owner, epoch)
         finally:
-            await engine.dispose()
-            for sig in (signal.SIGTERM, signal.SIGINT):
-                loop.remove_signal_handler(sig)
+            try:
+                if slot is not None:
+                    await slot.close()
+            finally:
+                await engine.dispose()
+                for sig in (signal.SIGTERM, signal.SIGINT):
+                    loop.remove_signal_handler(sig)
 
 
 def main() -> int:
     try:
         asyncio.run(run())
-    except (OSError, ValueError, TimeoutError, SQLAlchemyError, ControlConflict):
+    except (
+        OSError,
+        ValueError,
+        TimeoutError,
+        SQLAlchemyError,
+        ControlConflict,
+        EngagementNotFound,
+    ):
         # Never print DSNs, raw SQL parameters, capabilities or request content.
         print("SUPERVISOR_UNAVAILABLE", file=sys.stderr)
         return 3

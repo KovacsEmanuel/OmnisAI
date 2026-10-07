@@ -79,7 +79,7 @@ class RuntimeBuildControls(unittest.TestCase):
         file = ROOT / "ops/Dockerfile.hermes"
         self.assertTrue(file.is_file(), "native OCI recipe is missing")
         text = file.read_text()
-        for required in ["@sha256:", "--require-hashes", "--no-deps", "--no-index", "/opt/hermes/venv", "USER ${RUNTIME_UID}:${RUNTIME_GID}", '"-I", "-m", "omnis_hermes.runtime_host"', "HERMES_OMNIS_INERT=1"]:
+        for required in ["@sha256:", "--require-hashes", "--no-deps", "--no-index", "/opt/hermes/venv", "USER ${RUNTIME_UID}:${RUNTIME_GID}", '"-I", "-m", "omnis_hermes.runtime_host"', "HERMES_OMNIS_INERT=1", "OMNIS_RUNTIME_DIR=/runtime"]:
             self.assertIn(required, text)
         self.assertNotIn("apt-get", text)
         self.assertNotIn("latest", text)

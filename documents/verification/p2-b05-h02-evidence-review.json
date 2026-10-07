@@ -1,0 +1,979 @@
+{
+  "schema_version": 1,
+  "report_id": "final-evidence-review-654de62",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Read-only final evidence/status projection acceptance review of exact eight-path committed packet e5edb25..654de62. No concrete blocking finding in reviewed packet. This is not a new execution PASS, whole-B05/G02 closure, B06 permission, code/harness audit, independent cleanup execution or parent integration acceptance.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "654de62362a1a117690e4c8a273b3acc23006eb5",
+    "reference_product": "e5edb258fdfc03ab9fc4608d0c9d69e6c93c45af",
+    "branch": "p04-control-topology-wip",
+    "committed_scope_paths": [
+      ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "README.md",
+      "documents/Omnis_Implementation_Plan.html",
+      "documents/Omnis_Implementation_Plan.md",
+      "documents/verification/implementation-status.md",
+      "documents/verification/p2-b05-h02-gate.json",
+      "documents/verification/p2-b05-h02.md",
+      "documents/verification/p2-b05.md"
+    ],
+    "tracked_diff": [],
+    "staged_diff": [],
+    "preexisting_untracked_protected_preserved": [
+      "documents/Omnis_Notite_Originale.html"
+    ],
+    "protected_document_read": false,
+    "head_unchanged_at_final_readback": true,
+    "all_scope_worktree_bytes_equal_frozen_commit": true,
+    "product_bindings": [
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "expected": "e008f0a02cb3146c7204ed52bf83f8eec5485e87cd7ede7a21ae65184c8f40b2",
+        "actual": "e008f0a02cb3146c7204ed52bf83f8eec5485e87cd7ede7a21ae65184c8f40b2",
+        "at_reference": "e008f0a02cb3146c7204ed52bf83f8eec5485e87cd7ede7a21ae65184c8f40b2",
+        "match": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_client.py",
+        "expected": "85bbe171faffa817ecb814ef78a46b6a6d29eb49edf40ff6f24f6a0fe552af36",
+        "actual": "85bbe171faffa817ecb814ef78a46b6a6d29eb49edf40ff6f24f6a0fe552af36",
+        "at_reference": "85bbe171faffa817ecb814ef78a46b6a6d29eb49edf40ff6f24f6a0fe552af36",
+        "match": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_native_h02.py",
+        "expected": "674206d493c3792d08564b2c2a12b2caacadde464178bc47c61012f8c080ae4e",
+        "actual": "674206d493c3792d08564b2c2a12b2caacadde464178bc47c61012f8c080ae4e",
+        "at_reference": "674206d493c3792d08564b2c2a12b2caacadde464178bc47c61012f8c080ae4e",
+        "match": true
+      },
+      {
+        "path": "Makefile",
+        "expected": "a3754b138aab8bd090705755f337052d153bcd1810a8d38746d60b059d33d2d8",
+        "actual": "a3754b138aab8bd090705755f337052d153bcd1810a8d38746d60b059d33d2d8",
+        "at_reference": "a3754b138aab8bd090705755f337052d153bcd1810a8d38746d60b059d33d2d8",
+        "match": true
+      },
+      {
+        "path": "web/tests/e2e/b03.mjs",
+        "expected": "bfd268cce4ca7be8142b3a7365831a7e396d2d21a9949818e2427ce53325bd02",
+        "actual": "bfd268cce4ca7be8142b3a7365831a7e396d2d21a9949818e2427ce53325bd02",
+        "at_reference": "bfd268cce4ca7be8142b3a7365831a7e396d2d21a9949818e2427ce53325bd02",
+        "match": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "expected": "926761c21162629d317b5a6c248f22f306a850e055aedfdd202928d2f71f9861",
+        "actual": "926761c21162629d317b5a6c248f22f306a850e055aedfdd202928d2f71f9861",
+        "at_reference": "926761c21162629d317b5a6c248f22f306a850e055aedfdd202928d2f71f9861",
+        "match": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/__main__.py",
+        "expected": "b5102ebdc414f4aaa758b3cb119b08a7c1421e2c0b655994fe11743394fad57a",
+        "actual": "b5102ebdc414f4aaa758b3cb119b08a7c1421e2c0b655994fe11743394fad57a",
+        "at_reference": "b5102ebdc414f4aaa758b3cb119b08a7c1421e2c0b655994fe11743394fad57a",
+        "match": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "expected": "71c5608392c79cccd1f2e96e3b290b46e88911bf0bf5d16a054b2185b25d0b11",
+        "actual": "71c5608392c79cccd1f2e96e3b290b46e88911bf0bf5d16a054b2185b25d0b11",
+        "at_reference": "71c5608392c79cccd1f2e96e3b290b46e88911bf0bf5d16a054b2185b25d0b11",
+        "match": true
+      }
+    ]
+  },
+  "filesSHA": {
+    ".hermes/skills/omnis-hermes-runtime/SKILL.md": "5f7ae5b4e32e87b5a2ca0c640352e60641a5fdd2335ddeca8b9d2753c3bfe8b3",
+    "README.md": "43498b4abace7142bf726105ad74f1c81962964e8beb608640dfde8b0f8fc3f7",
+    "documents/Omnis_Implementation_Plan.html": "9ff82865c522e29b9ad688e22348fdb0642375906837039ae6dacb08b965d735",
+    "documents/Omnis_Implementation_Plan.md": "bf00ef8f52d115da173eab6fd9041b03a9e5c935e7675738f071394e958fe16c",
+    "documents/verification/implementation-status.md": "0626ad419ceb561d8bbd5032087cdf87f43d68e0e68eb3cbd5e880a84926d959",
+    "documents/verification/p2-b05-h02-gate.json": "b607ece83cb8d0a8ae18f402f8dc2530364efcfaa12df728242dae4ae2e93325",
+    "documents/verification/p2-b05-h02.md": "348cb35c5c39071ab4e2be3de1200635c6d306adc76dfc6c401e22a2351a81e8",
+    "documents/verification/p2-b05.md": "5df3d37ff05a0028bfc6c86372239179e21399bcb7eadbd7f0db2dd3bc253b32"
+  },
+  "findings": [],
+  "claimmatrix": [
+    {
+      "id": "C01",
+      "claim": "Exact reviewed documentation snapshot and unchanged product bindings",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "UNCHANGED_PRODUCT",
+      "evidence": [
+        "Git HEAD 654de62362a1a117690e4c8a273b3acc23006eb5",
+        "Git diff e5edb258fdfc03ab9fc4608d0c9d69e6c93c45af..654de62362a1a117690e4c8a273b3acc23006eb5",
+        "p2-b05-h02-gate.json#/product_snapshot/files"
+      ],
+      "boundary_or_limit": "Exactly eight committed packet paths; all eight product SHA256 bindings match reference commit and current worktree. No product-code or harness audit reopened."
+    },
+    {
+      "id": "C02",
+      "claim": "One approved H02 execution, launch/drain/offline native clear/new boot",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "CLOSED_SCOPED_LOCAL",
+      "evidence": [
+        "p2-b05-h02.md:46-63",
+        "p2-b05-h02-gate.json#/H02/execution",
+        "independent-h02-renewed-summary-ea084b81.json#/actual_execution",
+        "hqr-ea084b81/receipt.json#/boot_runs"
+      ],
+      "boundary_or_limit": "Driver exit0,26.901914 seconds,execution_count1,retries0. Two distinct explicit boot launches within one sequence; not exhaustive H02 isolation."
+    },
+    {
+      "id": "C03",
+      "claim": "Nine checks versus 162 subprocess commands",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED",
+      "evidence": [
+        "p2-b05-h02.md:54",
+        "p2-b05-h02-gate.json#/H02/checks",
+        "p2-b05-h02-gate.json#/H02/command_ledger",
+        "hqr-ea084b81/receipt.json#/commands"
+      ],
+      "boundary_or_limit": "9 exact-boolean true receipt checks and162 commands with exit0/pidfd exited/empty postjoin groups.162 is not a test count or whole-B05 acceptance."
+    },
+    {
+      "id": "C04",
+      "claim": "H02 authority producer is SyntheticGrantService",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "SIMULATION_NO_DB",
+      "evidence": [
+        "p2-b05-h02.md:54",
+        "p2-b05-h02-gate.json#/H02/boundary",
+        "p2-b05-h02-gate.json#/H02/native_boots/0/launch/grant_boundary"
+      ],
+      "boundary_or_limit": "Installed RuntimeClient,UDS,RuntimeHost,Hermes,OCI and pinned readers are real; constructor grant service is synthetic, NO_DB/no stock supervisor. Independent PG authority evidence remains separate."
+    },
+    {
+      "id": "C05",
+      "claim": "Startup canaries, drain, offline clear, same-store restart and stale-boot refusal",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED",
+      "evidence": [
+        "p2-b05-h02.md:58-63",
+        "p2-b05-h02-gate.json#/H02/native_boots",
+        "p2-b05-h02-gate.json#/H02/logout",
+        "hqr-ea084b81/receipt.json#/boot_runs"
+      ],
+      "boundary_or_limit": "Launch3.397555s/2.606111s; native drains0.161349s/0.160860s; owner stops0.382635s/0.446353s; clear1.420975s and stale refusal0.000668s. Actual source fields agree. Clear is offline/local not Omnis Settings, refresh, upstream revocation or inference."
+    },
+    {
+      "id": "C06",
+      "claim": "Installed PG/supervisor/OCI SIGKILL authority loss",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED",
+      "evidence": [
+        "p2-b05-h02.md:69",
+        "p2-b05-h02-gate.json#/authority/scenarios/0",
+        "qa-authority-39ad/complete-receipt.json#/primary/scenarios/0"
+      ],
+      "boundary_or_limit": "Pinned supervisor join-9; native exit/reap0.268564s with pidfd/proc/census. Supervisor SIGKILL plus resulting UDS EOF is one causal fault, not two independent cases."
+    },
+    {
+      "id": "C07",
+      "claim": "Renewal loss by suspended actual stock producer and DB expiry",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED_SUSPENDED_PRODUCER",
+      "evidence": [
+        "p2-b05-h02.md:70",
+        "p2-b05-h02-gate.json#/authority/scenarios/1",
+        "qa-authority-39ad/complete-receipt.json#/primary/scenarios/1"
+      ],
+      "boundary_or_limit": "SIGSTOP state T, supervisor pinned alive and owner channel held; native drains4.033633s, PG lease expires, CONT gives exit3/SUPERVISOR_UNAVAILABLE. DB-only producer failure without suspension is NOT_RUN; no claim of that path."
+    },
+    {
+      "id": "C08",
+      "claim": "Independent UDS close on stock helper",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED_STOCK_CLIENT_HELPER",
+      "evidence": [
+        "p2-b05-h02.md:71",
+        "p2-b05-h02-gate.json#/authority/scenarios/2",
+        "qa-authority-39ad/complete-receipt.json#/primary/scenarios/2"
+      ],
+      "boundary_or_limit": "Actual stock RuntimeClient/InstanceService consumes PG epoch3/generation1 and UDS close produces native exit/reap0.261075s. Not a fabricated supervisor close API or proof of every failure ordering."
+    },
+    {
+      "id": "C09",
+      "claim": "Seven raw guard negatives with seven valid same-stream controls",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED_STOCK_CLIENT_HELPER",
+      "evidence": [
+        "p2-b05-h02-gate.json#/authority/scenarios/2/raw_guard_cases",
+        "p2-b05-h02-gate.json#/authority/counts",
+        "qa-authority-39ad/complete-receipt.json#/primary/scenarios/2/raw_guard_cases"
+      ],
+      "boundary_or_limit": "stale_boot,stale_capability,stale_generation,stale_epoch,old_boot_frame_no_replay,expired_grant,overlong_grant each RUNTIME_DENIED/ok=false followed by valid READY/ok=true on same channel. Consumed boot launch denied separately."
+    },
+    {
+      "id": "C10",
+      "claim": "Standalone native capabilities/ping and five -32601 method denials",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED_STANDALONE",
+      "evidence": [
+        "p2-b05-h02.md:73",
+        "p2-b05-h02-gate.json#/authority/standalone_native_methods",
+        "qa-authority-39ad/complete-receipt.json#/standalone_native_methods/actual_native_result"
+      ],
+      "boundary_or_limit": "Five denials and eight successful replies verified from raw wire, with ping positives. Standalone observer is NOT supervisor RPC passthrough. server_requests advertises reverse protocol, not loaded tools or exercised reverse producers."
+    },
+    {
+      "id": "C11",
+      "claim": "Physical native settlement versus exit status and descendant scope",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_SCOPED",
+      "evidence": [
+        "p2-b05-h02.md:72",
+        "p2-b05-h02-gate.json#/authority/matrix/6",
+        "p2-b05-h02-gate.json#/authority/residuals"
+      ],
+      "boundary_or_limit": "RuntimeHost-owned native numerical exit status NOT_OBSERVED by host non-parent. pidfd readiness/proc absence/PID1-only census/STOPPED support exit/reap; observed inert families leader-only. Standalone parent observer separately records waitid status0/Popen.wait0; no transfer to RuntimeHost-owned status or nonexistent task descendants."
+    },
+    {
+      "id": "C12",
+      "claim": "Exact-CID parent retirement of ten new QA resources with data retained",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "RECORDED_EXACT_RETIREMENT",
+      "evidence": [
+        "p2-b05-h02.md:79",
+        "p2-b05-h02-gate.json#/cleanup",
+        "parent-retirement-initial-qa.json#/resources",
+        "parent-retirement-renewed-ea084b81.json#/resources"
+      ],
+      "boundary_or_limit": "7+3=10 unique CIDs, counts reconciled programmatically, each exact_CID_absent_readback=true and stopped state Running=false/Pid0. Retained receipts bind endpoint/identity/image/mounts before rm.44+19 recorded CLI operations exit0/pidfd exited. Live DB family pinned9/exited before rm. No new Docker calls by reviewer; no global cleanup, force/prune/down-v/DROP or data deletion claimed."
+    },
+    {
+      "id": "C13",
+      "claim": "Canonical regression gate on frozen product and separate disposable DB",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_LOCAL_RECORDED",
+      "evidence": [
+        "p2-b05-h02.md:77",
+        "p2-b05-h02-gate.json#/canonical_gate",
+        "/home/kali/.hermes/cache/scratch/db-9672e7368400480a/gate.log",
+        "/home/kali/.hermes/cache/scratch/db-9672e7368400480a/gate.log.result.json"
+      ],
+      "boundary_or_limit": "All result strings found after ANSI removal:402 API,22 migration,74 web,9 E2E,284 CLI source,284 wheel,1 installed CLI status,61 release,54 runtime,6 AST,62 docs,42 development. Result code0/family_drained=true; parent process_manage proc_dc721681bba6 exit0 is provided parent authority, not newly polled. Canonical CID separate from10QA, fixture CID matches. DB absence/networks/socket/uncertain=false retained parent readback; no gate rerun or new lifecycle probe."
+    },
+    {
+      "id": "C14",
+      "claim": "P1 READY remains same instance, generation3/epoch2/assessment=false",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "RECORDED_UNCHANGED",
+      "evidence": [
+        "p2-b05-h02-gate.json#/P1_final",
+        "hqr-ea084b81/receipt.json#/P1_before",
+        "hqr-ea084b81/receipt.json#/P1_after",
+        "parent-retirement-renewed-ea084b81.json#/P1_final"
+      ],
+      "boundary_or_limit": "Full dict equality before/after/packet/retirement, instance3e901f05-6bc5-4cc0-961d-007feb652de7. Reviewer does not query or mutate installed P1; no inference that admission_open=true permits assessment."
+    },
+    {
+      "id": "C15",
+      "claim": "Historical failed H02 attempts and signal causality retained",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "NOT_PASS_UNCERTAIN_RETAINED",
+      "evidence": [
+        "p2-b05-h02.md:81",
+        "p2-b05-h02-gate.json#/historical_failures/original_H02"
+      ],
+      "boundary_or_limit": "Both old receipts remain UNCERTAIN and old final verdict NOT_PASS.112-byte UDS error and observer143/nooutput are retained; watchdog causality explicitly hypothesis/UNCONFIRMED. Successful new sequence and physical retirement do not retroactively reconcile prior ACK/family/receipt uncertainty."
+    },
+    {
+      "id": "C16",
+      "claim": "Named review findings disposition and current scope",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "APPROVED_SCOPED",
+      "evidence": [
+        "p2-b05-h02.md:35-44",
+        "p2-b05-h02-gate.json#/reviews"
+      ],
+      "boundary_or_limit": "All four original report hashes and retained report fields match sources. F01/F02 RED→GREEN/focused re-review closure scoped; N01 TOCTOU retained nonblocking narrowed to RO immutable or exclusive attested inputs. No new generic filesystem, model-compliance or all-gap guarantee."
+    },
+    {
+      "id": "C17",
+      "claim": "Actual A-to-B-to-A slot/archive consumer and inert loaded tools",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "BLOCKED_NOT_RUN_NOT_OBSERVED",
+      "evidence": [
+        "p2-b05-h02.md:83-88",
+        "p2-b05-h02-gate.json#/remaining",
+        "implementation-status.md:22,60,96",
+        "README.md:15",
+        "Omnis_Implementation_Plan.md:586,633"
+      ],
+      "boundary_or_limit": "A-B-A consumer NOT_IMPLEMENTED_CONSUMER/BLOCKED_NOT_RUN and effective inert inventory NOT_OBSERVED remain prerequisites B05. Marker movement/list configuration never substituted. Future inventory proposal remains unimplemented/unapproved; no artificial import/register/prewarm credited."
+    },
+    {
+      "id": "C18",
+      "claim": "No whole-B05/G02 promotion or B06a admission",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PARTIAL_OPEN",
+      "evidence": [
+        "p2-b05-h02-gate.json#/parent_adjudication",
+        "p2-b05-h02.md:90",
+        "p2-b05.md:85-89",
+        "implementation-status.md:22,60-66,96",
+        "README.md:15",
+        "Omnis_Implementation_Plan.md:586,633"
+      ],
+      "boundary_or_limit": "H02 exhaustive isolation/E-B05-03/SL07 remain PARTIAL/OPEN; G02-inert NOT_CLOSED/live NOT_RUN, B06a_entry_justified=false. H03-H08 are future absent Task/Attempt/Brain-child consumers, not a deferral hiding current B05 A-B-A or inert inventory gaps."
+    },
+    {
+      "id": "C19",
+      "claim": "Python observer/environment limitations",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "NOT_DEMONSTRATED_UNIVERSAL_IO",
+      "evidence": [
+        "p2-b05-h02.md:58,63,88",
+        "p2-b05-h02-gate.json#/H02/observations",
+        "p2-b05-h02-gate.json#/remaining/4",
+        ".hermes/skills/omnis-hermes-runtime/SKILL.md:35-36"
+      ],
+      "boundary_or_limit": "Separate credential reader modules/store flags and proc initial environment do not prove post-import native memory, refresh, registry or all I/O attempts. attempted_python_io=[] scoped to Python observer, network none not universal syscall tracer. Reverse/cancel/stdio EOF/backpressure fixtures remain SIMULATION."
+    },
+    {
+      "id": "C20",
+      "claim": "Generated plan HTML and projection consistency",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "PASS_RENDERER_CHECK",
+      "evidence": [
+        "Omnis_Implementation_Plan.md:580-647",
+        "Omnis_Implementation_Plan.html",
+        "/usr/bin/python3 scripts/render_docs.py --check"
+      ],
+      "boundary_or_limit": "Read-only renderer --check exit0 for all5 maintained readers on current snapshot. Initial API interpreter lacked markdown and exited1 before rendering; system interpreter existing dependency succeeded. No install, generated-file write or documentation/test-suite rerun."
+    },
+    {
+      "id": "C21",
+      "claim": "Tool applicability and forbidden effects",
+      "review_result": "SUPPORTED_WITH_BOUNDARY",
+      "recorded_product_result": "NOT_APPLICABLE_BLOCKED_NO_GO",
+      "evidence": [
+        "p2-b05-h02-gate.json#/Tools",
+        "p2-b05-h02-gate.json#/permissions"
+      ],
+      "boundary_or_limit": "Reticle NOT_APPLICABLE process/API; B03 exact-selector test-only correction not Reticle acceptance. Chisel BLOCKED_NO_GO/not instantiated. No native imports/reruns, PG/OCI/service changes, models/providers/targets, protected HTML read, repo edits/commit or push."
+    }
+  ],
+  "checks": {
+    "maintained_JSON": {
+      "parse": "PASS",
+      "path": "documents/verification/p2-b05-h02-gate.json",
+      "bytes": 150729,
+      "lines": 3503,
+      "complete_paginated_reads": [
+        [
+          1,
+          900
+        ],
+        [
+          901,
+          1800
+        ],
+        [
+          1801,
+          2650
+        ],
+        [
+          2651,
+          3503
+        ]
+      ],
+      "complete_key_syntax_preserved": true
+    },
+    "programmatic_retained_field_and_boundary_comparisons": [
+      {
+        "check": "H02 execution raw capture",
+        "pass": true
+      },
+      {
+        "check": "H02 checks",
+        "pass": true
+      },
+      {
+        "check": "H02 162 joined commands",
+        "pass": true
+      },
+      {
+        "check": "H02 9 exact true checks",
+        "pass": true
+      },
+      {
+        "check": "H02 elapsed",
+        "pass": true
+      },
+      {
+        "check": "H02 command exits/group/pidfd",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/boot",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/capability_sha256",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/launch",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/renewals",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/drain",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/owner_stop",
+        "pass": true
+      },
+      {
+        "check": "H02 boot0/no_auto_replay",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/boot",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/capability_sha256",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/launch",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/renewals",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/drain",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/owner_stop",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/no_auto_replay",
+        "pass": true
+      },
+      {
+        "check": "H02 boot1/stale_boot_capability_refused",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/action",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/status",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/grant_flags",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/native_launch_environment",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/source_hashes",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/attempted_python_io",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/external_before",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/external_after",
+        "pass": true
+      },
+      {
+        "check": "H02 startup/runtime_loaded_tool_inventory",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/action",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/status",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/grant_flags",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/native_launch_environment",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/source_hashes",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/attempted_python_io",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/external_before",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/external_after",
+        "pass": true
+      },
+      {
+        "check": "H02 restart/runtime_loaded_tool_inventory",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/action",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/attempted_python_io",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/controls",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/external_after",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/external_before",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/logout_scope",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/observer_only_native_modules",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/runtime_loaded_tool_inventory",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/source_hashes",
+        "pass": true
+      },
+      {
+        "check": "H02 sensitive_controls/status",
+        "pass": true
+      },
+      {
+        "check": "authority joins",
+        "pass": true
+      },
+      {
+        "check": "authority installed API hashes",
+        "pass": true
+      },
+      {
+        "check": "standalone/scope",
+        "pass": true
+      },
+      {
+        "check": "standalone/verdict",
+        "pass": true
+      },
+      {
+        "check": "standalone/actual_native_result",
+        "pass": true
+      },
+      {
+        "check": "standalone/host_native_pidfd_exited",
+        "pass": true
+      },
+      {
+        "check": "standalone/host_native_reaped_proc_absent",
+        "pass": true
+      },
+      {
+        "check": "standalone/post_native_census",
+        "pass": true
+      },
+      {
+        "check": "standalone/runtime_sock_absent",
+        "pass": true
+      },
+      {
+        "check": "standalone/runtime_boot_absent",
+        "pass": true
+      },
+      {
+        "check": "authority counts",
+        "pass": true
+      },
+      {
+        "check": "authority capabilities",
+        "pass": true
+      },
+      {
+        "check": "P1 final same",
+        "pass": true
+      },
+      {
+        "check": "P1 native before=after=packet",
+        "pass": true
+      },
+      {
+        "check": "retirement0 resources",
+        "pass": true
+      },
+      {
+        "check": "retirement0 count",
+        "pass": true
+      },
+      {
+        "check": "retirement0 uncertainty",
+        "pass": true
+      },
+      {
+        "check": "retirement0 data retained",
+        "pass": true
+      },
+      {
+        "check": "retirement1 resources",
+        "pass": true
+      },
+      {
+        "check": "retirement1 count",
+        "pass": true
+      },
+      {
+        "check": "retirement1 uncertainty",
+        "pass": true
+      },
+      {
+        "check": "retirement1 data retained",
+        "pass": true
+      },
+      {
+        "check": "10 exact unique cleanup CIDs",
+        "pass": true
+      },
+      {
+        "check": "cleanup CIDs match",
+        "pass": true
+      },
+      {
+        "check": "cleanup exact absence and stopped",
+        "pass": true
+      },
+      {
+        "check": "H02 logout retained fields exact",
+        "pass": true
+      },
+      {
+        "check": "Authority retained scenario fields exact",
+        "pass": true
+      },
+      {
+        "check": "All canonical results after ANSI removal",
+        "pass": true
+      },
+      {
+        "check": "Authority DB final matches source handoff",
+        "pass": true
+      },
+      {
+        "check": "seven raw guards each denial+READY",
+        "pass": true
+      },
+      {
+        "check": "five standalone -32601",
+        "pass": true
+      },
+      {
+        "check": "eight standalone positive replies",
+        "pass": true
+      },
+      {
+        "check": "B05 boundaries retained",
+        "pass": true
+      },
+      {
+        "check": "review retained fields B05-H02-REVIEWER1-NORMATIVE-782f1e3",
+        "pass": true
+      },
+      {
+        "check": "review retained fields B05-H02-Reviewer2-782f1e3",
+        "pass": true
+      },
+      {
+        "check": "review retained fields B05-H02-R2-FOCUSED-REREVIEW-9078910",
+        "pass": true
+      },
+      {
+        "check": "review retained fields focused-acceptance-e5edb25-renewed-5cc2cf23",
+        "pass": true
+      },
+      {
+        "check": "canonical gate result retained code0/drained",
+        "pass": true
+      },
+      {
+        "check": "canonical DB fixture CID binding",
+        "pass": true
+      },
+      {
+        "check": "final exact HEAD",
+        "pass": true
+      },
+      {
+        "check": "final tracked/staged clean",
+        "pass": true
+      },
+      {
+        "check": "scope unchanged",
+        "pass": true
+      },
+      {
+        "check": "scope files match frozen committed bytes",
+        "pass": true
+      },
+      {
+        "check": "historical B05.1 packet and driver unchanged",
+        "pass": true
+      },
+      {
+        "check": "historical original H02 uncertainty",
+        "pass": true
+      }
+    ],
+    "comparison_count": 94,
+    "all_comparisons_passed": true,
+    "source_hash_bindings": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/hqr-ea084b81/receipt.json",
+        "expected": "8d7e3c5623c09788804870828dad2eab88daa2bfcf9951a7d115592292e32e0c",
+        "actual": "8d7e3c5623c09788804870828dad2eab88daa2bfcf9951a7d115592292e32e0c",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/independent-h02-renewed-summary-ea084b81.json",
+        "expected": "21798a9171cae60bc679c92562bf31ed2f955b4dbbf01f9f8f8030b159a1b0f3",
+        "actual": "21798a9171cae60bc679c92562bf31ed2f955b4dbbf01f9f8f8030b159a1b0f3",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/qa-authority-39ad/complete-receipt.json",
+        "expected": "065b11b9142fc02992ff12419c645412ac2c922a511ebd6d6134ee7207f4b8ff",
+        "actual": "065b11b9142fc02992ff12419c645412ac2c922a511ebd6d6134ee7207f4b8ff",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/parent-retirement-initial-qa.json",
+        "expected": "e3e4f884e7ae3716b593208a00acc8c3bd52d3bdeb61f82269c2874ba102e8db",
+        "actual": "e3e4f884e7ae3716b593208a00acc8c3bd52d3bdeb61f82269c2874ba102e8db",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/parent-retirement-renewed-ea084b81.json",
+        "expected": "9cffa417f6c2fe3ea2e87d1ef74409aac491e18c73341c6d069f9f8c0ed92adf",
+        "actual": "9cffa417f6c2fe3ea2e87d1ef74409aac491e18c73341c6d069f9f8c0ed92adf",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-9672e7368400480a/gate.log",
+        "expected": "c70dfb4e6b94bd0abb2c1a8ec291ed993894d6a74ca629f6537d3f5c572e3b31",
+        "actual": "c70dfb4e6b94bd0abb2c1a8ec291ed993894d6a74ca629f6537d3f5c572e3b31",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/reviewer1-782f1e3-report.json",
+        "expected": "52e5410498764aff80119ed8d1959cbb6869e52e3b90e498bfd74f6739d335c5",
+        "actual": "52e5410498764aff80119ed8d1959cbb6869e52e3b90e498bfd74f6739d335c5",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/reviewer2-report.json",
+        "expected": "2b815d1e2d21d1d106ce7f836912bdedd7760e5180da2018653b257e34c9beec",
+        "actual": "2b815d1e2d21d1d106ce7f836912bdedd7760e5180da2018653b257e34c9beec",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/reviewer2-9078910-rereview-report.json",
+        "expected": "4749ec6901070543ea5f8faa9819a04261cf91e4e2727d54b933f383d5b6455c",
+        "actual": "4749ec6901070543ea5f8faa9819a04261cf91e4e2727d54b933f383d5b6455c",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/focused-acceptance-e5edb25-renewed-5cc2cf23.json",
+        "expected": "df9b878570c6141822eefd2d285a607442e10e099eac41aa1a92ed986ea10802",
+        "actual": "df9b878570c6141822eefd2d285a607442e10e099eac41aa1a92ed986ea10802",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/hqr-ea084b81/receipt.json",
+        "expected": "8d7e3c5623c09788804870828dad2eab88daa2bfcf9951a7d115592292e32e0c",
+        "actual": "8d7e3c5623c09788804870828dad2eab88daa2bfcf9951a7d115592292e32e0c",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/execution-h02-renewed-5cc2cf23.stderr",
+        "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/execution-h02-renewed-5cc2cf23.stdout",
+        "expected": "cbdd836d6f7999e77edf1aa4e2d3d32b89414271d07f96426cd6a901a0108f33",
+        "actual": "cbdd836d6f7999e77edf1aa4e2d3d32b89414271d07f96426cd6a901a0108f33",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/execution-h02-renewed-5cc2cf23.json",
+        "expected": "3d522f7be9046947858c43d17854fbce4734e2db51bbee00d8743ef221127638",
+        "actual": "3d522f7be9046947858c43d17854fbce4734e2db51bbee00d8743ef221127638",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/focused-acceptance-e5edb25-renewed-5cc2cf23.json",
+        "expected": "df9b878570c6141822eefd2d285a607442e10e099eac41aa1a92ed986ea10802",
+        "actual": "df9b878570c6141822eefd2d285a607442e10e099eac41aa1a92ed986ea10802",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/installed-qa-contract.json",
+        "expected": "6198d71383cf47598fa26f5f6d23e4818d4206f3d66cce7494f7b1d4b6ffff89",
+        "actual": "6198d71383cf47598fa26f5f6d23e4818d4206f3d66cce7494f7b1d4b6ffff89",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/h02-renewed-postjoin-readback-ea084b81.json",
+        "expected": "87a13e75c3173855f1ed160fef86601276a493391dc37ab3638d9d6b25562733",
+        "actual": "87a13e75c3173855f1ed160fef86601276a493391dc37ab3638d9d6b25562733",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/h02-qa-native-renewed-driver.py",
+        "expected": "5cc2cf233827935035ed8b42a325622c90fe1f879d97023a394cb77a96ee561d",
+        "actual": "5cc2cf233827935035ed8b42a325622c90fe1f879d97023a394cb77a96ee561d",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/adapter/omnis_hermes-0.1.0-py3-none-any.whl",
+        "expected": "1c6560a076330f3cfd3f8370da1fcdee22b40836fec8da1af714a3bf9e3fd488",
+        "actual": "1c6560a076330f3cfd3f8370da1fcdee22b40836fec8da1af714a3bf9e3fd488",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/h02-qa-native-final-7fb1ee5e7a0748b8b1c372b807d22fb7.json",
+        "expected": "7daf6c2995a7bc5a7a4a58719975fa94d2b116abfe35ce7d2da86cf6cfd3bdec",
+        "actual": "7daf6c2995a7bc5a7a4a58719975fa94d2b116abfe35ce7d2da86cf6cfd3bdec",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-dfe1439e76664158/gate.log",
+        "expected": "f471cafb8cc8c661eb3938f5b6946d9d8317954b0fe44aa0c015eba6979687a3",
+        "actual": "f471cafb8cc8c661eb3938f5b6946d9d8317954b0fe44aa0c015eba6979687a3",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-0f326a6646854e9d/gate.log",
+        "expected": "97d60fe0594dba490ccbf2baf8b9cf17b3942ba8182c568c11b0cdb3611b9b8f",
+        "actual": "97d60fe0594dba490ccbf2baf8b9cf17b3942ba8182c568c11b0cdb3611b9b8f",
+        "match": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-9672e7368400480a/gate.log.result.json",
+        "actual": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+        "match": true,
+        "binding_kind": "fresh retained source; no declared packet SHA"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-9672e7368400480a/fixture.json",
+        "actual": "146c584b18292b237f4190ab366a9935c9cb82a9f92e4944b7f35b99cd55946b",
+        "match": true,
+        "binding_kind": "fresh retained source; no declared packet SHA"
+      }
+    ],
+    "source_hash_check_count": 24,
+    "all_source_hash_checks_passed": true,
+    "renderer": [
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python scripts/render_docs.py --check",
+        "exit_code": 1,
+        "result": "ModuleNotFoundError: markdown; no rendering or edits"
+      },
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 scripts/render_docs.py --check",
+        "exit_code": 0,
+        "result": [
+          "OK Omnis_Implementation_Plan.html",
+          "OK Omnis_MVP_Architecture.html",
+          "OK Omnis_UI_UX_Spec.html",
+          "OK Omnis_Stack_Baseline.html",
+          "OK Omnis_Implementation_Readiness_Review.html"
+        ]
+      }
+    ],
+    "git_diff_check": {
+      "command": "git diff --check e5edb258fdfc03ab9fc4608d0c9d69e6c93c45af..HEAD",
+      "exit_code": 0
+    },
+    "curation_notes": [
+      "Raw source dicts retained intact in memory. Projection checked for each maintained field, not full-object equality of curated reports. Initial full equality flagged additive source fields; retained-field comparisons found no discrepancies.",
+      "Canonical Vitest result lines contain ANSI escapes in source log; exact stated lines verified after stripping formatting, without altering file or numerical values.",
+      "Some raw stdout/inspect captures remain linked by SHA rather than copied; maintained packet is explicitly adjudicated projection, not full private-log archive."
+    ],
+    "canonical_gate_result_retained": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "QA_resource_count": 10,
+    "QA_CIDs_unique": 10,
+    "canonical_DB_CID_separate_from_QA": true,
+    "canonical_gate_result_lines": [
+      "Ran 62 tests in 1.547s",
+      "Ran 42 tests in 7.846s",
+      "402 passed in 598.67s (0:09:58)",
+      "22 passed in 59.67s",
+      " Test Files  9 passed (9)",
+      "      Tests  74 passed (74)",
+      "9 passed in 76.67s (0:01:16)",
+      "Ran 284 tests in 70.112s",
+      "Ran 284 tests in 70.346s",
+      "1 passed in 2.99s",
+      "Ran 61 tests in 18.839s",
+      "54 passed in 5.60s",
+      "Ran 6 tests in 0.053s"
+    ]
+  },
+  "limits": [
+    "Bounded evidence/projection-only review. No general code, observer, driver, harness, native, lifecycle, security or filesystem audit reopened.",
+    "No runtime/native/OCI/PostgreSQL/model/target/standard-suite/canonical-gate reruns and no external resource effects. Retained execution and cleanup receipts are source evidence, not newly executed observations.",
+    "The parent supplied exact process_manage final exit0; reviewer independently hashes log and reads gate.log.result.json code0/family_drained=true, not a new process-manager poll.",
+    "Canonical DB absence/readback is retained parent evidence; this reviewer checked fixture CID/result/log without new daemon inspection.",
+    "Scratch reports/data roots are not certified durable backup. Versioned maintained packet preserves adjudicated results, findings, boundaries and hashes; parent must persist this final adjudication before scratch expiry.",
+    "Original failed H02 attempts remain NOT_PASS/UNCERTAIN with signal physical cause UNCONFIRMED; later success/retirement cannot reconcile them retroactively.",
+    "A-B-A actual consumer BLOCKED_NOT_RUN and inert loaded-tools NOT_OBSERVED remain current B05 blockers; entire B05/E-B05-03 PARTIAL/OPEN, G02 not closed, B06a not admitted.",
+    "Reticle NOT_APPLICABLE process/API; no UI visual or instrumented acceptance. Chisel BLOCKED_NO_GO and unused.",
+    "Read-only repo scope forbids skill/repository updates. Only this requested scratch JSON artifact is written; parent owns final acceptance and versioned adjudication."
+  ],
+  "artifact": "/home/kali/.hermes/cache/scratch/b05-h02-20261007/final-evidence-review-654de62.json"
+}

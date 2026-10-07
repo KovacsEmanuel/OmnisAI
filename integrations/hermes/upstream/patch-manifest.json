@@ -11,7 +11,7 @@
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "0a3119156f29273a98d6159468a5f7c18289b981d867692c7f5b61c92883c985",
-      "patched_sha256": "2c81167c371625105d7c89319c51b6f48cb73d7a4f9830b0122d617d17374a9c"
+      "patched_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743"
     },
     "hermes_cli/env_loader.py": {
       "original_sha256": "f33feafb58da3bd1e19eb3c97fdfc461c570ed3823fb56dd84f8e95357d2e7b9",
@@ -22,5 +22,5 @@
       "patched_sha256": "45b0ec8f8fb6d5f5041e25a890637b25de3d8c5c37dc83304f8cca84baa535a1"
     }
   },
-  "patch_sha256": "31658e5f2c07f996bc643682d1ea2d038a4bf65cfb68ee5e79620ab39479d3c4"
+  "patch_sha256": "a0a0a21eba96bd1123c36a08e3e10b1a0587159c5576a25265d5117fd5b08550"
 }

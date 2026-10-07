@@ -20,7 +20,7 @@ def _handle_admitted_request(req: dict) -> dict | None:
         return normalized
     rid, method, params = normalized
     # Omnis B05 has no live session or Settings/provider authority.
-    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method != "client.capabilities":
+    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method not in {"client.capabilities", "gateway.capabilities", "ping"}:
         return _err(rid, -32601, "method unavailable in Omnis inert runtime")
     if not (fn := _methods.get(method)):
         return _err(rid, -32601, f"unknown method: {method} — the client and the Hermes backend are out of sync "

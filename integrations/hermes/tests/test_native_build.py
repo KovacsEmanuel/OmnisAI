@@ -82,6 +82,25 @@ class NativeInertSeam(unittest.TestCase):
         self.assertEqual(calls, [], "management handler reached under inert flag")
         self.assertEqual(reply["error"]["code"], -32601)
 
+    def test_inert_handshake_observations_reach_native_handlers(self):
+        node = function("tui_gateway/rpc_dispatch.py", "_handle_admitted_request")
+        for method in ("client.capabilities", "gateway.capabilities", "ping"):
+            with self.subTest(method=method):
+                calls = []
+                def handler(rid, params):
+                    calls.append(method)
+                    return {"id": rid, "result": {"observed": True}}
+                ns = {"os": os, "_normalize_request": lambda r: (r["id"], r["method"], r.get("params", {})),
+                      "_methods": {method: handler}, "_contracts": types.SimpleNamespace(METHODS={}),
+                      "_current_rpc_method": __import__("contextvars").ContextVar("method", default=""),
+                      "ProfileUnavailableError": RuntimeError,
+                      "_err": lambda rid, code, message: {"id": rid, "error": {"code": code}}}
+                with patch.dict(os.environ, {"HERMES_OMNIS_INERT": "1"}, clear=True):
+                    run_node(node, ns)
+                    reply = ns["_handle_admitted_request"]({"id": 7, "method": method})
+                self.assertEqual(calls, [method], "safe handshake observation was denied")
+                self.assertEqual(reply, {"id": 7, "result": {"observed": True}})
+
     def test_lazy_install_is_hard_disabled_even_with_writable_target(self):
         node = function("tools/lazy_deps.py", "_allow_lazy_installs")
         cfg = types.ModuleType("hermes_cli.config")

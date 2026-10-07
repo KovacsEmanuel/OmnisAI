@@ -39,6 +39,17 @@ class RuntimeBuildControls(unittest.TestCase):
                 module.apply_inert_overlay(source)
             self.assertEqual(path.read_text(), "untrusted modification\n")
 
+    def test_oci_creates_fixed_native_state_paths(self):
+        import ast
+        host = ROOT / "integrations/hermes/src/omnis_hermes/runtime_host.py"
+        tree = ast.parse(host.read_text())
+        env_node = next(n for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "NATIVE_ENV" for t in n.targets))
+        native_env = ast.literal_eval(env_node.value)
+        text = (ROOT / "ops/Dockerfile.hermes").read_text()
+        for key in ("HOME", "HERMES_HOME", "CODEX_HOME"):
+            self.assertIn(native_env[key], text, f"OCI does not provision native {key}")
+        self.assertIn("/state/work", text, "fixed native cwd is missing")
+
     def test_oci_defaults_are_separate_offline_and_nonroot(self):
         file = ROOT / "ops/Dockerfile.hermes"
         self.assertTrue(file.is_file(), "native OCI recipe is missing")

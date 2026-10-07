@@ -16,11 +16,11 @@ ARG RUNTIME_UID=65532
 ARG RUNTIME_GID=65532
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     HERMES_OMNIS_INERT=1 HERMES_DISABLE_LAZY_INSTALLS=1 \
-    HERMES_SKIP_NODE_BOOTSTRAP=1 HERMES_MANAGED_DIR=/runtime/managed-empty \
-    HOME=/runtime/home HERMES_HOME=/runtime/hermes \
-    CODEX_HOME=/runtime/codex XDG_CONFIG_HOME=/runtime/xdg/config \
-    XDG_CACHE_HOME=/runtime/xdg/cache XDG_STATE_HOME=/runtime/xdg/state \
-    XDG_DATA_HOME=/runtime/xdg/data TMPDIR=/runtime/tmp
+    HERMES_SKIP_NODE_BOOTSTRAP=1 HERMES_MANAGED_DIR=/state/managed-empty \
+    HOME=/state/os-home HERMES_HOME=/state/active \
+    CODEX_HOME=/state/codex XDG_CONFIG_HOME=/state/xdg/config \
+    XDG_CACHE_HOME=/state/xdg/cache XDG_STATE_HOME=/state/xdg/state \
+    XDG_DATA_HOME=/state/xdg/data TMPDIR=/state/tmp
 WORKDIR /opt/hermes
 COPY --from=installer /opt/hermes/venv /opt/hermes/venv
 COPY runtime-source/ /opt/hermes/source/
@@ -28,7 +28,7 @@ COPY LICENSE.hermes source-manifest.json build-manifest.json /opt/hermes/provena
 RUN printf '/opt/hermes/source\n' > /opt/hermes/venv/lib/python3.13/site-packages/omnis-native-source.pth \
  && test "${RUNTIME_UID}" -gt 0 && test "${RUNTIME_GID}" -gt 0 \
  && chmod -R a+rX /opt/hermes \
- && mkdir -p /runtime/home /runtime/hermes /runtime/codex /runtime/tmp /runtime/managed-empty /runtime/xdg/config /runtime/xdg/cache /runtime/xdg/state /runtime/xdg/data \
- && chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime
+ && mkdir -p /runtime /state/work /state/os-home /state/active /state/codex /state/tmp /state/managed-empty /state/xdg/config /state/xdg/cache /state/xdg/state /state/xdg/data \
+ && chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime /state
 USER ${RUNTIME_UID}:${RUNTIME_GID}
 CMD ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]

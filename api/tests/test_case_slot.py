@@ -33,6 +33,12 @@ SOURCES = {
     "hermes_logging.py": "19deccd2c8a71cf0c9cf94f9cc44021a5fb9e8f4dc29df4da30ea7605b9ab84a",
     "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
     "hermes_cli/auth.py": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+    "hermes_cli/config_backups.py": "a923aeb156eac44b055ebc2cea458dfd4ee1dbfe7cf0694fd7a55da751b3f1aa",
+    "hermes_cli/default_soul.py": "b65192a631f0011fcef245c94d9741e0c716defe605d3edfd0e59f26da211d2d",
+    "hermes_state_dbfile.py": "317c4e5cbc7469259331f19e0a90f9081b729bbf70e97e81e7670ea6e630f7df",
+    "hermes_state_common.py": "e66bdefc2bb58ab1e750a5040245fb95b3176a277773f35c2d2bbb3ef789070c",
+    "hermes_state_schema.py": "8712aa97c222cdc2f1ec5ab8d2dadd01756117c43e1597dcfbe43c0645e30ef0",
 }
 
 
@@ -50,11 +56,12 @@ def provision(root: Path, instance: UUID) -> None:
     private_write(root / "active/auth.lock", b"")
     private_write(root / "control/slot.lock", b"")
     policy = {
-        "schema_version": 1,
+        "schema_version": 2,
         "instance_id": str(instance),
         "approval": "B05_INERT",
         "native_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
         "inventory_sha256": "a2020b35cf5cee08d671c3421b81119b8fc7b1beaae4b39cc488eab4c1874cad",
+        "state_policy_sha256": "bcbd8b2ce7ac69064da04ef37eb9961e4a06d19bce342706b99c9dfa17d87c6d",
         "source_files": SOURCES,
         "families": ["sqlite", "sessions", "logs", "cache", "support"],
         "support_children": {
@@ -171,6 +178,43 @@ async def test_product_slot_a_b_a_preserves_roots_provider_config_and_entire_bun
 
 
 @pytest.mark.asyncio
+async def test_native_inert_bootstrap_bundle_archives_and_restores(tmp_path: Path) -> None:
+    """Observed pinned native layout; filesystem regression, not installed/native QA."""
+    instance, owner, case = uuid4(), uuid4(), uuid4()
+    root = tmp_path / "slot"
+    provision(root, instance)
+    service = authority()
+    first = case_slot.CaseSlot(root, case, instance, owner, 1, 0, str(uuid4()))
+    await first.prepare(service)
+    await first.observe(snapshot(first))
+    payloads = {
+        "SOUL.md": (Path(__file__).parent / "fixtures/hermes-default-soul.txt").read_bytes(),
+        "backups/config/config.yaml.good.20261007-155245": b"inert: true\n",
+        "state.db": b"synthetic DB bytes; actual SessionDB tested by installed QA",
+        "state.db.quarantine.lock": b"",
+        "state.db.fts_rebuild.lock": b"",
+    }
+    empty = ("cron", "hooks", "skills", "memories", "pairing", "image_cache", "audio_cache")
+    for name in empty:
+        (root / "active" / name).mkdir(mode=0o700)
+    (root / "active/backups").mkdir(mode=0o700)
+    for name, data in payloads.items():
+        path = root / "active" / name
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        private_write(path, data)
+    await first.archive(service, 0, snapshot(first, "STOPPED"))
+    assert {p.name for p in (root / "active").iterdir()} == case_slot.SHARED
+    await first.close()
+    restored = case_slot.CaseSlot(root, case, instance, owner, 2, 0, str(uuid4()))
+    await restored.prepare(service)
+    assert {name: (root / "active" / name).read_bytes() for name in payloads} == payloads
+    assert all(not list((root / "active" / name).iterdir()) for name in empty)
+    await restored.observe(snapshot(restored))
+    await restored.archive(service, 0, snapshot(restored, "STOPPED"))
+    await restored.close()
+
+
+@pytest.mark.asyncio
 async def test_fallback_auth_at_support_top_level_is_refused_before_any_move(
     tmp_path: Path,
 ) -> None:
@@ -187,6 +231,146 @@ async def test_fallback_auth_at_support_top_level_is_refused_before_any_move(
     assert (root / "active-support/work/auth.json").exists()
     assert not (slot.archive_root / "receipt.json").exists()
     await slot.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("boundary", ["active", "archive"])
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "cron",
+        "hooks",
+        "skills",
+        "memories",
+        "pairing",
+        "image_cache",
+        "audio_cache",
+        "soul",
+        "soul-directory",
+        "quarantine-lock",
+        "fts-lock",
+        "lock-directory",
+        "backup-digest",
+        "backup-oversize",
+        "backup-reason",
+        "backup-extra-child",
+        "backup-depth",
+        "backup-count",
+        "backup-auth",
+    ],
+)
+async def test_new_native_families_refuse_unapproved_content_before_moves(
+    tmp_path: Path, boundary: str, kind: str
+) -> None:
+    instance, case, owner = uuid4(), uuid4(), uuid4()
+    root = tmp_path / "slot"
+    provision(root, instance)
+    service = authority()
+    first = case_slot.CaseSlot(root, case, instance, owner, 1, 0, str(uuid4()))
+    await first.prepare(service)
+    await first.observe(snapshot(first))
+    if boundary == "archive":
+        await first.archive(service, 0, snapshot(first, "STOPPED"))
+        await first.close()
+        base = first.archive_root / "data/active"
+        slot = case_slot.CaseSlot(root, case, instance, owner, 2, 0, str(uuid4()))
+    else:
+        base, slot = root / "active", first
+    if kind in {"cron", "hooks", "skills", "memories", "pairing", "image_cache", "audio_cache"}:
+        (base / kind).mkdir(mode=0o700)
+        private_write(base / kind / "unapproved.txt", b"unapproved")
+    elif kind == "soul":
+        private_write(base / "SOUL.md", b"custom persona")
+    elif kind == "soul-directory":
+        (base / "SOUL.md").mkdir(mode=0o700)
+    elif kind in {"quarantine-lock", "fts-lock"}:
+        name = (
+            "state.db.quarantine.lock" if kind == "quarantine-lock" else "state.db.fts_rebuild.lock"
+        )
+        private_write(base / name, b"holder")
+    elif kind == "lock-directory":
+        (base / "state.db.quarantine.lock").mkdir(mode=0o700)
+    else:
+        (base / "backups").mkdir(mode=0o700)
+        (base / "backups/config").mkdir(mode=0o700)
+        backup = base / "backups/config/config.yaml.good.20261007-155245"
+        private_write(backup, b"inert: true\n")
+        if kind == "backup-digest":
+            private_write(backup, b"unapproved config")
+        elif kind == "backup-oversize":
+            private_write(backup, b"x" * 65537)
+        elif kind == "backup-reason":
+            backup.rename(backup.with_name("config.yaml.corrupt.20261007-155245"))
+        elif kind == "backup-extra-child":
+            private_write(base / "backups/extra", b"unclassified")
+        elif kind == "backup-depth":
+            (base / "backups/config/extra").mkdir(mode=0o700)
+        elif kind == "backup-count":
+            for index in range(5):
+                private_write(
+                    backup.with_name(f"config.yaml.good.20261007-15524{index}"), b"inert: true\n"
+                )
+        else:
+            private_write(base / "backups/config/auth.json", b"synthetic fallback")
+    before = json.loads((root / "control/journal.json").read_bytes())
+    files = {p: p.read_bytes() for p in base.rglob("*") if p.is_file()}
+    expected = (
+        "Populated or invalid inert bootstrap directory"
+        if kind in {"cron", "hooks", "skills", "memories", "pairing", "image_cache", "audio_cache"}
+        else "Unapproved native identity"
+        if kind in {"soul", "soul-directory"}
+        else "Nonempty or invalid native coordination lock"
+        if kind in {"quarantine-lock", "fts-lock", "lock-directory"}
+        else "Native config backup count"
+        if kind == "backup-count"
+        else "Fallback auth or unsafe case path"
+        if kind == "backup-auth"
+        else "Unapproved native config backup"
+    )
+    with pytest.raises(ValueError) as denied:
+        if boundary == "archive":
+            await slot.prepare(service)
+        else:
+            await slot.archive(service, 0, snapshot(slot, "STOPPED"))
+    assert str(denied.value) == expected
+    assert {p: p.read_bytes() for p in files} == files
+    assert json.loads((root / "control/journal.json").read_bytes()) == before
+    await slot.close()
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("schema_version", 1),
+        ("schema_version", 2.0),
+        ("state_policy_sha256", "0" * 64),
+        ("config_sha256", "0" * 64),
+    ],
+)
+def test_native_policy_refuses_legacy_or_unbound_approval(
+    tmp_path: Path, field: str, value: object
+) -> None:
+    root = tmp_path / "slot"
+    provision(root, uuid4())
+    policy = json.loads((root / "control/policy.json").read_bytes())
+    case_slot.Policy.model_validate(policy)
+    policy[field] = value
+    with pytest.raises(ValueError):
+        case_slot.Policy.model_validate(policy)
+
+
+def test_native_state_policy_provenance_matches_product_and_default_fixture(tmp_path: Path) -> None:
+    root = tmp_path / "slot"
+    provision(root, uuid4())
+    policy = case_slot.Policy.model_validate_json((root / "control/policy.json").read_bytes())
+    manifest = Path(__file__).parents[2] / "integrations/hermes/upstream/inert-state-policy.json"
+    raw = manifest.read_bytes()
+    source = json.loads(raw)
+    assert hashlib.sha256(raw).hexdigest() == policy.state_policy_sha256
+    assert source["source_files"] == SOURCES == case_slot.SOURCE_FILES
+    assert source["config"]["sha256"] == policy.config_sha256
+    soul = (Path(__file__).parent / "fixtures/hermes-default-soul.txt").read_bytes()
+    assert hashlib.sha256(soul).hexdigest() == source["new_active_children"]["SOUL.md"]["sha256"]
 
 
 @pytest.mark.asyncio

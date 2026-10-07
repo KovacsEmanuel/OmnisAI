@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "approval": "B05_INERT",
+  "native_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "scope": "Finite nominal inert native-state acceptance, not a tool catalog or runtime observation",
+  "candidate_inventory_sha256": "a2020b35cf5cee08d671c3421b81119b8fc7b1beaae4b39cc488eab4c1874cad",
+  "source_files": {
+    "hermes_state.py": "134fb1af988fd49407433cf54afa74f2188c93021fc4576bcf2c7174e787c2eb",
+    "hermes_state_repair.py": "7af22ad9aa7cf3823e768177c4d56d1827b53f7253d0549e0bd7e3195ff0b14e",
+    "hermes_logging.py": "19deccd2c8a71cf0c9cf94f9cc44021a5fb9e8f4dc29df4da30ea7605b9ab84a",
+    "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+    "hermes_cli/auth.py": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+    "hermes_cli/config_backups.py": "a923aeb156eac44b055ebc2cea458dfd4ee1dbfe7cf0694fd7a55da751b3f1aa",
+    "hermes_cli/default_soul.py": "b65192a631f0011fcef245c94d9741e0c716defe605d3edfd0e59f26da211d2d",
+    "hermes_state_dbfile.py": "317c4e5cbc7469259331f19e0a90f9081b729bbf70e97e81e7670ea6e630f7df",
+    "hermes_state_common.py": "e66bdefc2bb58ab1e750a5040245fb95b3176a277773f35c2d2bbb3ef789070c",
+    "hermes_state_schema.py": "8712aa97c222cdc2f1ec5ab8d2dadd01756117c43e1597dcfbe43c0645e30ef0"
+  },
+  "new_active_children": {
+    "SOUL.md": {
+      "type": "regular_file",
+      "bytes": 667,
+      "sha256": "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f",
+      "source": "hermes_cli/default_soul.py:9-17; config.py:514-545; config_home.py:55-79"
+    },
+    "empty_directories": {
+      "names": ["cron", "hooks", "skills", "memories", "pairing", "image_cache", "audio_cache"],
+      "type": "directory",
+      "children": 0,
+      "source": "hermes_cli/config.py:551-570; config_home.py:27-79"
+    },
+    "empty_sqlite_locks": {
+      "names": ["state.db.quarantine.lock", "state.db.fts_rebuild.lock"],
+      "type": "regular_file",
+      "bytes": 0,
+      "source": "hermes_state_dbfile.py:627-664; hermes_state_common.py:1196-1251; hermes_state_schema.py:1182-1249"
+    },
+    "backups": {
+      "type": "directory",
+      "only_child": "config",
+      "files": "config.yaml.good.[0-9]{8}-[0-9]{6}",
+      "maximum_files": 5,
+      "maximum_file_bytes": 65536,
+      "sha256": "d39892dc4a1e5be3e5abf10e824e7b10c9ee4a6dde3af1c43efc7b44f4c5f1a7",
+      "source": "hermes_cli/config_backups.py:22-65; config.py:2301-2319"
+    }
+  },
+  "shared": ["auth.json", "auth.lock", "config.yaml"],
+  "config": {
+    "exact_utf8": "inert: true\n",
+    "sha256": "d39892dc4a1e5be3e5abf10e824e7b10c9ee4a6dde3af1c43efc7b44f4c5f1a7",
+    "reason": "This B05-only approved configuration contains no credential material; digest equality alone is not sanitization of arbitrary configurations"
+  },
+  "semantics": "Archive every validated new child with the case; apply identical rules to active and archived scans. No changes to SHARED, roots, fencing, budgets or drain requirements. Policy schema1 is refused, never rewritten/adopted. Receipt/Journal schemas remain1.",
+  "limits": "No populated cron/hooks/skills/memory/media trees, custom SOUL, nonempty coordination records, other backup reasons or unknown state. Empty files/directories do not prove process settlement. Existing static candidate inventory is unchanged. Native installed A-to-B-to-A acceptance remains separate."
+}

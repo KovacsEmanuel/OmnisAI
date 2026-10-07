@@ -41,7 +41,23 @@ SOURCE_FILES = {
     "hermes_logging.py": "19deccd2c8a71cf0c9cf94f9cc44021a5fb9e8f4dc29df4da30ea7605b9ab84a",
     "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
     "hermes_cli/auth.py": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+    "hermes_cli/config_backups.py": "a923aeb156eac44b055ebc2cea458dfd4ee1dbfe7cf0694fd7a55da751b3f1aa",
+    "hermes_cli/default_soul.py": "b65192a631f0011fcef245c94d9741e0c716defe605d3edfd0e59f26da211d2d",
+    "hermes_state_dbfile.py": "317c4e5cbc7469259331f19e0a90f9081b729bbf70e97e81e7670ea6e630f7df",
+    "hermes_state_common.py": "e66bdefc2bb58ab1e750a5040245fb95b3176a277773f35c2d2bbb3ef789070c",
+    "hermes_state_schema.py": "8712aa97c222cdc2f1ec5ab8d2dadd01756117c43e1597dcfbe43c0645e30ef0",
 }
+EMPTY_NATIVE_DIRECTORIES = {
+    "cron",
+    "hooks",
+    "skills",
+    "memories",
+    "pairing",
+    "image_cache",
+    "audio_cache",
+}
+EMPTY_NATIVE_LOCKS = {"state.db.quarantine.lock", "state.db.fts_rebuild.lock"}
 MAX_ENTRIES = 4096
 MAX_BYTES = 64 * 1024 * 1024
 MAX_SECONDS = 1.5
@@ -66,15 +82,17 @@ class Identity(Strict):
 
 
 class Policy(Strict):
-    schema_version: Literal[1]
+    schema_version: Literal[2]
     instance_id: str
     approval: Literal["B05_INERT"]
     native_commit: Literal["ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"]
     inventory_sha256: Literal["a2020b35cf5cee08d671c3421b81119b8fc7b1beaae4b39cc488eab4c1874cad"]
+    state_policy_sha256: Literal["bcbd8b2ce7ac69064da04ef37eb9961e4a06d19bce342706b99c9dfa17d87c6d"]
     source_files: dict[str, str]
     families: list[str]
     support_children: dict[str, list[str]]
-    config_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    # B05 only: exact credential-free config prevents backup copies of arbitrary secrets.
+    config_sha256: Literal["d39892dc4a1e5be3e5abf10e824e7b10c9ee4a6dde3af1c43efc7b44f4c5f1a7"]
     roots: dict[str, Identity]
 
     @model_validator(mode="after")
@@ -454,7 +472,9 @@ def _allowed(leaf: str, name: str) -> bool:
         return False
     if leaf != "active":
         return True
-    return name in {
+    return name in EMPTY_NATIVE_DIRECTORIES | EMPTY_NATIVE_LOCKS | {
+        "SOUL.md",
+        "backups",
         "sessions",
         "logs",
         "cache",
@@ -470,6 +490,44 @@ def _allowed(leaf: str, name: str) -> bool:
         "state.db.repair-scratch-shm",
         "state.db.repair-scratch-journal",
     } or bool(re.fullmatch(r"state\.db\.(?:malformed-backup|backup-staging)-[A-Za-z0-9_.-]+", name))
+
+
+def _native_tree(name: str, tree: dict[str, Node], config_digest: str) -> None:
+    """Validate only the new pinned nominal families, equally on active/archive scans."""
+    node = tree["."]
+    if name in EMPTY_NATIVE_DIRECTORIES:
+        if not node.directory or len(tree) != 1:
+            raise ValueError("Populated or invalid inert bootstrap directory")
+    elif name in EMPTY_NATIVE_LOCKS:
+        if node.directory or node.size != 0:
+            raise ValueError("Nonempty or invalid native coordination lock")
+    elif name == "SOUL.md":
+        if (
+            node.directory
+            or node.size != 667
+            or node.digest != "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f"
+        ):
+            raise ValueError("Unapproved native identity")
+    elif name == "backups":
+        if not node.directory:
+            raise ValueError("Invalid native config backup root")
+        copies = 0
+        for relative, child in tree.items():
+            if relative == ".":
+                continue
+            if relative == "./config" and child.directory:
+                continue
+            if (
+                child.directory
+                or re.fullmatch(r"\./config/config\.yaml\.good\.[0-9]{8}-[0-9]{6}", relative)
+                is None
+                or child.size > 65536
+                or child.digest != config_digest
+            ):
+                raise ValueError("Unapproved native config backup")
+            copies += 1
+        if copies > 5:
+            raise ValueError("Native config backup count")
 
 
 async def _worker(call: Callable[[], T]) -> T:
@@ -608,12 +666,12 @@ class CaseSlot:
                     ):
                         raise ValueError("Unclassified case state")
                     tree = _tree(base / leaf / name, budget)
-                    if (
-                        any(n.dev != self.policy.roots["."].dev for n in tree.values())
-                        if self.policy
-                        else True
+                    if self.policy is None or any(
+                        n.dev != self.policy.roots["."].dev for n in tree.values()
                     ):
                         raise ValueError("Cross-device case state")
+                    if leaf == "active":
+                        _native_tree(name, tree, self.policy.config_sha256)
                     moves.append(Move(leaf=leaf, name=name, tree=tree))
             finally:
                 os.close(fd)

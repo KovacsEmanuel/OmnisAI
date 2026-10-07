@@ -1,6 +1,6 @@
 export const dashboardCopy = {
   kicker: 'YOUR SECURITY WORKSPACE', title: 'Your security', accent: 'workspace.',
-  createTitle: 'START A NEW ENGAGEMENT', createHint: 'Scope and authorization before any live probe. Setup editing remains unavailable in B03.',
+  createTitle: 'START A NEW ENGAGEMENT', createHint: 'Create and edit saved drafts. Assessment execution is not available in this build.',
   intro: 'Persisted engagements. Clear boundaries. Nothing runs until you choose to start.',
   new: 'New engagement', review: 'Needs your review', attentionReason: 'Review queues are unavailable: no assessment has run.',
   total: 'Total engagements', confirmed: 'Confirmed findings', coverage: 'Coverage', cost: 'Model cost',

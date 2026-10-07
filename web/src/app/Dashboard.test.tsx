@@ -45,6 +45,8 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   expect(await screen.findByRole('heading', { name: 'Recent engagements' })).toBeVisible();
+  expect(screen.getByText('Create and edit saved drafts. Assessment execution is not available in this build.')).toBeVisible();
+  expect(screen.queryByText(/Setup editing remains unavailable in B03/)).not.toBeInTheDocument();
   expect(screen.getByRole('link', { name: summary.name })).toHaveAttribute('href', `/engagements/${summary.engagement_id}/overview`);
   expect(within(screen.getByRole('region', { name: 'Total engagements' })).getByText('1')).toBeVisible();
   expect(screen.getAllByText('UNAVAILABLE').length).toBeGreaterThanOrEqual(3);

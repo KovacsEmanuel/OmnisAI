@@ -1,7 +1,7 @@
 #!/bin/sh
 # Isolated, installed P1 profile; never adopts the old default profile.
-export XDG_DATA_HOME=/home/kali/.local/share/omnis-p1
-export XDG_STATE_HOME=/home/kali/.local/state/omnis-p1
-export XDG_CONFIG_HOME=/home/kali/.config/omnis-p1
+export XDG_DATA_HOME=/home/kali/.local/share/omnis-p1/r1
+export XDG_STATE_HOME=/home/kali/.local/state/omnis-p1/r1
+export XDG_CONFIG_HOME=/home/kali/.config/omnis-p1/r1
 unset XDG_RUNTIME_DIR
 exec /home/kali/.local/share/omnis-p1/cli-venv/bin/omnis "$@"

@@ -1,0 +1,34 @@
+# Context: output of ops/prepare_hermes_runtime.py + separate adapter wheel.
+# Runtime confinement (host UID, readonly rootfs/mounts, network_mode:none,
+# cap_drop:ALL, no-new-privileges, bounded tmpfs/PIDs/memory) is parent-owned.
+FROM python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a AS installer
+WORKDIR /build/wheelhouse
+COPY wheelhouse/ /build/wheelhouse/
+COPY requirements-native.txt requirements-artifacts.txt /build/
+RUN python -m venv /opt/hermes/venv \
+ && /opt/hermes/venv/bin/python -I -m pip install --no-cache-dir --no-index --find-links=/build/wheelhouse --only-binary=:all: --no-deps --require-hashes -r /build/requirements-native.txt \
+ && /opt/hermes/venv/bin/python -I -m pip install --no-cache-dir --no-index --find-links=/build/wheelhouse --no-deps --require-hashes -r /build/requirements-artifacts.txt \
+ && /opt/hermes/venv/bin/python -I -m pip check \
+ && /opt/hermes/venv/bin/python -I -c "from importlib.util import find_spec; assert find_spec('omnis_hermes.runtime_host')"
+
+FROM python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a
+ARG RUNTIME_UID=65532
+ARG RUNTIME_GID=65532
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    HERMES_OMNIS_INERT=1 HERMES_DISABLE_LAZY_INSTALLS=1 \
+    HERMES_SKIP_NODE_BOOTSTRAP=1 HERMES_MANAGED_DIR=/runtime/managed-empty \
+    HOME=/runtime/home HERMES_HOME=/runtime/hermes \
+    CODEX_HOME=/runtime/codex XDG_CONFIG_HOME=/runtime/xdg/config \
+    XDG_CACHE_HOME=/runtime/xdg/cache XDG_STATE_HOME=/runtime/xdg/state \
+    XDG_DATA_HOME=/runtime/xdg/data TMPDIR=/runtime/tmp
+WORKDIR /opt/hermes
+COPY --from=installer /opt/hermes/venv /opt/hermes/venv
+COPY runtime-source/ /opt/hermes/source/
+COPY LICENSE.hermes source-manifest.json build-manifest.json /opt/hermes/provenance/
+RUN printf '/opt/hermes/source\n' > /opt/hermes/venv/lib/python3.13/site-packages/omnis-native-source.pth \
+ && test "${RUNTIME_UID}" -gt 0 && test "${RUNTIME_GID}" -gt 0 \
+ && chmod -R a+rX /opt/hermes \
+ && mkdir -p /runtime/home /runtime/hermes /runtime/codex /runtime/tmp /runtime/managed-empty /runtime/xdg/config /runtime/xdg/cache /runtime/xdg/state /runtime/xdg/data \
+ && chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime
+USER ${RUNTIME_UID}:${RUNTIME_GID}
+CMD ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]

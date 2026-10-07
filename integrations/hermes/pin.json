@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "project": "hermes-agent",
+  "version": "0.21.5",
+  "repository": "https://github.com/NousResearch/hermes-agent",
+  "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+  "source_date_epoch": 1790259137,
+  "python": "3.13.15",
+  "platform": "linux-x86_64",
+  "uv_version": "0.12.19",
+  "uv_sha256": "242e462a63f5a3c0421d68557006193ecbfb61321cba0fe8542213ac62d92563",
+  "reviewed_uv_helper_sha256": "06815211db9e269aa43f125092ea854009a7025f7a21ebf4de91d58f38f0d90b",
+  "uv_lock_sha256": "5b3798f326209475abca8ef7cbf7c9406f12e687c28c0b540dfe597466f48590",
+  "pyproject_sha256": "6f969b9fdff95e7269ec808361e3ae8be5357036e6257e53a3306878cf8c41dd",
+  "license_sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+  "requirements_sha256": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273",
+  "patch_sha256": "31658e5f2c07f996bc643682d1ea2d038a4bf65cfb68ee5e79620ab39479d3c4",
+  "patch_manifest_sha256": "4e3424c4a2a4c12dcfebc1136d99ea28d576a61f7fa41dc6bfb28d1367887957",
+  "runtime_inference_authorized": false
+}

@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "scope": "NATIVE_PREPARATION_INSTALLED_NOT_STARTED; OCI/adapter integration pending parent",
+  "output": "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4",
+  "installed_dependencies": [
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.1"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.5.20"
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4"
+    },
+    {
+      "name": "click",
+      "version": "8.4.2"
+    },
+    {
+      "name": "croniter",
+      "version": "6.0.0"
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.0"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.133.1"
+    },
+    {
+      "name": "fire",
+      "version": "0.7.1"
+    },
+    {
+      "name": "firecrawl-anydoc",
+      "version": "0.2.4"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "idna",
+      "version": "3.18"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6"
+    },
+    {
+      "name": "jiter",
+      "version": "0.13.0"
+    },
+    {
+      "name": "Markdown",
+      "version": "3.10.2"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.0.0"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.3"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2"
+    },
+    {
+      "name": "nemo-relay",
+      "version": "0.8.3"
+    },
+    {
+      "name": "openai",
+      "version": "2.24.0"
+    },
+    {
+      "name": "packaging",
+      "version": "26.0"
+    },
+    {
+      "name": "pathspec",
+      "version": "1.1.1"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0"
+    },
+    {
+      "name": "pillow_heif",
+      "version": "1.5.0"
+    },
+    {
+      "name": "prompt_toolkit",
+      "version": "3.0.52"
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2"
+    },
+    {
+      "name": "ptyprocess",
+      "version": "0.7.0"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.4"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.46.4"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.20.0"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.13.0"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.2"
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.32"
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "requests",
+      "version": "2.33.0"
+    },
+    {
+      "name": "rich",
+      "version": "14.3.3"
+    },
+    {
+      "name": "ruamel.yaml",
+      "version": "0.18.17"
+    },
+    {
+      "name": "ruamel.yaml.clib",
+      "version": "0.2.15"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "snowballstemmer",
+      "version": "3.1.1"
+    },
+    {
+      "name": "socksio",
+      "version": "1.0.0"
+    },
+    {
+      "name": "starlette",
+      "version": "1.3.1"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.4"
+    },
+    {
+      "name": "termcolor",
+      "version": "3.3.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.3"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.7.0"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.41.0"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1"
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.6.0"
+    },
+    {
+      "name": "websockets",
+      "version": "15.0.1"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-c",
+        "import platform;print(platform.python_version())"
+      ],
+      "exit_code": 0,
+      "stdout": "3.13.15\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "venv",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/build-venv"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15 interpreter at: /home/kali/OmnisAI/api/.venv/bin/python\nCreating virtual environment at: integrations/hermes/upstream/local-build/prepared-v4/build-venv\n"
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "pip",
+        "install",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/build-venv/bin/python",
+        "--no-deps",
+        "--only-binary",
+        ":all:",
+        "--require-hashes",
+        "-r",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/requirements-build.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Using Python 3.13.15 environment at: integrations/hermes/upstream/local-build/prepared-v4/build-venv\nResolved 2 packages in 158ms\nPrepared 2 packages in 174ms\nInstalled 2 packages in 23ms\n + packaging==26.0\n + setuptools==83.0.0\n"
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "venv",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/native-venv"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15 interpreter at: /home/kali/OmnisAI/api/.venv/bin/python\nCreating virtual environment at: integrations/hermes/upstream/local-build/prepared-v4/native-venv\n"
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/omnis-b03-a02-uv",
+        "pip",
+        "install",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/native-venv/bin/python",
+        "--no-index",
+        "--find-links",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/wheelhouse",
+        "--no-deps",
+        "--only-binary",
+        ":all:",
+        "--require-hashes",
+        "-r",
+        "/home/kali/.hermes/cache/scratch/omnis-b05-native/integrations/hermes/upstream/local-build/prepared-v4/requirements-native.txt"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Using Python 3.13.15 environment at: integrations/hermes/upstream/local-build/prepared-v4/native-venv\nResolved 62 packages in 4ms\nPrepared 62 packages in 375ms\nInstalled 62 packages in 41ms\n + annotated-doc==0.0.4\n + annotated-types==0.7.0\n + anyio==4.12.1\n + certifi==2026.5.20\n + cffi==2.0.0\n + charset-normalizer==3.4.4\n + click==8.4.2\n + croniter==6.0.0\n + cryptography==50.0.0\n + distro==1.9.0\n + fastapi==0.133.1\n + fire==0.7.1\n + firecrawl-anydoc==0.2.4\n + h11==0.16.0\n + httpcore==1.0.9\n + httptools==0.7.1\n + httpx==0.28.1\n + idna==3.18\n + jinja2==3.1.6\n + jiter==0.13.0\n + markdown==3.10.2\n + markdown-it-py==4.0.0\n + markupsafe==3.0.3\n + mdurl==0.1.2\n + nemo-relay==0.8.3\n + openai==2.24.0\n + packaging==26.0\n + pathspec==1.1.1\n + pillow==12.3.0\n + pillow-heif==1.5.0\n + prompt-toolkit==3.0.52\n + psutil==7.2.2\n + ptyprocess==0.7.0\n + pycparser==3.0\n + pydantic==2.13.4\n + pydantic-core==2.46.4\n + pygments==2.20.0\n + pyjwt==2.13.0\n + python-dateutil==2.9.0.post0\n + python-dotenv==1.2.2\n + python-multipart==0.0.32\n + pytz==2025.2\n + pyyaml==6.0.3\n + requests==2.33.0\n + rich==14.3.3\n + ruamel-yaml==0.18.17\n + ruamel-yaml-clib==0.2.15\n + six==1.17.0\n + sniffio==1.3.1\n + snowballstemmer==3.1.1\n + socksio==1.0.0\n + starlette==1.3.1\n + tenacity==9.1.4\n + termcolor==3.3.0\n + tqdm==4.67.3\n + typing-extensions==4.15.0\n + typing-inspection==0.4.2\n + urllib3==2.7.0\n + uvicorn==0.41.0\n + watchfiles==1.1.1\n + wcwidth==0.6.0\n + websockets==15.0.1\n"
+    }
+  ],
+  "native_source_files": 3184,
+  "wheel_count": 62,
+  "repro_source": true,
+  "repro_wheels": true,
+  "adapter_injected": false,
+  "native_started": false,
+  "hashes": {
+    "ops/prepare_hermes_runtime.py": "0984ab492a8b6ae7a1c2e9410a9482cb8361ccc4079c92ce43db2790ce9fd287",
+    "ops/Dockerfile.hermes": "8e8fecc99c7af6b1c4576e6fa420dcf8e1ee72628ebdcd1a047ac1289f644091",
+    "integrations/hermes/pin.json": "4009eda30c0c06e43dedad042af9845b530b50be926517aec88aa0a9e26ca3fd",
+    "integrations/hermes/requirements-native.txt": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273",
+    "integrations/hermes/upstream/omnis-inert.patch": "31658e5f2c07f996bc643682d1ea2d038a4bf65cfb68ee5e79620ab39479d3c4",
+    "integrations/hermes/upstream/patch-manifest.json": "4e3424c4a2a4c12dcfebc1136d99ea28d576a61f7fa41dc6bfb28d1367887957",
+    "integrations/hermes/upstream/local-build/prepared-v4/source-manifest.json": "33da43dfe9bc0c3273a65918795a67d4be5cf565530326cd57cc8ae66b76f505",
+    "integrations/hermes/upstream/local-build/prepared-v4/build-manifest.json": "19c5efb9466b2e0801a785bbc842803e93b29e8191dfb6563055d89a3deb22d1"
+  }
+}

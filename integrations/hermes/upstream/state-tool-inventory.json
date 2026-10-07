@@ -1,0 +1,3762 @@
+{
+  "schema_version": 1,
+  "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "scope": "STATIC SOURCE CANDIDATES; no Hermes module/process imported; no live Brain/tool inventory",
+  "path_anchors": [
+    {
+      "file": "hermes_cli/_early_recovery.py",
+      "line": 630,
+      "source": "path = Path.home().joinpath(*sub, exe)"
+    },
+    {
+      "file": "hermes_cli/_install_repair.py",
+      "line": 108,
+      "source": "\"\"\"The DEFAULT Hermes root (not ``get_hermes_home()``, which under ``hermes -p <name>`` is"
+    },
+    {
+      "file": "hermes_cli/_install_repair.py",
+      "line": 114,
+      "source": "return Path(get_default_hermes_root())"
+    },
+    {
+      "file": "hermes_cli/_install_repair.py",
+      "line": 171,
+      "source": "git operation can ever touch it. It is a per-machine dir shared by every profile: ``get_hermes_home()``"
+    },
+    {
+      "file": "hermes_cli/_parser.py",
+      "line": 33,
+      "source": "it re-homes the process to the sticky ``active_profile``; ``get_hermes_home()`` would emit the"
+    },
+    {
+      "file": "hermes_cli/active_sessions.py",
+      "line": 172,
+      "source": "return Path(registry_home) if registry_home is not None else Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/active_sessions.py",
+      "line": 695,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/agent_import.py",
+      "line": 196,
+      "source": "return [a for a in SUPPORTED_AGENTS if (Path.home() / _AGENT_DEFAULT_DIRS[a]).is_dir()]"
+    },
+    {
+      "file": "hermes_cli/agent_import.py",
+      "line": 551,
+      "source": "source_dir = Path(explicit_source or Path.home() / _AGENT_DEFAULT_DIRS[agent])"
+    },
+    {
+      "file": "hermes_cli/agent_import.py",
+      "line": 562,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/agent_import.py",
+      "line": 652,
+      "source": "tail = (\"\u2192 \" + str(item.get(\"destination\") or \"\").replace(str(Path.home()), \"~\")"
+    },
+    {
+      "file": "hermes_cli/agent_import.py",
+      "line": 689,
+      "source": "return Path.home() / _AGENT_DEFAULT_DIRS[agent]"
+    },
+    {
+      "file": "hermes_cli/agent_import_sync.py",
+      "line": 138,
+      "source": "hermes_home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "hermes_cli/approvals_suggest.py",
+      "line": 91,
+      "source": "return get_hermes_home() / \"state.db\""
+    },
+    {
+      "file": "hermes_cli/auth.py",
+      "line": 482,
+      "source": "path = get_hermes_home() / \"auth.json\""
+    },
+    {
+      "file": "hermes_cli/auth.py",
+      "line": 486,
+      "source": "and _same_path(path, Path.home() / \".hermes\" / \"auth.json\")):"
+    },
+    {
+      "file": "hermes_cli/auth.py",
+      "line": 500,
+      "source": "global_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/auth.py",
+      "line": 503,
+      "source": "return None if _same_path(get_hermes_home(), global_root) else global_root / \"auth.json\""
+    },
+    {
+      "file": "hermes_cli/auth_codex.py",
+      "line": 531,
+      "source": "codex_home = os.getenv(\"CODEX_HOME\", \"\").strip() or str(Path.home() / \".codex\")"
+    },
+    {
+      "file": "hermes_cli/auth_nous.py",
+      "line": 341,
+      "source": "return get_default_hermes_root() / \"shared\""
+    },
+    {
+      "file": "hermes_cli/auth_nous.py",
+      "line": 352,
+      "source": "get_default_hermes_root() / \"shared\" / NOUS_SHARED_STORE_FILENAME).resolve(strict=False)"
+    },
+    {
+      "file": "hermes_cli/auth_oauth_grants.py",
+      "line": 80,
+      "source": "root_auth_path = get_default_hermes_root() / \"auth.json\""
+    },
+    {
+      "file": "hermes_cli/auth_qwen.py",
+      "line": 26,
+      "source": "return Path.home() / \".qwen\" / \"oauth_creds.json\""
+    },
+    {
+      "file": "hermes_cli/auth_xai.py",
+      "line": 112,
+      "source": "# in _load_global_auth_store). Uses raw HOME, not Path.home(), which fixtures may monkeypatch."
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 654,
+      "source": "out_path = Path.home() / default_name"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 667,
+      "source": "home_dir = Path.home().resolve()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 691,
+      "source": "hermes_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 987,
+      "source": "home_dir = Path.home().resolve()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1058,
+      "source": "# ``get_default_hermes_root()`` would silently retarget a profile restore at the live root."
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1059,
+      "source": "hermes_root = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1214,
+      "source": "home = hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1222,
+      "source": "home = hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1399,
+      "source": "home = hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1478,
+      "source": "home = hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1530,
+      "source": "home = invoking_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1589,
+      "source": "home = hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1629,
+      "source": "home = invoking_home or get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/backup.py",
+      "line": 1763,
+      "source": "hermes_root = hermes_home or get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/banner.py",
+      "line": 269,
+      "source": "cached = _read_json(get_hermes_home() / \".update_check\") or {}"
+    },
+    {
+      "file": "hermes_cli/banner.py",
+      "line": 393,
+      "source": "cache_file = get_hermes_home() / \".update_check\""
+    },
+    {
+      "file": "hermes_cli/banner.py",
+      "line": 436,
+      "source": "repo_dir = get_hermes_home() / \"hermes-agent\""
+    },
+    {
+      "file": "hermes_cli/banner.py",
+      "line": 662,
+      "source": "return get_hermes_home() / \"cache\" / \"banner_snapshot.json\""
+    },
+    {
+      "file": "hermes_cli/banner.py",
+      "line": 670,
+      "source": "return (get_config_path(), get_hermes_home() / \".env\")"
+    },
+    {
+      "file": "hermes_cli/browser_connect.py",
+      "line": 221,
+      "source": "os.environ.get(\"LOCALAPPDATA\", str(Path.home() / \"AppData\" / \"Local\"))]"
+    },
+    {
+      "file": "hermes_cli/browser_connect.py",
+      "line": 353,
+      "source": "return str(get_hermes_home() / \"browser-profile\" / browser)"
+    },
+    {
+      "file": "hermes_cli/browser_connect.py",
+      "line": 721,
+      "source": "root = str(get_hermes_home() / \"browser-profile\")"
+    },
+    {
+      "file": "hermes_cli/browser_connect.py",
+      "line": 761,
+      "source": "return str(get_hermes_home() / \"chrome-debug\")"
+    },
+    {
+      "file": "hermes_cli/claw.py",
+      "line": 26,
+      "source": "_OPENCLAW_SCRIPT_INSTALLED = get_hermes_home() / \"skills\" / _SCRIPT_REL"
+    },
+    {
+      "file": "hermes_cli/claw.py",
+      "line": 226,
+      "source": "return [d for d in (Path.home() / name for name in _OPENCLAW_DIR_NAMES) if d.is_dir()]"
+    },
+    {
+      "file": "hermes_cli/claw.py",
+      "line": 273,
+      "source": "else next(iter(_find_openclaw_dirs()), Path.home() / \".openclaw\"))"
+    },
+    {
+      "file": "hermes_cli/claw.py",
+      "line": 286,
+      "source": "opts.hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/claw.py",
+      "line": 499,
+      "source": "rows.append(f\"{kind:<22s} \u2192 {str(dest).replace(str(Path.home()), '~')}\" if dest"
+    },
+    {
+      "file": "hermes_cli/cli_auto_maintenance.py",
+      "line": 23,
+      "source": "_hermes_home_maint = _get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/cli_session_mixin.py",
+      "line": 668,
+      "source": "saved_dir = get_hermes_home() / \"sessions\" / \"saved\""
+    },
+    {
+      "file": "hermes_cli/cli_terminal_mixin.py",
+      "line": 579,
+      "source": "img_path = get_hermes_home() / \"images\" / f\"clip_{ts}_{self._image_counter}.png\""
+    },
+    {
+      "file": "hermes_cli/cli_tui_runtime_mixin.py",
+      "line": 490,
+      "source": "if self._session_db.delete_session(_sid, sessions_dir=get_hermes_home() / \"sessions\"):"
+    },
+    {
+      "file": "hermes_cli/codex_models.py",
+      "line": 199,
+      "source": "codex_home = Path(os.getenv(\"CODEX_HOME\", \"\").strip() or str(Path.home() / \".codex\")).expanduser()"
+    },
+    {
+      "file": "hermes_cli/codex_runtime_plugin_migration.py",
+      "line": 384,
+      "source": "HERMES_HOME passes through only IF SET, read from os.environ (not get_hermes_home()): when"
+    },
+    {
+      "file": "hermes_cli/codex_runtime_plugin_migration.py",
+      "line": 393,
+      "source": "# the parent CLI. Read from os.environ (not get_hermes_home()) on purpose: when the env var is unset we"
+    },
+    {
+      "file": "hermes_cli/codex_runtime_plugin_migration.py",
+      "line": 438,
+      "source": "os.getenv(\"CODEX_HOME\", \"\").strip() or str(Path.home() / \".codex\")).expanduser()"
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 273,
+      "source": "method = _install_method_stamp(get_hermes_home() / \".install_method\")"
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 401,
+      "source": "with open(get_hermes_home() / \".container-mode\", \"r\", encoding=\"utf-8\") as f:"
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 421,
+      "source": "return get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 462,
+      "source": "return get_hermes_home() / \".env\""
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 560,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 3451,
+      "source": "skin_file = get_hermes_home() / \"skins\" / f\"{value}.yaml\""
+    },
+    {
+      "file": "hermes_cli/config.py",
+      "line": 3928,
+      "source": "user_plugins = get_hermes_home() / \"plugins\""
+    },
+    {
+      "file": "hermes_cli/config_defaults.py",
+      "line": 964,
+      "source": "\"slug\": \"\",   # active pet slug in get_hermes_home()/pets/; empty \u2192 first installed"
+    },
+    {
+      "file": "hermes_cli/config_migrations.py",
+      "line": 287,
+      "source": "user_plugins_dir = _c.get_hermes_home() / \"plugins\""
+    },
+    {
+      "file": "hermes_cli/config_migrations.py",
+      "line": 340,
+      "source": "curator_dir = _c.get_hermes_home() / \"logs\" / \"curator\""
+    },
+    {
+      "file": "hermes_cli/config_migrations.py",
+      "line": 545,
+      "source": "for name, profile_dir in _roster(_hermes_root(get_hermes_home())):"
+    },
+    {
+      "file": "hermes_cli/copilot_auth.py",
+      "line": 282,
+      "source": "return Path(get_hermes_home()) / _JWT_DISK_FILENAME"
+    },
+    {
+      "file": "hermes_cli/dashboard_auth/audit.py",
+      "line": 49,
+      "source": "return get_hermes_home() / \"logs\" / \"dashboard-auth.log\""
+    },
+    {
+      "file": "hermes_cli/dashboard_procs.py",
+      "line": 132,
+      "source": "default home through ``Path.home()``, which falls back to this entry. The inspecting process's"
+    },
+    {
+      "file": "hermes_cli/dashboard_procs.py",
+      "line": 178,
+      "source": "base = Path(local_appdata) if local_appdata else Path(env.get(\"USERPROFILE\") or Path.home()) / \"AppData\" / \"Local\""
+    },
+    {
+      "file": "hermes_cli/dashboard_procs.py",
+      "line": 181,
+      "source": "default_home = Path(env.get(\"HOME\") or _pid_passwd_home(pid) or Path.home()) / \".hermes\""
+    },
+    {
+      "file": "hermes_cli/dashboard_procs.py",
+      "line": 307,
+      "source": "own_home = str(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/dashboard_procs.py",
+      "line": 910,
+      "source": "for home in (_hermes_home_dir(), get_default_hermes_root()):"
+    },
+    {
+      "file": "hermes_cli/debug.py",
+      "line": 43,
+      "source": "return get_hermes_home() / \"pastes\" / \"pending.json\""
+    },
+    {
+      "file": "hermes_cli/debug.py",
+      "line": 227,
+      "source": "return (get_hermes_home() / \"logs\" / filename) if filename else None"
+    },
+    {
+      "file": "hermes_cli/dep_ensure.py",
+      "line": 54,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/dep_ensure.py",
+      "line": 102,
+      "source": "cmd = [ps_bin, \"-ExecutionPolicy\", \"Bypass\", \"-File\", str(script), \"-Ensure\", dep, \"-HermesHome\", str(get_hermes_home())]"
+    },
+    {
+      "file": "hermes_cli/doctor.py",
+      "line": 15,
+      "source": "HERMES_HOME = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/doctor_config.py",
+      "line": 99,
+      "source": "\"\"\"Report the active managed scope (resolved dir + pinned key counts); silent when none. A HERMES_MANAGED_DIR"
+    },
+    {
+      "file": "hermes_cli/doctor_config.py",
+      "line": 109,
+      "source": "if os.environ.get(\"HERMES_MANAGED_DIR\", \"\").strip():"
+    },
+    {
+      "file": "hermes_cli/doctor_config.py",
+      "line": 110,
+      "source": "check_info(f\"managed dir set via HERMES_MANAGED_DIR={managed_dir}\")"
+    },
+    {
+      "file": "hermes_cli/doctor_platform.py",
+      "line": 413,
+      "source": "os.listdir(Path.home() / \"Library\" / \"Application Support\" / \"com.apple.TCC\")"
+    },
+    {
+      "file": "hermes_cli/doctor_platform.py",
+      "line": 529,
+      "source": "link_dir, display = (Path(prefix) / \"bin\", \"$PREFIX/bin\") if termux else (Path.home() / \".local\" / \"bin\", \"~/.local/bin\")"
+    },
+    {
+      "file": "hermes_cli/dump.py",
+      "line": 236,
+      "source": "project_root, hermes_home = get_project_root(), get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/env_loader.py",
+      "line": 674,
+      "source": "return Path.home() / \".hermes\""
+    },
+    {
+      "file": "hermes_cli/foreign_sessions.py",
+      "line": 172,
+      "source": "\"codex\": ((\".codex\", \"sessions\"), \"CODEX_HOME\", \"sessions\", \"rollout-*.jsonl\", True,"
+    },
+    {
+      "file": "hermes_cli/foreign_sessions.py",
+      "line": 185,
+      "source": "``CODEX_HOME``. A blank/whitespace value is treated as unset (an empty override must not"
+    },
+    {
+      "file": "hermes_cli/foreign_sessions.py",
+      "line": 191,
+      "source": "return Path.home().joinpath(*default_parts)"
+    },
+    {
+      "file": "hermes_cli/foreign_sessions.py",
+      "line": 341,
+      "source": "root = Path(root) if root else Path.home() / \".claude\" / \"projects\""
+    },
+    {
+      "file": "hermes_cli/foreign_sessions.py",
+      "line": 369,
+      "source": "root = Path(root) if root else Path.home() / \".codex\" / \"sessions\""
+    },
+    {
+      "file": "hermes_cli/free_tier_bootstrap.py",
+      "line": 126,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 602,
+      "source": "current_home = str(get_hermes_home().resolve())"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 1051,
+      "source": "_log_dir = Path(get_hermes_home()) / \"logs\""
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 1180,
+      "source": "get_hermes_home() would pick the wrong profile for runtime-status/PID reads.\"\"\""
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2161,
+      "source": "The bare name is deliberately NOT tied to ``get_default_hermes_root()``: that helper treats any"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2169,
+      "source": "home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2172,
+      "source": "name = _profile_name_from_home(home, get_default_hermes_root().resolve())"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2181,
+      "source": "return profile_name_for_home(get_hermes_home()) or _profile_suffix()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2188,
+      "source": "home = Path(hermes_home or str(get_hermes_home())).resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2189,
+      "source": "default = Path(default_root).resolve() if default_root else get_default_hermes_root().resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2210,
+      "source": "base = Path(config_home) if config_home else Path.home() / \".config\""
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2847,
+      "source": "root = get_default_hermes_root().resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2948,
+      "source": "\"\"\"Swap the ``Path.home()`` prefix of *path* for *target_home_dir*; other paths return unchanged."
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 2950,
+      "source": "current_home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3215,
+      "source": "if unit_home is None or Path(unit_home).expanduser().resolve() == get_hermes_home().resolve():"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3219,
+      "source": "f\"but this process has HERMES_HOME={get_hermes_home()}\""
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3668,
+      "source": "default_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3704,
+      "source": "if profile_is_standalone(get_hermes_home()):"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3738,
+      "source": "standalone = (profile_name_for_home(get_hermes_home()) not in (None, \"default\")"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3739,
+      "source": "and profile_is_standalone(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3742,
+      "source": "new_standalone = (profile_name_for_home(get_hermes_home()) not in (None, \"default\")"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3788,
+      "source": "print(f\"  gateway.standalone: true in {display_hermes_home(get_hermes_home())}/config.yaml,\")"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 3845,
+      "source": "decision = decide(get_hermes_home(), replace=replace)"
+    },
+    {
+      "file": "hermes_cli/gateway.py",
+      "line": 5031,
+      "source": "and profile_is_standalone(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/gateway_enroll.py",
+      "line": 220,
+      "source": "default_root = Path(get_default_hermes_root()).resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway_enroll.py",
+      "line": 221,
+      "source": "home = Path(get_hermes_home()).resolve()"
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 119,
+      "source": "return _gw().get_hermes_home() / \"logs\" / \"launchd-reload.log\""
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 186,
+      "source": "return _gw().get_hermes_home() / \".gateway-launchd-unsupported\""
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 273,
+      "source": "log_dir = _gw().get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 332,
+      "source": "hermes_home = str(_gw().get_hermes_home().resolve())"
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 333,
+      "source": "log_dir = _gw().get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "hermes_cli/gateway_launchd.py",
+      "line": 901,
+      "source": "log_file = _gw().get_hermes_home() / \"logs\" / \"gateway.log\""
+    },
+    {
+      "file": "hermes_cli/gateway_migrate.py",
+      "line": 227,
+      "source": "return get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_mode.py",
+      "line": 91,
+      "source": "root = Path(default_home) if default_home is not None else get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_mode.py",
+      "line": 112,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_mode.py",
+      "line": 168,
+      "source": "return get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_mode.py",
+      "line": 295,
+      "source": "me = profile_name_for_home(get_hermes_home()) or \"default\""
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_served.py",
+      "line": 30,
+      "source": "return live_gateway_pid_for_home(get_default_hermes_root())"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_served.py",
+      "line": 41,
+      "source": "runtime = read_runtime_status((default_root or get_default_hermes_root()) / \"gateway_state.json\")"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_served.py",
+      "line": 59,
+      "source": "runtime = read_runtime_status(get_default_hermes_root() / \"gateway_state.json\") or {}"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_served.py",
+      "line": 80,
+      "source": "runtime = read_runtime_status(get_default_hermes_root() / \"gateway_state.json\") or {}"
+    },
+    {
+      "file": "hermes_cli/gateway_multiplex_served.py",
+      "line": 119,
+      "source": "answer = rescan_gateway_profiles(get_default_hermes_root(), timeout=timeout)"
+    },
+    {
+      "file": "hermes_cli/gateway_profile_lifecycle.py",
+      "line": 26,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway_profile_lifecycle.py",
+      "line": 41,
+      "source": "host_home = owner.home if owner is not None else get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway_profile_lifecycle.py",
+      "line": 56,
+      "source": "host_home = owner.home if owner is not None else get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/gateway_profile_lifecycle.py",
+      "line": 86,
+      "source": "if name and name != \"default\" and profile_is_parked(get_hermes_home()):"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 53,
+      "source": "current_hermes = Path(current_hermes_raw).expanduser() if current_hermes_raw else _gw().get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 55,
+      "source": "current_default = Path.home() / \".hermes\""
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 82,
+      "source": "hermes_home = _gw().get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 95,
+      "source": "home = _gw().get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 200,
+      "source": "hermes_home = str(_gw().get_hermes_home().resolve())"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 202,
+      "source": "user_home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/gateway_service_unit.py",
+      "line": 367,
+      "source": "# Test safety belt: the user unit path is under Path.home(), which conftest does NOT sandbox, and a"
+    },
+    {
+      "file": "hermes_cli/gateway_setup_wizard.py",
+      "line": 446,
+      "source": "credentials = _gw().asyncio.run(qr_login(str(_gw().get_hermes_home())))"
+    },
+    {
+      "file": "hermes_cli/gateway_windows.py",
+      "line": 115,
+      "source": "return Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/gateway_windows.py",
+      "line": 339,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/goals.py",
+      "line": 526,
+      "source": "home = str(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/gui_uninstall.py",
+      "line": 29,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/gui_uninstall.py",
+      "line": 51,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/gui_uninstall.py",
+      "line": 84,
+      "source": "home: Path = hermes_home if hermes_home is not None else get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/gui_uninstall.py",
+      "line": 110,
+      "source": "home: Path = hermes_home if hermes_home is not None else get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/install_identity.py",
+      "line": 66,
+      "source": "root = get_default_hermes_root() if root is None else root"
+    },
+    {
+      "file": "hermes_cli/install_identity.py",
+      "line": 89,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/kanban_db.py",
+      "line": 400,
+      "source": "\"\"\"``HERMES_KANBAN_HOME`` else ``get_default_hermes_root()``. Shared across"
+    },
+    {
+      "file": "hermes_cli/kanban_db.py",
+      "line": 407,
+      "source": "return get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/kanban_db.py",
+      "line": 4364,
+      "source": "default_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/kanban_db_dispatch.py",
+      "line": 2811,
+      "source": "# without it the child's get_hermes_home() falls back to the DEFAULT"
+    },
+    {
+      "file": "hermes_cli/linux_desktop_entry.py",
+      "line": 43,
+      "source": "return Path(raw).expanduser() if raw and raw.strip() else Path.home() / \".local\" / \"share\""
+    },
+    {
+      "file": "hermes_cli/linux_desktop_entry.py",
+      "line": 351,
+      "source": "candidates.append(Path.home() / \".local\" / \"bin\" / \"hermes\")"
+    },
+    {
+      "file": "hermes_cli/local_runtime/binaries.py",
+      "line": 67,
+      "source": "return get_default_hermes_root() / \"runtimes\" / \"llamacpp\""
+    },
+    {
+      "file": "hermes_cli/local_runtime/bootstrap.py",
+      "line": 49,
+      "source": "return get_default_hermes_root() / \"models\""
+    },
+    {
+      "file": "hermes_cli/logs.py",
+      "line": 109,
+      "source": "log_path = get_hermes_home() / \"logs\" / filename"
+    },
+    {
+      "file": "hermes_cli/logs.py",
+      "line": 246,
+      "source": "log_dir = get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 618,
+      "source": "active_path = get_default_hermes_root() / \"active_profile\""
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 705,
+      "source": "_cfg_path = get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 963,
+      "source": "return get_hermes_home() / \"skills\" / \".termux_bundled_sync_stamp\""
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 1104,
+      "source": "if _auth_store_logged_in(get_hermes_home() / \"auth.json\", PROVIDER_REGISTRY, strict_profile_scope):"
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 1691,
+      "source": "skills_dir = Path(get_hermes_home()) / \"skills\""
+    },
+    {
+      "file": "hermes_cli/main.py",
+      "line": 2547,
+      "source": "own_home = str(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/main_agent_cmds.py",
+      "line": 23,
+      "source": "mem_dir = get_hermes_home() / \"memories\""
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 237,
+      "source": "(\"agent\", Path.home() / \"Library\" / \"LaunchAgents\"),"
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 369,
+      "source": "log_path = get_hermes_home() / \"logs\" / \"dashboard-restart.log\""
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 464,
+      "source": "logs_dir = _get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 673,
+      "source": "# validation there, NOT get_hermes_home(): a non-default profile or a Docker"
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 674,
+      "source": "# /opt/data root re-homes get_hermes_home() and would reject every token."
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 676,
+      "source": "token_root = Path.home() / \".hermes\" / \"desktop-ssh\""
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 933,
+      "source": "# get_default_hermes_root() strips a trailing profiles/<name> for both layouts."
+    },
+    {
+      "file": "hermes_cli/main_dashboard.py",
+      "line": 936,
+      "source": "env[\"HERMES_HOME\"] = str(get_default_hermes_root())"
+    },
+    {
+      "file": "hermes_cli/main_desktop.py",
+      "line": 49,
+      "source": "return get_hermes_home() / \"desktop-build-stamp.json\""
+    },
+    {
+      "file": "hermes_cli/main_desktop.py",
+      "line": 497,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/main_desktop.py",
+      "line": 507,
+      "source": "xdg = os.environ.get(\"XDG_CACHE_HOME\")"
+    },
+    {
+      "file": "hermes_cli/main_desktop.py",
+      "line": 1010,
+      "source": "keychain = str(Path.home() / \"Library\" / \"Keychains\" / \"login.keychain-db\")"
+    },
+    {
+      "file": "hermes_cli/main_desktop.py",
+      "line": 1412,
+      "source": "hermes_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/main_platform_setup.py",
+      "line": 157,
+      "source": "session_dir = get_hermes_home() / \"whatsapp\" / \"session\""
+    },
+    {
+      "file": "hermes_cli/main_tui_launch.py",
+      "line": 341,
+      "source": "hermes_home = str(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/main_tui_launch.py",
+      "line": 356,
+      "source": "extras += [Path(hermes_home) / \"node\" / \"bin\", Path.home() / \".local\" / \"bin\"]"
+    },
+    {
+      "file": "hermes_cli/main_tui_launch.py",
+      "line": 437,
+      "source": "npmrc = get_hermes_home() / \"npmrc\""
+    },
+    {
+      "file": "hermes_cli/main_web_build.py",
+      "line": 188,
+      "source": "return get_hermes_home() / \"web-ui-build-stamp.json\""
+    },
+    {
+      "file": "hermes_cli/main_web_build.py",
+      "line": 509,
+      "source": "if npm_cwd != PROJECT_ROOT or _npm_lockfile_changed(get_default_hermes_root()):"
+    },
+    {
+      "file": "hermes_cli/managed_scope.py",
+      "line": 41,
+      "source": "dev/CI box can't leak policy into the suite. An explicit ``HERMES_MANAGED_DIR`` still wins.\"\"\""
+    },
+    {
+      "file": "hermes_cli/managed_scope.py",
+      "line": 48,
+      "source": "Priority: ``$HERMES_MANAGED_DIR`` (IT-only bootstrap override; never persisted to any .env;"
+    },
+    {
+      "file": "hermes_cli/managed_scope.py",
+      "line": 52,
+      "source": "override = os.environ.get(\"HERMES_MANAGED_DIR\", \"\").strip()"
+    },
+    {
+      "file": "hermes_cli/managed_uv.py",
+      "line": 50,
+      "source": "return get_hermes_home() / \"bin\" / (\"uv.exe\" if platform.system() == \"Windows\" else \"uv\")"
+    },
+    {
+      "file": "hermes_cli/managed_uv.py",
+      "line": 275,
+      "source": "return get_hermes_home() / \"cache\" / \".uv_self_update_stamp\""
+    },
+    {
+      "file": "hermes_cli/mcp_app_detection.py",
+      "line": 33,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/mcp_catalog.py",
+      "line": 400,
+      "source": "root = get_hermes_home() / \"mcp-installs\""
+    },
+    {
+      "file": "hermes_cli/memory_provider_migration.py",
+      "line": 115,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/memory_setup.py",
+      "line": 189,
+      "source": "provider.post_setup(str(get_hermes_home()), config)"
+    },
+    {
+      "file": "hermes_cli/memory_setup.py",
+      "line": 318,
+      "source": "provider.save_config(provider_config, str(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/migrate.py",
+      "line": 90,
+      "source": "return get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "hermes_cli/model_catalog.py",
+      "line": 84,
+      "source": "return get_hermes_home() / \"cache\" / \"model_catalog.json\""
+    },
+    {
+      "file": "hermes_cli/models.py",
+      "line": 171,
+      "source": "return get_hermes_home() / \"cache\" / \"openrouter_curated_catalog.json\""
+    },
+    {
+      "file": "hermes_cli/models.py",
+      "line": 344,
+      "source": "return get_hermes_home() / \"cache\" / \"nous_recommended_cache.json\""
+    },
+    {
+      "file": "hermes_cli/models.py",
+      "line": 1731,
+      "source": "return get_hermes_home() / \"provider_models_cache.json\""
+    },
+    {
+      "file": "hermes_cli/models.py",
+      "line": 1820,
+      "source": "_mtime_part(rel, get_hermes_home() / rel)"
+    },
+    {
+      "file": "hermes_cli/models_local.py",
+      "line": 631,
+      "source": "return get_hermes_home() / \"ollama_cloud_models_cache.json\""
+    },
+    {
+      "file": "hermes_cli/models_reasoning_caps.py",
+      "line": 75,
+      "source": "return get_hermes_home() / \"cache\" / \"reasoning_caps.json\""
+    },
+    {
+      "file": "hermes_cli/npm_engine.py",
+      "line": 109,
+      "source": "prefix = get_hermes_home() / \"node\""
+    },
+    {
+      "file": "hermes_cli/observability/relay_shared_metrics.py",
+      "line": 895,
+      "source": "default_path = get_hermes_home() / \"telemetry\" / \"shared_metrics\" / \"metrics.sqlite3\""
+    },
+    {
+      "file": "hermes_cli/observability/shared_metrics.py",
+      "line": 179,
+      "source": "root = get_hermes_home() / \"telemetry\" / \"shared_metrics\""
+    },
+    {
+      "file": "hermes_cli/personality.py",
+      "line": 136,
+      "source": "config_path = get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "hermes_cli/plugin_catalog.py",
+      "line": 310,
+      "source": "return get_hermes_home() / \"cache\" / \"plugin-catalog.json\""
+    },
+    {
+      "file": "hermes_cli/plugin_compat.py",
+      "line": 267,
+      "source": "return get_hermes_home() / REPORT_FILE"
+    },
+    {
+      "file": "hermes_cli/plugin_dev.py",
+      "line": 248,
+      "source": "candidates.append(get_hermes_home() / \"plugins\" / raw)"
+    },
+    {
+      "file": "hermes_cli/plugin_python_deps.py",
+      "line": 373,
+      "source": "specs = install_declaration(decl, home=get_hermes_home(), project_root=project_root())"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 448,
+      "source": "profile_home=str(get_hermes_home().resolve()),"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1350,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1440,
+      "source": "name=clean, present=present_fn, plugin_id=plugin_id, profile_home=str(get_hermes_home().resolve()),"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1447,
+      "source": "if registered is None or registered.profile_home != str(get_hermes_home().resolve()):"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1477,
+      "source": "if _discover_mcp(Path(manifest.path), get_hermes_home() / \"plugin-data\""
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1570,
+      "source": "return get_hermes_home().expanduser().resolve()"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1572,
+      "source": "return get_hermes_home().expanduser()"
+    },
+    {
+      "file": "hermes_cli/plugins.py",
+      "line": 1684,
+      "source": "return get_hermes_home() / \"cache\" / \"plugin_toolset_keys.json\""
+    },
+    {
+      "file": "hermes_cli/plugins_activation.py",
+      "line": 108,
+      "source": "activation = (notify_serve_backend(name, Path(get_hermes_home())) or {}).get(\"activation\")"
+    },
+    {
+      "file": "hermes_cli/plugins_activation.py",
+      "line": 113,
+      "source": "home = Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/plugins_activation.py",
+      "line": 116,
+      "source": "root = Path(get_default_hermes_root())"
+    },
+    {
+      "file": "hermes_cli/plugins_activation.py",
+      "line": 167,
+      "source": "server.refresh_plugin_sessions(Path(get_hermes_home()), note)"
+    },
+    {
+      "file": "hermes_cli/plugins_cmd.py",
+      "line": 188,
+      "source": "plugins = get_hermes_home() / \"plugins\""
+    },
+    {
+      "file": "hermes_cli/plugins_cmd.py",
+      "line": 366,
+      "source": "refuse_conflicting_candidate(tmp_target, home=get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/plugins_cmd.py",
+      "line": 489,
+      "source": "return get_hermes_home() / \"plugins\" / \".install-metadata.json\""
+    },
+    {
+      "file": "hermes_cli/plugins_discovery.py",
+      "line": 184,
+      "source": "user_dir = get_hermes_home() / \"plugins\""
+    },
+    {
+      "file": "hermes_cli/plugins_loader.py",
+      "line": 558,
+      "source": "Path(manifest.path), get_hermes_home() / \"plugin-data\" / manifest.skill_namespace)"
+    },
+    {
+      "file": "hermes_cli/plugins_state.py",
+      "line": 143,
+      "source": "return get_hermes_home() / \"plugin-data\" / self._data_namespace"
+    },
+    {
+      "file": "hermes_cli/process_identity.py",
+      "line": 134,
+      "source": "return Path(get_default_hermes_root()) / LEDGER_FILENAME"
+    },
+    {
+      "file": "hermes_cli/process_identity.py",
+      "line": 138,
+      "source": "return Path(get_hermes_home()) / LEDGER_FILENAME"
+    },
+    {
+      "file": "hermes_cli/profile_cmd.py",
+      "line": 264,
+      "source": "profile_dir_display = \"~/\" + profile_dir.relative_to(Path.home()).as_posix()"
+    },
+    {
+      "file": "hermes_cli/profile_describer.py",
+      "line": 124,
+      "source": "profile_dir = Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/profile_identity.py",
+      "line": 97,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/profile_identity.py",
+      "line": 120,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/profile_identity.py",
+      "line": 197,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/profile_identity.py",
+      "line": 220,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 184,
+      "source": "return get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 192,
+      "source": "return Path.home() / \".local\" / \"bin\""
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 343,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 682,
+      "source": "source = get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 1082,
+      "source": "source_dir = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 1833,
+      "source": "# The service name follows get_hermes_home(): bind the override (the seam a multiplexed"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 1945,
+      "source": "resolved = get_hermes_home().resolve()"
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 2005,
+      "source": "Path.home() / \".hermes-profile-exports\", Path(tempfile.gettempdir()) / f\"hermes-profile-exports{uid_suffix}\""
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 2204,
+      "source": "new_dir / \"honcho.json\", _get_default_hermes_home() / \"honcho.json\", Path.home() / \".honcho\" / \"config.json\""
+    },
+    {
+      "file": "hermes_cli/profiles.py",
+      "line": 2347,
+      "source": "(``<root>/profiles/<name>``, mirrors ``get_default_hermes_root()``), the value itself otherwise,"
+    },
+    {
+      "file": "hermes_cli/projects_db.py",
+      "line": 25,
+      "source": "return get_hermes_home() / \"projects.db\""
+    },
+    {
+      "file": "hermes_cli/relay_plugin_migrate.py",
+      "line": 257,
+      "source": "results = [migrate_profile_relay_env(get_hermes_home(), validate=validate)]"
+    },
+    {
+      "file": "hermes_cli/security_advisories.py",
+      "line": 209,
+      "source": "cache_dir = Path(get_hermes_home()) / \"cache\""
+    },
+    {
+      "file": "hermes_cli/security_audit.py",
+      "line": 231,
+      "source": "home = hermes_home or Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/security_audit.py",
+      "line": 288,
+      "source": "home = Path(get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/security_audit_startup.py",
+      "line": 113,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/send_cmd.py",
+      "line": 122,
+      "source": "home, root = get_hermes_home(), get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/send_cmd.py",
+      "line": 162,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/send_cmd.py",
+      "line": 268,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/sessions_cmd.py",
+      "line": 21,
+      "source": "def get_hermes_home():"
+    },
+    {
+      "file": "hermes_cli/sessions_cmd.py",
+      "line": 23,
+      "source": "return main.get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/sessions_cmd.py",
+      "line": 27,
+      "source": "return get_hermes_home() / \"sessions\""
+    },
+    {
+      "file": "hermes_cli/sessions_cmd.py",
+      "line": 75,
+      "source": "return Path(output).expanduser() if output and output != \"-\" else get_hermes_home() / \"session-exports\""
+    },
+    {
+      "file": "hermes_cli/sessions_cmd_browse.py",
+      "line": 253,
+      "source": "sessions_dir = get_hermes_home() / \"sessions\""
+    },
+    {
+      "file": "hermes_cli/setup.py",
+      "line": 676,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/setup_migration.py",
+      "line": 184,
+      "source": "return f\"      {kind:<22s} \u2192 {str(dest).replace(str(Path.home()), '~')}\""
+    },
+    {
+      "file": "hermes_cli/setup_migration.py",
+      "line": 261,
+      "source": "openclaw_dir = Path.home() / \".openclaw\""
+    },
+    {
+      "file": "hermes_cli/setup_platforms.py",
+      "line": 34,
+      "source": "profile_name = _profile_name_from_hermes_home(Path(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/setup_quick.py",
+      "line": 151,
+      "source": "os.listdir(Path.home() / \"Library\" / \"Application Support\" / \"com.apple.TCC\")"
+    },
+    {
+      "file": "hermes_cli/setup_terminal.py",
+      "line": 144,
+      "source": "config[\"terminal\"].setdefault(\"cwd\", str(Path.home()))"
+    },
+    {
+      "file": "hermes_cli/setup_terminal.py",
+      "line": 243,
+      "source": "(\"  SSH private key path\", \"TERMINAL_SSH_KEY\", str(Path.home() / \".ssh\" / \"id_rsa\")))"
+    },
+    {
+      "file": "hermes_cli/shared_session_attach.py",
+      "line": 39,
+      "source": "home = Path(registry_home if registry_home is not None else get_hermes_home()).resolve()"
+    },
+    {
+      "file": "hermes_cli/skin_cmd.py",
+      "line": 21,
+      "source": "return get_hermes_home() / \"skins\""
+    },
+    {
+      "file": "hermes_cli/skin_engine.py",
+      "line": 365,
+      "source": "return get_hermes_home() / \"skins\""
+    },
+    {
+      "file": "hermes_cli/slack_cli.py",
+      "line": 130,
+      "source": "target = Path(get_hermes_home()) / \"slack-manifest.json\""
+    },
+    {
+      "file": "hermes_cli/status.py",
+      "line": 262,
+      "source": "jobs_file = get_hermes_home() / \"cron\" / \"jobs.json\""
+    },
+    {
+      "file": "hermes_cli/status.py",
+      "line": 295,
+      "source": "elif not (sessions_file := get_hermes_home() / \"sessions\" / \"sessions.json\").exists():"
+    },
+    {
+      "file": "hermes_cli/terminal_breadcrumbs.py",
+      "line": 29,
+      "source": "return get_hermes_home() / \"terminal-sessions\""
+    },
+    {
+      "file": "hermes_cli/tools_config_cua.py",
+      "line": 361,
+      "source": "return Path(os.environ.get(\"CUA_DRIVER_RS_HOME\") or str(Path.home() / \".cua-driver\"))"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 97,
+      "source": "for config_path in (c for c in (Path.home() / n for n in _SHELL_RC_NAMES) if c.exists()):"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 122,
+      "source": "for bin_dir in (Path.home() / \".local\" / \"bin\", Path(\"/usr/local/bin\"))"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 136,
+      "source": "dirs: list[Path] = [Path.home() / \".local\" / \"bin\"]"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 346,
+      "source": "bin_dir = get_default_hermes_root() / \"bin\""
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 370,
+      "source": "return hermes_home.resolve() == get_default_hermes_root().resolve()"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 423,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 470,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/uninstall.py",
+      "line": 749,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/update_cmd.py",
+      "line": 249,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/update_cmd.py",
+      "line": 383,
+      "source": "default_home = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/update_cmd.py",
+      "line": 469,
+      "source": "log_path = get_hermes_home() / \"logs\" / \"update.log\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_deps.py",
+      "line": 758,
+      "source": "shared_hermes_root = get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/update_cmd_fleet.py",
+      "line": 44,
+      "source": "path = get_hermes_home() / \".update_exit_code\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_fleet.py",
+      "line": 57,
+      "source": "return get_hermes_home() / _FLEET_RESTART_PENDING_NAME"
+    },
+    {
+      "file": "hermes_cli/update_cmd_git.py",
+      "line": 228,
+      "source": "return (get_hermes_home() / SKIP_UPSTREAM_PROMPT_FILE).exists()"
+    },
+    {
+      "file": "hermes_cli/update_cmd_git.py",
+      "line": 235,
+      "source": "(get_hermes_home() / SKIP_UPSTREAM_PROMPT_FILE).touch()"
+    },
+    {
+      "file": "hermes_cli/update_cmd_git.py",
+      "line": 405,
+      "source": "candidates += [root / \"git\" / \"mingw64\" / \"libexec\" / \"git-core\" / \"git.exe\" for root in (get_default_hermes_root(), Path(get_hermes_home()))]"
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 108,
+      "source": "db_path = get_hermes_home() / \"state.db\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 259,
+      "source": "scope_home=str(get_hermes_home()),"
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 486,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 604,
+      "source": "for bin_dir in (Path.home() / \".local\" / \"bin\", Path(\"/usr/local/bin\")):"
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 668,
+      "source": "_src_path = get_hermes_home() / \"state.db\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 677,
+      "source": "_snap_state = _quick_snapshot_root(get_hermes_home()) / snapshot_id / \"state.db\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_maint.py",
+      "line": 758,
+      "source": "display_path = f\"{display_hermes_home()}/{out_path.relative_to(get_hermes_home())}\""
+    },
+    {
+      "file": "hermes_cli/update_cmd_windows.py",
+      "line": 1139,
+      "source": "cache_dir = Path(_m().get_hermes_home()) / \"bootstrap-cache\""
+    },
+    {
+      "file": "hermes_cli/update_fleet_scope.py",
+      "line": 36,
+      "source": "if (home := _resolved(get_hermes_home())) is not None:"
+    },
+    {
+      "file": "hermes_cli/update_fleet_scope.py",
+      "line": 115,
+      "source": "return str(Path.home() / \".hermes\")"
+    },
+    {
+      "file": "hermes_cli/update_handoff.py",
+      "line": 64,
+      "source": "directory = get_hermes_home() / \"logs\" / \"update_receipts\""
+    },
+    {
+      "file": "hermes_cli/update_receipt.py",
+      "line": 125,
+      "source": "return get_hermes_home() / \"logs\" / \"update_receipts\""
+    },
+    {
+      "file": "hermes_cli/update_serve_obligations.py",
+      "line": 40,
+      "source": "directory = get_hermes_home() / \"serve_restart_pending\""
+    },
+    {
+      "file": "hermes_cli/update_serve_obligations.py",
+      "line": 91,
+      "source": "directory = get_hermes_home() / \"serve_restart_pending\""
+    },
+    {
+      "file": "hermes_cli/web_read_coalescing.py",
+      "line": 45,
+      "source": "key = (str(get_hermes_home()), _freeze(bound.arguments))"
+    },
+    {
+      "file": "hermes_cli/web_routers/actions.py",
+      "line": 296,
+      "source": "(get_hermes_home() / \".update_check\").unlink()"
+    },
+    {
+      "file": "hermes_cli/web_routers/chat_workspaces.py",
+      "line": 61,
+      "source": "\"home\": str(Path.home()), \"scan_enabled\": bool(policy[\"enabled\"])}"
+    },
+    {
+      "file": "hermes_cli/web_routers/dashboard_ui.py",
+      "line": 310,
+      "source": "if hermes_home_key(get_hermes_home()) != hermes_home_key(home):"
+    },
+    {
+      "file": "hermes_cli/web_routers/files.py",
+      "line": 236,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/web_routers/files.py",
+      "line": 342,
+      "source": "img_dir = Path(scoped_home or get_hermes_home()) / \"images\""
+    },
+    {
+      "file": "hermes_cli/web_routers/local_models.py",
+      "line": 672,
+      "source": "# launch presets under get_hermes_home() \u2014 scope so those land in the named profile."
+    },
+    {
+      "file": "hermes_cli/web_routers/mcp.py",
+      "line": 256,
+      "source": "return str(get_hermes_home().expanduser().resolve(strict=False))"
+    },
+    {
+      "file": "hermes_cli/web_routers/memory_providers.py",
+      "line": 119,
+      "source": "return get_hermes_home() / provider.name / \"config.json\""
+    },
+    {
+      "file": "hermes_cli/web_routers/memory_providers.py",
+      "line": 475,
+      "source": "provider.save_config(values, str(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/web_routers/ops.py",
+      "line": 487,
+      "source": "mem_dir = get_hermes_home() / \"memories\""
+    },
+    {
+      "file": "hermes_cli/web_routers/ops.py",
+      "line": 526,
+      "source": "mem_dir = get_hermes_home() / \"memories\""
+    },
+    {
+      "file": "hermes_cli/web_routers/ops.py",
+      "line": 563,
+      "source": "return get_hermes_home() / \"backups\""
+    },
+    {
+      "file": "hermes_cli/web_routers/ops.py",
+      "line": 797,
+      "source": "cp_dir = get_hermes_home() / \"checkpoints\""
+    },
+    {
+      "file": "hermes_cli/web_routers/profiles.py",
+      "line": 115,
+      "source": "if resolved == get_default_hermes_root().resolve():"
+    },
+    {
+      "file": "hermes_cli/web_routers/sessions.py",
+      "line": 89,
+      "source": "profile_home = _cron_profile_home(body.profile)[1] if body.profile else get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/web_routers/sessions.py",
+      "line": 571,
+      "source": "return get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 408,
+      "source": "storage_check = await run_in_threadpool(_probe_state_db, get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 530,
+      "source": "await _advisory_pressure(status, profile_dir if profile_dir else get_hermes_home())"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 545,
+      "source": "\"hermes_home\": str(get_hermes_home()), \"config_path\": str(get_config_path()),"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 571,
+      "source": "du = psutil.disk_usage(str(get_hermes_home()))"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 638,
+      "source": "# ``_state_file()`` is ``get_hermes_home()/skills/.curator_state`` resolved at call"
+    },
+    {
+      "file": "hermes_cli/web_routers/status.py",
+      "line": 811,
+      "source": "log_path = get_hermes_home() / \"logs\" / log_name"
+    },
+    {
+      "file": "hermes_cli/web_server_cron.py",
+      "line": 339,
+      "source": "listener_profile, listener_home = \"default\", get_default_hermes_root()"
+    },
+    {
+      "file": "hermes_cli/web_server_dashboard.py",
+      "line": 417,
+      "source": "Uses the process launch home, not ``get_hermes_home()``, so a transient profile override"
+    },
+    {
+      "file": "hermes_cli/web_server_dashboard.py",
+      "line": 484,
+      "source": "# the hermes root (``~/.hermes/plugins``). Scan the default root as well (``get_default_hermes_root()``"
+    },
+    {
+      "file": "hermes_cli/web_server_dashboard.py",
+      "line": 490,
+      "source": "root_plugins = get_default_hermes_root() / \"plugins\""
+    },
+    {
+      "file": "hermes_cli/web_server_dashboard.py",
+      "line": 698,
+      "source": "plugins_root_resolved = (get_hermes_home() / \"plugins\").resolve()"
+    },
+    {
+      "file": "hermes_cli/web_server_files.py",
+      "line": 91,
+      "source": "root = get_default_hermes_root().expanduser().resolve(strict=False)"
+    },
+    {
+      "file": "hermes_cli/web_server_files.py",
+      "line": 137,
+      "source": "home = _canonical_path(Path.home())"
+    },
+    {
+      "file": "hermes_cli/web_server_gateway.py",
+      "line": 273,
+      "source": "_ACTION_LOG_DIR: Path = get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "hermes_cli/web_server_gateway.py",
+      "line": 387,
+      "source": "source_homes = {str(get_default_hermes_root()), str(get_hermes_home())}"
+    },
+    {
+      "file": "hermes_cli/web_server_memory.py",
+      "line": 109,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "hermes_cli/web_server_memory.py",
+      "line": 226,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "hermes_cli/web_server_profiles.py",
+      "line": 39,
+      "source": "\"\"\"Scope ``load_config``/``save_config`` (anything resolving ``get_hermes_home()`` at call"
+    },
+    {
+      "file": "hermes_cli/web_server_profiles.py",
+      "line": 246,
+      "source": "Two seams: (1) ``load_config``/``save_config`` resolve ``get_hermes_home()`` at call"
+    },
+    {
+      "file": "hermes_cli/web_server_profiles.py",
+      "line": 251,
+      "source": "``get_hermes_home()`` so writes land in the live home even when the import-time binding"
+    },
+    {
+      "file": "hermes_cli/web_server_profiles.py",
+      "line": 263,
+      "source": "profile_dir = get_hermes_home() if scoped is None else scoped"
+    },
+    {
+      "file": "hermes_cli/web_server_sessions.py",
+      "line": 274,
+      "source": "home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "hermes_cli/web_server_sessions.py",
+      "line": 291,
+      "source": "if _check_gateway_running(get_hermes_home()):"
+    },
+    {
+      "file": "hermes_cli/webhook.py",
+      "line": 24,
+      "source": "return get_hermes_home() / _SUBSCRIPTIONS_FILENAME"
+    },
+    {
+      "file": "hermes_cli/windows_ssh_runtime.py",
+      "line": 56,
+      "source": "return get_default_hermes_root() / \"desktop-ssh\""
+    },
+    {
+      "file": "hermes_cli/windows_ssh_runtime.py",
+      "line": 451,
+      "source": "return {\"os\": \"Windows\", \"arch\": platform.machine(), \"hermesHome\": str(get_default_hermes_root()), \"python\": sys.executable}"
+    },
+    {
+      "file": "hermes_cli/worktree_gc.py",
+      "line": 107,
+      "source": "dest = get_hermes_home() / \"archive\" / \"worktree-prune\" / f\"{tree.name}-{stamp}\""
+    },
+    {
+      "file": "hermes_cli/worktree_ops.py",
+      "line": 569,
+      "source": "return get_hermes_home() / \"cache\" / \"worktree_merge_verdicts.json\""
+    },
+    {
+      "file": "agent/agent_init.py",
+      "line": 207,
+      "source": "return get_hermes_home() / \".codex_gpt55_autoraise_notice\""
+    },
+    {
+      "file": "agent/agent_init.py",
+      "line": 1153,
+      "source": "agent.logs_dir = get_hermes_home() / \"sessions\""
+    },
+    {
+      "file": "agent/agent_init.py",
+      "line": 1227,
+      "source": "\"hermes_home\": str(get_hermes_home()),"
+    },
+    {
+      "file": "agent/agent_init.py",
+      "line": 2107,
+      "source": "agent.session_id, hermes_home=str(get_hermes_home()),"
+    },
+    {
+      "file": "agent/anthropic_credentials.py",
+      "line": 340,
+      "source": "root = Path(override).expanduser() if override else Path.home() / \".claude\""
+    },
+    {
+      "file": "agent/anthropic_credentials.py",
+      "line": 731,
+      "source": "return get_hermes_home() / \".anthropic_oauth.json\""
+    },
+    {
+      "file": "agent/anthropic_credentials.py",
+      "line": 739,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "agent/anthropic_credentials.py",
+      "line": 740,
+      "source": "return None if root.resolve(strict=False) == get_hermes_home().resolve(strict=False) else root / \".anthropic_oauth.json\""
+    },
+    {
+      "file": "agent/auxiliary_client.py",
+      "line": 963,
+      "source": "_AUTH_JSON_PATH = get_hermes_home() / \"auth.json\""
+    },
+    {
+      "file": "agent/chat_completion_helpers.py",
+      "line": 1866,
+      "source": "profile = profile_name_for_home(get_hermes_home()) or \"default\""
+    },
+    {
+      "file": "agent/coding_context.py",
+      "line": 215,
+      "source": "return Path.home().resolve()"
+    },
+    {
+      "file": "agent/context_file_sources.py",
+      "line": 89,
+      "source": "home = Path(home_override) if home_override is not None else _pb.get_hermes_home()"
+    },
+    {
+      "file": "agent/context_references.py",
+      "line": 479,
+      "source": "home, hermes_home = Path(os.path.expanduser(\"~\")).resolve(), get_hermes_home().resolve()"
+    },
+    {
+      "file": "agent/credential_pool.py",
+      "line": 772,
+      "source": "``Path.home()`` which fixtures may monkeypatch."
+    },
+    {
+      "file": "agent/credential_sources.py",
+      "line": 144,
+      "source": "oauth_file = get_hermes_home() / \".anthropic_oauth.json\""
+    },
+    {
+      "file": "agent/curator.py",
+      "line": 40,
+      "source": "return get_hermes_home() / \"skills\" / \".curator_state\""
+    },
+    {
+      "file": "agent/curator.py",
+      "line": 454,
+      "source": "root = get_hermes_home() / \"logs\" / \"curator\""
+    },
+    {
+      "file": "agent/curator.py",
+      "line": 1118,
+      "source": "return get_hermes_home() / \"skills\" / \".locks\" / \"curator-run\""
+    },
+    {
+      "file": "agent/curator_backup.py",
+      "line": 63,
+      "source": "return get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "agent/curator_backup.py",
+      "line": 79,
+      "source": "src = get_hermes_home() / \"cron\" / \"jobs.json\""
+    },
+    {
+      "file": "agent/i18n.py",
+      "line": 137,
+      "source": "return _config_language_cached(str(get_hermes_home()))"
+    },
+    {
+      "file": "agent/learning_graph.py",
+      "line": 61,
+      "source": "return json.loads((get_hermes_home() / \"skills\" / \".usage.json\").read_text(encoding=\"utf-8\"))"
+    },
+    {
+      "file": "agent/learning_graph.py",
+      "line": 153,
+      "source": "base = get_hermes_home() / \"memories\""
+    },
+    {
+      "file": "agent/learning_graph.py",
+      "line": 206,
+      "source": "roots = [(\"base\", Path(__file__).resolve().parent.parent / \"skills\"), (\"profile\", get_hermes_home() / \"skills\")]"
+    },
+    {
+      "file": "agent/learning_mutations.py",
+      "line": 63,
+      "source": "path = get_hermes_home() / \"memories\" / _MEMORY_FILES[source]"
+    },
+    {
+      "file": "agent/lsp/install.py",
+      "line": 89,
+      "source": "p = get_hermes_home() / \"lsp\" / \"bin\""
+    },
+    {
+      "file": "agent/lsp/servers.py",
+      "line": 277,
+      "source": "os.path.join(str(get_hermes_home()), \"lsp\", \"PowerShellEditorServices\"),"
+    },
+    {
+      "file": "agent/lsp/servers.py",
+      "line": 324,
+      "source": "d = os.path.join(str(get_hermes_home()), \"lsp\", \"pses\")"
+    },
+    {
+      "file": "agent/memory_manager.py",
+      "line": 900,
+      "source": "kwargs[\"hermes_home\"] = str(get_hermes_home())"
+    },
+    {
+      "file": "agent/moa_trace.py",
+      "line": 38,
+      "source": "return get_hermes_home() / \"moa-traces\""
+    },
+    {
+      "file": "agent/model_metadata.py",
+      "line": 194,
+      "source": "return get_hermes_home() / \"cache\" / name"
+    },
+    {
+      "file": "agent/model_metadata.py",
+      "line": 1150,
+      "source": "return get_hermes_home() / \"context_length_cache.yaml\""
+    },
+    {
+      "file": "agent/models_dev.py",
+      "line": 213,
+      "source": "return get_hermes_home() / name"
+    },
+    {
+      "file": "agent/nous_rate_guard.py",
+      "line": 41,
+      "source": "base = get_hermes_home()"
+    },
+    {
+      "file": "agent/onboarding.py",
+      "line": 102,
+      "source": "return ((home or Path.home()) / \".openclaw\").is_dir()"
+    },
+    {
+      "file": "agent/pet/store.py",
+      "line": 3,
+      "source": "Pets live under ``get_hermes_home()/pets/<slug>/`` (profile-scoped; NOT petdex's"
+    },
+    {
+      "file": "agent/pet/store.py",
+      "line": 65,
+      "source": "return _ensure_dir(get_hermes_home() / \"pets\")"
+    },
+    {
+      "file": "agent/prompt_builder.py",
+      "line": 1126,
+      "source": "return get_hermes_home() / \".skills_prompt_snapshot.json\""
+    },
+    {
+      "file": "agent/prompt_builder.py",
+      "line": 1545,
+      "source": "soul_path = (Path(home_override) if home_override is not None else get_hermes_home()) / \"SOUL.md\""
+    },
+    {
+      "file": "agent/provider_media.py",
+      "line": 26,
+      "source": "path = get_hermes_home() / \"cache\" / kind"
+    },
+    {
+      "file": "agent/proxy_sources/iron_proxy.py",
+      "line": 161,
+      "source": "return get_hermes_home() / \"bin\""
+    },
+    {
+      "file": "agent/proxy_sources/iron_proxy.py",
+      "line": 166,
+      "source": "return get_hermes_home() / \"proxy\""
+    },
+    {
+      "file": "agent/redact.py",
+      "line": 37,
+      "source": "return str(get_hermes_home())"
+    },
+    {
+      "file": "agent/relay_runtime.py",
+      "line": 1262,
+      "source": "home = get_hermes_home().expanduser()"
+    },
+    {
+      "file": "agent/relay_runtime.py",
+      "line": 1283,
+      "source": "get_hermes_home() / \"relay-plugins.toml\","
+    },
+    {
+      "file": "agent/secret_sources/_cache.py",
+      "line": 54,
+      "source": "home_path = get_hermes_home()"
+    },
+    {
+      "file": "agent/secret_sources/bitwarden.py",
+      "line": 97,
+      "source": "return get_hermes_home() / \"bin\""
+    },
+    {
+      "file": "agent/shell_hooks.py",
+      "line": 61,
+      "source": "return str(get_hermes_home().expanduser().resolve())"
+    },
+    {
+      "file": "agent/shell_hooks.py",
+      "line": 494,
+      "source": "return get_hermes_home() / ALLOWLIST_FILENAME"
+    },
+    {
+      "file": "agent/skill_bundles.py",
+      "line": 30,
+      "source": "return Path(override).expanduser() if override else get_hermes_home() / \"skill-bundles\""
+    },
+    {
+      "file": "agent/skill_commands.py",
+      "line": 153,
+      "source": "return str(get_hermes_home())"
+    },
+    {
+      "file": "agent/skill_utils.py",
+      "line": 292,
+      "source": "return p if p.is_absolute() else get_hermes_home() / p"
+    },
+    {
+      "file": "agent/skill_utils.py",
+      "line": 415,
+      "source": "if create_dir.is_relative_to(Path.home()):"
+    },
+    {
+      "file": "agent/skill_utils.py",
+      "line": 416,
+      "source": "return \"~/\" + create_dir.relative_to(Path.home()).as_posix() + \"/\""
+    },
+    {
+      "file": "agent/skill_utils.py",
+      "line": 461,
+      "source": "home = Path.home().resolve()"
+    },
+    {
+      "file": "agent/skill_utils.py",
+      "line": 569,
+      "source": "cache_dir = get_hermes_home() / \"cache\" / \"project_skill_scans\""
+    },
+    {
+      "file": "agent/subdirectory_hints.py",
+      "line": 269,
+      "source": "return \"~/\" + hint_path.relative_to(Path.home()).as_posix()"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 262,
+      "source": "Uses ``get_default_hermes_root()`` (NOT ``get_hermes_home()``): on a bound"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 267,
+      "source": "rel = home.resolve().relative_to((get_default_hermes_root() / \"profiles\").resolve())"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 381,
+      "source": "# ROOT (get_hermes_home() on a bound profile session is the PROFILE dir)."
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 383,
+      "source": "_root_str = str(get_default_hermes_root() if _agent_home_path is not None else get_hermes_home())"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 394,
+      "source": "profile_home = str(_agent_home_path) if _agent_home_path is not None else str(get_hermes_home())"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 398,
+      "source": "# default profile's data sits at the ROOT (get_default_hermes_root()), which in ambient profile mode is"
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 399,
+      "source": "# NOT get_hermes_home()."
+    },
+    {
+      "file": "agent/system_prompt.py",
+      "line": 400,
+      "source": "default_root = get_default_hermes_root()"
+    },
+    {
+      "file": "agent/transports/codex_app_server.py",
+      "line": 109,
+      "source": "spawn_env[\"CODEX_HOME\"] = codex_home"
+    },
+    {
+      "file": "agent/turn_explainers.py",
+      "line": 396,
+      "source": "\"{backups_dir}\", str(get_default_hermes_root() / \"backups\")"
+    },
+    {
+      "file": "agent/vault_backends/unlock.py",
+      "line": 69,
+      "source": "return (str(get_hermes_home()), backend)"
+    },
+    {
+      "file": "agent/vault_store.py",
+      "line": 198,
+      "source": "Path(get_hermes_home()) / \"vault\""
+    },
+    {
+      "file": "agent/verification_evidence.py",
+      "line": 119,
+      "source": "return get_hermes_home() / \"verification_evidence.db\""
+    },
+    {
+      "file": "tools/approval_detection.py",
+      "line": 566,
+      "source": "home = get_hermes_home().expanduser()"
+    },
+    {
+      "file": "tools/approval_floors.py",
+      "line": 64,
+      "source": "script_dir = get_hermes_home() / \"cache\" / \"blocked-scripts\""
+    },
+    {
+      "file": "tools/async_delegation.py",
+      "line": 98,
+      "source": "return get_hermes_home() / \"state.db\""
+    },
+    {
+      "file": "tools/async_delegation.py",
+      "line": 336,
+      "source": "home, restored = hermes_home_key(get_hermes_home()), 0"
+    },
+    {
+      "file": "tools/async_delegation.py",
+      "line": 375,
+      "source": "home = hermes_home_key(get_hermes_home())"
+    },
+    {
+      "file": "tools/async_delegation.py",
+      "line": 406,
+      "source": "home = hermes_home_key(get_hermes_home())"
+    },
+    {
+      "file": "tools/bot_desktop/browser.py",
+      "line": 34,
+      "source": "return Path(override) if os.path.isabs(override) else runtime.get_hermes_home() / override"
+    },
+    {
+      "file": "tools/bot_desktop/lease.py",
+      "line": 78,
+      "source": "home = Path(profile_key) if profile_key else get_hermes_home()"
+    },
+    {
+      "file": "tools/bot_desktop/lease.py",
+      "line": 247,
+      "source": "p = get_hermes_home() / \"bot-desktop\" / \"lease.json\""
+    },
+    {
+      "file": "tools/bot_desktop/runtime.py",
+      "line": 8,
+      "source": "``get_hermes_home()`` so N profiles in one gateway get N desktops: one screen per bot on the shared"
+    },
+    {
+      "file": "tools/bot_desktop/runtime.py",
+      "line": 75,
+      "source": "return get_hermes_home() / \"bot-desktop\""
+    },
+    {
+      "file": "tools/bot_desktop/runtime.py",
+      "line": 309,
+      "source": "_ALLOC_LOCK = Path(os.environ.get(\"XDG_RUNTIME_DIR\") or Path.home() / \".cache\") / \"hermes-bot-desktop-alloc.lock\""
+    },
+    {
+      "file": "tools/browser_camofox.py",
+      "line": 558,
+      "source": "screenshots_dir = get_hermes_home() / \"browser_screenshots\""
+    },
+    {
+      "file": "tools/browser_camofox_state.py",
+      "line": 18,
+      "source": "return get_hermes_home() / \"browser_auth\" / \"camofox\""
+    },
+    {
+      "file": "tools/browser_lightpanda.py",
+      "line": 52,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "tools/browser_lightpanda.py",
+      "line": 56,
+      "source": "candidates.append(Path(get_hermes_home()) / \"bin\" / \"lightpanda\")"
+    },
+    {
+      "file": "tools/browser_lightpanda.py",
+      "line": 87,
+      "source": "path = Path(get_hermes_home()) / \"cache\" / \"browser-use\" / \"lightpanda\""
+    },
+    {
+      "file": "tools/browser_tool.py",
+      "line": 1144,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "tools/browser_tool_install.py",
+      "line": 42,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/browser_tool_install.py",
+      "line": 149,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/browser_tool_lifecycle.py",
+      "line": 477,
+      "source": "_bt._session_owner_homes.setdefault(task_id, str(get_hermes_home()))"
+    },
+    {
+      "file": "tools/browser_tool_lifecycle.py",
+      "line": 572,
+      "source": "recordings_dir = get_hermes_home() / \"browser_recordings\""
+    },
+    {
+      "file": "tools/browser_use_cli.py",
+      "line": 236,
+      "source": "stamp = Path(get_hermes_home()) / \"cache\" / \".browser_use_default_notice\""
+    },
+    {
+      "file": "tools/browser_use_cli.py",
+      "line": 252,
+      "source": "return str(Path(get_hermes_home()) / \"bin\")"
+    },
+    {
+      "file": "tools/browser_use_cli.py",
+      "line": 322,
+      "source": "path = Path(get_hermes_home()) / \"cache\" / \"browser-use\" / \"workspace\" / safe"
+    },
+    {
+      "file": "tools/checkpoint_manager.py",
+      "line": 34,
+      "source": "CHECKPOINT_BASE = get_hermes_home() / \"checkpoints\""
+    },
+    {
+      "file": "tools/checkpoint_manager.py",
+      "line": 43,
+      "source": "return CHECKPOINT_BASE if CHECKPOINT_BASE != _CHECKPOINT_BASE_AT_IMPORT else get_hermes_home() / \"checkpoints\""
+    },
+    {
+      "file": "tools/checkpoint_manager.py",
+      "line": 680,
+      "source": "if abs_dir in {\"/\", str(Path.home())}:  # never snapshot root/home"
+    },
+    {
+      "file": "tools/connectors/mcp_oauth.py",
+      "line": 315,
+      "source": "hermes_home = str(get_hermes_home().expanduser().resolve(strict=False))"
+    },
+    {
+      "file": "tools/connectors/portal/tools_cache.py",
+      "line": 62,
+      "source": "return get_hermes_home() / \"cache\" / \"connectors\" / origin_key / member_key / f\"{slug}.json\""
+    },
+    {
+      "file": "tools/credential_files.py",
+      "line": 72,
+      "source": "relative_path, get_hermes_home(),"
+    },
+    {
+      "file": "tools/credential_files.py",
+      "line": 133,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "tools/credential_files.py",
+      "line": 171,
+      "source": "skills_dir = get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/cronjob_job_args.py",
+      "line": 373,
+      "source": "scripts_dir = get_hermes_home() / \"scripts\""
+    },
+    {
+      "file": "tools/debug_helpers.py",
+      "line": 27,
+      "source": "self.log_dir = get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "tools/delegate_tool_child_run.py",
+      "line": 177,
+      "source": "logs_dir = get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "tools/discord_tool.py",
+      "line": 113,
+      "source": "return get_hermes_home() / \"cache\" / \"discord_capabilities.json\""
+    },
+    {
+      "file": "tools/environments/base.py",
+      "line": 191,
+      "source": "p = Path(custom) if custom else get_hermes_home() / \"sandboxes\""
+    },
+    {
+      "file": "tools/environments/base_output.py",
+      "line": 184,
+      "source": "spill_dir = get_hermes_home() / \"cache\" / \"terminal-output\""
+    },
+    {
+      "file": "tools/environments/file_sync.py",
+      "line": 316,
+      "source": "lock_path = (hermes_home or get_hermes_home()) / \".sync.lock\""
+    },
+    {
+      "file": "tools/environments/local.py",
+      "line": 56,
+      "source": "return get_hermes_home() / \"cache\" / \"terminal\""
+    },
+    {
+      "file": "tools/environments/local.py",
+      "line": 624,
+      "source": "return [str(d) for d in (*iter_hermes_node_dirs(), get_hermes_home() / \"bin\") if d.is_dir()]"
+    },
+    {
+      "file": "tools/environments/local.py",
+      "line": 634,
+      "source": "local_bin = Path.home() / \".local\" / \"bin\""
+    },
+    {
+      "file": "tools/environments/local_pythonpath.py",
+      "line": 45,
+      "source": "# and the repo lives beside the profiles dir (as get_default_hermes_root() does)."
+    },
+    {
+      "file": "tools/environments/modal.py",
+      "line": 27,
+      "source": "return get_hermes_home() / \"modal_snapshots.json\""
+    },
+    {
+      "file": "tools/environments/singularity.py",
+      "line": 27,
+      "source": "return get_hermes_home() / \"singularity_snapshots.json\""
+    },
+    {
+      "file": "tools/environments/vercel_sandbox.py",
+      "line": 91,
+      "source": "return get_hermes_home() / \"vercel_sandbox_snapshots.json\""
+    },
+    {
+      "file": "tools/file_operations.py",
+      "line": 37,
+      "source": "_HOME = str(Path.home())"
+    },
+    {
+      "file": "tools/file_operations_search.py",
+      "line": 42,
+      "source": "home_path = Path(os.path.normpath(str(Path(home or Path.home()).expanduser())))"
+    },
+    {
+      "file": "tools/file_operations_search.py",
+      "line": 283,
+      "source": "user_profile = os.environ.get(\"USERPROFILE\") or str(Path.home())"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 38,
+      "source": "# resolve per call in production (below) because ``get_hermes_home()`` /"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 59,
+      "source": "return os.path.realpath(str(get_hermes_home()))"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 78,
+      "source": "# ``get_hermes_home()`` key the happy path uses, and substitute no"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 82,
+      "source": "return str((Path(str(get_hermes_home())) / \"config.yaml\").resolve())"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 100,
+      "source": "# ``_get_hermes_config_resolved``): re-derive from ``get_hermes_home()``"
+    },
+    {
+      "file": "tools/file_tools_write_guards.py",
+      "line": 108,
+      "source": "return os.path.realpath(str(get_hermes_home()))"
+    },
+    {
+      "file": "tools/hook_output_spill.py",
+      "line": 59,
+      "source": "base = Path(get_hermes_home()) / \"hook_outputs\""
+    },
+    {
+      "file": "tools/image_source.py",
+      "line": 163,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/kanban_tools.py",
+      "line": 1004,
+      "source": "state = SessionDB(db_path=get_hermes_home() / \"state.db\", read_only=True)"
+    },
+    {
+      "file": "tools/lazy_deps.py",
+      "line": 434,
+      "source": "home = Path.home()"
+    },
+    {
+      "file": "tools/managed_tool_gateway.py",
+      "line": 37,
+      "source": "return get_hermes_home() / \"auth.json\""
+    },
+    {
+      "file": "tools/mcp_oauth.py",
+      "line": 232,
+      "source": "return Path(hermes_home if hermes_home is not None else get_hermes_home()) / \"mcp-tokens\""
+    },
+    {
+      "file": "tools/mcp_oauth_manager.py",
+      "line": 302,
+      "source": "home = Path(hermes_home) if hermes_home is not None else get_hermes_home()"
+    },
+    {
+      "file": "tools/mcp_schema_cache.py",
+      "line": 24,
+      "source": "return get_hermes_home() / \"cache\" / _CACHE_FILENAME"
+    },
+    {
+      "file": "tools/mcp_tool_config.py",
+      "line": 32,
+      "source": "log_dir = get_hermes_home() / \"logs\""
+    },
+    {
+      "file": "tools/mcp_tool_config.py",
+      "line": 169,
+      "source": "``<home>/node/bin``) under the active profile's ``get_hermes_home()``; on Windows the real files are"
+    },
+    {
+      "file": "tools/mcp_tool_config.py",
+      "line": 175,
+      "source": "directories = [*map(str, iter_hermes_node_dirs(get_hermes_home())), os.path.join(home, \".local\", \"bin\"),"
+    },
+    {
+      "file": "tools/mcp_tool_loop.py",
+      "line": 76,
+      "source": "lock_path = str(get_hermes_home() / \".mcp-discovery.lock\")"
+    },
+    {
+      "file": "tools/mcp_tool_loop.py",
+      "line": 79,
+      "source": "_origin._MCP_DISCOVERY_LOCK_PATH = str(get_hermes_home() / \".mcp-discovery.lock\")"
+    },
+    {
+      "file": "tools/memory_tool.py",
+      "line": 40,
+      "source": "return get_hermes_home() / \"memories\""
+    },
+    {
+      "file": "tools/osv_check.py",
+      "line": 46,
+      "source": "Uses ``hermes_constants.get_hermes_home()`` so the cache follows the"
+    },
+    {
+      "file": "tools/osv_check.py",
+      "line": 54,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/process_registry.py",
+      "line": 42,
+      "source": "CHECKPOINT_PATH = get_hermes_home() / \"processes.json\""
+    },
+    {
+      "file": "tools/process_registry.py",
+      "line": 51,
+      "source": "return CHECKPOINT_PATH if CHECKPOINT_PATH != _CHECKPOINT_PATH_AT_IMPORT else get_hermes_home() / \"processes.json\""
+    },
+    {
+      "file": "tools/process_registry_results.py",
+      "line": 30,
+      "source": "directory = get_hermes_home() / \"logs\" / \"process-results\""
+    },
+    {
+      "file": "tools/process_registry_results.py",
+      "line": 58,
+      "source": "directory = get_hermes_home() / \"logs\" / \"process-results\""
+    },
+    {
+      "file": "tools/registry.py",
+      "line": 149,
+      "source": "return Path(get_hermes_home()) / \"cache\" / \"tool_discovery_cache.json\""
+    },
+    {
+      "file": "tools/self_repo_guard.py",
+      "line": 558,
+      "source": "scratch = (Path(hermes_home).expanduser() if hermes_home else Path.home() / \".hermes\") / \"scratch\""
+    },
+    {
+      "file": "tools/send_message_tool.py",
+      "line": 332,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/send_message_tool.py",
+      "line": 363,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "tools/skill_ledger.py",
+      "line": 81,
+      "source": "return get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/skill_ledger.py",
+      "line": 89,
+      "source": "return get_hermes_home() / \".curator_backups\" / \"blobs\""
+    },
+    {
+      "file": "tools/skill_ledger.py",
+      "line": 272,
+      "source": "if not _is_within(skills, dest) or not _is_within(get_hermes_home(), dest):"
+    },
+    {
+      "file": "tools/skill_ledger.py",
+      "line": 559,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "tools/skill_manager_tool.py",
+      "line": 69,
+      "source": "HERMES_HOME = get_hermes_home()"
+    },
+    {
+      "file": "tools/skill_manager_tool.py",
+      "line": 82,
+      "source": "return configured if configured != _SKILLS_DIR_AT_IMPORT else get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/skill_manager_tool.py",
+      "line": 264,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "tools/skill_usage.py",
+      "line": 47,
+      "source": "return get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/skills_hub.py",
+      "line": 56,
+      "source": "return get_hermes_home()"
+    },
+    {
+      "file": "tools/skills_sync.py",
+      "line": 35,
+      "source": "HERMES_HOME = get_hermes_home()"
+    },
+    {
+      "file": "tools/skills_sync_client.py",
+      "line": 125,
+      "source": "return get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/skills_tool.py",
+      "line": 62,
+      "source": "HERMES_HOME = get_hermes_home()  # all skills live in ~/.hermes/skills/ (seeded from bundled)"
+    },
+    {
+      "file": "tools/skills_tool.py",
+      "line": 71,
+      "source": "return configured if configured != _SKILLS_DIR_AT_IMPORT else get_hermes_home() / \"skills\""
+    },
+    {
+      "file": "tools/skills_tool.py",
+      "line": 97,
+      "source": "return load_env_file(get_hermes_home() / \".env\")"
+    },
+    {
+      "file": "tools/terminal_scope.py",
+      "line": 176,
+      "source": "home_fallback=str(Path.home()),"
+    },
+    {
+      "file": "tools/tirith_security.py",
+      "line": 143,
+      "source": "return os.path.join(str(get_hermes_home()), \".tirith-install-failed\")"
+    },
+    {
+      "file": "tools/tirith_security.py",
+      "line": 197,
+      "source": "os.makedirs(d := os.path.join(str(get_hermes_home()), \"bin\"), exist_ok=True)"
+    },
+    {
+      "file": "tools/tool_backend_helpers.py",
+      "line": 70,
+      "source": "return (Path.home() / \".modal.toml\").exists()"
+    },
+    {
+      "file": "tools/tool_backend_helpers.py",
+      "line": 71,
+      "source": "except OSError:  # includes PermissionError on Path.home()"
+    },
+    {
+      "file": "tools/tool_result_storage.py",
+      "line": 36,
+      "source": "return get_hermes_home() / SPILLOVER_SUBDIR"
+    },
+    {
+      "file": "tools/tts_tool_providers.py",
+      "line": 481,
+      "source": "path = get_hermes_home() / path"
+    },
+    {
+      "file": "tools/wake_word.py",
+      "line": 696,
+      "source": "return get_default_hermes_root() / \"runtime\" / \"wake-word.lock\""
+    },
+    {
+      "file": "tools/wake_word_engines.py",
+      "line": 144,
+      "source": "return get_hermes_home() / \"cache\" / \"wakewords\""
+    },
+    {
+      "file": "tools/website_policy.py",
+      "line": 104,
+      "source": "default_path = get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "tools/website_policy.py",
+      "line": 122,
+      "source": "path = path if path.is_absolute() else (get_hermes_home() / path).resolve()"
+    },
+    {
+      "file": "tools/write_approval.py",
+      "line": 65,
+      "source": "return get_hermes_home() / \"pending\" / subsystem / f\"{pending_id}.json\""
+    },
+    {
+      "file": "tools/xai_http.py",
+      "line": 37,
+      "source": "auth_path = get_hermes_home() / \"auth.json\""
+    },
+    {
+      "file": "tools/xai_http.py",
+      "line": 150,
+      "source": "marker_dir = get_hermes_home() / \"state\""
+    },
+    {
+      "file": "gateway/channel_directory.py",
+      "line": 41,
+      "source": "return DIRECTORY_PATH or get_hermes_home() / \"channel_directory.json\""
+    },
+    {
+      "file": "gateway/channel_directory.py",
+      "line": 45,
+      "source": "return CHANNEL_ALIASES_PATH or get_hermes_home() / \"channel_aliases.json\""
+    },
+    {
+      "file": "gateway/channel_directory.py",
+      "line": 371,
+      "source": "sessions_path = get_hermes_home() / \"sessions\" / \"sessions.json\""
+    },
+    {
+      "file": "gateway/config.py",
+      "line": 584,
+      "source": "sessions_dir: Path = field(default_factory=lambda: get_hermes_home() / \"sessions\")"
+    },
+    {
+      "file": "gateway/config.py",
+      "line": 776,
+      "source": "sessions_dir=Path(data[\"sessions_dir\"]) if \"sessions_dir\" in data else get_hermes_home() / \"sessions\","
+    },
+    {
+      "file": "gateway/config.py",
+      "line": 820,
+      "source": "_home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/cwd_placeholder.py",
+      "line": 4,
+      "source": "the gateway must not blindly map host ``Path.home()`` into container backends."
+    },
+    {
+      "file": "gateway/dead_targets.py",
+      "line": 54,
+      "source": "self._path = path if path is not None else get_hermes_home() / \"gateway\" / \"dead_targets.json\""
+    },
+    {
+      "file": "gateway/delivery.py",
+      "line": 162,
+      "source": "self.output_dir = get_hermes_home() / \"cron\" / \"output\""
+    },
+    {
+      "file": "gateway/delivery.py",
+      "line": 217,
+      "source": "path = get_hermes_home() / \"cron\" / \"output\" / f\"{job_id}_{timestamp}.txt\""
+    },
+    {
+      "file": "gateway/delivery_ledger.py",
+      "line": 172,
+      "source": "# Launch home, not get_hermes_home(): a multiplexed gateway records a served profile's replies"
+    },
+    {
+      "file": "gateway/delivery_ledger.py",
+      "line": 174,
+      "source": "# must open the one shared store (adapter_profile tells the bots apart). No get_hermes_home()"
+    },
+    {
+      "file": "gateway/disk_status.py",
+      "line": 51,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/drain_control.py",
+      "line": 61,
+      "source": "return Path(home if home is not None else get_hermes_home()) / _DRAIN_REQUEST_FILENAME"
+    },
+    {
+      "file": "gateway/hooks.py",
+      "line": 25,
+      "source": "HOOKS_DIR = get_hermes_home() / \"hooks\""
+    },
+    {
+      "file": "gateway/hooks.py",
+      "line": 31,
+      "source": "else ``get_hermes_home()/hooks``. The import-time constant is the LAUNCH profile's; under"
+    },
+    {
+      "file": "gateway/hooks.py",
+      "line": 36,
+      "source": "return configured if configured != _HOOKS_DIR_AT_IMPORT else get_hermes_home() / \"hooks\""
+    },
+    {
+      "file": "gateway/hooks.py",
+      "line": 147,
+      "source": "``get_hermes_home()`` there gives each profile its own ``hooks/`` and keeps the default"
+    },
+    {
+      "file": "gateway/hooks.py",
+      "line": 158,
+      "source": "key = hermes_home_key(get_hermes_home())"
+    },
+    {
+      "file": "gateway/host_attach.py",
+      "line": 113,
+      "source": "return Path(record.home) if getattr(record, \"home\", \"\") else Path(get_default_hermes_root())"
+    },
+    {
+      "file": "gateway/hosted_room_peer.py",
+      "line": 95,
+      "source": "root = os.environ.get(\"HERMES_HOME\") or get_hermes_home()"
+    },
+    {
+      "file": "gateway/hosted_room_peer.py",
+      "line": 297,
+      "source": "if str(get_hermes_home()) == home:"
+    },
+    {
+      "file": "gateway/hosted_room_peer.py",
+      "line": 313,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/hosted_room_peer.py",
+      "line": 318,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "gateway/hosted_rooms.py",
+      "line": 412,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/kanban_watchers_dispatcher.py",
+      "line": 302,
+      "source": "LLM reads ``auxiliary.*`` from ``get_hermes_home()``, so its credentials come"
+    },
+    {
+      "file": "gateway/kanban_watchers_dispatcher.py",
+      "line": 313,
+      "source": "build_profile_secret_scope(Path(get_hermes_home())), profile_home=str(get_hermes_home()))"
+    },
+    {
+      "file": "gateway/lifecycle_ledger.py",
+      "line": 32,
+      "source": "return get_process_hermes_home() if os.environ.get(\"HERMES_HOME\", \"\").strip() else get_hermes_home()"
+    },
+    {
+      "file": "gateway/mirror.py",
+      "line": 18,
+      "source": "_SESSIONS_DIR = get_hermes_home() / \"sessions\""
+    },
+    {
+      "file": "gateway/mirror.py",
+      "line": 29,
+      "source": "else get_hermes_home() / \"sessions\" / \"sessions.json\")"
+    },
+    {
+      "file": "gateway/pairing.py",
+      "line": 289,
+      "source": "home = home or get_hermes_home()"
+    },
+    {
+      "file": "gateway/pairing.py",
+      "line": 328,
+      "source": "root = get_default_hermes_root()"
+    },
+    {
+      "file": "gateway/platforms/_shared.py",
+      "line": 60,
+      "source": "_UNSCOPED_PROFILE_SECRETS = dict(build_profile_secret_scope(get_hermes_home()))"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 716,
+      "source": "db_path = str(get_hermes_home() / \"response_store.db\")"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1198,
+      "source": "self._response_store_home = str(get_hermes_home())"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1548,
+      "source": "return _profile_runtime_scope(get_hermes_home())"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1721,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1763,
+      "source": "\"\"\"SessionDB for the active profile home (the runtime scope redirects ``get_hermes_home()``"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1769,
+      "source": "return self._open_and_cache_session_db(get_hermes_home())"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 1781,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/platforms/api_server.py",
+      "line": 2616,
+      "source": "root = Path(get_hermes_home()) / \"artifacts\" / \"browser-control\""
+    },
+    {
+      "file": "gateway/platforms/api_server_memory_sessions.py",
+      "line": 60,
+      "source": "home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/platforms/api_server_run_idempotency.py",
+      "line": 69,
+      "source": "db_path = str(get_hermes_home() / \"runs_idempotency.db\")"
+    },
+    {
+      "file": "gateway/platforms/base.py",
+      "line": 744,
+      "source": "_HERMES_HOME = get_hermes_home()"
+    },
+    {
+      "file": "gateway/platforms/base.py",
+      "line": 745,
+      "source": "_HERMES_ROOT = get_default_hermes_root()"
+    },
+    {
+      "file": "gateway/platforms/base.py",
+      "line": 822,
+      "source": "return list(dict.fromkeys((get_hermes_home(), _HERMES_ROOT, *_profile_dirs())))"
+    },
+    {
+      "file": "gateway/platforms/helpers.py",
+      "line": 183,
+      "source": "return get_hermes_home() / f\"{self._platform}_threads.json\""
+    },
+    {
+      "file": "gateway/platforms/qqbot/adapter.py",
+      "line": 733,
+      "source": "response_path = get_hermes_home() / \".update_response\""
+    },
+    {
+      "file": "gateway/platforms/webhook.py",
+      "line": 374,
+      "source": "subs_path = get_hermes_home() / _DYNAMIC_ROUTES_FILENAME"
+    },
+    {
+      "file": "gateway/platforms/webhook_filters.py",
+      "line": 33,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/platforms/webhook_filters.py",
+      "line": 45,
+      "source": "scripts_root = (get_hermes_home() / \"scripts\").resolve()"
+    },
+    {
+      "file": "gateway/platforms/weixin.py",
+      "line": 701,
+      "source": "self._hermes_home = hermes_home = str(get_hermes_home())"
+    },
+    {
+      "file": "gateway/platforms/weixin.py",
+      "line": 1229,
+      "source": "token_store = ContextTokenStore(str(get_hermes_home()))"
+    },
+    {
+      "file": "gateway/platforms/whatsapp_common.py",
+      "line": 295,
+      "source": "hermes_home_bridge = get_hermes_home() / \"scripts\" / \"whatsapp-bridge\""
+    },
+    {
+      "file": "gateway/readiness.py",
+      "line": 103,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/relay/__init__.py",
+      "line": 88,
+      "source": "cfg = read_yaml_layers(get_hermes_home())"
+    },
+    {
+      "file": "gateway/restart_loop_guard.py",
+      "line": 38,
+      "source": "return get_hermes_home() / \"gateway\" / \"restart_loop.json\""
+    },
+    {
+      "file": "gateway/rich_sent_store.py",
+      "line": 34,
+      "source": "return os.path.join(str(get_hermes_home()), \"state\", \"rich_sent_index.json\")"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 1869,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 1884,
+      "source": "``mcp_servers`` from ``get_hermes_home()``'s config, so an unscoped call only connects the launch"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 2029,
+      "source": "# Placeholders (\".\", \"auto\", \"cwd\") resolve to Path.home() later; only explicit paths bridge."
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 2168,
+      "source": "home_fallback=str(Path.home()))"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4513,
+      "source": "return get_hermes_home()"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4523,
+      "source": "return get_hermes_home()"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4687,
+      "source": "MUST be called outside any profile scope \u2014 ``get_hermes_home()`` is what identifies the launch"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4693,
+      "source": "return get_hermes_home(), Path(sessions_dir)"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4704,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4715,
+      "source": "Profile-scoped by its caller: ``acquire()``, ``get_hermes_home()`` and ``load_config()`` all"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4790,
+      "source": "with _profile_runtime_scope(profile_home or get_hermes_home()):"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 4996,
+      "source": "profile_name_for_home(get_hermes_home())):"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5139,
+      "source": "hermes_home = str(get_hermes_home())"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5210,
+      "source": "(get_hermes_home() / \"gateway.pid\").unlink(missing_ok=True)"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5389,
+      "source": "decision = standalone_attach_decision(get_hermes_home(), None)"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5402,
+      "source": "hr.publish_record(hr.ROLE_GATEWAY, profiles=(), home=str(get_hermes_home()))"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5431,
+      "source": "if profile_is_standalone(get_hermes_home()):"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5435,
+      "source": "decision = standalone_attach_decision(get_hermes_home(), live_owner)"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5476,
+      "source": "answered = request_serve_profile(profile_name_for_home(get_hermes_home()), owner=owner)"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5540,
+      "source": "home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/run.py",
+      "line": 5568,
+      "source": "decision = decide(get_hermes_home(), replace=replace)"
+    },
+    {
+      "file": "gateway/run_adapters.py",
+      "line": 956,
+      "source": "publish_record(ROLE_GATEWAY, profiles=tuple(served), home=str(get_hermes_home()))"
+    },
+    {
+      "file": "gateway/run_adapters.py",
+      "line": 1530,
+      "source": "default_home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/run_adapters.py",
+      "line": 1545,
+      "source": "default_home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/run_adapters.py",
+      "line": 1617,
+      "source": "default_home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/run_adapters.py",
+      "line": 1713,
+      "source": "transport_home = Path(get_hermes_home()) if self._multiplex_on() and profile_name is None else None"
+    },
+    {
+      "file": "gateway/run_agent_cache.py",
+      "line": 761,
+      "source": "owner_home = Path(owner) if owner else get_default_hermes_root()"
+    },
+    {
+      "file": "gateway/run_agent_cache.py",
+      "line": 762,
+      "source": "if current_secret_scope() is None or hermes_home_key(get_hermes_home()) != hermes_home_key(owner_home):"
+    },
+    {
+      "file": "gateway/run_heartbeat_restore.py",
+      "line": 40,
+      "source": "home = getattr(store, \"_routing_home\", None) or get_hermes_home()"
+    },
+    {
+      "file": "gateway/run_notifications.py",
+      "line": 1051,
+      "source": "backups_dir = get_default_hermes_root() / \"backups\""
+    },
+    {
+      "file": "gateway/run_notifications.py",
+      "line": 1551,
+      "source": "(``tools.async_delegation`` \u2192 ``get_hermes_home()/state.db``) resolve from the ambient scope."
+    },
+    {
+      "file": "gateway/run_plugin_rewire.py",
+      "line": 95,
+      "source": "gateway_home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/run_profile_reconcile.py",
+      "line": 348,
+      "source": "``get_hermes_home()`` and ``get_secret()`` see the LAUNCH profile's values, and under"
+    },
+    {
+      "file": "gateway/run_startup.py",
+      "line": 147,
+      "source": "async with _async_profile_runtime_scope(get_hermes_home()):"
+    },
+    {
+      "file": "gateway/run_startup.py",
+      "line": 845,
+      "source": "log_dir = getattr(self.config, \"log_dir\", None) or os.path.join(str(get_hermes_home()), \"logs\")"
+    },
+    {
+      "file": "gateway/run_startup.py",
+      "line": 1081,
+      "source": "launch_home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "gateway/scale_to_zero.py",
+      "line": 96,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/session.py",
+      "line": 816,
+      "source": "# redirected ``get_hermes_home()`` for the turn (its docstring lists \"sessions\" among what it"
+    },
+    {
+      "file": "gateway/session.py",
+      "line": 840,
+      "source": "self._routing_home: Optional[Path] = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/session_identity.py",
+      "line": 233,
+      "source": "home = Path(get_hermes_home())"
+    },
+    {
+      "file": "gateway/shutdown_flush.py",
+      "line": 37,
+      "source": "flush_dir = get_hermes_home() / \"pending_messages\""
+    },
+    {
+      "file": "gateway/shutdown_watchdog.py",
+      "line": 177,
+      "source": "return get_process_hermes_home() if os.environ.get(\"HERMES_HOME\", \"\").strip() else get_hermes_home()"
+    },
+    {
+      "file": "gateway/slash_commands.py",
+      "line": 296,
+      "source": "return terminal_env(\"TERMINAL_CWD\", str(Path.home()))"
+    },
+    {
+      "file": "gateway/slash_commands.py",
+      "line": 1106,
+      "source": "# get_hermes_home()/skills, a contextvar override under multiplex."
+    },
+    {
+      "file": "gateway/slash_commands.py",
+      "line": 1259,
+      "source": "# ``get_hermes_home()`` and uploads them to a public paste. Losing the contextvar override"
+    },
+    {
+      "file": "gateway/slash_commands_status.py",
+      "line": 692,
+      "source": "# Not a bare hop: ``SessionDB()`` resolves ``get_hermes_home()`` at call time, a"
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 203,
+      "source": "path = get_hermes_home() / \"gateway-starts.log\""
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 229,
+      "source": "``get_hermes_home()`` honors the per-session ``_HERMES_HOME_OVERRIDE`` and would misroute"
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 323,
+      "source": "state_home = Path(state_home_env) if os.path.isabs(state_home_env) else Path.home() / \".local\" / \"state\""
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 1252,
+      "source": "if home.resolve() == Path(get_default_hermes_root()).resolve():"
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 1279,
+      "source": "if name != \"default\" and not _same_hermes_home(profile_dir, get_default_hermes_root() / \"profiles\" / name):"
+    },
+    {
+      "file": "gateway/status.py",
+      "line": 1291,
+      "source": "return pid, read_runtime_status(get_default_hermes_root() / \"gateway_state.json\") or {}"
+    },
+    {
+      "file": "gateway/status_phrases.py",
+      "line": 118,
+      "source": "hermes_home = get_hermes_home()"
+    },
+    {
+      "file": "gateway/sticker_cache.py",
+      "line": 17,
+      "source": "CACHE_PATH = get_hermes_home() / \"sticker_cache.json\""
+    },
+    {
+      "file": "gateway/sticker_cache.py",
+      "line": 25,
+      "source": "return CACHE_PATH if CACHE_PATH != _CACHE_PATH_AT_IMPORT else get_hermes_home() / \"sticker_cache.json\""
+    },
+    {
+      "file": "tui_gateway/host_supervisor.py",
+      "line": 133,
+      "source": "else get_hermes_home() / \"state\" / _REGISTRY_NAME)"
+    },
+    {
+      "file": "tui_gateway/host_supervisor.py",
+      "line": 142,
+      "source": "str(get_hermes_home()) if expected_hermes_home is None else expected_hermes_home)"
+    },
+    {
+      "file": "tui_gateway/launch_profile_policy.py",
+      "line": 67,
+      "source": "homes.add(Path(os.environ.get(\"HERMES_HOME\") or Path.home() / \".hermes\").resolve())"
+    },
+    {
+      "file": "tui_gateway/methods_config_set.py",
+      "line": 419,
+      "source": "if Path(get_hermes_home()).resolve() == Path(_hermes_home).resolve():"
+    },
+    {
+      "file": "tui_gateway/methods_display.py",
+      "line": 163,
+      "source": "extra={\"hermes_home\": str(get_hermes_home()), \"viewer_id\": viewer_id})"
+    },
+    {
+      "file": "tui_gateway/methods_profiles.py",
+      "line": 364,
+      "source": "launch_home = get_hermes_home()"
+    },
+    {
+      "file": "tui_gateway/methods_projects.py",
+      "line": 147,
+      "source": "hermes_home = os.path.realpath(str(get_hermes_home()))"
+    },
+    {
+      "file": "tui_gateway/methods_projects.py",
+      "line": 161,
+      "source": "hermes_home = os.path.normcase(os.path.realpath(str(get_hermes_home())))"
+    },
+    {
+      "file": "tui_gateway/methods_session.py",
+      "line": 1048,
+      "source": "home = Path(profile_home) if profile_home is not None else get_hermes_home()"
+    },
+    {
+      "file": "tui_gateway/methods_session.py",
+      "line": 1985,
+      "source": "saved_dir = get_hermes_home() / \"sessions\" / \"saved\""
+    },
+    {
+      "file": "tui_gateway/methods_tools.py",
+      "line": 1482,
+      "source": "hermes_home = str(_tools_mod(\"hermes_constants\").get_hermes_home().expanduser().resolve(strict=False))"
+    },
+    {
+      "file": "tui_gateway/methods_tools.py",
+      "line": 1500,
+      "source": "home = str(_tools_mod(\"hermes_constants\").get_hermes_home().expanduser().resolve(strict=False))"
+    },
+    {
+      "file": "tui_gateway/model_switch.py",
+      "line": 82,
+      "source": "# The launch home IS get_hermes_home() (``_profile_home`` answers None for \"already the"
+    },
+    {
+      "file": "tui_gateway/server.py",
+      "line": 50,
+      "source": "_hermes_home = _HERMES_HOME_AT_IMPORT = get_hermes_home()"
+    },
+    {
+      "file": "tui_gateway/server.py",
+      "line": 220,
+      "source": "managed_bin = str(Path(get_hermes_home()) / \"bin\")"
+    },
+    {
+      "file": "tui_gateway/server.py",
+      "line": 222,
+      "source": "parts = [p for p in (managed_bin, venv_bin, str(Path.home() / \".local\" / \"bin\"), env.get(\"PATH\") or \"\") if p]"
+    },
+    {
+      "file": "tui_gateway/server.py",
+      "line": 3056,
+      "source": "root = get_hermes_home() / \"cache\" / \"pet-gen\""
+    },
+    {
+      "file": "tui_gateway/server.py",
+      "line": 3140,
+      "source": "root = get_hermes_home() / \"spawn-trees\""
+    },
+    {
+      "file": "tui_gateway/session_lifecycle.py",
+      "line": 501,
+      "source": "home = str(Path(session.get(\"profile_home\") or get_hermes_home()).resolve())"
+    },
+    {
+      "file": "cron/bot_chat_delivery.py",
+      "line": 25,
+      "source": "return get_hermes_home().resolve() / \"cron\" / \"bot_chat_pending\""
+    },
+    {
+      "file": "cron/bot_chat_delivery.py",
+      "line": 149,
+      "source": "home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/delivery_queue.py",
+      "line": 79,
+      "source": "root = Path(home) if home is not None else get_hermes_home()"
+    },
+    {
+      "file": "cron/env_settings.py",
+      "line": 24,
+      "source": "scope = load_env_file(get_hermes_home() / \".env\")"
+    },
+    {
+      "file": "cron/executions.py",
+      "line": 47,
+      "source": "path = EXECUTIONS_FILE or (get_hermes_home().resolve() / \"cron\" / \"executions.db\")"
+    },
+    {
+      "file": "cron/incidents.py",
+      "line": 55,
+      "source": "return get_hermes_home().resolve() / \"cron\" / \"executions.db\""
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 62,
+      "source": "# Cron is per-profile by design: anchor at get_hermes_home() (active profile home), NOT"
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 63,
+      "source": "# get_default_hermes_root() \u2014 the shared root would funnel every profile's jobs into one jobs.json"
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 69,
+      "source": "# `_get_hermes_home()` / `_get_lock_paths()` resolution in cron/scheduler.py. See #4707."
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 70,
+      "source": "HERMES_DIR = get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 156,
+      "source": "get_hermes_home(), so re-pointing HERMES_HOME after import uses ITS OWN store rather than the"
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 164,
+      "source": "home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/jobs.py",
+      "line": 1599,
+      "source": "cfg_path = get_hermes_home() / \"config.yaml\""
+    },
+    {
+      "file": "cron/lifecycle_guard.py",
+      "line": 843,
+      "source": "return get_hermes_home() / \"scripts\" / raw"
+    },
+    {
+      "file": "cron/lifecycle_guard.py",
+      "line": 845,
+      "source": "# get_hermes_home() falls back to Path.home(), which raises when neither HERMES_HOME nor"
+    },
+    {
+      "file": "cron/notepad.py",
+      "line": 33,
+      "source": "return NOTEPAD_FILE or (get_hermes_home().resolve() / \"cron\" / \"notepad.db\")"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 261,
+      "source": "home = _get_hermes_home()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 597,
+      "source": "return (hermes_home_key(home) if home is not None else hermes_home_key(_get_hermes_home()), job_id)"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 735,
+      "source": "local_home = hermes_home_key(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 779,
+      "source": "key = _inflight_key(job_id, _remember_inflight_home(_get_hermes_home()))"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 904,
+      "source": "path = _get_hermes_home() / \"cron\" / \"inflight_forced_releases.jsonl\""
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 919,
+      "source": "local_home = hermes_home_key(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1005,
+      "source": "_local_home = hermes_home_key(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1183,
+      "source": "home = hermes_home_key(_remember_inflight_home(_get_hermes_home()))"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1219,
+      "source": "# Per-fire usage audit log; resolves via _get_hermes_home() so profile-scoped paths work."
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1221,
+      "source": "return _get_hermes_home() / \"cron\" / \"usage_audit.jsonl\""
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1264,
+      "source": "def _get_hermes_home() -> Path:"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1272,
+      "source": "return _hermes_home or get_hermes_home()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1277,
+      "source": "hermes_home = _get_hermes_home()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1494,
+      "source": "load_hermes_dotenv(hermes_home=_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1596,
+      "source": "_cfg_path = str(_get_hermes_home() / \"config.yaml\")"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 1651,
+      "source": "pfpath = _get_hermes_home() / pfpath"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 2340,
+      "source": "reset_secret_source_cache(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 2341,
+      "source": "load_hermes_dotenv(hermes_home=_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 2752,
+      "source": "profile_home = _get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3182,
+      "source": "build_profile_secret_scope(_get_hermes_home()), profile_home=str(_get_hermes_home()))"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3202,
+      "source": "_terminal_scope_token = install_profile_terminal_scope(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3446,
+      "source": "handoff_dir = _get_hermes_home() / \"cron\" / \"external-workers\""
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3506,
+      "source": "\"profile_home\": str(_get_hermes_home().resolve()),"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3517,
+      "source": "profile_home = _get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3952,
+      "source": "_reap_key = hermes_home_key(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 3977,
+      "source": "_local_home = hermes_home_key(_get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 4086,
+      "source": "_claim_home = _get_hermes_home()"
+    },
+    {
+      "file": "cron/scheduler.py",
+      "line": 4190,
+      "source": "setup_logging(hermes_home=_get_hermes_home(), mode=\"cron\")"
+    },
+    {
+      "file": "cron/scheduler_delivery.py",
+      "line": 806,
+      "source": "source_home = get_hermes_home().resolve()"
+    },
+    {
+      "file": "cron/scheduler_ownership.py",
+      "line": 63,
+      "source": "key = hermes_home_key(home if home is not None else get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler_ownership.py",
+      "line": 97,
+      "source": "target = Path(home) if home is not None else get_hermes_home()"
+    },
+    {
+      "file": "cron/scheduler_preflight.py",
+      "line": 135,
+      "source": "return f\"[profile '{get_active_profile_name() or 'default'}', HERMES_HOME {get_hermes_home()}]\""
+    },
+    {
+      "file": "cron/scheduler_preflight.py",
+      "line": 153,
+      "source": "primary_home = get_default_hermes_root()"
+    },
+    {
+      "file": "cron/scheduler_preflight.py",
+      "line": 154,
+      "source": "current_home = _sched.Path(get_hermes_home())"
+    },
+    {
+      "file": "cron/scheduler_script.py",
+      "line": 261,
+      "source": "scripts_dir = _sched._get_hermes_home() / \"scripts\""
+    },
+    {
+      "file": "cron/suggestions.py",
+      "line": 26,
+      "source": "# Per-profile by design (anchored on get_hermes_home(), see cron/jobs.py). Optional test override;"
+    },
+    {
+      "file": "cron/suggestions.py",
+      "line": 30,
+      "source": "# get_hermes_home() (profile home), not the shared default root. Same pattern as cron/executions.py."
+    },
+    {
+      "file": "cron/suggestions.py",
+      "line": 46,
+      "source": "return SUGGESTIONS_FILE or (get_hermes_home().resolve() / \"cron\" / \"suggestions.json\")"
+    }
+  ],
+  "stock_toolsets": [
+    "web",
+    "search",
+    "x_search",
+    "vision",
+    "video",
+    "image_gen",
+    "video_gen",
+    "computer_use",
+    "terminal",
+    "skills",
+    "browser",
+    "cronjob",
+    "file",
+    "tts",
+    "todo",
+    "memory",
+    "context_engine",
+    "session_search",
+    "connections",
+    "project",
+    "bot_room",
+    "desktop_ui",
+    "setup",
+    "clarify",
+    "code_execution",
+    "delegation",
+    "homeassistant",
+    "kanban",
+    "discord",
+    "discord_admin",
+    "yuanbao",
+    "feishu_doc",
+    "feishu_drive",
+    "spotify",
+    "debugging",
+    "safe",
+    "coding",
+    "hermes-acp",
+    "hermes-api-server",
+    "hermes-cli",
+    "hermes-cron",
+    "hermes-telegram",
+    "hermes-discord",
+    "hermes-whatsapp",
+    "hermes-slack",
+    "hermes-signal",
+    "hermes-bluebubbles",
+    "hermes-homeassistant",
+    "hermes-email",
+    "hermes-mattermost",
+    "hermes-matrix",
+    "hermes-dingtalk",
+    "hermes-feishu",
+    "hermes-weixin",
+    "hermes-qqbot",
+    "hermes-wecom",
+    "hermes-wecom-callback",
+    "hermes-yuanbao",
+    "hermes-sms",
+    "hermes-webhook",
+    "hermes-gateway"
+  ],
+  "stock_core_tools": [
+    "web_search",
+    "web_extract",
+    "terminal",
+    "process_manage",
+    "read_file",
+    "write_file",
+    "patch",
+    "search_files",
+    "vision_analyze",
+    "image_generate",
+    "skills_list",
+    "skill_view",
+    "skill_manage",
+    "browser_navigate",
+    "browser_snapshot",
+    "browser_click",
+    "browser_type",
+    "browser_scroll",
+    "browser_back",
+    "browser_press",
+    "browser_get_images",
+    "browser_vision",
+    "browser_console",
+    "browser_cdp",
+    "browser_dialog",
+    "browser_vault_list",
+    "browser_vault_unlock",
+    "browser_vault_fill",
+    "browser_vault_save_login",
+    "browser_vault_enter_code",
+    "browser_exec",
+    "text_to_speech",
+    "todo_list",
+    "memory",
+    "session_search",
+    "clarify",
+    "execute_code",
+    "delegate_task",
+    "cronjob_manage",
+    "ha_list_entities",
+    "ha_get_state",
+    "ha_list_services",
+    "ha_call_service",
+    "kanban_show",
+    "kanban_list",
+    "kanban_complete",
+    "kanban_block",
+    "kanban_request_review",
+    "kanban_request_changes",
+    "kanban_heartbeat",
+    "kanban_comment",
+    "kanban_create",
+    "kanban_link",
+    "kanban_unblock",
+    "kanban_attach",
+    "kanban_attach_url",
+    "kanban_attachments",
+    "computer_use",
+    "manage_connections"
+  ],
+  "b05_rpc_allowlist": [
+    "client.capabilities"
+  ],
+  "live_brain": "NOT_RUN; session.create denied",
+  "H08": "NOT_RUN",
+  "H02_ABA": "NOT_RUN; parent must exercise case restore on installed confined native process"
+}

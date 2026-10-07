@@ -99,6 +99,23 @@ def fixture_payloads() -> dict[str, bytes]:
     }
 
 
+def decode_store(data: bytes) -> dict:
+    """Refuse ambiguous raw keys before any marker or grant projection."""
+
+    def unique_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("H02 duplicate store key")
+            result[key] = value
+        return result
+
+    store = json.loads(data, object_pairs_hook=unique_keys)
+    if not isinstance(store, dict):
+        raise ValueError("H02 store object required")
+    return store
+
+
 def grant_flags(store: dict) -> dict[str, bool]:
     """Keep the whole parsed object for marker scanning, including unknown fields."""
     serialized = json.dumps(store, sort_keys=True)
@@ -280,7 +297,7 @@ def _native_observation(action: str) -> dict:
 
     if adopt_external_logins_enabled() is not False:
         raise ValueError("H02 explicit external-login denial required")
-    before = json.loads(_read_fixed(PATHS["active"]))
+    before = decode_store(_read_fixed(PATHS["active"]))
     result = {"action": action, "source_hashes": source, "external_before": external_before}
     if action == "controls":
         # Same pinned readers, deliberately insecure local-only controls.
@@ -334,7 +351,7 @@ def _native_observation(action: str) -> dict:
             if auth.clear_provider_auth(PROVIDER) is not True:
                 raise ValueError("H02 clear-provider seam failed")
         after_bytes = _read_fixed(PATHS["active"])
-        after = json.loads(after_bytes)
+        after = decode_store(after_bytes)
         flags = grant_flags(after)
         require_flags(flags, logged_out=action in {"logout", "restart"})
         result["grant_flags"] = flags
@@ -471,6 +488,20 @@ def test_caught_offline_guard_violation_remains_recorded():
     assert attempted == ["socket.connect", "subprocess.Popen"]
     offline_guard("open", attempted)
     assert attempted == ["socket.connect", "subprocess.Popen"]
+
+
+def test_store_decoder_refuses_duplicate_keys_before_marker_scan():
+    import pytest
+
+    marker = json.dumps(_tokens(LABELS[1])["access_token"])
+    for raw in (
+        '{"unknown":' + marker + ',"unknown":"clean"}',
+        '{"nested":{"unknown":' + marker + ',"unknown":"clean"}}',
+    ):
+        with pytest.raises(ValueError, match="duplicate store key"):
+            decode_store(raw.encode())
+    valid = _store(LABELS[0])
+    assert decode_store(json.dumps(valid).encode()) == valid
 
 
 if __name__ == "__main__":

@@ -64,8 +64,18 @@ async def run() -> None:
                         raise ValueError("Control schema unavailable") from None
                     await service.heartbeat(owner, epoch)
                     await service.quiesce(owner, epoch)
-                    if runtime is not None and (await runtime.status())["state"] == "READY":
-                        await runtime.renew(service, owner)
+                    if runtime is not None:
+                        runtime_state = (await runtime.status())["state"]
+                        if runtime_state == "READY":
+                            await runtime.renew(service, owner)
+                        elif probe == "1":
+                            observed = await service.owned_status(owner, epoch)
+                            if (
+                                runtime_state != "STOPPED"
+                                or observed.shutdown_command_id is None
+                                or observed.quiesced_generation != observed.generation
+                            ):
+                                raise ValueError("Runtime unavailable") from None
     finally:
         try:
             if runtime is not None:

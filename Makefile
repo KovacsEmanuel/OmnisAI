@@ -20,7 +20,7 @@ check:
 	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)"
 
 # Exact former check dependencies, run by the same private DB lifecycle in CI/local.
-check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
+check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install check-runtime
 	git diff --check
 
 test-db-contract:
@@ -50,6 +50,15 @@ test-p1-fields:
 test-sl04-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_instance.py api/tests/test_stop_fence.py api/tests/test_control_regressions.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
+
+.PHONY: check-runtime
+# Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
+check-runtime:
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
+	$(API_PY) -I integrations/hermes/tests/test_native_build.py -v
+	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests
+	$(API_PY) -I -m ruff format --config api/pyproject.toml --check integrations/hermes/src integrations/hermes/tests
+	env -u PYTHONPATH MYPYPATH=api/src $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src
 
 test: check
 

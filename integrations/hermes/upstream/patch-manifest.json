@@ -3,7 +3,7 @@
   "files": {
     "tui_gateway/entry.py": {
       "original_sha256": "3384bc81c0bbcafdf9f2b9cb52405c6294efb74542a7728cf0590c5e136e3313",
-      "patched_sha256": "021ecdcf96745845b19d0b27635f46c0db3359adf8a842961fc210944cf19d4c"
+      "patched_sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c"
     },
     "tui_gateway/server.py": {
       "original_sha256": "164ad8a1b43671c2a47829502f9a40f4355fc8060f2f6c2506b8aec44f1c0a51",
@@ -22,5 +22,5 @@
       "patched_sha256": "45b0ec8f8fb6d5f5041e25a890637b25de3d8c5c37dc83304f8cca84baa535a1"
     }
   },
-  "patch_sha256": "a0a0a21eba96bd1123c36a08e3e10b1a0587159c5576a25265d5117fd5b08550"
+  "patch_sha256": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223"
 }

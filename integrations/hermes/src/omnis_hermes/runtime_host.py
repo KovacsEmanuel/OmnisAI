@@ -145,6 +145,7 @@ class RuntimeHost:
             "drained": self.state in {"IDLE", "STOPPED"},
             "assessment_ready": False,
             "capabilities": self.capabilities,
+            "bootstrap_inventory": self.peer.bootstrap_inventory if self.peer is not None else None,
         }
 
     def _grant(self, body: dict[str, object]) -> int:

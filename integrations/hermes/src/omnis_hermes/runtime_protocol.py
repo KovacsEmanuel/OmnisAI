@@ -5,6 +5,7 @@ import json
 import math
 from collections import deque
 from contextlib import suppress
+from typing import Literal, TypedDict
 
 MAX_FRAME = 64 * 1024
 MAX_PENDING = 32
@@ -15,6 +16,160 @@ ALLOWED = frozenset({"ping", "client.capabilities", "gateway.capabilities", SAFE
 
 class ProtocolError(ValueError):
     """Sanitized framing or transport failure."""
+
+
+MAX_INVENTORY = 24 * 1024
+
+
+class RegistryEntry(TypedDict):
+    name: str
+    toolset: str
+
+
+class PluginEntry(TypedDict):
+    name: str
+    loaded: bool
+    enabled: bool
+    deferred: bool
+    error_present: bool
+
+
+class RegistrySnapshot(TypedDict):
+    status: str
+    generation: int | None
+    count: int | None
+    entries: list[RegistryEntry] | None
+
+
+class PluginSnapshot(TypedDict):
+    status: str
+    count: int | None
+    entries: list[PluginEntry] | None
+
+
+class BootstrapInventory(TypedDict):
+    schema_version: Literal[1]
+    observation: Literal["NATIVE_BOOTSTRAP"]
+    scope: Literal["/state/active"]
+    registry: RegistrySnapshot
+    plugins: PluginSnapshot
+
+
+def _inventory_name(value: object) -> str:
+    if (
+        type(value) is not str
+        or not 0 < len(value) <= 128
+        or any(
+            ord(c) < 32 or 127 <= ord(c) <= 159 or 0xD800 <= ord(c) <= 0xDFFF or c in "/\\"
+            for c in value
+        )
+    ):
+        raise ProtocolError("Invalid bootstrap inventory")
+    return value
+
+
+def validate_bootstrap_inventory(value: object) -> BootstrapInventory:
+    """Frozen bootstrap schema. Reject, never coerce or retain native metadata."""
+    if (
+        type(value) is not dict
+        or set(value) != {"schema_version", "observation", "scope", "registry", "plugins"}
+        or type(value["schema_version"]) is not int
+        or value["schema_version"] != 1
+        or value["observation"] != "NATIVE_BOOTSTRAP"
+        or value["scope"] != "/state/active"
+    ):
+        raise ProtocolError("Invalid bootstrap inventory")
+    registry, plugins = value["registry"], value["plugins"]
+    if type(registry) is not dict or set(registry) != {"status", "generation", "count", "entries"}:
+        raise ProtocolError("Invalid bootstrap inventory")
+    if type(plugins) is not dict or set(plugins) != {"status", "count", "entries"}:
+        raise ProtocolError("Invalid bootstrap inventory")
+    status = registry["status"]
+    missing = {"NOT_INITIALIZED", "NOT_OBSERVED_BUSY", "LIMIT_EXCEEDED", "NOT_OBSERVED_INVALID"}
+    if type(status) is not str:
+        raise ProtocolError("Invalid bootstrap inventory")
+    rs: RegistrySnapshot = {"status": status, "generation": None, "count": None, "entries": None}
+    if status == "REGISTERED_SNAPSHOT":
+        generation, count, entries = registry["generation"], registry["count"], registry["entries"]
+        if (
+            type(generation) is not int
+            or generation < 0
+            or type(count) is not int
+            or not 0 <= count <= 256
+            or type(entries) is not list
+            or len(entries) != count
+        ):
+            raise ProtocolError("Invalid bootstrap inventory")
+        rows: list[RegistryEntry] = []
+        last = ""
+        for row in entries:
+            if type(row) is not dict or set(row) != {"name", "toolset"}:
+                raise ProtocolError("Invalid bootstrap inventory")
+            name, toolset = _inventory_name(row["name"]), _inventory_name(row["toolset"])
+            if name <= last:
+                raise ProtocolError("Invalid bootstrap inventory")
+            last = name
+            rows.append({"name": name, "toolset": toolset})
+        rs = {"status": status, "generation": generation, "count": count, "entries": rows}
+    elif status not in missing or any(
+        registry[k] is not None for k in ("generation", "count", "entries")
+    ):
+        raise ProtocolError("Invalid bootstrap inventory")
+    status = plugins["status"]
+    if type(status) is not str:
+        raise ProtocolError("Invalid bootstrap inventory")
+    ps: PluginSnapshot = {"status": status, "count": None, "entries": None}
+    if status == "PLUGIN_SNAPSHOT":
+        count, entries = plugins["count"], plugins["entries"]
+        if (
+            type(count) is not int
+            or not 0 <= count <= 128
+            or type(entries) is not list
+            or len(entries) != count
+        ):
+            raise ProtocolError("Invalid bootstrap inventory")
+        plugin_rows: list[PluginEntry] = []
+        last = ""
+        for row in entries:
+            keys = {"name", "loaded", "enabled", "deferred", "error_present"}
+            if (
+                type(row) is not dict
+                or set(row) != keys
+                or any(type(row[k]) is not bool for k in keys - {"name"})
+            ):
+                raise ProtocolError("Invalid bootstrap inventory")
+            name = _inventory_name(row["name"])
+            if name <= last:
+                raise ProtocolError("Invalid bootstrap inventory")
+            last = name
+            plugin_rows.append(
+                {
+                    "name": name,
+                    "loaded": row["loaded"],
+                    "enabled": row["enabled"],
+                    "deferred": row["deferred"],
+                    "error_present": row["error_present"],
+                }
+            )
+        ps = {"status": status, "count": count, "entries": plugin_rows}
+    elif status not in missing | {"NOT_OBSERVED_IN_PROGRESS"} or any(
+        plugins[k] is not None for k in ("count", "entries")
+    ):
+        raise ProtocolError("Invalid bootstrap inventory")
+    result: BootstrapInventory = {
+        "schema_version": 1,
+        "observation": "NATIVE_BOOTSTRAP",
+        "scope": "/state/active",
+        "registry": rs,
+        "plugins": ps,
+    }
+    try:
+        size = len(json.dumps(result, ensure_ascii=False, allow_nan=False).encode("utf-8"))
+    except (ValueError, UnicodeError):
+        raise ProtocolError("Invalid bootstrap inventory") from None
+    if size > MAX_INVENTORY:
+        raise ProtocolError("Bootstrap inventory limit")
+    return result
 
 
 class RPCError(ProtocolError):
@@ -108,6 +263,7 @@ class NativePeer:
         self.cancelled: deque[tuple[object, str]] = deque(maxlen=32)
         self.late: deque[tuple[type, object]] = deque(maxlen=32)
         self.ready = asyncio.get_running_loop().create_future()
+        self.bootstrap_inventory: BootstrapInventory | None = None
         self.failure: ProtocolError | None = None
         self.tasks = [
             asyncio.create_task(self._read()),
@@ -198,7 +354,15 @@ class NativePeer:
                     event = frame.get("params", {})
                     assert isinstance(event, dict)
                     self.events.append(event)
-                    if event.get("type") == "gateway.ready" and not self.ready.done():
+                    if event.get("type") == "gateway.ready":
+                        if self.ready.done():
+                            raise ProtocolError("Repeated ready")
+                        payload = event.get("payload")
+                        if type(payload) is not dict:
+                            raise ProtocolError("Invalid ready")
+                        self.bootstrap_inventory = validate_bootstrap_inventory(
+                            payload.get("bootstrap_inventory")
+                        )
                         self.ready.set_result(True)
                     if event.get("type") == "request.cancel":
                         payload = event.get("payload", {})

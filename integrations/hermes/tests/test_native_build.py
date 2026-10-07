@@ -8,7 +8,11 @@ from __future__ import annotations
 
 import ast
 import contextlib
+import json
 import os
+import sys
+import threading
+import time
 import types
 import unittest
 from pathlib import Path
@@ -58,6 +62,12 @@ class NativeInertSeam(unittest.TestCase):
             : next(i for i, n in enumerate(prefix.body) if isinstance(n, ast.While))
         ]
         namespace = {
+            "json": json,
+            "sys": sys,
+            "threading": threading,
+            "time": time,
+            "types": types,
+            "Path": Path,
             "os": os,
             "server": srv,
             "logger": types.SimpleNamespace(warning=sink("warning"), debug=sink("debug")),
@@ -80,6 +90,10 @@ class NativeInertSeam(unittest.TestCase):
                 },
             ),
         ):
+            tree = ast.parse((SOURCE / "tui_gateway/entry.py").read_text())
+            for node in tree.body:
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("_omnis_"):
+                    run_node(node, namespace)
             run_node(prefix, namespace)
             namespace["main"]()
         self.assertEqual(effects, [], "native startup attempted incidental effects")

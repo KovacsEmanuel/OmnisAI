@@ -194,7 +194,33 @@ async def controlled_peer():
     )
     peer = wire.NativePeer(process)
     reader.feed_data(
-        wire.encode({"jsonrpc": "2.0", "method": "event", "params": {"type": "gateway.ready"}})
+        wire.encode(
+            {
+                "jsonrpc": "2.0",
+                "method": "event",
+                "params": {
+                    "type": "gateway.ready",
+                    "payload": {
+                        "bootstrap_inventory": {
+                            "schema_version": 1,
+                            "observation": "NATIVE_BOOTSTRAP",
+                            "scope": "/state/active",
+                            "registry": {
+                                "status": "NOT_INITIALIZED",
+                                "generation": None,
+                                "count": None,
+                                "entries": None,
+                            },
+                            "plugins": {
+                                "status": "NOT_INITIALIZED",
+                                "count": None,
+                                "entries": None,
+                            },
+                        }
+                    },
+                },
+            }
+        )
     )
     await asyncio.wait_for(peer.ready, 1)
     return wire, peer, reader, writer

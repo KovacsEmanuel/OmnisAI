@@ -13,7 +13,9 @@ import signal
 import threading
 import time
 import traceback
+import types
 from contextlib import suppress
+from pathlib import Path
 
 from tui_gateway._env import env_float
 from tui_gateway._stdin_recovery import handle_spurious_eof
@@ -267,6 +269,173 @@ def _write_or_exit(payload: dict, reason: str) -> None:
         sys.exit(0)
 
 
+def _omnis_name(value):
+    return (type(value) is str and 0 < len(value) <= 128
+            and not any(ord(c) < 32 or 127 <= ord(c) <= 159
+                        or 0xD800 <= ord(c) <= 0xDFFF or c in "/\\" for c in value))
+
+
+def _omnis_unobserved(status, registry=False):
+    result = {"status": status, "count": None, "entries": None}
+    if registry:
+        result["generation"] = None
+    return result
+
+
+def _omnis_acquire(lock, deadline):
+    # RLock re-entry is not proof that discovery/mutation has completed.
+    if not isinstance(lock, (type(threading.Lock()), type(threading.RLock()))):
+        raise ValueError("invalid observation lock")
+    if hasattr(lock, "_is_owned") and lock._is_owned():
+        return False
+    return lock.acquire(timeout=max(0.0, deadline - time.monotonic()))
+
+
+def _omnis_registry_snapshot(deadline):
+    module = sys.modules.get("tools.registry")
+    registry = vars(module).get("registry") if module is not None else None
+    if registry is None:
+        return _omnis_unobserved("NOT_INITIALIZED", True)
+    lock = None
+    acquired = False
+    try:
+        state = vars(registry)
+        lock = state.get("_lock")
+        acquired = _omnis_acquire(lock, deadline)
+        if not acquired:
+            return _omnis_unobserved("NOT_OBSERVED_BUSY", True)
+        tools, scopes, generation = (state.get(k) for k in ("_tools", "_scoped_tools", "_generation"))
+        if type(tools) is not dict or type(scopes) is not dict or type(generation) is not int or generation < 0:
+            raise ValueError("invalid registry state")
+        json.dumps(generation, allow_nan=False)  # Unserializable internal state is not a snapshot.
+        scoped = scopes.get("/state/active", {})
+        if type(scoped) is not dict:
+            raise ValueError("invalid scoped state")
+        # Bound input work too; never create a giant merged copy just to reject it.
+        if len(tools) > 256 or len(scoped) > 256:
+            return _omnis_unobserved("LIMIT_EXCEEDED", True)
+        merged = {**tools, **scoped}
+        if len(merged) > 256:
+            return _omnis_unobserved("LIMIT_EXCEEDED", True)
+        entries = []
+        for name, entry in merged.items():
+            try:
+                fields = vars(entry)
+            except TypeError:
+                # Pinned ToolEntry uses slots. Read only native member descriptors,
+                # never a property, schema factory, handler or availability probe.
+                descriptors = vars(type(entry))
+                if any(type(descriptors.get(k)) is not types.MemberDescriptorType for k in ("name", "toolset")):
+                    raise ValueError("invalid slotted entry") from None
+                fields = {k: descriptors[k].__get__(entry, type(entry)) for k in ("name", "toolset")}
+            toolset = fields.get("toolset")
+            if not _omnis_name(name) or fields.get("name") != name or not _omnis_name(toolset):
+                raise ValueError("invalid registry entry")
+            entries.append({"name": name, "toolset": toolset})
+        entries.sort(key=lambda row: row["name"])
+        return {"status": "REGISTERED_SNAPSHOT", "generation": generation,
+                "count": len(entries), "entries": entries}
+    except (TypeError, ValueError, RuntimeError):
+        return _omnis_unobserved("NOT_OBSERVED_INVALID", True)
+    finally:
+        if acquired:
+            lock.release()
+
+
+def _omnis_plugins_snapshot(deadline):
+    module = sys.modules.get("hermes_cli.plugins")
+    if module is None:
+        return _omnis_unobserved("NOT_INITIALIZED")
+    held = []
+    try:
+        fields = vars(module)
+        cache = fields.get("_plugin_managers_by_home")
+        if cache is None:
+            return _omnis_unobserved("NOT_INITIALIZED")
+        if type(cache) is not dict:
+            raise ValueError("invalid manager cache")
+        lock = fields.get("_plugin_managers_lock")
+        if not _omnis_acquire(lock, deadline):
+            return _omnis_unobserved("NOT_OBSERVED_BUSY")
+        held.append(lock)
+        manager = cache.get(Path("/state/active"))
+        if manager is None:
+            return _omnis_unobserved("NOT_INITIALIZED")
+        state = vars(manager)
+        lock = state.get("_discovery_lock")
+        if not _omnis_acquire(lock, deadline):
+            return _omnis_unobserved("NOT_OBSERVED_BUSY")
+        held.append(lock)
+        discovered = state.get("_discovered")
+        if type(discovered) is not bool:
+            raise ValueError("invalid discovery state")
+        if not discovered:
+            return _omnis_unobserved("NOT_OBSERVED_IN_PROGRESS")
+        thread = fields.get("_background_discovery_thread")
+        if thread is not None:
+            if type(thread) is not threading.Thread:
+                raise ValueError("invalid discovery thread")
+            if thread.is_alive():
+                return _omnis_unobserved("NOT_OBSERVED_IN_PROGRESS")
+        # The pinned loader can abandon a still-running register() worker even
+        # after discover_and_load releases its lock. Never call that complete.
+        loader = sys.modules.get("hermes_cli.plugins_loader")
+        if loader is not None:
+            loader_state = vars(loader)
+            lock = loader_state.get("_ABANDONED_LOADERS_LOCK")
+            if not _omnis_acquire(lock, deadline):
+                return _omnis_unobserved("NOT_OBSERVED_BUSY")
+            held.append(lock)
+            workers = loader_state.get("_ABANDONED_LOADERS")
+            if type(workers) is not list or len(workers) > 8:
+                raise ValueError("invalid loader state")
+            if any(type(t) is not threading.Thread for t in workers):
+                raise ValueError("invalid loader thread")
+            if any(t.is_alive() for t in workers):
+                return _omnis_unobserved("NOT_OBSERVED_IN_PROGRESS")
+        plugins = state.get("_plugins")
+        if type(plugins) is not dict:
+            raise ValueError("invalid plugin state")
+        if len(plugins) > 128:
+            return _omnis_unobserved("LIMIT_EXCEEDED")
+        entries = []
+        for name, plugin in plugins.items():
+            row = vars(plugin)
+            if (not _omnis_name(name) or type(row.get("enabled")) is not bool
+                    or type(row.get("deferred")) is not bool or "module" not in row
+                    or "error" not in row
+                    or (row["module"] is not None and not isinstance(row["module"], types.ModuleType))
+                    or (row["error"] is not None and type(row["error"]) is not str)):
+                raise ValueError("invalid plugin entry")
+            entries.append({"name": name, "loaded": row["module"] is not None,
+                            "enabled": row["enabled"], "deferred": row["deferred"],
+                            "error_present": row["error"] is not None})
+        entries.sort(key=lambda row: row["name"])
+        return {"status": "PLUGIN_SNAPSHOT", "count": len(entries), "entries": entries}
+    except (TypeError, ValueError, RuntimeError):
+        return _omnis_unobserved("NOT_OBSERVED_INVALID")
+    finally:
+        for lock in reversed(held):
+            lock.release()
+
+
+def _omnis_bootstrap_inventory():
+    """Read existing objects only. This is registered, not enabled/model-facing."""
+    deadline = time.monotonic() + 0.050
+    result = {
+        "schema_version": 1, "observation": "NATIVE_BOOTSTRAP", "scope": "/state/active",
+        "registry": _omnis_registry_snapshot(deadline),
+        "plugins": _omnis_plugins_snapshot(deadline),
+    }
+    if len(json.dumps(result, ensure_ascii=False, allow_nan=False).encode("utf-8")) > 24 * 1024:
+        # No partial/truncated snapshot can claim completeness. Preserve absent/busy.
+        if result["registry"]["status"] == "REGISTERED_SNAPSHOT":
+            result["registry"] = _omnis_unobserved("LIMIT_EXCEEDED", True)
+        if result["plugins"]["status"] == "PLUGIN_SNAPSHOT":
+            result["plugins"] = _omnis_unobserved("LIMIT_EXCEEDED")
+    return result
+
+
 def main():
     # stdout is this process's JSON-RPC client channel: peer-less global broadcasts belong on it.
     server._stdio_is_rpc_channel = True
@@ -289,10 +458,12 @@ def main():
         ensure_mcp_discovery_started()
 
     # change_events: clients demote legacy polls; replay_epoch: WS restart detection.
+    ready_payload = {"skin": resolve_skin(), "change_events": True, "replay_epoch": replay_epoch()}
+    if os.environ.get("HERMES_OMNIS_INERT") == "1":
+        ready_payload["bootstrap_inventory"] = _omnis_bootstrap_inventory()
     _write_or_exit({
         "jsonrpc": "2.0", "method": "event",
-        "params": {"type": "gateway.ready", "payload": {
-            "skin": resolve_skin(), "change_events": True, "replay_epoch": replay_epoch()}}},
+        "params": {"type": "gateway.ready", "payload": ready_payload}},
         "startup write failed (broken stdout pipe before first event)")
 
     if os.environ.get("HERMES_OMNIS_INERT") != "1":

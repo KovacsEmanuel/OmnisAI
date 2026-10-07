@@ -10,7 +10,7 @@ import struct
 import time
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
 
 from omnis.core.paths import check_private_file, private_directory
@@ -23,6 +23,160 @@ MAX_FRAME = 64 * 1024
 
 class RuntimeUnavailable(ValueError):
     """Sanitized runtime failure; never expose raw IPC or credentials."""
+
+
+MAX_INVENTORY = 24 * 1024
+
+
+class RegistryEntry(TypedDict):
+    name: str
+    toolset: str
+
+
+class PluginEntry(TypedDict):
+    name: str
+    loaded: bool
+    enabled: bool
+    deferred: bool
+    error_present: bool
+
+
+class RegistrySnapshot(TypedDict):
+    status: str
+    generation: int | None
+    count: int | None
+    entries: list[RegistryEntry] | None
+
+
+class PluginSnapshot(TypedDict):
+    status: str
+    count: int | None
+    entries: list[PluginEntry] | None
+
+
+class BootstrapInventory(TypedDict):
+    schema_version: Literal[1]
+    observation: Literal["NATIVE_BOOTSTRAP"]
+    scope: Literal["/state/active"]
+    registry: RegistrySnapshot
+    plugins: PluginSnapshot
+
+
+def _inventory_name(value: object) -> str:
+    if (
+        type(value) is not str
+        or not 0 < len(value) <= 128
+        or any(
+            ord(c) < 32 or 127 <= ord(c) <= 159 or 0xD800 <= ord(c) <= 0xDFFF or c in "/\\"
+            for c in value
+        )
+    ):
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    return value
+
+
+def validate_bootstrap_inventory(value: object) -> BootstrapInventory:
+    """Frozen bootstrap schema. Reject, never coerce or retain native metadata."""
+    if (
+        type(value) is not dict
+        or set(value) != {"schema_version", "observation", "scope", "registry", "plugins"}
+        or type(value["schema_version"]) is not int
+        or value["schema_version"] != 1
+        or value["observation"] != "NATIVE_BOOTSTRAP"
+        or value["scope"] != "/state/active"
+    ):
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    registry, plugins = value["registry"], value["plugins"]
+    if type(registry) is not dict or set(registry) != {"status", "generation", "count", "entries"}:
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    if type(plugins) is not dict or set(plugins) != {"status", "count", "entries"}:
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    status = registry["status"]
+    missing = {"NOT_INITIALIZED", "NOT_OBSERVED_BUSY", "LIMIT_EXCEEDED", "NOT_OBSERVED_INVALID"}
+    if type(status) is not str:
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    rs: RegistrySnapshot = {"status": status, "generation": None, "count": None, "entries": None}
+    if status == "REGISTERED_SNAPSHOT":
+        generation, count, entries = registry["generation"], registry["count"], registry["entries"]
+        if (
+            type(generation) is not int
+            or generation < 0
+            or type(count) is not int
+            or not 0 <= count <= 256
+            or type(entries) is not list
+            or len(entries) != count
+        ):
+            raise RuntimeUnavailable("Invalid bootstrap inventory")
+        rows: list[RegistryEntry] = []
+        last = ""
+        for row in entries:
+            if type(row) is not dict or set(row) != {"name", "toolset"}:
+                raise RuntimeUnavailable("Invalid bootstrap inventory")
+            name, toolset = _inventory_name(row["name"]), _inventory_name(row["toolset"])
+            if name <= last:
+                raise RuntimeUnavailable("Invalid bootstrap inventory")
+            last = name
+            rows.append({"name": name, "toolset": toolset})
+        rs = {"status": status, "generation": generation, "count": count, "entries": rows}
+    elif status not in missing or any(
+        registry[k] is not None for k in ("generation", "count", "entries")
+    ):
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    status = plugins["status"]
+    if type(status) is not str:
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    ps: PluginSnapshot = {"status": status, "count": None, "entries": None}
+    if status == "PLUGIN_SNAPSHOT":
+        count, entries = plugins["count"], plugins["entries"]
+        if (
+            type(count) is not int
+            or not 0 <= count <= 128
+            or type(entries) is not list
+            or len(entries) != count
+        ):
+            raise RuntimeUnavailable("Invalid bootstrap inventory")
+        plugin_rows: list[PluginEntry] = []
+        last = ""
+        for row in entries:
+            keys = {"name", "loaded", "enabled", "deferred", "error_present"}
+            if (
+                type(row) is not dict
+                or set(row) != keys
+                or any(type(row[k]) is not bool for k in keys - {"name"})
+            ):
+                raise RuntimeUnavailable("Invalid bootstrap inventory")
+            name = _inventory_name(row["name"])
+            if name <= last:
+                raise RuntimeUnavailable("Invalid bootstrap inventory")
+            last = name
+            plugin_rows.append(
+                {
+                    "name": name,
+                    "loaded": row["loaded"],
+                    "enabled": row["enabled"],
+                    "deferred": row["deferred"],
+                    "error_present": row["error_present"],
+                }
+            )
+        ps = {"status": status, "count": count, "entries": plugin_rows}
+    elif status not in missing | {"NOT_OBSERVED_IN_PROGRESS"} or any(
+        plugins[k] is not None for k in ("count", "entries")
+    ):
+        raise RuntimeUnavailable("Invalid bootstrap inventory")
+    result: BootstrapInventory = {
+        "schema_version": 1,
+        "observation": "NATIVE_BOOTSTRAP",
+        "scope": "/state/active",
+        "registry": rs,
+        "plugins": ps,
+    }
+    try:
+        size = len(json.dumps(result, ensure_ascii=False, allow_nan=False).encode("utf-8"))
+    except (ValueError, UnicodeError):
+        raise RuntimeUnavailable("Invalid bootstrap inventory") from None
+    if size > MAX_INVENTORY:
+        raise RuntimeUnavailable("Bootstrap inventory limit")
+    return result
 
 
 def _unique(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -61,6 +215,7 @@ class RuntimeClient:
         self.reader: asyncio.StreamReader | None = None
         self.writer: asyncio.StreamWriter | None = None
         self.lock = asyncio.Lock()
+        self.bootstrap_inventory: BootstrapInventory | None = None
 
     async def connect(self) -> None:
         private_directory(self.directory)
@@ -171,6 +326,25 @@ class RuntimeClient:
                         raise RuntimeUnavailable("Runtime stale fence")
                     if response["drained"] != (state in {"IDLE", "STOPPED"}):
                         raise RuntimeUnavailable("Invalid runtime drain")
+                    if "bootstrap_inventory" not in response:
+                        raise RuntimeUnavailable("Missing bootstrap inventory")
+                    inventory = response["bootstrap_inventory"]
+                    if inventory is None:
+                        if state == "READY" or (
+                            state == "STOPPED" and self.bootstrap_inventory is not None
+                        ):
+                            raise RuntimeUnavailable("Missing ready bootstrap inventory")
+                    else:
+                        if state == "IDLE":
+                            raise RuntimeUnavailable("Inventory before native ready")
+                        validated = validate_bootstrap_inventory(inventory)
+                        if (
+                            self.bootstrap_inventory is not None
+                            and validated != self.bootstrap_inventory
+                        ):
+                            raise RuntimeUnavailable("Changed bootstrap inventory")
+                        self.bootstrap_inventory = validated
+                        response["bootstrap_inventory"] = validated
                     return response
             except (
                 OSError,

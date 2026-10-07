@@ -16,7 +16,29 @@ if mode == "ready_stall":
     sys.exit()
 if mode in {"ready_delay", "slow_ready"}:
     time.sleep(0.2 if mode == "ready_delay" else 2.1)
-emit({"jsonrpc": "2.0", "method": "event", "params": {"type": "gateway.ready", "payload": {}}})
+emit(
+    {
+        "jsonrpc": "2.0",
+        "method": "event",
+        "params": {
+            "type": "gateway.ready",
+            "payload": {
+                "bootstrap_inventory": {
+                    "schema_version": 1,
+                    "observation": "NATIVE_BOOTSTRAP",
+                    "scope": "/state/active",
+                    "registry": {
+                        "status": "NOT_INITIALIZED",
+                        "generation": None,
+                        "count": None,
+                        "entries": None,
+                    },
+                    "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+                }
+            },
+        },
+    }
+)
 reverse_count = 0
 reverse_ping = None
 for raw in sys.stdin:

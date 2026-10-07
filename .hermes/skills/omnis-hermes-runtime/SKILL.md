@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -30,6 +30,8 @@ Load the `hermes-agent` skill and relevant official documentation; read architec
 
 ## Pitfalls
 Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundary. A simulated RPC peer is not the real runtime; an installed skill is not a validated investigator. Keep the development MCP tools out of the assessment runtime.
+
+- Attest live mounted state from the running container's mount namespace, not a Docker archive copy: `docker cp` may miss tmpfs contents. Use a finite, isolated installed-interpreter observer restricted to the exact synthetic paths; require unchanged file hashes and exact boolean marker absence, join the observer before family/drain checks, and retain a sensitive positive/negative control. Static installed source files can still be archive-attested separately.
 
 ## Verification
 Each G02/G04/G07 subgate has evidence at its actual boundary. Test restart, compression/lineage, duplicate events, wrong identity, stopped run and bounded outputs. Report live LLM tests as not-run until explicitly authorized and exercised.

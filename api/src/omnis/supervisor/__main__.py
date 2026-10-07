@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from omnis.core.db import database_engine, readiness_reason
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
+from omnis.supervisor.runtime_client import RuntimeClient
 from omnis.transport.local_control import LocalControl
 
 
@@ -20,6 +21,13 @@ async def run() -> None:
     raw_directory = os.environ.get("OMNIS_CONTROL_DIR")
     if not raw_url or not raw_directory:
         raise ValueError("Explicit database and control directory required")
+    raw_runtime = os.environ.get("OMNIS_RUNTIME_DIR")
+    probe = os.environ.get("OMNIS_RUNTIME_INERT_PROBE")
+    if probe not in {None, "1"} or (probe is not None and not raw_runtime):
+        raise ValueError("Invalid explicit runtime opt-in")
+    if raw_runtime is not None and (not raw_runtime or Path(raw_runtime) == Path(raw_directory)):
+        raise ValueError("Runtime requires a distinct private directory")
+    runtime: RuntimeClient | None = None
     engine = database_engine(raw_url)
     service = InstanceService(engine)
     owner = uuid4()
@@ -32,6 +40,15 @@ async def run() -> None:
         if await readiness_reason(engine) is not None:
             raise ValueError("Control schema unavailable")
         epoch = await service.acquire(owner)
+        if raw_runtime is not None:
+            status = await service.owned_status(owner, epoch)
+            runtime = RuntimeClient(Path(raw_runtime), generation=status.generation, epoch=epoch)
+            await runtime.connect()
+            service.runtime_drain = runtime.drain
+            if probe == "1":
+                await runtime.launch_inert(service, owner)
+            else:
+                await runtime.status()
         async with LocalControl(Path(raw_directory), service, owner, epoch):
             await service.quiesce(owner, epoch)
             print("SUPERVISOR_READY", flush=True)
@@ -43,8 +60,16 @@ async def run() -> None:
                         raise ValueError("Control schema unavailable") from None
                     await service.heartbeat(owner, epoch)
                     await service.quiesce(owner, epoch)
+                    if runtime is not None and (await runtime.status())["state"] == "READY":
+                        await runtime.renew(service, owner)
     finally:
         try:
+            if runtime is not None:
+                try:
+                    if not await runtime.drain():
+                        raise ValueError("Runtime drain uncertain")
+                finally:
+                    await runtime.close()
             if epoch is not None:
                 await service.release(owner, epoch)
         finally:

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["uv_build==0.12.19"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "omnis_hermes"
+
+[project]
+name = "omnis-hermes"
+version = "0.1.0"
+description = "Private inert Omnis runtime owner (no Hermes SDK dependency)"
+requires-python = ">=3.13.15,<3.14"
+dependencies = []
+
+[project.scripts]
+omnis-runtime-host = "omnis_hermes.runtime_host:main"

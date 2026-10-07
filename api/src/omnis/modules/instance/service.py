@@ -4,8 +4,11 @@ P0 supports only transactional inert work. Future effect producers must use the
 same admission transaction AND provide real adapters before extending quiescence.
 """
 
-from collections.abc import AsyncIterator
+import asyncio
+import time
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
 from json import dumps
 from uuid import UUID, uuid4
 
@@ -45,9 +48,55 @@ def _exact_json_shape(value: object) -> bool:
     return type(value) in (str, int, bool, type(None))
 
 
+@dataclass(frozen=True)
+class RuntimeAuthority:
+    generation: int
+    epoch: int
+    deadline_ns: int
+
+
 class InstanceService:
-    def __init__(self, engine: AsyncEngine) -> None:
+    def __init__(
+        self, engine: AsyncEngine, *, runtime_drain: Callable[[], Awaitable[bool]] | None = None
+    ) -> None:
         self.engine = engine
+        self.runtime_drain = runtime_drain
+
+    async def runtime_authority(
+        self, owner: UUID, epoch: int, generation: int, *, inert_probe: bool = False
+    ) -> RuntimeAuthority:
+        """Short absolute grant from CURRENT DB authority; never heartbeat or OPEN.
+
+        The typed inert probe may run against a never-shutdown closed instance.
+        No assessment admission, Task or Hermes SDK is introduced here.
+        """
+        if (
+            type(generation) is not int
+            or not 0 <= generation <= 2**63 - 1
+            or type(epoch) is not int
+            or not 1 <= epoch <= 2**63 - 1
+            or type(inert_probe) is not bool
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            await self._stop_fence(connection)
+            self._require_generation(instance, generation)
+            if instance.shutdown_command_id is not None or (
+                not instance.admission_open and not inert_probe
+            ):
+                raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+            started = time.monotonic_ns()
+            now = read_datetime(
+                (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()
+            )
+            if lease.expires_at is None:
+                raise ControlConflict(ControlCode.LEASE_LOST)
+            remaining = min(1.5, (lease.expires_at - now).total_seconds())
+            deadline = started + int(remaining * 1_000_000_000)
+            if deadline <= time.monotonic_ns():
+                raise ControlConflict(ControlCode.LEASE_LOST)
+            return RuntimeAuthority(generation, epoch, deadline)
 
     @asynccontextmanager
     async def _locked(self) -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
@@ -269,7 +318,16 @@ class InstanceService:
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
             if not instance.admission_open and instance.shutdown_command_id is not None:
-                # P0 has no runtime, effect producer or background writer. Lock acquisition
+                if self.runtime_drain is not None:
+                    try:
+                        async with asyncio.timeout(2.5):
+                            drained = await self.runtime_drain()
+                    except (OSError, ValueError, TimeoutError):
+                        raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE) from None
+                    if drained is not True:
+                        raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+                    await self._require_owner(connection, lease, owner, epoch)
+                # P0 (runtime unset) has no producer or background writer. Lock acquisition
                 # drains the only supported work: committed, transactional inert admissions.
                 await connection.execute(
                     text(

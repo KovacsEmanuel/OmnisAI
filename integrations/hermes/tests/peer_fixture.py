@@ -17,6 +17,8 @@ if mode == "ready_stall":
 if mode in {"ready_delay", "slow_ready"}:
     time.sleep(0.2 if mode == "ready_delay" else 2.1)
 emit({"jsonrpc": "2.0", "method": "event", "params": {"type": "gateway.ready", "payload": {}}})
+reverse_count = 0
+reverse_ping = None
 for raw in sys.stdin:
     frame = json.loads(raw)
     if "method" not in frame:
@@ -27,6 +29,15 @@ for raw in sys.stdin:
                 "params": {"type": "fixture.response", "payload": frame},
             }
         )
+        if reverse_ping is not None:
+            emit(
+                {
+                    "jsonrpc": "2.0",
+                    "id": reverse_ping,
+                    "result": {"pong": True, "reverse_reply": frame},
+                }
+            )
+            reverse_ping = None
         continue
     method = frame["method"]
     if method == "client.capabilities":
@@ -34,6 +45,18 @@ for raw in sys.stdin:
     elif method == "gateway.capabilities":
         result = {"per_session_exclusive_submit": True}
     elif method == "ping":
+        if mode.startswith("reverse_sequential_"):
+            reverse_count += 1
+            reverse_ping = frame["id"]
+            emit(
+                {
+                    "jsonrpc": "2.0",
+                    "id": f"srq-{reverse_count}",
+                    "method": "approval" if mode.endswith("approval") else "untrusted.method",
+                    "params": {},
+                }
+            )
+            continue
         if mode == "stall":
             continue
         if mode == "eof":

@@ -97,10 +97,14 @@ class NativePeer:
         self.timeout = timeout
         self.pending: dict[tuple[type, object], asyncio.Future[object]] = {}
         self.next_id = 0
-        self.queue: asyncio.Queue[bytes] = asyncio.Queue(MAX_PENDING)
+        self.queue: asyncio.Queue[tuple[bytes, tuple[type, object] | None]] = asyncio.Queue(
+            MAX_PENDING
+        )
         self.queued_bytes = 0
         self.events: deque[dict[str, object]] = deque(maxlen=16)
-        self.reverse: dict[tuple[type, object], str] = {}
+        # None marks a consumed cancellation; its ID stays reserved until drain/eviction.
+        self.reverse: dict[tuple[type, object], str | None] = {}
+        self.reverse_done: dict[tuple[type, object], str | None] = {}
         self.cancelled: deque[tuple[object, str]] = deque(maxlen=32)
         self.late: deque[tuple[type, object]] = deque(maxlen=32)
         self.ready = asyncio.get_running_loop().create_future()
@@ -119,23 +123,30 @@ class NativePeer:
         if not self.ready.done():
             self.ready.set_exception(self.failure)
 
-    def _enqueue(self, frame: dict[str, object]) -> None:
+    def _enqueue(
+        self, frame: dict[str, object], reverse_key: tuple[type, object] | None = None
+    ) -> None:
         if self.failure is not None:
             raise self.failure
         raw = encode(frame)
         if self.queued_bytes + len(raw) > MAX_QUEUED or self.queue.full():
             raise ProtocolError("Native backpressure")
         self.queued_bytes += len(raw)
-        self.queue.put_nowait(raw)
+        self.queue.put_nowait((raw, reverse_key))
 
     async def _write(self) -> None:
         assert self.process.stdin is not None
         try:
             while True:
-                raw = await self.queue.get()
+                raw, reverse_key = await self.queue.get()
                 self.process.stdin.write(raw)
                 await asyncio.wait_for(self.process.stdin.drain(), self.timeout)
                 self.queued_bytes -= len(raw)
+                if reverse_key is not None:
+                    # Only a successful drain releases queued/in-flight reverse quota.
+                    self.reverse_done[reverse_key] = self.reverse.pop(reverse_key)
+                    if len(self.reverse_done) > MAX_PENDING:
+                        del self.reverse_done[next(iter(self.reverse_done))]
         except (OSError, TimeoutError, ProtocolError):
             self._fail()
 
@@ -168,7 +179,11 @@ class NativePeer:
                         future.set_result(frame["result"])
                 elif "id" in frame:
                     key = (type(frame["id"]), frame["id"])
-                    if len(self.reverse) >= MAX_PENDING or key in self.reverse:
+                    if (
+                        len(self.reverse) >= MAX_PENDING
+                        or key in self.reverse
+                        or key in self.reverse_done
+                    ):
                         raise ProtocolError("Reverse request limit")
                     method = frame["method"]
                     assert isinstance(method, str)
@@ -178,7 +193,7 @@ class NativePeer:
                         reply["result"] = {"choice": "deny"}
                     else:
                         reply["error"] = {"code": -32601, "message": "Method not allowed"}
-                    self._enqueue(reply)
+                    self._enqueue(reply, key)
                 elif frame["method"] == "event":
                     event = frame.get("params", {})
                     assert isinstance(event, dict)
@@ -187,12 +202,17 @@ class NativePeer:
                         self.ready.set_result(True)
                     if event.get("type") == "request.cancel":
                         payload = event.get("payload", {})
-                        if type(payload) is dict and valid_id(payload.get("id")):
-                            key = (type(payload["id"]), payload["id"])
-                            method = self.reverse.get(key)
-                            if method is not None and method == payload.get("method"):
-                                self.reverse.pop(key)
-                                self.cancelled.append((payload["id"], method))
+                        if type(payload) is not dict or not valid_id(payload.get("id")):
+                            raise ProtocolError("Invalid reverse cancellation")
+                        key = (type(payload["id"]), payload["id"])
+                        method = self.reverse.get(key, self.reverse_done.get(key))
+                        if method is None or method != payload.get("method"):
+                            raise ProtocolError("Uncorrelated reverse cancellation")
+                        if key in self.reverse:
+                            self.reverse[key] = None
+                        else:
+                            self.reverse_done[key] = None
+                        self.cancelled.append((payload["id"], method))
         except (ValueError, OSError, asyncio.IncompleteReadError, asyncio.LimitOverrunError):
             self._fail()
 

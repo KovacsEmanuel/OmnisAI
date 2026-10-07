@@ -19,7 +19,7 @@ from uuid import UUID, uuid4
 from . import private_paths
 from .runtime_protocol import MAX_FRAME, NativePeer, encode, unique_object
 
-NATIVE_COMMAND = ("/opt/hermes/venv/bin/python", "-m", "tui_gateway.entry")
+NATIVE_COMMAND = ("/opt/hermes/venv/bin/python", "-I", "-m", "tui_gateway.entry")
 NATIVE_CWD = Path("/state/work")
 NATIVE_ENV = {
     "HOME": "/state/os-home",

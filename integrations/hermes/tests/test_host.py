@@ -79,6 +79,43 @@ def test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness():
 
 
 @pytest.mark.asyncio
+async def test_fixed_native_argv_does_not_import_a_writable_cwd_package():
+    from omnis_hermes.runtime_host import NATIVE_COMMAND, RuntimeHost, TestLaunch
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="b05-") as name:
+        root = Path(name)
+        work, ipc = root / "work", root / "ipc"
+        work.mkdir(mode=0o700)
+        ipc.mkdir(mode=0o700)
+        package = work / "tui_gateway"
+        package.mkdir()
+        (package / "__init__.py").write_text("")
+        marker = work / "shadow-executed"
+        fixture = Path(__file__).with_name("peer_fixture.py").read_text()
+        (package / "entry.py").write_text(
+            "from pathlib import Path\nPath('shadow-executed').write_text('synthetic')\n" + fixture
+        )
+        # Replace only the unavailable OCI interpreter, preserving product flags.
+        argv = (sys.executable, *NATIVE_COMMAND[1:])
+        async with RuntimeHost(ipc, _test_launch=TestLaunch(argv, work)) as host:
+            try:
+                await host._launch(
+                    {
+                        "generation": 0,
+                        "epoch": 1,
+                        "deadline_ns": time.monotonic_ns() + 1_000_000_000,
+                    }
+                )
+            except ValueError:
+                pass  # Installed Hermes is deliberately absent in the API environment.
+            finally:
+                await host.stop()
+            assert host.process is not None and host.process.returncode is not None
+            assert not Path(f"/proc/{host.process.pid}").exists()
+            assert not marker.exists(), "fixed native launch selected the writable cwd package"
+
+
+@pytest.mark.asyncio
 async def test_watchdog_stops_while_all_native_pending_slots_are_saturated():
     from omnis_hermes.runtime_host import RuntimeHost, TestLaunch
     from omnis_hermes.runtime_protocol import ProtocolError

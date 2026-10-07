@@ -392,12 +392,22 @@ def _native_observation(action: str) -> dict:
 
 
 def main() -> int:
+    timed_out = False
+    old_handler = signal.getsignal(signal.SIGALRM)
+
+    def deadline(*_args):
+        nonlocal timed_out
+        timed_out = True  # Remains set even if native code catches TimeoutError.
+        raise TimeoutError()
+
     try:
         if len(sys.argv) != 2 or sys.argv[1] not in ACTIONS:
             raise ValueError("H02 fixed action required")
-        signal.signal(signal.SIGALRM, lambda *_: (_ for _ in ()).throw(TimeoutError()))
+        signal.signal(signal.SIGALRM, deadline)
         signal.alarm(10)
         result = _native_observation(sys.argv[1])
+        if timed_out:
+            raise TimeoutError()
         signal.alarm(0)
         print(json.dumps({"status": "OBSERVED_SCOPED", **result}, sort_keys=True))
         return 0
@@ -413,6 +423,9 @@ def main() -> int:
         # Never render native exception strings, credential objects or traceback.
         print(json.dumps({"status": "REFUSED", "error_type": type(exc).__name__}))
         return 4
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
 
 def test_synthetic_fixtures_have_distinct_decodable_nonexpired_jwts():
@@ -502,6 +515,43 @@ def test_store_decoder_refuses_duplicate_keys_before_marker_scan():
             decode_store(raw.encode())
     valid = _store(LABELS[0])
     assert decode_store(json.dumps(valid).encode()) == valid
+
+
+def test_caught_observer_timeout_cannot_publish_success(monkeypatch, capsys):
+    def swallowed_alarm(action):
+        try:
+            signal.raise_signal(signal.SIGALRM)
+        except TimeoutError:
+            pass
+        return {"action": action}
+
+    old_handler = signal.getsignal(signal.SIGALRM)
+    monkeypatch.setattr(sys, "argv", [__file__, "startup"])
+    monkeypatch.setitem(globals(), "_native_observation", swallowed_alarm)
+    try:
+        assert main() == 4
+        assert json.loads(capsys.readouterr().out) == {
+            "status": "REFUSED",
+            "error_type": "TimeoutError",
+        }
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
+
+def test_clean_observer_return_publishes_scoped_success(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", [__file__, "startup"])
+    monkeypatch.setitem(globals(), "_native_observation", lambda action: {"action": action})
+    old_handler = signal.getsignal(signal.SIGALRM)
+    try:
+        assert main() == 0
+        assert json.loads(capsys.readouterr().out) == {
+            "status": "OBSERVED_SCOPED",
+            "action": "startup",
+        }
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
 
 if __name__ == "__main__":

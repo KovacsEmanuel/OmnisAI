@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.10
+version: 0.1.11
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -29,6 +29,8 @@ Read stack baseline and rejected dependencies; inspect current manifests/locks a
 
 ## Pitfalls
 Host Playwright/Chromium validation is not certification of the planned executor version. Docker tags can move. Git rollback does not restore DB or secrets. Documentation readiness is not runtime readiness.
+
+- Do not overwrite an immutable installed release when a focused UI fix changes its bytes. Verify the actual served asset after rebuilding, not just checkout/dist or a passing component test. For an operator-authorized provisional candidate containing only synthetic QA data, an additive fresh candidate may avoid an unsupported upgrade: record original roots/wrapper digest and inverse, Stop and read back exact owned resources, retain the original dataset, then bind separate data/state/config/IPC/project/image and rerun the real consumer on the corrected artifact. Never silently substitute a fresh profile for real operator data; migration/restore requires its own approved procedure. Keep the installed CLI/interpreter durable outside scratch, and leave the final tested candidate READY only after review/QA/readback. Archive adjudicated findings and evidence limits in versioned notes before scratch expires; a same-version fresh candidate is a delivery decision, not proof that upgrades work.
 
 - A wheel that imports its app factory may still omit migrations or process entrypoints. Build/install with dependencies exported/hash-checked from the lock in a fresh scratch venv, then migrate a disposable PostgreSQL DB **outside the checkout**. Exercise the installed supervisor, real Unix IPC and actual HTTP process, including restart and state readback; reserve the loopback listener rather than adopting whatever answers on a free-port guess. A Python audit guard needs a negative control and remains distinct from OS confinement. Source-tree/ASGI success or an archive filename check is not release evidence.
 - Before rerunning an integration gate after a session handoff, verify required environment presence without printing values. Missing ephemeral test credentials are a failed prerequisite, not permission to read personal stores or weaken tests. Recreate a uniquely named disposable project when needed; keep setup/test/cleanup in one process if environment continuity is uncertain, and stop only resources whose ownership was verified.

@@ -54,7 +54,7 @@ test-sl04-pg:
 .PHONY: check-runtime
 # Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
 check-runtime:
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","integrations/hermes/tests/test_native_h02.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
 	$(API_PY) -I integrations/hermes/tests/test_native_build.py -v
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests
 	$(API_PY) -I -m ruff format --config api/pyproject.toml --check integrations/hermes/src integrations/hermes/tests

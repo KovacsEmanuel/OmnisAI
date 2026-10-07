@@ -424,3 +424,51 @@ async def test_case_observe_uses_the_transport_utf8_inventory_budget(tmp_path: P
         assert json.loads((root / "control/active.json").read_bytes())["inventory"] == value
     finally:
         await slot.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("metadata", ["policy", "active", "archive", "journal", "nested_receipt"])
+@pytest.mark.parametrize("schema_version", [True, 1.0], ids=["boolean", "float"])
+async def test_coerced_state_schema_is_rejected_before_restore(
+    tmp_path: Path, metadata: str, schema_version: object
+) -> None:
+    instance, selected = uuid4(), uuid4()
+    root = tmp_path / "slot"
+    provision(root, instance)
+    slot = case_slot.CaseSlot(root, selected, instance, uuid4(), 1, 0, str(uuid4()))
+    await slot.prepare(authority())
+    await slot.observe(snapshot(slot))
+    private_write(root / "active/state.db", b"preserved-case")
+    await slot.archive(authority(), 0, snapshot(slot, "STOPPED"))
+    await slot.close()
+    path = {
+        "policy": root / "control/policy.json",
+        "active": root / "control/active.json",
+        "archive": slot.archive_root / "receipt.json",
+        "journal": root / "control/journal.json",
+        "nested_receipt": root / "control/journal.json",
+    }[metadata]
+    value = json.loads(path.read_bytes())
+    if metadata == "nested_receipt":
+        value["receipt"]["schema_version"] = schema_version
+    else:
+        value["schema_version"] = schema_version
+    private_write(path, json.dumps(value).encode())
+    restored = case_slot.CaseSlot(root, selected, instance, uuid4(), 2, 0, str(uuid4()))
+    try:
+        with pytest.raises(ValueError):
+            await restored.prepare(authority())
+        assert not (root / "active/state.db").exists()
+        assert (slot.archive_root / "data/active/state.db").read_bytes() == b"preserved-case"
+    finally:
+        await restored.close()
+
+
+@pytest.mark.parametrize("schema_version", [True, 1.0], ids=["boolean", "float"])
+def test_policy_schema_requires_exact_integer(tmp_path: Path, schema_version: object) -> None:
+    root = tmp_path / "slot"
+    provision(root, uuid4())
+    value = json.loads((root / "control/policy.json").read_bytes())
+    case_slot.Policy.model_validate(value)
+    with pytest.raises(ValueError):
+        case_slot.Policy.model_validate({**value, "schema_version": schema_version})

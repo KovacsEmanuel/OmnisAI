@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Literal, TypeVar
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omnis.modules.instance.service import InstanceService
 
@@ -51,6 +51,13 @@ T = TypeVar("T")
 
 class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    @field_validator("schema_version", mode="before", check_fields=False)
+    @classmethod
+    def exact_schema_type(cls, value: object) -> object:
+        if type(value) is not int:
+            raise ValueError("Invalid schema version type")
+        return value
 
 
 class Identity(Strict):

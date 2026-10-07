@@ -168,7 +168,7 @@ def inventory(value: object) -> dict[str, object]:
     """Validate the exact frozen projection without importing the native runtime."""
     if type(value) is not dict:
         raise ValueError("Missing bootstrap inventory")
-    raw = json.dumps(value, separators=(",", ":"), allow_nan=False).encode()
+    raw = json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
     if len(raw) > 24 * 1024:
         raise ValueError("Inventory budget")
     obj = _object(raw)

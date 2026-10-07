@@ -396,3 +396,31 @@ async def test_new_idle_host_does_not_adopt_unclosed_active_case(tmp_path: Path)
         await next_slot.prepare(authority())
     assert (root / "active/state.db").read_bytes() == b"unclosed"
     await next_slot.close()
+
+
+@pytest.mark.asyncio
+async def test_case_observe_uses_the_transport_utf8_inventory_budget(tmp_path: Path) -> None:
+    from omnis.supervisor.runtime_client import validate_bootstrap_inventory
+
+    instance = uuid4()
+    root = tmp_path / "slot"
+    provision(root, instance)
+    slot = case_slot.CaseSlot(root, uuid4(), instance, uuid4(), 1, 0, str(uuid4()))
+    await slot.prepare(authority())
+    observed = snapshot(slot)
+    value = observed["bootstrap_inventory"]
+    assert isinstance(value, dict)
+    value["registry"] = {
+        "status": "REGISTERED_SNAPSHOT",
+        "generation": 0,
+        "count": 50,
+        "entries": [{"name": "漢" * 120 + f"{n:03}", "toolset": "set"} for n in range(50)],
+    }
+    assert validate_bootstrap_inventory(value) == value
+    assert len(json.dumps(value, ensure_ascii=False).encode("utf-8")) <= 24 * 1024
+    assert len(json.dumps(value).encode("utf-8")) > 24 * 1024
+    try:
+        await slot.observe(observed)
+        assert json.loads((root / "control/active.json").read_bytes())["inventory"] == value
+    finally:
+        await slot.close()

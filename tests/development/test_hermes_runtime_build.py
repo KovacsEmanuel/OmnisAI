@@ -39,6 +39,31 @@ class RuntimeBuildControls(unittest.TestCase):
                 module.apply_inert_overlay(source)
             self.assertEqual(path.read_text(), "untrusted modification\n")
 
+    def test_security_override_binds_original_and_selected_inputs(self):
+        module = self.prepare_module()
+        self.assertTrue(hasattr(module, "dependency_inputs"), "runtime security override is not consumed")
+        selected = module.dependency_inputs()
+        self.assertEqual(selected["versions"], {
+            "anyio": ["4.12.1", "4.14.2"], "pyjwt": ["2.13.0", "2.15.0"],
+            "urllib3": ["2.7.0", "2.8.0"],
+        })
+        self.assertEqual(selected["original"]["commit"], module.PIN["commit"])
+
+    def test_tampered_override_is_refused_before_prepare_writes(self):
+        from unittest.mock import patch
+        import shutil
+        module = self.prepare_module()
+        self.assertTrue(hasattr(module, "DEPENDENCY_PROJECT"), "override project admission missing")
+        with tempfile.TemporaryDirectory(dir=ROOT / "integrations/hermes/upstream") as raw:
+            fixture = Path(raw)
+            project = fixture / "runtime-override"
+            shutil.copytree(module.DEPENDENCY_PROJECT, project)
+            (project / "requirements-native.txt").write_text("tampered\n")
+            with patch.object(module, "DEPENDENCY_PROJECT", project):
+                with self.assertRaisesRegex(ValueError, "dependency.*SHA256"):
+                    module.dependency_inputs()
+            self.assertFalse((fixture / "output").exists())
+
     def test_oci_creates_fixed_native_state_paths(self):
         import ast
         host = ROOT / "integrations/hermes/src/omnis_hermes/runtime_host.py"

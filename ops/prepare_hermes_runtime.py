@@ -23,6 +23,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 INTEGRATION = ROOT / "integrations/hermes"
 UPSTREAM = INTEGRATION / "upstream"
+DEPENDENCY_PROJECT = INTEGRATION / "runtime-override"
 PIN = json.loads((INTEGRATION / "pin.json").read_text(encoding="utf-8"))
 
 
@@ -35,6 +36,34 @@ def sha256(path: Path) -> str:
 def require_hash(path: Path, expected: str, label: str) -> None:
     if sha256(path) != expected:
         raise ValueError(f"{label} SHA256 mismatch: {path.name}")
+
+
+def dependency_inputs() -> dict:
+    """Explicit three-package security override, never an upstream pin rewrite."""
+    manifest = json.loads((DEPENDENCY_PROJECT / "provenance.json").read_text())
+    fixes = {"anyio": ["4.12.1", "4.14.2"], "pyjwt": ["2.13.0", "2.15.0"],
+             "urllib3": ["2.7.0", "2.8.0"]}
+    original = {k: PIN[k] for k in ("commit", "source_archive_sha256", "pyproject_sha256",
+                                   "uv_lock_sha256", "requirements_sha256")}
+    if manifest["original"] != original or manifest["versions"] != fixes:
+        raise ValueError("dependency override provenance mismatch")
+    if set(manifest["files"]) != {"pyproject.toml", "uv.lock", "requirements-native.txt"}:
+        raise ValueError("dependency override inputs mismatch")
+    for name, digest in manifest["files"].items():
+        require_hash(DEPENDENCY_PROJECT / name, digest, "dependency override")
+    old = {p["name"]: p["version"] for p in tomllib.loads((UPSTREAM / "uv.lock").read_text())["package"]}
+    selected = tomllib.loads((DEPENDENCY_PROJECT / "uv.lock").read_text())["package"]
+    observed = {}
+    for package in selected:
+        if package.get("source", {}).get("registry"):
+            name = package["name"]
+            expected = fixes[name][1] if name in fixes else old.get(name)
+            if package["version"] != expected:
+                raise ValueError("dependency override contains unrelated version change")
+            observed[name] = package["version"]
+    if any(observed.get(name) != versions[1] for name, versions in fixes.items()):
+        raise ValueError("dependency override omitted a security fix")
+    return manifest
 
 
 def apply_inert_overlay(source: Path) -> None:
@@ -53,6 +82,7 @@ def prepare(archive: Path, output: Path) -> dict:
     require_hash(archive, PIN["source_archive_sha256"], "archive")
     require_hash(INTEGRATION / "requirements-native.txt", PIN["requirements_sha256"], "requirements")
     require_hash(UPSTREAM / "uv.lock", PIN["uv_lock_sha256"], "lock")
+    dependencies = dependency_inputs()
     if output.exists():
         raise ValueError("output must be a new directory; no overwrite/adoption")
     # Pin verification precedes filesystem writes, and extraction never permits links/devices.
@@ -68,10 +98,13 @@ def prepare(archive: Path, output: Path) -> dict:
         require_hash(source / name, PIN[field], name)
     original_files = {str(p.relative_to(source)): sha256(p) for p in sorted(source.rglob("*")) if p.is_file()}
     apply_inert_overlay(source)
-    shutil.copyfile(INTEGRATION / "requirements-native.txt", output / "requirements-native.txt")
+    selected_dependencies = output / "dependency-override"
+    shutil.copytree(DEPENDENCY_PROJECT, selected_dependencies)
+    shutil.copyfile(selected_dependencies / "requirements-native.txt", output / "requirements-native.txt")
     shutil.copyfile(UPSTREAM / "LICENSE", output / "LICENSE.hermes")
     manifest = {"schema_version": 1, "pin": PIN, "original_files": original_files,
                 "patched_files": json.loads((UPSTREAM / "patch-manifest.json").read_text(encoding="utf-8"))["files"],
+                "dependency_override": dependencies,
                 "native_started": False, "provider_calls": "NOT_RUN", "assessment_ready": False}
     (output / "source-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest
@@ -143,7 +176,11 @@ def build_native(output: Path, python: Path, uv: Path) -> dict:
     build_req.write_text("".join(specs), encoding="utf-8")
     bp = build / "bin/python"
     run([str(uv), "pip", "install", "--python", str(bp), "--no-deps", "--only-binary", ":all:", "--require-hashes", "-r", str(build_req)], output, python=python)
-    payload = {"lock": str(UPSTREAM / "uv.lock"), "requirements": str(output / "requirements-native.txt")}
+    dependencies = dependency_inputs()
+    selected_lock = output / "dependency-override/uv.lock"
+    require_hash(selected_lock, dependencies["files"]["uv.lock"], "selected dependency lock")
+    require_hash(output / "requirements-native.txt", dependencies["files"]["requirements-native.txt"], "selected requirements")
+    payload = {"lock": str(selected_lock), "requirements": str(output / "requirements-native.txt")}
     # stdin carries only reviewed file locations, never credentials.
     selection = subprocess.run([str(bp), "-I", "-c", SELECT_WHEELS], input=json.dumps(payload), capture_output=True, text=True, timeout=30, env={"PATH": "/usr/bin:/bin"})
     if selection.returncode:
@@ -183,6 +220,7 @@ def build_native(output: Path, python: Path, uv: Path) -> dict:
     files = {str(p.relative_to(runtime_source)): sha256(p) for p in sorted(runtime_source.rglob("*")) if p.is_file()}
     result = {"schema_version": 1, "python": actual, "dependency_wheels": wheels,
               "native_source_files": files, "native_distribution": "supported source layout (not a Nix wheel)",
+              "dependency_override": dependencies,
               "native_started": False, "adapter_injected": False}
     (output / "build-manifest.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result

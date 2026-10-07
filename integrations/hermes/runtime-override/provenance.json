@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "original": {
+    "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "pyproject_sha256": "6f969b9fdff95e7269ec808361e3ae8be5357036e6257e53a3306878cf8c41dd",
+    "uv_lock_sha256": "5b3798f326209475abca8ef7cbf7c9406f12e687c28c0b540dfe597466f48590",
+    "requirements_sha256": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273"
+  },
+  "files": {
+    "pyproject.toml": "f38aee5cf9529a550b6be119c00261f4787c8ec0f8f853f0efaf7394029dc335",
+    "uv.lock": "a7b8c05fc3657b305ce9a21421fc891ac1fb3c88ce266d0a187ee338ee3f5b20",
+    "requirements-native.txt": "3576a98dcfd2332c741ae2f8d63f14c461aa3a4f8e69ecd5a7226f1d7e23669d"
+  },
+  "versions": {
+    "anyio": [
+      "4.12.1",
+      "4.14.2"
+    ],
+    "pyjwt": [
+      "2.13.0",
+      "2.15.0"
+    ],
+    "urllib3": [
+      "2.7.0",
+      "2.8.0"
+    ]
+  },
+  "python": "3.13.15",
+  "platform": "x86_64-unknown-linux-gnu",
+  "PyJWT_direct_pin_override": "explicit security override; upstream ==2.13.0 does not admit2.15.0",
+  "audit": {
+    "adverse_statuses": 0,
+    "audited_packages": 62,
+    "vulnerabilities": 0
+  },
+  "limits": [
+    "Point-in-time core dependency audit, not proof of absence of every vulnerability",
+    "Exact upstream source and original dependency lock preserved",
+    "Installed/native/OCI acceptance remains separate"
+  ]
+}

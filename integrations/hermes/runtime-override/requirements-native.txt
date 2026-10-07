@@ -1,0 +1,308 @@
+annotated-doc==0.0.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:571ac1dc6991c450b25a9c2d84a3705e2ae7a53467b5d111c24fa8baabbed320 \
+    --hash=sha256:fbcda96e87e9c92ad167c2e53839e57503ecfda18804ea28102353485033faa4
+    # via fastapi
+annotated-types==0.7.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53 \
+    --hash=sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89
+    # via pydantic
+anyio==4.14.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:9f505dda5ac9f0c8309b5e8bd445a8c2bf7246f3ce950121e45ea15bc41d1494 \
+    --hash=sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f
+    # via
+    #   httpx
+    #   openai
+    #   starlette
+    #   watchfiles
+certifi==2026.5.20 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:3c52e209ba0a4ad7aebe60436a4ab349c39e1e602e8c134221e546902ad25897 \
+    --hash=sha256:69dea482ab64caa7b9f6aba1c6bf48bb6a5448d1c0f1b17ab42ad8c763a5344d
+    # via
+    #   httpcore
+    #   httpx
+    #   omnis-hermes-core-security-override
+    #   requests
+cffi==2.0.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529 \
+    --hash=sha256:6d50360be4546678fc1b79ffe7a66265e28667840010348dd69a314145807a1b \
+    --hash=sha256:c8d3b5532fc71b7a77c09192b4a5a200ea992702734a2e9279a37f2478236f26
+    # via cryptography
+charset-normalizer==3.4.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:7a32c560861a02ff789ad905a2fe94e3f840803362c84fecf1851cb4cf3dc37f \
+    --hash=sha256:94537985111c35f28720e43603b8e7b43a6ecfb2ce1d3058bbe955b73404e21a \
+    --hash=sha256:9a26f18905b8dd5d685d6d07b0cdf98a79f3c7a918906af7cc143ea2e164c8bc \
+    --hash=sha256:a8a8b89589086a25749f471e6a900d3f662d1d3b6e2e59dcecf787b1cc3a1894
+    # via requests
+click==8.4.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:9a6cea6e60b17ebe0a44c5cc636d94f09bd66142c1cd7d8b4cd731c4917a15f6 \
+    --hash=sha256:e6f9f66136c816745b9d65817da91d61d957fb16e02e4dcd0552553c5a197b76
+    # via uvicorn
+croniter==6.0.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:2f878c3856f17896979b2a4379ba1f09c83e374931ea15cc835c5dd2eee9b368 \
+    --hash=sha256:37c504b313956114a983ece2c2b07790b1f1094fe9d81cc94739214748255577
+    # via omnis-hermes-core-security-override
+cryptography==50.0.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:06a32a980526a6ab9a4b9bf8f7385800791e2bb960903cb6b530e4817509a3b7 \
+    --hash=sha256:105110f43a471dbd0060b9c9516cb8a6a79233631a04cc2ba16f28323ac6e025 \
+    --hash=sha256:37fdb0d0111f1e2ff07139dfb79f1b49531f8e213c46f1163dd7642979b58c47 \
+    --hash=sha256:65c2c3add92b45fd0709db8594536aea39c2a67af0e27ffcf049c498501140b7 \
+    --hash=sha256:7cec5b856506da6defb290f30c9ee687d5f5e8cb0bd3f6459dde43b0b4fa40ef \
+    --hash=sha256:82148ec5bddac30b51a5b3c1945075f896fa022cb93f8e4a01e9f6ee95292c5f \
+    --hash=sha256:a91296cb61e8df6f86d0c19cc4068228da256bf59bf86049fbd821084565327f \
+    --hash=sha256:b42a28c1844fd9de8f3f7d540e36b66f3a9c83fceac7170ebc7a6a19edd9dcae \
+    --hash=sha256:eeac2acb5a20ed25e0ad6d1df9891a520b78b404266b6d11778f25d5d691a6c9
+    # via omnis-hermes-core-security-override
+distro==1.9.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed \
+    --hash=sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2
+    # via openai
+fastapi==0.133.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:658f34ba334605b1617a65adf2ea6461901bdb9af3a3080d63ff791ecf7dc2e2 \
+    --hash=sha256:ed152a45912f102592976fde6cbce7dae1a8a1053da94202e51dd35d184fadd6
+    # via omnis-hermes-core-security-override
+fire==0.7.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:3b208f05c736de98fb343310d090dcc4d8c78b2a89ea4f32b837c586270a9cbf \
+    --hash=sha256:e43fd8a5033a9001e7e2973bab96070694b9f12f2e0ecf96d4683971b5ab1882
+    # via omnis-hermes-core-security-override
+firecrawl-anydoc==0.2.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0e5aed01bf6d4e5c588d3363888293f2ceeb9feb00449a32e0ba993797cf0bd3 \
+    --hash=sha256:3e29460272fea81cde08fd5af11f6b0f1ff05919214ddc939867f72362c83032 \
+    --hash=sha256:e57c79093c1592929dd8dfaf6c60b49eefe631721d96fb833c3f465472b37b9f
+    # via omnis-hermes-core-security-override
+h11==0.16.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
+    --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
+    # via
+    #   httpcore
+    #   uvicorn
+httpcore==1.0.9 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55 \
+    --hash=sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8
+    # via httpx
+httptools==0.7.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:04c6c0e6c5fb0739c5b8a9eb046d298650a0ff38cf42537fc372b28dc7e4472c \
+    --hash=sha256:465275d76db4d554918aba40bf1cbebe324670f3dfc979eaffaa5d108e2ed650 \
+    --hash=sha256:abd72556974f8e7c74a259655924a717a2365b236c882c3f6f8a45fe94703ac9
+    # via omnis-hermes-core-security-override
+httpx==0.28.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc \
+    --hash=sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad
+    # via
+    #   omnis-hermes-core-security-override
+    #   openai
+idna==3.18 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2 \
+    --hash=sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848
+    # via
+    #   anyio
+    #   httpx
+    #   requests
+jinja2==3.1.6 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
+    --hash=sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67
+    # via omnis-hermes-core-security-override
+jiter==0.13.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:98fbafb6e88256f4454de33c1f40203d09fc33ed19162a68b3b257b29ca7f663 \
+    --hash=sha256:9950290340acc1adaded363edd94baebcee7dabdfa8bee4790794cd5cfad2af6 \
+    --hash=sha256:aed40e099404721d7fcaf5b89bd3b4568a4666358bcac7b6b15c09fb6252ab68 \
+    --hash=sha256:f2839f9c2c7e2dffc1bc5929a510e14ce0a946be9365fd1219e7ef342dae14f4
+    # via openai
+markdown==3.10.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950 \
+    --hash=sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36
+    # via omnis-hermes-core-security-override
+markdown-it-py==4.0.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:87327c59b172c5011896038353a81343b6754500a08cd7a4973bb48c6d578147 \
+    --hash=sha256:cb0a2b4aa34f932c007117b194e945bd74e0ec24133ceb5bac59009cda1cb9f3
+    # via rich
+markupsafe==3.0.3 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:722695808f4b6457b320fdc131280796bdceb04ab50fe1795cd540799ebe1698 \
+    --hash=sha256:8485f406a96febb5140bfeca44a73e3ce5116b2501ac54fe953e488fb1d03b12 \
+    --hash=sha256:8709b08f4a89aa7586de0aadc8da56180242ee0ada3999749b183aa23df95025 \
+    --hash=sha256:8f71bc33915be5186016f675cd83a1e08523649b0e33efdb898db577ef5bb009 \
+    --hash=sha256:ccfcd093f13f0f0b7fdd0f198b90053bf7b2f02a3927a30e63f3ccc9df56b676
+    # via jinja2
+mdurl==0.1.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
+    --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
+    # via markdown-it-py
+nemo-relay==0.8.3 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and 'android' not in platform_release and sys_platform == 'linux' \
+    --hash=sha256:10b08a939678d8f54ad02e5fb086454ffad15f269eae4854e9597956dc96b176 \
+    --hash=sha256:3670c0689f0709354068a1460131e6f01ea44cd7c2b2186930dd20b23cd079ff \
+    --hash=sha256:ae6804050b309a12dae5a7afc8c85b29b601c2c4a4257d365a998b774a2e7d16
+    # via omnis-hermes-core-security-override
+openai==2.24.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:1e5769f540dbd01cb33bc4716a23e67b9d695161a734aff9c5f925e2bf99a673 \
+    --hash=sha256:fed30480d7d6c884303287bde864980a4b137b60553ffbcf9ab4a233b7a73d94
+    # via omnis-hermes-core-security-override
+packaging==26.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
+    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+    # via omnis-hermes-core-security-override
+pathspec==1.1.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a \
+    --hash=sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189
+    # via omnis-hermes-core-security-override
+pillow==12.3.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0847a763afefb695bc912d7c131e7e0632d4edc1d8698f58ddabec8e46b8b6d3 \
+    --hash=sha256:3b8182a766685eaa002637e28b4ec8d6b18819a0c71f579bf0dbaa5830297cce \
+    --hash=sha256:756c768d0c9c2955feb7a56c37ea24aea2e369f8d36a88da270b6a9f19e62b5e \
+    --hash=sha256:ae26d61dfa7a47befdc7572b521024e8745f3d809bd95ca9505a7bba9ef849ec
+    # via
+    #   omnis-hermes-core-security-override
+    #   pillow-heif
+pillow-heif==1.5.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:16b11a37b762ff42da2d36527bb5cb14bd9194c24c389ee911155d6e23c53065 \
+    --hash=sha256:2cfa3761cf4fe43ee4b909963f87f05bac925d7bcff7016802f02a26574fb11e \
+    --hash=sha256:e87c9a51ee973b5c1896beba74ddf9b58417f5b8a52d021b493f3ef6257c5f90
+    # via omnis-hermes-core-security-override
+prompt-toolkit==3.0.52 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:28cde192929c8e7321de85de1ddbe736f1375148b02f2e17edd840042b1be855 \
+    --hash=sha256:9aac639a3bbd33284347de5ad8d68ecc044b91a762dc39b7c21095fcd6a19955
+    # via omnis-hermes-core-security-override
+psutil==7.2.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0746f5f8d406af344fd547f1c8daa5f5c33dbc293bb8d6a16d80b4bb88f59372 \
+    --hash=sha256:076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9 \
+    --hash=sha256:1a571f2330c966c62aeda00dd24620425d4b0cc86881c89861fbc04549e5dc63 \
+    --hash=sha256:b58fabe35e80b264a4e3bb23e6b96f9e45a3df7fb7eed419ac0e5947c61e47cc
+    # via omnis-hermes-core-security-override
+ptyprocess==0.7.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35 \
+    --hash=sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220
+    # via omnis-hermes-core-security-override
+pycparser==3.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29 \
+    --hash=sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992
+    # via cffi
+pydantic==2.13.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba \
+    --hash=sha256:c40756b57adaa8b1efeeced5c196f3f3b7c435f90e84ea7f443901bec8099ef6
+    # via
+    #   fastapi
+    #   omnis-hermes-core-security-override
+    #   openai
+pydantic-core==2.46.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:62f875393d7f270851f20523dd2e29f082bcc82292d66db2b64ea71f64b6e1c1 \
+    --hash=sha256:82cf5301172168103724d49a1444d3378cb20cdee30b116a1bd6031236298a5d \
+    --hash=sha256:9551187363ffc0de2a00b2e47c25aeaeb1020b69b668762966df15fc5659dd5a
+    # via pydantic
+pygments==2.20.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
+    --hash=sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176
+    # via rich
+pyjwt==2.15.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:7a3742debf6b879e912dbb9819ceec1594be812452b78c5f2e2dfc56564954f8 \
+    --hash=sha256:b11c5f9791d7bf51c2b39a81ed669f6b2dbbd669df2942f6c60167e9e3d1abe4
+    # via omnis-hermes-core-security-override
+python-dateutil==2.9.0.post0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
+    --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
+    # via croniter
+python-dotenv==1.2.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a \
+    --hash=sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3
+    # via omnis-hermes-core-security-override
+python-multipart==0.0.32 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:be54b7f3fa167bb83e4fcd936b887b708f4e57fe75911c02aebf53efaf8d938e \
+    --hash=sha256:ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23
+    # via omnis-hermes-core-security-override
+pytz==2025.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3 \
+    --hash=sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00
+    # via croniter
+pyyaml==6.0.3 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0f29edc409a6392443abf94b9cf89ce99889a1dd5376d94316ae5145dfedd5d6 \
+    --hash=sha256:d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f \
+    --hash=sha256:eda16858a3cab07b80edaf74336ece1f986ba330fdb8ee0d6c0d68fe82bc96be
+    # via omnis-hermes-core-security-override
+requests==2.33.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:3324635456fa185245e24865e810cecec7b4caf933d7eb133dcde67d48cee69b \
+    --hash=sha256:c7ebc5e8b0f21837386ad0e1c8fe8b829fa5f544d8df3b2253bff14ef29d7652
+    # via omnis-hermes-core-security-override
+rich==14.3.3 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:793431c1f8619afa7d3b52b2cdec859562b950ea0d4b6b505397612db8d5362d \
+    --hash=sha256:b8daa0b9e4eef54dd8cf7c86c03713f53241884e814f4e2f5fb342fe520f639b
+    # via omnis-hermes-core-security-override
+ruamel-yaml==0.18.17 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:9091cd6e2d93a3a4b157ddb8fabf348c3de7f1fb1381346d985b6b247dcd8d3c \
+    --hash=sha256:9c8ba9eb3e793efdf924b60d521820869d5bf0cb9c6f1b82d82de8295e290b9d
+    # via omnis-hermes-core-security-override
+ruamel-yaml-clib==0.2.15 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:46e4cc8c43ef6a94885f72512094e482114a8a706d3c555a34ed4b0d20200600 \
+    --hash=sha256:4d1032919280ebc04a80e4fb1e93f7a738129857eaec9448310e638c8bccefcf \
+    --hash=sha256:fd4c928ddf6bce586285daa6d90680b9c291cfd045fc40aad34e445d57b1bf51
+    # via ruamel-yaml
+six==1.17.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
+    --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
+    # via python-dateutil
+sniffio==1.3.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2 \
+    --hash=sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc
+    # via openai
+snowballstemmer==3.1.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:7e207fa178741da09cdee59d3ecec3827ad5f92b1fc5c9ff3755b639f71f5752 \
+    --hash=sha256:e07bbc54a0d798fe6010a12398422e62a8bfbba95c394fd0956ef58cb4d3e260
+    # via omnis-hermes-core-security-override
+socksio==1.0.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:95dc1f15f9b34e8d7b16f06d74b8ccf48f609af32ab33c608d08761c5dcbb1f3 \
+    --hash=sha256:f88beb3da5b5c38b9890469de67d0cb0f9d494b78b106ca1845f96c10b91c4ac
+    # via httpx
+starlette==1.3.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:05d0213193f2fbaae60e2ecb593b4add4262ad4e46536b54abe36f11a71724e0 \
+    --hash=sha256:c7372aae11c3c3f26a42df7bd626cec2f47d03483d261d369516a615a53714c6
+    # via fastapi
+tenacity==9.1.4 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55 \
+    --hash=sha256:adb31d4c263f2bd041081ab33b498309a57c77f9acf2db65aadf0898179cf93a
+    # via omnis-hermes-core-security-override
+termcolor==3.3.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5 \
+    --hash=sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5
+    # via fire
+tqdm==4.67.3 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb \
+    --hash=sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf
+    # via openai
+typing-extensions==4.15.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
+    --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
+    # via
+    #   fastapi
+    #   openai
+    #   pydantic
+    #   pydantic-core
+    #   typing-inspection
+typing-inspection==0.4.2 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7 \
+    --hash=sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464
+    # via
+    #   fastapi
+    #   pydantic
+urllib3==2.8.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3 \
+    --hash=sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63
+    # via
+    #   omnis-hermes-core-security-override
+    #   requests
+uvicorn==0.41.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:09d11cf7008da33113824ee5a1c6422d89fbc2ff476540d69a34c87fab8b571a \
+    --hash=sha256:29e35b1d2c36a04b9e180d4007ede3bcb32a85fbdfd6c6aeb3f26839de088187
+    # via omnis-hermes-core-security-override
+watchfiles==1.1.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:3a476189be23c3686bc2f4321dd501cb329c0a0469e77b7b534ee10129ae6374 \
+    --hash=sha256:3f7eb7da0eb23aa2ba036d4f616d46906013a68caf61b7fdbe42fc8b25132e77 \
+    --hash=sha256:a173cb5c16c4f40ab19cecf48a534c409f7ea983ab8fed0741304a1c0a31b3f2 \
+    --hash=sha256:c755367e51db90e75b19454b680903631d41f9e3607fbd941d296a020c2d752d \
+    --hash=sha256:f9a2ae5c91cecc9edd47e041a930490c31c3afb1f5e6d71de3dc671bfaca02bf
+    # via omnis-hermes-core-security-override
+wcwidth==0.6.0 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad \
+    --hash=sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159
+    # via prompt-toolkit
+websockets==15.0.1 ; implementation_name == 'cpython' and platform_machine == 'x86_64' and platform_python_implementation == 'CPython' and sys_platform == 'linux' \
+    --hash=sha256:0f3c1e2ab208db911594ae5b4f79addeb3501604a165019dd221c0bdcabe4db8 \
+    --hash=sha256:558d023b3df0bffe50a04e710bc87742de35060580a293c2a984299ed83bc4e4 \
+    --hash=sha256:82544de02076bafba038ce055ee6412d68da13ab47f0c60cab827346de828dee \
+    --hash=sha256:f7a866fbc1e97b5c617ee4116daaa09b722101d4a3c170c787450ba409f9736f
+    # via omnis-hermes-core-security-override

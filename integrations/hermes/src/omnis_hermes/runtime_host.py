@@ -168,8 +168,9 @@ class RuntimeHost:
                 limit=MAX_FRAME,
             )
             self.peer = NativePeer(self.process, timeout=0.8)
-            async with asyncio.timeout(1.5):
-                self.capabilities = await self.peer.handshake()
+            remaining = (self.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+            async with asyncio.timeout(remaining):
+                self.capabilities = await self.peer.handshake(ready_timeout=remaining)
             if time.monotonic_ns() >= self.deadline_ns or self.state != "STARTING":
                 raise ValueError("Authority expired during launch")
             self.state = "READY"

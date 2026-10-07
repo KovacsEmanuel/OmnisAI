@@ -51,7 +51,11 @@ async def test_runtime_authority_checks_current_db_lease_and_exact_generation(
     for generation, epoch, probe in ((True, 3, True), (2, True, True), (3, 3, True), (2, 3, False)):
         with pytest.raises(ControlConflict):
             await service.runtime_authority(owner, epoch, generation, inert_probe=probe)
-    result.scalar_one.return_value = now + timedelta(seconds=1)
+    lease = LeaseRecord(id=1, owner=owner, epoch=3, expires_at=now + timedelta(seconds=5))
+    full = await service.runtime_authority(owner, 3, 2, inert_probe=True)
+    assert time.monotonic_ns() + 4_000_000_000 < full.deadline_ns
+    assert full.deadline_ns <= time.monotonic_ns() + 4_500_000_000
+    result.scalar_one.return_value = now + timedelta(seconds=6)
     with pytest.raises(ControlConflict):
         await service.runtime_authority(owner, 3, 2, inert_probe=True)
 

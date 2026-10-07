@@ -14,6 +14,8 @@ mode = sys.argv[1] if len(sys.argv) > 1 else "normal"
 if mode == "ready_stall":
     time.sleep(10)
     sys.exit()
+if mode in {"ready_delay", "slow_ready"}:
+    time.sleep(0.2 if mode == "ready_delay" else 2.1)
 emit({"jsonrpc": "2.0", "method": "event", "params": {"type": "gateway.ready", "payload": {}}})
 for raw in sys.stdin:
     frame = json.loads(raw)

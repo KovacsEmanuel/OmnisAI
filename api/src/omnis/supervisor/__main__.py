@@ -47,6 +47,10 @@ async def run() -> None:
             service.runtime_drain = runtime.drain
             if probe == "1":
                 await runtime.launch_inert(service, owner)
+                # Startup consumed the initial grant; refresh CURRENT authority
+                # before entering the ordinary heartbeat interval.
+                await service.heartbeat(owner, epoch)
+                await runtime.renew(service, owner)
             else:
                 await runtime.status()
         async with LocalControl(Path(raw_directory), service, owner, epoch):

@@ -7,6 +7,7 @@ import re
 import socket
 import stat
 import struct
+import time
 from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -127,8 +128,14 @@ class RuntimeClient:
                 if (authority.generation, authority.epoch) != (self.generation, self.epoch):
                     raise RuntimeUnavailable("Runtime authority mismatch")
                 request["deadline_ns"] = authority.deadline_ns
+            timeout = 2.0
+            if op == "launch" and authority is not None:
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
             try:
-                async with asyncio.timeout(2):
+                async with asyncio.timeout(timeout):
                     self.writer.write(json.dumps(request, separators=(",", ":")).encode() + b"\n")
                     await self.writer.drain()
                     response = _object(await self.reader.readuntil(b"\n"))

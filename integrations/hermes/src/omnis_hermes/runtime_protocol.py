@@ -228,9 +228,16 @@ class NativePeer:
             elif not future.cancelled():
                 future.exception()  # Observe a racing transport failure.
 
-    async def handshake(self) -> dict[str, object]:
+    async def handshake(self, *, ready_timeout: float | None = None) -> dict[str, object]:
+        startup_budget = self.timeout if ready_timeout is None else ready_timeout
+        if (
+            type(startup_budget) not in (int, float)
+            or not math.isfinite(startup_budget)
+            or not 0 < startup_budget <= 5
+        ):
+            raise ProtocolError("Invalid startup deadline")
         try:
-            await asyncio.wait_for(asyncio.shield(self.ready), self.timeout)
+            await asyncio.wait_for(asyncio.shield(self.ready), startup_budget)
         except TimeoutError:
             raise ProtocolError("Native ready deadline") from None
         await self.call("client.capabilities", {"server_requests": True})

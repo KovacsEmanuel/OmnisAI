@@ -96,6 +96,31 @@ async def test_real_peer_faults_are_bounded_and_stderr_is_not_retained(mode):
         await peer.close()
 
 
+@pytest.mark.asyncio
+async def test_startup_wait_has_separate_budget_from_per_rpc_deadline():
+    wire = protocol()
+    process = await asyncio.create_subprocess_exec(
+        sys.executable,
+        str(Path(__file__).with_name("peer_fixture.py")),
+        "ready_delay",
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    peer = wire.NativePeer(process, timeout=0.1)
+    try:
+        try:
+            capabilities = await peer.handshake(ready_timeout=0.5)
+        except TypeError:
+            pytest.fail("separate startup budget is missing")
+        assert capabilities["per_session_exclusive_submit"] is True
+    finally:
+        if process.returncode is None:
+            process.kill()
+        await asyncio.wait_for(process.wait(), 2)
+        await peer.close()
+
+
 def test_native_frames_require_unique_jsonrpc_and_exact_ids():
     wire = protocol()
     valid = {"jsonrpc": "2.0", "id": 1, "result": {}}

@@ -92,7 +92,7 @@ class InstanceService:
             )
             if lease.expires_at is None:
                 raise ControlConflict(ControlCode.LEASE_LOST)
-            remaining = min(1.5, (lease.expires_at - now).total_seconds())
+            remaining = min(4.5, (lease.expires_at - now).total_seconds())
             deadline = started + int(remaining * 1_000_000_000)
             if deadline <= time.monotonic_ns():
                 raise ControlConflict(ControlCode.LEASE_LOST)

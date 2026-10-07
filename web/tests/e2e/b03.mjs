@@ -61,10 +61,10 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   const visible = created.find(item => item.engagement_id === summary.data.items[0].engagement_id);
   assert.ok(visible, 'Visible draft must have real API identity');
   await page.getByRole('link', { name: visible.payload.name, exact: true }).click();
-  await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+  await check(page.getByRole('heading', { name: visible.payload.name, exact: true })).toBeVisible();
   assert.ok(page.url().endsWith(`/${visible.engagement_id}/overview`));
   await page.reload();
-  await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+  await check(page.getByRole('heading', { name: visible.payload.name, exact: true })).toBeVisible();
   await page.goto(`${origin}/engagements`);
   await page.getByRole('button', { name: 'Next page', exact: true }).click();
   await check(page.locator('main article')).toHaveCount(3);
@@ -139,7 +139,7 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
   assert.deepEqual(mutationRequests, [], 'B03 UI unexpectedly mutated a draft');
   // Retain this actual draft in the same query client before the PG lock.
   await page.goto(`${origin}/engagements/${visible.engagement_id}/setup`);
-  await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+  await check(page.getByRole('heading', { name: visible.payload.name, exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Home', exact: true }).click();
   await check(page.getByText('23', { exact: true })).toBeVisible();
   const faultPath = fileURLToPath(new URL('../../../api/tests/web_fault.py', import.meta.url));
@@ -162,7 +162,7 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
     await screenshot('b03-projection-stale-503');
     await observeBusy(() => page.getByRole('link', { name: visible.payload.name, exact: true }).click(), visible.engagement_id);
     await check(page.getByRole('alert').first()).toContainText(/unavailable|timed out/i);
-    await check(page.getByRole('heading', { name: visible.payload.name })).toBeVisible();
+    await check(page.getByRole('heading', { name: visible.payload.name, exact: true })).toBeVisible();
     console.log('B03_A02_BUSY_PASS initial_overview initial_setup refresh_success both_surfaces revalidation_real_503');
   } finally {
     if (blocker.exitCode === null) {

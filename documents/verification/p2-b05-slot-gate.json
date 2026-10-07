@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "slice": "P2-inert / SL07-B05 / E-B05-03 stock case-slot and inert bootstrap continuation",
+  "product_head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+  "contract_commit": "02275498d1ff812762f6a7e11860acd7aeea88e9",
+  "parent_acceptance": {
+    "scope": "Single inert stock slot A1-B1-A2, source-bound finite native state policy and same-native registered bootstrap observation only",
+    "verdict": "CLOSED_SCOPED_SLOT_BOOTSTRAP",
+    "code": "IMPLEMENTED_SCOPED",
+    "proof": "PASS_LOCAL_RECORDED_WITH_EXPLICIT_LIMITS",
+    "review": "APPROVED_SCOPED for exact source/changed files, independent evidence disposition retained",
+    "rationale": "Actual installed nominal product acceptance plus canonical current gate and exact parent cleanup satisfy bounded continuation. Supplementary negative product observations are retained narrowly after independent disposition, not certified as a contract-compliant QA execution. This acceptance does not repair or relabel its execution FAIL.",
+    "global_B05_G02": "PARTIAL_OPEN; no automatic B06 admission or entire-P2/live completion",
+    "assessment_ready": false
+  },
+  "product_file_sha256": {
+    "api/src/omnis/supervisor/case_slot.py": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+    "api/tests/test_case_slot.py": "14c4fe4a5cb0d4d195160aaf251055573f6e029103680151f28ba1403271b353",
+    "api/tests/fixtures/hermes-default-soul.txt": "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f",
+    "integrations/hermes/upstream/inert-state-policy.json": "bcbd8b2ce7ac69064da04ef37eb9961e4a06d19bce342706b99c9dfa17d87c6d"
+  },
+  "native_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "native_source_sha256": {
+    "hermes_state.py": "134fb1af988fd49407433cf54afa74f2188c93021fc4576bcf2c7174e787c2eb",
+    "hermes_state_repair.py": "7af22ad9aa7cf3823e768177c4d56d1827b53f7253d0549e0bd7e3195ff0b14e",
+    "hermes_logging.py": "19deccd2c8a71cf0c9cf94f9cc44021a5fb9e8f4dc29df4da30ea7605b9ab84a",
+    "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+    "hermes_cli/auth.py": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+    "hermes_cli/config_backups.py": "a923aeb156eac44b055ebc2cea458dfd4ee1dbfe7cf0694fd7a55da751b3f1aa",
+    "hermes_cli/default_soul.py": "b65192a631f0011fcef245c94d9741e0c716defe605d3edfd0e59f26da211d2d",
+    "hermes_state_dbfile.py": "317c4e5cbc7469259331f19e0a90f9081b729bbf70e97e81e7670ea6e630f7df",
+    "hermes_state_common.py": "e66bdefc2bb58ab1e750a5040245fb95b3176a277773f35c2d2bbb3ef789070c",
+    "hermes_state_schema.py": "8712aa97c222cdc2f1ec5ab8d2dadd01756117c43e1597dcfbe43c0645e30ef0"
+  },
+  "artifacts": {
+    "schema_version": 1,
+    "head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+    "scope": "OFFLINE_WHEELS_AND_CONTEXT_ONLY",
+    "wheel_sha256": {
+      "omnis_api-0.1.0-py3-none-any.whl": "15010ae640ead513e5caf48097438a8d18f6bc8b86e4dff6326faa9fd549209c",
+      "omnis_hermes-0.1.0-py3-none-any.whl": "8ad49ba73ae46fce14618c40e30a98a5872b4af3256118fdda8dcd48e3bf6c42"
+    },
+    "source_modules_verified": {
+      "omnis_api-0.1.0-py3-none-any.whl": 42,
+      "omnis_hermes-0.1.0-py3-none-any.whl": 4
+    },
+    "context_build_manifest_sha256": "cf83d8b957b657a6402f25696a25f3914ceee6f9b2f63a88830a9bc4826a0aae",
+    "context_source_manifest_sha256": "24b9b6753cfda31167ca92beb81208af40d49d207cc6b48979e74c85da6f6b81",
+    "state_policy_sha256": "bcbd8b2ce7ac69064da04ef37eb9961e4a06d19bce342706b99c9dfa17d87c6d",
+    "native_started": false,
+    "runtime_image_id": "sha256:0c2d1599d0f0fd720fa3c5197c782d91871625b24e6035f4303ecaed0d9ae5a4",
+    "runtime_image_tag": "omnis-b05-slot:dfc549a-s01",
+    "build_is_not_QA": true
+  },
+  "reviews": {
+    "original_complementary": "deleg_a05b3220 on09eed94, original CHANGES_REQUESTED findings retained and fixed individually",
+    "original_three_repairs": "Unicode7e9db40; exact-schema72e1e39; final authority/PREPARED6ad3a87",
+    "original_three_repair_disposition": {
+      "head": "6ad3a87ca92887d82bea45a562aaaf9acd5e2100",
+      "report_sha256": "28b87e3f9ebb5f5e0d98be5884a543f3db5cca463aeac750fa2c63d797eff2b3",
+      "verdict": "APPROVED_SCOPED",
+      "binding_count": 22,
+      "focused_R1_provider_failure": "content_policy_blocked, no verdict/approval inferred"
+    },
+    "native_fix": {
+      "delegation": "deleg_1d14d0f7",
+      "report_sha256": "c75dbe700b46af5febfe927533cc30a85160e20c5647ee08c7ec3bee2d4bd4c1",
+      "versioned_report": "p2-b05-slot-native-review.json",
+      "verdict": "APPROVED_SCOPED",
+      "pure_test_count": 79,
+      "deselected_existing_subprocess_crash_cuts": 3,
+      "parent_affected_tests": 91,
+      "parent_Ruff_mypy": "exit0",
+      "no_installed_acceptance_in_source_review": true
+    },
+    "evidence_disposition": {
+      "delegation": "deleg_4f606d6c",
+      "report_sha256": "492734cfb37dbbf3fac92390e0a1269c106b7ec03c8b0b61888175723be68d6b",
+      "verdict": "RETAIN_SCOPED_PRODUCT_OBSERVATIONS_EXECUTION_NOT_PASS_GATE_OPEN",
+      "parent_adjudication": "Accept exact bounded nominal outcome and retain supplementary observed assertions; execution remains NOT_PASS_PROTOCOL_DEVIATION; universal zero-I/O not added as a new prerequisite."
+    }
+  },
+  "nominal_QA": {
+    "delegation": "deleg_e1cbc91d",
+    "report_sha256": "a712e5ca9793aee523156a5e3ebc658377d61416658c97aeaf110ed2e6ca2a6d",
+    "verdict": "PASS_SCOPED_WITH_NOT_RUN",
+    "driver_exit": 0,
+    "supervisor_positive_exits": [
+      0,
+      0,
+      0
+    ],
+    "SessionDB_writer_observer_exits": [
+      0,
+      0,
+      0
+    ],
+    "negative_supervisor_exits": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    "installed_API_modules": 42,
+    "native_source_files": 11,
+    "adapter_modules": 4,
+    "process_join_observations": 376,
+    "criteria": [
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "fresh-wheel-install-and-byte-binding",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "stock-PG-fixture-admission",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "stock-engagement-A-B-create-read",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "stock-A1-B1-A2-product-transitions",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "actual-SessionDB-complete-readback",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "running-mount-isolation-and-A-not-B",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "fixed-root-provider-config-inodes",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "bootstrap-same-native-PID-ready-receipt-STOPPED",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "successive-boot-pidfd-exit-and-reap",
+        "result": "PASS"
+      },
+      {
+        "evidence": "installation, cases, resources A1/B1/A2 actual receipts/observer joins/settlement; evaluate individual evidence if blocked",
+        "requirement": "committed-journal-and-lease-release",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.missing-case",
+        "requirement": "missing-case",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.wrong-instance",
+        "requirement": "wrong-instance",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.unknown-state",
+        "requirement": "unknown-state",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.fallback-auth",
+        "requirement": "fallback-auth",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.incomplete-journal",
+        "requirement": "incomplete-journal",
+        "result": "PASS"
+      },
+      {
+        "evidence": "negatives.unclosed-active",
+        "requirement": "unclosed-active",
+        "result": "PASS"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "wrong-policy-other-than-instance",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "stale-lease-installed-case-consumer",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "busy-slot-installed-consumer",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "drain-uncertainty-installed-consumer",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "physical-crash-journal-producer",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "populated-native-tools-inventory-without-prewarm",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "provider-model-effects",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "not exercised/authorized in this finite installed QA",
+        "requirement": "whole-B05-G02-closure",
+        "result": "NOT_RUN"
+      },
+      {
+        "evidence": "A1 archive_receipt.moves exactly equal A2 active_receipt.moves; installed nominal transitions only",
+        "requirement": "complete-A-directory-and-file-receipt-tree-restored",
+        "result": "PASS"
+      },
+      {
+        "evidence": "final_readback",
+        "requirement": "foreign-inventory-state-and-frozen-HEAD-readback",
+        "result": "PASS"
+      },
+      {
+        "evidence": "exact_cleanup_locator; eight stopped runtime CIDs, one running PG; all data retained",
+        "requirement": "parent-only-final-resource-removal-and-absence",
+        "result": "NOT_RUN_PARENT_OWNED"
+      },
+      {
+        "evidence": "not invoked",
+        "requirement": "Reticle-process-only",
+        "result": "NOT_APPLICABLE"
+      },
+      {
+        "evidence": "not invoked",
+        "requirement": "Chisel",
+        "result": "BLOCKED_NO_GO"
+      }
+    ],
+    "complete_A_receipt_tree_restore": true,
+    "driver_performed_case_moves": false,
+    "same_boot_READY_receipt_STOPPED_inventory": true,
+    "cases": [
+      {
+        "digest": "bf7b489514f8d3a7c1eca3c0046b6a5cfe007a34daf80fde393fe8bf7916078e",
+        "id": "c5f9ebc6-d804-440f-a8eb-a0bf0e3668c1",
+        "name": "A",
+        "revision": 1,
+        "revision_id": "47fc39b3-b013-49dc-9be2-08cba85a3af5",
+        "stock_readback_equal": true
+      },
+      {
+        "digest": "18fec2494f077deaad96278d3d358f6d6ddaf117dc11788deaa28caba5e304af",
+        "id": "7e54a1d9-e15d-4a1d-b059-951d060046cd",
+        "name": "B",
+        "revision": 1,
+        "revision_id": "7384fac2-28da-458e-9e02-201e17575582",
+        "stock_readback_equal": true
+      }
+    ],
+    "boots": [
+      {
+        "tag": "A1",
+        "CID": "ff8db3d47e7fa1646fec80d9aa24b2bf72513488a1ddbbc5823eecb97e3919d0",
+        "boot": "32d8b539-5856-4050-a400-4ce410df9a2c",
+        "epoch": 1,
+        "generation": 0,
+        "archive_state": "ARCHIVED",
+        "journal_state": "COMMITTED",
+        "journal_operation": "ARCHIVE",
+        "physical_drain": true,
+        "lease_released": true,
+        "inventory": {
+          "observation": "NATIVE_BOOTSTRAP",
+          "plugins": {
+            "count": null,
+            "entries": null,
+            "status": "NOT_INITIALIZED"
+          },
+          "registry": {
+            "count": 3,
+            "entries": [
+              {
+                "name": "manage_catalog",
+                "toolset": "setup"
+              },
+              {
+                "name": "manage_connections",
+                "toolset": "connections"
+              },
+              {
+                "name": "todo_list",
+                "toolset": "todo"
+              }
+            ],
+            "generation": 3,
+            "status": "REGISTERED_SNAPSHOT"
+          },
+          "schema_version": 1,
+          "scope": "/state/active"
+        }
+      },
+      {
+        "tag": "B1",
+        "CID": "407776e737d367e0adc45c26837336edab3488ee6a71a3861f4525b90e4d9167",
+        "boot": "e75eb324-29b7-4e9f-9b03-96cd464238bd",
+        "epoch": 2,
+        "generation": 0,
+        "archive_state": "ARCHIVED",
+        "journal_state": "COMMITTED",
+        "journal_operation": "ARCHIVE",
+        "physical_drain": true,
+        "lease_released": true,
+        "inventory": {
+          "observation": "NATIVE_BOOTSTRAP",
+          "plugins": {
+            "count": null,
+            "entries": null,
+            "status": "NOT_INITIALIZED"
+          },
+          "registry": {
+            "count": 3,
+            "entries": [
+              {
+                "name": "manage_catalog",
+                "toolset": "setup"
+              },
+              {
+                "name": "manage_connections",
+                "toolset": "connections"
+              },
+              {
+                "name": "todo_list",
+                "toolset": "todo"
+              }
+            ],
+            "generation": 3,
+            "status": "REGISTERED_SNAPSHOT"
+          },
+          "schema_version": 1,
+          "scope": "/state/active"
+        }
+      },
+      {
+        "tag": "A2",
+        "CID": "59da3d0cdbb336a3ee59626180c08ebff89529ac3779246b8153b9bcde630e47",
+        "boot": "62afdd4c-79f9-4a68-8d9f-6c1a5e608f09",
+        "epoch": 3,
+        "generation": 0,
+        "archive_state": "ARCHIVED",
+        "journal_state": "COMMITTED",
+        "journal_operation": "ARCHIVE",
+        "physical_drain": true,
+        "lease_released": true,
+        "inventory": {
+          "observation": "NATIVE_BOOTSTRAP",
+          "plugins": {
+            "count": null,
+            "entries": null,
+            "status": "NOT_INITIALIZED"
+          },
+          "registry": {
+            "count": 3,
+            "entries": [
+              {
+                "name": "manage_catalog",
+                "toolset": "setup"
+              },
+              {
+                "name": "manage_connections",
+                "toolset": "connections"
+              },
+              {
+                "name": "todo_list",
+                "toolset": "todo"
+              }
+            ],
+            "generation": 3,
+            "status": "REGISTERED_SNAPSHOT"
+          },
+          "schema_version": 1,
+          "scope": "/state/active"
+        }
+      }
+    ],
+    "setup_failure_retained": [
+      {
+        "file_line": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/setup.py:11-12",
+        "kind": "QA_SETUP_SEAM_NONBLOCKING",
+        "summary": "uv0.12.19 did not discover a managed interpreter via child-entry symlink; original find exit2 retained. New private home2/data2 symlink the attested managed root, find/install exit0. No global install/product change."
+      }
+    ]
+  },
+  "supplementary_negative_QA": {
+    "delegation": "deleg_111d04a0",
+    "report_sha256": "6186c9994eedfdf3cc11b312efe5e4220afecc955c74dbc2be3365890e201d60",
+    "execution_verdict": "NOT_PASS_PROTOCOL_DEVIATION",
+    "product_observation_verdict": "PASS_SCOPED_WITH_LIMITS",
+    "process_join_observations": 402,
+    "execution_scope_compliance": {
+      "bytes": 81176,
+      "cause": "Python -I implies -E, so PYTHONDONTWRITEBYTECODE environment was ignored before importlib loaded the read-only prior QA helper; it created this bytecode cache outside nqa. Explicit -B or sys.dont_write_bytecode BEFORE importing the helper was required.",
+      "child_did_not_remove_or_repair_forbidden_path": true,
+      "finding": "NQA-ISOLATION-01",
+      "mtime_ns": 1791392212175270627,
+      "not_a_product_defect": true,
+      "observed_extent": "Metadata scan: 371 prior QA pycs, 2 ops pycs, 42 product API pycs. Only this old-QA pyc had mtime after the first nqa artifact. All42 installed/source/wheel .py hashes match.",
+      "parent_disposition_required": true,
+      "path": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/__pycache__/installed-qa.cpython-313.pyc",
+      "result": "FAIL",
+      "sha256": "17e530f0768dd3034e8fa8981663c48313442fe949a47baf469e4785ae6b17cb"
+    },
+    "parent_disposition": "Confirmed harness write-scope failure. Preserve artifact and FAIL; hash-bound product observations retained, not unqualified execution PASS. No deletion/replay erases it.",
+    "observations": [
+      {
+        "name": "wrong-policy-binding",
+        "observed_result": "PASS",
+        "supervisor_exit": 3,
+        "matching_control_exit": 0,
+        "zero_native_launch": true,
+        "case_files_unchanged": true,
+        "false_release_absent": null,
+        "scenario_outcome": null,
+        "scenario_uncertain": null,
+        "COMMITTED_ARCHIVE_absent": null
+      },
+      {
+        "name": "busy-slot-lock",
+        "observed_result": "PASS",
+        "supervisor_exit": 3,
+        "matching_control_exit": 0,
+        "zero_native_launch": true,
+        "case_files_unchanged": true,
+        "false_release_absent": null,
+        "scenario_outcome": null,
+        "scenario_uncertain": null,
+        "COMMITTED_ARCHIVE_absent": null
+      },
+      {
+        "name": "stale-renewal-lease-at-archive",
+        "observed_result": "PASS",
+        "supervisor_exit": 3,
+        "matching_control_exit": 0,
+        "zero_native_launch": null,
+        "case_files_unchanged": null,
+        "false_release_absent": true,
+        "scenario_outcome": "STALE_AUTHORITY_DENIED_ON_NOMINAL_CLOSE",
+        "scenario_uncertain": null,
+        "COMMITTED_ARCHIVE_absent": true
+      },
+      {
+        "name": "unavailable-physical-drain-reply",
+        "observed_result": "PASS",
+        "supervisor_exit": 3,
+        "matching_control_exit": 0,
+        "zero_native_launch": null,
+        "case_files_unchanged": null,
+        "false_release_absent": true,
+        "scenario_outcome": "UNAVAILABLE_DRAIN_REFUSED_UNCERTAINTY_RETAINED",
+        "scenario_uncertain": true,
+        "COMMITTED_ARCHIVE_absent": true
+      }
+    ],
+    "first_and_second_harness_failures": [
+      {
+        "disposition": "Harness observation demanded external ok=true while exclusive supervisor UDS was still connected; not evidence of product defect. Two fresh remaining boots observe physical status only AFTER supervisor join.",
+        "failure": {
+          "class": "RuntimeError",
+          "locations": [
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/focused-qa.py",
+              "function": "<module>",
+              "line": 140
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/focused-qa.py",
+              "function": "run",
+              "line": 96
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/focused-qa.py",
+              "function": "physical",
+              "line": 58
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/installed-qa.py",
+              "function": "req",
+              "line": 15
+            }
+          ],
+          "reason": "physical settlement"
+        },
+        "preserved_immutable": true,
+        "report": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/report.json",
+        "sha256": "909253199fd262e75a69264d66d836306d1ef4d776313d3f8a197c4c8db8c222",
+        "verdict": "BLOCKED"
+      },
+      {
+        "disposition": "One CID appeared twice because inherited d.rts and report.resources referenced same Python list. Real inventory has five distinct owned runtime CIDs. Dedupe by full CID and keep lists distinct; no product or physical state altered.",
+        "failure": {
+          "class": "RuntimeError",
+          "locations": [
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/remaining-two.py",
+              "function": "<module>",
+              "line": 32
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/remaining-two.py",
+              "function": "run",
+              "line": 27
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/focused-qa.py",
+              "function": "newrt",
+              "line": 30
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/installed-qa.py",
+              "function": "req",
+              "line": 15
+            }
+          ],
+          "reason": "max6runtime"
+        },
+        "preserved_immutable": true,
+        "report": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/report-final.json",
+        "sha256": "338ac96a7e9185d073f6db4d5917e87bcd5fd9616cf705eb6f7c7c7541ca0855",
+        "verdict": "BLOCKED"
+      }
+    ],
+    "NOT_RUN": "Actual expired-authority denial at owned_status in installed nominal archive-close path. Inside-transition lease expiry and extra fresh-boot ACTIVE adoption challenge NOT_RUN; no whole G02 closure.",
+    "scenario_uncertainty_retained": true,
+    "no_false_nominal_promotion_after_separate_settlement": true
+  },
+  "canonical_gate": {
+    "schema_version": 1,
+    "snapshot": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+    "process": "proc_30c53ccef430",
+    "process_exit": 0,
+    "completion": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "log_path": "/home/kali/.hermes/cache/scratch/b05fdfc/db-9f09b1b861e94def/gate.log",
+    "log_sha256": "a85cddcda404ec0fc861078543be4846e90720414edae48c8664a1f5187ab3b0",
+    "result_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "component_counts": {
+      "API": 490,
+      "migrations": 22,
+      "web_unit": 74,
+      "browser_E2E": 9,
+      "API_wheel": 1,
+      "CLI_source": 284,
+      "CLI_installed_wheel": 284,
+      "release": 61,
+      "Hermes_runtime": 134,
+      "Hermes_AST": 6,
+      "documentation": 62,
+      "development": 42
+    },
+    "gate_PG": {
+      "CID": "46385f81dad9e76bb18f7fdb867039d0c431d731f0a0dc85fe4db29341bd9f08",
+      "root": "/home/kali/.hermes/cache/scratch/b05fdfc/db-9f09b1b861e94def",
+      "system_identifier": "7693974350552506398",
+      "networks_socket_absent": true,
+      "PGDATA_retained": true
+    },
+    "all17_owned_QA_and_gate_CIDs_absent": true,
+    "foreign13_CIDs_and_exact_states_unchanged": true,
+    "foreign_state_summary": [
+      {
+        "name": "/omnis-local-97f025cb282d41b89b15e853dfa23aaf-supervisor-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-local-97f025cb282d41b89b15e853dfa23aaf-api-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-local-97f025cb282d41b89b15e853dfa23aaf-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-local-ef1d4245b3a2430b8e5205959ae5c445-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-local-bc4dc709912d4f119cd271e70fcba384-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-p01-13af0cde3b7548df942e31382e7393dc-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/infallible_ride",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/omnis-p01-d8cd56bb-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/juice",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/bloodhound-bloodhound-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/bloodhound-graph-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/bloodhound-app-db-1",
+        "running": false,
+        "status": "exited"
+      },
+      {
+        "name": "/gifted_cohen",
+        "running": false,
+        "status": "exited"
+      }
+    ],
+    "warnings": [
+      "Background shell printed cannot change option:zle twice; canonical exit0 and result independently read back."
+    ],
+    "limit": "Local canonical gate only; no NQA protocol reclassification, all-crash/all-egress certification, B06/live/P0-P1 restart or push."
+  },
+  "cleanup": {
+    "nominal": {
+      "schema_version": 1,
+      "owner": "parent",
+      "scope": "Exact8 stopped QA runtime CIDs and one fresh PG only",
+      "product_head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+      "qa_report_sha256": "a712e5ca9793aee523156a5e3ebc658377d61416658c97aeaf110ed2e6ca2a6d",
+      "cleanup_locator_sha256": "e6431d41c54e83359a6602943820f4ec0cfe80109eaff6df117d4eec55d8de11",
+      "endpoint": "unix:///var/run/docker.sock",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "runtime_CIDs": [
+        "ff8db3d47e7fa1646fec80d9aa24b2bf72513488a1ddbbc5823eecb97e3919d0",
+        "407776e737d367e0adc45c26837336edab3488ee6a71a3861f4525b90e4d9167",
+        "59da3d0cdbb336a3ee59626180c08ebff89529ac3779246b8153b9bcde630e47",
+        "5f874b9c3aa3ac60baae552329737a81f4c9f8bfdca02ec5243e4307b77b9369",
+        "ff14b58d624e119947ab12cde6417056dc64b271ada6f0c4b7221500c34ddf2f",
+        "d55c87fc759bb9dd3e8ea5575037f48bad7e3db6b06cb9fb30de09d93461eebd",
+        "356672f9f1010374ba14722080f407830084dab16eb974966ed7e4462ff31fbc",
+        "b61bf8ebc9d19894f45501ec4e54575a4bc47b119c73d1b88c3ec4aaeb033dcc"
+      ],
+      "PG": {
+        "cid": "055e053df95844752e3c390c007b27daae67680c063579d69b5d6aec909d5609",
+        "name": "omnis-b05-slot-dfc549a-qa-db-df2672d5",
+        "nonce": "df2672d531b949199a4e71167d952fd2",
+        "project": "omnis-p01-b05-dfc549a-qa-df2672d531",
+        "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "system_identifier": "7693966469077270559",
+        "root": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/db"
+      },
+      "before": "All8 exact runtime mounts/user/argv/image/nonces/Pid0/exit0/IPC absent and observed families absent; stock attested PG snapshot lease released/admissionfalse; all13 foreign states unchanged",
+      "effects": "rm each exact stopped runtime without force; stock cleanup_owned exact fresh PG after runtime absence/no uncertainty",
+      "retained": "All case bytes/inodes/trees/receipts, PGDATA, DBs, images and original failed QA. No case moves/deletes, DROP/reset/prune, foreign/P0/P1 effects",
+      "inverse": "Git does not restore removed containers. Retained data/images permit separately authorized fixture reconstruction; no automatic restart/adoption",
+      "state_sha256": "f361f9b6dc49ca7e6df0128a5f3a72c0442d1b012106d4d79da69f8bc42ee3f2",
+      "data_identity": [
+        2049,
+        10409828
+      ],
+      "verdict": "PASS_EXACT_OWNED_CLEANUP",
+      "owned_all9_absent": true,
+      "owned_networks_and_PG_socket_absent": true,
+      "runtime_IPC_and_observed_processes_absent": true,
+      "all13_foreign_CIDs_states_unchanged": true,
+      "case_bytes_inodes_and_full_trees_unchanged": true,
+      "PGDATA_retained": true,
+      "PG_VERSION_path": "data/18/docker/PG_VERSION",
+      "uncertain": false,
+      "issues": [
+        {
+          "command": "parent-cleanup.py --execute",
+          "exit": 1,
+          "boundary": "post-effect PG_VERSION readback guessed data/PG_VERSION and failed; actual PG18 topology is data/18/docker/PG_VERSION",
+          "disposition": "Exact9 removals already completed and absent; subsequent READ_ONLY readback verified all properties and correct actual PG18 data. No effects replayed."
+        }
+      ]
+    },
+    "supplementary": {
+      "schema_version": 1,
+      "owner": "parent",
+      "scope": "Exact6 stopped focused NQA runtimes and one fresh PG only, separate physical retirement",
+      "product_head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+      "qa_report_sha256": "6186c9994eedfdf3cc11b312efe5e4220afecc955c74dbc2be3365890e201d60",
+      "locator_sha256": "594e14db60f27296e6564a9d6599e82b046bc470a6b5efe35e37a2f1d4aafbb6",
+      "endpoint": "unix:///var/run/docker.sock",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "runtime_CIDs": [
+        "1620a58dc36684b3ade017a359d5bd1b9d4c6a7997a08a247ec8658c023fbbf3",
+        "7e3c8a68bbf30df89c68316f77bc79245bbeddb8e5b3731ebe573bef615b6d3f",
+        "dfeccdd821e57b0ef2da3bdb4bf7a44cd648c0783f68014e8ea058f997f7b76c",
+        "2e89d02e1649397533772e052587e471248c199d68b53d6b6b5f41c8ec2e9898",
+        "6bb4ebfc943056029528f44557e1f6077df75e714fa54942166a2da032875a3f",
+        "1836407a7c8169cf65e6b5bb2daec79cb5cd0c685e81cf072146c16aa5d0c5ad"
+      ],
+      "PG": {
+        "cid": "5eb360ffdb8556f4167a607816cca7f1ae64dce72e9e380b04520d4f6215ce27",
+        "name": "omnis-b05-slot-dfc549a-nqa-db-c8d70098",
+        "nonce": "c8d70098be1c4075a717de9d63207b7c",
+        "project": "omnis-p01-b05-dfc549a-nqa-c8d70098be",
+        "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "system_identifier": "7693970971208044574",
+        "root": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/db"
+      },
+      "before": "All6 stopped/Pid0/exit0/mounts/nonces/image/user/CMD/observed processes and IPC absent; PG attested/no network/expired lease retained/admissionfalse; all13 foreign states unchanged",
+      "effects": "rm exact stopped6 runtime CIDs without force; then stock exact fresh PG cleanup_owned",
+      "retained": "All case bytes/inodes/trees, ACTIVE/COMMITTED RESTORE only, uncertainty/FAIL reports, expired lease, PGDATA/DBs/images and isolated bytecode-deviation artifact. No adoption/reconciliation/nominal success promoted",
+      "inverse": "Git does not recreate containers; retained data/images permit separately authorized reconstruction, no automatic restart/adoption",
+      "state_sha256": "57d09cf07ca1e7d2fa2ea27f66e4866b1b88adc988d3535dee4cd2359c9ce43f",
+      "data_identity": [
+        2049,
+        10412160
+      ],
+      "execution_protocol": "NOT_PASS_PROTOCOL_DEVIATION retained; bytecode artifact preserved unchanged",
+      "verdict": "PASS_EXACT_PHYSICAL_RETIREMENT_ONLY",
+      "all7_owned_CIDs_absent": true,
+      "owned_networks_and_PG_socket_absent": true,
+      "runtime_IPC_and_observed_processes_absent": true,
+      "all13_foreign_CIDs_states_unchanged": true,
+      "case_bytes_inodes_full_trees_unchanged": true,
+      "PGDATA_retained": true,
+      "scenario_uncertainty_and_protocol_FAIL_retained": true,
+      "unresolved_writer": false
+    },
+    "all17_owned_QA_and_gate_CIDs_absent": true,
+    "all13_foreign_CIDs_states_unchanged": true,
+    "synthetic_state_and_PGDATA_DBs_images_reports_retained": true,
+    "no_prune_drop_reset": true,
+    "not_reuse_or_release_authority": true
+  },
+  "original_native_state_finding": {
+    "id": "QA-B05-NATIVE-STATE-01",
+    "original_head": "6ad3a87ca92887d82bea45a562aaaf9acd5e2100",
+    "original_QA_verdict": "BLOCKED_NOT_PASS",
+    "original_Stop_exit": 3,
+    "original_scanner_error": "Unclassified case state",
+    "original_report_sha256": "eefcf2ce33950e74efc4186645d5687334535f69b507a54360e5c2e42073f7bc",
+    "repair_commit": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+    "disposition": "CLOSED_SCOPED by RED-to-GREEN finite policy, focused independent source review, actual fresh installed nominal A1-B1-A2 and canonical new snapshot; original failed tree/report not migrated/repaired/promoted"
+  },
+  "retained_evidence": {
+    "native_fix_review": {
+      "path": "/home/kali/.hermes/cache/scratch/b05-native-state-fix-review-dfc549a-01/review-final.json",
+      "sha256": "c75dbe700b46af5febfe927533cc30a85160e20c5647ee08c7ec3bee2d4bd4c1"
+    },
+    "nominal_installed_QA": {
+      "path": "/home/kali/.hermes/cache/scratch/b05qdfc/qa/report-final.json",
+      "sha256": "a712e5ca9793aee523156a5e3ebc658377d61416658c97aeaf110ed2e6ca2a6d"
+    },
+    "nominal_cleanup": {
+      "path": "/home/kali/.hermes/cache/scratch/b05qdfc/parent-cleanup.json",
+      "sha256": "0a89aa5b866a9ef79eb8d4c80a4f26f5312080232ce4dbf16e563b9b40705b9f"
+    },
+    "negative_handoff": {
+      "path": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/report-handoff.json",
+      "sha256": "6186c9994eedfdf3cc11b312efe5e4220afecc955c74dbc2be3365890e201d60"
+    },
+    "negative_cleanup": {
+      "path": "/home/kali/.hermes/cache/scratch/b05qdfc/nqa/parent-cleanup.json",
+      "sha256": "1003c5781414bb7c1ef0f36154623d55be613b983bfbe1eb1a96c95479270d9f"
+    },
+    "independent_adjudication": {
+      "path": "/home/kali/.hermes/cache/scratch/b05-parent-adjudication-dfc549a-01.json",
+      "sha256": "492734cfb37dbbf3fac92390e0a1269c106b7ec03c8b0b61888175723be68d6b"
+    },
+    "canonical_readback": {
+      "path": "/home/kali/.hermes/cache/scratch/b05fdfc/gate-readback.json",
+      "sha256": "3597b19eb5833a9d9ad0cd9f31c17369ee1d22e4fba7b60b377d127d98be5a57"
+    },
+    "historical_failed_installed_QA": {
+      "path": "/home/kali/.hermes/cache/scratch/b05q6ad/qa/report-final.json",
+      "sha256": "eefcf2ce33950e74efc4186645d5687334535f69b507a54360e5c2e42073f7bc"
+    }
+  },
+  "limits": [
+    "Native bootstrap registry observed REGISTERED_SNAPSHOT generation3 count3; plugins NOT_INITIALIZED/null is honest, not complete discovery. Registered does not mean enabled/effect-authorized/model-facing.",
+    "Lease expiry inside a running filesystem transition, actual physical crash producer and extra fresh-boot adoption challenge after actual failed close NOT_RUN in installed QA; source/PG/crash tests retain their separate evidence.",
+    "Native waitid exit cause NOT_OBSERVED; actual pidfd/proc/census drain channel recorded, no claim of all failure cuts or physical DB+FS atomicity.",
+    "Reverse/cancel/stdio/backpressure fixture results remain SIMULATION, not native model-session producer evidence; H03-H08 future child/model consumers remain outside this continuation.",
+    "No universal-zero-startup-I/O/syscall egress guarantee. No B06/Task/Brain/child/provider/model/target/budget/CI remote/push or P0-P1 rollout/restart.",
+    "P0/G00 and P1 historical scoped acceptance remain;13 foreign containers all stopped at readback, not claimed current READY. Protected untracked original HTML never read/copied/modified."
+  ],
+  "rollback": "Revert granular code commits only after dependency inspection and rerun affected gates. Git does not reverse PG/FS/container effects; retain journals/data/images, no automatic historical adoption or restart."
+}

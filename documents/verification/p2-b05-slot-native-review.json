@@ -1,0 +1,227 @@
+{
+  "head": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+  "base": "6ad3a87ca92887d82bea45a562aaaf9acd5e2100",
+  "file_sha256": {
+    "api/src/omnis/supervisor/case_slot.py": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+    "api/tests/test_case_slot.py": "14c4fe4a5cb0d4d195160aaf251055573f6e029103680151f28ba1403271b353",
+    "api/tests/fixtures/hermes-default-soul.txt": "36c1f5a2e92cd1d018311eaf4c8f1e8886672eae78212e033c681d0e3d5d506f",
+    "integrations/hermes/upstream/inert-state-policy.json": "bcbd8b2ce7ac69064da04ef37eb9961e4a06d19bce342706b99c9dfa17d87c6d"
+  },
+  "source_sha256": {
+    "hermes_state.py": "134fb1af988fd49407433cf54afa74f2188c93021fc4576bcf2c7174e787c2eb",
+    "hermes_state_repair.py": "7af22ad9aa7cf3823e768177c4d56d1827b53f7253d0549e0bd7e3195ff0b14e",
+    "hermes_logging.py": "19deccd2c8a71cf0c9cf94f9cc44021a5fb9e8f4dc29df4da30ea7605b9ab84a",
+    "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+    "hermes_cli/auth.py": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+    "hermes_cli/config_backups.py": "a923aeb156eac44b055ebc2cea458dfd4ee1dbfe7cf0694fd7a55da751b3f1aa",
+    "hermes_cli/default_soul.py": "b65192a631f0011fcef245c94d9741e0c716defe605d3edfd0e59f26da211d2d",
+    "hermes_state_dbfile.py": "317c4e5cbc7469259331f19e0a90f9081b729bbf70e97e81e7670ea6e630f7df",
+    "hermes_state_common.py": "e66bdefc2bb58ab1e750a5040245fb95b3176a277773f35c2d2bbb3ef789070c",
+    "hermes_state_schema.py": "8712aa97c222cdc2f1ec5ab8d2dadd01756117c43e1597dcfbe43c0645e30ef0"
+  },
+  "source_count": 11,
+  "source_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "source_checks": "All eleven actual copied source hashes match; AST default SOUL equals fixture; credential-free config exact digest; unchanged static inventory digest",
+  "original_qa_sha256": "eefcf2ce33950e74efc4186645d5687334535f69b507a54360e5c2e42073f7bc",
+  "adjudication_sha256": "6115a66bfb2d5f41c28f10ab14ff699df13d3ab8a7637a4c0f342971d5600d29",
+  "checks": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; from pathlib import Path; sys.path.insert(0, '/home/kali/OmnisAI/api/src'); from omnis.supervisor import case_slot; assert Path(case_slot.__file__).resolve() == Path('/home/kali/OmnisAI/api/src/omnis/supervisor/case_slot.py'); assert sys.version_info[:3] == (3,13,15); print('IMPORT_ATTESTED', case_slot.__file__, sys.version.split()[0]); import pytest; raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-c",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/b05-native-state-fix-review-dfc549a-01/pytest",
+        "--junitxml",
+        "/home/kali/.hermes/cache/scratch/b05-native-state-fix-review-dfc549a-01/pytest.xml",
+        "-q",
+        "/home/kali/OmnisAI/api/tests/test_case_slot.py",
+        "-k",
+        "not failed_final_authority_cannot_leave_an_adoptable_crash_commit"
+      ],
+      "exit_code": 0,
+      "stdout": "IMPORT_ATTESTED /home/kali/OmnisAI/api/src/omnis/supervisor/case_slot.py 3.13.15\n........................................................................ [ 91%]\n.......                                                                  [100%]\n79 passed, 3 deselected in 3.43s\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "/home/kali/OmnisAI/api/src/omnis/supervisor/case_slot.py",
+        "/home/kali/OmnisAI/api/tests/test_case_slot.py"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/b05-native-state-fix-review-dfc549a-01/mypy-cache",
+        "/home/kali/OmnisAI/api/src/omnis/supervisor/case_slot.py",
+        "/home/kali/OmnisAI/api/tests/test_case_slot.py"
+      ],
+      "exit_code": 0,
+      "stdout": "Success: no issues found in 2 source files\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "6ad3a87ca92887d82bea45a562aaaf9acd5e2100..HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "pytest_junit_counts": {
+    "tests": 79,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "same_bytes_after": true,
+  "end_status": {
+    "argv": [
+      "git",
+      "status",
+      "--short",
+      "--branch"
+    ],
+    "exit_code": 0,
+    "stdout": "## p04-control-topology-wip\n?? documents/Omnis_Notite_Originale.html\n",
+    "stderr": ""
+  },
+  "limits": [
+    "Filesystem-only test DB authority simulated; no PG/Docker/native runtime/service/network/model calls.",
+    "Three existing subprocess crash-cut tests deselected to keep checkout read-only and execution pure; their prior parent evidence is not independently rerun.",
+    "No installed acceptance or A-to-B-to-A certification; original installed QA remains BLOCKED_NOT_PASS.",
+    "Protected untracked document not opened/copied/modified; no credential payload or personal store inspected."
+  ],
+  "review_id": "QA-B05-NATIVE-STATE-01-FOCUSED-FIX-DFC549A",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Frozen exact four-file finite native-family fix and adjacent named regressions only. Not installed QA acceptance or whole B05.",
+  "findings": [],
+  "test_groups_observed": {
+    "test_new_native_families_refuse_unapproved_content_before_moves": 38,
+    "test_case_preflight_denials_have_zero_case_moves": 7,
+    "test_runtime_receipt_denials_have_zero_case_moves": 5,
+    "test_finite_budget_denial_precedes_case_moves": 3,
+    "test_native_policy_refuses_legacy_or_unbound_approval": 4
+  },
+  "deselected_count": 3,
+  "ast_invariance_check": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c \"import ast,subprocess,json; from pathlib import Path; p='api/src/omnis/supervisor/case_slot.py'; old=ast.parse(subprocess.check_output(['git','show','6ad3a87ca92887d82bea45a562aaaf9acd5e2100:'+p],text=True)); new=ast.parse(Path(p).read_text()); names=['Strict','Identity','Node','Move','Receipt','Journal','Budget','_info','_safe_name','_names','_dir','_read','_write','_rename','_file_identity','_tree','_worker']; out={name:ast.dump(next(n for n in old.body if getattr(n,'name',None)==name),include_attributes=False)==ast.dump(next(n for n in new.body if getattr(n,'name',None)==name),include_attributes=False) for name in names}; oldslot=next(n for n in old.body if getattr(n,'name',None)=='CaseSlot'); newslot=next(n for n in new.body if getattr(n,'name',None)=='CaseSlot'); out.update({'CaseSlot.'+n.name:ast.dump(n,include_attributes=False)==ast.dump(next(m for m in newslot.body if getattr(m,'name',None)==n.name),include_attributes=False) for n in oldslot.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name!='_scan'}); assert all(out.values()); print(json.dumps(out,sort_keys=True))\"",
+    "output": "{\"Budget\": true, \"CaseSlot.__init__\": true, \"CaseSlot._bound\": true, \"CaseSlot._commit\": true, \"CaseSlot._initialize\": true, \"CaseSlot._invalidate\": true, \"CaseSlot._moves\": true, \"CaseSlot._preflight\": true, \"CaseSlot._receipt\": true, \"CaseSlot._stage_receipts\": true, \"CaseSlot._status\": true, \"CaseSlot._transition\": true, \"CaseSlot._validate_roots\": true, \"CaseSlot.archive\": true, \"CaseSlot.archive_root\": true, \"CaseSlot.close\": true, \"CaseSlot.observe\": true, \"CaseSlot.prepare\": true, \"Identity\": true, \"Journal\": true, \"Move\": true, \"Node\": true, \"Receipt\": true, \"Strict\": true, \"_dir\": true, \"_file_identity\": true, \"_info\": true, \"_names\": true, \"_read\": true, \"_rename\": true, \"_safe_name\": true, \"_tree\": true, \"_worker\": true, \"_write\": true}",
+    "exit_code": 0,
+    "error": null
+  },
+  "original_finding_disposition": {
+    "id": "QA-B05-NATIVE-STATE-01",
+    "original_verdict": "BLOCKED_NOT_PASS",
+    "original_repro": "Pinned bootstrap/SessionDB children rejected by old classifier; stock Stop exit3 SUPERVISOR_UNAVAILABLE; ACTIVE with COMMITTED RESTORE, no ARCHIVE/release. Confirmed from original sanitized finding/diagnosis.",
+    "disposition": "REMEDIATED_SCOPED_IN_SOURCE_AND_FILESYSTEM_TESTS;not installed reacceptance",
+    "current_repro": "api/tests/test_case_slot.py:181-214 archives/restores entire nominal source-derived bundle through actual product CaseSlot with simulated DB authority;38 negatives test exact errors on both boundaries."
+  },
+  "requirement_code_evidence": [
+    {
+      "requirement": "Accept exact actual pinned nominal bootstrap/SessionDB new families on active and archive",
+      "code": "case_slot.py:38-60,468-530,654-678,698-742",
+      "source": "config.py:514-570,2288-2319; config_home.py:55-79; config_backups.py:22-65; hermes_state.py:644-667; dbfile.py:627-664; common.py:1196-1251; schema.py:1182-1249,701-746",
+      "evidence": "test_native_inert_bootstrap_bundle_archives_and_restores PASS; all11 source-copy hashes checked; AST literal DEFAULT_SOUL_MD equals667-byte fixture; old sessions/logs/cache/state.db remain classified",
+      "disposition": "PASS_SOURCE_AND_FILESYSTEM_ONLY"
+    },
+    {
+      "requirement": "Deny custom SOUL, populated seven native catalogs/caches, nonempty/wrong-type locks, arbitrary backup topology/reason/content/count",
+      "code": "case_slot.py:495-530,673-675; tests/test_case_slot.py:236-338",
+      "evidence": "38 matched active/archive negative scenarios PASS; exact intended error and unchanged case bytes/journal; closed backups/config *.good.timestamp, <=5 files, <=65536 bytes, config digest equality. Empty backups[/config] intentionally allowed by original adjudication.",
+      "disposition": "PASS_SCOPED"
+    },
+    {
+      "requirement": "Prevent arbitrary credential-bearing config approval followed by same-digest backup copies",
+      "code": "case_slot.py:94-95,520-527,583-592; inert-state-policy.json:50-53",
+      "evidence": "Tool-computed config literal d39892dc4a1e5be3e5abf10e824e7b10c9ee4a6dde3af1c43efc7b44f4c5f1a7 equals exactly b\"inert: true\\n\"; policy config-digest mutation and old changed-config preflight tests PASS. This is byte-fixed B05-only policy, not arbitrary approved YAML or secret detection.",
+      "disposition": "PASS_B05_ONLY"
+    },
+    {
+      "requirement": "Bind schema2/native pin/source11/separate manifest; keep static candidate inventory scope; refuse old policies and stale policy-bound receipts",
+      "code": "case_slot.py:84-131,606-652; inert-state-policy.json:1-57; tests/test_case_slot.py:341-373",
+      "evidence": "Actual eleven pinned source hashes exact; separate manifest SHA literal verified; static candidate SHA a2020b35cf5cee08d671c3421b81119b8fc7b1beaae4b39cc488eab4c1874cad unchanged; schema1/float2/manifest/config negatives PASS. Receipt/Journal schema1 AST unchanged. No migration/rewrite/adoption implemented.",
+      "disposition": "PASS_SCOPED"
+    },
+    {
+      "requirement": "Retain original unknown/auth/link/root/budget denials",
+      "code": "case_slot.py:276-359,410-492,570-604,654-678",
+      "evidence": "Original fallback auth/unknown support/unknown archive tests PASS;7 original symlink/hardlink/FIFO/unknown/config/root/occupied negatives PASS;3 finite budget negatives PASS. AST invariance proves generic traversal/type/UID/hardlink/no-follow/budget/root safety unchanged. New backup-auth scenarios also PASS on both boundaries.",
+      "disposition": "PASS_TARGETED;NOT_GLOBAL_NESTED_EXECUTABLE_CATALOG_CERTIFICATION"
+    },
+    {
+      "requirement": "Retain lease/drain/runtime fences/PREPARED refusals and actual consumer order",
+      "code": "case_slot.py:818-841,847-874; instance/service.py:71-128; supervisor/__main__.py:117-126",
+      "evidence": "5 runtime boot/epoch/generation/drain/inventory negatives PASS; guard-exit loss retains PREPARED/refuses new boot PASS; injected second rename retains partial data/PREPARED/refuses new boot PASS. All CaseSlot methods except scan AST unchanged; actual stock consumer drain precedes archive and release follows archive.",
+      "disposition": "PASS_FILESYSTEM_SIMULATED_AUTHORITY;LIVE_PG_LEASE_AND_PHYSICAL_DRAIN_NOT_RUN;3_EXISTING_SUBPROCESS_CRASH_TESTS_DESELECTED"
+    },
+    {
+      "requirement": "Do not transfer old QA/full make check to new bytes or close B05/G02",
+      "code": "tests/test_case_slot.py:1,87-95,181-182; inert-state-policy.json:55-56",
+      "evidence": "79 pure affected tests PASS,3 existing subprocess crash-cut tests deselected; source imported from current checkout API Python3.13.15 attested. Old QA SHA verified; its BLOCKED_NOT_PASS and nominal Stop exit3 remain historical. Parent reports broader91 but child independently executed79 only.",
+      "disposition": "INSTALLED_A_TO_B_TO_A_NOT_RUN;B05_PARTIAL_G02_OPEN;PARENT_OWNS_INTEGRATION"
+    }
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE(source/filesystem/process-only;not invoked)",
+    "Chisel": "BLOCKED_NO_GO(not invoked;native tools used)"
+  },
+  "files_modified": "No repository files, edits, commits or push. Only this fresh scratch directory: run_checks.py, checks.json, review-final.json, junit XML, disposable pytest/home/tmp/mypy-cache artifacts.",
+  "issues": [
+    "A guessed host.py source lookup failed; corrected to actual supervisor/__main__.py and read consumer.",
+    "read_file truncates a long single-line JUnit XML; first in-kernel parse failed, corrected with stdlib file XML parsing without rerunning tests. Neither affects product findings or counts."
+  ],
+  "status_projection": [
+    {
+      "slice": "AICI QA-B05-NATIVE-STATE-01 fix",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_PURE79",
+      "review": "APPROVED_SCOPED"
+    },
+    {
+      "slice": "B05 installed A-to-B-to-A/G02",
+      "code": "PARTIAL",
+      "proof": "NOT_RUN_ON_THIS_HEAD;OLD_QA_BLOCKED_NOT_PASS",
+      "review": "NOT_ACCEPTED_BY_THIS_REPORT"
+    },
+    {
+      "slice": "B06/remaining MVP",
+      "code": "NOT_STARTED_BY_THIS_TASK",
+      "proof": "NOT_RUN",
+      "review": "NO_GATE_PROMOTION"
+    }
+  ],
+  "parent_only_next": "Parent adjudicates/persists scoped fix review. Fresh installed nominal archive/restore/drain acceptance and canonical new-bytes gate remain separate. No tracked work closure by child."
+}

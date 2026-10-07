@@ -2,7 +2,7 @@
 
 ## Contractul continuării E-B05-03
 
-**ÎN LUCRU; implementare/QA NOT_RUN la înregistrarea contractului.** Continuă numai restul B05 autorizat, nu B06, Task/Attempt, Brain/copil, Settings, model/provider/țintă sau rollout P0/P1. Autoritate: arhitectură §5, plan §7/§19 și [registrul B05](p2-b05.md). [H02/authority](p2-b05-h02.md) și receipturile sale rămân istorice la bytes/probe declarate; nu transferăm gate-ul produsului `e5edb25` asupra acestei implementări noi.
+**Completarea slot/bootstrap E-B05-03: CLOSED_SCOPED numai pentru consumatorul inert instalat, pe produs `dfc549a`.** [Receiptul actual](p2-b05-slot-gate.json) păstrează QA nominală `PASS_SCOPED_WITH_NOT_RUN`, gate-ul canonic nou exit0/drained și dispoziția explicită a QA suplimentare `NOT_PASS_PROTOCOL_DEVIATION`. La înregistrarea contractului implementarea/QA erau NOT_RUN; contractul de mai jos este păstrat ca proveniență, nu o nouă sarcină. Întreg B05/G02 rămâne PARTIAL/OPEN. Fără B06, Task/Attempt, Brain/copil, Settings, model/provider/țintă sau rollout P0/P1. Autoritate: arhitectură §5, plan §7/§19 și [registrul B05](p2-b05.md). [H02/authority](p2-b05-h02.md) și receipturile sale rămân istorice la bytes/probe declarate; nu transferăm gate-ul produsului `e5edb25` asupra acestei implementări.
 
 Baza citită și verificată: `e27d1aaf2a80f432f9b0de7be7fc8280f10546c6`, branch `p04-control-topology-wip`, tracked clean. Singurul untracked este `documents/Omnis_Notite_Originale.html`, protejat/necitit. Arhitect read-only independent `deleg_7be3f807`: raport scratch `b05-continuation-e27d1aa-architect.md`, SHA256 `346f372bc78a90e7766d65d75d579d0d1e1bc82bf86351ebb0684e0d1118fedb`. Recomandarea este adjudecată mai jos ca frontieră de implementare, nu drept dovadă runtime. Nu lipsește o decizie nouă a operatorului.
 
@@ -86,3 +86,60 @@ Dev B nu modifică state inventory pentru ancore fără nevoie: policy Dev A ră
 Acest contract nu este implementare, review de cod sau probă live. Întreg B05/E-B05-03 rămâne PARTIAL/OPEN până la adjudecarea rezultatelor; G02-inert/live nu primește PASS dintr-un snapshot registry. H03–H08/binding/catalog B06, management refresh, syscall tracing universal, CI remote și rollout sunt excluse.
 
 Rollback cod: inspectează dependențele și `git revert` pentru commiturile noi, fără rescriere de istorie. Git nu inversează mutările FS/PG/procesele; orice fixture păstrează before/after și journalul, iar refuzul/uncertainty se raportează înainte de recovery manual. Commituri locale, push numai la cerere.
+
+## Rezultat executat și acceptare delimitată
+
+Părintele acceptă **numai completarea stock slot/bootstrap** pe `dfc549a16d59caf6981ccb1d91db748f80c6dbb1`: prepare/restore înainte de launch, engagement citit din PG, renew imediat, inventar emis de același nativ și, nominal, drain/STOPPED → archive/readback/COMMITTED → IPC close → release. Nu declară o execuție QA suplimentară conformă sau întreg B05/G02 închis. [Receiptul](p2-b05-slot-gate.json) separă aceste axe; [reviewul fixului nativ](p2-b05-slot-native-review.json) este copia exactă, nu un verdict nou.
+
+### Implementare, remedieri și review
+
+- `fde35ee`: producerul bootstrap și transportul strict; `09eed94`: consumatorul stock, guardul typed și slotul cu roots stabile. Predările A6/B10 au fost integrate byte-exact după reboot; fixture-ul comun lipsit de inventory a fost corectat după RED, fără schimbarea OPS/argv.
+- Două reviewuri complementare pe `09eed94` au cerut trei remedii independente: `7e9db40` conservă bugetul UTF-8 nativ; `72e1e39` refuză bool/float pentru schema version; `6ad3a87` păstrează PREPARED până după readback, verificarea finală și ieșirea guardului. RED-urile și regresiile au fost executate. Dispoziția independentă extinsă pe `6ad3a87` este APPROVED_SCOPED, SHA `28b87e3f9ebb5f5e0d98be5884a543f3db5cca463aeac750fa2c63d797eff2b3`,22 bindings; reviewul R1 focalizat a eșuat la furnizor `content_policy_blocked`, fără aprobare inferată.
+- Gate-ul anterior pe `6ad3a87` a trecut, dar QA instalată `deleg_eb696a8f` a găsit **QA-B05-NATIVE-STATE-01**: A1 Stop/archive exit3, `Unclassified case state`. Raportul SHA `eefcf2ce33950e74efc4186645d5687334535f69b507a54360e5c2e42073f7bc` rămâne **BLOCKED_NOT_PASS**; arborele real/receipturile nu au fost migrate, reparate ori reclasificate pentru a fabrica succes.
+- `dfc549a`: după scanner real RED și regresie RED, policy schema2 leagă manifestul separat și11 ancore native. Acceptă numai SOUL default pinuit, două locks regulate goale, maximum5 backupuri `config.yaml.good.<timestamp>` cu digestul configurației credential-free exacte `inert: true\n`, plus cele șapte directoare skeleton **empty-only**. Nu este allowlist de cataloage executabile sau configurație arbitrară; config/provider store rămân SHARED singulare. Policy1/stale digests refuzate, fără adoptare/migrare. Traversal/link/auth/root/budget/lease/drain/PREPARED rămân intacte.
+- Parent:91 teste afectate/Ruff/mypy exit0. Re-review independent `deleg_1d14d0f7`: **APPROVED_SCOPED**,79 pure PASS,3 crash-cut subprocess existente deselectate explicit; cele38 negative noi acoperă active și archive. SHA `c75dbe700b46af5febfe927533cc30a85160e20c5647ee08c7ec3bee2d4bd4c1`, toate4 fișiere și11 surse native verificate. Acest review nu certifica singur installed QA.
+
+### QA instalată nominală — rezultat real, nu markeri substituiți
+
+`deleg_e1cbc91d`, driver instalat `python -I -B .../b05qdfc/qa/installed-qa.py`, **exit0 / PASS_SCOPED_WITH_NOT_RUN**, raport SHA `a712e5ca9793aee523156a5e3ebc658377d61416658c97aeaf110ed2e6ca2a6d`. Wheel API SHA `15010ae640ead513e5caf48097438a8d18f6bc8b86e4dff6326faa9fd549209c`,42 module byte-bound; adaptor SHA `8ad49ba73ae46fce14618c40e30a98a5872b4af3256118fdda8dcd48e3bf6c42`; imagine nouă `sha256:0c2d1599d0f0fd720fa3c5197c782d91871625b24e6035f4303ecaed0d9ae5a4`, UID1000:1000, argv fix `-I`, fără rețea/root writable sau archive/control mounts.
+
+| Criteriu | Dovadă / rezultat | Limită |
+|---|---|---|
+| Stock A1→B1→A2 | Trei booturi distincte; supervisor instalat exit0/0/0; restore înainte launch și archive după drain; driverul nu mută starea | Un singur slot inert, date sintetice; nu run/Task |
+| SessionDB și starea A | Writer/reader din pin, exit0/0/0, joined; sesiune/message și derivate; receipt tree A1 archive exact egal cu A2 restored active, inclusiv directories/dev/inodes | Canaries auxiliare sunt sintetice; SessionDB nu este înlocuit cu SQLite/JSON marker |
+| Izolare B/A | B nu vede sesiunea A ori archive/control; A revine fără sesiunea B; mounts/inode-uri roots/provider/config stabile | Namespace/container propriu, nu protecție față de root/același UID ostil |
+| Inventar bootstrap efectiv | Aceeași observație READY→case receipt→STOPPED în toate3 booturile: registry `REGISTERED_SNAPSHOT`, generation3,count3 (`manage_catalog/setup`, `manage_connections/connections`, `todo_list/todo`); plugins `NOT_INITIALIZED`, câmpuri null | Registered ≠ enabled/model-facing/efect autorizat; fără discover/prewarm; nu inventar Brain/copil H08 |
+| Drain și release | pidfd readable, `/proc` absent/reaped și OCI census fără nativ; journal COMMITTED/ARCHIVE și lease released în fiecare pozitiv | waitid exit cause NOT_OBSERVED; nu toate crash cuts ori atomicitate DB+FS |
+| Șase denials instalate | missing case, wrong instance, unknown state, fallback auth, PREPARED journal, unclosed ACTIVE: exit3, IDLE fără launch și bytes/inode-uri neschimbate | ACTIVE injectat testează consumatorul, nu un crash producer real |
+
+### QA suplimentară — observații păstrate, protocol FAIL
+
+`deleg_111d04a0`, raport handoff SHA `6186c9994eedfdf3cc11b312efe5e4220afecc955c74dbc2be3365890e201d60`: verdictul execuției rămâne **NOT_PASS_PROTOCOL_DEVIATION**. Cele patru observații de produs sunt `PASS_SCOPED_WITH_LIMITS`, cu controale nominale exit0 și negative exit3:
+
+- Policy digest greșit și `slot.lock` ocupat efectiv refuză fără launch/move; policy corectă/holder eliberat și joined permit close COMMITTED.
+- Renewal suspendat → expirare reală PG → `owned_status` refuzat la close, înainte de `slot.archive`; ACTIVE/COMMITTED_RESTORE păstrate, fără ARCHIVE sau release fals. Nu certifică expirarea **în interiorul** unei tranziții FS începute.
+- PID1 runtime suspendat cu pidfd → drain reply indisponibil la close; supervisor exit3, fără ARCHIVE/release. `scenario_uncertain=true` rămâne; resumption/settlement ulterior sunt retragere fizică separată, nu close nominal.
+
+**NQA-ISOLATION-01:** importarea helperului anterior cu `-I`, fără `-B`, a creat `b05qdfc/qa/__pycache__/installed-qa.cpython-313.pyc` în afara `nqa` permis. `PYTHONDONTWRITEBYTECODE` nu protejează această invocare deoarece `-I` implică `-E`. Artefactul SHA `17e530f0768dd3034e8fa8981663c48313442fe949a47baf469e4785ae6b17cb` și FAIL sunt păstrate; nu ștergem fișierul și nu reluăm efectele pentru a ascunde abaterea. Scanul metadata nu este dovadă universală a absenței altor syscalls.
+
+Adjudecare read-only independentă `deleg_4f606d6c`, SHA `492734cfb37dbbf3fac92390e0a1269c106b7ec03c8b0b61888175723be68d6b`: observațiile hash-bound rămân utilizabile delimitat; abaterea de scope blochează un PASS contractual necalificat, nu falsifică automat toate comenzile de produs. **Dispoziția părintelui:** acceptă nominalul și păstrează strict aceste observații suplimentare cu FAIL atașat; nu certifică întreaga execuție QA suplimentară. Cele42 module/source/wheel și fixture-urile/runtime mounts nu au fost substituite. Două încercări de harness anterioare BLOCKED (settlement, apoi max6runtime) rămân în receipt, fără promovare.
+
+Prevenția a fost probată separat, în fixture sintetică: `python -I` + env-only creează pyc, `python -I -B` și `sys.dont_write_bytecode=True` înainte de import nu creează pyc; **3 controale, exit0, ad-hoc**, nu o nouă QA live sau schimbarea verdictului istoric. Expiry în interiorul FS, un crash producer fizic și încă un boot nou care adoptă starea unui close eșuat sunt NOT_RUN în aceste QA; probele source/PG/crash și denials de consumator rămân separate.
+
+### Gate canonic final și readback
+
+`proc_30c53ccef430`, pe HEAD înghețat `dfc549a`, a executat comanda reală, nu o țintă focalizată redenumită:
+
+```text
+env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u XDG_DATA_HOME -u UV_PYTHON_INSTALL_DIR -u UV_PYTHON -u UV_CACHE_DIR HOME=/home/kali/.hermes/cache/scratch/b05f6ad/home2 TMPDIR=/home/kali/.hermes/cache/scratch/b05fdfc PATH=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/bin:/usr/local/bin:/usr/bin:/bin make check UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/bin/uv
+```
+
+**Exit0, `{"schema_version":1,"code":0,"family_drained":true}`**:490 API,22 migrare,74 web unit,9 E2E browser/API/PG,134 Hermes runtime+6 AST;62 docs/42 development, CLI284+284,wheel API1,release61 și lint/type/build/contracte. Sunt rezultate per componentă, nu un total unic. Log SHA `a85cddcda404ec0fc861078543be4846e90720414edae48c8664a1f5187ab3b0`; warningurile shell `can't change option: zle` sunt păstrate, fără eroare de gate.
+
+Parent cleanup nominal:8 runtime+1 PG, apoi suplimentar:6 runtime+1 PG, apoi gate:1 PG. **Toate17 CIDs proprii absente**, rețele/socketuri/IPC proprii absente, all13 foreign CIDs/states neschimbate; state trees/bytes/inodes/PGDATA/DBs/imagini/receipturi păstrate. Cleanupul nominal a avut exit1 **după efectele retragerii**, la readbackul presupus `data/PG_VERSION`; readback READ_ONLY pe pathul real PG18 `data/18/docker/PG_VERSION` a trecut, fără replay al cleanupului. Cleanupul suplimentar exit0 păstrează lease-ul expirat, ACTIVE/COMMITTED_RESTORE și incertitudinea scenariului; nu acordă reuse.
+
+SHA cleanup nominal `0a89aa5b866a9ef79eb8d4c80a4f26f5312080232ce4dbf16e563b9b40705b9f`; suplimentar `1003c5781414bb7c1ef0f36154623d55be613b983bfbe1eb1a96c95479270d9f`. Cele13 containere străine sunt oprite la readback; P1/r1 nu a fost repornit/adoptat după reboot și **READY istoric nu este revendicat drept stare live actuală**. Fără secrete/loguri private brute în Git; raportul versionat păstrează comenzi, hashuri, scope și limite.
+
+### Predare și ce nu este închis
+
+**Rezultatul cerut stock slot/bootstrap există și este acceptat scoped.** Închidem numai acest perimetru al E-B05-03, nu întreg SL07/B05, P2 sau G02-inert/live; B06 nu a fost început și nu primește autorizare implicită. H03–H08/task/copil/model/dispatch, Settings, target effects, calificarea globală și CI remote rămân la felia/gate-ul lor. Nicio probă nouă universală de syscall/zero I/O nu este inventată pentru a amâna nominalul; limitele reale rămân explicit NOT_RUN.

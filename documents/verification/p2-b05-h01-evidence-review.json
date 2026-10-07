@@ -1,0 +1,915 @@
+{
+  "schema_version": 1,
+  "report_id": "H01-FINAL-INDEPENDENT-COMPLEMENTARY-EVIDENCE-SECURITY-55c3a5b",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Documentary/evidence integrity and security-bounded adjudication of exactly three committed H01 evidence files at HEAD55c3a5b plus the four frozen prospective status files in snapshot.json. Not live QA, product certification, broad audit, or final integration.",
+  "repository": "/home/kali/OmnisAI",
+  "head": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+  "branch": "p04-control-topology-wip",
+  "orientation_mode": "ORIENT_READ_ONLY",
+  "reviewed_evidence": [
+    {
+      "path": "documents/verification/p2-b05-h01.md",
+      "sha256": "d2b59530a5c447f4739904163b3db4280a0416a93c34141f9afe0d88ec97afc7",
+      "HEAD_sha256": "d2b59530a5c447f4739904163b3db4280a0416a93c34141f9afe0d88ec97afc7",
+      "exact_committed": true
+    },
+    {
+      "path": "documents/verification/p2-b05-h01-gate.json",
+      "sha256": "60af40ae6aecd6e1d6cb8cc7e420df7158edc6ac8cb220a33bd10389d8586e77",
+      "HEAD_sha256": "60af40ae6aecd6e1d6cb8cc7e420df7158edc6ac8cb220a33bd10389d8586e77",
+      "exact_committed": true
+    },
+    {
+      "path": "documents/verification/p2-b05-h01-q1-live.json",
+      "sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+      "HEAD_sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+      "exact_committed": true
+    }
+  ],
+  "proposal_snapshot": {
+    "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/snapshot.json",
+    "sha256": "131f10827478ddb65c68267a6b6ce87943a4963ea660631ff319f6032a23300a",
+    "base_head": "55c3a5b",
+    "files": [
+      {
+        "path": "README.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/README.md",
+        "sha256": "a4d5da6e14524ecdfaef46e894acb68413b460b10f4c1aa721385097c21f892c",
+        "expected_sha256": "a4d5da6e14524ecdfaef46e894acb68413b460b10f4c1aa721385097c21f892c",
+        "hash_match": true,
+        "repo_exact_HEAD": true,
+        "HEAD_sha256": "4744ee0fb178fad425de6f0257d45ee2da79ae2bd3b60e92427843b48e6d6a0f"
+      },
+      {
+        "path": "documents/verification/implementation-status.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/verification/implementation-status.md",
+        "sha256": "5b0083f3a3682f8a23719876c9f25518fbb91c9e9c6e139a72fba49e196eead5",
+        "expected_sha256": "5b0083f3a3682f8a23719876c9f25518fbb91c9e9c6e139a72fba49e196eead5",
+        "hash_match": true,
+        "repo_exact_HEAD": true,
+        "HEAD_sha256": "f76412f750b6fe9cf6eebeb453077c20e9b4aaeda286268443d14f97c8a030e1"
+      },
+      {
+        "path": "documents/verification/p2-b05.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/verification/p2-b05.md",
+        "sha256": "0dabdadd20fab0feff0ef34ff0543671c957897b3426a22f92f1ba88c488479a",
+        "expected_sha256": "0dabdadd20fab0feff0ef34ff0543671c957897b3426a22f92f1ba88c488479a",
+        "hash_match": true,
+        "repo_exact_HEAD": true,
+        "HEAD_sha256": "1c1fcee0e80e13ab3ea09518286b85cf12d80ed0f32e92ff2f6a5893c2a9cf03"
+      },
+      {
+        "path": "documents/Omnis_Implementation_Plan.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/Omnis_Implementation_Plan.md",
+        "sha256": "04229ea65630b4171aaea731f067321089250c55eb2aeb7e4482194d2edb6355",
+        "expected_sha256": "04229ea65630b4171aaea731f067321089250c55eb2aeb7e4482194d2edb6355",
+        "hash_match": true,
+        "repo_exact_HEAD": true,
+        "HEAD_sha256": "b4e92a0cd363886d41f2d4e8166f40a0dbd8f4c3a0eae73a5fe2b926ced5f955"
+      }
+    ],
+    "approved_exact_proposal_count": 4
+  },
+  "verifiable_report_and_artifact_hashes": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/qa/q1-v2-independent.json",
+      "relative_path": "qa/q1-v2-independent.json",
+      "sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+      "expected_sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/qa/q1-independent.json",
+      "relative_path": "qa/q1-independent.json",
+      "sha256": "2103657e83477933022610d193926b2e42d004a575f53d8e2dfcbb1b1603396d",
+      "expected_sha256": "2103657e83477933022610d193926b2e42d004a575f53d8e2dfcbb1b1603396d",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/q1-result.json",
+      "relative_path": "dev-b-v2/q1-result.json",
+      "sha256": "6baba9e1f0da90eeefe1846e713bdae21b106ddfba293ba4efcdd48e0f8f830d",
+      "expected_sha256": "6baba9e1f0da90eeefe1846e713bdae21b106ddfba293ba4efcdd48e0f8f830d",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/cleanup-locator.json",
+      "relative_path": "dev-b-v2/cleanup-locator.json",
+      "sha256": "a291f0a08032a44e29a3428146a2dd8e8fb29ed6ed7870fe90075d06bbce7b46",
+      "expected_sha256": "a291f0a08032a44e29a3428146a2dd8e8fb29ed6ed7870fe90075d06bbce7b46",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/r1-tmpfs-v2.json",
+      "relative_path": "evidence/r1-tmpfs-v2.json",
+      "sha256": "51db3df8d21c84adb2801b769a9aec49fb358730302e3163b314d54f360e8088",
+      "expected_sha256": "51db3df8d21c84adb2801b769a9aec49fb358730302e3163b314d54f360e8088",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/r2-tmpfs-v2.json",
+      "relative_path": "evidence/r2-tmpfs-v2.json",
+      "sha256": "80b0a31e0cf6d208fc31f64cb017b6567772797236086bcbcafc3227f14ecdb6",
+      "expected_sha256": "80b0a31e0cf6d208fc31f64cb017b6567772797236086bcbcafc3227f14ecdb6",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/q1-v2-pg-cleanup.json",
+      "relative_path": "evidence/q1-v2-pg-cleanup.json",
+      "sha256": "3a535f71e62fb825ea2c4ebcd6dbe17bba5d2f61ca3ce7b36171d1383d8cf792",
+      "expected_sha256": "3a535f71e62fb825ea2c4ebcd6dbe17bba5d2f61ca3ce7b36171d1383d8cf792",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/q2-parent-adjudication.json",
+      "relative_path": "evidence/q2-parent-adjudication.json",
+      "sha256": "64f08cab4615b1f581f1f4fec6811b27a31fced84678df26b152d780430d6c99",
+      "expected_sha256": "64f08cab4615b1f581f1f4fec6811b27a31fced84678df26b152d780430d6c99",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/q2-cleanup.json",
+      "relative_path": "evidence/q2-cleanup.json",
+      "sha256": "11115f3ccd858e72c1b8798c407f932da3e5da264f907df0161c1290ff606630",
+      "expected_sha256": "11115f3ccd858e72c1b8798c407f932da3e5da264f907df0161c1290ff606630",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/q1-idle-retirement.json",
+      "relative_path": "evidence/q1-idle-retirement.json",
+      "sha256": "28e709f4b93ae2a48d2c15d2408c151acb874c40cae9a5fae561e017709f8255",
+      "expected_sha256": "28e709f4b93ae2a48d2c15d2408c151acb874c40cae9a5fae561e017709f8255",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/qa/q2-independent.json",
+      "relative_path": "qa/q2-independent.json",
+      "sha256": "4d5546f73d3eedcaa3ed9b93ad75de3d6de9d213785858f7f4e6e2276a93aed9",
+      "expected_sha256": "4d5546f73d3eedcaa3ed9b93ad75de3d6de9d213785858f7f4e6e2276a93aed9",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-a/live/out/q2-q3.json",
+      "relative_path": "dev-a/live/out/q2-q3.json",
+      "sha256": "129347953756cd7529c75c1834cb73a2ab810e1dddc69f1645af23d940033da6",
+      "expected_sha256": "129347953756cd7529c75c1834cb73a2ab810e1dddc69f1645af23d940033da6",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/q1_driver.py",
+      "relative_path": "dev-b-v2/q1_driver.py",
+      "sha256": "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563",
+      "expected_sha256": "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/dev-b-v2/source-binding.json",
+      "relative_path": "dev-b-v2/source-binding.json",
+      "sha256": "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682",
+      "expected_sha256": "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/launch_q1_v2.py",
+      "relative_path": "ops/launch_q1_v2.py",
+      "sha256": "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b",
+      "expected_sha256": "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/prepare_q1_v2.py",
+      "relative_path": "ops/prepare_q1_v2.py",
+      "sha256": "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41",
+      "expected_sha256": "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41",
+      "hash_match": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/ops/test_q1_v2.py",
+      "relative_path": "ops/test_q1_v2.py",
+      "sha256": "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6",
+      "expected_sha256": "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6",
+      "hash_match": true
+    }
+  ],
+  "source_hashes_checked": [
+    {
+      "path": "api/src/omnis/__init__.py",
+      "sha256": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/api.py",
+      "sha256": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/db.py",
+      "sha256": "659e35e0bca47fcdf2faec2fef57e61ec82035394bc7c6ea0941c7ccea0f43b2",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/errors.py",
+      "sha256": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/paths.py",
+      "sha256": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/persistence.py",
+      "sha256": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/readiness.py",
+      "sha256": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/schema.py",
+      "sha256": "5124715ea327bf9501f796a31e797ebbc6ae402c5ea3ff2af4433287eb181c85",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/core/web_assets.py",
+      "sha256": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrate.py",
+      "sha256": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/__init__.py",
+      "sha256": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/env.py",
+      "sha256": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0001_instance_control.py",
+      "sha256": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0002_local_sessions.py",
+      "sha256": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0003_instance_lifecycle.py",
+      "sha256": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0004_pairing_receipts.py",
+      "sha256": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0005_stop_fence.py",
+      "sha256": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0006_stop_reconciliation.py",
+      "sha256": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0007_engagement_drafts.py",
+      "sha256": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0008_engagement_edit.py",
+      "sha256": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/engagements/dashboard.py",
+      "sha256": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/engagements/routes.py",
+      "sha256": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/engagements/schemas.py",
+      "sha256": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/engagements/service.py",
+      "sha256": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/domain.py",
+      "sha256": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/models.py",
+      "sha256": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/records.py",
+      "sha256": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "65102c2c11a68dbf98328068bd0adefb4a0d6ae187db20605ca1daa2e7c6869c",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "cc8d6f29eb0c6ac43eb81eec46640e8b231c50b8607a6e7e701f34d8d443a4ae",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/instance/stop_contract.py",
+      "sha256": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/owner.py",
+      "sha256": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/security/host_origin.py",
+      "sha256": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/security/routes.py",
+      "sha256": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/security/sessions.py",
+      "sha256": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/serve.py",
+      "sha256": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/stop_reconcile.py",
+      "sha256": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "c17e428fcc44c1ad83606585668c9781ee8a3de39cecb0a59838e3f5544ffb63",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/supervisor/case_slot.py",
+      "sha256": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "6ac353f1f84201e85da3adf2716083839ecf93bff66f423a401ca7d1973f0010",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/transport/control_probe.py",
+      "sha256": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "89dc03a344d273174adc41592769fefff1fffc56ae1d4b96d851268b03b903ff",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/src/omnis/worker.py",
+      "sha256": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1",
+      "matches_actual_source": true
+    },
+    {
+      "path": "api/uv.lock",
+      "sha256": "bcf5b32dff4aec2a917e36169f8d72fd16aabd9f14739c697e6d3fe15b07feed",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/pin.json",
+      "sha256": "4276dfe09d68dc13399da3524cbc3faa7a4328c7ab6a158d21703a392fc6fa75",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/__init__.py",
+      "sha256": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/private_paths.py",
+      "sha256": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "45808e04d9ee5c947597ea5b060dbf04a0b74c1cfe99e642244e30e3bc65eeeb",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "5eadb745d17f76da79b8e8bc80158d9a3f5127f250fad4669d93913e40948eaa",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/hermes_cli/env_loader.py",
+      "sha256": "2bb251025590b17ae13cc50dd8f6961ee5b20015791225355c0f2b0d3ce8da07",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tools/lazy_deps.py",
+      "sha256": "45b0ec8f8fb6d5f5041e25a890637b25de3d8c5c37dc83304f8cca84baa535a1",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+      "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/rpc_dispatch.py",
+      "sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+      "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+      "matches_actual_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/patch-manifest.json",
+      "sha256": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab",
+      "matches_actual_source": true
+    },
+    {
+      "path": "ops/run_test_db_gate.py",
+      "sha256": "29af7443eaa7290455688838b13c01f2fdbc042299678d22b394b7d8eefc13d4",
+      "matches_actual_source": true
+    }
+  ],
+  "unchanged_product": {
+    "baseline": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+    "compared_head": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+    "paths_count": 303,
+    "changed_paths": [],
+    "comparison": "git ls-tree -r on api/cli/web/integrations/hermes/ops/scripts/tests/Makefile; compare mode/type/blob IDs; actual focused source hashes separately checked",
+    "canonical_gate": "EXISTING_EVIDENCE_REUSED_NOT_RERUN"
+  },
+  "findings": [],
+  "blocking_findings": [],
+  "finding_schema_if_present": [
+    "id",
+    "severity",
+    "file",
+    "line",
+    "reproducer",
+    "violated_requirement",
+    "remedy"
+  ],
+  "checks": [
+    {
+      "id": "review_artifact_dev-b-v2/q1_driver.py",
+      "passed": true,
+      "details": {
+        "expected": "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563",
+        "R1_values": [
+          "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563"
+        ],
+        "R2": "411c244c1061c0d76128873ca6a9358cb1bf4481a7672d27427c355d212a0563"
+      }
+    },
+    {
+      "id": "review_artifact_dev-b-v2/source-binding.json",
+      "passed": true,
+      "details": {
+        "expected": "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682",
+        "R1_values": [
+          "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682"
+        ],
+        "R2": "27b91c991c5ebd24b9f420256576293a37ce53bce7bf8a852536b5a02900b682"
+      }
+    },
+    {
+      "id": "review_artifact_ops/launch_q1_v2.py",
+      "passed": true,
+      "details": {
+        "expected": "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b",
+        "R1_values": [
+          "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b"
+        ],
+        "R2": "4451499eda61ee8788944c4056d3a94ee1c2f79307468ab9d1bd930e17d77e0b"
+      }
+    },
+    {
+      "id": "review_artifact_ops/prepare_q1_v2.py",
+      "passed": true,
+      "details": {
+        "expected": "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41",
+        "R1_values": [
+          "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41"
+        ],
+        "R2": "992bad572b9ed7dadfa6c8c5a4f7ed4c677f1a900a36017a9ab83758a6217c41"
+      }
+    },
+    {
+      "id": "review_artifact_ops/test_q1_v2.py",
+      "passed": true,
+      "details": {
+        "expected": "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6",
+        "R1_values": [
+          "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6"
+        ],
+        "R2": "d1ec977b33c0155786855f89da8092c02e03b3e500691523041e7bfc2f2a98d6"
+      }
+    },
+    {
+      "id": "all_actual_hashes",
+      "passed": true,
+      "details": {
+        "report_artifacts": 17,
+        "source_files": 55,
+        "mismatches": []
+      }
+    },
+    {
+      "id": "QA_original_byte_exact",
+      "passed": true,
+      "details": {
+        "versioned_sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3"
+      }
+    },
+    {
+      "id": "original_FAIL_preserved",
+      "passed": true,
+      "details": {
+        "launch_exit": 2,
+        "product_Q1": "NOT_RUN"
+      }
+    },
+    {
+      "id": "Q1_adjudication",
+      "passed": true,
+      "details": [
+        {
+          "case": "positive",
+          "exact_consistent": true,
+          "expected_tuple": {
+            "exit": 0,
+            "stderr": "",
+            "stdout": "SUPERVISOR_READY\n"
+          },
+          "boot": "8fff687f-cf87-4112-919c-e8bf7c8f7997",
+          "fence": [
+            0,
+            1
+          ],
+          "sample_count": 8
+        },
+        {
+          "case": "native_eof",
+          "exact_consistent": true,
+          "expected_tuple": {
+            "exit": 3,
+            "stderr": "SUPERVISOR_UNAVAILABLE\n",
+            "stdout": "SUPERVISOR_READY\n"
+          },
+          "boot": "be53075d-10d8-415e-84e8-177a7b21f2a1",
+          "fence": [
+            0,
+            2
+          ],
+          "sample_count": 34
+        }
+      ]
+    },
+    {
+      "id": "cleanup_six_exact_effects",
+      "passed": true,
+      "details": {
+        "owned_ids": [
+          "9e1635ee818e1246ec343b1e53191b770c0f584374e5371e5b5fae8c6d81467f",
+          "cfc9870aefed9a82c471ae348c65b6c23d06bf2e3172bee0915f12e679d7a300",
+          "dd0a77bd7c959cf067c504578f4d0f36d32e002b5ac5d8870af098ab19e3f8de"
+        ],
+        "operation_count": 6
+      }
+    },
+    {
+      "id": "cleanup_PG_release",
+      "passed": true,
+      "details": {
+        "admission_open": false,
+        "epoch": 2,
+        "expires_at": null,
+        "generation": 0,
+        "owner": null,
+        "system_identifier": "7694014314355752990"
+      }
+    },
+    {
+      "id": "cleanup_native_state_and_foreign",
+      "passed": true,
+      "details": {
+        "native_state_hash_count": 4,
+        "foreign_count": 13,
+        "PGDATA_hashes_type": "dict",
+        "PGDATA_hash_count": 1618
+      }
+    },
+    {
+      "id": "PGDATA_count_manifest",
+      "passed": true,
+      "details": {
+        "sha256": "d95a0f342a17e72533f8e2841110580d904f069344b26333cfce6587092362a2",
+        "expected": "d95a0f342a17e72533f8e2841110580d904f069344b26333cfce6587092362a2",
+        "boundary": "AFTER_GRACEFUL_STOP_BEFORE_RM_VS_AFTER_RM; not compared to running mutable database"
+      }
+    },
+    {
+      "id": "Q2_exact_recorded_observations",
+      "passed": true,
+      "details": {
+        "deadline_count": 32,
+        "min_seconds": 0.802331945997139,
+        "max_seconds": 0.8025097620011366
+      }
+    },
+    {
+      "id": "Q2_uncertainty_preserved",
+      "passed": true,
+      "details": {
+        "differences": [
+          {
+            "after": null,
+            "before": false,
+            "path": "HostConfig.OomKillDisable"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bounded_proposal_hashes",
+      "passed": true,
+      "details": {
+        "proposal_count": 4
+      }
+    },
+    {
+      "id": "HEAD_and_repo_read_only",
+      "passed": true,
+      "details": {
+        "head": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+        "status": "## p04-control-topology-wip\n?? documents/Omnis_Notite_Originale.html\n"
+      }
+    }
+  ],
+  "checks_summary": {
+    "all_passed": true,
+    "ad_hoc_consistency_assertions": 17,
+    "product_tests_executed_by_this_reviewer": 0,
+    "new_runtime_or_native_launches": 0,
+    "source_files_hash_matched": 55,
+    "report_and_review_artifacts_hash_matched": 17
+  },
+  "documentary_assessments": [
+    {
+      "id": "EVIDENCE-Q1-BINDING",
+      "result": "APPROVED_SCOPED",
+      "references": [
+        "documents/verification/p2-b05-h01.md:73-81",
+        "documents/verification/p2-b05-h01-gate.json:31-166",
+        "documents/verification/p2-b05-h01-q1-live.json:360-423",
+        "documents/verification/p2-b05-h01-q1-live.json:516-529"
+      ],
+      "basis": "The versioned QA Q1v2 file is byte-exact with the original safe QA report, SHA25636d18b43...; old QA NOT_PASS/UNCERTAIN SHA2103657e... survives. All five current review artifact hashes agree in R1, R2, QA and gate; both review report hashes are current. The Q1 expected exit0 and exit3 tuples, process identities, same-boot fences(0,1)/(0,2), sample counts8/34, STOPPED/drain and PG epoch2 release remain mutually consistent with the unchanged driver report. Driver line389 executes the tuple predicate. Raw stdout/stderr are not independently persisted, and native EOF/handshake internals are source-bound rather than raw tracing."
+    },
+    {
+      "id": "QA-PROCEDURAL-VS-PRODUCT",
+      "result": "APPROVED_SCOPED_WITH_FAILURE_RETAINED",
+      "references": [
+        "documents/verification/p2-b05-h01.md:73-81",
+        "documents/verification/p2-b05-h01-gate.json:161-166",
+        "documents/verification/p2-b05-h01-q1-live.json:399-423"
+      ],
+      "basis": "Parent retains NOT_PASS_PROTOCOL_BUDGET_DEVIATION_RETAINED for self-declared8 terminal commands/budget7; available6 tool calls are a different denominator. Read-only errors and the R1 extra retrieval are retained. Product PASS_SCOPED is not a claim of contract-compliant QA. This reviewer did not read either QA transcript or log and did not invent a reconciliation."
+    },
+    {
+      "id": "SECURITY-INCIDENT-RETENTION",
+      "result": "APPROVED_SCOPED_WITH_INCIDENT_RETAINED",
+      "references": [
+        "documents/verification/p2-b05-h01.md:63-69",
+        "documents/verification/p2-b05-h01-gate.json:182-205",
+        "evidence/q1-idle-retirement.json"
+      ],
+      "basis": "The original capability disclosure remains an incident, not undone by replacement PASS. Safe retirement report records exact two old IDLE hosts retired externally, roots/data retained, transcript restricted to0600 and no PG teardown. No product STOPPED/drain/release credit is assigned to that retirement. Capability values, runtime.boot, passwordfiles, .env and private transcript contents were not opened by this reviewer."
+    },
+    {
+      "id": "Q2-NARROW-ADJUDICATION",
+      "result": "APPROVED_SCOPED_WITH_UNCERTAINTY_RETAINED",
+      "references": [
+        "documents/verification/p2-b05-h01.md:50-59",
+        "documents/verification/p2-b05-h01-gate.json:168-180",
+        "evidence/q2-parent-adjudication.json",
+        "qa/q2-independent.json"
+      ],
+      "basis": "Q2 retains original UNCERTAIN/OCI criterion FAIL and separately records only HostConfig.OomKillDisable false-to-null for cgroup2/Moby27.5.1. Parent source URL/hash/lines and positive1/negative2 controls remain in the safe report; no blanket HostConfig equivalence. Exact Q2 record has32 pending and32 finite deadline entries, refusal33 without ID/queued-byte change, CONT/recovery ping and Q3 actual stdin EOF/reap. This is not writer1MiB, stderr flood, stock supervisor, PG or watchdog coverage. Source body/daemon were not newly fetched or tested by this reviewer."
+    },
+    {
+      "id": "CLEANUP-EXACT-RETENTION",
+      "result": "APPROVED_SCOPED_RECORDED_EVIDENCE_ONLY",
+      "references": [
+        "documents/verification/p2-b05-h01.md:83-87",
+        "documents/verification/p2-b05-h01-gate.json:207-343",
+        "evidence/q1-v2-pg-cleanup.json",
+        "evidence/q2-cleanup.json",
+        "evidence/q1-idle-retirement.json"
+      ],
+      "basis": "The SHA3a535f71... original cleanup ledger and its six exact ACK_READBACK exit0 effects on only the two v2 hosts and owned PG match the committed projection. Four native state hashes and13 foreign IDs agree;1618 stopped PGDATA manifest entries reproduce digestd95a0f34... . PGDATA comparison is after graceful shutdown across rm, not against a running DB. Historical report hashes remain intact; images retained and noDDL/reset/retry/global cleanup authorized. Two old host retirements, Q2 removal and final three removals account for five historical runtime containers plus one PG, not six final cleanup operations on six containers. No current live service or retained state/transcript files were opened or mutated for this review."
+    },
+    {
+      "id": "STATUS-DELTA-ACCEPTANCE",
+      "result": "APPROVED_SCOPED_DOCUMENTARY",
+      "references": [
+        "README.md proposal:15,53",
+        "documents/verification/implementation-status.md proposal:22,60-61,97",
+        "documents/verification/p2-b05.md proposal:29,89",
+        "documents/Omnis_Implementation_Plan.md proposal:586,633"
+      ],
+      "basis": "Only bounded delta against the exact HEAD files was reviewed. All four byte hashes match snapshot.json. B05-inert closure is explicitly scoped to the accepted inert boundaries; full H01 native-producer breadth remains PARTIAL and G02-inert/live stay not closed. Reverse/cancel/malformed/write1MiB/stderr native NOT_RUN/SIMULATION remain explicit. Future B06a STATIC/PURE needs a fresh explicit mandate; no live admission, Task/Brain/copil/provider/target/profile/r1/P0/P1 action or push is authorized. No literal secret/capability value was observed in these reviewed changes; references to exposure remain without the exposed value. No uncertainty or known procedural failure was erased."
+    }
+  ],
+  "executed_commands": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat; git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "kind": "read_only_git_snapshot"
+    },
+    {
+      "command": "python3 -I -B -c 'import pathlib,json,hashlib,subprocess,difflib\nrepo=pathlib.Path('\"'\"'/home/kali/OmnisAI'\"'\"'); root=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/h01-amno7o6i'\"'\"')\ndef digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()\ndef git(*args): return subprocess.check_output(['\"'\"'git'\"'\"',*args],cwd=repo)\nhead=git('\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"').decode().strip(); expected='\"'\"'55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219'\"'\"'; assert head==expected\nscope=['\"'\"'documents/verification/p2-b05-h01.md'\"'\"','\"'\"'documents/verification/p2-b05-h01-gate.json'\"'\"','\"'\"'documents/verification/p2-b05-h01-q1-live.json'\"'\"']\nevidence=[{'\"'\"'path'\"'\"':p,'\"'\"'sha256'\"'\"':digest(repo/p),'\"'\"'HEAD_sha256'\"'\"':hashlib.sha256(git('\"'\"'show'\"'\"',head+'\"'\"':'\"'\"'+p)).hexdigest(),'\"'\"'exact_committed'\"'\"':(repo/p).read_bytes()==git('\"'\"'show'\"'\"',head+'\"'\"':'\"'\"'+p)} for p in scope]\ngate=json.loads((repo/scope[1]).read_text()); qa=json.loads((repo/scope[2]).read_text())\nproposals=[]; snap=json.loads((root/'\"'\"'evidence/status-proposal/snapshot.json'\"'\"').read_text()); assert len(snap['\"'\"'files'\"'\"'])==4\nfor f in snap['\"'\"'files'\"'\"']:\n    old=git('\"'\"'show'\"'\"',head+'\"'\"':'\"'\"'+f['\"'\"'path'\"'\"']).decode(); new=pathlib.Path(f['\"'\"'proposal'\"'\"']).read_text(); raw=pathlib.Path(f['\"'\"'proposal'\"'\"']).read_bytes()\n    proposals.append({'\"'\"'path'\"'\"':f['\"'\"'path'\"'\"'],'\"'\"'proposal'\"'\"':f['\"'\"'proposal'\"'\"'],'\"'\"'sha256'\"'\"':hashlib.sha256(raw).hexdigest(),'\"'\"'expected_sha256'\"'\"':f['\"'\"'sha256'\"'\"'],'\"'\"'hash_match'\"'\"':digest(pathlib.Path(f['\"'\"'proposal'\"'\"']))==f['\"'\"'sha256'\"'\"'],'\"'\"'repo_exact_HEAD'\"'\"':(repo/f['\"'\"'path'\"'\"']).read_bytes()==old.encode(),'\"'\"'HEAD_sha256'\"'\"':hashlib.sha256(old.encode()).hexdigest(),'\"'\"'delta'\"'\"':'\"'\"''\"'\"'.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile=f['\"'\"'path'\"'\"']+'\"'\"'@HEAD'\"'\"',tofile=f['\"'\"'path'\"'\"']+'\"'\"'@proposal'\"'\"',n=2))})\nknown={'\"'\"'qa/q1-v2-independent.json'\"'\"':gate['\"'\"'Q1_v2'\"'\"']['\"'\"'original_report_sha256'\"'\"'],'\"'\"'qa/q1-independent.json'\"'\"':gate['\"'\"'historical_failures'\"'\"'][0]['\"'\"'sha256'\"'\"'],'\"'\"'dev-b-v2/q1-result.json'\"'\"':gate['\"'\"'Q1_v2'\"'\"']['\"'\"'driver_report_sha256'\"'\"'],'\"'\"'dev-b-v2/cleanup-locator.json'\"'\"':gate['\"'\"'Q1_v2'\"'\"']['\"'\"'cleanup_locator_sha256'\"'\"'],'\"'\"'evidence/r1-tmpfs-v2.json'\"'\"':gate['\"'\"'focused_reviews'\"'\"'][0]['\"'\"'sha256'\"'\"'],'\"'\"'evidence/r2-tmpfs-v2.json'\"'\"':gate['\"'\"'focused_reviews'\"'\"'][1]['\"'\"'sha256'\"'\"'],'\"'\"'evidence/q1-v2-pg-cleanup.json'\"'\"':gate['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'original_ledger_sha256'\"'\"'],'\"'\"'evidence/q2-parent-adjudication.json'\"'\"':gate['\"'\"'Q2_Q3'\"'\"']['\"'\"'parent_adjudication_sha256'\"'\"'],'\"'\"'evidence/q2-cleanup.json'\"'\"':gate['\"'\"'Q2_Q3'\"'\"']['\"'\"'cleanup_sha256'\"'\"'],'\"'\"'evidence/q1-idle-retirement.json'\"'\"':gate['\"'\"'original_idle_host_retirement'\"'\"']['\"'\"'sha256'\"'\"'],'\"'\"'qa/q2-independent.json'\"'\"':gate['\"'\"'Q2_Q3'\"'\"']['\"'\"'QA_sha256'\"'\"'],'\"'\"'dev-a/live/out/q2-q3.json'\"'\"':gate['\"'\"'Q2_Q3'\"'\"']['\"'\"'native_receipt_sha256'\"'\"'],**gate['\"'\"'reviewed_artifact_hashes'\"'\"']}\nreports=[{'\"'\"'path'\"'\"':str(root/p),'\"'\"'relative_path'\"'\"':p,'\"'\"'sha256'\"'\"':digest(root/p),'\"'\"'expected_sha256'\"'\"':d,'\"'\"'hash_match'\"'\"':digest(root/p)==d} for p,d in known.items()]\nsource_checks=[{'\"'\"'path'\"'\"':p,'\"'\"'sha256'\"'\"':digest(repo/p),'\"'\"'expected_sha256'\"'\"':d,'\"'\"'hash_match'\"'\"':digest(repo/p)==d} for p,d in qa['\"'\"'snapshot'\"'\"']['\"'\"'product_source_hashes'\"'\"'].items()]\ndef tree(rev):\n    out={}\n    for row in git('\"'\"'ls-tree'\"'\"','\"'\"'-r'\"'\"',rev,'\"'\"'--'\"'\"','\"'\"'api'\"'\"','\"'\"'cli'\"'\"','\"'\"'web'\"'\"','\"'\"'integrations/hermes'\"'\"','\"'\"'ops'\"'\"','\"'\"'scripts'\"'\"','\"'\"'tests'\"'\"','\"'\"'Makefile'\"'\"').decode().splitlines():\n        meta,p=row.split('\"'\"'\\t'\"'\"');out[p]=meta\n    return out\nbefore=tree(gate['\"'\"'product_head'\"'\"']);after=tree(head);changed=[p for p in sorted(before.keys()|after.keys()) if before.get(p)!=after.get(p)]\nassert len(before)==303 and len(after)==303 and not changed\nprint(json.dumps({'\"'\"'head'\"'\"':head,'\"'\"'evidence'\"'\"':evidence,'\"'\"'snapshot_sha256'\"'\"':digest(root/'\"'\"'evidence/status-proposal/snapshot.json'\"'\"'),'\"'\"'proposals'\"'\"':proposals,'\"'\"'reports'\"'\"':reports,'\"'\"'QA_original_versioned_bytes_equal'\"'\"':(root/'\"'\"'qa/q1-v2-independent.json'\"'\"').read_bytes()==(repo/scope[2]).read_bytes(),'\"'\"'source_checks'\"'\"':source_checks,'\"'\"'source_count'\"'\"':len(source_checks),'\"'\"'product_paths_count'\"'\"':len(before),'\"'\"'product_changed'\"'\"':changed,'\"'\"'git_status'\"'\"':git('\"'\"'status'\"'\"','\"'\"'--short'\"'\"','\"'\"'--branch'\"'\"').decode()},ensure_ascii=False,indent=2))\n'",
+      "exit_code": 0,
+      "kind": "ad_hoc_hash_and_delta_check_not_product_tests",
+      "full_output_path": "/home/kali/.hermes/cache/terminal-output/out-1791405817-12974-a8b0.log"
+    },
+    {
+      "command_family": "python3 -I -B -c <parse saved terminal output with json.loads; one report-summary command and four single-proposal display commands>",
+      "executions": 5,
+      "exit_codes": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "kind": "failed_read_only_data_display",
+      "failure": "Saved terminal output contains a valid JSON prefix plus tool metadata; strict json.loads raised Extra data. No artifact mutation or checker/QA rerun."
+    },
+    {
+      "command": "python3 -I -B -c 'import json,pathlib\np=pathlib.Path('\"'\"'/home/kali/.hermes/cache/terminal-output/out-1791405817-12974-a8b0.log'\"'\"')\nh=json.JSONDecoder().raw_decode(p.read_text())[0]; root=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/h01-amno7o6i'\"'\"')\nr1=json.loads((root/'\"'\"'evidence/r1-tmpfs-v2.json'\"'\"').read_text()); cleanup=json.loads((root/'\"'\"'evidence/q1-v2-pg-cleanup.json'\"'\"').read_text())\nprint(json.dumps({'\"'\"'hashes'\"'\"':{k:v for k,v in h.items() if k not in ['\"'\"'source_checks'\"'\"','\"'\"'proposals'\"'\"']},'\"'\"'proposals'\"'\"':[{k:v for k,v in f.items() if k!='\"'\"'delta'\"'\"'} for f in h['\"'\"'proposals'\"'\"']],'\"'\"'source_count'\"'\"':len(h['\"'\"'source_checks'\"'\"']),'\"'\"'source_hash_matches'\"'\"':sum(f['\"'\"'hash_match'\"'\"'] for f in h['\"'\"'source_checks'\"'\"']),'\"'\"'r1_keys'\"'\"':list(r1),'\"'\"'r1'\"'\"':{k:v for k,v in r1.items() if k in ['\"'\"'report_id'\"'\"','\"'\"'verdict'\"'\"','\"'\"'snapshot_hashes'\"'\"','\"'\"'snapshot_sha256'\"'\"','\"'\"'reviewed_artifact_hashes'\"'\"','\"'\"'blocking_findings'\"'\"','\"'\"'findings'\"'\"','\"'\"'limits'\"'\"','\"'\"'issues_encountered'\"'\"']},'\"'\"'cleanup_keys'\"'\"':list(cleanup),'\"'\"'cleanup_compact'\"'\"':{k:v for k,v in cleanup.items() if len(json.dumps(v))<2500}},indent=2,ensure_ascii=False))\nprint('\"'\"'SOURCE_PREDICATE_SNIPPETS'\"'\"')\nlines=(root/'\"'\"'dev-b-v2/q1_driver.py'\"'\"').read_text().splitlines()\nfor n,line in enumerate(lines,1):\n    if any(x in line for x in ['\"'\"'SUPERVISOR_READY'\"'\"','\"'\"'SUPERVISOR_UNAVAILABLE'\"'\"','\"'\"'r.returncode'\"'\"','\"'\"'cp.returncode'\"'\"','\"'\"'got!='\"'\"','\"'\"'tuple'\"'\"','\"'\"'sample'\"'\"','\"'\"'stopped['\"'\"','\"'\"'STOPPED'\"'\"','\"'\"'epoch'\"'\"']):\n        if n>330 and n<456: print(str(n)+'\"'\"':'\"'\"'+line)\n'",
+      "exit_code": 0,
+      "kind": "read_only_raw_decode_json_prefix_and_safe_report_summaries"
+    },
+    {
+      "command_family": "python3 -I -B -c <JSONDecoder.raw_decode(saved-output)[0], print one stored diff>",
+      "paths": [
+        "README.md",
+        "documents/verification/implementation-status.md",
+        "documents/verification/p2-b05.md",
+        "documents/Omnis_Implementation_Plan.md"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "kind": "read_only_proposal_delta_display"
+    },
+    {
+      "command": "python3 -I -B -c 'import pathlib,json,hashlib,re,subprocess\nroot=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/h01-amno7o6i'\"'\"');repo=pathlib.Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nh=json.JSONDecoder().raw_decode(pathlib.Path('\"'\"'/home/kali/.hermes/cache/terminal-output/out-1791405817-12974-a8b0.log'\"'\"').read_text())[0]\nr1=json.loads((root/'\"'\"'evidence/r1-tmpfs-v2.json'\"'\"').read_text());r2=json.loads((root/'\"'\"'evidence/r2-tmpfs-v2.json'\"'\"').read_text());c=json.loads((root/'\"'\"'evidence/q1-v2-pg-cleanup.json'\"'\"').read_text());g=json.loads((repo/'\"'\"'documents/verification/p2-b05-h01-gate.json'\"'\"').read_text());q=json.loads((root/'\"'\"'qa/q1-v2-independent.json'\"'\"').read_text());d=json.loads((root/'\"'\"'dev-b-v2/q1-result.json'\"'\"').read_text());old=json.loads((root/'\"'\"'qa/q1-independent.json'\"'\"').read_text());q2=json.loads((root/'\"'\"'dev-a/live/out/q2-q3.json'\"'\"').read_text());q2qa=json.loads((root/'\"'\"'qa/q2-independent.json'\"'\"').read_text())\nchecks=[]\ndef check(id,condition,details):\n    checks.append({'\"'\"'id'\"'\"':id,'\"'\"'passed'\"'\"':bool(condition),'\"'\"'details'\"'\"':details})\ndef strings_at_key(x,key):\n    out=[]\n    if isinstance(x,dict):\n        for k,v in x.items():\n            if k==key and isinstance(v,str):out.append(v)\n            out.extend(strings_at_key(v,key))\n    elif isinstance(x,list):\n        for v in x:out.extend(strings_at_key(v,key))\n    return out\nfor name,sha in g['\"'\"'reviewed_artifact_hashes'\"'\"'].items():\n    check('\"'\"'review_artifact_'\"'\"'+name,sha in strings_at_key(r1['\"'\"'reviewed_hashes'\"'\"'],name) and r2['\"'\"'snapshot_sha256'\"'\"'][name]==sha,{'\"'\"'expected'\"'\"':sha,'\"'\"'R1_values'\"'\"':strings_at_key(r1['\"'\"'reviewed_hashes'\"'\"'],name),'\"'\"'R2'\"'\"':r2['\"'\"'snapshot_sha256'\"'\"'][name]})\ncheck('\"'\"'all_actual_hashes'\"'\"',all(x['\"'\"'hash_match'\"'\"'] for x in h['\"'\"'reports'\"'\"']) and all(x['\"'\"'hash_match'\"'\"'] for x in h['\"'\"'source_checks'\"'\"']),{'\"'\"'report_artifacts'\"'\"':len(h['\"'\"'reports'\"'\"']),'\"'\"'source_files'\"'\"':len(h['\"'\"'source_checks'\"'\"']),'\"'\"'mismatches'\"'\"':[x for x in h['\"'\"'reports'\"'\"']+h['\"'\"'source_checks'\"'\"'] if not x['\"'\"'hash_match'\"'\"']]})\ncheck('\"'\"'QA_original_byte_exact'\"'\"',h['\"'\"'QA_original_versioned_bytes_equal'\"'\"'],{'\"'\"'versioned_sha256'\"'\"':g['\"'\"'Q1_v2'\"'\"']['\"'\"'original_report_sha256'\"'\"']})\ncheck('\"'\"'original_FAIL_preserved'\"'\"',old['\"'\"'verdict'\"'\"']=='\"'\"'NOT_PASS'\"'\"' and old['\"'\"'uncertain'\"'\"'] is True and old['\"'\"'process_settlement'\"'\"']['\"'\"'native_started_by_Q1_count'\"'\"']==0 and old['\"'\"'process_settlement'\"'\"']['\"'\"'supervisor_started_count'\"'\"']==0,{'\"'\"'launch_exit'\"'\"':old['\"'\"'launch'\"'\"']['\"'\"'exit_code'\"'\"'],'\"'\"'product_Q1'\"'\"':old['\"'\"'product_Q1'\"'\"']})\nq1=[]\nfor observed,adjudicated,driver in zip(q['\"'\"'cases'\"'\"'],g['\"'\"'Q1_v2'\"'\"']['\"'\"'cases'\"'\"'],d['\"'\"'cases'\"'\"'],strict=True):\n    pred=(observed['\"'\"'expected_tuple'\"'\"']==adjudicated['\"'\"'expected_tuple'\"'\"'] and observed['\"'\"'supervisor'\"'\"']==adjudicated['\"'\"'supervisor'\"'\"'] and observed['\"'\"'native'\"'\"']==adjudicated['\"'\"'native'\"'\"'] and observed['\"'\"'stopped'\"'\"']['\"'\"'boot'\"'\"']==adjudicated['\"'\"'boot'\"'\"'] and [observed['\"'\"'stopped'\"'\"']['\"'\"'generation'\"'\"'],observed['\"'\"'stopped'\"'\"']['\"'\"'epoch'\"'\"']]==adjudicated['\"'\"'fence'\"'\"'] and observed['\"'\"'stopped'\"'\"']['\"'\"'drained'\"'\"'] is True and observed['\"'\"'final'\"'\"']==driver['\"'\"'final'\"'\"'] and driver['\"'\"'verdict'\"'\"']=='\"'\"'PASS_SCOPED'\"'\"' and observed['\"'\"'supervisor_exit'\"'\"']==driver['\"'\"'supervisor_exit'\"'\"'])\n    q1.append({'\"'\"'case'\"'\"':observed['\"'\"'case'\"'\"'],'\"'\"'exact_consistent'\"'\"':pred,'\"'\"'expected_tuple'\"'\"':observed['\"'\"'expected_tuple'\"'\"'],'\"'\"'boot'\"'\"':adjudicated['\"'\"'boot'\"'\"'],'\"'\"'fence'\"'\"':adjudicated['\"'\"'fence'\"'\"'],'\"'\"'sample_count'\"'\"':observed['\"'\"'sample_count'\"'\"']})\ncheck('\"'\"'Q1_adjudication'\"'\"',len(q1)==2 and all(x['\"'\"'exact_consistent'\"'\"'] for x in q1),q1)\ncheck('\"'\"'cleanup_six_exact_effects'\"'\"',c['\"'\"'effects'\"'\"']==g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'effects'\"'\"'] and len(c['\"'\"'owned_ids'\"'\"'])==3 and len(c['\"'\"'effects'\"'\"'])==6 and all(x['\"'\"'exit_code'\"'\"']==0 and x['\"'\"'status'\"'\"']=='\"'\"'ACK_READBACK'\"'\"' for x in c['\"'\"'effects'\"'\"']),{'\"'\"'owned_ids'\"'\"':c['\"'\"'owned_ids'\"'\"'],'\"'\"'operation_count'\"'\"':len(c['\"'\"'effects'\"'\"'])})\ncheck('\"'\"'cleanup_PG_release'\"'\"',c['\"'\"'PG_release'\"'\"']==g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'PG_release_before_stop'\"'\"'],c['\"'\"'PG_release'\"'\"'])\ncheck('\"'\"'cleanup_native_state_and_foreign'\"'\"',c['\"'\"'runtimes'\"'\"']==g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'runtimes'\"'\"'] and sum(len(x['\"'\"'state_hashes'\"'\"']) for x in c['\"'\"'runtimes'\"'\"'])==4 and c['\"'\"'foreign_ids'\"'\"']==g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'foreign_ids'\"'\"'] and len(c['\"'\"'foreign_ids'\"'\"'])==13 and c['\"'\"'foreign_unchanged'\"'\"'] is True and c['\"'\"'historical_reports_unchanged'\"'\"'] is True,{'\"'\"'native_state_hash_count'\"'\"':sum(len(x['\"'\"'state_hashes'\"'\"']) for x in c['\"'\"'runtimes'\"'\"']),'\"'\"'foreign_count'\"'\"':len(c['\"'\"'foreign_ids'\"'\"']),'\"'\"'PGDATA_hashes_type'\"'\"':type(c['\"'\"'PGDATA_stopped_hashes'\"'\"']).__name__,'\"'\"'PGDATA_hash_count'\"'\"':len(c['\"'\"'PGDATA_stopped_hashes'\"'\"'])})\npg_digest=hashlib.sha256(json.dumps(c['\"'\"'PGDATA_stopped_hashes'\"'\"'],sort_keys=True).encode()).hexdigest()\ncheck('\"'\"'PGDATA_count_manifest'\"'\"',len(c['\"'\"'PGDATA_stopped_hashes'\"'\"'])==1618 and pg_digest==g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'PGDATA_stopped_hash_manifest_sha256'\"'\"'],{'\"'\"'sha256'\"'\"':pg_digest,'\"'\"'expected'\"'\"':g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'PGDATA_stopped_hash_manifest_sha256'\"'\"'],'\"'\"'boundary'\"'\"':g['\"'\"'parent_final_cleanup'\"'\"']['\"'\"'PGDATA_compare_boundary'\"'\"']})\ncheck('\"'\"'Q2_exact_recorded_observations'\"'\"',len(q2['\"'\"'q2'\"'\"']['\"'\"'calls'\"'\"'])==32 and q2['\"'\"'q2'\"'\"']['\"'\"'pending_count'\"'\"']==32 and q2['\"'\"'q2'\"'\"']['\"'\"'refusal'\"'\"']['\"'\"'diagnostic'\"'\"']=='\"'\"'Pending limit'\"'\"' and q2['\"'\"'q2'\"'\"']['\"'\"'refusal'\"'\"']['\"'\"'next_id_before'\"'\"']==q2['\"'\"'q2'\"'\"']['\"'\"'refusal'\"'\"']['\"'\"'next_id_after'\"'\"'] and q2['\"'\"'q2'\"'\"']['\"'\"'refusal'\"'\"']['\"'\"'queued_bytes_before'\"'\"']==q2['\"'\"'q2'\"'\"']['\"'\"'refusal'\"'\"']['\"'\"'queued_bytes_after'\"'\"'] and q2['\"'\"'q2'\"'\"']['\"'\"'continue_sent'\"'\"'] is True and q2['\"'\"'q2'\"'\"']['\"'\"'recovery_ping'\"'\"']=={'\"'\"'pong'\"'\"':True} and q2['\"'\"'q3'\"'\"']['\"'\"'stdin_closed'\"'\"'] is True and q2['\"'\"'q3'\"'\"']['\"'\"'native_returncode'\"'\"']==0,{'\"'\"'deadline_count'\"'\"':len(q2['\"'\"'q2'\"'\"']['\"'\"'calls'\"'\"']),'\"'\"'min_seconds'\"'\"':min(x['\"'\"'elapsed_s'\"'\"'] for x in q2['\"'\"'q2'\"'\"']['\"'\"'calls'\"'\"']),'\"'\"'max_seconds'\"'\"':max(x['\"'\"'elapsed_s'\"'\"'] for x in q2['\"'\"'q2'\"'\"']['\"'\"'calls'\"'\"'])})\ncheck('\"'\"'Q2_uncertainty_preserved'\"'\"',q2qa['\"'\"'verdict'\"'\"']=='\"'\"'UNCERTAIN'\"'\"' and q2qa['\"'\"'uncertain'\"'\"'] is True and q2qa['\"'\"'criteria'\"'\"']['\"'\"'container_stopped_identity_configuration_bound'\"'\"']['\"'\"'status'\"'\"']=='\"'\"'FAIL'\"'\"',{'\"'\"'differences'\"'\"':q2qa['\"'\"'criteria'\"'\"']['\"'\"'container_stopped_identity_configuration_bound'\"'\"']['\"'\"'evidence'\"'\"']['\"'\"'identity_config_differences'\"'\"']})\ncheck('\"'\"'bounded_proposal_hashes'\"'\"',len(h['\"'\"'proposals'\"'\"'])==4 and all(x['\"'\"'hash_match'\"'\"'] and x['\"'\"'repo_exact_HEAD'\"'\"'] for x in h['\"'\"'proposals'\"'\"']),{'\"'\"'proposal_count'\"'\"':len(h['\"'\"'proposals'\"'\"'])})\nhead=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],cwd=repo,text=True).strip(); status=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'status'\"'\"','\"'\"'--short'\"'\"','\"'\"'--branch'\"'\"'],cwd=repo,text=True)\ncheck('\"'\"'HEAD_and_repo_read_only'\"'\"',head==h['\"'\"'head'\"'\"'] and status==h['\"'\"'git_status'\"'\"'],{'\"'\"'head'\"'\"':head,'\"'\"'status'\"'\"':status})\nprint(json.dumps({'\"'\"'checks'\"'\"':checks,'\"'\"'all_passed'\"'\"':all(x['\"'\"'passed'\"'\"'] for x in checks),'\"'\"'test_count'\"'\"':0,'\"'\"'ad_hoc_consistency_check_count'\"'\"':len(checks),'\"'\"'source_predicate_excerpt'\"'\"': '\"'\"'\\n'\"'\"'.join(str(i+1)+'\"'\"':'\"'\"'+line for i,line in enumerate((root/'\"'\"'dev-b-v2/q1_driver.py'\"'\"').read_text().splitlines()) if 120<=i+1<=145),'\"'\"'proposal_README_added'\"'\"': '\"'\"'\\n'\"'\"'.join(x for x in h['\"'\"'proposals'\"'\"'][0]['\"'\"'delta'\"'\"'].splitlines() if x.startswith('\"'\"'+'\"'\"') and not x.startswith('\"'\"'+++'\"'\"'))},ensure_ascii=False,indent=2))\nraise SystemExit(0 if all(x['\"'\"'passed'\"'\"'] for x in checks) else 1)\n'",
+      "exit_code": 0,
+      "kind": "ad_hoc_record_consistency_assertions_not_product_tests",
+      "assertions": 17,
+      "product_test_count": 0
+    }
+  ],
+  "issues_encountered": [
+    "Initial batch read display exceeded the inline output budget; the already-read MD/gate content was redisplayed without repeating execution.",
+    "The actual hash command exited0; the surrounding execute_code cell then exited1 because terminal capture was truncated inside a JSON string. Hashes were recovered from the saved complete output, not by rerunning the hash checker.",
+    "read_file line/payload capture could not parse the long R1 JSON line and the >100K cleanup ledger; the original bytes are valid JSON and were parsed read-only in Python -I -B with bounded summaries.",
+    "Five read-only saved-output display commands exited1 due to Extra data from trailing tool metadata. The corrected JSON-prefix decoder returned existing results. These are reviewer data-display failures, not product failures and not suppressed.",
+    "No blocking evidence/security finding found within the exact declared boundary. This is not a claim that all broader gaps are absent."
+  ],
+  "allowed_acceptance": {
+    "verdict": "APPROVED_SCOPED_DOCUMENTARY_EVIDENCE_ONLY",
+    "applies_only_to": "Three committed evidence files listed by hash at55c3a5b and the four prospective replacements listed by snapshot SHA256131f1082... . Approval does not transfer to edited bytes.",
+    "parent_may": "Apply only those approved exact four proposal bytes, regenerate normative HTML, and execute the documentation checks after the last edit; separately adjudicate integration and commit.",
+    "child_did_not": "Apply proposals, edit repository, regenerate HTML, close integration, commit, push, or authorize future execution."
+  },
+  "not_run": {
+    "documentation_on_proposal": "NOT_RUN_BY_THIS_REVIEWER; parent must run python scripts/render_docs.py --check and python -m unittest discover -s tests/documentation -v after applying/regenerating final bytes",
+    "product_canonical_suite": "NOT_RERUN_UNCHANGED_PRODUCT",
+    "live_Q1_Q2_Q3": "NOT_RELAUNCHED",
+    "live_cleanup_or_service_inspection": "NOT_RUN_BY_THIS_REVIEWER; safe parent readback reports reviewed only",
+    "native_reverse_cancel_malformed_writer1MiB_stderr": "NOT_RUN_NATIVE; retained SIMULATION where recorded",
+    "all_crash_cuts_and_universal_IO_absence": "NOT_PROVEN",
+    "integration_closure": "PARENT_ONLY_PENDING"
+  },
+  "tool_applicability": {
+    "Reticle": {
+      "status": "NOT_APPLICABLE",
+      "scope": "documentary/process/CLI evidence; no admitted instrumented UI",
+      "command": null,
+      "invoked": false,
+      "limit": "No UI runtime or visual approval"
+    },
+    "Chisel": {
+      "status": "BLOCKED_NO_GO",
+      "scope": "repository/home/runtime profile",
+      "command": null,
+      "invoked": false,
+      "limit": "Native read tools used; no reevaluation or installation authorized"
+    }
+  },
+  "limits": [
+    "Read-only exact evidence/security review, not a broad source audit, hostile same-UID/root sandbox proof, secret-scanner certification, or new live result.",
+    "Hash checking and17 record assertions are ad-hoc integrity checks, not17 product tests. Previously recorded product gates are not freshly re-executed.",
+    "Raw Q1 streams are not separately persisted; tuple predicate credit is source-bound to the frozen driver and recorded PASS. Drain-before-release is supported only in observed samples.",
+    "Current Docker/PG/retained-state state was not read directly. Cleanup conclusions are snapshot-bound to the exact safe parent ledgers and committed adjudication.",
+    "Original FAIL/UNCERTAIN/capability incident and protocol deviations remain; later scoped PASS does not reverse exposure or grant contract-compliant QA.",
+    "Protected untracked documents/Omnis_Notite_Originale.html was not read/copied/modified. Private files/transcripts/capabilities not read.",
+    "No write except this owned report; no repo/service/profile/skill edits. No B06, Task/Brain/copil/model/provider/target/r1/P0/P1 restart/cleanup global/push.",
+    "Parent must rebind any changed snapshot and run post-last-edit documentation checks; this child does not declare final integration complete."
+  ],
+  "status_matrix": [
+    {
+      "slice": "P0/G00",
+      "code": "IMPLEMENTED_LOCAL",
+      "proof": "HISTORICAL_PASS_SCOPED",
+      "review": "NOT_REOPENED",
+      "next": "No action in this review"
+    },
+    {
+      "slice": "P1/G01",
+      "code": "IMPLEMENTED_LOCAL",
+      "proof": "HISTORICAL_PASS_SCOPED",
+      "review": "NOT_REOPENED",
+      "next": "r1 stays stopped, no adoption/restart"
+    },
+    {
+      "slice": "AICI SL07/B05-inert documentary closure",
+      "code": "UNCHANGED_IMPLEMENTED",
+      "proof": "RECORDED_PASS_SCOPED; protocol failures retained",
+      "review": "APPROVED_SCOPED_ON_EXACT_BYTES",
+      "next": "Parent integrates four proposals + HTML/docs checks"
+    },
+    {
+      "slice": "H01 full native breadth / G02",
+      "code": "PARTIAL",
+      "proof": "NATIVE_GAPS_NOT_RUN; SIMULATION_RETAINED",
+      "review": "NOT_CERTIFIED_COMPLETE",
+      "next": "Qualify at admitted consumer boundary"
+    },
+    {
+      "slice": "SL08/B06a",
+      "code": "NOT_IMPLEMENTED",
+      "proof": "NOT_RUN",
+      "review": "NOT_REVIEWED",
+      "next": "Fresh explicit STATIC/PURE mandate only"
+    },
+    {
+      "slice": "B06b onward / remaining MVP and post-MVP",
+      "code": "NOT_IMPLEMENTED_IN_THIS_SCOPE",
+      "proof": "NOT_RUN",
+      "review": "NOT_REVIEWED_BY_THIS_CHILD",
+      "next": "Separate owner gates; no automatic live admission"
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/h01-final-evidence-review.json"
+  ],
+  "repository_files_modified": [],
+  "service_mutations": [],
+  "integration_owner": "parent"
+}

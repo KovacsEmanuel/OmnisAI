@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "report_id": "H01-FINAL-NORMATIVE-55c3a5b-status-proposal",
+  "review_type": "INDEPENDENT_READ_ONLY_BOUNDED_NORMATIVE_DOCUMENT_REVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "language": "ro",
+  "scope": "Cele trei artefacte H01 comise în HEAD 55c3a5b plus exact cele patru replacements din status-proposal/snapshot.json; închiderea documentară B05-inert și justificarea intrării de dezvoltare SL08/B06a, nu închiderea proiectului sau certificarea runtime de către reviewer.",
+  "repository": {
+    "path": "/home/kali/OmnisAI",
+    "branch": "p04-control-topology-wip",
+    "head_before": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+    "head_after": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+    "historical_entry_not_current_head": "60d29277ad5a06782dd8f8ed84a60be5be147b3a",
+    "tracked_delta": [],
+    "preexisting_untracked_protected": "documents/Omnis_Notite_Originale.html",
+    "protected_document_disposition": "NOT_READ_NOT_COPIED_NOT_MODIFIED",
+    "repository_writes_by_reviewer": false
+  },
+  "snapshot": {
+    "manifest": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/snapshot.json",
+    "manifest_sha256": "131f10827478ddb65c68267a6b6ce87943a4963ea660631ff319f6032a23300a",
+    "manifest_base_head": "55c3a5b",
+    "committed_evidence": [
+      {
+        "path": "documents/verification/p2-b05-h01.md",
+        "sha256": "d2b59530a5c447f4739904163b3db4280a0416a93c34141f9afe0d88ec97afc7",
+        "git_show_HEAD_matches_worktree": true
+      },
+      {
+        "path": "documents/verification/p2-b05-h01-gate.json",
+        "sha256": "60af40ae6aecd6e1d6cb8cc7e420df7158edc6ac8cb220a33bd10389d8586e77",
+        "git_show_HEAD_matches_worktree": true
+      },
+      {
+        "path": "documents/verification/p2-b05-h01-q1-live.json",
+        "sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3",
+        "git_show_HEAD_matches_worktree": true
+      }
+    ],
+    "proposed_replacements": [
+      {
+        "path": "README.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/README.md",
+        "sha256": "a4d5da6e14524ecdfaef46e894acb68413b460b10f4c1aa721385097c21f892c",
+        "base_sha256": "4744ee0fb178fad425de6f0257d45ee2da79ae2bd3b60e92427843b48e6d6a0f",
+        "matches_manifest": true,
+        "delta_lines": [15, 53],
+        "delta": "Statusul și reluarea proiectează B05-inert scoped; păstrează H01 native PARTIAL, G02 neînchis, eșecurile și mandatul ulterior B06a."
+      },
+      {
+        "path": "documents/verification/implementation-status.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/verification/implementation-status.md",
+        "sha256": "5b0083f3a3682f8a23719876c9f25518fbb91c9e9c6e139a72fba49e196eead5",
+        "base_sha256": "f76412f750b6fe9cf6eebeb453077c20e9b4aaeda286268443d14f97c8a030e1",
+        "matches_manifest": true,
+        "delta_lines": [22, 60, 61, 96],
+        "delta": "Rezumatul, SL07, condiția SL08 și G02 se reconciliază cu H01. SL08 rămâne NOT_IMPLEMENTED/NOT_RUN/NOT_REVIEWED."
+      },
+      {
+        "path": "documents/verification/p2-b05.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/verification/p2-b05.md",
+        "sha256": "0dabdadd20fab0feff0ef34ff0543671c957897b3426a22f92f1ba88c488479a",
+        "base_sha256": "1c1fcee0e80e13ab3ea09518286b85cf12d80ed0f32e92ff2f6a5893c2a9cf03",
+        "matches_manifest": true,
+        "delta_lines": [29, 89],
+        "delta": "Actualizează starea și continuarea; nu rescrie probele B05.1/H02/slot istorice și nu transferă PASS unui cod viitor."
+      },
+      {
+        "path": "documents/Omnis_Implementation_Plan.md",
+        "proposal": "/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/status-proposal/documents/Omnis_Implementation_Plan.md",
+        "sha256": "04229ea65630b4171aaea731f067321089250c55eb2aeb7e4482194d2edb6355",
+        "base_sha256": "b4e92a0cd363886d41f2d4e8166f40a0dbd8f4c3a0eae73a5fe2b926ced5f955",
+        "matches_manifest": true,
+        "delta_lines": [586, 633],
+        "delta": "Numai proiecția §19 și următoarea felie se schimbă; §7 și contractele de comportament nu sunt slăbite."
+      }
+    ],
+    "product_comparison": {
+      "reference": "dfc549a16d59caf6981ccb1d91db748f80c6dbb1",
+      "reviewed_head": "55c3a5bcf7ce7f66dd94c675a01cbd1cf1b4a219",
+      "path_roots": ["api", "cli", "web", "integrations/hermes", "ops", "scripts", "tests", "Makefile"],
+      "tracked_paths_compared": 303,
+      "changed": [],
+      "method": "git ls-tree și git rev-parse blob pentru fiecare cale; fără importuri de produs sau execuție de gate",
+      "gate_reuse_disposition": "JUSTIFIED_UNCHANGED_PRODUCT_ONLY",
+      "reused_gate": "proc_30c53ccef430 / dfc549a / exit0 / family_drained=true",
+      "gate_rerun_by_reviewer": "NOT_RUN"
+    }
+  },
+  "normative_sources": [
+    {
+      "path": "documents/Omnis_Implementation_Plan.md",
+      "artifact": "proposed replacement",
+      "references": ["§7:237-266", "§19:580-588", "§19.2:631-633"],
+      "interpretation": "B05 livrează transportul/runtime inert; B06a este seed/resolver/CandidateSnapshot STATIC/PURE fără provider sau țintă; B06b și B06m aduc callerii/bindingul/admission. G02 complet nu precede circular implementarea propriilor consumatori."
+    },
+    {
+      "path": "documents/Omnis_MVP_Architecture.md",
+      "artifact": "unchanged HEAD reference",
+      "references": ["§4.3:147-168", "L06:199", "§5:215-287", "§5.2:299-311"],
+      "interpretation": "Hermes nativ rămâne în runtime-host fix, IPC privat/fencing și cleanup bounded. Reverse approvals fără operator nu sunt allow; submit incert, bindingul și pre-send admission nu primesc credit anticipat."
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/rpc_dispatch.py",
+      "references": ["17-24"],
+      "interpretation": "Allowlistul HERMES_OMNIS_INERT admite numai client.capabilities/gateway.capabilities/ping; session/agent/tool caller nu este admis."
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+      "references": ["796", "1323-1327", "1341-1346"],
+      "interpretation": "Callerii approval/clarify sunt legați de server_requests.send_async/send în server. Apelul direct al bibliotecii nu este producer stock inert. Fișierul complet server_requests.py nu se află în subsetul tracked inert-source și nu a fost executat sau inventat."
+    }
+  ],
+  "criterion_dispositions": [
+    {
+      "id": "H01-01",
+      "criterion": "READY/capabilities/unknown -32601",
+      "disposition": "PASS_SCOPED_INSTALLED_RECORDED",
+      "evidence": ["p2-b05-h01-gate.json:347-350", "Q2 native receipt: handshake", "p2-b05-h01-q1-live.json:23-241"],
+      "limit": "READY/handshake intern Q1 source-bound; inventarul registered nu este enabled/model-facing."
+    },
+    {
+      "id": "H01-02",
+      "criterion": "Framing/ID/duplicate/oversize",
+      "disposition": "PASS_SIMULATION_NEGATIVES_NATIVE_MALFORMED_NOT_RUN",
+      "evidence": ["p2-b05-h01-gate.json:353-356", "canonical unchanged product comparison"],
+      "limit": "Frame-urile native valide nu certifică un producer nativ malformed; păstrarea testelor wire nu devine integrare live negativă."
+    },
+    {
+      "id": "H01-03",
+      "criterion": "Reverse approval deny/unknown",
+      "disposition": "PASS_SIMULATION_NATIVE_PRODUCER_NOT_RUN",
+      "evidence": ["p2-b05-h01-gate.json:359-363", "rpc_dispatch.py:22-24", "server.py:796,1325"],
+      "dependency": "B06b numai dacă demonstrează caller/seam PURE admis; altfel B06m/P2-live autorizat. Fără injection sau creator de sesiune introdus pentru a fabrica PASS."
+    },
+    {
+      "id": "H01-04",
+      "criterion": "request.cancel/corelare/quota/tombstones/response-drain",
+      "disposition": "PASS_SIMULATION_NATIVE_PRODUCER_NOT_RUN",
+      "evidence": ["p2-b05-h01-gate.json:366-370", "proposed p2-b05.md:43,52"],
+      "dependency": "Pending reverse/caller real cu frontiera H01-03; nu Task delivered/admitted/consumed ACK și nu istoric infinit."
+    },
+    {
+      "id": "H01-05",
+      "criterion": "Deadline READY/RPC",
+      "disposition": "PASS_SCOPED_INSTALLED_RPC_READY_STALL_SIMULATION",
+      "evidence": ["p2-b05-h01-gate.json:373-376", "Q2 receipt: q2.calls/continue_sent/recovery_ping", "p2-b05-h02.md:65-73"],
+      "observed": "32 deadline receipts native, 0.802331945997139–0.8025097620011366 s, pending0, CONT și ping valid pe același nativ.",
+      "limit": "Standalone Q2 nu certifică PG/watchdog stock; READY stall nativ și DB-only fault rămân neexecutate."
+    },
+    {
+      "id": "H01-06",
+      "criterion": "EOF nativ/stdout și stdin real",
+      "disposition": "PASS_SCOPED_INSTALLED_RECORDED",
+      "evidence": ["p2-b05-h01-gate.json:379-382", "p2-b05-h01-q1-live.json:133-241", "Q2/Q3 native receipt: q3"],
+      "observed": "Q1 SIGTERM native leader după READY -> stdout EOF/runtime loss și supervisor exit3; Q3 închide stdin real, transport unavailable înainte cleanup, native exit0/reap/proc absent.",
+      "limit": "Exit+EOF Q1 este un singur fault cauzal; stdin EOF Q3 nu primește credit supervisor/PG."
+    },
+    {
+      "id": "H01-07",
+      "criterion": "Pending/backpressure/stderr",
+      "disposition": "PENDING_PASS_SCOPED_WRITER_1MIB_STDERR_SIMULATION_NATIVE_NOT_RUN",
+      "evidence": ["p2-b05-h01-gate.json:385-389", "Q2 receipt: q2.pending_ids/refusal/calls"],
+      "observed": "32 ID-uri distincte 5–36; cererea33 refuzată Pending limit, next_id36 neschimbat, queued bytes0 neschimbate, înainte allocation/write.",
+      "dependency": "Saturarea pending nu probează writer1MiB/stderr flood. Producer inert admis neidentificat; calificare nativă înainte de activarea consumatorului efectual relevant."
+    },
+    {
+      "id": "H01-08",
+      "criterion": "Settlement/drain/same-boot/fence/release",
+      "disposition": "PASS_SCOPED_INSTALLED_ALL_CRASH_CUTS_NOT_RUN",
+      "evidence": ["p2-b05-h01-gate.json:392-395", "p2-b05-h01-q1-live.json:23-241", "q1_driver.py:382-408", "p2-b05-slot-inventory.md:112,129-145"],
+      "observed": "Q1 pozitiv exit0 și native-loss exit3, supervisor joined, nativ pidfd/proc/namespace absent, STOPPED/drained same boot și fence(0,1)/(0,2), PG owner+expires NULL după fiecare caz.",
+      "limit": "Ordinea release/drain este verificată în eșantioanele observate și source-bound, nu prin tracer universal. Archive nominal provine din slotul istoric; nu este revendicat pe faultul Q1."
+    }
+  ],
+  "cross_cutting_dispositions": {
+    "user_scope": {
+      "disposition": "CONFORMS_WITH_BOUNDED_INERT_MANDATE",
+      "basis": "Proposalul nu implementează B06, task/copil/Brain/Settings/provider/target, nu repornește r1/P0/P1 și nu autorizează push/profil. Închiderea transportului reachable este separată de breadth-ul H01 și de G02."
+    },
+    "history_and_procedural_failures": {
+      "disposition": "RETAINED_NOT_PROMOTED",
+      "basis": "Q1 original FAIL pre-native și expunerea capability rămân; Q2 OCI UNCERTAIN/config FAIL rămâne, cu numai OomKillDisable false→null source-backed și controale separate; slot QA NOT_PASS_PROTOCOL_DEVIATION și Q1 v2 NOT_PASS_PROTOCOL_BUDGET_DEVIATION_RETAINED nu sunt transformate în QA contractuală curată.",
+      "budget_denominators": "8 comenzi declarate/7 budget versus6 terminal tool calls în log disponibil sunt denominatorii înregistrați de părinte; reviewerul nu a citit transcriptul sensibil și nu pretinde re-numărare independentă.",
+      "historical_scope_note": "Formulările PARTIAL din acceptările B05.1/H02/slot la reviziile lor nu sunt judecate ca verdict actual al celor patru replacements. Proposalul p2-b05.md:29,89 și planul:586,633 stabilesc explicit noua stare scoped."
+    },
+    "exact_tuple_evidence": {
+      "disposition": "SOURCE_BOUND_PREDICATE_EXECUTION_ACCEPTED_WITH_LIMIT",
+      "basis": "q1_driver.py hash411c244c… verificat exact; exit_tuple:144-147 și require:389 cer tuplul întreg, nu prefix. Driver PASS hash6baba9e1… și raport QA original hash36d18b43… identice. Nu sunt streamuri brute persistate sau recapturate de reviewer."
+    },
+    "cleanup_and_retention": {
+      "disposition": "PASS_SCOPED_RECORDED_PARENT_CLEANUP",
+      "basis": "Ledgerul hash3a535f71… corespunde gate-ului, șase operații stop/rm exit0/ACK_READBACK pe exact3 CIDs; four native state hashes,1618 PGDATA entries și13 foreign IDs numărate programatic. PGDATA comparația este după graceful stop, înainte/după rm, nu față de DB activă. Q2 rm separat exit0/CID absent/date păstrate; cele două hosturi IDLE inițiale au retirement separat înregistrat, fără credit drain/release.",
+      "live_cleanup_by_reviewer": "NOT_RUN",
+      "retained_data_backup_claim": "NOT_CERTIFIED_BACKUP"
+    },
+    "global_gates": {
+      "H01_native_producer_breadth": "PARTIAL",
+      "G02_inert": "NOT_CLOSED",
+      "G02_live": "NOT_RUN_NOT_CLOSED",
+      "assessment_ready": false,
+      "broader_runtime_acceptance": "NOT_GRANTED"
+    }
+  },
+  "findings": [],
+  "blocking_findings": [],
+  "approval": {
+    "approved": "Exact frontiera documentară și cele patru proposal bytes hash-bound; CLOSED_SCOPED_B05_INERT este justificat de observațiile finite și acceptările istorice delimitate, fără promovarea H01 native breadth sau G02.",
+    "not_approved": "Închiderea întregului proiect/P2/G02, runtime QA executată de acest reviewer, conformitatea perfectă a QA istorice sau implementarea/activarea SL08/B06a.",
+    "parent_conditions_before_integration_close": [
+      "Aplică numai cele patru replacements aprobate și compară SHA256 cu snapshotul; bytes schimbați ulterior nu moștenesc verdictul.",
+      "Regenerează HTML-ul normativ și execută docs gates după ultima editare; în această propunere acestea sunt NOT_RUN, nu PASS.",
+      "Adjudecă și persistă verdictul/limitele în registrul versionat; reviewerul nu închide proiectul și nu comite checkoutul comun.",
+      "Păstrează FAIL/UNCERTAIN/protocol deviations și toate dispozițiile native NOT_RUN; nu relansa native/gate/harness neschimbate pentru a curăța istoricul."
+    ]
+  },
+  "next_slice_admission": {
+    "slice": "SL08/B06a",
+    "justified": true,
+    "authorization_granted_now": false,
+    "implementation_state": "NOT_IMPLEMENTED",
+    "proof_state": "NOT_RUN",
+    "implementation_review_state": "NOT_REVIEWED",
+    "basis": "Plan §7:245-247 fixează bootstrap catalog/closure/CandidateSnapshot/STATIC/PURE fără provider/target; transportul B05-inert și slotul real au observații/acceptări proprii. Cerințele reverse/cancel cu caller, binding H03–H08 și pre-send admission apar cu B06b/B06m, deci G02 complet înainte B06a ar fi circular.",
+    "entry_conditions": [
+      "Mandat explicit ulterior numai pentru seed/resolver/CandidateSnapshot și G-MODULE-core STATIC/PURE; niciun B06 începe prin acest raport.",
+      "Source draft refs/closure/AgentRecipe și calificarea CONTRACT/SECURITY rămân conforme §7; PURE nu certifică BOLA sau caller nativ existent.",
+      "NO_MODEL înainte de P4a; fără cont/provider/model/target, profil personal, rollout/restart P0/P1/r1 ori push.",
+      "Califică reverse/cancel la caller PURE efectiv dacă B06b îl permite; altfel B06m/P2-live autorizat. Nu introduce creator de sesiune sau emitter fals pentru PASS retroactiv.",
+      "Writer1MiB/stderr flood, submit incert, binding/lineage, proiecția datelor și G-MODEL primesc probele proprii înainte de consumatorul efectual; H01 PARTIAL/G02 NOT_CLOSED rămân vizibile."
+    ]
+  },
+  "supporting_receipts_verified": [
+    {"path": "dev-a/live/out/q2-q3.json", "sha256": "129347953756cd7529c75c1834cb73a2ab810e1dddc69f1645af23d940033da6", "matches_gate": true},
+    {"path": "evidence/q2-parent-adjudication.json", "sha256": "64f08cab4615b1f581f1f4fec6811b27a31fced84678df26b152d780430d6c99", "matches_gate": true},
+    {"path": "evidence/q2-cleanup.json", "sha256": "11115f3ccd858e72c1b8798c407f932da3e5da264f907df0161c1290ff606630", "matches_gate": true},
+    {"path": "evidence/q1-v2-pg-cleanup.json", "sha256": "3a535f71e62fb825ea2c4ebcd6dbe17bba5d2f61ca3ce7b36171d1383d8cf792", "matches_gate": true},
+    {"path": "dev-b-v2/q1-result.json", "sha256": "6baba9e1f0da90eeefe1846e713bdae21b106ddfba293ba4efcdd48e0f8f830d", "matches_gate": true},
+    {"path": "qa/q1-independent.json", "sha256": "2103657e83477933022610d193926b2e42d004a575f53d8e2dfcbb1b1603396d", "verification": "HASH_ONLY_NO_SECRET_BEARING_CONTENT_OUTPUT"},
+    {"path": "qa/q2-independent.json", "sha256": "4d5546f73d3eedcaa3ed9b93ad75de3d6de9d213785858f7f4e6e2276a93aed9", "verification": "HASH_ONLY"},
+    {"path": "qa/q1-v2-independent.json", "sha256": "36d18b43bee15fedaabecf4ffc3ddb770d8381edbc78bc4f939290df599aeed3", "verification": "HASH_MATCHES_COMMITTED_ORIGINAL"}
+  ],
+  "verification_performed": [
+    {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat; git show --stat --oneline HEAD", "exit_code": 0, "result": "HEAD55c3a5b, branch exact, tracked clean; protected untracked preserved"},
+    {"command": "python3 -I -B -c <stdlib-only SHA256 / git-show comparison / unified diff of exact snapshot paths>", "exit_code": 0, "result": "Three committed evidence bytes equal worktree, four proposal hashes match manifest; delta limited to status projection"},
+    {"command": "python3 -I -B -c <stdlib-only normative section extraction / allowlisted receipt parsing / git blob comparisons>", "exit_code": 0, "result": "303 product paths unchanged, eight finite H01 IDs, Q1/Q2/Q3 receipts and parent cleanup hashes match"},
+    {"command": "python3 -I -B -c <stdlib-only safe aggregation / Q1 predicate source binding / final snapshot checks>", "exit_code": 0, "result": "32 unique pending IDs and deadlines, state4/PGDATA1618/foreign13/stop-rm6 counted; five reviewed harness artifacts match; original QA hashes unchanged; HEAD unchanged"}
+  ],
+  "not_run": [
+    "Runtime QA, native launch, Docker exec, services, cleanup effects or gate rerun by reviewer",
+    "python scripts/render_docs.py and generated HTML on proposal bytes",
+    "python scripts/render_docs.py --check on final integrated proposal bytes",
+    "python -m unittest discover -s tests/documentation -v on final integrated proposal bytes",
+    "B06 implementation, caller/session creation, model/provider/target/profile/r1/P0/P1 effects, push"
+  ],
+  "tool_applicability": {
+    "Reticle": {"scope": "Proces/CLI și review documentar, fără UI instrumentat", "result": "NOT_APPLICABLE", "command": null, "executed": false},
+    "Chisel": {"scope": "Repo/home/runtime profile", "result": "BLOCKED_NO_GO", "command": null, "executed": false}
+  },
+  "issues_encountered": [
+    "server_requests.py nu există în subsetul tracked integrations/hermes/inert-source; lookup bounded repetat nu l-a găsit. Allowlistul și callerii server.py sunt verificabili local; nu se revendică auditul integral al acelui fișier sau producer live.",
+    "Un output de lectură agregată a fost paginat/trunchiat; câmpurile relevante au fost recitite/aggregate bounded, fără rerun de runtime.",
+    "Rapoartele istorice conțin defecte de proces QA conservate; acestea nu sunt constatări noi de cod și nu sunt șterse prin această aprobare."
+  ],
+  "limits": [
+    "Review static/read-only al exact acestui snapshot documentar; observațiile live sunt ale QA/părintelui, nu executate de reviewer.",
+    "Nici runtime.boot, parole, private .env, transcript sensibil sau documentul HTML protejat nu au fost citite/returnate.",
+    "Cleanup/readback sunt înregistrări hash-bound deja produse; nu este verificare live a daemonului sau a filesystemului PGDATA de către reviewer.",
+    "Source-bound tuples/interior transport și sampled release/drain nu sunt raw stream captures sau tracer universal.",
+    "Aprobarea nu transferă probe la bytes viitori, supply-chain viitor, expunere publică/multi-user, model-facing inventory, UI/aesthetics ori toate crash cuts.",
+    "HTML/docs gates după aplicarea ultimei editări sunt obligația părintelui și rămân NOT_RUN la propunere."
+  ],
+  "files_created": ["/home/kali/.hermes/cache/scratch/h01-amno7o6i/evidence/h01-final-normative-review.json"],
+  "files_modified": [],
+  "handoff_mode": "ORIENT_READ_ONLY_PARENT_ADJUDICATES_CLOSE"
+}

@@ -1,0 +1,557 @@
+// Installed inert P1 acceptance only; never launches services or issues pairing.
+import assert from 'node:assert/strict';
+import { readFile, writeFile, mkdir, chmod, lstat } from 'node:fs/promises';
+import { createHash, randomUUID } from 'node:crypto';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = '/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed';
+const ORIGIN = 'http://127.0.0.1:8765';
+const PW = '/home/kali/OmnisAI/web/node_modules/playwright';
+const TEST = '/home/kali/OmnisAI/web/node_modules/@playwright/test';
+const HEAD = 'c82a8d4';
+const OBJECTIVE = '  Focus 🧪\nRespectă spațiul.  ';
+const FINAL_OBJECTIVE = OBJECTIVE + '\nFirst editor';
+const NAME = 'Installed P1 synthetic draft';
+const recordPath = join(ROOT, 'p1-nonsecret-record.json');
+const stage = process.argv[2];
+let browser, server, context, page, expect, tag = 'preflight', verdict = 'FAIL';
+let closing = false, leaked = false, overflow = false;
+let knownSecrets = new Set(), privateTexts = [], privateBytes = 0;
+const diagnostics = [], checks = [], pending = new Set();
+const reportPath = join(ROOT, `p1-${stage === 'after' ? 'after' : 'before'}-report.json`);
+const receiptPath = join(ROOT, `p1-${stage === 'after' ? 'after' : 'before'}-browser-close.json`);
+let record = null;
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const fail = () => { throw new Error('SANITIZED_FAILURE'); };
+const must = value => { if (!value) fail(); };
+function privateObserve(value) {
+  const text = String(value);
+  if (privateBytes + Buffer.byteLength(text) > 2_000_000) { overflow = true; return; }
+  privateBytes += Buffer.byteLength(text); privateTexts.push(text);
+}
+function secret(value) {
+  if (typeof value !== 'string' || !value) return;
+  for (const candidate of [value, encodeURIComponent(value), Buffer.from(value).toString('base64')]) knownSecrets.add(candidate);
+}
+function safePath(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.origin !== ORIGIN) return '[non-loopback]';
+    const path = parsed.pathname;
+    if (/^\/(?:api\/(?:session|pairing|logout|instance|v1\/(?:dashboard|engagements(?:\/[0-9a-f-]{36})?))|health\/ready|engagements(?:\/(?:new|[0-9a-f-]{36}(?:\/(?:setup|overview|stream|findings|coverage|reports))?))?|settings(?:\/(?:runtime|providers|skills))?)$/.test(path) || path === '/') return path;
+    if (/^\/assets\/[A-Za-z0-9_.-]+$/.test(path)) return '/assets/[asset]';
+    return '[other-local-path]';
+  } catch { return '[invalid-url]'; }
+}
+const event = (eventTag, status, path = null) => diagnostics.push({ tag: eventTag, status, path });
+function track(promise) {
+  pending.add(promise);
+  promise.catch(() => { if (!closing) event('observer-failure', 'FAIL'); }).finally(() => pending.delete(promise));
+}
+async function bounded(promise, ms = 12000) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('SANITIZED_TIMEOUT')), ms); })]); }
+  finally { clearTimeout(timer); }
+}
+async function jsonFile(path, data, exclusive = false) {
+  const text = JSON.stringify(data, null, 2) + '\n';
+  for (const value of knownSecrets) must(!text.includes(value));
+  await writeFile(path, text, { mode: 0o600, flag: exclusive ? 'wx' : 'w' });
+  await chmod(path, 0o600);
+}
+async function step(name, fn) { must(!closing); tag = name; await fn(); checks.push({ tag: name, status: 'PASS', path: null }); }
+async function get(path, target = page) {
+  const result = await target.evaluate(async path => {
+    const response = await fetch(path, { cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(10000) });
+    const body = await response.json(); return { status: response.status, body };
+  }, path);
+  must(result.status === 200); return result.body;
+}
+async function draft(id, target = page) { return get(`/api/v1/engagements/${id}`, target); }
+async function unchanged(id, prior) { assert.deepEqual(await draft(id), prior); }
+async function save(revision, method = 'PUT') {
+  const [response] = await Promise.all([
+    page.waitForResponse(r => r.request().method() === method && safePath(r.url()).startsWith('/api/v1/engagements'), { timeout: 12000 }),
+    page.getByRole('button', { name: 'Save draft', exact: true }).click(),
+  ]);
+  must(response.status() === (method === 'POST' ? 201 : 200));
+  await expect(page.getByText(`Saved · revision ${revision}`, { exact: true })).toBeVisible();
+}
+async function setupStep(number, name, target = page) {
+  await target.getByRole('button', { name: `${number}. ${name}`, exact: true }).click();
+  await expect(target.getByRole('heading', { name, exact: true })).toBeVisible();
+}
+async function inspectSecrets() {
+  await bounded(Promise.all([...pending]));
+  for (const target of context.pages()) {
+    privateObserve(target.url());
+    privateObserve(await target.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage }, url: location.href })));
+  }
+  for (const cookie of await context.cookies()) secret(cookie.value);
+  for (const text of privateTexts) for (const value of knownSecrets) if (text.includes(value)) leaked = true;
+  must(!leaked && !overflow);
+}
+async function capture(name) {
+  await inspectSecrets();
+  const path = join(ROOT, `${stage}-${name}.png`);
+  // Never capture the pairing form; mask password inputs defensively.
+  await page.screenshot({ path, fullPage: false, mask: [page.locator('input[type="password"]')], timeout: 12000 });
+  await chmod(path, 0o600);
+  checks.push({ tag: 'screenshot-sha256-' + hash(await readFile(path)), status: 'CAPTURED', path });
+}
+async function geometry(target) {
+  await target.scrollIntoViewIfNeeded(); await target.focus();
+  // :focus-visible follows input modality; programmatic focus after a pointer click is not keyboard proof.
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Shift+Tab');
+  await expect(target).toBeFocused();
+  const result = await target.evaluate(element => {
+    const rect = element.getBoundingClientRect(), style = getComputedStyle(element);
+    const header = document.querySelector('header')?.getBoundingClientRect();
+    return { w: rect.width, h: rect.height, top: rect.top, bottom: rect.bottom,
+      headerBottom: header?.bottom ?? 0, viewportHeight: innerHeight, outline: parseFloat(style.outlineWidth),
+      outlineStyle: style.outlineStyle, outlineColor: style.outlineColor };
+  });
+  await jsonFile(join(ROOT, 'p1-geometry.json'), { stage, result });
+  must(result.w >= 44 && result.h >= 44 && result.top >= result.headerBottom && result.bottom <= result.viewportHeight);
+  must(result.outline >= 2 && result.outlineStyle !== 'none' && result.outlineColor !== 'rgba(0, 0, 0, 0)');
+}
+async function viewports(surface) {
+  for (const width of [320, 390, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expect(page.getByRole('heading', { name: NAME, exact: true })).toBeVisible();
+    must(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    const back = page.getByRole('link', { name: '← Dashboard', exact: true });
+    await geometry(back);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await capture(`${surface}-${width}`);
+  }
+}
+async function projection(total, id = null) {
+  tag = 'dashboard-home-navigation';
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  const metric = page.getByRole('region', { name: 'Total engagements', exact: true });
+  tag = 'dashboard-total-metric';
+  await expect(metric.locator('p').first()).toHaveText(String(total));
+  tag = 'dashboard-authoritative-get';
+  const data = await get('/api/v1/dashboard?limit=20');
+  must(data.data.total_engagements === total);
+  if (id) {
+    must(data.data.items.some(item => item.engagement_id === id));
+    await expect(page.getByRole('link', { name: NAME, exact: true })).toBeVisible();
+  } else {
+    tag = 'dashboard-empty-state';
+    await expect(page.getByText('No engagements saved yet.', { exact: true })).toBeVisible();
+  }
+  for (const label of ['Confirmed findings', 'Coverage', 'Model cost']) {
+    tag = 'dashboard-unavailable-' + label.toLowerCase().replaceAll(' ', '-');
+    await expect(page.getByRole('heading', { name: label, exact: true }).locator('..').getByText('UNAVAILABLE', { exact: true })).toBeVisible();
+  }
+  tag = 'dashboard-capture-private-scan';
+  await capture(`dashboard-${total}`);
+}
+async function surfaces(id) {
+  await page.getByRole('link', { name: NAME, exact: true }).click();
+  await expect(page.getByRole('heading', { name: NAME, exact: true })).toBeVisible();
+  await expect(page.getByText(id, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start assessment', exact: true })).toBeDisabled();
+  await viewports('overview');
+  const nav = page.getByRole('navigation', { name: 'Engagement navigation', exact: true });
+  for (const name of ['Brain stream', 'Findings', 'Coverage', 'Reports']) {
+    await nav.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByText('UNAVAILABLE — This surface is not implemented for this draft. No assessment has run.', { exact: true })).toBeVisible();
+    await expect(page.locator('main')).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Start assessment', exact: true })).toBeDisabled();
+    await capture(name.toLowerCase().replaceAll(' ', '-'));
+  }
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start assessment', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Stop', exact: true })).toBeDisabled();
+  await expect(page.getByText('Runtime, provider, policy, confinement and budget gates are not implemented or certified.', { exact: true })).toBeVisible();
+  const settings = page.getByRole('navigation', { name: 'Settings navigation', exact: true });
+  for (const name of ['Providers', 'Skills']) {
+    await settings.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByText('UNAVAILABLE — configuration is not implemented. Startup connects no provider and runs no assessment.', { exact: true })).toBeVisible();
+    await capture(`settings-${name.toLowerCase()}`);
+  }
+}
+async function readCode() {
+  must(!process.stdin.isTTY); // Parent pipes the private PTY capture; never interactive echo.
+  return bounded(new Promise((resolve, reject) => {
+    let chunks = [], length = 0;
+    const clean = () => { process.stdin.removeListener('data', data); process.stdin.removeListener('end', end); process.stdin.removeListener('error', error); };
+    const error = () => { clean(); reject(new Error('SANITIZED_STDIN')); };
+    const data = chunk => { length += chunk.length; if (length > 130) { chunks = []; error(); process.stdin.pause(); } else chunks.push(chunk); };
+    const end = () => {
+      clean(); let value = Buffer.concat(chunks).toString('utf8'); chunks.forEach(chunk => chunk.fill(0)); chunks = [];
+      // Accept one framing newline, never normalize whitespace within a token.
+      value = value.replace(/\r?\n$/, '');
+      if (!/^[A-Za-z0-9_-]{16,128}$/.test(value)) { reject(new Error('SANITIZED_CODE_FORMAT')); return; }
+      resolve(value);
+    };
+    process.stdin.on('data', data); process.stdin.once('end', end); process.stdin.once('error', error); process.stdin.resume();
+  }), 15000);
+}
+async function pair() {
+  let code = await readCode(); secret(code);
+  await page.goto(ORIGIN, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByLabel('Pairing code', { exact: true })).toBeVisible();
+  await page.getByLabel('Pairing code', { exact: true }).fill(code);
+  const [response] = await Promise.all([
+    page.waitForResponse(r => r.url() === `${ORIGIN}/api/pairing` && r.request().method() === 'POST'),
+    page.getByRole('button', { name: 'Pair browser', exact: true }).click(),
+  ]);
+  code = ''; must(response.status() === 200);
+  const session = await get('/api/session'); secret(session.csrf_token); must(session.authenticated === true);
+  await expect(page.getByRole('region', { name: 'Dashboard projection', exact: true })).toBeVisible();
+  const health = await get('/health/ready'); must(health.dashboard_ready === true && health.assessment_ready === false);
+  await inspectSecrets();
+}
+async function authNegatives(id, snapshot) {
+  const session = await get('/api/session'); secret(session.csrf_token);
+  const headers = { 'Content-Type': 'application/json', Origin: ORIGIN, 'X-CSRF-Token': session.csrf_token,
+    'If-Match': `"rev-${snapshot.revision}-${snapshot.digest}"`, 'X-Command-ID': randomUUID() };
+  const cases = [
+    ['auth-host', { Host: 'foreign.invalid' }, 400, 'INVALID_HOST'],
+    ['auth-origin', { Origin: 'https://foreign.invalid' }, 403, 'INVALID_ORIGIN'],
+    ['auth-csrf-missing', { 'X-CSRF-Token': '' }, 403, 'INVALID_CSRF'],
+    ['auth-csrf-invalid', { 'X-CSRF-Token': 'invalid' }, 403, 'INVALID_CSRF'],
+  ];
+  for (const [name, overrides, status, code] of cases) {
+    tag = name;
+    const response = await context.request.put(`${ORIGIN}/api/v1/engagements/${id}`, { timeout: 12000, maxRedirects: 0,
+      headers: { ...headers, ...overrides }, data: snapshot.payload });
+    const body = await response.json();
+    event(name, response.status(), `/api/v1/engagements/${id}`);
+    must(response.status() === status && body.error?.code === code);
+    await unchanged(id, snapshot);
+    checks.push({ tag: name, status: 'PASS', path: `/api/v1/engagements/${id}` });
+  }
+}
+async function logout(id, snapshot) {
+  await unchanged(id, snapshot);
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Log out', exact: true })).toBeVisible();
+  const [response] = await Promise.all([
+    page.waitForResponse(r => r.url() === `${ORIGIN}/api/logout` && r.request().method() === 'POST'),
+    page.getByRole('button', { name: 'Log out', exact: true }).click(),
+  ]);
+  must(response.status() === 204);
+  await expect(page.getByLabel('Pairing code', { exact: true })).toBeVisible();
+  for (const path of ['/api/session', `/api/v1/engagements/${id}`, '/api/v1/dashboard?limit=20']) {
+    const denied = await context.request.get(`${ORIGIN}${path}`, { timeout: 12000, maxRedirects: 0 });
+    must(denied.status() === 401 && (await denied.json()).error?.code === 'UNAUTHENTICATED');
+    event('logout-denial', denied.status(), safePath(`${ORIGIN}${path}`));
+  }
+  const denied = await context.request.put(`${ORIGIN}/api/v1/engagements/${id}`, { timeout: 12000, maxRedirects: 0,
+    headers: { Origin: ORIGIN, 'Content-Type': 'application/json', 'X-CSRF-Token': 'invalid',
+      'If-Match': `"rev-${snapshot.revision}-${snapshot.digest}"`, 'X-Command-ID': randomUUID() },
+    data: { ...snapshot.payload, objective_text: 'Unauthorized overwrite must not persist' } });
+  must(denied.status() === 401 && (await denied.json()).error?.code === 'UNAUTHENTICATED');
+  event('logout-write-denial', denied.status(), `/api/v1/engagements/${id}`);
+  await inspectSecrets();
+}
+async function before() {
+  let resume = null;
+  try { resume = JSON.parse(await readFile(join(ROOT, 'p1-before-resume.json'), 'utf8')); }
+  catch (error) { if (error?.code !== 'ENOENT') throw error; }
+  if (resume) {
+    await step('resume-exact-preserved-revision', async () => {
+      must([1, 3].includes(resume.expected_revision) && /^[0-9a-f-]{36}$/.test(resume.engagement_id));
+      const preserved = await draft(resume.engagement_id);
+      must(preserved.revision === resume.expected_revision && preserved.payload.name === NAME);
+      await page.goto(`${ORIGIN}/engagements/${resume.engagement_id}/setup`);
+      await expect(page.getByText(`Saved · revision ${resume.expected_revision}`, { exact: true })).toBeVisible();
+    });
+  } else {
+  await step('initial-dashboard-empty', () => projection(0));
+  await step('new-keyboard-skip-general-create', async () => {
+    await page.getByRole('link', { name: 'New engagement →', exact: true }).first().click();
+    await expect(page.getByRole('heading', { name: 'New engagement', exact: true })).toBeVisible();
+    // Fresh document native tab order, then real skip activation.
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Engagement name', { exact: true })).toBeVisible();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Skip to content', exact: true })).toBeFocused();
+    await page.keyboard.press('Enter'); await expect(page.locator('main')).toBeFocused();
+    await page.getByLabel('Engagement name', { exact: true }).fill(NAME);
+    await geometry(page.getByLabel('Engagement name', { exact: true }));
+    for (const [label, value] of Object.entries({ 'Authorization owner': 'Fixture operator', 'Authorization statement': 'Disposable synthetic only',
+      'Valid from (UTC)': '2030-01-01T00:00:00Z', 'Valid until (UTC)': '2030-12-31T00:00:00Z',
+      'Scope origin': 'https://synthetic.invalid', 'Exclusions (one path per line)': '/private\n/logout' })) await page.getByLabel(label, { exact: true }).fill(value);
+    await expect(page.getByLabel('Scope access', { exact: true })).toHaveValue('BLOCKED');
+    await expect(page.getByLabel('Evaluare generală', { exact: true })).toBeChecked();
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
+    for (const width of [320, 390, 1280, 1440]) {
+      await page.setViewportSize({ width, height: 1000 }); must(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await page.evaluate(() => window.scrollTo(0, 0)); await capture(`new-${width}`);
+    }
+    const saveButton = page.getByRole('button', { name: 'Save draft', exact: true });
+    await saveButton.focus(); await expect(saveButton).toBeFocused();
+    const [response] = await Promise.all([page.waitForResponse(r => r.request().method() === 'POST' && r.url() === `${ORIGIN}/api/v1/engagements`), page.keyboard.press('Enter')]);
+    must(response.status() === 201); await expect(page.getByText('Saved · revision 1', { exact: true })).toBeVisible();
+  });
+  }
+  const id = new URL(page.url()).pathname.match(/^\/engagements\/([0-9a-f-]{36})\/setup$/)?.[1]; must(id);
+  if (!resume || resume.expected_revision === 1) {
+  const first = await draft(id); must(first.revision === 1);
+  await step('422-api-validation-error-focus-unchanged', async () => {
+    await page.getByLabel('Scope origin', { exact: true }).fill('https://synthetic.invalid:');
+    const [response] = await Promise.all([page.waitForResponse(r => r.request().method() === 'PUT' && r.url() === `${ORIGIN}/api/v1/engagements/${id}`), page.getByRole('button', { name: 'Save draft', exact: true }).click()]);
+    must(response.status() === 422);
+    await expect(page.getByLabel('Scope origin', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByRole('alert').filter({ has: page.getByRole('heading', { name: 'Check these fields', exact: true }) })).toBeFocused();
+    await page.getByRole('button', { name: 'scope.0.origin: Invalid value.', exact: true }).focus();
+    await page.keyboard.press('Enter'); await expect(page.getByLabel('Scope origin', { exact: true })).toBeFocused();
+    await unchanged(id, first); await page.getByLabel('Scope origin', { exact: true }).fill('https://synthetic.invalid');
+  });
+  await step('five-steps-focused-full-declaration-save-get', async () => {
+    await page.getByLabel('Test focalizat', { exact: true }).check();
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(first.payload.objective_text);
+    await page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true }).fill('   ');
+    await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    await page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true }).fill(OBJECTIVE);
+    await page.getByRole('button', { name: 'Add objective constraint', exact: true }).click();
+    await page.getByLabel('Constraint kind 1', { exact: true }).selectOption('READ_ONLY');
+    await page.getByLabel('Constraint text 1', { exact: true }).fill('No writes; synthetic declaration only');
+    await setupStep(2, 'Application context');
+    for (const [label, value] of Object.entries({ 'Seed URLs (one per line)': 'https://synthetic.invalid/api',
+      'Priority workflows (one per line)': 'Read invoice', 'Test objects (one per line)': 'Synthetic invoice' })) await page.getByLabel(label, { exact: true }).fill(value);
+    await page.getByRole('button', { name: 'Add business rule', exact: true }).click();
+    for (const [label, value] of Object.entries({ 'Principal 1': 'Visitor', 'Role 1': 'Viewer', 'Tenant 1': 'Tenant A', 'Object 1': 'Invoice', 'Operation 1': 'GET', 'Source 1': 'Fixture declaration', 'Source revision 1': '1' })) await page.getByLabel(label, { exact: true }).fill(value);
+    await page.getByLabel('Expected decision 1', { exact: true }).selectOption('DENY');
+    await setupStep(3, 'Identities'); await expect(page.getByText(/Anonymous is valid/)).toBeVisible();
+    await setupStep(4, 'Rules & budgets');
+    for (const [label, value] of Object.entries({ 'Maximum requests': '40', 'Maximum duration (seconds)': '120', 'Maximum storage (bytes)': '4096', 'Validation reserved requests': '5', 'Maximum model calls (declarative only)': '0', 'Retention days': '7' })) await page.getByLabel(label, { exact: true }).fill(value);
+    await page.getByLabel('Model projection (declarative)', { exact: true }).selectOption('NONE');
+    await page.getByLabel('Research egress (declarative)', { exact: true }).selectOption('NONE');
+    await page.getByRole('button', { name: 'Add effect rule', exact: true }).click();
+    await page.getByLabel('Decision for READ_ONLY_KNOWN', { exact: true }).selectOption('DENY');
+    await page.getByLabel('Note for READ_ONLY_KNOWN', { exact: true }).fill('No target execution');
+    await save(2); const saved = await draft(id);
+    must(saved.revision === 2 && saved.payload.objective_text === OBJECTIVE && saved.payload.assessment_mode === 'FOCUSED_TEST');
+    assert.deepEqual(saved.payload.authorization, first.payload.authorization);
+    assert.deepEqual(saved.payload.scope, first.payload.scope);
+    assert.deepEqual(saved.payload.budgets, { max_requests: 40, max_duration_seconds: 120, max_storage_bytes: 4096, validation_reserved_requests: 5, max_model_calls: 0 });
+    assert.deepEqual(saved.payload.data_policy, { model_projection: 'NONE', research_egress: 'NONE', retention_days: 7 });
+    assert.deepEqual(saved.payload.application_context, { seed_urls: ['https://synthetic.invalid/api'], priority_workflows: ['Read invoice'], test_objects: ['Synthetic invoice'], import_ref: null });
+    const matrix = { ...saved.payload.business_matrix[0] }; must(/^[0-9a-f-]{36}$/.test(matrix.id)); delete matrix.id;
+    assert.deepEqual(matrix, { principal: 'Visitor', role: 'Viewer', tenant: 'Tenant A', object: 'Invoice', operation: 'GET', expected: 'DENY', source: 'Fixture declaration', source_revision: 1 });
+    must(saved.payload.business_matrix.length === 1 && saved.payload.workflow_profile_ref === null && saved.payload.business_rules_ref === null);
+    assert.deepEqual(saved.payload.effect_rules, [{ effect_class: 'READ_ONLY_KNOWN', decision: 'DENY', note: 'No target execution' }]);
+    must(saved.payload.objective_constraints.length === 1 && saved.payload.objective_constraints[0].text === 'No writes; synthetic declaration only');
+    assert.deepEqual(saved.payload.objective_constraints[0].operation_refs, []);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(OBJECTIVE);
+    await unchanged(id, saved);
+    await setupStep(2, 'Application context'); await expect(page.getByLabel('Principal 1', { exact: true })).toHaveValue('Visitor');
+    await setupStep(4, 'Rules & budgets'); await expect(page.getByLabel('Maximum requests', { exact: true })).toHaveValue('40');
+  });
+  await step('actual-two-tab-409-no-overwrite', async () => {
+    const second = await context.newPage();
+    let releaseReads;
+    const readsReleased = new Promise(resolve => { releaseReads = resolve; });
+    try {
+      await second.goto(`${ORIGIN}/engagements/${id}/setup`, { waitUntil: 'domcontentloaded' });
+      await expect(second.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(OBJECTIVE);
+      const same = await draft(id, second); must(same.revision === 2);
+      // Hold only B's later real GETs during the CAS race; no fabricated responses.
+      // Release on success/failure and cap each hold, preserving a stale UI base.
+      await second.route(`${ORIGIN}/api/v1/engagements/${id}`, async route => {
+        if (route.request().method() === 'GET') {
+          try { await bounded(readsReleased, 10000); } catch { event('cas-read-hold-timeout', 'FAIL', `/api/v1/engagements/${id}`); }
+        }
+        await route.continue();
+      });
+      // Make B dirty before A saves, so background authoritative refetch cannot replace B's base.
+      await second.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true }).fill(OBJECTIVE + '\nSecond editor');
+      await setupStep(1, 'Target & permission');
+      await page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true }).fill(FINAL_OBJECTIVE); await save(3);
+      const authoritative = await draft(id);
+      const [response] = await Promise.all([second.waitForResponse(r => r.request().method() === 'PUT' && r.url() === `${ORIGIN}/api/v1/engagements/${id}`), second.getByRole('button', { name: 'Save draft', exact: true }).click()]);
+      must(response.status() === 409);
+      releaseReads();
+      await expect(second.getByText('Conflict · local edits preserved', { exact: true })).toBeVisible();
+      await expect(second.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(OBJECTIVE + '\nSecond editor');
+      await second.getByRole('button', { name: 'Compare server revision', exact: true }).click();
+      await expect(second.getByText(/Server revision 3/)).toBeVisible();
+      await expect(second.getByRole('button', { name: 'Save draft', exact: true })).toBeDisabled();
+      await unchanged(id, authoritative); await inspectSecrets();
+      await second.reload({ waitUntil: 'domcontentloaded' });
+      await expect(second.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(FINAL_OBJECTIVE);
+    } finally { releaseReads(); await bounded(second.close()); }
+  });
+  }
+  const final = await draft(id); must(final.revision === 3 && final.payload.objective_text === FINAL_OBJECTIVE);
+  await step('auth-negatives-no-dataset-change', () => authNegatives(id, final));
+  await step('dashboard-authoritative-count', () => projection(1, id));
+  await step('real-navigation-unavailable-focus-viewports', () => surfaces(id));
+  await step('review-keyboard-viewports', async () => {
+    await page.goto(`${ORIGIN}/engagements/${id}/setup`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(FINAL_OBJECTIVE);
+    const review = page.getByRole('button', { name: '5. Review & preflight', exact: true });
+    await review.focus(); await expect(review).toBeFocused(); await page.keyboard.press('Enter');
+    await expect(page.getByRole('heading', { name: 'Review & preflight', exact: true })).toBeVisible();
+    must(await page.locator('dt').filter({ hasText: /^Exact saved objective$/ }).evaluate(element => element.nextElementSibling?.textContent) === FINAL_OBJECTIVE);
+    await expect(page.getByRole('button', { name: 'Start assessment', exact: true })).toBeDisabled();
+    await viewports('review');
+  });
+  record = { schema: 1, source_head: HEAD, origin: ORIGIN, engagement_id: id, authoritative_response: final,
+    total_engagements: 1, before_logout_denials: true, response_sha256: hash(JSON.stringify(final)) };
+  await step('logout-denial-pending-restart-readback', () => logout(id, final));
+}
+async function after() {
+  const previous = record.authoritative_response, id = record.engagement_id;
+  await step('restart-full-response-identical-including-logout-negative', async () => {
+    const restored = await draft(id); assert.deepEqual(restored, previous);
+    must(hash(JSON.stringify(restored)) === record.response_sha256);
+    await page.goto(`${ORIGIN}/engagements/${id}/setup`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(FINAL_OBJECTIVE);
+    await expect(page.getByText(`Saved · revision ${previous.revision}`, { exact: true })).toBeVisible();
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Obiectiv / instrucțiuni pentru Brain', { exact: true })).toHaveValue(FINAL_OBJECTIVE);
+    await unchanged(id, previous);
+    await setupStep(2, 'Application context'); await expect(page.getByLabel('Principal 1', { exact: true })).toHaveValue('Visitor');
+    await setupStep(4, 'Rules & budgets'); await expect(page.getByLabel('Maximum requests', { exact: true })).toHaveValue('40');
+    await setupStep(5, 'Review & preflight'); await viewports('restored-review');
+  });
+  await step('restored-dashboard-count', () => projection(record.total_engagements, id));
+  await step('restored-surfaces', () => surfaces(id));
+  await step('restored-authority-negatives-unchanged', () => authNegatives(id, previous));
+  await step('final-logout-denial-parent-db-readback-required', () => logout(id, previous));
+}
+async function run() {
+  tag = 'preflight'; must(process.argv.length === 3 && ['before', 'after'].includes(stage));
+  must(dirname(fileURLToPath(import.meta.url)) === ROOT);
+  must(JSON.parse(await readFile(join(PW, 'package.json'), 'utf8')).version === '1.63.0');
+  must(JSON.parse(await readFile(join(TEST, 'package.json'), 'utf8')).version === '1.63.0');
+  if (stage === 'before') {
+    try { await lstat(recordPath); fail(); } catch (error) { must(error?.code === 'ENOENT'); }
+  } else {
+    record = JSON.parse(await readFile(recordPath, 'utf8'));
+    must(record.schema === 1 && record.source_head === HEAD && record.origin === ORIGIN && record.before_logout_denials === true);
+    must(record.authoritative_response.engagement_id === record.engagement_id && record.authoritative_response.revision === 3);
+    must(record.authoritative_response.payload.objective_text === FINAL_OBJECTIVE);
+  }
+  const { chromium } = await import(`${PW}/index.mjs`);
+  ({ expect } = await import(`${TEST}/index.mjs`)); expect = expect.configure({ timeout: 12000 });
+  await mkdir(join(ROOT, 'browser-home'), { recursive: true, mode: 0o700 });
+  tag = 'browser-launch';
+  server = await chromium.launchServer({ headless: true, timeout: 20000, env: { PATH: '/usr/bin:/bin', HOME: join(ROOT, 'browser-home'), TMPDIR: ROOT } }).then(async owned => {
+    server = owned;
+    if (closing) { await bounded(owned.kill(), 10000); fail(); }
+    return owned;
+  });
+  must(!closing);
+  browser = await chromium.connect(server.wsEndpoint(), { timeout: 12000 });
+  context = await browser.newContext({ viewport: { width: 390, height: 1000 }, serviceWorkers: 'block', acceptDownloads: false });
+  context.setDefaultTimeout(12000); context.setDefaultNavigationTimeout(15000);
+  await context.route('**/*', async route => {
+    const url = route.request().url(); privateObserve(url);
+    if (closing) { await route.abort(); return; }
+    if (new URL(url).origin !== ORIGIN) { event('network-nonloopback-blocked', 'FAIL', '[non-loopback]'); await route.abort(); return; }
+    await route.continue();
+  });
+  context.on('page', target => {
+    target.on('console', message => {
+      privateObserve(message.text());
+      if (message.type() === 'error') {
+        const expected = /^Failed to load resource: the server responded with a status of (400|401|403|409|422)\b/.test(message.text());
+        event(expected ? 'console-expected-negative' : 'console-error', expected ? 'EXPECTED' : 'FAIL', safePath(message.location().url ?? ''));
+      } else event('console-' + (['log', 'warning', 'info', 'debug'].includes(message.type()) ? message.type() : 'other'), 'OBSERVED');
+    });
+    target.on('pageerror', error => { privateObserve(error.message); event('pageerror', 'FAIL'); });
+  });
+  context.on('response', response => {
+    privateObserve(response.url());
+    if (response.status() >= 400) event('network-http', response.status(), safePath(response.url()));
+    if (response.url() === `${ORIGIN}/api/session` || response.url() === `${ORIGIN}/api/pairing`) track((async () => {
+      if (response.ok()) { const body = await response.json(); secret(body.csrf_token); }
+    })());
+  });
+  context.on('requestfailed', request => {
+    privateObserve(request.url()); privateObserve(request.failure()?.errorText ?? '');
+    if (!closing && request.failure()?.errorText !== 'net::ERR_ABORTED') event('network-requestfailed', 'FAIL', safePath(request.url()));
+  });
+  page = await context.newPage();
+  await step('private-cli-code-pair-readback', pair);
+  await step('n01-truthful-installed-dashboard', async () => {
+    await expect(page.getByText('Create and edit saved drafts. Assessment execution is not available in this build.', { exact: true })).toBeVisible();
+    await expect(page.getByText(/Setup editing remains unavailable in B03/)).toHaveCount(0);
+  });
+  if (stage === 'before') await before(); else await after();
+  await step('private-url-storage-console-leak-scan', inspectSecrets);
+  must(!diagnostics.some(item => item.status === 'FAIL'));
+  must(!diagnostics.some(item => item.tag === 'network-http' && ![400, 401, 403, 409, 422].includes(item.status)));
+}
+let cleanupStatus = 'NOT_STARTED', timer, signalReject;
+const stopped = new Promise((_, reject) => { signalReject = reject; });
+const onSignal = () => signalReject(new Error('SANITIZED_SIGNAL'));
+const onUnexpected = () => { event('unexpected-runtime-error', 'FAIL'); signalReject(new Error('SANITIZED_RUNTIME')); };
+process.once('SIGINT', onSignal); process.once('SIGTERM', onSignal);
+process.on('unhandledRejection', onUnexpected); process.on('uncaughtException', onUnexpected);
+let task;
+try {
+  timer = setTimeout(() => signalReject(new Error('SANITIZED_STAGE_TIMEOUT')), 240000);
+  task = run(); await Promise.race([task, stopped]); verdict = 'PASS';
+} catch (error) {
+  checks.push({ tag, status: 'FAIL', path: null });
+  if (page && !page.isClosed()) {
+    try {
+      await jsonFile(join(ROOT, 'p1-failure-dom.json'), {
+        tag, error_type: error?.constructor?.name ?? 'Unknown',
+        dom: await page.evaluate(() => ({
+          active: { tag: document.activeElement?.tagName, id: document.activeElement?.id, role: document.activeElement?.getAttribute('role') },
+          alerts: [...document.querySelectorAll('[role="alert"]')].map(e => ({ tag: e.tagName, heading: e.querySelector('h3')?.textContent, focused: document.activeElement === e })),
+        })),
+      });
+    } catch { event('failure-dom-unavailable', 'OBSERVED'); }
+  }
+}
+finally {
+  clearTimeout(timer); closing = true;
+  try {
+    if (context) await bounded(context.close(), 10000);
+    if (browser) await bounded(browser.close(), 10000);
+    if (server) await bounded(server.close(), 10000);
+    const owned = server?.process();
+    if (owned) must(owned.exitCode !== null || owned.signalCode !== null);
+    cleanupStatus = server ? 'PASS' : 'NOT_STARTED';
+  } catch {
+    try {
+      if (server) await bounded(server.kill(), 10000);
+      const owned = server?.process(); must(owned && (owned.exitCode !== null || owned.signalCode !== null));
+      cleanupStatus = 'PASS_RESCUED';
+    } catch { cleanupStatus = 'UNCERTAIN'; }
+    verdict = 'FAIL';
+  }
+  // Settle any still-running owned task after closing its browser; never export error objects.
+  if (task) { try { await bounded(task.catch(() => {}), 15000); } catch { cleanupStatus = 'UNCERTAIN'; verdict = 'FAIL'; } }
+  try {
+    for (const text of privateTexts) for (const value of knownSecrets) if (text.includes(value)) leaked = true;
+    if (leaked || overflow) verdict = 'FAIL';
+    if (verdict === 'PASS' && stage === 'before') await jsonFile(recordPath, record, true);
+    await jsonFile(receiptPath, { tag: 'owned-browser-close', status: cleanupStatus, path: null });
+    await jsonFile(reportPath, { tag: `installed-p1-${stage === 'after' ? 'after' : 'before'}`, status: verdict, path: recordPath,
+      checks, diagnostics, browser_close: { tag: 'owned-browser-close', status: cleanupStatus, path: receiptPath },
+      secret_scan: { tag: 'url-storage-console-private-scan', status: leaked || overflow ? 'FAIL' : 'PASS', path: null },
+      limits: [
+        { tag: 'actual-runtime-execution-only-not-source-fixture', status: 'SCOPED', path: ORIGIN },
+        { tag: 'stop-start-db-logs-resource-attestation-parent-owned', status: 'PARENT_REQUIRED', path: null },
+        { tag: 'before-logout-unchanged-proved-by-after-stage', status: stage === 'after' && verdict === 'PASS' ? 'PASS' : 'PENDING', path: recordPath },
+        { tag: 'after-final-logout-db-unchanged-readback', status: 'PARENT_REQUIRED', path: null },
+        { tag: 'no-request-bodies-or-secret-headers-exported-record-is-approved-nonsecret-get-response', status: 'SCOPED', path: recordPath },
+        { tag: 'no-screen-reader-wcag-or-aesthetic-approval', status: 'NOT_RUN', path: null },
+        { tag: 'reticle-not-integrated-chisel-no-go', status: 'NOT_RUN', path: null },
+        { tag: 'runtime-daemon-logs-private-secret-scan', status: 'PARENT_REQUIRED', path: null },
+      ] });
+  } catch { verdict = 'FAIL'; }
+  privateTexts = []; knownSecrets.clear();
+  process.removeListener('SIGINT', onSignal); process.removeListener('SIGTERM', onSignal); process.stdin.pause();
+  // No raw exception, code, cookie, CSRF, request body, URL query, browser WS endpoint or storage output.
+  process.stdout.write(JSON.stringify({ tag: 'installed-p1-browser', status: verdict, path: reportPath }) + '\n');
+  process.exit(verdict === 'PASS' && ['PASS', 'PASS_RESCUED'].includes(cleanupStatus) ? 0 : 1);
+}

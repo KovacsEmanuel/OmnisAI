@@ -1,0 +1,111 @@
+"""Bounded installed P1 readback; never reads secret files or inspect environment."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import sys
+
+STATE = Path('/home/kali/.local/state/omnis-p1/r1/omnis')
+DATA = Path('/home/kali/.local/share/omnis-p1/r1/omnis')
+WORK = Path('/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed')
+label = sys.argv[1]
+if not re.fullmatch(r'[a-z0-9-]{1,40}', label):
+    raise SystemExit(2)
+
+def run(args, timeout=20):
+    p = subprocess.run(args, capture_output=True, timeout=timeout)
+    if p.returncode:
+        raise RuntimeError('READBACK_COMMAND_FAILED')
+    return p.stdout
+
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+    path.chmod(0o600)
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+status = json.loads(run(['/home/kali/.local/bin/omnis', 'status', '--json']))
+assert status['state'] == 'READY' and status['dashboard_ready'] is True
+assert status['assessment_ready'] is False
+journal = json.loads((STATE / 'startup.json').read_text())
+image = json.loads((DATA / 'image.json').read_text())
+manifest_path = DATA / 'releases/0.1.0/release.json'
+manifest = json.loads(manifest_path.read_text())
+assert digest(manifest_path) == image['manifest_sha256'] == journal['release_digest']
+assert all(digest(manifest_path.parent / name) == sha for name, sha in manifest['files'].items())
+assert image['project'] == journal['project']
+assert journal['instance_id'] == status['instance_id']
+assert journal['phase'] == 'READY'
+assert set(journal['containers']) == {'db', 'api', 'supervisor'}
+objects = json.loads(run(['docker', 'inspect', *journal['containers'].values()]))
+assert {o['Id'] for o in objects} == set(journal['containers'].values())
+services = []
+logs_dir = STATE / 'logs' / 'p1-delivery'
+logs_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+log_observations = []
+for o in objects:
+    service = o['Config']['Labels']['com.docker.compose.service']
+    assert o['Id'] == journal['containers'][service] and o['State']['Running']
+    assert o['Config']['Labels']['com.docker.compose.project'] == journal['project']
+    assert o['Config']['Labels']['org.omnis.start-attempt'] == journal['attempt']
+    assert not o['HostConfig']['Privileged'] and not o['HostConfig']['PortBindings']
+    assert len(o['NetworkSettings']['Networks']) == 1
+    network = next(iter(o['NetworkSettings']['Networks']))
+    n = json.loads(run(['docker', 'network', 'inspect', network]))[0]
+    assert n['Internal'] and set(n['Containers']) == set(journal['containers'].values())
+    mounts = [{k: m[k] for k in ('Type', 'Source', 'Destination', 'RW')} for m in o['Mounts']]
+    expected = {
+        'db': {(str(STATE / 'postgres'), '/var/lib/postgresql', True), (str(STATE / 'db-password'), '/run/secrets/db_password', False)},
+        'api': {(str(STATE / 'http'), '/run/omnis-http', True), (str(STATE / 'runtime-ipc'), '/run/omnis-control', False)},
+        'supervisor': {(str(STATE / 'runtime-ipc'), '/run/omnis-control', True)},
+    }[service]
+    assert {(m['Source'], m['Destination'], m['RW']) for m in mounts} == expected
+    assert all(m['Type'] == 'bind' for m in mounts)
+    if service != 'db':
+        assert o['Image'] == image['image_id']
+        assert o['Config']['User'] == '1000:1000'
+        assert o['HostConfig']['ReadonlyRootfs'] and o['HostConfig']['CapDrop'] == ['ALL']
+        assert 'no-new-privileges:true' in o['HostConfig']['SecurityOpt']
+    raw = run(['docker', 'logs', '--tail', '250', o['Id']])
+    # Docker logs may write log content to stderr; capture both channels, not command diagnostics.
+    p = subprocess.run(['docker', 'logs', '--tail', '250', o['Id']], capture_output=True, timeout=20)
+    assert p.returncode == 0
+    text = (p.stdout + p.stderr).decode('utf-8', errors='replace')
+    assert len(text.encode()) < 256 * 1024
+    secret_pattern = r'(?:postgres(?:ql)?://\S+|(?:password|csrf_token|session_token|pairing_code|capability)\s*[:=]\s*\S+|Cod pairing Omnis[^\n]*)'
+    suspicious = len(re.findall(secret_pattern, text, re.I))
+    assert suspicious == 0, 'LOG_SECRET_PATTERN'
+    alarms = [line for line in text.splitlines() if re.search(r'Traceback|\b(?:ERROR|FATAL|PANIC)\b', line)]
+    sanitized = re.sub(secret_pattern, '[REDACTED]', text, flags=re.I)
+    path = logs_dir / f'{label}-{service}.log'
+    path.write_text(sanitized)
+    path.chmod(0o600)
+    log_observations.append({'service': service, 'bytes': len(text.encode()), 'line_count': len(text.splitlines()), 'alarm_count': len(alarms), 'secret_pattern_count': suspicious, 'sanitized_path': str(path), 'sha256': digest(path)})
+    services.append({'service': service, 'cid': o['Id'], 'image': o['Image'], 'started_at': o['State']['StartedAt'], 'restart_count': o['RestartCount'], 'user': o['Config']['User'], 'read_only_rootfs': o['HostConfig']['ReadonlyRootfs'], 'mounts': mounts, 'network': network, 'network_internal': n['Internal'], 'docker_ports': o['HostConfig']['PortBindings']})
+assert all(row['alarm_count'] == 0 for row in log_observations), 'UNEXPECTED_RUNTIME_LOG_ERROR'
+sql = 'SELECT version_num FROM alembic_version; SELECT system_identifier FROM pg_control_system();'
+lines = run(['docker', 'exec', '--user', 'postgres', journal['containers']['db'], 'psql', '-U', 'omnis', '-d', 'omnis', '-At', '-c', sql]).decode().splitlines()
+assert lines == ['0008_engagement_edit', journal['system_id']]
+pg = (STATE / 'postgres').stat()
+assert [pg.st_dev, pg.st_ino] == journal['pgdata_identity']
+forwarder = STATE / 'forwarder.log'
+assert forwarder.stat().st_size < 256 * 1024
+forwarder_text = forwarder.read_text()
+assert not re.search(r'Traceback|\b(?:ERROR|FATAL)\b', forwarder_text)
+# Inventory names/modes only; generated credentials are explicitly never opened.
+inventory = [{'name': p.name, 'mode': oct(stat.S_IMODE(p.lstat().st_mode)), 'type': 'dir' if p.is_dir() else 'socket' if stat.S_ISSOCK(p.lstat().st_mode) else 'file'} for p in STATE.iterdir()]
+for name in ('instance.json', 'startup.json', 'db-password'):
+    assert stat.S_IMODE((STATE / name).stat().st_mode) == 0o600
+foreign = []
+ids = run(['docker', 'ps', '-aq']).decode().splitlines()
+for o in json.loads(run(['docker', 'inspect', *ids])):
+    if o['Config'].get('Labels', {}).get('com.docker.compose.project') != journal['project']:
+        foreign.append({'cid': o['Id'], 'name': o['Name'], 'image': o['Image'], 'status': o['State']['Status'], 'started_at': o['State']['StartedAt'], 'finished_at': o['State']['FinishedAt']})
+report = {'status': status, 'manifest_sha256': digest(manifest_path), 'installed_file_count': len(manifest['files']), 'wrapper_sha256': digest(Path('/home/kali/.local/bin/omnis')), 'services': services, 'logs': log_observations, 'forwarder_log_bytes': forwarder.stat().st_size, 'state_inventory': inventory, 'pgdata_identity': journal['pgdata_identity'], 'system_id': journal['system_id'], 'foreign_resources': sorted(foreign, key=lambda x: x['cid']), 'limits': ['Readback/topology and bounded log patterns, not a universal syscall/secret tracer', 'No backup/restore, LAN peer, other UID, real model/target or OS GUI certification']}
+path = WORK / f'attestation-{label}.json'
+save(path, report)
+print(json.dumps({'path': str(path), 'sha256': digest(path), 'state': status['state'], 'service_count': len(services), 'alarms': sum(x['alarm_count'] for x in log_observations)}))

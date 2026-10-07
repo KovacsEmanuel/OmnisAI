@@ -1,0 +1,1024 @@
+{
+  "browser": {
+    "after_check_count": 27,
+    "after_close": "PASS",
+    "before_check_count": 37,
+    "before_close": "PASS",
+    "check_status_counts": {
+      "CAPTURED": 35,
+      "PASS": 29
+    },
+    "final_logout_denials": true,
+    "final_post_logout_db_equal": true,
+    "owned_driver_browser_processes_remaining": [],
+    "screenshot_count": 35,
+    "screenshots": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-dashboard-0.png",
+        "sha256": "ca9c7080ddbdd02770edccf151ec1faf4d9549edb6891a04c126743104fc22f6"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-new-320.png",
+        "sha256": "e84dbcbb3f6bc5317036d3e0cdf67458c758f438c4c1ce3c48ec22b3f2a61a3a"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-new-390.png",
+        "sha256": "d80882733a4469659969af348c69edcd0ec3b1f0ee878a776880279d6b700681"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-new-1280.png",
+        "sha256": "4ccb03c4265ced473ef07fb321d9ecfbc4de7ac469f80e2953c321fd7661daa4"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-new-1440.png",
+        "sha256": "5e23b3d6095dabeb52204d1f7f08b39400516717cca6a78899552eef31654c1e"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-dashboard-1.png",
+        "sha256": "128e1cfb12310582e91bfa935e003d15285639f71f907e162e1016335c0d5547"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-overview-320.png",
+        "sha256": "bc14665e16e600925a603d07f495f1db627c3d213df0461e67014690ddebd85b"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-overview-390.png",
+        "sha256": "efc5188b1bd524a68eb8ec6e829838642711c4f0dc04dbc2ef2647b8a19e45c1"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-overview-1280.png",
+        "sha256": "e43fec5e54be728ca6a313ef2eb3eedf03ca6ddd300939205bf5ddc8190c6b15"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-overview-1440.png",
+        "sha256": "f946749095e36461775c72621736cc87965d33d02f5e1e48e62d6c3dfaf366c0"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-brain-stream.png",
+        "sha256": "2e3b52a404871994c9e2482cc7316d4fca5d5f68ee28366f601f9107cf6bb244"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-findings.png",
+        "sha256": "526646b8ccc4801d77c2db74dee1844aee33f17a1c340468806ce4727216bf5a"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-coverage.png",
+        "sha256": "ca761fe441fd3ac8608a80a8a8d21da007560cad35df78ddb6eb74ca19d49920"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-reports.png",
+        "sha256": "9b01bef0da79965add2377b134c2a5243a51ca70adf43b3754e1b7f065c5b296"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-settings-providers.png",
+        "sha256": "8bc8ed90d30b3d15f7d2e08e5eee429c156a5acfe50b3fc98993e98887bc97e7"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-settings-skills.png",
+        "sha256": "492a979f4d2a378cf404a03c416c1074fc3d59a9e3089f7ced72c2e7b0586c9a"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-review-320.png",
+        "sha256": "bac6ced3040a676d965a8ecafce1e8d6ea7d95eddd8ef5b466ef6160bac662dd"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-review-390.png",
+        "sha256": "0c687581dfc53e62db5e1ae765c8ba110b06b8d5c89992451f7f55bf4bf9ac60"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-review-1280.png",
+        "sha256": "5266cbe53b864ef9b85333de0a721a24e4c5e001ee767f42bb73b2abfbc7dbeb"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/before-review-1440.png",
+        "sha256": "18d2fac86608e7e90607ef82305d88c3afa033e2217d9d6382255364cb627fad"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-restored-review-320.png",
+        "sha256": "e5fc10f0a32e47c93e54a543e9112881197370b4c3cc4a810893b11c605599b4"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-restored-review-390.png",
+        "sha256": "5983e454aa6d92c5b9fe3edfd2becc1f4622ec73e475bf58ab601c3fb31f7ade"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-restored-review-1280.png",
+        "sha256": "5266cbe53b864ef9b85333de0a721a24e4c5e001ee767f42bb73b2abfbc7dbeb"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-restored-review-1440.png",
+        "sha256": "18d2fac86608e7e90607ef82305d88c3afa033e2217d9d6382255364cb627fad"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-dashboard-1.png",
+        "sha256": "d04b3800958f3ef7da7947fee0f115e6b5e667330d1cd25dd76fbb54d308730e"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-overview-320.png",
+        "sha256": "53fe8433f61738de5a275f4afb2b476f0bd5683db11d9b5a8301c2f9845929cd"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-overview-390.png",
+        "sha256": "54cf7be3d2abdc7faca1071292f88e68a6aa1e141b70f5bd606667cc01eaa651"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-overview-1280.png",
+        "sha256": "e43fec5e54be728ca6a313ef2eb3eedf03ca6ddd300939205bf5ddc8190c6b15"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-overview-1440.png",
+        "sha256": "f946749095e36461775c72621736cc87965d33d02f5e1e48e62d6c3dfaf366c0"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-brain-stream.png",
+        "sha256": "2e3b52a404871994c9e2482cc7316d4fca5d5f68ee28366f601f9107cf6bb244"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-findings.png",
+        "sha256": "526646b8ccc4801d77c2db74dee1844aee33f17a1c340468806ce4727216bf5a"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-coverage.png",
+        "sha256": "ca761fe441fd3ac8608a80a8a8d21da007560cad35df78ddb6eb74ca19d49920"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-reports.png",
+        "sha256": "9b01bef0da79965add2377b134c2a5243a51ca70adf43b3754e1b7f065c5b296"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-settings-providers.png",
+        "sha256": "8bc8ed90d30b3d15f7d2e08e5eee429c156a5acfe50b3fc98993e98887bc97e7"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/after-settings-skills.png",
+        "sha256": "492a979f4d2a378cf404a03c416c1074fc3d59a9e3089f7ced72c2e7b0586c9a"
+      }
+    ],
+    "unexpected_diagnostic_count": 0
+  },
+  "command_count": 24,
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "postgres",
+        "654b7bb1f70066774d87448f8f1f0243ffaa59a6996399eff63b2f86226e62d4",
+        "psql",
+        "-U",
+        "omnis",
+        "-d",
+        "omnis",
+        "-At",
+        "-c",
+        "SELECT row_to_json(v) FROM (SELECT r.id,r.engagement_id,r.revision,r.schema_version,r.kind,r.digest,r.payload,r.created_at FROM engagement_revision r JOIN engagement e ON e.id=r.engagement_id AND e.current_revision=r.revision) v;"
+      ],
+      "elapsed_seconds": 0.125,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "inspect",
+        "omnis-local-97f025cb282d41b89b15e853dfa23aaf_control"
+      ],
+      "elapsed_seconds": 0.018,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "stop",
+        "--json"
+      ],
+      "elapsed_seconds": 7.951,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-aq",
+        "--no-trunc"
+      ],
+      "elapsed_seconds": 0.026,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.ID}}"
+      ],
+      "elapsed_seconds": 0.018,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "ss",
+        "-H",
+        "-lntp",
+        "sport = :8765"
+      ],
+      "elapsed_seconds": 0.057,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "elapsed_seconds": 0.554,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "stop",
+        "--json"
+      ],
+      "elapsed_seconds": 0.5,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-aq",
+        "--no-trunc"
+      ],
+      "elapsed_seconds": 0.019,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.ID}}"
+      ],
+      "elapsed_seconds": 0.021,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "ss",
+        "-H",
+        "-lntp",
+        "sport = :8765"
+      ],
+      "elapsed_seconds": 0.035,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "elapsed_seconds": 0.551,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "elapsed_seconds": 13.228,
+      "exit": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-snapshot.py",
+        "qa-before"
+      ],
+      "exit": 0,
+      "scope": "status/release/selected-topology/read-only SQL/bounded sanitized logs"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-snapshot.py",
+        "qa-post-before"
+      ],
+      "exit": 0,
+      "scope": "status/release/selected-topology/read-only SQL/bounded sanitized logs"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-snapshot.py",
+        "qa-restarted"
+      ],
+      "exit": 0,
+      "scope": "status/release/selected-topology/read-only SQL/bounded sanitized logs"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-snapshot.py",
+        "qa-final"
+      ],
+      "exit": 0,
+      "scope": "status/release/selected-topology/read-only SQL/bounded sanitized logs"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-private-run.py",
+        "before"
+      ],
+      "driver_exit": 0,
+      "exit": 0,
+      "pair_issuance_exit": 0,
+      "private_transport": "PTY issuance -> stdin only; no secret argv/env/output"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-private-run.py",
+        "after"
+      ],
+      "driver_exit": 0,
+      "exit": 0,
+      "pair_issuance_exit": 0,
+      "private_transport": "PTY issuance -> stdin only; no secret argv/env/output"
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "postgres",
+        "5774b503fea18f677e8d5d06c23e9a3aa84a9c7c4192d2b9fc17fa72c4cd54db",
+        "psql",
+        "-U",
+        "omnis",
+        "-d",
+        "omnis",
+        "-At",
+        "-c",
+        "SELECT row_to_json(v) FROM (SELECT r.id,r.engagement_id,r.revision,r.schema_version,r.kind,r.digest,r.payload,r.created_at FROM engagement_revision r JOIN engagement e ON e.id=r.engagement_id AND e.current_revision=r.revision) v;"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "postgres",
+        "5774b503fea18f677e8d5d06c23e9a3aa84a9c7c4192d2b9fc17fa72c4cd54db",
+        "psql",
+        "-U",
+        "omnis",
+        "-d",
+        "omnis",
+        "-At",
+        "-c",
+        "SELECT count(*) FROM engagement; SELECT count(*) FROM engagement_revision; SELECT version_num FROM alembic_version; SELECT system_identifier FROM pg_control_system();"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "ss",
+        "-H",
+        "-lntp",
+        "sport = :8765"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "omnis-local-97f025cb282d41b89b15e853dfa23aaf_control"
+      ],
+      "exit": 0
+    }
+  ],
+  "completed_at_utc": "2026-10-07T07:47:10.272317+00:00",
+  "criteria": [
+    {
+      "counts": {
+        "installed_cli_files": 21,
+        "manifest_files": 10
+      },
+      "evidence": [
+        "attestation-qa-before.json",
+        "attestation-qa-final.json",
+        "qa-freeze-after.json"
+      ],
+      "id": 1,
+      "name": "Installed external-cwd CLI; wheel/manifest/assets/image/schema0008",
+      "verdict": "PASS_SCOPED"
+    },
+    {
+      "evidence": [
+        "p1-before-report.json",
+        "p1-after-report.json",
+        "p1-nonsecret-record.json"
+      ],
+      "id": 2,
+      "limits": [
+        "Synthetic target origin declared BLOCKED; only loopback browser requests; no target/model execution claim",
+        "Disabled assessment and unavailable navigation verified; visual approval not granted"
+      ],
+      "name": "Actual Dashboard/New/5-step Setup; exact Save-GET/reload declaration; inert surfaces",
+      "verdict": "PASS_SCOPED"
+    },
+    {
+      "evidence": [
+        "p1-before-report.json"
+      ],
+      "id": 3,
+      "limits": [
+        "B GETs temporarily held and then continued to real API; no fabricated responses"
+      ],
+      "name": "Actual two-tab CAS409; preserved local edits/no overwrite;422 focus",
+      "verdict": "PASS_SCOPED"
+    },
+    {
+      "evidence": [
+        "p1-before-report.json",
+        "p1-after-report.json",
+        "parent-before.json",
+        "parent-after.json"
+      ],
+      "id": 4,
+      "limits": [
+        "Chromium headless via Playwright1.63.0; no screen reader/zoom/forced-colors/reduced-motion or cross-browser certification"
+      ],
+      "name": "Private PTY pairing/session/logout;Host/Origin/CSRF/unauth;leak scan;keyboard/viewports",
+      "verdict": "PASS_SCOPED",
+      "viewports": [
+        320,
+        390,
+        1280,
+        1440
+      ]
+    },
+    {
+      "computed_revision_digest": "f9d5a94d16abd61355a38dff8b640eead5032f4e91ff437a5ad129ae2e934f89",
+      "epoch_sequence": [
+        1,
+        2
+      ],
+      "evidence": [
+        "qa-stop-readback.json",
+        "qa-repeated-stop-readback.json",
+        "qa-start.json",
+        "qa-ready-journal-after.json",
+        "qa-pg-before-stop.json",
+        "qa-pg-final.json",
+        "qa-time-wait.json"
+      ],
+      "generation_sequence": [
+        1,
+        2,
+        3
+      ],
+      "id": 5,
+      "name": "Installed Stop/repeatedStop/explicit no-open Start; exact absence and retention;READY left",
+      "time_wait": {
+        "bounded_wait_seconds": 65,
+        "command": [
+          "ss",
+          "-Htan",
+          "state",
+          "time-wait",
+          "( sport = :8765 or dport = :8765 )"
+        ],
+        "exit": 0,
+        "limit": "TIME_WAIT is not LISTEN and was not used as Stop absence oracle",
+        "time_wait_socket_count": 5
+      },
+      "verdict": "PASS_SCOPED"
+    },
+    {
+      "alarm_count": 0,
+      "evidence": [
+        "attestation-qa-before.json",
+        "attestation-qa-post-before.json",
+        "attestation-qa-restarted.json",
+        "attestation-qa-final.json",
+        "parent-before.json",
+        "parent-after.json",
+        "qa-freeze-after.json"
+      ],
+      "id": 6,
+      "limits": [
+        "tail250 log snapshot and actual issued-code tail300 checks; not universal historical/error/secret/syscall tracing",
+        "Nested logs parent0775 beneath0700 state root retained; do not claim all dirs0700"
+      ],
+      "name": "Bounded exact-CID/forwarder logs; generated inventory; topology; foreign resources preserved",
+      "secret_pattern_count": 0,
+      "verdict": "PASS_SCOPED"
+    },
+    {
+      "evidence": [
+        "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-review-c82a8d4.json",
+        "/home/kali/.hermes/cache/scratch/p1-binding-review-c82a8d4-5aba9acd.json",
+        "p1-before-report.json",
+        "p1-after-report.json"
+      ],
+      "id": 7,
+      "limits": [
+        "Parent retains integration/status/adjudication authority; this receipt does not close delivery"
+      ],
+      "name": "Two complementary exact-snapshot reviews plus independent actual installed live QA",
+      "named_original_finding": "P1-N01-DASHBOARD-SETUP-CONTRADICTION RESOLVED_SCOPED and both real browser journeys assert corrected visible text",
+      "verdict": "PASS_SCOPED_EVIDENCE"
+    }
+  ],
+  "db": {
+    "current_revision": 3,
+    "digest": "f9d5a94d16abd61355a38dff8b640eead5032f4e91ff437a5ad129ae2e934f89",
+    "digest_recomputed_equal": true,
+    "engagement_count": 1,
+    "engagement_id": "fd99da6c-cf75-4954-ba58-22b826512788",
+    "full_current_row_before_after_equal": true,
+    "pgdata_identity": [
+      2049,
+      4849916
+    ],
+    "revision_count": 3,
+    "revision_id": "cb9174ec-b559-430f-b2fe-70bbf1f06b2d",
+    "system_id": "7693825167226699819"
+  },
+  "evidence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-freeze-before.json",
+      "sha256": "cb29c707fd78879b839e27cea5abc627b2c8e5cca66b8ca530cd9f6bac2ecb6d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-freeze-after.json",
+      "sha256": "186d551fa53c94f84626e71b88fdfdaf862e35676eb1be621a63e40348f13b49"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-ready-journal-before.json",
+      "sha256": "324aefad51daf242da23054b05c4bebd84fdc627f516af740eacc8490d0aaba6"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-ready-journal-after.json",
+      "sha256": "2a5b0c39252032169ae9423b9829266836df93553b48bfa2da3f934e3586c280"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-retention-before.json",
+      "sha256": "005f5ffdc85969d7602e61c8b6f1aa1ac20315e4ddebd3796180f92c6689eb2f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-pg-before-stop.json",
+      "sha256": "7ffcc632d633d7f708d6db3f16dfef73abadec85ac3b0ab836dd054e73fcc0a4"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-pg-final.json",
+      "sha256": "32184d07594e23ab4b29ba26c80ad047eb66197e8de3ea25273ecaabdd0c82a0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-stop.json",
+      "sha256": "c45490ab37e8e7765ef2059712e795a09796faa6b477bee5c45978131087c894"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-stop-readback.json",
+      "sha256": "96b784da43ff360d401cca639045f37260c29941b11ace161455a3e998f5adfb"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-repeated-stop.json",
+      "sha256": "c45490ab37e8e7765ef2059712e795a09796faa6b477bee5c45978131087c894"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-repeated-stop-readback.json",
+      "sha256": "b99609dad77213a3d35a773813104fcfcf0ece66b59463cb496cc7b3d7eba494"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-start.json",
+      "sha256": "c5181d337d6350fbb090653c0bfdc4e00d05fe9f050a4d9f462a87bb8fbb024c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-time-wait.json",
+      "sha256": "c056b4b318807976f1cb4dfc1382f7a1cf40d6bff400705f6bf913f5850c1f8d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/qa-lifecycle-commands.json",
+      "sha256": "0a0382147c0e3a7923e7e91288fcffdf793233888efd594cbee5b5136772fa3c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-before-report.json",
+      "sha256": "3984a7219c0c6f0fd90f599ce0eef8b3c412e32d45780e4c34f1488f37568e9a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-before-browser-close.json",
+      "sha256": "9f2933c8f83202f0fc9e3d1ef1f80f3e4a66f2bdc88c273275f68d3b5eb5688a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/parent-before.json",
+      "sha256": "fdb9aef648a62ead07df502ec5b88f666333b955cc1ae5cbde79a37ba1927f69"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-after-report.json",
+      "sha256": "50a63c694659c258f9712605d870747ddcc2fd54714f5a519adfdf9916b04306"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-after-browser-close.json",
+      "sha256": "9f2933c8f83202f0fc9e3d1ef1f80f3e4a66f2bdc88c273275f68d3b5eb5688a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/parent-after.json",
+      "sha256": "77c5eaaffaa2b8b73c09ee212ba180b2aef09990c985a233a7c6b6892e676cfa"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-nonsecret-record.json",
+      "sha256": "725b307488c9257b3ca713a17e59d8479ba6a35cff86b0e0161d47a0531db39a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-geometry.json",
+      "sha256": "eaf9cd15965968f475fdb06c72863a5a30a8ff6f1ada4371880cac1a205a62e7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/attestation-qa-before.json",
+      "sha256": "483f0150786923ea7b5e92bbcbc8032f9554eba20a2d31ae9a3fde258bc72c4a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/attestation-qa-post-before.json",
+      "sha256": "bb60f3561bbe37faeca7020f1b14013dfbba45c7d4145012a8c6ccb89fd46a33"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/attestation-qa-restarted.json",
+      "sha256": "0e2679ea1b925810ca4857909e1f0027de574bee5754f32a300ca9c2741ae7f6"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/attestation-qa-final.json",
+      "sha256": "33a44b8cfc49f4b11874664da92fb7a7c2afb0b4781cad80e3f357df90fe527d"
+    }
+  ],
+  "final_status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 3,
+    "instance_id": "3e901f05-6bc5-4cc0-961d-007feb652de7",
+    "origin": "http://127.0.0.1:8765",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0008_engagement_edit",
+    "state": "READY",
+    "supervisor_epoch": 2
+  },
+  "freeze": {
+    "commits": [],
+    "helper_hashes": {
+      "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-browser.mjs": "0952cdb74a5834c8c9dd47a751c18e131e42b6f5ae4e23681150e26950bd744f",
+      "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-private-run.py": "c38c5c2a720930157b814858d0da27e6bb9b3d1bc4e0b6ea8e5b7d22a2d83bbc",
+      "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/p1-snapshot.py": "424c490f90fd0f836ec89d21eefe95bd14c3ec3016333bd6fef1e9a24fff90b2"
+    },
+    "protected_untracked_unchanged": true,
+    "repository_edits": [],
+    "tracked_product_helper_wrapper_files": 479,
+    "unchanged": true
+  },
+  "head": "c82a8d44b679b0712ba417b17453c58c43f1a1b7",
+  "integration_decision": "PARENT_REQUIRED; no status closure",
+  "issues_encountered": [
+    "5 owned loopback TIME_WAIT sockets observed after verified Stop; bounded65s wait, explicit Start exit0 first attempt; no PORT_CONFLICT retry or uncertainty",
+    "Digest/source lookup first tried absent api/src/omnis/engagement directory; corrected to actual modules/engagements/service.py without SQL errors/effects",
+    "Broad scratch file discovery refused traversal; narrowed to direct scratch names; no missing-review inference"
+  ],
+  "limits": [
+    "Only frozen c82a8d4 installed inert r1 consumer journey; not canonical make-check rerun, distributed release/CI/OS browser window, public LAN/otherUID, backup/restore/upgrade or aesthetics/WCAG",
+    "No provider/model/assessment/target/P2/oldP0 operations or config/global environment edits; topology/disabled state/source parity are structural not universal outbound tracer",
+    "Provisional receipts and PG bind identity unchanged, foreign10 resources unchanged; provisional synthetic dataset not reconnected/read or copied",
+    "Reticle NOT_INTEGRATED command NOT_RUN; Chisel BLOCKED/NO-GO command NOT_RUN",
+    "Only scratch artifacts and helper-authorized sanitized logs under exact r1 state root created; helper/product files untouched",
+    "Parent must independently read back exact final IDs and persist/adjudicate this complete receipt before closing P1 or preparing P2"
+  ],
+  "logs_by_snapshot": [
+    {
+      "forwarder_log_bytes": 0,
+      "receipt": "attestation-qa-before.json",
+      "services": [
+        {
+          "alarm_count": 0,
+          "bytes": 120,
+          "line_count": 3,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-before-api.log",
+          "secret_pattern_count": 0,
+          "service": "api",
+          "sha256": "7f0d29cc9e567d1f7d8b1fa8e4a9ca7e86e974e8992c8cc493ce0fab33bcedba"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 3617,
+          "line_count": 58,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-before-db.log",
+          "secret_pattern_count": 0,
+          "service": "db",
+          "sha256": "1a54ba7315fb5e8e07cc0bec09f7a8c59563d68c8ee7fb0cc5a5399577df6d27"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 17,
+          "line_count": 1,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-before-supervisor.log",
+          "secret_pattern_count": 0,
+          "service": "supervisor",
+          "sha256": "5e747138309e4110703d0050313286105ea2eeabc884988d4e287f18d1ec8308"
+        }
+      ]
+    },
+    {
+      "forwarder_log_bytes": 0,
+      "receipt": "attestation-qa-post-before.json",
+      "services": [
+        {
+          "alarm_count": 0,
+          "bytes": 120,
+          "line_count": 3,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-post-before-api.log",
+          "secret_pattern_count": 0,
+          "service": "api",
+          "sha256": "7f0d29cc9e567d1f7d8b1fa8e4a9ca7e86e974e8992c8cc493ce0fab33bcedba"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 3995,
+          "line_count": 60,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-post-before-db.log",
+          "secret_pattern_count": 0,
+          "service": "db",
+          "sha256": "64c062be5702bd5a9c60bd4016c709a69fa75ab85f18f4adacaecdf85c2d092c"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 17,
+          "line_count": 1,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-post-before-supervisor.log",
+          "secret_pattern_count": 0,
+          "service": "supervisor",
+          "sha256": "5e747138309e4110703d0050313286105ea2eeabc884988d4e287f18d1ec8308"
+        }
+      ]
+    },
+    {
+      "forwarder_log_bytes": 0,
+      "receipt": "attestation-qa-restarted.json",
+      "services": [
+        {
+          "alarm_count": 0,
+          "bytes": 120,
+          "line_count": 3,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-restarted-api.log",
+          "secret_pattern_count": 0,
+          "service": "api",
+          "sha256": "7f0d29cc9e567d1f7d8b1fa8e4a9ca7e86e974e8992c8cc493ce0fab33bcedba"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 702,
+          "line_count": 9,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-restarted-db.log",
+          "secret_pattern_count": 0,
+          "service": "db",
+          "sha256": "0bce155e8352e55c270c89ef5de9f33cb52241c41c036d887a692a999a7e2d7b"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 17,
+          "line_count": 1,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-restarted-supervisor.log",
+          "secret_pattern_count": 0,
+          "service": "supervisor",
+          "sha256": "5e747138309e4110703d0050313286105ea2eeabc884988d4e287f18d1ec8308"
+        }
+      ]
+    },
+    {
+      "forwarder_log_bytes": 0,
+      "receipt": "attestation-qa-final.json",
+      "services": [
+        {
+          "alarm_count": 0,
+          "bytes": 120,
+          "line_count": 3,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-final-api.log",
+          "secret_pattern_count": 0,
+          "service": "api",
+          "sha256": "7f0d29cc9e567d1f7d8b1fa8e4a9ca7e86e974e8992c8cc493ce0fab33bcedba"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 702,
+          "line_count": 9,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-final-db.log",
+          "secret_pattern_count": 0,
+          "service": "db",
+          "sha256": "0bce155e8352e55c270c89ef5de9f33cb52241c41c036d887a692a999a7e2d7b"
+        },
+        {
+          "alarm_count": 0,
+          "bytes": 17,
+          "line_count": 1,
+          "sanitized_path": "/home/kali/.local/state/omnis-p1/r1/omnis/logs/p1-delivery/qa-final-supervisor.log",
+          "secret_pattern_count": 0,
+          "service": "supervisor",
+          "sha256": "5e747138309e4110703d0050313286105ea2eeabc884988d4e287f18d1ec8308"
+        }
+      ]
+    }
+  ],
+  "network_id_final": "bddd44caaa3348977a36c662f53d490c0754c38f286ba78638685b70e69b4461",
+  "nonblocking_observations": [
+    {
+      "disposition": "Qualitative copy observation only, not confirmed execution defect or surviving original N01; parent adjudicates",
+      "id": "P1-QA-OBS01",
+      "severity": "informational",
+      "subject": "Screenshot reviewer notes generic dashboard tagline Nothing runs until you choose to start may imply future execution availability; adjacent corrected hint explicitly says unavailable and real Start controls are disabled"
+    },
+    {
+      "disposition": "Screenshots not full-page and cannot alone show exact objective or every disabled control",
+      "id": "P1-QA-OBS02",
+      "severity": "informational",
+      "subject": "Viewport screenshots end before lower content; normal scroll remains available and DOM/focus/no-horizontal-overflow assertions passed"
+    }
+  ],
+  "repo": "/home/kali/OmnisAI",
+  "report_id": "P1-INDEPENDENT-FINAL-LIVE-QA-c82a8d4",
+  "reviews": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-review-c82a8d4.json",
+      "report_id": "P1-NORMATIVE-RECHECK-c82a8d4-N01",
+      "reviewed_head": "c82a8d44b679b0712ba417b17453c58c43f1a1b7",
+      "scope": "Original P1-N01 corrected Dashboard consumer/source/served asset, additive r1 immutable delivery contract and truthful in-progress status on exact c82a8d44b679b0712ba417b17453c58c43f1a1b7. Not final installed P1 delivery acceptance or full audit.",
+      "sha256": "ca015295f3235cfefa21235477c571a29130faaf30cca5daf499a0ec64c90ead",
+      "verdict": "APPROVED_SCOPED"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p1-binding-review-c82a8d4-5aba9acd.json",
+      "report_id": "p1-installation-binding-complementary-c82a8d4",
+      "reviewed_head": "c82a8d44b679b0712ba417b17453c58c43f1a1b7",
+      "scope": "Focused independent read-only re-review of changed installation binding only: additive r1 roots, launcher, immutable release/image/receipt/source parity, initial topology and permissions. Unchanged architecture and prior security audit not reopened.",
+      "sha256": "f793fc60758e084dbb69798de11c675260e831a1bbd775a8dacbd8ccbbfd6806",
+      "verdict": "APPROVED_SCOPED"
+    }
+  ],
+  "runtime_before": {
+    "api_socket": [
+      2049,
+      4852723
+    ],
+    "attempt": "543df517-d15e-45e4-a765-128c278489e0",
+    "containers": {
+      "api": "d4a7567f64156f7b0dbc9ebfae94f16877507db00096f0570888db4c35603387",
+      "db": "654b7bb1f70066774d87448f8f1f0243ffaa59a6996399eff63b2f86226e62d4",
+      "supervisor": "8508c0f4e2b4790132e3a89ddaab5ed17fcd7b21e488dbae1979d87acb949c7b"
+    },
+    "control_dir": "/home/kali/.local/state/omnis-p1/r1/omnis/runtime-ipc",
+    "control_socket": [
+      2049,
+      4852726
+    ],
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "format": 2,
+    "forwarder": {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_cli.forwarder",
+        "--socket-dir",
+        "/home/kali/.local/state/omnis-p1/r1/omnis/http",
+        "--port",
+        "8765",
+        "--stop-attempt",
+        "543df517-d15e-45e4-a765-128c278489e0"
+      ],
+      "boot_id": "548a97ed-b02c-427f-bc90-dd26bedfec12",
+      "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+      "pid": 498379,
+      "start_ticks": "1006100"
+    },
+    "generation": 1,
+    "image_id": "sha256:1f48e9ccce2518a2d8905a8dfb8364abe21d2a3f7f1ddc7ea562c4d9e86932bd",
+    "instance_id": "3e901f05-6bc5-4cc0-961d-007feb652de7",
+    "listener_inode": 1276292,
+    "open_command": "7eb0a87b-ba19-494a-82f6-0f1809e7126b",
+    "pgdata_identity": [
+      2049,
+      4849916
+    ],
+    "phase": "READY",
+    "port": 8765,
+    "project": "omnis-local-97f025cb282d41b89b15e853dfa23aaf",
+    "release_digest": "ce08c84ddcb5c4c7fa06f2aea03766f52bc3b4dd0a87e23b59db7aa48a2fc18e",
+    "supervisor_epoch": 1,
+    "system_id": "7693825167226699819"
+  },
+  "runtime_final": {
+    "api_socket": [
+      2049,
+      4850266
+    ],
+    "attempt": "014d214d-6700-4b27-b865-c303961ae5c5",
+    "containers": {
+      "api": "effc0e771fc2ed79bda4eddcc767ccb3c4bbe93dbf3ee1b44cf8fc6561c877a6",
+      "db": "5774b503fea18f677e8d5d06c23e9a3aa84a9c7c4192d2b9fc17fa72c4cd54db",
+      "supervisor": "0367cb63fb5de95fbcca203b144ccaf8ec98c8305b63128958e645b2033f0987"
+    },
+    "control_dir": "/home/kali/.local/state/omnis-p1/r1/omnis/runtime-ipc",
+    "control_socket": [
+      2049,
+      4852742
+    ],
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "format": 2,
+    "forwarder": {
+      "argv": [
+        "/home/kali/.local/share/omnis-p1/cli-venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_cli.forwarder",
+        "--socket-dir",
+        "/home/kali/.local/state/omnis-p1/r1/omnis/http",
+        "--port",
+        "8765",
+        "--stop-attempt",
+        "014d214d-6700-4b27-b865-c303961ae5c5"
+      ],
+      "boot_id": "548a97ed-b02c-427f-bc90-dd26bedfec12",
+      "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+      "pid": 520942,
+      "start_ticks": "1082154"
+    },
+    "generation": 3,
+    "image_id": "sha256:1f48e9ccce2518a2d8905a8dfb8364abe21d2a3f7f1ddc7ea562c4d9e86932bd",
+    "instance_id": "3e901f05-6bc5-4cc0-961d-007feb652de7",
+    "listener_inode": 1346442,
+    "open_command": "d50c0788-52a8-4512-a218-813132235a6f",
+    "pgdata_identity": [
+      2049,
+      4849916
+    ],
+    "phase": "READY",
+    "port": 8765,
+    "project": "omnis-local-97f025cb282d41b89b15e853dfa23aaf",
+    "release_digest": "ce08c84ddcb5c4c7fa06f2aea03766f52bc3b4dd0a87e23b59db7aa48a2fc18e",
+    "supervisor_epoch": 2,
+    "system_id": "7693825167226699819"
+  },
+  "schema_version": 1,
+  "verdict": "PASS_SCOPED_LIVE_QA"
+}

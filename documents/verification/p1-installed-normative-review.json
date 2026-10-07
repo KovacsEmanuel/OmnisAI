@@ -1,0 +1,216 @@
+{
+  "architecture_plan_ui_status_delta": [],
+  "artifact_delta": {
+    "added_entries": [
+      "web/assets/index-Cfl5r79r.js"
+    ],
+    "api_wheel_unchanged": true,
+    "changed_common_entries": [
+      "web/index.html",
+      "web/omnis-web.json"
+    ],
+    "cli_wheel_unchanged": true,
+    "removed_entries": [
+      "web/assets/index-CLNYK6Ti.js"
+    ]
+  },
+  "commands_and_exit": [
+    {
+      "command": "Git status/rev-parse/tree/diff/show; tracked475 content hashes before/after",
+      "exit_code": 0
+    },
+    {
+      "command": "npm --prefix web test -- src/app/Dashboard.test.tsx",
+      "exit_code": 0
+    },
+    {
+      "command": "Bounded Python urllib GET /health/ready, / and actual JS; SHA256 source-dist-installed/readback; wrapper and original candidate hash comparisons",
+      "exit_code": 0
+    },
+    {
+      "command": "Bounded Python verify all10 entries in each manifest; before==after source snapshot assertion; architecture/plan/UI/map unchanged assertion; git diff --check; final git status",
+      "exit_code": 0
+    }
+  ],
+  "consumer_regression": {
+    "command": "npm --prefix web test -- src/app/Dashboard.test.tsx",
+    "exit_code": 0,
+    "limit": "Actual component/App DOM test with stubbed fetch responses, not authenticated installed-browser QA.",
+    "method": "Dashboard.test.tsx:38-55 mounts App with QueryClientProvider and MemoryRouter; fetch response fixture; asserts visible corrected text and absent old text",
+    "test_files_passed": 1,
+    "tests_passed": 2,
+    "workdir": "/home/kali/OmnisAI"
+  },
+  "evidence_limits": [
+    "Approval closes the named N01 finding and normative additive-contract checks only; parent adjudicates integration. Installed independent live QA is still pending in this report.",
+    "No browser, pairing, secrets/capability/env files, database mutation/query, Start/Stop/service changes, provider/model/target calls, old P0 access, repository edits, commits or push.",
+    "No regenerated build or full canonical suite; current served asset was compared against current build bytes and manifested installed bytes, and affected component regression executed.",
+    "No universal syscall/network/secret tracing, backup/restore or upgrade certification, other UID/LAN/remote/CI or aesthetic approval.",
+    "Initial attestation READY/no searched alarms is parent evidence read here, not new post-QA log verification. Historical provisional QA failures remain recorded, not transformed into PASS.",
+    "Global status map remains historical P1/G01 scoped PASS and B05.1 scoped approval with fullB05/G02 open. This re-review neither reopens unchanged architecture nor advances P2."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-c82a8d4-before.json",
+    "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-c82a8d4-live-bytes.json",
+    "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-c82a8d4-after.json",
+    "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-c82a8d4-checks.json",
+    "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/reviewed/normative-review-c82a8d4.json"
+  ],
+  "findings": [],
+  "installed_identity": {
+    "identity_source": "Read r1 image.json and parent attestation-initial.json; readiness independently GET200. No private status/capability consumer invoked.",
+    "image_id": "sha256:1f48e9ccce2518a2d8905a8dfb8364abe21d2a3f7f1ddc7ea562c4d9e86932bd",
+    "instance_id": "3e901f05-6bc5-4cc0-961d-007feb652de7",
+    "manifest_sha256": "ce08c84ddcb5c4c7fa06f2aea03766f52bc3b4dd0a87e23b59db7aa48a2fc18e",
+    "origin": "http://127.0.0.1:8765",
+    "project": "omnis-local-97f025cb282d41b89b15e853dfa23aaf"
+  },
+  "live_served_bytes": {
+    "asset": {
+      "bytes": 359116,
+      "contains_corrected_hint": true,
+      "contains_stale_hint": false,
+      "matches_current_dist": true,
+      "matches_installed": true,
+      "path": "/assets/index-Cfl5r79r.js",
+      "sha256": "979e43efd816153df75017bd4d8fe476013faa98ab3ff399dc5dd54ef4150dd7",
+      "status": 200
+    },
+    "immutable_provisional": {
+      "asset_matches_original_review": true,
+      "asset_sha256": "88e5f877baf71d2022eae965405bb4fea24fda75f15da9d1e4c5387b5ed81bac",
+      "manifest_matches_original_review": true,
+      "manifest_sha256": "5f24132529297e7c3e1de4a4be80db6cc5c26dfd77c4087f6f170dc08a22b1ce"
+    },
+    "index": {
+      "matches_installed": true,
+      "sha256": "72ccc351b17084a517a0a17bc711b0a7c523dc8adc2bb857fa0f4c28aedb9061",
+      "status": 200
+    },
+    "ready": {
+      "body": {
+        "api_ready": true,
+        "assessment_ready": false,
+        "dashboard_ready": true,
+        "dashboard_reason": null,
+        "reason": null
+      },
+      "status": 200
+    },
+    "wrapper": {
+      "matches_versioned": true,
+      "mode": "0o700",
+      "regular_not_symlink": true,
+      "sha256": "baa079ce4f31cfdf9c05a3038d9fa0c62a56d398af7b444c94681f2d891a0065"
+    }
+  },
+  "manifest_checks": {
+    "provisional": {
+      "entries": 10,
+      "mismatches": [],
+      "path": "/home/kali/.local/share/omnis-p1/omnis/releases/0.1.0/release.json",
+      "release": "0.1.0",
+      "schema": "0008_engagement_edit",
+      "sha256": "5f24132529297e7c3e1de4a4be80db6cc5c26dfd77c4087f6f170dc08a22b1ce"
+    },
+    "r1": {
+      "entries": 10,
+      "mismatches": [],
+      "path": "/home/kali/.local/share/omnis-p1/r1/omnis/releases/0.1.0/release.json",
+      "release": "0.1.0",
+      "schema": "0008_engagement_edit",
+      "sha256": "ce08c84ddcb5c4c7fa06f2aea03766f52bc3b4dd0a87e23b59db7aa48a2fc18e"
+    }
+  },
+  "named_finding_dispositions": [
+    {
+      "correction_commit": "110c16c",
+      "disposition": "RESOLVED_SCOPED",
+      "id": "P1-N01-DASHBOARD-SETUP-CONTRADICTION",
+      "locations": [
+        "web/src/features/dashboard/copy.ts:3",
+        "web/src/features/dashboard/Dashboard.tsx:25",
+        "web/src/app/Dashboard.test.tsx:38-55",
+        "/home/kali/.local/share/omnis-p1/r1/omnis/releases/0.1.0/web/assets/index-Cfl5r79r.js"
+      ],
+      "original_severity": "MEDIUM",
+      "reason": "The same rendered createHint consumer now truthfully advertises saved draft editing and explicitly unavailable assessment execution. The installed live asset is byte-identical to current dist and installed r1; corrected sentence present, original false B03 sentence absent. App-level regression asserts both properties on a rendered authenticated Dashboard and passed independently 2/2.",
+      "survives": false,
+      "unused_copy_limit": "Preexisting dashboardCopy.b04 still has historical wording but is not rendered by the affected Dashboard consumer; not a surviving N01 reproducer."
+    }
+  ],
+  "normative_contract_checks": [
+    {
+      "criterion": "Delivery status not claimed closed",
+      "evidence": "p1-installed-delivery.md:5 explicitly IN_PROGRESS, nu PASS; :40 re-review pending; :50 independent re-review/live QA required before final acceptance. Historical G01/P1 web PASS is not promoted to current installed delivery PASS.",
+      "result": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Additive immutable r1, no same-root replacement",
+      "evidence": "Delivery note :46-50 explicitly new r1 data/state/config roots, retained provisional dataset, no migration/copy/overwrite/P0 edits and bounded inverse. Executable wrapper equals versioned c82a8d4 bytes, fixes all three r1 roots and retains original durable CLI entrypoint. Both manifests verify10/10; original manifest and original JS still match original normative review hashes exactly. API/CLI wheel hashes identical across candidates.",
+      "limit": "No independent replay of Stop/Start, historical before-install absence, PGDATA persistence or lifecycle cleanup. Parent reports original stopped at generation4; this reviewer did not claim to exercise that path.",
+      "result": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Architecture/plan order unchanged",
+      "evidence": "git diff b9ceacd..c82a8d4 is limited to delivery note, wrapper, one hint and two consumer assertions. Architecture, implementation plan, UI spec and global status map have no changed paths. Plan6/B03-B04-G01 and architecture4.1-4.2 remain authority, no P2 implementation or gate activation.",
+      "result": "PASS_SCOPED"
+    }
+  ],
+  "original_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/normative-review-b9ceacd.json",
+    "report_id": "P1-NORMATIVE-b9ceacd-N01",
+    "snapshot": "b9ceacd855ae6b9c619f5243cb68e0fff2857670",
+    "verdict": "CHANGES_REQUESTED"
+  },
+  "profile_product_files_modified": [],
+  "proposed_status_delta": {
+    "current_delivery": "IN_PROGRESS; focused normative review APPROVED_SCOPED, N01 resolved; final delivery NOT_CLOSED",
+    "global_gates": "Historical G00/G01 preserved; B05 full/G02 and later model/target gates unchanged.",
+    "next_action": "Parent persists/adjudicates N01 disposition and completes independent live QA on r1 before installed-delivery acceptance."
+  },
+  "recorded_red_green": {
+    "canonical_limit": "make check exit0 belongs to original b9ceacd and exact disposable cleanup; not rerun or claimed as canonical PASS of corrected copy.",
+    "green_observation": "Recorded make check-web contains 6 tooling, 74 web tests, type/lint/contracts/design/build and audit 0 vulnerabilities. Exit0 after last edit is recorded by parent/versioned note; not rerun by this reviewer.",
+    "green_web_log": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/n01-green-web.log",
+    "red_log": "/home/kali/.hermes/cache/scratch/p1-delivery-682449b-wNYBV6QY/n01-red.log",
+    "red_observation": "2 tests, 1 failed: rendered App did not contain corrected sentence. RED exit1 is recorded in versioned delivery note and delegated context; reviewer read the actual failure, did not reintroduce old bytes."
+  },
+  "report_id": "P1-NORMATIVE-RECHECK-c82a8d4-N01",
+  "repository_files_modified": [],
+  "review_type": "Independent focused normative re-review, read-only product/repository/profile",
+  "reviewed_scope_sha256": {
+    "documents/verification/p1-installed-delivery.md": "8c23ab51d32ef1f1da6950e4b981c185d843dbb6c2ae5675b355b228071ce888",
+    "documents/verification/p1-installed-launcher.sh.txt": "baa079ce4f31cfdf9c05a3038d9fa0c62a56d398af7b444c94681f2d891a0065",
+    "web/src/app/Dashboard.test.tsx": "a290fdc3253a0f37c8aadc6e5ee97d5651416b286deee5b5e12a34b7bfc55a46",
+    "web/src/features/dashboard/Dashboard.tsx": "e7e5b7b6e6244899c6b32d511196a7a574a9b6dfdc80d106106553ee3d225641",
+    "web/src/features/dashboard/copy.ts": "004e64a752a4fca5dbc7f1ac1849bd9b31628ac1b41239a7ea4d5e5cccfd3109"
+  },
+  "scope": "Original P1-N01 corrected Dashboard consumer/source/served asset, additive r1 immutable delivery contract and truthful in-progress status on exact c82a8d44b679b0712ba417b17453c58c43f1a1b7. Not final installed P1 delivery acceptance or full audit.",
+  "snapshot": {
+    "changed_tracked_files": [],
+    "hash_aggregate_after": "97e455b861fcb69730e954dba9005502324760915aabc4dce5c9e819d67ffc22",
+    "hash_aggregate_before": "97e455b861fcb69730e954dba9005502324760915aabc4dce5c9e819d67ffc22",
+    "head_after": "c82a8d44b679b0712ba417b17453c58c43f1a1b7",
+    "head_before": "c82a8d44b679b0712ba417b17453c58c43f1a1b7",
+    "status_after": "?? documents/Omnis_Notite_Originale.html\n",
+    "status_before": "?? documents/Omnis_Notite_Originale.html\n",
+    "tracked_files": 475,
+    "tree_after": "093b1efb0e3f830a486f2893e5512ca561e4d14d",
+    "tree_before": "093b1efb0e3f830a486f2893e5512ca561e4d14d"
+  },
+  "surviving_blockers": [],
+  "tool_applicability": {
+    "Chisel": {
+      "command": "NOT_RUN",
+      "limit": "Existing NO-GO; native tools only, no registration or execution.",
+      "result": "BLOCKED"
+    },
+    "Reticle": {
+      "command": "NOT_RUN",
+      "limit": "No admitted product instrumentation; no synthetic fixture replay or visual approval.",
+      "result": "NOT_INTEGRATED"
+    }
+  },
+  "verdict": "APPROVED_SCOPED"
+}

@@ -1,0 +1,22 @@
+# B05 fixture input only, not operator configuration or a live Brain policy.
+toolsets: []
+security:
+  allow_lazy_installs: false
+auth:
+  adopt_external_logins: false
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  nudge_interval: 0
+  provider: ""
+plugins:
+  enabled: []
+mcp_servers: {}
+hooks: {}
+hooks_auto_accept: false
+dashboard:
+  startup_orphan_sweep: false
+fallback_providers: []
+delegation:
+  fallback_providers: []
+  inherit_mcp_toolsets: false

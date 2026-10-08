@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL_DURABLE_FREEZE_IN_PROGRESS_CANONICAL_FAIL",
+  "full_b06a": "NOT_CLOSED",
+  "base_head": "4ac1cd46399a3e26a013c9e4cc06f9f43b37b403",
+  "checkpoint_head": "85281522571a1ca10dcf68aa4f781212dfcbd413",
+  "product_sha256": {
+    "AGENTS.md": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+    "CONTRIBUTING.md": "4f3ada18dbdf56177ee7ff059141043b11f48944ea78da725a31488e574bc6b6",
+    "Makefile": "3f7a514202b77e7ffdffe0d630cc9887f63b7311384b8ab5c2a646e4fb815cd5",
+    "api/src/omnis/core/db.py": "cae8ff648f99623f107c017450d317ac85e775f418c98df6ab117c8d70ff587d",
+    "api/src/omnis/core/schema.py": "383f894205ba76b17ed0b2a1c399c0bcfca0515b48da7de95bf5f6ebc40a4f90",
+    "api/src/omnis/migrations/versions/0009_catalog_candidates.py": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371",
+    "api/src/omnis/modules/settings/candidate_catalog.py": "d1b86ea77187f5c8177afabd2d671052dff9494303b93e6674dd122daeffc39b",
+    "api/src/omnis/modules/settings/candidate_index.py": "cf3182dd1897b799e31d3c445b0a58117584204f1842c9fee27eaabf9e50428f",
+    "api/src/omnis/modules/settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+    "api/src/omnis/modules/settings/candidate_store.py": "a72e2fdfef66d48f32a05c775c7b3a6e2248064f225e4460c64635010c17ff1e",
+    "api/src/omnis/modules/settings/catalog_models.py": "55f8214ce8f88e6188d6daf4f3090f4e5615ff6891ec907c5fde684fe27e3701",
+    "api/src/omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+    "api/src/omnis/modules/settings/skill_catalog.py": "51c418597b4e712076f732e568737fff6c0eb0f92d4c433359810bdcaab9c9ba",
+    "api/src/omnis/modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+    "api/tests/fixtures/b06a_durable/consumer.py": "b55ccbfaf5c85af4c415d1c4b56b20a10a3c335511c08410b8eca043fe0143d4",
+    "api/tests/test_b06a_closure.py": "27c970287fbdf7c9aea34d473a455473d4536016d6ca46e8f55bfa665176e367",
+    "api/tests/test_candidate_tracer_decoded_receipt.py": "67d5e9f13e74848c00d57696b73283d97dd22b712dc801051461252ee9168b49",
+    "api/tests/test_candidate_tracer_fingerprints.py": "9bf98ce932a8dc9cc86ede24cb98327dd1e9bbb0d2034898c39a80fb4bc4943e",
+    "api/tests/test_candidate_tracer_freeze_guards.py": "667bb5f4e7599752769f674f9e85878df27dca824d4e671b9220fe91229ea871",
+    "api/tests/test_candidate_tracer_handler_unicode.py": "23af5ba596c3bffe183ccc0efd751cf8d145c9bd7f2538e4342908d6bbea8d49",
+    "api/tests/test_candidate_tracer_namespace_budget.py": "5a304854b6d10885d485b341cb7a48a356e221708a021bf01e7be3bcc7d75bad",
+    "api/tests/test_candidate_tracer_request_strings.py": "d71aacddc59006501415014c7efb2adda308f28146130d7ac897ecab14180501",
+    "api/tests/test_catalog_candidate_restart.py": "998856b7daf8cbc425472bcbdf34f8dd2faabfa0d0cff7cf5d7caeaa80f2d847",
+    "api/tests/test_catalog_candidates_pg.py": "1feb2e2f3255ea4f2df2706f38dc9f6992da9afc2e430614cf99217be0682e5a",
+    "api/tests/test_catalog_candidates_pg_compatibility.py": "c803feeeabf0997892e1bfe596ebb0f74b9dc556671d4f35054e1e7e4138fa89",
+    "api/tests/test_cli_status.py": "7394a7cbc614b027b0641f0890d3613c360ba9486356971657c1ab2b01c5f130",
+    "api/tests/test_migrations.py": "f30fefd35564d308a7f07fc132eda6f3a4602a71e1fa6531561a665710b0356e",
+    "cli/integration/control_topology.py": "311defb9f7a6fb506f76d3547851f4422ee0fa1e5ac5a903e1e3ef03eebf2107",
+    "cli/integration/installed_start.py": "c3742dbe6f56e74e7cf1b77dea7e6d2d8e8f6c1eb196b946afa8e04dbad8e18e",
+    "cli/src/omnis_cli/instance.py": "d5a1864d5a9c08db2746e12e72b9e9ce6ca93cc82b2443d919eb8c1a8ff04b44",
+    "cli/src/omnis_cli/release.py": "ce881953703436bc4b3af6702f75f452b88975db4edc10d93c6c9d2dd92e83d2",
+    "cli/src/omnis_cli/start.py": "9bdafcc50e4f4a70d77953e1c9736e13002a686b3c201491d02b6cc41e29d906",
+    "cli/tests/stop_owner_fixture.py": "732267ee12e17e23eaf2fe6d6d5dc563f6ce63a19dc6634b40572519390f41f8",
+    "cli/tests/test_install.py": "1783cde331d8a384c243bf9c22dee29f4284f39e3346351cd58eb2a33851db39",
+    "cli/tests/test_installed_pointer_schema.py": "392579e6b6f419a240225e48f123bedf4f19603b4f80c825fc63d788b8a2052e",
+    "cli/tests/test_ready_journal.py": "ef2da8f016d4337e4e6bb684755b27cb88099bad5ee8de8e2704db573c79ceed",
+    "cli/tests/test_schema_compatibility.py": "d39d36a3e76214d08cd28256657e2aa3be4eeda7e74d315fb65f71246b529eaf",
+    "cli/tests/test_status.py": "2d1f49c40b14df06e92908c95ab731238efb02b2828280186bc6554554028e2a",
+    "cli/tests/test_stop.py": "c30192867d3f95609ceab670a683e099a7c47409faf10920ab04fff073e5dbce",
+    "documents/Omnis_Implementation_Plan.md": "a0e9155b9b7eb684cc6f6b9504f03dbcda49f1672b185a954ce9de3510201b3a",
+    "documents/Omnis_MVP_Architecture.md": "70ed6e66d818d8cc6d4e284aa4f08a414bb98cca4b95b06f5199722036fffb63",
+    "documents/verification/p2-b06a.md": "b7ece5b4e32cd06013d843bd93627b05ab297f053b33ebe9950b2543b7d9ab77",
+    "ops/build_control_bundle.py": "1983d236852553613461d0fe59524898bf9aae0c2df4547df72a339969a39636",
+    "ops/run_test_db_gate.py": "2914cf748ba3577473b28d38e8b369ae4d262a952d81fd898918d5825da9c94f"
+  },
+  "review_manifest_sha256": "954a5957000c2ca8396e68554770ddd0308d0988832d7d1a7f1fe72d8e21bfd2",
+  "scope": "Private STATIC/PURE durable seed freeze/evaluate/readback increment; not full SL08 resolver, Publish or Task/child/assessment. Freeze/fingerprint integration remains parent-owned uncommitted at this checkpoint.",
+  "review": [
+    {
+      "report": "b06a-corrected-freeze-r1-rereview.json",
+      "sha256": "0dc548d2e3b84f8c44d43f53658c1eff61739607b8faa6bc7c3de3532bb53b74",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Re-review read-only focalizat: R1-B06A-01/R2-B06A-01, Unicode decodat în handlerul seed, denial sanitizat, evaluation-input/evaluation-receipt persistent și replay. Increment privat durabil freeze/evaluate/readback; NU full resolver/B06a/SL08/G02/G-MODULE-core.",
+      "manifest_count": 44,
+      "limits": "Code/pure review; no automatic transfer from pre-fingerprint PG to canonical or full B06a."
+    },
+    {
+      "report": "b06a-corrected-freeze-r2-rereview.json",
+      "sha256": "a1663044efe2700177d673d5876ee9fd95ebd876ba49e5adddf849280fea3a78",
+      "verdict": "APPROVED_SCOPED",
+      "scope": [
+        "R2-E04: separarea bugetului aggregate de namespace de capul per-pachet",
+        "R2-E05: identitatea compiler/evaluator pentru cei opt paths trusted declarați, source/installed invariance și refuz stale readback"
+      ],
+      "manifest_count": 44,
+      "limits": "Code/pure review; no automatic transfer from pre-fingerprint PG to canonical or full B06a."
+    }
+  ],
+  "canonical": {
+    "process": "proc_ed5c3e6bea98",
+    "command": "make check UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19 (pinned Node/npm PATH; umask077)",
+    "exit_code": 2,
+    "family_drained": true,
+    "api": {
+      "passed": 664,
+      "scope": "all API tests except migrations/browser E2E/CLI status; includes current durable PG and fingerprint regressions"
+    },
+    "migrations": {
+      "passed": 23
+    },
+    "browser_e2e": {
+      "passed": 8,
+      "failed": 1,
+      "failed_test": "api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[b04]",
+      "python_line": 153,
+      "driver_location": "web/tests/e2e/b04.mjs:87",
+      "failure": "Application context heading absent after Next; driver assertion failure, not a parent communicate timeout or connection-refused exception",
+      "stage": "before backend restart"
+    },
+    "later_components": "CLI (source/live/wheel), release and runtime NOT_RUN in this failed canonical sequence",
+    "gate_log_sha256": "b005ae21473dd40ca6e300ca582dc869b99c9c65a7f80ee8060d5c72a9fc347e",
+    "receipt_sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+    "owned_root": "/home/kali/.hermes/cache/scratch/db-fbe7dfc7181c41a2",
+    "cleanup": {
+      "parent_exact_readback": "PASS",
+      "container_absent": true,
+      "project_networks_absent": true,
+      "socket_and_lock_absent": true,
+      "data_logs_images_retained": true
+    }
+  },
+  "committed_fixes": [
+    {
+      "commit": "182dedb",
+      "scope": "Unicode decoded in trusted handler becomes INVALID_PURE_INPUT, no broad catch"
+    },
+    {
+      "commit": "8528152",
+      "scope": "Aggregate namespace bound separate from per-package cap; receipts-root hunk remains with freeze"
+    }
+  ],
+  "b04_prerequisite": {
+    "status": "REPRODUCED_FIXED_UNIT_GREEN_LIVE_QA_AND_REVIEW_PENDING",
+    "reproducer": "cached selected/draft revisions plus explicitly held initial GET expose empty form and actionable Next",
+    "red": {
+      "command": "npm --prefix web test -- src/app/Wizard.test.tsx -t 'keeps cached Setup controls unavailable'",
+      "exit_code": 1,
+      "count": 1
+    },
+    "minimal_fix": "Wizard.tsx initial loading checks !hydrated&&!query.isError, not query.isPending alone",
+    "green": {
+      "wizard_tests": 17,
+      "exit_code": 0,
+      "lint_web": 0,
+      "typecheck_web": 0,
+      "build_web": 0
+    },
+    "limit": "Held HTTP transport seam proves reproduced cache/hydration bug; does not by itself establish original browser failure causality or PG E2E PASS."
+  },
+  "retained_limits": [
+    "Historical canonical CLI0008/API0009 FAIL is retained; schema compatibility fix4ac1cd4 does not relabel it PASS.",
+    "Unicode PG RED and mis-specified parent BLOCKED oracle attempts remain FAIL; corrected denial/readback/replay probe45PASS was before fingerprint; current API664PASS is separate fresh integration evidence.",
+    "Full qualified/nonempty RELEASE closure/profile resolver remains incomplete.",
+    "R2-E02 physical-crash/fsync/ACK-loss and R2-E03 concurrency breadth remain limited, not universal proof.",
+    "B06A-CONT-PARENT-DISCLOSURE-01 remains NOT_PASS_PROTOCOL; original private traces and data retained.",
+    "Initial R2 procedural metadata allowlist deviation retained; later approvals do not erase it.",
+    "No B06b, seed publication, model/provider/account/target, r1 adoption/restart, rollout, global configuration or push."
+  ]
+}

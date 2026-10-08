@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "scope": "SL09/B06b increment C01 exact operator publication and inert run snapshot; not full B06b",
+  "verdict": "CLOSED_SCOPED_C01",
+  "code": "IMPLEMENTED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_C01_COMPOSITE",
+  "product_commit": "5ac20f6b56f2e7b98245cacbcf7c8d7558f4a7fa",
+  "canonical": {
+    "tested_head": "f208c92ae68b21f1612c0432cc633e1c2c7df081",
+    "command": "make check UV=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/uv/uv-x86_64-unknown-linux-gnu/uv",
+    "family_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "tracked_count": 607,
+    "all_tracked_bytes_unchanged": true,
+    "source_before_sha256": "6c8a14fc712982fac9995d51177db76f5d02d91606749956b924927f52e26fb1",
+    "gate_log": "/home/kali/.hermes/cache/scratch/c1c-kzkkfa3w/db-fa489e29574a4fa5/gate.log",
+    "gate_log_sha256": "2193b4401faa1ef229e7ae04a22fe665ac5c27bcb55f46843af423ec08ad1aa7",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/c1c-kzkkfa3w/db-fa489e29574a4fa5",
+    "project": "omnis-p01-12e0985bbf91457a9abad6d9ef9d614d",
+    "cid": "3883e701b0c93fef48e58e5f5fb49b95594dfc6fd7d8d4ac5073a350c985062b",
+    "system_identifier": "7694425063569158174",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "cleanup": {
+      "same_daemon": true,
+      "exact_CID_containers_networks_socket_absent": true,
+      "uncertain": false,
+      "PGDATA_logs_retained": true
+    },
+    "summaries": [
+      "Ran 72 tests in 1.514s",
+      "OK",
+      "Ran 43 tests in 8.745s",
+      "OK",
+      "758 passed in 1485.83s (0:24:45)",
+      "23 passed in 62.91s (0:01:02)",
+      " Test Files  9 passed (9)",
+      "      Tests  75 passed (75)",
+      "9 passed in 83.49s (0:01:23)",
+      "Ran 287 tests in 70.064s",
+      "OK",
+      "Ran 287 tests in 70.440s",
+      "OK",
+      "1 passed in 3.07s",
+      "Ran 61 tests in 18.531s",
+      "OK",
+      "134 passed in 6.27s",
+      "Ran 6 tests in 0.064s",
+      "OK"
+    ],
+    "session_id": "proc_3f871eca4eb9",
+    "exit_code": 0,
+    "component_counts": {
+      "documentation": 72,
+      "development": 43,
+      "api": 758,
+      "migrations": 23,
+      "web": 75,
+      "e2e": 9,
+      "cli_source": 287,
+      "cli_installed_wheel": 287,
+      "cli_installed_status": 1,
+      "release_integration": 61,
+      "runtime": 134,
+      "native_build_AST": 6
+    },
+    "counts_are_components_not_unique_total": true
+  },
+  "snapshot": {
+    "source_manifest_sha256": "15c6b2f8a7a4de1cb178b2359c63299875704ccfb43b8e004445f25f3415066f",
+    "path_count": 43,
+    "hashes": {
+      "Makefile": "f56721b0cda760787a9aac27389bf98603d717cddf152c4d12cd9aa73985fe6c",
+      "api/src/omnis/core/db.py": "304870a5934b5953f38380c540441c5e28bb8da7fd4ce14a3ba6b82e6c754a0d",
+      "api/src/omnis/migrations/versions/0010_catalog_publications.py": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea",
+      "api/src/omnis/modules/runs/__init__.py": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754",
+      "api/src/omnis/modules/runs/plan_snapshot.py": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "0538fe0582ffbe109f5c23ca848ed200b34ac8dc83377e661fc6ffcd781cf0dd",
+      "api/src/omnis/modules/settings/catalog_publication.py": "40cdcae89e8ff2287d87769a791fab2c0c56a1e580dff15bd868af8f7b750f11",
+      "api/src/omnis/modules/settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "api/src/omnis/modules/settings/publication_store.py": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+      "api/tests/fixtures/b06a_durable/releases.py": "88dab191bbe5f121549412156b057be47ac8c7c90cbd3e4f0aad85bfc8564f9f",
+      "api/tests/fixtures/b06b_publication/README.md": "8863c222abb7259c98f4188cf7555df3b6dd38e976415b867a6a5258b979e400",
+      "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/NOTICE.md": "e324028e80b6539e7b648303db7e3150df93fe6ca4316767d59a233d8fbd628c",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/SKILL.md": "5d0f391708d091c49d7f959469a2b54a9ae97e569274014cbcf4432d335ab0ce",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/omnis.yaml": "db60b73f0b75edd6d5cdca020a8ecc27170fb04eba618bc6542c2db345b3875b",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/references/method.md": "334bd144593cf68e112c28f8b8b3b5f8ef0cec35c362e3b035b938142a109917",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/capture.schema.json": "81c8e2156627523c83d0d4ecb046c4df8dd1885715ea83489d15ccccace357e3",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/empty.schema.json": "1f6b06a81cd645a7fcb3dec8bf87e945b019c90dc5343065d5d48fe5586229bb",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/operations.schema.json": "5c117b37d9090c9e4d2ac94d4ff36f531e790a6390c3e4b50eecdb0d400f80ac",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/procedures/publication-map.yaml": "9b778fc590a7d9e173ad903c9b95f625692ef8d2088c9aa11f337b20a050d0da",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/records.schema.json": "fbbcae51fe2248e2fd20fbcbe79f31e1dfa39caf40f82bde47c5ded8fcffc586",
+      "api/tests/fixtures/b06b_publication/source/b06b-publish-contract/templates/surface_map.schema.json": "301f78544f0cb1f4a141a52a42dc93d08ce42e8a20bd44977e253f54031099f0",
+      "api/tests/fixtures/b06b_publication/source/input.json": "29f468a782f124fb4ebaab66439b03a624c9ba66736311a11f9209440bd834ca",
+      "api/tests/fixtures/b06b_publication/source/profile.yaml": "a67894a3ca10f79ed77a90eca2fcb9dfae30568f05bfe6a329379df0139f331d",
+      "api/tests/test_b06b_publication_contract.py": "d9174c1cda52fa1de5ab73fdb6a2e8a9d21805fb0ee856844d6647e04e521f11",
+      "api/tests/test_b06b_publication_migrations.py": "75a8c88f213aa91b70d40d2dd25dc888697584b47e52ae32e3bc47fd8bb12f1c",
+      "api/tests/test_b06b_publication_pg.py": "64fc306254ab3145da313ecbd3b97a9767ad5ac9e586eee28fae35c6c3a8b9b0",
+      "api/tests/test_cli_status.py": "98dc0e3f32e484372b815ab7241cc41b60745ff0c5e56146726666543c5bd42c",
+      "api/tests/test_stop_schema.py": "a4f98e082d819c0235a3ff8d20d55eb579ec448afcbc573ed7f27f6017016ff5",
+      "cli/integration/control_topology.py": "3dbd4868ad3bd9979290c6ea2b8925dc056eb86417772442128ae3ddcccd0fa0",
+      "cli/integration/installed_start.py": "c17418cc6def305d8f7c6f7282923ed07a285e0d9917a1e682eb9b4effa894e6",
+      "cli/src/omnis_cli/instance.py": "b967c0b4bc17d79cda7400af2913a08dd2201d4482984ed5d6305efe57686648",
+      "cli/src/omnis_cli/release.py": "db6995c8227e813f453a19c3a5e031ac8833d5d3ec24ecc22901f7d30425f58a",
+      "cli/src/omnis_cli/start.py": "5a425597ac02d398b636d701bf74d0ab8236481026d4a7e54e75f3ccd2768bb3",
+      "cli/tests/stop_owner_fixture.py": "6857d1264a0b943371dfd3a9114f4f7df92687cb83c81af14b6324e207a3d6e7",
+      "cli/tests/test_install.py": "a6103d1427cf68b77bf24e7a35caedf72406d7dd0ad6445635c1d22084c79ec9",
+      "cli/tests/test_installed_pointer_schema.py": "30d2f4648c653033f753c9c2ea131ca5dde988d0b0851f2d49c8a0fdb682dd8a",
+      "cli/tests/test_ready_journal.py": "39680736a543e102058645e90712eccc65b6b2227c8df20ecaf54af89b7eb39f",
+      "cli/tests/test_schema_compatibility.py": "4a73f6e67ac111adbea7968ce1cea741ce94e6618e08c9eb28dcd85f3b612c7c",
+      "cli/tests/test_status.py": "90528b6dd11651fe21ca78527456b5f52319dff9b85f306ae9058b6b0751a28f",
+      "cli/tests/test_stop.py": "35b37e36041571041d3f47134c6294baefac2be093dbbc0ca3dd4985bdf55ef0",
+      "ops/build_control_bundle.py": "e451fce94c358a7593537d61667f35df50aee46ccc37e3b2bd61a201503499c5",
+      "ops/run_test_db_gate.py": "68ae258c4d069adba5bb78c65f179bd47df82ea2188e849b3ef742edb30873d1"
+    }
+  },
+  "review_reports": {
+    "review-c01-compliance.json": {
+      "sha256": "025c57dd355af97572d3e08811e8050ff68c350c1d54cc8a1d66ed18155d551d",
+      "verdict": "CHANGES_REQUESTED"
+    },
+    "review-c01-safety.json": {
+      "sha256": "91755df897edf59291b988292a74512f461c5a9c0559367e0f8edabb73af4bb9",
+      "verdict": "CHANGES_REQUESTED_SCOPED"
+    },
+    "rereview-c01-compliance.json": {
+      "sha256": "1058be91346275e8a1d7ca84598cde89b369641a5ef68461c961ac053fb8d15c",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "rereview-c01-safety.json": {
+      "sha256": "dd00aeb77e0c5954295c813b6e151cbd839b41c3d7e5152bb9d007892504f297",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "rereview-c01-float-reason.json": {
+      "sha256": "721dce9581c3dce26187bb1bc3482e985dc7986bd3e6573b7cd602fada4b6170",
+      "verdict": "CHANGES_REQUESTED_SCOPED"
+    },
+    "rereview-c01-float-fixed.json": {
+      "sha256": "50cf9abfb191c07b307d25f56d3f6b4db10a33b6eae2fa5da3b95f66ec6d3c71",
+      "verdict": "APPROVED_SCOPED"
+    }
+  },
+  "review_binding": {
+    "initial_complementary_scope": "C01 source/transaction/auth/input/readback/snapshot/schema pins and test consumer, original33; CHANGES_REQUESTED preserved",
+    "focused_repairs": "COMP-01/02, SAFETY-F1/F2/F3 and TTY label on final43",
+    "review_to_tested_delta": [
+      "api/tests/test_b06b_publication_pg.py"
+    ],
+    "delta_disposition": "Only PG float wire oracle/comment changed since complementary repair review; focused FloatReason approved on current43. Product unchanged. Parent adjudicates original and later findings, not an empty-list or full semantic re-audit claim."
+  },
+  "finding_dispositions": [
+    {
+      "ids": [
+        "C01-COMP-01",
+        "C01-SAFETY-F1"
+      ],
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Nested exact selection/keyset/actor/owner oracle; no receipt flattening. RED retained; regression, focused review, real PG and installed positive/denials PASS."
+    },
+    {
+      "ids": [
+        "C01-COMP-02",
+        "C01-SAFETY-F2"
+      ],
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Early REVIEWER_NOT_SUPPORTED before confirmation/publication; unchanged ledger and CHECK_ONLY positive retained. Focused review and actual PG/installed PASS."
+    },
+    {
+      "ids": [
+        "C01-SAFETY-F3"
+      ],
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Exact0010 positive consumer/bundle/test pins; explicit0009/0008 denials preserved. RED13/7errors then install13/stop-schema14/CLI287 and canonical PASS."
+    },
+    {
+      "ids": [
+        "C01-FLOAT-REASON-01"
+      ],
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Public wire float INVALID_JSON, programmatic float INVALID_REQUEST, valid integer control. Wrong JSON_NON_INTEGER expectation retained as RED; ad-hoc3/3, focused14/14, PG38 and installed replay negative PASS."
+    }
+  ],
+  "targeted_pg": {
+    "session_id": "proc_76c3c25a27d0",
+    "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-b06b-publish-pg --uv <pinned-private-uv> --timeout-seconds 900",
+    "passed": 38,
+    "seconds": 362.04,
+    "exit_code": 0,
+    "family_drained": true,
+    "log_sha256": "5107c6df9fa087578ad5b5ea31134263343fdb65f2a5c39b43c1f56a5b563451",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/db-fae7bd28b34d4c04",
+    "CID": "84a8bdcef5f605d417d31123095c4599642587479fde103d963ddfb39884b11f",
+    "project": "omnis-p01-4bd9ef7fc0224f0dbc8d2813dff468fd",
+    "cleanup": "exact CID/project networks/socket absent; uncertain=false; synthetic data/logs retained"
+  },
+  "installed_qa": {
+    "scope": "INSTALLED_CLI_EIGHT_SELECTED_TESTS_NOT_CANONICAL_MAKE_TARGET",
+    "verdict": "PASS_SCOPED_EIGHT_SELECTED_INSTALLED_CLI_TESTS",
+    "tests_passed": 8,
+    "pytest_seconds": 162.66,
+    "exit_code": 0,
+    "wheel_sha256": "5a629d21bda67cd5d1eecd7300157704d57f220770d0c7800281a16e865257dd",
+    "installed_python": "/home/kali/.hermes/cache/scratch/c01-installed-copy-ught3ytg/venv/bin/python",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/db-ccdc66c2fbf64f01",
+    "container_id": "b50240e5a33e7e9dd984964cba46b49630d66457c7708cfd1cd20d7f81175f95",
+    "project": "omnis-p01-736237672d7b4ff8a5676f06ea409a2d",
+    "system_identifier": "7694420540584898590",
+    "family_receipt": {
+      "code": 0,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "runner_cleanup": {
+      "container_absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false
+    },
+    "test_nodes": [
+      "api/tests/test_b06b_publication_contract.py::test_publication_cli_exists_before_database_acquisition",
+      "api/tests/test_b06b_publication_contract.py::test_new_owned_fixture_compiles_and_pure_evaluates_without_db",
+      "api/tests/test_b06b_publication_pg.py::test_tty_publish_readback_replay_restart_and_inert_snapshot",
+      "api/tests/test_b06b_publication_pg.py::test_non_tty_and_ai_json_cannot_create_confirmation",
+      "api/tests/test_b06b_publication_pg.py::test_new_capture_after_confirm_refuses_stale_publish_but_retains_readback",
+      "api/tests/test_b06b_publication_pg.py::test_invalid_generation_before_successful_command_replay[1.0]",
+      "api/tests/test_b06b_publication_pg.py::test_reviewer_profile_refused_before_confirmation_and_publication",
+      "api/tests/test_b06b_publication_pg.py::test_replay_and_readback_revalidate_real_material[writable]"
+    ]
+  },
+  "installed_qa_report_sha256": "fdfe57f0c935de1fb0041e308c6d20d8b2d4967493b67cce34120af741196002",
+  "installed_qa_binding": "Fresh private copy/offline/hash-required wheel;58 source-identical regular single-link modules and43 frozen sources; parent verifies report/log/hashes and independently repeats exact resource readback. Eight explicit selected tests, not a canonical Make target.",
+  "preserved_failures": [
+    "Private toolchain preflight exit2 and old install path exit127; no provisioning",
+    "Initial PG34FAIL/3PASS exit2; data retained",
+    "Post-fix PG37PASS/1FAIL exit2; FloatReason oracle mismatch retained",
+    "Wrong JSON_NON_INTEGER ad-hoc2PASS/1FAIL exit1",
+    "Cancelled old canonical family130/make2; controlled cleanup, not PASS",
+    "Initial installed hardlink UNSAFE_FILE exit1; unchanged wheel fresh copy remedy, guard not relaxed",
+    "Initial broad CLI foreground timeout124; subsequent tracked287PASS does not erase it",
+    "Reviewer observational reconstruction/import failures retained in reports and register"
+  ],
+  "remaining": {
+    "C02": "PARTIAL inert snapshot only; no addressed ExecutionSelection/recipe consumer yet",
+    "C03_C04_C09_C10": "NOT_IMPLEMENTED/NOT_RUN; Brief/Result/assignment/MethodPlan/Check still required",
+    "C05_C08_C11_C12_H03_H08": "NATIVE_CORE_BLOCKED_NOT_RUN; indexed trusted pre-access fail-closed and NO_MODEL before client/conversation absent at pinned Hermes",
+    "SL09_B06b": "PARTIAL_NOT_CLOSED",
+    "G02": "NOT_CLOSED",
+    "model_provider_target_UI": "NOT_RUN_OR_OUTSIDE_SCOPE",
+    "next_increment": "Architect proposal taskless PURE consumer/ExecutionSelection is not implemented or accepted full C02; evaluate within existing B06b contract, not a concurrent plan"
+  },
+  "limitations": [
+    "Acceptance only the stated C01 requirements; no universal absence-of-defects claim",
+    "Restart evidence owns CLI process on same PostgreSQL, not physical server/container/power-loss/ACK-loss",
+    "Software rollback/fault and observed overlap are not physical crash proof",
+    "STATIC/PURE and CONTRACT_PROBE do not qualify SECURITY/ASSESSMENT",
+    "No rollout/upgrade of real operator data, r1/global profile changes, deployment/remoteCI/push",
+    "No native Task/Attempt/Brief/result/inbox binding credit from deterministic or simulated emitters"
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_CLI_PROCESS_ONLY",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "rollback": "git revert changes only code/docs; schema downgrade forbidden. Real-data restore needs separately approved backup/restore. All present tested data synthetic, retained; no prune/down-v or historical resource adoption.",
+  "evidence_register": "documents/verification/p2-b06b.md"
+}

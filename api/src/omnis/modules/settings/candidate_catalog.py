@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from omnis.core.db import database_engine
 
 from . import candidate_store as store
-from .candidate_material import capture, finalize, private_root, read_material
+from .candidate_material import MAX_SOURCE_PACKAGES, capture, finalize, private_root, read_material
 from .catalog_models import CatalogError
 from .catalog_schema import bounded, canonical, load_json
 from .skill_catalog import compile_catalog, read_file
@@ -74,6 +74,8 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
             or not 1 <= len(packages) <= 128
         ):
             raise CatalogError("INVALID_REQUEST")
+        if len(packages) > MAX_SOURCE_PACKAGES:
+            raise CatalogError("COUNT_LIMIT")
         for path in [*packages, value["profile"]]:
             if type(path) is not str or not Path(path).is_absolute() or "\x00" in path:
                 raise CatalogError("INVALID_REQUEST")

@@ -12,6 +12,7 @@ from .catalog_schema import canonical, dto
 from .skill_catalog import read_file, safe_path
 
 MAX_MATERIAL_BYTES = 8 * 1048576
+MAX_SOURCE_PACKAGES = 127  # The mandatory profile occupies the 128th source-ref slot.
 
 
 def digest(raw: bytes) -> str:
@@ -61,6 +62,8 @@ def files_at(root: Path) -> set[str]:
 def capture(
     packages: list[str], profile: str
 ) -> tuple[dict[str, bytes], list[dict[str, object]], str]:
+    if not 1 <= len(packages) <= MAX_SOURCE_PACKAGES:
+        raise CatalogError("COUNT_LIMIT")
     material: dict[str, bytes] = {}
     sources: list[dict[str, object]] = []
     seen: set[str] = set()

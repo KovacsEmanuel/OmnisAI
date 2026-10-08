@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.20
+version: 0.1.21
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -41,6 +41,8 @@ Resolve an evidence/task link's operation, identity and snapshot explicitly; ope
 Exercise rerenders as well as initial clicks: a stopped/paused run must not regain an active phase after finding review or filtering. Recheck current evidence availability in every consumer (finding, operation inspector, coverage and newly exported reports), while preserving historical verdicts and saved report snapshots. Download and parse the actual export; a preview count is not evidence that its bytes match.
 
 No universal 'verified' badge. Verify the verifier: match exact structured diagnostic identifiers/severity/source, not a substring in an exception stack; require positive and negative controls on the SAME evidence channel. An arbitrary failure or always-rejecting observer must not pass the negative control. Add a regression for each false-green mechanism before trusting the repaired gate. A test that mocks the entire behavior or merely checks a filename cannot certify a feature. Do not loosen security/error handling to remove 'slop'. Do not auto-approve a review because it agrees with the implementer.
+
+For a later-stage denial authored through YAML, keep earlier fields valid and preserve the intended literal type: quote all-digit hexadecimal pins and other string identifiers. An unquoted 40-digit pin becomes an integer and can hit INTEGER_LIMIT before the compatibility guard; that is not INCOMPATIBLE_HERMES evidence. Compare a real positive, the original encoding failure and the quoted identical literal on the same installed consumer before repairing the harness. Change encoding, not the identifier or expected reason; preserve the failed report and write the corrected run separately, without replaying unchanged product gates.
 
 Test the producer of a safety flag as well as its consumer: injecting `uncertain=true` proves the cleanup predicate, not that signal exit, lost ACK or decoding failure actually sets it. Exercise the real failure boundary where safe, then pass its observed state into the cleanup oracle; label substituted daemon/resource seams rather than claiming an end-to-end effect.
 

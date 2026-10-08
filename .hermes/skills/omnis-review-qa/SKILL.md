@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.21
+version: 0.1.22
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -58,6 +58,8 @@ If a successful temporary verifier's own creation/deletion triggers another ad-h
 For a read-only Python QA helper import, invoke the interpreter with explicit `-I -B` or set `sys.dont_write_bytecode=True` before the import: `-I` implies `-E`, so `PYTHONDONTWRITEBYTECODE` alone is ignored and can write `__pycache__` outside the owned scope. Include import caches in the write boundary; if a forbidden cache was created, preserve the artifact and execution FAIL rather than deleting it or replaying effects to manufacture a clean run. This controls Python bytecode writes only, not arbitrary native syscalls or helper side effects.
 
 Treat private bootstrap/RPC receipts as secret-bearing even in a synthetic fixture: never return the whole file through `read_file` or serialize it into tool output. Parse privately and emit only the required nonsensitive field allowlist; for `runtime.boot`, a boot UUID is public evidence but `capability` is not. If exposure occurs, preserve the FAIL/incident and restrict the exact sensitive transcript; the parent must retire and verify the exact owned host/socket/family before an explicitly bounded fresh replacement. Do not reuse the exposed capability, overwrite the failed receipt, copy the transcript into Git, or describe a later clean run as undoing the disclosure.
+
+For PostgreSQL pytest failures, treat raw tracebacks as secret-bearing too: default argument rendering can expose `database_url` even without `--showlocals`. Do not use `read_file`, context grep or a whole-log dump around an assertion; parse privately and emit only nonsecret test/exit/status/reason/count/settlement fields. Preserve the failed run and restrict owned logs; after exposure forbid fixture/credential reuse and verify exact endpoint retirement, without claiming that a later clean probe or private file mode undoes disclosure.
 
 For a confirmed host NSS path failure blocking a real audit or hash-locked dependency install, use the bounded [private NSS procedure](references/private-nss-audit.md). Keep helper review and targeted positives distinct from the canonical suite; do not change the host or bypass audit/hash results.
 

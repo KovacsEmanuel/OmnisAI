@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "slice": "SL08/B06a",
+  "status": "IN_PROGRESS_NOT_ADJUDICATED",
+  "event": {
+    "process_id": "proc_3c738d8f8215",
+    "delegation_id": "deleg_64fa921b",
+    "owner": "Dev A sa-0-f19a38ef",
+    "worktree_base": "d12380c5430acbd421969759611b4387cf83a380",
+    "target": "test-catalog-candidates-pg",
+    "exit": 2,
+    "passed": 29,
+    "failed": 1,
+    "deselected": 632,
+    "failed_test": "test_review_exact_ref_denials_same_cli[float_revision-INVALID_REQUEST]",
+    "finding": "Exact sanitized denial JSON does not match the expected INVALID_REQUEST. No ImportError/traceback-as-denial PASS; actual reason and root cause pending developer evidence.",
+    "limit": "Intermediate child-owned run, not final reviewed source or full product acceptance; no inference about every positive scenario from the aggregate count."
+  },
+  "protocol_incident": {
+    "id": "B06A-CONT-PARENT-DISCLOSURE-01",
+    "verdict": "NOT_PASS_PROTOCOL",
+    "origin": "Parent read_file of private gate.log lines62-83 exposed a disposable PostgreSQL DSN/credential through pytest's database_url argument display.",
+    "material": "Synthetic own disposable PG only; secret omitted here and must not be reproduced or copied into Git.",
+    "mitigation": "Same fixture must not be reused/restarted/adopted. Only fresh attested own fixtures may be used for later probes; original failure/receipt/PGDATA/log remain preserved. Runtime endpoint was already retired before disclosure; no SQL credential rotation or retrospective undo claimed.",
+    "pending": "Developer final report must preserve this parent-origin protocol incident separately from code/probe verdicts. A later clean rerun does not erase disclosure."
+  },
+  "settlement_readback": {
+    "root": "/home/kali/.hermes/cache/scratch/db-f96c35acd0794bc6",
+    "receipt": {"schema_version": 1, "code": 2, "family_drained": true},
+    "cid": "2df04c4fa86aef11cebc3bf86e8b84add2bd23cf63c2f389653bf128a901779d",
+    "project": "omnis-p01-a12e8659884e4b3abded18c1a8f8c6e9",
+    "cid_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "data_and_original_logs_retained": true,
+    "verification": "Parent exact CID Docker readback, exact project label readback using private fixture projection bound to CID, exact owned root socket absence, strict receipt allowlist."
+  },
+  "permissions_readback": {
+    "owned_uid_verified_before_effects": true,
+    "root_before": "0700",
+    "root_after": "0700",
+    "log_before": "0600",
+    "log_after": "0600",
+    "permission_changes": false,
+    "contents_changes": false,
+    "limit": "Private on-disk log access does not undo the tool-output disclosure. No broader transcript redaction or credential revocation claimed."
+  },
+  "parent_actions": [
+    "Queued focused steering to Dev A: explain actual float denial boundary, preserve literal/positive control, do not weaken tests or create verifier recursion.",
+    "Queued safety warning to Dev A against raw pytest/bootstrap/manifest output and fixture reuse.",
+    "Dev B safety steering was not delivered because its child had already ended; no approval inferred from missing delivery."
+  ],
+  "full_B06a": "NOT_CLOSED",
+  "exclusions_unchanged": "No Publish/B06b/Task/assessment/model/provider/target/r1/rollout/global configuration/push. Protected original HTML untouched."
+}

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -8,6 +9,8 @@ from uuid import UUID, uuid4
 import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
+from psycopg import sql
+from sqlalchemy import text
 from sqlalchemy.engine import URL
 
 from conftest import connect_test_database, verify_test_database
@@ -15,6 +18,8 @@ from omnis.core.db import SCHEMA_REVISION, database_engine
 from omnis.modules.engagements.schemas import LegacyEngagementDraft
 from omnis.modules.engagements.service import canonical_json, revision_digest
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.settings.candidate_catalog import CandidateCatalog
+from omnis.modules.settings.catalog_schema import canonical
 from process_probe import exercise_installed_control
 from test_stop_fence import db_snapshot, pending_reconciliation
 
@@ -55,7 +60,7 @@ async def test_reconciliation_job_commits_then_replays_exactly(
 
 
 def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
-    empty_database_url: URL, tmp_path: Path
+    empty_database_url: URL, tmp_path: Path, previous_revision: str = "0007_engagement_drafts"
 ) -> None:
     root = Path(__file__).resolve().parents[1]
     env = {
@@ -71,7 +76,7 @@ def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
             "-c",
             str(root / "alembic.ini"),
             "upgrade",
-            "0007_engagement_drafts",
+            previous_revision,
         ],
         cwd=root,
         env=env,
@@ -120,6 +125,43 @@ def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
             "FROM engagement_revision WHERE id=%s",
             (revision_id,),
         ).fetchone()
+        if previous_revision == "0008_engagement_edit":
+            connection.execute(
+                "INSERT INTO ui_session VALUES ('synthetic_upgrade_digest', clock_timestamp() + interval '12 hours')"
+            )
+            connection.execute(
+                "UPDATE pairing_challenge SET digest='synthetic_upgrade_pending', expires_at=clock_timestamp() + interval '5 minutes'"
+            )
+        legacy_tables = (
+            "instance_control",
+            "supervisor_lease",
+            "ui_session",
+            "pairing_challenge",
+            "engagement",
+        )
+        legacy_before = {
+            table: connection.execute(
+                sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
+            ).fetchall()
+            for table in legacy_tables
+        }
+    if previous_revision == "0008_engagement_edit":
+        identity = verify_test_database(
+            empty_database_url.set(database="omnis_test")
+        ).system_identifier
+        denied = run_startup_migration(empty_database_url, identity)
+        assert denied.returncode != 0 and "Explicit update/backup required" in denied.stderr
+        with connect_test_database(empty_database_url) as connection:
+            assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
+                previous_revision,
+            )
+            assert {
+                table: connection.execute(
+                    sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
+                ).fetchall()
+                for table in legacy_tables
+            } == legacy_before
+    verify_test_database(empty_database_url.set(database="omnis_test"))
     upgraded = subprocess.run(
         [sys.executable, "-I", "-m", "omnis.migrate"],
         cwd=tmp_path,
@@ -135,12 +177,80 @@ def test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
             (revision_id,),
         ).fetchone()
         assert after == before
+        assert {
+            table: connection.execute(
+                sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
+            ).fetchall()
+            for table in legacy_tables
+        } == legacy_before
         assert connection.execute(
             "SELECT command_id FROM engagement_revision WHERE id=%s", (revision_id,)
         ).fetchone() == (None,)
         assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
             SCHEMA_REVISION,
         )
+
+
+@pytest.mark.asyncio
+async def test_upgrade_from_0008_preserves_legacy_and_captures_catalog_ledger(
+    empty_database_url: URL, tmp_path: Path
+) -> None:
+    test_upgrade_from_0007_keeps_first_draft_revision_and_digest(
+        empty_database_url, tmp_path, "0008_engagement_edit"
+    )
+    root = Path(__file__).resolve().parents[2]
+    owner, command_id = str(uuid4()), str(uuid4())
+    request = {
+        "schema_version": 1,
+        "owner_id": owner,
+        "command_id": command_id,
+        "author_kind": "OPERATOR",
+        "packages": [str(root / "skills/recon-mapping-contract")],
+        "profile": str(root / "profiles/recon-mapping-contract.yaml"),
+    }
+    engine = database_engine(empty_database_url.render_as_string(hide_password=False))
+    try:
+        catalog = CandidateCatalog(engine, tmp_path / "catalog")
+        result = await catalog.dispatch("capture", request)
+        assert await catalog.dispatch("capture", request) == result
+        async with engine.connect() as connection:
+            rows = (
+                await connection.execute(
+                    text("SELECT id,revision,digest,envelope FROM catalog_record ORDER BY id")
+                )
+            ).all()
+            assert len(rows) == 2
+            refs = []
+            for identity, revision, digest, envelope in rows:
+                assert envelope["id"] == str(identity) and envelope["revision"] == revision
+                assert (
+                    envelope["digest"]
+                    == digest
+                    == hashlib.sha256(
+                        canonical(
+                            {key: value for key, value in envelope.items() if key != "digest"}
+                        )
+                    ).hexdigest()
+                )
+                refs.append({key: envelope[key] for key in ("kind", "id", "revision", "digest")})
+            source_refs = result["source_draft_refs"]
+            assert isinstance(source_refs, list)
+            assert sorted(refs, key=lambda ref: str(ref["id"])) == sorted(
+                source_refs, key=lambda ref: str(ref["id"])
+            )
+            assert (
+                await connection.execute(
+                    text(
+                        "SELECT result FROM catalog_command WHERE owner_id=:owner AND command_id=:command"
+                    ),
+                    {"owner": owner, "command": command_id},
+                )
+            ).scalar_one() == result
+            assert (
+                await connection.execute(text("SELECT count(*) FROM catalog_command"))
+            ).scalar_one() == 1
+    finally:
+        await engine.dispose()
 
 
 def test_startup_migration_refuses_wrong_cluster_before_ddl(empty_database_url: URL) -> None:

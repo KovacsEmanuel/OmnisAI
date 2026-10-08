@@ -65,6 +65,6 @@ def run_handler(handler: str, input_object: object) -> object:
                     for path, methods in sorted(methods_by_path.items())
                 ]
             }
-    except ValidationError:
+    except (ValidationError, UnicodeError):
         raise CatalogError("INVALID_PURE_INPUT") from None
     raise CatalogError("UNKNOWN_HANDLER")

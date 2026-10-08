@@ -106,17 +106,43 @@
     "Original CLI0008/API0009 canonical FAIL and later repaired compatibility remain distinct.",
     "B06A-CONT-PARENT-DISCLOSURE-01 NOT_PASS_PROTOCOL and other historical FAIL/UNCERTAIN/NOT_PASS are not undone by later clean execution."
   ],
-  "canonical_in_progress": {
+  "canonical": {
     "process": "proc_d7959ebd95a8",
     "pid": 1382245,
     "owned_root": "/home/kali/.hermes/cache/scratch/db-9a8e56991bac41ab",
     "private_wrapper_log": "/home/kali/.hermes/cache/scratch/b06a-parent-hydrated-final-canonical.log",
     "command": "make check UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
-    "status": "RUNNING_NOT_PASS_YET",
+    "status": "PASS_LOCAL_RECORDED_CURRENT_PRODUCT",
     "api_passed": 664,
-    "final_exit": "NOT_YET_RECORDED",
-    "family_drained": "NOT_YET_RECORDED",
-    "cleanup": "PENDING_SETTLEMENT; not performed by a parallel owner"
+    "migrations_passed": 23,
+    "web_passed": 75,
+    "browser_e2e_passed": 9,
+    "cli_source_passed": 287,
+    "cli_wheel_passed": 287,
+    "installed_cli_status_passed": 1,
+    "release_passed": 61,
+    "runtime_passed": 134,
+    "native_ast_passed": 6,
+    "documentation_passed": 62,
+    "development_passed": 43,
+    "final_exit": 0,
+    "family_drained": true,
+    "receipt_schema_version": 1,
+    "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "fixture_sha256": "65b05005ddf5d6f2e616328fef30e2393e683179e6432f97935ea271e94cbfc3",
+    "private_log_sha256": "77e6a6276eb2e1b59ec4643e79b0ea84e4a3584020ba85c1003d1da4a9d42a5a",
+    "container_id": "f3222e0fd98cf401ba62861457841242b00eb231e314fe0f4dc7230bce8ce22d",
+    "project": "omnis-p01-5aa6c450eb8f4ef582bd5deaca16ed85",
+    "cleanup": {
+      "parent_exact_bound_daemon_readback": "PASS",
+      "cid_and_project_containers_absent": true,
+      "project_networks_absent": true,
+      "socket_and_lock_absent": true,
+      "leader_process_absent": true,
+      "data_logs_image_retained": true,
+      "foreign_resources": "NOT_ADOPTED_OR_MODIFIED"
+    },
+    "limits": "Canonical on the final runtime product after the UI edit. Subsequent skill/status edits are documentation-only and receive separate fresh docs/development checks; 45 declared product/oracle files remain byte-identical. CLI-wheel/release checks are not full installed durable catalog consumer QA, an installed r1 rollout, physical crash coverage, or full B06a acceptance."
   },
   "limits": [
     "Full qualified/nonempty RELEASE closure/resolution and full installed durable consumer QA remain open; persistence does not close G-MODULE-core.",
@@ -125,7 +151,7 @@
     "Two actual B04 captures inspected for mobile/desktop layout; no aesthetic/WCAG approval or inference of persistence from pixels.",
     "No B06b, Publish, Task/Attempt/child, provider/model/target, r1 adoption/restart, rollout, global configuration or push."
   ],
-  "status": "PARTIAL_DURABLE_FREEZE_CHECKPOINT_B04_ACCEPTED_CANONICAL_RUNNING",
+  "status": "PARTIAL_DURABLE_FREEZE_CHECKPOINT_B04_ACCEPTED_CANONICAL_PASS",
   "tested_review_context_sha256": {
     "AGENTS.md": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
     "CONTRIBUTING.md": "4f3ada18dbdf56177ee7ff059141043b11f48944ea78da725a31488e574bc6b6",

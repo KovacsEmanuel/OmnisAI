@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "scope": "SL09/B06b preparation only; not product gate or execution authority",
+  "analysis_base": "f057d4cfea23f0169f0f909f2262fccee73e7e4f",
+  "original_review": {
+    "report_id": "B06B-PREP-F057D4C-ARCHITECT",
+    "verdict": "CHANGES_REQUESTED",
+    "sha256": "d15cf44d70970211c1c63851f2959bb99d783c3fe6dce22b919e175957576074",
+    "api_calls": 13,
+    "reported_duration_seconds": 556.87,
+    "notification_duration_seconds": 557.56,
+    "indicative_budget_seconds": 480,
+    "budget_exceeded": true,
+    "ad_hoc_verification": "child reports exit0; not a product gate or parent evidence"
+  },
+  "findings": [
+    {
+      "id": "AR-B06B-01",
+      "severity": "HIGH",
+      "kind": "CONTRACT_CONTRADICTION",
+      "source": [
+        "documents/verification/p2-b06b-next-contract.md:11–18",
+        "documents/Omnis_Implementation_Plan.md:134,245",
+        "documents/Omnis_MVP_Architecture.md:688–702"
+      ],
+      "violated_requirement": "Publish aparține producătorului existent settings/skill_catalog și promovează atomic exact indexul/materialul calificat. Contractul cere Publish, dar frontiera sa «Extinde numai ... tasks, integrations/hermes ... snapshoturile de run» nu numește proprietarul acestei operații persistente.",
+      "proposed_minimal_repair": "La frontiera contractului adaugă explicit extensia bounded a settings/skill_catalog/storage pentru Publish/CAS/receipt/readback al candidatului existent; păstrează tasks + runs + binding/composer drept consumatori. Nu adăuga editor, Settings UI, registry concurent sau serviciu nou.",
+      "acceptance": "Contractul numește producătorul persistent al Publish și handofful către snapshotul nou. Mandatul ulterior inventariază fișierele reale necesare și migrarea numai odată cu acel consumator; nu califică din nou B06a și nu face efecte acum.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-02",
+      "severity": "HIGH",
+      "kind": "GATE_SCOPE_AMBIGUITY_AND_POTENTIAL_CYCLE",
+      "source": [
+        "documents/verification/p2-b06b-next-contract.md:24–27,34–36",
+        "documents/Omnis_Implementation_Plan.md:134–138,247–266",
+        "documents/Omnis_MVP_Architecture.md:261–263,719,729–731"
+      ],
+      "violated_requirement": "H03–H08 sunt gates ale consumatorilor, nu un singur PASS integral B06b. H08 include inventarul inert, dar și selecție efectivă/provider/fallback și G-MODEL pre-send. SL11/B06m, P4a și P2-live dețin acele componente ulterioare. NO_MODEL nu autorizează inferență.",
+      "proposed_minimal_repair": "Adaugă o matrice scurtă H03–H08: core B06b, seam/producer care trebuie demonstrat și breadth deferred. Cere discovery/read-only al pinului pentru launch pre-run, lineage, loading și inventar; probele inerte ale consumerului instalat trebuie etichetate exact, fără LLM/emitter fals. Dacă un scenariu cere apel model, marchează numai acel scenariu BLOCKED/NOT_RUN până la B06m/B06c/P4a/P2-live, fără a simula integrarea sau a cere G02 global ca intrare.",
+      "acceptance": "Contractul separă H08 inventory/caps/inheritance de G-MODEL/effective live și separă structură/compoziție de execuție model. Un blocker real al core bindingului rămâne blocker; deferral nu aprobă un copil simulat și nu amână mappingul fail-closed.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-03",
+      "severity": "HIGH",
+      "kind": "ACCEPTANCE_OMISSION",
+      "source": [
+        "documents/verification/p2-b06b-next-contract.md:5,24–27",
+        "documents/Omnis_MVP_Architecture.md:407–420,630,752"
+      ],
+      "violated_requirement": "Trebuie separate ingesta istorică, calificarea curentă și admiterea lucrului nou. M1 valid după M2 aditiv nu este stale doar prin creșterea reviziei. După Stop/Pause/epoch revocat există receive-only pentru rezultat autentic deja expediat și HELD_FOR_RECONCILIATION, nu refuz universal și nu wake.",
+      "proposed_minimal_repair": "Adaugă §6.3 la autoritate și un criteriu bounded cu cele trei frontiere: M1 exact după M2 aditiv se păstrează sub assignmentul M1; auth/input invalid rămâne istoric cu calificare REVALIDATION_REQUIRED/INELIGIBLE; rezultat authentic post-Stop este primit idempotent și held, fără reads/tools/wake/model/dispatch noi. Rezultatul străin/conflicting este refuzat, nu atașat cazului.",
+      "acceptance": "Mandatul de implementare are pozitive/negative pe același consumer pentru M1 aditiv versus auth invalid, late result după Stop/Pause și duplicate/conflict. Noua admitere citește autoritatea curentă; nu reînviază runul și nu transformă ResultQualification în verdict tehnic sau coverage livrate înainte de B11/B12.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-04",
+      "severity": "MEDIUM",
+      "kind": "ACK_STATE_OMISSION",
+      "source": [
+        "documents/verification/p2-b06b-next-contract.md:11,24,27",
+        "documents/Omnis_MVP_Architecture.md:263,319–321",
+        "documents/Omnis_Implementation_Plan.md:260–261"
+      ],
+      "violated_requirement": "delivered, admitted, turn_completed și domain_result_consumed sunt stări distincte; ACK Hermes nu dovedește finalizarea turului sau consumul de domeniu. Pollerul nativ și Omnis nu produc două wake-uri.",
+      "proposed_minimal_repair": "În criteriul1 numește cele patru stări și receipturile lor, ownerul turului și reconcilerea înainte de redelivery. Adaugă crash cuts software înainte/după admiterea/finalizarea turului și commitul de consum, cu rezultat real deja persistat și replay idempotent. Nu promite exactly-once pe rețea.",
+      "acceptance": "Dovezile viitoare disting ACK/notificare de turn_completed și consum, iar restartul citește task/result IDs și cursorii reali; native continuation are un owner și nu coexistă cu al doilea wake Omnis.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-05",
+      "severity": "MEDIUM",
+      "kind": "PRODUCER_CONSUMER_ORDER_OMISSION",
+      "source": [
+        "documents/verification/p2-b06b-next-contract.md:11,24,26",
+        "documents/Omnis_MVP_Architecture.md:532–534,605,620–626,719,742–754"
+      ],
+      "violated_requirement": "Contractele adresabile trebuie produse fără refs/hashuri inverse: ExecutionSelection precede brief/launch; BoundProcedure precede ProcedureBinding/MethodPlan/Brief; Result este persistat înainte de MethodCheck. CriterionBinding/Result/Outcome nu sunt done_when, iar ResultQualification nu este MethodCheck.",
+      "proposed_minimal_repair": "Adaugă un singur DAG de recorduri în contract, reutilizând regulile canonice: Publish→RunSnapshot purpose/pins→NO_MODEL ExecutionSelection și PromptBundle→BoundProcedure→MethodPlan→TaskBrief→LaunchManifest/reservări→binding trusted→TaskResult persistat→MethodCheck→receipt/inbox/qualification/consum. Numește CriterionBinding/Result ca parte a Brief/Result și checkerul trusted unde sunt criterii alocate; task suport poate avea zero criterion bindings cu justificare.",
+      "acceptance": "Nicio preimagine nu conține propriul digest sau un checker/result/brief încă inexistent. Ref-urile kind/ownership/revision/digest sunt rezolvate pe assignmentul exact. Zero criterion bindings nu poate emite CriterionOutcome; MethodCheck COMPLETE nu produce CONFIRMED/PASS/coverage singur.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-06",
+      "severity": "MEDIUM",
+      "kind": "STALE_RESUME_PROSE",
+      "source": [
+        "README.md:5,79",
+        "CONTRIBUTING.md:99,113",
+        "documents/Omnis_Implementation_Plan.md:120,584–596,622–637,641"
+      ],
+      "violated_requirement": "Starea curentă adjudecată decide reluarea; istoria nu este o coadă nouă. README:79 spune încă «SL04 nu este încă acceptat integral» ca experiență actuală, iar CONTRIBUTING:99 spune G00 neînchis, deși README:5 și plan19 marchează G00 local închis scoped. Plan4.2:120 și19.1 conțin «astăzi»/CLI numai status și schema0001–0004 din snapshoturi vechi.",
+      "proposed_minimal_repair": "Etichetează strict paragraful README:79 ca istoric sau înlocuiește numai propoziția de status cu CLOSED_SCOPED local și limitele existente; corectează numai afirmația G00 din CONTRIBUTING:99. Pentru plan120/19.1 adaugă un marker scurt de snapshot istoric și trimitere la starea19/19.2, nu rescrie toate rândurile istorice. Nu atinge AGENTS protejat sau HTML original.",
+      "acceptance": "Nicio propoziție de reluare curentă nu cere SL04/B06a din nou; istoricul și FAIL/UNCERTAIN sunt păstrate. Dacă părintele editează Markdown normativ, regenerează numai readerul său și rulează docs gates, nu journeys P0/P1/B05/B06a.",
+      "disposition": "preparation-now",
+      "parent_disposition": "PREPARATION_REPAIRED_REVIEW_PENDING",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented",
+      "repair_commit": "7e80efd"
+    },
+    {
+      "id": "AR-B06B-07",
+      "severity": "HIGH",
+      "kind": "IMPLEMENTATION_OBLIGATION_NOT_CODE_FINDING",
+      "source": [
+        "documents/Omnis_MVP_Architecture.md:597,610,688–702",
+        "documents/Omnis_Implementation_Plan.md:245",
+        "documents/verification/p2-b06b-next-contract.md:13,24"
+      ],
+      "violated_requirement": "Publish viitor trebuie să fie CAS/idempotent, atomic pe expected draft/candidate/review/eval revisions, eligibilitate, material/index/closure și confirmare umană după checker/eval independente. Nu recompilează spre dependencies mobile, nu schimbă rezervările sau calificarea.",
+      "proposed_minimal_repair": "În B06b implementează comanda explicită și persistence/readback în catalogul existent. Păstrează audit author_kind/actor/receipts; tratează stale/material change/AI autoapprove/receipt din alt digest ca refuz. Separă selectabil pentru run nou de permitted-for-ASSESSMENT; seed CONTRACT/STATIC/PURE nu califică SECURITY.",
+      "acceptance": "Pozitiv Publish/replay/restart exact byte/index/refs și negative stale/conflicting payload/D→D2/alt digest/unknown ref. RunSnapshot CONTRACT_PROBE este backend-fixed, immutable și exclus din counts normale. P4a citește releaseul ulterior; niciun Start assessment sau UI editor fals acum.",
+      "disposition": "implement-B06b",
+      "parent_disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-08",
+      "severity": "HIGH",
+      "kind": "IMPLEMENTATION_OBLIGATION_NOT_CODE_FINDING",
+      "source": [
+        "documents/Omnis_MVP_Architecture.md:225–233,261,287,664–672,729",
+        "documents/Omnis_Implementation_Plan.md:257–259"
+      ],
+      "violated_requirement": "Root binding și child binding trusted trebuie stabilite înainte de primul acces. LaunchManifest/batch_index/parent_instance/child_instance și lineage nu pot proveni din JSON LLM, goal/FIFO sau subagent.list ca registru durabil. allowed_toolsets null/empty moștenește inventarul, nu deny-all.",
+      "proposed_minimal_repair": "Folosește plugin/lifecycle nativ real și persistence tasks/attempts din manifest; callback pre-run fail-closed. Dacă discovery-ul dovedește metadata insuficientă, propune separat patchul minimal auditat/versionat la pin, nu al doilea supervisor/framework. Cere explicit inventar minimal atestat și scope la reads, nu doar write guards.",
+      "acceptance": "Pozitive native pe același seam plus goaluri identice, batch/retry, wrong root/child/task/attempt, cross-run read, observer întârziat/excepție și lineage lipsă/greșită. Mapping commit precede domeniul; compresie/rotație actualizează atomic lineage ori refuză/blochează attemptul. Metodele native și prefixul rămân.",
+      "disposition": "implement-B06b",
+      "parent_disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-09",
+      "severity": "HIGH",
+      "kind": "IMPLEMENTATION_OBLIGATION_NOT_CODE_FINDING",
+      "source": [
+        "documents/Omnis_MVP_Architecture.md:587,595,599–605,621–626,739–754,770",
+        "documents/verification/p2-b06b-next-contract.md:26"
+      ],
+      "violated_requirement": "Case slots se rezolvă numai la assignment. MethodPlan are toate cerințele bounded, MethodResult exact un rând per cerință, iar MethodCheck verifică probe/context/bytes. Predicatele sunt calificate pe BoundProcedure și același brief, nu pe nume global.",
+      "proposed_minimal_repair": "Implementează în tasks bindingul/planul/checkerul determinist pentru seed; nu critic LLM. done_when: toate, return_when: oricare fără succes automat, stop_conditions: namespace core trusted pin-uit. StepOutputRef se consumă numai din pas anterior al aceluiași BoundProcedure/attempt, fără lookup global/cross-attempt și fără placeholder.",
+      "acceptance": "Două proceduri cu același predicate_id și step control omonim rămân distincte; foreign bound ref, requirement omis/duplicat, input lipsă, N/A fals, UNKNOWN și context/evidence indisponibile nu produc COMPLETE/SUCCEEDED. Cerințe opționale apar cu motiv. TaskAttempt.SUCCEEDED cere MethodCheck COMPLETE; schema/output copilului nu decide singură verdictul.",
+      "disposition": "implement-B06b",
+      "parent_disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-10",
+      "severity": "HIGH",
+      "kind": "IMPLEMENTATION_OBLIGATION_NOT_CODE_FINDING",
+      "source": [
+        "documents/Omnis_MVP_Architecture.md:319–321,328,407–420,628,630",
+        "documents/Omnis_Implementation_Plan.md:260–261"
+      ],
+      "violated_requirement": "Result/inbox/receipts și reconcilierea attempturilor sunt core B06b, nu B18. Același rezultat retransmis se persistă/consumă o dată; alt payload pe cheia acceptată produce conflict; request RPC pierdut nu produce retry orb.",
+      "proposed_minimal_repair": "Persistă envelope rezultat/usage/receipt/event cu headerul assignmentului exact, apoi check și marker de consum. Reconciliază ownerul turului/status/history și cursorii la restart. Retries creează attempts noi; UNKNOWN nu este zero/restituire sau eșec sigur. Aplică receive-only separat de granturile curente.",
+      "acceptance": "Readback/restart pe DB reală pentru delivered/admitted/turn_completed/consumed, duplicate înainte/după Stop/M2, conflict pe payload și lost reply înainte/după acceptarea nativă. Fără usage/event/wake/execuție dublă. M1 aditiv nu schimbă identitatea materială a execuției; investigator și validator nu sunt deduplicate între roluri. Implementarea completă a continuărilor/re-entry B18 rămâne later.",
+      "disposition": "implement-B06b",
+      "parent_disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-11",
+      "severity": "MEDIUM",
+      "kind": "IMPLEMENTATION_OBLIGATION_NOT_CODE_FINDING",
+      "source": [
+        "documents/Omnis_MVP_Architecture.md:614–632,716–731",
+        "documents/Omnis_Implementation_Plan.md:243,247"
+      ],
+      "violated_requirement": "Composerul și selecția sunt consumate efectiv, pin-uite și bounded; NO_MODEL explicit nu este configurație live. Prefix/cache/tool schema nu se rescriu în conversația activă, iar overflow mandatory se refuză, nu se taie.",
+      "proposed_minimal_repair": "Produce PromptBundle înaintea brief-ului cu refs/composer/tokenizer/limite exacte; compune invariants+role+brief+metodă+overlay relevant. Materializează ExecutionSelection NO_MODEL înainte de brief, fără provider defaults personale. Verifică două skills, aceeași metodă pe taskuri diferite și conflicting REQUIRED preferences declarativ; routing/provider/effort efectiv se atestă la etapele lor.",
+      "acceptance": "Golden/negative tests pe composerul instalat: digest/shadowing/mandatory overflow/full history în focused/cross-run/ref/prompt override refuzate. «xhig» rămâne literal invalid, nu normalizat; REQUIRED ignorat nu devine satisfăcut. Native skill loading nu permite shell preprocessing sau moștenire ambientă de tooluri. Nu revendică eficacitate din golden.",
+      "disposition": "implement-B06b",
+      "parent_disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    },
+    {
+      "id": "AR-B06B-12",
+      "severity": "INFO",
+      "kind": "EXPLICIT_DEFERRAL_BOUNDARY",
+      "source": [
+        "documents/Omnis_Implementation_Plan.md:135–138,150,158–160,249,266,270–272",
+        "documents/Omnis_MVP_Architecture.md:731,745–770"
+      ],
+      "violated_requirement": "Nu toate câmpurile/suitele normative trebuie activate integral în B06b. Seed folosește CHECK_ONLY; rol REVIEWER și MethodReview/Resolution/rework sunt B18a.r/G-METHOD după G06a. B06c, B06m, P4a și P2-live au propriile gates și autorizări.",
+      "proposed_minimal_repair": "Păstrează în predarea B06b statusul explicit deferred: G-DATA-EARLY/ModelProjection B06c; reservations/pre-send/retry/fallback/auxiliary model dispatch B06m; config requested/effective/readback P4a; inferență reală cu acord P2-live; editor/retire/revision complet B14b; critic/rework/resolution B18a.r; breadth crash/Stop integrat B19. Nu publica un profil INDEPENDENT în seed ca să ceri reviewerul viitor acum.",
+      "acceptance": "G-METHOD-core este doar plan/check/predicate la primul rezultat; MethodReviewRequest/Feedback nenule sunt respinse înainte de activarea rolului. Core B06b rămâne probat la consumer; breadth lipsă este NOT_RUN/BLOCKED, nu PASS global. Deferral nu mută inbox, binding sau checkerul de bază la B18.",
+      "disposition": "later",
+      "parent_disposition": "DEFERRED_CANONICAL",
+      "implementation_evidence": "NOT_RUN; no B06b code implemented"
+    }
+  ],
+  "parent_additional_findings": [
+    {
+      "id": "P-B06B-FINGERPRINT",
+      "kind": "CONSUMER_INTEGRATION_RISK_NOT_ACCEPTED_PRODUCT_DEFECT",
+      "source": "api/src/omnis/modules/settings/candidate_catalog.py:45–70,574–579,623–626",
+      "observation": "The compiler/evaluator fingerprint covers nine source files including the catalog entrypoint/store. Editing them for Publish changes producer identity and existing snapshot/evaluation readback refuses mismatched identities.",
+      "reproduction": {
+        "scope": "actual behavior_revision function; source bytes mutated only in memory; no DB or product edits",
+        "exit_code": 0,
+        "source_files": 9,
+        "original": "sha256:c64b77a406ca71e9f7b0885a287dc5125db304eb516f5b47982d9127c5950758",
+        "changed": "sha256:aef052ab8ae56e68286a9b1c675f8b5eb701245d2e4097f684fe3eb1ba3b113c",
+        "changed_identity_detected": true,
+        "retained_snapshot_or_publish_pg_consumer": "NOT_RUN"
+      },
+      "disposition": "Preparation contract records final-artifact qualification on a fresh owned fixture; prefer a separate Publish seam within settings when possible. Preserve behavior closure/stale guards and old receipts. Any old-snapshot compatibility/upgrade needs its own actual proof, not a fingerprint literal or automatic PASS transfer.",
+      "documentary_regression": {
+        "command": "python -B -m unittest discover -s tests/documentation -p test_b06b_preparation.py -k changed_producer -v",
+        "red_exit": 1,
+        "red_tests": 1,
+        "red_failures": 1,
+        "green_exit": 0,
+        "green_test": "test_changed_producer_cannot_inherit_old_qualification"
+      },
+      "status": "PREPARATION_REPAIRED_REVIEW_PENDING; implementation consumer NOT_RUN"
+    }
+  ],
+  "parent_runtime_discovery": {
+    "pin": {
+      "version": "0.21.5",
+      "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "python": "3.13.15"
+    },
+    "local_pin_and_overlay_integrity": {
+      "checks": 11,
+      "result": "PASS"
+    },
+    "existing_native_inert_ast_checks": {
+      "command": "api/.venv/bin/python -I -B -m unittest discover -s integrations/hermes/tests -p test_native_build.py -v",
+      "exit_code": 0,
+      "tests": 6,
+      "limit": "AST/no-I-O startup/admission seams, not native child end-to-end"
+    },
+    "source_facts": [
+      {
+        "file": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "lines": "22–42",
+        "observation": "fixed entrypoint; inert env; OPS launch/status/renew/stop"
+      },
+      {
+        "file": "integrations/hermes/upstream/inert-source/tui_gateway/rpc_dispatch.py",
+        "lines": "22–24",
+        "observation": "inert permits capabilities/ping only, including denial of session.create/prompt.submit"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py",
+        "symbols": [
+          "SubagentLifecycleService.launch",
+          "SubagentLifecycleService._run"
+        ],
+        "observation": "launch builds child, submits future; _run calls native lifecycle; null/empty toolsets inherit"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool_child_run.py",
+        "symbols": [
+          "_ChildRun.await_child"
+        ],
+        "observation": "calls child.run_conversation; not evidence of preexisting NO_MODEL end-to-end support"
+      },
+      {
+        "file": "api/src/omnis/modules/settings/candidate_catalog.py",
+        "lines": "489–551,710–771,804–806",
+        "observation": "freeze/evaluate/readback exist; installed operation choices exclude Publish; evaluation explicitly records Publish/runtime binding/plan pending"
+      },
+      {
+        "file": "api/src/omnis/modules/tasks/module_registry.py",
+        "lines": "39–70",
+        "observation": "three PURE deterministic handlers, not durable Task/Attempt/native-child implementation"
+      }
+    ],
+    "native_binding_product_evidence": "NOT_RUN; first B06b consumer must prove native seam or remain BLOCKED",
+    "official_docs": [
+      "https://hermes-agent.nousresearch.com/docs/developer-guide/subagent-lifecycle-api",
+      "https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration"
+    ],
+    "limits": [
+      "Documentation latest is not proof of pinned support.",
+      "Legacy native-build-receipt is historical; it cites old hashes/temporary paths, not a current prepared runtime.",
+      "Two bounded cache file searches failed; no conclusion that all native source archives are absent and no old worktree adopted.",
+      "No new product bug confirmed; accepted slices were not reopened."
+    ]
+  },
+  "documentary_reproductions": [
+    {
+      "finding": "AR-B06B-06",
+      "command": "python -B -m unittest discover -s tests/documentation -p test_resume_status.py -v",
+      "red_exit": 1,
+      "red_tests": 3,
+      "red_failures": 3,
+      "green_tests": 3,
+      "green_exit": 0,
+      "mutation_controls": "old SL04 verdict and removal of history markers detected",
+      "limit": "text/snapshot markers only"
+    },
+    {
+      "findings": [
+        "AR-B06B-01",
+        "AR-B06B-02",
+        "AR-B06B-03",
+        "AR-B06B-04",
+        "AR-B06B-05"
+      ],
+      "command": "python -B -m unittest discover -s tests/documentation -p test_b06b_preparation.py -v",
+      "red_exit": 1,
+      "red_tests": 6,
+      "red_failures": 10,
+      "green_tests": 6,
+      "green_exit": 0,
+      "mutation_controls": 5,
+      "limit": "structural handoff guard, not runtime semantics"
+    }
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE: no app UI/runtime change",
+    "Chisel": "BLOCKED_CURRENT_NO_GO; NOT_RUN; native file tools used"
+  },
+  "completion_status": "PREPARATION_IN_REVIEW; not implementation authorization",
+  "protected_original": "not read/copied/hashed/modified/staged",
+  "external_effects": {
+    "new_services": false,
+    "database_access": false,
+    "publish": false,
+    "product_model_calls": false,
+    "target_traffic": false,
+    "operator_profile_or_r1": false,
+    "push": false
+  }
+}

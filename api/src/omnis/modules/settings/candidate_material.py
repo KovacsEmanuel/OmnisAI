@@ -28,7 +28,7 @@ def private_root(root: Path) -> Path:
     info = root.lstat()
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
         raise CatalogError("UNSAFE_CATALOG_ROOT")
-    for name in ("drafts", "candidates", "staging"):
+    for name in ("drafts", "candidates", "staging", "receipts"):
         directory = root / name
         directory.mkdir(mode=0o700, exist_ok=True)
         info = directory.lstat()

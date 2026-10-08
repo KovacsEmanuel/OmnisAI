@@ -25,7 +25,15 @@ def test_reconciliation_migration_quotes_reserved_grant_identifier(
 
 
 @pytest.mark.parametrize(
-    "table_under_test", ["instance_stop_reconciliation", "engagement_revision"]
+    "table_under_test",
+    [
+        "instance_stop_reconciliation",
+        "engagement_revision",
+        "catalog_record",
+        "catalog_identity",
+        "catalog_reservation",
+        "catalog_command",
+    ],
 )
 @pytest.mark.parametrize("unconditional", [True, False])
 @pytest.mark.asyncio
@@ -63,6 +71,15 @@ async def test_schema_refuses_conditional_immutability_trigger(
             "reject_engagement_revision_mutation",
             "Engagement revisions are immutable",
         ),
+        **{
+            table: ("catalog_immutable", "catalog_immutable", "immutable catalog ledger")
+            for table in (
+                "catalog_record",
+                "catalog_identity",
+                "catalog_reservation",
+                "catalog_command",
+            )
+        },
     }
     singleton = Mock()
     singleton.one.return_value = (True, True)
@@ -104,6 +121,6 @@ def test_stop_reconciliation_is_new_schema_authority() -> None:
     script = ScriptDirectory.from_config(
         Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     )
-    assert script.get_current_head() == SCHEMA_REVISION == "0008_engagement_edit"
+    assert script.get_current_head() == SCHEMA_REVISION == "0009_catalog_candidates"
     assert "instance_stop_reconciliation" in AUTHORITY_TABLES
     assert AUTHORITY_TABLES["instance_stop_fence"][0]["owner_uuid"] == ("uuid", False, None)

@@ -229,6 +229,149 @@ AUTHORITY_TABLES: dict[str, AuthoritySpec] = {
 }
 
 
+AUTHORITY_TABLES.update(
+    {
+        "catalog_record": (
+            {
+                "id": ("uuid", True, None),
+                "owner_id": ("uuid", True, None),
+                "group_id": ("uuid", True, None),
+                "kind": ("text", True, None),
+                "revision": ("integer", True, None),
+                "digest": ("text", True, None),
+                "envelope": ("jsonb", True, None),
+            },
+            {
+                ("catalog_record_pkey", "p", "PRIMARY KEY (id)", True, True),
+                ("catalog_record_id_revision_key", "u", "UNIQUE (id, revision)", True, True),
+                ("catalog_record_revision_check", "c", "CHECK ((revision >= 1))", True, True),
+                (
+                    "catalog_record_digest_check",
+                    "c",
+                    "CHECK ((digest ~ '^[0-9a-f]{64}$'::text))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_record_envelope_check",
+                    "c",
+                    "CHECK ((jsonb_typeof(envelope) = 'object'::text))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_record_check",
+                    "c",
+                    "CHECK ((((envelope ->> 'id'::text))::uuid = id))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_record_check1",
+                    "c",
+                    "CHECK ((((envelope ->> 'revision'::text))::integer = revision))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_record_check2",
+                    "c",
+                    "CHECK (((envelope ->> 'kind'::text) = kind))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_record_check3",
+                    "c",
+                    "CHECK (((envelope ->> 'digest'::text) = digest))",
+                    True,
+                    True,
+                ),
+            },
+        ),
+        "catalog_identity": (
+            {
+                "id": ("uuid", True, None),
+                "owner_id": ("uuid", True, None),
+                "package_key": ("text", True, None),
+                "entity_kind": ("text", True, None),
+                "entity_key": ("text", True, None),
+            },
+            {
+                ("catalog_identity_pkey", "p", "PRIMARY KEY (id)", True, True),
+                (
+                    "catalog_identity_package_key_entity_kind_entity_key_key",
+                    "u",
+                    "UNIQUE (package_key, entity_kind, entity_key)",
+                    True,
+                    True,
+                ),
+            },
+        ),
+        "catalog_reservation": (
+            {
+                "id": ("uuid", True, None),
+                "revision": ("integer", True, None),
+                "digest": ("text", True, None),
+                "draft_id": ("uuid", True, None),
+            },
+            {
+                ("catalog_reservation_pkey", "p", "PRIMARY KEY (id, revision)", True, True),
+                ("catalog_reservation_id_digest_key", "u", "UNIQUE (id, digest)", True, True),
+                ("catalog_reservation_revision_check", "c", "CHECK ((revision >= 1))", True, True),
+                (
+                    "catalog_reservation_digest_check",
+                    "c",
+                    "CHECK ((digest ~ '^[0-9a-f]{64}$'::text))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_reservation_id_fkey",
+                    "f",
+                    "FOREIGN KEY (id) REFERENCES catalog_identity(id)",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_reservation_draft_id_fkey",
+                    "f",
+                    "FOREIGN KEY (draft_id) REFERENCES catalog_record(id)",
+                    True,
+                    True,
+                ),
+            },
+        ),
+        "catalog_command": (
+            {
+                "owner_id": ("uuid", True, None),
+                "command_id": ("uuid", True, None),
+                "operation": ("text", True, None),
+                "request_digest": ("text", True, None),
+                "result": ("jsonb", True, None),
+            },
+            {
+                ("catalog_command_pkey", "p", "PRIMARY KEY (owner_id, command_id)", True, True),
+                (
+                    "catalog_command_request_digest_check",
+                    "c",
+                    "CHECK ((request_digest ~ '^[0-9a-f]{64}$'::text))",
+                    True,
+                    True,
+                ),
+                (
+                    "catalog_command_result_check",
+                    "c",
+                    "CHECK ((jsonb_typeof(result) = 'object'::text))",
+                    True,
+                    True,
+                ),
+            },
+        ),
+    }
+)
+
+
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
@@ -275,6 +418,15 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             "engagement_revision_immutable",
             "reject_engagement_revision_mutation",
             "Engagement revisions are immutable",
+        ),
+        *(
+            (table, "catalog_immutable", "catalog_immutable", "immutable catalog ledger")
+            for table in (
+                "catalog_record",
+                "catalog_identity",
+                "catalog_reservation",
+                "catalog_command",
+            )
         ),
     ):
         immutable = (

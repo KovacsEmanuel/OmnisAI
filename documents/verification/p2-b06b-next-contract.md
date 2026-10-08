@@ -6,6 +6,8 @@ Acesta este contractul următorului consumator din DAG-ul existent, **nu un plan
 
 Baza viitoare se citește din Git real după acea adjudecare. Worktree-uri noi numai din HEAD local verificat; nicio adoptare a worktree-urilor curente/istorice. P0/G00, P1/G01, B04 hydration și B05-inert rămân acceptări distincte; nu se reiau fără defect nou concret. B06a oferă catalog/rezervări/freeze/closure/eval durabile, nu încă publicare sau Task/Attempt/copil.
 
+Suportul pregătirii: [analiză și adjudecarea reviewului inițial](p2-b06b-preparation-analysis.json), cu omisiuni documentare, obligații de implementare și deferări distincte; [promptul copy-ready](p2-b06b-implementation-prompt.md), neexecutat. Analiza este checkpoint înainte de reviewul final, nu dovadă de închidere a implementării.
+
 ## Rezultatul observabil al SL09
 
 Publicarea explicită a **exact seed-ului calificat**, cu refs/revizii/digests și calificarea neschimbate, apoi snapshot/Task/Attempt durabile și binding root–copil nativ pentru contractul inert permis. TaskBriefV1/TaskResultV1, ExecutionSelection, PromptBundleRevision, LaunchManifest, MethodPlan/Check, predicate calificate, lineage și inbox/receipts trebuie consumate efectiv; nu DTO-uri fără consumator, goal text ca identitate sau copil simulat ca integrare nativă. Publicarea cere confirmarea explicită a operatorului după review/eval independente, CAS și audit `author_kind`/actor/receipturi; AI/importerul nu primește autoapprove. Promovează materialul/indexul/closure existente, fără re-resolver spre latest. Releaseul se consumă numai în snapshoturi noi; STATIC/PURE nu califică SECURITY sau un assessment.

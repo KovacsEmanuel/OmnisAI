@@ -327,7 +327,7 @@
     "Reticle": "NOT_APPLICABLE: no app UI/runtime change",
     "Chisel": "BLOCKED_CURRENT_NO_GO; NOT_RUN; native file tools used"
   },
-  "completion_status": "PREPARATION_IN_REVIEW; not implementation authorization",
+  "completion_status": "ANALYSIS_CHECKPOINT_BEFORE_FINAL_REVIEW; final decision belongs to a separate snapshot-bound preparation-close receipt, not implementation authorization",
   "protected_original": "not read/copied/hashed/modified/staged",
   "external_effects": {
     "new_services": false,

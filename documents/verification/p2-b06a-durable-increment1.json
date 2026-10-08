@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "slice": "SL08/B06a",
+  "product_snapshot": "d12380c5430acbd421969759611b4387cf83a380",
+  "parent_disposition": "IN_PROGRESS_CAPTURE_INCREMENT_COMMITTED; NOT_FULL_B06A_ACCEPTANCE",
+  "code_scope": "capture/review/reject; exact persistent source drafts and definitive immutable identity/revision ledger",
+  "commits": [
+    "9be7385",
+    "70fd56f",
+    "d12380c"
+  ],
+  "source_sha256": {
+    "api/src/omnis/core/db.py": "cae8ff648f99623f107c017450d317ac85e775f418c98df6ab117c8d70ff587d",
+    "api/src/omnis/core/schema.py": "383f894205ba76b17ed0b2a1c399c0bcfca0515b48da7de95bf5f6ebc40a4f90",
+    "api/src/omnis/migrations/versions/0009_catalog_candidates.py": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371",
+    "api/src/omnis/modules/settings/candidate_catalog.py": "4ee51715ec072114a50d8eee3e778e361410d3116b49d7f5db83b02b6bd66c0f",
+    "api/src/omnis/modules/settings/candidate_material.py": "2bc27e4bc51ea1ddc344987902e1aea32a98aced5711489ea13ed469e73db8b5",
+    "api/src/omnis/modules/settings/candidate_store.py": "a72e2fdfef66d48f32a05c775c7b3a6e2248064f225e4460c64635010c17ff1e",
+    "api/tests/test_candidate_tracer_pg.py": "46df52f05e0df69f140a9f52add7d3a8363b545d1f799a01d46e170892855bf4",
+    "api/tests/test_candidate_tracer_guards.py": "634bdb412ca7301b222023f7f7896b110a2eae0af6475448bf3640deaa6dafd8",
+    "api/tests/test_stop_schema.py": "ad6fc433c9ae77e30fd8e057557a5b1e6a88b774702e2de22861318d42338668",
+    "api/tests/test_candidate_tracer_durability.py": "f39313e68d25e92ca7df8f97506af50ed26e7e5a951801003df9af91e2f7eb1b",
+    "api/tests/test_candidate_tracer_source_limit.py": "6b4455c6c13a6babcc18511b55c09daa972862d6fa8e757258c817577868fb46"
+  },
+  "checks": [
+    {
+      "command": "make lint-api typecheck-api",
+      "exit": 0,
+      "scope": "current integrated source"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_candidate_tracer_durability.py api/tests/test_candidate_tracer_source_limit.py -q",
+      "exit": 0,
+      "passed": 3,
+      "scope": "current integrated source, real fsync observation and strict request/source-budget controls"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_stop_schema.py -q",
+      "exit": 0,
+      "passed": 14,
+      "scope": "schema/head oracle with catalog immutability trigger controls"
+    }
+  ],
+  "private_pg": {
+    "target": "test-catalog-candidates-pg",
+    "exit": 0,
+    "passed": 7,
+    "snapshot_binding": "all11 source hashes byte-identical to tested fixes worktree; no unchanged-gate replay",
+    "command": "PATH=<pinned Node24.21.0/npm11.19.0> api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-catalog-candidates-pg --uv /home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19 --timeout-seconds 600",
+    "root": "/home/kali/.hermes/cache/scratch/db-2107fdc0ef514058",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "cleanup": "exact CID51047cf6be17bd2b93fdff9aba2792279971569133ce77c89497bef35477dd36/project networks/socket absent; data retained",
+    "limits": "7 includes3 filesystem/request regressions; generated refs at budget-validation seam are not stored PG refs. Fresh process capture replay is not CandidateSnapshot readback."
+  },
+  "reviews": {
+    "original": {
+      "id": "sl08-b06a-independent-review-b3a9a0f-r2",
+      "verdict": "CHANGES_REQUESTED",
+      "budget_deviation": "11 API calls vs8 allowed; preserved"
+    },
+    "focused": {
+      "id": "sl08-b06a-focused-rereview-b3a9a0f-r3",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Read-only focused re-review of DURABLE-R2-01 and DURABLE-R2-02; no full product/harness reaudit.",
+      "findings": {
+        "DURABLE-R2-01": "RESOLVED_SCOPED",
+        "DURABLE-R2-02": "RESOLVED_SCOPED"
+      },
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_candidate_tracer_durability.py api/tests/test_candidate_tracer_source_limit.py -q",
+      "exit": 0,
+      "passed": 3
+    },
+    "gate_signal": {
+      "snapshot": "b3a9a0f649cb12da8bc7f0caca508f4397f6e12a",
+      "id": "b06a-signal-state-rereview-b7207bb74e04",
+      "verdict": "APPROVED_SCOPED",
+      "finding": "R-GATE-SIGNAL-STATE RESOLVED_SCOPED",
+      "limit": "admission-test signal isolation only; no product PASS"
+    }
+  },
+  "historical_failures": [
+    {
+      "scope": "un-pinned parent preflight",
+      "exit": 2,
+      "reason": "PRIVATE_DB_PREFLIGHT_BLOCKED before DB creation"
+    },
+    {
+      "scope": "parent durability regression RED",
+      "exit": 1,
+      "failed": 1
+    },
+    {
+      "scope": "parent source-limit regression RED",
+      "exit": 1,
+      "failed": 2
+    }
+  ],
+  "canonical_initial": {
+    "process_id": "proc_3cd8e783b870",
+    "source_snapshot": "9be7385 (same product bytes as precommit reviewed increment)",
+    "command": "PATH=<pinned Node24.21.0/npm11.19.0> make check UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
+    "exit": 2,
+    "api_passed": 591,
+    "api_failed": 1,
+    "failed_test": "test_finalized_stop_readback_refuses_committed_current_lease_takeover",
+    "reason": "CLI.start.EXPECTED_SCHEMA0008 rejects actual API schema0009 before relevant finalized-readback guard (SCHEMA_UPDATE_REQUIRED)",
+    "root": "/home/kali/.hermes/cache/scratch/db-ab41d9fc43344c19",
+    "receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "cleanup": "exact CIDc211e21966247f1844cdf1abf3a99fba5fc31aebfc4d8a11b99cf092819e9aab/project networks/socket absent; data retained",
+    "limits": "canonical FAIL preserved; later component gates not reached, not PASS/NOT_RUN converted"
+  },
+  "remaining": [
+    "schema0009 CLI/bundle/positive-fixture compatibility and explicit0008→0009 transactional regression",
+    "freeze/evaluate/readback/input receipts and candidate material restart",
+    "LOCAL/RELEASE and qualified CANDIDATE/RELEASE closure/slots/StepOutput/registry-plan matrix",
+    "two complementary reviews on final integrated bytes",
+    "independent installed consumer QA with own PG",
+    "make check final and verified cleanup"
+  ],
+  "full_B06a": "NOT_CLOSED",
+  "G_MODULE_core": "NOT_CLOSED",
+  "G02": "NOT_CLOSED",
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE CLI/persistence",
+    "Chisel": "BLOCKED_NO_GO/not invoked"
+  },
+  "exclusions": [
+    "Publish/B06b/Task/child/assessment",
+    "model/provider/target IO",
+    "r1 restart/adoption",
+    "P0/P1 rollout",
+    "global config",
+    "push",
+    "protected original HTML read/copy/hash/edit/stage"
+  ],
+  "rollback": "git revert removes code/docs only; immutable reservation ledger and retained PGDATA are not downgraded or reclaimed"
+}

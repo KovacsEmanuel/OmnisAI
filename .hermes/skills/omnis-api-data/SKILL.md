@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.10
+version: 0.1.11
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -31,6 +31,9 @@ Read the active architecture, relevant ticket and stack pins. Inspect actual man
 ## Pitfalls
 Do not swallow exceptions, retry uncertain external effects as if they were safe, return success for queued completion, or weaken validation to satisfy a linter. An in-memory smoke is not durability; a restart test must restart the owning process and read real state.
 
+- Before a database record cites newly created filesystem material, flush the containing directory namespace bottom-up through the material root and its parent. A file fsync or immediate-child fsync does not persist the parent's new root link; exercise a new-root positive with real delegated fsync, and keep physical power-loss NOT_RUN unless actually probed.
+- Bound derived collections before capturing or reserving anything, using one shared limit at both the request and real material helper. A package cap must reserve capacity for the mandatory profile in the later source-ref budget; prove the exact maximum remains reviewable/rejectable and the next package refuses before filesystem reads. Generated refs at a validator seam are not persistent-DB evidence.
+- When adding a migration, inventory schema pins in every real consumer and artefact builder, not only API readiness and migration tests: CLI instance/release/start, bundle metadata and fresh positive fixtures must agree on the new exact head. Preserve historical revisions, intentional old-schema denials and retained releases; prove the affected PostgreSQL consumer and upgrade transaction rather than accepting both heads or rolling out over an existing instance.
 - Reject U+0000 in every authored string destined for PostgreSQL JSONB, including nested list items, before a Save transaction. PostgreSQL rejects it after DTO acceptance and otherwise turns invalid input into a misleading 503; exercise the real HTTP field error and a valid control on the same route.
 - For an exact origin stored separately from its port, reject an empty port delimiter explicitly: `urlsplit("https://host:").port` is `None`. A `port is None` check alone accepts ambiguous scope data; test the negative and a valid origin through the same API.
 - After adding shared Pydantic `Annotated` validators, compare two fresh-process OpenAPI exports byte-for-byte before trusting contract drift checks. A PEP 695 `type` alias combined with field metadata can embed runtime identity in `$ref` names; use a stable alias assignment when needed, then regenerate OpenAPI/TS from the source.

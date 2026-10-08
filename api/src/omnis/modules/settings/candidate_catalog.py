@@ -19,7 +19,13 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from omnis.core.db import database_engine
 
 from . import candidate_store as store
-from .candidate_index import INDEX_FILE, compile_material, index_source, resolved_index
+from .candidate_index import (
+    INDEX_FILE,
+    bind_catalog,
+    compile_material,
+    index_source,
+    resolved_index,
+)
 from .candidate_material import (
     MAX_SOURCE_PACKAGES,
     capture,
@@ -28,7 +34,8 @@ from .candidate_material import (
     private_root,
     read_material,
 )
-from .catalog_models import CatalogError
+from .candidate_resolution import load_dependencies
+from .catalog_models import CatalogError, CompiledCatalog
 from .catalog_schema import bounded, canonical, pairs
 from .skill_catalog import evaluate_pure, read_file
 
@@ -40,6 +47,7 @@ BEHAVIOR_FILES = (
     "settings/candidate_index.py",
     "settings/candidate_material.py",
     "settings/candidate_store.py",
+    "settings/candidate_resolution.py",
     "settings/catalog_models.py",
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
@@ -333,8 +341,12 @@ class CandidateCatalog:
                         raise CatalogError("CANDIDATE_REJECTED")
                     review_started = datetime.now(UTC).isoformat()
                     review_clock = monotonic_ns()
+                    closure: list[dict[str, object]] = []
                     try:
-                        compiled = compile_material(self.root / "drafts" / group, sources)
+                        compiled = await self.compile_pinned(
+                            connection, owner, self.root / "drafts" / group, records, reservations
+                        )
+                        closure = list(compiled.dependency_closure_refs)
                         status, reason = "STATIC_PASS", None
                         index = resolved_index(compiled)
                         index_digest = compiled.resolved_index_digest
@@ -349,8 +361,8 @@ class CandidateCatalog:
                             "resolved_index_digest": index_digest,
                             "resolved_index": index,
                             "candidate_refs": reservations,
-                            "dependency_closure_refs": [],
-                            "dependency_closure_digest": digest(canonical([])),
+                            "dependency_closure_refs": closure,
+                            "dependency_closure_digest": digest(canonical(closure)),
                             "reviewed_at": datetime.now(UTC).isoformat(),
                             "started_at": review_started,
                             "duration_ns": monotonic_ns() - review_clock,
@@ -430,25 +442,49 @@ class CandidateCatalog:
             or body.get("compiler_revision") != COMPILER_REVISION
             or body.get("protocol") != "b06a-static-v1"
             or body.get("checker") != "omnis-static-v1"
-            or body.get("dependency_closure_refs") != []
-            or body.get("dependency_closure_digest") != digest(canonical([]))
+            or not isinstance(body.get("dependency_closure_refs"), list)
+            or body.get("dependency_closure_digest")
+            != digest(canonical(body.get("dependency_closure_refs")))
         ):
             raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
         refs = body.get("candidate_refs")
         if not isinstance(refs, list) or not refs:
             raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
-        for ref in refs:
-            exact = valid_ref(ref)
-            reserved = await connection.scalar(
-                text(
-                    "SELECT EXISTS(SELECT 1 FROM catalog_reservation r JOIN catalog_identity i ON i.id=r.id "
-                    "WHERE r.id=:id AND r.revision=:revision AND r.digest=:digest AND i.owner_id=:owner AND i.entity_kind=:kind)"
-                ),
-                {**exact, "owner": owner},
-            )
-            if reserved is not True:
-                raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        _, records = await self.sources(connection, owner, value)
+        await store.reservation_bindings(
+            connection, owner, [valid_ref(ref) for ref in refs], records
+        )
         return review
+
+    async def compile_pinned(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        directory: Path,
+        records: list[dict[str, object]],
+        refs: list[dict[str, object]],
+        index: dict[str, object] | None = None,
+    ) -> CompiledCatalog:
+        sources = [payload(record) for record in records]
+        pins = None if index is None else index.get("dependency_artifact_refs")
+        if index is not None and pins is None:
+            raise CatalogError("RELEASE_MISMATCH")
+        if pins is not None and (
+            not isinstance(pins, list) or not all(isinstance(p, dict) for p in pins)
+        ):
+            raise CatalogError("RELEASE_MISMATCH")
+        dependencies = await load_dependencies(
+            connection,
+            owner,
+            self.root,
+            directory,
+            sources,
+            None if pins is None else [valid_ref(p) for p in pins],
+        )
+        bindings = await store.reservation_bindings(connection, owner, refs, records)
+        return bind_catalog(
+            compile_material(directory, sources, dependencies=dependencies), bindings
+        )
 
     async def freeze(
         self, connection: AsyncConnection, owner: str, value: dict[str, object]
@@ -466,11 +502,25 @@ class CandidateCatalog:
             await self.snapshot_readback(connection, owner, store.reference(prior))
             return {"snapshot_ref": store.reference(prior), "snapshot": prior}
         material = read_material(self.root, "drafts", group, sources)
-        compiled = compile_material(self.root / "drafts" / group, sources)
+        reviewed_index = body.get("resolved_index")
+        if not isinstance(reviewed_index, dict):
+            raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        reviewed_refs = body.get("candidate_refs")
+        if not isinstance(reviewed_refs, list):
+            raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        compiled = await self.compile_pinned(
+            connection,
+            owner,
+            self.root / "drafts" / group,
+            records,
+            [valid_ref(r) for r in reviewed_refs],
+            reviewed_index,
+        )
         index = resolved_index(compiled)
         if (
             body.get("resolved_index") != index
             or body.get("resolved_index_digest") != compiled.resolved_index_digest
+            or body.get("dependency_closure_refs") != list(compiled.dependency_closure_refs)
         ):
             raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
         refs = body["candidate_refs"]
@@ -487,7 +537,7 @@ class CandidateCatalog:
                 "material_digest": compiled.material_digest,
                 "resolved_index_digest": compiled.resolved_index_digest,
                 "candidate_refs": refs,
-                "dependency_closure_refs": [],
+                "dependency_closure_refs": list(compiled.dependency_closure_refs),
                 "profile_ref": profiles[0],
                 "compiler_revision": COMPILER_REVISION,
                 "technical_review_ref": value["technical_review_ref"],
@@ -533,10 +583,17 @@ class CandidateCatalog:
         if not isinstance(index, dict):
             raise CatalogError("RESOLVED_INDEX_MISMATCH")
         read_material(self.root, "candidates", str(snapshot["id"]), [*sources, index_source(index)])
-        compiled = compile_material(self.root / "candidates" / str(snapshot["id"]), sources)
         candidate_refs = body["candidate_refs"]
         if not isinstance(candidate_refs, list):
             raise CatalogError("SNAPSHOT_MISMATCH")
+        compiled = await self.compile_pinned(
+            connection,
+            owner,
+            self.root / "candidates" / str(snapshot["id"]),
+            records,
+            [valid_ref(r) for r in candidate_refs],
+            index,
+        )
         if (
             resolved_index(compiled) != index
             or body["material_digest"] != compiled.material_digest
@@ -615,10 +672,19 @@ class CandidateCatalog:
         group, snapshot = await store.get(connection, owner, ref)
         body = payload(snapshot)
         _, records = await self.sources(connection, owner, body)
-        sources = [payload(r) for r in records]
         started = datetime.now(UTC).isoformat()
         clock = monotonic_ns()
-        compiled = compile_material(self.root / "candidates" / str(snapshot["id"]), sources)
+        pinned_index = back["resolved_index"]
+        if not isinstance(pinned_index, dict) or not isinstance(body["candidate_refs"], list):
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        compiled = await self.compile_pinned(
+            connection,
+            owner,
+            self.root / "candidates" / str(snapshot["id"]),
+            records,
+            [valid_ref(r) for r in body["candidate_refs"]],
+            pinned_index,
+        )
         input_record = None
         if value["evaluation_kind"] == "PURE":
             input_record = store.envelope(
@@ -670,7 +736,7 @@ class CandidateCatalog:
                 },
                 "limitations": [
                     "STATIC/PURE synthetic only",
-                    "full closure/RELEASE/plan pending",
+                    "Publish/runtime binding/plan pending",
                     "no provider or target effects",
                 ],
                 "started_at": started,

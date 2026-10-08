@@ -187,3 +187,67 @@ async def reserve(
             raise CatalogError("STORAGE_INCOMPATIBLE")
         refs.append({"kind": kind, "id": str(identity), "revision": revision, "digest": sha})
     return refs
+
+
+async def reservation_bindings(
+    connection: AsyncConnection,
+    owner: str,
+    refs: list[dict[str, object]],
+    records: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    from .candidate_resolution import body, exact
+
+    expected: set[tuple[str, str, str, str]] = set()
+    for record in records:
+        source = body(record)
+        items = source.get("identities")
+        if not isinstance(items, list):
+            raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        for item in items:
+            if not isinstance(item, list) or len(item) != 2:
+                raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+            expected.add(
+                (
+                    str(source.get("package_key", "@profile")),
+                    str(item[0]),
+                    str(item[1]),
+                    str(source.get("package_digest", record["digest"])),
+                )
+            )
+    bindings: list[dict[str, object]] = []
+    observed: set[tuple[str, str, str, str]] = set()
+    for value in refs:
+        ref = exact(value)
+        row = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT i.package_key, i.entity_kind, i.entity_key FROM catalog_reservation r "
+                        "JOIN catalog_identity i ON i.id=r.id WHERE r.id=:id AND r.revision=:revision "
+                        "AND r.digest=:digest AND i.owner_id=:owner AND i.entity_kind=:kind"
+                    ),
+                    {**ref, "owner": owner},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None or not all(
+            isinstance(row[key], str) for key in ("package_key", "entity_kind", "entity_key")
+        ):
+            raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        identity = (
+            str(row["package_key"]),
+            str(row["entity_kind"]),
+            str(row["entity_key"]),
+            str(ref["digest"]),
+        )
+        if identity not in expected or identity in observed:
+            raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+        observed.add(identity)
+        bindings.append(
+            {"package_key": identity[0], "entity_kind": identity[1], "key": identity[2], "ref": ref}
+        )
+    if observed != expected:
+        raise CatalogError("TECHNICAL_REVIEW_MISMATCH")
+    return sorted(bindings, key=canonical)

@@ -15,7 +15,7 @@ from omnis.modules.settings import candidate_catalog as catalog
 from omnis.modules.settings import candidate_store as store
 from omnis.modules.settings.candidate_index import INDEX_FILE, compile_material, resolved_index
 from omnis.modules.settings.candidate_material import capture, finalize, private_root
-from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.settings.catalog_models import CatalogError, CompiledCatalog
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.settings.skill_catalog import read_file
 
@@ -24,6 +24,7 @@ DEPENDENCIES = (
     "settings/candidate_index.py",
     "settings/candidate_material.py",
     "settings/candidate_store.py",
+    "settings/candidate_resolution.py",
     "settings/catalog_models.py",
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
@@ -136,6 +137,22 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
     ) -> dict[str, object]:
         return review
 
+    async def selected_compile(
+        self: catalog.CandidateCatalog,
+        connection: AsyncConnection,
+        who: str,
+        directory: Path,
+        selected: list[dict[str, object]],
+        refs: list[dict[str, object]],
+        selected_index: dict[str, object] | None = None,
+    ) -> CompiledCatalog:
+        # Extend only the existing storage seam to the new reservation/dependency
+        # join. Real compiler/material/handler behavior remains under test here;
+        # actual DB bindings and RELEASE authority are proved in the PG tests.
+        assert who == owner and selected == source_records and refs == [profile_ref]
+        assert selected_index == index
+        return compile_material(directory, sources)
+
     async def execute(
         self: AsyncConnection, statement: object, parameters: object = None
     ) -> ReceiptRows:
@@ -145,6 +162,7 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
     monkeypatch.setattr(store, "put", put)
     monkeypatch.setattr(catalog.CandidateCatalog, "sources", selected_sources)
     monkeypatch.setattr(catalog.CandidateCatalog, "review_record", selected_review)
+    monkeypatch.setattr(catalog.CandidateCatalog, "compile_pinned", selected_compile)
     monkeypatch.setattr(AsyncConnection, "execute", execute)
     connection = object.__new__(AsyncConnection)  # No socket/engine/DB is constructed.
     ref = store.reference(snapshot)

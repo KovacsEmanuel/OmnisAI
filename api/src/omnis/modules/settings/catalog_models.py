@@ -296,6 +296,9 @@ class CompiledCatalog:
     verification_kind: Literal["CONTRACT", "SECURITY"]
     slots: tuple[CaseSlot, ...]
     max_output_bytes: int
+    dependency_closure_refs: tuple[dict[str, object], ...] = ()
+    dependency_artifact_refs: tuple[dict[str, object], ...] = ()
+    catalog_bindings: tuple[dict[str, object], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

@@ -10,7 +10,7 @@ import os
 import stat
 from dataclasses import asdict
 from pathlib import Path, PurePosixPath
-from typing import NoReturn, cast
+from typing import TYPE_CHECKING, NoReturn, cast
 
 from .catalog_models import (
     DEFAULT_PREFERENCE,
@@ -30,6 +30,9 @@ from .catalog_models import (
     TemplateRef,
 )
 from .catalog_schema import canonical, dto, load_json, load_yaml, schema, validate
+
+if TYPE_CHECKING:
+    from .candidate_resolution import ReleasePackage
 
 NATIVE_HERMES_REVISION = "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"
 
@@ -116,15 +119,122 @@ def require_no_model(preference: Preference | None) -> Preference:
     return result
 
 
-def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> CompiledCatalog:
+def compile_catalog(
+    package_roots: tuple[Path, ...],
+    profile_path: Path,
+    *,
+    dependencies: tuple["ReleasePackage", ...] = (),
+) -> CompiledCatalog:
+    from .candidate_resolution import artifact, body, verify
+    from .candidate_store import reference as record_ref
+
+    compiled = _compile_catalog(package_roots, profile_path, dependencies=dependencies)
+    by_ref = {canonical(record_ref(artifact(d))): d for d in dependencies}
+    # Each exact release is checked once against its own profile and transitive inventory.
+    for dependency in dependencies:
+        release = verify(dependency)
+        record = artifact(dependency)
+        descendants: dict[bytes, ReleasePackage] = {}
+        queue = list(cast(list[dict[str, object]], release["dependency_artifact_refs"]))
+        for ref in queue:
+            token = canonical(ref)
+            if token in descendants:
+                continue
+            child = by_ref.get(token)
+            if child is None:
+                raise CatalogError("DEPENDENCY_UNAVAILABLE")
+            descendants[token] = child
+            queue.extend(cast(list[dict[str, object]], verify(child)["dependency_artifact_refs"]))
+        directory = dependency.root / "candidates" / str(record["id"])
+        qualified = body(cast(dict[str, object], load_json(dependency.qualification_json)))
+        checked = _compile_catalog(
+            (directory / "packages/0",),
+            directory / "profile.yaml",
+            dependencies=tuple(descendants[token] for token in sorted(descendants)),
+        )
+        if (
+            qualified["material_digest"] != checked.material_digest
+            or qualified["resolved_index_digest"] != checked.resolved_index_digest
+            or qualified["dependency_closure_refs"] != list(checked.dependency_closure_refs)
+        ):
+            raise CatalogError("RELEASE_UNQUALIFIED")
+        try:
+            outputs = [
+                raw.decode("utf-8")
+                for raw in evaluate_pure(checked, qualified["pure_input"]).outputs_json
+            ]
+        except CatalogError:
+            raise CatalogError("RELEASE_UNQUALIFIED") from None
+        if outputs != qualified["outputs"]:
+            raise CatalogError("RELEASE_UNQUALIFIED")
+    return compiled
+
+
+def _compile_catalog(
+    package_roots: tuple[Path, ...],
+    profile_path: Path,
+    *,
+    dependencies: tuple["ReleasePackage", ...],
+) -> CompiledCatalog:
+    from .candidate_resolution import artifact, verify
+    from .candidate_store import reference as record_ref
+
     if not package_roots or len(package_roots) > 128:
         raise CatalogError("COUNT_LIMIT")
+    if len(dependencies) > 128:
+        raise CatalogError("COUNT_LIMIT")
+    releases = [verify(dependency) for dependency in dependencies]
+    release_records = [artifact(dependency) for dependency in dependencies]
+    declared_graph = {
+        str(record["id"]): [
+            str(ref["id"])
+            for ref in cast(list[dict[str, object]], release["dependency_artifact_refs"])
+        ]
+        for release, record in zip(releases, release_records, strict=True)
+    }
+    declared_active: set[str] = set()
+    declared_visited: set[str] = set()
+
+    def check_declared(identifier: str) -> None:
+        if identifier in declared_active:
+            raise CatalogError("DEPENDENCY_CYCLE")
+        if identifier in declared_visited:
+            return
+        if identifier not in declared_graph:
+            raise CatalogError("DEPENDENCY_UNAVAILABLE")
+        declared_active.add(identifier)
+        for child in declared_graph[identifier]:
+            check_declared(child)
+        declared_active.remove(identifier)
+        declared_visited.add(identifier)
+
+    for identifier in declared_graph:
+        check_declared(identifier)
+    release_roots = [
+        dependency.root / "candidates" / str(record["id"]) / "packages/0"
+        for dependency, record in zip(dependencies, release_records, strict=True)
+    ]
+    external_keys = {str(release["package_key"]) for release in releases}
+    if len(external_keys) != len(releases):
+        raise CatalogError("PACKAGE_SHADOW")
+    exact_bindings: dict[bytes, tuple[str, str, str]] = {}
+    for release in releases:
+        for release_binding in cast(list[dict[str, object]], release["bindings"]):
+            token = canonical(release_binding["ref"])
+            if token in exact_bindings:
+                raise CatalogError("PACKAGE_SHADOW")
+            exact_bindings[token] = (
+                str(release_binding["package_key"]),
+                str(release_binding["entity_kind"]),
+                str(release_binding["key"]),
+            )
     manifests: dict[str, Manifest] = {}
     files_by_package: dict[str, dict[str, bytes]] = {}
     entities: dict[tuple[str, str, str], bytes | Procedure | None] = {}
     digests: dict[str, str] = {}
     names: set[str] = set()
-    for root in package_roots:
+    total_bytes = 0
+    for root in (*package_roots, *release_roots):
         if root.is_symlink() or not root.is_dir():
             raise CatalogError("UNSAFE_PACKAGE")
         manifest_bytes = read_file(root / "omnis.yaml", 262144)
@@ -150,6 +260,9 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
                 raise CatalogError("UNSAFE_FILE")
             # One captured byte string owns both DTO validation and release hashing.
             files[name] = manifest_bytes if name == "omnis.yaml" else read_file(path)
+            total_bytes += len(files[name])
+            if total_bytes > 8 * 1048576:
+                raise CatalogError("SIZE_LIMIT")
         actual: set[str] = set()
         directories = [root]
         visited = 0
@@ -268,17 +381,44 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
             if hashlib.sha256(files[source.path]).hexdigest() != source.source_digest:
                 raise CatalogError("PROVENANCE_DIGEST")
 
+    local_keys = set(manifests) - external_keys
+    for release in releases:
+        release_key = str(release["package_key"])
+        if digests[release_key] != release["package_digest"]:
+            raise CatalogError("RELEASE_MISMATCH")
+        if set(identity for identity in entities if identity[0] == release_key) != {
+            identity for identity in exact_bindings.values() if identity[0] == release_key
+        }:
+            raise CatalogError("RELEASE_MISMATCH")
     refs: list[QualifiedRef] = []
+    closure: dict[bytes, dict[str, object]] = {}
+    edges: dict[str, set[str]] = {key: set() for key in external_keys}
+    direct_dependencies: set[str] = set()
+
+    def external_identity(reference: ReleaseRef, expected: str) -> tuple[str, str, str]:
+        if reference.ref.kind != expected:
+            raise CatalogError("REF_TYPE")
+        exact = reference.ref.model_dump(mode="json")
+        identity = exact_bindings.get(canonical(exact))
+        if identity is None:
+            raise CatalogError("DEPENDENCY_UNAVAILABLE")
+        closure[canonical(exact)] = exact
+        return identity
 
     def resolve(package: str, reference: TemplateRef, expected: str) -> bytes | Procedure | None:
         if isinstance(reference, ReleaseRef):
-            raise CatalogError("DEPENDENCY_UNAVAILABLE")
-        if reference.entity_kind != expected:
-            raise CatalogError("REF_TYPE")
-        identity = (package, expected, reference.key)
+            identity = external_identity(reference, expected)
+            if package in external_keys:
+                edges[package].add(identity[0])
+            else:
+                direct_dependencies.add(identity[0])
+        else:
+            if reference.entity_kind != expected:
+                raise CatalogError("REF_TYPE")
+            identity = (package, expected, reference.key)
         if identity not in entities:
             raise CatalogError("MISSING_REF")
-        qualified = QualifiedRef(*identity, digests[package])
+        qualified = QualifiedRef(*identity, digests[identity[0]])
         if qualified not in refs:
             refs.append(qualified)
         return entities[identity]
@@ -315,21 +455,35 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
     ):
         for profile_reference in references:
             if isinstance(profile_reference, ReleaseRef):
-                raise CatalogError("DEPENDENCY_UNAVAILABLE")
-            package = profile_reference.package_key
-            if package not in manifests:
-                raise CatalogError("MISSING_REF")
-            if expected != "package" and package not in selected_packages:
-                raise CatalogError("PROFILE_PACKAGE_MISMATCH")
-            value = resolve(
-                package,
-                LocalRef(
+                package = external_identity(profile_reference, expected)[0]
+                direct_dependencies.add(package)
+                template_reference: TemplateRef = profile_reference
+            else:
+                package = profile_reference.package_key
+                if package not in local_keys:
+                    raise CatalogError("MISSING_REF")
+                template_reference = LocalRef(
                     kind="LOCAL",
                     entity_kind=profile_reference.entity_kind,
                     key=profile_reference.key,
-                ),
-                expected,
+                )
+            if expected != "package" and package not in selected_packages:
+                raise CatalogError("PROFILE_PACKAGE_MISMATCH")
+            # Profile references select a release, not a dependency edge from it to itself.
+            profile_identity = (
+                external_identity(profile_reference, expected)
+                if isinstance(profile_reference, ReleaseRef)
+                else None
             )
+            value = (
+                entities[profile_identity]
+                if profile_identity is not None
+                else resolve(package, template_reference, expected)
+            )
+            if profile_identity is not None:
+                qualified = QualifiedRef(*profile_identity, digests[package])
+                if qualified not in refs:
+                    refs.append(qualified)
             if expected == "package":
                 selected_packages.add(package)
             if isinstance(value, Procedure):
@@ -527,11 +681,79 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
             and (other_package, other_value) != selected_procedure
         ):
             build_procedure(other_package, other_value)
+    # Qualification consumes the retained profile as well as exported templates.
+    # Its RELEASE selectors therefore belong to this artifact's dependency graph,
+    # not the outer caller's direct selection. Full profile checks still run in
+    # the exact per-artifact qualification replay in compile_catalog.
+    for release, dependency, record in zip(releases, dependencies, release_records, strict=True):
+        retained_profile = dto(
+            read_file(dependency.root / "candidates" / str(record["id"]) / "profile.yaml", 262144),
+            Profile,
+        )
+        for retained_recipe in retained_profile.agent_recipes:
+            for expected, references in (
+                ("package", retained_recipe.package_refs),
+                ("technique", retained_recipe.technique_refs),
+                ("procedure", retained_recipe.procedure_refs),
+                ("overlay", retained_recipe.overlay_refs),
+            ):
+                for profile_reference in references:
+                    if isinstance(profile_reference, ReleaseRef):
+                        resolve(str(release["package_key"]), profile_reference, expected)
+    visited_releases: set[str] = set()
+    active: set[str] = set()
+
+    def visit(package: str) -> None:
+        if package in active:
+            raise CatalogError("DEPENDENCY_CYCLE")
+        if package in visited_releases:
+            return
+        active.add(package)
+        for child in sorted(edges[package]):
+            visit(child)
+        active.remove(package)
+        visited_releases.add(package)
+
+    artifacts_by_key = {
+        str(release["package_key"]): record_ref(record)
+        for release, record in zip(releases, release_records, strict=True)
+    }
+    for release_key in direct_dependencies:
+        visit(release_key)
+    if visited_releases != external_keys:
+        raise CatalogError("RELEASE_MISMATCH")
+    for release in releases:
+        release_key = str(release["package_key"])
+        visit(release_key)
+        declared_edges = cast(list[dict[str, object]], release["dependency_artifact_refs"])
+        if sorted(declared_edges, key=canonical) != sorted(
+            [artifacts_by_key[key] for key in edges[release_key]], key=canonical
+        ):
+            raise CatalogError("RELEASE_MISMATCH")
+        package_binding = next(
+            binding
+            for binding in cast(list[dict[str, object]], release["bindings"])
+            if binding["entity_kind"] == "package"
+        )
+        package_exact = cast(dict[str, object], package_binding["ref"])
+        closure[canonical(package_exact)] = package_exact
+    closure_refs = tuple(closure[token] for token in sorted(closure))
+    artifact_refs = tuple(sorted(artifacts_by_key.values(), key=canonical))
+    catalog_bindings = tuple(
+        sorted(
+            [
+                binding
+                for release in releases
+                for binding in cast(list[dict[str, object]], release["bindings"])
+            ],
+            key=canonical,
+        )
+    )
     material_digest = hashlib.sha256(
         canonical(
             {
                 "packages": [
-                    {"package_key": key, "digest": digests[key]} for key in sorted(digests)
+                    {"package_key": key, "digest": digests[key]} for key in sorted(local_keys)
                 ],
                 "profile_sha256": hashlib.sha256(profile_bytes).hexdigest(),
             }
@@ -555,6 +777,9 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
                 ],
                 "requested": requested.model_dump(mode="json"),
                 "resolution": "NO_MODEL",
+                "dependency_closure_refs": list(closure_refs),
+                "dependency_artifact_refs": list(artifact_refs),
+                "catalog_bindings": list(catalog_bindings),
             }
         )
     ).hexdigest()
@@ -570,6 +795,9 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
         procedure.verification_kind,
         procedure.slots,
         min(procedure.limits.max_output_bytes, recipe.limits.max_output_bytes),
+        closure_refs,
+        artifact_refs,
+        catalog_bindings,
     )
 
 

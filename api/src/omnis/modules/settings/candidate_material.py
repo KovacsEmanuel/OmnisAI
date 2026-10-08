@@ -13,6 +13,7 @@ from .skill_catalog import read_file, safe_path
 
 MAX_MATERIAL_BYTES = 8 * 1048576
 MAX_SOURCE_PACKAGES = 127  # The mandatory profile occupies the 128th source-ref slot.
+MAX_NAMESPACE_ENTRIES = MAX_SOURCE_PACKAGES * 257 + 4
 
 
 def digest(raw: bytes) -> str:
@@ -40,7 +41,7 @@ def private_root(root: Path) -> Path:
     return root
 
 
-def files_at(root: Path) -> set[str]:
+def files_at(root: Path, maximum_entries: int = 256) -> set[str]:
     result: set[str] = set()
     count = 0
     for directory, directories, files in os.walk(root, followlinks=False):
@@ -49,7 +50,7 @@ def files_at(root: Path) -> set[str]:
             path = Path(directory) / name
             info = path.lstat()
             if (
-                count > 256
+                count > maximum_entries
                 or path.is_symlink()
                 or not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode))
             ):
@@ -187,7 +188,8 @@ def read_material(
                 raise CatalogError("STORAGE_INCOMPATIBLE")
             safe_path(name)
             expected[f"{prefix}/{name}" if prefix else name] = (sha, size)
-    if files_at(target) != set(expected):
+    # Each package has at most 256 entries, plus its prefix and profile/index entries.
+    if files_at(target, MAX_NAMESPACE_ENTRIES) != set(expected):
         raise CatalogError("FROZEN_MATERIAL_MISMATCH")
     for directory, directories, files in os.walk(target):
         for path in [Path(directory), *(Path(directory) / n for n in [*directories, *files])]:

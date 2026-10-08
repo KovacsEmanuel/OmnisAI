@@ -32,6 +32,10 @@ def private_root(root: Path) -> Path:
         info = directory.lstat()
         if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
             raise CatalogError("UNSAFE_CATALOG_ROOT")
+        sync_directory(directory)
+    # Flush namespace entries bottom-up before any DB record can cite material.
+    sync_directory(root)
+    sync_directory(root.parent)
     return root
 
 

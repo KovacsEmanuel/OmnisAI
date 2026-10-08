@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "scope": "SL08/B06a final product STATIC/PURE, acceptance pending installed QA and canonical",
+  "product_commit": "df91cb04a75ffea881dbfd9f57e20ab97f64586b",
+  "proof_commit": "75130cc45ba7af254e08217c5d1c9847a5b9e04b",
+  "snapshot_manifest_sha256": "372d8fb8cdf2be4f6962f1d7c86dbd33b76d2bd45a7eef5c1675808afa4259f4",
+  "files": {
+    "api/src/omnis/modules/settings/candidate_catalog.py": "b59396547f653c40bc243c534ec1804293cab95914cf23f5693d513235934d5a",
+    "api/src/omnis/modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+    "api/src/omnis/modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+    "api/src/omnis/modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+    "api/src/omnis/modules/settings/skill_catalog.py": "c101487ab3b47b6a0460e2356d4dfe77fddabf0408bf5d8ee425e0e869769a18",
+    "api/src/omnis/modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+    "api/tests/test_b06a_release_product.py": "4dbac7dd2bdc8453d5ebee4cf2b8b6fbac4551163eb45950df134287aac8d31a",
+    "api/tests/test_candidate_tracer_fingerprints.py": "626ef2f20bb353396e0810cd76ff4b064a4bee55bdda2ab4ca9ec01699de4d06",
+    "api/tests/test_candidate_tracer_overlap.py": "b2d8b90a8412ca05d3ef7eeb5746415e1a60c85cc9778c0338912dc8e57f6858",
+    "api/tests/test_candidate_tracer_failure_windows.py": "7af8e675de11f8aa64bf7730de1e03368746c700fa03f9b87d9e344981100704",
+    "api/tests/test_candidate_tracer_release_matrix.py": "86f1a52697012086f410c36f616952d6d3ef1d28398fd57fdebf350c5a34f028",
+    "api/tests/fixtures/b06a_durable/overlap.py": "4c63d36189a44bf25d303785b748efeecef554a2fa853b175a2ffe23c1bb87e9",
+    "api/tests/fixtures/b06a_durable/releases.py": "c9e0e1d461dfc01fe3e3bb41fc535ebeddf54f16eb8cb89303ab5ba1673c1f7f",
+    "api/tests/test_candidate_tracer_release_pg.py": "d5bc6128edbb0a62e4962be82c47f07efb6b12ad7546d3cd9f24faeb8e5e88b2",
+    "api/tests/test_b06a_profile_release_closure.py": "24cf3b01761e3ba932f56f7646b5b78b05852daa86c10a8e7c391a1f0c68424c"
+  },
+  "review_a": {
+    "report_id": "B06A-FINAL-SNAPSHOT2-REVIEW-A-FOCUSED",
+    "sha256": "dce38ecea25b4fef3fa696280e5eac39b6dd4a20e418e73a016f3a4e26fded8a",
+    "verdict": "APPROVED_SCOPED",
+    "scope": "Original normative scope plus profile-only fix and supplemental RELEASE tests",
+    "execution": "Original reproducer GREEN; corrected explicit-async-plugin run29PASS exit0; initial28PASS1asyncNOT_RUN preserved; NOT_CLEAN_BUDGET"
+  },
+  "review_b": {
+    "report_id": "b06a-snapshot2-focused-review-b",
+    "sha256": "1200e52a687ccf6e23cd1ae8434cc73864365daad5d7a48f06a43bf9656ab16d",
+    "verdict": "APPROVED_SCOPED",
+    "scope": "Original safety/concurrency/failure scope plus minimal fix and supplemental fixture safety",
+    "execution": "FAILED_REVIEW_HARNESS: initial exit3 before collection, second exit1 with29 assertion bodies passed and9 teardown errors. Relative dir_fd removal was falsely treated cwd-relative by observer. Runner NOT_VERIFIED, not a clean PASS; no socket/subprocess events in second probe. Budget overrun preserved."
+  },
+  "parent_adjudication": {
+    "findings": "B06A-REVIEW-A-01 and B06A-RB-01 are same defect RESOLVED_SCOPED on exact current bytes. Original CHANGES_REQUESTED in separate immutable review-history note.",
+    "review": "Both complementary product reviews APPROVED_SCOPED; failed scratch observer execution not promoted, source review and parent actual tests are separate.",
+    "checks": "Parent RED1 RELEASE_MISMATCH to GREEN1; make test-b06a-pure109PASS and fingerprints21PASS, lint/type/diff-check exit0 after last code edit; real PG113PASS including profile-only fixed journey.",
+    "global": "B06a/G-MODULE-core/G02 NOT_CLOSED pending installed QA and final canonical, not absence-of-all-bugs assurance"
+  },
+  "post_fix_pg": {
+    "process": "proc_d07ca985980e",
+    "root": "/home/kali/.hermes/cache/scratch/db-dcd1362589c445f4",
+    "cid": "70483bcb4d66834029d7eae2960ea6fee9b69a22efcb614c02013553ba2ee63f",
+    "project": "omnis-p01-f6a6e072523d4204a4843cdd8a3ca68c",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "owned_cleanup": "EXACT_ABSENT",
+    "summary": [
+      "113 passed, 640 deselected in 431.74s (0:07:11)"
+    ],
+    "snapshot2_paths_identical": 15,
+    "scope": "POST_PROFILE_FIX_TARGETED_NOT_FULL_CANONICAL"
+  },
+  "artifact_attestation_not_qa": {
+    "wheel": "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/wheel/omnis_api-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "fb7c88307fa5a1d75901cc79ee2e595bf03dce18f0cca9165556bafbb335bdad",
+    "source_wheel_installed_exact_py_count": 52,
+    "interpreter": "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/venv/bin/python",
+    "candidate_module": "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_catalog.py",
+    "dependencies": "LOCKED_HASH_CHECKED_OFFLINE",
+    "scope": "ARTIFACT_ATTESTATION_NOT_DURABLE_QA"
+  },
+  "limits": [
+    "Profile/LOCAL/RELEASE/slots/StepOutput bounded STATIC/PURE subset; runtime slots/Task/Attempt/native binding B06b, not fabricated here",
+    "Cycle at compiler is DEPENDENCY_CYCLE; an immutable old self-edge digest is denied by durable loader as RELEASE_MISMATCH, not a claim of later-stage denial",
+    "Observed overlap uses real product owner lock and pg_blocking_pids. Named filesystem/SQL seams delegate real operations, rollback/readback and retain inert unadopted orphans; client response discard occurs after observed commit.",
+    "Physical power-loss/crash and network/server ACK loss NOT_RUN, nonobligatory for this bounded local software protocol. B07 physical evidence pipeline and P7 integrated recovery remain their own consumers.",
+    "No UI changes: browser/visual QA and Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No aesthetics/WCAG approval.",
+    "No migration needed beyond existing0009; no Publish/Task/native child/inference/provider/target/r1/rollout/global/push; protected original HTML excluded"
+  ]
+}

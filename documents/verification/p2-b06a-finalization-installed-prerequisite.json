@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "scope": "SL08/B06a installed artifact prerequisite; independent durable QA still pending",
+  "finding_id": "QA-INSTALLED-IMPORT-01",
+  "original": {
+    "verdict": "BLOCKED_INSTALLED_IMPORT",
+    "report_sha256": "07d7a7653d3f142544a044bf77a2a62b889f3df5bfaba83f7872aff06d4293e8",
+    "report_path": "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/qa-installed1/report.json",
+    "counts": {
+      "created_pg_fixture_count": 0,
+      "denial_passes": 0,
+      "exact_modules": 52,
+      "executed_probes": 2,
+      "failed_import_probes": 2,
+      "live_journey_passes": 0,
+      "not_run_cases": 21,
+      "review_snapshot_files": 15
+    },
+    "cases": [
+      {
+        "case": "installed-import",
+        "exit_code": 1,
+        "outcome": "FAIL_IMPORT_PREREQUISITE",
+        "reason": "UNSAFE_FILE",
+        "stage": "module top-level COMPILER_REVISION = behavior_revision -> skill_catalog.read_file nlink guard; before main/parser/DB",
+        "stdout_bytes": 0,
+        "stderr_bytes": 982,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "9b8e109ee46995f10e633aca44c351d3b7f0644f9f961465bd613e62c3c50c24"
+      },
+      {
+        "case": "actual-capture-cli",
+        "exit_code": 1,
+        "outcome": "FAIL_IMPORT_PREREQUISITE",
+        "reason": "UNSAFE_FILE",
+        "stage": "module top-level COMPILER_REVISION = behavior_revision -> skill_catalog.read_file nlink guard; before main/parser/DB",
+        "stdout_bytes": 0,
+        "stderr_bytes": 991,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "8cecfc2c7b27180e02b6c4c0dc04c32ba1f2b10d1608563a0159f2e390bbac88"
+      }
+    ],
+    "disposition": "Original BLOCKED_INSTALLED_IMPORT and traceback remain real, NOT a sanitized denial or QA pass; PG/journeys NOT_RUN, no resources provisioned."
+  },
+  "parent_reproduction_and_resolution": {
+    "verdict": "INSTALLATION_PREREQUISITE_GREEN_NOT_DURABLE_QA",
+    "report_path": "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/artifact.json",
+    "report_sha256": "8a40f7aa51bdd322e696699ecace5fac9186213d225b068b33fa31352a6240b0",
+    "wheel_sha256": "fb7c88307fa5a1d75901cc79ee2e595bf03dce18f0cca9165556bafbb335bdad",
+    "source_wheel_installed_exact_py_count": 52,
+    "root_cause": "Original uv cached hardlink installation conflicts with unchanged single-link file guard. Fresh explicit --link-mode copy uses the identical wheel bytes.",
+    "commands": [
+      {
+        "label": "original-import-red",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import json,sys; from omnis.modules.settings import candidate_catalog as c; print(json.dumps({\"version\":list(sys.version_info[:3]),\"origin\":c.__file__,\"compiler\":c.COMPILER_REVISION,\"evaluator\":c.EVALUATOR_REVISION}))"
+        ],
+        "exit_code": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "0b0996f00c4973fea45648420e859675395065a2bb9d3dfd78e20336533d50f3"
+      },
+      {
+        "label": "venv",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
+          "venv",
+          "--offline",
+          "--no-config",
+          "--no-python-downloads",
+          "--python",
+          "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/venv"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "88dcbd46e84ee45997450b498c6ec5d73bcc549bb948fc05d3e5cbc3983e26eb"
+      },
+      {
+        "label": "locked-sync",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
+          "pip",
+          "sync",
+          "--offline",
+          "--no-config",
+          "--require-hashes",
+          "--link-mode",
+          "copy",
+          "--python",
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/venv/bin/python",
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/requirements.txt"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "771789b99ed9b8a89e63d040fe272797e0d37bcb9daef00433353ebe8bee076f"
+      },
+      {
+        "label": "wheel-copy",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
+          "pip",
+          "install",
+          "--offline",
+          "--no-config",
+          "--no-deps",
+          "--link-mode",
+          "copy",
+          "--python",
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/venv/bin/python",
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed1/wheel/omnis_api-0.1.0-py3-none-any.whl"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "8d2f363f0358f926fc159a3ed9dd76184d6b29c983dbf7b79a5cab18dcc6f3fa"
+      },
+      {
+        "label": "copy-import-green",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import json,sys; from omnis.modules.settings import candidate_catalog as c; print(json.dumps({\"version\":list(sys.version_info[:3]),\"origin\":c.__file__,\"compiler\":c.COMPILER_REVISION,\"evaluator\":c.EVALUATOR_REVISION}))"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e6fe70825dc24ef22a5dc26a096af338375be487ddd66f99a4380bddc800364a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "copy-cli-help",
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/b06a-final-parent-1oncr0ot/installed2-copy/venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "omnis.modules.settings.candidate_catalog",
+          "--help"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "9478e5ed621828c752ef8866cd99532649575eec0ca4a4cc5c3fa6b6b1679a6c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "files_single_link_new": true,
+    "files_hardlink_old": true,
+    "limits": [
+      "No product changes or weakened file guard",
+      "No PG provision, migration, durable QA, model or target flow",
+      "Original environment and failed report remain untouched",
+      "Hardlink install remains unsupported; this is an explicit installation prerequisite, not universal installer compatibility"
+    ]
+  },
+  "product": "No changed code/fingerprint/material reader guard;15 reviewed product/proof hashes still exact. This resolves only the installation prerequisite via explicit --link-mode copy, not compatibility with hardlink installs.",
+  "acceptance": "B06a/G-MODULE-core/G02 NOT_CLOSED. QA v2 independent full installed CLI/PG journey dispatched on corrected same wheel; final canonical gate waits for exact owned settlement.",
+  "rollback": "Retain additive scratch installations/failure logs; revert this evidence only, no global environment, DB, instance or reservation changes."
+}

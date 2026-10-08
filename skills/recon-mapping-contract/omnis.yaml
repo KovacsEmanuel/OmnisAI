@@ -67,7 +67,7 @@ compatibility:
   oracle_refs: []
 provenance:
 - repository: OmnisAI
-  revision: 276927b530f68ab00739046296a9372284f408c7
+  revision: a7ecb04f36b7e6f57e7e38df9943d097c3bc8fe7
   path: references/methodology.md
   source_digest: 1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6
   license_id: LicenseRef-Omnis-FirstParty

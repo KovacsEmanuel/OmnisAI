@@ -2,7 +2,7 @@
 name: recon-mapping-contract
 description: Map supplied synthetic HTTP metadata without network or model.
 version: 0.1.0
-provenance: OmnisAI first-party parent 276927b530f68ab00739046296a9372284f408c7
+provenance: OmnisAI first-party source a7ecb04f36b7e6f57e7e38df9943d097c3bc8fe7
 ---
 
 # Recon mapping contract

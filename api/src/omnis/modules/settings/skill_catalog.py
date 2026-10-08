@@ -47,6 +47,7 @@ def safe_path(name: str) -> None:
         or not name
         or path.is_absolute()
         or "\\" in name
+        or "\x00" in name
         or any(part in ("", ".", "..") for part in name.split("/"))
     ):
         raise CatalogError("INVALID_PATH")

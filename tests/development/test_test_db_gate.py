@@ -46,16 +46,23 @@ def _render_config(paths):
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
     def test_candidate_target_is_admitted_without_becoming_canonical(self) -> None:
+        import signal
+
+        previous = {signum: signal.getsignal(signum) for signum in (signal.SIGTERM, signal.SIGINT)}
         module = runpy.run_path(str(SCRIPT))
         main = module["main"]
         with patch.object(
             sys, "argv", [str(SCRIPT), "--check", "--target", "test-catalog-candidates-pg"]
-        ), patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}):
+        ), patch.dict(
+            main.__globals__, {"prove_private_fixture": lambda *args: args}
+        ), patch.object(module["signal"], "signal"):
             try:
                 result = main()
             except SystemExit as denial:
                 result = denial.code
             self.assertEqual(result, ("test-catalog-candidates-pg", "uv", 3600))
+        for signum, handler in previous.items():
+            self.assertIs(signal.getsignal(signum), handler)
         self.assertEqual(module["gate_label"]("test-catalog-candidates-pg"), "TARGETED_GATE")
 
     def test_gate_uses_private_operator_config_not_ambient_or_caller_config(self) -> None:

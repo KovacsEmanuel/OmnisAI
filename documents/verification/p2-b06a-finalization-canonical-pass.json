@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "scope": "SL08/B06a final committed bounded STATIC/PURE product canonical gate",
+  "verdict": "PASS_LOCAL_RECORDED",
+  "process_id": "proc_51cb01c7706a",
+  "head": "67072381781209758e72c43bdcb4d7e6d6640542",
+  "product_commit": "df91cb04a75ffea881dbfd9f57e20ab97f64586b",
+  "proof_commit": "75130cc45ba7af254e08217c5d1c9847a5b9e04b",
+  "command": [
+    "make",
+    "check",
+    "UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19"
+  ],
+  "exit_code": 0,
+  "strict_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+  "fixture": {
+    "container_id": "bafe4fcbf631aaf3043f8d48f9d6764b3b496c17018c4c7213b01d773c8c3ae2",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "project": "omnis-p01-7d02fee3c5d64f8f8e6e07ec2c52ad60",
+    "root": "/home/kali/.hermes/cache/scratch/f-1vuusy9y/db-b8e34ad89f1b4e01",
+    "schema_version": 1,
+    "system_identifier": "7694330842338926622"
+  },
+  "parent_cleanup_readback": {
+    "daemon_matches": true,
+    "cid_absent": true,
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "uds_and_lock_absent": true,
+    "wrapper_pid_absent": true,
+    "pgdata_logs_fixture_preserved": true,
+    "pg_control_sha256": "9f657ca1492319a17fdc71040ffbb6ea80d525343c0971567b9bc26d2fae8308"
+  },
+  "counts": {
+    "documentation": 62,
+    "development": 43,
+    "api": 720,
+    "migrations": 23,
+    "web": 75,
+    "e2e_real_browser_api_pg": 9,
+    "cli_source": 287,
+    "cli_wheel": 287,
+    "installed_cli_status": 1,
+    "release_integration": 61,
+    "runtime": 134,
+    "runtime_AST": 6
+  },
+  "other_gates": "Audit API and web, lock/pip checks, anti-slop, Ruff/format, mypy, contracts drift, wheel/factory and web build, final diff-check all reached and exited0 via actual unchanged check-components",
+  "pre_post_tracked_files_unchanged": 575,
+  "intent_sha256": "63cfaff161d381768754ea07bf6f41afcfbe66af60885400b2c1e987284c2122",
+  "tested_scope_files": {
+    "api/src/omnis/modules/settings/candidate_catalog.py": "b59396547f653c40bc243c534ec1804293cab95914cf23f5693d513235934d5a",
+    "api/src/omnis/modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+    "api/src/omnis/modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+    "api/src/omnis/modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+    "api/src/omnis/modules/settings/skill_catalog.py": "c101487ab3b47b6a0460e2356d4dfe77fddabf0408bf5d8ee425e0e869769a18",
+    "api/src/omnis/modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+    "api/tests/test_b06a_release_product.py": "4dbac7dd2bdc8453d5ebee4cf2b8b6fbac4551163eb45950df134287aac8d31a",
+    "api/tests/test_candidate_tracer_fingerprints.py": "626ef2f20bb353396e0810cd76ff4b064a4bee55bdda2ab4ca9ec01699de4d06",
+    "api/tests/test_candidate_tracer_overlap.py": "b2d8b90a8412ca05d3ef7eeb5746415e1a60c85cc9778c0338912dc8e57f6858",
+    "api/tests/test_candidate_tracer_failure_windows.py": "7af8e675de11f8aa64bf7730de1e03368746c700fa03f9b87d9e344981100704",
+    "api/tests/test_candidate_tracer_release_matrix.py": "86f1a52697012086f410c36f616952d6d3ef1d28398fd57fdebf350c5a34f028",
+    "api/tests/fixtures/b06a_durable/overlap.py": "4c63d36189a44bf25d303785b748efeecef554a2fa853b175a2ffe23c1bb87e9",
+    "api/tests/fixtures/b06a_durable/releases.py": "c9e0e1d461dfc01fe3e3bb41fc535ebeddf54f16eb8cb89303ab5ba1673c1f7f",
+    "api/tests/test_candidate_tracer_release_pg.py": "d5bc6128edbb0a62e4962be82c47f07efb6b12ad7546d3cd9f24faeb8e5e88b2",
+    "api/tests/test_b06a_profile_release_closure.py": "24cf3b01761e3ba932f56f7646b5b78b05852daa86c10a8e7c391a1f0c68424c"
+  },
+  "gate_log_sha256": "81e7a1da4844ea1373b8f9f775028f87a0a99baf2c3ce8de6009d6ffdf2a1fae",
+  "wrapper_log_sha256": "1b2615f375f6694e86cdf55f90044ecd12f96d5c51ae2f2ee31255f28200a738",
+  "gate_log_handle": "/home/kali/.hermes/cache/scratch/f-1vuusy9y/db-b8e34ad89f1b4e01/gate.log",
+  "wrapper_log_handle": "/home/kali/.hermes/cache/scratch/f-1vuusy9y/wrapper.log",
+  "environment": {
+    "home": "/home/kali/.hermes/cache/scratch/f-1vuusy9y/home",
+    "tmpdir": "/home/kali/.hermes/cache/scratch/f-1vuusy9y",
+    "toolchain": "API/CLI Python3.13.15, uv0.12.19, Node24.21.0/npm11.19.0 preflight and gate pins; system Python3.13.12 for docs/development; fresh private HOME/config/short TMPDIR with explicit pinned artifact cache access"
+  },
+  "preserved_failures": [
+    "First canonical proc_90dd1d612a9f exit2 UnsafeFixture/longTMPDIR, strictdrained/exactcleanup, in p2-b06a-finalization-canonical-fail.json",
+    "qa-installed1 BLOCKED_INSTALLED_IMPORT UNSAFE_FILE hardlinks, unchanged guard; explicitcopy install prerequisite separate",
+    "QA v2 provenance helperexit1 at stale HEAD assertion; parent exact bytes/logs and document-only delta adjudicated",
+    "Original CHANGES_REQUESTED and failed scratch reviewer observers, earlier FAIL/UNCERTAIN/NOT_PASS_PROTOCOL/helper UNVERIFIED/NOT_PASS remain historical"
+  ],
+  "limits": [
+    "Canonical product gate is not universal all-bugs/OS-effect absence assurance or visual approval",
+    "Physical power-loss/physical crash/server network ACK-loss NOT_RUN; observed software overlap/failure/client response-drop bounded",
+    "No Publish/Task/Attempt/child/inference/provider/target/r1/rollout/global configuration/push",
+    "G02-inert/live and later G-MODULE/G-REVISION consumers not automatically closed",
+    "Protected original HTML not read/copied/hashed/staged"
+  ],
+  "next": "Parent CLOSE affected registry/map/README/plan19, doc gates and granular commits; B06b prepared only, needs new explicit authorization",
+  "aggregation_attempts": [
+    {
+      "exit_code": 1,
+      "stage": "Evidence serialization after actual receipt/snapshot/cleanup/count checks",
+      "reason": "Parent applied relative_to absolute repo to relative review manifest path",
+      "disposition": "Preserved helper failure; corrected path label only, no product/gate/fixture retry"
+    },
+    {
+      "exit_code": 0,
+      "stage": "Same actual output, exact readback and corrected evidence serialization"
+    }
+  ]
+}

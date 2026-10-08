@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "scope": "SL08/B06a local STATIC/PURE finalization contract; no Publish or native Task binding",
+  "parent_decision": "CLOSED_SCOPED_STATIC_PURE",
+  "axes": {
+    "code": "IMPLEMENTED_BOUNDED_STATIC_PURE",
+    "proof": "PASS_LOCAL_RECORDED",
+    "review": "APPROVED_SCOPED"
+  },
+  "product_commit": "df91cb04a75ffea881dbfd9f57e20ab97f64586b",
+  "proof_commit": "75130cc45ba7af254e08217c5d1c9847a5b9e04b",
+  "canonical_tested_head": "67072381781209758e72c43bdcb4d7e6d6640542",
+  "canonical_evidence_commit": "dfb61de",
+  "evidence": {
+    "contract": "p2-b06a-finalization-contract.md",
+    "product_and_complementary_reviews": "p2-b06a-finalization-product.json",
+    "historical_changes_requested": "p2-b06a-finalization-review-history.json",
+    "installed_prerequisite_red_green": "p2-b06a-finalization-installed-prerequisite.json",
+    "independent_installed_qa": "p2-b06a-finalization-installed-qa.json",
+    "canonical_failed_attempt_preserved": "p2-b06a-finalization-canonical-fail.json",
+    "canonical_final_pass_and_settlement": "p2-b06a-finalization-canonical-pass.json"
+  },
+  "criteria": [
+    {
+      "requirement": "Reuse existing exact capture/source refs, immutable reservations and private read-only freeze instead of rebuilding accepted slices",
+      "code": "candidate_catalog.py, candidate_store.py, candidate_material.py and existing migration0009",
+      "evidence": "113 targeted PG PASS; installed27-case capture/review/freeze and reservation rejection/nonreuse journey; canonical720API/23migration PASS",
+      "disposition": "PASS_SCOPED"
+    },
+    {
+      "requirement": "Read-only qualified nonempty RELEASE resolution, deterministic transitive deduplicated closure including retained qualification profile",
+      "code": "candidate_resolution.py, skill_catalog.py, candidate_index.py and candidate_store.py",
+      "evidence": "Original shared review finding reproduced RED RELEASE_MISMATCH then minimal fix GREEN, two focused scoped approvals, profile-only transitive realPG and installed external package/profile selection with7 closure refs and25 bindings",
+      "disposition": "PASS_SCOPED"
+    },
+    {
+      "requirement": "LOCAL/RELEASE/ProfileTemplateRef multi-package namespace exact IDs/revisions/digests, slot/StepOutput static legality and unavailable/kind/pin/shadow/path/cycle denials",
+      "code": "catalog_models.py, skill_catalog.py, candidate_index.py and bounded release/matrix tests",
+      "evidence": "109 PURE,21 behavior-fingerprint tests,113 realPG on fixed bytes; complementary snapshot2 reviews. Compiler cycle denial remains distinct from immutable old self-pin loader RELEASE_MISMATCH",
+      "disposition": "PASS_SCOPED_STATIC_TEMPLATE_ONLY"
+    },
+    {
+      "requirement": "Freeze/evaluate preserve exact material/index/closure/input/receipt, including BLOCKED and fresh-process replay/readback without source workspace",
+      "code": "candidate_catalog.py and candidate_store.py",
+      "evidence": "Independent installed27/27,18exit0/9exit2 on fresh attested migrated PG;4 evaluation receipts, persistent input refs and exact DB/file/envelope assertions; valid restored controls",
+      "disposition": "PASS_SCOPED"
+    },
+    {
+      "requirement": "Observed transaction overlap and safe software failure boundaries, real rollback/inert orphan and client response drop after commit",
+      "code": "Existing owner locks/fsync/rename/transaction/replay protocol, exercised through overlap and failure_windows tests",
+      "evidence": "113 realPG PASS after last code edit and final720API PASS; waiter backend and pg_blocking_pids assertions, real delegated operations and persistent readback",
+      "disposition": "PASS_SCOPED_SOFTWARE_WINDOWS_NOT_PHYSICAL_CRASH"
+    },
+    {
+      "requirement": "Two complementary exact-snapshot reviews, reproduced blockers and focused re-review; independent usable installed artifact QA",
+      "code": "15 reviewed product/proof files and52 installed source/wheel byte-exact modules",
+      "evidence": "Both snapshot2 product reviews APPROVED_SCOPED; independent installed27PASS on explicit copy install; parent actual logs/hash/cleanup readback. Original CHANGES_REQUESTED, failed reviewer observers, hardlink BLOCKED and stale-HEAD helperexit1 preserved separately",
+      "disposition": "PASS_SCOPED_WITH_RETAINED_PROCEDURAL_LIMITS"
+    },
+    {
+      "requirement": "Actual final canonical gate, exact family settlement and cleanup, no intended uncommitted product changes",
+      "code": "Unchanged Makefile and existing private UDS/no-network PostgreSQL runner",
+      "evidence": "proc_51cb01c7706a make check exit0/family_drained=true,575 versioned files identical through gate, exact daemon/CID/project/network/UDS/wrapper PID absence and PGDATA/logs retained; post-CLOSE documents verified separately",
+      "disposition": "PASS_LOCAL_RECORDED"
+    }
+  ],
+  "gate_boundaries": {
+    "B06a": "CLOSED_SCOPED_STATIC_PURE for all criteria of the bounded finalization contract",
+    "G-MODULE-core": "STATIC/PURE core evidence PASS_SCOPED in SL08; no automatic global promotion or credit for later runtime/Publish/Task consumers",
+    "G-MODULE_G-REVISION": "Later publication, assignment/runtime and editor consumers retain their own gates",
+    "G02_inert_live": "NOT_CLOSED; B05 native breadth and B06b/c/m/P4a consumers remain independent",
+    "assessment": "UNPUBLISHED, assessment_selectable=false; no model/provider/target admission",
+    "P0_P1_B05_B04": "Prior local/scoped acceptances retained at their own revisions; no reopen without new concrete defect"
+  },
+  "preserved_failures_and_limits": [
+    "All historical FAIL/UNCERTAIN/CHANGES_REQUESTED/NOT_PASS, NOT_PASS_PROTOCOL incident and UNVERIFIED/NOT_PASS helper remain; later PASS does not erase them",
+    "Targeted103/112PG PASS are pre-fix history, not transferred; fixed113PG and final canonical are separately bound",
+    "Installed1 hardlinks st_nlink2 fail import/CLI before DB with UNSAFE_FILE/exit1; explicit same-wheel copy installation is required, not universal installer compatibility",
+    "Installed QA provenance helperexit1 only on stale HEAD after documentation commits; parent exact bytes/log comparisons adjudicate scope, not helper exit0",
+    "First final canonicalexit2 at long TMPDIR UDS guard; path prerequisite corrected without weaker tests/guard or old fixture adoption",
+    "Parent canonical aggregationexit1 at relative path evidence serialization retained separately; corrected label/readback, no duplicate gate",
+    "Physical power-loss/crash and network/server ACK-loss NOT_RUN; software failure injection/response discard do not establish them",
+    "Browser/Reticle NOT_APPLICABLE for changed CLI-only scope; existing canonical9E2E remain regression evidence, not visual/WCAG approval; Chisel NO-GO",
+    "No universal OS effect absence or absence-of-all-bugs claim; no migration/restore/rollout over existing P0/P1/r1",
+    "Protected original HTML is excluded from reads/copies/hashes/staging; no push, amend/squash/rebase or global changes"
+  ],
+  "next": {
+    "canonical_slice": "SL09/B06b",
+    "contract": "p2-b06b-next-contract.md",
+    "state": "PREPARED_ONLY_NOT_IMPLEMENTED_NOT_AUTHORIZED",
+    "observable_outcome": "Explicit exact seed Publish then durable Task/Attempt/native root-child binding, TaskBrief/Result, MethodPlan/Check and inbox/ACK/consumed with their own gates",
+    "requires": "New explicit operator mandate; new worktrees from verified local HEAD, never historical worktree adoption",
+    "after": "Existing DAG B06c/B06m then minimal Settings/P4a then P2-live only with separately approved account/model/budget, followed by admitted proxy/broker/auth and first BOLA"
+  },
+  "rollback": "Granular git revert of product/proof/evidence changes; Git does not reclaim immutable reservations or restore DB/services. Retain original fixtures, PGDATA/logs/images and failure receipts; use only exact runner-owned teardown, never global cleanup."
+}

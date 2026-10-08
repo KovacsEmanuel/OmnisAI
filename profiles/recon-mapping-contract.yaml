@@ -1,0 +1,30 @@
+schema_version: 1
+key: recon-mapping-contract
+execution_preference: null
+agent_recipes:
+- key: capture-mapper
+  role: RECON
+  package_refs:
+  - kind: CANDIDATE
+    package_key: recon-mapping-contract
+    entity_kind: package
+    key: recon-mapping-contract
+  technique_refs:
+  - kind: CANDIDATE
+    package_key: recon-mapping-contract
+    entity_kind: technique
+    key: capture-mapping
+  procedure_refs:
+  - kind: CANDIDATE
+    package_key: recon-mapping-contract
+    entity_kind: procedure
+    key: map-capture
+  overlay_refs: []
+  execution_preference: null
+  requested_capabilities: []
+  limits:
+    max_attempts: 1
+    max_actions: 3
+    deadline_seconds: 10
+    max_output_bytes: 65536
+    max_fanout: 1

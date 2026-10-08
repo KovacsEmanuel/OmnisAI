@@ -1,0 +1,23 @@
+{
+  "input": {
+    "capture": "[{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":304},{\"method\":\"POST\",\"path\":\"/alpha\",\"status\":201},{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":200},{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":200},{\"method\":\"DELETE\",\"path\":\"/z\",\"status\":204}]"
+  },
+  "outputs": [
+    {"records": [
+      {"method": "GET", "path": "/alpha", "status": 304},
+      {"method": "POST", "path": "/alpha", "status": 201},
+      {"method": "GET", "path": "/alpha", "status": 200},
+      {"method": "GET", "path": "/alpha", "status": 200},
+      {"method": "DELETE", "path": "/z", "status": 204}
+    ]},
+    {"operations": [
+      {"method": "GET", "path": "/alpha", "statuses": [200, 304]},
+      {"method": "POST", "path": "/alpha", "statuses": [201]},
+      {"method": "DELETE", "path": "/z", "statuses": [204]}
+    ]},
+    {"surface_map": [
+      {"path": "/alpha", "methods": ["GET", "POST"], "operation_count": 2},
+      {"path": "/z", "methods": ["DELETE"], "operation_count": 1}
+    ]}
+  ]
+}

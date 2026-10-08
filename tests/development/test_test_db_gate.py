@@ -45,6 +45,19 @@ def _render_config(paths):
 
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
+    def test_candidate_target_is_admitted_without_becoming_canonical(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        main = module["main"]
+        with patch.object(
+            sys, "argv", [str(SCRIPT), "--check", "--target", "test-catalog-candidates-pg"]
+        ), patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}):
+            try:
+                result = main()
+            except SystemExit as denial:
+                result = denial.code
+            self.assertEqual(result, ("test-catalog-candidates-pg", "uv", 3600))
+        self.assertEqual(module["gate_label"]("test-catalog-candidates-pg"), "TARGETED_GATE")
+
     def test_gate_uses_private_operator_config_not_ambient_or_caller_config(self) -> None:
         module = runpy.run_path(str(SCRIPT))
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:

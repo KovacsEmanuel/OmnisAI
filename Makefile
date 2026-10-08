@@ -57,6 +57,13 @@ test-b05-case-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest -c api/pyproject.toml api/tests/test_case_slot_service.py -q
 
+.PHONY: test-catalog-candidates-pg
+# Focused candidate persistence/restart tests through the existing owned PG lifecycle.
+# No matching tests is pytest exit 5, never an empty successful product gate.
+test-catalog-candidates-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests -k 'candidate_tracer or catalog_candidates_pg or catalog_candidate_restart' -q
+
 .PHONY: test-b06a-pure
 # Bounded source compiler/CLI tests; no DB, native child, model or target qualification.
 # Canonical check still runs all API tests plus the original full component gate.

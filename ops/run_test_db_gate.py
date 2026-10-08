@@ -1038,6 +1038,7 @@ def main() -> int:
             "test-dashboard",
             "test-b03-e2e",
             "test-b04-e2e",
+            "test-catalog-candidates-pg",
         ),
         default="check-components",
     )

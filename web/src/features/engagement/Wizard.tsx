@@ -193,7 +193,7 @@ export function Wizard({ id }: { id?: string }) {
     } finally { saving.current = false; abort.current = null; }
   }
   const lock = phase === 'saving' || phase === 'checking' || transition !== 'idle';
-  if (id && query.isPending && !hydrated) return <section aria-busy="true"><p>Loading draft…</p></section>;
+  if (id && !hydrated && !query.isError) return <section aria-busy="true"><p>Loading draft…</p></section>;
   if (id && query.isError && !hydrated) return <div role="alert">{query.error instanceof ApiError ? query.error.message : 'Draft unavailable.'}</div>;
   if (id && hydrated && !saved) return <div role="alert">Draft unavailable. No revision was accepted.</div>;
   if (id && saved && !isFullDraft(saved.payload) && !legacyActivated) return <section aria-label="Legacy draft conversion">

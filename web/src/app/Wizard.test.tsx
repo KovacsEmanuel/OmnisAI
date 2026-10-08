@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Link } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -39,6 +39,36 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   await waitFor(() => expect(screen.getByText(/Saved · revision 1/)).toBeVisible());
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled());
   expect(screen.getAllByText(/CATALOG_UNAVAILABLE.*NOT_SELECTED/).length).toBeGreaterThan(0);
+});
+
+it('keeps cached Setup controls unavailable until the first readback hydrates the form', async () => {
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  let reads = 0;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
+    if (String(input) === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (String(input) === `/api/v1/engagements/${engagementId}`) {
+      reads += 1;
+      await held;
+      return new Response(JSON.stringify(revision));
+    }
+    throw new Error('Unexpected synthetic request');
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  client.setQueryData(['private', 'engagement', engagementId], revision);
+  client.setQueryData(['private', 'draft', engagementId], revision);
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  try {
+    await waitFor(() => expect(reads).toBeGreaterThan(0));
+    expect(screen.getByText('Loading draft…')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Engagement name')).not.toBeInTheDocument();
+  } finally { await act(async () => { release(); }); }
+  await waitFor(() => expect(screen.getByLabelText('Engagement name')).toHaveValue(payload.name));
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Next' }));
+  expect(screen.getByRole('heading', { name: 'Application context' })).toBeVisible();
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
 });
 
 it('edits structured context, business matrix and budgets, then reviews the confirmed revision', async () => {

@@ -1,7 +1,7 @@
 ---
 name: omnis-frontend
 description: "Use when building Omnis UI from a visual reference."
-version: 0.1.3
+version: 0.1.4
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -34,6 +34,8 @@ Read the relevant UI/UX flow and data/state contract. Use `vision_analyze` for a
    Capture screens reached through real navigation, including re-entry from a long page or an existing wizard's final step. Direct-load screenshots can hide retained scroll, obscured tabs or leaked draft-step state.
 
 ## Pitfalls
+
+Gate initial form controls on accepted hydration/readback, not Query `isPending`: cached data can make the query successful while the first guarded GET still waits. Reproduce with populated projection/draft cache keys and a held initial GET; require no blank fields or actionable Next before hydration, exact values afterward, visible initial errors and editable hydrated background refresh without losing local edits.
 
 Preserve native first-entry tab order: do not focus `main` unconditionally on mount, which makes the first Tab bypass the skip link. Reset scroll/focus only on an actual client route transition; test initial Tab/skip independently from post-navigation focus.
 

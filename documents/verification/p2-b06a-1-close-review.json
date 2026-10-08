@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "report_id": "B06a-1-close-documentation-review-fc8eb134",
+  "language": "ro",
+  "role": "Reviewer independent read-only al reconcilierii documentare; fără certificare runtime nouă",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "Exclusiv cele șapte fișiere de documentare/evidence din close-snapshot.json, la hashurile exacte de mai jos. Acceptarea privește fidelitatea reconcilierii B06a-1, nu implementarea/durabilitatea întregii B06a sau integrarea finală.",
+  "snapshot": {
+    "path": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/close-snapshot.json",
+    "snapshot_file_sha256": "eace50bdcecd152cea3aea3f5d811aef739c36406eabfa2de07c9dfbf09651ed",
+    "head_before": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+    "head_after": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+    "branch": "p04-control-topology-wip",
+    "file_count": 7,
+    "all_hashes_match_before_and_after": true,
+    "snapshot_file_hash_unchanged": true,
+    "sha256": {
+      "README.md": "4aa7927064b37847bdffd0b75271e3ac6632147016013e462f126a3a07e817ab",
+      "api/README.md": "2544c89e327e4ba1161e3f75e948f532f5e0970fb2af0f65dbba7ad3fdcb51a9",
+      "documents/Omnis_Implementation_Plan.md": "33055182b6df19bbff034807919f2927c2107f768972d768de918a4d60ddaa13",
+      "documents/Omnis_Implementation_Plan.html": "106f45dc0c6b2a375f80ab545a997986c0398ac32b652172dc7994439e7a4753",
+      "documents/verification/implementation-status.md": "004ef58cc32147b916b1134e5885c4c02de3de66ff940a33073da3ef51dabd77",
+      "documents/verification/p2-b06a.md": "86cbbb84acee61ff59ee51747e7c4b540f9194872926b1dccea8dc986b7934d4",
+      "documents/verification/p2-b06a-1-gate.json": "8afa66ea449260780999a68d88eeb5c3f1c950b4b317cf6f8c3f9c9adb980166"
+    }
+  },
+  "findings": [],
+  "blocking_findings": 0,
+  "requirements_reviewed": [
+    {
+      "requirement": "Primul compiler/seed/3-PURE increment executabil trebuie delimitat de întreaga SL08/B06a",
+      "locations": ["README.md:17", "api/README.md:106", "documents/Omnis_Implementation_Plan.md:588", "documents/verification/p2-b06a.md:25", "documents/verification/p2-b06a-1-gate.json:6"],
+      "result": "CONFORM_SCOPED",
+      "observation": "Acceptarea este pe fc8eb134 și non-durabilă. Catalogul source, seed first-party nepublicat și CLI compile/evaluate nu devin catalog publicat, Settings route, omnis run sau readiness assessment."
+    },
+    {
+      "requirement": "Autoritatea plan §7 și arhitectură §9.3–9.4/§9.8–9.9 trebuie păstrată",
+      "locations": ["documents/Omnis_Implementation_Plan.md:245", "documents/Omnis_MVP_Architecture.md:688", "documents/Omnis_MVP_Architecture.md:690", "documents/verification/p2-b06a.md:19", "documents/verification/p2-b06a-1-gate.json:73"],
+      "result": "CONFORM_SCOPED",
+      "observation": "source_draft_refs, rezervările durabile ne-reutilizabile, CandidateSnapshot/material separat read-only, restart/readback și review/eval receipts durabile rămân nelivrate. FullB06a/G-MODULE-core/G02 NOT_CLOSED; pasul imediat rămâne în B06a, nu B06b. Receiptul documentar nu este storage/publication authority."
+    },
+    {
+      "requirement": "Cod/probă/review trebuie separate în harta globală",
+      "locations": ["documents/verification/implementation-status.md:62", "documents/verification/p2-b06a.md:61"],
+      "result": "CONFORM_SCOPED",
+      "observation": "Rândul SL08 folosește PARTIAL/PARTIAL/APPROVED_SCOPED și restrânge explicit PASS/review la B06a-1; restul are probe/review NOT_RUN/NOT_REVIEWED."
+    },
+    {
+      "requirement": "Istoricul negativ și abaterile nu pot deveni PASS prin reconciliere",
+      "locations": ["documents/verification/p2-b06a.md:44", "documents/verification/p2-b06a.md:46", "documents/verification/p2-b06a-1-gate.json:1417"],
+      "result": "CONFORM_SCOPED",
+      "observation": "CHANGES_REQUESTED, BLOCKED/NOT_RUN, original16/15/1, installedQA NOT_PASS, B05 incident/protocol deviations și bugetul security14/10 sunt păstrate. Ruff/format13 și local Git commit versus publicare sunt clarificate fără rescrierea istoricului."
+    },
+    {
+      "requirement": "HTML-ul Plan trebuie să reflecte sursa modificată, fără drift în alte HTML",
+      "locations": ["documents/Omnis_Implementation_Plan.html:1442", "documents/Omnis_Implementation_Plan.html:1523"],
+      "result": "CONFORM_SCOPED",
+      "observation": "Diff HTML inspectat; ambele paragrafe schimbate au text identic cu Markdown după eliminarea markupului și normalizarea whitespace. Footerul poartă SHA256 exact al sursei. Plan este singurul HTML tracked schimbat."
+    }
+  ],
+  "evidence_verification": {
+    "artifact_hash_bindings": {
+      "rereview-normative.json": {"sha256": "e1c6246c8e6884daac713adae1a2e4b58fe0f7aa0e81b097b2a34132b5018527", "matches_versioned_receipt": true},
+      "rereview-security.json": {"sha256": "1b2645608a22234cd75edc8e2c5162bfcf7c66567447f02a144bfac5ca6bce03", "matches_versioned_receipt": true},
+      "installed-qa-v2.json": {"sha256": "0bab77ab4dad66a530b9783813ee557c243e42fc26193affc835988c2a8ecc98", "matches_versioned_receipt": true},
+      "installed-qa-v2-review.json": {"sha256": "4cddd2383af83e80faeccd10834bb25cfa9148297da6a0048dd460a8594031ab", "matches_versioned_receipt": true},
+      "installed-qa.json": {"sha256": "b1bedbb44f1e88a0e209e14f0e940ce3f22113a40f998fe34f88a3270218c6dc", "matches_versioned_receipt": true, "verdict_retained": "NOT_PASS"}
+    },
+    "reviews": {"normative": "APPROVED_SCOPED", "security": "APPROVED_SCOPED", "security_budget_deviation_retained": "14/10", "scope": "Re-reviewurile produsului rămân la propriile frontiere; reviewul documentar nu le extinde."},
+    "installed_qa": {
+      "report_verdict": "PASS_SCOPED",
+      "review_verdict": "APPROVED_SCOPED",
+      "distinct_cases_recounted": 15,
+      "unique_case_ids_recounted": 15,
+      "denial_families_recounted": 11,
+      "processes_from_raw_commands": 42,
+      "joined_from_raw_commands": 42,
+      "exit_counts_from_raw_commands": {"0": 20, "2": 22},
+      "process_categories_from_raw_commands": {"origin_probe": 1, "positive": 8, "same_consumer_control": 11, "negative": 22},
+      "timeouts_from_raw_commands": 0,
+      "raw_stdout_stderr_hashes_recomputed_match": true,
+      "versioned_process_measurements_exact_projection_of_raw_commands": true,
+      "versioned_case_projection_matches_report": true,
+      "each_denial_has_real_positive_control": true,
+      "each_denial_has_two_identical_strict_exit2_BLOCKED_refusals": true,
+      "negative_stdout_empty_and_stderr_JSON_bounded": true,
+      "counts_criteria_digests_cleanup_equal_versioned_receipt": true,
+      "golden_comparisons_recorded": 18,
+      "golden_comparisons_limit": "Valoare verificată în counts/cases ale raportului și receiptului; nu o nouă execuție a celor 18 comparații.",
+      "bindings_before_after_equal": true,
+      "module_records_recounted": 46,
+      "fixture_records_recounted": 12,
+      "module_hash_sets_equal_versioned_receipt": true,
+      "fixture_hash_sets_equal_versioned_receipt": true,
+      "module_hash_occurrences_per_binding": 4,
+      "fixture_hash_occurrences_per_binding": 3,
+      "observed_python_in_saved_origin_probe": "3.13.15",
+      "saved_origin_probe_site_packages_modules": 4,
+      "saved_origin_probe_checkout_absent_from_sys_path": true,
+      "exact_QA_root_readback_absent": true,
+      "no_new_consumer_execution": true
+    },
+    "harness_repair": {
+      "driver_delta_recorded": "Exact două linii: REPORT distinct și ghilimele YAML pentru același literal de 40 cifre; fără produs/oracle schimbat.",
+      "parent_pin_repro_readback": [
+        {"case": "positive", "exit": 0, "reason": null, "joined": true},
+        {"case": "unquoted-intended-string", "exit": 2, "reason": "INTEGER_LIMIT", "joined": true},
+        {"case": "quoted-same-literal", "exit": 2, "reason": "INCOMPATIBLE_HERMES", "joined": true}
+      ],
+      "repro_report_exit": 0,
+      "repro_report_cleanup_absent": true,
+      "original_NOT_PASS_not_overwritten": true,
+      "not_new_product_bug": true,
+      "driver_scripts_not_executed_or_reaudited_here": true
+    },
+    "canonical_gate": {
+      "process_id": "proc_b081e9f59115",
+      "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+      "versioned_record_exactly_equals_final_canonical_evidence": true,
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-1917d96ba0e24857/gate.log.result.json",
+      "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "receipt_hash_matches": true,
+      "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+      "saved_cleanup_readback": {"absent": true, "networks_absent": true, "socket_absent": true, "uncertain": false},
+      "retained_data_claim_preserved": true,
+      "summaries_reviewed_not_new_tests": "580 API,22 migrare,74 web,9 E2E,284 CLI/284 wheel,61 release,134 runtime+6 AST,62 docs/42 development, audit API45",
+      "historical_b9d1aed_gate_not_transferred": true,
+      "raw_gate_log_DB_manifests_credentials_not_read": true,
+      "no_new_Docker_or_DB_attestation": true
+    },
+    "documentation_gate_readback": {
+      "path": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/close-doc-checks.json",
+      "command": "python scripts/render_docs.py --check && python -m unittest discover -s tests/documentation -v && git diff --check",
+      "recorded_exit": 0,
+      "recorded_tests_passed": 62,
+      "saved_output_contains_Ran62_and_OK": true,
+      "initial_FAILED1_and_map_only_remedy_retained": true,
+      "rerun_by_this_reviewer": false,
+      "limit": "Receiptul este after-last-edit conform mandatului părintelui, dar nu include hashes proprii ale documentelor. Hashurile snapshotului au fost verificate independent înainte/după; textul HTML schimbat și footerul au fost comparate direct."
+    }
+  },
+  "verification_commands": [
+    {"command": "git status --short --branch", "exit": 0, "result": "Șase tracked docs modificate, receipt autorizat untracked și numai numele HTML-ului protejat preexistent observat."},
+    {"command": "git rev-parse HEAD", "exit": 0, "result": "fc8eb134583402429fdf685f1fdd00bf51c39b06, identic înainte/după."},
+    {"command": "git diff --stat", "exit": 0, "result": "6 tracked files changed,70 insertions,12 deletions; receiptul JSON untracked inspectat separat."},
+    {"command": "git diff --cached --stat", "exit": 0, "result": "Gol; niciun staging."},
+    {"command": "git diff --check", "exit": 0, "result": "Verificat înainte/după; fără erori."},
+    {"command": "git ls-files documents/*Architecture*", "exit": 0, "result": "Descoperire numai nume pentru autoritatea normativă."},
+    {"command": "git diff -- README.md api/README.md documents/Omnis_Implementation_Plan.md documents/verification/implementation-status.md documents/verification/p2-b06a.md documents/verification/p2-b06a-1-gate.json", "exit": 0, "result": "Diff documentar inspectat; receiptul untracked citit explicit."},
+    {"command": "git diff -- documents/Omnis_Implementation_Plan.html", "exit": 0, "result": "Doar două paragrafe de status și footerul sursei schimbate."},
+    {"command": "git diff --name-only", "exit": 0, "result": "Tracked delta exclusiv allowlist; Plan este singurul HTML schimbat."},
+    {"command_prefix": "python3 -I -B -c", "inline_code_summary": "Citire snapshot/SHA256 și subprocess Git read-only", "exit": 0},
+    {"command_prefix": "python3 -I -B -c", "inline_code_summary": "Citire normativă/HTML diff și structură artefacte; ultimul lookup a folosit greșit un subdirector DB în scratchul B06a", "exit": 1, "disposition": "Eroare de lookup a reviewerului; niciun efect runtime. Corectat la calea exactă /home/kali/.hermes/cache/scratch/db-1917d96ba0e24857/gate.log.result.json."},
+    {"command_prefix": "python3 -I -B -c", "inline_code_summary": "Verificare hashes reports, counts/denials/canonical receipt și autoritate normativă", "exit": 0},
+    {"command_prefix": "python3 -I -B -c", "inline_code_summary": "Verificare proiecții și raw stdout/stderr; inspecția bindingului a presupus dict în loc de list", "exit": 1, "disposition": "Eroare de agregare a reviewerului, nu defect de produs/document. Raw hashes/counts/strict denials verificat înaintea opririi; continuarea corectată a verificat listele și restul afirmațiilor."},
+    {"command_prefix": "python3 -I -B -c", "inline_code_summary": "Binding lists/hash sets, proiecții status/reason din JSON raw, text HTML/footer și snapshot final/Git", "exit": 0}
+  ],
+  "tool_applicability": {
+    "Reticle": {"scope": "CLI/compiler/documents", "result": "NOT_APPLICABLE", "invoked": false, "limit": "Nu este review UI runtime sau aprobare vizuală."},
+    "Chisel": {"result": "BLOCKED_NO_GO", "invoked": false, "limit": "Native read-only file/Git/Python tools; fără instanțiere pe repo/home/runtime profile."}
+  },
+  "limits": [
+    "Review-only al reconcilierii documentare; nu runtime PASS nou, universal absence guarantee sau re-certificare a codului fc8eb134.",
+    "Nu au fost duplicate make check, installedQA sau suitele docs pe bytes neschimbați; dovezile executate anterior sunt identificate și comparate, nu revendicate ca execuții independente ale acestui reviewer.",
+    "Hashurile celor 46 module/12 fixtures au fost reconciliate programmatic între receipt și bindingul QA salvat; acest reviewer nu a recitit codul produsului, wheelul sau întreg site-packages.",
+    "Canonical gate este verificat prin receipt strict/summaries autorizate; cleanup Docker/DB și retenția datelor nu au fost re-executate sau reatestare live de către copil.",
+    "Arhitectura relevantă și plan §7/§19 au fost citite pentru conformitate; nu s-a deschis un plan concurent și nu s-au extins gates/scopul.",
+    "Nicio citire/copiere/hash/modificare a documents/Omnis_Notite_Originale.html; numai numele în git status a fost observat.",
+    "Nicio modificare repo, staging, commit, serviciu, DB, Docker, provider/model/target/copil/Task/Attempt, B06b, r1, rollout, push sau publicare.",
+    "Fără simulator/verifier script nou sau mecanism recursiv; numai expresii inline read-only Python pentru comparațiile artefactelor.",
+    "Produsul rămâne B06a-1_PARTIAL_NON_DURABLE; fullB06a/G-MODULE-core/G02 NOT_CLOSED. Restul B06a rămâne NOT_RUN/NOT_REVIEWED.",
+    "Părintele compară din nou snapshotul și adjudecă integrarea/commitul; acest raport nu închide felia și nu comite în checkoutul comun."
+  ],
+  "repository_files_created_or_modified": [],
+  "artifacts_created": ["/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/close-review.json"],
+  "integration_closure": false,
+  "review_tool_budget": {"target": 8, "hard": 12, "actual_direct_tool_invocations": 13, "status": "PROCEDURAL_BUDGET_DEVIATION_RETAINED", "reason": "Ultimul apel a corectat numai cheia duplicată sha256 din receiptul scratch nou creat; snapshot_file_sha256 și harta hashurilor au acum chei distincte. Nicio modificare repo sau execuție runtime. Verdictul documentar scoped nu pretinde execuție procedurală curată în buget."},
+  "proposed_status_delta": "Documentele exacte sunt APPROVED_SCOPED pentru reconcilierea B06a-1; codul/proba întregii SL08 rămân PARTIAL/PARTIAL, iar continuarea imediată este durabilitatea/reservările/freeze/readback/receipts în aceeași B06a."
+}

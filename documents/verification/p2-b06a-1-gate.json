@@ -1,0 +1,1521 @@
+{
+  "schema_version": 1,
+  "slice": "SL08/B06a-1",
+  "product_snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+  "baseline": "4f3d5703d9f0ece63ba10dec2b15f7169efce614",
+  "parent_verdict": "ACCEPTED_SCOPED_STATIC_PURE_INCREMENT",
+  "code_scope": "B06a-1_PARTIAL_NON_DURABLE",
+  "full_B06a": "NOT_CLOSED",
+  "G02": "NOT_CLOSED",
+  "source_gate": {
+    "command": "make test-b06a-pure",
+    "exit": 0,
+    "tests_passed": 90,
+    "ruff_check": "exit0",
+    "ruff_format_files": 13,
+    "strict_mypy_files": 13,
+    "mypy_exit": 0,
+    "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06"
+  },
+  "canonical_gate": {
+    "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+    "process_id": "proc_b081e9f59115",
+    "canonical_command": "PATH=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/node-linux-x64/package/bin:/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19",
+    "exit": 0,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "gate_log_path": "/home/kali/.hermes/cache/scratch/db-1917d96ba0e24857/gate.log",
+    "gate_log_sha256": "99816d337e4ffb3440f2f8224c0e9ab6d9b6ad31777200cbc865ce3678483fd8",
+    "summaries": [
+      "Ran 62 tests in 1.594s",
+      "OK",
+      "Ran 42 tests in 8.072s",
+      "OK",
+      "Found no known vulnerabilities and no adverse project statuses in 45 packages",
+      "580 passed in 716.52s (0:11:56)",
+      "22 passed in 70.70s (0:01:10)",
+      "9 passed in 87.07s (0:01:27)",
+      "Ran 284 tests in 74.372s",
+      "OK",
+      "Ran 284 tests in 77.149s",
+      "OK",
+      "1 passed in 4.51s",
+      "Ran 61 tests in 19.343s",
+      "OK",
+      "134 passed in 6.68s",
+      "Ran 6 tests in 0.077s",
+      "OK",
+      "Success: no issues found in 4 source files"
+    ],
+    "cleanup": {
+      "cid": "3bb4ab73dc092659b15a6f09bd3992846927822f09ed0de74fc11fc716b62aeb",
+      "runner_readback": {
+        "absent": true,
+        "networks_absent": true,
+        "socket_absent": true,
+        "uncertain": false
+      },
+      "parent_exact_cid_absent": true,
+      "data_retained_root": "/home/kali/.hermes/cache/scratch/db-1917d96ba0e24857",
+      "root_exists": true
+    },
+    "source_scope": "B06a-1 compiler/seed/PURE at fc8eb134; no full B06a/G02 closure",
+    "qa_status_at_record": "Original installedQA NOT_PASS fixture encoding; v2 pending, no false GREEN"
+  },
+  "web_gate_summaries": [
+    "Test Files  9 passed (9)",
+    "Tests  74 passed (74)"
+  ],
+  "remaining_full_b06a": [
+    "Exact source_draft_refs and durable non-reusable identity reservations",
+    "CandidateSnapshot separate read-only material and restart readback",
+    "Durable technical/human review and STATIC/PURE receipts on exact digests; publication authority",
+    "Full G-MODULE-core qualification beyond this deliberately bounded registry/closure"
+  ],
+  "limits": [
+    "No model/provider/target, native child, Task/Attempt, B06b, r1 restart/rollout or push",
+    "First-party unpublished seed; no third-party code port/license credit",
+    "Python observers/allowlisted env are not OS sandbox or universal effect absence",
+    "Full B06a and G02 remain NOT_CLOSED; historical B05 failures/protocol deviations unchanged",
+    "Future source bytes require their own relevant checks/review; this receipt binds fc8eb134 only"
+  ],
+  "installed_binding": {
+    "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+    "wheel_sha256": "ee8733c10a405e5100979c15a4941a409e41343ce0fb5a96413aad132a879ce3",
+    "wheel_path": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/final-wheels/omnis_api-0.1.0-py3-none-any.whl",
+    "python": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/final-api-env/bin/python",
+    "python_version": "3.13.15",
+    "pip_check_exit": 0,
+    "uv_lock_sha256": "8a75e42cb70aa5149dc221c48fcb18fe74b95ff84d4395f597235563ec1314db",
+    "requirements_sha256": "0d541f1a48ab66f901bcb1e5ee34d948a2abb91cec34f98e803d37b3b1051a54",
+    "module_count": 46,
+    "fixture_count": 12,
+    "source_wheel_installed_identical": true,
+    "fixtures_identical": true,
+    "modules_sha256": {
+      "api/src/omnis/__init__.py": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a",
+      "api/src/omnis/api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "api/src/omnis/core/db.py": "659e35e0bca47fcdf2faec2fef57e61ec82035394bc7c6ea0941c7ccea0f43b2",
+      "api/src/omnis/core/errors.py": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0",
+      "api/src/omnis/core/paths.py": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb",
+      "api/src/omnis/core/persistence.py": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788",
+      "api/src/omnis/core/readiness.py": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08",
+      "api/src/omnis/core/schema.py": "5124715ea327bf9501f796a31e797ebbc6ae402c5ea3ff2af4433287eb181c85",
+      "api/src/omnis/core/web_assets.py": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c",
+      "api/src/omnis/migrate.py": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426",
+      "api/src/omnis/migrations/__init__.py": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3",
+      "api/src/omnis/migrations/env.py": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98",
+      "api/src/omnis/migrations/versions/0001_instance_control.py": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673",
+      "api/src/omnis/migrations/versions/0002_local_sessions.py": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5",
+      "api/src/omnis/migrations/versions/0003_instance_lifecycle.py": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30",
+      "api/src/omnis/migrations/versions/0004_pairing_receipts.py": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8",
+      "api/src/omnis/migrations/versions/0005_stop_fence.py": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406",
+      "api/src/omnis/migrations/versions/0006_stop_reconciliation.py": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607",
+      "api/src/omnis/migrations/versions/0007_engagement_drafts.py": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc",
+      "api/src/omnis/migrations/versions/0008_engagement_edit.py": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7",
+      "api/src/omnis/modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "api/src/omnis/modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "api/src/omnis/modules/engagements/schemas.py": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143",
+      "api/src/omnis/modules/engagements/service.py": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd",
+      "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "api/src/omnis/modules/instance/models.py": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc",
+      "api/src/omnis/modules/instance/records.py": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222",
+      "api/src/omnis/modules/instance/schemas.py": "65102c2c11a68dbf98328068bd0adefb4a0d6ae187db20605ca1daa2e7c6869c",
+      "api/src/omnis/modules/instance/service.py": "cc8d6f29eb0c6ac43eb81eec46640e8b231c50b8607a6e7e701f34d8d443a4ae",
+      "api/src/omnis/modules/instance/stop_contract.py": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9",
+      "api/src/omnis/modules/settings/catalog_models.py": "55f8214ce8f88e6188d6daf4f3090f4e5615ff6891ec907c5fde684fe27e3701",
+      "api/src/omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "api/src/omnis/modules/settings/skill_catalog.py": "51c418597b4e712076f732e568737fff6c0eb0f92d4c433359810bdcaab9c9ba",
+      "api/src/omnis/modules/tasks/module_registry.py": "4911ca9ddfd24026ffa30d78e5d20beb632bcbe4d9fbf2914b191535a72a6575",
+      "api/src/omnis/owner.py": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930",
+      "api/src/omnis/security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "api/src/omnis/security/routes.py": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d",
+      "api/src/omnis/security/sessions.py": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc",
+      "api/src/omnis/serve.py": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345",
+      "api/src/omnis/stop_reconcile.py": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4",
+      "api/src/omnis/supervisor/__main__.py": "c17e428fcc44c1ad83606585668c9781ee8a3de39cecb0a59838e3f5544ffb63",
+      "api/src/omnis/supervisor/case_slot.py": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+      "api/src/omnis/supervisor/runtime_client.py": "6ac353f1f84201e85da3adf2716083839ecf93bff66f423a401ca7d1973f0010",
+      "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "api/src/omnis/transport/local_control.py": "89dc03a344d273174adc41592769fefff1fffc56ae1d4b96d851268b03b903ff",
+      "api/src/omnis/worker.py": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+    },
+    "fixtures_sha256": {
+      "api/tests/fixtures/b06a/golden.json": "e45f8d168606d17cbd7173d9f9f7bb7f2cac0e0de4c989bff1bab2c36ce9af1a",
+      "profiles/recon-mapping-contract.yaml": "0e101dc7a41daad7ce49178518ea22119d71590612d18198d7a27528473a35e0",
+      "skills/recon-mapping-contract/NOTICE.md": "2bd9673d53e4d720eb0d578ea2fec7959dda45111d51d3c32cc436914fbe4c84",
+      "skills/recon-mapping-contract/SKILL.md": "b5e548a02c995cef6a670334b4b84a32ddb544eff386c50a5e1721f3963db2f3",
+      "skills/recon-mapping-contract/omnis.yaml": "724d30b81808bc04f4ec439886d5c87780daacb14c3252103fcc7fb9ee0a30fa",
+      "skills/recon-mapping-contract/references/methodology.md": "1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6",
+      "skills/recon-mapping-contract/templates/procedures/map-capture.yaml": "cb123a11ccd40f77bdf037b3676eff88d4aee939a2eb57b786ae46d129c2af50",
+      "skills/recon-mapping-contract/templates/schemas/capture.schema.json": "81c8e2156627523c83d0d4ecb046c4df8dd1885715ea83489d15ccccace357e3",
+      "skills/recon-mapping-contract/templates/schemas/empty.schema.json": "35e963cf4db6c7c9fcc004fe76763b51496c3c9eab7f52b2eab51bfd633eedd0",
+      "skills/recon-mapping-contract/templates/schemas/operations.schema.json": "931112e626f89d684969b8a83f1b0b2b867711a29a4a445fc550e0501de5b763",
+      "skills/recon-mapping-contract/templates/schemas/records.schema.json": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+      "skills/recon-mapping-contract/templates/schemas/surface_map.schema.json": "5e6851f1e6fe985b178968579497ff294ad3590204369eb3a0883ff62e1b594c"
+    }
+  },
+  "reviews": [
+    {
+      "report_id": "B06a-1-rereview-normative-fc8eb134-R1-N01-N02-N03",
+      "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+      "verdict": "APPROVED_SCOPED",
+      "report_sha256": "e1c6246c8e6884daac713adae1a2e4b58fe0f7aa0e81b097b2a34132b5018527",
+      "scope": "Exclusiv fixurile și regresiile R1-N01/N02/N03 în B06a-1_PARTIAL_NON_DURABLE, STATIC/PURE NO_MODEL. Nu este o reluare a auditului echipei.",
+      "finding_dispositions": [
+        {
+          "id": "R1-N01",
+          "disposition": "RESOLVED_SCOPED",
+          "fix": "Manifestul este citit o singură dată în manifest_bytes; același obiect bytes intră în dto și files[omnis.yaml], apoi în preimaginea digestului și QualifiedRef.",
+          "evidence": "Regresia deterministă trece: control valid, înlocuire după primul read cu pin invalid și publication:PUBLISHED, STATIC_PASS cu toate refs pe digestul independent al capturii originale, exact un read; compile proaspăt pe bytes modificați refuzat exit2/INVALID_DTO fără stdout.",
+          "limit": "Read seam determinist în fixture scratch și catalog.main real; nu scheduler stress, workspace atomic/freeze durabil sau readback persistent."
+        },
+        {
+          "id": "R1-N02",
+          "disposition": "RESOLVED_SCOPED",
+          "fix": "omnis.yaml și frontmatter SKILL.md indică source a7ecb04f36b7e6f57e7e38df9943d097c3bc8fe7, care conține methodology.md cu hashul declarat.",
+          "evidence": {
+            "current_source_sha256": "1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6",
+            "frontmatter_matches": true,
+            "frontmatter_provenance": "OmnisAI first-party source a7ecb04f36b7e6f57e7e38df9943d097c3bc8fe7",
+            "git_blob_sha256": "1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6",
+            "git_exit": 0,
+            "matches": true
+          },
+          "limit": "git show este oracle local de authoring/dezvoltare, nu lookup ambient Git/network în compilatorul PURE. Seed first-party nepublicat; fără credit de reuse third-party/licență de distribuție."
+        },
+        {
+          "id": "R1-N03",
+          "disposition": "RESOLVED_SCOPED",
+          "fix": "Regexul impune identificatori suffix nevidați, fără zero inițial la prerelease numeric; build numeric rămâne permis cu zerouri inițiale.",
+          "evidence": "Cele trei negative 1.2.3-a..b, 1.2.3-01, 1.2.3+foo..bar și cele trei controale valide din regresii trec prin CLI. Cele trei valori originale 0.1.0-01, 0.1.0-alpha..beta, 0.1.0+build..meta sunt refuzate separat exit2/INVALID_DTO; controlul 0.1.0-alpha.1+build.001 are exit0/STATIC_PASS.",
+          "limit": "SemVer ASCII conform gramaticii inspectate și aceste controale same-CLI; nu dovadă exhaustivă pentru toate inputurile/parsers."
+        }
+      ],
+      "commands": [
+        {
+          "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p pytest_asyncio.plugin -p no:cacheprovider api/tests/test_b06a_manifest_bytes.py api/tests/test_b06a_provenance.py api/tests/test_b06a_semver.py -vv",
+          "exit": 0,
+          "tests_passed": 8,
+          "scope": "Cele trei fișiere focalizate; consumator source în subprocess și seam catalog.main; nu wheel instalat independent."
+        },
+        {
+          "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,subprocess,hashlib,json,yaml\nroot=pathlib.Path(\"/home/kali/OmnisAI\")\nseed=root/\"skills/recon-mapping-contract\"\nmanifest=yaml.safe_load((seed/\"omnis.yaml\").read_bytes())\nfrontmatter=yaml.safe_load((seed/\"SKILL.md\").read_text().split(\"---\",2)[1])\nsource=manifest[\"provenance\"][0]\ncmd=[\"git\",\"show\",source[\"revision\"]+\":skills/recon-mapping-contract/\"+source[\"path\"]]\nresult=subprocess.run(cmd,cwd=root,capture_output=True,check=False)\nobserved=hashlib.sha256(result.stdout).hexdigest()\ncurrent=hashlib.sha256((seed/source[\"path\"]).read_bytes()).hexdigest()\nprint(json.dumps({\"git_command\":cmd,\"git_exit\":result.returncode,\"source\":source,\"git_blob_sha256\":observed,\"current_source_sha256\":current,\"frontmatter_provenance\":frontmatter[\"provenance\"],\"matches\":observed==source[\"source_digest\"]==current,\"frontmatter_matches\":source[\"revision\"] in frontmatter[\"provenance\"]},sort_keys=True))\nassert result.returncode==0 and observed==source[\"source_digest\"]==current\nassert source[\"revision\"] in frontmatter[\"provenance\"]\n'",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": "Gitblob și sursa curentă au același SHA256 declarat; frontmatter corelat. Git folosit numai ca dovadă development."
+        },
+        {
+          "command": "git log -8 --format=\"%H %s\" && git diff b9d1aedf568a3c896960bdb54e82967341e6238c..fc8eb134583402429fdf685f1fdd00bf51c39b06 -- api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/settings/catalog_models.py skills/recon-mapping-contract/omnis.yaml skills/recon-mapping-contract/SKILL.md api/tests/test_b06a_manifest_bytes.py api/tests/test_b06a_provenance.py api/tests/test_b06a_semver.py Makefile && git diff --check b9d1aedf568a3c896960bdb54e82967341e6238c..fc8eb134583402429fdf685f1fdd00bf51c39b06",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": "Inspecție diff focalizat b9d1aed..fc8eb134 și git diff --check; niciun read al fișierului protejat."
+        },
+        {
+          "command": "git show -s --format=fuller 00ae15557be8627cb9e5b532969ce9aad722eae4 2234f8f30d73c5a44b6e0f58294c3117550cff20 c09b2c0bf9b0d7719f68838014e5e051de002e6b",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": "Mesajele commiturilor sunt istoric raportat, nu substitute pentru execuția testelor curente."
+        },
+        {
+          "command": "python3 -I -B -c 'import subprocess,json,hashlib,pathlib\nroot=pathlib.Path(\"/home/kali/OmnisAI\")\noriginal=json.loads(pathlib.Path(\"/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/review-normative.json\").read_text())\npaths=sorted(set(original[\"snapshot\"][\"file_hashes_sha256\"])|{\"api/tests/test_b06a_manifest_bytes.py\",\"api/tests/test_b06a_provenance.py\",\"api/tests/test_b06a_semver.py\"})\nfor p in paths: assert p!=\"documents/Omnis_Notite_Originale.html\"\nresult={\"head\":subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=root,text=True).strip(),\"file_hashes_sha256\":{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}}\nresult[\"match_head\"]={p:(root/p).read_bytes()==subprocess.check_output([\"git\",\"show\",result[\"head\"]+\":\"+p],cwd=root) for p in paths}\nprint(json.dumps(result,sort_keys=True))'",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": "28 căi tracked explicite, înainte/după verificările focalizate; nu hash universal al mediului."
+        },
+        {
+          "command": "git rev-parse HEAD && git status --short --branch && git diff --exit-code && git diff --cached --exit-code && git diff --check b9d1aedf568a3c896960bdb54e82967341e6238c..fc8eb134583402429fdf685f1fdd00bf51c39b06",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": "HEAD neschimbat, tracked clean și numai untracked protejat preexistent."
+        }
+      ],
+      "limits": [
+        "Repo comun read-only, fără edits/stage/commit/push și fără integrare finalizată.",
+        "Toate mutările sintetice sunt în scratch autorizat; python -I -B și pytest no:cacheprovider. Fixture-urile temporare proprii au fost închise/curățate de context manager.",
+        "Niciun serviciu/DB/Docker/rețea/provider/model/target/copil Hermes/B06b/profil/r1 nu a fost pornit sau modificat.",
+        "documents/Omnis_Notite_Originale.html nu a fost citit, copiat, hashuit sau modificat.",
+        "Reportul și proba originale au fost doar citite; proba originală nu a fost executată deoarece este bound pe b9d1aed și ar suprascrie reviewer1-probe-output.json.",
+        "Testele curente folosesc checkout source explicat în fixtures/b06a/consumer.py; nu certifică distribuție/wheel instalat, freeze/persistență sau OS sandbox.",
+        "Nici test output, nici Python audit hook nu sunt dovadă universală a absenței efectelor ori a tuturor gapurilor.",
+        "NUL/ac59202 este review separat al siblingului și nu este închis de acest raport."
+      ],
+      "independent_focused_tests_passed": 8
+    },
+    {
+      "report_id": "B06a-1-rereview-security-fc8eb134",
+      "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+      "verdict": "APPROVED_SCOPED",
+      "report_sha256": "1b2645608a22234cd75edc8e2c5162bfcf7c66567447f02a144bfac5ca6bce03",
+      "scope": "Re-review complementar read-only al sursei STATIC/PURE B06a-1; consumerul CLI real al checkoutului, numai fixture-uri sintetice scratch.",
+      "finding_dispositions": [
+        {
+          "id": "R2-001",
+          "disposition": "RESOLVED_IN_REVIEWED_SCOPE",
+          "fix": "Minimal shared safe_path NUL guard; no broad ValueError catch.",
+          "evidence": "Original copied case02 support_files returns exit 2, empty stdout, stable BLOCKED/INVALID_PATH; no traceback or private marker. Supplemental procedures case repeats same CLI twice: both exit 2 and identical INVALID_PATH stderr. Both have real positive compile on same channel.",
+          "limit": null
+        }
+      ],
+      "commands": [
+        {
+          "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git show --stat --oneline HEAD && git diff --name-status b9d1aed..fc8eb134583402429fdf685f1fdd00bf51c39b06",
+          "exit": 0,
+          "tests_passed": null,
+          "scope": null
+        },
+        {
+          "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/rereview_security_safe16_probe.py",
+          "exit": 0,
+          "tests_passed": 16,
+          "scope": null
+        },
+        {
+          "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/rereview_security_focused_probe.py",
+          "exit": 0,
+          "tests_passed": 9,
+          "scope": "procedures NUL; 3 invalid and 3 valid SemVer; one-manifest capture; identical compile/evaluate repeats. Explicit fixture import only, no API conftest."
+        }
+      ],
+      "limits": [
+        "Python audit observer nu este sandbox OS și nu dovedește absența syscalls native.",
+        "First-party seed compile nu conferă storage/authority/publication/effect-broker; B06a-1 PARTIAL_NON_DURABLE, full B06a NOT_CLOSED.",
+        "Fără repo edits/commits, servicii/DB/Docker/network/models/targets, copil runtime nativ, B06b/r1, profile runtime/system configuration/push. Numai procese Python sintetice bounded ale consumerului sursă.",
+        "Fără secrete brute; markerii sunt sintetici. Fișierul HTML original protejat nu a fost inspectat.",
+        "Fără acceptare vizuală, restart/durable reservation/frozen storage/publication/exact draft refs. Gate-ul canonic și 90 teste ale părintelui nu au fost rerulate sau creditate ca dovezi independente aici.",
+        "Nu se transferă aprobarea pe bytes viitori; părintele adjudecă integrarea."
+      ],
+      "independent_cases_passed": 25
+    }
+  ],
+  "installed_qa": {
+    "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+    "verdict": "PASS_SCOPED",
+    "review_verdict": "APPROVED_SCOPED",
+    "command": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/final-api-env/bin/python -I -B /home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/installed_qa_probe_v2.py",
+    "exit": 0,
+    "report_sha256": "0bab77ab4dad66a530b9783813ee557c243e42fc26193affc835988c2a8ecc98",
+    "review_report_sha256": "4cddd2383af83e80faeccd10834bb25cfa9148297da6a0048dd460a8594031ab",
+    "script_sha256": "434da9324677d527eeca0ed7907c12ad397cb5aed99f82a0732e2baff8e24682",
+    "counts": {
+      "distinct_scenarios": 15,
+      "denial_families": 11,
+      "golden_scenarios": 3,
+      "golden_output_comparisons": 18,
+      "total_consumer_processes_including_origin": 42,
+      "cli_processes": 41,
+      "process_categories": {
+        "origin_probe": 1,
+        "positive": 8,
+        "same_consumer_control": 11,
+        "negative": 22
+      },
+      "exit_counts": {
+        "0": 20,
+        "2": 22
+      },
+      "process_assertions_pass": 42,
+      "scenario_pass": 15,
+      "timeouts": 0,
+      "findings": 0
+    },
+    "criteria": {
+      "case_budget_le20": true,
+      "denial_families_exact11": true,
+      "compile_twice": true,
+      "golden_scenarios_exact3": true,
+      "golden_comparisons_exact18": true,
+      "each_denial_has_positive_same_consumer": true,
+      "all_process_assertions_pass": true,
+      "cleanup_readback": true,
+      "binding_unchanged": true,
+      "git_unchanged": true,
+      "no_findings": true
+    },
+    "digests": {
+      "material_digest": "762de80dfbfa6b9658f2dbb120a8ca273aab495a7a8e937a38f7a19c14f710c7",
+      "resolved_index_digest": "59ab6ea57c8b864d9e407b5f79aced583f7c07cab7f943f832bb74a39ea8a020"
+    },
+    "cases": [
+      {
+        "id": "compile-determinism",
+        "kind": "positive_compile",
+        "commands": [
+          2,
+          3
+        ],
+        "exact_stdout_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "golden-furnizat",
+        "kind": "positive_evaluate",
+        "commands": [
+          4,
+          5
+        ],
+        "input": {
+          "capture": "[{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":304},{\"method\":\"POST\",\"path\":\"/alpha\",\"status\":201},{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":200},{\"method\":\"GET\",\"path\":\"/alpha\",\"status\":200},{\"method\":\"DELETE\",\"path\":\"/z\",\"status\":204}]"
+        },
+        "input_sha256": "be31268f28caafbeb3d349419221e6cd81e3d7d66297b2ee58c109a1b2844016",
+        "expected": [
+          {
+            "records": [
+              {
+                "method": "GET",
+                "path": "/alpha",
+                "status": 304
+              },
+              {
+                "method": "POST",
+                "path": "/alpha",
+                "status": 201
+              },
+              {
+                "method": "GET",
+                "path": "/alpha",
+                "status": 200
+              },
+              {
+                "method": "GET",
+                "path": "/alpha",
+                "status": 200
+              },
+              {
+                "method": "DELETE",
+                "path": "/z",
+                "status": 204
+              }
+            ]
+          },
+          {
+            "operations": [
+              {
+                "method": "GET",
+                "path": "/alpha",
+                "statuses": [
+                  200,
+                  304
+                ]
+              },
+              {
+                "method": "POST",
+                "path": "/alpha",
+                "statuses": [
+                  201
+                ]
+              },
+              {
+                "method": "DELETE",
+                "path": "/z",
+                "statuses": [
+                  204
+                ]
+              }
+            ]
+          },
+          {
+            "surface_map": [
+              {
+                "path": "/alpha",
+                "methods": [
+                  "GET",
+                  "POST"
+                ],
+                "operation_count": 2
+              },
+              {
+                "path": "/z",
+                "methods": [
+                  "DELETE"
+                ],
+                "operation_count": 1
+              }
+            ]
+          }
+        ],
+        "oracle": "stdlib independent + expected fixture/literal; fără import handler",
+        "all_three_outputs_equal": true,
+        "exact_stdout_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "golden-gol-propriu",
+        "kind": "positive_evaluate",
+        "commands": [
+          6,
+          7
+        ],
+        "input": {
+          "capture": "[]"
+        },
+        "input_sha256": "87fa6dad9484217a2a2bcf33a4d740a724d7249451f208815c45273b1e91845b",
+        "expected": [
+          {
+            "records": []
+          },
+          {
+            "operations": []
+          },
+          {
+            "surface_map": []
+          }
+        ],
+        "oracle": "stdlib independent + expected fixture/literal; fără import handler",
+        "all_three_outputs_equal": true,
+        "exact_stdout_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "golden-grupare-proprie",
+        "kind": "positive_evaluate",
+        "commands": [
+          8,
+          9
+        ],
+        "input": {
+          "capture": "[{\"method\":\"POST\",\"path\":\"/b\",\"status\":201},{\"method\":\"GET\",\"path\":\"/a\",\"status\":404},{\"method\":\"GET\",\"path\":\"/a\",\"status\":200},{\"method\":\"POST\",\"path\":\"/b\",\"status\":201},{\"method\":\"HEAD\",\"path\":\"/a\",\"status\":204}]"
+        },
+        "input_sha256": "2ebb0d10b1605262e94d30fdad3d2dcb13f81e64f05eb56eb82cd03fc53f1b06",
+        "expected": [
+          {
+            "records": [
+              {
+                "method": "POST",
+                "path": "/b",
+                "status": 201
+              },
+              {
+                "method": "GET",
+                "path": "/a",
+                "status": 404
+              },
+              {
+                "method": "GET",
+                "path": "/a",
+                "status": 200
+              },
+              {
+                "method": "POST",
+                "path": "/b",
+                "status": 201
+              },
+              {
+                "method": "HEAD",
+                "path": "/a",
+                "status": 204
+              }
+            ]
+          },
+          {
+            "operations": [
+              {
+                "method": "GET",
+                "path": "/a",
+                "statuses": [
+                  200,
+                  404
+                ]
+              },
+              {
+                "method": "HEAD",
+                "path": "/a",
+                "statuses": [
+                  204
+                ]
+              },
+              {
+                "method": "POST",
+                "path": "/b",
+                "statuses": [
+                  201
+                ]
+              }
+            ]
+          },
+          {
+            "surface_map": [
+              {
+                "path": "/a",
+                "methods": [
+                  "GET",
+                  "HEAD"
+                ],
+                "operation_count": 2
+              },
+              {
+                "path": "/b",
+                "methods": [
+                  "POST"
+                ],
+                "operation_count": 1
+              }
+            ]
+          }
+        ],
+        "oracle": "stdlib independent + expected fixture/literal; fără import handler",
+        "all_three_outputs_equal": true,
+        "exact_stdout_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "native-pin-valid40hex-wrong",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 10,
+        "commands": [
+          11,
+          12
+        ],
+        "expected_reason": "INCOMPATIBLE_HERMES",
+        "observed": [
+          {
+            "reason": "INCOMPATIBLE_HERMES",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "INCOMPATIBLE_HERMES",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "NUL-declared-path",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 13,
+        "commands": [
+          14,
+          15
+        ],
+        "expected_reason": "INVALID_PATH",
+        "observed": [
+          {
+            "reason": "INVALID_PATH",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "INVALID_PATH",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "invalid-SemVer",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 16,
+        "commands": [
+          17,
+          18
+        ],
+        "expected_reason": "INVALID_DTO",
+        "observed": [
+          {
+            "reason": "INVALID_DTO",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "INVALID_DTO",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "unknown-handler",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 19,
+        "commands": [
+          20,
+          21
+        ],
+        "expected_reason": "UNKNOWN_HANDLER",
+        "observed": [
+          {
+            "reason": "UNKNOWN_HANDLER",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "UNKNOWN_HANDLER",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "remote-schema-ref",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 22,
+        "commands": [
+          23,
+          24
+        ],
+        "expected_reason": "SCHEMA_EXTERNAL_REF",
+        "observed": [
+          {
+            "reason": "SCHEMA_EXTERNAL_REF",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "SCHEMA_EXTERNAL_REF",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "Profile-LOCAL",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 25,
+        "commands": [
+          26,
+          27
+        ],
+        "expected_reason": "INVALID_DTO",
+        "observed": [
+          {
+            "reason": "INVALID_DTO",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "INVALID_DTO",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "missing-ref",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 28,
+        "commands": [
+          29,
+          30
+        ],
+        "expected_reason": "MISSING_REF",
+        "observed": [
+          {
+            "reason": "MISSING_REF",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "MISSING_REF",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "duplicate-YAML",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 31,
+        "commands": [
+          32,
+          33
+        ],
+        "expected_reason": "YAML_DUPLICATE_OR_KEY",
+        "observed": [
+          {
+            "reason": "YAML_DUPLICATE_OR_KEY",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "YAML_DUPLICATE_OR_KEY",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "symlink-declared-file",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 34,
+        "commands": [
+          35,
+          36
+        ],
+        "expected_reason": "UNSAFE_FILE",
+        "observed": [
+          {
+            "reason": "UNSAFE_FILE",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "UNSAFE_FILE",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "malformed-PURE-marker",
+        "kind": "denial",
+        "consumer": "evaluate",
+        "positive_control_command": 37,
+        "commands": [
+          38,
+          39
+        ],
+        "expected_reason": "INVALID_JSON",
+        "observed": [
+          {
+            "reason": "INVALID_JSON",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "INVALID_JSON",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": "8dd409a181b0363228e261d565240c10f9e60266d737a4d184b2229e7f4eea4c",
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      },
+      {
+        "id": "REQUIRED-model-unavailable",
+        "kind": "denial",
+        "consumer": "compile",
+        "positive_control_command": 40,
+        "commands": [
+          41,
+          42
+        ],
+        "expected_reason": "MODEL_UNAVAILABLE",
+        "observed": [
+          {
+            "reason": "MODEL_UNAVAILABLE",
+            "status": "BLOCKED"
+          },
+          {
+            "reason": "MODEL_UNAVAILABLE",
+            "status": "BLOCKED"
+          }
+        ],
+        "input_sha256": null,
+        "same_consumer_positive_pass": true,
+        "exact_diagnostic_equal": true,
+        "result": "PASS"
+      }
+    ],
+    "process_measurements": [
+      {
+        "id": 1,
+        "label": "origini-module-instalate",
+        "category": "origin_probe",
+        "exit": 0,
+        "status": null,
+        "reason": null,
+        "stdout_sha256": "376a78779a4c1f10f0f80c63a0a04023dc266856f436a0cb47a3dd92cdeebaa3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 2,
+        "label": "compile-determinism-1",
+        "category": "positive",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 3,
+        "label": "compile-determinism-2",
+        "category": "positive",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 4,
+        "label": "golden-furnizat-1",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "3e13c44fae4f01a7b296c37136aedd5ec79144c9120b9199d2cdcb4744892320",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 5,
+        "label": "golden-furnizat-2",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "3e13c44fae4f01a7b296c37136aedd5ec79144c9120b9199d2cdcb4744892320",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 6,
+        "label": "golden-gol-propriu-1",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "c268d46c80e5a35ff3391eb441d3f41469b87cecc81d10cdc2b4eab35ff2e409",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 7,
+        "label": "golden-gol-propriu-2",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "c268d46c80e5a35ff3391eb441d3f41469b87cecc81d10cdc2b4eab35ff2e409",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 8,
+        "label": "golden-grupare-proprie-1",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "4ab41409ebde41bd0363ea091d5134cf29d1c1896c42430442a07e80ef25ac22",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 9,
+        "label": "golden-grupare-proprie-2",
+        "category": "positive",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "4ab41409ebde41bd0363ea091d5134cf29d1c1896c42430442a07e80ef25ac22",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 10,
+        "label": "control-valid-native-pin-valid40hex-wrong",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 11,
+        "label": "denial-native-pin-valid40hex-wrong-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INCOMPATIBLE_HERMES",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "34632cf9bae2400978a715353c6a7844c985ea543246e258af23739fd7ff269b",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 12,
+        "label": "denial-native-pin-valid40hex-wrong-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INCOMPATIBLE_HERMES",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "34632cf9bae2400978a715353c6a7844c985ea543246e258af23739fd7ff269b",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 13,
+        "label": "control-valid-NUL-declared-path",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 14,
+        "label": "denial-NUL-declared-path-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_PATH",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "ded4e10128cfdf8acd1f5d56e0d1e20ee45146d31bf9f1afe0abfe2172722058",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 15,
+        "label": "denial-NUL-declared-path-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_PATH",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "ded4e10128cfdf8acd1f5d56e0d1e20ee45146d31bf9f1afe0abfe2172722058",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 16,
+        "label": "control-valid-invalid-SemVer",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 17,
+        "label": "denial-invalid-SemVer-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_DTO",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "921265862872ddc22f02141b3f588485bb25f3563c2f3be79ce4c29389ea3cb6",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 18,
+        "label": "denial-invalid-SemVer-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_DTO",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "921265862872ddc22f02141b3f588485bb25f3563c2f3be79ce4c29389ea3cb6",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 19,
+        "label": "control-valid-unknown-handler",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 20,
+        "label": "denial-unknown-handler-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "UNKNOWN_HANDLER",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "19a46989a9991339d9fe817d77f340e42fadc420bc94c71e77d651b094dfd07c",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 21,
+        "label": "denial-unknown-handler-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "UNKNOWN_HANDLER",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "19a46989a9991339d9fe817d77f340e42fadc420bc94c71e77d651b094dfd07c",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 22,
+        "label": "control-valid-remote-schema-ref",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 23,
+        "label": "denial-remote-schema-ref-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "SCHEMA_EXTERNAL_REF",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "a37504d50ed24c2187e1c0a70b6ab3266e4b5d8f5455f458cae50f1634292d58",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 24,
+        "label": "denial-remote-schema-ref-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "SCHEMA_EXTERNAL_REF",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "a37504d50ed24c2187e1c0a70b6ab3266e4b5d8f5455f458cae50f1634292d58",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 25,
+        "label": "control-valid-Profile-LOCAL",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 26,
+        "label": "denial-Profile-LOCAL-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_DTO",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "921265862872ddc22f02141b3f588485bb25f3563c2f3be79ce4c29389ea3cb6",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 27,
+        "label": "denial-Profile-LOCAL-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_DTO",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "921265862872ddc22f02141b3f588485bb25f3563c2f3be79ce4c29389ea3cb6",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 28,
+        "label": "control-valid-missing-ref",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 29,
+        "label": "denial-missing-ref-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "MISSING_REF",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "7f9f4458a929d2052a82c06fa4376481bb399810f3275bbd2e92e785a3ad6edf",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 30,
+        "label": "denial-missing-ref-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "MISSING_REF",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "7f9f4458a929d2052a82c06fa4376481bb399810f3275bbd2e92e785a3ad6edf",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 31,
+        "label": "control-valid-duplicate-YAML",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 32,
+        "label": "denial-duplicate-YAML-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "YAML_DUPLICATE_OR_KEY",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "9516471307df505df128614fcc6bdb31481478601f2f09d109374c54f2554c2a",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 33,
+        "label": "denial-duplicate-YAML-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "YAML_DUPLICATE_OR_KEY",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "9516471307df505df128614fcc6bdb31481478601f2f09d109374c54f2554c2a",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 34,
+        "label": "control-valid-symlink-declared-file",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 35,
+        "label": "denial-symlink-declared-file-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "UNSAFE_FILE",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "6b3dcc381efbfbbdf3ed523947795f9b3d29a6f286e659ae1ab884ad8501a7dc",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 36,
+        "label": "denial-symlink-declared-file-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "UNSAFE_FILE",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "6b3dcc381efbfbbdf3ed523947795f9b3d29a6f286e659ae1ab884ad8501a7dc",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 37,
+        "label": "control-valid-malformed-PURE-marker",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "PURE_PASS",
+        "reason": null,
+        "stdout_sha256": "3e13c44fae4f01a7b296c37136aedd5ec79144c9120b9199d2cdcb4744892320",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 38,
+        "label": "denial-malformed-PURE-marker-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_JSON",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "27dacca091bd3e89e7b621c2647ad5b79bd1a3006596cebc429a58187b64fcda",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 39,
+        "label": "denial-malformed-PURE-marker-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "INVALID_JSON",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "27dacca091bd3e89e7b621c2647ad5b79bd1a3006596cebc429a58187b64fcda",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 40,
+        "label": "control-valid-REQUIRED-model-unavailable",
+        "category": "same_consumer_control",
+        "exit": 0,
+        "status": "STATIC_PASS",
+        "reason": null,
+        "stdout_sha256": "e42c9e45fa3a578ec5fada5d43db9e727984b0f7e75c1d1a60c5d6626d70b46e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 41,
+        "label": "denial-REQUIRED-model-unavailable-1",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "MODEL_UNAVAILABLE",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "04625339cfa52ac2d3281e130dd8826635a35c3ed6fd665e146d3f24108bc5fa",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      },
+      {
+        "id": 42,
+        "label": "denial-REQUIRED-model-unavailable-2",
+        "category": "negative",
+        "exit": 2,
+        "status": "BLOCKED",
+        "reason": "MODEL_UNAVAILABLE",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "04625339cfa52ac2d3281e130dd8826635a35c3ed6fd665e146d3f24108bc5fa",
+        "joined": true,
+        "owned_group_absent": true,
+        "assertions_pass": true
+      }
+    ],
+    "cleanup": {
+      "scope": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/installed-qa-owned-rv_vmcxp",
+      "all_children_joined": true,
+      "all_owned_groups_absent": true,
+      "removed": true,
+      "readback_absent": true,
+      "baseline_copies_preserved": true,
+      "fixture_root_inode_before": [
+        2049,
+        8812926
+      ]
+    },
+    "parent_exact_fixture_absence": true,
+    "limits": [
+      "QA focalizată a consumatorului real instalat, nu demonstrație universală de absență a defectelor sau efectelor.",
+      "B06a-1 PARTIAL_NON_DURABLE; full B06a NOT_CLOSED și G02 NOT_CLOSED. Părintele deține integrarea și gate-ul canonic deja în execuție.",
+      "Reviewurile normative/security APPROVED_SCOPED și proba source 90 PASS sunt contextul mandatului neschimbat; nu au fost rerulate sau transformate în noi rezultate prin această QA.",
+      "Seed first-party nepublicat; fără credit de reutilizare terță. Frozen/durable identities și persistence review receipts NOT_IMPLEMENTED.",
+      "Fără providers/modele/ținte, copil Hermes nativ, Task/Attempt/B06b, r1, profile/system configuration, push, commit, repo edits, DB, Docker sau servicii.",
+      "Nu s-a duplicat sau inspectat gate-ul canonic; nu s-a rerulat observerul neschimbat sau alt review complet.",
+      "Allowlisted child env și -I/-B nu sunt confinare OS, audit Python sau monitor de syscalls.",
+      "Driverul probează process group absence după join; această probă nominală nu certifică universal descendenți detașați sau scenarii de signal/crash neexecutate.",
+      "Un input și trei outputs în goldenul furnizat; două goldens suplimentare sunt scenarii sintetice literale ale driverului.",
+      "Cleanup numai pe rootul sintetic propriu după join/group readback. Raportul original NOT_PASS, scriptul original, reproducerul și fixture baseline rămân nemodificate.",
+      "documents/Omnis_Notite_Originale.html nu a fost citit, copiat sau modificat; numai numele preexistent în git status a fost observat.",
+      "Raportul de adjudecare este dovadă scratch focalizată, nu reconciliere a hărții versionate sau closure de integrare. Părintele decide persistența în registrul feliei."
+    ]
+  },
+  "history": {
+    "original_normative_verdict": "CHANGES_REQUESTED",
+    "original_normative_report_sha256": "ba63f480550aa2c16c5969a718b762bacc580cacac6a5474571825d7d0e45531",
+    "original_security_verdict": "BLOCKED_INCOMPLETE",
+    "original_security_report_sha256": "e79a81a3953dce226c7be4d818d5dc04fe4a1c57e89af687af75568fb2b2863c",
+    "parent_security_reproduction": {
+      "actual_original_result_path": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/reviewer2-probe-results.json",
+      "sha256": "e96373a71c239361bffe4d327b0774bb7bf0ac00b73fa2b8e0bcfad2f70a1f97",
+      "original_snapshot_from_parent_execution": "b9d1aedf568a3c896960bdb54e82967341e6238c",
+      "tests_run": 16,
+      "failures": 1,
+      "errors": 0,
+      "positive_passes": 15,
+      "harness_exit_from_parent_tool": 1,
+      "failing_case": "__main__.Probes.test_02_null_declared_path_sanitized",
+      "failure_class": "ValueError: embedded null path; real CLI exit1/traceback, not contract denial",
+      "reconciliation": "Parent delegation incorrectly named reviewer2-probe-output.json; actual script writes reviewer2-probe-results.json, which exists and retains original16/15/1. Reviewer report correctly marks missing wrong-named path, not missing current25-case proof. Original reports remain unchanged.",
+      "scoped_review_budget_limit": {
+        "assigned_security_rereview_tool_calls": 10,
+        "reported_actual_tool_calls": 14,
+        "status": "PROCEDURAL_BUDGET_DEVIATION_RETAINED",
+        "effect": "Technical scoped25case evidence retained; not a clean budget-compliant execution; no retroactive rewrite."
+      },
+      "other_commit_claim_corrections": [
+        {
+          "commit": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+          "incorrect": "Ruff/format15files",
+          "actual": "Ruff format13files, mypy13sourcefiles; stdout and actual90testPASS preserved"
+        },
+        {
+          "commit": "2234f8f30d73c5a44b6e0f58294c3117550cff20",
+          "wording": "alreadypublishedlocal source commit",
+          "clarification": "Existing local Git source commit; seed release is NOT_PUBLISHED, no Publication/authority"
+        }
+      ],
+      "aggregation_failure_retained": "First reconciliation assertion incorrectly looked for consumer ValueError in unittest assertion traceback. Corrected data aggregation checks raw consumer stderr in same saved evidence; no probe or product rerun.",
+      "limits": [
+        "Historical probe report itself lacks a snapshot field; binding comes from exact parent terminal execution before fixes",
+        "No rerun or overwrite of original measurement, no new test/gate credited"
+      ]
+    },
+    "original_installed_qa": {
+      "snapshot": "fc8eb134583402429fdf685f1fdd00bf51c39b06",
+      "verdict": "NOT_PASS",
+      "counts": {
+        "distinct_scenarios": 4,
+        "denial_families": 0,
+        "golden_scenarios": 3,
+        "golden_output_comparisons": 18,
+        "total_consumer_processes_including_origin": 12,
+        "cli_processes": 11,
+        "process_categories": {
+          "origin_probe": 1,
+          "positive": 8,
+          "same_consumer_control": 1,
+          "negative": 2
+        },
+        "exit_counts": {
+          "0": 10,
+          "2": 2
+        },
+        "process_assertions_pass": 10,
+        "scenario_pass": 4,
+        "timeouts": 0,
+        "findings": 1
+      },
+      "finding": [
+        {
+          "severity": "BLOCKING_QA",
+          "type": "AssertionError",
+          "message": "Denial reason/status diferit",
+          "disposition": "Necesită adjudecare/reproducere; fără bypass sau retry pentru green."
+        }
+      ],
+      "sha256": "b1bedbb44f1e88a0e209e14f0e940ce3f22113a40f998fe34f88a3270218c6dc"
+    },
+    "installed_qa_repair": {
+      "original_report": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/installed-qa.json",
+      "original_verdict_retained": "NOT_PASS",
+      "original_bytes_unchanged": true,
+      "original_counts": {
+        "distinct_scenarios": 4,
+        "denial_families": 0,
+        "total_consumer_processes_including_origin": 12,
+        "findings": 1
+      },
+      "original_finding": "BLOCKING_QA AssertionError: Denial reason/status diferit",
+      "original_actual_denials": "Două exit2/INTEGER_LIMIT, nu INCOMPATIBLE_HERMES",
+      "root_cause": "Driverul original emitea pinul de 40 cifre fără ghilimele în YAML; consumatorul îl interpreta drept întreg și refuza la INTEGER_LIMIT înaintea verificării compatibilității Hermes",
+      "parent_reproduction_report": "/home/kali/.hermes/cache/scratch/b06a-parent-81r4o51e/parent-pin-repro.json",
+      "parent_reproduction_readback": {
+        "exit": 0,
+        "cases": 3,
+        "positive": "exit0",
+        "unquoted_same_literal": "exit2 INTEGER_LIMIT",
+        "quoted_same_literal": "exit2 INCOMPATIBLE_HERMES",
+        "cleanup_absent": true
+      },
+      "parent_reproduction_rerun": false,
+      "disposition": "RESOLVED_SCOPED_QA_ENCODING; aceeași valoare este string YAML în v2, iar CLI instalat produce exact INCOMPATIBLE_HERMES de două ori după control pozitiv. Nu este remediere de produs și nu rescrie verdictul istoric NOT_PASS",
+      "oracle_weakened": false,
+      "product_changes": false
+    }
+  }
+}

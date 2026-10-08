@@ -100,3 +100,18 @@ O excepție neașteptată înainte de începerea răspunsului produce `500 INTER
 `create_app().openapi()` descrie erorile efective prin `ErrorEnvelope`, inclusiv validarea 422, în timp ce health503 are schema distinctă `HealthReady`. Nu a fost activat un endpoint public de documentație. `make generate-contracts` exportă `contracts/omnis.openapi.json` și generează `web/src/shared/api/generated.ts`; `make test-contracts` verifică driftul, iar gate-ul comun/CI îl include. Tipurile generate nu înlocuiesc validarea runtime a răspunsurilor în client.
 
 `OMNIS_WEB_ROOT` indică buildul explicit. Numai `/` și asseturile allowlisted/hash-verified sunt servite same-origin, cu CSP și `no-store`; nu există fallback de fișiere sau rutare către DEMO. Asseturile lipsă/incompatibile sau deadline-ul de 1 secundă produc indisponibilitate explicită, cu maximum un worker filesystem în zbor per aplicație. `dashboard_ready=false` în statusul brut al supervisorului este conservator: acel proces nu atestă servirea HTTP; consumatorii folosesc proiecția HTTP de health/instanță. Instrucțiuni complete și limite: [web/README.md](../web/README.md).
+
+## B06a-1 — catalog source și evaluare STATIC/PURE
+
+Primul increment B06a este executabil și acceptat scoped pe `fc8eb13`, dar **PARTIAL_NON_DURABLE / full B06a NOT_CLOSED**. Nu adaugă rute Settings, publicare, selecție în engagement sau Start assessment. Seed-ul `skills/recon-mapping-contract/` este first-party/nepublicat; profilul source are `agent_recipes` top-level, nu imită un WorkflowProfileRevision persistent.
+
+Din rădăcina repo-ului, în mediul API pregătit/hash-locked:
+
+```sh
+api/.venv/bin/python -I -B -m omnis.modules.settings.skill_catalog compile --package skills/recon-mapping-contract --profile profiles/recon-mapping-contract.yaml
+make test-b06a-pure
+```
+
+Compile este read-only și întoarce exit0/`STATIC_PASS`, material/index digests și scope-ul non-durabil. `evaluate` folosește aceleași `--package`/`--profile` și cere `--input <cale-JSON-locală>`: obiect strict cu `capture`, string JSON pentru captura furnizată. Execută numai parse→normalize→surface map cu trei handlers trusted PURE, niciun cod din pachet/provider/target; rezultatul `NO_MODEL`, `effective=null` nu certifică SECURITY. Nici compile, nici evaluate nu au nevoie de DB sau Hermes pornit și nu creează CandidateSnapshot/publication/receipts durabile. Refuzurile de contract au exit2/stdout gol/stderr JSON `BLOCKED` cu reason stabil, fără textul raw al inputului; traceback/ImportError/exit1 nu sunt refuzuri valide. Nu introduce secrete sau capturi de ținte în aceste probe inerte.
+
+[Registrul B06a](../documents/verification/p2-b06a.md) și [receiptul snapshot-bound](../documents/verification/p2-b06a-1-gate.json) consemnează90sourcePASS, două reviewuri, wheel offline separat cu46module identice/pip check0, installedQA15/15scenarii cu11denialfamilies și gate canonic exit0/drained. Testul focused nu substituie `make check`; denials instalate au fiecare control pozitiv pe același CLI din afara checkoutului. Rezervările identităților, freeze/readback după restart și review/eval receipts persistente rămân pasul imediat în B06a, înainte B06b și orice consumer live.

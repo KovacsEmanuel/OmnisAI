@@ -611,7 +611,7 @@ def run_installed_start(
                 == "synthetic_incompatible"
             )
         finally:
-            runtime.psql(db, "UPDATE alembic_version SET version_num='0009_catalog_candidates'")
+            runtime.psql(db, "UPDATE alembic_version SET version_num='0010_catalog_publications'")
         assert not select.select([sink], [], [], 0)[0], (
             "Startup/status contacted the provider/proxy sentinel"
         )

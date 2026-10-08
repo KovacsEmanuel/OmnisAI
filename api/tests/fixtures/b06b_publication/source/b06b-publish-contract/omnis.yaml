@@ -1,0 +1,105 @@
+{
+  "compatibility": {
+    "adapter_refs": [],
+    "brief_schema": 1,
+    "hermes_revision": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "oracle_refs": [],
+    "predicate_refs": [],
+    "result_schema": 1,
+    "tool_refs": []
+  },
+  "execution_preference": null,
+  "file_bindings": [
+    {
+      "entity_kind": "schema",
+      "key": "capture",
+      "path": "templates/capture.schema.json"
+    },
+    {
+      "entity_kind": "schema",
+      "key": "empty",
+      "path": "templates/empty.schema.json"
+    },
+    {
+      "entity_kind": "schema",
+      "key": "records",
+      "path": "templates/records.schema.json"
+    },
+    {
+      "entity_kind": "schema",
+      "key": "operations",
+      "path": "templates/operations.schema.json"
+    },
+    {
+      "entity_kind": "schema",
+      "key": "surface_map",
+      "path": "templates/surface_map.schema.json"
+    }
+  ],
+  "input_schema_ref": {
+    "entity_kind": "schema",
+    "key": "capture",
+    "kind": "LOCAL"
+  },
+  "native_name": "b06b-publish-contract",
+  "output_schema_ref": {
+    "entity_kind": "schema",
+    "key": "surface_map",
+    "kind": "LOCAL"
+  },
+  "package_key": "b06b-publish-contract",
+  "procedures": [
+    "templates/procedures/publication-map.yaml"
+  ],
+  "provenance": [
+    {
+      "license_id": "LicenseRef-Omnis-FirstParty",
+      "modification_note": "New independent C01 fixture, no historical receipts.",
+      "notice_paths": [
+        "NOTICE.md"
+      ],
+      "path": "references/method.md",
+      "repository": "OmnisAI B06b synthetic fixture",
+      "revision": "61c8a5563f242c7f14488695602d684832c692ea",
+      "source_digest": "334bd144593cf68e112c28f8b8b3b5f8ef0cec35c362e3b035b938142a109917"
+    }
+  ],
+  "schema_version": 1,
+  "skill_path": "SKILL.md",
+  "support_files": [
+    "NOTICE.md",
+    "references/method.md",
+    "templates/capture.schema.json",
+    "templates/empty.schema.json",
+    "templates/records.schema.json",
+    "templates/operations.schema.json",
+    "templates/surface_map.schema.json"
+  ],
+  "techniques": [
+    {
+      "applicability_predicate_ids": [],
+      "cwe_ids": [],
+      "family": "contract",
+      "hypothesis": "Exact selected material remains immutable.",
+      "invariant": "No model or target IO.",
+      "key": "publish-map",
+      "limitations": [
+        "Synthetic CONTRACT only, not SECURITY."
+      ],
+      "method_ref": "references/method.md",
+      "objective": "Map new C01 synthetic records.",
+      "procedure_refs": [
+        {
+          "entity_kind": "procedure",
+          "key": "publish-map",
+          "kind": "LOCAL"
+        }
+      ],
+      "schema_version": 1,
+      "standards": [],
+      "technologies": [],
+      "work_kind": "RECON"
+    }
+  ],
+  "version": "0.1.0"
+}

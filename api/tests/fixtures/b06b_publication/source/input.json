@@ -1,0 +1,3 @@
+{
+  "capture": "[{\"method\": \"GET\", \"path\": \"/b06b/synthetic\", \"status\": 204}, {\"method\": \"POST\", \"path\": \"/b06b/submit\", \"status\": 202}]"
+}

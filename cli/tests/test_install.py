@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0009_catalog_candidates",
+            "schema": "0010_catalog_publications",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -83,16 +83,16 @@ class InstallTest(unittest.TestCase):
         self.assertFalse((self.root / "instance.json").exists())
         self.assertEqual(install_release(self.bundle, self.data_home), result)
 
-    def test_catalog_schema_bundle_is_admitted_and_0008_is_refused(self):
-        self.manifest["schema"] = "0009_catalog_candidates"
+    def test_publication_schema_bundle_is_admitted_and_0009_is_refused(self):
+        self.manifest["schema"] = "0010_catalog_publications"
         self.write_manifest()
         installed = install_release(self.bundle, self.data_home)
         self.assertEqual(
             json.loads((installed / "release.json").read_text())["schema"],
-            "0009_catalog_candidates",
+            "0010_catalog_publications",
         )
         before = (installed / "release.json").read_bytes()
-        self.manifest["schema"] = "0008_engagement_edit"
+        self.manifest["schema"] = "0009_catalog_candidates"
         self.write_manifest()
         with self.assertRaises(ReleaseError):
             install_release(self.bundle, self.root / "legacy-data")

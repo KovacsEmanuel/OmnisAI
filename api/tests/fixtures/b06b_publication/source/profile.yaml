@@ -1,0 +1,45 @@
+{
+  "agent_recipes": [
+    {
+      "execution_preference": null,
+      "key": "publication-probe",
+      "limits": {
+        "deadline_seconds": 10,
+        "max_actions": 3,
+        "max_attempts": 1,
+        "max_fanout": 1,
+        "max_output_bytes": 65536
+      },
+      "overlay_refs": [],
+      "package_refs": [
+        {
+          "entity_kind": "package",
+          "key": "b06b-publish-contract",
+          "kind": "CANDIDATE",
+          "package_key": "b06b-publish-contract"
+        }
+      ],
+      "procedure_refs": [
+        {
+          "entity_kind": "procedure",
+          "key": "publish-map",
+          "kind": "CANDIDATE",
+          "package_key": "b06b-publish-contract"
+        }
+      ],
+      "requested_capabilities": [],
+      "role": "RECON",
+      "technique_refs": [
+        {
+          "entity_kind": "technique",
+          "key": "publish-map",
+          "kind": "CANDIDATE",
+          "package_key": "b06b-publish-contract"
+        }
+      ]
+    }
+  ],
+  "execution_preference": null,
+  "key": "b06b-publication-profile",
+  "schema_version": 1
+}

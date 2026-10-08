@@ -19,7 +19,7 @@ class ReleaseError(ValueError):
 
 
 _RELEASE = "0.1.0"
-_SCHEMA = "0009_catalog_candidates"
+_SCHEMA = "0010_catalog_publications"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
     f"cli/omnis_cli-{_RELEASE}-py3-none-any.whl",

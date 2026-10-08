@@ -1,0 +1,173 @@
+{
+  "applicability_predicate_ids": [],
+  "baseline": [],
+  "business_rule_refs": [],
+  "cleanup": [],
+  "cleanup_not_needed_reason": "Pure supplied-data transformation.",
+  "control": [],
+  "evidence_requirements": [],
+  "false_positives": [
+    "Publication is not assessment qualification."
+  ],
+  "handoff_schema_ref": {
+    "entity_kind": "schema",
+    "key": "surface_map",
+    "kind": "LOCAL"
+  },
+  "identity_requirements": [],
+  "input_schema_ref": {
+    "entity_kind": "schema",
+    "key": "capture",
+    "kind": "LOCAL"
+  },
+  "invalidation_predicate_ids": [],
+  "key": "publish-map",
+  "limits": {
+    "deadline_seconds": 10,
+    "max_actions": 3,
+    "max_attempts": 1,
+    "max_fanout": 1,
+    "max_output_bytes": 65536
+  },
+  "method_requirements": [
+    {
+      "applies_if": [],
+      "artifact_schema_refs": [
+        {
+          "entity_kind": "schema",
+          "key": "surface_map",
+          "kind": "LOCAL"
+        }
+      ],
+      "description": "Decode, group and map synthetic input.",
+      "evidence_kinds": [],
+      "key": "synthetic-map",
+      "required": true,
+      "step_ids": [
+        "decode",
+        "group",
+        "map"
+      ]
+    }
+  ],
+  "non_applicable_groups": [
+    {
+      "group": "BASELINE",
+      "reason": "Supplied synthetic records only."
+    },
+    {
+      "group": "CONTROL",
+      "reason": "Hostile controls live in independent publication tests."
+    }
+  ],
+  "objective": "Exercise exact C01 selection with new source bytes.",
+  "oracle_ref": null,
+  "outcomes": [
+    "SUCCEEDED",
+    "BLOCKED"
+  ],
+  "output_schema_ref": {
+    "entity_kind": "schema",
+    "key": "surface_map",
+    "kind": "LOCAL"
+  },
+  "preconditions": [],
+  "predicted_signal": "Sorted metadata, never vulnerability evidence.",
+  "probe": [
+    {
+      "action_definition_ref": {
+        "entity_kind": "action_definition",
+        "key": "contract.parse-capture",
+        "kind": "LOCAL"
+      },
+      "id": "decode",
+      "input_bindings": [],
+      "output_schema_ref": {
+        "entity_kind": "schema",
+        "key": "records",
+        "kind": "LOCAL"
+      },
+      "parameter_schema_ref": {
+        "entity_kind": "schema",
+        "key": "empty",
+        "kind": "LOCAL"
+      },
+      "parameters": {},
+      "tool_ref": null
+    },
+    {
+      "action_definition_ref": {
+        "entity_kind": "action_definition",
+        "key": "contract.normalize-operations",
+        "kind": "LOCAL"
+      },
+      "id": "group",
+      "input_bindings": [
+        {
+          "name": "records",
+          "selector": null,
+          "source_ref": {
+            "kind": "STEP_OUTPUT",
+            "output_name": "records",
+            "step_id": "decode"
+          }
+        }
+      ],
+      "output_schema_ref": {
+        "entity_kind": "schema",
+        "key": "operations",
+        "kind": "LOCAL"
+      },
+      "parameter_schema_ref": {
+        "entity_kind": "schema",
+        "key": "empty",
+        "kind": "LOCAL"
+      },
+      "parameters": {},
+      "tool_ref": null
+    },
+    {
+      "action_definition_ref": {
+        "entity_kind": "action_definition",
+        "key": "contract.build-map",
+        "kind": "LOCAL"
+      },
+      "id": "map",
+      "input_bindings": [
+        {
+          "name": "operations",
+          "selector": null,
+          "source_ref": {
+            "kind": "STEP_OUTPUT",
+            "output_name": "operations",
+            "step_id": "group"
+          }
+        }
+      ],
+      "output_schema_ref": {
+        "entity_kind": "schema",
+        "key": "surface_map",
+        "kind": "LOCAL"
+      },
+      "parameter_schema_ref": {
+        "entity_kind": "schema",
+        "key": "empty",
+        "kind": "LOCAL"
+      },
+      "parameters": {},
+      "tool_ref": null
+    }
+  ],
+  "requested_capabilities": [],
+  "requested_effect_ceiling": "PURE",
+  "schema_version": 1,
+  "slots": [],
+  "stop_reason_ids": [],
+  "technique_ref": {
+    "entity_kind": "technique",
+    "key": "publish-map",
+    "kind": "LOCAL"
+  },
+  "technologies": [],
+  "verification_kind": "CONTRACT"
+}

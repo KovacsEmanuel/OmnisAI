@@ -312,6 +312,10 @@ class CandidateCatalog:
                 read_material(self.root, "drafts", finalized.name, [payload(r) for r in records])
                 for record in records:
                     await store.put(connection, owner, group, record)
+                # Import at the capture seam: the consumer reuses this producer.
+                from .publication_store import capture_head
+
+                await capture_head(connection, owner, records[-1])
                 result = {
                     "draft_ref": store.reference(records[-1]),
                     "source_draft_refs": sorted(

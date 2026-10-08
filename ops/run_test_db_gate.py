@@ -1039,6 +1039,7 @@ def main() -> int:
             "test-b03-e2e",
             "test-b04-e2e",
             "test-catalog-candidates-pg",
+            "test-b06b-publish-pg",
         ),
         default="check-components",
     )

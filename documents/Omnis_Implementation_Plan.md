@@ -117,7 +117,7 @@ DAG-ul de mai sus decide **închiderea** etapelor, nu interzice dezvoltarea inde
 
 ### 4.2. Subfelii: ce păstrăm, modificăm și introducem
 
-Acesta este registrul de livrare al **aceluiași plan**, nu un nou backlog concurent. ID-urile SL sunt rânduri de trasabilitate; ticketurile B rămân canonice. Un rând cu „apoi” se livrează în commituri separate, fiecare coerent, nu într-un mega-commit. La baza actuală există numai fundația P0.1–P0.3 și CLI-ul P0.4 parțial; căile viitoare se creează numai cu primul consumator. „Extindem” în fazele ulterioare înseamnă artefactele livrate de fazele precedente, nu că ele există deja astăzi.
+Acesta este registrul de livrare al **aceluiași plan**, nu un nou backlog concurent. ID-urile SL sunt rânduri de trasabilitate; ticketurile B rămân canonice. Un rând cu „apoi” se livrează în commituri separate, fiecare coerent, nu într-un mega-commit. **Snapshot istoric al inventarului inițial:** la introducerea registrului existau fundația P0.1–P0.3 și CLI-ul P0.4 parțial; starea adjudecată pentru reluare este în §19/§19.2 și în [harta curentă](verification/implementation-status.md). Căile viitoare se creează numai cu primul consumator. „Extindem” în fazele ulterioare înseamnă artefactele livrate de fazele precedente, nu că toate funcțiile promise sunt deja implementate.
 
 Prefixe exacte pentru căile scurtate: `M/` = `api/src/omnis/modules/`; `H/` = `integrations/hermes/src/omnis_hermes/`; `W/` = `web/src/features/`; `V` = `api/src/omnis/migrations/versions/`. Fișierele root CLI/executori/integrations sunt numite explicit. Reuse IDs trimit la stack §10/manifeste, cu pins/teste/notices, nu la module copiate deja.
 
@@ -620,6 +620,8 @@ Nu atribuim termene fictive. Estimarea se face după P2/P3b pe rezultatele probe
 
 
 ### 19.1. HF10 — impact asupra implementării existente
+
+**§19.1 este un snapshot istoric al amendamentului HF10**, nu inventarul codului de la HEAD curent și nu o coadă nouă de remedieri. Formulările despre CLI/scheme/WIP de mai jos aparțin reviziilor citate; pentru reluare folosim starea adjudecată din §19/§19.2 și [harta actuală](verification/implementation-status.md). Nu relansăm feliile acceptate pe baza acestui inventar.
 
 Recontrol static la amendarea pornită din `3fc3d46298720a1529a922247781fab435cda483`, pe `p04-control-topology-wip`, nu din remote. HEAD-ul acesta și WIP-ul observat sunt mai noi decât snapshotul adjudecării istorice. `assessment_ready=False` este încă în `api/src/omnis/api.py`; CLI-ul definește numai `status/install/install-image`; webul este bootstrap real cu run controls indisponibile; migrările existente sunt 0001–0004 pentru instance/sessions/lifecycle/receipts. **Nu există încă un motor pentest de rescris.** Niciun modul/tabel/endpoint de mission/skill/tool nu este creat în P0.4 prin amendament.
 

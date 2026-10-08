@@ -287,24 +287,62 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
     def test_sigterm_during_gate_is_handled_without_skipping_cleanup(self) -> None:
         import signal
         import threading
+        import time
 
-        module = runpy.run_path(str(SCRIPT))
-        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
-            previous = signal.signal(signal.SIGTERM, module["_request_stop"])
-            timer = threading.Timer(0.2, lambda: os.kill(os.getpid(), signal.SIGTERM))
-            try:
-                timer.start()
-                result = module["run_gate"](
-                    [sys.executable, "-I", "-c", "import time;time.sleep(15)"],
-                    {"PATH": os.environ.get("PATH", "")},
-                    Path(name) / "gate.log",
-                    5,
-                )
-                self.assertEqual(result, 130)
-            finally:
-                timer.cancel()
-                timer.join()
-                signal.signal(signal.SIGTERM, previous)
+        real_popen = subprocess.Popen
+        for startup_delay in (0, 0.5):
+            with self.subTest(startup_delay=startup_delay), tempfile.TemporaryDirectory(
+                dir=os.environ["TMPDIR"]
+            ) as name:
+                module = runpy.run_path(str(SCRIPT))
+                root = Path(name)
+                ready = root / "command-ready"
+                finished, observed = threading.Event(), threading.Event()
+
+                def signal_after_ready():
+                    deadline = time.monotonic() + 5
+                    while not finished.is_set() and time.monotonic() < deadline:
+                        if ready.exists():
+                            observed.set()
+                            os.kill(os.getpid(), signal.SIGTERM)
+                            return
+                        finished.wait(0.01)
+
+                def delayed_owner(argv, *args, **kwargs):
+                    if startup_delay and len(argv) > 2 and argv[2] == str(SCRIPT):
+                        prelude = (
+                            "import runpy,sys,time;"
+                            f"time.sleep({startup_delay});"
+                            "sys.argv=sys.argv[1:];"
+                            "runpy.run_path(sys.argv[0],run_name='__main__')"
+                        )
+                        argv = [argv[0], "-I", "-c", prelude, *argv[2:]]
+                    return real_popen(argv, *args, **kwargs)
+
+                previous = signal.signal(signal.SIGTERM, module["_request_stop"])
+                sender = threading.Thread(target=signal_after_ready)
+                try:
+                    sender.start()
+                    with patch.object(subprocess, "Popen", delayed_owner):
+                        result = module["run_gate"](
+                            [
+                                sys.executable,
+                                "-I",
+                                "-c",
+                                f"import pathlib,signal;pathlib.Path({str(ready)!r})"
+                                ".write_text('ready');signal.pause()",
+                            ],
+                            {"PATH": os.environ.get("PATH", "")},
+                            root / "gate.log",
+                            5,
+                        )
+                    self.assertTrue(observed.is_set())
+                    self.assertEqual(result, 130)
+                finally:
+                    finished.set()
+                    sender.join(timeout=5)
+                    signal.signal(signal.SIGTERM, previous)
+                    self.assertFalse(sender.is_alive())
 
     def test_targeted_runs_cannot_emit_a_canonical_gate_label(self) -> None:
         module = runpy.run_path(str(SCRIPT))

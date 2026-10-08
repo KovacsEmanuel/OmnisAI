@@ -1,0 +1,801 @@
+{
+  "schema_version": 1,
+  "scope": "SL09/B06b preparation only; not product implementation/acceptance or execution authorization",
+  "decision": "CLOSED_SCOPED_PREPARATION",
+  "preparation_axes": {
+    "artifact": "IMPLEMENTED_DOCUMENTARY",
+    "proof": "PASS_LOCAL_RECORDED_DOCUMENTARY",
+    "review": "APPROVED_SCOPED"
+  },
+  "product_axes": {
+    "implementation": "NOT_IMPLEMENTED",
+    "proof": "NOT_RUN",
+    "review": "NOT_REVIEWED"
+  },
+  "analysis_base": "f057d4cfea23f0169f0f909f2262fccee73e7e4f",
+  "tested_reviewed_source_head": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+  "reviewed_source_snapshot": {
+    ".hermes/skills/omnis-api-data/SKILL.md": "db47a7fefb83c7b4f3759ce7f25cc29b7bea05a2898cb924c972923a193ad838",
+    "CONTRIBUTING.md": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1",
+    "README.md": "3b1c4a9c8db4fec57f448d57c201109be57a5e32e1e26a7a12f01e5569fd80fb",
+    "documents/Omnis_Implementation_Plan.html": "282a5ae8862030fa1c44f13728b1066786110bac57fc552e6be19e8242142441",
+    "documents/Omnis_Implementation_Plan.md": "9a91b5e964dd1c835d80e90a85b52dcb364141c93d74ad1e5b6e0c7cf7fa6924",
+    "documents/verification/README.md": "11c11915aa8dadd64855d8dfe47c05c96788af75369455e48c59015dce2b0550",
+    "documents/verification/implementation-status.md": "a156d8c03a4ada93e7c21dc39d953e887254271fb024f0e4462486b48d5c52c9",
+    "documents/verification/p2-b06b-implementation-prompt.md": "ad04cc7ef113429180f64d0e324e646d813fecf644335c44eb5df2a7d0f8edaf",
+    "documents/verification/p2-b06b-next-contract.md": "ab702dbba4a021cf917e3bb26c3dc35db6a78dcd34d736f53afb621415990dcf",
+    "documents/verification/p2-b06b-preparation-analysis.json": "202a6150f7ddb529ed46bf3f1243a4db5ffe09a848d68a9fb5b2ef6adab773ef",
+    "tests/documentation/test_b06b_preparation.py": "26b7e7d577662e806d127d27c759ebb48719a095b5fb584e003062f62a60b16f",
+    "tests/documentation/test_resume_status.py": "46e2aa7b7ef8d5a4695bcf3b7d63c0cd00a0e4e756c18c44f33dd760fbb2cd36"
+  },
+  "parent_adjudication": {
+    "accepted": true,
+    "original_report_preserved_in": "p2-b06b-preparation-analysis.json",
+    "final_report_sha256": "ded922a83602d64e2b8942d492011d970bcacc42db4312b6532b22fb68a6dd3b",
+    "report_id": "B06B-PREP-6401FE1-FINAL-ALIGNMENT",
+    "review_snapshot_exact": true,
+    "remaining_preparation_blockers": [],
+    "original_findings": [
+      {
+        "id": "AR-B06B-01",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:19–25,31,63; p2-b06b-implementation-prompt.md:19–21,28",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-02",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:49–55,78–87; p2-b06b-implementation-prompt.md:27,35–37",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-03",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:41–47,74; p2-b06b-implementation-prompt.md:30",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-04",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:37,73,83–84; p2-b06b-implementation-prompt.md:30",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-05",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:29–35,65–66,72; p2-b06b-implementation-prompt.md:29",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-06",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "README.md:79; CONTRIBUTING.md:99; Omnis_Implementation_Plan.md:120,624,643–647",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-07",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:13,19,25,31,63; preparation-analysis.json:113–126",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-08",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:51–55,68–70,80–85; preparation-analysis.json:129–141",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-09",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:33–35,65–66,72,93; preparation-analysis.json:144–156",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-10",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:35–47,71,73–74,83–84; preparation-analysis.json:159–171",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-11",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:23,32,67,80,85; preparation-analysis.json:174–186",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-12",
+        "disposition": "DEFERRED_CANONICAL",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:78–87,103; preparation-analysis.json:189–201; implementation-prompt.md:35–39",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      },
+      {
+        "id": "P-B06B-FINGERPRINT",
+        "disposition": "PREPARATION_ADDRESSED_CONSUMER_PROOF_OPEN",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:25; p2-b06b-implementation-prompt.md:28; .hermes/skills/omnis-api-data/SKILL.md:37; api/src/omnis/modules/settings/candidate_catalog.py:45–70,574–579,623–626",
+        "limit": "Preparation disposition only; product proof remains NOT_RUN"
+      }
+    ],
+    "suggestions": [
+      {
+        "id": "S-B06B-NATIVE-FIRST",
+        "disposition": "ALREADY_REQUIRED_IN_REVIEWED_CONTRACT_AND_PROMPT_NO_EDIT",
+        "location": "documents/verification/p2-b06b-implementation-prompt.md:27,37",
+        "reason": "Keep the first native discovery finite. Name the exact admitted producer/seam and its positive/negative before adding a patch; if the no-provider core cannot be demonstrated, retain BLOCKED and hand off only independently proven Publish/contracts."
+      },
+      {
+        "id": "S-B06B-CLOSURE",
+        "disposition": "ALREADY_REQUIRED_IN_REVIEWED_CONTRACT_AND_PROMPT_NO_EDIT",
+        "location": "documents/verification/p2-b06b-next-contract.md:25",
+        "reason": "Bind future final qualification to the installed final producer bytes, and keep any old-snapshot compatibility experiment separate. Do not mistake this in-memory hash experiment or structural tests for a Publish/PG PASS."
+      }
+    ],
+    "delivery_duration_seconds": 389.83,
+    "reported_duration_seconds": 389.54,
+    "budget": "Indicative time within480s; inclusive27 tool calls exceeds18 subcall budget. Original architect time overrun retained separately. Neither overrun is hidden or relabeled as product QA."
+  },
+  "independent_review_report": {
+    "report_id": "B06B-PREP-6401FE1-FINAL-ALIGNMENT",
+    "verdict": "APPROVED_SCOPED",
+    "scope": {
+      "kind": "READ_ONLY_EXACT_SNAPSHOT_PREPARATION_ALIGNMENT",
+      "repository": "/home/kali/OmnisAI",
+      "cumulative_base": "f057d4cfea23f0169f0f909f2262fccee73e7e4f",
+      "reviewed_head": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "snapshot_manifest": "/home/kali/.hermes/cache/scratch/b9-ygw10r67/final-review-snapshot.json",
+      "changed_files": 12,
+      "acceptance": "Coherent implementable bounded handoff aligned with canonical SL09/B06b, truthful core/deferred native proof obligations and protection of accepted baseline; not universal absence of omissions.",
+      "exclusions": [
+        "B06b implementation or execution authorization",
+        "product/native-child/PG integration acceptance",
+        "services, DB, credentials, provider/model/target effects",
+        "shared repository or profile writes/commits",
+        "adoption or examination of old worktree contents"
+      ]
+    },
+    "head_before": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+    "head_after": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+    "snapshot_pre": {
+      ".hermes/skills/omnis-api-data/SKILL.md": "db47a7fefb83c7b4f3759ce7f25cc29b7bea05a2898cb924c972923a193ad838",
+      "CONTRIBUTING.md": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1",
+      "README.md": "3b1c4a9c8db4fec57f448d57c201109be57a5e32e1e26a7a12f01e5569fd80fb",
+      "documents/Omnis_Implementation_Plan.html": "282a5ae8862030fa1c44f13728b1066786110bac57fc552e6be19e8242142441",
+      "documents/Omnis_Implementation_Plan.md": "9a91b5e964dd1c835d80e90a85b52dcb364141c93d74ad1e5b6e0c7cf7fa6924",
+      "documents/verification/README.md": "11c11915aa8dadd64855d8dfe47c05c96788af75369455e48c59015dce2b0550",
+      "documents/verification/implementation-status.md": "a156d8c03a4ada93e7c21dc39d953e887254271fb024f0e4462486b48d5c52c9",
+      "documents/verification/p2-b06b-implementation-prompt.md": "ad04cc7ef113429180f64d0e324e646d813fecf644335c44eb5df2a7d0f8edaf",
+      "documents/verification/p2-b06b-next-contract.md": "ab702dbba4a021cf917e3bb26c3dc35db6a78dcd34d736f53afb621415990dcf",
+      "documents/verification/p2-b06b-preparation-analysis.json": "202a6150f7ddb529ed46bf3f1243a4db5ffe09a848d68a9fb5b2ef6adab773ef",
+      "tests/documentation/test_b06b_preparation.py": "26b7e7d577662e806d127d27c759ebb48719a095b5fb584e003062f62a60b16f",
+      "tests/documentation/test_resume_status.py": "46e2aa7b7ef8d5a4695bcf3b7d63c0cd00a0e4e756c18c44f33dd760fbb2cd36"
+    },
+    "snapshot_post": {
+      ".hermes/skills/omnis-api-data/SKILL.md": "db47a7fefb83c7b4f3759ce7f25cc29b7bea05a2898cb924c972923a193ad838",
+      "CONTRIBUTING.md": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1",
+      "README.md": "3b1c4a9c8db4fec57f448d57c201109be57a5e32e1e26a7a12f01e5569fd80fb",
+      "documents/Omnis_Implementation_Plan.html": "282a5ae8862030fa1c44f13728b1066786110bac57fc552e6be19e8242142441",
+      "documents/Omnis_Implementation_Plan.md": "9a91b5e964dd1c835d80e90a85b52dcb364141c93d74ad1e5b6e0c7cf7fa6924",
+      "documents/verification/README.md": "11c11915aa8dadd64855d8dfe47c05c96788af75369455e48c59015dce2b0550",
+      "documents/verification/implementation-status.md": "a156d8c03a4ada93e7c21dc39d953e887254271fb024f0e4462486b48d5c52c9",
+      "documents/verification/p2-b06b-implementation-prompt.md": "ad04cc7ef113429180f64d0e324e646d813fecf644335c44eb5df2a7d0f8edaf",
+      "documents/verification/p2-b06b-next-contract.md": "ab702dbba4a021cf917e3bb26c3dc35db6a78dcd34d736f53afb621415990dcf",
+      "documents/verification/p2-b06b-preparation-analysis.json": "202a6150f7ddb529ed46bf3f1243a4db5ffe09a848d68a9fb5b2ef6adab773ef",
+      "tests/documentation/test_b06b_preparation.py": "26b7e7d577662e806d127d27c759ebb48719a095b5fb584e003062f62a60b16f",
+      "tests/documentation/test_resume_status.py": "46e2aa7b7ef8d5a4695bcf3b7d63c0cd00a0e4e756c18c44f33dd760fbb2cd36"
+    },
+    "snapshot_verified": {
+      "all_12_match_supplied_manifest": true,
+      "all_12_unchanged_pre_post": true,
+      "head_unchanged": true,
+      "tracked_worktree_and_index_changes": "none observed",
+      "preexisting_untracked": "documents/Omnis_Notite_Originale.html name appeared in git status only; contents never accessed",
+      "product_dirs_unchanged_vs_base": true
+    },
+    "original_findings": [
+      {
+        "id": "AR-B06B-01",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:19–25,31,63; p2-b06b-implementation-prompt.md:19–21,28",
+        "reason": "Publish now names the existing settings catalog/store producer and the new run consumer, with bounded CAS/readback and no competing registry.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-02",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:49–55,78–87; p2-b06b-implementation-prompt.md:27,35–37",
+        "reason": "H03–H08 separate native binding/loading/inventory core from B06c data, B06m pre-send ledger, P4a effective configuration and P2-live inference. Failure to prove core binding remains BLOCKED, not a blanket deferral.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-03",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:41–47,74; p2-b06b-implementation-prompt.md:30",
+        "reason": "Historical ingestion, current qualification and new admission are distinct. Exact M1 after additive M2 is retained; invalid auth/input requires revalidation; authentic dispatched late post-Stop results enter receive-only HELD without new reads/tools/wake.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-04",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:37,73,83–84; p2-b06b-implementation-prompt.md:30",
+        "reason": "Four inbox states, native continuation ownership, cursor/identity reconciliation and software crash windows are explicit. ACK is not turn completion or domain consumption.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-05",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:29–35,65–66,72; p2-b06b-implementation-prompt.md:29",
+        "reason": "Selection/bundle and BoundProcedure/MethodPlan precede brief/launch; result persistence precedes MethodCheck. No own/reverse digest refs. Criterion bindings/results and trusted outcomes remain separate from method completeness and qualification.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-06",
+        "disposition": "PREPARATION_ADDRESSED",
+        "current_evidence": "README.md:79; CONTRIBUTING.md:99; Omnis_Implementation_Plan.md:120,624,643–647",
+        "reason": "Current SL04/G00 closure is no longer contradicted by the repaired resume prose. Initial inventory and HF10 sections are explicitly historical, with current state directed to §19/§19.2. Old failures and limits are retained.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-07",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:13,19,25,31,63; preparation-analysis.json:113–126",
+        "reason": "Exact Publish, human confirmation, expected revisions, atomic eligibility, source bytes/index/closure, CAS/replay and real restart readback are required but NOT_IMPLEMENTED/NOT_RUN.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-08",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:51–55,68–70,80–85; preparation-analysis.json:129–141",
+        "reason": "Trusted root/child mapping before access, batch identity, native lineage and minimal effective inventory remain real native-consumer obligations. No success from goal/FIFO/JSON, inherited ambient tools or a simulated emitter.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-09",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:33–35,65–66,72,93; preparation-analysis.json:144–156",
+        "reason": "Assignment-only slots, exact MethodPlan/Result requirements, qualified bound predicates, trusted applicability, StepOutput scoping and evidence/context checks remain implementation work.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-10",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:35–47,71,73–74,83–84; preparation-analysis.json:159–171",
+        "reason": "Durable result/usage/receipt/inbox, exact replay versus conflict, lost RPC reconciliation, new retry attempts and receive-only are core now, not moved to B18. UNKNOWN is not zero/refund.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-11",
+        "disposition": "OPEN_IMPLEMENTATION_OBLIGATION",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:23,32,67,80,85; preparation-analysis.json:174–186",
+        "reason": "Pinned bounded composition and NO_MODEL selection must have actual consumers. Mandatory overflow, shadowing, inherited full history and prompt override are denied; live routing/effort/effectiveness are not claimed from golden tests.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "AR-B06B-12",
+        "disposition": "DEFERRED_CANONICAL",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:78–87,103; preparation-analysis.json:189–201; implementation-prompt.md:35–39",
+        "reason": "B06c projections, B06m model admission, P4a config, P2-live inference, B14b editor/retire, B18a.r reviewer/rework after G06a and B19 integrated fault breadth remain separate canonical consumers. CHECK_ONLY seed rejects non-null reviewer fields before activation.",
+        "product_evidence": "NOT_RUN"
+      },
+      {
+        "id": "P-B06B-FINGERPRINT",
+        "disposition": "PREPARATION_ADDRESSED_CONSUMER_PROOF_OPEN",
+        "current_evidence": "documents/verification/p2-b06b-next-contract.md:25; p2-b06b-implementation-prompt.md:28; .hermes/skills/omnis-api-data/SKILL.md:37; api/src/omnis/modules/settings/candidate_catalog.py:45–70,574–579,623–626",
+        "reason": "Nine-file source closure really includes the producer/store. The contract requires a fresh fixture qualified on final B06b bytes, preserves old snapshots/receipts and closure/stale guards, and requires independent compatibility/pinning proof or a newly qualified candidate for old data. Same seed material may be freshly qualified without reopening accepted B06a or transferring historical PASS.",
+        "independent_experiment": {
+          "actual_function_ast": "behavior_revision",
+          "domain": "omnis-candidate-compiler-v1",
+          "source_files": 9,
+          "before": "sha256:c64b77a406ca71e9f7b0885a287dc5125db304eb516f5b47982d9127c5950758",
+          "in_memory_candidate_store_edit": "sha256:b7aec591153cf1adcfec30701eac6bb7011ad2d3450e88b20b9ea38f4bda54bb",
+          "identity_changed": true,
+          "limit": "Actual function AST executed with byte-reading/SHA256/CanonicalJSON helpers supplied in memory, no module import, repository edit or PG consumer. Retained-snapshot compatibility and future Publish remain NOT_RUN."
+        }
+      }
+    ],
+    "findings": [],
+    "suggestions": [
+      {
+        "id": "S-B06B-NATIVE-FIRST",
+        "severity": "INFO",
+        "blocking_preparation": false,
+        "location": "documents/verification/p2-b06b-implementation-prompt.md:27,37",
+        "suggestion": "Keep the first native discovery finite. Name the exact admitted producer/seam and its positive/negative before adding a patch; if the no-provider core cannot be demonstrated, retain BLOCKED and hand off only independently proven Publish/contracts."
+      },
+      {
+        "id": "S-B06B-CLOSURE",
+        "severity": "INFO",
+        "blocking_preparation": false,
+        "location": "documents/verification/p2-b06b-next-contract.md:25",
+        "suggestion": "Bind future final qualification to the installed final producer bytes, and keep any old-snapshot compatibility experiment separate. Do not mistake this in-memory hash experiment or structural tests for a Publish/PG PASS."
+      }
+    ],
+    "alignment_matrix": [
+      {
+        "id": "C01",
+        "contract_line": 63,
+        "owner_consumer": "settings catalog/store → run snapshot",
+        "requirement": "Publish/CAS exact promotion",
+        "canonical_architecture": "§9.8",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C02",
+        "contract_line": 64,
+        "owner_consumer": "runs/tasks/adaptor → brief",
+        "requirement": "backend purpose and NO_MODEL pins",
+        "canonical_architecture": "§9.3/§9.8–9.9",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C03",
+        "contract_line": 65,
+        "owner_consumer": "tasks compiler → assignment",
+        "requirement": "BoundProcedure slots and MethodPlan",
+        "canonical_architecture": "§9.4/§9.10",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C04",
+        "contract_line": 66,
+        "owner_consumer": "tasks DTO/trusted checker → first result",
+        "requirement": "exact CriterionBinding/Result and separate oracle",
+        "canonical_architecture": "§9.5",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C05",
+        "contract_line": 67,
+        "owner_consumer": "Hermes composer → native loader",
+        "requirement": "pinned bundle/two skills/stable prefix",
+        "canonical_architecture": "§9.5",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C06",
+        "contract_line": 68,
+        "owner_consumer": "supervisor/binding → first read/tool",
+        "requirement": "durable trusted root authority",
+        "canonical_architecture": "§5/§9.7",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C07",
+        "contract_line": 69,
+        "owner_consumer": "binding/Manifest/Attempt → native pre-run",
+        "requirement": "batch/child identity before access",
+        "canonical_architecture": "§5",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C08",
+        "contract_line": 70,
+        "owner_consumer": "trusted runtime/binding → rotation",
+        "requirement": "atomic authentic lineage or real refusal",
+        "canonical_architecture": "§5",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C09",
+        "contract_line": 71,
+        "owner_consumer": "tasks store → result receipt/check/inbox",
+        "requirement": "authentic exact result/idempotency/UNKNOWN",
+        "canonical_architecture": "§6.3/§9.5",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C10",
+        "contract_line": 72,
+        "owner_consumer": "method_checks → Attempt state",
+        "requirement": "qualified predicates/all requirements/real proof",
+        "canonical_architecture": "§9.10",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C11",
+        "contract_line": 73,
+        "owner_consumer": "tasks/native turn owner → durable consumption",
+        "requirement": "four states/restart/crash/lost RPC reply",
+        "canonical_architecture": "§6/§5 native continuation",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      },
+      {
+        "id": "C12",
+        "contract_line": 74,
+        "owner_consumer": "tasks qualification/fencing → history/admission",
+        "requirement": "M1 additive and post-Stop receive-only",
+        "canonical_architecture": "§6.3",
+        "assessment": "CONSISTENT_PREPARATION_ONLY",
+        "implementation": "NOT_IMPLEMENTED",
+        "proof": "NOT_RUN",
+        "review": "NOT_REVIEWED"
+      }
+    ],
+    "core_deferred_matrix": [
+      {
+        "gate": "H03",
+        "core": "Native package loading/pins/composition",
+        "deferred": "P2-live model inference; B11/B12 SECURITY evaluation",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      },
+      {
+        "gate": "H04",
+        "core": "Root/child batch mapping before reads/tools; observer fail-closed",
+        "deferred": "B06m/P2-live dispatch; B07 target sink, never mapping deferral",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      },
+      {
+        "gate": "H05",
+        "core": "Authentic lineage or explicit real-seam fail-closed refusal",
+        "deferred": "Inference-dependent compression P2-live; unresolved H04/H05 still block P3",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      },
+      {
+        "gate": "H06",
+        "core": "Four receipt/inbox states, one native continuation owner, Stop/late/duplicate/restart",
+        "deferred": "Inference/auto-wake and pre-send B06m/P2-live; B07 target; B19 fault breadth",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      },
+      {
+        "gate": "H07",
+        "core": "Lost RPC response/restart and identity-aware reconciliation, no blind resend",
+        "deferred": "Lost provider response/accounting B06m/P2-live; integrated B19",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      },
+      {
+        "gate": "H08",
+        "core": "Effective minimal native inventory/read scope/caps/inheritance and NO_MODEL; declarative preference denial",
+        "deferred": "B06c ModelProjection; B06m G-MODEL; P4a effective provider/model/effort; P2-live calls/fallback/auxiliaries",
+        "assessment": "CONSISTENT_NO_CIRCULAR_PREREQUISITE_NO_NATIVE_CORE_WAIVER"
+      }
+    ],
+    "native_source_alignment": {
+      "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "declared_version_python": "Hermes 0.21.5 / Python 3.13.15; no installed-runtime recertification in this review",
+      "local_facts": [
+        "runtime_host.py:22–42 fixes native command/env, HERMES_OMNIS_INERT=1 and four lifecycle OPS",
+        "inert-source/tui_gateway/rpc_dispatch.py:22–24 allows only capabilities/ping, so session.create/prompt.submit are denied"
+      ],
+      "independently_fetched_pinned_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/subagent_lifecycle.py",
+          "sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+          "observed": "SubagentLaunchRequest:49 includes model/allowed_toolsets; launch:245/260/279 creates native child and submits lifecycle; null/empty toolsets becomes None/inheritance; _run:367 calls _run_child_lifecycle."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/tools/delegate_tool_child_run.py",
+          "sha256": "99e009c1ffb52b264e3da946bf1954a657bc2f176bb4118296c416cb4a50be68",
+          "observed": "_ChildRun.await_child:828/858 calls child.run_conversation."
+        }
+      ],
+      "conclusion": "Preparation correctly does not assume an existing admitted NO_MODEL child path. Minimal pinned audited seam or explicit core BLOCKED is required. Static source is not installed child evidence.",
+      "product_evidence": "NOT_RUN"
+    },
+    "checks": [
+      {
+        "command": "git status --short --branch; git rev-parse HEAD; git diff --stat f057d4cfea23f0169f0f909f2262fccee73e7e4f 6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+        "exit_code": 0,
+        "result": "Expected HEAD, exact 12 changed files; preexisting protected original untracked, not inspected.",
+        "limit": "Git metadata only."
+      },
+      {
+        "command": "python3 -I -B -c <explicit snapshot-manifest JSON load and SHA256 of its 12 allowlisted paths; git rev-parse HEAD>",
+        "exit_code": 0,
+        "count": 12,
+        "result": "All supplied hashes match before review and remain equal after review.",
+        "limit": "No whole-root hashing or protected-original access."
+      },
+      {
+        "command": "git diff f057d4cfea23f0169f0f909f2262fccee73e7e4f 6401fe1c1d0800c782c32b3e75d06d45dd1e6eae -- .hermes/skills/omnis-api-data/SKILL.md CONTRIBUTING.md README.md documents/Omnis_Implementation_Plan.md documents/verification/README.md documents/verification/implementation-status.md tests/documentation/test_b06b_preparation.py tests/documentation/test_resume_status.py; git diff f057d4cfea23f0169f0f909f2262fccee73e7e4f 6401fe1c1d0800c782c32b3e75d06d45dd1e6eae -- documents/verification/p2-b06b-next-contract.md",
+        "exit_code": 0,
+        "result": "Cumulative affected hunks reviewed alongside full current analysis and copy-ready prompt.",
+        "limit": "Documentary preparation only; generated HTML included by snapshot, parent renderer evidence not rerun."
+      },
+      {
+        "command": "git diff --quiet f057d4cfea23f0169f0f909f2262fccee73e7e4f 6401fe1c1d0800c782c32b3e75d06d45dd1e6eae -- api cli web integrations executors ops contracts skills",
+        "exit_code": 0,
+        "result": "Product directories unchanged vs accepted baseline.",
+        "limit": "Source-byte comparison, not runtime acceptance."
+      },
+      {
+        "command": "python3 -I -B -c \"import pathlib,unittest; r=pathlib.Path.cwd(); s=unittest.TestSuite(); l=unittest.TestLoader(); s.addTests(l.discover(str(r/\"tests/documentation\"),pattern=\"test_b06b_preparation.py\")); s.addTests(l.discover(str(r/\"tests/documentation\"),pattern=\"test_resume_status.py\")); result=unittest.TextTestRunner(verbosity=2).run(s); raise SystemExit(not result.wasSuccessful())\"",
+        "exit_code": 0,
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "mutation_controls": "Five removed-contract-guard subtests and resume-prose/history-marker mutations executed by this suite.",
+        "limit": "Structural text guards only, not semantics, native integration, PG or product proof. The parent recorded earlier RED→GREEN is preserved, not newly reproduced by editing the shared checkout."
+      },
+      {
+        "command": "python3 -I -B -c <AST extraction of actual behavior_revision, nine-file byte reading, SHA256/CanonicalJSON and in-memory candidate_store.py suffix mutation>",
+        "exit_code": 0,
+        "count": 9,
+        "result": "Actual source function fingerprint changes on in-memory store edit; baseline matches recorded parent original hash.",
+        "limit": "No import cache, source write, DB readback, existing-snapshot or Publish consumer."
+      },
+      {
+        "command": "git diff --check f057d4cfea23f0169f0f909f2262fccee73e7e4f 6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+        "exit_code": 0,
+        "result": "No whitespace errors.",
+        "limit": "Not a semantic validator."
+      },
+      {
+        "command": "python3 -I -B -c <read explicit public patch-manifest.json; fetch two raw files at exact Hermes SHA via urllib and inspect AST>",
+        "exit_code": 0,
+        "count": 2,
+        "result": "Pinned native lifecycle enters run_conversation; allowed_toolsets falsey becomes inheritance. Public patch manifest inspected.",
+        "limit": "No native process, full dependency install or 11-check integrity rerun. Initial guessed upstream/PIN.json did not exist; discovery used actual public manifest and pinned source instead."
+      },
+      {
+        "command": "make check",
+        "status": "NOT_RUN",
+        "exit_code": null,
+        "limit": "Documentary-only mandate; canonical gate would provision/run product resources and was expressly excluded."
+      },
+      {
+        "command": "full documentation/development/renderer/browser/native AST/pin suites",
+        "status": "NOT_RUN_BY_THIS_REVIEW",
+        "exit_code": null,
+        "reported_parent_counts": {
+          "documentation": 72,
+          "development": 43,
+          "browser": 116,
+          "native_ast": 6,
+          "pin_checks": 11
+        },
+        "limit": "Parent results are context, not independent reruns. Browser counts concern normative readers/prototype, not changed app UI. Only this reviewer's targeted 10 structural tests are credited here."
+      }
+    ],
+    "tool_applicability": {
+      "Reticle": {
+        "status": "NOT_APPLICABLE",
+        "command": null,
+        "limit": "No application UI/runtime change; skill loaded, no synthetic smoke or instrumentation executed."
+      },
+      "Chisel": {
+        "status": "BLOCKED_CURRENT_NO_GO",
+        "execution": "NOT_RUN",
+        "command": null,
+        "limit": "Skill loaded; native file/Git tools used, no adoption or activation."
+      }
+    },
+    "remaining_implementation_gates": [
+      {
+        "gate": "Native core H03/H04/H05/H08",
+        "state": "NOT_RUN; BLOCKED if the admitted no-provider seam cannot be proven",
+        "reason": "Current B05 overlay refuses session.create/prompt.submit and native child lifecycle normally reaches run_conversation. Discovery/patch and installed positive/negative evidence are future work."
+      },
+      {
+        "gate": "Publish/final qualification/Task/MethodCheck/inbox/PG",
+        "state": "NOT_IMPLEMENTED/NOT_RUN/NOT_REVIEWED",
+        "reason": "AR07–11 and all C01–C12 remain actual implementation obligations; no evidence was promoted by this preparation review."
+      },
+      {
+        "gate": "Model/data/live/SECURITY/editor/rework breadth",
+        "state": "DEFERRED_CANONICAL",
+        "reason": "B06c/B06m/P4a/P2-live/B11–12/B14b/B18a.r/B19 retain their own gates and explicit authorizations."
+      }
+    ],
+    "limitations": [
+      "No universal assertion that all possible omissions or defects are absent; approval is only the exact preparation alignment scope.",
+      "Original architect findings were reviewed in the complete tracked preparation-analysis.json; the original scratch report itself was not reread. Its CHANGES_REQUESTED history and checkpoint status were not mutated.",
+      "No product code changes, DB/services/provider calls, targets, personal credentials, private bootstrap/RPC/PG receipts or old worktree adoption.",
+      "Protected original was neither read, copied, hashed, modified nor staged. Git status reporting its name is not content access.",
+      "No independent full renderer/browser/audit/canonical rerun; structural tests cannot settle runtime semantics.",
+      "Public upstream source retrieval is source inspection, not a provider/model or target execution.",
+      "One batched authoritative-read output was truncated and automatically spilled by the tool; relevant plan/architecture/CONTRIBUTING sections were subsequently inspected from that spill. This runtime-managed spill is not another intentional review report.",
+      "A non-existent guessed PIN.json was reported and replaced with actual public patch-manifest inspection and exact-SHA source fetch, not treated as a product blocker.",
+      "Parent owns final adjudication and the new snapshot-bound preparation-close receipt; this does not change historical completion_status or authorize B06b."
+    ],
+    "time_and_budget": {
+      "indicative_budget_seconds": 480,
+      "first_snapshot_observed_unix": 1791489601.8673005,
+      "last_source_and_snapshot_observed_unix": 1791489742.4563763,
+      "observed_review_window_seconds": 140.589,
+      "full_session_duration": "NOT_MEASURED: observed window excludes initial skill/snapshot discovery and report serialization",
+      "public_tool_subcalls_including_report_write_wrapper": 18,
+      "nested_tool_calls": 9,
+      "total_inclusive_tool_invocations": 27,
+      "leaf_tool_calls_excluding_two_execute_wrappers": 25,
+      "subcall_budget": 18,
+      "inclusive_subcall_budget_exceeded": true,
+      "overrun_explanation": "Eight independent canonical reads batched inside execute_code count as nested tool calls, plus one nested report write. Output truncation required two targeted spill reads. Public invocation count stayed at 18; total leaf/inclusive counts are retained rather than hidden."
+    },
+    "handoff_status": {
+      "P0_G00_P1_G01_B04_hydration_B05_inert": "accepted distinct historical scoped baselines, not reopened",
+      "SL08_B06a": "CLOSED_SCOPED_STATIC_PURE; accepted baseline protected",
+      "SL09_B06b_preparation": "AICI: APPROVED_SCOPED alignment on these exact 12 hashes",
+      "SL09_B06b_product": "NOT_IMPLEMENTED/NOT_RUN/NOT_REVIEWED; new user mandate required",
+      "G02_global_native_breadth": "open; no circular entry requirement or product PASS",
+      "next_canonical_after_authorized_B06b": "B06c → B06m → Settings minim/P4a → separately authorized P2-live",
+      "remaining_MVP_post_MVP": "unchanged canonical scope; no advancement from this review"
+    }
+  },
+  "parent_checks": [
+    {
+      "command": "python -B -m unittest discover -s tests/documentation -v",
+      "exit_code": 0,
+      "tests": 72,
+      "log_sha256": "342f84c4cd8a6ab997b0875f0ada78fac437802ea886159457322b32d73e7fce",
+      "tested_source_snapshot": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "limit": "Documentation/development only; no B06b runtime evidence"
+    },
+    {
+      "command": "python -B -m unittest discover -s tests/development -v",
+      "exit_code": 0,
+      "tests": 43,
+      "log_sha256": "e6df53cda14f764bb2a7e39e3672b58c90a35c26e09bbcecedf4c0138cc75b0d",
+      "tested_source_snapshot": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "limit": "Documentation/development only; no B06b runtime evidence"
+    },
+    {
+      "command": "python -B scripts/render_docs.py --check",
+      "exit_code": 0,
+      "readers": 5,
+      "tested_source_snapshot": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "limit": "Generated trusted readers match source; not UI acceptance"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "tested_source_snapshot": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "limit": "Whitespace only"
+    },
+    {
+      "command": "python -B tests/documentation/browser_check.py --include-documents --output /home/kali/.hermes/cache/scratch/b9-ygw10r67/browser-check.json",
+      "exit_code": 0,
+      "checks": 116,
+      "javascript_errors": [],
+      "unexpected_network": [],
+      "log_sha256": "93fbf5547e38b6c598723e2731a54cf1520f477609feda9b210f90f7e0a6d0a0",
+      "source_binding": "Canonical readers/prototype unchanged since 7e80efd through current head; browser executed after resume correction",
+      "limit": "Offline readers/prototype, not unrendered verification Markdown, application/native runtime or visual approval"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m unittest discover -s integrations/hermes/tests -p test_native_build.py -v",
+      "exit_code": 0,
+      "tests": 6,
+      "source_binding": "unchanged from f057d4c through reviewed head",
+      "limit": "Native build inert/AST boundaries; not native child E2E"
+    },
+    {
+      "command": "Read pin/patch-manifest expected hashes and SHA256 their explicit local artifacts",
+      "exit_code": 0,
+      "checks": 11,
+      "results": {
+        "integrations/hermes/upstream/uv.lock": true,
+        "integrations/hermes/upstream/pyproject.toml": true,
+        "integrations/hermes/upstream/LICENSE": true,
+        "integrations/hermes/requirements-native.txt": true,
+        "integrations/hermes/upstream/omnis-inert.patch": true,
+        "integrations/hermes/upstream/patch-manifest.json": true,
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py": true,
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py": true,
+        "integrations/hermes/upstream/inert-source/tui_gateway/rpc_dispatch.py": true,
+        "integrations/hermes/upstream/inert-source/hermes_cli/env_loader.py": true,
+        "integrations/hermes/upstream/inert-source/tools/lazy_deps.py": true
+      },
+      "source_binding": "unchanged from f057d4c through reviewed head",
+      "limit": "Artifact integrity only, no runtime launch"
+    },
+    {
+      "command": "make check / make test",
+      "status": "NOT_RUN_CURRENT_PREPARATION",
+      "exit_code": null,
+      "reason": "No product bytes changed. Documentary scope under CONTRIBUTING99 does not rerun accepted product gate or provision DB/native runtime for a verify-on-stop label. The accepted B06a canonical remains bound to its historical snapshot, not transferred to B06b."
+    }
+  ],
+  "parent_snapshot_check": {
+    "head": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+    "baseline_head": "f057d4cfea23f0169f0f909f2262fccee73e7e4f",
+    "baseline_tracked_files": 578,
+    "unchanged": 570,
+    "changed_expected": [
+      ".hermes/skills/omnis-api-data/SKILL.md",
+      "CONTRIBUTING.md",
+      "README.md",
+      "documents/Omnis_Implementation_Plan.html",
+      "documents/Omnis_Implementation_Plan.md",
+      "documents/verification/README.md",
+      "documents/verification/implementation-status.md",
+      "documents/verification/p2-b06b-next-contract.md"
+    ],
+    "new_owned_paths": [
+      "documents/verification/p2-b06b-implementation-prompt.md",
+      "documents/verification/p2-b06b-preparation-analysis.json",
+      "tests/documentation/test_b06b_preparation.py",
+      "tests/documentation/test_resume_status.py"
+    ],
+    "protected_original_excluded": true,
+    "product_git_delta": "none",
+    "scoped_review_bytes_unchanged": true,
+    "browser_reader_and_prototype_unchanged_since_baseline": false
+  },
+  "parent_links_browser_binding": {
+    "head": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+    "local_links_checked_in_snapshot_md": true,
+    "missing_links": [],
+    "normative_readers_and_prototype_unchanged_since_browser_compatible_resume_commit": "7e80efd",
+    "browser_reused_scope": "116 actual offline reader/prototype checks; no claim on unrendered verification Markdown or application UI",
+    "source_file_hashes_unchanged_after_parent_checks": true
+  },
+  "toolchain": {
+    "documentary_python": "3.13.12",
+    "Markdown": "3.10.2",
+    "native_pin_python": "3.13.15",
+    "hermes_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"
+  },
+  "git_changes": [
+    {
+      "commit": "7e80efd3b45402714d3beb2cf919a519247ee71b",
+      "purpose": "stale local-gate resume/history correction"
+    },
+    {
+      "commit": "b09a29efbc95c8f2e4669702101f6707af56ea7a",
+      "purpose": "bounded contract/original findings and regressions"
+    },
+    {
+      "commit": "7becd9a9dd76889f72d2287e2dc76d310ad826ed",
+      "purpose": "versioned API-data fingerprint lesson"
+    },
+    {
+      "commit": "6401fe1c1d0800c782c32b3e75d06d45dd1e6eae",
+      "purpose": "Romanian implementation prompt/links/map row"
+    }
+  ],
+  "prompt": "p2-b06b-implementation-prompt.md",
+  "next_observable_work": "With new mandate: finite pinned-native seam discovery and first exact Publish/CAS/replay/restart consumer on a new owned fixture; whole B06b remains BLOCKED if native core cannot be demonstrated inertly. No provider/model decision needed for the inert preparation or deterministic increment.",
+  "open_or_deferred": [
+    "All actual C01–C12/AR07–11 consumer implementation and installed/PG/native evidence",
+    "H01 native breadth and global G02 not closed",
+    "Core native binding/loading/lineage/inventory requires real positive/negative seam proof or BLOCKED",
+    "B06c projections/G-DATA-EARLY, B06m ledger/pre-send/G-MODEL, P4a effective config, P2-live inference require their own gates/mandates",
+    "B14b editor/retire/revision breadth, B18a.r reviewer/resolution/rework after G06a, B19 integrated fault breadth",
+    "Retained old-snapshot upgrade/compatibility, physical crash/power-loss/server ACK-loss NOT_RUN",
+    "CI remote, rollout/operator upgrade, visual approval, broader MVP/post-MVP unchanged"
+  ],
+  "authority_limits": {
+    "accepted_B06a": "CLOSED_SCOPED_STATIC_PURE in f057d4c; not reopened",
+    "accepted_others": "P0/G00, P1/G01, B04 hydration, B05-inert remain distinct snapshot-bound acceptances",
+    "no_automatic_B06b_authorization": true,
+    "no_universal_absence_of_omissions_claim": true,
+    "no_product_code_changes": true,
+    "no_new_services_database_or_product_runtime": true,
+    "no_product_model_provider_or_target_calls": true,
+    "no_operator_profile_r1_rollout_global_or_push": true,
+    "protected_original": "not read/copied/hashed/modified/staged"
+  },
+  "receipt_boundary": "This parent decision record is written after review and is not itself a reviewed source artifact. It binds exactly the unchanged 12 source files at6401fe1; no approval is transferred to later source edits. Its schema/links/claims are validated before the separate evidence-only commit."
+}

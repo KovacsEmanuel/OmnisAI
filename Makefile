@@ -57,6 +57,12 @@ test-b05-case-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest -c api/pyproject.toml api/tests/test_case_slot_service.py -q
 
+.PHONY: test-b06a-pure
+# Bounded source compiler/CLI tests; no DB, native child, model or target qualification.
+# Canonical check still runs all API tests plus the original full component gate.
+test-b06a-pure:
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_b06a_compiler_unit.py api/tests/test_b06a_catalog.py api/tests/test_b06a_pure.py -q
+
 .PHONY: check-runtime
 # Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
 check-runtime:

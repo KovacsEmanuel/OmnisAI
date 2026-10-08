@@ -126,7 +126,8 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
     for root in package_roots:
         if root.is_symlink() or not root.is_dir():
             raise CatalogError("UNSAFE_PACKAGE")
-        manifest = dto(read_file(root / "omnis.yaml", 262144), Manifest)
+        manifest_bytes = read_file(root / "omnis.yaml", 262144)
+        manifest = dto(manifest_bytes, Manifest)
         key = manifest.package_key
         if key in manifests or manifest.native_name in names:
             raise CatalogError("PACKAGE_SHADOW")
@@ -146,7 +147,8 @@ def compile_catalog(package_roots: tuple[Path, ...], profile_path: Path) -> Comp
             path = root / name
             if any(parent.is_symlink() for parent in path.parents if parent != root.parent):
                 raise CatalogError("UNSAFE_FILE")
-            files[name] = read_file(path)
+            # One captured byte string owns both DTO validation and release hashing.
+            files[name] = manifest_bytes if name == "omnis.yaml" else read_file(path)
         actual: set[str] = set()
         directories = [root]
         visited = 0

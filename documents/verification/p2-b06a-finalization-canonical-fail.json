@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "scope": "Final B06a canonical attempt1, failed configuration prerequisite not product acceptance",
+  "head": "e1f80147eb963fdb6eba485ee919eea38513f1c3",
+  "process_id": "proc_90dd1d612a9f",
+  "command": [
+    "make",
+    "check",
+    "UV=/home/kali/.hermes/cache/scratch/b05-resume-tools-09eed94/uv-0.12.19"
+  ],
+  "verdict": "FAIL_CANONICAL_PREREQUISITE",
+  "wrapper_exit": 2,
+  "strict_receipt": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "fixture": {
+    "container_id": "152a773ba5faff33c451d236c13e6713aee5e1699c414d4dd99bce95fe04fb61",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "project": "omnis-p01-eb9c26e881b749f8ac1f852c508222fe",
+    "root": "/home/kali/.hermes/cache/scratch/b6f-canonical-duoxz4si/tmp/db-d1a97675d66b4fc6",
+    "schema_version": 1,
+    "system_identifier": "7694329611175317534"
+  },
+  "gate_log_handle": "/home/kali/.hermes/cache/scratch/b6f-canonical-duoxz4si/tmp/db-d1a97675d66b4fc6/gate.log",
+  "gate_log_sha256": "e9e4ba0917963644915c2d5c58182b8eb87e54ef2dd1149d68354d03aed301b7",
+  "reason": "check-development: test_prepares_only_a_new_private_root_and_refuses_reuse ERROR UnsafeFixture because added private TMPDIR nesting makes its valid socket path exceed107 bytes. No guard/test weakening; first unexecuted product gate NOT_RUN.",
+  "checks_before_failure": {
+    "documentation": {
+      "tests": 62,
+      "exit": 0
+    },
+    "development": {
+      "tests": 43,
+      "errors": 1,
+      "exit": 1
+    },
+    "API/web/CLI/runtime": "NOT_RUN"
+  },
+  "path_reproduction": {
+    "old_expected_socket": "/home/kali/.hermes/cache/scratch/b6f-canonical-duoxz4si/tmp/tmpabcdefgh/own-disposable-db/socket/.s.PGSQL.5432",
+    "old_socket_bytes": 110,
+    "new_expected_socket": "/home/kali/.hermes/cache/scratch/f-1vuusy9y/tmpabcdefgh/own-disposable-db/socket/.s.PGSQL.5432",
+    "new_socket_bytes": 94,
+    "limit": 107
+  },
+  "snapshot_unchanged_count": 574,
+  "parent_cleanup": {
+    "daemon_matches": true,
+    "cid_absent": true,
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "uds_and_lock_absent": true,
+    "pgdata_logs_preserved": true
+  },
+  "next": {
+    "root": "/home/kali/.hermes/cache/scratch/f-1vuusy9y",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/f-1vuusy9y",
+    "HOME": "/home/kali/.hermes/cache/scratch/b6f-canonical-duoxz4si/home",
+    "bounded_check": "Exact existing development test under shorter TMPDIR, then fresh unchanged real make check after correction"
+  },
+  "limits": [
+    "Not full canonical PASS",
+    "No product/source/test edits; actual failure retained",
+    "No old DB adoption or retry on old fixture; data/logs preserved",
+    "Capture truncation during initial intent setup recovered from complete saved stdout JSON separately from tool footer, no invented hashes"
+  ],
+  "inverse": "Retain original and fresh private scratch/configuration; runner-owned drain and cleanup only; no global effects"
+}

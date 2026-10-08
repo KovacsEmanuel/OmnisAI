@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "scope": "SL08/B06a STATIC/PURE finalization, not a parallel plan",
+  "base": "8e3a5df68c9b2646de5fb5e2ca60bffbcc190d88",
+  "snapshot1": {
+    "manifest_sha256": "a2ef4a65e523027065c7d6264d4682a8ce62085a8620565a600f99e6690193ff",
+    "explicit_owned_paths": 12,
+    "review_a": "B06A-FINAL-SNAPSHOT1-REVIEW-A / CHANGES_REQUESTED",
+    "review_b": "b06a-integrated-snapshot1-review-b / CHANGES_REQUESTED",
+    "finding_a": "B06A-REVIEW-A-01",
+    "finding_b": "B06A-RB-01",
+    "adjudication": "Same confirmed defect, not two independent bugs: external qualification-profile RELEASE edges were absent from consumption graph. Genuine STATIC/PURE-qualified A selecting B only through its profile was refused as RELEASE_MISMATCH by a local schema consumer with complete A/B inventory.",
+    "parent_red": {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_b06a_profile_release_closure.py -q --tb=short",
+      "exit": 1,
+      "failed": 1,
+      "reason": "RELEASE_MISMATCH"
+    },
+    "minimal_fix": "Resolve exact RELEASE selectors from every retained external qualification profile through the existing resolver. Preserve reachability, declared-edge equality, exact pins, cycle and shadow guards. Add round-trip/reversed inventory, missing inventory and undeclared-edge controls plus durable profile-only journey.",
+    "parent_green": {
+      "profile_regression": {"exit": 0, "passed": 1},
+      "test_b06a_pure": {"exit": 0, "passed": 109},
+      "fingerprints": {"exit": 0, "passed": 21},
+      "lint_api_typecheck_api_diff_check": "exit0"
+    },
+    "closure_after_fix": "FOCUSED_REVIEW_PENDING; no approval transferred from snapshot1"
+  },
+  "targeted_pg_before_profile_fix": [
+    {
+      "process": "proc_f60fa8772ab7",
+      "target": "test-catalog-candidates-pg",
+      "exit": 0,
+      "passed": 103,
+      "deselected": 639,
+      "family_drained": true,
+      "root": "/home/kali/.hermes/cache/scratch/db-ca2c420bfc324753",
+      "cid": "479fe23468e95a091e1f53a8f6c4f6b3a4fde7c7a1d10d8834a32b6ab9bd8b14",
+      "project": "omnis-p01-f876f9ab10274f2492111141389be0e6",
+      "parent_readback": "Exact daemon identity; CID/project containers/project networks/socket absent; PGDATA/logs/image retained",
+      "scope": "Real observed advisory-lock overlap plus software rollback/fsync/rename/insert/cancellation and actual committed-response discard. Includes pure/guard tests, not 103 distinct PG transactions. No physical crash/power-loss/server ACK-loss claim."
+    },
+    {
+      "process": "proc_51f6ea2d00ed",
+      "target": "test-catalog-candidates-pg",
+      "exit": 0,
+      "passed": 112,
+      "deselected": 639,
+      "family_drained": true,
+      "root": "/home/kali/.hermes/cache/scratch/db-bbbba21d8956468f",
+      "cid": "8a34baefbad2b8c89963fc235746accf5360b47430bb3ffda2c14a48835e91fc",
+      "project": "omnis-p01-c2072f08ceb94c818aa5d34e37722d75",
+      "parent_readback": "Exact daemon identity; CID/project containers/project networks/socket absent; PGDATA/logs/image retained",
+      "scope": "Adds eight real PG qualified RELEASE scenarios and one PURE producer control on prior product bytes. Positive package/profile/diamond closure, exact identity/owner/pins and compatibility/shadow/path/cycle/material denials. Does not exercise profile-only qualification dependency; NOT_TRANSFERRED to the fix."
+    }
+  ],
+  "procedural_limits_preserved": [
+    "Architect strict subcall budget exceeded; no clean budget claim.",
+    "Dev A 36 exposed calls versus budget35; retained source RED/GREEN and initial17 fingerprint failures are not relabeled.",
+    "Review A23 exposed calls versus budget20. Review B18 exposed calls but its report records42 primitive calls versus budget20; accounting discrepancy retained, not declared fully conformant.",
+    "A failed steer to completed Review B did not enlarge its reviewed scope; Review A separately inspected the two-file PG supplement.",
+    "Physical power-loss/crash and server transport ACK loss NOT_RUN; software exceptions/cancellation/client response discard are bounded separate evidence."
+  ],
+  "remaining_at_recording": [
+    "Focused complementary approvals on fixed exact snapshot",
+    "Post-fix real PostgreSQL evidence and owned cleanup",
+    "Independent installed full durable journey outside checkout",
+    "Final changed-product make check and owned cleanup",
+    "Parent B06a adjudication and canonical status projections"
+  ],
+  "global": "B06a/G-MODULE-core/G02 NOT_CLOSED at recording; historical acceptances/failures preserved",
+  "tools": {"Reticle": "NOT_APPLICABLE backend/CLI", "Chisel": "BLOCKED_NO_GO not invoked"},
+  "not_authorized": "Publish/seed selectability/B06b/Task/Attempt/native child/inference/provider/account/target traffic/r1 adoption or restart/P0-P1 rollout/global changes/push",
+  "protected_original_html": "Not read/copied/modified/hashed/staged"
+}

@@ -46,7 +46,7 @@ class InstalledPointerSchemaTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0008_engagement_edit",
+            "schema": "0009_catalog_candidates",
             "platform": "linux/amd64",
             "files": {
                 name: hashlib.sha256(content).hexdigest() for name, content in self.payloads.items()

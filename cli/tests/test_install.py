@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0008_engagement_edit",
+            "schema": "0009_catalog_candidates",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -82,6 +82,22 @@ class InstallTest(unittest.TestCase):
         self.assertEqual((self.data_home / "omnis/installed.json").stat().st_mode & 0o777, 0o600)
         self.assertFalse((self.root / "instance.json").exists())
         self.assertEqual(install_release(self.bundle, self.data_home), result)
+
+    def test_catalog_schema_bundle_is_admitted_and_0008_is_refused(self):
+        self.manifest["schema"] = "0009_catalog_candidates"
+        self.write_manifest()
+        installed = install_release(self.bundle, self.data_home)
+        self.assertEqual(
+            json.loads((installed / "release.json").read_text())["schema"],
+            "0009_catalog_candidates",
+        )
+        before = (installed / "release.json").read_bytes()
+        self.manifest["schema"] = "0008_engagement_edit"
+        self.write_manifest()
+        with self.assertRaises(ReleaseError):
+            install_release(self.bundle, self.root / "legacy-data")
+        self.assertFalse((self.root / "legacy-data").exists())
+        self.assertEqual((installed / "release.json").read_bytes(), before)
 
     def test_pre_p1_schema_bundle_is_refused_before_install(self):
         self.manifest["schema"] = "0006_stop_reconciliation"

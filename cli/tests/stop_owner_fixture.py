@@ -176,7 +176,7 @@ class Fixture:
         manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0008_engagement_edit",
+            "schema": "0009_catalog_candidates",
             "platform": "linux/amd64",
             "files": files,
         }
@@ -213,7 +213,7 @@ class Fixture:
                 "version": 1,
                 "instance_id": instance,
                 "release": "0.1.0",
-                "schema": "0008_engagement_edit",
+                "schema": "0009_catalog_candidates",
                 "project": self.project,
                 "origin": f"http://127.0.0.1:{self.port}",
             },

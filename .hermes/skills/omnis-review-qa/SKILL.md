@@ -93,5 +93,9 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 
 - Before accepting a truncated or delayed review delivery, obtain the complete snapshot-bound report through a verifiable scratch JSON handle and read it back after the child completes. Missing text is not an empty findings list; persist the adjudicated verdict, concrete findings and limits in versioned slice notes before scratch expires. Do not poll a running child's transcript or report to wait for completion.
 
+## No-rerun at a composed consumer
+
+Trace replay/readback through pinned compiler and dependency validation before claiming no execution. A compiler may execute retained PURE qualification inputs; patching only the consumer's imported evaluator alias misses that branch. Observe the defining module and all invoked aliases, use a real dependency-bearing published snapshot, and either prove non-executing revalidation or explicitly refuse unsupported dependencies before that path. Keep the ordinary no-dependency positive; a blanket failure is not a replay proof.
+
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

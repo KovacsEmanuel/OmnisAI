@@ -30,7 +30,7 @@ class ReadyJournalTest(unittest.TestCase):
         identity = str(uuid4())
         project = "omnis-local-" + "a" * 32
         self.instance = Instance(
-            identity, "0.1.0", "0010_catalog_publications", project, f"http://127.0.0.1:{self.port}"
+            identity, "0.1.0", "0011_managed_tasks", project, f"http://127.0.0.1:{self.port}"
         )
         self.runtime = SimpleNamespace(
             digest="b" * 64,

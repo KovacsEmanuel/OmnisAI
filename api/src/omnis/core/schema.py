@@ -4,6 +4,8 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from omnis.core.managed_schema import MANAGED_TABLES
+
 type ColumnSpec = tuple[str, bool, str | None]
 type ConstraintSpec = tuple[str, str, str, bool, bool]
 type AuthoritySpec = tuple[dict[str, ColumnSpec], set[ConstraintSpec]]
@@ -372,6 +374,9 @@ AUTHORITY_TABLES.update(
 )
 
 
+AUTHORITY_TABLES.update(MANAGED_TABLES)
+
+
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
@@ -407,6 +412,12 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
         if set(constraints) != expected_constraints | required:
             return False
     for table, name, function, message in (
+        (
+            "managed_record",
+            "managed_record_no_change",
+            "managed_record_immutable",
+            "managed records are immutable",
+        ),
         (
             "instance_stop_reconciliation",
             "stop_reconciliation_immutable",

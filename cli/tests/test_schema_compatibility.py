@@ -16,12 +16,12 @@ start = importlib.import_module("omnis_cli.start")
 
 
 class SchemaCompatibilityTest(unittest.TestCase):
-    def test_database_identity_accepts_only_0010(self):
+    def test_database_identity_accepts_only_0011(self):
         identity = str(uuid4())
         queries = {
             "SELECT system_identifier FROM pg_control_system()": "12345",
             "SELECT instance_id FROM instance_control WHERE id = 1": identity,
-            "SELECT version_num FROM alembic_version": "0010_catalog_publications",
+            "SELECT version_num FROM alembic_version": "0011_managed_tasks",
         }
 
         def psql(ident, query):
@@ -31,7 +31,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
 
         runtime = SimpleNamespace(psql=psql)
         self.assertEqual(start.database_identity(runtime, "private-db"), ("12345", identity))
-        for previous in ("0009_catalog_candidates", "0008_engagement_edit"):
+        for previous in ("0010_catalog_publications", "0009_catalog_candidates", "0008_engagement_edit"):
             queries["SELECT version_num FROM alembic_version"] = previous
             with self.assertRaises(StartError) as error:
                 start.database_identity(runtime, "private-db")
@@ -39,22 +39,22 @@ class SchemaCompatibilityTest(unittest.TestCase):
                 (error.exception.reason, error.exception.code), ("SCHEMA_UPDATE_REQUIRED", 3)
             )
 
-    def test_private_instance_accepts_only_0010(self):
+    def test_private_instance_accepts_only_0011(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             root = Path(name)
             record = {
                 "version": 1,
                 "instance_id": str(uuid4()),
                 "release": "0.1.0",
-                "schema": "0010_catalog_publications",
+                "schema": "0011_managed_tasks",
                 "project": "omnis-local-1",
                 "origin": "http://127.0.0.1:8765",
             }
             path = root / "instance.json"
             path.write_text(json.dumps(record))
             path.chmod(0o600)
-            self.assertEqual(load_instance(root).schema, "0010_catalog_publications")
-            for previous in ("0009_catalog_candidates", "0008_engagement_edit"):
+            self.assertEqual(load_instance(root).schema, "0011_managed_tasks")
+            for previous in ("0010_catalog_publications", "0009_catalog_candidates", "0008_engagement_edit"):
                 record["schema"] = previous
                 path.write_text(json.dumps(record))
                 before = path.read_bytes()

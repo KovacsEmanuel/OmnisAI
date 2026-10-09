@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0010_catalog_publications",
+            "schema": "0011_managed_tasks",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -84,12 +84,12 @@ class InstallTest(unittest.TestCase):
         self.assertEqual(install_release(self.bundle, self.data_home), result)
 
     def test_publication_schema_bundle_is_admitted_and_0009_is_refused(self):
-        self.manifest["schema"] = "0010_catalog_publications"
+        self.manifest["schema"] = "0011_managed_tasks"
         self.write_manifest()
         installed = install_release(self.bundle, self.data_home)
         self.assertEqual(
             json.loads((installed / "release.json").read_text())["schema"],
-            "0010_catalog_publications",
+            "0011_managed_tasks",
         )
         before = (installed / "release.json").read_bytes()
         self.manifest["schema"] = "0009_catalog_candidates"

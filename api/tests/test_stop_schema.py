@@ -27,6 +27,7 @@ def test_reconciliation_migration_quotes_reserved_grant_identifier(
 @pytest.mark.parametrize(
     "table_under_test",
     [
+        "managed_record",
         "instance_stop_reconciliation",
         "engagement_revision",
         "catalog_record",
@@ -61,6 +62,11 @@ async def test_schema_refuses_conditional_immutability_trigger(
         constraint_result.all.return_value = list(constraints | required)
         responses.extend([column_result, constraint_result])
     triggers = {
+        "managed_record": (
+            "managed_record_no_change",
+            "managed_record_immutable",
+            "managed records are immutable",
+        ),
         "instance_stop_reconciliation": (
             "stop_reconciliation_immutable",
             "reject_stop_reconciliation_mutation",
@@ -121,6 +127,6 @@ def test_stop_reconciliation_is_new_schema_authority() -> None:
     script = ScriptDirectory.from_config(
         Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     )
-    assert script.get_current_head() == SCHEMA_REVISION == "0010_catalog_publications"
+    assert script.get_current_head() == SCHEMA_REVISION == "0011_managed_tasks"
     assert "instance_stop_reconciliation" in AUTHORITY_TABLES
     assert AUTHORITY_TABLES["instance_stop_fence"][0]["owner_uuid"] == ("uuid", False, None)

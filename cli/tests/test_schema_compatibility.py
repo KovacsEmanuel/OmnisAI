@@ -31,7 +31,11 @@ class SchemaCompatibilityTest(unittest.TestCase):
 
         runtime = SimpleNamespace(psql=psql)
         self.assertEqual(start.database_identity(runtime, "private-db"), ("12345", identity))
-        for previous in ("0010_catalog_publications", "0009_catalog_candidates", "0008_engagement_edit"):
+        for previous in (
+            "0010_catalog_publications",
+            "0009_catalog_candidates",
+            "0008_engagement_edit",
+        ):
             queries["SELECT version_num FROM alembic_version"] = previous
             with self.assertRaises(StartError) as error:
                 start.database_identity(runtime, "private-db")
@@ -54,7 +58,11 @@ class SchemaCompatibilityTest(unittest.TestCase):
             path.write_text(json.dumps(record))
             path.chmod(0o600)
             self.assertEqual(load_instance(root).schema, "0011_managed_tasks")
-            for previous in ("0010_catalog_publications", "0009_catalog_candidates", "0008_engagement_edit"):
+            for previous in (
+                "0010_catalog_publications",
+                "0009_catalog_candidates",
+                "0008_engagement_edit",
+            ):
                 record["schema"] = previous
                 path.write_text(json.dumps(record))
                 before = path.read_bytes()

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "parent_verdict": "CHANGES_REQUESTED_PENDING_FOCUSED_REVIEW",
+  "parent_verdict": "APPROVED_SCOPED_COMPOSITE",
   "scope": "Managed cold NO_MODEL admission only; no B06b/G02 closure",
   "reports": [
     {
@@ -166,12 +166,28 @@
     }
   ],
   "dispositions": {
-    "R1-MA-01 / R2-01": "OPEN: parent reproduced same ASCII positive/newline and UTF-8 overflow API/native mismatch; source fix and PG regression pending. Same defect, not two independent failures.",
-    "R2-02": "FIXED_PENDING_REVIEW in affa21c: parent reproduced source-native exit1 and installed pinned RED7tests/two failed subtests; original root identity guard fixes stage replay/first release. New installed image39b1480c passes7tests/effects[]; independent focused re-review pending."
+    "R1-MA-01 / R2-01": "RESOLVED_SCOPED b184d9c: parent source reproduction and PG RED3fail2pass -> GREEN5pass; exact 4096-byte positive and unchanged managed ledger on denial; independent focused APPROVED_SCOPED.",
+    "R2-02": "RESOLVED_SCOPED affa21c: genuine source-native counterexample and installed pin RED7tests/two subtest failures -> GREEN7; independent root-object/identity/history re-review APPROVED_SCOPED.",
+    "canonical-format": "RESOLVED_NONSEMANTIC b6ff1bd: first canonical exit2 at CLI Ruff format after functional suites passed; AST-identical tuple wrapping, independent QA AST approval; final canonical exit0."
   },
   "preserved_limits": [
     "Original review DB-selection errors refused before DB; not product failures.",
     "Source Python3.13.12 is not installed pin evidence; separate installed3.13.15 RED/GREEN used for root fix.",
     "Readback and result statuses remain BLOCKED/INCOMPLETE; no Brain turn, inference, final composer or success MethodCheck."
-  ]
+  ],
+  "focused_rereviews": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/managed-root-rereview.json",
+      "sha256": "3010607c6978381916f82d22f6de9c265adab4f58c63d92d79eedb0818fe3501",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "R2-02 six-path snapshot affa21c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/managed-wire-rereview.json",
+      "sha256": "09c27560c7ce2c17f3ba03011166cf5f689914d21f33136193fbfa02fa55b17e",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "R1-MA-01/R2-01 b184d9c"
+    }
+  ],
+  "parent_verified_scope_hashes_unchanged": true
 }

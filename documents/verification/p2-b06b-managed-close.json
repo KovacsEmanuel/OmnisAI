@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "CLOSED_SCOPED_COLD_NATIVE_ADMISSION",
+  "code": "IMPLEMENTED_SCOPED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "product_commit": "b6ff1bd43b2af7729a229070c8f23f4474ad800e",
+  "product_changes": [
+    "67a41da",
+    "bfbcad5",
+    "c3ad776",
+    "b959184",
+    "85dc4ec",
+    "affa21c",
+    "b184d9c"
+  ],
+  "test_format_commit": "b6ff1bd",
+  "scope": "Published CONTRACT_PROBE/CHECK_ONLY/NO_MODEL selection and retained preparation -> durable cold Task/Attempt/Brief/BoundProcedure/MethodPlan and scoped context -> native cold AIAgent stage -> committed trusted binding -> authentic NO_MODEL terminal -> BLOCKED TaskResult -> INCOMPLETE MethodCheck -> deterministic durable inbox consumption and historical readback. Not a model conversation or completed method.",
+  "consumer": [
+    "python -m omnis.modules.runs.managed_admission prepare|readback|reconcile --request <json> [--catalog-root <private>]",
+    "python -m omnis.supervisor.native_tasks --request <json> --control-dir <private>"
+  ],
+  "opt_in": "OMNIS_MANAGED_TASKS=1 plus existing explicit inert runtime/native-preparation catalog opt-in; ordinary startup does not enable it",
+  "delivered": [
+    "Separate managed lifecycle and immutable records in PostgreSQL0011; no catalog-ledger Task lifecycle substitution.",
+    "Resolvable synthetic run/mission/focus/cursor/brief context, all requirements from the selected published procedure, exact refs and immutable deadlines.",
+    "Original command/manifest indexed stage and real cold native child/session identities; existing supervisor/RuntimeClient/RuntimeHost/NativePeer ownership.",
+    "Persist binding before release, pin original native root identity, refuse unknown lineage/tools/warm conversation, no goal/FIFO association or blind retry.",
+    "Historical authentic receipt persisted before checks, exact BLOCKED/NOT_RUN result, INCOMPLETE check; schema validation never grants method success.",
+    "delivered/admitted/turn_completed/domain_result_consumed independent; deterministic reconcile is idempotent, not a Brain turn.",
+    "Receive-only PG disposition after Stop with declared runtime double, installed replay/historical readback after supervisor/runtime stop."
+  ],
+  "review_register": "documents/verification/p2-b06b-managed-review.json",
+  "canonical": {
+    "session": "proc_5e893d6f5ee3",
+    "command": "PATH=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/uv/uv-x86_64-unknown-linux-gnu/uv",
+    "exit_code": 0,
+    "family_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "tested_head": "b6ff1bd43b2af7729a229070c8f23f4474ad800e",
+    "tracked_count": 662,
+    "all_tracked_bytes_unchanged": true,
+    "component_counts": {
+      "documentation": 72,
+      "development": 43,
+      "api": 1058,
+      "migrations": 23,
+      "web": 75,
+      "e2e": 9,
+      "cli_source": 287,
+      "cli_wheel": 287,
+      "cli_installed_status": 1,
+      "release": 61,
+      "runtime": 192,
+      "native_ast": 6
+    },
+    "counts_are_components_not_unique_total": true,
+    "log": "/home/kali/.hermes/cache/scratch/db-7813f5589b3c486b/gate.log",
+    "log_sha256": "db48ae45a9837e9bf1309a594b31f47734c956fc3257e6f1fb1884bd1164ca88",
+    "cleanup": {
+      "cid": "9e8c7b9496bfe42317331bc22a7133d7b1039fbb624f30cc7dba0fc63deb238c",
+      "project": "omnis-p01-af4aaee301f3474789186e24e9f01b85",
+      "root": "/home/kali/.hermes/cache/scratch/db-7813f5589b3c486b",
+      "parent_verified_exact_CID_project_network_socket_absent": true,
+      "data_logs_retained": true
+    }
+  },
+  "focused_pg": {
+    "initial": "proc_eba650fdb9f8:42pass/19.93s/exit0",
+    "schema_red": "proc_302579ef0ed0:1fail43pass/24.07s/exit2",
+    "schema_lifecycle_green": "proc_a78a5a768749:50pass/25.71s/exit0",
+    "wire_red": "proc_06a4d12082ed:3fail2pass/50.78s/exit1",
+    "wire_green": "proc_92c287f46d1f:5pass/51.76s/exit0",
+    "limit": "Native preparation/emitter doubles are explicitly labeled in PG tests; installed journeys below are actual native consumers."
+  },
+  "native_installed": {
+    "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "version": "0.21.5",
+    "python": "3.13.15",
+    "image": "sha256:39b1480c0edc8f0d8bb6bf10c85a42265d2edc53731f92281e6ad9f64d7a55e3",
+    "managed_patch_sha256": "031eff228981d68fe09196504cd2f70cb5077c087d93245ba7ff374618d984dd",
+    "root_fix_probe": {
+      "tests": 7,
+      "exit": 0,
+      "monitored_forbidden_effects": [],
+      "receipt": "/home/kali/.hermes/cache/scratch/mgd-rootfix-6tDrYT/native-probe-result.json",
+      "sha256": "eae483d61b97312150f8f2b279535f66284d14d4e4b603e0a7d04d8d536cc421"
+    },
+    "limit": "Real cold AIAgent/lifecycle; no provider/client/conversation or method execution. Python monitored channels are not universal syscall coverage."
+  },
+  "independent_installed_qa": {
+    "report": "/home/kali/.hermes/cache/scratch/managed-independent-qa-corrected.json",
+    "sha256": "140f2045b4d5170f1d0d2e5fa16759648e7b68d2d734af748a5e4527422b221a",
+    "verdict": "PASS_SCOPED_INDEPENDENT_REAL_INSTALLED_JOURNEY",
+    "head": "b6ff1bd43b2af7729a229070c8f23f4474ad800e",
+    "preflight_exit": 0,
+    "live_exit": 0,
+    "family_drained": true,
+    "criteria_pass": 26,
+    "cli_calls": 25,
+    "cli_exit_counts": {
+      "0": 20,
+      "2": 5
+    },
+    "api_modules": 68,
+    "adapter_modules": 7,
+    "patched_native_files": 6,
+    "snapshot_entries": 664,
+    "snapshot_limit": "662 tracked paths plus two parent helper hashes, not664 tracked product files.",
+    "source_and_artifact_hashes_parent_verified": true,
+    "cleanup": {
+      "postgres": {
+        "cid": "c1b5fbda37a71606413be72399b05cf175d0bdf250fb356c55734b1f9e398431",
+        "inspect_exit": 1,
+        "exact_absent": true
+      },
+      "native": {
+        "cid": "c36fc33f78882713e0baaf86769a8080dd55c003708c2c128b183e9f205a92da",
+        "inspect_exit": 1,
+        "exact_absent": true
+      },
+      "static": {
+        "cid": "cd622728224e6fd2655c69676a20926840ace75639c446163c3c0581e0f9cf75",
+        "inspect_exit": 1,
+        "exact_absent": true
+      },
+      "pg_project_container_absent": true,
+      "pg_project_network_absent": true,
+      "socket_absence": {
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/db-a719af5671fa45fc/socket/.s.PGSQL.5432": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/rt/runtime.sock": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/ctl/control.sock": true
+      },
+      "directories_retained": {
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/db-a719af5671fa45fc": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/db-a719af5671fa45fc/data": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/db-a719af5671fa45fc/socket": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/state": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/rt": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/ctl": true,
+        "/home/kali/.hermes/cache/scratch/mqa-c-p37lzpl6/b06b-pt1rsj8q/catalog": true
+      },
+      "data_file_count": 1274,
+      "supervisor_pid": 3288478,
+      "supervisor_pid_absent": true,
+      "runtime_worker_trees_absent": true,
+      "project": "omnis-p01-46a7dfe7bad6479b8bbcd5c31e16bd16",
+      "postgres_image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "native_image": "sha256:39b1480c0edc8f0d8bb6bf10c85a42265d2edc53731f92281e6ad9f64d7a55e3",
+      "family_drained": true,
+      "runner_readback": true,
+      "data_retention_limit": "Existing empty_database_url drops its per-test database in finally. Synthetic roots/catalog/logs and underlying PGDATA remain; no claim that journey rows remain in retained DB."
+    },
+    "limit": "Four managed denials use a separate intentionally unlaunched QUEUED assignment; positive run has two native children and BLOCKED/INCOMPLETE results. No inference/Brain turn; per-test DB dropped by original fixture finally, underlying PGDATA and synthetic catalog/logs retained."
+  },
+  "preserved_failures": [
+    "Initial domain cursor/provenance/deadline/state/receive-classification RED6; repaired before candidate acceptance.",
+    "Physical readiness schema mutation initially false-ready; retained RED1fail43pass before exact schema guard.",
+    "Both original independent reviews CHANGES_REQUESTED, goal grammar and root replacement parent-reproduced before fixes.",
+    "First full canonical proc_dc5a4cfbe2d8 exit2/drained at CLI test Ruff format; functional component PASS remains at its own snapshot, not canonical PASS.",
+    "First independent QA NOT_PASS: stale adapter count6 versus actual7, sequential optional denials over10s fixture deadline; no captured internal denial reason, no product deadline enlarged. Parent also reproduced invalid TaskResult.reason assertion, corrected only harness.",
+    "Parent readback used invalid docker network ls -aq, exit125; corrected read-only -q verified no network; no fixture rerun from this parser error."
+  ],
+  "limits": [
+    "C02-C12 complete/B06b/G02/phase2 remain NOT_CLOSED. No global absence-of-defects claim.",
+    "PromptBundle is pinned metadata only, not final composition/H03/two-skill installed efficacy.",
+    "One dependency-free CONTRACT recipe,1-2 tasks/one attempt each; external RELEASE, slots, overlays and unsupported nonempty preconditions/evidence forms explicitly rejected.",
+    "Only authentic cold refusal and MethodCheck INCOMPLETE are accepted; COMPLETE/done_when/return_when general predicates, CriterionOutcome and security/functional PASS remain unimplemented/unaccepted.",
+    "All cold domain/tool/warm surfaces refuse; this does not certify a successful native tool read/effect, warm lifecycle or model dispatch.",
+    "Native root substitution refusal is proven; actual compression/model continuation/auto-wake NOT_RUN. Cold pending identities are not concurrent method execution.",
+    "Installed historical readback after Stop is proven; new late-native delivery after Stop and M1/M2 qualification breadth remain NOT_RUN/unimplemented. PG receive-only Stop uses a declared runtime double.",
+    "No provider/model/target spending by Omnis, r1/operator rollout/migration, global configuration or push. No UI/visual approval.",
+    "Lost replies retain indeterminate state; physical crash/power-loss/server ACK-loss and universal syscall tracing are NOT_RUN."
+  ],
+  "blocking_defects_open_in_closed_scope": [],
+  "next_result": "Continue C03/C05 and C06-C12 breadth: final context/prompt composition, supported bindings/predicates and successful admitted result path with native access/inbox semantics. Then B06c -> B06m -> Settings minimum -> P2-live with separate account/model/budget authorization.",
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_CLI_PROCESS",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "rollback": "Granular Git revert changes source only. No automatic0011 downgrade, no deletion/adoption of retained data or images; operator migration/restore needs its own reviewed backup plan.",
+  "register": "documents/verification/p2-b06b-managed-admission.md"
+}

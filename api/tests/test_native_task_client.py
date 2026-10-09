@@ -49,7 +49,7 @@ async def peer_client(
                         },
                         "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
                     },
-                    "managed": {"protocol": "omnis-managed-admission-v1", "status": "STAGED"},
+                    "managed": {"protocol": value["payload"]["protocol"], "status": "STAGED"},
                 }
                 writer.write(json.dumps(response).encode() + b"\n")
                 await writer.drain()
@@ -74,20 +74,21 @@ async def peer_client(
 
 
 @pytest.mark.parametrize("operation", ["task_stage", "task_release", "task_status"])
+@pytest.mark.parametrize("protocol", ["omnis-managed-admission-v1", "omnis-managed-admission-v2"])
 @pytest.mark.asyncio
 async def test_managed_exchange_uses_current_grant_and_existing_stream(
-    ipc_directory: Path, operation: str
+    ipc_directory: Path, operation: str, protocol: str
 ) -> None:
     requests: list[dict[str, object]] = []
     authority = RuntimeAuthority(0, 1, time.monotonic_ns() + 1_000_000_000)
     service = Mock(spec=InstanceService)
     service.runtime_authority = AsyncMock(return_value=authority)
     owner = uuid4()
-    payload: dict[str, object] = {"protocol": "omnis-managed-admission-v1"}
+    payload: dict[str, object] = {"protocol": protocol}
     async with peer_client(ipc_directory, requests) as client:
         assert callable(getattr(client, "managed", None)), "managed runtime exchange absent"
         result = await client.managed(service, owner, operation, payload)
-        assert result == {"protocol": "omnis-managed-admission-v1", "status": "STAGED"}
+        assert result == {"protocol": protocol, "status": "STAGED"}
         service.runtime_authority.assert_awaited_once_with(owner, 1, 0, inert_probe=True)
     assert len(requests) == 1
     assert requests[0]["payload"] == payload
@@ -136,4 +137,17 @@ async def test_arbitrary_operation_never_requests_authority(ipc_directory: Path)
         await client.managed(
             service, uuid4(), "prompt.submit", {"protocol": "omnis-managed-admission-v1"}
         )
+    service.runtime_authority.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("protocol", [None, True, [], "omnis-managed-admission-v3"])
+async def test_unknown_managed_version_never_requests_authority(
+    ipc_directory: Path, protocol: object
+) -> None:
+    service = Mock(spec=InstanceService)
+    service.runtime_authority = AsyncMock()
+    client = RuntimeClient(ipc_directory, generation=0, epoch=1)
+    with pytest.raises(RuntimeUnavailable, match="payload denied"):
+        await client.managed(service, uuid4(), "task_stage", {"protocol": protocol})
     service.runtime_authority.assert_not_awaited()

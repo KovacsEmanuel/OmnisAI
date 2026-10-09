@@ -447,7 +447,10 @@ class RuntimeClient:
         if operation not in MANAGED_OPERATIONS:
             raise RuntimeUnavailable("Runtime operation denied")
         checked = _object(json.dumps(payload, allow_nan=False).encode())
-        if checked.get("protocol") != "omnis-managed-admission-v1":
+        if checked.get("protocol") not in (
+            "omnis-managed-admission-v1",
+            "omnis-managed-admission-v2",
+        ):
             raise RuntimeUnavailable("Runtime payload denied")
         try:
             authority = await service.runtime_authority(

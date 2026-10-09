@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "OMNIS_PRODUCT_SOURCE_IMPORT",
+  "name": "bug-bounty-triage",
+  "state": "IMPORTED_UNPUBLISHED",
+  "qualification": "NOT_QUALIFIED",
+  "activation": "NOT_ACTIVATED",
+  "runtime_exercised": false,
+  "status_fields_are_descriptive_only": true,
+  "imported_at_utc": "2026-10-09T20:30:23.038378+00:00",
+  "destination": {
+    "repository_relative": "skills/bug-bounty-triage",
+    "worktree_absolute": "/home/kali/.hermes/cache/scratch/hermes-triage-import-4edbc534a0a0/skills/bug-bounty-triage",
+    "integration_target_absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage",
+    "existing_library": "skills/",
+    "development_catalog_excluded": ".hermes/skills/",
+    "discovery_added": false
+  },
+  "local_base": {
+    "commit": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+    "worktree": "/home/kali/.hermes/cache/scratch/hermes-triage-import-4edbc534a0a0",
+    "head_mode": "detached",
+    "main_checkout_written": false,
+    "commit_created": false,
+    "push_performed": false
+  },
+  "upstream": {
+    "repository": "https://github.com/Sequester-AG/bug-bounty-triage",
+    "original_url": "https://github.com/Sequester-AG/bug-bounty-triage/blob/main/SKILL.md",
+    "resolved_ref": "main",
+    "commit": "9684e1bfc876e841f9c789f0b258902b43d461e4",
+    "commit_api_url": "https://api.github.com/repos/Sequester-AG/bug-bounty-triage/commits/9684e1bfc876e841f9c789f0b258902b43d461e4",
+    "tree_sha1": "260d52718ef869093928df162a56691c5b3951fc",
+    "tree_api_url": "https://api.github.com/repos/Sequester-AG/bug-bounty-triage/git/trees/260d52718ef869093928df162a56691c5b3951fc?recursive=1",
+    "tree_truncated": false,
+    "all_blob_paths": [
+      ".gitignore",
+      "LICENSE",
+      "README.md",
+      "SKILL.md"
+    ],
+    "main_matched_git_ls_remote": true
+  },
+  "license": {
+    "spdx_id": "MIT",
+    "copyright": "Copyright (c) 2026 Sequester-AG",
+    "evidence": "Pinned upstream LICENSE file; GitHub metadata agrees, not the sole basis",
+    "local_path": "LICENSE",
+    "source_url": "https://raw.githubusercontent.com/Sequester-AG/bug-bounty-triage/9684e1bfc876e841f9c789f0b258902b43d461e4/LICENSE",
+    "notice_and_disclaimer_preserved": true,
+    "additional_license_or_notice_paths": []
+  },
+  "source_files": [
+    {
+      "upstream_path": "SKILL.md",
+      "git_blob_sha1": "f97b8fd6d7452eb696d42edbf56261143f997ec6",
+      "sha256": "6c7a275d199f9ebe5192980f4ce3843360ae51b89b1fefa9d9789ac87b523002",
+      "bytes": 25795,
+      "pinned_raw_url": "https://raw.githubusercontent.com/Sequester-AG/bug-bounty-triage/9684e1bfc876e841f9c789f0b258902b43d461e4/SKILL.md",
+      "pinned_blob_url": "https://github.com/Sequester-AG/bug-bounty-triage/blob/9684e1bfc876e841f9c789f0b258902b43d461e4/SKILL.md",
+      "http_status": 200,
+      "raw_matches_api_blob": true,
+      "api_blob_size_matches": true,
+      "content_length": "25795",
+      "local_path": "SKILL.md",
+      "modifications": "none"
+    },
+    {
+      "upstream_path": "LICENSE",
+      "git_blob_sha1": "f6ddbbfa4c9cc0763707e0c47c356e841b53454e",
+      "sha256": "77fb0a32a0a2bc739cb0340cde3f827d06a686307314fcc164c65a95bc6a6a38",
+      "bytes": 1069,
+      "pinned_raw_url": "https://raw.githubusercontent.com/Sequester-AG/bug-bounty-triage/9684e1bfc876e841f9c789f0b258902b43d461e4/LICENSE",
+      "pinned_blob_url": "https://github.com/Sequester-AG/bug-bounty-triage/blob/9684e1bfc876e841f9c789f0b258902b43d461e4/LICENSE",
+      "http_status": 200,
+      "raw_matches_api_blob": true,
+      "api_blob_size_matches": true,
+      "content_length": "1069",
+      "local_path": "LICENSE",
+      "modifications": "none"
+    },
+    {
+      "upstream_path": "README.md",
+      "git_blob_sha1": "b87d07e007906f3cbc722243e654e109d74da359",
+      "sha256": "942f730f91d57212b8da7f7c20e5e0064337d1118705f044d596be56c2bda3f4",
+      "bytes": 2978,
+      "pinned_raw_url": "https://raw.githubusercontent.com/Sequester-AG/bug-bounty-triage/9684e1bfc876e841f9c789f0b258902b43d461e4/README.md",
+      "pinned_blob_url": "https://github.com/Sequester-AG/bug-bounty-triage/blob/9684e1bfc876e841f9c789f0b258902b43d461e4/README.md",
+      "http_status": 200,
+      "raw_matches_api_blob": true,
+      "api_blob_size_matches": true,
+      "content_length": "2978",
+      "local_path": "README.upstream.md",
+      "modifications": "none; filename only renamed"
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "NOTICE.md",
+      "sha256": "bb4835856a93f8a6f0844e5dec6160dea17c4c8b2e839e5e34355d23f3cd8c27",
+      "bytes": 5211,
+      "purpose": "Product-only boundary, provenance, rights preservation and qualification gaps"
+    },
+    {
+      "path": "provenance.json",
+      "purpose": "This provenance record; self-hash intentionally omitted"
+    }
+  ],
+  "expected_import_file_count": 5,
+  "references": {
+    "required_repository_relative_files": [],
+    "missing_repository_relative_files": [],
+    "assessment": "Full SKILL.md and README reviewed; no referenced companion files exist in the complete four-file upstream tree",
+    "external_supporting_skills": [
+      {
+        "name": "agent-browser",
+        "url": "https://www.skills.sh/vercel-labs/agent-browser/agent-browser",
+        "source_repository": "https://github.com/vercel-labs/agent-browser",
+        "context": "README full live-validation workflow supporting skill; SKILL.md allows in-app-browser alternative",
+        "imported": false,
+        "license_verified": false,
+        "compatibility_verified": false
+      },
+      {
+        "name": "agent-email-cli",
+        "url": "https://www.skills.sh/zaddy6/agent-email-skill/agent-email-cli",
+        "source_repository": "https://github.com/zaddy6/agent-email-skill",
+        "context": "README supporting skill; SKILL.md uses agent-email for disposable accounts when live testing applies",
+        "imported": false,
+        "license_verified": false,
+        "compatibility_verified": false
+      }
+    ],
+    "mentioned_external_tools": [
+      "agent-browser",
+      "agent-email",
+      "@zaddy6/agentemail",
+      "in-app browser",
+      "curl",
+      "httpie"
+    ],
+    "dependencies_installed_or_executed": false
+  },
+  "compatibility": {
+    "status": "NOT_QUALIFIED",
+    "assessment_method": "Static comparison only; no product/native execution",
+    "upstream_frontmatter_fields": [
+      "name",
+      "description",
+      "argument-hint",
+      "allowed-tools"
+    ],
+    "expected_product_frontmatter_fields": [
+      "name",
+      "description",
+      "version",
+      "provenance"
+    ],
+    "allowed_tools_preserved": true,
+    "allowed_tools_treated_as_grants": false,
+    "blockers": [
+      "No Omnis omnis.yaml manifest, declared contracts/procedures or product qualification",
+      "Upstream frontmatter differs from the current product source compiler contract",
+      "External tools/supporting skills not pinned or validated for Omnis",
+      "Blanket secret/PII preservation and source-authority rules need product data-policy/trust-boundary review"
+    ],
+    "policy_rules_removed_or_rewritten": false,
+    "references_inspected_at_base": [
+      {
+        "path": "AGENTS.md",
+        "lines": "5-8,29-31"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "lines": "5-9"
+      },
+      {
+        "path": "skills/recon-mapping-contract/omnis.yaml",
+        "lines": "1-76"
+      },
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "lines": "122-128,237-307"
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0009_catalog_candidates.py",
+        "lines": "11-47"
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0010_catalog_publications.py",
+        "lines": "11-19"
+      }
+    ]
+  },
+  "boundaries": {
+    "product_owners_retained": [
+      "Candidate",
+      "qualification",
+      "publication",
+      "selection",
+      "RunSnapshot",
+      "validators/oracles"
+    ],
+    "no_target_testing": true,
+    "no_inference": true,
+    "no_publication": true,
+    "no_runtime_or_db_changes": true,
+    "no_effectiveness_claim": true,
+    "protected_original_html_not_read_copied_hashed_or_modified": true,
+    "main_frozen_gate_unchanged": true
+  },
+  "verification": {
+    "upstream_fetch": {
+      "method": "Python urllib.request; full r.read(), no extractor fragment",
+      "raw_http_statuses": [
+        200,
+        200,
+        200
+      ],
+      "full_raw_matches_api_blobs": true,
+      "all_raw_tree_blob_sizes_match": true,
+      "computed_git_blob_sha1_matches": true,
+      "sha256_computed": true
+    },
+    "commands_executed_before_write": [
+      {
+        "argv": [
+          "git",
+          "ls-remote",
+          "https://github.com/Sequester-AG/bug-bounty-triage.git",
+          "refs/heads/main"
+        ],
+        "exit_code": 0,
+        "matched_commit": "9684e1bfc876e841f9c789f0b258902b43d461e4"
+      }
+    ],
+    "write_readback": "Completed separate local readback after source writes; subsequently updated this descriptive record and verified its own final bytes/JSON.",
+    "local_readback": {
+      "result": "PASS_SOURCE_INTEGRITY_ONLY",
+      "exact_file_count": 5,
+      "all_five_payloads_byte_equal_after_write": true,
+      "all_three_upstream_files_byte_equal": true,
+      "git_hash_object_blob_matches": 3,
+      "json_parsed_and_equal": true,
+      "only_new_import_files_in_git_status": true,
+      "no_tracked_or_staged_diff": true,
+      "main_checkout_status_unchanged": true,
+      "no_omnis_manifest_added": true,
+      "no_runtime_checks": "NOT_RUN",
+      "checks": [
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--stat"
+          ],
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--stat"
+          ],
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain",
+            "--untracked-files=all"
+          ],
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "check_ignore_exit_code": 1,
+      "check_ignore_meaning": "No import files ignored"
+    }
+  },
+  "issues": [
+    {
+      "command": "gh auth status",
+      "exit_code": 127,
+      "issue": "gh not installed; public GitHub API/urllib and git ls-remote used instead; no credentials requested"
+    }
+  ]
+}

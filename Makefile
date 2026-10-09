@@ -81,7 +81,7 @@ test-b06b-pure-probe-pg:
 # Persistent producer/fence/receipt controls; runtime double is not native QA.
 test-native-preparation-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_native_preparation.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_native_preparation*.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
 
 .PHONY: test-b06a-pure
 # Bounded source compiler/CLI tests; no DB, native child, model or target qualification.

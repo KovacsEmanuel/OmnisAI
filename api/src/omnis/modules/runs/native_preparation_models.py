@@ -3,7 +3,6 @@
 import base64
 import binascii
 import re
-from pathlib import PurePosixPath
 
 from omnis.modules.settings import candidate_store as store
 from omnis.modules.settings.candidate_catalog import payload, uuid_string, valid_ref
@@ -69,7 +68,7 @@ def document(raw: bytes) -> str:
     if (
         len(raw) > LIMITS["max_file_bytes"]
         or result.startswith("\ufeff")
-        or any(ord(c) < 32 and c not in "\n\t" or ord(c) == 127 for c in result)
+        or any(ord(c) < 32 and c not in "\n\t" or 127 <= ord(c) <= 159 for c in result)
     ):
         raise CatalogError("PREPARATION_REJECTED")
     return result
@@ -78,15 +77,15 @@ def document(raw: bytes) -> str:
 def path_name(value: object) -> str:
     name = text(value)
     safe_path(name)
-    parts = PurePosixPath(name).parts
+    parts = name.split("/")
     if (
         not parts
-        or any(p.startswith(".") for p in parts)
+        or any(re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*", p) is None for p in parts)
         or (
             len(parts) > 1
             and (
                 parts[0] not in {"references", "templates", "assets", "scripts"}
-                or parts[-1] == "SKILL.md"
+                or "SKILL.md" in parts
             )
         )
     ):
@@ -94,13 +93,79 @@ def path_name(value: object) -> str:
     return name
 
 
+def descriptive_text(value: object) -> str:
+    result = text(value)
+    if not 0 < len(result.encode("utf-8")) <= 1024 or any(
+        ord(c) < 32 or 127 <= ord(c) <= 159 or c in "\u2028\u2029" for c in result
+    ):
+        raise CatalogError("PREPARATION_REJECTED")
+    return result
+
+
+def frontmatter_scalar(value: str) -> str:
+    # Mirror the stdlib runtime's conservative lexical subset, not ordinary YAML.
+    # Cross-layer tests pin this without importing runtime code into the API.
+    if value.startswith('"'):
+        if len(value.encode("utf-8")) > 2048:
+            raise CatalogError("PREPARATION_REJECTED")
+        return descriptive_text(load_json(value))
+    if value.startswith("'"):
+        if not value.endswith("'"):
+            raise CatalogError("PREPARATION_REJECTED")
+        value = value[1:-1].replace("''", "'")
+    elif (
+        not value
+        or value[0] in "!&*|>{[?@`"
+        or ": " in value
+        or " #" in value
+        or value.lower() in {"null", "true", "false", "yes", "no", "on", "off", "~"}
+    ):
+        raise CatalogError("PREPARATION_REJECTED")
+    return descriptive_text(value)
+
+
 def frontmatter(raw: bytes, expected: str) -> None:
     content = document(raw)
     if not content.startswith("---\n") or "\n---\n" not in content[4:]:
         raise CatalogError("PREPARATION_REJECTED")
-    fields = mapping(load_yaml(content[4:].split("\n---\n", 1)[0].encode()))
+    header = content[4:].split("\n---\n", 1)[0]
     descriptive = {"name", "description", "version", "provenance", "author", "license"}
     lists = {"tags", "related_skills", "platforms"}
+    lexical: dict[str, object] = {}
+    items: list[str] | None = None
+    for line in header.split("\n"):
+        if not line.strip():
+            continue
+        if line.startswith("  - ") and items is not None:
+            items.append(frontmatter_scalar(line[4:]))
+            if len(items) > 32:
+                raise CatalogError("PREPARATION_REJECTED")
+            continue
+        match = re.fullmatch(r"([a-z_]+):(?: (.*))?", line)
+        if match is None or match[1] not in descriptive | lists or match[1] in lexical:
+            raise CatalogError("PREPARATION_REJECTED")
+        key, value = match[1], match[2] or ""
+        items = None
+        if key in lists:
+            if not value:
+                items = []
+                lexical[key] = items
+            elif value.startswith("[") and value.endswith("]"):
+                inline = [
+                    frontmatter_scalar(v.strip()) for v in value[1:-1].split(",") if v.strip()
+                ]
+                if len(inline) > 32:
+                    raise CatalogError("PREPARATION_REJECTED")
+                lexical[key] = inline
+            else:
+                raise CatalogError("PREPARATION_REJECTED")
+        else:
+            lexical[key] = frontmatter_scalar(value)
+    if lexical.get("name") != expected or not lexical.get("description"):
+        raise CatalogError("PREPARATION_REJECTED")
+    # Retain the existing YAML semantic/unsafe-key denials as well. Validation
+    # never rewrites retained bytes or widens the runtime's document language.
+    fields = mapping(load_yaml(header.encode()))
     if not {"name", "description"} <= set(fields) or set(fields) - descriptive - lists:
         raise CatalogError("PREPARATION_REJECTED")
     for key, value in fields.items():
@@ -108,8 +173,7 @@ def frontmatter(raw: bytes, expected: str) -> None:
         if len(values) > 32:
             raise CatalogError("PREPARATION_REJECTED")
         for item in values:
-            if not 0 < len(text(item)) <= 4096:
-                raise CatalogError("PREPARATION_REJECTED")
+            descriptive_text(item)
     if native_name(fields["name"]) != expected:
         raise CatalogError("PREPARATION_REJECTED")
 
@@ -122,6 +186,7 @@ def prepare_packages(
     packages: list[dict[str, object]] = []
     total = count = 0
     names: set[str] = set()
+    keys: set[str] = set()
     refs: set[bytes] = set()
     for ref, source in selected:
         valid_ref(ref)
@@ -137,6 +202,7 @@ def prepare_packages(
         expected = ["omnis.yaml", "SKILL.md", *manifest.procedures, *manifest.support_files]
         if (
             name in names
+            or manifest.package_key in keys
             or canonical(ref) in refs
             or len(set(expected)) != len(expected)
             or source.get("package_key") != manifest.package_key
@@ -144,6 +210,7 @@ def prepare_packages(
         ):
             raise CatalogError("PREPARATION_REJECTED")
         names.add(name)
+        keys.add(manifest.package_key)
         refs.add(canonical(ref))
         listing: list[dict[str, object]] = []
         files: list[dict[str, object]] = []

@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.3
+version: 0.1.4
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -40,6 +40,11 @@ Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundar
 ## Document preparation through the existing owner
 
 Route an inert preparation command through the supervisor's already-connected RuntimeClient; a second connection is not interchangeable with that owner. Isolate the fixed finite loader worker's home, cwd and environment before native import, without populating the active case's skills tree or relaxing CaseSlot archival rules. Native skill_view with preprocess=False still invokes readiness/load_env: distinguish an attempted read of the absent fresh-home .env from successful credential access. Measure cold installed loading before choosing a new operation's timeout, keep existing grants unchanged, and credit only document preparation—not an agent, TaskResult or completed turn.
+
+## Cold admission and root lineage
+
+- Guard import-time provider discovery as well as client construction. A native import can consult credential sources before an agent exists; exercise the installed pin in a fresh home and record attempted reads independently before a guard raises.
+- Bind each staged batch to its original root object and immutable native/session IDs. Recheck that same live root under the registry lock before replay-as-admission and first release; a different live resolver root cannot revive pending children. Keep terminal receipt readback receive-only and separate from new authority.
 
 ## Verification
 Each G02/G04/G07 subgate has evidence at its actual boundary. Test restart, compression/lineage, duplicate events, wrong identity, stopped run and bounded outputs. Report live LLM tests as not-run until explicitly authorized and exercised.

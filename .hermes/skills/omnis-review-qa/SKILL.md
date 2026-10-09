@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.23
+version: 0.1.24
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -96,6 +96,12 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 ## No-rerun at a composed consumer
 
 Trace replay/readback through pinned compiler and dependency validation before claiming no execution. A compiler may execute retained PURE qualification inputs; patching only the consumer's imported evaluator alias misses that branch. Observe the defining module and all invoked aliases, use a real dependency-bearing published snapshot, and either prove non-executing revalidation or explicitly refuse unsupported dependencies before that path. Keep the ordinary no-dependency positive; a blanket failure is not a replay proof.
+
+## Installed QA scheduling and schemas
+
+- Budget cold CLI startup and intermediate readbacks against immutable brief/stage deadlines. Run the positive admission promptly; put optional identity/input denials on a separate never-launched assignment rather than lengthening product grants or letting QA bookkeeping expire the positive.
+- Compare exact named artifact inventories before asserting counts; native patched files and adapter modules are different sets. Stop a live proof after a failed preflight, preserve that failure and correct the observer before a bounded new attempt.
+- Read the actual domain schema before asserting a native receipt field on a TaskResult. Validate the native cause and the domain gaps/method results at their respective records; an invented top-level field must not motivate a product change or a weaker oracle.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

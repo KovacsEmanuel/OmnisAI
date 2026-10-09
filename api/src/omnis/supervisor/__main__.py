@@ -13,7 +13,6 @@ from omnis.core.db import database_engine, readiness_reason
 from omnis.modules.engagements.service import EngagementNotFound, EngagementService
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
-from omnis.modules.runs.native_preparation import NativePreparation, existing_private_root
 from omnis.supervisor.case_slot import CaseSlot
 from omnis.supervisor.runtime_client import RuntimeClient
 from omnis.transport.local_control import LocalControl
@@ -35,6 +34,8 @@ async def run() -> None:
     if raw_catalog is not None:
         if not raw_catalog or probe != "1" or not raw_runtime:
             raise ValueError("Invalid explicit native preparation opt-in")
+        from omnis.modules.runs.native_preparation import existing_private_root
+
         catalog_root = existing_private_root(Path(raw_catalog))
         if str(catalog_root) != raw_catalog:
             raise ValueError("Invalid explicit native preparation opt-in")
@@ -97,6 +98,8 @@ async def run() -> None:
                 await runtime.status()
         preparation = None
         if catalog_root is not None and runtime is not None:
+            from omnis.modules.runs.native_preparation import NativePreparation
+
             preparation = NativePreparation(engine, catalog_root, service, owner, epoch, runtime)
         async with LocalControl(
             Path(raw_directory),

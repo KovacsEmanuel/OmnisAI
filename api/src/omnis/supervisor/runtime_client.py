@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
 
 from omnis.core.paths import check_private_file, private_directory
-from omnis.modules.runs.native_preparation_models import LIMITS, validate_bundle, validate_worker
 
 if TYPE_CHECKING:
     from omnis.modules.instance.service import InstanceService, RuntimeAuthority
@@ -291,6 +290,11 @@ class RuntimeClient:
                 request["deadline_ns"] = authority.deadline_ns
             timeout = 2.0
             if op == "prepare" and authority is not None:
+                from omnis.modules.runs.native_preparation_models import (
+                    LIMITS,
+                    validate_bundle,
+                )
+
                 if payload is None or set(payload) != {"bundle_ref", "bundle"}:
                     raise RuntimeUnavailable("Runtime payload denied")
                 validate_bundle(payload["bundle_ref"], payload["bundle"])
@@ -367,6 +371,8 @@ class RuntimeClient:
                         self.bootstrap_inventory = validated
                         response["bootstrap_inventory"] = validated
                     if op == "prepare":
+                        from omnis.modules.runs.native_preparation_models import validate_worker
+
                         if (
                             state != "READY"
                             or payload is None
@@ -395,6 +401,8 @@ class RuntimeClient:
         bundle_ref: dict[str, object],
         bundle: dict[str, object],
     ) -> dict[str, object]:
+        from omnis.modules.runs.native_preparation_models import validate_bundle
+
         checked = validate_bundle(bundle_ref, bundle)
         try:
             authority = await service.runtime_authority(

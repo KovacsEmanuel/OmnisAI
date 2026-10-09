@@ -6,7 +6,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
-from omnis.modules.settings.candidate_catalog import uuid_string, valid_ref
 
 
 class InstanceView(BaseModel):
@@ -58,11 +57,15 @@ class NativePrepareCommand(StrictBody):
     @field_validator("owner_id", "command_id", "instance_id", mode="before")
     @classmethod
     def identity(cls, value: object) -> str:
+        from omnis.modules.settings.candidate_catalog import uuid_string
+
         return uuid_string(value)
 
     @field_validator("selection_ref", mode="before")
     @classmethod
     def selection(cls, value: object) -> dict[str, object]:
+        from omnis.modules.settings.candidate_catalog import valid_ref
+
         ref = valid_ref(value)
         if ref["kind"] != "execution-selection":
             raise ValueError("Invalid selection")

@@ -33,17 +33,27 @@ from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.tasks import managed_composition
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_b06b_pure_probe_pg import Published
+from test_composition_admission_regressions import authored_case
 from test_managed_contract import stage
 from test_native_preparation import command, worker_fixture
 
 
+@pytest.mark.parametrize(
+    "case", ["valid", "empty_signal", "empty_requirement", "bom_requirement", "bom_objective"]
+)
 def test_pg_composed_two_skills_cli_replay_binding_readback_and_denials(
     request: pytest.FixtureRequest,
+    case: str,
 ) -> None:
     # Fail before requesting any database if parent has not sealed real source.
     managed_composition.prompt_settings()
     url = request.getfixturevalue("migrated_database_url")
     seed = new_two_skill_seed()
+    if case != "valid":
+        from omnis.modules.settings.catalog_schema import load_json
+
+        source = seed.package / "templates/procedures/publication-map.yaml"
+        source.write_bytes(canonical(authored_case(mapping(load_json(source.read_bytes())), case)))
     dsn = url.render_as_string(hide_password=False)
     qualified = qualify_two(seed, dsn)
     publication = seed.success(
@@ -101,6 +111,31 @@ def test_pg_composed_two_skills_cli_replay_binding_readback_and_denials(
                 "preparation_command_id": prep.command_id,
                 "task_count": 1,
             }
+            if case != "valid":
+                async with engine.begin() as conn:
+                    before = [
+                        (await conn.execute(sql(f"SELECT count(*) FROM {table}"))).scalar_one()
+                        for table in (
+                            "managed_record",
+                            "managed_run",
+                            "managed_task",
+                            "managed_inbox",
+                        )
+                    ]
+                with pytest.raises(CatalogError):
+                    await managed.prepare_composed(req)
+                async with engine.begin() as conn:
+                    after = [
+                        (await conn.execute(sql(f"SELECT count(*) FROM {table}"))).scalar_one()
+                        for table in (
+                            "managed_record",
+                            "managed_run",
+                            "managed_task",
+                            "managed_inbox",
+                        )
+                    ]
+                assert before == after == [0, 0, 0, 0]
+                return
             file = seed.directory / "composed-request.json"
             file.write_bytes(canonical(req))
             process = await asyncio.create_subprocess_exec(

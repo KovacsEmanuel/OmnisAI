@@ -241,7 +241,9 @@ def compose(
 
 def _authored_text(value: object) -> None:
     if isinstance(value, str):
-        if any((ord(c) < 32 and c not in "\n\t") or 127 <= ord(c) <= 159 for c in value):
+        if value.startswith("\ufeff") or any(
+            (ord(c) < 32 and c not in "\n\t") or 127 <= ord(c) <= 159 for c in value
+        ):
             raise CatalogError("COMPOSITION_REJECTED")
     elif isinstance(value, dict):
         for key, child in value.items():
@@ -321,6 +323,18 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     contract.validate_assignment(brief, bound)
     validate_skills(sections[4:], metadata["package_refs"])
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+    # Native preflight requires nonempty prose at these method positions.
+    # Refuse the same source bytes before persistence, never strip or repair them.
+    for field in ("objective", "predicted_signal"):
+        text(procedure[field])
+    if procedure["cleanup_not_needed_reason"] is not None:
+        text(procedure["cleanup_not_needed_reason"])
+    for value in sequence(procedure["false_positives"]):
+        text(value)
+    for group in sequence(procedure["non_applicable_groups"]):
+        text(mapping(group)["reason"])
+    for requirement in sequence(procedure["method_requirements"]):
+        text(mapping(requirement)["description"])
     method_count = sum(
         mapping(content)["path"] != "SKILL.md"
         for skill in sections[4:]

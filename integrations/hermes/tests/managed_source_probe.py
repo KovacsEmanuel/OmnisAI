@@ -86,4 +86,4 @@ print(
         "effects": attempts,
     }
 )
-raise SystemExit(0 if result.wasSuccessful() and result.testsRun == 6 and not attempts else 1)
+raise SystemExit(0 if result.wasSuccessful() and result.testsRun == 7 and not attempts else 1)

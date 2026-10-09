@@ -200,6 +200,32 @@ class ColdLifecycle(unittest.TestCase):
         self.assertEqual(final["status"], "BLOCKED")
         self.assertEqual(dispatch(RPC["task_status"], status), final)
 
+    def test_replacement_root_cannot_revive_an_old_pending_batch(self):
+        from agent.cold_admission import ColdAdmission
+        from agent.subagent_lifecycle import _REGISTRY, SubagentState
+        from run_agent import AIAgent
+
+        staged = self.stage()
+        replacement = AIAgent(cold_admission=ColdAdmission())
+        self.service._parent_agent_resolver = lambda: replacement
+        try:
+            self.assertNotEqual(replacement.session_id, self.root.session_id)
+            for old_closed in (False, True):
+                if old_closed:
+                    self.root.close()
+                with self.subTest(old_closed=old_closed):
+                    with self.assertRaises(ValueError):
+                        self.service.stage(self.payload)
+                    with self.assertRaises(ValueError):
+                        self.service.release(self.release)
+                    self.assertEqual(self.service.readback(self.status), staged)
+                    for row in staged["entries"]:
+                        child = _REGISTRY.records[row["native_child_id"]]
+                        self.assertEqual(child.state, SubagentState.PENDING)
+                        self.assertIsNone(child.result)
+        finally:
+            replacement.close()
+
     def test_invalid_cold_token_and_warm_options_denied(self):
         from agent.cold_admission import ColdAdmission
         from run_agent import AIAgent
@@ -233,7 +259,7 @@ if __name__ == "__main__":
     started = time.monotonic()
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(ColdLifecycle)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
-    passed = result.wasSuccessful() and result.testsRun == 6 and not effects
+    passed = result.wasSuccessful() and result.testsRun == 7 and not effects
     print(
         json.dumps(
             {

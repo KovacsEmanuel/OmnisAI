@@ -250,15 +250,16 @@ class SubagentLifecycleService:
         from agent.cold_admission import ColdAdmission, ColdAdmissionDenied
         from uuid import uuid4
         manifest = validate_stage(payload)
-        parent = self._parent_agent_resolver()
-        state = getattr(parent, "_cold_state", None)
-        if state is None or state.closed or state.parent_session_id is not None:
-            raise ColdAdmissionDenied("A live cold native root is required")
         with _REGISTRY.lock:
+            parent = self._parent_agent_resolver()
+            state = getattr(parent, "_cold_state", None)
+            if state is None or state.closed or state.parent_session_id is not None:
+                raise ColdAdmissionDenied("A live cold native root is required")
             prior = self._cold_batches.get(manifest["id"])
             if prior is not None:
                 if prior["manifest"] != manifest:
                     raise ColdAdmissionDenied("Manifest replay conflict")
+                self._require_cold_root(prior, parent)
                 return json.loads(json.dumps(prior["response"]))
             if len(self._cold_batches) >= 64:
                 raise ColdAdmissionDenied("Cold registry full")
@@ -288,8 +289,20 @@ class SubagentLifecycleService:
             self._cold_batches[manifest["id"]] = dict(
                 manifest=json.loads(json.dumps(manifest)), response=response, records=records,
                 expires=time.monotonic() + 4.5, binding=None,
+                parent=parent, parent_session_id=parent.session_id,
             )
             return json.loads(json.dumps(response))
+
+    def _require_cold_root(self, batch, parent):
+        """Admission stays with the original root; status readback is historical."""
+        from agent.cold_admission import ColdAdmissionDenied
+        state = getattr(parent, "_cold_state", None)
+        if (parent is not batch["parent"] or state is None or state.closed
+                or parent.session_id != batch["parent_session_id"]
+                or state.session_id != batch["parent_session_id"]
+                or parent._subagent_id != batch["response"]["native_root_id"]
+                or state.native_id != batch["response"]["native_root_id"]):
+            raise ColdAdmissionDenied("Native root lineage changed or stopped")
 
     def _cold_batch(self, payload):
         from agent.cold_admission import ColdAdmissionDenied
@@ -322,7 +335,8 @@ class SubagentLifecycleService:
                     raise ColdAdmissionDenied("Immutable binding conflict")
                 return json.loads(json.dumps(response))
             parent = self._parent_agent_resolver()
-            if (parent is None or parent._cold_state.closed or time.monotonic() >= batch["expires"]
+            self._require_cold_root(batch, parent)
+            if (time.monotonic() >= batch["expires"]
                     or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
                            for r in batch["records"])):
                 raise ColdAdmissionDenied("Native stage expired or stopped")

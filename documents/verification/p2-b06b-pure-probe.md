@@ -36,4 +36,12 @@ Resurse: numai PostgreSQL nou atestat UDS/no-network, familie urmărită și cle
 
 ## Stare
 
-Contract adjudecat; implementare și dovezi încă în lucru. Fără PASS anticipat.
+Produsul inițial este comis în `bca03d7`. Integrarea PG inițială `proc_2cc6b37bde0a` a avut 32 PASS / 4 FAIL, exit2: răspunsul execute conținea câmpuri suplimentare și testul folosea un factory inexistent. Părintele a reparat forma contractuală și testul; oracle-ul revision folosește separat bytes consumerului + evaluatorul. `proc_6f0ed7f451d1`: 36 PASS în234s, exit0/family_drained=true, nouă hashes stabile, cleanup CID/rețele/socket exact și date păstrate. Nu este acceptare nativă sau canonical final.
+
+### R1-PURE-01 — constatare reală și frontieră restrânsă
+
+Reviewurile `deleg_b9276e81` au aceleași nouă hashes: safety APPROVED_SCOPED; compliance CHANGES_REQUESTED. R1 arată că `compile_catalog` reevaluează inputul calificării dependențelor RELEASE, inclusiv când este chemat de readback. Patchul doar pe aliasul `pure_probe.evaluate_pure` nu observa acest apel indirect. Părintele a reprodus componenta reală (o execuție pe fiecare dintre două compilări) și apoi **o publicație/snapshot reale pe PostgreSQL**: testul nou a eșuat `DID NOT RAISE`, exit1/12.36s (`proc_4dde810e73f0`). RELEASE extern este produsul test-only calificat B06a, local capture/review/freeze/eval/confirm/publish/snapshot sunt CLI reale; nu numim fixture-ul extern publicație de produs.
+
+Decizie: consumerul intermediar admite numai seed-ul cu `dependency_artifact_refs=[]`. Refuză nonempty/missing/malformed înainte de `_readback`, cu `RELEASE_DEPENDENCY_NOT_SUPPORTED`; suportul RELEASE din catalog/C01 rămâne neschimbat. Aceasta restrânge explicit breadth-ul noii comenzi, nu elimină controale sau obligațiile B06b. Suportul viitor cere revalidare pinned fără execuție și probe proprii, nu simpla eliminare a guardului.
+
+GREEN focalizat: `proc_9b0158497475`, două scenarii PG pe fixture nouă, exit0/drained: refuzul publicației cu dependență înainte de apelul PURE și replay/readback pozitiv fără dependențe, observând ambele aliasuri ale evaluatorului. Runnerul original de provisioning/atestare/cleanup este reutilizat; helperul scratch înlocuiește numai argv-ul testelor selectate, nu rezultatele/executorul. Cleanup exact/date păstrate. Formatarea ulterioară a dicționarului testului nu schimbă logica; canonicalul final va proba snapshotul final. Re-review focalizat și QA installed sunt încă în lucru; nu există închidere anticipată a feliei.

@@ -417,6 +417,11 @@ def test_successful_replay_and_readback_never_rerun_executor(
 
     with monkeypatch.context() as patch:
         patch.setattr(module, "evaluate_pure", forbidden)
+        patch.setattr(
+            importlib.import_module("omnis.modules.settings.skill_catalog"),
+            "evaluate_pure",
+            forbidden,
+        )
         assert asyncio.run(dispatch(p, "execute", command)) == result
         back = asyncio.run(
             dispatch(p, "readback", p.probe.request(receipt_ref=result["receipt_ref"]))

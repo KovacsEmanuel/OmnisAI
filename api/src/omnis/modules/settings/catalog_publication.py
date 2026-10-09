@@ -246,6 +246,10 @@ class PublicationCatalog:
             raise CatalogError("SNAPSHOT_MISMATCH")
         group, snapshot = await store.get(connection, owner, ref)
         body = payload(snapshot)
+        # RELEASE recompilation executes its qualification input. This interim
+        # consumer cannot admit it while promising execution-free readback.
+        if body.get("dependency_artifact_refs") != []:
+            raise CatalogError("RELEASE_DEPENDENCY_NOT_SUPPORTED")
         back = await self._readback(connection, owner, valid_ref(body.get("publication_ref")))
         publication = back["publication"]
         index = back["resolved_index"]

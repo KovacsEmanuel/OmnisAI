@@ -6,7 +6,7 @@ export const copy = {
   pairedIntro: 'A live view of the local control plane. Assessment execution is not available in this build.',
   pairTitle: 'Pair this browser', code: 'Pairing code', pair: 'Pair browser', pairing: 'Pairing…',
   codeHint: 'Use the one-use code from the local operator terminal. It expires after 5 minutes.',
-  issuer: 'The installed omnis launcher is pending P0.4. This build has no public code-issuing endpoint.',
+  issuer: 'Run omnis pair in your local terminal. This build has no public code-issuing endpoint.',
   privateHint: 'The code is sent once in a local POST request, never stored in the browser.',
   invalidCode: 'Enter the exact code: 16–128 letters, digits, hyphens or underscores. Do not add spaces.',
   checking: 'Checking local session…', refreshing: 'Checking…', retry: 'Check again',

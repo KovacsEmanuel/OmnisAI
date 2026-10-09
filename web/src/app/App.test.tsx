@@ -29,6 +29,7 @@ it('pairs a browser, reads actual instance state, and confirms logout with a ses
   mount();
   const user = userEvent.setup();
   const input = await screen.findByLabelText('Pairing code');
+  expect(screen.getByText('Run omnis pair in your local terminal. This build has no public code-issuing endpoint.')).toBeVisible();
   await user.type(input, 'synthetic-pairing-code');
   await user.click(screen.getByRole('button', { name: 'Pair browser' }));
   expect(pair).toHaveBeenCalledExactlyOnceWith('synthetic-pairing-code');

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "scope": "SL09/B06b published PURE consumer, canonical regression on final product bytes; not native integration or full phase 2",
+  "verdict": "PASS_LOCAL_RECORDED_CANONICAL",
+  "tested_product_commit": "14723a385882ce102d6e203d8059acb77d2c46e9",
+  "session_id": "proc_3e531ea9a2cb",
+  "command": "PATH=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/uv/uv-x86_64-unknown-linux-gnu/uv",
+  "exit_code": 0,
+  "family_receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+  "tracked_files_checked": 616,
+  "tracked_hash_mismatches": [],
+  "source_manifest": "/home/kali/.hermes/cache/scratch/b06b-pure-canonical-before.json",
+  "log": "/home/kali/.hermes/cache/scratch/db-70d34cae26e9434c/gate.log",
+  "log_sha256": "0c8aa72ef932997d24a9c3d03d43e0bc8a6cf6b7b507442fea97f4629b1a6561",
+  "component_results": {
+    "documentation": {"passed": 72, "seconds": 1.625},
+    "development": {"passed": 43, "seconds": 8.915},
+    "api": {"passed": 795, "seconds": 1764.40},
+    "migrations": {"passed": 23, "seconds": 62.15},
+    "web": {"passed": 75, "test_files": 9},
+    "browser_api_pg_e2e": {"passed": 9, "seconds": 83.32},
+    "cli_source": {"passed": 287, "seconds": 70.384},
+    "cli_wheel": {"passed": 287, "seconds": 70.518},
+    "cli_installed_status": {"passed": 1, "seconds": 3.04},
+    "release": {"passed": 61, "seconds": 18.699},
+    "runtime": {"passed": 134, "seconds": 6.30},
+    "native_build_ast": {"passed": 6, "seconds": 0.065}
+  },
+  "counts_are_components_not_unique_total": true,
+  "cleanup": {
+    "project": "omnis-p01-6fc37600c4f2401f8424972fce66af1e",
+    "cid": "d7fa0f3d7201706a34c068f2327db25f4c116bd62951f2960086ea259d3b92bb",
+    "root": "/home/kali/.hermes/cache/scratch/db-70d34cae26e9434c",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "system_identifier": "7694564735636516894",
+    "exact_CID_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "uncertain": false,
+    "PGDATA_logs_retained": true,
+    "parent_independent_readback": true
+  },
+  "limits": [
+    "Full regression gate, not proof of every possible defect or native B06b completeness.",
+    "No new native child, provider/model call, target traffic, rollout over r1, global configuration or push.",
+    "Published PURE consumer only admits a single recipe/procedure without external RELEASE dependencies; C01 publication retains its existing breadth.",
+    "Independent installed PURE QA remains a separate acceptance artifact.",
+    "Software rollback/concurrency and CLI restart are not physical crash/power loss/server ACK-loss evidence.",
+    "Later documentation-only commits do not change this tested product snapshot."
+  ],
+  "register": "documents/verification/p2-b06b-pure-probe.md"
+}

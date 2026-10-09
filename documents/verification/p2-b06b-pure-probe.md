@@ -45,3 +45,11 @@ Reviewurile `deleg_b9276e81` au aceleași nouă hashes: safety APPROVED_SCOPED; 
 Decizie: consumerul intermediar admite numai seed-ul cu `dependency_artifact_refs=[]`. Refuză nonempty/missing/malformed înainte de `_readback`, cu `RELEASE_DEPENDENCY_NOT_SUPPORTED`; suportul RELEASE din catalog/C01 rămâne neschimbat. Aceasta restrânge explicit breadth-ul noii comenzi, nu elimină controale sau obligațiile B06b. Suportul viitor cere revalidare pinned fără execuție și probe proprii, nu simpla eliminare a guardului.
 
 GREEN focalizat: `proc_9b0158497475`, două scenarii PG pe fixture nouă, exit0/drained: refuzul publicației cu dependență înainte de apelul PURE și replay/readback pozitiv fără dependențe, observând ambele aliasuri ale evaluatorului. Runnerul original de provisioning/atestare/cleanup este reutilizat; helperul scratch înlocuiește numai argv-ul testelor selectate, nu rezultatele/executorul. Cleanup exact/date păstrate. Formatarea ulterioară a dicționarului testului nu schimbă logica; canonicalul final va proba snapshotul final. Re-review focalizat și QA installed sunt încă în lucru; nu există închidere anticipată a feliei.
+
+### Re-review și canonical final
+
+Re-reviewul `deleg_5ec6b927` a închis **R1-PURE-01 / APPROVED_SCOPED** pe `14723a3`, cu12/12 bindings la commit. Safety original rămâne aprobat pe bytes lui, iar concluzia sa generală „fără rerun” este calificată de R1, nu folosită pentru a ignora reproducerul. Reviewerul a recitit privat dovezile RED/GREEN și a verificat guardul înainte de readback cu10 refuzuri și controlul `[]` (component seam, nu PG nou).
+
+**Corecție de proveniență:** corpul commitului `14723a3` a scris eronat25.75s. Logul original și re-reviewul confirmă **2 PASS în24.25s**, exit0/drained. Istoria nu este rescrisă; acea durată din commit nu este folosită drept probă.
+
+[Canonical final](p2-b06b-pure-canonical.json) pe `14723a3`, `proc_3e531ea9a2cb`: `make check` **exit0/family_drained=true**,616 fișiere versionate neschimbate,795API/23migrare/75web/9E2E,287CLI source+287wheel/61release/134runtime+6AST. Părintele a citit receiptul exact și hashuit logul, apoi a verificat independent absența CID/rețele/socket și păstrarea PGDATA. Commiturile documentare ulterioare nu schimbă produsul testat. QA independentă installed rămâne în curs; native/C02 integral/B06b/G02 nu primesc credit din acest PASS.

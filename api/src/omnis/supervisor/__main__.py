@@ -30,6 +30,9 @@ async def run() -> None:
     if raw_runtime is not None and (not raw_runtime or Path(raw_runtime) == Path(raw_directory)):
         raise ValueError("Runtime requires a distinct private directory")
     raw_catalog = os.environ.get("OMNIS_NATIVE_PREPARATION_CATALOG_ROOT")
+    managed_opt_in = os.environ.get("OMNIS_MANAGED_TASKS")
+    if managed_opt_in not in {None, "1"} or (managed_opt_in == "1" and not raw_catalog):
+        raise ValueError("Managed tasks require explicit native preparation opt-in")
     catalog_root = None
     if raw_catalog is not None:
         if not raw_catalog or probe != "1" or not raw_runtime:
@@ -97,16 +100,25 @@ async def run() -> None:
             else:
                 await runtime.status()
         preparation = None
+        task_owner = None
         if catalog_root is not None and runtime is not None:
             from omnis.modules.runs.native_preparation import NativePreparation
 
             preparation = NativePreparation(engine, catalog_root, service, owner, epoch, runtime)
+            if managed_opt_in == "1":
+                from omnis.modules.runs.managed_admission import ManagedAdmission
+                from omnis.supervisor.native_tasks import NativeTaskOwner
+
+                task_owner = NativeTaskOwner(
+                    ManagedAdmission(engine, catalog_root), service, owner, epoch, runtime
+                )
         async with LocalControl(
             Path(raw_directory),
             service,
             owner,
             epoch,
             native_prepare=preparation.prepare if preparation is not None else None,
+            native_task=task_owner.handle if task_owner is not None else None,
         ):
             await service.quiesce(owner, epoch)
             print("SUPERVISOR_READY", flush=True)

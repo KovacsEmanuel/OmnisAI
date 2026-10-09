@@ -1,0 +1,257 @@
+"""Existing supervisor owns native stage/commit/release; no second RPC client."""
+
+import argparse
+import asyncio
+import os
+import socket
+import struct
+import sys
+from contextlib import suppress
+from pathlib import Path
+from typing import NoReturn
+from uuid import UUID
+
+from sqlalchemy import text as sql
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncConnection
+
+from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.schemas import NativeTaskCommand
+from omnis.modules.instance.service import InstanceService
+from omnis.modules.runs.managed_admission import ManagedAdmission
+from omnis.modules.settings import candidate_store as records
+from omnis.modules.settings.candidate_catalog import uuid_string
+from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.settings.catalog_schema import canonical, load_json
+from omnis.modules.tasks.managed_contract import PROTOCOL, mapping, ref
+from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
+
+
+class NativeTaskOwner:
+    def __init__(
+        self,
+        domain: ManagedAdmission,
+        service: InstanceService,
+        owner: UUID,
+        epoch: int,
+        runtime: RuntimeClient,
+    ) -> None:
+        self.domain, self.service, self.owner = domain, service, owner
+        self.epoch, self.runtime = epoch, runtime
+
+    async def _instance(self, connection: AsyncConnection, command: NativeTaskCommand) -> None:
+        actual = (
+            await connection.execute(sql("SELECT instance_id FROM instance_control WHERE id=1"))
+        ).scalar_one()
+        if str(actual) != command.instance_id or command.expected_epoch != self.epoch:
+            raise CatalogError("TASK_REJECTED")
+
+    def _reply(
+        self, command: NativeTaskCommand, binding: dict[str, object], status: str
+    ) -> dict[str, object]:
+        return {
+            "ok": True,
+            "manifest_ref": command.manifest_ref,
+            "binding_ref": records.reference(binding),
+            "task_status": status,
+        }
+
+    async def handle(self, command: NativeTaskCommand) -> dict[str, object]:
+        command = NativeTaskCommand.model_validate(command.model_dump(mode="json"))
+        async with asyncio.timeout(4):
+            try:
+                return await self._handle(command)
+            except RuntimeUnavailable:
+                raise CatalogError("TASK_INDETERMINATE") from None
+
+    async def _handle(self, command: NativeTaskCommand) -> dict[str, object]:
+        # Lifecycle command ID is the original prepare ID, never an unused nonce.
+        back = await self.domain.readback(
+            {"schema_version": 1, "owner_id": command.owner_id, "command_id": command.command_id}
+        )
+        if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
+            raise CatalogError("COMMAND_CONFLICT")
+        binding = None if back["binding"] is None else mapping(back["binding"])
+        if binding is not None:
+            authority = mapping(mapping(binding["payload"])["authority"])
+            if any(
+                authority[key] != expected
+                for key, expected in (
+                    ("instance_id", command.instance_id),
+                    ("epoch", command.expected_epoch),
+                    ("generation", command.expected_generation),
+                )
+            ):
+                raise CatalogError("COMMAND_CONFLICT")
+            if back["results"]:
+                await self.domain.check(command.owner_id, command.command_id)
+                return self._reply(command, binding, "BLOCKED")
+        if command.action == "stage":
+            if binding is not None:
+                return self._reply(command, binding, "BOUND")
+            if back["stage_started"]:
+                raise CatalogError("TASK_INDETERMINATE")
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                manifest = await self.domain.reserve_dispatch(
+                    conn, command.owner_id, command.manifest_ref, "stage"
+                )
+            staged = await self.runtime.managed(
+                self.service, self.owner, "task_stage", {"protocol": PROTOCOL, "manifest": manifest}
+            )
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                binding = await self.domain.commit_binding(
+                    conn,
+                    command.owner_id,
+                    command.manifest_ref,
+                    staged,
+                    self.runtime.boot,
+                    {
+                        "instance_id": command.instance_id,
+                        "owner": str(self.owner),
+                        "epoch": self.epoch,
+                        "generation": command.expected_generation,
+                    },
+                )
+            return self._reply(command, binding, "BOUND")
+        if binding is None:
+            raise CatalogError("TASK_REJECTED")
+        body = mapping(binding["payload"])
+        if body["runtime_boot"] != self.runtime.boot:
+            raise CatalogError("TASK_INDETERMINATE")
+        payload = {
+            "protocol": PROTOCOL,
+            "ticket": body["ticket"],
+            "manifest_ref": command.manifest_ref,
+        }
+        if command.action == "release":
+            if back["release_started"]:
+                raise CatalogError("TASK_INDETERMINATE")
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                await self.domain.reserve_dispatch(
+                    conn, command.owner_id, command.manifest_ref, "release"
+                )
+            final = await self.runtime.managed(
+                self.service, self.owner, "task_release", {**payload, "binding": binding}
+            )
+        else:
+            if not back["release_started"]:
+                raise CatalogError("TASK_INDETERMINATE")
+            final = await self.runtime.managed(self.service, self.owner, "task_status", payload)
+        # A genuine already-produced result is received without granting new work.
+        await self.domain.ingest_result(
+            command.owner_id,
+            command.manifest_ref,
+            final,
+            self.runtime.boot,
+            body["authority"],
+            held=False,
+        )
+        await self.domain.check(command.owner_id, command.command_id)
+        return self._reply(command, binding, "BLOCKED")
+
+
+async def control_task(directory: Path, value: object) -> dict[str, object]:
+    from omnis.modules.runs.native_preparation import existing_private_root
+    from omnis.transport.control_probe import _read_capability
+
+    command = NativeTaskCommand.model_validate(value)
+    existing_private_root(directory)
+    capability = _read_capability(directory)
+    async with asyncio.timeout(4):
+        reader, writer = await asyncio.open_unix_connection(directory / "control.sock", limit=4096)
+        try:
+            peer = writer.get_extra_info("socket").getsockopt(
+                socket.SOL_SOCKET, socket.SO_PEERCRED, 12
+            )
+            if struct.unpack("3i", peer)[1] != os.getuid():
+                raise CatalogError("TASK_UNAVAILABLE")
+            frame = (
+                canonical(
+                    {
+                        "version": 1,
+                        "capability": capability,
+                        "command": command.model_dump(mode="json"),
+                    }
+                )
+                + b"\n"
+            )
+            if len(frame) > 4096:
+                raise CatalogError("INVALID_REQUEST")
+            writer.write(frame)
+            await writer.drain()
+            reply = mapping(load_json(await reader.readuntil(b"\n")))
+            uuid_string(reply.get("correlation_id"))
+            if reply.get("ok") is not True:
+                reason = reply.get("error")
+                allowed = {
+                    "TASK_UNAVAILABLE",
+                    "TASK_REJECTED",
+                    "TASK_INDETERMINATE",
+                    "COMMAND_CONFLICT",
+                    "CONTROL_TIMEOUT",
+                    "CONTROL_UNAVAILABLE",
+                    "LEASE_LOST",
+                }
+                raise CatalogError(
+                    reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
+                )
+            if set(reply) != {"ok", "correlation_id", "manifest_ref", "binding_ref", "task_status"}:
+                raise CatalogError("TASK_REJECTED")
+            if ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref:
+                raise CatalogError("TASK_REJECTED")
+            ref(reply["binding_ref"], "runtime-binding")
+            if reply["task_status"] not in {"BOUND", "BLOCKED"}:
+                raise CatalogError("TASK_REJECTED")
+            return reply
+        finally:
+            writer.close()
+            with suppress(OSError, TimeoutError):
+                await asyncio.wait_for(writer.wait_closed(), 0.2)
+
+
+def main(argv: list[str] | None = None) -> int:
+    class Parser(argparse.ArgumentParser):
+        def error(self, message: str) -> NoReturn:
+            raise CatalogError("INVALID_ARGUMENTS")
+
+    parser = Parser()
+    parser.add_argument("--request", required=True)
+    parser.add_argument("--control-dir", required=True)
+    try:
+        args = parser.parse_args(argv)
+        from omnis.modules.settings.skill_catalog import read_file
+
+        result = asyncio.run(
+            control_task(Path(args.control_dir), load_json(read_file(Path(args.request), 4096)))
+        )
+        print(canonical(result).decode())
+        return 0
+    except CatalogError as error:
+        reason = error.reason
+    except (SQLAlchemyError, ControlConflict, TimeoutError):
+        reason = "TASK_UNAVAILABLE"
+    except (
+        OSError,
+        ValueError,
+        TypeError,
+        KeyError,
+        RecursionError,
+        asyncio.IncompleteReadError,
+        asyncio.LimitOverrunError,
+    ):
+        reason = "TASK_REJECTED"
+    print(canonical({"status": "BLOCKED", "reason": reason}).decode(), file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

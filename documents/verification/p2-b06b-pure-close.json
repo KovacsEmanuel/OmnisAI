@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "scope": "SL09/B06b intermediate published PURE consumer; not full C02, native B06b or phase 2",
+  "verdict": "CLOSED_SCOPED_PURE_CONSUMER",
+  "code": "IMPLEMENTED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "product_commit": "14723a385882ce102d6e203d8059acb77d2c46e9",
+  "feature_commit": "bca03d7a198a9ca5c3881a397b4796bd0c9908ca",
+  "consumer": "python -I -B -m omnis.modules.runs.pure_probe {select,execute,readback} --request <json> --catalog-root <private-root>",
+  "acceptance": [
+    "Persist an exact ExecutionSelection NO_MODEL/effective=null from a published CONTRACT_PROBE snapshot before execution.",
+    "Execute the existing PURE handlers on newly supplied synthetic input; persist input/output digests/receipt and command atomically.",
+    "Read back and replay from new CLI processes on the same PostgreSQL; successful replay never reruns the direct or indirect PURE evaluator in the supported scope.",
+    "Deny wrong owner/ref/recipe, model/purpose overrides, invalid input, changed command payload and changed retained material without partial receipt writes.",
+    "Observe overlapping PostgreSQL writers, one committed receipt, and rollback after real writes under an injected precommit software failure.",
+    "Refuse RELEASE dependencies before revalidation, proven against a real publication with an explicitly test-qualified external dependency."
+  ],
+  "review_reports": {
+    "compliance": {
+      "path": "/home/kali/.hermes/cache/scratch/b06b-pure-review-compliance.json",
+      "sha256": "ce328521e6d96cb0d66351bf63bef182ab99d123b33100635d25cbd4440546bd",
+      "verdict": "CHANGES_REQUESTED",
+      "finding": "R1-PURE-01"
+    },
+    "safety": {
+      "path": "/home/kali/.hermes/cache/scratch/b06b-pure-review-safety.json",
+      "sha256": "e34725dd5e00ca38a19c700ded48415700d7d4cb30ce2e510ec262813669a721",
+      "verdict": "APPROVED_SCOPED",
+      "qualification": "No-rerun conclusion is qualified by R1, not used to override its reproducer."
+    },
+    "focused_R1": {
+      "path": "/home/kali/.hermes/cache/scratch/b06b-pure-r1-rereview.json",
+      "verdict": "APPROVED_SCOPED",
+      "snapshot": "14723a385882ce102d6e203d8059acb77d2c46e9",
+      "verified_bindings": 12
+    }
+  },
+  "finding_dispositions": {
+    "R1-PURE-01": "RESOLVED_SCOPED: reproduced compiler and real PG publication; RED1fail then GREEN2pass, pre-readback dependency denial and both evaluator aliases observed. Final canonical and installed QA on final product passed."
+  },
+  "canonical": "documents/verification/p2-b06b-pure-canonical.json",
+  "focused_pg": {
+    "initial_integration": {"session": "proc_2cc6b37bde0a", "passed": 32, "failed": 4, "exit": 2},
+    "integrated_green": {"session": "proc_6f0ed7f451d1", "passed": 36, "seconds": 234.00, "exit": 0},
+    "R1_red": {"session": "proc_4dde810e73f0", "failed": 1, "seconds": 12.36, "exit": 1},
+    "R1_green": {"session": "proc_9b0158497475", "passed": 2, "seconds": 24.25, "exit": 0},
+    "all_families_drained": true,
+    "limit": "R1 GREEN preceded test-only dictionary formatting; final canonical covered final bytes. No physical crash or exactly-once execution claim."
+  },
+  "installed_qa": {
+    "report": "/home/kali/.hermes/cache/scratch/b06b-pure-installed-qa.json",
+    "report_sha256": "93ba02b65872b6953be8bfacf6e41126c8415b45ca9279cb6e31c1034db93a72",
+    "session": "proc_522a6cd81fd0",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/b06b-pure-installed-qa-helper.py run",
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 224.14,
+    "exit": 0,
+    "family_drained": true,
+    "wheel_sha256": "a2488b83e9de854f008e2616d0bad0fa1251b71a165f23368a19ede8e7af2630",
+    "installed_python": "/home/kali/.hermes/cache/scratch/pure-qa-fRWNge/venv/bin/python",
+    "modules_byte_identical_regular_single_link": 60,
+    "parent_verified_log_hashes": 5,
+    "parent_verified_junit_cases": 6,
+    "gate_log_sha256": "32d42040159ff3633d6b7ab6beb49ac7fd3b160e6ef650ed1d667dfd0afd6663",
+    "junit_sha256": "47c89959ec8c53456303adb7d3ef1a1b9be0fc03c9bba58f7fcf282959394b4a",
+    "cleanup": {
+      "root": "/home/kali/.hermes/cache/scratch/b06b-pure-installed-live/tmp/db-67aa46f454d1448d",
+      "project": "omnis-p01-b513415f01a642d9bd7966dd30971cb0",
+      "cid": "402e6efedbe2b4ddf6005b8bfe28a69d55ad56c71b98784ac81b54f9d85afffa",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "system_identifier": "7694575138092347422",
+      "parent_same_daemon_exact_CID_project_containers_networks_socket_absent": true,
+      "data_logs_retained": true
+    },
+    "limit": "Six selected tests, not a second canonical. CLI processes and in-process service imports used installed wheel; synthetic DB migration used the unchanged source fixture."
+  },
+  "preserved_failures_and_procedure_limits": [
+    "First documentation check used API venv without markdown; failed before effects, corrected to documented interpreter.",
+    "Integrated PG32pass4fail: execute response shape and wrong test factory; corrected minimally, not suppressed.",
+    "R1 actual RELEASE revalidation reran qualification; fixed by explicit unsupported-breadth denial before compiler.",
+    "14723a3 commit body timing25.75s is erroneous; original focused GREEN is24.25s, corrected in versioned notes without rewriting history.",
+    "Installed QA pre-DB attestor rejected concurrent parent documentation changes; no DB started, product hashes unchanged. Scope corrected without weakening product checks.",
+    "Initial QA read-only report oracle assumed one recursive PG_VERSION; NOT_PASS preserved. Exact cluster-root PG_VERSION/pg_control readback corrected without replaying DB effects.",
+    "QA delegation used27 calls against18 requested; ad-hoc11 helper checks are not product evidence. Product6-test PASS is adjudicated separately, not blanket procedural compliance."
+  ],
+  "remaining": {
+    "C02": "PARTIAL; persistent selection/PURE consumer accepted, not complete brief/native consumption",
+    "C03_C04_C09_C10": "Task/Attempt/Brief/Result/BoundProcedure/MethodPlan/Check not implemented",
+    "C05_C08_C11_C12_H03_H08": "Native core BLOCKED/NOT_RUN; pre-client NO_MODEL and trusted indexed pre-access binding still required",
+    "SL09_B06b_G02_phase2": "NOT_CLOSED",
+    "B06c_B06m_P4a": "NOT_IMPLEMENTED",
+    "P2_live": "NOT_RUN; separate account/model/budget authorization required"
+  },
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE_CLI", "Chisel": "BLOCKED_NO_GO"},
+  "rollback": "Granular Git revert only. Does not undo DB writes; no schema downgrade, real profile migration, rollout or push performed. Synthetic data/logs retained.",
+  "register": "documents/verification/p2-b06b-pure-probe.md"
+}

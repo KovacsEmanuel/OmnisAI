@@ -103,7 +103,7 @@ O excepție neașteptată înainte de începerea răspunsului produce `500 INTER
 
 ## B06a-1 — catalog source și evaluare STATIC/PURE
 
-Primul increment B06a este executabil și acceptat scoped pe `fc8eb13`, dar **PARTIAL_NON_DURABLE / full B06a NOT_CLOSED**. Nu adaugă rute Settings, publicare, selecție în engagement sau Start assessment. Seed-ul `skills/recon-mapping-contract/` este first-party/nepublicat; profilul source are `agent_recipes` top-level, nu imită un WorkflowProfileRevision persistent.
+Această secțiune descrie primul increment source-only acceptat pe `fc8eb13`, nu starea întregului B06a: incrementurile durabile sunt închise ulterior în [registrul B06a](../documents/verification/p2-b06a.md), iar publicarea și consumerul B06b sunt separate mai jos. Comenzile source-only nu adaugă rute Settings, publicare, selecție în engagement sau Start assessment. Seed-ul `skills/recon-mapping-contract/` este first-party/nepublicat; profilul source are `agent_recipes` top-level, nu imită un WorkflowProfileRevision persistent.
 
 Din rădăcina repo-ului, în mediul API pregătit/hash-locked:
 
@@ -115,3 +115,19 @@ make test-b06a-pure
 Compile este read-only și întoarce exit0/`STATIC_PASS`, material/index digests și scope-ul non-durabil. `evaluate` folosește aceleași `--package`/`--profile` și cere `--input <cale-JSON-locală>`: obiect strict cu `capture`, string JSON pentru captura furnizată. Execută numai parse→normalize→surface map cu trei handlers trusted PURE, niciun cod din pachet/provider/target; rezultatul `NO_MODEL`, `effective=null` nu certifică SECURITY. Nici compile, nici evaluate nu au nevoie de DB sau Hermes pornit și nu creează CandidateSnapshot/publication/receipts durabile. Refuzurile de contract au exit2/stdout gol/stderr JSON `BLOCKED` cu reason stabil, fără textul raw al inputului; traceback/ImportError/exit1 nu sunt refuzuri valide. Nu introduce secrete sau capturi de ținte în aceste probe inerte.
 
 [Registrul B06a](../documents/verification/p2-b06a.md) și [receiptul snapshot-bound](../documents/verification/p2-b06a-1-gate.json) consemnează90sourcePASS, două reviewuri, wheel offline separat cu46module identice/pip check0, installedQA15/15scenarii cu11denialfamilies și gate canonic exit0/drained. Testul focused nu substituie `make check`; denials instalate au fiecare control pozitiv pe același CLI din afara checkoutului. Rezervările identităților, freeze/readback după restart și review/eval receipts persistente rămân pasul imediat în B06a, înainte B06b și orice consumer live.
+
+## B06b — publicare și consumer PURE durabil
+
+[C01](../documents/verification/p2-b06b-c01-close.json) publică exact candidatul calificat prin `omnis.modules.settings.catalog_publication`: confirmare operator TTY, CAS/readback/replay și snapshot CONTRACT_PROBE. [Consumerul PURE](../documents/verification/p2-b06b-pure-close.json) este acceptat separat pe `14723a3`, numai pentru un recipe/procedură fără dependențe RELEASE; nu este comandă `omnis run`, Task/Attempt, copil Hermes sau assessment.
+
+În mediul API instalat și canalul DB privat deja configurat explicit (`OMNIS_DATABASE_URL`, niciodată în argv/loguri), comanda este:
+
+```sh
+python -I -B -m omnis.modules.runs.pure_probe select --request <select.json> --catalog-root <root-privat>
+python -I -B -m omnis.modules.runs.pure_probe execute --request <execute.json> --catalog-root <acelasi-root>
+python -I -B -m omnis.modules.runs.pure_probe readback --request <readback.json> --catalog-root <acelasi-root>
+```
+
+Requesturile au exact `schema_version:1`, `owner_id` UUID și câmpurile operației. `select` cere `command_id`, `snapshot_ref` de tip run-snapshot publicat și `recipe_key`; întoarce `selection_ref/selection`. `execute` cere `command_id`, `selection_ref` și obiectul `input` conform recipe-ului; întoarce `receipt_ref/receipt`. `readback` cere `receipt_ref` și returnează receiptul, inputul și selection împreună cu refs. Refs folosesc `{kind,id,revision,digest}`; niciun lookup latest sau grant din JSON. Selection este comisă înainte de execute, cu NO_MODEL/effective=null; receiptul COMPLETED nu este verdict SECURITY ori TaskResult.
+
+Replayul aceluiași command/request întoarce rezultatul comis fără rerularea PURE; payload diferit este conflict. Materialul schimbat și dependențele RELEASE sunt refuzate. Nu porni această comandă pe profilul r1 sau date reale ca probă implicită. Targetul `test-b06b-pure-probe-pg` se execută numai prin runnerul privat existent, pe PostgreSQL nou UDS/no-network; probele și cleanupul sunt în registru. B06b/G02 și faza2 rămân neînchise.

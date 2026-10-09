@@ -1043,6 +1043,7 @@ def main() -> int:
             "test-b06b-pure-probe-pg",
             "test-native-preparation-pg",
             "test-managed-admission-pg",
+            "test-managed-composition-pg",
         ),
         default="check-components",
     )

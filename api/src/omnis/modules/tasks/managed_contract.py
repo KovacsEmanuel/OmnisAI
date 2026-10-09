@@ -720,6 +720,10 @@ def authority(value: object) -> dict[str, object]:
 
 def validate_manifest(value: object) -> dict[str, object]:
     result = record(value, "launch-manifest")
+    # Match the native stage payload budget, including its protocol wrapper.
+    # Keep this pure producer check independent of optional runtime imports.
+    if len(canonical({"protocol": PROTOCOL, "manifest": result})) > 32768:
+        raise CatalogError("MANAGED_REJECTED")
     body = exact(
         result["payload"], {"run_id", "selection_ref", "resolution", "effective", "entries"}
     )
@@ -740,7 +744,13 @@ def validate_manifest(value: object) -> dict[str, object]:
             if identity in identities:
                 raise CatalogError("MANAGED_REJECTED")
             identities.add(identity)
-        text(entry["goal"])
+        # Native text(goal, 4096) is byte-bounded and single-line. Do not apply
+        # this grammar to unrelated methodological text or alter source bytes.
+        goal = text(entry["goal"])
+        if len(goal.encode("utf-8")) > 4096 or any(
+            ord(c) < 32 or 127 <= ord(c) <= 159 or c in "\u2028\u2029" for c in goal
+        ):
+            raise CatalogError("MANAGED_REJECTED")
     return result
 
 

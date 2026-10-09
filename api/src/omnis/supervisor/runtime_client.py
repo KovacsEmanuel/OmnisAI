@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from omnis.modules.instance.service import InstanceService, RuntimeAuthority
 
 MAX_FRAME = 64 * 1024
+MANAGED_OPERATIONS = frozenset({"task_stage", "task_release", "task_status"})
 
 
 class RuntimeUnavailable(ValueError):
@@ -265,11 +266,11 @@ class RuntimeClient:
         authority: "RuntimeAuthority | None" = None,
         payload: dict[str, object] | None = None,
     ) -> dict[str, object]:
-        if op not in {"launch", "status", "renew", "stop", "prepare"}:
+        if op not in {"launch", "status", "renew", "stop", "prepare"} | MANAGED_OPERATIONS:
             raise RuntimeUnavailable("Runtime operation denied")
-        if (op == "prepare") != (payload is not None):
+        if (op == "prepare" or op in MANAGED_OPERATIONS) != (payload is not None):
             raise RuntimeUnavailable("Runtime payload denied")
-        if op in {"launch", "renew", "prepare"} and authority is None:
+        if op in {"launch", "renew", "prepare"} | MANAGED_OPERATIONS and authority is None:
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
             if self.reader is None or self.writer is None:
@@ -289,6 +290,14 @@ class RuntimeClient:
                     raise RuntimeUnavailable("Runtime authority mismatch")
                 request["deadline_ns"] = authority.deadline_ns
             timeout = 2.0
+            if op in MANAGED_OPERATIONS and authority is not None:
+                request["payload"] = payload
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                timeout = min(3.2, remaining)
+                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                    raise RuntimeUnavailable("Runtime managed-task limit")
             if op == "prepare" and authority is not None:
                 from omnis.modules.runs.native_preparation_models import (
                     LIMITS,
@@ -383,6 +392,14 @@ class RuntimeClient:
                         response["preparation"] = validate_worker(
                             response.get("preparation"), payload["bundle_ref"], payload["bundle"]
                         )
+                    if op in MANAGED_OPERATIONS:
+                        if (
+                            state != "READY"
+                            or authority is None
+                            or time.monotonic_ns() >= authority.deadline_ns
+                            or not isinstance(response.get("managed"), dict)
+                        ):
+                            raise RuntimeUnavailable("Runtime managed-task fence")
                     return response
             except (
                 OSError,
@@ -411,6 +428,36 @@ class RuntimeClient:
             return await self._exchange(
                 "prepare", authority, {"bundle_ref": bundle_ref, "bundle": checked}
             )
+        except BaseException:
+            await self.close()
+            raise
+
+    async def managed(
+        self,
+        service: "InstanceService",
+        owner: UUID,
+        operation: str,
+        payload: dict[str, object],
+    ) -> dict[str, object]:
+        """Finite private operations; domain/native owners validate the inner contracts.
+
+        No reconnect, retry or child creation on channel loss. The caller retains
+        its durable intention and reconciles rather than resending a prompt.
+        """
+        if operation not in MANAGED_OPERATIONS:
+            raise RuntimeUnavailable("Runtime operation denied")
+        checked = _object(json.dumps(payload, allow_nan=False).encode())
+        if checked.get("protocol") != "omnis-managed-admission-v1":
+            raise RuntimeUnavailable("Runtime payload denied")
+        try:
+            authority = await service.runtime_authority(
+                owner, self.epoch, self.generation, inert_probe=True
+            )
+            response = await self._exchange(operation, authority, checked)
+            result = response["managed"]
+            if not isinstance(result, dict):
+                raise RuntimeUnavailable("Invalid managed response")
+            return {key: value for key, value in result.items()}
         except BaseException:
             await self.close()
             raise

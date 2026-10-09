@@ -24,8 +24,9 @@ from .candidate_catalog import (
     uuid_string,
     valid_ref,
 )
+from .candidate_index import resolved_index
 from .candidate_material import digest
-from .catalog_models import CatalogError, Profile
+from .catalog_models import CatalogError, CompiledCatalog, Profile
 from .catalog_schema import canonical, dto
 from .publication_models import load_request, selection, validate_request
 from .skill_catalog import read_file
@@ -235,6 +236,44 @@ class PublicationCatalog:
             "state": "PUBLISHED",
             "assessment_selectable": False,
         }
+
+    async def load_probe(
+        self, connection: AsyncConnection, owner: str, ref: dict[str, object]
+    ) -> tuple[str, dict[str, object], Profile, CompiledCatalog]:
+        """Revalidate exact publication/material without executing qualification PURE."""
+        owner = uuid_string(owner)
+        if valid_ref(ref)["kind"] != "run-snapshot":
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        group, snapshot = await store.get(connection, owner, ref)
+        body = payload(snapshot)
+        back = await self._readback(connection, owner, valid_ref(body.get("publication_ref")))
+        publication = back["publication"]
+        index = back["resolved_index"]
+        candidate = back["snapshot"]
+        if (
+            not isinstance(publication, dict)
+            or not isinstance(index, dict)
+            or not isinstance(candidate, dict)
+        ):
+            raise CatalogError("STORAGE_INCOMPATIBLE")
+        publication_group, _ = await store.get(connection, owner, store.reference(publication))
+        if group != publication_group or body != snapshot_payload(publication):
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        candidate_body = payload(candidate)
+        _, records = await self.candidates.sources(connection, owner, candidate_body)
+        directory = self.root / "candidates" / str(candidate["id"])
+        raw = read_file(directory / "profile.yaml", 262144)
+        draft = next(r for r in records if store.reference(r) == candidate_body["draft_ref"])
+        check_profile_bytes(raw, payload(draft))
+        refs = candidate_body["candidate_refs"]
+        if not isinstance(refs, list):
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        compiled = await self.candidates.compile_pinned(
+            connection, owner, directory, records, [valid_ref(r) for r in refs], index
+        )
+        if resolved_index(compiled) != index or compiled.material_digest != body["material_digest"]:
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        return group, snapshot, dto(raw, Profile), compiled
 
     async def _revalidate(
         self,

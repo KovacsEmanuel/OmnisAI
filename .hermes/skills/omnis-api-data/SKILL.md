@@ -56,5 +56,11 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Strict DTOs cannot detect duplicate JSON members once FastAPI has decoded the body. For versioned draft writes, reject duplicate keys recursively on the already bounded, authenticated body before DTO parsing; exercise top-level and nested duplicates through POST/PUT plus a valid control, without weakening Host/Origin/session/CSRF or Pairing limits. An escaped unpaired surrogate may already yield a sanitized body-level 422 before field validation; measure that boundary before claiming it becomes a 500.
 - Run long private-DB targets as tracked background jobs with pinned tool paths and exact-session readback. A foreground executor deadline can terminate the gate owner before its cleanup receipt, leaving an active synthetic fixture; never relabel this as cleanup or adopt/delete that historical fixture to force a green test.
 
+## Optional consumers and cross-runtime admission
+
+Keep optional catalog/source attestation out of ordinary DTO, API, supervisor and transport imports. A filesystem-only fingerprint reader can break ZIP-wheel startup even when source tests pass. Use operation-local imports or TYPE_CHECKING where appropriate, then test fresh no-opt-in imports and the real wheel factory; do not weaken the source reader to hide the coupling.
+
+Before committing a durable reservation, compare the actual producer and runtime validators on identical independently resealed document bytes. Include lexical YAML forms, UTF-8 byte versus character limits, escaped controls, portable path rules and collection uniqueness. Keep the producer at least as restrictive as the consumer, preserve retained bytes, and prove refusal before writes/dispatch on a real qualified-publication PostgreSQL fixture. A downstream deterministic rejection must not become an unnecessary indeterminate reservation.
+
 ## Verification
 Acceptance includes valid/invalid input, concurrency, persistence/restart and schema compatibility. Record exact DB/Python versions and commands. Commit code, schema, tests and necessary docs as one coherent behavior change.

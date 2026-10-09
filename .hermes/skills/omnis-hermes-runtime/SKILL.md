@@ -37,5 +37,9 @@ Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundar
 - Verify a proposed pre-run guard's actual veto semantics before using it as authority: the pinned `subagent_start` observer runs after child construction, omits an explicit batch index/manifest and swallows failures; execution middleware may fall through to downstream after an exception. Require an explicit indexed trusted sidecar and a fail-closed commit barrier before access, not association after `launch()` returns or a callback that merely logs failure.
 - Establish NO_MODEL before native client initialization and conversation admission, not by cancelling a launched child, setting zero iterations or passing empty toolsets. At the pin, empty `allowed_toolsets` inherits the parent inventory. Keep installed preparation/loading evidence separate from native result/continuation evidence; neither a fake provider nor a deterministic emitter closes the latter boundary.
 
+## Document preparation through the existing owner
+
+Route an inert preparation command through the supervisor's already-connected RuntimeClient; a second connection is not interchangeable with that owner. Isolate the fixed finite loader worker's home, cwd and environment before native import, without populating the active case's skills tree or relaxing CaseSlot archival rules. Native skill_view with preprocess=False still invokes readiness/load_env: distinguish an attempted read of the absent fresh-home .env from successful credential access. Measure cold installed loading before choosing a new operation's timeout, keep existing grants unchanged, and credit only document preparation—not an agent, TaskResult or completed turn.
+
 ## Verification
 Each G02/G04/G07 subgate has evidence at its actual boundary. Test restart, compression/lineage, duplicate events, wrong identity, stopped run and bounded outputs. Report live LLM tests as not-run until explicitly authorized and exercised.

@@ -62,7 +62,8 @@ async def test_case_consumer_restores_before_launch_and_archives_before_release(
     engagement = Mock(read=AsyncMock())
 
     @asynccontextmanager
-    async def control(*args: object) -> AsyncIterator[None]:
+    async def control(*args: object, native_prepare: object = None) -> AsyncIterator[None]:
+        assert native_prepare is None  # No preparation catalog opt-in in this legacy journey.
         yield
 
     class Stopped:
@@ -126,7 +127,8 @@ async def test_supervisor_runtime_is_opt_in_and_drained_before_release(
     service_factory = Mock(return_value=service)
 
     @asynccontextmanager
-    async def control(*args: object) -> AsyncIterator[None]:
+    async def control(*args: object, native_prepare: object = None) -> AsyncIterator[None]:
+        assert native_prepare is None
         yield
 
     class Stopped:
@@ -201,7 +203,8 @@ async def test_supervisor_does_not_silently_continue_after_unexpected_runtime_lo
     client.close = AsyncMock()
 
     @asynccontextmanager
-    async def control(*args: object) -> AsyncIterator[None]:
+    async def control(*args: object, native_prepare: object = None) -> AsyncIterator[None]:
+        assert native_prepare is None
         yield
 
     class OneCycle:

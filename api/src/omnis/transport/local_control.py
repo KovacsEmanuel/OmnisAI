@@ -8,6 +8,7 @@ import os
 import secrets
 import socket
 import struct
+from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from pathlib import Path
 from types import TracebackType
@@ -30,11 +31,13 @@ from omnis.modules.instance.schemas import (
     ControlRequest,
     InstanceView,
     LifecycleCommand,
+    NativePrepareCommand,
     PairingCommand,
     StatusCommand,
 )
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
+from omnis.modules.settings.catalog_models import CatalogError
 from omnis.security.sessions import PairingConflict
 
 
@@ -56,7 +59,10 @@ class LocalControl:
         epoch: int,
         *,
         peer_uid: int | None = None,
+        native_prepare: Callable[[NativePrepareCommand], Awaitable[dict[str, object]]]
+        | None = None,
     ) -> None:
+        self.native_prepare = native_prepare
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -126,10 +132,31 @@ class LocalControl:
             self.lock_fd = None
 
     async def _dispatch(
-        self, command: StatusCommand | PairingCommand | LifecycleCommand | ArmStopCommand
+        self,
+        command: StatusCommand
+        | PairingCommand
+        | LifecycleCommand
+        | ArmStopCommand
+        | NativePrepareCommand,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, NativePrepareCommand):
+            if self.native_prepare is None:
+                return {"ok": False, "error": "PREPARATION_UNAVAILABLE"}
+            try:
+                return await self.native_prepare(command)
+            except CatalogError as error:
+                allowed = {
+                    "COMMAND_CONFLICT",
+                    "PREPARATION_UNAVAILABLE",
+                    "PREPARATION_BUSY",
+                    "PREPARATION_INDETERMINATE",
+                }
+                return {
+                    "ok": False,
+                    "error": error.reason if error.reason in allowed else "PREPARATION_REJECTED",
+                }
         if isinstance(command, ArmStopCommand):
             if command.owner_epoch != self.epoch:
                 return {"ok": False, "error": "LEASE_LOST"}

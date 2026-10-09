@@ -5,8 +5,10 @@ import hmac
 import json
 import os
 import secrets
+import shutil
 import signal
 import socket
+import stat
 import struct
 import sys
 import time
@@ -17,7 +19,16 @@ from typing import Self
 from uuid import UUID, uuid4
 
 from . import private_paths
-from .runtime_protocol import MAX_FRAME, NativePeer, encode, unique_object
+from .native_preparation_contract import (
+    LIMITS,
+    canonical,
+    digest,
+    loads,
+    validate_payload,
+    validate_result,
+)
+from .native_preparation_worker import PATHS, regular_bytes
+from .runtime_protocol import MAX_FRAME, NativePeer, encode
 
 NATIVE_COMMAND = ("/opt/hermes/venv/bin/python", "-I", "-m", "tui_gateway.entry")
 NATIVE_CWD = Path("/state/work")
@@ -39,7 +50,25 @@ NATIVE_ENV = {
     "HERMES_DISABLE_LAZY_INSTALLS": "1",
     "HERMES_SKIP_NODE_BOOTSTRAP": "1",
 }
-OPS = frozenset({"launch", "status", "renew", "stop"})
+OPS = frozenset({"launch", "status", "renew", "stop", "prepare"})
+PREPARATION_COMMAND = (
+    "/opt/hermes/venv/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "omnis_hermes.native_preparation_worker",
+)
+# Prepare-specific, measured cold-import budget. Existing native/RPC grants are unchanged.
+PREPARATION_SECONDS = 2.5
+PREPARATION_CLEANUP_SECONDS = 0.4
+
+
+@dataclass(frozen=True)
+class TestPreparation:
+    """Trusted source-unit subprocess seam only; never accepted from env/argv/IPC."""
+
+    command: tuple[str, ...]
+    temporary_root: Path
 
 
 @dataclass(frozen=True)
@@ -57,10 +86,15 @@ class RuntimeHost:
         *,
         peer_uid: int | None = None,
         _test_launch: TestLaunch | None = None,
+        _test_preparation: TestPreparation | None = None,
     ):
         self.directory = directory
         self.peer_uid = os.getuid() if peer_uid is None else peer_uid
         self.launch_spec = _test_launch
+        self.preparation_spec = _test_preparation
+        self.preparation_process: asyncio.subprocess.Process | None = None
+        self.preparation_task: asyncio.Task[dict[str, object]] | None = None
+        self.preparation_root: tuple[Path, tuple[int, int]] | None = None
         self.boot = str(uuid4())
         self.capability = secrets.token_hex(32)
         self.process: asyncio.subprocess.Process | None = None
@@ -76,7 +110,9 @@ class RuntimeHost:
         self.epoch = 0
         self.state = "IDLE"
         # Only the fixed entrypoint as PID1 may certify whole-namespace drain.
-        self.namespace_owned = os.getpid() == 1 and _test_launch is None
+        self.namespace_owned = (
+            os.getpid() == 1 and _test_launch is None and _test_preparation is None
+        )
         self.stop_lock = asyncio.Lock()
         self.command_lock = asyncio.Lock()
         self.capabilities: dict[str, object] = {}
@@ -187,6 +223,262 @@ class RuntimeHost:
             await self.stop()
             raise
 
+    def _preparation_ready(self) -> None:
+        if (
+            self.state != "READY"
+            or time.monotonic_ns() >= self.deadline_ns
+            or self.peer is None
+            or self.peer.failure is not None
+            or self.process is None
+            or self.process.returncode is not None
+        ):
+            raise ValueError("Expired preparation authority")
+
+    async def _prepare(self, body: dict[str, object]) -> dict[str, object]:
+        self._preparation_ready()
+        validate_payload(body["payload"])
+        if self.preparation_task is not None or self.preparation_root is not None:
+            raise ValueError("Native preparation busy")
+        deadline = self._grant(body)
+        if deadline > time.monotonic_ns() + 4_500_000_000:
+            raise ValueError("Invalid preparation authority")
+        self._preparation_ready()
+        self.deadline_ns = deadline
+        task = asyncio.create_task(self._run_preparation(body["payload"]))
+        self.preparation_task = task
+        try:
+            result = await asyncio.shield(task)
+            self._preparation_ready()
+            return result
+        finally:
+            if not task.done():
+                task.cancel()
+            await asyncio.shield(asyncio.gather(task, return_exceptions=True))
+            self.preparation_task = None
+
+    async def _prepare_connected(
+        self, body: dict[str, object], reader: asyncio.StreamReader
+    ) -> dict[str, object]:
+        # The sole client is sequential. EOF or pipelining invalidates this effect.
+        operation = asyncio.create_task(self._prepare(body))
+        disconnected = asyncio.create_task(reader.read(1))
+        try:
+            await asyncio.wait((operation, disconnected), return_when=asyncio.FIRST_COMPLETED)
+            if disconnected.done() or reader.at_eof():
+                raise ValueError("Preparation owner disconnected")
+            return await operation
+        finally:
+            if not operation.done():
+                operation.cancel()
+            disconnected.cancel()
+            await asyncio.gather(operation, disconnected, return_exceptions=True)
+
+    def _preparation_home(self) -> tuple[Path, dict[str, str]]:
+        parent = (
+            Path("/state/tmp")
+            if self.preparation_spec is None
+            else self.preparation_spec.temporary_root
+        )
+        private_paths.directory(parent)
+        if any(entry.name.startswith("native-prep-") for entry in parent.iterdir()):
+            raise ValueError("Preparation crash leftover")
+        root = parent / f"native-prep-{uuid4()}"
+        root.mkdir(mode=0o700)
+        info = root.lstat()
+        self.preparation_root = (root, (info.st_dev, info.st_ino))
+        env = dict(NATIVE_ENV)
+        for key, relative in PATHS.items():
+            path = root / relative
+            path.mkdir(mode=0o700, parents=True, exist_ok=True)
+            env[key] = str(path)
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        return root, env
+
+    async def _worker_output(self, process: asyncio.subprocess.Process, raw: bytes) -> bytes:
+        assert (
+            process.stdin is not None and process.stdout is not None and process.stderr is not None
+        )
+
+        async def bounded_read(stream: asyncio.StreamReader, maximum: int) -> bytes:
+            output = bytearray()
+            while chunk := await stream.read(4096):
+                output.extend(chunk)
+                if len(output) > maximum:
+                    raise ValueError("Preparation output limit")
+            return bytes(output)
+
+        async def send() -> None:
+            assert process.stdin is not None
+            process.stdin.write(raw)
+            await process.stdin.drain()
+            process.stdin.close()
+            await process.stdin.wait_closed()
+
+        outputs = [
+            asyncio.create_task(bounded_read(process.stdout, LIMITS["max_worker_result_bytes"])),
+            asyncio.create_task(bounded_read(process.stderr, 8192)),
+        ]
+        sender = asyncio.create_task(send())
+        try:
+            await asyncio.gather(*outputs, sender, process.wait())
+            if process.returncode != 0:
+                raise ValueError("Native preparation rejected")
+            return outputs[0].result()
+        finally:
+            for task in [*outputs, sender]:
+                task.cancel()
+            await asyncio.gather(*outputs, sender, return_exceptions=True)
+
+    def _preparation_pids(self, baseline: set[int]) -> set[int]:
+        if self.namespace_owned:
+            return self._owned_pids() - baseline
+        process = self.preparation_process
+        if process is None:
+            return set()
+        # Source-unit seam only: track this fresh session, never host-wide ownership.
+        result = set()
+        for entry in Path("/proc").iterdir():
+            if entry.name.isdigit():
+                with suppress(FileNotFoundError, ProcessLookupError):
+                    fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                    if int(fields[3]) == process.pid:
+                        result.add(int(entry.name))
+        return result
+
+    def _remove_preparation_home(self) -> None:
+        if self.preparation_root is None:
+            return
+        root, identity = self.preparation_root
+        info = root.lstat()
+        if (info.st_dev, info.st_ino) != identity or not stat.S_ISDIR(info.st_mode):
+            raise ValueError("Preparation cleanup uncertain")
+
+        # fd-based traversal: never chmod or follow a replaced symlink.
+        def writable(fd: int) -> None:
+            os.fchmod(fd, 0o700)
+            for name in os.listdir(fd):
+                child = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                if stat.S_ISDIR(child.st_mode):
+                    nested = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                    try:
+                        writable(nested)
+                    finally:
+                        os.close(nested)
+
+        fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            current = os.fstat(fd)
+            if (current.st_dev, current.st_ino) != identity:
+                raise ValueError("Preparation cleanup uncertain")
+            writable(fd)
+        finally:
+            os.close(fd)
+        current = root.lstat()
+        if (current.st_dev, current.st_ino) != identity:
+            raise ValueError("Preparation cleanup uncertain")
+        shutil.rmtree(root)
+        if os.path.lexists(root):
+            raise ValueError("Preparation cleanup uncertain")
+        self.preparation_root = None
+
+    async def _clean_preparation(self, baseline: set[int]) -> None:
+        started = time.monotonic()
+        try:
+            async with asyncio.timeout(PREPARATION_CLEANUP_SECONDS):
+                process = self.preparation_process
+                if process is not None:
+                    for pid in self._preparation_pids(baseline):
+                        with suppress(ProcessLookupError):
+                            fd = os.pidfd_open(pid)
+                            try:
+                                signal.pidfd_send_signal(fd, signal.SIGKILL)
+                            finally:
+                                os.close(fd)
+                    if process.returncode is None:
+                        process.kill()
+                    await process.wait()
+                    # PID1 adopts detached descendants. Reap only this worker's set.
+                    while pids := self._preparation_pids(baseline):
+                        for pid in pids:
+                            with suppress(ProcessLookupError):
+                                fd = os.pidfd_open(pid)
+                                try:
+                                    signal.pidfd_send_signal(fd, signal.SIGKILL)
+                                finally:
+                                    os.close(fd)
+                            if self.namespace_owned:
+                                with suppress(ChildProcessError):
+                                    os.waitpid(pid, os.WNOHANG)
+                        await asyncio.sleep(0.005)
+                self._remove_preparation_home()
+                self.preparation_process = None
+                if time.monotonic() - started >= PREPARATION_CLEANUP_SECONDS:
+                    raise ValueError("Preparation cleanup exceeded budget")
+        except (OSError, ValueError, TimeoutError):
+            self.state = "UNCERTAIN"
+            raise ValueError("Preparation cleanup uncertain") from None
+
+    async def _run_preparation(self, payload: object) -> dict[str, object]:
+        baseline = self._owned_pids()
+        result: dict[str, object]
+        try:
+            remaining = (self.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+            budget = min(PREPARATION_SECONDS, remaining - PREPARATION_CLEANUP_SECONDS)
+            if budget <= 0:
+                raise ValueError("Expired preparation authority")
+            worker_deadline = time.monotonic() + budget
+            async with asyncio.timeout(budget):
+                root, env = self._preparation_home()
+                command = (
+                    PREPARATION_COMMAND
+                    if self.preparation_spec is None
+                    else self.preparation_spec.command
+                )
+                # Finish spawn acquisition even if cancellation lands during fork/exec.
+                spawn = asyncio.create_task(
+                    asyncio.create_subprocess_exec(
+                        *command,
+                        cwd=root / "work",
+                        env=env,
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                        start_new_session=True,
+                        limit=LIMITS["max_worker_result_bytes"],
+                    )
+                )
+                try:
+                    self.preparation_process = await asyncio.shield(spawn)
+                except asyncio.CancelledError:
+                    self.preparation_process = await spawn
+                    raise
+                output = await self._worker_output(
+                    self.preparation_process, canonical(payload) + b"\n"
+                )
+                if not output.endswith(b"\n") or output.count(b"\n") != 1:
+                    raise ValueError("Invalid preparation output")
+                value = loads(output, LIMITS["max_worker_result_bytes"])
+                worker_hash = digest(
+                    regular_bytes(Path(__file__).with_name("native_preparation_worker.py"), 131072)
+                )
+                result = validate_result(value, payload, worker_hash)
+                if self._preparation_pids(baseline):
+                    raise ValueError("Preparation descendants remain")
+                if time.monotonic() >= worker_deadline:
+                    raise TimeoutError("Preparation exceeded budget")
+        finally:
+            # A separately owned cleanup task cannot be interrupted by owner cancellation.
+            cleanup = asyncio.create_task(self._clean_preparation(baseline))
+            try:
+                await asyncio.shield(cleanup)
+            except asyncio.CancelledError:
+                await cleanup
+                raise
+        self._preparation_ready()
+        if not self.namespace_owned:
+            raise ValueError("Preparation containment unproved")
+        return result
+
     async def _watch(self) -> None:
         while True:
             await asyncio.sleep(0.025)
@@ -222,9 +514,15 @@ class RuntimeHost:
 
     async def stop(self) -> None:
         async with self.stop_lock:
-            if self.process is None or self.state in {"STOPPED", "UNCERTAIN"}:
+            if self.process is None or self.state == "STOPPED":
+                return
+            uncertain = self.state == "UNCERTAIN"
+            if uncertain and self.process.returncode is not None and self.preparation_task is None:
                 return
             self.state = "STOPPING"
+            if self.preparation_task is not None:
+                self.preparation_task.cancel()
+                await asyncio.gather(self.preparation_task, return_exceptions=True)
             handles: dict[int, int] = {}
             try:
                 for pid in self._owned_pids():
@@ -255,8 +553,15 @@ class RuntimeHost:
                         if pid != self.process.pid:
                             with suppress(ChildProcessError):
                                 os.waitpid(pid, os.WNOHANG)
-                drained = self.process.returncode is not None and not self._owned_pids()
-                self.state = "STOPPED" if drained and self.namespace_owned else "UNCERTAIN"
+                drained = (
+                    self.process.returncode is not None
+                    and not self._owned_pids()
+                    and self.preparation_process is None
+                    and self.preparation_root is None
+                )
+                self.state = (
+                    "STOPPED" if drained and self.namespace_owned and not uncertain else "UNCERTAIN"
+                )
             finally:
                 for fd in handles.values():
                     os.close(fd)
@@ -267,8 +572,10 @@ class RuntimeHost:
         if type(body.get("op")) is not str:
             raise ValueError("Invalid operation type")
         expected = {"version", "id", "boot", "capability", "generation", "epoch", "op"}
-        if body.get("op") in {"launch", "renew"}:
+        if body.get("op") in {"launch", "renew", "prepare"}:
             expected.add("deadline_ns")
+        if body.get("op") == "prepare":
+            expected.add("payload")
         if set(body) != expected or type(body["version"]) is not int or body["version"] != 1:
             raise ValueError("Invalid IPC fields")
         if type(body["id"]) is not str or str(UUID(body["id"])) != body["id"]:
@@ -287,6 +594,10 @@ class RuntimeHost:
             raise ValueError("Invalid fence")
         if self.epoch and (body["generation"], body["epoch"]) != (self.generation, self.epoch):
             raise ValueError("Stale fence")
+        if body["op"] == "prepare":
+            validate_payload(body["payload"])
+            if len(canonical(body)) + 1 > LIMITS["max_runtime_request_bytes"]:
+                raise ValueError("Invalid native preparation")
         return body
 
     async def _handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
@@ -308,24 +619,31 @@ class RuntimeHost:
                     raw = await asyncio.wait_for(reader.readuntil(b"\n"), 2.5)
                     if len(raw) > MAX_FRAME:
                         raise ValueError("Frame limit")
-                    body = json.loads(raw, object_pairs_hook=unique_object)
+                    body = loads(raw, MAX_FRAME)
                     if type(body) is dict and type(body.get("id")) is str:
                         correlation = body["id"]
                     body = self._validate(body)
+                    if body["op"] == "prepare" and len(raw) > LIMITS["max_runtime_request_bytes"]:
+                        raise ValueError("Preparation frame limit")
                     if self.owner_writer is not None and self.owner_writer is not writer:
                         raise ValueError("Runtime already owned")
                     self.owner_writer = writer
                     authenticated = True
                     async with self.command_lock:
+                        preparation = None
                         if body["op"] == "launch":
                             await self._launch(body)
                         elif body["op"] == "renew":
                             if self.state != "READY" or time.monotonic_ns() >= self.deadline_ns:
                                 raise ValueError("Expired authority")
                             self.deadline_ns = self._grant(body)
+                        elif body["op"] == "prepare":
+                            preparation = await self._prepare_connected(body, reader)
                         elif body["op"] == "stop":
                             await self.stop()
                         response = {"ok": True, "id": correlation, **self.snapshot()}
+                        if preparation is not None:
+                            response["preparation"] = preparation
                 except (ValueError, OSError, TimeoutError, asyncio.LimitOverrunError):
                     response = {
                         "ok": False,

@@ -1041,6 +1041,7 @@ def main() -> int:
             "test-catalog-candidates-pg",
             "test-b06b-publish-pg",
             "test-b06b-pure-probe-pg",
+            "test-native-preparation-pg",
         ),
         default="check-components",
     )

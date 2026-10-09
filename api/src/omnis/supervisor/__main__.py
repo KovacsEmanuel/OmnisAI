@@ -13,6 +13,7 @@ from omnis.core.db import database_engine, readiness_reason
 from omnis.modules.engagements.service import EngagementNotFound, EngagementService
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.runs.native_preparation import NativePreparation, existing_private_root
 from omnis.supervisor.case_slot import CaseSlot
 from omnis.supervisor.runtime_client import RuntimeClient
 from omnis.transport.local_control import LocalControl
@@ -29,6 +30,14 @@ async def run() -> None:
         raise ValueError("Invalid explicit runtime opt-in")
     if raw_runtime is not None and (not raw_runtime or Path(raw_runtime) == Path(raw_directory)):
         raise ValueError("Runtime requires a distinct private directory")
+    raw_catalog = os.environ.get("OMNIS_NATIVE_PREPARATION_CATALOG_ROOT")
+    catalog_root = None
+    if raw_catalog is not None:
+        if not raw_catalog or probe != "1" or not raw_runtime:
+            raise ValueError("Invalid explicit native preparation opt-in")
+        catalog_root = existing_private_root(Path(raw_catalog))
+        if str(catalog_root) != raw_catalog:
+            raise ValueError("Invalid explicit native preparation opt-in")
     raw_case = os.environ.get("OMNIS_RUNTIME_CASE_ID")
     raw_state = os.environ.get("OMNIS_RUNTIME_STATE_ROOT")
     case_id = None
@@ -86,7 +95,16 @@ async def run() -> None:
                     await slot.observe(launched)
             else:
                 await runtime.status()
-        async with LocalControl(Path(raw_directory), service, owner, epoch):
+        preparation = None
+        if catalog_root is not None and runtime is not None:
+            preparation = NativePreparation(engine, catalog_root, service, owner, epoch, runtime)
+        async with LocalControl(
+            Path(raw_directory),
+            service,
+            owner,
+            epoch,
+            native_prepare=preparation.prepare if preparation is not None else None,
+        ):
             await service.quiesce(owner, epoch)
             print("SUPERVISOR_READY", flush=True)
             while not stop.is_set():

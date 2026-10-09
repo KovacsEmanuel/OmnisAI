@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -77,6 +77,12 @@ test-b06b-pure-probe-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_b06b_pure_probe_*.py -q
 
+.PHONY: test-native-preparation-pg
+# Persistent producer/fence/receipt controls; runtime double is not native QA.
+test-native-preparation-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_native_preparation.py api/tests/test_local_control.py api/tests/test_supervisor.py -q
+
 .PHONY: test-b06a-pure
 # Bounded source compiler/CLI tests; no DB, native child, model or target qualification.
 # Canonical check still runs all API tests plus the original full component gate.
@@ -86,7 +92,7 @@ test-b06a-pure:
 .PHONY: check-runtime
 # Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
 check-runtime:
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","integrations/hermes/tests/test_native_h02.py","integrations/hermes/tests/test_bootstrap_inventory.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","integrations/hermes/tests/test_native_h02.py","integrations/hermes/tests/test_bootstrap_inventory.py","integrations/hermes/tests/test_native_preparation.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
 	$(API_PY) -I integrations/hermes/tests/test_native_build.py -v
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests
 	$(API_PY) -I -m ruff format --config api/pyproject.toml --check integrations/hermes/src integrations/hermes/tests

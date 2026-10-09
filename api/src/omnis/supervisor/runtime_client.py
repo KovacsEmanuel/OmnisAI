@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
 
 from omnis.core.paths import check_private_file, private_directory
+from omnis.modules.runs.native_preparation_models import LIMITS, validate_bundle, validate_worker
 
 if TYPE_CHECKING:
     from omnis.modules.instance.service import InstanceService, RuntimeAuthority
@@ -260,11 +261,16 @@ class RuntimeClient:
             raise
 
     async def _exchange(
-        self, op: str, authority: "RuntimeAuthority | None" = None
+        self,
+        op: str,
+        authority: "RuntimeAuthority | None" = None,
+        payload: dict[str, object] | None = None,
     ) -> dict[str, object]:
-        if op not in {"launch", "status", "renew", "stop"}:
+        if op not in {"launch", "status", "renew", "stop", "prepare"}:
             raise RuntimeUnavailable("Runtime operation denied")
-        if op in {"launch", "renew"} and authority is None:
+        if (op == "prepare") != (payload is not None):
+            raise RuntimeUnavailable("Runtime payload denied")
+        if op in {"launch", "renew", "prepare"} and authority is None:
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
             if self.reader is None or self.writer is None:
@@ -284,6 +290,21 @@ class RuntimeClient:
                     raise RuntimeUnavailable("Runtime authority mismatch")
                 request["deadline_ns"] = authority.deadline_ns
             timeout = 2.0
+            if op == "prepare" and authority is not None:
+                if payload is None or set(payload) != {"bundle_ref", "bundle"}:
+                    raise RuntimeUnavailable("Runtime payload denied")
+                validate_bundle(payload["bundle_ref"], payload["bundle"])
+                request["payload"] = payload
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                # Explicit preparation-only budget; ordinary exchanges and launch unchanged.
+                timeout = min(3.2, remaining)
+                if (
+                    len(json.dumps(request, separators=(",", ":")).encode()) + 1
+                    > LIMITS["max_runtime_request_bytes"]
+                ):
+                    raise RuntimeUnavailable("Runtime preparation limit")
             if op == "launch" and authority is not None:
                 remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
                 if remaining <= 0:
@@ -345,6 +366,17 @@ class RuntimeClient:
                             raise RuntimeUnavailable("Changed bootstrap inventory")
                         self.bootstrap_inventory = validated
                         response["bootstrap_inventory"] = validated
+                    if op == "prepare":
+                        if (
+                            state != "READY"
+                            or payload is None
+                            or authority is None
+                            or time.monotonic_ns() >= authority.deadline_ns
+                        ):
+                            raise RuntimeUnavailable("Runtime preparation fence")
+                        response["preparation"] = validate_worker(
+                            response.get("preparation"), payload["bundle_ref"], payload["bundle"]
+                        )
                     return response
             except (
                 OSError,
@@ -355,6 +387,25 @@ class RuntimeClient:
             ):
                 await self.close()
                 raise RuntimeUnavailable("Runtime exchange unavailable") from None
+
+    async def prepare(
+        self,
+        service: "InstanceService",
+        supervisor_owner: UUID,
+        bundle_ref: dict[str, object],
+        bundle: dict[str, object],
+    ) -> dict[str, object]:
+        checked = validate_bundle(bundle_ref, bundle)
+        try:
+            authority = await service.runtime_authority(
+                supervisor_owner, self.epoch, self.generation, inert_probe=True
+            )
+            return await self._exchange(
+                "prepare", authority, {"bundle_ref": bundle_ref, "bundle": checked}
+            )
+        except BaseException:
+            await self.close()
+            raise
 
     async def status(self) -> dict[str, object]:
         return await self._exchange("status")

@@ -127,6 +127,29 @@ class InstanceService:
             yield CaseTransitionGuard(deadline, verify)
             await verify()
 
+    @asynccontextmanager
+    async def native_preparation_commit(
+        self, owner: UUID, epoch: int, generation: int
+    ) -> AsyncIterator[AsyncConnection]:
+        """Instance→lease→stop fence held until final post-write DB-clock check."""
+        if (
+            type(owner) is not UUID
+            or type(epoch) is not int
+            or not 1 <= epoch < 2**63
+            or type(generation) is not int
+            or not 0 <= generation < 2**63
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            await self._stop_fence(connection)
+            self._require_generation(instance, generation)
+            if instance.shutdown_command_id is not None:
+                raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+            yield connection
+            await self._require_owner(connection, lease, owner, epoch)
+            await self._stop_fence(connection)
+
     async def runtime_authority(
         self, owner: UUID, epoch: int, generation: int, *, inert_probe: bool = False
     ) -> RuntimeAuthority:

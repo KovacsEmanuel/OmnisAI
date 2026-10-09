@@ -112,8 +112,8 @@ export function Wizard({ id }: { id?: string }) {
     setForm(next);
     if (field === 'objective_text') setDefaultUntouched(false);
     if (field) setErrors(current => current.filter(error => focusField(error.field) !== field));
-    if (phase !== 'conflict' && phase !== 'uncertain') setPhase('idle');
-    setNotice(null);
+    if (phase !== 'conflict' && phase !== 'uncertain' && phase !== 'stale') setPhase('idle');
+    if (phase !== 'stale') setNotice(null);
   }
   function showErrors(problems: FieldError[]) {
     setErrors(problems);

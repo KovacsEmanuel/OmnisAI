@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "CLOSED_SCOPED_NATIVE_DOCUMENT_PREPARATION",
+  "code": "IMPLEMENTED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "scope": "Published dependency-free CONTRACT_PROBE selection to installed native document loader and durable receipt/readback. Installed acceptance exercises one selected package with ten files, not an AIAgent/TaskResult, final PromptBundle, full C05/H03 or B06b/G02 closure.",
+  "product_commit": "b5d6bdbbc0acf31b761c04170ec58597364d8771",
+  "feature_commit": "ae28311ccd7f5a94893b8188f8750658167fd4b0",
+  "import_fix_commit": "b1efdcf8ecd6861bda9e27feae1ee91561cb0ea7",
+  "consumer": "omnis.modules.runs.native_preparation prepare/readback; private control.sock through the existing supervisor-owned RuntimeClient",
+  "delivered": [
+    "Explicit supervisor-only catalog opt-in; ordinary API/supervisor/transport startup remains catalog-free.",
+    "Exact publication/selection/material validation and immutable bundle T1 committed before one finite worker dispatch.",
+    "Actual installed tools.skills_tool.skill_view with preprocess=false, isolated fresh home before import, exact bytes and native provenance.",
+    "Instance/lease/generation/stop-fence guarded T2 receipt with post-write DB time check and separate committed readback.",
+    "Completed replay returns the retained receipt; T1 without receipt is indeterminate and never automatically respawned.",
+    "Historical DB-only readback after supervisor/runtime stop; existing active profile and native RPC allowlists unchanged."
+  ],
+  "reviews": [
+    {"report": "native-prep-review-compliance.json", "sha256": "ef134e18aeac9b17dea9e48f14d841b5faf6485108122766b65d54caa7ab4736", "verdict": "CHANGES_REQUESTED", "snapshot_paths": 15},
+    {"report": "native-prep-review-runtime.json", "sha256": "5b9861c112410338f0aca20d26c87167ee0c21c398329e6421842eb392031156", "verdict": "CHANGES_REQUESTED", "snapshot_paths": 15},
+    {"report": "native-prep-fixes-rereview.json", "sha256": "b98bfcd8d14faa47eb8bfe2ef559050fb5757c8dd00f97e225eaca83874a0e55", "verdict": "APPROVED_SCOPED", "snapshot_paths": 17, "independent_source_tests": 117}
+  ],
+  "finding_dispositions": {
+    "NP-COMPLIANCE-02": "RESOLVED_SCOPED: actual check-api-wheel UNSAFE_FILE and three fresh ordinary-import failures reproduced; lazy opt-in imports fixed all three sibling paths, wheel factory and regressions passed.",
+    "NP-COMPLIANCE-01": "RESOLVED_SCOPED: producer/runtime grammar mismatch reproduced with positive seed and block/long/comment variants, then actual qualified PG publication RED. Restrictive lexical/byte/path/uniqueness guards now run before T1; real PG tripwires and unchanged ledger passed.",
+    "RUNTIME-R2-01": "RESOLVED_SCOPED: same grammar mismatch as NP-COMPLIANCE-01; unchanged runtime validator, retained bytes and deadlines, focused independent approval."
+  },
+  "canonical": {
+    "session": "proc_dfdb02abf2b1",
+    "tested_head": "17991083af9015a3a4f0df12d3b569a47f7c4252",
+    "command": "PATH=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/bin:$PATH make check UV=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/uv/uv-x86_64-unknown-linux-gnu/uv",
+    "exit_code": 0,
+    "family_receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+    "tracked_count": 627,
+    "all_tracked_bytes_unchanged": true,
+    "source_manifest_sha256": "b1acfde2215e07c412dc7387dc9f4b0bed925740a59a6c6019bd0b9527a1c049",
+    "log": "/home/kali/.hermes/cache/scratch/db-bf02c69d6342429a/gate.log",
+    "log_sha256": "d39f9f1e7814659792bced9063245dc987ea888caf9edce2e7a641344ac4c61d",
+    "component_pass_counts": {"documentation": 72, "development": 43, "api": 918, "migrations": 23, "web": 75, "e2e": 9, "cli_source": 287, "cli_wheel": 287, "cli_installed_status": 1, "release": 61, "runtime": 184, "native_build_ast": 6},
+    "counts_are_components_not_unique_total": true,
+    "cleanup": {
+      "project": "omnis-p01-8ecba778a0094362bebf8a955d486373",
+      "cid": "4ebc79bbb633baea81434aab55a24c5c191dd71df41ea4739ae459815339ee54",
+      "root": "/home/kali/.hermes/cache/scratch/db-bf02c69d6342429a",
+      "exact_CID_networks_socket_absent": true,
+      "parent_readback": true,
+      "PGDATA_logs_retained": true
+    }
+  },
+  "targeted_evidence": {
+    "first_pg": {"session": "proc_0833dbb91c00", "passed": 54, "seconds": 105.28, "exit": 0},
+    "grammar_pg_red": {"session": "proc_83108b2243c2", "failed": 1, "seconds": 14.52, "exit": 1},
+    "final_pg": {"session": "proc_09ce0445f9ad", "passed": 142, "seconds": 121.10, "exit": 0},
+    "parent_installed_journey": {"session": "proc_b58448a4ab07", "exit": 0, "loaded_files": 10, "historical_readback_equal": true, "family_drained": true},
+    "limit": "PG-only tests use an explicitly declared RuntimeDouble; installed journey uses actual installed worker and loader. Source process fault seams are not full installed native fault or physical crash certification."
+  },
+  "independent_installed_qa": {
+    "report": "/home/kali/.hermes/cache/scratch/native-prep-independent-qa.json",
+    "report_sha256": "f3effe4029315761953a02c16cf9c21f591bd0a52d793e5679de020ce4d8f172",
+    "session": "proc_4ab5581da955",
+    "exit": 0,
+    "family_drained": true,
+    "cases_passed": 8,
+    "case_names": ["stale_epoch", "wrong_catalog_owner", "selection_digest", "forbidden_model_override", "installed_prepare", "fresh_process_readback", "duplicate_prepare", "historical_readback_after_stop"],
+    "case_counts": {"denials": 4, "successes": 4},
+    "api_modules_identical": 62,
+    "adapter_modules_identical": 6,
+    "reviewed_paths_unchanged": 17,
+    "loaded_files": 10,
+    "loaded_bytes": 9703,
+    "api_wheel_sha256": "7325d5d5a66152ecfa2f99615df4ac471be9a0ab652f97f059de8b93ecdf8dec",
+    "adapter_wheel_sha256": "a6e7b15e4b644e1fd2e80f496e5fded786f701132f4073947bf276c048e87d89",
+    "image_id": "sha256:880f5d1a2241fb6409b7f4e9d8f4ea65b76251f6676374e4a222c8e65b752f5e",
+    "native_base": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "gate_log_sha256": "f8b826e7011580ec32f16c2c6e6e259d2fb9003ea476f9376b94bc4acee1609b",
+    "cleanup": {
+      "runtime_cid": "e1a8e9cdd5401a5388b0b4c11099620b49dfd67f99790608b610769b29e7aa54",
+      "static_attestation_cid": "a817a4b464909de4554378453da208a594cce3e005b43cf8584e3e1678849fe6",
+      "pg_cid": "a08dec40b6b6077e33680d719209edc17777e7077e86992936fe4f3d75d64019",
+      "pg_project": "omnis-p01-366b52f14b244da6ad219b10d7bd269b",
+      "pg_root": "/home/kali/.hermes/cache/scratch/db-be2dd5cb3aad4ae7",
+      "native_root": "/home/kali/.hermes/cache/scratch/b06b-z5g34e01",
+      "parent_verified_exact_CIDs_project_networks_sockets_worker_trees_PIDs_absent": true,
+      "data_logs_images_retained": true
+    },
+    "parent_adjudication": "Read report and actual exit; independently recomputed bundle/receipt and loaded-byte hashes, exact case/exit counts, unchanged denial ledgers, 17 source bindings and 62 installed modules; repeated exact resource absence readback. Eight CLI cases, not eight pytest suites."
+  },
+  "preserved_failures": [
+    "Initial proposal1.2s worker disproved by actual cold loader1.7652916609949898s; explicit new-operation budget corrected without changing existing authority grants.",
+    "Initial runtime regression178pass6fail from LocalControl test double signatures; explicit optional keyword with assertNone repaired, then184pass.",
+    "Actual check-api-wheel exit2/UNSAFE_FILE plus three import-isolation REDs; preserved before lazy-import fix.",
+    "API/runtime grammar source mismatches and real PG block-description RED1fail14.52s; no suppressed failure or normalized bytes.",
+    "BuildKit rejected FROM sha256:image-id as registry metadata; local existing tag used only after exact ID/layer attestation. No native runtime started in failed build.",
+    "Independent QA helper-copy adapter failed before writes or fixture execution; one actual independent live journey, no discarded failed product run."
+  ],
+  "limitations": [
+    "Only installed document preparation is closed scoped. Final PromptBundle/Task/Attempt/Brief/Result/MethodPlan/Check, native child binding and inbox consumption remain unimplemented/unaccepted.",
+    "C05/H03 and full B06b/G02/phase2 remain open; no promotion of preparation to native agent execution or result authority.",
+    "One-package installed acceptance; two-package validator seams are source evidence, not a second installed qualified-package journey.",
+    "NO_MODEL, exact code path and network-none confinement are scoped; no independent universal syscall, provider-constructor or process-spawn tracer is claimed. Expected absent fresh-home .env readiness lookup is not reader non-invocation.",
+    "Stop in the installed journey is supervisor SIGTERM/drain and exact runtime container stop, not assessment Stop or a physical crash/power-loss/ACK-loss proof.",
+    "CLI latency measurements are observations, not an SLA. Indeterminate reservations do not automatically retry.",
+    "No rollout to r1/operator data, model/provider/target spending, global configuration, remote CI or push."
+  ],
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE_CLI_PROCESS", "Chisel": "BLOCKED_NO_GO"},
+  "rollback": "Granular Git revert changes code/docs only. No schema downgrade or deletion of retained DB/catalog evidence; external resource actions require their own exact ownership/readback. All live resources created for these probes were retired, artifacts retained.",
+  "register": "documents/verification/p2-b06b-native-preparation.md"
+}

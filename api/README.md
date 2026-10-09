@@ -131,3 +131,16 @@ python -I -B -m omnis.modules.runs.pure_probe readback --request <readback.json>
 Requesturile au exact `schema_version:1`, `owner_id` UUID și câmpurile operației. `select` cere `command_id`, `snapshot_ref` de tip run-snapshot publicat și `recipe_key`; întoarce `selection_ref/selection`. `execute` cere `command_id`, `selection_ref` și obiectul `input` conform recipe-ului; întoarce `receipt_ref/receipt`. `readback` cere `receipt_ref` și returnează receiptul, inputul și selection împreună cu refs. Refs folosesc `{kind,id,revision,digest}`; niciun lookup latest sau grant din JSON. Selection este comisă înainte de execute, cu NO_MODEL/effective=null; receiptul COMPLETED nu este verdict SECURITY ori TaskResult.
 
 Replayul aceluiași command/request întoarce rezultatul comis fără rerularea PURE; payload diferit este conflict. Materialul schimbat și dependențele RELEASE sunt refuzate. Nu porni această comandă pe profilul r1 sau date reale ca probă implicită. Targetul `test-b06b-pure-probe-pg` se execută numai prin runnerul privat existent, pe PostgreSQL nou UDS/no-network; probele și cleanupul sunt în registru. B06b/G02 și faza2 rămân neînchise.
+
+## B06b — pregătire documentară prin Hermes instalat
+
+[Consumer acceptat scoped](../documents/verification/p2-b06b-native-preparation-close.json), produs `b5d6bdb`: loaderul real `tools.skills_tool.skill_view`, fără AIAgent/client provider/conversație. Supervisorul pregătit explicit primește `OMNIS_NATIVE_PREPARATION_CATALOG_ROOT` către catalogul privat existent, împreună cu `OMNIS_RUNTIME_DIR` și `OMNIS_RUNTIME_INERT_PROBE=1`. Numai această opțiune activează callbackul; nu modifică `omnis start` sau profilul r1 implicit și nu deschide un al doilea owner runtime.
+
+```sh
+python -I -B -m omnis.modules.runs.native_preparation prepare --request <prepare.json> --control-dir <control-privat>
+python -I -B -m omnis.modules.runs.native_preparation readback --request <readback.json>
+```
+
+Prepare cere exact `schema_version:1`, `owner_id`, `command_id`, `instance_id`, `expected_generation`, `expected_epoch`, `selection_ref`; identitățile și selection provin din readbackurile existente. CLI-ul prepare folosește control.sock, nu DB sau runtime.sock direct. Readback cere schema_version/owner_id/command_id și canalul DB privat configurat explicit, fără runtime pornit. Rezultatul citează bundle/receipt și `PREPARED`, nu TaskResult sau assessment_ready.
+
+T1 este o rezervare durabilă, nu succes: lipsa receiptului după întrerupere produce `PREPARATION_INDETERMINATE`, fără retry/spawn automat. Comanda completă se rejucă idempotent. Pregătirea refuză RELEASE, fișiere neportabile/overflow și metadate de setup/secrete înainte de T1; subsetul exact și bugetele sunt în [registru](../documents/verification/p2-b06b-native-preparation.md). Workerul folosește home nou și fișiere read-only, nu `active/skills`; `preprocess=False` nu împiedică lookupul `.env` absent din home-ul său nou. Probe instalate: un pachet/10 fișiere. Task/Attempt/Brief/Result/MethodPlan/Check și H03/G02 complete rămân nelivrate/neînchise; nu rollout pe date de operator.

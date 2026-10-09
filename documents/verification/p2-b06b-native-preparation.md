@@ -39,7 +39,7 @@ Sursa instalată folosită pentru dezvoltare: imaginea exactă `sha256:0c2d1599d
 
 ## Stare
 
-Produs integrat în `ae28311`, remediat în `b1efdcf` și `b5d6bdb`; **IN_REVIEW, instalarea cap-coadă și acceptarea finală sunt încă în lucru**. Contractele Task/copil/model nu sunt livrate prin această felie.
+**CLOSED_SCOPED_NATIVE_DOCUMENT_PREPARATION / IMPLEMENTED / PASS_LOCAL_RECORDED / APPROVED_SCOPED_COMPOSITE.** Produs `ae28311` cu remedierile `b1efdcf` și `b5d6bdb`; [receiptul final](p2-b06b-native-preparation-close.json) leagă reviewurile, probele și limitele. Acceptarea instalată acoperă un pachet cu10 fișiere, nu AIAgent, TaskResult, PromptBundle final sau închiderea C05/H03/B06b/G02.
 
 ## Integrare și remedieri reproduse
 
@@ -57,3 +57,19 @@ Buildul de probă păstrează imaginea nativă de bază și înlocuiește numai 
 `proc_b58448a4ab07` a executat pozitivul real pe API wheel copy, supervisor instalat, RuntimeHost PID1/worker instalate și PostgreSQL nou UDS/no-network: calificare/publicare/snapshot/selection → prepare pe control.sock → loader nativ → receipt → replay → Stop supervisor/runtime → readback istoric din proces nou. **PASS_SCOPED_INSTALLED_JOURNEY, exit0/family_drained=true**; cele10 fișiere sunt byte-exact, hashul workerului coincide, epoch greșit refuzat pe aceeași cale. Latența CLI prepare observată3.5082985410117544s nu este un SLA sau dovadă universală de performanță.
 
 Receipt public: `/home/kali/.hermes/cache/scratch/b06b-fcvn538a/native-result.json`; log privat PG `/home/kali/.hermes/cache/scratch/db-28711f4995f94348/gate.log`, SHA256 `36baf985693703ecb3ce4b11c5132f5c3f6c90d71367ff56066dea891e992942`. Părintele a recitit receiptul și a verificat independent absența CID-urilor native/PG, socketurilor control/runtime/PG, rețelelor PG și arborilor worker; date/loguri/catalog păstrate. Helpers scratch orchestrează numai resursele noi și comenzile reale, nu substituie loaderul/rezultatul. Acesta este pozitivul părintelui, **nu QA independentă sau canonical final**, care rămân de adjudecat înainte de închidere.
+
+## Canonical, QA independentă și adjudecare finală
+
+Re-review `deleg_ec689f24`: toate cele trei IDs ale celor două defecte sunt **RESOLVED_SCOPED**,17/17 hashes identice și117 teste independente fără PG. Documentarea subsetului cerută de reviewer este inclusă mai sus. Nu folosim acest verdict drept dovadă de loader instalat; aceasta vine din traseele reale separate.
+
+`proc_dfdb02abf2b1`: **make check exit0/family_drained=true** pe `1799108`,627 fișiere versionate neschimbate. Componente:72docs/43development/918API/23migrare/75web/9E2E/287CLI source+287wheel/1installed status/61release/184runtime+6AST. Nu total unic. Logul original, receiptul familiei și absența exactă a CID/rețele/socket au fost verificate de părinte; PGDATA/loguri păstrate.
+
+QA independentă `deleg_fb99801c`, `proc_4ab5581da955`: **8/8 scenarii CLI reale, exit0/drained** pe aceeași revizie de produs. Patru refuzuri cu ledger neschimbat (epoch stale, owner străin, digest selection modificat, override model), apoi prepare/readback din proces nou/replay/readback istoric după oprire. Loaderul instalat a returnat exact10 fișiere/9703 bytes. Verificări independente înainte/după:62 module API,6 module adaptor și17 căi revizuite; pinul/base layers și hashurile worker/skills_tool coincid. Rootfs read-only și network none; numai rădăcini runtime/state sintetice proprii montate writable. `active/skills` nu este populat de pregătire.
+
+Părintele a recitit raportul complet și exitul real, a recalculat digests bundle/receipt/fișiere și counts, a comparat bytes produsului și a repetat readbackul exact CID-urilor static/native/PG, proiect/rețele/socketuri/arbori worker/PID-uri absente. Datele, imaginile și logurile sunt păstrate. Primul helper-copy QA a eșuat înainte de scrieri/provisioning; nu există un FAIL de produs ascuns ori o rerulare a canonicalului. Verificarea ad-hoc a helperelor este separată de aceste8 scenarii.
+
+**Limite păstrate:** replayul este probat prin refs și ledger identice, fără tracer independent de spawn; Stop din journey este SIGTERM/drain supervisor plus stop exact al containerului, nu assessment Stop. Faulturile de proces și două pachete au probe source/seam, nu calificare instalată integrală; crash/power-loss/server ACK-loss și syscall tracing universal sunt NOT_RUN. `preprocess=False` permite lookupul `.env` absent din home-ul nou, nu înseamnă că readerul nu este apelat. Nu model/provider/target, rollout/r1/global/push sau aprobare pentru copil AI.
+
+## Continuarea canonică
+
+Publicarea, PURE și pregătirea documentelor sunt acum reutilizabile în scope-urile lor și nu se reauditează neschimbate. Urmează contractele Task/Attempt/Brief/Result/BoundProcedure/MethodPlan/Check împreună cu seamul nativ indexed pre-access/pre-client, lineage și inbox/consum durabil. Receiptul de pregătire nu substituie niciunul dintre ele; B06b/G02/faza2 rămân deschise. B06c → B06m → Settings → P2-live rămân în ordinea planului, cu acord separat de cont/model/buget pentru live.

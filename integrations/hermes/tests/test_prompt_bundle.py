@@ -32,6 +32,38 @@ def validate(stage):
     )
 
 
+@pytest.mark.parametrize("target", ["bound_mission", "binding_procedure", "binding_bound"])
+def test_fully_resealed_nested_reference_bool_is_not_revision_one(target):
+    stage = fixture()
+    assert validate(stage)
+    composition = stage["compositions"][0]
+    sections = json.loads(composition["payload"]["text"])
+    brief, bound = sections[2]["record"], sections[3]["record"]
+    if target == "bound_mission":
+        bound["payload"]["mission_ref"]["revision"] = True
+    seal(bound)
+    binding = brief["payload"]["procedure_bindings"][0]
+    binding["bound_procedure_ref"] = ref(bound)
+    for requirement in brief["payload"]["method_plan"]["requirements"]:
+        requirement["ref"]["bound_procedure_ref"] = ref(bound)
+    if target == "binding_procedure":
+        binding["procedure_ref"]["revision"] = True
+    if target == "binding_bound":
+        binding["bound_procedure_ref"]["revision"] = True
+    seal(brief)
+    raw = canonical(sections)
+    composition["payload"].update(
+        text=raw.decode(), text_digest=digest(raw), byte_count=len(raw), token_upper_bound=len(raw)
+    )
+    seal(composition)
+    stage["manifest"]["payload"]["entries"][0].update(
+        brief_ref=ref(brief), composition_ref=ref(composition)
+    )
+    seal(stage["manifest"])
+    with pytest.raises(ValueError):
+        validate(stage)
+
+
 def test_complete_two_skill_composition_is_validated_as_immutable_bytes():
     assert importlib.util.find_spec("omnis_hermes.prompt_bundle"), "native pure composer missing"
     from omnis_hermes.prompt_bundle import validate_composition

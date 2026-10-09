@@ -340,6 +340,7 @@ def _brief(
         method["payload"], {"procedure_ref", "slot_values", "resolved_procedure", "mission_ref"}
     )
     reference(bound["procedure_ref"], "procedure")
+    reference(bound["mission_ref"], "mission")
     if bound["mission_ref"] != header["mission_revision"] or bound["slot_values"] != []:
         raise reject()
     p = _procedure(bound["resolved_procedure"])
@@ -348,8 +349,12 @@ def _brief(
         "slot_values": [],
         "bound_procedure_ref": ref(method),
     }
+    bindings = sequence(body["procedure_bindings"], 1, 1)
+    binding = obj(bindings[0], {"procedure_ref", "slot_values", "bound_procedure_ref"})
+    reference(binding["procedure_ref"], "procedure")
+    reference(binding["bound_procedure_ref"], "bound-procedure")
     if (
-        body["procedure_bindings"] != [expected_binding]
+        canonical(bindings) != canonical([expected_binding])
         or body["procedure_refs"] != [bound["procedure_ref"]]
         or body["technique_refs"] != [p["technique_ref"]]
     ):

@@ -63,7 +63,15 @@ class ComposedLifecycle(unittest.TestCase):
         from omnis_hermes.native_preparation_contract import canonical, digest
 
         before = set(_REGISTRY.records)
-        for change in ("missing", "content", "foreign_attempt", "overflow"):
+        for change in (
+            "missing",
+            "content",
+            "foreign_attempt",
+            "overflow",
+            "bound_mission",
+            "binding_procedure",
+            "binding_bound",
+        ):
             bad = copy.deepcopy(self.payload)
             composition = bad["compositions"][0]
             if change == "missing":
@@ -74,11 +82,26 @@ class ComposedLifecycle(unittest.TestCase):
                 sections = json.loads(composition["payload"]["text"])
                 if change == "content":
                     sections[4]["content"][0]["text"] += "tampered"
-                else:
+                elif change == "foreign_attempt":
                     sections[2]["record"]["payload"]["header"]["attempt_id"] = (
                         "00000000-0000-0000-0000-000000000000"
                     )
                     seal(sections[2]["record"])
+                else:
+                    brief, bound = sections[2]["record"], sections[3]["record"]
+                    if change == "bound_mission":
+                        bound["payload"]["mission_ref"]["revision"] = True
+                    seal(bound)
+                    binding = brief["payload"]["procedure_bindings"][0]
+                    binding["bound_procedure_ref"] = ref(bound)
+                    for requirement in brief["payload"]["method_plan"]["requirements"]:
+                        requirement["ref"]["bound_procedure_ref"] = ref(bound)
+                    if change == "binding_procedure":
+                        binding["procedure_ref"]["revision"] = True
+                    if change == "binding_bound":
+                        binding["bound_procedure_ref"]["revision"] = True
+                    seal(brief)
+                    bad["manifest"]["payload"]["entries"][0]["brief_ref"] = ref(brief)
                 raw = canonical(sections)
                 composition["payload"].update(
                     text=raw.decode(),

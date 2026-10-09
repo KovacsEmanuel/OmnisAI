@@ -7,11 +7,15 @@ from collections import deque
 from contextlib import suppress
 from typing import Literal, TypedDict
 
+from . import managed_admission_contract as managed
+
 MAX_FRAME = 64 * 1024
 MAX_PENDING = 32
 MAX_QUEUED = 1024 * 1024
 SAFE_UNKNOWN = "omnis.inert.probe_unknown"
-ALLOWED = frozenset({"ping", "client.capabilities", "gateway.capabilities", SAFE_UNKNOWN})
+ALLOWED = frozenset(
+    {"ping", "client.capabilities", "gateway.capabilities", SAFE_UNKNOWN}
+) | frozenset(managed.RPC.values())
 
 
 class ProtocolError(ValueError):
@@ -380,14 +384,33 @@ class NativePeer:
         except (ValueError, OSError, asyncio.IncompleteReadError, asyncio.LimitOverrunError):
             self._fail()
 
-    async def call(self, method: str, params: dict[str, object]) -> object:
+    async def call(
+        self, method: str, params: dict[str, object], *, timeout: float | None = None
+    ) -> object:
         # Validate BEFORE allocating correlation or touching the writer.
+        managed_method = method in managed.RPC.values()
+        if managed_method:
+            {
+                managed.RPC["task_stage"]: managed.validate_stage,
+                managed.RPC["task_release"]: managed.validate_release,
+                managed.RPC["task_status"]: managed.validate_status,
+            }[method](params)
+        if timeout is not None and (
+            not managed_method
+            or type(timeout) not in (float, int)
+            or not math.isfinite(timeout)
+            or not 0 < timeout <= 3.2
+        ):
+            raise ProtocolError("Invalid managed deadline")
         if method not in ALLOWED or (
-            params != {}
-            and not (
-                method == "client.capabilities"
-                and params == {"server_requests": True}
-                and type(params.get("server_requests")) is bool
+            not managed_method
+            and (
+                params != {}
+                and not (
+                    method == "client.capabilities"
+                    and params == {"server_requests": True}
+                    and type(params.get("server_requests")) is bool
+                )
             )
         ):
             raise ProtocolError("Method or parameters not allowed")
@@ -401,7 +424,9 @@ class NativePeer:
             self._enqueue(
                 {"jsonrpc": "2.0", "id": self.next_id, "method": method, "params": params}
             )
-            return await asyncio.wait_for(asyncio.shield(future), self.timeout)
+            return await asyncio.wait_for(
+                asyncio.shield(future), self.timeout if timeout is None else timeout
+            )
         except TimeoutError:
             raise ProtocolError("Native RPC deadline") from None
         finally:

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "applies_after": "omnis-inert.patch",
+  "scope": "trusted cold NO_MODEL only; no warm execution",
+  "files": {
+    "agent/cold_admission.py": {
+      "original_sha256": null,
+      "patched_sha256": "f2f8fb668965cf59b93828028a8a7a24312f2915e987c6e3ae9fde2ed0ef7566"
+    },
+    "agent/managed_admission_rpc.py": {
+      "original_sha256": null,
+      "patched_sha256": "b3d2157fbded618996bbbe85ad8bb2e0d043035925eb3ebbe035c5297cd7be6c"
+    },
+    "agent/subagent_lifecycle.py": {
+      "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
+      "patched_sha256": "58b57716d1ed44b894502a9343af5677de0b0b2c050e9f54d96bdc020d69c001"
+    },
+    "providers/__init__.py": {
+      "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da",
+      "patched_sha256": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d"
+    },
+    "run_agent.py": {
+      "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
+      "patched_sha256": "4f8dbc5126b63c1e24588cc89039d32a0daadeafda6f3defc61e4e15df9974e6"
+    },
+    "tui_gateway/rpc_dispatch.py": {
+      "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
+      "patched_sha256": "065c3f0bfcb53514cde5412e235b2a5187a2e74dc7316c133bce0e2c25dba575"
+    }
+  },
+  "patch_sha256": "ecaa09c076c014700fe2d5ed3860df424a2419db6ec5c09a64c3d24c4753c602"
+}

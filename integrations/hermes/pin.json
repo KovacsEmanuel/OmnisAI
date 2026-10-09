@@ -17,5 +17,7 @@
   "requirements_sha256": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273",
   "patch_sha256": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223",
   "patch_manifest_sha256": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab",
-  "runtime_inference_authorized": false
+  "runtime_inference_authorized": false,
+  "managed_patch_sha256": "ecaa09c076c014700fe2d5ed3860df424a2419db6ec5c09a64c3d24c4753c602",
+  "managed_patch_manifest_sha256": "e2d9136107a0b3f7e4b8af5712f1ebeef1ad91a5c6369c374963bfb64311ebee"
 }

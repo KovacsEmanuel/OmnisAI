@@ -78,6 +78,23 @@ def apply_inert_overlay(source: Path) -> None:
         shutil.copyfile(UPSTREAM / "inert-source" / name, source / name)
 
 
+def apply_managed_overlay(source: Path) -> None:
+    """Layer the reviewed cold lifecycle patch AFTER the unchanged inert patch."""
+    require_hash(UPSTREAM / "managed-patch-manifest.json", PIN["managed_patch_manifest_sha256"], "managed manifest")
+    require_hash(UPSTREAM / "omnis-managed.patch", PIN["managed_patch_sha256"], "managed patch")
+    manifest = json.loads((UPSTREAM / "managed-patch-manifest.json").read_text())
+    for name, hashes in manifest["files"].items():
+        if hashes["original_sha256"] is None:
+            if (source / name).exists():
+                raise ValueError("managed new file already exists")
+        else:
+            require_hash(source / name, hashes["original_sha256"], "managed original")
+        require_hash(UPSTREAM / "managed-source" / name, hashes["patched_sha256"], "managed patched")
+    for name in manifest["files"]:
+        (source / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(UPSTREAM / "managed-source" / name, source / name)
+
+
 def prepare(archive: Path, output: Path) -> dict:
     require_hash(archive, PIN["source_archive_sha256"], "archive")
     require_hash(INTEGRATION / "requirements-native.txt", PIN["requirements_sha256"], "requirements")
@@ -98,12 +115,14 @@ def prepare(archive: Path, output: Path) -> dict:
         require_hash(source / name, PIN[field], name)
     original_files = {str(p.relative_to(source)): sha256(p) for p in sorted(source.rglob("*")) if p.is_file()}
     apply_inert_overlay(source)
+    apply_managed_overlay(source)
     selected_dependencies = output / "dependency-override"
     shutil.copytree(DEPENDENCY_PROJECT, selected_dependencies)
     shutil.copyfile(selected_dependencies / "requirements-native.txt", output / "requirements-native.txt")
     shutil.copyfile(UPSTREAM / "LICENSE", output / "LICENSE.hermes")
     manifest = {"schema_version": 1, "pin": PIN, "original_files": original_files,
                 "patched_files": json.loads((UPSTREAM / "patch-manifest.json").read_text(encoding="utf-8"))["files"],
+                "managed_patched_files": json.loads((UPSTREAM / "managed-patch-manifest.json").read_text())["files"],
                 "dependency_override": dependencies,
                 "native_started": False, "provider_calls": "NOT_RUN", "assessment_ready": False}
     (output / "source-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

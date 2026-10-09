@@ -1,0 +1,88 @@
+{
+  "scope": "SOURCE_IMPLEMENTATION_ONLY_INSTALLED_NATIVE_NOT_RUN",
+  "base": "13cc6a7eb4c18f5e68f47d4a01b8289cd80270b5",
+  "committed": false,
+  "red": [
+    {
+      "probe": "test_managed_native_source.py against original source",
+      "exit_code": 1,
+      "observed": "2 assertion failures: cold constructor argument missing; lifecycle stage/release/readback missing"
+    },
+    {
+      "probe": "test_managed_admission.py before contract",
+      "exit_code": 1,
+      "observed": "managed contract missing"
+    },
+    {
+      "probe": "test_managed_admission.py before host wiring",
+      "exit_code": 1,
+      "observed": "task_stage rejected as Invalid IPC fields"
+    },
+    {
+      "probe": "full source audit before provider discovery guard",
+      "exit_code": 1,
+      "observed": "5 lifecycle tests passed but independent audit observed credential-read through provider discovery/config/secret_scope; not credited as PASS"
+    },
+    {
+      "probe": "provider home lookup prefix before guard",
+      "exit_code": 1,
+      "observed": "home-lookup attempted"
+    }
+  ],
+  "green": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -c 'import sys,pytest; sys.path[:0]=[\"integrations/hermes/src\",\"api/src\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests\",\"-q\"]))'",
+      "exit_code": 0,
+      "tests": 189,
+      "subtests": 3,
+      "python": "3.13.15"
+    },
+    {
+      "probe": "managed_source_probe.py full source overlay, /usr/bin/python3 -I, fresh scratch HOME, no AIAgent substitution",
+      "exit_code": 0,
+      "python": "3.13.12",
+      "tests": 6,
+      "effects": [],
+      "seconds": 2.6197292700235266,
+      "installed_native": false
+    },
+    {
+      "probe": "ruff check and ruff format --check, api/pyproject.toml, integrations/hermes/src + tests",
+      "exit_code": 0
+    },
+    {
+      "probe": "mypy --no-incremental, api/pyproject.toml, integrations/hermes/src",
+      "exit_code": 0,
+      "source_files": 7
+    },
+    {
+      "probe": "git apply --check omnis-managed.patch against fresh copies of exported post-inert source",
+      "exit_code": 0
+    },
+    {
+      "probe": "ops.prepare_hermes_runtime.apply_managed_overlay readback hashes",
+      "exit_code": 0,
+      "files": 6
+    },
+    {
+      "probe": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "other_attempts": [
+    {
+      "probe": "full adapter tests with system Python3.13.12 instead of pinned API interpreter",
+      "exit_code": 1,
+      "passed": 179,
+      "failed": 7,
+      "observed": "unchanged bootstrap inventory observer detects pathlib ntpath import; pinned Python3.13.15 canonical test invocation passes without changing those tests"
+    }
+  ],
+  "remaining": [
+    "Installed Hermes/Python3.13.15 artifact probe and installed cold timing",
+    "Actual RuntimeHost owner UDS stage\u2192release\u2192readback with supervisor committed PG binding",
+    "Independent exact-diff review",
+    "Parent Make target inclusion of test_managed_admission.py, test_managed_build.py, test_managed_native_source.py"
+  ],
+  "native_patch_sha256": "ecaa09c076c014700fe2d5ed3860df424a2419db6ec5c09a64c3d24c4753c602"
+}

@@ -15,9 +15,10 @@ import time
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
+from typing import Self, cast
 from uuid import UUID, uuid4
 
+from . import managed_admission_contract as managed
 from . import private_paths
 from .native_preparation_contract import (
     LIMITS,
@@ -50,7 +51,7 @@ NATIVE_ENV = {
     "HERMES_DISABLE_LAZY_INSTALLS": "1",
     "HERMES_SKIP_NODE_BOOTSTRAP": "1",
 }
-OPS = frozenset({"launch", "status", "renew", "stop", "prepare"})
+OPS = frozenset({"launch", "status", "renew", "stop", "prepare"}) | managed.OPS
 PREPARATION_COMMAND = (
     "/opt/hermes/venv/bin/python",
     "-I",
@@ -233,6 +234,78 @@ class RuntimeHost:
             or self.process.returncode is not None
         ):
             raise ValueError("Expired preparation authority")
+
+    async def _managed(self, body: dict[str, object]) -> dict[str, object]:
+        """Finite call on the existing owner/peer, never retry a lost native reply."""
+        self._preparation_ready()
+        operation = body["op"]
+        assert isinstance(operation, str)
+        payload = cast(dict[str, object], body["payload"])
+        validators = {
+            "task_stage": managed.validate_stage,
+            "task_release": managed.validate_release,
+            "task_status": managed.validate_status,
+        }
+        validators[operation](payload)
+        if operation == "task_release":
+            binding = cast(
+                dict[str, object], cast(dict[str, object], payload["binding"])["payload"]
+            )
+            authority = cast(dict[str, object], binding["authority"])
+            if binding["runtime_boot"] != self.boot or (
+                authority["generation"],
+                authority["epoch"],
+            ) != (self.generation, self.epoch):
+                raise ValueError("Stale managed authority")
+        deadline = self._grant(body)
+        if deadline > time.monotonic_ns() + 4_500_000_000:
+            raise ValueError("Invalid managed grant")
+        self.deadline_ns = deadline
+        remaining = min(3.2, (deadline - time.monotonic_ns()) / 1_000_000_000)
+        assert self.peer is not None
+        async with asyncio.timeout(remaining):
+            result = managed.validate_response(
+                await self.peer.call(managed.RPC[operation], payload, timeout=remaining)
+            )
+        self._preparation_ready()
+        if operation == "task_stage":
+            manifest = managed.validate_stage(payload)
+            rows = managed.entries(
+                cast(dict[str, object], manifest["payload"])["entries"], native=False
+            )
+            expected = [{k: v for k, v in e.items() if k != "goal"} for e in rows]
+            observed = [
+                {k: v for k, v in e.items() if k not in {"native_child_id", "native_session_id"}}
+                for e in managed.entries(result["entries"], native=True)
+            ]
+            if result["manifest_ref"] != managed.ref(manifest) or observed != expected:
+                raise ValueError("Native stage mismatch")
+        else:
+            if any(result[k] != payload[k] for k in ("ticket", "manifest_ref")):
+                raise ValueError("Native readback mismatch")
+            if operation == "task_release" and (
+                result["status"] != "BLOCKED"
+                or result["binding_ref"] != managed.ref(cast(dict[str, object], payload["binding"]))
+                or any(result[k] != binding[k] for k in ("native_root_id", "entries"))
+            ):
+                raise ValueError("Native binding mismatch")
+        return result
+
+    async def _managed_connected(
+        self, body: dict[str, object], reader: asyncio.StreamReader
+    ) -> dict[str, object]:
+        operation = asyncio.create_task(self._managed(body))
+        disconnected = asyncio.create_task(reader.read(1))
+        try:
+            await asyncio.wait((operation, disconnected), return_when=asyncio.FIRST_COMPLETED)
+            if disconnected.done() or reader.at_eof():
+                raise ValueError("Managed owner disconnected")
+            return await operation
+        finally:
+            if not operation.done():
+                operation.cancel()
+            disconnected.cancel()
+            await asyncio.gather(operation, disconnected, return_exceptions=True)
 
     async def _prepare(self, body: dict[str, object]) -> dict[str, object]:
         self._preparation_ready()
@@ -572,9 +645,9 @@ class RuntimeHost:
         if type(body.get("op")) is not str:
             raise ValueError("Invalid operation type")
         expected = {"version", "id", "boot", "capability", "generation", "epoch", "op"}
-        if body.get("op") in {"launch", "renew", "prepare"}:
+        if body.get("op") in {"launch", "renew", "prepare"} | managed.OPS:
             expected.add("deadline_ns")
-        if body.get("op") == "prepare":
+        if body.get("op") in {"prepare"} | managed.OPS:
             expected.add("payload")
         if set(body) != expected or type(body["version"]) is not int or body["version"] != 1:
             raise ValueError("Invalid IPC fields")
@@ -598,6 +671,12 @@ class RuntimeHost:
             validate_payload(body["payload"])
             if len(canonical(body)) + 1 > LIMITS["max_runtime_request_bytes"]:
                 raise ValueError("Invalid native preparation")
+        if body["op"] in managed.OPS:
+            {
+                "task_stage": managed.validate_stage,
+                "task_release": managed.validate_release,
+                "task_status": managed.validate_status,
+            }[body["op"]](body["payload"])
         return body
 
     async def _handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
@@ -631,6 +710,7 @@ class RuntimeHost:
                     authenticated = True
                     async with self.command_lock:
                         preparation = None
+                        managed_result = None
                         if body["op"] == "launch":
                             await self._launch(body)
                         elif body["op"] == "renew":
@@ -639,11 +719,15 @@ class RuntimeHost:
                             self.deadline_ns = self._grant(body)
                         elif body["op"] == "prepare":
                             preparation = await self._prepare_connected(body, reader)
+                        elif body["op"] in managed.OPS:
+                            managed_result = await self._managed_connected(body, reader)
                         elif body["op"] == "stop":
                             await self.stop()
                         response = {"ok": True, "id": correlation, **self.snapshot()}
                         if preparation is not None:
                             response["preparation"] = preparation
+                        if managed_result is not None:
+                            response["managed"] = managed_result
                 except (ValueError, OSError, TimeoutError, asyncio.LimitOverrunError):
                     response = {
                         "ok": False,

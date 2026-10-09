@@ -1,0 +1,340 @@
+--- /dev/null
++++ b/agent/cold_admission.py
+@@ -0,0 +1,69 @@
++"""Trusted opt-in cold AIAgent state. No routing, client, tools or conversation.
++
++This mode has its own complete finite state, NOT a partially initialized warm
++agent. All warm surfaces (including lineage, wake, persistence and tools) refuse.
++It cannot be upgraded to warm. The caller must create a new authorized agent.
++"""
++from dataclasses import dataclass
++import inspect
++from uuid import uuid4
++
++
++class ColdAdmissionDenied(ValueError):
++    pass
++
++
++@dataclass(frozen=True)
++class ColdAdmission:
++    resolution: str = "NO_MODEL"
++    parent_session_id: str | None = None
++
++
++@dataclass
++class ColdState:
++    session_id: str
++    native_id: str
++    parent_session_id: str | None
++    closed: bool = False
++    binding: bytes | None = None
++    terminal: str | None = None
++
++    def block(self, binding: bytes) -> str:
++        if self.closed or not binding:
++            raise ColdAdmissionDenied("Cold agent unavailable")
++        if self.binding is not None and self.binding != binding:
++            raise ColdAdmissionDenied("Cold binding conflict")
++        self.binding = binding
++        self.terminal = "BLOCKED"
++        return self.terminal
++
++
++COLD_READABLE = frozenset({
++    "_cold_state", "session_id", "_subagent_id", "_parent_session_id",
++    "_delegate_role", "_delegate_depth", "provider", "model", "enabled_toolsets",
++    "tools", "close", "__class__", "__dict__", "__weakref__",
++})
++
++
++def initialize_cold(agent, admission, kwargs):
++    if type(admission) is not ColdAdmission or admission.resolution != "NO_MODEL":
++        raise ColdAdmissionDenied("Unrecognized cold admission")
++    if admission.parent_session_id is not None and (
++        type(admission.parent_session_id) is not str or not 0 < len(admission.parent_session_id) <= 128
++    ):
++        raise ColdAdmissionDenied("Invalid cold parent")
++    defaults = inspect.signature(type(agent).__init__).parameters
++    if any(value != defaults[key].default for key, value in kwargs.items()):
++        raise ColdAdmissionDenied("Cold admission cannot carry warm options")
++    state = ColdState(str(uuid4()), str(uuid4()), admission.parent_session_id)
++    agent.__dict__.update(
++        _cold_state=state, session_id=state.session_id, _subagent_id=state.native_id,
++        _parent_session_id=state.parent_session_id, _delegate_role="leaf" if state.parent_session_id else "orchestrator",
++        _delegate_depth=1 if state.parent_session_id else 0, provider=None, model=None,
++        enabled_toolsets=(), tools=(),
++    )
++
++
++def require_warm_parent(parent):
++    if getattr(parent, "_cold_state", None) is not None:
++        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
+--- /dev/null
++++ b/agent/managed_admission_rpc.py
+@@ -0,0 +1,30 @@
++"""Private RPC entry for the reviewed managed admission extension.
++
++Only reachable through the fixed inert native stdin peer. No tool registration,
++plugin hooks, user goals, observers or skills can invoke this owner surface.
++"""
++import threading
++
++_ROOT = None
++_SERVICE = None
++_LOCK = threading.RLock()
++
++
++def dispatch(method, params):
++    global _ROOT, _SERVICE
++    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release
++    if method not in RPC.values():
++        raise ValueError("Unknown managed operation")
++    {RPC["task_stage"]: validate_stage, RPC["task_release"]: validate_release,
++     RPC["task_status"]: validate_status}[method](params)
++    with _LOCK:
++        if _SERVICE is None:
++            if method != RPC["task_stage"]:
++                raise ValueError("No managed stage")
++            from run_agent import AIAgent
++            from agent.cold_admission import ColdAdmission
++            from agent.subagent_lifecycle import SubagentLifecycleService
++            _ROOT = AIAgent(cold_admission=ColdAdmission())
++            _SERVICE = SubagentLifecycleService(lambda: _ROOT)
++        return {RPC["task_stage"]: _SERVICE.stage, RPC["task_release"]: _SERVICE.release,
++                RPC["task_status"]: _SERVICE.readback}[method](params)
+--- a/agent/subagent_lifecycle.py
++++ b/agent/subagent_lifecycle.py
+@@ -42,6 +42,7 @@
+     INTERRUPTED = "INTERRUPTED"
+     CANCEL_REQUESTED = "CANCEL_REQUESTED"
+     CANCELLED = "CANCELLED"
++    BLOCKED = "BLOCKED"
+     UNKNOWN = "UNKNOWN"
+ 
+ 
+@@ -241,9 +242,114 @@
+ 
+     def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
+         self._parent_agent_resolver = parent_agent_resolver
++        self._cold_batches = {}
++
++    def stage(self, payload):
++        """Create cold native identities, with no executor or conversation admission."""
++        from omnis_hermes.managed_admission_contract import validate_stage, ref, PROTOCOL
++        from agent.cold_admission import ColdAdmission, ColdAdmissionDenied
++        from uuid import uuid4
++        manifest = validate_stage(payload)
++        parent = self._parent_agent_resolver()
++        state = getattr(parent, "_cold_state", None)
++        if state is None or state.closed or state.parent_session_id is not None:
++            raise ColdAdmissionDenied("A live cold native root is required")
++        with _REGISTRY.lock:
++            prior = self._cold_batches.get(manifest["id"])
++            if prior is not None:
++                if prior["manifest"] != manifest:
++                    raise ColdAdmissionDenied("Manifest replay conflict")
++                return json.loads(json.dumps(prior["response"]))
++            if len(self._cold_batches) >= 64:
++                raise ColdAdmissionDenied("Cold registry full")
++            # Branch precedes _resolve_child_runtime and init_agent, not a late observer.
++            from run_agent import AIAgent
++            rows, records = [], []
++            try:
++                for entry in manifest["payload"]["entries"]:
++                    child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
++                    created = time.time()
++                    handle = SubagentHandle(
++                        PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id, None,
++                        created, None, None, "leaf", 1,
++                        self._capability(child._subagent_id, parent.session_id, created),
++                    )
++                    records.append(_Record(handle, SubagentState.PENDING, created, agent=child))
++                    rows.append({**{k:v for k,v in entry.items() if k != "goal"},
++                                 "native_child_id": child._subagent_id, "native_session_id": child.session_id})
++            except BaseException:
++                for record in records:
++                    record.agent.close()
++                raise
++            response = dict(protocol=PROTOCOL, status="STAGED", ticket=str(uuid4()),
++                            manifest_ref=ref(manifest), native_root_id=parent._subagent_id, entries=rows)
++            for record in records:
++                _REGISTRY.records[record.handle.subagent_id] = record
++            self._cold_batches[manifest["id"]] = dict(
++                manifest=json.loads(json.dumps(manifest)), response=response, records=records,
++                expires=time.monotonic() + 4.5, binding=None,
++            )
++            return json.loads(json.dumps(response))
++
++    def _cold_batch(self, payload):
++        from agent.cold_admission import ColdAdmissionDenied
++        batch = self._cold_batches.get(payload["manifest_ref"]["id"])
++        if batch is None or any(payload[k] != batch["response"][k] for k in ("ticket", "manifest_ref")):
++            raise ColdAdmissionDenied("Unknown native stage")
++        return batch
++
++    def readback(self, payload):
++        from omnis_hermes.managed_admission_contract import validate_status
++        validate_status(payload)
++        with _REGISTRY.lock:
++            return json.loads(json.dumps(self._cold_batch(payload)["response"]))
++
++    def release(self, payload):
++        """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
++        from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest
++        from agent.cold_admission import ColdAdmissionDenied
++        validate_release(payload)
++        with _REGISTRY.lock:
++            batch = self._cold_batch(payload)
++            binding = payload["binding"]
++            body, response = binding["payload"], batch["response"]
++            if (body["run_id"] != batch["manifest"]["payload"]["run_id"]
++                    or body["native_root_id"] != response["native_root_id"]
++                    or body["entries"] != response["entries"]):
++                raise ColdAdmissionDenied("Native binding mismatch")
++            if batch["binding"] is not None:
++                if canonical(binding) != batch["binding"]:
++                    raise ColdAdmissionDenied("Immutable binding conflict")
++                return json.loads(json.dumps(response))
++            parent = self._parent_agent_resolver()
++            if (parent is None or parent._cold_state.closed or time.monotonic() >= batch["expires"]
++                    or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
++                           for r in batch["records"])):
++                raise ColdAdmissionDenied("Native stage expired or stopped")
++            # No observer participates in authority. Validation finishes before mutation.
++            committed = canonical(binding)
++            for record in batch["records"]:
++                child = record.agent
++                state = child._cold_state.block(committed)
++                completed = time.time()
++                result = SubagentResult(
++                    record.handle, SubagentState(state), True, completed_at=completed,
++                    error_classification="NO_MODEL", structured_payload={"binding_ref": ref(binding)},
++                    usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": 0},
++                )
++                result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
++                record.result, record.state = result, result.terminal_state
++                record.completed_at = record.updated_at = completed
++                child.close()
++                record.agent = None
++            batch["binding"] = committed
++            batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
++            return json.loads(json.dumps(batch["response"]))
+ 
+     def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
+         parent = self._parent_agent_resolver()
++        from agent.cold_admission import require_warm_parent
++        require_warm_parent(parent)
+         if parent is None:
+             raise SubagentLifecycleError("No active Hermes parent session is available.")
+         self._validate_request(request, parent)
+--- a/providers/__init__.py
++++ b/providers/__init__.py
+@@ -160,6 +160,8 @@
+ 
+     Returns None if the provider has no profile (falls back to generic).
+     """
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return None
+     if not _discovered:
+         _discover_providers()
+     layer, home, key = _bound_home_layer()
+@@ -235,6 +237,8 @@
+ 
+ def _home_layer(*, force_stamp_check: bool = False) -> _HomeLayer:
+     """The layer for the home bound right now, importing plugin dirs it has not seen yet."""
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return _HomeLayer()
+     layer, home, key = _bound_home_layer()
+     _refresh_home_layer(layer, home, key, force=force_stamp_check)
+     return layer
+@@ -560,6 +564,10 @@
+     per profile home and load through :func:`_home_layer` at lookup time.
+     """
+     global _discovered, _discovering
++    # A cold/inert runtime never imports provider plugins: import-time URL/key
++    # resolvers can read credentials even without an AIAgent client.
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return
+     if _discovered:
+         return
+     _discovered = True
+--- a/run_agent.py
++++ b/run_agent.py
+@@ -13,10 +13,11 @@
+     pass  # partial `hermes update` — only skips the Windows UTF-8 stdio setup
+ 
+ import sys
++import os
+ 
+ # `hermes-agent` runs this module without hermes_cli.main, which repairs a `hermes update` killed
+ # while git wrote the new tree; do it here, before importing anything else from the checkout.
+-if "hermes_cli.main" not in sys.modules:
++if "hermes_cli.main" not in sys.modules and os.environ.get("HERMES_OMNIS_INERT") != "1":
+     from hermes_cli import _early_recovery
+ 
+     if _early_recovery.restore_interrupted_pull():
+@@ -300,14 +301,31 @@
+         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
+         side_agent: bool = False, memory_manager=None,
+         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
++        cold_admission=None,
+     ):
+-        """Forwarder — see ``agent.agent_init.init_agent`` (same keyword parameters, minus ``tool_delay``)."""
+-        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay")}
++        """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
++        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission")}
++        if cold_admission is not None:
++            from agent.cold_admission import initialize_cold
++            if tool_delay is not None:
++                raise ValueError("Cold admission cannot carry warm options")
++            initialize_cold(self, cold_admission, init_kwargs)
++            return
+         if tool_delay is not None:
+             warnings.warn("tool_delay is deprecated and ignored; sequential tool calls "
+                           "no longer sleep between executions.", DeprecationWarning, stacklevel=2)
+         from agent.agent_init import init_agent
+         init_agent(self, **init_kwargs)
++
++    def __getattribute__(self, name):
++        # Cold state is complete and closed to ALL warm surfaces, including newly
++        # added mixin methods. No observer/middleware exception can fall through.
++        state = object.__getattribute__(self, "__dict__").get("_cold_state")
++        if state is not None:
++            from agent.cold_admission import COLD_READABLE, ColdAdmissionDenied
++            if name not in COLD_READABLE:
++                raise ColdAdmissionDenied("NO_MODEL: cold surface denied")
++        return object.__getattribute__(self, name)
+ 
+     def _get_session_db_for_recall(self):
+         """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
+@@ -968,6 +986,11 @@
+     def close(self) -> None:
+         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
+         blocks the rest."""
++        # Cold agents own no warm resources and never enter cleanup hooks.
++        cold = self.__dict__.get("_cold_state")
++        if cold is not None:
++            cold.closed = True
++            return
+         # close() is the hard owner boundary; shutdown_memory_provider() is idempotent so gateway pre-calls
+         # never double-extract.
+         session_messages = getattr(self, "_session_messages", None)
+--- a/tui_gateway/rpc_dispatch.py
++++ b/tui_gateway/rpc_dispatch.py
+@@ -19,6 +19,15 @@
+     if isinstance(normalized, dict):
+         return normalized
+     rid, method, params = normalized
++    # Private owner-only extension, not a generic management/session allowlist.
++    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
++        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status",
++    }:
++        try:
++            from agent.managed_admission_rpc import dispatch as managed_dispatch
++            return {"jsonrpc": "2.0", "id": rid, "result": managed_dispatch(method, params)}
++        except Exception:
++            return _err(rid, 4000, "managed admission denied")
+     # Omnis B05 has no live session or Settings/provider authority.
+     if os.environ.get("HERMES_OMNIS_INERT") == "1" and method not in {"client.capabilities", "gateway.capabilities", "ping"}:
+         return _err(rid, -32601, "method unavailable in Omnis inert runtime")

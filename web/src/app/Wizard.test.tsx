@@ -1,10 +1,38 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Link } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { csrf, engagementId, payload, revision } from '../../tests/draft-fixtures';
 import { App } from './App';
+
+it('points a negative request ceiling at that field before checking the reserve relation', async () => {
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (init?.method === 'PUT') writes += 1;
+    return new Response(JSON.stringify(String(input) === '/api/session' ? { authenticated: true, csrf_token: csrf } : revision));
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: '4. Rules & budgets' }));
+  const maximum = screen.getByLabelText('Maximum requests');
+  fireEvent.change(maximum, { target: { value: '-1' } });
+  expect(maximum).toHaveValue(-1);
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  expect(maximum).toHaveAttribute('aria-invalid', 'true');
+  await user.click(screen.getByRole('button', { name: 'budgets.max_requests: Invalid value.' }));
+  await waitFor(() => expect(maximum).toHaveFocus());
+  await user.clear(maximum);
+  await user.type(maximum, '20');
+  const reserve = screen.getByLabelText('Validation reserved requests');
+  await user.clear(reserve);
+  await user.type(reserve, '21');
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  expect(maximum).toHaveAttribute('aria-invalid', 'false');
+  expect(reserve).toHaveAttribute('aria-invalid', 'true');
+  expect(writes).toBe(0);
+});
 
 it.each(['POST', 'PUT'] as const)('keeps local edits actionable after a definite %s body-size refusal', async method => {
   let stored = revision;

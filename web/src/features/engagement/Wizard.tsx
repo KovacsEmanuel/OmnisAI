@@ -43,6 +43,8 @@ function localErrors(form: Draft): FieldError[] {
     return [{ field: 'objective_text', code: 'TOO_LONG' }];
   if (!count || (form.assessment_mode === 'FOCUSED_TEST' && !form.objective_text.trim()))
     return [{ field: 'objective_text', code: 'REQUIRED' }];
+  if (form.budgets.max_requests < 0)
+    return [{ field: 'budgets.max_requests', code: 'INVALID_VALUE' }];
   if (form.budgets.validation_reserved_requests > form.budgets.max_requests)
     return [{ field: 'budgets.validation_reserved_requests', code: 'INVALID_VALUE' }];
   return [];

@@ -32,6 +32,7 @@ from omnis.modules.instance.schemas import (
     InstanceView,
     LifecycleCommand,
     NativePrepareCommand,
+    NativeTaskCommand,
     PairingCommand,
     StatusCommand,
 )
@@ -61,8 +62,10 @@ class LocalControl:
         peer_uid: int | None = None,
         native_prepare: Callable[[NativePrepareCommand], Awaitable[dict[str, object]]]
         | None = None,
+        native_task: Callable[[NativeTaskCommand], Awaitable[dict[str, object]]] | None = None,
     ) -> None:
         self.native_prepare = native_prepare
+        self.native_task = native_task
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -137,10 +140,22 @@ class LocalControl:
         | PairingCommand
         | LifecycleCommand
         | ArmStopCommand
-        | NativePrepareCommand,
+        | NativePrepareCommand
+        | NativeTaskCommand,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, NativeTaskCommand):
+            if self.native_task is None:
+                return {"ok": False, "error": "TASK_UNAVAILABLE"}
+            try:
+                return await self.native_task(command)
+            except CatalogError as error:
+                allowed = {"COMMAND_CONFLICT", "TASK_UNAVAILABLE", "TASK_INDETERMINATE"}
+                return {
+                    "ok": False,
+                    "error": error.reason if error.reason in allowed else "TASK_REJECTED",
+                }
         if isinstance(command, NativePrepareCommand):
             if self.native_prepare is None:
                 return {"ok": False, "error": "PREPARATION_UNAVAILABLE"}

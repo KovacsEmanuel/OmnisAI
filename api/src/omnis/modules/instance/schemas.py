@@ -72,10 +72,44 @@ class NativePrepareCommand(StrictBody):
         return ref
 
 
+class NativeTaskCommand(StrictBody):
+    op: Literal["native_task"]
+    schema_version: VersionOne
+    owner_id: str
+    command_id: str
+    instance_id: str
+    expected_generation: int = Field(ge=0, le=9223372036854775807, strict=True)
+    expected_epoch: int = Field(ge=1, le=9223372036854775807, strict=True)
+    action: Literal["stage", "release", "receive"]
+    manifest_ref: dict[str, object]
+
+    @field_validator("owner_id", "command_id", "instance_id", mode="before")
+    @classmethod
+    def identity(cls, value: object) -> str:
+        from omnis.modules.settings.candidate_catalog import uuid_string
+
+        return uuid_string(value)
+
+    @field_validator("manifest_ref", mode="before")
+    @classmethod
+    def manifest(cls, value: object) -> dict[str, object]:
+        from omnis.modules.settings.candidate_catalog import valid_ref
+
+        ref = valid_ref(value)
+        if ref["kind"] != "launch-manifest":
+            raise ValueError("Invalid launch manifest")
+        return ref
+
+
 class ControlRequest(StrictBody):
     version: VersionOne
     capability: str = Field(min_length=64, max_length=64, repr=False)
     command: Annotated[
-        StatusCommand | PairingCommand | LifecycleCommand | ArmStopCommand | NativePrepareCommand,
+        StatusCommand
+        | PairingCommand
+        | LifecycleCommand
+        | ArmStopCommand
+        | NativePrepareCommand
+        | NativeTaskCommand,
         Field(discriminator="op"),
     ]

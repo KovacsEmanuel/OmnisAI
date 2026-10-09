@@ -31,7 +31,7 @@ from omnis.modules.tasks.managed_contract import mapping, record, ref, sequence,
 
 def validate_request(operation: str, value: object) -> dict[str, object]:
     fields = {"schema_version", "owner_id", "command_id"}
-    if operation == "prepare":
+    if operation in {"prepare", "prepare-composed"}:
         fields |= {"selection_ref", "preparation_command_id", "task_count"}
     elif operation not in {"readback", "reconcile"}:
         raise CatalogError("INVALID_REQUEST")
@@ -39,7 +39,7 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     contract.integer(result["schema_version"], 1, 1)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
-    if operation == "prepare":
+    if operation in {"prepare", "prepare-composed"}:
         ref(result["selection_ref"], "execution-selection")
         uuid_string(result["preparation_command_id"])
         contract.integer(result["task_count"], 1, 2)
@@ -112,6 +112,10 @@ class ManagedAdmission:
             raise CatalogError("UNRESOLVED_PROCEDURE_REF")
         # Both recipe and procedure ceilings constrain the brief, without removing requirements.
         procedure = selected[0]
+        if request.get("composition_version") == 1:
+            from omnis.modules.tasks.managed_composition import require_recipe
+
+            require_recipe(recipe, procedure, source.package_key)
         graph = contract.build_records(
             selection,
             ref(prepared["receipt_ref"]),
@@ -123,6 +127,11 @@ class ManagedAdmission:
             contract.integer(request["task_count"], 1, 2),
             datetime.now(UTC),
             recipe.limits,
+            composition_packages=(
+                [mapping(p) for p in sequence(bundle["packages"])]
+                if request.get("composition_version") == 1
+                else None
+            ),
         )
         if len(canonical(graph)) + len(canonical(prepared["bundle"])) > 65536:
             raise CatalogError("CONTEXT_OVERFLOW")
@@ -130,6 +139,13 @@ class ManagedAdmission:
 
     async def prepare(self, request: object) -> dict[str, object]:
         value = validate_request("prepare", request)
+        return await self._prepare(value)
+
+    async def prepare_composed(self, request: object) -> dict[str, object]:
+        value = validate_request("prepare-composed", request)
+        return await self._prepare({**value, "composition_version": 1})
+
+    async def _prepare(self, value: dict[str, object]) -> dict[str, object]:
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
         created = False
         async with asyncio.timeout(15), self.engine.begin() as conn:
@@ -215,6 +231,8 @@ class ManagedAdmission:
             raise CatalogError("BINDING_REQUIRED")
         manifest = await self.load_manifest(connection, owner, manifest_ref)
         run = uuid_string(state["run_id"])
+        # Validate exact retained material before recording uncertain dispatch.
+        await self.stage_payload(connection, owner, manifest_ref)
         briefs = [
             await store.get(connection, owner, run, mapping(raw)["brief_ref"])
             for raw in sequence(mapping(manifest["payload"])["entries"])
@@ -230,6 +248,30 @@ class ManagedAdmission:
             {"run": state["run_id"]},
         )
         return manifest
+
+    async def stage_payload(
+        self, connection: AsyncConnection, owner_id: str, manifest_ref: object
+    ) -> dict[str, object]:
+        from omnis.modules.tasks import managed_composition
+
+        owner = uuid_string(owner_id)
+        manifest = await self.load_manifest(connection, owner, manifest_ref)
+        run = uuid_string(mapping(manifest["payload"])["run_id"])
+        rows = (
+            (
+                await connection.execute(
+                    sql(
+                        "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run ORDER BY id"
+                    ),
+                    {"owner": owner, "run": run},
+                )
+            )
+            .scalars()
+            .all()
+        )
+        graph = [record(r) for r in rows]
+        await self._verify_graph(connection, owner, run, graph)
+        return managed_composition.stage_payload(manifest, graph)
 
     async def commit_binding(
         self,
@@ -492,6 +534,9 @@ class ManagedAdmission:
             contract.validate_cursor(header, cursor, local[run])
             bound_ref = ref(mapping(sequence(body["procedure_bindings"])[0])["bound_procedure_ref"])
             contract.validate_assignment(brief, local[uuid_string(bound_ref["id"])])
+        for manifest in (r for r in graph if r["kind"] == "launch-manifest"):
+            if contract.manifest_protocol(manifest) != contract.PROTOCOL:
+                await self._verify_compositions(conn, owner, run, graph, manifest)
         from jsonschema import Draft202012Validator, ValidationError
 
         for result in (r for r in graph if r["kind"] == "task-result"):
@@ -519,6 +564,64 @@ class ManagedAdmission:
             ):
                 if canonical(check["payload"]) != canonical(expected["payload"]):
                     raise CatalogError("RESULT_CONFLICT")
+
+    async def _verify_compositions(
+        self,
+        conn: AsyncConnection,
+        owner: str,
+        run: str,
+        graph: list[dict[str, object]],
+        manifest: dict[str, object],
+    ) -> None:
+        from omnis.modules.runs.native_preparation import read_receipt
+        from omnis.modules.tasks import managed_composition
+
+        payload = managed_composition.stage_payload(manifest, graph)
+        local = {text(r["id"]): r for r in graph}
+        run_body = mapping(local[run]["payload"])
+        preparation_ref = ref(run_body["preparation_receipt_ref"], "native-preparation-receipt")
+        _, receipt = await catalog.get(conn, owner, preparation_ref)
+        prepared = await read_receipt(conn, owner, ref(mapping(receipt["payload"])["bundle_ref"]))
+        bundle = mapping(mapping(prepared["bundle"])["payload"])
+        if (
+            prepared["receipt_ref"] != preparation_ref
+            or bundle["selection_ref"] != mapping(manifest["payload"])["selection_ref"]
+        ):
+            raise CatalogError("PREPARATION_MISMATCH")
+        for raw in sequence(payload["compositions"]):
+            body = mapping(mapping(raw)["payload"])
+            sections = sequence(load_json(text(body["text"], 65536)))
+            brief = mapping(mapping(mapping(sections[2])["record"])["payload"])
+            technique = ref(sequence(brief["technique_refs"])[0], "technique")
+            row = (
+                (
+                    await conn.execute(
+                        sql(
+                            "SELECT package_key,entity_key FROM catalog_identity WHERE id=:id AND owner_id=:owner AND entity_kind='technique'"
+                        ),
+                        {"id": technique["id"], "owner": owner},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None or body["preparation_receipt_ref"] != preparation_ref:
+                raise CatalogError("COMPOSITION_REJECTED")
+            expected = managed_composition.selected_skills(
+                [mapping(p) for p in sequence(bundle["packages"])],
+                brief["package_refs"],
+                technique,
+                [
+                    {
+                        "package_key": row["package_key"],
+                        "key": row["entity_key"],
+                        "entity_kind": "technique",
+                        "ref": technique,
+                    }
+                ],
+            )
+            if sections[4:] != expected:
+                raise CatalogError("COMPOSITION_REJECTED")
 
     async def readback_manifest(self, owner_id: str, manifest_ref: object) -> dict[str, object]:
         owner = uuid_string(owner_id)
@@ -637,7 +740,9 @@ def main(argv: list[str] | None = None) -> int:
             raise CatalogError("INVALID_ARGUMENTS")
 
     parser = Parser()
-    parser.add_argument("operation", choices=("prepare", "readback", "reconcile"))
+    parser.add_argument(
+        "operation", choices=("prepare", "prepare-composed", "readback", "reconcile")
+    )
     parser.add_argument("--request", required=True)
     parser.add_argument("--catalog-root")
     try:
@@ -657,6 +762,8 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 if args.operation == "prepare":
                     return await consumer.prepare(value)
+                if args.operation == "prepare-composed":
+                    return await consumer.prepare_composed(value)
                 if args.operation == "reconcile":
                     return await consumer.reconcile(value)
                 return await consumer.readback(value)

@@ -53,6 +53,8 @@ def build_records(
     count: int,
     now: datetime,
     recipe_limits: Limits | None = None,
+    *,
+    composition_packages: list[dict[str, object]] | None = None,
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
@@ -193,6 +195,7 @@ def build_records(
             "max_context_tokens": 65536,
             "tokenizer_revision": "utf8-byte-upper-bound-v1",
             "provenance": [],
+            **({} if composition_packages is None else _composition_settings()),
         },
     )
     run = add(
@@ -326,6 +329,27 @@ def build_records(
         validate_brief(graph[-1])
         if len(canonical(graph[-1])) > 65536:
             raise CatalogError("CONTEXT_OVERFLOW")
+        composition: dict[str, object] = {}
+        if composition_packages is not None:
+            from omnis.modules.tasks import managed_composition
+
+            by_id = {text(r["id"]): r for r in graph}
+            composed = managed_composition.compose(
+                by_id[text(prompt["id"])],
+                by_id[text(base["id"])],
+                by_id[text(role_ref["id"])],
+                by_id[text(brief["id"])],
+                by_id[text(bound["id"])],
+                preparation_ref,
+                managed_composition.selected_skills(
+                    composition_packages,
+                    source["selected_package_refs"],
+                    resolved["technique_ref"],
+                    bindings,
+                ),
+            )
+            graph.append(composed)
+            composition = {"composition_ref": records.reference(composed)}
         entries.append(
             {
                 "batch_index": index,
@@ -333,6 +357,7 @@ def build_records(
                 "attempt_id": attempt_id,
                 "brief_ref": brief,
                 "goal": procedure.objective,
+                **composition,
             }
         )
     add(
@@ -343,10 +368,21 @@ def build_records(
             "resolution": "NO_MODEL",
             "effective": None,
             "entries": entries,
+            **({} if composition_packages is None else {"composition_version": 1}),
         },
     )
     validate_manifest(graph[-1])
+    if composition_packages is not None:
+        from omnis.modules.tasks import managed_composition
+
+        managed_composition.stage_payload(graph[-1], graph)
     return graph
+
+
+def _composition_settings() -> dict[str, object]:
+    from omnis.modules.tasks.managed_composition import prompt_settings
+
+    return prompt_settings()
 
 
 def result_json_schema(
@@ -724,9 +760,14 @@ def validate_manifest(value: object) -> dict[str, object]:
     # Keep this pure producer check independent of optional runtime imports.
     if len(canonical({"protocol": PROTOCOL, "manifest": result})) > 32768:
         raise CatalogError("MANAGED_REJECTED")
+    composed = "composition_version" in mapping(result["payload"])
     body = exact(
-        result["payload"], {"run_id", "selection_ref", "resolution", "effective", "entries"}
+        result["payload"],
+        {"run_id", "selection_ref", "resolution", "effective", "entries"}
+        | ({"composition_version"} if composed else set()),
     )
+    if composed:
+        integer(body["composition_version"], 1, 1)
     uuid_string(body["run_id"])
     ref(body["selection_ref"], "execution-selection")
     if body["resolution"] != "NO_MODEL" or body["effective"] is not None:
@@ -736,7 +777,13 @@ def validate_manifest(value: object) -> dict[str, object]:
         raise CatalogError("MANAGED_REJECTED")
     identities: set[str] = set()
     for index, raw in enumerate(entries):
-        entry = exact(raw, {"batch_index", "task_id", "attempt_id", "brief_ref", "goal"})
+        entry = exact(
+            raw,
+            {"batch_index", "task_id", "attempt_id", "brief_ref", "goal"}
+            | ({"composition_ref"} if composed else set()),
+        )
+        if composed:
+            ref(entry["composition_ref"], "prompt-composition")
         integer(entry["batch_index"], index, index)
         ids = [uuid_string(entry[k]) for k in ("task_id", "attempt_id")]
         ids.append(uuid_string(ref(entry["brief_ref"], "task-brief")["id"]))
@@ -754,12 +801,17 @@ def validate_manifest(value: object) -> dict[str, object]:
     return result
 
 
+def manifest_protocol(value: object) -> str:
+    body = mapping(validate_manifest(value)["payload"])
+    return "omnis-managed-admission-v2" if "composition_version" in body else PROTOCOL
+
+
 def validate_stage(value: object, manifest: object) -> dict[str, object]:
     source = validate_manifest(manifest)
     result = exact(
         value, {"protocol", "status", "ticket", "manifest_ref", "native_root_id", "entries"}
     )
-    if result["protocol"] != PROTOCOL or result["status"] != "STAGED":
+    if result["protocol"] != manifest_protocol(source) or result["status"] != "STAGED":
         raise CatalogError("MANAGED_REJECTED")
     uuid_string(result["ticket"])
     if ref(result["manifest_ref"], "launch-manifest") != records.reference(source):
@@ -781,7 +833,12 @@ def validate_stage(value: object, manifest: object) -> dict[str, object]:
                 "brief_ref",
                 "native_child_id",
                 "native_session_id",
-            },
+            }
+            | (
+                {"composition_ref"}
+                if "composition_version" in mapping(source["payload"])
+                else set()
+            ),
         )
         projection = {
             k: v for k, v in entry.items() if k not in {"native_child_id", "native_session_id"}
@@ -823,7 +880,7 @@ def validate_binding(value: object, manifest: object) -> dict[str, object]:
         {"runtime_boot", "run_id", "ticket", "native_root_id", "entries", "authority"},
     )
     staged = {
-        "protocol": PROTOCOL,
+        "protocol": manifest_protocol(manifest),
         "status": "STAGED",
         "manifest_ref": records.reference(validate_manifest(manifest)),
         **{k: body[k] for k in ("ticket", "native_root_id", "entries")},

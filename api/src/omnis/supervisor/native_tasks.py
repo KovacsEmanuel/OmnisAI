@@ -23,7 +23,7 @@ from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.candidate_catalog import uuid_string
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import canonical, load_json
-from omnis.modules.tasks.managed_contract import PROTOCOL, mapping, ref
+from omnis.modules.tasks.managed_contract import PROTOCOL, manifest_protocol, mapping, ref
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
 
@@ -71,6 +71,7 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
+        protocol = manifest_protocol(back["manifest"])
         binding = None if back["binding"] is None else mapping(back["binding"])
         if binding is not None:
             authority = mapping(mapping(binding["payload"])["authority"])
@@ -95,11 +96,20 @@ class NativeTaskOwner:
                 self.owner, self.epoch, command.expected_generation
             ) as conn:
                 await self._instance(conn, command)
+                # Validate the complete immutable material before uncertain dispatch.
+                composed_payload = (
+                    await self.domain.stage_payload(conn, command.owner_id, command.manifest_ref)
+                    if protocol != PROTOCOL
+                    else None
+                )
                 manifest = await self.domain.reserve_dispatch(
                     conn, command.owner_id, command.manifest_ref, "stage"
                 )
             staged = await self.runtime.managed(
-                self.service, self.owner, "task_stage", {"protocol": PROTOCOL, "manifest": manifest}
+                self.service,
+                self.owner,
+                "task_stage",
+                composed_payload or {"protocol": protocol, "manifest": manifest},
             )
             async with self.service.native_preparation_commit(
                 self.owner, self.epoch, command.expected_generation
@@ -125,7 +135,7 @@ class NativeTaskOwner:
         if body["runtime_boot"] != self.runtime.boot:
             raise CatalogError("TASK_INDETERMINATE")
         payload = {
-            "protocol": PROTOCOL,
+            "protocol": protocol,
             "ticket": body["ticket"],
             "manifest_ref": command.manifest_ref,
         }

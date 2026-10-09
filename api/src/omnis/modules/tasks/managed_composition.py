@@ -1,0 +1,390 @@
+"""Final inert prompt material. No native import or runtime installation required.
+
+The native consumer independently validates these bytes. This producer grants no
+model, tool, target, or method-execution authority.
+"""
+
+import base64
+import binascii
+from collections.abc import Sequence
+from hashlib import sha256
+
+from omnis.modules.runs import native_preparation_models as preparation
+from omnis.modules.settings import candidate_store as records
+from omnis.modules.settings.catalog_models import (
+    CandidateRef,
+    CatalogError,
+    LocalRef,
+    Manifest,
+    Procedure,
+    Recipe,
+)
+from omnis.modules.settings.catalog_schema import canonical, dto, load_json
+from omnis.modules.tasks import managed_contract as contract
+from omnis.modules.tasks.managed_contract import (
+    exact,
+    integer,
+    mapping,
+    record,
+    ref,
+    sequence,
+    text,
+)
+
+PROTOCOL = "omnis-managed-admission-v2"
+# Exact native composer source; parity test binds this to the installed producer.
+COMPOSER_REVISION = "676ad1f5afbd7000a28af58a794ed8bb2b70c0411c03cd421c0f01748186e19f"
+PROVENANCE = [
+    {
+        "repository": "https://github.com/usestrix/strix",
+        "revision": "ff5c8cc8e46d8e60c2bc2439f7bcb07c05ca3db2",
+        "path": "strix/agents/prompt.py",
+        "source_digest": "2b30f1ecee988f9effed96c54af2baecd3a6506b6bcfdc5bd9a0f325cf540a33",
+        "license_id": "Apache-2.0",
+        "notice_paths": [
+            "integrations/hermes/upstream/composition-NOTICE.md",
+            "integrations/hermes/upstream/composition-LICENSE",
+        ],
+        "modification_note": "S01 adaptation: ordered base/role/assignment/method/selected-skill composition; first-party canonical JSON, strict immutable refs and fail-closed budgets. No Jinja, foreign runtime, implicit skills, model or tool execution.",
+    }
+]
+BASE_TEXT = (
+    "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
+)
+ROLE_TEXT = "SUPPORT-only cold admission probe; not an assessment."
+
+
+def prompt_settings() -> dict[str, object]:
+    preparation.sha(COMPOSER_REVISION)
+    return {"composer_revision": COMPOSER_REVISION, "provenance": PROVENANCE}
+
+
+def require_recipe(recipe: Recipe, procedure: Procedure, package: str) -> None:
+    if len(recipe.technique_refs) != 1:
+        raise CatalogError("UNSUPPORTED_RECIPE")
+    selected = recipe.technique_refs[0]
+    source = procedure.technique_ref
+    if (
+        not isinstance(selected, CandidateRef)
+        or not isinstance(source, LocalRef)
+        or selected.package_key != package
+        or selected.entity_kind != source.entity_kind
+        or selected.key != source.key
+    ):
+        raise CatalogError("UNSUPPORTED_RECIPE")
+
+
+def selected_skills(
+    packages: list[dict[str, object]],
+    package_refs: object,
+    technique_ref: object,
+    bindings: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Select SKILL and only the bound technique's method from retained bytes."""
+    requested = sequence(package_refs)
+    if not 1 <= len(requested) <= 2 or len(packages) != len(requested):
+        raise CatalogError("COMPOSITION_REJECTED")
+    matches = [b for b in bindings if b["entity_kind"] == "technique" and b["ref"] == technique_ref]
+    if len(matches) != 1:
+        raise CatalogError("COMPOSITION_REJECTED")
+    binding = matches[0]
+    result: list[dict[str, object]] = []
+    found_method = False
+    total = count = 0
+    for reference in requested:
+        ref(reference, "package")
+        chosen = [p for p in packages if p["package_ref"] == reference]
+        if len(chosen) != 1:
+            raise CatalogError("COMPOSITION_REJECTED")
+        package = chosen[0]
+        files: dict[str, bytes] = {}
+        listing: list[dict[str, object]] = []
+        for raw_file in sequence(package["files"]):
+            item = exact(raw_file, {"path", "sha256", "size", "content_b64"})
+            path = preparation.path_name(item["path"])
+            try:
+                raw = base64.b64decode(text(item["content_b64"], 16384), validate=True)
+            except (ValueError, binascii.Error):
+                raise CatalogError("COMPOSITION_REJECTED") from None
+            preparation.document(raw)
+            if (
+                path in files
+                or item["sha256"] != sha256(raw).hexdigest()
+                or integer(item["size"], 0, 8192) != len(raw)
+            ):
+                raise CatalogError("COMPOSITION_REJECTED")
+            files[path] = raw
+            listing.append({k: item[k] for k in ("path", "sha256", "size")})
+            total += len(raw)
+            count += 1
+        if (
+            total > 16384
+            or count > 16
+            or sha256(canonical(listing)).hexdigest() != mapping(reference)["digest"]
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
+        if "omnis.yaml" not in files or "SKILL.md" not in files:
+            raise CatalogError("COMPOSITION_REJECTED")
+        manifest = dto(files["omnis.yaml"], Manifest)
+        if (
+            package["package_key"] != manifest.package_key
+            or package["native_name"] != manifest.native_name
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
+        preparation.frontmatter(files["SKILL.md"], manifest.native_name)
+        selected = ["SKILL.md"]
+        if manifest.package_key == binding["package_key"]:
+            methods = [t.method_ref for t in manifest.techniques if t.key == binding["key"]]
+            if len(methods) != 1 or methods[0] not in files:
+                raise CatalogError("COMPOSITION_REJECTED")
+            selected.append(methods[0])
+            found_method = True
+        result.append(
+            {
+                "section": "skill",
+                "package_ref": reference,
+                "native_name": manifest.native_name,
+                "files": listing,
+                "content": [{"path": p, "text": preparation.document(files[p])} for p in selected],
+            }
+        )
+    if not found_method:
+        raise CatalogError("COMPOSITION_REJECTED")
+    validate_skills(result, requested)
+    return result
+
+
+def validate_skills(skills: Sequence[object], package_refs: object) -> None:
+    requested = sequence(package_refs)
+    if not 1 <= len(skills) <= 2 or [mapping(s).get("package_ref") for s in skills] != requested:
+        raise CatalogError("COMPOSITION_REJECTED")
+    names: set[str] = set()
+    refs: set[bytes] = set()
+    count = total = 0
+    for raw in skills:
+        skill = exact(raw, {"section", "package_ref", "native_name", "files", "content"})
+        reference = ref(skill["package_ref"], "package")
+        name = preparation.native_name(skill["native_name"])
+        if skill["section"] != "skill" or name in names or canonical(reference) in refs:
+            raise CatalogError("COMPOSITION_REJECTED")
+        names.add(name)
+        refs.add(canonical(reference))
+        listing = sequence(skill["files"])
+        declared: dict[str, dict[str, object]] = {}
+        for file in listing:
+            item = exact(file, {"path", "sha256", "size"})
+            path = preparation.path_name(item["path"])
+            preparation.sha(item["sha256"])
+            total += integer(item["size"], 0, 8192)
+            count += 1
+            if path in declared:
+                raise CatalogError("COMPOSITION_REJECTED")
+            declared[path] = item
+        if (
+            list(declared) != sorted(declared, key=lambda p: p.encode())
+            or sha256(canonical(listing)).hexdigest() != reference["digest"]
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
+        seen: set[str] = set()
+        for content in sequence(skill["content"]):
+            item = exact(content, {"path", "text"})
+            path = preparation.path_name(item["path"])
+            raw_text = text(item["text"], 8192).encode()
+            preparation.document(raw_text)
+            if (
+                path in seen
+                or path not in declared
+                or declared[path]["sha256"] != sha256(raw_text).hexdigest()
+                or declared[path]["size"] != len(raw_text)
+            ):
+                raise CatalogError("COMPOSITION_REJECTED")
+            if path == "SKILL.md":
+                preparation.frontmatter(raw_text, name)
+            seen.add(path)
+        if "SKILL.md" not in seen or not 1 <= len(seen) <= 2:
+            raise CatalogError("COMPOSITION_REJECTED")
+    if total > 16384 or count > 16:
+        raise CatalogError("COMPOSITION_REJECTED")
+
+
+def compose(
+    bundle: dict[str, object],
+    base: dict[str, object],
+    role: dict[str, object],
+    brief: dict[str, object],
+    bound: dict[str, object],
+    preparation_ref: dict[str, object],
+    skills: list[dict[str, object]],
+) -> dict[str, object]:
+    sections = [
+        {"section": "base", "record": base},
+        {"section": "role", "record": role},
+        {"section": "brief", "record": brief},
+        {"section": "method", "record": bound},
+        *skills,
+    ]
+    raw = canonical(sections)
+    result = records.envelope(
+        "prompt-composition",
+        {
+            "prompt_bundle": bundle,
+            "preparation_receipt_ref": preparation_ref,
+            "text": raw.decode(),
+            "text_digest": sha256(raw).hexdigest(),
+            "byte_count": len(raw),
+            "token_upper_bound": len(raw),
+        },
+    )
+    validate(result)
+    return result
+
+
+def _authored_text(value: object) -> None:
+    if isinstance(value, str):
+        if any((ord(c) < 32 and c not in "\n\t") or 127 <= ord(c) <= 159 for c in value):
+            raise CatalogError("COMPOSITION_REJECTED")
+    elif isinstance(value, dict):
+        for key, child in value.items():
+            _authored_text(key)
+            _authored_text(child)
+    elif isinstance(value, list):
+        for child in value:
+            _authored_text(child)
+
+
+def validate(value: object, entry: object = None, manifest: object = None) -> dict[str, object]:
+    result = record(value, "prompt-composition")
+    body = exact(
+        result["payload"],
+        {
+            "prompt_bundle",
+            "preparation_receipt_ref",
+            "text",
+            "text_digest",
+            "byte_count",
+            "token_upper_bound",
+        },
+    )
+    ref(body["preparation_receipt_ref"], "native-preparation-receipt")
+    bundle = record(body["prompt_bundle"], "prompt-bundle")
+    metadata = exact(
+        bundle["payload"],
+        {
+            "base_ref",
+            "role_refs",
+            "composer_revision",
+            "brief_schema",
+            "result_schema",
+            "package_refs",
+            "max_context_bytes",
+            "max_context_tokens",
+            "tokenizer_revision",
+            "provenance",
+        },
+    )
+    if (
+        metadata["composer_revision"] != prompt_settings()["composer_revision"]
+        or metadata["provenance"] != PROVENANCE
+        or metadata["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    integer(metadata["brief_schema"], 1, 1)
+    integer(metadata["result_schema"], 1, 1)
+    raw = text(body["text"], 65536).encode()
+    sections = sequence(load_json(raw))
+    _authored_text(sections)
+    if canonical(sections) != raw or body["text_digest"] != sha256(raw).hexdigest():
+        raise CatalogError("COMPOSITION_REJECTED")
+    if integer(body["byte_count"], 1) != len(raw) or integer(body["token_upper_bound"], 1) != len(
+        raw
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    if len(raw) > integer(metadata["max_context_bytes"], 1024, 262144) or len(raw) > integer(
+        metadata["max_context_tokens"], 256, 65536
+    ):
+        raise CatalogError("CONTEXT_OVERFLOW")
+    if not 5 <= len(sections) <= 6:
+        raise CatalogError("COMPOSITION_REJECTED")
+    nested = []
+    for section, name, kind in zip(
+        sections[:4],
+        ("base", "role", "brief", "method"),
+        ("prompt-content", "prompt-content", "task-brief", "bound-procedure"),
+        strict=True,
+    ):
+        part = exact(section, {"section", "record"})
+        if part["section"] != name:
+            raise CatalogError("COMPOSITION_REJECTED")
+        nested.append(record(part["record"], kind))
+    base, role, brief, bound = nested
+    brief_body = mapping(contract.validate_brief(brief)["payload"])
+    contract.validate_assignment(brief, bound)
+    validate_skills(sections[4:], metadata["package_refs"])
+    procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+    method_count = sum(
+        mapping(content)["path"] != "SKILL.md"
+        for skill in sections[4:]
+        for content in sequence(mapping(skill)["content"])
+    )
+    if brief_body["technique_refs"] != [procedure["technique_ref"]] or method_count != 1:
+        raise CatalogError("COMPOSITION_REJECTED")
+    if (
+        base["payload"] != {"text": BASE_TEXT}
+        or role["payload"] != {"role": brief_body["role"], "text": ROLE_TEXT}
+        or metadata["base_ref"] != records.reference(base)
+        or metadata["role_refs"]
+        != [{"role": brief_body["role"], "content_ref": records.reference(role)}]
+        or brief_body["prompt_bundle_ref"] != records.reference(bundle)
+        or metadata["package_refs"] != brief_body["package_refs"]
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    if entry is not None:
+        expected = mapping(entry)
+        header = mapping(brief_body["header"])
+        if (
+            expected["brief_ref"] != records.reference(brief)
+            or expected["composition_ref"] != records.reference(result)
+            or expected["task_id"] != header["task_id"]
+            or expected["attempt_id"] != header["attempt_id"]
+            or expected["goal"] != brief_body["objective_summary"]
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
+        source = mapping(mapping(manifest)["payload"])
+        if (
+            header["run_id"] != source["run_id"]
+            or brief_body["execution_selection_ref"] != source["selection_ref"]
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
+    return result
+
+
+def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str, object]:
+    checked = contract.validate_manifest(manifest)
+    if contract.manifest_protocol(checked) == contract.PROTOCOL:
+        return {"protocol": contract.PROTOCOL, "manifest": checked}
+    local = {text(r["id"]): record(r) for r in graph}
+    if len(local) != len(graph):
+        raise CatalogError("COMPOSITION_REJECTED")
+    compositions = []
+    for raw in sequence(mapping(checked["payload"])["entries"]):
+        entry = mapping(raw)
+        reference = ref(entry["composition_ref"], "prompt-composition")
+        composition = local.get(text(reference["id"]))
+        if composition is None:
+            raise CatalogError("COMPOSITION_REJECTED")
+        validated = validate(composition, entry, checked)
+        body = mapping(validated["payload"])
+        nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
+        for value in [body["prompt_bundle"], *nested]:
+            item = mapping(value)
+            if local.get(text(item["id"])) != item:
+                raise CatalogError("COMPOSITION_REJECTED")
+        compositions.append(validated)
+    result: dict[str, object] = {
+        "protocol": PROTOCOL,
+        "manifest": checked,
+        "compositions": compositions,
+    }
+    if len(canonical(result)) > 32768:
+        raise CatalogError("CONTEXT_OVERFLOW")
+    return result

@@ -5,6 +5,7 @@ from typing import cast
 from .native_preparation_contract import bounded, canonical, digest, obj, reference, text, uuid
 
 PROTOCOL = "omnis-managed-admission-v1"
+PROTOCOL_V2 = "omnis-managed-admission-v2"
 OPS = frozenset({"task_stage", "task_release", "task_status"})
 RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
@@ -29,10 +30,12 @@ def ref(value: dict[str, object]) -> dict[str, object]:
     return {k: value[k] for k in ("kind", "id", "revision", "digest")}
 
 
-def entries(value: object, *, native: bool) -> list[dict[str, object]]:
+def entries(value: object, *, native: bool, composed: bool = False) -> list[dict[str, object]]:
     if type(value) is not list or not 1 <= len(value) <= 2:
         raise ValueError("Invalid managed entries")
     fields = {"batch_index", "task_id", "attempt_id", "brief_ref"}
+    if composed:
+        fields.add("composition_ref")
     fields |= {"native_child_id", "native_session_id"} if native else {"goal"}
     for i, entry in enumerate(value):
         entry = obj(entry, fields)
@@ -41,6 +44,8 @@ def entries(value: object, *, native: bool) -> list[dict[str, object]]:
         uuid(entry["task_id"])
         uuid(entry["attempt_id"])
         reference(entry["brief_ref"], "task-brief")
+        if composed:
+            reference(entry["composition_ref"], "prompt-composition")
         if native:
             text(entry["native_child_id"])
             text(entry["native_session_id"])
@@ -57,22 +62,36 @@ def entries(value: object, *, native: bool) -> list[dict[str, object]]:
 def wire(value: object, fields: set[str]) -> dict[str, object]:
     bounded(value)
     value = obj(value, fields | {"protocol"})
-    if value["protocol"] != PROTOCOL or len(canonical(value)) > MAX_BYTES:
+    if value["protocol"] not in (PROTOCOL, PROTOCOL_V2) or len(canonical(value)) > MAX_BYTES:
         raise ValueError("Invalid managed protocol")
     return value
 
 
 def validate_stage(value: object) -> dict[str, object]:
-    value = wire(value, {"manifest"})
+    composed = type(value) is dict and value.get("protocol") == PROTOCOL_V2
+    value = wire(value, {"manifest", "compositions"} if composed else {"manifest"})
     result = envelope(value["manifest"], "launch-manifest")
-    payload = obj(
-        result["payload"], {"run_id", "selection_ref", "resolution", "effective", "entries"}
-    )
+    fields = {"run_id", "selection_ref", "resolution", "effective", "entries"}
+    if composed:
+        fields.add("composition_version")
+    payload = obj(result["payload"], fields)
+    if composed and (
+        type(payload["composition_version"]) is not int or payload["composition_version"] != 1
+    ):
+        raise ValueError("Invalid composition version")
     uuid(payload["run_id"])
     reference(payload["selection_ref"], "execution-selection")
     if payload["resolution"] != "NO_MODEL" or payload["effective"] is not None:
         raise ValueError("Only NO_MODEL admission is supported")
-    entries(payload["entries"], native=False)
+    rows = entries(payload["entries"], native=False, composed=composed)
+    if composed:
+        from .prompt_bundle import validate_composition
+
+        compositions = value["compositions"]
+        if type(compositions) is not list or len(compositions) != len(rows):
+            raise ValueError("Incomplete compositions")
+        for composition, entry in zip(compositions, rows, strict=True):
+            validate_composition(composition, result, entry)
     return result
 
 
@@ -94,7 +113,7 @@ def validate_release(value: object) -> dict[str, object]:
     for k in ("runtime_boot", "run_id", "ticket"):
         uuid(payload[k])
     text(payload["native_root_id"])
-    entries(payload["entries"], native=True)
+    entries(payload["entries"], native=True, composed=value["protocol"] == PROTOCOL_V2)
     authority = obj(payload["authority"], {"instance_id", "owner", "epoch", "generation"})
     uuid(authority["instance_id"])
     uuid(authority["owner"])
@@ -123,5 +142,5 @@ def validate_response(value: object) -> dict[str, object]:
     elif value["status"] != "STAGED":
         raise ValueError("Invalid native stage")
     text(value["native_root_id"])
-    entries(value["entries"], native=True)
+    entries(value["entries"], native=True, composed=value["protocol"] == PROTOCOL_V2)
     return value

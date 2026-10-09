@@ -268,15 +268,20 @@ class RuntimeHost:
                 await self.peer.call(managed.RPC[operation], payload, timeout=remaining)
             )
         self._preparation_ready()
+        if result["protocol"] != payload["protocol"]:
+            raise ValueError("Native managed protocol mismatch")
+        composed = payload["protocol"] == managed.PROTOCOL_V2
         if operation == "task_stage":
             manifest = managed.validate_stage(payload)
             rows = managed.entries(
-                cast(dict[str, object], manifest["payload"])["entries"], native=False
+                cast(dict[str, object], manifest["payload"])["entries"],
+                native=False,
+                composed=composed,
             )
             expected = [{k: v for k, v in e.items() if k != "goal"} for e in rows]
             observed = [
                 {k: v for k, v in e.items() if k not in {"native_child_id", "native_session_id"}}
-                for e in managed.entries(result["entries"], native=True)
+                for e in managed.entries(result["entries"], native=True, composed=composed)
             ]
             if result["manifest_ref"] != managed.ref(manifest) or observed != expected:
                 raise ValueError("Native stage mismatch")

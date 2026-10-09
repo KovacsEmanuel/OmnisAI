@@ -113,7 +113,7 @@
      UNKNOWN = "UNKNOWN"
  
  
-@@ -241,9 +242,128 @@
+@@ -241,9 +242,133 @@
  
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -121,10 +121,13 @@
 +
 +    def stage(self, payload):
 +        """Create cold native identities, with no executor or conversation admission."""
-+        from omnis_hermes.managed_admission_contract import validate_stage, ref, PROTOCOL
++        from omnis_hermes.managed_admission_contract import validate_stage, ref, canonical
 +        from agent.cold_admission import ColdAdmission, ColdAdmissionDenied
 +        from uuid import uuid4
++        # Freeze caller-owned data, then validate the complete material before identities.
++        payload = json.loads(canonical(payload))
 +        manifest = validate_stage(payload)
++        composition_material = tuple(canonical(c) for c in payload.get("compositions", []))
 +        with _REGISTRY.lock:
 +            parent = self._parent_agent_resolver()
 +            state = getattr(parent, "_cold_state", None)
@@ -132,7 +135,8 @@
 +                raise ColdAdmissionDenied("A live cold native root is required")
 +            prior = self._cold_batches.get(manifest["id"])
 +            if prior is not None:
-+                if prior["manifest"] != manifest:
++                if (prior["manifest"] != manifest or prior["composition_material"] != composition_material
++                        or prior["response"]["protocol"] != payload["protocol"]):
 +                    raise ColdAdmissionDenied("Manifest replay conflict")
 +                self._require_cold_root(prior, parent)
 +                return json.loads(json.dumps(prior["response"]))
@@ -157,12 +161,13 @@
 +                for record in records:
 +                    record.agent.close()
 +                raise
-+            response = dict(protocol=PROTOCOL, status="STAGED", ticket=str(uuid4()),
++            response = dict(protocol=payload["protocol"], status="STAGED", ticket=str(uuid4()),
 +                            manifest_ref=ref(manifest), native_root_id=parent._subagent_id, entries=rows)
 +            for record in records:
 +                _REGISTRY.records[record.handle.subagent_id] = record
 +            self._cold_batches[manifest["id"]] = dict(
 +                manifest=json.loads(json.dumps(manifest)), response=response, records=records,
++                composition_material=composition_material,
 +                expires=time.monotonic() + 4.5, binding=None,
 +                parent=parent, parent_session_id=parent.session_id,
 +            )
@@ -182,7 +187,7 @@
 +    def _cold_batch(self, payload):
 +        from agent.cold_admission import ColdAdmissionDenied
 +        batch = self._cold_batches.get(payload["manifest_ref"]["id"])
-+        if batch is None or any(payload[k] != batch["response"][k] for k in ("ticket", "manifest_ref")):
++        if batch is None or any(payload[k] != batch["response"][k] for k in ("protocol", "ticket", "manifest_ref")):
 +            raise ColdAdmissionDenied("Unknown native stage")
 +        return batch
 +

@@ -35,6 +35,24 @@ def test_native_lifecycle_has_stage_release_and_blocks_stock_cold_launch():
     assert code.index("require_warm_parent") < code.index("_validate_request")
 
 
+def test_composition_bytes_are_retained_before_native_child_construction():
+    tree = ast.parse((SOURCE / "agent/subagent_lifecycle.py").read_text())
+    cls = next(
+        n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "SubagentLifecycleService"
+    )
+    stage = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "stage")
+    code = ast.unparse(stage)
+    assert "composition_material" in code, "validated v2 material is not consumed/retained"
+    assert (
+        code.index("validate_stage")
+        < code.index("composition_material")
+        < code.index("child = AIAgent")
+    )
+    assert "protocol=payload['protocol']" in code
+    batch = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "_cold_batch")
+    assert "'protocol'" in ast.unparse(batch), "batch replay permits protocol downgrade"
+
+
 def test_inert_provider_home_lookup_never_loads_plugins(monkeypatch):
     import types
 

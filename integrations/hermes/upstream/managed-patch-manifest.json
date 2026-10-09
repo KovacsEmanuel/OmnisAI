@@ -14,7 +14,7 @@
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "d06320ff4ec0c776ef0a0b26c494bed1e774d0f745f9f7070b49909552e62866"
+      "patched_sha256": "032c61dd84dfeea82bd1e2b9e960423f57596d1c6d79eee8c3a9c5a4b360c7f3"
     },
     "providers/__init__.py": {
       "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da",
@@ -29,5 +29,5 @@
       "patched_sha256": "065c3f0bfcb53514cde5412e235b2a5187a2e74dc7316c133bce0e2c25dba575"
     }
   },
-  "patch_sha256": "031eff228981d68fe09196504cd2f70cb5077c087d93245ba7ff374618d984dd"
+  "patch_sha256": "190a3e913d20886ee8e5decee5c83f2390c302430b6bf96e75a02f1a13baf89a"
 }

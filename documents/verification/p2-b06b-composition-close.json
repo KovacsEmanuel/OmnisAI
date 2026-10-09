@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "CLOSED_SCOPED_INERT_COMPOSITION_NATIVE_ADMISSION",
+  "code": "IMPLEMENTED_SCOPED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "product_commit": "907566df8401fe75eb0d04323e9348be2b9ac401",
+  "backend_product_commit": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+  "web_delta_commits": [
+    "9390504",
+    "1ecec14",
+    "bbe042a",
+    "907566d"
+  ],
+  "implementation_commits": [
+    "6f9bbaf",
+    "c8d7c77",
+    "77e5017",
+    "511343c",
+    "7036014",
+    "2f749a8"
+  ],
+  "consumer": "python -I -B -m omnis.modules.runs.managed_admission prepare-composed --request <json> --catalog-root <private>; then existing omnis.supervisor.native_tasks stage/release and managed readback/reconcile",
+  "delivered": [
+    "Immutable final canonical prompt bytes: base/role/exact Brief/BoundProcedure and two selected pinned skills; actual native loader14 files.",
+    "V2 stage independently validates/retains complete composition before genuine cold child AIAgent construction (not before cold-root initialization); composition refs persist in trusted committed binding.",
+    "Prospective aggregate-frame/prose/Ref/pin/ownership validation before reservation, no truncation or text normalization. V1 remains strict and readable.",
+    "Authentic cold receipt persists before INCOMPLETE check and deterministic idempotent consumption/readback after Stop; no method success invented.",
+    "Real installed UI recovers explicit size refusal, preserves unconfirmed-receipt barrier through edits, marks negative ceiling correctly, and names actual local pairing issuer."
+  ],
+  "canonical": {
+    "schema_version": 1,
+    "session": "proc_72684e78d920",
+    "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c05z-ijlxamoe/home PATH=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c05z-ijlxamoe make check UV=/home/kali/.hermes/cache/scratch/c01-tools-vkidkc42/uv/uv-x86_64-unknown-linux-gnu/uv",
+    "head": "907566df8401fe75eb0d04323e9348be2b9ac401",
+    "exit_code": 0,
+    "family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "tracked_count": 679,
+    "all_tracked_bytes_unchanged": true,
+    "log": "/home/kali/.hermes/cache/scratch/c05z-ijlxamoe/db-220ab0f021a6455c/gate.log",
+    "log_sha256": "43f9ebf2ad7b4bf785f9ec42d39f29b8188b8f584cd9aff2acf4b09af3362609",
+    "root": "/home/kali/.hermes/cache/scratch/c05z-ijlxamoe/db-220ab0f021a6455c",
+    "cid": "9947f70ac04f9359c1d72e4854c1e140ef4d61ecf31cbb6380bd1227bab02a34",
+    "project": "omnis-p01-f2c94c69dabf414b901fe899e0256953",
+    "exact_cid_network_socket_absent": true,
+    "data_logs_retained": true,
+    "limit": "Component counts are not a unique total; no inference, assessment or live native proof inferred from canonical source suites.",
+    "component_counts": {
+      "documentation": 72,
+      "development": 43,
+      "api": 1102,
+      "migrations": 23,
+      "web": 82,
+      "e2e": 9,
+      "cli_source": 287,
+      "cli_wheel": 287,
+      "cli_installed_status": 1,
+      "release": 61,
+      "runtime": 242,
+      "native_ast": 6
+    }
+  },
+  "native_installed": {
+    "image": "sha256:201c17d4874d693927f2dbf220c5a8bd56904c91cdfd5edf2670c843602d8ae3",
+    "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "version": "0.21.5",
+    "python": "3.13.15",
+    "composer_revision": "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f",
+    "managed_patch_sha256": "190a3e913d20886ee8e5decee5c83f2390c302430b6bf96e75a02f1a13baf89a",
+    "report": {
+      "path": "/home/kali/.hermes/cache/scratch/c5q-72o5ckx9/report.json",
+      "sha256": "262aa5590976cce71e1428db615a50f30455ffe53cfa9966ce54e77a6be10f36"
+    },
+    "summary": {
+      "criteria_count": 34,
+      "criteria_pass_scoped": 34,
+      "native_unittest_count": 3,
+      "loaded_skill_files": 14,
+      "selected_skill_count": 2,
+      "positive_task_count": 1,
+      "source_wheel_installed_api_modules": 69,
+      "native_adapter_modules": 8,
+      "patched_native_files": 6,
+      "completed_recorded_installed_cli_runs": 34,
+      "managed_and_preparation_cli_runs": 25,
+      "owned_containers_absent": 6,
+      "final_runner_exit": 0,
+      "final_family_drained": true
+    },
+    "cli_reconciliation": {
+      "completed_subprocess_runs": 48,
+      "installed_cli_runs": 34,
+      "by_module": {
+        "omnis.modules.settings.candidate_catalog": 5,
+        "omnis.modules.settings.catalog_publication": 3,
+        "omnis.modules.runs.pure_probe": 1,
+        "omnis.modules.runs.native_preparation": 5,
+        "omnis.modules.runs.managed_admission": 13,
+        "omnis.supervisor.native_tasks": 7
+      },
+      "by_exit": {
+        "0": 29,
+        "2": 5
+      },
+      "Popen_limit": "PTY confirmation uses real existing helper and supervisor Popen; not part of subprocess.run count."
+    },
+    "criteria": [
+      {
+        "id": "A01",
+        "criterion": "Exact final source/API wheel/copy-installed module inventories",
+        "boundary": "artifact bytes",
+        "status": "PASS_SCOPED",
+        "evidence": "preflight.json"
+      },
+      {
+        "id": "A02",
+        "criterion": "Exact native image, all adapter and patched-native files, pin and composer",
+        "boundary": "owned never-started image filesystem",
+        "status": "PASS_SCOPED",
+        "evidence": "preflight.json"
+      },
+      {
+        "id": "A03",
+        "criterion": "Fresh two-skill qualification and publication on final installed consumer",
+        "boundary": "API CLI + fresh private PostgreSQL",
+        "status": "PASS_SCOPED",
+        "evidence": "r2/process-commands.json and native-result.json",
+        "limit": "STATIC/PURE qualification does not execute an agent method."
+      },
+      {
+        "id": "A04",
+        "criterion": "Fixture 300-second deadline fixed before qualification; product grants unchanged",
+        "boundary": "fixture/installed bytes",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json + unchanged source hashes"
+      },
+      {
+        "id": "L01",
+        "criterion": "Real tools.skills_tool.skill_view preprocess=False; every loaded file exact",
+        "boundary": "installed native loader through supervisor RuntimeClient",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json and copied journey assertions",
+        "limit": "Document preparation; not positive child tool/read."
+      },
+      {
+        "id": "L02",
+        "criterion": "Stale supervisor epoch rejected",
+        "boundary": "installed preparation CLI",
+        "status": "PASS_SCOPED",
+        "evidence": "native_cli_calls[0]"
+      },
+      {
+        "id": "L03",
+        "criterion": "Preparation readback, replay and historical equality",
+        "boundary": "installed preparation CLI + DB",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json"
+      },
+      {
+        "id": "C01",
+        "criterion": "Final canonical prompt contains base, role, exact brief/method and two exact selected skills",
+        "boundary": "installed prepare-composed CLI",
+        "status": "PASS_SCOPED",
+        "evidence": "snapshot-prepared.json"
+      },
+      {
+        "id": "C02",
+        "criterion": "Same-bundle base/role byte prefix invariant after task/attempt change",
+        "boundary": "actual installed composer on real retained material",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.same_bundle_prefix",
+        "limit": "Producer-only metamorphic control; not another persisted/native task. Cross-run new bundle IDs differ by design."
+      },
+      {
+        "id": "C03",
+        "criterion": "Native consumes and retains exact material before cold AIAgent identities",
+        "boundary": "installed native service, no replacement AIAgent",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.json + native-probe.stderr test_complete_material_consumed_privately_before_cold_identities"
+      },
+      {
+        "id": "B01",
+        "criterion": "Composition ref committed in binding before release; no premature results/checks",
+        "boundary": "installed CLI/supervisor/native/DB",
+        "status": "PASS_SCOPED",
+        "evidence": "snapshot-bound_before_release.json"
+      },
+      {
+        "id": "R01",
+        "criterion": "Real native terminal receipt is NO_MODEL/BLOCKED and binds manifest/binding/entries",
+        "boundary": "installed native transport and persisted receipt",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.native_task_receipt"
+      },
+      {
+        "id": "R02",
+        "criterion": "TaskResult schema/header/refs, exact gaps and all method results NOT_RUN",
+        "boundary": "installed domain readback",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.result_proofs"
+      },
+      {
+        "id": "R03",
+        "criterion": "MethodCheck remains INCOMPLETE with precise unexecuted requirements",
+        "boundary": "installed domain readback",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.result_proofs"
+      },
+      {
+        "id": "R04",
+        "criterion": "Native result/domain result/domain consumption/Brain turn are distinct",
+        "boundary": "persisted domain states",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.four_state_separation"
+      },
+      {
+        "id": "R05",
+        "criterion": "Release replay retains identical binding and full readback",
+        "boundary": "real installed dispatch/readback",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.release_replay_unchanged_readback",
+        "limit": "No additional native-child IDs/results; no model admission. Not a universal syscall trace."
+      },
+      {
+        "id": "R06",
+        "criterion": "Deterministic reconcile consumes domain result exactly once; repeat identical",
+        "boundary": "real installed reconcile CLI + PostgreSQL",
+        "status": "PASS_SCOPED",
+        "evidence": "snapshots and native-result.json"
+      },
+      {
+        "id": "D-wrong_instance",
+        "criterion": "Refuse wrong_instance before negative assignment reservation/binding",
+        "boundary": "installed CLI/supervisor/private DB",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.denials"
+      },
+      {
+        "id": "D-foreign_owner",
+        "criterion": "Refuse foreign_owner before negative assignment reservation/binding",
+        "boundary": "installed CLI/supervisor/private DB",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.denials"
+      },
+      {
+        "id": "D-manifest_digest_change",
+        "criterion": "Refuse manifest_digest_change before negative assignment reservation/binding",
+        "boundary": "installed CLI/supervisor/private DB",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.denials"
+      },
+      {
+        "id": "D-forbidden_model_override",
+        "criterion": "Refuse forbidden_model_override before negative assignment reservation/binding",
+        "boundary": "installed CLI/supervisor/private DB",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json.denials"
+      },
+      {
+        "id": "N-missing",
+        "criterion": "Reject missing before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-content",
+        "criterion": "Reject content before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-foreign_attempt",
+        "criterion": "Reject foreign_attempt before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-overflow",
+        "criterion": "Reject overflow before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-bound_mission",
+        "criterion": "Reject bound_mission before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-binding_procedure",
+        "criterion": "Reject binding_procedure before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-binding_bound",
+        "criterion": "Reject binding_bound before any child constructor/registry entry",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_invalid_material_is_denied_before_any_child_constructor; byte-attested probe loop",
+        "limit": "Seven mutation cases within one real unittest method; not seven separate native processes. Last three use resealed boolean revision mutations."
+      },
+      {
+        "id": "N-protocol-binding",
+        "criterion": "Reject v1 downgrade in status/release and changed composition binding; valid control releases",
+        "boundary": "real installed native lifecycle service",
+        "status": "PASS_SCOPED",
+        "evidence": "native-probe.stderr test_status_release_and_binding_cannot_downgrade"
+      },
+      {
+        "id": "S01",
+        "criterion": "Supervisor SIGTERM exits 0; exact native container Stop joins; sockets/workers absent",
+        "boundary": "real installed processes and owned OCI",
+        "status": "PASS_SCOPED",
+        "evidence": "native-result.json + process-commands.json",
+        "limit": "This is owned supervisor/native shutdown, not a new omnibus installed omnis stop lifecycle certification."
+      },
+      {
+        "id": "S02",
+        "criterion": "Managed reconciled readback after shutdown equals prior bytes",
+        "boundary": "installed CLI + remaining private PostgreSQL",
+        "status": "PASS_SCOPED",
+        "evidence": "snapshot-after-stop.json"
+      },
+      {
+        "id": "S03",
+        "criterion": "Separate negative assignment remains QUEUED/unlaunched after shutdown",
+        "boundary": "installed CLI + remaining private PostgreSQL",
+        "status": "PASS_SCOPED",
+        "evidence": "snapshot-negative-after-stop.json"
+      },
+      {
+        "id": "S04",
+        "criterion": "Original private-PG family owner exits 0/drained; exact owned resources absent",
+        "boundary": "common runner + independent readback",
+        "status": "PASS_SCOPED",
+        "evidence": "cleanup-readback.json"
+      },
+      {
+        "id": "S05",
+        "criterion": "Current HEAD/source/wheels/runner/support files remain frozen",
+        "boundary": "post-run byte verification",
+        "status": "PASS_SCOPED",
+        "evidence": "cleanup-readback.json"
+      }
+    ],
+    "parent_readback": {
+      "path": "/home/kali/.hermes/cache/scratch/c05f-62py0yyo/parent-native-qa-readback.json",
+      "sha256": "78b16b7c9597bbbb65b2d0866b2408e2310b729a8d0315396be37f0ba5d3c3c3"
+    },
+    "unchanged_backend_bindings_after_web_delta": 83
+  },
+  "browser": {
+    "report": {
+      "path": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l/browser-qa/FINAL-report.json",
+      "sha256": "b8e32c701e508a480b376b177655c19550291044daa07fcd47616a050bdaf092"
+    },
+    "parent_readback": {
+      "path": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l/parent-final-readback.json",
+      "sha256": "dda1f301dc0dac8b85b6267b68deb46f0e2443206374a2cb922a759d4af341f5"
+    },
+    "durable_inventory": "documents/verification/p2-b06b-composition-browser.json",
+    "inventory": {
+      "starting_families": 127,
+      "starting_counts": {
+        "PASS": 123,
+        "FAIL": 0,
+        "NOT_RUN": 0,
+        "NOT_IMPLEMENTED": 4
+      },
+      "expanded_checks": 2086,
+      "expanded_counts": {
+        "PASS": 2075,
+        "FAIL": 0,
+        "NOT_RUN": 0,
+        "NOT_IMPLEMENTED": 11
+      },
+      "dom_instances": 1300,
+      "dom_mapped": 1300,
+      "dom_unmatched": 0,
+      "dom_evidence": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l/browser-qa/dom-reconciliation.json",
+      "all_select_option_instances": 595,
+      "option_evidence": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l/browser-qa/every-select-option.json",
+      "semantics": "Current delivered control families, conditional states, repeated indices and every select option at each authored index are enumerated. Not all theoretical data/interleaving combinations; repeated fields/options are checks, not distinct product features. Headless Chromium only."
+    },
+    "images": 112,
+    "case_counts": {
+      "PASS": 168,
+      "FAIL": 1,
+      "NOT_RUN": 0,
+      "NOT_IMPLEMENTED": 0
+    },
+    "finding_dispositions": [
+      {
+        "id": "UI-F01",
+        "disposition": "RESOLVED_LIVE",
+        "evidence": [
+          "fixed-F01-pair-copy.png",
+          "fixed-F01-pair-copy.dom.json",
+          "UI-F01-visible-installed-pair-issuer"
+        ],
+        "actual": "Visible issuer directs omnis pair in local terminal; no pending-launcher copy; actual private TTY pairing succeeds."
+      },
+      {
+        "id": "UI-F02",
+        "disposition": "RESOLVED_LIVE",
+        "evidence": [
+          "fixed-F02.json",
+          "fixed-F02-focused-negative-input.png",
+          "UI-F02-negative-maximum-self-focus-no-db-write"
+        ],
+        "actual": "Maximum requests=-2 marks itself aria-invalid; summary focuses exact field; no mutation request and DB/object/revision/API payload unchanged. -1 and other numeric boundaries also independently exercised."
+      },
+      {
+        "id": "UI-F03",
+        "disposition": "RESOLVED_LIVE",
+        "evidence": [
+          "fixed-F03.json",
+          "fixed-F03-413-top-status.png",
+          "fixed-F03-413-bottom-actions.png",
+          "fixed-F03-corrected-bottom-actions.png",
+          "domain422-recovery.json",
+          "final-retention.json"
+        ],
+        "actual": "Actual PUT1082177wirebytes→HTTP413 BODY_TOO_LARGE leaves editable draft; all64 exclusions corrected, unsaved name retained; explicit Save→GET→reload and installed restart exact readback. DB unchanged on refusal and exactly one revision on subsequent Save. Distinct real domain422 at1021761wirebytes also recovers."
+      },
+      {
+        "id": "R2-RECEIPT-EDIT",
+        "disposition": "RESOLVED_LIVE_POST_AND_PUT",
+        "evidence": [
+          "fixed-R2-POST.json",
+          "fixed-R2-PUT.json",
+          "fixed-R2-POST-edited-top-status.png",
+          "fixed-R2-POST-edited-bottom-retry-save-next.png",
+          "fixed-R2-PUT-edited-top-status.png",
+          "fixed-R2-PUT-edited-bottom-retry-save-next.png",
+          "final-retention.json"
+        ],
+        "actual": "Real POST201/PUT200 committed receipts; real confirmationGET held then aborted. Local name/budget edits preserve stale phase, disabled Save/Next and exactGET Retry. No duplicate POST/PUT nor DB object/revision. Failed Retry remains stale. Released real GET→conflict preserves edits; explicit Keepserverbase causes no mutation; separate SaveCAS adds exactly one revision and realGET/reload/restart confirm values."
+      }
+    ],
+    "retained_installed_data": {
+      "engagements": 26,
+      "revision_rows": 45,
+      "objects": [
+        {
+          "id": "00a5f322-6abf-4d24-af57-38ce2301f8e2",
+          "current_revision": 1
+        },
+        {
+          "id": "09b5c9a7-466e-43c6-96b2-a0f4f074ff36",
+          "current_revision": 1
+        },
+        {
+          "id": "0e80c890-5324-4f62-8ca5-3b066b837ee5",
+          "current_revision": 6
+        },
+        {
+          "id": "1b570e17-96b2-4a30-8b43-809bbe28aeb8",
+          "current_revision": 1
+        },
+        {
+          "id": "20de5c7c-2621-41cb-bac9-c3d809f09e62",
+          "current_revision": 1
+        },
+        {
+          "id": "24caaba5-7fba-4fc1-a1f6-0b6f3e13833a",
+          "current_revision": 1
+        },
+        {
+          "id": "33410979-e70d-4372-a2b0-738774b97e47",
+          "current_revision": 1
+        },
+        {
+          "id": "42d214fb-f9bf-48d2-aec6-11eb27b78968",
+          "current_revision": 3
+        },
+        {
+          "id": "480d92fd-8e01-4ea1-81d7-96a6317c6185",
+          "current_revision": 1
+        },
+        {
+          "id": "49d84619-2152-4daa-97de-b6eadd787ded",
+          "current_revision": 1
+        },
+        {
+          "id": "76a05d1d-acd2-42a4-bf52-e59ec9600e1b",
+          "current_revision": 1
+        },
+        {
+          "id": "77e4d6c8-fc9e-4cae-896b-8e816ab29f9d",
+          "current_revision": 1
+        },
+        {
+          "id": "7b0ecffb-18e5-4c8e-abeb-87c6566d2906",
+          "current_revision": 1
+        },
+        {
+          "id": "83d4328e-47ce-43c6-8961-9ac412b2c618",
+          "current_revision": 1
+        },
+        {
+          "id": "8fdba09c-aa8b-44b0-a839-9d6e882819b6",
+          "current_revision": 2
+        },
+        {
+          "id": "97d246c6-0b14-4fa0-a962-a1d0e3380fc6",
+          "current_revision": 1
+        },
+        {
+          "id": "a7f42926-a89c-4069-a9a0-e38ed5cde661",
+          "current_revision": 2
+        },
+        {
+          "id": "b2a984a4-ebb5-4107-a3e1-64f27c0b1b74",
+          "current_revision": 11
+        },
+        {
+          "id": "b67f6726-1773-4e36-b9fc-4441ccc37bfd",
+          "current_revision": 1
+        },
+        {
+          "id": "c712aa59-5452-435d-950c-83837913b540",
+          "current_revision": 1
+        },
+        {
+          "id": "c714cb0f-b5dd-4897-9e94-9c6694546ffe",
+          "current_revision": 1
+        },
+        {
+          "id": "d9a8b93c-74b4-4b81-8bde-eedcdc556ec7",
+          "current_revision": 1
+        },
+        {
+          "id": "e47a8881-75d8-4fbf-8c8c-70fd012ccf0e",
+          "current_revision": 1
+        },
+        {
+          "id": "f4f57bf0-81ca-442c-84cc-c95c915dd8f4",
+          "current_revision": 1
+        },
+        {
+          "id": "f9f1c695-62e5-4845-baf5-25ceee86e753",
+          "current_revision": 1
+        },
+        {
+          "id": "fac574fe-9c24-4946-9220-b7132225aba7",
+          "current_revision": 1
+        }
+      ],
+      "schema": "0011_managed_tasks"
+    },
+    "image_id": "sha256:ce4a4cf3cda97fe693972aacfee72b8c07c21d2b99afda1418bd47161543beb7",
+    "root": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l",
+    "state": "STOPPED"
+  },
+  "review_register": "documents/verification/p2-b06b-composition-review.json",
+  "preserved_failures": [
+    "Initial PG proc_53c6df9f24bf exit2:161pass2fail immutable-trigger oracle/legacy builder signature; corrected without weakening storage.",
+    "PG proc_732acd8c941a exit2:169pass1fail expected COMPOSITION_REJECTED versus real REF_UNAVAILABLE; corrected exact boundary, then targeted1pass proc_a6d75f1fb9fa.",
+    "Both original code reviews CHANGES_REQUESTED; source and authentic native/PG RED preserved before7036014/2f749a8.",
+    "Native build first FROM sha256:<image-id> interpreted as registry reference and failed; new separate build context used verified existing local tag; base image ID checked unchanged.",
+    "Independent native observer preflight name-shadow failure and first journey cross-bundle-prefix false oracle remain FAIL; corrected final fresh attempt exit0/drained.",
+    "Initial browser2f:1648PASS/3FAIL/11NOT_IMPLEMENTED plus14 raw historical failures with dispositions; UI fixes do not retrospectively change it.",
+    "R2-RECEIPT-EDIT reproduces on prior baseline as well asbbe042a; parentRED4 ->GREEN34, reviewed and final livePOST/PUT verified.",
+    "Final browser retains one observer clean-form/disabled-Save oracle failure; genuinely dirty corrected control passes, no source changes.",
+    "Initial parent Counter readback omitted explicit zero NOT_RUN; normalized declared status keys, raw report unchanged.",
+    "Temporary ad-hoc consistency checks are not canonical or product proof and were not used to replace gates."
+  ],
+  "cleanup": {
+    "parent_completed_readback": {
+      "path": "/home/kali/.hermes/cache/scratch/c05-1bq3zck8/parent-cleanup-readback.json",
+      "sha256": "3e4ff69bc93380cec2c2f3f0b363b0a8d38f0b4686036cae6b5297cf8ba753be"
+    },
+    "parent_before_final_canonical": {
+      "postgres_fixtures": 6,
+      "native_fixtures": 4
+    },
+    "native_independent_owned_containers_absent": 6,
+    "browser_initial_owned": {
+      "containers_absent": 12,
+      "networks_absent": 4,
+      "readback": {
+        "path": "/home/kali/.hermes/cache/scratch/c05f-62py0yyo/parent-browser-readback.json",
+        "sha256": "12a44ffb3ec1c436c4aa8a218d4225c817d9b9ab29f5f51eaecd8c75e2e1a65a"
+      }
+    },
+    "browser_final_owned": {
+      "containers_absent": 12,
+      "networks_absent": 4,
+      "readback": {
+        "path": "/home/kali/.hermes/cache/scratch/c05w-w3ck810l/parent-final-readback.json",
+        "sha256": "dda1f301dc0dac8b85b6267b68deb46f0e2443206374a2cb922a759d4af341f5"
+      }
+    },
+    "both_canonical_owned_PG_absent": true,
+    "retained": "Synthetic PGDATA/catalog/logs, wheel/image artifacts,112 final/95 original screenshots and two current-session implementation worktrees retained; no foreign cleanup claimed.",
+    "no_push": true,
+    "operator_r1_not_adopted": true
+  },
+  "limits": [
+    "C05/H03 complete, C03/C04 general, C06-C12 breadth, B06b/G02 and phase2 remain NOT_CLOSED.",
+    "NO_MODEL/effective=null, CONTRACT_PROBE/CHECK_ONLY only; final composition is consumed by trusted native admission, not a conversation or positive child domain/tool read.",
+    "One task with two selected skills is the installed composed positive. Two-task aggregate overflow refuses unchanged32768-byte canonical frame cap; no concurrency claim.",
+    "All method requirements remain NOT_RUN, TaskResult BLOCKED and MethodCheck INCOMPLETE; no CriterionOutcome, security/functional PASS, Brain turn or auto-wake.",
+    "No supported slots/external RELEASE/technology overlay in this subset; selected unsupported content is refused, not silently omitted. No M1/M2 qualification or new late-native post-Stop delivery certified.",
+    "Same-bundle prefix control is an installed producer-only mutation of retained material, not another persisted/native task; new independent bundles have new UUIDs.",
+    "PG negative tests declare native preparation/result doubles; authentic installed native and full supervisor/PG journeys are separate evidence.",
+    "Native audit/profiler channels are not universal syscall tracing; physical crash/power-loss/lost-server-ACK NOT_RUN.",
+    "Browser Chromium153/Playwright1.63 only; no fresh aesthetic, screen-reader/WCAG or cross-browser approval. Native GET413 is a component-only impossible-normal-GET negative, not fabricated live.",
+    "Per-test PG databases are dropped by common conftest; retained PGDATA/catalog/logs do not promise retained test rows. Installed browser fixture26 objects/45 revisions were actually read back across restart and remain in retained PGDATA, not a certified backup.",
+    "Scratch reports/images/helpers may expire. Durable sanitized decisions/control inventory/source bindings are versioned here; no operator/r1/global/model/target/push effects."
+  ],
+  "next_result": "C03: admitted case-slot input with exact ownership/kind/revision/digest/cardinality -> BoundProcedure/MethodPlan/Brief/composer. Positive native child access/method result and remaining C06-C12 still require their own authentic consumers. Then B06c -> B06m -> Settings minimum -> P2-live with separate authorization."
+}

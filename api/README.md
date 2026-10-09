@@ -1,5 +1,13 @@
 # API/control și bootstrap web P0.3 — utilizare și limite
 
+## Consumer B06b curent — compoziție inertă, nu assessment
+
+[C05 acceptat scoped](../documents/verification/p2-b06b-composition-close.json), produs907566d: modulul privat `omnis.modules.runs.managed_admission` oferă `prepare-composed`, alături de `prepare`, `readback` și `reconcile`. Se folosește numai pe un catalog/DB private configurate explicit, nu pe r1 ca probă implicită. Comanda instalată este `python -I -B -m omnis.modules.runs.managed_admission prepare-composed --request <json> --catalog-root <private>`; requestul conține exact schema_version1, owner_id, command_id, selection_ref, preparation_command_id și task_count1..2. Versiunea compoziției este fixată de backend, nu un override client.
+
+Consumerul cere selection publicată CONTRACT_PROBE/NO_MODEL și receiptul de pregătire documentară existent. Scrie Brief/BoundProcedure/compoziție/manifest atomic în schema0011, apoi `omnis.supervisor.native_tasks` folosește controlul privat existent pentru stage/release/receive. Numai opt-in-urile inerte/catalog și `OMNIS_MANAGED_TASKS=1` activează ownerul; nu apare un endpoint web privilegiat sau o comandă `omnis run` inventată. Două skills într-un task au proba instalată; overflowul agregat refuză fără trunchiere. Native v2 validează materialul înainte de identități și fixează ref-ul în binding; v1 istoric rămâne citibil.
+
+Rezultatul rămâne autentic BLOCKED/NO_MODEL, MethodCheck INCOMPLETE și consum determinist fără tur Brain. Nu metodă executată, acces child tool/read, CriterionOutcome ori Start assessment. [Registrul](../documents/verification/p2-b06b-composition.md) păstrează exactele probe/reviewuri, corecțiile UI și limitele. Paragrafele P0/P1 de mai jos sunt istoricul componentelor, nu starea integrală curentă.
+
 Acesta este control plane-ul API/PostgreSQL cu supervisor **inert**, reutilizat de [comanda instalată `omnis start --no-open`](../cli/README.md). Pair/open/Stop au probe G00 locale în scope, nu certificare de release. `/health/live` reflectă procesul; `/health/ready` dă HTTP 200 numai cu DB/schema `0010_catalog_publications` compatibile, dar dashboardul cere suplimentar assets/control verificate. `assessment_ready=false`. CLI-ul corelează și identitatea containerului/peer-ului API, originul și bytes-urile asseturilor. PostgreSQL 18.6 rămâne pinul instalației probate; health nu pretinde verificarea versiunii serverului. Probele Uvicorn TCP din acest README sunt numai dezvoltare; produsul păstrează `python -I -m omnis.serve` pe UDS privat.
 
 ## P1-A/B — draftul inert și câmpurile declarative

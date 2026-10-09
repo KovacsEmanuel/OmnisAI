@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "APPROVED_SCOPED_COMPOSITE",
+  "product_commit": "907566df8401fe75eb0d04323e9348be2b9ac401",
+  "scope": "C05 inert composition/native admission plus narrowly confirmed web recovery/guidance fixes; not whole B06b/G02",
+  "reports": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/report.json",
+      "sha256": "38a7ff940e879f9ab574f7b4e692d815763a32cb3e9aa0d77fccc276f487cdbc",
+      "verdict": "CHANGES_REQUESTED",
+      "scope": "C05 inert complete composition, integrated candidate versus base; no product acceptance",
+      "snapshot": "511343c0d9898f1902e8d62db0feab04cab6da74",
+      "findings": [
+        {
+          "id": "C05-R1-F1",
+          "severity": "P2 / medium",
+          "blocking": true,
+          "status": "CONFIRMED_SOURCE_REPRODUCER",
+          "title": "Producer accepts method text that the composed native preflight deterministically rejects after dispatch reservation",
+          "path": "api/src/omnis/modules/tasks/managed_composition.py",
+          "line_start": 320,
+          "line_end": 330,
+          "related_locations": [
+            {
+              "path": "api/src/omnis/modules/tasks/managed_composition.py",
+              "lines": "242-252",
+              "detail": "_authored_text rejects controls but not a leading U+FEFF in nested authored strings."
+            },
+            {
+              "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+              "lines": "83-86,103-107,174-180,240-256",
+              "detail": "Native authored/raw_text rejects leading BOM; native _procedure applies nonempty prose to predicted_signal and method requirement descriptions."
+            },
+            {
+              "path": "api/src/omnis/modules/runs/managed_admission.py",
+              "lines": "165-203,218-249,579-624",
+              "detail": "Same producer validation is run before graph inserts and reservation; _verify_compositions verifies retained selected skill/method files but does not add the missing procedure prose restrictions."
+            },
+            {
+              "path": "api/src/omnis/supervisor/native_tasks.py",
+              "lines": "93-113",
+              "detail": "Durable reserve commits before native validation response; stage_started replay refuses as TASK_INDETERMINATE."
+            }
+          ],
+          "requirement": "p2-b06b-composition.md:20 requires deterministic producer-checkable refusals before reservation; wire contract:30/34 requires compatible native validation and full prospective v2 validation before inserts/reservation. Omnis API-data cross-runtime admission rule requires producer at least as restrictive as the consumer.",
+          "reproducer_command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/parity_probe.py",
+          "reproducer_file": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/parity_probe.py",
+          "reproducer_sha256": "97722bb985ab8aba6cd39401bb827fbee5539c9f079a1244dee4634232f8c520",
+          "steps": [
+            "Copy the existing owned two-skill seed into the reviewer scratch root.",
+            "Keep a valid positive. For three independent copies set Procedure.predicted_signal to empty string; set method_requirements[0].description to empty string; or prepend U+FEFF to that description.",
+            "Run real compile_catalog and evaluate_pure, then real capture and prepare_packages over the changed retained source bytes; use ordinary unit-only UUID catalog refs, not fabricated publication/DB receipts.",
+            "Run unchanged managed_contract.build_records and managed_composition.stage_payload with the real sealed composer revision, then native managed_admission_contract.validate_stage on the identical wire.",
+            "All three variants pass compiler/evaluator/package preparation/API producer and remain below 32768 bytes, but native rejects. Unchanged positive passes both sides."
+          ],
+          "observed": [
+            {
+              "case": "valid",
+              "fixture_root": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/b06b-85rwik8v",
+              "compile": "PASS",
+              "pure_evaluation_type": "PureEvaluation",
+              "pure_evaluation_status": null,
+              "prepare_packages": "PASS",
+              "producer": "PASS",
+              "wire_bytes": 17012,
+              "native": "PASS"
+            },
+            {
+              "case": "empty_predicted_signal",
+              "fixture_root": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/b06b-iyf8krcl",
+              "compile": "PASS",
+              "pure_evaluation_type": "PureEvaluation",
+              "pure_evaluation_status": null,
+              "prepare_packages": "PASS",
+              "producer": "PASS",
+              "wire_bytes": 16966,
+              "native": "REJECTED",
+              "native_error": "Invalid prompt composition"
+            },
+            {
+              "case": "empty_requirement_description",
+              "fixture_root": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/b06b-01t_97ii",
+              "compile": "PASS",
+              "pure_evaluation_type": "PureEvaluation",
+              "pure_evaluation_status": null,
+              "prepare_packages": "PASS",
+              "producer": "PASS",
+              "wire_bytes": 16974,
+              "native": "REJECTED",
+              "native_error": "Invalid prompt composition"
+            },
+            {
+              "case": "bom_requirement_description",
+              "fixture_root": "/home/kali/.hermes/cache/scratch/reviewer1-c05-511343c/b06b-zsidscx2",
+              "compile": "PASS",
+              "pure_evaluation_type": "PureEvaluation",
+              "pure_evaluation_status": null,
+              "prepare_packages": "PASS",
+              "producer": "PASS",
+              "wire_bytes": 17015,
+              "native": "REJECTED",
+              "native_error": "Invalid native preparation"
+            }
+          ],
+          "impact": "A deterministic grammar mismatch escapes the producer. Source control flow then permits persistence and committing stage_started before native rejects, stranding the attempt as indeterminate despite there being no uncertain child effect. The producer/native mismatch is executed evidence; the PostgreSQL persisted outcome is a code-path inference, not a newly executed DB proof.",
+          "minimal_fix": "Align the pure API composition validator with native procedure prose and authored-string restrictions before graph insertion/reservation (including empty prose and leading BOM), preserving exact source bytes and optional-native import independence. Do not weaken native refusal or normalize/truncate text. Add these three parity cases with a valid control and a private-PG prepare-composed no-write/no-stage-reservation regression through the existing owner.",
+          "regression_boundary": "Existing native/managed source tests pass but only one positive cross-runtime parity test exists; it does not exercise these authored source forms."
+        }
+      ],
+      "dispositions": []
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/report.json",
+      "sha256": "726480af0b0a389fb1d2ae650c4e5df3bc0298bb5dedb25e19bfc590fabb78e2",
+      "verdict": "CHANGES_REQUESTED",
+      "scope": "C05 candidate 511343c versus 6858e4e: new composition/native preflight, version downgrade, authority/fencing/concurrency/input bounds/failures/maintainability. Not a universal audit; requirement/persistence broad review belongs to Reviewer 1.",
+      "snapshot": "511343c0d9898f1902e8d62db0feab04cab6da74",
+      "findings": [
+        {
+          "id": "C05-R2-01",
+          "severity": "P2 / medium",
+          "blocking_for_scoped_acceptance": true,
+          "title": "Native preflight compares unvalidated nested refs with Python equality; bool revision passes as integer 1",
+          "locations": [
+            "integrations/hermes/src/omnis_hermes/prompt_bundle.py:339-355",
+            "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:253-275"
+          ],
+          "requirement": "Bounded wire contract lines25-28: independently validate strict fields/types and exact mission/procedure refs before cold identity creation; composition register lines7,20: resealed incompatible material must refuse at native preflight.",
+          "reproducer_command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/c05-r2-511343c/home TMPDIR=/home/kali/.hermes/cache/scratch/c05-r2-511343c/tmp api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c05-r2-511343c/probe_strict_refs.py",
+          "reproducer_exit": 0,
+          "steps": [
+            "Generate an unmodified two-package composition with the actual API builder and pinned native composer; both validators accept.",
+            "Decode the final text; replace only bound-procedure.payload.mission_ref.revision with JSON true; reseal bound, update its dependent brief refs, reseal brief/composition/manifest.",
+            "Pass identical bytes to API managed_composition.validate and native managed_admission_contract.validate_stage. Repeat with each ProcedureBinding ref revision set to true.",
+            "Execute the actual stage AST body with explicit constructor/registry/dataclass doubles, then contrast top-level manifest revision=true negative control."
+          ],
+          "observed": "All three boolean nested-ref variants were ACCEPTED by native.validate_stage; API refused (ASSIGNMENT_MISMATCH / INVALID_REQUEST). Actual stage source with explicit doubles returned STAGED with one constructor call and one registry insertion for each variant. Ordinary valid control also STAGED; strict manifest-revision negative made zero constructor calls.",
+          "cause": "bound.mission_ref is compared to a validated header ref without independently calling reference(); procedure_bindings is checked using list/dict equality, likewise without validating its nested refs. Python True == 1 hides the type substitution. Envelopes and digests remain correct for the altered bytes.",
+          "impact": "Violation of the promised independent strict native preflight and API/native parity. This is NOT a demonstrated privilege escalation: ordinary API rejects these mutated refs, wire endpoints remain private, and no model/tool authority is added. It is a scoped admission-contract blocker.",
+          "remedy": "Validate exact ProcedureBinding fields and reference() for procedure_ref/bound_procedure_ref plus bound.mission_ref before comparisons; use canonical/type-sensitive equality where identity equality matters. Add fully resealed regressions and keep the valid same-consumer positive.",
+          "evidence": [
+            {
+              "case": "positive",
+              "frame_bytes": 17005,
+              "native": "ACCEPTED",
+              "api": "ACCEPTED",
+              "stage_source_with_constructor_double": {
+                "status": "STAGED",
+                "constructor_calls": 1,
+                "registry_records": 1
+              },
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/positive.json",
+              "sha256": "63056aff3d0ed9b169cdbf431e31ef568a0226f484010a86fc2ac2fca97f6675"
+            },
+            {
+              "case": "bound_mission_revision_bool",
+              "frame_bytes": 17008,
+              "native": "ACCEPTED",
+              "api": "CatalogError:ASSIGNMENT_MISMATCH",
+              "stage_source_with_constructor_double": {
+                "status": "STAGED",
+                "constructor_calls": 1,
+                "registry_records": 1
+              },
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/bound_mission_revision_bool.json",
+              "sha256": "94102f4f11631b749e509ba9a96653fba026709deae31e92b7a5fe3defa9778f"
+            },
+            {
+              "case": "brief_binding_revision_bool",
+              "frame_bytes": 17008,
+              "native": "ACCEPTED",
+              "api": "CatalogError:INVALID_REQUEST",
+              "stage_source_with_constructor_double": {
+                "status": "STAGED",
+                "constructor_calls": 1,
+                "registry_records": 1
+              },
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/brief_binding_revision_bool.json",
+              "sha256": "3894bdb8c08e3c3eb3a85d1d9d9ca203d9172703f23d047267b863cef0e0d68d"
+            },
+            {
+              "case": "brief_binding_procedure_revision_bool",
+              "frame_bytes": 17008,
+              "native": "ACCEPTED",
+              "api": "CatalogError:INVALID_REQUEST",
+              "stage_source_with_constructor_double": {
+                "status": "STAGED",
+                "constructor_calls": 1,
+                "registry_records": 1
+              },
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/brief_binding_procedure_revision_bool.json",
+              "sha256": "7d4531aebd659c5eaab9be96e8df54d7703b84c86d9a9420607b527d8b0dc09a"
+            },
+            {
+              "case": "manifest_revision_bool_negative_control",
+              "stage_source_with_constructor_double": {
+                "error_type": "ValueError",
+                "reason": "Invalid native preparation",
+                "constructor_calls": 0,
+                "registry_records": 0
+              }
+            }
+          ],
+          "limits": "Native pure validator is real source. Child creation observation uses extracted actual method with explicitly substituted construction/registry types; installed AIAgent not executed."
+        },
+        {
+          "id": "C05-R2-02",
+          "severity": "P2 / medium",
+          "blocking_for_scoped_acceptance": true,
+          "title": "Producer admits authored strings beginning U+FEFF that native composition deterministically refuses",
+          "locations": [
+            "api/src/omnis/modules/tasks/managed_composition.py:242-252",
+            "integrations/hermes/src/omnis_hermes/prompt_bundle.py:83-93",
+            "integrations/hermes/src/omnis_hermes/prompt_bundle.py:448-449",
+            "integrations/hermes/src/omnis_hermes/native_preparation_contract.py:133-138",
+            "api/src/omnis/supervisor/native_tasks.py:99-113"
+          ],
+          "requirement": "Composition register lines11,20 and wire lines30,34: deterministic producer-known invalid material must be rejected before inserts/reservation; API and native must agree on complete payload grammar.",
+          "reproducer_command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/c05-r2-511343c/home TMPDIR=/home/kali/.hermes/cache/scratch/c05-r2-511343c/tmp api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c05-r2-511343c/probe_producer_parity.py",
+          "reproducer_exit": 0,
+          "steps": [
+            "Create a fresh two-package seed entirely under owned scratch.",
+            "Prefix the published-procedure source objective string with U+FEFF inside its JSON document (not a BOM at file start); keep all package digests rebuilt from source.",
+            "Run real compile_catalog, capture, prepare_packages, DTO parsing, managed_contract.build_records and managed_composition.stage_payload.",
+            "Feed the resulting complete wire unchanged to native.validate_stage; contrast the ordinary seed through the same producer/native functions."
+          ],
+          "observed": "Ordinary positive accepted by API/native (17005 bytes). Leading-U+FEFF objective compiled and prepared, API built complete graph and stage payload successfully (17014 bytes), then native refused ValueError: Invalid native preparation. No envelope corruption or re-sealing post-producer was necessary.",
+          "cause": "API _authored_text rejects C0/C1 controls but not a leading U+FEFF per authored string. Native authored() calls raw_text() for every string; raw_text also rejects startswith(U+FEFF). Package-level preparation only sees file-level text and therefore does not reject an embedded objective.",
+          "impact": "Producer emits deterministic native-inadmissible material. Owner ordering commits dispatch reservation before RuntimeClient invokes native validation, so such a selected recipe can fail too late rather than fail at preparation. Late durable/owner effect is inferred from code ordering, NOT claimed measured on PG or installed transport.",
+          "remedy": "Make API authored-string grammar match native before persistence/reservation (reject leading U+FEFF at each authored scalar, unless both contracts deliberately allow it); keep exact bytes, do not silently strip it. Add real source-producer positive/negative cross-runtime parity regression.",
+          "evidence": [
+            {
+              "case": "positive",
+              "compile_catalog": "ACCEPTED",
+              "prepare_packages": "ACCEPTED",
+              "api_build_records": "ACCEPTED",
+              "api_stage_payload": "ACCEPTED",
+              "frame_bytes": 17005,
+              "native": "ACCEPTED",
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/positive-producer.json",
+              "sha256": "830f8c04a195ac459f2e86ecf2dd02203158ab1987e080ad82e96110bd8ac747",
+              "seed_root": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/tmp/b06b-33s0umy5"
+            },
+            {
+              "case": "objective_leading_feff",
+              "compile_catalog": "ACCEPTED",
+              "prepare_packages": "ACCEPTED",
+              "api_build_records": "ACCEPTED",
+              "api_stage_payload": "ACCEPTED",
+              "frame_bytes": 17014,
+              "native": "ValueError:Invalid native preparation",
+              "fixture": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/objective_leading_feff-producer.json",
+              "sha256": "1d96ccbf6d65ece48dfacd778d36a4c1be38df0503b1af274706f345c6069149",
+              "seed_root": "/home/kali/.hermes/cache/scratch/c05-r2-511343c/tmp/b06b-qmjjxnmc"
+            }
+          ],
+          "limits": "Real source compiler/producer/validator executed; synthetic refs as used by source fixtures. No PG publication/receipt/dispatch lifecycle executed in this review."
+        }
+      ],
+      "dispositions": []
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c05-r1-focused-0ff7wxyt/report.json",
+      "sha256": "21f28d0b4b14e9fc4dc72da1205c92f327612c5cf0819a4a9cd5d3b6baa43a89",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Independent read-only closure of C05-R1-F1 and its prose/BOM overlap with C05-R2-02; exact 7036014 producer delta plus current native composer repin on HEAD 2f749a8. Not whole B06b, installed execution, browser or canonical acceptance.",
+      "snapshot": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+      "findings": [],
+      "dispositions": [
+        {
+          "id": "C05-R1-F1",
+          "prior_severity": "P2 / medium",
+          "disposition": "CLOSED_SCOPED",
+          "overlap": "C05-R2-02 prose/BOM only; no disposition of independent C05-R2-01 is claimed here.",
+          "root_cause": "API final-composition validation did not enforce the native nonempty method-prose grammar and did not reject nested authored strings beginning U+FEFF, so deterministic native refusals could follow a durable stage reservation.",
+          "remedy": "The producer recursively rejects leading U+FEFF in all authored keys/strings and requires nonempty objective, predicted_signal, non-null cleanup_not_needed_reason, each false_positives item, each non_applicable_groups.reason and every method_requirements.description. It preserves source bytes and has no native-runtime import.",
+          "locations": [
+            {
+              "path": "api/src/omnis/modules/tasks/managed_composition.py",
+              "lines": "242-254,295-298,325-337",
+              "meaning": "Recursive BOM refusal plus complete sibling prose guards."
+            },
+            {
+              "path": "api/src/omnis/modules/tasks/managed_contract.py",
+              "lines": "332-378",
+              "meaning": "compose validates the new record; final prospective stage_payload validates before build_records returns."
+            },
+            {
+              "path": "api/src/omnis/modules/runs/managed_admission.py",
+              "lines": "115-137,165-193,234-249",
+              "meaning": "Composed build and graph verification precede first managed record/run/task inserts; retained stage validation also precedes stage_started update."
+            }
+          ],
+          "original_reproducers": {
+            "empty_predicted_signal": "Now source compile/evaluate/capture/package preparation succeeds, legacy v1 builds, composed producer rejects MANAGED_REJECTED; separately resealed native wire still rejects.",
+            "empty_requirement_description": "Same pre-persistence composed producer rejection; both first and second requirement tested.",
+            "bom_requirement_description": "Now composed producer rejects COMPOSITION_REJECTED; recursive native refusal remains unchanged."
+          },
+          "closure_evidence": [
+            "Fresh API source 33 passed/exit0",
+            "Fresh native-parser/legacy source 51 passed/exit0",
+            "Independent 20-case source and resealed-native matrix: 2 positives, 18 refusals",
+            "Parent private PG original RED4/1 -> GREEN5 receipts/log summaries read back without exposing DSN; four managed tables remain zero on each invalid case by executed test assertion"
+          ],
+          "surviving_blocker": null,
+          "boundary": "No absolute claim of API/native parity for every possible future grammar; closure is limited to named prose/BOM finding and sibling positions, unchanged parser/legacy and pre-persistence placement."
+        }
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c05-r2-rereview-2f749a8-wte6cgbt/report.json",
+      "sha256": "6e6005021d7dcc2cc345a88a10579a34c967cc4ec3d9eb0f9aef004cfd203b32",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Only C05-R2-01 remediation and C05-R2-02 overlap in 7036014 + 2f749a8 relative to 511343c. No new broad audit; no product/installed/browser/canonical acceptance transfer.",
+      "snapshot": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+      "findings": [],
+      "dispositions": [
+        {
+          "id": "C05-R2-01",
+          "previous": "BLOCKING / CHANGES_REQUESTED",
+          "disposition": "FIXED / APPROVED_SCOPED",
+          "fix_commit": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+          "locations": [
+            "integrations/hermes/src/omnis_hermes/prompt_bundle.py:339-361",
+            "integrations/hermes/src/omnis_hermes/native_preparation_contract.py:93-96,121-130",
+            "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:247-275",
+            "integrations/hermes/tests/test_prompt_bundle.py:35-64",
+            "integrations/hermes/tests/composition_native_probe.py:60-131"
+          ],
+          "analysis": "Bound mission_ref now passes strict reference(kind=mission) before equality with the independently validated header. ProcedureBinding must be a singleton list containing exactly procedure_ref/slot_values/bound_procedure_ref; both refs receive independent exact-type/kind/UUID/revision/digest validation. Canonical equality covers the complete binding including empty slots, preventing bool/int or structural equality shortcuts. The residual mission/header Python equality compares already-strict refs and is not the original bool bypass. Native stage freezes and invokes validate_stage before root lookup and AIAgent construction; this ordering is unchanged.",
+          "independent_result": "Current two-skill API producer positive accepted by API/native and extracted real stage body: one constructor-double call and one registry insertion. All three fully resealed boolean-reference variants rejected by API/native; all seven envelope digests independently verified for each. Actual stage AST with explicit doubles shows zero constructor calls/registry records. Additional exact-field, slot-type and fully resealed stale-composer controls deny before construction.",
+          "limits": "AST doubles are ordering evidence, not a new authentic AIAgent execution. Parent authentic native RED/GREEN artifacts read separately below. No inference, tool, child domain read or transport authorization proven."
+        },
+        {
+          "id": "C05-R2-02",
+          "previous": "BLOCKING / CHANGES_REQUESTED",
+          "disposition": "FIXED / APPROVED_SCOPED (overlap with C05-R1-F1)",
+          "fix_commit": "703601476d891942c429bf8f95ca8c44687d83fb",
+          "locations": [
+            "api/src/omnis/modules/tasks/managed_composition.py:242-254,295-297,325-337",
+            "api/src/omnis/modules/tasks/managed_contract.py:337-348,375-379",
+            "api/src/omnis/modules/runs/managed_admission.py:119-138,144-173",
+            "api/tests/test_composition_admission_regressions.py:14-68",
+            "api/tests/test_managed_composition_pg.py:39-146"
+          ],
+          "analysis": "Recursive authored-text validation now rejects leading U+FEFF for each string/key, matching native authored/raw_text. Added required nonempty procedure prose checks match existing native prose and 4096-character bounds. Composition is validated inside build_records before _prepare writes managed rows and before dispatch reservation; no stripping/repairing source.",
+          "independent_result": "Real source-authored objective and method-requirement BOM variants compile, prepare and DTO-parse, but now fail API build_records with CatalogError:COMPOSITION_REJECTED; stage/native are not reached and original source bytes remain unchanged. Ordinary two-skill positive still reaches native acceptance. Focused source suite includes all seven new producer regression cases.",
+          "limits": "No real PG operations executed by this reviewer. Added five-case PG test inspected: valid positive plus four invalid source cases; invalid branch asserts before==after==[0,0,0,0] over managed_record/run/task/inbox. Parent-reported five-PG PASS not independently rerun or promoted."
+        }
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui-review1-vghu2o_h/review1-complete.json",
+      "sha256": "9851c7f2fb6266239dad9cc775c05e221d62e1a3500bd2ada9036758993aee20",
+      "verdict": "APPROVED_SCOPED",
+      "scope": {
+        "base": "2f749a8bdef6e8a0d86fc06da3389c44a9e5ead5",
+        "head": "bbe042a2644bbca4b13538b3ea1bf3f4017fcc33",
+        "commits": [
+          "9390504",
+          "1ecec14",
+          "bbe042a"
+        ],
+        "changed_files": [
+          "web/src/app/App.test.tsx",
+          "web/src/app/Wizard.test.tsx",
+          "web/src/features/bootstrap/copy.ts",
+          "web/src/features/engagement/Wizard.tsx"
+        ],
+        "contract": "Focused requirements/form persistence/recovery and no silent overwrite/retry for original UI-F01/F02/F03; not full C05/backend/browser acceptance.",
+        "acceptance_criteria": [
+          "Pairing copy describes local omnis pair and retains no public issuer.",
+          "Negative max_requests identifies its own field, does not widen valid limits, preserves reserve relation.",
+          "Explicit pre-receipt BODY_TOO_LARGE retains local form/base, permits explicit corrected save, performs no automatic write.",
+          "Transport/invalid responses and receipt GET failures stay conservative; 409 requires operator reconciliation; exact GET gates Saved."
+        ]
+      },
+      "snapshot": "bbe042a2644bbca4b13538b3ea1bf3f4017fcc33",
+      "findings": [],
+      "dispositions": [
+        {
+          "id": "UI-F01",
+          "original_severity": "LOW",
+          "disposition": "FIX_ACCEPTED_SCOPED",
+          "original_evidence": "Original bootstrap DOM body says launcher pending P0.4.",
+          "code": [
+            "web/src/features/bootstrap/copy.ts:9"
+          ],
+          "test_sources": [
+            "web/src/app/App.test.tsx:29-36"
+          ],
+          "reason": "Only visible issuer copy changes; local omnis pair named, no-public-endpoint boundary retained; source App test visibly checks exact text."
+        },
+        {
+          "id": "UI-F02",
+          "original_severity": "LOW",
+          "disposition": "FIX_ACCEPTED_SCOPED",
+          "original_evidence": {
+            "max_requests": {
+              "value": "-1",
+              "aria_invalid": "false"
+            },
+            "validation_reserved_requests": {
+              "value": "5",
+              "aria_invalid": "true"
+            }
+          },
+          "code": [
+            "web/src/features/engagement/Wizard.tsx:40-50",
+            "web/src/features/engagement/WizardFields.tsx:13-21",
+            "api/src/omnis/modules/engagements/schemas.py:231-242"
+          ],
+          "test_sources": [
+            "web/src/app/Wizard.test.tsx:9-35",
+            "/home/kali/.hermes/cache/scratch/ui-review1-vghu2o_h/web/src/app/Review1.test.tsx"
+          ],
+          "reason": "Negative maximum guard precedes reserve comparison; correct field ID/aria/error-summary focus, zero writes. Existing max=20/reserve=21 still targets reserve. Independent POST/PUT negative controls and max=reserve=0 explicit valid writes pass; backend limits unchanged."
+        },
+        {
+          "id": "UI-F03",
+          "original_severity": "MEDIUM",
+          "disposition": "FIX_ACCEPTED_SCOPED",
+          "original_evidence": {
+            "id": "4be74ce7-a526-4679-b091-6fbd9efb33f8",
+            "httpStatus": 413,
+            "apiCode": "BODY_TOO_LARGE",
+            "wireBytes": 1082174,
+            "fieldsCorrectedSmaller": true,
+            "saveDisabled": true,
+            "nextDisabled": true,
+            "compareOrReadbackControl": false,
+            "persistedRevisionUnchanged": true,
+            "source": "web/src/features/engagement/Wizard.tsx:115,166-170,277-282"
+          },
+          "code": [
+            "web/src/features/engagement/Wizard.tsx:142-175",
+            "web/src/features/engagement/Wizard.tsx:177-197",
+            "web/src/features/engagement/Wizard.tsx:274-286"
+          ],
+          "test_sources": [
+            "web/src/app/Wizard.test.tsx:37-80",
+            "web/src/app/Wizard.test.tsx:316-416",
+            "web/src/app/Wizard.test.tsx:505-527",
+            "/home/kali/.hermes/cache/scratch/ui-review1-vghu2o_h/web/src/app/Review1.test.tsx"
+          ],
+          "reason": "Only recognized ApiError BODY_TOO_LARGE before a receipt selects idle and actionable size guidance. No setForm/setSaved/query invalidation or save call occurs in this branch. finally clears saving ref. Form and CAS base remain exact; subsequent Save is user-triggered. New 413->409->compare->keep-local->explicit-save probe confirms original base used until explicit reconciliation and unique command IDs, no overwrite/retry. Receipt branch precedes BODY_TOO_LARGE, independently tested for POST/PUT GET413 and mismatched GET with readback-only retry."
+        }
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui-review2-bbe042a-t8w6j3a6/review2-report.json",
+      "sha256": "a4bdce8859b919a0f82ed2ea1f8f84daef4ee1557ce7a9d3614214c4374a7c1f",
+      "verdict": "CHANGES_REQUESTED",
+      "scope": "The three minimal fixes are correct at their direct boundaries, but the explicitly requested no-blind-resubmit-after-unconfirmed-receipt criterion fails. The blocker is preexisting, independently reproduced on BASE, not introduced by the delta. Parent must explicitly adjudicate its scope; this report does not authorize a whole-project audit.",
+      "snapshot": "bbe042a2644bbca4b13538b3ea1bf3f4017fcc33",
+      "findings": [
+        {
+          "id": "R2-RECEIPT-EDIT",
+          "severity": "MEDIUM",
+          "status": "CONFIRMED_COMPONENT",
+          "regression": false,
+          "preexisting_on_base": true,
+          "source": "web/src/features/engagement/Wizard.tsx:111-116,166-167,199,226,281,285-286",
+          "title": "Editing after unconfirmed readback erases stale protection and enables another POST/PUT",
+          "reproduction": [
+            "Mount real App at /engagements/new or existing /setup with synthetic valid session and draft.",
+            "Save valid local values; fetch supplies a successfully decoded POST201 or PUT200 revision receipt.",
+            "Fail its confirmation GET with connection loss (realistic fault boundary), or separately decoded BODY_TOO_LARGE/413 (branch-priority negative).",
+            "Observe Unconfirmed readback, disabled Save and Retry exact GET readback.",
+            "Edit Engagement name. change() changes stale to idle and clears notice; Save becomes enabled and exact GET control disappears.",
+            "Click Save. Observed mutation call count is 2, not 1, without successful readback or explicit reconciliation."
+          ],
+          "expected": "Edits must not clear the receipt/readback barrier. No second mutation until exact pending receipt reconciliation; preserve original receipt snapshot if local editing is allowed.",
+          "actual": "All four POST/PUT x network/413 cases fail the same three assertions on current and BASE: enabled Save, absent exact GET retry, mutation count 2.",
+          "impact": "Violates explicit requested safety acceptance criterion. POST can duplicate an already-created draft (risk inferred, no DB duplication claimed); PUT reissues against old CAS base rather than reconciling (real backend CAS outcome not exercised).",
+          "remedy": "Minimal separately owned fix: prevent stale from becoming idle through change, and retain a receipt-bound immutable snapshot for exact readback or gate editing until it confirms. Do not auto-resubmit. Add POST/PUT readback-failure then edit regressions.",
+          "reproducer": "/home/kali/.hermes/cache/scratch/ui-review2-bbe042a-t8w6j3a6/web/src/app/Review2ReceiptEdit.test.tsx",
+          "reproducer_sha256": "6ef5f42f34e6f8b5aa5af30be5773b13c9a4d8324cc05efe00798060714cf345",
+          "baseline_reproducer_identical": true
+        }
+      ],
+      "dispositions": []
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/r2-rereview-907566d-7o43v_pz/review3-report-with-adhoc.json",
+      "sha256": "c734f51660159e67ff347054836d6a207f6d5f71c1a41479617369e4dbf84a02",
+      "verdict": "APPROVED_SCOPED",
+      "scope": "Independent source/component re-review of bbe042a..907566d only: preserve receipt barrier through edits, exact explicit GET/conflict/keep-local/new-CAS recovery, unchanged direct BODY_TOO_LARGE refusal and unknown-write safety. Not installed/browser/canonical acceptance.",
+      "snapshot": "907566df8401fe75eb0d04323e9348be2b9ac401",
+      "findings": [],
+      "dispositions": [
+        {
+          "id": "R2-RECEIPT-EDIT",
+          "status": "CLOSED_SCOPED_ON_907566d",
+          "severity_original": "MEDIUM",
+          "regression": false,
+          "preexisting_on_original_base": true,
+          "classification": "Original baseline safety finding, not a regression introduced by the three earlier UI fixes.",
+          "independent_red": "Same unmodified original reproducer SHA6ef5f42f... on bbe042a: POST/PUT x network/GET413 all fail disabled Save, retained Retry GET, and writes=1 assertions. Each observes second mutation writes=2.",
+          "independent_green": "Identical original four cases pass on 907566d. Current committed recovery tests also pass all four cases; 12 independently authored recovery controls pass.",
+          "source": "web/src/features/engagement/Wizard.tsx:111-116",
+          "why_closed": "change() now preserves stale phase and its notice. Save/Next remain disabled and save() rejects stale. Receipt is not replaced by editing; explicit readback either confirms the unchanged snapshot or exposes conflict preserving edits. A separate keep-local selection and separate Save are required for a new CAS mutation."
+        }
+      ]
+    }
+  ],
+  "adjudicated_findings": [
+    {
+      "ids": [
+        "C05-R1-F1",
+        "C05-R2-02"
+      ],
+      "class": "Producer/native prose and BOM mismatch",
+      "fix": "7036014",
+      "proof": "Source RED6 plus existing DTO denial; qualified private PG RED4fail1pass -> GREEN5 exit0/drained; exact no managed writes on refusal",
+      "disposition": "RESOLVED_SCOPED"
+    },
+    {
+      "ids": [
+        "C05-R2-01"
+      ],
+      "class": "Nested native Ref bool revision accepted by Python equality",
+      "fix": "2f749a8",
+      "proof": "Source fully resealed RED3; authentic installed old native RED (missing refusal and observed cold constructor), final installed3 tests PASS with zero forbidden monitored effects",
+      "disposition": "RESOLVED_SCOPED"
+    },
+    {
+      "ids": [
+        "UI-F01"
+      ],
+      "class": "Historical pairing issuer guidance",
+      "fix": "bbe042a",
+      "proof": "Visible-copy RED1 -> App10 PASS; final installed browser issuer+TTY pairing",
+      "disposition": "RESOLVED_LIVE"
+    },
+    {
+      "ids": [
+        "UI-F02"
+      ],
+      "class": "Negative request ceiling blamed reserve field",
+      "fix": "1ecec14",
+      "proof": "Complete input-change RED -> Wizard20 PASS; final browser correct aria/focus and zero DB write",
+      "disposition": "RESOLVED_LIVE"
+    },
+    {
+      "ids": [
+        "UI-F03"
+      ],
+      "class": "Definite HTTP413 locked corrected local draft",
+      "fix": "9390504",
+      "proof": "POST/PUT component RED2 -> GREEN; real PUT413, correction, explicit Save/GET/reload/restart and exactly one revision",
+      "disposition": "RESOLVED_LIVE"
+    },
+    {
+      "ids": [
+        "R2-RECEIPT-EDIT"
+      ],
+      "class": "Editing erased unconfirmed-receipt barrier (preexisting)",
+      "fix": "907566d",
+      "proof": "Parent original4 cases RED writes2 -> GREEN34 component tests; focused review APPROVED_SCOPED; real POST/PUT receipt+abortedGET/edit/reconcile/keep/CAS tested final browser",
+      "disposition": "RESOLVED_LIVE"
+    }
+  ],
+  "blocking_findings_open_in_scope": [],
+  "limits": [
+    "Original CHANGES_REQUESTED and source/observer FAIL records are preserved.",
+    "Source review is not installed/native/browser/canonical proof.",
+    "Reticle UI NOT_INTEGRATED; Chisel BLOCKED_NO_GO."
+  ]
+}

@@ -6,6 +6,51 @@ import { expect, it, vi } from 'vitest';
 import { csrf, engagementId, payload, revision } from '../../tests/draft-fixtures';
 import { App } from './App';
 
+it.each(['POST', 'PUT'] as const)('keeps local edits actionable after a definite %s body-size refusal', async method => {
+  let stored = revision;
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (path === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (init?.method === method) {
+      writes += 1;
+      if (writes === 1) return new Response(JSON.stringify({ error: { code: 'BODY_TOO_LARGE', correlation_id: engagementId } }), { status: 413 });
+      stored = { ...revision, revision: method === 'POST' ? 1 : 2, digest: 'c'.repeat(64), payload: JSON.parse(String(init.body)) };
+      return new Response(JSON.stringify(stored), { status: method === 'POST' ? 201 : 200 });
+    }
+    if (path === `/api/v1/engagements/${engagementId}`) return new Response(JSON.stringify(stored));
+    throw new Error('Unexpected synthetic request');
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[method === 'POST' ? '/engagements/new' : `/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  const name = await screen.findByLabelText('Engagement name');
+  if (method === 'POST') {
+    await user.type(screen.getByLabelText('Authorization owner'), payload.authorization.owner);
+    await user.type(screen.getByLabelText('Authorization statement'), payload.authorization.statement);
+    await user.type(screen.getByLabelText('Valid from (UTC)'), payload.authorization.valid_from);
+    await user.type(screen.getByLabelText('Valid until (UTC)'), payload.authorization.valid_until);
+    await user.type(screen.getByLabelText('Scope origin'), payload.scope[0]!.origin);
+  }
+  await user.clear(name);
+  await user.type(name, 'Retain my local edits');
+  const save = screen.getByRole('button', { name: 'Save draft' });
+  await user.click(save);
+  await screen.findByText(/request is too large/i);
+  expect(name).toHaveValue('Retain my local edits');
+  expect(writes).toBe(1);
+  expect(save).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+  expect(screen.queryByText('Save outcome uncertain')).not.toBeInTheDocument();
+  await user.clear(name);
+  await user.type(name, 'Corrected and retained');
+  expect(writes).toBe(1);
+  await user.click(save);
+  await screen.findByText(`Saved · revision ${method === 'POST' ? 1 : 2}`);
+  expect(writes).toBe(2);
+  expect(stored.payload.name).toBe('Corrected and retained');
+});
+
 it('creates an inert draft and confirms exact saved data with GET before reporting saved', async () => {
   const requests: string[] = [];
   let stored = revision;

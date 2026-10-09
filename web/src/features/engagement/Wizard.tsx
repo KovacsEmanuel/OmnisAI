@@ -163,6 +163,8 @@ export function Wizard({ id }: { id?: string }) {
         setPhase('conflict'); setNotice('Conflict: this draft has a newer revision. Local edits are preserved. Compare the server revision before choosing how to reconcile.');
       } else if (receipt) {
         setPhase('stale'); setNotice('Save receipt received, but GET confirmation failed. Retry the exact readback; do not submit again.');
+      } else if (error instanceof ApiError && error.code === 'BODY_TOO_LARGE') {
+        setPhase('idle'); setNotice('The request is too large and was not saved. Shorten context, scope or matrix entries before saving again.');
       } else if (error instanceof ApiError && error.code === 'INVALID_INPUT' && error.fieldErrors.length) {
         setPhase('idle'); showErrors(error.fieldErrors);
       } else {

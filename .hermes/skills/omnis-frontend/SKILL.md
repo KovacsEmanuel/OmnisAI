@@ -1,7 +1,7 @@
 ---
 name: omnis-frontend
 description: "Use when building Omnis UI from a visual reference."
-version: 0.1.4
+version: 0.1.5
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -50,6 +50,8 @@ Use an explicit loopback network policy rather than assuming Internet connectivi
 Classify visible elements by provenance: explicit user request, existing baseline contract, reference-only example, or synthetic design copy. Do not promote mock examples into new product requirements. Keep simulation selectors and evidence/replay/retest preview tools in labelled, default-collapsed design controls; persistent availability/error/Stop feedback must remain outside them.
 
 An automation-green screen can still be visually poor. Existing DESIGN.md is a technical token record, not renewed visual approval. The upstream AlertDialog rule does not apply to emergency Stop; its Tailwind and animation defaults are not adopted. Avoid unnecessary new components and visual-only rewrites of safety behavior.
+
+Distinguish a trusted pre-mutation size refusal from an unknown write and from a received write receipt whose GET confirmation failed. Keep explicit `BODY_TOO_LARGE` editable without automatic retry; preserve the stale receipt barrier through subsequent local edits. Test POST and PUT: receipt → failed GET → edit must retain disabled Save/Next and exact-readback recovery, then require explicit compare/keep/discard before a new CAS write. A corrected form identical to the saved payload should still have Save disabled; use a genuinely dirty control to test recovery rather than weakening that invariant.
 
 ## Verification
 Actual reference comparison plus interaction evidence and honest current-data states. The user approves the visual direction; tests establish specified behaviors, not taste. No UI changes are made by installing this skill.

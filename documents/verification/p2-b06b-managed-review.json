@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "parent_verdict": "CHANGES_REQUESTED_PENDING_FOCUSED_REVIEW",
+  "scope": "Managed cold NO_MODEL admission only; no B06b/G02 closure",
+  "reports": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/managed-review-compliance.json",
+      "sha256": "b5a2ce6536783396becc5fb462a9be5fdd31478f60aebeda3567b2ec198f2c1e",
+      "reviewed_commit": "85dc4ec825ffe842998304303759171453c7f5b2",
+      "verdict": "CHANGES_REQUESTED",
+      "findings": [
+        {
+          "id": "R1-MA-01",
+          "severity": "MEDIUM (P2)",
+          "blocking_for_scoped_acceptance": true,
+          "title": "Managed producer admits goal text rejected deterministically by the native stage validator after durable dispatch reservation",
+          "path": "api/src/omnis/modules/tasks/managed_contract.py",
+          "line": 671,
+          "line_range": "671-675; caller 743; producer 335",
+          "related_locations": [
+            "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:47-48,65-76",
+            "integrations/hermes/src/omnis_hermes/native_preparation_contract.py:99-104",
+            "api/src/omnis/modules/runs/managed_admission.py:149-187,202-232,615-619",
+            "api/src/omnis/supervisor/native_tasks.py:89-103"
+          ],
+          "criterion": "Active increment contract line 13: overflow and unsupported forms refuse before reservation. Line 17: negative refusals leave the ledger/effects unchanged. Producer/native consumer grammar must agree before an otherwise-valid task enters one-shot uncertain dispatch.",
+          "description": "API text() bounds Python code points and calls clean_text(), which only rejects NUL/invalid encoding. The manifest goal is procedure.objective. Native entries() calls the shared native text(goal,4096), which instead bounds UTF-8 bytes and forbids C0/C1 controls and U+2028/U+2029. Consequently a short newline-containing objective, or 2100 U+00E9 characters (4200 UTF-8 bytes), passes the source Procedure/compiler/native package preparation and managed graph/brief/manifest producer but fails native validate_stage(). This is not an unsupported future slot/overlay feature.",
+          "reproducer": {
+            "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/managed-review-wire-repro.py",
+            "script": "/home/kali/.hermes/cache/scratch/managed-review-wire-repro.py",
+            "result_file": "/home/kali/.hermes/cache/scratch/managed-review-wire-results.json",
+            "exit_code": 0,
+            "method": "Copies only the synthetic b06b publication fixture into owned scratch; changes objective in copied YAML; compiles those source bytes; verifies native prepare_packages with exact file/digest list; validates a Procedure, builds managed records and validates the manifest; feeds its unchanged manifest into actual native stage validator. No DB/native process or mocks of these validators.",
+            "cases": [
+              {
+                "case": "ascii",
+                "api_procedure_accepted": true,
+                "api_brief_manifest_accepted": true,
+                "graph_bytes": 21066,
+                "objective_codepoints": 23,
+                "objective_utf8_bytes": 23,
+                "native_stage_accepted": true
+              },
+              {
+                "case": "newline",
+                "api_procedure_accepted": true,
+                "api_brief_manifest_accepted": true,
+                "graph_bytes": 21070,
+                "objective_codepoints": 23,
+                "objective_utf8_bytes": 23,
+                "native_stage_accepted": false,
+                "native_error_type": "ValueError"
+              },
+              {
+                "case": "unicode_utf8_4200",
+                "api_procedure_accepted": true,
+                "api_brief_manifest_accepted": true,
+                "graph_bytes": 37774,
+                "objective_codepoints": 2100,
+                "objective_utf8_bytes": 4200,
+                "native_stage_accepted": false,
+                "native_error_type": "ValueError"
+              }
+            ],
+            "positive_control": "Ordinary ASCII objective is accepted by both producer and native validator."
+          },
+          "impact": "prepare() persists the valid-by-API graph. NativeTaskOwner then commits reserve_dispatch(stage) BEFORE runtime.managed(task_stage). The deterministic downstream denial leaves stage_started=true with no binding; same-command stage is subsequently indeterminate and readback reports NEEDS_RECONCILIATION. That persistence consequence is traced from code, not independently replayed on PostgreSQL in this read-only review.",
+          "minimal_fix": "Validate the emitted manifest goal against the exact native stage grammar (UTF-8 byte cap and forbidden code points) during build/prepare before managed rows or dispatch intention are committed. Prefer a small shared/paired producer-contract guard with cross-layer tests; do not normalize/truncate the authored objective, widen authority, or retry an uncertain stage. Keep multiline source methodology text supported where it is not a wire goal.",
+          "required_regression": "Run the same ASCII positive and newline/UTF-8 negatives through the real qualified-publication/native-preparation/managed-prepare PostgreSQL path; negatives must refuse with unchanged managed ledger and no task_stage RPC. Keep a bounded non-ASCII positive within 4096 UTF-8 bytes. Re-review only the affected producer/wire fix and its tests.",
+          "status": "OPEN; parent reproduction/adjudication required"
+        }
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/managed-review-runtime.json",
+      "sha256": "bab3b8ebe9172efc40aa318e7d14657ddd82e4c2d0d964390e7a2a9f6fbdb932",
+      "reviewed_commit": "85dc4ec825ffe842998304303759171453c7f5b2",
+      "verdict": "CHANGES_REQUESTED",
+      "findings": [
+        {
+          "id": "R2-01",
+          "severity": "P2",
+          "title": "Managed producer accepts UTF-8 goals that the native wire refuses after dispatch reservation",
+          "locations": [
+            {
+              "path": "api/src/omnis/modules/tasks/managed_contract.py",
+              "lines": "671-675,721-744; build_records 329-348"
+            },
+            {
+              "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+              "lines": "44-48"
+            },
+            {
+              "path": "api/src/omnis/supervisor/native_tasks.py",
+              "lines": "94-103"
+            }
+          ],
+          "observed": "Procedure objective of 2049 U+00E9 characters is accepted by Procedure.model_validate, build_records and domain.validate_manifest. It encodes to 4098 bytes; native validate_stage rejects it because text(goal,4096) uses UTF-8 bytes while domain text uses Python character count. The ordinary 19-character positive passes both. The rejected example produces a 37366-byte graph and 4865-byte manifest, within the documented overall graph and wire budgets.",
+          "impact": "The producer can materialize a valid-looking assignment that cannot be staged. In the real orchestration reserve_dispatch commits stage_started before RuntimeClient sends the request to RuntimeHost, where this stricter wire validation occurs; this can therefore become a sticky NEEDS_RECONCILIATION rather than pre-reservation rejection. This is an input-boundary correctness failure, not evidence of a model or target effect.",
+          "reproducer": {
+            "file": "/home/kali/.hermes/cache/scratch/managed-review-wire-probe.py",
+            "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/managed-review-wire-probe.py",
+            "cwd": "/home/kali/OmnisAI",
+            "python": "3.13.15",
+            "exit_code": 1,
+            "expected": "Every producer-admitted manifest passes the exact native stage validator, or producer refuses before reservation.",
+            "actual": {
+              "positive": {
+                "domain_accepted": true,
+                "native_wire_accepted": true,
+                "graph_bytes": 21050,
+                "manifest_bytes": 786
+              },
+              "negative": {
+                "domain_accepted": true,
+                "native_wire_accepted": false,
+                "goal_characters": 2049,
+                "goal_utf8_bytes": 4098,
+                "graph_bytes": 37366,
+                "manifest_bytes": 4865
+              }
+            },
+            "boundary": "Executed pure real producer and native wire validators, no DB. Sticky reservation consequence follows unchanged orchestration source; full PG reproduction not executed in this read-only review."
+          },
+          "violated_criterion": "p2-b06b-managed-admission.md:13: overflow and unsupported forms refused before reservation; exact bounded stage protocol at lines15-17.",
+          "minimal_remedy": "Enforce the native goal UTF-8 bound/grammar and full stage payload bound at managed producer validation before durable prepare/reserve. Reuse a shared pure contract if practical; do not widen approved limits to hide mismatch. Add ASCII/multibyte boundary controls and a PG negative showing zero managed writes/dispatch for rejected input."
+        },
+        {
+          "id": "R2-02",
+          "severity": "P2",
+          "title": "Replacing the cold root revives a staged batch owned by a closed previous root",
+          "locations": [
+            {
+              "path": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+              "lines": "253-262,324-328"
+            },
+            {
+              "path": "integrations/hermes/upstream/omnis-managed.patch",
+              "lines": "128-137,199-203"
+            }
+          ],
+          "observed": "Stage under real cold AIAgent root A, close A, then replace the service resolver result with a distinct real cold AIAgent root B. stage(same manifest) returns A's old identities; release(original valid binding) returns BLOCKED and creates terminal results whose parent_session_id is the closed A. Leaving the resolver on the closed A correctly refuses. The batch stores no root object/session authority, and release only checks the currently resolved parent is not closed.",
+          "impact": "The new lifecycle extension does not fail closed on changed/unknown parent lineage. A new root can authorize old-root native records despite the documented closed-root denial. This is a service-level correctness/lineage counterexample, not a demonstrated exploit through the fixed RPC: the current managed_admission_rpc singleton does not itself rotate _ROOT, so ordinary installed RPC traffic does not presently trigger this transition.",
+          "reproducer": {
+            "file": "/home/kali/.hermes/cache/scratch/managed-review-runtime-probe.py",
+            "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/managed-review-runtime-probe.py",
+            "cwd": "/home/kali/OmnisAI",
+            "exit_code": 1,
+            "python": "3.13.12",
+            "native_objects": "Normal imports of full exported pin with exact six managed-source overlays; genuine AIAgent constructors, no dummy/object.__new__/method replacement.",
+            "actual": {
+              "ordinary_release": "BLOCKED",
+              "closed_root_refused": true,
+              "distinct_replacement_root": true,
+              "replay_old_root_under_new_root": true,
+              "release_after_root_replacement": "BLOCKED",
+              "terminal_children_from_closed_old_root": true,
+              "forbidden_effects": []
+            },
+            "boundary": "Full source-native host-interpreter probe, NOT installed Python3.13.15 or PG/UDS integration. Fresh private HOME/environment and audit refusal for network/subprocess/credential-file reads."
+          },
+          "violated_criterion": "Contract line9 unknown lineage refused; managed-NOTICE.md:24-26 closed roots and unknown lineage refuse; delegated new-root-reuse review criterion.",
+          "minimal_remedy": "Bind each native batch to its original root object and immutable native/session identity. Require the same live root for stage replay that represents admission and for first release, under the registry lock; a distinct resolver root must not revive old pending children. Keep historical result readback receive-only. Add the old-closed/new-live-root positive/negative pair using genuine cold AIAgents."
+        }
+      ]
+    }
+  ],
+  "dispositions": {
+    "R1-MA-01 / R2-01": "OPEN: parent reproduced same ASCII positive/newline and UTF-8 overflow API/native mismatch; source fix and PG regression pending. Same defect, not two independent failures.",
+    "R2-02": "FIXED_PENDING_REVIEW in affa21c: parent reproduced source-native exit1 and installed pinned RED7tests/two failed subtests; original root identity guard fixes stage replay/first release. New installed image39b1480c passes7tests/effects[]; independent focused re-review pending."
+  },
+  "preserved_limits": [
+    "Original review DB-selection errors refused before DB; not product failures.",
+    "Source Python3.13.12 is not installed pin evidence; separate installed3.13.15 RED/GREEN used for root fix.",
+    "Readback and result statuses remain BLOCKED/INCOMPLETE; no Brain turn, inference, final composer or success MethodCheck."
+  ]
+}

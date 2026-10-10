@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "status": "REVIEWED_COMPONENT_PG_INSTALLED_PASS_READY_FOR_INTEGRATION",
+  "snapshot": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+  "product_snapshot": "77b4b01375d5585722e2334490b2d435e3525142",
+  "sl10": "NOT_CLOSED",
+  "native_full_sdk": "NOT_INTEGRATED",
+  "review": {
+    "initial_batch": "deleg_7365af35",
+    "initial_snapshot": "e4c3c4d6375aec1550bb63dee4328a6c1ef60012",
+    "initial_verdict": "CHANGES_REQUESTED",
+    "blocking_ids": [
+      "A-01",
+      "B1"
+    ],
+    "parent_reproduction": "Unactivated installed journey entered fixture prerequisite and failed; actual pytest1failure, no DB used.",
+    "fix_commit": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+    "fix": "Exact opt-in flag set only in dedicated Make target; no flag -> explicit skip, activated missing fixture -> fail. Existing global checks/source assertions unchanged.",
+    "re_review_batch": "deleg_8957a514",
+    "A": {
+      "id": "sa-0-a41a75d1",
+      "verdict": "APPROVED_SCOPED",
+      "locator": "/home/kali/.hermes/cache/delegation/live/deleg_8957a514/task-0.log",
+      "snapshot": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+      "A01": "RESOLVED_VERIFIED_SCOPED",
+      "source_tests_passed": 206,
+      "source_pg_deselected": 5
+    },
+    "B": {
+      "id": "sa-1-1dd4c3b3",
+      "verdict": "APPROVED_SCOPED",
+      "locator": "/home/kali/.hermes/cache/delegation/live/deleg_8957a514/task-1.log",
+      "snapshot": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+      "B1": "REMEDIAT_SCOPED",
+      "lint_format_type_exit": 0
+    },
+    "composite": "Initial complementary scopes plus focused re-reviews and independent physical QA; no blanket absence-of-gaps claim."
+  },
+  "independent_qa": {
+    "batch": "deleg_10672bb6",
+    "reviewer": "sa-0-3bffad72",
+    "status": "PASS_SCOPED_INDEPENDENT_REAL_PG_COPY_INSTALLED",
+    "snapshot": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+    "locator": "/home/kali/.hermes/cache/delegation/live/deleg_10672bb6/task-0.log",
+    "report": "/home/kali/.hermes/cache/scratch/p6c-d94877fc/qa-result.json",
+    "report_sha256": "361a45547120dc9d91d86210c4f69dc7d32d72e1b31719e2b3a43023024dc639",
+    "command": "env -i HOME=/home/kali/.hermes/cache/scratch/p6c-d94877fc/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/p6c-d94877fc make --no-print-directory test-model-projection-pg UV=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/uv",
+    "exit_code": 0,
+    "gate_exit_code": 0,
+    "family_drained": true,
+    "pytest_passed": 1,
+    "pytest_skipped": 0,
+    "input_count": 124,
+    "artifact_count": 4,
+    "inputs_artifacts_unchanged": true,
+    "manifest_sha256": "ed18a189a6b9f43774d6b911c51196cb2cdf182332d23ed3190863b3b574a46a"
+  },
+  "producer": {
+    "immutable": true,
+    "prepare_denials": 7,
+    "private_marker_retained": true,
+    "projection_digest": "3c6d1356bd1148a3d851452b22b73e64b0fd66e61dc08b532154f71c221c526c",
+    "projection_marker_absent": true,
+    "projection_ref": {
+      "digest": "7e8645f20195dba6cb96c49bdeefa46e29157a36a10984e35ecc46e9d5bd108c",
+      "id": "a723788a-b57a-4b97-b571-6fc8d39f320c",
+      "kind": "model-projection",
+      "revision": 1
+    },
+    "read_denials": 7,
+    "replay_exact": true,
+    "source_extra_denials": 7,
+    "status": "PASS_SCOPED",
+    "transaction_abort": true,
+    "upstream": "SYNTHETIC_PROTOCOL_SEED_NOT_NATIVE_PROOF",
+    "zero_model_provider_target": "STRUCTURAL_NO_MODEL; native/provider imports forbidden"
+  },
+  "reader": {
+    "carrier_bytes": 6720,
+    "carrier_bytes_denials": 3,
+    "carrier_extra_denials": 10,
+    "full_sdk_native_consumer": "NOT_INTEGRATED",
+    "known_secret_read_denied": true,
+    "projection_digest": "3c6d1356bd1148a3d851452b22b73e64b0fd66e61dc08b532154f71c221c526c",
+    "projection_ref": {
+      "digest": "7e8645f20195dba6cb96c49bdeefa46e29157a36a10984e35ecc46e9d5bd108c",
+      "id": "a723788a-b57a-4b97-b571-6fc8d39f320c",
+      "kind": "model-projection",
+      "revision": 1
+    },
+    "replay_count": 1,
+    "restart_process_readback": true,
+    "status": "PASS_SCOPED"
+  },
+  "parent_fresh_readback": {
+    "command_scope": "GET-only exact CIDs/project/network, UDS/lock lstat, retained PG_VERSION/pg_control, foreign identities, input/artifact hashes and actual carrier bytes",
+    "exit_code": 0,
+    "cleanup": [
+      {
+        "cid": "fbb94ff22eb49a1414367f1bf1a30369d9f52242363198a76a156a0ec15bcdef",
+        "project": "omnis-p01-8517402143124793bf5a3a17082143b3",
+        "db_root": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/db-a660108ca1b64d3f",
+        "cid_absent": true,
+        "networks_absent": true,
+        "uds_and_lock_absent": true,
+        "pgdata_preserved": true
+      },
+      {
+        "cid": "a2ebe3046b6930f8063b5dfdba3ed7694c841bc8e24028ef99b02c55d3701d95",
+        "project": "omnis-p01-a94e18c7d0bf4a5ba34e17992c6cb8b0",
+        "db_root": "/home/kali/.hermes/cache/scratch/p6c-3bf910b0/db-d9eeabbe8ab947a6",
+        "cid_absent": true,
+        "networks_absent": true,
+        "uds_and_lock_absent": true,
+        "pgdata_preserved": true
+      },
+      {
+        "cid": "bd884ce831518152c191f69e1a7b0775375d0ad9e1889e08d613864b93083916",
+        "project": "omnis-p01-3fcf10c0104c4c34a5d922fdd1ec6b01",
+        "db_root": "/home/kali/.hermes/cache/scratch/p6c-d94877fc/db-4883206b682646fb",
+        "cid_absent": true,
+        "networks_absent": true,
+        "uds_and_lock_absent": true,
+        "pgdata_preserved": true
+      }
+    ],
+    "foreign_unchanged": 13,
+    "all_hashes_unchanged": true,
+    "receipt": "/home/kali/.hermes/run/omnis-p2-critical-20261010/b06c/pg-final-readback.json"
+  },
+  "resource_registration": "/home/kali/.hermes/run/omnis-p2-critical-20261010/b06c/pg-resources.json",
+  "history": [
+    "Missing target RED exit2 before provisioning.",
+    "First physical proc_db0c551f7a3e FAIL_QA_DRIVER/gate2/pytest1failure/drained: duplicate synthetic root under one boot. No product fix; exact cleanup and data kept in p2-b06c-pg-attempt1.json.",
+    "Parent proc_8f7b93223069 actual installed/PG PASS on e4 body inputs: one journey, gate0/drained/124inputs+4artifacts stable. Historical, not automatically transferred to opt-in fix.",
+    "d1 opt-in fix was followed by independent NEW physical QA on exact current bytes; native/full SDK remains NOT_INTEGRATED."
+  ],
+  "limits": [
+    "NativePreparation/stage upstream is a declared SYNTHETIC_PROTOCOL_SEED_NOT_NATIVE_PROOF; installed projection/resolver/SQL/reader/serializer are real, no doubles.",
+    "Restart proof is of consumer process; physical PostgreSQL restart/restore NOT_RUN.",
+    "Zero model/provider/target is structural cold path plus forbidden-import guard, not universal warm SDK tracing.",
+    "Full request SDK/pre-send/native-turn owner NOT_INTEGRATED; G-DATA-EARLY/SL10/G02/faza2 NOT_CLOSED.",
+    "UI unchanged; integrated browser/global serial canonical remain NOT_RUN here.",
+    "PGDATA and records/corpus retained; no historical ACK reconstructed, no r1/profile/credentials/global cleanup/push."
+  ],
+  "next_holder": {
+    "ready": true,
+    "holder_current": "b06c unchanged",
+    "requested_next": "b06m",
+    "authority": "Coordinator transfers effects holder only after reading exact cleanup; worker does not edit holder or start successor."
+  }
+}

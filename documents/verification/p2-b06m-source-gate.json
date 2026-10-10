@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "slice": "SL11/B06m F04/G-MODEL",
+  "status": "READY_FOR_INSTALLED_QA",
+  "status_scope": "Internal ledger source only; full SL11 PARTIAL",
+  "g_model_complete": false,
+  "source_commit": "f55b44e2a57ca3e044822a2ca627c0b95ca97548",
+  "reviewed_snapshot": "b46391f6e3f2ad84e601b998c226b94912b334bf",
+  "base_commit": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+  "worktree": "/home/kali/.hermes/cache/scratch/omnis-p2-b06m-20261010",
+  "branch": "p2/b06m-critical-20261010",
+  "source_sha256": {
+    "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "api/src/omnis/policy/model_dispatch_contract.py": "5f1ce6856e0f39140e94b99dba75ab1db46b12d715b30c574aa3be6b4a4243c0",
+    "api/tests/test_model_budget.py": "048f72f1acb5d3f01b38869faa43bf946dc43c98c083c7b7535f21a36f74a91e",
+    "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb"
+  },
+  "implementation": {
+    "ledger": "IMPLEMENTED_SOURCE",
+    "storage": "schema0011 managed_record immutable envelopes; no migration",
+    "admission_instancecontrol_stop_connector": "NOT_IMPLEMENTED",
+    "synthetic_send_consumer": "NOT_IMPLEMENTED",
+    "native_pre_send": "BLOCKED_NATIVE_SEAM",
+    "settings_test": "NOT_IMPLEMENTED",
+    "native_overlay_written": false,
+    "no_model": "UNCHANGED"
+  },
+  "checks": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_budget.py -q",
+      "exit_code": 0,
+      "result": "23 PASS",
+      "boundary": "Offline validation/reducer and SQL-row unit controls; not real persistence"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_budget_pg.py --collect-only -q",
+      "exit_code": 0,
+      "result": "10 collected; execution NOT_RUN"
+    },
+    {
+      "command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/policy api/tests/test_model_budget.py api/tests/test_model_budget_pg.py",
+      "exit_code": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check api/src/omnis/policy api/tests/test_model_budget.py api/tests/test_model_budget_pg.py",
+      "exit_code": 0
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/policy api/tests/test_model_budget.py api/tests/test_model_budget_pg.py",
+      "exit_code": 0,
+      "result": "4files strict PASS"
+    },
+    {
+      "command": "python scripts/render_docs.py --check",
+      "exit_code": 0,
+      "result": "five existing generated readers unchanged; no protected original access"
+    },
+    {
+      "command": "python -m unittest discover -s tests/documentation -v",
+      "exit_code": 0,
+      "result": "72 PASS"
+    },
+    {
+      "command": "git apply --check documents/verification/p2-b06m-serial-integration.patch",
+      "exit_code": 0,
+      "result": "Proposal only, not applied"
+    },
+    {
+      "command": "git diff c0261a7ae2319b57a0a3154d3e79b2ed908418f8 HEAD --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code b46391f6e3f2ad84e601b998c226b94912b334bf HEAD -- api/src/omnis/policy/budgets.py api/src/omnis/policy/model_dispatch_contract.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py",
+      "exit_code": 0,
+      "result": "Reviewed source bytes unchanged"
+    }
+  ],
+  "review": {
+    "verdict": "APPROVED_SCOPED_COMPOSITE",
+    "scope": "Internal ledger source and F1/F2 remedies only",
+    "snapshot": "b46391f6e3f2ad84e601b998c226b94912b334bf",
+    "initial": "documents/verification/p2-b06m-review-initial.json",
+    "locators": [
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-0.log",
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-1.log"
+    ],
+    "findings": {
+      "F1": "CLOSED_SOURCE_OFFLINE; PG regression NOT_RUN",
+      "F2": "CLOSED_SOURCE_OFFLINE"
+    },
+    "independent_execution": "Both reran23offline tests exit0"
+  },
+  "projection": {
+    "status": "NOT_INTEGRATED",
+    "dependency_commit": null,
+    "b06c_interface_status_observed": "PROPOSED",
+    "interface": "/home/kali/.hermes/run/omnis-p2-critical-20261010/b06c/interface.json",
+    "contract": "projection_ref identifies envelope; projection_digest hashes canonical model_input; values intentionally differ",
+    "no_wip_imported": true
+  },
+  "native": {
+    "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "version": "0.21.5",
+    "current_receiver": "NativeTaskOwner -> RuntimeClient.managed -> RuntimeHost -> managed_admission_rpc -> SubagentLifecycleService.stage/release; cold NO_MODEL only",
+    "physical_send_receiver_identified": "agent/chat_completion_helpers.py:_dispatch_nonstreaming_api_request -> request_client.chat.completions.create; worker/direct aliases converge; MoA/summary/streaming/other transports remain separate",
+    "pre_send_symbol_implemented": null,
+    "veto": "Stock middleware may swallow callback errors and continue. No such callback used as authority. Missing true native turn/commit barrier -> BLOCKED_NATIVE_SEAM.",
+    "retry": "SDK max_retries=0 does not disable all native retry/fallback/auxiliary paths. No bounded native send guarantee claimed.",
+    "native_turn_ref": "No authentic warm turn producer consumed; no turn IDs created",
+    "minimal_overlay": "Physical sink gate + terminal recovery veto + unsupported route denials with exact final request binding, using existing manifest-driven overlay loader; not implemented/applied"
+  },
+  "qa": {
+    "postgresql": "NOT_RUN",
+    "installed_native": "NOT_RUN",
+    "independent_actual_consumer": "NOT_RUN",
+    "synthetic_transport": "NOT_RUN",
+    "provider_live": "NOT_RUN_UNAUTHORIZED",
+    "effects_holder_observed": "c03-records",
+    "allowed_worker_fixture_targets_observed": [],
+    "canonical": "NOT_RUN here; reserved once for serial integration",
+    "browser": "NOT_RUN here; unchanged UI, final integrated build regression belongs to integration"
+  },
+  "cleanup": {
+    "db_oci_native_resources_created": [],
+    "cleanup_required": false,
+    "retained": [
+      "owned api/.venv",
+      "/home/kali/.hermes/cache/scratch/b06m-native-original-20261010"
+    ],
+    "no_operator_data_or_profiles_adopted": true,
+    "protected_original": "Not read/copied/hashed/staged",
+    "main_and_b06c": "No edits/index/fixtures changes",
+    "push": false
+  },
+  "remaining": [
+    "Apply proposed focused runner target only in serial integration; grant exact effects holder/targets and run real PG/QA",
+    "Consume only FROZEN reviewed B06c dependency commits; qualify exact projection and full outbound carrier",
+    "Implement trusted native turn/binding/purpose producer/connector and physical pre-send SENT barrier, then zero-byte denials/caps/Stop/UNKNOWN/retry probes",
+    "Add actual Settings trusted job owner through same ledger, no invented native child",
+    "Retain C02/C06-C12/H04-H08 native/live conditions from preflight; no simulation closure",
+    "Provider live only after separate explicit account/model/data/budget authorization"
+  ],
+  "scope_note": "Accounting API alone is not the requested full barrier. READY_FOR_INSTALLED_QA is not SL11/G-MODEL/P2 closure."
+}

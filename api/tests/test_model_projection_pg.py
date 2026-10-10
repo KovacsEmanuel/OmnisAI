@@ -522,6 +522,10 @@ async def _read(directory: Path) -> None:
         await engine.dispose()
 
 
+@pytest.mark.skipif(
+    os.environ.get("OMNIS_TEST_MODEL_PROJECTION_INSTALLED") != "1",
+    reason="Explicit copy-installed projection target only; canonical source tests have no installed fixture",
+)
 def test_pg_projection_persistent_restart_and_copy_installed(tmp_path: Path) -> None:
     from sqlalchemy.engine import make_url
 

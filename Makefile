@@ -108,7 +108,7 @@ test-model-projection-pg:
 	@if test -z "$$OMNIS_TEST_FIXTURE"; then \
 		$(API_PY) -I -B -c 'import runpy,signal,sys; r=runpy.run_path("ops/run_test_db_gate.py"); signal.signal(signal.SIGINT,r["_request_stop"]); signal.signal(signal.SIGTERM,r["_request_stop"]); raise SystemExit(r["prove_private_fixture"]("test-model-projection-pg",sys.argv[1],600))' "$(UV)"; \
 	else \
-		env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_pg.py -q --tb=short; \
+		env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_TEST_MODEL_PROJECTION_INSTALLED=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_pg.py -q --tb=short; \
 	fi
 
 # Bounded source compiler/CLI tests; no DB, native child, model or target qualification.

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "snapshot": "52c61e8bb26c4878a897b2fcd4e6281db96cfa03",
+  "scope": "ModelProjection component source/unit/carrier serialization only; NOT full SDK request or native consumer",
+  "code": "IMPLEMENTED_COMPONENT",
+  "sl10": "NOT_CLOSED",
+  "integration": "NOT_INTEGRATED",
+  "review": {"status": "IN_REVIEW", "batch": "deleg_6dfeb76f", "snapshot": "52c61e8bb26c4878a897b2fcd4e6281db96cfa03"},
+  "checks": [
+    {"command": "api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_denials.py api/tests/test_model_projection_storage.py api/tests/test_managed_composition.py api/tests/test_c03_managed_capture.py api/tests/test_managed_wire_parity.py api/tests/test_c03_records_contract.py -k 'not test_pg_qualified_goal_prepare_before_reservation' -q", "exit_code": 0, "passed": 200, "deselected": 5, "limit": "PG cases explicitly not executed because no effects grant; no weakening of canonical"},
+    {"command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/policy/model_projection.py api/src/omnis/modules/runs/model_projection.py api/src/omnis/modules/tasks/managed_composition.py integrations/hermes/src/omnis_hermes/model_projection.py api/tests/test_model_projection*.py", "exit_code": 0, "result": "All checks passed"},
+    {"command": "api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check api/src/omnis/policy/model_projection.py api/src/omnis/modules/runs/model_projection.py api/src/omnis/modules/tasks/managed_composition.py integrations/hermes/src/omnis_hermes/model_projection.py api/tests/test_model_projection*.py", "exit_code": 0, "checked_files": 7},
+    {"command": "api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/policy/model_projection.py api/src/omnis/modules/runs/model_projection.py api/src/omnis/modules/tasks/managed_composition.py integrations/hermes/src/omnis_hermes/model_projection.py api/tests/test_model_projection*.py", "exit_code": 0, "checked_files": 7},
+    {"command": "python scripts/render_docs.py --check", "exit_code": 0, "result": "Five canonical readers OK; no HTML write; protected original excluded by configured DOCUMENTS"},
+    {"command": "python -m unittest discover -s tests/documentation -v", "exit_code": 0, "passed": 72},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "source_hashes": {
+    "api/src/omnis/modules/runs/model_projection.py": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+    "api/src/omnis/modules/tasks/managed_composition.py": "326b0d3646362a8e1dacd552b11381c63237ab1854131191c72776c834bdb77b",
+    "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+    "api/tests/test_model_projection.py": "6b8b608fc4684c639374bfd7130b882c0dc11bccdf7b36cd98e4d6c05253ea1b",
+    "api/tests/test_model_projection_denials.py": "26c719666826a9680e83b5c39f8612c24809ce471f87500e5c3c5db0e55a4d89",
+    "api/tests/test_model_projection_storage.py": "f571f5c6073f09c8a166a1c0290974d238f1e3f5523168619d26a67675cfd6fa",
+    "integrations/hermes/src/omnis_hermes/model_projection.py": "3f8cd3a2e7b71bb2fd93418ac42a1078cc9130273af45b0cb8f06b1a186f5d2b"
+  },
+  "history": [
+    "Baseline combined unit/PG command: 135 PASS, five fixture setup errors, exit1; no DB created. Focused offline rerun: 135 PASS, five PG deselected, exit0.",
+    "RED producer: two missing-symbol failures exit1; GREEN two new tests exit0.",
+    "RED persistent service: missing module exit1; GREEN actual SQL write/readback payload with ORM doubles only exit0.",
+    "RED independent Hermes serializer: missing module on source->service->carrier path exit1; GREEN 55 PASS including unchanged composer/capture. Commit 60de008 incorrectly said 69; corrected in aa52a77.",
+    "Initial denial-driver failures: nine due to shallow-copy mutations and missing cold SUPPORT token. Only driver fixed; unchanged product yielded 46 PASS. No product remediation attributed to these QA errors.",
+    "Driver failure fault injection on valid source/binding: SQLAlchemyError marker escaped, exit1. Minimal catch in prepare/read: 47 projection PASS, ruff/type/format PASS, commit52c61e8. Unit injection, not PG outage proof."
+  ],
+  "not_run": {
+    "make_test_make_check": "Forbidden here: common serial canonical gate belongs to final integration; effects holder c03-records, targets empty",
+    "postgresql_persistent_readback_restart": "No b06c effects grant",
+    "installed_native_qa": "No b06c effects grant; real B06m consumer not integrated",
+    "browser": "UI untouched; required on integrated build",
+    "g02_live": "No product model/account/provider/data/budget authorization; not executed"
+  },
+  "cleanup": "No DB/OCI/native/services created. Owned source-test scratch and venv only; no foreign resources adopted or removed. Data preserved.",
+  "lesson": "Product managed_contract.mapping returns a shallow copy. Adversarial fixtures must edit their exact retained tree and validate the authored source before classifying a denial; otherwise a driver failure or lost mutation is not a product defect."
+}

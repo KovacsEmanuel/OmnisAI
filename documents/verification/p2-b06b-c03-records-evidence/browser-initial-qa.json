@@ -1,0 +1,4430 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_QA_ORACLE_AND_MISSING_SCOPE",
+  "scope": "C03 records final installed INERT_UI_REGRESSION; not canonical gate or product closure",
+  "snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "generated_utc": "2026-10-10T14:06:52.492164+00:00",
+  "summary": "Two isolated live attempts, both settled exactly. Bounded retry passed 39 stable IDs including actual restart persistence, but failed OBS-after on two readiness GET ERR_ABORTED events tagged BOOT. Seven supplement IDs remain unexecuted in addition to eight deliberate exclusions. No third attempt; no product changes; no confirmed blocking product defect established.",
+  "bindings": {
+    "api_python": "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+    "python_version": "3.13.15",
+    "api_wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "d1710551bf0da08dee32e0abc81142f192bc405ea223418090b3d66f00bcf9a5"
+    },
+    "installed_file_count": 71,
+    "installed_file_hashes": {
+      "__init__.py": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a",
+      "api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+      "core/db.py": "94c494e42702af9472d65eaac9025e408e13c462aa2c488e7ab28c868df0ee6b",
+      "core/errors.py": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0",
+      "core/managed_schema.py": "e7199ac70adb9f3cc896415826db40d951cd71694c4c060e54273aa6addec53c",
+      "core/paths.py": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb",
+      "core/persistence.py": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788",
+      "core/readiness.py": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08",
+      "core/schema.py": "1259028f027d79367cf7a7880e33c71e24571d1187546a0ba36407f11d765163",
+      "core/web_assets.py": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c",
+      "migrate.py": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426",
+      "migrations/__init__.py": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3",
+      "migrations/env.py": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98",
+      "migrations/versions/0001_instance_control.py": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673",
+      "migrations/versions/0002_local_sessions.py": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5",
+      "migrations/versions/0003_instance_lifecycle.py": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30",
+      "migrations/versions/0004_pairing_receipts.py": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8",
+      "migrations/versions/0005_stop_fence.py": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406",
+      "migrations/versions/0006_stop_reconciliation.py": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607",
+      "migrations/versions/0007_engagement_drafts.py": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc",
+      "migrations/versions/0008_engagement_edit.py": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7",
+      "migrations/versions/0009_catalog_candidates.py": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371",
+      "migrations/versions/0010_catalog_publications.py": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea",
+      "migrations/versions/0011_managed_tasks.py": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d",
+      "modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+      "modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+      "modules/engagements/schemas.py": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143",
+      "modules/engagements/service.py": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd",
+      "modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "modules/instance/models.py": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc",
+      "modules/instance/records.py": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222",
+      "modules/instance/schemas.py": "c8872f1ab5bd708e0ad994bcbf358576706d8da3be8f083c4e4bdec9148febf9",
+      "modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "modules/instance/stop_contract.py": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9",
+      "modules/runs/__init__.py": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754",
+      "modules/runs/contract_inputs.py": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+      "modules/runs/managed_admission.py": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+      "modules/runs/native_preparation.py": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2",
+      "modules/runs/native_preparation_models.py": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062",
+      "modules/runs/plan_snapshot.py": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c",
+      "modules/runs/pure_probe.py": "50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4",
+      "modules/settings/candidate_catalog.py": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+      "modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+      "modules/settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+      "modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "modules/settings/catalog_publication.py": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+      "modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "modules/settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "modules/settings/publication_store.py": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+      "modules/settings/skill_catalog.py": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+      "modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "modules/tasks/execution_selection.py": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+      "modules/tasks/managed_composition.py": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+      "modules/tasks/managed_contract.py": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+      "modules/tasks/managed_store.py": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+      "owner.py": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930",
+      "security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+      "security/routes.py": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d",
+      "security/sessions.py": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc",
+      "serve.py": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345",
+      "stop_reconcile.py": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4",
+      "supervisor/__main__.py": "d8c5a599de86a6f74faf3976b9fc5ef2c2352b07dc84cda55a9bb9e913b3c2e6",
+      "supervisor/case_slot.py": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+      "supervisor/native_tasks.py": "45d4bc2e37ec8c3099cc245c96c90e2a34d2f01e0077ea2293e70c5c52787c04",
+      "supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+      "transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "worker.py": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+    },
+    "web_root": "/home/kali/.hermes/cache/scratch/c03records-20261010/web-20611d1",
+    "web_files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-qLRttWws.css": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+      "assets/index-rbkVcYwN.js": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+      "index.html": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09",
+      "omnis-web.json": "a6dbe0f728184e095461034c9a38174933a3e6a0eba1e9be07c55bc3f48aa225"
+    },
+    "schema": "0011_managed_tasks",
+    "node_version": "24.21.0",
+    "uv_version": "0.12.19",
+    "playwright_version": "1.63.0",
+    "chromium_version": "Google Chrome for Testing 153.0.8010.12",
+    "browser_executable": "/home/kali/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browser_executable_sha256": "ded93a9c9a53a1ae040f08124badcca95c938e9d5015ff340c3b5538c41bf39e",
+    "postgresql": "18.6 pinned private UDS/no-network fixture, image identity from exact attestation",
+    "postgres_image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "helper_pins": {
+      "/home/kali/OmnisAI/ops/run_test_db_gate.py": "64a921cf3752f03a213fc993814046562ea273e12fa1a69b65d8ac38dd0b7b5e",
+      "/home/kali/OmnisAI/ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+      "/home/kali/OmnisAI/api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "/home/kali/OmnisAI/api/tests/e2e_processes.py": "9e656eae3a8f40106db4fc9524c3048dc20c8ff7c8ff86a0c2b10c96fd85b719"
+    },
+    "acceptance_receipts": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/report.json",
+        "sha256": "ae4cca9351810cb7a8886e1d612cfb9d46421f9fd916371abd7b81991e68dde1"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-r2-rereview-toq7wm2_/report.json",
+        "sha256": "d018a6bbb700a4d7f9622f5b8abb15eb652cf966dfef7eb1ed0e4b028ade5c8c"
+      }
+    ],
+    "preflight": {
+      "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/preflight.json",
+      "sha256": "f6bbbb999aec6eab8dc4a9433fd35fa7641489841acefcc7fddd68280e31b1d8"
+    },
+    "retry_preflight": {
+      "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/preflight.json",
+      "sha256": "f6bbbb999aec6eab8dc4a9433fd35fa7641489841acefcc7fddd68280e31b1d8"
+    },
+    "post_execution_byte_checks": {
+      "wheel": true,
+      "installed": true,
+      "web": true,
+      "helpers": true
+    }
+  },
+  "attempts": [
+    {
+      "id": "original",
+      "process_session": "proc_3dabd223c59a",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/rb-8ek79gju/gate.py --config /home/kali/.hermes/cache/scratch/rb-8ek79gju/accepted.json --execute-after-acceptance",
+      "exit": 1,
+      "journey": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/journey.json",
+        "sha256": "e0613909a41793c472c2e09d9153eee061224c948f3545f1af7d21a9047360e8"
+      },
+      "runner_receipt": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/db-46bfe7dd7bf34f14/gate.log.result.json",
+        "sha256": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7"
+      },
+      "inventory_count": 59,
+      "observed_count": 30,
+      "totals": {
+        "PASS": 27,
+        "FAIL": 1,
+        "NOT_RUN": 29,
+        "NOT_IMPLEMENTED": 2
+      },
+      "capture_count": 21,
+      "inspected_count": 21,
+      "inspection": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/inspection-conservative.json",
+        "sha256": "ed33c8f1caf2b5587a78bff757408b333470e243712b98206e38e4bf16c2b3c9"
+      },
+      "reconciliation": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/final-reconciliation-conservative.json",
+        "sha256": "2c70e41cbab95c7b5c3d71c9a44d464f194ba8eb8e8f8bdafeb4a73b6eb64cb3"
+      },
+      "reconciliation_exit": 2,
+      "problems": [
+        "STAGE_NOT_RUN:after",
+        "STAGE_NOT_RUN:supplement",
+        "MISSING:PERSIST-03",
+        "MISSING:BOUND-01",
+        "MISSING:BOUND-02",
+        "MISSING:BOUND-03",
+        "MISSING:BOUND-04",
+        "MISSING:VISUAL-01",
+        "MISSING:SUPP-SEC",
+        "VERDICT:OBS-before",
+        "MISSING:AUTH-06",
+        "MISSING:AUTH-after-logout",
+        "MISSING:SEC-after-02",
+        "MISSING:OBS-after",
+        "MISSING:VIEW-after-1280",
+        "MISSING:VIEW-after-390",
+        "MISSING:VIEW-after-320",
+        "MISSING:KEY-after-1280",
+        "MISSING:ESC-after-1280",
+        "MISSING:KEY-after-390",
+        "MISSING:ESC-after-390",
+        "MISSING:LIMIT-after-01",
+        "MISSING:LIMIT-after-02",
+        "MISSING:OBS-supplement",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-rules.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-focus-390.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-390.png",
+        "GATE_NOT_SUCCESSFUL",
+        "JOURNEY_FAILED",
+        "RUNNER_FAMILY_NOT_DRAINED",
+        "BROWSER_CLOSE_UNCONFIRMED"
+      ],
+      "stages": [
+        {
+          "stage": "before",
+          "evidence": {
+            "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/browser-before.json",
+            "sha256": "d15d3975cd28e2456cb513806ea1721fb49962648793b8ce3f60434a3404d42f"
+          },
+          "totals": {
+            "PASS": 27,
+            "NOT_IMPLEMENTED": 2,
+            "FAIL": 1
+          },
+          "browser_closed": true,
+          "response_count": 116,
+          "response_status_counts": {
+            "200": 101,
+            "401": 5,
+            "422": 6,
+            "201": 1,
+            "409": 1,
+            "404": 1,
+            "204": 1
+          },
+          "console_count": 15,
+          "console_events": [
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "BOOT"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-02"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-04"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-06"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 409 (Conflict)",
+              "fault": false,
+              "scenario": "CAS-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+              "fault": false,
+              "scenario": "NAV-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            }
+          ],
+          "failed_requests": [
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-01"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "STATE-01"
+            },
+            {
+              "path": "/api/v1/dashboard",
+              "error": "net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-02"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-02"
+            },
+            {
+              "path": "/api/v1/dashboard",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "FORM-01"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "PERSIST-02"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "CAS-01"
+            },
+            {
+              "path": "/api/v1/engagements/f9b81d8d-b809-4ffd-ba1f-14e249bf71d9",
+              "error": "net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-03"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-03"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-03"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "KEY-before-1280"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "KEY-before-390"
+            },
+            {
+              "path": "/api/instance",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "path": "/api/logout",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            }
+          ],
+          "page_errors": [],
+          "external_browser_requests": [],
+          "actual_executed_rows": [
+            {
+              "id": "AUTH-01",
+              "action": "Pair empty then invalid code",
+              "expected": "Required and invalid feedback; cleared field/focus",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-pairing-error.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "AUTH-02",
+              "action": "Issue through private UDS and pair fresh browser",
+              "expected": "HttpOnly Strict cookie; session established",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "instance_id": "30f57300-893b-445b-babf-0da615138570",
+                "generation": 1
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-01",
+              "action": "Open Home and Engagement navigation on empty DB",
+              "expected": "Real dashboard empty and zero engagements",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-empty-desktop.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-01",
+              "action": "Hold actual dashboard request, then release",
+              "expected": "Loading displayed, then real empty projection",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "intervention": "delay only, no fulfill"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-02",
+              "action": "Abort dashboard refresh then retry real request",
+              "expected": "Error/stale surfaced, retry recovers",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "intervention": "request abort"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-02",
+              "action": "Settings runtime/providers/skills navigation",
+              "expected": "Real instance status; future settings unavailable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "surfaces": [
+                  "Providers",
+                  "Skills",
+                  "Runtime & data"
+                ],
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-home.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-01",
+              "action": "Save missing mandatory fields",
+              "expected": "Real 422; field summary and error-link focus",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "status": 422,
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-required-errors.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-02",
+              "action": "Switch general to focused and save empty/oversized objective",
+              "expected": "Focused resets untouched default; required and 8193 codepoints denied",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "invalid_codepoints": 8193
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-03",
+              "action": "Invalid scope origin/path/port, repair and conditional add/remove",
+              "expected": "Real API 422 with appropriate field invalid markers",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "negatives": [
+                  {
+                    "status": 422
+                  },
+                  {
+                    "status": 422
+                  },
+                  {
+                    "status": 422
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "PERSIST-01",
+              "action": "Save initial draft and GET through same browser",
+              "expected": "Revision1 confirmed by real API; setup route",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "id": "f9b81d8d-b809-4ffd-ba1f-14e249bf71d9",
+                "revision": 1,
+                "digest": "b1ab0c73f05929b1de1068a02a6103e6e557d76de47f31a7b3f290b322309557"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-04",
+              "action": "Next/Back and Application context; matrix add/remove/edit",
+              "expected": "All context fields and conditional business row usable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-application-context.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-05",
+              "action": "Visit Identities",
+              "expected": "Anonymous allowed; no invented vault controls",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-identities.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-06",
+              "action": "Rules/budgets/data policy; invalid negative and range, edit five budgets",
+              "expected": "Invalid input refused; representative controls editable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-rules.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "PERSIST-02",
+              "action": "Save fields, GET readback and reload",
+              "expected": "All five-step data preserved in revision2",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "revision": 2,
+                "digest": "5523019bfd2c737f7957e76f92d9dd97166b9bc2e87adc100659e2d61a737dcc"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "CAS-01",
+              "action": "Two editors load rev2; first saves; second stale saves",
+              "expected": "409 with local text retained, compare no overwrite, explicit discard",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "status": 409,
+                "server_revision": 3,
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-cas-conflict.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-03",
+              "action": "After real PUT receipt abort confirming GET, then retry",
+              "expected": "No false success; Save disabled; retry exact GET without another PUT",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "revision": 4,
+                "no_extra_put": true
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "SEC-01",
+              "action": "Same-fixture Host, Origin, missing/wrong CSRF direct HTTP negatives",
+              "expected": "400/403 denied; exact revision unchanged",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outcomes": [
+                  [
+                    400,
+                    "INVALID_HOST"
+                  ],
+                  [
+                    403,
+                    "INVALID_ORIGIN"
+                  ],
+                  [
+                    403,
+                    "INVALID_CSRF"
+                  ],
+                  [
+                    403,
+                    "INVALID_CSRF"
+                  ]
+                ],
+                "unchanged_revision": 4
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-03",
+              "action": "Home list \u2192 selected engagement \u2192 Setup and unknown route",
+              "expected": "Saved draft visible; undeclared server path 404 NOT_FOUND",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "id": "f9b81d8d-b809-4ffd-ba1f-14e249bf71d9"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-1280",
+              "action": "All five setup steps at viewport 1280",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-390",
+              "action": "All five setup steps at viewport 390",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-320",
+              "action": "All five setup steps at viewport 320",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-before-1280",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 307,
+                "y": 523.25,
+                "width": 616,
+                "height": 44,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-before-390",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 37,
+                "y": 847.390625,
+                "width": 316,
+                "height": 46,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-before-1280",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 1280,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-1280.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-before-390",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 390,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-390.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-before-01",
+              "action": "Inspect Start assessment",
+              "expected": "Unavailable remains explicit; no fake click",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "disabled": true
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-before-02",
+              "action": "Inspect current overlay affordances",
+              "expected": "No modal/drawer exists in traversed surfaces; overlay trap/restoration excluded",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "exclusion": "No current modal/drawer surface"
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "SEC-before-02",
+              "action": "Inspect storage, URLs, console and page errors",
+              "expected": "No secret in web storage/DOM/URLs/logs; outbound denied",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "storage": {
+                  "local": 0,
+                  "session": 0,
+                  "cookie": ""
+                },
+                "external_attempts": 0,
+                "page_errors": 0
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "AUTH-before-logout",
+              "action": "Log out then server GET /api/session",
+              "expected": "Session revoked: 401 with pairing UI; repair by new code",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "after_logout": 401,
+                "repaired": true
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "OBS-before",
+              "action": "Execute live scenario",
+              "expected": "All assertions hold",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "error_name": "AssertionError",
+                "message": "Assertion/driver failure; private stage log and captured state retained"
+              },
+              "verdict": "FAIL",
+              "exclusions": []
+            }
+          ]
+        },
+        {
+          "stage": "after",
+          "verdict": "NOT_RUN"
+        },
+        {
+          "stage": "supplement",
+          "verdict": "NOT_RUN"
+        }
+      ],
+      "cleanup": {
+        "family_drained": true,
+        "processes": [
+          {
+            "pid": 806977,
+            "exit": 0,
+            "absent": true
+          },
+          {
+            "pid": 806982,
+            "exit": -15,
+            "absent": true
+          },
+          {
+            "pid": 807028,
+            "exit": 1,
+            "absent": true
+          }
+        ],
+        "control_socket_absent": true,
+        "port_listener_absent": true,
+        "test_database_absent": true
+      },
+      "restart": null,
+      "retention": {
+        "root": "/home/kali/.hermes/cache/scratch/rb-8ek79gju",
+        "draft_snapshot": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retained.json",
+        "pgdata": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/db-46bfe7dd7bf34f14/data",
+        "note": "Only per-test DB dropped after family drain; runner retains cluster PGDATA; captures still require actual independent inspection."
+      },
+      "http_asset_bindings": [
+        {
+          "path": "/assets/fonts-OFL-bSaZbgNk.txt",
+          "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-qLRttWws.css",
+          "sha256": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-rbkVcYwN.js",
+          "sha256": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+          "status": 200
+        },
+        {
+          "path": "/",
+          "sha256": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09",
+          "status": 200
+        }
+      ],
+      "log_secret_check": true,
+      "resources": [
+        {
+          "role": "supervisor",
+          "pid": 806977,
+          "identity": [
+            806586,
+            "26795802",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 806982,
+          "identity": [
+            806586,
+            "26795946",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "6",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "before",
+          "pid": 807028,
+          "identity": [
+            806586,
+            "26796146",
+            "R"
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.migrate",
+            "--initialize"
+          ],
+          "cwd": "/home/kali/.hermes/cache/scratch/rb-8ek79gju",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/node",
+            "/home/kali/.hermes/cache/scratch/rb-8ek79gju/driver.mjs",
+            "before"
+          ],
+          "exit": 1
+        }
+      ],
+      "schema": "0011_managed_tasks"
+    },
+    {
+      "id": "bounded-retry1",
+      "process_session": "proc_e86ea4beaff9",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/gate.py --config /home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/accepted.json --execute-after-acceptance",
+      "exit": 1,
+      "journey": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/journey.json",
+        "sha256": "69add92e7f214f591653f9be050f0d0d056b345584af1fc585701c9393d02b22"
+      },
+      "runner_receipt": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/db-d4f3c2bc57834ccd/gate.log.result.json",
+        "sha256": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7"
+      },
+      "inventory_count": 59,
+      "observed_count": 44,
+      "totals": {
+        "PASS": 39,
+        "FAIL": 1,
+        "NOT_RUN": 15,
+        "NOT_IMPLEMENTED": 4
+      },
+      "capture_count": 32,
+      "inspected_count": 32,
+      "inspection": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/inspection.json",
+        "sha256": "383d4d11f2b71fe62eb5f89c61b6b0f3b752fc1a29d8bb9190bf25283f770cd0"
+      },
+      "reconciliation": {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/final-reconciliation.json",
+        "sha256": "bf43fc93a168a47bfbe6f321e0edd952a2586e117ab0547309a19d5adc0dc0ef"
+      },
+      "reconciliation_exit": 2,
+      "problems": [
+        "STAGE_NOT_RUN:supplement",
+        "MISSING:BOUND-01",
+        "MISSING:BOUND-02",
+        "MISSING:BOUND-03",
+        "MISSING:BOUND-04",
+        "MISSING:VISUAL-01",
+        "MISSING:SUPP-SEC",
+        "VERDICT:OBS-after",
+        "MISSING:OBS-supplement",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-rules.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-focus-390.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-390.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-focus-390.png",
+        "VISUAL_FINDING:/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-390.png",
+        "GATE_NOT_SUCCESSFUL",
+        "JOURNEY_FAILED",
+        "RUNNER_FAMILY_NOT_DRAINED",
+        "BROWSER_CLOSE_UNCONFIRMED"
+      ],
+      "stages": [
+        {
+          "stage": "before",
+          "evidence": {
+            "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/browser-before.json",
+            "sha256": "51148493668f5b6ff15d26bb60abcde7af44f7c72e5fc732985ef5f69487a204"
+          },
+          "totals": {
+            "PASS": 28,
+            "NOT_IMPLEMENTED": 2
+          },
+          "browser_closed": true,
+          "response_count": 121,
+          "response_status_counts": {
+            "200": 106,
+            "401": 5,
+            "422": 6,
+            "201": 1,
+            "409": 1,
+            "404": 1,
+            "204": 1
+          },
+          "console_count": 15,
+          "console_events": [
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "BOOT"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-02"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-04"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+              "fault": false,
+              "scenario": "FORM-06"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 409 (Conflict)",
+              "fault": false,
+              "scenario": "CAS-01"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+              "fault": false,
+              "scenario": "NAV-03"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            }
+          ],
+          "failed_requests": [
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-01"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "STATE-01"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/dashboard",
+              "error": "net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-02"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-02"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/dashboard",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "FORM-01"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "PERSIST-02"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "CAS-01"
+            },
+            {
+              "method": "GET",
+              "path": "/api/v1/engagements/0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2",
+              "error": "net::ERR_FAILED",
+              "fault": true,
+              "scenario": "STATE-03"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "NAV-03"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "KEY-before-1280"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "KEY-before-390"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "method": "GET",
+              "path": "/api/instance",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            },
+            {
+              "method": "POST",
+              "path": "/api/logout",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-before-logout"
+            }
+          ],
+          "page_errors": [],
+          "external_browser_requests": [],
+          "actual_executed_rows": [
+            {
+              "id": "AUTH-01",
+              "action": "Pair empty then invalid code",
+              "expected": "Required and invalid feedback; cleared field/focus",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-pairing-error.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "AUTH-02",
+              "action": "Issue through private UDS and pair fresh browser",
+              "expected": "HttpOnly Strict cookie; session established",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "instance_id": "aa53d0e0-e187-464f-b52c-16d166a9e7ac",
+                "generation": 1
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-01",
+              "action": "Open Home and Engagement navigation on empty DB",
+              "expected": "Real dashboard empty and zero engagements",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-empty-desktop.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-01",
+              "action": "Hold actual dashboard request, then release",
+              "expected": "Loading displayed, then real empty projection",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "intervention": "delay only, no fulfill"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-02",
+              "action": "Abort dashboard refresh then retry real request",
+              "expected": "Error/stale surfaced, retry recovers",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "intervention": "request abort"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-02",
+              "action": "Settings runtime/providers/skills navigation",
+              "expected": "Real instance status; future settings unavailable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "surfaces": [
+                  "Providers",
+                  "Skills",
+                  "Runtime & data"
+                ],
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-home.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-01",
+              "action": "Save missing mandatory fields",
+              "expected": "Real 422; field summary and error-link focus",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "status": 422,
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-required-errors.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-02",
+              "action": "Switch general to focused and save empty/oversized objective",
+              "expected": "Focused resets untouched default; required and 8193 codepoints denied",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "invalid_codepoints": 8193
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-03",
+              "action": "Invalid scope origin/path/port, repair and conditional add/remove",
+              "expected": "Real API 422 with appropriate field invalid markers",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "negatives": [
+                  {
+                    "status": 422
+                  },
+                  {
+                    "status": 422
+                  },
+                  {
+                    "status": 422
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "PERSIST-01",
+              "action": "Save initial draft and GET through same browser",
+              "expected": "Revision1 confirmed by real API; setup route",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2",
+                "revision": 1,
+                "digest": "0e1da7baf21545ea12e75df5e678786a13975443a54ff9c294b8d77c6f5c5ce1"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-04",
+              "action": "Next/Back and Application context; matrix add/remove/edit",
+              "expected": "All context fields and conditional business row usable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-application-context.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-05",
+              "action": "Visit Identities",
+              "expected": "Anonymous allowed; no invented vault controls",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-identities.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "FORM-06",
+              "action": "Rules/budgets/data policy; invalid negative and range, edit five budgets",
+              "expected": "Invalid input refused; representative controls editable",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-rules.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "PERSIST-02",
+              "action": "Save fields, GET readback and reload",
+              "expected": "All five-step data preserved in revision2",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "revision": 2,
+                "digest": "45617e809aaa3e87dd577b8b6a1cb8af52289e4078d51449273e79a786be2b05"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "CAS-01",
+              "action": "Two editors load rev2; first saves; second stale saves",
+              "expected": "409 with local text retained, compare no overwrite, explicit discard",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "status": 409,
+                "server_revision": 3,
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-cas-conflict.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "STATE-03",
+              "action": "After real PUT receipt abort confirming GET, then retry",
+              "expected": "No false success; Save disabled; retry exact GET without another PUT",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "revision": 4,
+                "no_extra_put": true
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "SEC-01",
+              "action": "Same-fixture Host, Origin, missing/wrong CSRF direct HTTP negatives",
+              "expected": "400/403 denied; exact revision unchanged",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outcomes": [
+                  [
+                    400,
+                    "INVALID_HOST"
+                  ],
+                  [
+                    403,
+                    "INVALID_ORIGIN"
+                  ],
+                  [
+                    403,
+                    "INVALID_CSRF"
+                  ],
+                  [
+                    403,
+                    "INVALID_CSRF"
+                  ]
+                ],
+                "unchanged_revision": 4
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "NAV-03",
+              "action": "Home list \u2192 selected engagement \u2192 Setup and unknown route",
+              "expected": "Saved draft visible; undeclared server path 404 NOT_FOUND",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-1280",
+              "action": "All five setup steps at viewport 1280",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-390",
+              "action": "All five setup steps at viewport 390",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-before-320",
+              "action": "All five setup steps at viewport 320",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-before-1280",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 307,
+                "y": 523.25,
+                "width": 616,
+                "height": 44,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-before-390",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 37,
+                "y": 847.390625,
+                "width": 316,
+                "height": 46,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-before-1280",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 1280,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-1280.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-before-390",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 390,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-390.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-before-01",
+              "action": "Inspect Start assessment",
+              "expected": "Unavailable remains explicit; no fake click",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "disabled": true
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-before-02",
+              "action": "Inspect current overlay affordances",
+              "expected": "No modal/drawer exists in traversed surfaces; overlay trap/restoration excluded",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "exclusion": "No current modal/drawer surface"
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "SEC-before-02",
+              "action": "Inspect storage, URLs, console and page errors",
+              "expected": "No secret in web storage/DOM/URLs/logs; outbound denied",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "storage": {
+                  "local": 0,
+                  "session": 0,
+                  "cookie": ""
+                },
+                "external_attempts": 0,
+                "page_errors": 0
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "AUTH-before-logout",
+              "action": "Log out then server GET /api/session",
+              "expected": "Session revoked: 401 with pairing UI; repair by new code",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "after_logout": 401,
+                "repaired": true
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "OBS-before",
+              "action": "Inspect console and HTTP outcomes across this stage",
+              "expected": "Only declared validation/auth/404/CAS/fault negatives and narrowly classified navigation cancellations",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "responses": 121,
+                "console_events": 15,
+                "expected_injected_failures": 2,
+                "navigation_cancellations": [
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "NAV-01"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "STATE-01"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "NAV-02"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/api/v1/dashboard",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "FORM-01"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "PERSIST-02"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "CAS-01"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "NAV-03"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "KEY-before-1280"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "KEY-before-390"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/health/ready",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "AUTH-before-logout"
+                  },
+                  {
+                    "method": "GET",
+                    "path": "/api/instance",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "AUTH-before-logout"
+                  },
+                  {
+                    "method": "POST",
+                    "path": "/api/logout",
+                    "error": "net::ERR_ABORTED",
+                    "fault": false,
+                    "scenario": "AUTH-before-logout"
+                  }
+                ],
+                "unexpected": 0
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            }
+          ]
+        },
+        {
+          "stage": "after",
+          "evidence": {
+            "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/browser-after.json",
+            "sha256": "84c76aca0409656333b1e4367e334173eeb3e8090f254317b4bdaa5e7b745543"
+          },
+          "totals": {
+            "PASS": 11,
+            "NOT_IMPLEMENTED": 2,
+            "FAIL": 1
+          },
+          "browser_closed": true,
+          "response_count": 59,
+          "response_status_counts": {
+            "200": 55,
+            "401": 3,
+            "204": 1
+          },
+          "console_count": 3,
+          "console_events": [
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "BOOT"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-after-logout"
+            },
+            {
+              "type": "error",
+              "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+              "fault": false,
+              "scenario": "AUTH-after-logout"
+            }
+          ],
+          "failed_requests": [
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "BOOT"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "BOOT"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "KEY-after-390"
+            },
+            {
+              "method": "GET",
+              "path": "/health/ready",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-after-logout"
+            },
+            {
+              "method": "GET",
+              "path": "/api/instance",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-after-logout"
+            },
+            {
+              "method": "POST",
+              "path": "/api/logout",
+              "error": "net::ERR_ABORTED",
+              "fault": false,
+              "scenario": "AUTH-after-logout"
+            }
+          ],
+          "page_errors": [],
+          "external_browser_requests": [],
+          "actual_executed_rows": [
+            {
+              "id": "AUTH-06",
+              "action": "Issue through private UDS and pair fresh browser",
+              "expected": "HttpOnly Strict cookie; session established",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "instance_id": "aa53d0e0-e187-464f-b52c-16d166a9e7ac",
+                "generation": 1
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "PERSIST-03",
+              "action": "New API PID and fresh browser; GET and reload",
+              "expected": "Full revision, digest and payload equal prior backend",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2",
+                "revision": 4,
+                "digest": "d8c48db7a78bb93826557db62269ddfec6a7c7e5ec9e564f82445b6625f245c4"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-after-1280",
+              "action": "All five setup steps at viewport 1280",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-after-390",
+              "action": "All five setup steps at viewport 390",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "VIEW-after-320",
+              "action": "All five setup steps at viewport 320",
+              "expected": "No horizontal document overflow; real captures",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "geometry": [
+                  {
+                    "step": 1,
+                    "overflow": false
+                  },
+                  {
+                    "step": 2,
+                    "overflow": false
+                  },
+                  {
+                    "step": 3,
+                    "overflow": false
+                  },
+                  {
+                    "step": 4,
+                    "overflow": false
+                  },
+                  {
+                    "step": 5,
+                    "overflow": false
+                  }
+                ]
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-after-1280",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 307,
+                "y": 523.25,
+                "width": 616,
+                "height": 44,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "KEY-after-390",
+              "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+              "expected": "Focus visible and unclipped; step keyboard works",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "outline": "2px",
+                "style": "solid",
+                "x": 37,
+                "y": 847.390625,
+                "width": 316,
+                "height": 46,
+                "viewport": 900
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-after-1280",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 1280,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-1280.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "ESC-after-390",
+              "action": "Escape on normal setup page",
+              "expected": "No invented modal; focused text and saved server draft preserved",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "width": 390,
+                "overlay_test": "NOT_APPLICABLE",
+                "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-390.png"
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-after-01",
+              "action": "Inspect Start assessment",
+              "expected": "Unavailable remains explicit; no fake click",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "disabled": true
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "LIMIT-after-02",
+              "action": "Inspect current overlay affordances",
+              "expected": "No modal/drawer exists in traversed surfaces; overlay trap/restoration excluded",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "exclusion": "No current modal/drawer surface"
+              },
+              "verdict": "NOT_IMPLEMENTED",
+              "exclusions": []
+            },
+            {
+              "id": "SEC-after-02",
+              "action": "Inspect storage, URLs, console and page errors",
+              "expected": "No secret in web storage/DOM/URLs/logs; outbound denied",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "storage": {
+                  "local": 0,
+                  "session": 0,
+                  "cookie": ""
+                },
+                "external_attempts": 0,
+                "page_errors": 0
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "AUTH-after-logout",
+              "action": "Log out then server GET /api/session",
+              "expected": "Session revoked: 401 with pairing UI; repair by new code",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "after_logout": 401,
+                "repaired": true
+              },
+              "verdict": "PASS",
+              "exclusions": []
+            },
+            {
+              "id": "OBS-after",
+              "action": "Execute live scenario",
+              "expected": "All assertions hold",
+              "wait": "Playwright condition <=8s; HTTP <=10s",
+              "evidence": {
+                "error_name": "AssertionError",
+                "message": "Assertion/driver failure; private stage log and captured state retained"
+              },
+              "verdict": "FAIL",
+              "exclusions": []
+            }
+          ]
+        },
+        {
+          "stage": "supplement",
+          "verdict": "NOT_RUN"
+        }
+      ],
+      "cleanup": {
+        "family_drained": true,
+        "processes": [
+          {
+            "pid": 810502,
+            "exit": 0,
+            "absent": true
+          },
+          {
+            "pid": 810506,
+            "exit": -15,
+            "absent": true
+          },
+          {
+            "pid": 810540,
+            "exit": 0,
+            "absent": true
+          },
+          {
+            "pid": 810879,
+            "exit": -15,
+            "absent": true
+          },
+          {
+            "pid": 810910,
+            "exit": 1,
+            "absent": true
+          }
+        ],
+        "control_socket_absent": true,
+        "port_listener_absent": true,
+        "test_database_absent": true
+      },
+      "restart": {
+        "old_api_pid": 810506,
+        "new_api_pid": 810879,
+        "same_database": true
+      },
+      "retention": {
+        "root": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1",
+        "draft_snapshot": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/retained.json",
+        "pgdata": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/db-d4f3c2bc57834ccd/data",
+        "note": "Only per-test DB dropped after family drain; runner retains cluster PGDATA; captures still require actual independent inspection."
+      },
+      "http_asset_bindings": [
+        {
+          "path": "/assets/fonts-OFL-bSaZbgNk.txt",
+          "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-qLRttWws.css",
+          "sha256": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+          "status": 200
+        },
+        {
+          "path": "/assets/index-rbkVcYwN.js",
+          "sha256": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+          "status": 200
+        },
+        {
+          "path": "/",
+          "sha256": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09",
+          "status": 200
+        }
+      ],
+      "log_secret_check": true,
+      "resources": [
+        {
+          "role": "supervisor",
+          "pid": 810502,
+          "identity": [
+            810113,
+            "26827717",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 810506,
+          "identity": [
+            810113,
+            "26827854",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "6",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "before",
+          "pid": 810540,
+          "identity": [
+            810113,
+            "26828050",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 810879,
+          "identity": [
+            810113,
+            "26829505",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "8",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "after",
+          "pid": 810910,
+          "identity": [
+            810113,
+            "26829705",
+            "R"
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.migrate",
+            "--initialize"
+          ],
+          "cwd": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/node",
+            "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/driver.mjs",
+            "before"
+          ],
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/node",
+            "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/driver.mjs",
+            "after"
+          ],
+          "exit": 1
+        }
+      ],
+      "schema": "0011_managed_tasks"
+    }
+  ],
+  "inventory": {
+    "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/inventory.json",
+    "sha256": "31a59f79476de95331e1bef90b0e1b2748713bedae311b66cb34e09e64981df4"
+  },
+  "stable_id_rows": [
+    {
+      "id": "AUTH-01",
+      "stage": "before",
+      "action": "Pair empty then invalid code",
+      "expectation": "Required and invalid feedback; cleared field/focus",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-pairing-error.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "PERSIST-03",
+      "stage": "after",
+      "action": "New API PID and fresh browser; GET and reload",
+      "expectation": "Full revision, digest and payload equal prior backend",
+      "evidence": {
+        "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2",
+        "revision": 4,
+        "digest": "d8c48db7a78bb93826557db62269ddfec6a7c7e5ec9e564f82445b6625f245c4"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "NAV-01",
+      "stage": "before",
+      "action": "Open Home and Engagement navigation on empty DB",
+      "expectation": "Real dashboard empty and zero engagements",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-empty-desktop.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "STATE-01",
+      "stage": "before",
+      "action": "Hold actual dashboard request, then release",
+      "expectation": "Loading displayed, then real empty projection",
+      "evidence": {
+        "intervention": "delay only, no fulfill"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "STATE-02",
+      "stage": "before",
+      "action": "Abort dashboard refresh then retry real request",
+      "expectation": "Error/stale surfaced, retry recovers",
+      "evidence": {
+        "intervention": "request abort"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "NAV-02",
+      "stage": "before",
+      "action": "Settings runtime/providers/skills navigation",
+      "expectation": "Real instance status; future settings unavailable",
+      "evidence": {
+        "surfaces": [
+          "Providers",
+          "Skills",
+          "Runtime & data"
+        ],
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-home.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-01",
+      "stage": "before",
+      "action": "Save missing mandatory fields",
+      "expectation": "Real 422; field summary and error-link focus",
+      "evidence": {
+        "status": 422,
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-required-errors.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-02",
+      "stage": "before",
+      "action": "Switch general to focused and save empty/oversized objective",
+      "expectation": "Focused resets untouched default; required and 8193 codepoints denied",
+      "evidence": {
+        "invalid_codepoints": 8193
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-03",
+      "stage": "before",
+      "action": "Invalid scope origin/path/port, repair and conditional add/remove",
+      "expectation": "Real API 422 with appropriate field invalid markers",
+      "evidence": {
+        "negatives": [
+          {
+            "status": 422
+          },
+          {
+            "status": 422
+          },
+          {
+            "status": 422
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "PERSIST-01",
+      "stage": "before",
+      "action": "Save initial draft and GET through same browser",
+      "expectation": "Revision1 confirmed by real API; setup route",
+      "evidence": {
+        "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2",
+        "revision": 1,
+        "digest": "0e1da7baf21545ea12e75df5e678786a13975443a54ff9c294b8d77c6f5c5ce1"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-04",
+      "stage": "before",
+      "action": "Next/Back and Application context; matrix add/remove/edit",
+      "expectation": "All context fields and conditional business row usable",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-application-context.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-05",
+      "stage": "before",
+      "action": "Visit Identities",
+      "expectation": "Anonymous allowed; no invented vault controls",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-identities.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "FORM-06",
+      "stage": "before",
+      "action": "Rules/budgets/data policy; invalid negative and range, edit five budgets",
+      "expectation": "Invalid input refused; representative controls editable",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-rules.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "PERSIST-02",
+      "stage": "before",
+      "action": "Save fields, GET readback and reload",
+      "expectation": "All five-step data preserved in revision2",
+      "evidence": {
+        "revision": 2,
+        "digest": "45617e809aaa3e87dd577b8b6a1cb8af52289e4078d51449273e79a786be2b05"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "CAS-01",
+      "stage": "before",
+      "action": "Two editors load rev2; first saves; second stale saves",
+      "expectation": "409 with local text retained, compare no overwrite, explicit discard",
+      "evidence": {
+        "status": 409,
+        "server_revision": 3,
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-cas-conflict.png"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "STATE-03",
+      "stage": "before",
+      "action": "After real PUT receipt abort confirming GET, then retry",
+      "expectation": "No false success; Save disabled; retry exact GET without another PUT",
+      "evidence": {
+        "revision": 4,
+        "no_extra_put": true
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "SEC-01",
+      "stage": "before",
+      "action": "Same-fixture Host, Origin, missing/wrong CSRF direct HTTP negatives",
+      "expectation": "400/403 denied; exact revision unchanged",
+      "evidence": {
+        "outcomes": [
+          [
+            400,
+            "INVALID_HOST"
+          ],
+          [
+            403,
+            "INVALID_ORIGIN"
+          ],
+          [
+            403,
+            "INVALID_CSRF"
+          ],
+          [
+            403,
+            "INVALID_CSRF"
+          ]
+        ],
+        "unchanged_revision": 4
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "NAV-03",
+      "stage": "before",
+      "action": "Home list \u2192 selected engagement \u2192 Setup and unknown route",
+      "expectation": "Saved draft visible; undeclared server path 404 NOT_FOUND",
+      "evidence": {
+        "id": "0c92e0cd-8f7e-45b2-a061-e7e3ff84a8e2"
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "BOUND-01",
+      "stage": "supplement",
+      "action": "Name129 invalid; name128 and objective8192 valid",
+      "expectation": "Real 422 then persisted exact limits",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=BOUND-01]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "BOUND-02",
+      "stage": "supplement",
+      "action": "Application invalid seed; blank item; oversized workflow1025",
+      "expectation": "Real API422 and field error; repairs valid",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=BOUND-02]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "BOUND-03",
+      "stage": "supplement",
+      "action": "Missing business principal, repair and save",
+      "expectation": "Real API422 on missing required matrix field",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=BOUND-03]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "BOUND-04",
+      "stage": "supplement",
+      "action": "Effect note1025 invalid; all five effect classes conditional exhaustion; policies",
+      "expectation": "422 oversized note; Add disabled after five; remove reenabled; rev3 persisted",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=BOUND-04]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "VISUAL-01",
+      "stage": "supplement",
+      "action": "Mobile keyboard skip\u2192field; inspect real viewport vs full-page capture",
+      "expectation": "Skip link actually offscreen when field focused; Settings unobscured at top",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=VISUAL-01]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "SUPP-SEC",
+      "stage": "supplement",
+      "action": "Post-boundary same-origin storage and logs",
+      "expectation": "Zero page errors/outbound/storage secrets",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=SUPP-SEC]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "AUTH-02",
+      "stage": "before",
+      "action": "Pair fresh browser through private UDS",
+      "expectation": "HttpOnly Strict session and matching real instance",
+      "evidence": {
+        "instance_id": "aa53d0e0-e187-464f-b52c-16d166a9e7ac",
+        "generation": 1
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "AUTH-before-logout",
+      "stage": "before",
+      "action": "Log out, GET session, pair again",
+      "expectation": "401 revoked then fresh pairing repaired",
+      "evidence": {
+        "after_logout": 401,
+        "repaired": true
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "SEC-before-02",
+      "stage": "before",
+      "action": "Inspect storage, secrets and external requests",
+      "expectation": "No unexpected storage/page error/outbound attempt",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "external_attempts": 0,
+        "page_errors": 0
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "OBS-before",
+      "stage": "before",
+      "action": "Check recorded network/console outcomes",
+      "expectation": "Only explicit negative responses and aborts; no other error",
+      "evidence": {
+        "responses": 121,
+        "console_events": 15,
+        "expected_injected_failures": 2,
+        "navigation_cancellations": [
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "NAV-01"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "STATE-01"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "NAV-02"
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/dashboard",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "FORM-01"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "PERSIST-02"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "CAS-01"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "NAV-03"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "KEY-before-1280"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "KEY-before-390"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "AUTH-before-logout"
+          },
+          {
+            "method": "GET",
+            "path": "/api/instance",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "AUTH-before-logout"
+          },
+          {
+            "method": "POST",
+            "path": "/api/logout",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "AUTH-before-logout"
+          }
+        ],
+        "unexpected": 0
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "VIEW-before-1280",
+      "stage": "before",
+      "action": "All five setup steps at 1280px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "VIEW-before-390",
+      "stage": "before",
+      "action": "All five setup steps at 390px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "VIEW-before-320",
+      "stage": "before",
+      "action": "All five setup steps at 320px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "KEY-before-1280",
+      "stage": "before",
+      "action": "Tab, skip link, Enter, Tab/Shift+Tab and steps",
+      "expectation": "Visible bounded focus and actual keyboard navigation",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 307,
+        "y": 523.25,
+        "width": 616,
+        "height": 44,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "ESC-before-1280",
+      "stage": "before",
+      "action": "Escape on normal page",
+      "expectation": "No overlay invented; focus, value and server payload unchanged",
+      "evidence": {
+        "width": 1280,
+        "overlay_test": "NOT_APPLICABLE",
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-1280.png"
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "No modal/drawer trap test on absent surfaces"
+      ]
+    },
+    {
+      "id": "KEY-before-390",
+      "stage": "before",
+      "action": "Tab, skip link, Enter, Tab/Shift+Tab and steps",
+      "expectation": "Visible bounded focus and actual keyboard navigation",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 37,
+        "y": 847.390625,
+        "width": 316,
+        "height": 46,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "ESC-before-390",
+      "stage": "before",
+      "action": "Escape on normal page",
+      "expectation": "No overlay invented; focus, value and server payload unchanged",
+      "evidence": {
+        "width": 390,
+        "overlay_test": "NOT_APPLICABLE",
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-390.png"
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "No modal/drawer trap test on absent surfaces"
+      ]
+    },
+    {
+      "id": "LIMIT-before-01",
+      "stage": "before",
+      "action": "Inspect Start assessment",
+      "expectation": "Disabled/not implemented, never start a run",
+      "evidence": {
+        "disabled": true
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "expected_disposition": "NOT_IMPLEMENTED",
+      "exclusions": [
+        "Disabled/not implemented, never start a run"
+      ]
+    },
+    {
+      "id": "LIMIT-before-02",
+      "stage": "before",
+      "action": "Inventory modal/drawer affordances",
+      "expectation": "Not implemented on traversed surfaces; no fake overlay",
+      "evidence": {
+        "exclusion": "No current modal/drawer surface"
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "expected_disposition": "NOT_IMPLEMENTED",
+      "exclusions": [
+        "Not implemented on traversed surfaces; no fake overlay"
+      ]
+    },
+    {
+      "id": "AUTH-06",
+      "stage": "after",
+      "action": "Pair fresh browser through private UDS",
+      "expectation": "HttpOnly Strict session and matching real instance",
+      "evidence": {
+        "instance_id": "aa53d0e0-e187-464f-b52c-16d166a9e7ac",
+        "generation": 1
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "AUTH-after-logout",
+      "stage": "after",
+      "action": "Log out, GET session, pair again",
+      "expectation": "401 revoked then fresh pairing repaired",
+      "evidence": {
+        "after_logout": 401,
+        "repaired": true
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "SEC-after-02",
+      "stage": "after",
+      "action": "Inspect storage, secrets and external requests",
+      "expectation": "No unexpected storage/page error/outbound attempt",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "external_attempts": 0,
+        "page_errors": 0
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "OBS-after",
+      "stage": "after",
+      "action": "Check recorded network/console outcomes",
+      "expectation": "Only explicit negative responses and aborts; no other error",
+      "evidence": {
+        "error_name": "AssertionError",
+        "message": "Assertion/driver failure; private stage log and captured state retained"
+      },
+      "verdict": "FAIL",
+      "exclusions": []
+    },
+    {
+      "id": "VIEW-after-1280",
+      "stage": "after",
+      "action": "All five setup steps at 1280px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "VIEW-after-390",
+      "stage": "after",
+      "action": "All five setup steps at 390px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "VIEW-after-320",
+      "stage": "after",
+      "action": "All five setup steps at 320px",
+      "expectation": "No document horizontal overflow; screenshots only pending independent inspection",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "Not aesthetic or WCAG approval"
+      ]
+    },
+    {
+      "id": "KEY-after-1280",
+      "stage": "after",
+      "action": "Tab, skip link, Enter, Tab/Shift+Tab and steps",
+      "expectation": "Visible bounded focus and actual keyboard navigation",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 307,
+        "y": 523.25,
+        "width": 616,
+        "height": 44,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "ESC-after-1280",
+      "stage": "after",
+      "action": "Escape on normal page",
+      "expectation": "No overlay invented; focus, value and server payload unchanged",
+      "evidence": {
+        "width": 1280,
+        "overlay_test": "NOT_APPLICABLE",
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-1280.png"
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "No modal/drawer trap test on absent surfaces"
+      ]
+    },
+    {
+      "id": "KEY-after-390",
+      "stage": "after",
+      "action": "Tab, skip link, Enter, Tab/Shift+Tab and steps",
+      "expectation": "Visible bounded focus and actual keyboard navigation",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 37,
+        "y": 847.390625,
+        "width": 316,
+        "height": 46,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "exclusions": []
+    },
+    {
+      "id": "ESC-after-390",
+      "stage": "after",
+      "action": "Escape on normal page",
+      "expectation": "No overlay invented; focus, value and server payload unchanged",
+      "evidence": {
+        "width": 390,
+        "overlay_test": "NOT_APPLICABLE",
+        "capture": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-390.png"
+      },
+      "verdict": "PASS",
+      "exclusions": [
+        "No modal/drawer trap test on absent surfaces"
+      ]
+    },
+    {
+      "id": "LIMIT-after-01",
+      "stage": "after",
+      "action": "Inspect Start assessment",
+      "expectation": "Disabled/not implemented, never start a run",
+      "evidence": {
+        "disabled": true
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "expected_disposition": "NOT_IMPLEMENTED",
+      "exclusions": [
+        "Disabled/not implemented, never start a run"
+      ]
+    },
+    {
+      "id": "LIMIT-after-02",
+      "stage": "after",
+      "action": "Inventory modal/drawer affordances",
+      "expectation": "Not implemented on traversed surfaces; no fake overlay",
+      "evidence": {
+        "exclusion": "No current modal/drawer surface"
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "expected_disposition": "NOT_IMPLEMENTED",
+      "exclusions": [
+        "Not implemented on traversed surfaces; no fake overlay"
+      ]
+    },
+    {
+      "id": "OBS-supplement",
+      "stage": "supplement",
+      "action": "Boundary-stage console/network observation",
+      "expectation": "Only explicit expected negatives; no uncaught page or network error",
+      "evidence": {
+        "file": "browser-supplement.json",
+        "json_selector": "rows[id=OBS-supplement]"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": []
+    },
+    {
+      "id": "EX-RECORDS-UI",
+      "stage": "excluded",
+      "action": "Records CaseSlot UI",
+      "expectation": "NOT_IMPLEMENTED; current work has no browser slot controls",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_IMPLEMENTED; current work has no browser slot controls"
+      ]
+    },
+    {
+      "id": "EX-LIVE-RUN",
+      "stage": "excluded",
+      "action": "Start assessment / model / targets",
+      "expectation": "NOT_IMPLEMENTED; no grants or calls",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_IMPLEMENTED; no grants or calls"
+      ]
+    },
+    {
+      "id": "EX-OVERLAY",
+      "stage": "excluded",
+      "action": "Modal/drawer trap and restoration",
+      "expectation": "No implemented overlay in affected surfaces",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "No implemented overlay in affected surfaces"
+      ]
+    },
+    {
+      "id": "EX-AT",
+      "stage": "excluded",
+      "action": "Screen reader / non-Chromium / WCAG",
+      "expectation": "Not covered by DOM/Chromium keyboard checks",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "Not covered by DOM/Chromium keyboard checks"
+      ]
+    },
+    {
+      "id": "EX-VISUAL",
+      "stage": "excluded",
+      "action": "Aesthetic approval",
+      "expectation": "No redesign or aesthetic acceptance",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "No redesign or aesthetic acceptance"
+      ]
+    },
+    {
+      "id": "EX-RETICLE",
+      "stage": "excluded",
+      "action": "Reticle runtime instrumentation",
+      "expectation": "NOT_INTEGRATED",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_INTEGRATED"
+      ]
+    },
+    {
+      "id": "EX-CHISEL",
+      "stage": "excluded",
+      "action": "Chisel tooling",
+      "expectation": "BLOCKED_NO_GO; never launched",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "BLOCKED_NO_GO; never launched"
+      ]
+    },
+    {
+      "id": "EX-HISTORICAL",
+      "stage": "excluded",
+      "action": "Historical mechanical audit",
+      "expectation": "Excluded; previous acceptance not rerun or transferred",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "Excluded; previous acceptance not rerun or transferred"
+      ]
+    }
+  ],
+  "totals": {
+    "PASS": 39,
+    "FAIL": 1,
+    "NOT_RUN": 15,
+    "NOT_IMPLEMENTED": 4
+  },
+  "inventory_count": 59,
+  "not_run_ids": [
+    "BOUND-01",
+    "BOUND-02",
+    "BOUND-03",
+    "BOUND-04",
+    "VISUAL-01",
+    "SUPP-SEC",
+    "OBS-supplement",
+    "EX-RECORDS-UI",
+    "EX-LIVE-RUN",
+    "EX-OVERLAY",
+    "EX-AT",
+    "EX-VISUAL",
+    "EX-RETICLE",
+    "EX-CHISEL",
+    "EX-HISTORICAL"
+  ],
+  "failed_ids": [
+    "OBS-after"
+  ],
+  "explicit_exclusions": [
+    {
+      "id": "EX-RECORDS-UI",
+      "stage": "excluded",
+      "action": "Records CaseSlot UI",
+      "expectation": "NOT_IMPLEMENTED; current work has no browser slot controls",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_IMPLEMENTED; current work has no browser slot controls"
+      ]
+    },
+    {
+      "id": "EX-LIVE-RUN",
+      "stage": "excluded",
+      "action": "Start assessment / model / targets",
+      "expectation": "NOT_IMPLEMENTED; no grants or calls",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_IMPLEMENTED; no grants or calls"
+      ]
+    },
+    {
+      "id": "EX-OVERLAY",
+      "stage": "excluded",
+      "action": "Modal/drawer trap and restoration",
+      "expectation": "No implemented overlay in affected surfaces",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "No implemented overlay in affected surfaces"
+      ]
+    },
+    {
+      "id": "EX-AT",
+      "stage": "excluded",
+      "action": "Screen reader / non-Chromium / WCAG",
+      "expectation": "Not covered by DOM/Chromium keyboard checks",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "Not covered by DOM/Chromium keyboard checks"
+      ]
+    },
+    {
+      "id": "EX-VISUAL",
+      "stage": "excluded",
+      "action": "Aesthetic approval",
+      "expectation": "No redesign or aesthetic acceptance",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "No redesign or aesthetic acceptance"
+      ]
+    },
+    {
+      "id": "EX-RETICLE",
+      "stage": "excluded",
+      "action": "Reticle runtime instrumentation",
+      "expectation": "NOT_INTEGRATED",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "NOT_INTEGRATED"
+      ]
+    },
+    {
+      "id": "EX-CHISEL",
+      "stage": "excluded",
+      "action": "Chisel tooling",
+      "expectation": "BLOCKED_NO_GO; never launched",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "BLOCKED_NO_GO; never launched"
+      ]
+    },
+    {
+      "id": "EX-HISTORICAL",
+      "stage": "excluded",
+      "action": "Historical mechanical audit",
+      "expectation": "Excluded; previous acceptance not rerun or transferred",
+      "evidence": {
+        "scope": "Declared boundary, not product runtime evidence"
+      },
+      "verdict": "NOT_RUN",
+      "exclusions": [
+        "Excluded; previous acceptance not rerun or transferred"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "QA-OBS-01",
+      "scope": "scratch original observer",
+      "disposition": "Original FAIL retained; bounded correction only",
+      "evidence": "CAS-01 passed exact 409/no overwrite; original aggregate allowed-response predicate omitted intended 409 and required every request cancellation to be injected fault. Fresh observer narrows CAS to exact PUT/id/scenario and cancellations to path/method/scenario, with logout204+session401 proof."
+    },
+    {
+      "id": "QA-OBS-02",
+      "scope": "scratch retry observer",
+      "disposition": "BLOCKED_ACCEPTANCE; no further service retry",
+      "evidence": {
+        "failed_id": "OBS-after",
+        "unexpected_responses": [],
+        "disallowed_failures": [
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "BOOT"
+          },
+          {
+            "method": "GET",
+            "path": "/health/ready",
+            "error": "net::ERR_ABORTED",
+            "fault": false,
+            "scenario": "BOOT"
+          }
+        ],
+        "unexpected_console": [],
+        "page_errors": [],
+        "external": [],
+        "conclusion": "Two GET health readiness ERR_ABORTED completions carry BOOT because after-stage pairing/navigation/GET/reload are outside scenario wrapper. Observer lacks BOOT exemption; retained failure, no further retry."
+      },
+      "interpretation": "After-stage pairing/direct navigation/GET/reload run before scenario wrapper changes current=BOOT; source establishes likely observer attribution gap, not API readiness failure. No unexpected HTTP or console/page errors in offline same-predicate diagnostic. Live FAIL is not promoted."
+    },
+    {
+      "id": "QA-VIS-01",
+      "scope": "captured images; actual viewport INCONCLUSIVE",
+      "disposition": "NOT_VERIFIED; no product edit",
+      "evidence": "Full-page screenshots show skip-link over Settings/tab/step text. Actual pixel inspection confirms captured occlusion; no viewport-only supplement ran, so neither a confirmed live product blocker nor a cleared artifact is claimed. Focused mobile name ring itself fully visible in original-resolution crop."
+    },
+    {
+      "id": "QA-IMG-02",
+      "scope": "runtime failure capture",
+      "disposition": "LIMITATION",
+      "evidence": "Retry after-failure.png ends within instance-status card; state READY/OPEN and paired visible; footer/bottom not verified. No component-level clipping defect inferred."
+    },
+    {
+      "id": "QA-HELPER-01",
+      "scope": "offline scratch observer replay test",
+      "disposition": "Initial helper exit1 preserved in session proc_03a58cf1da17; no services launched",
+      "evidence": "Initial method recovery matched request scenario to completion scenario, yielding empty correlation. Correction explicitly reconstructs original method from known driver path; fresh driver measures method. Final30 helper assertions pass, not product evidence."
+    }
+  ],
+  "observer_controls": {
+    "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/observer-controls.json",
+    "sha256": "60bef7760d27954ed47e53df5ab26dfe014587c444b7d44b8c666a00fba35e0e"
+  },
+  "observer_script": {
+    "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/observer.mjs",
+    "sha256": "b23488443fcc5a42384dd41f17a3bd0d3051a76a43329a897c20a60709f7f856"
+  },
+  "observer_test": {
+    "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/observer-test.mjs",
+    "sha256": "124084fc917602742069c67c764809d000a0efa56448cc3d544a058f57f38881"
+  },
+  "driver_changes": {
+    "product_modified": false,
+    "scratch_only": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/driver.mjs",
+        "sha256": "a2e775412e8681ce1de528ebdeae4f1b30f4e99e45e55413d3debcf14fd544d7"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/supplement.mjs",
+        "sha256": "9e9f2d107e0fdbdf930d278851edbfe81d3194d2202a801269f20281706cab07"
+      }
+    ],
+    "unchanged_product_helper_pins": true
+  },
+  "images": {
+    "all_actual_captures_inspected": true,
+    "total": 53,
+    "by_attempt": {
+      "original": 21,
+      "retry": 32
+    },
+    "inspection_ids": [
+      "IMG-A1-01",
+      "IMG-A1-02",
+      "IMG-A1-03",
+      "IMG-A1-04",
+      "IMG-A1-05",
+      "IMG-A1-06",
+      "IMG-A1-07",
+      "IMG-A1-08",
+      "IMG-A1-09",
+      "IMG-A1-10",
+      "IMG-A1-11",
+      "IMG-A1-12",
+      "IMG-A1-13",
+      "IMG-A1-14",
+      "IMG-A1-15",
+      "IMG-A1-16",
+      "IMG-A1-17",
+      "IMG-A1-18",
+      "IMG-A1-19",
+      "IMG-A1-20",
+      "IMG-A1-21",
+      "IMG-A2-01",
+      "IMG-A2-02",
+      "IMG-A2-03",
+      "IMG-A2-04",
+      "IMG-A2-05",
+      "IMG-A2-06",
+      "IMG-A2-07",
+      "IMG-A2-08",
+      "IMG-A2-09",
+      "IMG-A2-10",
+      "IMG-A2-11",
+      "IMG-A2-12",
+      "IMG-A2-13",
+      "IMG-A2-14",
+      "IMG-A2-15",
+      "IMG-A2-16",
+      "IMG-A2-17",
+      "IMG-A2-18",
+      "IMG-A2-19",
+      "IMG-A2-20",
+      "IMG-A2-21",
+      "IMG-A2-22",
+      "IMG-A2-23",
+      "IMG-A2-24",
+      "IMG-A2-25",
+      "IMG-A2-26",
+      "IMG-A2-27",
+      "IMG-A2-28",
+      "IMG-A2-29",
+      "IMG-A2-30",
+      "IMG-A2-31",
+      "IMG-A2-32"
+    ],
+    "inspections": [
+      {
+        "id": "IMG-A1-01",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-pairing-error.png",
+        "sha256": "1c7db4dbc6a44ea270605a7a338ad21d46d0b6c65658a5d8b36d5fcffaec94af",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Blank pairing input with visible refusal message; form and service cards contained; no live code displayed. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-1.png"
+      },
+      {
+        "id": "IMG-A1-02",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-empty-desktop.png",
+        "sha256": "d18447108e34784df6a931ead22e5dc9772e3a92c9a8c12c6847729572bcee5a",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Empty dashboard visibly says zero engagements / no engagements saved; unavailable run metrics explicitly distinct from zero; controls contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-1.png"
+      },
+      {
+        "id": "IMG-A1-03",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-dashboard-error.png",
+        "sha256": "3038c7ecb0e4c919f66f5b3f453fe6ffe81450df8f96ddd0a6b3252e496a4c5d",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "API-unreachable notice, Try again and STALE label visible; retained empty projection explicitly not current; no obscured retry control. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-1.png"
+      },
+      {
+        "id": "IMG-A1-04",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-home.png",
+        "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Capture is transient Checking local session / service readiness LOADING, not a ready-state screenshot; assessment remains unavailable; no overlap. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-1.png"
+      },
+      {
+        "id": "IMG-A1-05",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-required-errors.png",
+        "sha256": "d11969b90772929c17b859c64b431c22490d824b7ed115653c9a9fc522531d84",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Six-item validation summary and inline required/date errors visible; empty name has prominent outline; form and bottom actions contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-2.png"
+      },
+      {
+        "id": "IMG-A1-06",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-application-context.png",
+        "sha256": "7a390d0ddbb54880f08bd77742792a4f6f3971e420d88a6933c09af9ccaeea5b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Synthetic context and business rule fields visible, source revision outlined, executable import unavailable; skip link appears in outer gutter in full-page capture, not proven live viewport. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-2.png"
+      },
+      {
+        "id": "IMG-A1-07",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-identities.png",
+        "sha256": "abed93467c17da5a0912e58fadc848201ba434bc58629d7f8c9037b3d2e0feb1",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Anonymous-valid / secret-vault-login capabilities UNAVAILABLE message visible; no invented identity fields; navigation and actions unobscured. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-2.png"
+      },
+      {
+        "id": "IMG-A1-08",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-rules.png",
+        "sha256": "c5e4ce45ffda87f70d575e4487dca89a46cd1e41f65719bb1a94ee674a112587",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "DENY effect, declarative budgets40/300/4096/5/0 and NONE/NONE/7 policy visible. Full-page capture shows Skip to content over part of step1 label; screenshot-only overlap, live viewport not established here; preserve observation. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-2.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A1-09",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-cas-conflict.png",
+        "sha256": "d6ee92df40d0a85f0d505b26a496e30d220e4a60fff2e1d55f083c40eef7faf2",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Conflict/local edits preserved at top, stale local name retained, explicit compare/discard/rebase choices at form bottom and server3 vs local2 visible; long-page scroll required, no forced-overwrite inference from image. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-3.png"
+      },
+      {
+        "id": "IMG-A1-10",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-readback-unconfirmed.png",
+        "sha256": "b4723f9f017919d73df3dd2c793e2c9ede87d7e48286a973e533567b9f3cf176",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Unconfirmed readback warning explicitly says retry exact GET rather than submit again; title reflects prior confirmed state while form has new text; recovery at bottom visible. Disabled state comes from DOM evidence, not pixels. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-3.png"
+      },
+      {
+        "id": "IMG-A1-11",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-1280.png",
+        "sha256": "b63ed57d882143001db6485ba6793da7d337fa15a51c1bb9ecb0d11584721027",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Saved revision4 and matching retained name visible; three-column desktop form, scope and bottom actions contained; assessment unavailable. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-3.png"
+      },
+      {
+        "id": "IMG-A1-12",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-1280.png",
+        "sha256": "178d6e8a52d03eb26bbc5142f0f15328b0b1a03d8eddbb55b651e02ebdf20ba7",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Review summary shows revision4, focused objective, blocked scope, DENY rules/budgets and local-only preflight; no AI or target check claimed; identifiers not transcribed from thumbnail. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-3.png"
+      },
+      {
+        "id": "IMG-A1-13",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-390.png",
+        "sha256": "99233f6f0e38a6e542b7ea993b4a6034a004b1423cf7d9cae2672dbec34905c5",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Mobile header wraps Settings; steps and form stack, bottom actions/status contained; no visible horizontal overflow. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-4.png"
+      },
+      {
+        "id": "IMG-A1-14",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-390.png",
+        "sha256": "8d4cc9488cd3333190da88b99fdcaf7ab75dbe1ee07f0450b5922950262c4fe9",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Mobile review strings/digests wrap inside card; Back/Save plus full-width Next and unavailable assessment status contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-4.png"
+      },
+      {
+        "id": "IMG-A1-15",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-320.png",
+        "sha256": "5e42c0b0f98edd7cdcaed25c57e7bd9d5d975f0414009b467b2bde2c622a7393",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Narrow header and title wrap, tabs form three rows; stacked form, helper text and actions remain within width. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-4.png"
+      },
+      {
+        "id": "IMG-A1-16",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-320.png",
+        "sha256": "01f6a887c9b4a024f0d9b26b30b1534eb4c8cdfb4df2681e2b5d1d70d03486a6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Narrow dense review wraps scope/context/digests without visible spill; final actions and draft status included. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-4.png"
+      },
+      {
+        "id": "IMG-A1-17",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-focus-1280.png",
+        "sha256": "fcb520f149075fbf8aa25c7a124b35001cdb136968ddef47d72d1fa9c9e72610",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name input has bright focus-like outline inside desktop card; full-page skip link at upper-left away from main navigation. DOM measured focus separately. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-5.png"
+      },
+      {
+        "id": "IMG-A1-18",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-focus-390.png",
+        "sha256": "256d41b9a9ee4ac3a674a15965af50c0a3b57662aaccd185ae13a2d6d46cb146",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name input outlined within mobile card; skip link appears near Settings in full-page capture. This is a capture-level crowding observation, not confirmation of live viewport occlusion. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-5.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A1-19",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-1280.png",
+        "sha256": "f855e7ba729864dfcb73f862bd164aab217b529cb298d9bb841d1665a3ce3539",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name field outline and form retained; no modal shown. Filename before denotes pre-restart stage; driver captures after Escape, unlike image-only filename interpretation. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-5.png"
+      },
+      {
+        "id": "IMG-A1-20",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-390.png",
+        "sha256": "8c06d9b49b19e515b89d23d5edd6fb2b6cba1ef4aeba86720e8b0e99cf3b37c5",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name outline/form retained; full-page skip link visually intrudes into tab region, live viewport not established by this capture. Filename before denotes pre-restart stage; actual capture follows Escape. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-5.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A1-21",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-failure.png",
+        "sha256": "98b42eacbf9e8364a6c64747b8e6886c69bb6c8c7175c5a2ba16e5238ba44edd",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Runtime Settings: paired, API/web READY, assessment unavailable/NOT_RUN, instance Checking/unverified. No error crash or secret visible; observer assertion not visible product failure. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-original-6.png"
+      },
+      {
+        "id": "IMG-A2-01",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-pairing-error.png",
+        "sha256": "d1a56cb6b15e626c16b2f6ebf04d58e0c07142f97410634d0e4586a4b7918dc7",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Blank pairing input with visible refusal message; form and service cards contained; no live code displayed. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-1.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-02",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-empty-desktop.png",
+        "sha256": "33b12a0551338f6876da96e2d44db996141f308f7102e51f0adbc60df28e8e16",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Empty dashboard visibly says zero engagements / no engagements saved; unavailable run metrics explicitly distinct from zero; controls contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-1.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-03",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-dashboard-error.png",
+        "sha256": "b28669651b7fa09e73dbcc09e17ba03d7e63f660e12ca7cc70c5d52d1cbff2d4",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "API-unreachable notice, Try again and STALE label visible; retained empty projection explicitly not current; no obscured retry control. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-1.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-04",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-home.png",
+        "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Capture is transient Checking local session / service readiness LOADING, not a ready-state screenshot; assessment remains unavailable; no overlap. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-1.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-05",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-required-errors.png",
+        "sha256": "24eee090126235ecd9f805750ad1dc43614864bfbbffa5c1358b849d6f638560",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Six-item validation summary and inline required/date errors visible; empty name has prominent outline; form and bottom actions contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-2.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-06",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-application-context.png",
+        "sha256": "d5ca19c2dc5c809d8b5ff96a41f89f0b4767fbf63e77d57daeac32b545817d1f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Synthetic context and business rule fields visible, source revision outlined, executable import unavailable; skip link appears in outer gutter in full-page capture, not proven live viewport. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-2.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-07",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-identities.png",
+        "sha256": "39cadbf5ddc8655604c25306859c011c5476b39b7c76e1fdb085990002e37caf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Anonymous-valid / secret-vault-login capabilities UNAVAILABLE message visible; no invented identity fields; navigation and actions unobscured. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-2.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-08",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-rules.png",
+        "sha256": "4f33c13629f3404aa60df8b879902c66c682a86efb451446caac695dfd0a2f42",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "DENY effect, declarative budgets40/300/4096/5/0 and NONE/NONE/7 policy visible. Full-page capture shows Skip to content over part of step1 label; screenshot-only overlap, live viewport not established here; preserve observation. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-2.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A2-09",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-cas-conflict.png",
+        "sha256": "3572016ac2d737c7c504d31c18afcfcc0eabd39ede34a15ba90a6e7d06f8f898",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Conflict/local edits preserved at top, stale local name retained, explicit compare/discard/rebase choices at form bottom and server3 vs local2 visible; long-page scroll required, no forced-overwrite inference from image. Full original-resolution reinspection confirmed compare/discard/keep-local panel and bottom actions are fully contained, require scroll rather than clipped. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-3.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-10",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-readback-unconfirmed.png",
+        "sha256": "af7c9f700e5a36f6a61dfc050cb178739e7500681b057f8bdb50f25e0f5f8d58",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Unconfirmed readback warning explicitly says retry exact GET rather than submit again; title reflects prior confirmed state while form has new text; recovery at bottom visible. Disabled state comes from DOM evidence, not pixels. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-3.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-11",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-1280.png",
+        "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Saved revision4 and matching retained name visible; three-column desktop form, scope and bottom actions contained; assessment unavailable. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-3.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-12",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-1280.png",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Review summary shows revision4, focused objective, blocked scope, DENY rules/budgets and local-only preflight; no AI or target check claimed; identifiers not transcribed from thumbnail. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-3.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-13",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-390.png",
+        "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Mobile header wraps Settings; steps and form stack, bottom actions/status contained; no visible horizontal overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-4.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-14",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-390.png",
+        "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Mobile review strings/digests wrap inside card; Back/Save plus full-width Next and unavailable assessment status contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-4.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-15",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-320.png",
+        "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow header and title wrap, tabs form three rows; stacked form, helper text and actions remain within width. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-4.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-16",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-320.png",
+        "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow dense review wraps scope/context/digests without visible spill; final actions and draft status included. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-4.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-17",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-focus-1280.png",
+        "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name input has bright focus-like outline inside desktop card; full-page skip link at upper-left away from main navigation. DOM measured focus separately. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-5.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-18",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-focus-390.png",
+        "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name input outlined within mobile card; skip link appears near Settings in full-page capture. This is a capture-level crowding observation, not confirmation of live viewport occlusion. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-5.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A2-19",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-1280.png",
+        "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name field outline and form retained; no modal shown. Filename before denotes pre-restart stage; driver captures after Escape, unlike image-only filename interpretation. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-5.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-20",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-390.png",
+        "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name outline/form retained; full-page skip link visually intrudes into tab region, live viewport not established by this capture. Filename before denotes pre-restart stage; actual capture follows Escape. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-5.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A2-21",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-restart-review.png",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart review visibly displays saved revision4, objective/context/rules/budgets and local-only preflight; three columns contained; backend equality verified separately in PERSIST-03. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-6.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-22",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-1280.png",
+        "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart desktop Target/permission displays saved revision4 and retained synthetic fields; three-column layout; bottom actions in row, no visible clipping. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-6.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-23",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-1280.png",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart revision4 Review/preflight summary, step5 selected, unavailable assessment and local-only preflight; contained dense summary. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-6.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-24",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-390.png",
+        "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart mobile step1 stacks header/steps/form/status; Settings wraps, all major controls contained without visible horizontal overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-6.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-25",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-390.png",
+        "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart mobile review wraps identifiers/summary within card; explicit objective newline, controls and lower unavailable status visible. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-7.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-26",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-320.png",
+        "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow post-restart form: title/header/tabs wrap, single-column controls contained; single-line fields can show only viewport portion of long values, no whole-document overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-7.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-27",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-320.png",
+        "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow post-restart review: identifiers/scope/budgets wrap; action row and lower status contained, no observed overlap. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-7.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-28",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-focus-1280.png",
+        "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Desktop name input has continuous bright focus-like outline inside card; skip link upper-left away from main controls; no visible field clipping. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-7.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-29",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-focus-390.png",
+        "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Full-resolution reinspection: name focus ring continuous and separate from label/card; crop x24..366,y970..1065 inspected. Captured full-page header shows skip link around y73..87 and partly hidden Settings around y101..109. Live viewport cause/occlusion unresolved because VISUAL-01 not run. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-8.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A2-30",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-1280.png",
+        "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "After Escape screenshot still shows name input outline, same saved form, no modal; desktop columns intact; DOM confirms preserved value/focus independently. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-8.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      },
+      {
+        "id": "IMG-A2-31",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-390.png",
+        "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "After Escape mobile capture retains name outline/form; skip link appears across lower tab region. Capture concern, not confirmed live viewport; viewport supplement not run. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-8.png",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      },
+      {
+        "id": "IMG-A2-32",
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-failure.png",
+        "sha256": "069398840d9cbe1be421285aab489e7d5ead0a8f8f73129c5362fc6a44e4a3a3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Runtime Settings actually paired, API/web READY, assessment unavailable/NOT_RUN, confirmed instance generation1 epoch1 READY/OPEN. Original-size image ends within instance card; no footer certification or component-clipping claim. No visible secrets. Observer failure does not show a product crash. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "contact_sheet": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-retry-8.png",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    ],
+    "contact_provenance": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/contact-provenance-original.json",
+        "sha256": "5f064a348477463dea6e8868ab19597fa46d7bd14cffbe1cc77278f462bf3b1b"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/contact-provenance.json",
+        "sha256": "6232567e8413104f5592275eb5be3afd7be502b26cab95884f4105b52240d1db"
+      }
+    ],
+    "capture_verdict_totals": {
+      "PASS_SCOPED": 45,
+      "FAIL": 8
+    },
+    "verdict_meaning": "Capture FAIL = unresolved visible occlusion requiring missing viewport-only proof; not confirmed blocking product defect. PASS_SCOPED only described captured layout/state, not backend behavior or aesthetics."
+  },
+  "security": {
+    "host_origin_csrf": {
+      "outcomes": [
+        [
+          400,
+          "INVALID_HOST"
+        ],
+        [
+          403,
+          "INVALID_ORIGIN"
+        ],
+        [
+          403,
+          "INVALID_CSRF"
+        ],
+        [
+          403,
+          "INVALID_CSRF"
+        ]
+      ],
+      "unchanged_revision": 4
+    },
+    "secret_check_both_attempts": true,
+    "same_origin_route_filter": "Browser requests observed/blocked by origin; not OS-wide egress proof",
+    "native_model_target": "No native task/model/provider/target execution in this scope; assessment remained unavailable",
+    "credentials": "Synthetic owned fixture only; no caller credentials. Codes/cookies/capabilities/DSNs/raw private logs excluded from report."
+  },
+  "cleanup": {
+    "receipt": {
+      "path": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/exact-cleanup-readback.json",
+      "sha256": "41d1bfd8b18f91c4e01b32e8a3408a25f521df2e1b84f5188bab51a5b37b490b"
+    },
+    "exact_owned": [
+      {
+        "root": "/home/kali/.hermes/cache/scratch/rb-8ek79gju",
+        "exact_cid": "992adff0424f71ac7dcc369b51264fcccc68e78fad1db3c297c1c9d30e9b4428",
+        "project": "omnis-p01-e4fed8c2a3d9425a83fadd802f6e2a79",
+        "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "cid_inspect_exit": 1,
+        "cid_absent": true,
+        "owned_network_query_exit": 0,
+        "owned_networks_absent": true,
+        "pg_socket_absent": true,
+        "control_socket_absent": true,
+        "loopback_port": 38691,
+        "listener_absent": true,
+        "processes": [
+          {
+            "role": "supervisor",
+            "pid": 806977,
+            "absent": true
+          },
+          {
+            "role": "api",
+            "pid": 806982,
+            "absent": true
+          },
+          {
+            "role": "browser_driver",
+            "pid": 807028,
+            "absent": true
+          }
+        ],
+        "test_database_drop_readback": true,
+        "family_receipt": {
+          "schema_version": 1,
+          "code": 1,
+          "family_drained": true
+        },
+        "pgdata_retained": true,
+        "draft_snapshot_retained": true,
+        "runner_readback": [
+          "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+        ]
+      },
+      {
+        "root": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1",
+        "exact_cid": "7227831c389233b2f50be446245f8a42a52a2cb9be4f475e6134c55b75c632db",
+        "project": "omnis-p01-70086058a03e41be95c360f06decbc29",
+        "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "cid_inspect_exit": 1,
+        "cid_absent": true,
+        "owned_network_query_exit": 0,
+        "owned_networks_absent": true,
+        "pg_socket_absent": true,
+        "control_socket_absent": true,
+        "loopback_port": 38175,
+        "listener_absent": true,
+        "processes": [
+          {
+            "role": "supervisor",
+            "pid": 810502,
+            "absent": true
+          },
+          {
+            "role": "api",
+            "pid": 810506,
+            "absent": true
+          },
+          {
+            "role": "browser_driver",
+            "pid": 810540,
+            "absent": true
+          },
+          {
+            "role": "api",
+            "pid": 810879,
+            "absent": true
+          },
+          {
+            "role": "browser_driver",
+            "pid": 810910,
+            "absent": true
+          }
+        ],
+        "test_database_drop_readback": true,
+        "family_receipt": {
+          "schema_version": 1,
+          "code": 1,
+          "family_drained": true
+        },
+        "pgdata_retained": true,
+        "draft_snapshot_retained": true,
+        "runner_readback": [
+          "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+        ]
+      }
+    ],
+    "all_tracked_sessions_exited": [
+      "proc_3dabd223c59a",
+      "proc_03a58cf1da17",
+      "proc_e86ea4beaff9"
+    ],
+    "native_cleanup": "NOT_APPLICABLE: no native task launched",
+    "browser_close": "Every launched stage receipt has browser_closed=true; original1 + retry2. Unlaunched supplement has no fabricated close receipt.",
+    "retention": "Per-test databases dropped after family drain with readback; owned cluster PGDATA, synthetic retained drafts, logs and screenshots kept privately. Images/tool artifacts retained. No global cleanup or foreign-resource adoption; not an OS-wide absence guarantee."
+  },
+  "reticle": "NOT_INTEGRATED; not installed or run",
+  "chisel": "BLOCKED_NO_GO; not installed or run",
+  "limits": [
+    "No CaseSlot/records UI invented",
+    "Start assessment NOT_IMPLEMENTED",
+    "No modal/drawer existed; overlay focus trap excluded",
+    "Supplement BOUND-01..04 / VISUAL-01 / SUPP-SEC / OBS-supplement NOT_RUN",
+    "No aesthetic approval, full WCAG, screen-reader, other-browser, 200% zoom or forced-colors certification",
+    "No global/profile/r1/cron/provider/model/target changes or push",
+    "No reuse of historical canonical2075 checks as fresh evidence",
+    "Original and retry failures remain; parent owns acceptance/closure"
+  ],
+  "proposed_parent_status_delta": {
+    "C03_records_code": "unchanged snapshot20611d1; reviewed separately",
+    "browser_proof": "PARTIAL / BLOCKED_QA_ORACLE",
+    "product_review": "Parent supplied two APPROVED_SCOPED receipts; live QA does not alter them or close release",
+    "SL09_B06b_G02": "not closed by this task"
+  },
+  "parent_skill_lesson_proposal": "Observer must record request method/identity and transition context at request initiation, correlate completion cancellations with actual navigation/unmount and successful lifecycle receipts; expect exact intentional CAS409. Full-page fixed-position skip-link images require viewport-only evidence before clearing or declaring overlap. Do not replay entire suite after a second oracle-only failure."
+}

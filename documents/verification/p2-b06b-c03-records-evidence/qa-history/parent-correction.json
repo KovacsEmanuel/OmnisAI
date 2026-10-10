@@ -1,0 +1,13 @@
+{
+  "scope": "History-only new owned fixture; no successful records/native/denial gates rerun",
+  "product_snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "original_failed_script": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/journey.py",
+  "original_failed_script_sha256": "a83d8ca0ad2d0a19ed651f3c68fcda030e15d5200cba30f70945c0e8af19b3e1",
+  "correction": "Unstaged legacy graphs have final_id=None. Preserve all old/new equality and state assertions, add expected exit2 NEEDS_RECONCILIATION as explicit negative; do not require successful reconciliation absent a result.",
+  "source_basis": "api/src/omnis/modules/runs/managed_admission.py:585-596",
+  "new_script_sha256": "683b39d61b13bcb9aeb8e01db9490073df6b657099561eeed06d230543a08a98",
+  "syntax": "AST_PASS_ONLY",
+  "launch": "Only by separate independent QA dispatch",
+  "prior_failure_retained": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/report.json",
+  "protocol_adjudication": "Required git status showing protected pathname is metadata, not prohibited material inventory. No content access/copy/hash was reported. Parent does not confirm that standalone pathname observation is a protocol violation."
+}

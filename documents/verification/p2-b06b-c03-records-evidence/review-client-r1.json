@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "status": "COMPLETE",
+  "review": "R1 focused stale-version test repair",
+  "verdict": "APPROVED_SCOPED",
+  "snapshot": {
+    "base": "20611d11b26b0334123b87f3ef5926e63e867e55",
+    "head": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+    "head_after": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8"
+  },
+  "scope": [
+    "api/tests/test_native_task_client.py",
+    "documents/verification/p2-b06b-c03-records.md",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json"
+  ],
+  "findings": [],
+  "conclusions": {
+    "minimal_exact_two_replacements": true,
+    "all_prior_test_bodies_and_assertions_preserved": true,
+    "v3_positive_operations": [
+      "task_stage",
+      "task_release",
+      "task_status"
+    ],
+    "retained_invalid_protocols": [
+      "None",
+      "True",
+      "[]",
+      "omnis-managed-admission-v4"
+    ],
+    "current_grant_existing_stream_payload_operation_deadline_assertions": "preserved and passed for v1/v2/v3",
+    "no_resend_expiry_operation_denial": "unchanged and passed",
+    "source_contract": "runtime_client.py:447-459 admits v1/v2/v3, rejects other protocol values before authority",
+    "product_bytes_unchanged": true,
+    "register_preserves_original_fail_and_pending_canonical_retry": true
+  },
+  "sha256": {
+    "api/tests/test_native_task_client.py": "4fba2ad2b19141609dbbf94ada39705860d0db8657ac3d8554ec5634427e1df1",
+    "documents/verification/p2-b06b-c03-records.md": "7a21ee7b95ac3876b13ee31136449ad8fe534be1e21127522314fca9a9487ac3",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json": "292d26811222f6bc8bbfe8f7108f1beb1d4b7f87a0da87fd6f4d768e6a5ddd3e",
+    "api/src/omnis/supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+    "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+    "api/pyproject.toml": "bf50046d011a237f6898e9e59a18712f525bd3acba5201107b8f0bf77bcde47f"
+  },
+  "verification": {
+    "outside_allowed_diff_command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "20611d11b26b0334123b87f3ef5926e63e867e55",
+      "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+      "--",
+      ".",
+      ":(exclude)documents/Omnis_Notite_Originale.html",
+      ":(exclude,icase)*bug*bounty*",
+      ":(exclude)api/tests/test_native_task_client.py",
+      ":(exclude)documents/verification/p2-b06b-c03-records.md",
+      ":(exclude)documents/verification/p2-b06b-c03-records-canonical-fail.json"
+    ],
+    "outside_allowed_diff_exit": 0,
+    "outside_allowed_diff_empty": true,
+    "status_command": [
+      "git",
+      "status",
+      "--porcelain",
+      "--",
+      ".",
+      ":(exclude)documents/Omnis_Notite_Originale.html",
+      ":(exclude,icase)*bug*bounty*"
+    ],
+    "status_exit": 0,
+    "status_after": "",
+    "same_hashes_after": true,
+    "test": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-q",
+        "tests/test_native_task_client.py",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/OmnisAI/api",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/tmp",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit": 0,
+      "passed": 16,
+      "seconds": 0.818577172991354,
+      "output": "................                                                         [100%]\n16 passed in 0.18s\n",
+      "log": "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/pytest.log",
+      "log_sha256": "0127026fa52388c28c751af7383c9cfdcedb768d53987355f81395a89e7531e3"
+    }
+  },
+  "issues": [
+    {
+      "kind": "review_helper_syntax_error",
+      "exit": 1,
+      "effect": "Initial in-memory helper failed parsing before execution or filesystem effects; corrected helper ran successfully."
+    }
+  ],
+  "limits": [
+    "Synthetic peer transport test only; not native/live integration or product-wide acceptance.",
+    "Full make check, lint/mypy/docs not rerun by R1; canonical failure remains FAIL_RETAINED and full retry is pending.",
+    "No DB, Docker, persistent service, build, product edit, commit or skill edit performed.",
+    "Protected original HTML excluded before git listings/diffs and never opened, copied, hashed or inventoried; raw bug-bounty inputs not loaded.",
+    "Existing complementary source approval at base remains scoped; unchanged C03/capture not re-reviewed.",
+    "Reticle NOT_APPLICABLE to test-only transport scope; Chisel NOT_RUN/BLOCKED, native file tools used.",
+    "Only review-qa skill loaded as instructed."
+  ],
+  "artifacts": [
+    "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/review-acceptance.json",
+    "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/pytest.log"
+  ]
+}

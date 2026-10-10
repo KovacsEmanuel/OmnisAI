@@ -1,0 +1,80 @@
+{
+  "verdict": "PASS_SCOPED_PUBLIC_ARTIFACT_READBACK",
+  "scope": "Parent independently parsed exact admitted records and committed-before-release/terminal receipts; not an execution rerun or constructor tracer",
+  "snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "observed": {
+    "ORDERED": {
+      "value": {
+        "records": [
+          {
+            "method": "POST",
+            "path": "/RUN-z/é🦊",
+            "status": 201
+          },
+          {
+            "method": "GET",
+            "path": "/RUN-a",
+            "status": 404
+          },
+          {
+            "method": "GET",
+            "path": "/RUN-a",
+            "status": 200
+          },
+          {
+            "method": "POST",
+            "path": "/RUN-z/é🦊",
+            "status": 201
+          }
+        ]
+      },
+      "base_payload": {
+        "text": "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
+      },
+      "role_payload": {
+        "role": "RECON",
+        "text": "SUPPORT-only cold admission probe; not an assessment."
+      },
+      "binding_ref": {
+        "digest": "a29e3c0a0321b1c44be2b9b3c07759db2a779d2993bed740baface12750737f6",
+        "id": "aca130a1-537c-434a-92d3-672950b81b25",
+        "kind": "runtime-binding",
+        "revision": 1
+      },
+      "boot": "bf3ce35c-c429-46a3-b761-ca35de41345f",
+      "root": "f8d3e980-dd76-435e-aedd-bf9ec5dea746",
+      "required_flags": [
+        true,
+        true,
+        false
+      ],
+      "native_reason": "NO_MODEL"
+    },
+    "EMPTY": {
+      "value": {
+        "records": []
+      },
+      "base_payload": {
+        "text": "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
+      },
+      "role_payload": {
+        "role": "RECON",
+        "text": "SUPPORT-only cold admission probe; not an assessment."
+      },
+      "binding_ref": {
+        "digest": "96d23ad0602cc75787893a1640874fa93c8e97010561b91995071c507f9ae08d",
+        "id": "c1b29c6e-b267-4c06-bd1a-1305f6f8da14",
+        "kind": "runtime-binding",
+        "revision": 1
+      },
+      "boot": "96c61249-74f2-4eba-9053-428086e7635f",
+      "root": "d395eed5-bee8-4738-88f5-5b1142f86056",
+      "required_flags": [
+        true,
+        true,
+        false
+      ],
+      "native_reason": "NO_MODEL"
+    }
+  }
+}

@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "status": "VERIFIED_EXACT_OWNED_RESOURCE_RETIREMENT",
+  "cid_count": 27,
+  "cids": [
+    {
+      "cid": "1aa2a1c8d08bb282cd9110bd8b726055366acc3eed53b86a2fb372fdc0325daf",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-r2-f01.json:.green.pg.cid"
+      ]
+    },
+    {
+      "cid": "1b41e02fbdb2433bd0247bb476a76bb08debb8bc9a2990352f8f3417f820513a",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[2].cleanup.cids[1].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[7].cid"
+      ]
+    },
+    {
+      "cid": "1f8156179a13e11fcdc735fa783b4f31a71d34f2651ee7b8fc0689cb30d66066",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[2].cleanup.cids[0].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[6].cid"
+      ]
+    },
+    {
+      "cid": "261cb26a0338a9e0979e92f126cc162cef46ec0c979138dd1b6376acd5757fc8",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[1].resources.pg_cid",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[1].resources.resources[0].cid"
+      ]
+    },
+    {
+      "cid": "2e1d4393933e9514adb28cd4c34de6b78c3ea13406756ccf2a3aaad841942d28",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[0].cleanup.cids[3].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[3].cid"
+      ]
+    },
+    {
+      "cid": "2e3b419792b171ad8a40ab6179adab5cfd004661aaf85c62a038eff758dec286",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[0].resources.pg_cid",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[0].resources.resources[0].cid"
+      ]
+    },
+    {
+      "cid": "35e0c33eeeaca7a5cfcf7c2583bfd6f2640915c15f9cc35f243c8543d0b78bfd",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-source.json:.pg.cid"
+      ]
+    },
+    {
+      "cid": "36a4c9401f26b343b39e70a5e3ffa719630a4eed4bbcd20f213c137f701de9bd",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.containers[1].cid",
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.native_receipts[0].cid"
+      ]
+    },
+    {
+      "cid": "380e786ee2d8d4b07e578cdda0c0d3e3de4624eb0f55cef511f4e0cd1fa3a9b9",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[0].cleanup.cids[1].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[1].cid"
+      ]
+    },
+    {
+      "cid": "55a7b20483ea52338083035fa2171ab5549bef42b3c8421a50c4936a518d4a2f",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[1].resources.native_cids[0]",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[1].resources.resources[1].cid",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[1].journey.cleanup[0].cid"
+      ]
+    },
+    {
+      "cid": "66558a3ebb482637786d84d67e7f0dc4d9605620a5cc7317e31f9244f7c8e3c7",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-tracer.json:.red[1].cid"
+      ]
+    },
+    {
+      "cid": "7227831c389233b2f50be446245f8a42a52a2cb9be4f475e6134c55b75c632db",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/browser-initial-qa.json:.cleanup.exact_owned[1].exact_cid"
+      ]
+    },
+    {
+      "cid": "896f588622b3c483b32156514cd3f27e41115a3c79ac1ea1bfd2b1b3bd3f69f8",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-source.json:.retained_failures[1].cid"
+      ]
+    },
+    {
+      "cid": "92116166446ecda0877da19f0f34ab8461a9687c07ad2b9fae63fa27f1876c7d",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/browser-followup-qa.json:.cleanup.container_id"
+      ]
+    },
+    {
+      "cid": "92390ef04ed4b27dabebb172cf9710c9c9c3de491d2cc0168f9990f26a644786",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.containers[0].cid"
+      ]
+    },
+    {
+      "cid": "96d2fa10b128273dc42587e7d53d94845a93f09d4a9100fb0f9222b10a5b699f",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[0].cleanup.cids[2].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[2].cid"
+      ]
+    },
+    {
+      "cid": "992adff0424f71ac7dcc369b51264fcccc68e78fad1db3c297c1c9d30e9b4428",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/browser-initial-qa.json:.cleanup.exact_owned[0].exact_cid"
+      ]
+    },
+    {
+      "cid": "9b53b1356bd716568c14e1fbf91455d67134ae67dc0898a6c23b16efe9c9f43b",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-tracer.json:.green.cid"
+      ]
+    },
+    {
+      "cid": "9bfe7016dfd9b9d7b379799f1c0eef863b7e652e0df372aebe78d6c2ca1bd749",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[1].cleanup.cids[1].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[5].cid"
+      ]
+    },
+    {
+      "cid": "aaf42b9024fbacb1b6e63f4a575e6248c448faa17a3829f0d99db5fa9af6e295",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[1].cleanup.cids[0].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[4].cid"
+      ]
+    },
+    {
+      "cid": "bb51fee6261bbfe30a3a96f529151e84561af6fb51f8e71a11cb8a43a48055ee",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.containers[2].cid",
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.native_receipts[1].cid"
+      ]
+    },
+    {
+      "cid": "bf0b895fb465c784be78d8100936d9eacdf11703e50627aeb1bb704d669577f9",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[2].cleanup.cids[2].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[8].cid"
+      ]
+    },
+    {
+      "cid": "ccbcab469e195184327362d5fc1733276e90d190078f1e587690a5a2ea4caa68",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.containers[3].cid",
+        "p2-b06b-c03-records-evidence/installed-history-qa.json:.cleanup.native_receipts[2].cid"
+      ]
+    },
+    {
+      "cid": "d19f9caffc673cfb458d9d3964118e6ad87ced7e011149935c649e396d1a3b42",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[0].resources.native_cids[0]",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[0].resources.resources[1].cid",
+        "p2-b06b-c03-records-evidence/installed-initial-fail.json:.attempts[0].journey.cleanup[0].cid"
+      ]
+    },
+    {
+      "cid": "ec844e2aef7af65ab0a147d41f790e465d0760db0367938d7315f58ba8b97520",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.attempts[0].cleanup.cids[0].cid",
+        "p2-b06b-c03-records-evidence/installed-current-qa.json:.exact_cleanup_ids[0].cid"
+      ]
+    },
+    {
+      "cid": "ed9335fb9edbc7c0b3773c2b662fb391ec0e2c04096b1fd77e1d82684afdf966",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-canonical-fail.json:.cid"
+      ]
+    },
+    {
+      "cid": "edde4252b0fb62f889d947aa305b7280fd8a8e95f4e31b86bc222f32f814ed7f",
+      "parent_absent_readback": true,
+      "sources": [
+        "p2-b06b-c03-records-canonical.json:.cleanup.cid"
+      ]
+    }
+  ],
+  "family_receipts": [
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-initial-fail.json",
+      "locator": ".attempts[0].resources.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-initial-fail.json",
+      "locator": ".attempts[1].resources.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[0].family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[0].cleanup.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[1].family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[1].cleanup.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[2].family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "locator": ".attempts[2].cleanup.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/installed-history-qa.json",
+      "locator": ".family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/browser-initial-qa.json",
+      "locator": ".cleanup.exact_owned[0].family_receipt",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/browser-initial-qa.json",
+      "locator": ".cleanup.exact_owned[1].family_receipt",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/browser-followup-qa.json",
+      "locator": ".execution.runner_receipt",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-evidence/browser-followup-qa.json",
+      "locator": ".cleanup.runner",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-source.json",
+      "locator": ".pg.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-r2-f01.json",
+      "locator": ".green.pg.family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-canonical-fail.json",
+      "locator": ".family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    },
+    {
+      "source": "p2-b06b-c03-records-canonical.json",
+      "locator": ".family",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    }
+  ],
+  "limits": [
+    "Receipt repetitions are not independent families; each source preserves its execution identity and original code.",
+    "Resource retirement does not reconcile old failed stage authority; failed disposable DBs are non-reusable and their uncertainty remains recorded.",
+    "PGDATA/images/wheels/logs and synthetic public state retained; per-test databases deleted by fixture finalizers as declared in original reports.",
+    "No foreign/r1/global cleanup. Source-target failures whose CID is not in a published receipt retain their original runner cleanup evidence; this list is not an OS-wide census.",
+    "Two B06c/B06m worktrees first observed during final readback, at c0261a7, were not created/inspected/adopted by this session. Main tracked727 and index were unchanged."
+  ]
+}

@@ -1,0 +1,1073 @@
+{
+  "schema_version": 1,
+  "report_id": "C03-RECORDS-R1-20611d1-FOCUSED",
+  "report_complete": true,
+  "role": "Independent read-only R1 focused re-review; parent remains sole product writer and adjudicator",
+  "verdict": "APPROVED_SCOPED",
+  "summary": "R2-F01 lexical producer/native mismatch is fixed on exact HEAD20611d1. Original R1 acceptance scope is explicitly combined with reviewed changed bytes and unchanged-byte bindings; no remaining concrete blocking finding in this scope. This is not installed/browser/canonical or global phase acceptance.",
+  "repository": "/home/kali/OmnisAI",
+  "base_sha": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+  "reviewed_sha": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "branch": "p04-control-topology-wip",
+  "scope": {
+    "changed_paths": [
+      "api/src/omnis/modules/tasks/contract_case_input.py",
+      "api/tests/test_c03_records_contract.py",
+      "api/tests/test_c03_records_pg.py",
+      "documents/verification/p2-b06b-c03-records-r2-f01.json",
+      "documents/verification/p2-b06b-c03-records-review-initial.json",
+      "integrations/hermes/tests/test_c03_records.py"
+    ],
+    "source_behavior_change": "Only records_schema AST changed: existing _text guard added before semantic JSON parsing, plus explanatory comment.",
+    "tests": "Three changed test files: compiler/raw schema lexical policy, same-byte resealed API/native parity, real-PG early refusal and LF/TAB qualification.",
+    "evidence": "Two new JSON files preserve complete original reports and the bounded fix receipt.",
+    "excluded": "No full re-audit; no product writes, service/DB/Docker/provider/model/target/browser operations, installs, commits or pushes."
+  },
+  "combined_approval": {
+    "original_report_id": "C03-RECORDS-R1-c1568bb",
+    "original_report_path": "/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim/report.json",
+    "original_report_sha256": "c7e476d686313515fd3bb811c4eb4a93a90e67aa0eeca4d06711efd54e7ec845",
+    "original_verdict": "APPROVED_SCOPED",
+    "original_reviewed_sha": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+    "archived_originals_path": "/home/kali/OmnisAI/documents/verification/p2-b06b-c03-records-review-initial.json",
+    "archived_originals_sha256": "6e225645f8834c870cc5a5db51af5f42a3829aba0e5ef630e1eeca859611ee7d",
+    "archived_r1_equals_original_parsed_json": true,
+    "archived_r2_equals_original_parsed_json": true,
+    "original_r1_binding_count": 37,
+    "original_r1_unchanged_binding_count": 33,
+    "original_r1_changed_paths_reviewed_now": [
+      "api/src/omnis/modules/tasks/contract_case_input.py",
+      "api/tests/test_c03_records_contract.py",
+      "api/tests/test_c03_records_pg.py",
+      "integrations/hermes/tests/test_c03_records.py"
+    ],
+    "rule": "33 of 37 prior R1 file bindings are byte-identical. The other four were reviewed on current bytes; the two new evidence files were checked. All 12 original requirement dispositions are listed below with explicit delta treatment. Prior proof retains its original execution/simulation/installed limits; approval is not transferred blindly.",
+    "original_r1_findings_disposition": "Original R1 had no named findings. Its broad raw-schema parity claim was incomplete for CR/CRLF, as preserved in original R2-F01; current combined approval incorporates that correction."
+  },
+  "snapshot_bindings": {
+    "AGENTS.md": {
+      "sha256": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+      "base_blob": "a5f0c24427455b49f49ec63a4a52f8f667add844",
+      "head_blob": "a5f0c24427455b49f49ec63a4a52f8f667add844",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54"
+    },
+    "CONTRIBUTING.md": {
+      "sha256": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1",
+      "base_blob": "128f6eaa7ec8df8aad5e5dfa6b37827990d869d8",
+      "head_blob": "128f6eaa7ec8df8aad5e5dfa6b37827990d869d8",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1"
+    },
+    "Makefile": {
+      "sha256": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896",
+      "base_blob": "8b50f7ca68124879fe739a947b25e8ab19c96848",
+      "head_blob": "8b50f7ca68124879fe739a947b25e8ab19c96848",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896",
+      "prior_r2_sha256": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896"
+    },
+    "README.md": {
+      "sha256": "0d3f8ac20c64f082b21f53ec51900ec0a09cd907d9947c106b98f0269939d1c9",
+      "base_blob": "3b21ccdf0f6b06e48bc5bf7479f8b9cb21d7b5b4",
+      "head_blob": "3b21ccdf0f6b06e48bc5bf7479f8b9cb21d7b5b4",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "0d3f8ac20c64f082b21f53ec51900ec0a09cd907d9947c106b98f0269939d1c9"
+    },
+    "api/README.md": {
+      "sha256": "23608c58d787a5838a4a2af98e050db1df7a97be17bd8cb44a8afce689127f6e",
+      "base_blob": "719b93987eafc0697d498d7b871939509c6c2af3",
+      "head_blob": "719b93987eafc0697d498d7b871939509c6c2af3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "23608c58d787a5838a4a2af98e050db1df7a97be17bd8cb44a8afce689127f6e",
+      "prior_r2_sha256": "23608c58d787a5838a4a2af98e050db1df7a97be17bd8cb44a8afce689127f6e"
+    },
+    "api/pyproject.toml": {
+      "sha256": "bf50046d011a237f6898e9e59a18712f525bd3acba5201107b8f0bf77bcde47f",
+      "base_blob": "a0fc92970ea5a345916f6bbe5527888fdda925c6",
+      "head_blob": "a0fc92970ea5a345916f6bbe5527888fdda925c6",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "bf50046d011a237f6898e9e59a18712f525bd3acba5201107b8f0bf77bcde47f"
+    },
+    "api/src/omnis/modules/runs/contract_inputs.py": {
+      "sha256": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+      "base_blob": "d03ff2291bc090f106ebf6c196f880a87ee33868",
+      "head_blob": "d03ff2291bc090f106ebf6c196f880a87ee33868",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+      "prior_r2_sha256": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec"
+    },
+    "api/src/omnis/modules/runs/managed_admission.py": {
+      "sha256": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+      "base_blob": "a11845525d7a69399403c75622102f9e144004d9",
+      "head_blob": "a11845525d7a69399403c75622102f9e144004d9",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+      "prior_r2_sha256": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b"
+    },
+    "api/src/omnis/modules/runs/native_preparation_models.py": {
+      "sha256": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062",
+      "base_blob": "784de1779695195fd1ad1ed771559acb5a8d9940",
+      "head_blob": "784de1779695195fd1ad1ed771559acb5a8d9940",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062"
+    },
+    "api/src/omnis/modules/settings/candidate_catalog.py": {
+      "sha256": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+      "base_blob": "ccc74854df0a9f31877140ec46fc492a4b6d753a",
+      "head_blob": "ccc74854df0a9f31877140ec46fc492a4b6d753a",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+      "prior_r2_sha256": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d"
+    },
+    "api/src/omnis/modules/settings/candidate_store.py": {
+      "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "base_blob": "51418d7b4cbeeedd17f7291c778b63dc6a1a18c3",
+      "head_blob": "51418d7b4cbeeedd17f7291c778b63dc6a1a18c3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "prior_r2_sha256": null
+    },
+    "api/src/omnis/modules/settings/catalog_publication.py": {
+      "sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+      "base_blob": "9677635d1f0d448459f0a292b17dc6ade7975eb3",
+      "head_blob": "9677635d1f0d448459f0a292b17dc6ade7975eb3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+      "prior_r2_sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c"
+    },
+    "api/src/omnis/modules/settings/catalog_schema.py": {
+      "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "base_blob": "1be3b2e72c17ca4a87a3162b48ebb58a554c7c47",
+      "head_blob": "1be3b2e72c17ca4a87a3162b48ebb58a554c7c47",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+    },
+    "api/src/omnis/modules/settings/publication_store.py": {
+      "sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+      "base_blob": "f2b68a65847d38932f9ee088cf1e20655b2ee324",
+      "head_blob": "f2b68a65847d38932f9ee088cf1e20655b2ee324",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+      "prior_r2_sha256": null
+    },
+    "api/src/omnis/modules/settings/skill_catalog.py": {
+      "sha256": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+      "base_blob": "35605d4423dc57ae09c7e457f46de4cbbee99a12",
+      "head_blob": "35605d4423dc57ae09c7e457f46de4cbbee99a12",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+      "prior_r2_sha256": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852"
+    },
+    "api/src/omnis/modules/tasks/contract_case_input.py": {
+      "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "base_blob": "e3452d5760b74bd3a7f8e0d799c15d5fa7129306",
+      "head_blob": "9ea1321a1f100b403c6781b8487712c99d656eba",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "7dc360542c41016ff485a0a3aa92aeca58b48cd359d927038e97fbeafd6671bc",
+      "prior_r2_sha256": "7dc360542c41016ff485a0a3aa92aeca58b48cd359d927038e97fbeafd6671bc"
+    },
+    "api/src/omnis/modules/tasks/execution_selection.py": {
+      "sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+      "base_blob": "00e74132a5c9a213a784035fd71bd423cb76ce81",
+      "head_blob": "00e74132a5c9a213a784035fd71bd423cb76ce81",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+      "prior_r2_sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3"
+    },
+    "api/src/omnis/modules/tasks/managed_composition.py": {
+      "sha256": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+      "base_blob": "5148cbebb69072ef8d483b29e39bbde1eadf3b79",
+      "head_blob": "5148cbebb69072ef8d483b29e39bbde1eadf3b79",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+      "prior_r2_sha256": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55"
+    },
+    "api/src/omnis/modules/tasks/managed_contract.py": {
+      "sha256": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+      "base_blob": "c258f244b8eef4302b761157813b5ba6c3097c44",
+      "head_blob": "c258f244b8eef4302b761157813b5ba6c3097c44",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+      "prior_r2_sha256": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec"
+    },
+    "api/src/omnis/modules/tasks/managed_store.py": {
+      "sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "base_blob": "30e7d9e0a1d7765f75143f6166600a743514202f",
+      "head_blob": "30e7d9e0a1d7765f75143f6166600a743514202f",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "prior_r2_sha256": null
+    },
+    "api/src/omnis/modules/tasks/module_registry.py": {
+      "sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+      "base_blob": "2a7a0f0cef28fbe7e207ecdcad07e271753129bd",
+      "head_blob": "2a7a0f0cef28fbe7e207ecdcad07e271753129bd",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+      "prior_r2_sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2"
+    },
+    "api/src/omnis/supervisor/runtime_client.py": {
+      "sha256": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+      "base_blob": "53baff67ac2a2629b08ac326168e858e0364e936",
+      "head_blob": "53baff67ac2a2629b08ac326168e858e0364e936",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+      "prior_r2_sha256": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9"
+    },
+    "api/tests/conftest.py": {
+      "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "base_blob": "7e436f51c378917814e55b8eb63a447f94bc1121",
+      "head_blob": "7e436f51c378917814e55b8eb63a447f94bc1121",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b"
+    },
+    "api/tests/fixtures/b06a_durable/consumer.py": {
+      "sha256": "b55ccbfaf5c85af4c415d1c4b56b20a10a3c335511c08410b8eca043fe0143d4",
+      "base_blob": "120f6e64c9af3fc93764a3f892886ee3c8aa9745",
+      "head_blob": "120f6e64c9af3fc93764a3f892886ee3c8aa9745",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "b55ccbfaf5c85af4c415d1c4b56b20a10a3c335511c08410b8eca043fe0143d4"
+    },
+    "api/tests/fixtures/c03_records.py": {
+      "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "base_blob": "2661358b2856a2332431c5910d99363a7cd5a2ea",
+      "head_blob": "2661358b2856a2332431c5910d99363a7cd5a2ea",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "prior_r2_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7"
+    },
+    "api/tests/test_c03_records_contract.py": {
+      "sha256": "75234f44f4704f876796916d7f32ee6d3c9c6ffc12c5f80ea9306c2efe6b2028",
+      "base_blob": "ed1936a7022e3ee3fd8bbf41d53de77b44e42bb7",
+      "head_blob": "80eb04b4a5f7a53505147238bf476089467c3f46",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "8820f3bec9d7befa4cb344e32afe94b65f6af289ae79da0baa4442902f0a3f49",
+      "prior_r2_sha256": "8820f3bec9d7befa4cb344e32afe94b65f6af289ae79da0baa4442902f0a3f49"
+    },
+    "api/tests/test_c03_records_pg.py": {
+      "sha256": "37a666c672205dab4c8d775c8bd29cdb27680cb102f9d6e3f083d3f8536cac88",
+      "base_blob": "37dc8c32e92794a04447358170f3c9efe7fe5e0e",
+      "head_blob": "c922d95d6a372ad281d0e5f0442489ae7baa1564",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "69a52b53f6b5110098107b11f03ed21a4001e96a240deeaf6ecf9df03ce91069",
+      "prior_r2_sha256": "69a52b53f6b5110098107b11f03ed21a4001e96a240deeaf6ecf9df03ce91069"
+    },
+    "documents/verification/implementation-status.md": {
+      "sha256": "b2d6fbf837de795a71cca2c2755183d9e4d7c55a3d6d09cf025dfc507004c9a4",
+      "base_blob": "d358436faa1a333e39eb58af027646fe7891abf6",
+      "head_blob": "d358436faa1a333e39eb58af027646fe7891abf6",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "b2d6fbf837de795a71cca2c2755183d9e4d7c55a3d6d09cf025dfc507004c9a4"
+    },
+    "documents/verification/p2-b06b-c03-records-r2-f01.json": {
+      "sha256": "ad6c44d94e25b4eb4afc2843fe0d3700491a5fcfb31334233b35a2dff212886b",
+      "base_blob": null,
+      "head_blob": "b421c6640656957da746b9ab025d812282c3470d",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": null
+    },
+    "documents/verification/p2-b06b-c03-records-review-initial.json": {
+      "sha256": "6e225645f8834c870cc5a5db51af5f42a3829aba0e5ef630e1eeca859611ee7d",
+      "base_blob": null,
+      "head_blob": "b83f77cfe19b74c99fe71148d194ebcdc783a846",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": null
+    },
+    "documents/verification/p2-b06b-c03-records-source.json": {
+      "sha256": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80",
+      "base_blob": "17e060a86ae6a644d881122927cec9e1a626d93d",
+      "head_blob": "17e060a86ae6a644d881122927cec9e1a626d93d",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80",
+      "prior_r2_sha256": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80"
+    },
+    "documents/verification/p2-b06b-c03-records-tracer.json": {
+      "sha256": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75",
+      "base_blob": "f470b792864fefd6b61db84a2424db0e4a502c5c",
+      "head_blob": "f470b792864fefd6b61db84a2424db0e4a502c5c",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75",
+      "prior_r2_sha256": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75"
+    },
+    "documents/verification/p2-b06b-c03-records.md": {
+      "sha256": "93f60f73cc3e119d88300b4344f97f8844715db4db488cef7bc7a20f70369b3a",
+      "base_blob": "722eece2fd48fae2b838dd17c15add3caf3318d2",
+      "head_blob": "722eece2fd48fae2b838dd17c15add3caf3318d2",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "93f60f73cc3e119d88300b4344f97f8844715db4db488cef7bc7a20f70369b3a",
+      "prior_r2_sha256": "93f60f73cc3e119d88300b4344f97f8844715db4db488cef7bc7a20f70369b3a"
+    },
+    "integrations/hermes/pin.json": {
+      "sha256": "462e7b173ab23c32db60d399112cb267b9f1b3e19c755fdbf8f29f8cb8387e92",
+      "base_blob": "6233583591eda39e385a8e8bbe05298cc6f5546e",
+      "head_blob": "6233583591eda39e385a8e8bbe05298cc6f5546e",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "462e7b173ab23c32db60d399112cb267b9f1b3e19c755fdbf8f29f8cb8387e92"
+    },
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": {
+      "sha256": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467",
+      "base_blob": "07625094d17c63737fc9785d3c4ef0dd6d71419a",
+      "head_blob": "07625094d17c63737fc9785d3c4ef0dd6d71419a",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467",
+      "prior_r2_sha256": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467"
+    },
+    "integrations/hermes/src/omnis_hermes/native_preparation_contract.py": {
+      "sha256": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41",
+      "base_blob": "6b22066b273c780e3c301fc80e8f44af5dd29f8c",
+      "head_blob": "6b22066b273c780e3c301fc80e8f44af5dd29f8c",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41"
+    },
+    "integrations/hermes/src/omnis_hermes/prompt_bundle.py": {
+      "sha256": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+      "base_blob": "e1188adc936f8f1ae43cfdb41de221994b15dac3",
+      "head_blob": "e1188adc936f8f1ae43cfdb41de221994b15dac3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+      "prior_r2_sha256": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
+    },
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": {
+      "sha256": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6",
+      "base_blob": "661f3d373b968458cc93c9ce2dfd0c8d9599a2c0",
+      "head_blob": "661f3d373b968458cc93c9ce2dfd0c8d9599a2c0",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6",
+      "prior_r2_sha256": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6"
+    },
+    "integrations/hermes/tests/composition_fixture.py": {
+      "sha256": "53f7e35e91d593fc48b59a99cced158edcddcca53ce30363018d50062322e69a",
+      "base_blob": "8be7edd7ab8944f4f0beff7dd454e2f0661f26e3",
+      "head_blob": "8be7edd7ab8944f4f0beff7dd454e2f0661f26e3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "53f7e35e91d593fc48b59a99cced158edcddcca53ce30363018d50062322e69a"
+    },
+    "integrations/hermes/tests/test_c03_case_input.py": {
+      "sha256": "ab84668921758a7a333f49b0498a73546938a5ffbeecca01dc6d2e276de1ae9f",
+      "base_blob": "a1cfab55632125af89e28bdc750943f6fd722c0b",
+      "head_blob": "a1cfab55632125af89e28bdc750943f6fd722c0b",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "ab84668921758a7a333f49b0498a73546938a5ffbeecca01dc6d2e276de1ae9f"
+    },
+    "integrations/hermes/tests/test_c03_records.py": {
+      "sha256": "2731d44ba8a88e5ee7b97017ab5e2623bd4bafd30f7e6567e51060df937ff4ca",
+      "base_blob": "43b258833db86b7756adabaf96a1d0af437d27dc",
+      "head_blob": "855c63eae7555c26a61e26034e3754bfa2cca0d3",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "8ff7a1a24fda105533d7af3a6d6339b184ccb4f04537552c37a01a8a3d569af7",
+      "prior_r2_sha256": "8ff7a1a24fda105533d7af3a6d6339b184ccb4f04537552c37a01a8a3d569af7"
+    },
+    "integrations/hermes/tests/test_managed_native_source.py": {
+      "sha256": "4e3cc5bf973fb45aae95fd641531388f119d4314b59ad2705f9e5a790336a5c8",
+      "base_blob": "d9c5451614942d348b6ed095ee5b51cb4ec7b032",
+      "head_blob": "d9c5451614942d348b6ed095ee5b51cb4ec7b032",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "4e3cc5bf973fb45aae95fd641531388f119d4314b59ad2705f9e5a790336a5c8"
+    },
+    "integrations/hermes/tests/test_prompt_bundle.py": {
+      "sha256": "602da77663d77fd04be26b258b196c9ed14cb7383a20fd9631fb67ab29d0e019",
+      "base_blob": "fd7b065b60a3a36f92fdc056e57b5b50e409434d",
+      "head_blob": "fd7b065b60a3a36f92fdc056e57b5b50e409434d",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "602da77663d77fd04be26b258b196c9ed14cb7383a20fd9631fb67ab29d0e019"
+    },
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": {
+      "sha256": "b3d2157fbded618996bbbe85ad8bb2e0d043035925eb3ebbe035c5297cd7be6c",
+      "base_blob": "bf7d4a3acbb898a1acf502aedb0b42b1ab0c1294",
+      "head_blob": "bf7d4a3acbb898a1acf502aedb0b42b1ab0c1294",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "b3d2157fbded618996bbbe85ad8bb2e0d043035925eb3ebbe035c5297cd7be6c"
+    },
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": {
+      "sha256": "032c61dd84dfeea82bd1e2b9e960423f57596d1c6d79eee8c3a9c5a4b360c7f3",
+      "base_blob": "ae9fb9a02265ae223ebd71de96f6c4ad415ef46d",
+      "head_blob": "ae9fb9a02265ae223ebd71de96f6c4ad415ef46d",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": null,
+      "prior_r2_sha256": "032c61dd84dfeea82bd1e2b9e960423f57596d1c6d79eee8c3a9c5a4b360c7f3"
+    },
+    "profiles/records-mapping-contract.yaml": {
+      "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+      "base_blob": "6971b51d5a4e94f8eb2603f54c3212c16c0830c0",
+      "head_blob": "6971b51d5a4e94f8eb2603f54c3212c16c0830c0",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+      "prior_r2_sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd"
+    },
+    "skills/recon-mapping-contract/templates/schemas/records.schema.json": {
+      "sha256": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+      "base_blob": "f1463698e1390462800f20350c32262313621000",
+      "head_blob": "f1463698e1390462800f20350c32262313621000",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+      "prior_r2_sha256": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9"
+    },
+    "skills/records-mapping-contract/NOTICE.md": {
+      "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+      "base_blob": "21675f5f7be20602a4abff205059a23808c53dba",
+      "head_blob": "21675f5f7be20602a4abff205059a23808c53dba",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+      "prior_r2_sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149"
+    },
+    "skills/records-mapping-contract/SKILL.md": {
+      "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+      "base_blob": "1f47a4a89b97d2ff50cb0e22dad186dd6b0a2691",
+      "head_blob": "1f47a4a89b97d2ff50cb0e22dad186dd6b0a2691",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+      "prior_r2_sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2"
+    },
+    "skills/records-mapping-contract/omnis.yaml": {
+      "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+      "base_blob": "9e576517e40c662f055ae1f2da55c59247fb6586",
+      "head_blob": "9e576517e40c662f055ae1f2da55c59247fb6586",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+      "prior_r2_sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561"
+    },
+    "skills/records-mapping-contract/references/methodology.md": {
+      "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+      "base_blob": "36e3b9f14592b6dfffc349e73d72dd1caca2fab8",
+      "head_blob": "36e3b9f14592b6dfffc349e73d72dd1caca2fab8",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+      "prior_r2_sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46"
+    },
+    "skills/records-mapping-contract/templates/procedures/map-records.yaml": {
+      "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+      "base_blob": "531e241ede016bdd7a5f977d0d29c32180b0f968",
+      "head_blob": "531e241ede016bdd7a5f977d0d29c32180b0f968",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+      "prior_r2_sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9"
+    },
+    "skills/records-mapping-contract/templates/schemas/empty.schema.json": {
+      "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+      "base_blob": "47ba54d17dd2f06e7e5ce2f88297bf4424b806fe",
+      "head_blob": "47ba54d17dd2f06e7e5ce2f88297bf4424b806fe",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+      "prior_r2_sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590"
+    },
+    "skills/records-mapping-contract/templates/schemas/operations.schema.json": {
+      "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+      "base_blob": "743a40ddff469243b8e2ac5fb27378c38cd46515",
+      "head_blob": "743a40ddff469243b8e2ac5fb27378c38cd46515",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+      "prior_r2_sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e"
+    },
+    "skills/records-mapping-contract/templates/schemas/records.schema.json": {
+      "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+      "base_blob": "ee24cbfaf5343588cf8abc564e7bdf8e28494e92",
+      "head_blob": "ee24cbfaf5343588cf8abc564e7bdf8e28494e92",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+      "prior_r2_sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475"
+    },
+    "skills/records-mapping-contract/templates/schemas/surface_map.schema.json": {
+      "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+      "base_blob": "abebd9c95600915d85a93c7ecec5e74d0ee39b7e",
+      "head_blob": "abebd9c95600915d85a93c7ecec5e74d0ee39b7e",
+      "worktree_matches_head": true,
+      "prior_r1_sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+      "prior_r2_sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f"
+    }
+  },
+  "binding_checks": {
+    "bound_file_count": 56,
+    "all_worktree_bytes_match_head": true,
+    "all_bound_files_stable_at_finish": true,
+    "fix_receipt_all_four_hashes_match": true,
+    "archive_new_hashes_match_fix_receipt": true,
+    "only_changed_source_function": [
+      "records_schema"
+    ],
+    "capture_schema_and_text_helper_ast_unchanged": true,
+    "native_adapter_preparation_validator_composer_pin_and_upstream_bindings_unchanged": true,
+    "compiler_evaluator_closure": {
+      "disposition": "CHANGED_REQUIRES_FRESH_QUALIFICATION",
+      "source": "api/src/omnis/modules/settings/candidate_catalog.py:42-71",
+      "reason": "BEHAVIOR_FILES includes tasks/contract_case_input.py; COMPILER_REVISION and EVALUATOR_REVISION hash those trusted bytes at process start. Rebuild/restart final API and qualify fresh material; old c1568bb eligibility is not sufficient."
+    }
+  },
+  "requirements": [
+    {
+      "id": "R1-C01",
+      "requirement": "Structured records value and authoritative existing Record/Records language",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Retained structured Records language remains unchanged. records_schema now applies the existing strict raw text predicate before JSON parsing; CR/CRLF refusal and LF/TAB positives independently exercised.",
+      "prior_source_references": [
+        "api/src/omnis/modules/tasks/contract_case_input.py:153-212",
+        "api/src/omnis/modules/tasks/module_registry.py:10-26",
+        "skills/records-mapping-contract/templates/schemas/records.schema.json:1"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C02",
+      "requirement": "Exactly one records Ref; exactly two existing PURE handlers and local preceding STEP_OUTPUT",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Handler count/order, slot and local preceding STEP_OUTPUT source bytes unchanged. Focused LF/TAB controls still compile exactly two steps; no new handler or slot machinery.",
+      "prior_source_references": [
+        "api/src/omnis/modules/tasks/contract_case_input.py:25-63,416-428",
+        "api/src/omnis/modules/settings/skill_catalog.py:567-713,850-943",
+        "skills/records-mapping-contract/templates/procedures/map-records.yaml:65-115"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C03",
+      "requirement": "Explicit version separation, not capture shape reuse",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "All version-discrimination source and native pins unchanged. No wire, material, composition, RUN or PACKAGE_EVAL version expansion.",
+      "prior_source_references": [
+        "api/src/omnis/modules/settings/candidate_catalog.py:106-187,933-967,1040-1113",
+        "api/src/omnis/modules/runs/contract_inputs.py:26-44,51-131",
+        "api/src/omnis/modules/runs/managed_admission.py:38-61,282-284",
+        "api/src/omnis/modules/tasks/managed_contract.py:955-999",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-103"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C04",
+      "requirement": "Persistent backend PACKAGE_EVAL admission bound to candidate, owner, group and exact schema",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Focused PG test now reads the stored failed technical-review result, proves candidate/admission/context/input/evaluation absent, and proves denied freeze adds no reservation. Actual PG33 is parent-recorded, not independently reexecuted.",
+      "prior_source_references": [
+        "api/src/omnis/modules/settings/candidate_catalog.py:327-351,761-968",
+        "api/src/omnis/modules/tasks/contract_case_input.py:229-297"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C05",
+      "requirement": "Real qualification then explicit TTY confirmation/Publish, no case substitution in templates",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Qualification and publication source unchanged, but their trusted compiler/evaluator closure includes the modified contract_case_input file. Parent PG LF/TAB positives freeze/admit/execute PURE with byte-preserved schema. Fresh qualification on rebuilt final API is required; old qualification is not promoted.",
+      "prior_source_references": [
+        "api/src/omnis/modules/settings/candidate_catalog.py:1019-1148",
+        "api/src/omnis/modules/settings/catalog_publication.py:35-85,118-177,420-455,458-495",
+        "api/src/omnis/modules/settings/skill_catalog.py:895-943"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C06",
+      "requirement": "RUN context/input are separate immutable owner-locked transactions; no caller grants",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Owner-locked RUN input transaction and backend provenance logic unchanged. New schema predicate adds early rejection without changing bytes, grants or storage authority. Prior R1 transaction review retained at its existing evidence boundary.",
+      "prior_source_references": [
+        "api/src/omnis/modules/runs/contract_inputs.py:26-44,51-174",
+        "api/src/omnis/modules/tasks/contract_case_input.py:265-297",
+        "api/src/omnis/modules/tasks/managed_store.py:12-54,98-113"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C07",
+      "requirement": "Assignment all-or-nothing before dispatch; input selection cannot change preparation or context",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Assignment graph validation, owner fencing and pre-dispatch transaction code unchanged. New PG negative checks managed tables remain empty but is not new RUN concurrency/rollback/crash evidence; no such claim is made.",
+      "prior_source_references": [
+        "api/src/omnis/modules/runs/managed_admission.py:219-354,365-407",
+        "api/src/omnis/modules/runs/contract_inputs.py:133-174"
+      ],
+      "prior_limits": [
+        "No independent PostgreSQL/concurrency run by R1. Existing owner-lock semantics were inspected, not certified as a new records overlap/crash protocol."
+      ],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C08",
+      "requirement": "BoundProcedure and all MethodRequirements before Brief; metadata before Brief, composition after",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "BoundProcedure, all MethodRequirements, Brief and composition ordering code unchanged. Resealed same-byte positive/negative stage tests reach the existing validators.",
+      "prior_source_references": [
+        "api/src/omnis/modules/tasks/managed_contract.py:247-262,318-395,397-516",
+        "api/src/omnis/modules/tasks/managed_contract.py:798-851",
+        "api/src/omnis/modules/tasks/managed_composition.py:396-449"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C09",
+      "requirement": "Independent byte ceilings, schema/source binding and native pre-constructor refusal",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "R2-F01 qualifies the original broad lexical-parity claim. Corrected at current source line159: _text(utf8_json_text(raw_schema)) precedes load_json. Native raw_text has the same C0/C1/BOM/LF/TAB policy; exact bytes remain bound. No byte ceiling was changed. Independent RED4FAIL/4PASS to GREEN8PASS closes this concrete mismatch.",
+      "prior_source_references": [
+        "api/src/omnis/modules/tasks/contract_case_input.py:153-157,193-212,295-296,300-361",
+        "api/src/omnis/modules/runs/managed_admission.py:268-276",
+        "api/src/omnis/modules/tasks/managed_composition.py:451-489",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:407-552,703-796",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-103"
+      ],
+      "prior_limits": [],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C10",
+      "requirement": "Idempotency/conflict/restart readback, no PURE rerun or slot rebinding",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Replay/readback and no-rerun source unchanged. Prior R1 scope and its no-physical-restart limit remain; the focused fix does not constitute a new history/lifecycle run.",
+      "prior_source_references": [
+        "api/src/omnis/modules/runs/contract_inputs.py:58-62,107-111,176-190",
+        "api/src/omnis/modules/runs/managed_admission.py:286-354,633-765",
+        "api/src/omnis/modules/settings/candidate_catalog.py:327-351,630-759,970-1017",
+        "api/src/omnis/modules/settings/catalog_publication.py:259-299",
+        "api/src/omnis/modules/settings/skill_catalog.py:129-139"
+      ],
+      "prior_limits": [
+        "Fresh-process command readback is not a physical DB/server restart, crash-cut or ACK-loss measurement."
+      ],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C11",
+      "requirement": "Retain managed v1/v2/capture historical readback without promoting new qualification",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Historical native/composer compatibility branches and pins unchanged, and capture_schema AST is identical. Trusted API behavior revision changes conservatively for both compilation and evaluation, so fresh qualification is required rather than transferred eligibility.",
+      "prior_source_references": [
+        "api/src/omnis/modules/tasks/managed_composition.py:34-38,289-330",
+        "api/src/omnis/modules/tasks/managed_contract.py:955-999",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:45-49,703-730",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-94",
+        "api/src/omnis/modules/settings/candidate_catalog.py:630-711"
+      ],
+      "prior_limits": [
+        "This is review of the changed compatibility branches, not a new audit or transfer of old C01/capture acceptances. Installed old-to-new history QA remains a separate pending gate."
+      ],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    },
+    {
+      "id": "R1-C12",
+      "requirement": "Real first-party command usability and bounded code change",
+      "prior_report_disposition": "CONFORMS_SCOPED",
+      "current_disposition": "CONFORMS_SCOPED_COMBINED",
+      "basis": "Private CLI source, first-party material and docs unchanged. Four source/test paths plus two evidence JSON files are the entire focused delta; no dependency, service, UI or authority expansion. Installed command usability remains separately pending.",
+      "prior_source_references": [
+        "api/README.md:33-112",
+        "api/src/omnis/modules/settings/candidate_catalog.py:1180-1230",
+        "api/src/omnis/modules/settings/catalog_publication.py:458-500",
+        "api/src/omnis/modules/settings/publication_models.py:51-99",
+        "api/src/omnis/modules/runs/contract_inputs.py:193-243",
+        "profiles/records-mapping-contract.yaml:1-30",
+        "skills/records-mapping-contract/omnis.yaml:1-73"
+      ],
+      "prior_limits": [
+        "The documented full end-to-end example was not executed by R1 because DB/native services are excluded. Installed command usability must be exercised by the separate owned QA, not inferred from parser/source review."
+      ],
+      "reference_limit": "Prior line numbers refer to c1568bb; records_schema gained two lines. This is a focused re-review, not a fresh full audit."
+    }
+  ],
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "R2-F01",
+      "original_report_path": "/home/kali/.hermes/cache/scratch/c03-r2-7s4ic2fw/report.json",
+      "original_report_sha256": "31de3d19fafad7d02a7882aa61f16e5fc7a967407c2569bd6047cedc549a1e74",
+      "original_severity": "MEDIUM",
+      "disposition": "FIXED_VERIFIED_SCOPED_BY_R1",
+      "original_reproducer": "Semantically identical authoritative records schema containing raw CR or CRLF; reseal package/schema/source/envelope bindings. Old API admits while native rejects.",
+      "independent_red": "With the exact c1568bb contract_case_input module loaded in memory against current focused tests, CR/CRLF producer tests fail DID NOT RAISE CatalogError; resealed stage tests report native/API [False, True]. LF/TAB controls pass. 4 failed,4 passed,exit1.",
+      "fix": "api/src/omnis/modules/tasks/contract_case_input.py:153-159 calls the already-existing _text on strict UTF-8 text before load_json. This rejects the same raw controls as native_preparation_contract.raw_text:133-139 without normalization.",
+      "independent_green": "All 8 focused parameter cases pass at current HEAD,exit0: CR/CRLF denied on producer/compiler/API/native, LF/TAB accepted, retained source bytes exact.",
+      "pg_evidence_disposition": "Inspected test_c03_records_pg.py:646-764 plus exact-bound PG33 receipt. CR/CRLF stops at technical review; no candidate/admission/input/context/evaluation or managed graph is created. Failed freeze preserves the counts and adds no catalog reservation. Existing proposal/technical-review reservations intentionally remain. LF/TAB performs real freeze/admit/PURE and preserves original source_b64.",
+      "limits": "PG33 is parent-recorded, not an independent reviewer DB run. Negative is early technical-review refusal, not a later PACKAGE_EVAL transaction rollback or reachable constructor bypass. Baseline RED replaces one module in memory; it is not an installed old-release run. Complementary R2 re-review and parent adjudication remain separate."
+    }
+  ],
+  "evidence": {
+    "independently_executed": [
+      {
+        "id": "baseline-red",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src', '/home/kali/OmnisAI/integrations/hermes/tests']; import subprocess; from omnis.modules.tasks import contract_case_input as c; exec(compile(subprocess.check_output([\"git\",\"show\",\"c1568bb8ca31d55b11847c9976ee5b9f36dc6117:api/src/omnis/modules/tasks/contract_case_input.py\"]),\"baseline-c1568bb-contract_case_input.py\",\"exec\"),c.__dict__); raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'no:cacheprovider', '-p', 'pytest_asyncio.plugin', '--basetemp=/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/baseline-red-tmp', '--junitxml=/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/baseline-red.xml', '-q', 'api/tests/test_c03_records_contract.py::test_records_raw_schema_control_policy', 'integrations/hermes/tests/test_c03_records.py::test_records_schema_lexical_parity_same_resealed_bytes']))"
+        ],
+        "cwd": "/home/kali/OmnisAI",
+        "environment": {
+          "HOME": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/home",
+          "PATH": "/usr/bin:/bin",
+          "TMPDIR": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd",
+          "LANG": "C.UTF-8",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "exit_code": 1,
+        "summary": [
+          "4 failed, 4 passed in 0.34s"
+        ],
+        "log": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/baseline-red.log",
+        "junit": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/baseline-red.xml",
+        "boundary": "8 parametrized tests; baseline mode replaces only contract_case_input module with exact c1568bb source in memory; no checkout writes",
+        "structured_test_result": {
+          "id": "baseline-red",
+          "tests": 8,
+          "passed": 4,
+          "failed": 4,
+          "rows": [
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\n-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\t-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\r-False]",
+              "outcome": "FAIL",
+              "failure_message": "Failed: DID NOT RAISE CatalogError"
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\r\\n-False]",
+              "outcome": "FAIL",
+              "failure_message": "Failed: DID NOT RAISE CatalogError"
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\n-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\t-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\r-False]",
+              "outcome": "FAIL",
+              "failure_message": "assert [False, True] == [False, False]\n  \n  At index 1 diff: True != False\n  Use -v to get more diff"
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\r\\n-False]",
+              "outcome": "FAIL",
+              "failure_message": "assert [False, True] == [False, False]\n  \n  At index 1 diff: True != False\n  Use -v to get more diff"
+            }
+          ],
+          "log_sha256": "bf80f0a41b9817edcb33ab512d0daa92e6fc68d520b0e353676117e53bec6a30",
+          "junit_sha256": "1f8e7f6be043c0bd78ae5b0455803796b8a91184e6ddc8f8929ab4fcc3f4d330"
+        }
+      },
+      {
+        "id": "current-green",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src', '/home/kali/OmnisAI/integrations/hermes/tests']; raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'no:cacheprovider', '-p', 'pytest_asyncio.plugin', '--basetemp=/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/current-green-tmp', '--junitxml=/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/current-green.xml', '-q', 'api/tests/test_c03_records_contract.py::test_records_raw_schema_control_policy', 'integrations/hermes/tests/test_c03_records.py::test_records_schema_lexical_parity_same_resealed_bytes']))"
+        ],
+        "cwd": "/home/kali/OmnisAI",
+        "environment": {
+          "HOME": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/home",
+          "PATH": "/usr/bin:/bin",
+          "TMPDIR": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd",
+          "LANG": "C.UTF-8",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "exit_code": 0,
+        "summary": [
+          "8 passed in 0.52s"
+        ],
+        "log": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/current-green.log",
+        "junit": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/current-green.xml",
+        "boundary": "8 parametrized tests; baseline mode replaces only contract_case_input module with exact c1568bb source in memory; no checkout writes",
+        "structured_test_result": {
+          "id": "current-green",
+          "tests": 8,
+          "passed": 8,
+          "failed": 0,
+          "rows": [
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\n-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\t-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\r-False]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "tests.test_c03_records_contract::test_records_raw_schema_control_policy[\\r\\n-False]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\n-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\t-True]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\r-False]",
+              "outcome": "PASS",
+              "failure_message": null
+            },
+            {
+              "id": "::test_records_schema_lexical_parity_same_resealed_bytes[\\r\\n-False]",
+              "outcome": "PASS",
+              "failure_message": null
+            }
+          ],
+          "log_sha256": "a6bd1006d9547bd48fda4e2cdf920a5c4a0e9d30942df34f3e9ef6a9e14f3833",
+          "junit_sha256": "ac057061f5421693d6d83fc485eaec4ef9b5745f8543919acbfcd7ef77c95532"
+        }
+      }
+    ],
+    "final_git": [
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0,
+        "stdout": "20611d11b26b0334123b87f3ef5926e63e867e55\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "status",
+          "--short",
+          "--branch",
+          "--",
+          ".",
+          ":(exclude)documents/Omnis_Notite_Originale.html"
+        ],
+        "exit_code": 0,
+        "stdout": "## p04-control-topology-wip\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+          "20611d11b26b0334123b87f3ef5926e63e867e55",
+          "--",
+          ".",
+          ":(exclude)documents/Omnis_Notite_Originale.html"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--name-only",
+          "--",
+          ".",
+          ":(exclude)documents/Omnis_Notite_Originale.html"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--cached",
+          "--name-only",
+          "--",
+          ".",
+          ":(exclude)documents/Omnis_Notite_Originale.html"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "parent_recorded_not_reexecuted": {
+      "receipt_path": "/home/kali/OmnisAI/documents/verification/p2-b06b-c03-records-r2-f01.json",
+      "receipt_sha256": "ad6c44d94e25b4eb4afc2843fe0d3700491a5fcfb31334233b35a2dff212886b",
+      "red": {
+        "exit": 1,
+        "failed": 4,
+        "passed": 4,
+        "log": "/home/kali/.hermes/cache/scratch/c03records-20261010/r2-f01-red.log",
+        "log_sha256": "4a1aafaa5e6df250ade0dd60f5b00c13c547adc0727f34a04ac92a47d938ab18"
+      },
+      "green": {
+        "unit_native_records": {
+          "exit": 0,
+          "passed": 116
+        },
+        "pg": {
+          "session": "proc_2b0db8f3df05",
+          "exit": 0,
+          "passed": 33,
+          "seconds": 177.33,
+          "family": {
+            "schema_version": 1,
+            "code": 0,
+            "family_drained": true
+          },
+          "root": "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/db-df8c9ebbc5044043",
+          "cid": "1aa2a1c8d08bb282cd9110bd8b726055366acc3eed53b86a2fb372fdc0325daf",
+          "exact_cid_absent": true,
+          "log_sha256": "bb5cc8c180d67deab640e076270b4822109b016f139aa2685b8b61af8ba8eee3"
+        },
+        "runtime": {
+          "exit": 0,
+          "passed": 377,
+          "AST": 6
+        },
+        "lint_format_mypy_exit": 0
+      },
+      "scope": "records_schema applies same raw UTF8/BOM/C0/C1 with LF/TAB allowance BEFORE JSON semantics. Original schema bytes retained. Capture validator/native/composer pin unchanged; compiler/evaluator closure necessarily changes, so final QA qualifies fresh source on rebuilt API.",
+      "pg_limits": "CR/CRLF sources are refused earlier at technical review; no CandidateSnapshot/admission/input/evaluation or managed graph exists. The existing proposal-review identity reservations are retained normally; refused freeze adds no reservations. LF/TAB positives freeze/admit/execute both PURE handlers with original schema_b64 bytes. No claim of zero proposal records or physical crash.",
+      "qualification_limit": "PG resource settlement/exact CID absence and runtime377+6AST/lint-mypy are receipt claims read and bound, not independently reattested by R1; no raw private PG logs or credentials were opened."
+    },
+    "transaction_test_review": {
+      "file": "api/tests/test_c03_records_pg.py:646-764",
+      "test_name": "test_records_lexical_schema_pg_refuses_before_qualification",
+      "negative": "Exact BLOCKED/INVALID_CASE_INPUT stderr after failed technical review. Reads stored review ref and zero counts for five candidate-related kinds, then verifies managed_record/run/task all zero. Failed freeze leaves all counts, including global catalog reservations, unchanged; raw schema bytes unchanged.",
+      "positive": "LF/TAB capture/review/freeze/admit-evaluation-records/evaluate PURE succeeds. Decoded original schema source equals raw; outputs exactly operations[] and surface_map[].",
+      "fixture_boundary": "migrated_database_url is function-scoped and derives a fresh dedicated database from empty_database_url; global table counts are meaningful within that test fixture. Only inspected, never requested by R1.",
+      "authority_limit": "Does not claim zero proposal/review rows or zero prior identity reservations. Does not establish concurrency, physical crash, ACK loss, installed lifecycle, or RUN graph creation."
+    }
+  },
+  "not_run_by_reviewer": [
+    "PostgreSQL/DB/Docker/services and installed release/native lifecycle",
+    "Full116 records suite, runtime377+6AST, lint/mypy and documentation suites (parent receipt retained)",
+    "Browser/visual/accessibility QA",
+    "Canonical make check (forbidden service prerequisites within reviewer mandate)",
+    "Physical crash, power loss, server ACK loss or new concurrent transaction proof",
+    "Provider/model/target effects"
+  ],
+  "tool_applicability": {
+    "Reticle": {
+      "scope": "Read-only source/CLI validator review",
+      "command": null,
+      "result": "NOT_APPLICABLE",
+      "limit": "Product UI instrumentation NOT_INTEGRATED; no UI or visual evidence claimed."
+    },
+    "Chisel": {
+      "scope": "Repository file inspection",
+      "command": null,
+      "result": "BLOCKED_NO_GO",
+      "limit": "Not instantiated or reevaluated; native read-only file/Git tools used."
+    }
+  },
+  "acceptance_limits": [
+    "APPROVED_SCOPED covers exact reviewed source/tests/evidence and combines original unchanged-source R1 scope, not product-wide absence of defects.",
+    "Final installed/native/browser and canonical qualification remain pending on final rebuilt API. The need to rerun those gates is an evidence dependency, not a newly invented code defect.",
+    "Native/adapter/composer and capture helper bytes are unchanged; no automatic installed image attestation or historical qualification transfer is asserted.",
+    "C01/capture/C05 historical acceptances are not reopened. SL09/B06b/G02/phase2 remain partial/not closed; no assessment execution or method-complete claim.",
+    "No protected original HTML access/list/hash/copy, no raw bug-bounty-triage content, no private PG log/DSN/credential/runtime.boot access."
+  ],
+  "workspace_changes": {
+    "repository_files_modified": [],
+    "commits_created": [],
+    "scratch_root": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd",
+    "artifacts": [
+      "initial-git.json",
+      "bindings.json",
+      "focused-tests.json",
+      "baseline-red.log",
+      "baseline-red.xml",
+      "current-green.log",
+      "current-green.xml",
+      "verification.json",
+      "build_report.py",
+      "report.json",
+      "home/",
+      "baseline-red-tmp/",
+      "current-green-tmp/"
+    ],
+    "final_git_clean_excluding_protected_document": true
+  },
+  "issues_encountered": [
+    "No execution blocker. Baseline RED failures are intentional and retained; current GREEN has no failure/skip/warning. Initial context search output was truncated and resolved by exact-file range reads."
+  ],
+  "proposed_status_delta": [
+    {
+      "scope": "AICI: C03 records lexical fix",
+      "code": "IMPLEMENTED_SCOPED",
+      "proof": "R1 RED4FAIL/4PASS -> GREEN8PASS; parent PG33/runtime377+6AST recorded",
+      "review": "R1 APPROVED_SCOPED on exact20611d1",
+      "next": "Parent adjudication plus complementary R2 focused result"
+    },
+    {
+      "scope": "C03 records delivery",
+      "code": "IMPLEMENTED_SCOPED",
+      "proof": "Installed/native/browser/canonical pending final rebuilt API",
+      "review": "Combined original R1 + focused delta only",
+      "next": "Fresh qualification and pending consumer gates"
+    },
+    {
+      "scope": "SL09/B06b/G02",
+      "code": "PARTIAL",
+      "proof": "PARTIAL",
+      "review": "NOT_CLOSED",
+      "next": "No phase closure from this report"
+    },
+    {
+      "scope": "Prior C01/capture/C05 and remaining MVP/post-MVP",
+      "code": "UNCHANGED",
+      "proof": "No new credit",
+      "review": "Outside focused delta",
+      "next": "Keep parent-owned canonical map/order"
+    }
+  ],
+  "parent_handoff": "Persist this exact-snapshot adjudication and its limits in the existing versioned record before scratch expires. No product remediation requested by R1. Do not conflate an R1-scoped closure of R2-F01 with independent R2 final approval or installed/browser/canonical PASS."
+}

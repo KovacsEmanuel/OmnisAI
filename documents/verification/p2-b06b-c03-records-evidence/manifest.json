@@ -1,0 +1,1244 @@
+{
+  "schema_version": 1,
+  "scope": "Reviewed nonsensitive source/review/QA/public graph/image evidence. No raw logs, credentials, runtime.boot or protected original. Scratch paths are historical locators, not runnable defaults.",
+  "product_snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "files": {
+    "review-r1.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/report.json",
+      "sha256": "ae4cca9351810cb7a8886e1d612cfb9d46421f9fd916371abd7b81991e68dde1",
+      "bytes": 61815
+    },
+    "review-r2.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03-r2-rereview-toq7wm2_/report.json",
+      "sha256": "d018a6bbb700a4d7f9622f5b8abb15eb652cf966dfef7eb1ed0e4b028ade5c8c",
+      "bytes": 33045
+    },
+    "installed-initial-fail.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3rqa-e34mbdh4/report.json",
+      "sha256": "4eaa8942e44c683df88a502ff9a056984d90b0a53102a015694137120c0b3d1c",
+      "bytes": 95798
+    },
+    "installed-current-qa.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/report.json",
+      "sha256": "b77918c60dae121537f83fa8457664ce5e851f7c606749d949f6bc45e968e1fe",
+      "bytes": 43651
+    },
+    "installed-history-qa.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/report.json",
+      "sha256": "332bffa4554106640f6c91cdeda01ce22cce7047affcdf3ed39d341b338ab189",
+      "bytes": 9802
+    },
+    "browser-initial-qa.json": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/final-browser-qa-report.json",
+      "sha256": "acf5c78faac6ee51ada9c3d55683b4c8cbf1c786f497795861622d072c1bf5c2",
+      "bytes": 179253
+    },
+    "browser-followup-qa.json": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/final-followup-report.json",
+      "sha256": "c6a3400236cc0b825e0d576329d9bc8d9dd1bc96c2a49792c93aaf0f170b8530",
+      "bytes": 75263
+    },
+    "browser-adjudication.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03records-20261010/browser-adjudication.json",
+      "sha256": "751408ee357bfd2cdc0a968d048890ba622b691187972fde7aad05064904e9d8",
+      "bytes": 48071
+    },
+    "api-build.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/report.json",
+      "sha256": "7b6af44a1fc03a29ebfd078f34799c749863182be806fce7af28dcd72b5e331e",
+      "bytes": 11567
+    },
+    "native-build.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03records-20261010/native-c1568bb/report.json",
+      "sha256": "4ef491f3dfff01c034217545c72d0477ecdc9d84230a5ce86a8aba872daecb97",
+      "bytes": 4103
+    },
+    "baseline-build.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03records-20261010/history-baseline/report.json",
+      "sha256": "ac27b9e5ab636eac93e6f721b8c543cfbdbe105b04566260371144d8361a663d",
+      "bytes": 680
+    },
+    "images/01-before-pairing-error.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-pairing-error.png",
+      "sha256": "1c7db4dbc6a44ea270605a7a338ad21d46d0b6c65658a5d8b36d5fcffaec94af",
+      "bytes": 96901,
+      "inspection": {
+        "id": "IMG-A1-01",
+        "sha256": "1c7db4dbc6a44ea270605a7a338ad21d46d0b6c65658a5d8b36d5fcffaec94af",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Blank pairing input with visible refusal message; form and service cards contained; no live code displayed. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/02-before-empty-desktop.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-empty-desktop.png",
+      "sha256": "d18447108e34784df6a931ead22e5dc9772e3a92c9a8c12c6847729572bcee5a",
+      "bytes": 88640,
+      "inspection": {
+        "id": "IMG-A1-02",
+        "sha256": "d18447108e34784df6a931ead22e5dc9772e3a92c9a8c12c6847729572bcee5a",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Empty dashboard visibly says zero engagements / no engagements saved; unavailable run metrics explicitly distinct from zero; controls contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/03-before-dashboard-error.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-dashboard-error.png",
+      "sha256": "3038c7ecb0e4c919f66f5b3f453fe6ffe81450df8f96ddd0a6b3252e496a4c5d",
+      "bytes": 99226,
+      "inspection": {
+        "id": "IMG-A1-03",
+        "sha256": "3038c7ecb0e4c919f66f5b3f453fe6ffe81450df8f96ddd0a6b3252e496a4c5d",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "API-unreachable notice, Try again and STALE label visible; retained empty projection explicitly not current; no obscured retry control. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/04-before-home.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-home.png",
+      "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+      "bytes": 73590,
+      "inspection": {
+        "id": "IMG-A1-04",
+        "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Capture is transient Checking local session / service readiness LOADING, not a ready-state screenshot; assessment remains unavailable; no overlap. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/05-before-required-errors.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-required-errors.png",
+      "sha256": "d11969b90772929c17b859c64b431c22490d824b7ed115653c9a9fc522531d84",
+      "bytes": 182001,
+      "inspection": {
+        "id": "IMG-A1-05",
+        "sha256": "d11969b90772929c17b859c64b431c22490d824b7ed115653c9a9fc522531d84",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Six-item validation summary and inline required/date errors visible; empty name has prominent outline; form and bottom actions contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/06-before-application-context.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-application-context.png",
+      "sha256": "7a390d0ddbb54880f08bd77742792a4f6f3971e420d88a6933c09af9ccaeea5b",
+      "bytes": 177198,
+      "inspection": {
+        "id": "IMG-A1-06",
+        "sha256": "7a390d0ddbb54880f08bd77742792a4f6f3971e420d88a6933c09af9ccaeea5b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Synthetic context and business rule fields visible, source revision outlined, executable import unavailable; skip link appears in outer gutter in full-page capture, not proven live viewport. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/07-before-identities.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-identities.png",
+      "sha256": "abed93467c17da5a0912e58fadc848201ba434bc58629d7f8c9037b3d2e0feb1",
+      "bytes": 99151,
+      "inspection": {
+        "id": "IMG-A1-07",
+        "sha256": "abed93467c17da5a0912e58fadc848201ba434bc58629d7f8c9037b3d2e0feb1",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Anonymous-valid / secret-vault-login capabilities UNAVAILABLE message visible; no invented identity fields; navigation and actions unobscured. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/08-before-rules.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-rules.png",
+      "sha256": "c5e4ce45ffda87f70d575e4487dca89a46cd1e41f65719bb1a94ee674a112587",
+      "bytes": 168256,
+      "inspection": {
+        "id": "IMG-A1-08",
+        "sha256": "c5e4ce45ffda87f70d575e4487dca89a46cd1e41f65719bb1a94ee674a112587",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "DENY effect, declarative budgets40/300/4096/5/0 and NONE/NONE/7 policy visible. Full-page capture shows Skip to content over part of step1 label; screenshot-only overlap, live viewport not established here; preserve observation. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/09-before-cas-conflict.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-cas-conflict.png",
+      "sha256": "d6ee92df40d0a85f0d505b26a496e30d220e4a60fff2e1d55f083c40eef7faf2",
+      "bytes": 229507,
+      "inspection": {
+        "id": "IMG-A1-09",
+        "sha256": "d6ee92df40d0a85f0d505b26a496e30d220e4a60fff2e1d55f083c40eef7faf2",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Conflict/local edits preserved at top, stale local name retained, explicit compare/discard/rebase choices at form bottom and server3 vs local2 visible; long-page scroll required, no forced-overwrite inference from image. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/10-before-readback-unconfirmed.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-readback-unconfirmed.png",
+      "sha256": "b4723f9f017919d73df3dd2c793e2c9ede87d7e48286a973e533567b9f3cf176",
+      "bytes": 209404,
+      "inspection": {
+        "id": "IMG-A1-10",
+        "sha256": "b4723f9f017919d73df3dd2c793e2c9ede87d7e48286a973e533567b9f3cf176",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Unconfirmed readback warning explicitly says retry exact GET rather than submit again; title reflects prior confirmed state while form has new text; recovery at bottom visible. Disabled state comes from DOM evidence, not pixels. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/11-before-step1-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-1280.png",
+      "sha256": "b63ed57d882143001db6485ba6793da7d337fa15a51c1bb9ecb0d11584721027",
+      "bytes": 196076,
+      "inspection": {
+        "id": "IMG-A1-11",
+        "sha256": "b63ed57d882143001db6485ba6793da7d337fa15a51c1bb9ecb0d11584721027",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Saved revision4 and matching retained name visible; three-column desktop form, scope and bottom actions contained; assessment unavailable. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/12-before-step5-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-1280.png",
+      "sha256": "178d6e8a52d03eb26bbc5142f0f15328b0b1a03d8eddbb55b651e02ebdf20ba7",
+      "bytes": 173013,
+      "inspection": {
+        "id": "IMG-A1-12",
+        "sha256": "178d6e8a52d03eb26bbc5142f0f15328b0b1a03d8eddbb55b651e02ebdf20ba7",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Review summary shows revision4, focused objective, blocked scope, DENY rules/budgets and local-only preflight; no AI or target check claimed; identifiers not transcribed from thumbnail. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/13-before-step1-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-390.png",
+      "sha256": "99233f6f0e38a6e542b7ea993b4a6034a004b1423cf7d9cae2672dbec34905c5",
+      "bytes": 194491,
+      "inspection": {
+        "id": "IMG-A1-13",
+        "sha256": "99233f6f0e38a6e542b7ea993b4a6034a004b1423cf7d9cae2672dbec34905c5",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Mobile header wraps Settings; steps and form stack, bottom actions/status contained; no visible horizontal overflow. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/14-before-step5-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-390.png",
+      "sha256": "8d4cc9488cd3333190da88b99fdcaf7ab75dbe1ee07f0450b5922950262c4fe9",
+      "bytes": 175790,
+      "inspection": {
+        "id": "IMG-A1-14",
+        "sha256": "8d4cc9488cd3333190da88b99fdcaf7ab75dbe1ee07f0450b5922950262c4fe9",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Mobile review strings/digests wrap inside card; Back/Save plus full-width Next and unavailable assessment status contained. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/15-before-step1-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step1-320.png",
+      "sha256": "5e42c0b0f98edd7cdcaed25c57e7bd9d5d975f0414009b467b2bde2c622a7393",
+      "bytes": 196291,
+      "inspection": {
+        "id": "IMG-A1-15",
+        "sha256": "5e42c0b0f98edd7cdcaed25c57e7bd9d5d975f0414009b467b2bde2c622a7393",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Narrow header and title wrap, tabs form three rows; stacked form, helper text and actions remain within width. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/16-before-step5-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-step5-320.png",
+      "sha256": "01f6a887c9b4a024f0d9b26b30b1534eb4c8cdfb4df2681e2b5d1d70d03486a6",
+      "bytes": 179362,
+      "inspection": {
+        "id": "IMG-A1-16",
+        "sha256": "01f6a887c9b4a024f0d9b26b30b1534eb4c8cdfb4df2681e2b5d1d70d03486a6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Narrow dense review wraps scope/context/digests without visible spill; final actions and draft status included. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/17-before-focus-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-focus-1280.png",
+      "sha256": "fcb520f149075fbf8aa25c7a124b35001cdb136968ddef47d72d1fa9c9e72610",
+      "bytes": 198767,
+      "inspection": {
+        "id": "IMG-A1-17",
+        "sha256": "fcb520f149075fbf8aa25c7a124b35001cdb136968ddef47d72d1fa9c9e72610",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name input has bright focus-like outline inside desktop card; full-page skip link at upper-left away from main navigation. DOM measured focus separately. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/18-before-focus-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-focus-390.png",
+      "sha256": "256d41b9a9ee4ac3a674a15965af50c0a3b57662aaccd185ae13a2d6d46cb146",
+      "bytes": 196179,
+      "inspection": {
+        "id": "IMG-A1-18",
+        "sha256": "256d41b9a9ee4ac3a674a15965af50c0a3b57662aaccd185ae13a2d6d46cb146",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name input outlined within mobile card; skip link appears near Settings in full-page capture. This is a capture-level crowding observation, not confirmation of live viewport occlusion. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/19-before-escape-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-1280.png",
+      "sha256": "f855e7ba729864dfcb73f862bd164aab217b529cb298d9bb841d1665a3ce3539",
+      "bytes": 197052,
+      "inspection": {
+        "id": "IMG-A1-19",
+        "sha256": "f855e7ba729864dfcb73f862bd164aab217b529cb298d9bb841d1665a3ce3539",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name field outline and form retained; no modal shown. Filename before denotes pre-restart stage; driver captures after Escape, unlike image-only filename interpretation. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/20-before-escape-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-escape-390.png",
+      "sha256": "8c06d9b49b19e515b89d23d5edd6fb2b6cba1ef4aeba86720e8b0e99cf3b37c5",
+      "bytes": 195509,
+      "inspection": {
+        "id": "IMG-A1-20",
+        "sha256": "8c06d9b49b19e515b89d23d5edd6fb2b6cba1ef4aeba86720e8b0e99cf3b37c5",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Name outline/form retained; full-page skip link visually intrudes into tab region, live viewport not established by this capture. Filename before denotes pre-restart stage; actual capture follows Escape. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification. Conservative final image disposition: captured occlusion is unresolved without viewport-only evidence; not confirmed product defect.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/21-before-failure.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/captures/before-failure.png",
+      "sha256": "98b42eacbf9e8364a6c64747b8e6886c69bb6c8c7175c5a2ba16e5238ba44edd",
+      "bytes": 97571,
+      "inspection": {
+        "id": "IMG-A1-21",
+        "sha256": "98b42eacbf9e8364a6c64747b8e6886c69bb6c8c7175c5a2ba16e5238ba44edd",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact-sheet inspection",
+        "notes": "Runtime Settings: paired, API/web READY, assessment unavailable/NOT_RUN, instance Checking/unverified. No error crash or secret visible; observer assertion not visible product failure. Scope: actual full source image visible in contact sheet; no aesthetics/WCAG certification.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/22-before-pairing-error.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-pairing-error.png",
+      "sha256": "d1a56cb6b15e626c16b2f6ebf04d58e0c07142f97410634d0e4586a4b7918dc7",
+      "bytes": 96898,
+      "inspection": {
+        "id": "IMG-A2-01",
+        "sha256": "d1a56cb6b15e626c16b2f6ebf04d58e0c07142f97410634d0e4586a4b7918dc7",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Blank pairing input with visible refusal message; form and service cards contained; no live code displayed. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/23-before-empty-desktop.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-empty-desktop.png",
+      "sha256": "33b12a0551338f6876da96e2d44db996141f308f7102e51f0adbc60df28e8e16",
+      "bytes": 88613,
+      "inspection": {
+        "id": "IMG-A2-02",
+        "sha256": "33b12a0551338f6876da96e2d44db996141f308f7102e51f0adbc60df28e8e16",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Empty dashboard visibly says zero engagements / no engagements saved; unavailable run metrics explicitly distinct from zero; controls contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/24-before-dashboard-error.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-dashboard-error.png",
+      "sha256": "b28669651b7fa09e73dbcc09e17ba03d7e63f660e12ca7cc70c5d52d1cbff2d4",
+      "bytes": 99206,
+      "inspection": {
+        "id": "IMG-A2-03",
+        "sha256": "b28669651b7fa09e73dbcc09e17ba03d7e63f660e12ca7cc70c5d52d1cbff2d4",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "API-unreachable notice, Try again and STALE label visible; retained empty projection explicitly not current; no obscured retry control. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/25-before-home.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-home.png",
+      "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+      "bytes": 73590,
+      "inspection": {
+        "id": "IMG-A2-04",
+        "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Capture is transient Checking local session / service readiness LOADING, not a ready-state screenshot; assessment remains unavailable; no overlap. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/26-before-required-errors.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-required-errors.png",
+      "sha256": "24eee090126235ecd9f805750ad1dc43614864bfbbffa5c1358b849d6f638560",
+      "bytes": 183606,
+      "inspection": {
+        "id": "IMG-A2-05",
+        "sha256": "24eee090126235ecd9f805750ad1dc43614864bfbbffa5c1358b849d6f638560",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Six-item validation summary and inline required/date errors visible; empty name has prominent outline; form and bottom actions contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/27-before-application-context.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-application-context.png",
+      "sha256": "d5ca19c2dc5c809d8b5ff96a41f89f0b4767fbf63e77d57daeac32b545817d1f",
+      "bytes": 176593,
+      "inspection": {
+        "id": "IMG-A2-06",
+        "sha256": "d5ca19c2dc5c809d8b5ff96a41f89f0b4767fbf63e77d57daeac32b545817d1f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Synthetic context and business rule fields visible, source revision outlined, executable import unavailable; skip link appears in outer gutter in full-page capture, not proven live viewport. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/28-before-identities.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-identities.png",
+      "sha256": "39cadbf5ddc8655604c25306859c011c5476b39b7c76e1fdb085990002e37caf",
+      "bytes": 98592,
+      "inspection": {
+        "id": "IMG-A2-07",
+        "sha256": "39cadbf5ddc8655604c25306859c011c5476b39b7c76e1fdb085990002e37caf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Anonymous-valid / secret-vault-login capabilities UNAVAILABLE message visible; no invented identity fields; navigation and actions unobscured. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/29-before-rules.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-rules.png",
+      "sha256": "4f33c13629f3404aa60df8b879902c66c682a86efb451446caac695dfd0a2f42",
+      "bytes": 167716,
+      "inspection": {
+        "id": "IMG-A2-08",
+        "sha256": "4f33c13629f3404aa60df8b879902c66c682a86efb451446caac695dfd0a2f42",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "DENY effect, declarative budgets40/300/4096/5/0 and NONE/NONE/7 policy visible. Full-page capture shows Skip to content over part of step1 label; screenshot-only overlap, live viewport not established here; preserve observation. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/30-before-cas-conflict.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-cas-conflict.png",
+      "sha256": "3572016ac2d737c7c504d31c18afcfcc0eabd39ede34a15ba90a6e7d06f8f898",
+      "bytes": 230755,
+      "inspection": {
+        "id": "IMG-A2-09",
+        "sha256": "3572016ac2d737c7c504d31c18afcfcc0eabd39ede34a15ba90a6e7d06f8f898",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Conflict/local edits preserved at top, stale local name retained, explicit compare/discard/rebase choices at form bottom and server3 vs local2 visible; long-page scroll required, no forced-overwrite inference from image. Full original-resolution reinspection confirmed compare/discard/keep-local panel and bottom actions are fully contained, require scroll rather than clipped. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/31-before-readback-unconfirmed.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-readback-unconfirmed.png",
+      "sha256": "af7c9f700e5a36f6a61dfc050cb178739e7500681b057f8bdb50f25e0f5f8d58",
+      "bytes": 209592,
+      "inspection": {
+        "id": "IMG-A2-10",
+        "sha256": "af7c9f700e5a36f6a61dfc050cb178739e7500681b057f8bdb50f25e0f5f8d58",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Unconfirmed readback warning explicitly says retry exact GET rather than submit again; title reflects prior confirmed state while form has new text; recovery at bottom visible. Disabled state comes from DOM evidence, not pixels. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/32-before-step1-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-1280.png",
+      "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+      "bytes": 196007,
+      "inspection": {
+        "id": "IMG-A2-11",
+        "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Saved revision4 and matching retained name visible; three-column desktop form, scope and bottom actions contained; assessment unavailable. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/33-before-step5-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-1280.png",
+      "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+      "bytes": 172669,
+      "inspection": {
+        "id": "IMG-A2-12",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Review summary shows revision4, focused objective, blocked scope, DENY rules/budgets and local-only preflight; no AI or target check claimed; identifiers not transcribed from thumbnail. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/34-before-step1-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-390.png",
+      "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+      "bytes": 194514,
+      "inspection": {
+        "id": "IMG-A2-13",
+        "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Mobile header wraps Settings; steps and form stack, bottom actions/status contained; no visible horizontal overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/35-before-step5-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-390.png",
+      "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+      "bytes": 175909,
+      "inspection": {
+        "id": "IMG-A2-14",
+        "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Mobile review strings/digests wrap inside card; Back/Save plus full-width Next and unavailable assessment status contained. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/36-before-step1-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step1-320.png",
+      "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+      "bytes": 196497,
+      "inspection": {
+        "id": "IMG-A2-15",
+        "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow header and title wrap, tabs form three rows; stacked form, helper text and actions remain within width. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/37-before-step5-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-step5-320.png",
+      "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+      "bytes": 179747,
+      "inspection": {
+        "id": "IMG-A2-16",
+        "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow dense review wraps scope/context/digests without visible spill; final actions and draft status included. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/38-before-focus-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-focus-1280.png",
+      "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+      "bytes": 198672,
+      "inspection": {
+        "id": "IMG-A2-17",
+        "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name input has bright focus-like outline inside desktop card; full-page skip link at upper-left away from main navigation. DOM measured focus separately. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/39-before-focus-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-focus-390.png",
+      "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+      "bytes": 196207,
+      "inspection": {
+        "id": "IMG-A2-18",
+        "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name input outlined within mobile card; skip link appears near Settings in full-page capture. This is a capture-level crowding observation, not confirmation of live viewport occlusion. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/40-before-escape-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-1280.png",
+      "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+      "bytes": 196952,
+      "inspection": {
+        "id": "IMG-A2-19",
+        "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name field outline and form retained; no modal shown. Filename before denotes pre-restart stage; driver captures after Escape, unlike image-only filename interpretation. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/41-before-escape-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/before-escape-390.png",
+      "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+      "bytes": 195534,
+      "inspection": {
+        "id": "IMG-A2-20",
+        "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Name outline/form retained; full-page skip link visually intrudes into tab region, live viewport not established by this capture. Filename before denotes pre-restart stage; actual capture follows Escape. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/42-after-restart-review.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-restart-review.png",
+      "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+      "bytes": 172669,
+      "inspection": {
+        "id": "IMG-A2-21",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart review visibly displays saved revision4, objective/context/rules/budgets and local-only preflight; three columns contained; backend equality verified separately in PERSIST-03. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/43-after-step1-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-1280.png",
+      "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+      "bytes": 196007,
+      "inspection": {
+        "id": "IMG-A2-22",
+        "sha256": "9da04a27b63a91ea14195a210a198fee08744c8849c073e446300b289a42e535",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart desktop Target/permission displays saved revision4 and retained synthetic fields; three-column layout; bottom actions in row, no visible clipping. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/44-after-step5-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-1280.png",
+      "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+      "bytes": 172669,
+      "inspection": {
+        "id": "IMG-A2-23",
+        "sha256": "f0f15b581c40b33615ed12d67a598808ea86ac2ea75edae71758ebb8af5f8657",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart revision4 Review/preflight summary, step5 selected, unavailable assessment and local-only preflight; contained dense summary. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/45-after-step1-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-390.png",
+      "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+      "bytes": 194514,
+      "inspection": {
+        "id": "IMG-A2-24",
+        "sha256": "0001cb5dec8f83340fc8b3bb5301660f496c6fbfd8e9d5921bb757f94270e30c",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart mobile step1 stacks header/steps/form/status; Settings wraps, all major controls contained without visible horizontal overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/46-after-step5-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-390.png",
+      "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+      "bytes": 175909,
+      "inspection": {
+        "id": "IMG-A2-25",
+        "sha256": "d2dda42a27b211020359bb803bc0e4e8d3fddfef9b2c273414e373c503aac31b",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Post-restart mobile review wraps identifiers/summary within card; explicit objective newline, controls and lower unavailable status visible. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/47-after-step1-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step1-320.png",
+      "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+      "bytes": 196497,
+      "inspection": {
+        "id": "IMG-A2-26",
+        "sha256": "2b9b6f0fb073d3688e0f55e009ba6d096f6ed3410f10c529a0f8e68158d0609f",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow post-restart form: title/header/tabs wrap, single-column controls contained; single-line fields can show only viewport portion of long values, no whole-document overflow. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/48-after-step5-320.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-step5-320.png",
+      "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+      "bytes": 179747,
+      "inspection": {
+        "id": "IMG-A2-27",
+        "sha256": "268c273c047d98aab0f66d0f2141cf399f5c395bca76c574eada004534371268",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Narrow post-restart review: identifiers/scope/budgets wrap; action row and lower status contained, no observed overlap. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/49-after-focus-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-focus-1280.png",
+      "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+      "bytes": 198672,
+      "inspection": {
+        "id": "IMG-A2-28",
+        "sha256": "8d234a261c2f4749f0b1d801c59eaf79dcd70fd0e7111ea654c86079cd57aeb3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Desktop name input has continuous bright focus-like outline inside card; skip link upper-left away from main controls; no visible field clipping. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/50-after-focus-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-focus-390.png",
+      "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+      "bytes": 196207,
+      "inspection": {
+        "id": "IMG-A2-29",
+        "sha256": "103485a71f59c2a2f471f27edf2994ab101f947390e8f5ccb54d624f986be6b6",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Full-resolution reinspection: name focus ring continuous and separate from label/card; crop x24..366,y970..1065 inspected. Captured full-page header shows skip link around y73..87 and partly hidden Settings around y101..109. Live viewport cause/occlusion unresolved because VISUAL-01 not run. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/51-after-escape-1280.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-1280.png",
+      "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+      "bytes": 196952,
+      "inspection": {
+        "id": "IMG-A2-30",
+        "sha256": "1f524f41387d2b849af173b1b2fd8d34081b436ea7f9e586bce02b387d87a248",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "After Escape screenshot still shows name input outline, same saved form, no modal; desktop columns intact; DOM confirms preserved value/focus independently. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/52-after-escape-390.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-escape-390.png",
+      "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+      "bytes": 195534,
+      "inspection": {
+        "id": "IMG-A2-31",
+        "sha256": "dc4bdea1d92e79d61373ef1c37980aee35408fe33d4a2f97117f71a86d241faf",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "After Escape mobile capture retains name outline/form; skip link appears across lower tab region. Capture concern, not confirmed live viewport; viewport supplement not run. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "FAIL",
+        "finding_scope": "CAPTURE_OCCLUSION_VIEWPORT_UNRESOLVED"
+      }
+    },
+    "images/53-after-failure.png": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/captures/after-failure.png",
+      "sha256": "069398840d9cbe1be421285aab489e7d5ead0a8f8f73129c5362fc6a44e4a3a3",
+      "bytes": 102453,
+      "inspection": {
+        "id": "IMG-A2-32",
+        "sha256": "069398840d9cbe1be421285aab489e7d5ead0a8f8f73129c5362fc6a44e4a3a3",
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "independent live-browser QA / vision_analyze actual contact sheets and stated originals/crop",
+        "notes": "Runtime Settings actually paired, API/web READY, assessment unavailable/NOT_RUN, confirmed instance generation1 epoch1 READY/OPEN. Original-size image ends within instance card; no footer certification or component-clipping claim. No visible secrets. Observer failure does not show a product crash. Static captured layout/state scope only, not aesthetic/WCAG approval.",
+        "verdict": "PASS_SCOPED",
+        "finding_scope": "SCOPED_CAPTURE_OBSERVATION"
+      }
+    },
+    "images/54-supplement-effect-limit.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/supplement-effect-limit.png",
+      "sha256": "52006668236ad9dbe84702a85ce7f4c8b656eb1c26054e88d8e6f4d584bd9951",
+      "bytes": 222044,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "sha256": "52006668236ad9dbe84702a85ce7f4c8b656eb1c26054e88d8e6f4d584bd9951",
+        "dimensions": [
+          390,
+          4608
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Saved revision3, five DENY effects, muted Add control and policy REDACTED/PUBLIC_FACTS/365 visible. Fullpage skip block overlays model-calls field. No paired viewport at this exact save-time scroll; not a confirmed live product defect. Functional disabled/readback assertions are separate.",
+        "verdict": "INCONCLUSIVE_CAPTURE_ONLY"
+      }
+    },
+    "images/55-name390-focus-viewport.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-viewport.png",
+      "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+      "bytes": 46513,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "name390-focus",
+        "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual viewport: complete Name focus ring, no skip-link pixels or control occlusion. Live geometry: skip bottom -52, focus-visible true, hit true, full outline in viewport.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/56-name390-focus-full.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-full.png",
+      "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+      "bytes": 174828,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "name390-focus",
+        "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip block at y703 over navigation; native crop verifies Name outline intact. Paired viewport shows no skip. DOM before/after same: scroll803, skip top-100/bottom-52, field focused. Artifact proven only at this reproduced state.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      }
+    },
+    "images/57-name390-escape-viewport.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-viewport.png",
+      "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+      "bytes": 46513,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "name390-escape",
+        "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual after-Escape viewport: complete Name focus ring, no skip-link overlay; source bytes equal focus viewport, separately inspected.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/58-name390-escape-full.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-full.png",
+      "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+      "bytes": 174828,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "name390-escape",
+        "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip block at y703 over navigation; native crop verifies complete Name outline. Paired Escape viewport has no skip; DOM/focus/scroll unchanged. Same source bytes as focus fullpage, separately inspected.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      }
+    },
+    "images/59-header390-viewport.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-viewport.png",
+      "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+      "bytes": 42597,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "header390",
+        "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Settings visible and unobscured in actual viewport at scroll0; live center hit succeeds; unfocused skip offscreen.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/60-header390-full.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-full.png",
+      "sha256": "e179b6811fff1d818fba4e760daeee8377e8ce0587bdea2b07547de67b942f1d",
+      "bytes": 174816,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "header390",
+        "sha256": "e179b6811fff1d818fba4e760daeee8377e8ce0587bdea2b07547de67b942f1d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Scroll0 fullpage has no skip overlay; Settings clear, Name outline visible below viewport. No generic visibility claim for focused offviewport control when intentionally scrolled to header.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/61-rules1280-focus-viewport.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-viewport.png",
+      "sha256": "1100e17549046bb3bae231e41058206d60788337db7fc1db28d761fb2594a6be",
+      "bytes": 94141,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "rules1280-focus",
+        "sha256": "1100e17549046bb3bae231e41058206d60788337db7fc1db28d761fb2594a6be",
+        "dimensions": [
+          1280,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual1280x900 viewport: entire first Note focus outline visible; no skip overlay. Live focus-visible/hit/outline bounds pass.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "images/62-rules1280-focus-full.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-full.png",
+      "sha256": "ac5e9eca68fb98404d9e0d6f874796a2dcd36acd2943bc546f867ac377a9f6e4",
+      "bytes": 227169,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "rules1280-focus",
+        "sha256": "ac5e9eca68fb98404d9e0d6f874796a2dcd36acd2943bc546f867ac377a9f6e4",
+        "dimensions": [
+          1280,
+          3493
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip at y445 over Refresh button; native crop confirms Note outline. Matching viewport no skip; DOM before/after same scroll545, skip top-100/bottom-54.25. Capture artifact scoped to measured Rules state.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      }
+    },
+    "images/63-after-restart-viewport.png": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/after-restart-viewport.png",
+      "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+      "bytes": 42597,
+      "inspection": {
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Post-restart Setup rendered, header Settings clear, no blocking error. Authentication/persistence proven by HTTP and exact readback, not inferred from image.",
+        "verdict": "PASS_SCOPED"
+      }
+    },
+    "installed/qualification.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/qualification.json",
+      "sha256": "80aea8f3e7377978f86be38493b3897ebbf1c3d9120afa73520c0f7b4caf84ea",
+      "bytes": 12463
+    },
+    "installed/publication.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/publication.json",
+      "sha256": "1222cec4430c738dcbc276d2d8e0cab0d9b34ffd3ab2f11fabd12185be340f44",
+      "bytes": 8927
+    },
+    "installed/ORDERED-prepared.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-prepared.json",
+      "sha256": "453c0ddd4646c15652aabd4dd06431d49e9523ffd9cc6e62ac0b2bdfadeb4cfe",
+      "bytes": 57766
+    },
+    "installed/ORDERED-stage.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-stage.json",
+      "sha256": "841a3475cc25ba4459b8e39b13c585bca9a0b4d8137c875e44cc53f7bbb8fdea",
+      "bytes": 23162
+    },
+    "installed/ORDERED-committed-before-release.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-committed-before-release.json",
+      "sha256": "a0d1ef127b9b734ed833211d2d562ea2a5af947956f2343027d3c1a0a994160d",
+      "bytes": 60275
+    },
+    "installed/ORDERED-blocked.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-blocked.json",
+      "sha256": "efe0e763e3463fbe58a277d18cfdf77d8d7c3802035b1839b944b9d8ff442619",
+      "bytes": 72346
+    },
+    "installed/EMPTY-prepared.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-prepared.json",
+      "sha256": "bdd70741c0fef20a630b6844257082d73852bd9c82430f57d3bc0575dc1b3294",
+      "bytes": 57328
+    },
+    "installed/EMPTY-stage.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-stage.json",
+      "sha256": "18fbdfed3a2303cf104a1ef7281f695567a847d1c047afd5df32ce3fa9afafab",
+      "bytes": 22923
+    },
+    "installed/EMPTY-committed-before-release.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-committed-before-release.json",
+      "sha256": "11d1bbdf80ca2c422ccfc9964d876b1dda2c095ad5ab8849b709c55d9229322a",
+      "bytes": 59837
+    },
+    "installed/EMPTY-blocked.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-blocked.json",
+      "sha256": "e98e869e14f9cd246420752aa6ccde08ab9616632fa27f50b48d654d4221d0d9",
+      "bytes": 71908
+    },
+    "history/history-old-prepare.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-old-prepare.json",
+      "sha256": "903e4246c053acf47c0c20e169fbdeb8ec42025604225113e6b953623e499b9a",
+      "bytes": 27328
+    },
+    "history/history-new-0.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-new-0.json",
+      "sha256": "903e4246c053acf47c0c20e169fbdeb8ec42025604225113e6b953623e499b9a",
+      "bytes": 27328
+    },
+    "history/history-old-prepare-composed.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-old-prepare-composed.json",
+      "sha256": "f5c3d5a1518acff5401a0bdbaa569c909fc8f03c3e5caf1bb60fce08d150ee51",
+      "bytes": 44269
+    },
+    "history/history-new-1.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-new-1.json",
+      "sha256": "f5c3d5a1518acff5401a0bdbaa569c909fc8f03c3e5caf1bb60fce08d150ee51",
+      "bytes": 44269
+    },
+    "history/history-old-capture2.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-old-capture2.json",
+      "sha256": "73fb32166d013947d6596383dadffa9f667264184b262e50a329ff1f66a065cf",
+      "bytes": 56148
+    },
+    "history/history-new-2.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/run/history-new-2.json",
+      "sha256": "73fb32166d013947d6596383dadffa9f667264184b262e50a329ff1f66a065cf",
+      "bytes": 56148
+    },
+    "qa-current/gate.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/gate.py",
+      "sha256": "b8baef3f509a9fa1b208eed79fff379ff7cc799c9075117b571b1880e9f31f08",
+      "bytes": 16301,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-current/journey.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/journey.py",
+      "sha256": "7bc254e8a6c83d619160bff35de9a8ece748992fb9f00aa7f68e7b5aad8c8af8",
+      "bytes": 48323,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-lexical/gate.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/gate.py",
+      "sha256": "b8baef3f509a9fa1b208eed79fff379ff7cc799c9075117b571b1880e9f31f08",
+      "bytes": 16301,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-lexical/journey.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/journey.py",
+      "sha256": "db0efb2b94c370e23d7d5c204c13ec0b8e5b6ef8039f50f1344f8b98d27e502a",
+      "bytes": 42848,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-history/gate.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/gate.py",
+      "sha256": "b8baef3f509a9fa1b208eed79fff379ff7cc799c9075117b571b1880e9f31f08",
+      "bytes": 16301,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-history/journey.py": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/journey.py",
+      "sha256": "683b39d61b13bcb9aeb8e01db9490073df6b657099561eeed06d230543a08a98",
+      "bytes": 43033,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-history/parent-correction.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3i-xk27628i/parent-correction.json",
+      "sha256": "0365720006a28544414e66082f847c20a688eac27b2433acac2009df501639fc",
+      "bytes": 1183,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/gate.py": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/gate.py",
+      "sha256": "dc39586b461e01999fc47b90b3369b3d9158d2feab430e58fa12893ddd4bb3ad",
+      "bytes": 6747,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/journey.py": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/journey.py",
+      "sha256": "6a9eb487578fb3d1158a7b3483786581def28fe8e96cecc7f2a720c8f7f450dc",
+      "bytes": 10193,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/driver.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/driver.mjs",
+      "sha256": "a2e775412e8681ce1de528ebdeae4f1b30f4e99e45e55413d3debcf14fd544d7",
+      "bytes": 27269,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/supplement.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/supplement.mjs",
+      "sha256": "9e9f2d107e0fdbdf930d278851edbfe81d3194d2202a801269f20281706cab07",
+      "bytes": 13327,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/observer.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/observer.mjs",
+      "sha256": "b23488443fcc5a42384dd41f17a3bd0d3051a76a43329a897c20a60709f7f856",
+      "bytes": 1448,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-prior/observer-test.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/retry1/observer-test.mjs",
+      "sha256": "124084fc917602742069c67c764809d000a0efa56448cc3d544a058f57f38881",
+      "bytes": 2006,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-final/gate.py": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/gate.py",
+      "sha256": "e45bf878d86f3b6c357d35bad7032566f2a8645cac0e55b40bc2fd0c364402e6",
+      "bytes": 6804,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-final/journey.py": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/journey.py",
+      "sha256": "32623bd588cd39d82fa07f6e3bd16c3fc075ef6f5e84220a19511093544bb96f",
+      "bytes": 10200,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-final/supplement.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/supplement.mjs",
+      "sha256": "696371ecb4e907de00802d47bdef533dc0a8c2eb83d3a0bf4b47f4f05146e78a",
+      "bytes": 12240,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-final/after.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/after.mjs",
+      "sha256": "b10947f7eb12dfd3300d8178dc496c65b053f935e42882f5083ea8f58ca6d79d",
+      "bytes": 8901,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "qa-browser-final/observer.mjs": {
+      "source": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/observer.mjs",
+      "sha256": "ede3977d027c310d04273c55dba6c6b32d3ed1ff68223fe133a8a15659161fdd",
+      "bytes": 3017,
+      "scope": "Historical QA/reproducer source captured after execution; not runtime product, not a new current default; verify artifact/config/root pins before any reuse."
+    },
+    "review-client-r1.json": {
+      "source": "/home/kali/.hermes/cache/scratch/r1-b1w47_6s/review-acceptance.json",
+      "sha256": "c87c4259b1c4a9770bbeda6f9f751eda97f9a6bd08ed7e1156841c25b556920e",
+      "bytes": 4997
+    },
+    "review-client-r2.json": {
+      "source": "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/review.json",
+      "sha256": "32f8637c2dd3d7644ffbdf05d2506342e8d9114a1999ac41b1b4cb4bccd11af1",
+      "bytes": 8395
+    },
+    "parent-native-readback.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c03records-20261010/parent-native-readback.json",
+      "sha256": "1151cb6c74a48ca067dd48aa498f4a6e173eba51d10d1ca751268dd9222a1035",
+      "bytes": 2338
+    },
+    "canonical-before.json": {
+      "source": "/home/kali/.hermes/cache/scratch/c3y-kxinqv09/before.json",
+      "sha256": "330e18297cf9a18b25d93fbec89776e50845c7221518cfcf86469377b717aba7",
+      "bytes": 86022
+    }
+  }
+}

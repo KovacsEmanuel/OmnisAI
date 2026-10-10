@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_SCOPED_COMPOSITE_INSTALLED",
+  "decision_owner": "PARENT",
+  "product_snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "report_links": [
+    {
+      "path": "p2-b06b-c03-records-evidence/installed-initial-fail.json",
+      "sha256": "4eaa8942e44c683df88a502ff9a056984d90b0a53102a015694137120c0b3d1c"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/installed-current-qa.json",
+      "sha256": "b77918c60dae121537f83fa8457664ce5e851f7c606749d949f6bc45e968e1fe"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/installed-history-qa.json",
+      "sha256": "332bffa4554106640f6c91cdeda01ce22cce7047affcdf3ed39d341b338ab189"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/parent-native-readback.json",
+      "sha256": "1151cb6c74a48ca067dd48aa498f4a6e173eba51d10d1ca751268dd9222a1035"
+    }
+  ],
+  "acceptance_rows": [
+    {
+      "id": "ARTIFACTS",
+      "status": "PASS_SCOPED",
+      "evidence": "Frozen source137, current API71 source/wheel/install, adapter8 and native overlay6; old API71 source/wheel/install; all pre/post unchanged."
+    },
+    {
+      "id": "PACKAGE_EVAL_AND_PUBLISH",
+      "status": "PASS_SCOPED",
+      "evidence": "Real installed STATIC/PURE two transform outputs; PTY operator confirmation; exact publication, unchanged source template and publication readback."
+    },
+    {
+      "id": "ORDERED_AND_EMPTY_COMPOSITION",
+      "status": "PASS_SCOPED",
+      "evidence": "Fresh distinct RUN inputs preserve ordered duplicates/Unicode and empty list, authoritative schema, both bound input chains, all three method requirements and metadata-before-Brief; base/role and old assignments stable."
+    },
+    {
+      "id": "FRESH_ROOT_NATIVE_STAGE_RELEASE",
+      "status": "PASS_SCOPED",
+      "evidence": "Two real preparations, separate boot/root pairs, native validate_stage, actual cold stage and committed binding read before release; NO_MODEL/BLOCKED/INCOMPLETE, consumed refs empty; no root reuse or grant extension."
+    },
+    {
+      "id": "INSTALLED_DENIALS",
+      "status": "PASS_SCOPED",
+      "evidence": "25 bind/input/encoding/command-conflict checks on unassigned context, unchanged managed DB state; valid bind and replay after negatives."
+    },
+    {
+      "id": "R2_F01",
+      "status": "PASS_SCOPED",
+      "evidence": "Raw CR/CRLF review INVALID_CASE_INPUT and freeze TECHNICAL_REVIEW_MISMATCH with all five qualified-record counts zero. LF/TAB exact raw schema bytes accepted and real PURE two empty outputs."
+    },
+    {
+      "id": "CURRENT_RECEIVE_ONLY_RESTART",
+      "status": "PASS_SCOPED",
+      "evidence": "Both assignments stable after old host cleanup and new supervisor/native-host restart; readback, idempotent prepare, reconcile and input read identical, no new stage."
+    },
+    {
+      "id": "HISTORY_OLD_PRODUCER_3",
+      "status": "PASS_SCOPED",
+      "evidence": "Pinned old installed CLI genuinely qualified/published/prepared wire1, composition1 and capture2 in fresh PG, native document preparation only; original old readbacks retained; zero stage/release."
+    },
+    {
+      "id": "HISTORY_NEW_DB_READBACK_REPLAY_3",
+      "status": "PASS_SCOPED",
+      "evidence": "Fresh baseline-produced v1/composition1/capture2; exact current bytes/readback/command replay, no stage/release. history21 checkpoints/0fail and code0/drained."
+    },
+    {
+      "id": "HISTORY_RECEIVE_ONLY_RESTART",
+      "status": "PASS_SCOPED",
+      "evidence": "New supervisor/native host; exact receive-only history equality. Unstarted reconcile refused NEEDS_RECONCILIATION with no writes, not invented success."
+    }
+  ],
+  "original_current_counts": {
+    "passed_checkpoints": 77,
+    "unique_checkpoint_ids": 66,
+    "checkpoint_status_counts": {
+      "PASS": 77
+    },
+    "failed_attempt_assertions_outside_checkpoint_array": 3,
+    "recorded_commands": 160,
+    "recorded_cli_exits": {
+      "0": 123,
+      "2": 31
+    },
+    "supervisor_starts": 6,
+    "binding_input_denial_checkpoints": 25,
+    "retired_native_cids": 6,
+    "retired_pg_cids": 3,
+    "exact_retired_cids_total": 9
+  },
+  "history_checkpoints": {
+    "PASS": 21,
+    "FAIL": 0,
+    "not_test_count": true
+  },
+  "historical_attempts_stay_not_pass": true,
+  "adjudication": "Credit exact successfully observed current scopes, not a successful aggregate suite. Three current aggregates remain exit1; the missing historical frontier has a separate fresh corrected exit0/drained proof. Parent directly parsed structured ORDERED/EMPTY values, stable base/role, all3 requirements, distinct roots and committed binding before release, then NO_MODEL/BLOCKED/INCOMPLETE/empty consumed refs.",
+  "findings": [
+    {
+      "id": "QA-F01/QA-F02",
+      "disposition": "Initial root-reuse failure and stage uncertainty retained, no retrospective reconciliation/reuse. Fresh per-RUN boot/root solves invalid topology without product relaxation; resource retirement separately verified."
+    },
+    {
+      "id": "FRESH-QA-F01",
+      "disposition": "Lexical identity ownership corrected only in fixture; LF/TAB positive and CR/CRLF negative genuinely reached on fresh DB."
+    },
+    {
+      "id": "FRESH-QA-F02",
+      "disposition": "Owned TMPDIR path corrected; old three forms genuinely produced subsequently."
+    },
+    {
+      "id": "FRESH-QA-F03",
+      "disposition": "Closed for new history proof: unstarted graph reconcile must deny, while exact readback/replay equality remains mandatory."
+    },
+    {
+      "id": "PROTECTED_PATH_PROTOCOL",
+      "disposition": "Unfiltered status displayed protected filename only; deviation recorded. No content read/copy/hash/stage. Not erased by later product PASS."
+    }
+  ],
+  "limits": [
+    "77 observed checkpoints /66 unique IDs across failed aggregates are not77 independent tests or an exit0 suite.",
+    "No independent installed evaluator-call observer; source/PG guarded replay supplies no-rerun proof for supported no-dependency contract. History runtime comparisons alone are byte-equality evidence.",
+    "No physical crash, newly observed locking overlap, exhaustive native mutation or methods/model/target execution. Existing owner lock unchanged.",
+    "False oracle/helper/config attempts remain in source reports. No pin, root uniqueness or grant widening."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "PASS_LOCAL_RECORDED",
+  "snapshot": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+  "process": "proc_e3c65fa0961c",
+  "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c3y-kxinqv09/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c3y-kxinqv09 make check UV=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/uv",
+  "exit_code": 0,
+  "family": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "tracked_count": 727,
+  "all_tracked_bytes_unchanged": true,
+  "source_manifest": "p2-b06b-c03-records-evidence/canonical-before.json",
+  "log_sha256": "ae976cb8cf2e3849f4e1dd1dea490e79052b4a323bcffe36361485d4a34676d8",
+  "component_counts": {
+    "documentation": 72,
+    "development": 43,
+    "api": 1219,
+    "migrations": 23,
+    "web_tests": 82,
+    "web_test_files": 10,
+    "live_e2e": 9,
+    "cli_source": 287,
+    "cli_wheel": 287,
+    "installed_status": 1,
+    "release_integration": 61,
+    "runtime": 377,
+    "native_ast": 6
+  },
+  "component_summaries": [
+    "Ran 72 tests in 1.477s",
+    "Ran 43 tests in 8.781s",
+    "1219 passed in 2191.53s (0:36:31)",
+    "23 passed in 70.32s (0:01:10)",
+    " Test Files  10 passed (10)",
+    "      Tests  82 passed (82)",
+    "found 0 vulnerabilities",
+    "9 passed in 84.01s (0:01:24)",
+    "Ran 287 tests in 73.038s",
+    "Ran 287 tests in 74.659s",
+    "1 passed in 3.27s",
+    "Ran 61 tests in 18.729s",
+    "377 passed in 13.08s",
+    "Ran 6 tests in 0.054s",
+    "Success: no issues found in 8 source files"
+  ],
+  "scope": "Full unmodified make check -> existing check-components runner. Counts are per component, not distinct-total or live-native proof. Includes existing API/wheel/migration/web/CLI/release/runtime/lint/type/format/contract/build/audit targets.",
+  "cleanup": {
+    "cid": "edde4252b0fb62f889d947aa305b7280fd8a8e95f4e31b86bc222f32f814ed7f",
+    "project": "omnis-p01-20167a40660c464583f3d1e3fe092c3e",
+    "cid_absent_parent": true,
+    "project_containers_absent_parent": true,
+    "project_networks_absent_parent": true,
+    "socket_absent_runner": true,
+    "uncertain": false,
+    "root": "/home/kali/.hermes/cache/scratch/c3y-kxinqv09/db-9490152dd50b4790",
+    "database": "PG18.6 private UDS, network_none, no published ports",
+    "system_identifier": "7695057231804149790",
+    "retention": "PGDATA/log retained; per-test DBs dropped by existing fixtures; no r1/foreign/global cleanup."
+  },
+  "limits": [
+    "Canonical is separate from independent installed/native/browser proof.",
+    "First canonical remains FAIL in p2-b06b-c03-records-canonical-fail.json.",
+    "No provider/model/target/rollout/remote-CI/push or global B06b/G02 closure."
+  ]
+}

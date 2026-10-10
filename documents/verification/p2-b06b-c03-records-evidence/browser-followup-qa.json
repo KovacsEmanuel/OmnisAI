@@ -1,0 +1,2160 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_SCOPED_FOLLOWUP_8_CRITERIA",
+  "scope": "Only 7 supplement IDs plus corrected OBS-after/BOOT on one fresh installed fixture; NOT a new 59-row/full audit verdict",
+  "snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "api_wheel_sha256": "d1710551bf0da08dee32e0abc81142f192bc405ea223418090b3d66f00bcf9a5",
+  "web_files": {
+    "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+    "assets/index-qLRttWws.css": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+    "assets/index-rbkVcYwN.js": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+    "index.html": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09",
+    "omnis-web.json": "a6dbe0f728184e095461034c9a38174933a3e6a0eba1e9be07c55bc3f48aa225"
+  },
+  "review_receipts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r1-20611d1-ph9akicd/report.json",
+      "sha256": "ae4cca9351810cb7a8886e1d612cfb9d46421f9fd916371abd7b81991e68dde1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r2-rereview-toq7wm2_/report.json",
+      "sha256": "d018a6bbb700a4d7f9622f5b8abb15eb652cf966dfef7eb1ed0e4b028ade5c8c"
+    }
+  ],
+  "installed_bindings_count": 71,
+  "artifact_and_review_pins_unchanged": true,
+  "scratch_input_drift": [],
+  "execution": {
+    "command": [
+      "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/bf-ww71cvws/gate.py",
+      "--config",
+      "/home/kali/.hermes/cache/scratch/bf-ww71cvws/accepted.json",
+      "--execute-after-acceptance"
+    ],
+    "process_session": "proc_11651b19ecb2",
+    "exit": 0,
+    "gate_receipt": {
+      "exit": 0,
+      "scope": "TARGETED_INSTALLED_UI_NOT_CANONICAL"
+    },
+    "runner_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "driver_commands": [
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "omnis.migrate",
+          "--initialize"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/bf-ww71cvws",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/node",
+          "/home/kali/.hermes/cache/scratch/bf-ww71cvws/supplement.mjs",
+          "supplement"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/node",
+          "/home/kali/.hermes/cache/scratch/bf-ww71cvws/after.mjs",
+          "after"
+        ],
+        "exit": 0
+      }
+    ],
+    "stage_order": [
+      "supplement",
+      "after"
+    ],
+    "runtime_attempts": 1,
+    "native_task_or_image_launched": false
+  },
+  "required_ids": [
+    "BOUND-01",
+    "BOUND-02",
+    "BOUND-03",
+    "BOUND-04",
+    "VISUAL-01",
+    "SUPP-SEC",
+    "OBS-supplement",
+    "OBS-after"
+  ],
+  "rows": [
+    {
+      "id": "BOUND-01",
+      "action": "Name129 invalid; name128 and objective8192 valid",
+      "expected": "Real 422 then persisted exact limits",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 1,
+        "digest": "e33497da1995d684812ffd8ebd9965f6c6b7da6d4221b7a2789246107fa65a5c",
+        "name_limit": 128,
+        "objective_limit": 8192
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Real 422 then persisted exact limits",
+      "actual": {
+        "revision": 1,
+        "digest": "e33497da1995d684812ffd8ebd9965f6c6b7da6d4221b7a2789246107fa65a5c",
+        "name_limit": 128,
+        "objective_limit": 8192
+      }
+    },
+    {
+      "id": "BOUND-02",
+      "action": "Application invalid seed; blank item; oversized workflow1025",
+      "expected": "Real API422 and field error; repairs valid",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "seed_scheme": "javascript denied",
+        "workflow_limit_plus_one": 1025,
+        "empty_item": "denied"
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Real API422 and field error; repairs valid",
+      "actual": {
+        "seed_scheme": "javascript denied",
+        "workflow_limit_plus_one": 1025,
+        "empty_item": "denied"
+      }
+    },
+    {
+      "id": "BOUND-03",
+      "action": "Missing business principal, repair and save",
+      "expected": "Real API422 on missing required matrix field",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 2
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Real API422 on missing required matrix field",
+      "actual": {
+        "revision": 2
+      }
+    },
+    {
+      "id": "BOUND-04",
+      "action": "Effect note1025 invalid; all five effect classes conditional exhaustion; policies",
+      "expected": "422 oversized note; Add disabled after five; remove reenabled; rev3 persisted",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 3,
+        "effects": 5,
+        "policy": {
+          "model_projection": "REDACTED",
+          "research_egress": "PUBLIC_FACTS",
+          "retention_days": 365
+        },
+        "capture": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/supplement-effect-limit.png"
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "422 oversized note; Add disabled after five; remove reenabled; rev3 persisted",
+      "actual": {
+        "revision": 3,
+        "effects": 5,
+        "policy": {
+          "model_projection": "REDACTED",
+          "research_egress": "PUBLIC_FACTS",
+          "retention_days": 365
+        },
+        "capture": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/supplement-effect-limit.png"
+      }
+    },
+    {
+      "id": "VISUAL-01",
+      "action": "Paired viewport/full-page captures at mobile Name/focus/Escape/header and desktop Rules field",
+      "expected": "Offscreen unfocused skip; visible unclipped focused field and live hit-tests; identical focus/scroll for pairs",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "measurements": [
+          {
+            "name": "name390-focus",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-full.png"
+          },
+          {
+            "name": "name390-escape",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-full.png"
+          },
+          {
+            "name": "header390",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 0
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 1230.125,
+                "width": 316,
+                "height": 46,
+                "top": 1230.125,
+                "bottom": 1276.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": false,
+                "outline_inside_viewport": false
+              },
+              "settings": {
+                "x": 23,
+                "y": 81,
+                "width": 83.59375,
+                "height": 44,
+                "top": 81,
+                "bottom": 125,
+                "hit": true
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 0
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 1230.125,
+                "width": 316,
+                "height": 46,
+                "top": 1230.125,
+                "bottom": 1276.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": false,
+                "outline_inside_viewport": false
+              },
+              "settings": {
+                "x": 23,
+                "y": 81,
+                "width": 83.59375,
+                "height": 44,
+                "top": 81,
+                "bottom": 125,
+                "hit": true
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-full.png"
+          },
+          {
+            "name": "rules1280-focus",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 545
+              },
+              "viewport": {
+                "width": 1280,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 123.609375,
+                "height": 45.75,
+                "top": -100,
+                "bottom": -54.25,
+                "focused": false
+              },
+              "field": {
+                "label": "Note for READ_ONLY_KNOWN",
+                "tag": "TEXTAREA",
+                "id": "draft-effect_rules-0-note",
+                "focused": true,
+                "focus_visible": true,
+                "x": 307,
+                "y": 428.234375,
+                "width": 616,
+                "height": 65.5,
+                "top": 428.234375,
+                "bottom": 493.734375,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 751.125,
+                "y": -519,
+                "width": 91.734375,
+                "height": 44,
+                "top": -519,
+                "bottom": -475,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 545
+              },
+              "viewport": {
+                "width": 1280,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 123.609375,
+                "height": 45.75,
+                "top": -100,
+                "bottom": -54.25,
+                "focused": false
+              },
+              "field": {
+                "label": "Note for READ_ONLY_KNOWN",
+                "tag": "TEXTAREA",
+                "id": "draft-effect_rules-0-note",
+                "focused": true,
+                "focus_visible": true,
+                "x": 307,
+                "y": 428.234375,
+                "width": 616,
+                "height": 65.5,
+                "top": 428.234375,
+                "bottom": 493.734375,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 751.125,
+                "y": -519,
+                "width": 91.734375,
+                "height": 44,
+                "top": -519,
+                "bottom": -475,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-full.png"
+          }
+        ],
+        "scope": "Only reported skip-link/focused-field/header viewport ambiguity; not aesthetic/WCAG approval"
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Skip link actually offscreen when field focused; Settings unobscured at top",
+      "actual": {
+        "measurements": [
+          {
+            "name": "name390-focus",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-full.png"
+          },
+          {
+            "name": "name390-escape",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 803
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 427.125,
+                "width": 316,
+                "height": 46,
+                "top": 427.125,
+                "bottom": 473.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 23,
+                "y": -722,
+                "width": 83.59375,
+                "height": 44,
+                "top": -722,
+                "bottom": -678,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-full.png"
+          },
+          {
+            "name": "header390",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 0
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 1230.125,
+                "width": 316,
+                "height": 46,
+                "top": 1230.125,
+                "bottom": 1276.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": false,
+                "outline_inside_viewport": false
+              },
+              "settings": {
+                "x": 23,
+                "y": 81,
+                "width": 83.59375,
+                "height": 44,
+                "top": 81,
+                "bottom": 125,
+                "hit": true
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 0
+              },
+              "viewport": {
+                "width": 390,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 131.375,
+                "height": 48,
+                "top": -100,
+                "bottom": -52,
+                "focused": false
+              },
+              "field": {
+                "label": "Engagement name",
+                "tag": "INPUT",
+                "id": "draft-name",
+                "focused": true,
+                "focus_visible": true,
+                "x": 37,
+                "y": 1230.125,
+                "width": 316,
+                "height": 46,
+                "top": 1230.125,
+                "bottom": 1276.125,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": false,
+                "outline_inside_viewport": false
+              },
+              "settings": {
+                "x": 23,
+                "y": 81,
+                "width": 83.59375,
+                "height": 44,
+                "top": 81,
+                "bottom": 125,
+                "hit": true
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-full.png"
+          },
+          {
+            "name": "rules1280-focus",
+            "before": {
+              "scroll": {
+                "x": 0,
+                "y": 545
+              },
+              "viewport": {
+                "width": 1280,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 123.609375,
+                "height": 45.75,
+                "top": -100,
+                "bottom": -54.25,
+                "focused": false
+              },
+              "field": {
+                "label": "Note for READ_ONLY_KNOWN",
+                "tag": "TEXTAREA",
+                "id": "draft-effect_rules-0-note",
+                "focused": true,
+                "focus_visible": true,
+                "x": 307,
+                "y": 428.234375,
+                "width": 616,
+                "height": 65.5,
+                "top": 428.234375,
+                "bottom": 493.734375,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 751.125,
+                "y": -519,
+                "width": 91.734375,
+                "height": 44,
+                "top": -519,
+                "bottom": -475,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "after": {
+              "scroll": {
+                "x": 0,
+                "y": 545
+              },
+              "viewport": {
+                "width": 1280,
+                "height": 900
+              },
+              "skip": {
+                "x": 16,
+                "y": -100,
+                "width": 123.609375,
+                "height": 45.75,
+                "top": -100,
+                "bottom": -54.25,
+                "focused": false
+              },
+              "field": {
+                "label": "Note for READ_ONLY_KNOWN",
+                "tag": "TEXTAREA",
+                "id": "draft-effect_rules-0-note",
+                "focused": true,
+                "focus_visible": true,
+                "x": 307,
+                "y": 428.234375,
+                "width": 616,
+                "height": 65.5,
+                "top": 428.234375,
+                "bottom": 493.734375,
+                "outline_width": "2px",
+                "outline_style": "solid",
+                "outline_color": "rgb(214, 201, 182)",
+                "outline_offset": "3px",
+                "hit": true,
+                "outline_inside_viewport": true
+              },
+              "settings": {
+                "x": 751.125,
+                "y": -519,
+                "width": 91.734375,
+                "height": 44,
+                "top": -519,
+                "bottom": -475,
+                "hit": false
+              },
+              "overflow": false
+            },
+            "viewport": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-viewport.png",
+            "full": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-full.png"
+          }
+        ],
+        "scope": "Only reported skip-link/focused-field/header viewport ambiguity; not aesthetic/WCAG approval"
+      }
+    },
+    {
+      "id": "SUPP-SEC",
+      "action": "Post-boundary same-origin storage and logs",
+      "expected": "Zero page errors/outbound/storage secrets",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "instance_id": "cc2a619e-4d6f-4abf-89e3-87decccbe724"
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Zero page errors/outbound/storage secrets",
+      "actual": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "instance_id": "cc2a619e-4d6f-4abf-89e3-87decccbe724"
+      }
+    },
+    {
+      "id": "OBS-supplement",
+      "action": "Inspect console and HTTP outcomes across this stage",
+      "expected": "Only declared validation/auth/404/CAS/fault negatives and narrowly classified navigation cancellations",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+        "boot_controls": true,
+        "responses": 37,
+        "console_events": 7,
+        "expected_injected_failures": 0,
+        "navigation_cancellations": [
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:30",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 4384.533892,
+            "start_scenario": "VISUAL-01",
+            "start_action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "scenario": "VISUAL-01",
+            "fault": false,
+            "action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 4335.851872,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 4475.028347
+          }
+        ],
+        "unexpected": 0
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "supplement",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "original_inventory_expectation": "Only explicit expected negatives; no uncaught page or network error",
+      "actual": {
+        "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+        "boot_controls": true,
+        "responses": 37,
+        "console_events": 7,
+        "expected_injected_failures": 0,
+        "navigation_cancellations": [
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:30",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 4384.533892,
+            "start_scenario": "VISUAL-01",
+            "start_action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "scenario": "VISUAL-01",
+            "fault": false,
+            "action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 4335.851872,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 4475.028347
+          }
+        ],
+        "unexpected": 0
+      }
+    },
+    {
+      "id": "OBS-after",
+      "action": "After API restart, pair fresh browser; direct Setup GET, reload and identical retained limit-draft readback; inspect BOOT outcomes",
+      "expected": "Same revision3/digest/full payload; readiness200+pairing200+session200 on this fresh browser; no unexpected errors",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "id": "ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+        "revision": 3,
+        "digest": "4deca6101685a93c352b7a0953fb66ca168a9f4cb44688eb601c923611ab4f13",
+        "payload_exact": true,
+        "fresh_browser": true,
+        "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+        "boot_controls": true,
+        "responses": 26,
+        "unexpected": 0,
+        "navigation_cancellations": [
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:14",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 1352.753524,
+            "start_scenario": "OBS-after",
+            "start_action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1263.202042,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 1454.86671
+          },
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:22",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 2183.113249,
+            "start_scenario": "OBS-after",
+            "start_action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1994.458802,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 2281.653538
+          }
+        ],
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "capture": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/after-restart-viewport.png",
+        "assessment_disabled": true
+      },
+      "verdict": "PASS",
+      "exclusions": [],
+      "stage": "after",
+      "source_file": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-after.json",
+      "original_inventory_expectation": "Only explicit negative responses and aborts; no other error",
+      "actual": {
+        "id": "ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+        "revision": 3,
+        "digest": "4deca6101685a93c352b7a0953fb66ca168a9f4cb44688eb601c923611ab4f13",
+        "payload_exact": true,
+        "fresh_browser": true,
+        "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+        "boot_controls": true,
+        "responses": 26,
+        "unexpected": 0,
+        "navigation_cancellations": [
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:14",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 1352.753524,
+            "start_scenario": "OBS-after",
+            "start_action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1263.202042,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 1454.86671
+          },
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:22",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 2183.113249,
+            "start_scenario": "OBS-after",
+            "start_action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1994.458802,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 2281.653538
+          }
+        ],
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "capture": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/after-restart-viewport.png",
+        "assessment_disabled": true
+      }
+    }
+  ],
+  "row_count": 8,
+  "row_totals": {
+    "PASS": 8
+  },
+  "observer_controls": {
+    "scope": "OFFLINE_OBSERVER_CONTROLS_ONLY",
+    "status": "PASS",
+    "count": 23,
+    "tests": [
+      {
+        "id": "positive-boot-controls",
+        "actual": true,
+        "expected": true,
+        "verdict": "PASS"
+      },
+      {
+        "id": "positive-boot-abort",
+        "actual": true,
+        "expected": true,
+        "verdict": "PASS"
+      },
+      {
+        "id": "positive-visual-navigation",
+        "actual": true,
+        "expected": true,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-unknown_path",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-wrong_method",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-ERR_FAILED",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-missing_action",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-idle",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-missing_request",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-wrong_scenario",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-foreign_browser",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-early",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-stale",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-fault",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-missing-/health/ready",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-missing-/api/pairing",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-missing-/api/session",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-no-controls",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-ready500",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-unexpected500",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "deny-unknown422",
+        "actual": false,
+        "expected": false,
+        "verdict": "PASS"
+      },
+      {
+        "id": "positive-boundary422",
+        "actual": true,
+        "expected": true,
+        "verdict": "PASS"
+      },
+      {
+        "id": "positive-auth401",
+        "actual": true,
+        "expected": true,
+        "verdict": "PASS"
+      }
+    ]
+  },
+  "observed_network": {
+    "status": "PASS_SCOPED",
+    "scope": "READBACK_SAME_FRESH_CAPTURE_INCLUDING_CLOSE_EVENTS_NO_RERUN",
+    "stages": [
+      {
+        "stage": "supplement",
+        "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+        "controls": [
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:4",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 1243.472521,
+            "start_scenario": "BOOT",
+            "start_action_id": "677c48b5-0a3e-4ac0-ab5a-cebb07aa74b4",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 200,
+            "received_ms": 1337.964195
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:6",
+            "method": "POST",
+            "path": "/api/pairing",
+            "started_ms": 1512.314078,
+            "start_scenario": "BOOT",
+            "start_action_id": "a40f1836-b0eb-4f06-b39d-4fe12477514a",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "a40f1836-b0eb-4f06-b39d-4fe12477514a",
+            "action_phase": "BOOT_AUTH",
+            "action_started_ms": 1368.906071,
+            "status": 200,
+            "received_ms": 1555.454003
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:7",
+            "method": "GET",
+            "path": "/api/session",
+            "started_ms": 1556.504268,
+            "start_scenario": "BOOT",
+            "start_action_id": "a40f1836-b0eb-4f06-b39d-4fe12477514a",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "a40f1836-b0eb-4f06-b39d-4fe12477514a",
+            "action_phase": "BOOT_AUTH",
+            "action_started_ms": 1368.906071,
+            "status": 200,
+            "received_ms": 1589.945301
+          }
+        ],
+        "observed_exceptions": [
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:30",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 4384.533892,
+            "start_scenario": "VISUAL-01",
+            "start_action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "scenario": "VISUAL-01",
+            "fault": false,
+            "action_id": "addc4f1f-5b98-402c-82f2-8759d239bf79",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 4335.851872,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 4475.028347,
+            "action_label": "mobile Setup reload",
+            "action_finished_ms": 4919.708459,
+            "allowed": true
+          }
+        ],
+        "requests": 37,
+        "responses": 37,
+        "http_negatives": [
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:5",
+            "method": "GET",
+            "path": "/api/session",
+            "started_ms": 1244.488125,
+            "start_scenario": "BOOT",
+            "start_action_id": "677c48b5-0a3e-4ac0-ab5a-cebb07aa74b4",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "677c48b5-0a3e-4ac0-ab5a-cebb07aa74b4",
+            "action_phase": "BOOT_NAVIGATION",
+            "action_started_ms": 1051.120227,
+            "status": 401,
+            "received_ms": 1254.896536
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:11",
+            "method": "POST",
+            "path": "/api/v1/engagements",
+            "started_ms": 1973.764773,
+            "start_scenario": "BOUND-01",
+            "start_action_id": null,
+            "scenario": "BOUND-01",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 2012.41799
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:17",
+            "method": "PUT",
+            "path": "/api/v1/engagements/ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+            "started_ms": 2755.216987,
+            "start_scenario": "BOUND-02",
+            "start_action_id": null,
+            "scenario": "BOUND-02",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 2793.842887
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:18",
+            "method": "PUT",
+            "path": "/api/v1/engagements/ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+            "started_ms": 2856.767863,
+            "start_scenario": "BOUND-02",
+            "start_action_id": null,
+            "scenario": "BOUND-02",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 2899.149914
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:19",
+            "method": "PUT",
+            "path": "/api/v1/engagements/ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+            "started_ms": 2957.607302,
+            "start_scenario": "BOUND-02",
+            "start_action_id": null,
+            "scenario": "BOUND-02",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 2998.093078
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:20",
+            "method": "PUT",
+            "path": "/api/v1/engagements/ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+            "started_ms": 3156.670341,
+            "start_scenario": "BOUND-03",
+            "start_action_id": null,
+            "scenario": "BOUND-03",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 3191.835902
+          },
+          {
+            "browser_id": "f1f2ea26-0d44-412d-9770-24525967e4c0",
+            "request_id": "f1f2ea26-0d44-412d-9770-24525967e4c0:23",
+            "method": "PUT",
+            "path": "/api/v1/engagements/ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+            "started_ms": 3589.052055,
+            "start_scenario": "BOUND-04",
+            "start_action_id": null,
+            "scenario": "BOUND-04",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 422,
+            "received_ms": 3629.187675
+          }
+        ],
+        "unexpected": 0,
+        "page_errors": 0,
+        "external_attempts": 0,
+        "unexpected_console": 0,
+        "browser_closed": true
+      },
+      {
+        "stage": "after",
+        "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+        "controls": [
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:4",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 652.169383,
+            "start_scenario": "BOOT",
+            "start_action_id": "ce90806a-6bb5-47f6-84bf-d8991107be0b",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": null,
+            "action_phase": "IDLE",
+            "action_started_ms": null,
+            "status": 200,
+            "received_ms": 798.386182
+          },
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:6",
+            "method": "POST",
+            "path": "/api/pairing",
+            "started_ms": 988.329523,
+            "start_scenario": "BOOT",
+            "start_action_id": "27a9281d-6365-4cb5-9f4f-efcf8c3f5fd5",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "27a9281d-6365-4cb5-9f4f-efcf8c3f5fd5",
+            "action_phase": "BOOT_AUTH",
+            "action_started_ms": 839.250611,
+            "status": 200,
+            "received_ms": 1033.919803
+          },
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:7",
+            "method": "GET",
+            "path": "/api/session",
+            "started_ms": 1035.126475,
+            "start_scenario": "BOOT",
+            "start_action_id": "27a9281d-6365-4cb5-9f4f-efcf8c3f5fd5",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "27a9281d-6365-4cb5-9f4f-efcf8c3f5fd5",
+            "action_phase": "BOOT_AUTH",
+            "action_started_ms": 839.250611,
+            "status": 200,
+            "received_ms": 1083.300295
+          }
+        ],
+        "observed_exceptions": [
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:14",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 1352.753524,
+            "start_scenario": "OBS-after",
+            "start_action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1263.202042,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 1454.86671,
+            "action_label": "direct retained Setup route after restart",
+            "action_finished_ms": 1809.613348,
+            "allowed": true
+          },
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:22",
+            "method": "GET",
+            "path": "/health/ready",
+            "started_ms": 2183.113249,
+            "start_scenario": "OBS-after",
+            "start_action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "scenario": "OBS-after",
+            "fault": false,
+            "action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+            "action_phase": "NAVIGATION",
+            "action_started_ms": 1994.458802,
+            "error": "net::ERR_ABORTED",
+            "failed_ms": 2281.653538,
+            "action_label": "reload retained Setup after restart",
+            "action_finished_ms": 2619.589585,
+            "allowed": true
+          }
+        ],
+        "requests": 26,
+        "responses": 26,
+        "http_negatives": [
+          {
+            "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+            "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:5",
+            "method": "GET",
+            "path": "/api/session",
+            "started_ms": 653.548075,
+            "start_scenario": "BOOT",
+            "start_action_id": "ce90806a-6bb5-47f6-84bf-d8991107be0b",
+            "scenario": "BOOT",
+            "fault": false,
+            "action_id": "ce90806a-6bb5-47f6-84bf-d8991107be0b",
+            "action_phase": "BOOT_NAVIGATION",
+            "action_started_ms": 560.316967,
+            "status": 401,
+            "received_ms": 663.465256
+          }
+        ],
+        "unexpected": 0,
+        "page_errors": 0,
+        "external_attempts": 0,
+        "unexpected_console": 0,
+        "browser_closed": true
+      }
+    ]
+  },
+  "images": {
+    "scope": "SKIP_LINK_VIEWPORT_AMBIGUITY_ONLY_NO_AESTHETIC_OR_WCAG_APPROVAL",
+    "captures": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/supplement-effect-limit.png",
+        "inspection": "COMPLETE",
+        "sha256": "52006668236ad9dbe84702a85ce7f4c8b656eb1c26054e88d8e6f4d584bd9951",
+        "dimensions": [
+          390,
+          4608
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Saved revision3, five DENY effects, muted Add control and policy REDACTED/PUBLIC_FACTS/365 visible. Fullpage skip block overlays model-calls field. No paired viewport at this exact save-time scroll; not a confirmed live product defect. Functional disabled/readback assertions are separate.",
+        "verdict": "INCONCLUSIVE_CAPTURE_ONLY"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-viewport.png",
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "name390-focus",
+        "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual viewport: complete Name focus ring, no skip-link pixels or control occlusion. Live geometry: skip bottom -52, focus-visible true, hit true, full outline in viewport.",
+        "verdict": "PASS_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-focus-full.png",
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "name390-focus",
+        "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip block at y703 over navigation; native crop verifies Name outline intact. Paired viewport shows no skip. DOM before/after same: scroll803, skip top-100/bottom-52, field focused. Artifact proven only at this reproduced state.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-viewport.png",
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "name390-escape",
+        "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual after-Escape viewport: complete Name focus ring, no skip-link overlay; source bytes equal focus viewport, separately inspected.",
+        "verdict": "PASS_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/name390-escape-full.png",
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "name390-escape",
+        "sha256": "2da0e74dc212fb50034c2216799e8a50557d2dbecd175686420d7e7cb1c69a5d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip block at y703 over navigation; native crop verifies complete Name outline. Paired Escape viewport has no skip; DOM/focus/scroll unchanged. Same source bytes as focus fullpage, separately inspected.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-viewport.png",
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "header390",
+        "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Settings visible and unobscured in actual viewport at scroll0; live center hit succeeds; unfocused skip offscreen.",
+        "verdict": "PASS_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/header390-full.png",
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "header390",
+        "sha256": "e179b6811fff1d818fba4e760daeee8377e8ce0587bdea2b07547de67b942f1d",
+        "dimensions": [
+          390,
+          3591
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Scroll0 fullpage has no skip overlay; Settings clear, Name outline visible below viewport. No generic visibility claim for focused offviewport control when intentionally scrolled to header.",
+        "verdict": "PASS_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-viewport.png",
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "pair": "rules1280-focus",
+        "sha256": "1100e17549046bb3bae231e41058206d60788337db7fc1db28d761fb2594a6be",
+        "dimensions": [
+          1280,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Actual1280x900 viewport: entire first Note focus outline visible; no skip overlay. Live focus-visible/hit/outline bounds pass.",
+        "verdict": "PASS_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/rules1280-focus-full.png",
+        "inspection": "COMPLETE",
+        "kind": "fullpage",
+        "pair": "rules1280-focus",
+        "sha256": "ac5e9eca68fb98404d9e0d6f874796a2dcd36acd2943bc546f867ac377a9f6e4",
+        "dimensions": [
+          1280,
+          3493
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Fullpage skip at y445 over Refresh button; native crop confirms Note outline. Matching viewport no skip; DOM before/after same scroll545, skip top-100/bottom-54.25. Capture artifact scoped to measured Rules state.",
+        "verdict": "PASS_SCOPED_CAPTURE_ARTIFACT"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/after-restart-viewport.png",
+        "inspection": "COMPLETE",
+        "kind": "viewport",
+        "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+        "dimensions": [
+          390,
+          900
+        ],
+        "inspected": true,
+        "method": "independent_image_inspection",
+        "inspector": "vision_analyze actual source image plus explicit native crops where relevant",
+        "notes": "Post-restart Setup rendered, header Settings clear, no blocking error. Authentication/persistence proven by HTTP and exact readback, not inferred from image.",
+        "verdict": "PASS_SCOPED"
+      }
+    ],
+    "paired_fullpage_artifact_cases": [
+      "name390-focus",
+      "name390-escape",
+      "rules1280-focus"
+    ],
+    "unpaired_capture_limit": [
+      "supplement-effect-limit.png"
+    ],
+    "confirmed_live_blocking_defects": []
+  },
+  "image_count": 10,
+  "inspected_count": 10,
+  "image_verdict_counts": {
+    "INCONCLUSIVE_CAPTURE_ONLY": 1,
+    "PASS_SCOPED": 6,
+    "PASS_SCOPED_CAPTURE_ARTIFACT": 3
+  },
+  "viewport_adjudication": {
+    "result": "LIVE_VIEWPORT_AMBIGUITY_CLEARED_FOR_REPRODUCED_POSITIONS",
+    "measured_cases": [
+      "390px focused Name",
+      "390px Name after Escape",
+      "390px header Settings at scroll0",
+      "1280px first Rules Note focus"
+    ],
+    "paired_fullpage_artifacts": [
+      "name390-focus",
+      "name390-escape",
+      "rules1280-focus"
+    ],
+    "unpaired_fullpage_limit": "supplement-effect-limit.png visibly overlays model-call input but no same-time viewport/geometry was recorded there; retain INCONCLUSIVE_CAPTURE_ONLY, not a confirmed live blocker. BOUND-04 acceptance is independently backed by DOM and exact API readback.",
+    "not_claimed": [
+      "Aesthetic approval",
+      "WCAG certification",
+      "all historic screenshot states cleared",
+      "all viewport/control combinations"
+    ]
+  },
+  "cleanup": {
+    "scope": "EXACT_OWNED_READ_ONLY_AFTER_GATE",
+    "project": "omnis-p01-402f3787a2f14e4898e8f2d7e8c2b0a7",
+    "container_id": "92116166446ecda0877da19f0f34ab8461a9687c07ad2b9fae63fa27f1876c7d",
+    "database": "omnis_p01_7b90dfacd5b54b81a9d09fe2411b8484",
+    "database_post_DROP_absent": true,
+    "pgdata_retained": true,
+    "root": "/home/kali/.hermes/cache/scratch/bf-ww71cvws",
+    "container_inspect_status": 404,
+    "owned_container_ids": [],
+    "owned_network_ids": [],
+    "process_readbacks": [
+      {
+        "role": "supervisor",
+        "pid": 816366,
+        "original_identity": [
+          815965,
+          "26928792",
+          "R"
+        ],
+        "proc_absent": true
+      },
+      {
+        "role": "api",
+        "pid": 816390,
+        "original_identity": [
+          815965,
+          "26928942",
+          "R"
+        ],
+        "proc_absent": true
+      },
+      {
+        "role": "browser_driver",
+        "pid": 816423,
+        "original_identity": [
+          815965,
+          "26929165",
+          "R"
+        ],
+        "proc_absent": true
+      },
+      {
+        "role": "api",
+        "pid": 816761,
+        "original_identity": [
+          815965,
+          "26931290",
+          "R"
+        ],
+        "proc_absent": true
+      },
+      {
+        "role": "browser_driver",
+        "pid": 816795,
+        "original_identity": [
+          815965,
+          "26931483",
+          "R"
+        ],
+        "proc_absent": true
+      }
+    ],
+    "socket_readbacks": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/ipc/control.sock",
+        "lexists": false
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/db-ee6c668a151f4d11/socket/.s.PGSQL.5432",
+        "lexists": false
+      }
+    ],
+    "port": 53601,
+    "port_listener_absent": true,
+    "input_drift": [],
+    "head": "20611d11b26b0334123b87f3ef5926e63e867e55",
+    "artifact_and_review_pins_unchanged": true,
+    "runner": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "gate_exit": 0,
+    "browser_closed": {
+      "supplement": true,
+      "after": true
+    },
+    "status": "PASS_SCOPED",
+    "logs_secret_check": true
+  },
+  "retained_synthetic_state": {
+    "root": "/home/kali/.hermes/cache/scratch/bf-ww71cvws",
+    "draft_snapshot": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/supplement-retained.json",
+    "pgdata": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/db-ee6c668a151f4d11/data",
+    "note": "Only per-test DB dropped after family drain; runner retains cluster PGDATA; captures still require actual independent inspection."
+  },
+  "persistence": {
+    "same_database": true,
+    "old_api_pid": 816390,
+    "new_api_pid": 816761,
+    "draft": {
+      "id": "ba2d7df0-d2c7-419c-851f-da8cff9f5c56",
+      "revision": 3,
+      "digest": "4deca6101685a93c352b7a0953fb66ca168a9f4cb44688eb601c923611ab4f13",
+      "payload_exact": true,
+      "fresh_browser": true,
+      "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+      "boot_controls": true,
+      "responses": 26,
+      "unexpected": 0,
+      "navigation_cancellations": [
+        {
+          "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+          "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:14",
+          "method": "GET",
+          "path": "/health/ready",
+          "started_ms": 1352.753524,
+          "start_scenario": "OBS-after",
+          "start_action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+          "scenario": "OBS-after",
+          "fault": false,
+          "action_id": "2ad11aae-8a3c-4bc8-a70c-e50444782db0",
+          "action_phase": "NAVIGATION",
+          "action_started_ms": 1263.202042,
+          "error": "net::ERR_ABORTED",
+          "failed_ms": 1454.86671
+        },
+        {
+          "browser_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f",
+          "request_id": "d2c7b6c1-57cf-4e49-92db-25bde34a0f3f:22",
+          "method": "GET",
+          "path": "/health/ready",
+          "started_ms": 2183.113249,
+          "start_scenario": "OBS-after",
+          "start_action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+          "scenario": "OBS-after",
+          "fault": false,
+          "action_id": "1b21bf8a-29c2-4864-86ae-502ab9bfb42f",
+          "action_phase": "NAVIGATION",
+          "action_started_ms": 1994.458802,
+          "error": "net::ERR_ABORTED",
+          "failed_ms": 2281.653538
+        }
+      ],
+      "storage": {
+        "local": 0,
+        "session": 0,
+        "cookie": ""
+      },
+      "capture": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/captures/after-restart-viewport.png",
+      "assessment_disabled": true
+    },
+    "post_DROP_readback_absent": true
+  },
+  "readback_attempts": [
+    {
+      "command": [
+        "/home/kali/.hermes/cache/scratch/c03records-20261010/api-20611d1-copy/api-venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/bf-ww71cvws/readback.py"
+      ],
+      "exit": 1,
+      "reason": "ModuleNotFoundError: httpx absent from installed runtime; readback failed on import before daemon reads/effects",
+      "log": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/readback.private.log",
+      "disposition": "PRESERVED_FAILED_READ_ONLY_OBSERVER_NOT_PRODUCT_FAILURE"
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/bf-ww71cvws/readback.py"
+      ],
+      "exit": 0,
+      "reason": "Existing approved test interpreter supplies httpx; no installation, runtime rerun or resource effects",
+      "log": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/readback-existing-testenv.private.log"
+    }
+  ],
+  "preserved_prior_failures": {
+    "report": "/home/kali/.hermes/cache/scratch/rb-8ek79gju/final-browser-qa-report.json",
+    "sha256_from_parent": "acf5c78faac6ee51ada9c3d55683b4c8cbf1c786f497795861622d072c1bf5c2",
+    "prior_two_failed_processes": "Remain FAIL; no edits, retroactive PASS, old DB reuse or old capture recategorization by this report",
+    "composition": "Parent alone reconciles original39PASS +4NOT_IMPLEMENTED +8 deliberate exclusions with these8 new results"
+  },
+  "limits": {
+    "assessment": "NOT_IMPLEMENTED / disabled",
+    "case_slot_ui": "ABSENT",
+    "reticle": "NOT_INTEGRATED",
+    "chisel": "BLOCKED_NO_GO",
+    "provider_target_traffic": "NOT_AUTHORIZED; zero external browser attempts, structural loopback/private UDS proof only",
+    "global_certification": "NOT_CLAIMED",
+    "product_or_ui_changes": false,
+    "build_or_install": false,
+    "r1_access": false,
+    "protected_original_access": false
+  },
+  "evidence_files": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/journey.json",
+      "sha256": "8a5e910c45c77ae23904184486c7017be9a47017a3b925e9cf21ab44dd025ee3"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/gate-exit.json",
+      "sha256": "b4cf78c3a33ba93422ad0c20ee80da60a176ba65d7bde6f3e15094592efa8142"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-supplement.json",
+      "sha256": "b95607c78c8f62b2b422a42f8597e8fdd956ac1da305d8299bdee91d745fe8f7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/browser-after.json",
+      "sha256": "af4ec016dcddb5aea0363226a590d0a6bd3eb97f67cabe5a3e55986f34c2b306"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/supplement-retained.json",
+      "sha256": "625214cfd000e7212823c7b7e05e824ed3190322fd99ddfd42034460fc1db10d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/observer-controls.json",
+      "sha256": "16bfd0b797bbe3521900f53da2386968bd0eccd73afbe13f81705fe11ddcbc49"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/network-readback.json",
+      "sha256": "731075869ada6386044dd4a5574a2fa6249b2fb3567977ddd8ce9b4bc16a2856"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/cleanup-readback.json",
+      "sha256": "6610551cbd28c87a529e9650cfa01c09f267b0e852eb59411395f1925af17886"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/inspection.json",
+      "sha256": "45d374d1b652b55209f445c2e1ea7cf152645b5efc1187e2f791b1700245823b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/image-manifest.json",
+      "sha256": "3344a3c370708c348bdc73c3dd6a4061ee0a3c2b91c1a563f939dd806223543b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/followup-inputs.json",
+      "sha256": "bfcc3c2afbf19ab4a9974bf38da0dd38e41771c4c0ff3317d8951e45a25a86f9"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/bf-ww71cvws/preflight.json",
+      "sha256": "f6bbbb999aec6eab8dc4a9433fd35fa7641489841acefcc7fddd68280e31b1d8"
+    }
+  ],
+  "issues": [
+    {
+      "id": "READBACK-IMPORT",
+      "severity": "OBSERVER_ONLY",
+      "resolved": true,
+      "detail": "First read-only cleanup observer lacked httpx; original failure retained. Existing test interpreter completed exact readback without modifying source or launching another runtime."
+    },
+    {
+      "id": "CAPTURE-UNPAIRED",
+      "severity": "EVIDENCE_SCOPE_LIMIT",
+      "resolved": false,
+      "detail": "One illustrative fullpage effect-limit screenshot has skip overlay without its own paired viewport. Measured original focus/header positions have paired artifact proof; no new blocking live defect confirmed."
+    }
+  ],
+  "parent_handoff": {
+    "code": "UNCHANGED",
+    "proof": "8/8 required fresh rows PASS_SCOPED; 23 offline controls; 10 source images inspected",
+    "review": "Two exact artifact-bound reviews retained; parent owns closure",
+    "next": "Adjudicate this followup with prior results; no additional runtime authorized or needed for stated8 rows"
+  }
+}

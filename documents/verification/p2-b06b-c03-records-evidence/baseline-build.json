@@ -1,0 +1,10 @@
+{
+  "status": "BASELINE_INSTALLED_PREFLIGHT_ONLY",
+  "source_base": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+  "python": "/home/kali/.hermes/cache/scratch/c03records-20261010/history-baseline/venv/bin/python",
+  "site_packages": "/home/kali/.hermes/cache/scratch/c03records-20261010/history-baseline/venv/lib/python3.13/site-packages",
+  "wheel": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/wheel/omnis_api-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "0cd8f8b2bc9eacdf266f1b865a992e1c87bf062f1e94d5c158104595a0ecd92c",
+  "members_exact_singlelink": 71,
+  "effects": "new private baseline install; no historical data/resources adopted; no DB/native services"
+}

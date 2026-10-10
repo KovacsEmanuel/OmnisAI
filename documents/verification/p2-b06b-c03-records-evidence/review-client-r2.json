@@ -1,0 +1,144 @@
+{
+  "base": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "head": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+  "head_after": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+  "status_after": "## p04-control-topology-wip",
+  "sha256_before": {
+    "api/tests/test_native_task_client.py": "4fba2ad2b19141609dbbf94ada39705860d0db8657ac3d8554ec5634427e1df1",
+    "api/src/omnis/supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json": "292d26811222f6bc8bbfe8f7108f1beb1d4b7f87a0da87fd6f4d768e6a5ddd3e",
+    "documents/verification/p2-b06b-c03-records.md": "7a21ee7b95ac3876b13ee31136449ad8fe534be1e21127522314fca9a9487ac3"
+  },
+  "sha256_after": {
+    "api/tests/test_native_task_client.py": "4fba2ad2b19141609dbbf94ada39705860d0db8657ac3d8554ec5634427e1df1",
+    "api/src/omnis/supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json": "292d26811222f6bc8bbfe8f7108f1beb1d4b7f87a0da87fd6f4d768e6a5ddd3e",
+    "documents/verification/p2-b06b-c03-records.md": "7a21ee7b95ac3876b13ee31136449ad8fe534be1e21127522314fca9a9487ac3"
+  },
+  "reviewed_files_match_head": true,
+  "runtime_same_as_base": true,
+  "all_test_and_fixture_bodies_ast_identical_to_base": true,
+  "test_command": [
+    "/home/kali/OmnisAI/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-c",
+    "/home/kali/OmnisAI/api/pyproject.toml",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-q",
+    "/home/kali/OmnisAI/api/tests/test_native_task_client.py",
+    "--basetemp=/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/pytest",
+    "--junitxml=/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/pytest.xml"
+  ],
+  "test_environment": {
+    "HOME": "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/home",
+    "PATH": "/usr/bin:/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/tmp",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "LANG": "C.UTF-8"
+  },
+  "exit_code": 0,
+  "junit_counts": {
+    "tests": 16,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_names": [
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v1-task_stage]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v1-task_release]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v1-task_status]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v2-task_stage]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v2-task_release]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v2-task_status]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v3-task_stage]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v3-task_release]",
+    "test_managed_exchange_uses_current_grant_and_existing_stream[omnis-managed-admission-v3-task_status]",
+    "test_lost_managed_reply_closes_without_resend",
+    "test_expired_grant_refuses_before_managed_write",
+    "test_arbitrary_operation_never_requests_authority",
+    "test_unknown_managed_version_never_requests_authority[None]",
+    "test_unknown_managed_version_never_requests_authority[True]",
+    "test_unknown_managed_version_never_requests_authority[protocol2]",
+    "test_unknown_managed_version_never_requests_authority[omnis-managed-admission-v4]"
+  ],
+  "evidence_directory": "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh",
+  "test_log_sha256": "74d422abff089f247c3b6c332325df27ca6c964db6f58fb8835b8d90c6f6693f",
+  "fixture_tmp_empty_after": true,
+  "schema_version": 1,
+  "review_id": "R2-focused-safety-oracle-c0261a7",
+  "verdict": "APPROVED_SCOPED",
+  "findings": [],
+  "scope": "Test-only delta and two verification documents; no new broad security audit.",
+  "changed_paths": [
+    "api/tests/test_native_task_client.py",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json",
+    "documents/verification/p2-b06b-c03-records.md"
+  ],
+  "source_immutability": {
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "20611d11b26b0334123b87f3ef5926e63e867e55",
+      "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+      "--",
+      ".",
+      ":(exclude)documents/Omnis_Notite_Originale.html",
+      ":(exclude,glob)**/*bug*bounty*",
+      ":(exclude)api/tests/test_native_task_client.py",
+      ":(exclude)documents/verification/p2-b06b-c03-records-canonical-fail.json",
+      ":(exclude)documents/verification/p2-b06b-c03-records.md"
+    ],
+    "exit_code": 0,
+    "scope": "No tracked change outside the three declared paths, with protected HTML and raw bug-bounty paths excluded before Git enumeration. RuntimeClient source also SHA-256 identical before/after and byte-equal to base/head. The parent 726-file inventory was not recreated."
+  },
+  "diff_check_exit": 0,
+  "criteria": [
+    {
+      "criterion": "v3 uses current grant and existing stream for task_stage/task_release/task_status",
+      "result": "PASS",
+      "evidence": "Nine protocol/operation positive tests including all three v3 operations. Exact managed result, single awaited authority(owner,1,0,inert_probe=True), single request, exact payload/op/deadline assertions retained at api/tests/test_native_task_client.py:76-99."
+    },
+    {
+      "criterion": "v4 and malformed None/True/[] denied before authority",
+      "result": "PASS",
+      "evidence": "Four negative cases exercise real RuntimeClient.managed via task_stage, require RuntimeUnavailable matching payload denied and assert_not_awaited at test_native_task_client.py:146-156. Shared guard in runtime_client.py:449-455 precedes await runtime_authority at 457-459 for all allowed operations."
+    },
+    {
+      "criterion": "No assertion weakening",
+      "result": "PASS",
+      "evidence": "AST comparison confirms every test/fixture function body identical to base. Only decorators add v3 positives and replace obsolete v3-unknown with v4. All no-resend/close, expired-grant/no-write, arbitrary-operation/no-authority, and bounded peer-settlement checks are unchanged."
+    },
+    {
+      "criterion": "No product changes or transferred live proof",
+      "result": "PASS",
+      "evidence": "Only the test file and two documentation paths differ. Existing RuntimeClient protocol allowlist is v1/v2/v3. Transport frame/time/deadline guards remain unchanged; no new stress/bounds test is claimed."
+    },
+    {
+      "criterion": "Historical canonical failure retained",
+      "result": "PASS_DOCUMENT_REVIEW",
+      "evidence": "New receipt and appended note retain FAIL_RETAINED, canonical exit2/drained, 1215 PASS/1 FAIL at base; reported focused RED12/1 is distinct from GREEN16. Full canonical retry remains pending, not made green by this review."
+    }
+  ],
+  "boundaries": [
+    "Executed real RuntimeClient and synthetic Unix-stream peer with mocked InstanceService authority; not native-runtime admission/domain validation, installed/browser QA, DB/OCI proof, or broad security acceptance.",
+    "Private HOME/TMPDIR; Python -I -B and disabled pytest cache/autoload; only explicit pytest_asyncio plugin. IPC fixture temp directory empty after completion. No DB/OCI fixtures requested, no product/config writes or commits.",
+    "Historical parent RED, full canonical, installed/browser evidence and 726-file stability are contextual/versioned records, not independently replayed or recertified.",
+    "Protected original HTML and raw bug-bounty data were not read/copied/hashed/inventoried; exclusions precede broad Git path enumeration.",
+    "Reticle NOT_APPLICABLE for transport/test-only scope; Chisel BLOCKED/NO-GO, not executed.",
+    "Global SL09/B06b remains PARTIAL; this scoped test-oracle approval does not close G02 or promote any historical FAIL. Parent adjudicates and owns all repository writes."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/pytest.log",
+    "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/pytest.xml",
+    "/home/kali/.hermes/cache/scratch/r2c-5cpgyrzh/review.json"
+  ],
+  "repository_files_modified": [],
+  "issues_encountered": []
+}

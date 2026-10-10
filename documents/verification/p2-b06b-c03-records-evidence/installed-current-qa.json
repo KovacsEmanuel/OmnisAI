@@ -1,0 +1,1201 @@
+{
+  "schema_version": 1,
+  "delivery_status": "COMPLETE_REPORT",
+  "overall_verdict": "NOT_PASS",
+  "acceptance_owner": "PARENT_ONLY",
+  "requested_scope_complete": false,
+  "remaining_blocker": "Genuine old-to-new DB equality/replay across all three forms and historical restart not completed because of extra invalid reconcile oracle.",
+  "reviewed_head": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "product_changed": false,
+  "tracked_index_clean_after": true,
+  "topology": "One corrected full journey followed by two progressively narrowed fresh-DB remaining-frontier attempts; no successful native records gate was repeated.",
+  "prior_failures_preserved": {
+    "path": "/home/kali/.hermes/cache/scratch/c3rqa-e34mbdh4/report.json",
+    "sha256": "4eaa8942e44c683df88a502ff9a056984d90b0a53102a015694137120c0b3d1c",
+    "parent_adjudication": "/home/kali/.hermes/cache/scratch/c03records-20261010/qa-topology-adjudication.json",
+    "disposition": "Both old FAIL/unreconciled stages remain; no adoption or reconciliation claimed."
+  },
+  "counts": {
+    "passed_checkpoints": 77,
+    "unique_checkpoint_ids": 66,
+    "checkpoint_status_counts": {
+      "PASS": 77
+    },
+    "failed_attempt_assertions_outside_checkpoint_array": 3,
+    "recorded_commands": 160,
+    "recorded_cli_exits": {
+      "0": 123,
+      "2": 31
+    },
+    "supervisor_starts": 6,
+    "binding_input_denial_checkpoints": 25,
+    "retired_native_cids": 6,
+    "retired_pg_cids": 3,
+    "exact_retired_cids_total": 9
+  },
+  "coverage": [
+    {
+      "id": "ARTIFACTS",
+      "status": "PASS_SCOPED",
+      "evidence": "Frozen source137, current API71 source/wheel/install, adapter8 and native overlay6; old API71 source/wheel/install; all pre/post unchanged."
+    },
+    {
+      "id": "PACKAGE_EVAL_AND_PUBLISH",
+      "status": "PASS_SCOPED",
+      "evidence": "Real installed STATIC/PURE two transform outputs; PTY operator confirmation; exact publication, unchanged source template and publication readback."
+    },
+    {
+      "id": "ORDERED_AND_EMPTY_COMPOSITION",
+      "status": "PASS_SCOPED",
+      "evidence": "Fresh distinct RUN inputs preserve ordered duplicates/Unicode and empty list, authoritative schema, both bound input chains, all three method requirements and metadata-before-Brief; base/role and old assignments stable."
+    },
+    {
+      "id": "FRESH_ROOT_NATIVE_STAGE_RELEASE",
+      "status": "PASS_SCOPED",
+      "evidence": "Two real preparations, separate boot/root pairs, native validate_stage, actual cold stage and committed binding read before release; NO_MODEL/BLOCKED/INCOMPLETE, consumed refs empty; no root reuse or grant extension."
+    },
+    {
+      "id": "INSTALLED_DENIALS",
+      "status": "PASS_SCOPED",
+      "evidence": "25 bind/input/encoding/command-conflict checks on unassigned context, unchanged managed DB state; valid bind and replay after negatives."
+    },
+    {
+      "id": "R2_F01",
+      "status": "PASS_SCOPED",
+      "evidence": "Raw CR/CRLF review INVALID_CASE_INPUT and freeze TECHNICAL_REVIEW_MISMATCH with all five qualified-record counts zero. LF/TAB exact raw schema bytes accepted and real PURE two empty outputs."
+    },
+    {
+      "id": "CURRENT_RECEIVE_ONLY_RESTART",
+      "status": "PASS_SCOPED",
+      "evidence": "Both assignments stable after old host cleanup and new supervisor/native-host restart; readback, idempotent prepare, reconcile and input read identical, no new stage."
+    },
+    {
+      "id": "HISTORY_OLD_PRODUCER_3",
+      "status": "PASS_SCOPED",
+      "evidence": "Pinned old installed CLI genuinely qualified/published/prepared wire1, composition1 and capture2 in fresh PG, native document preparation only; original old readbacks retained; zero stage/release."
+    },
+    {
+      "id": "HISTORY_NEW_DB_READBACK_REPLAY_3",
+      "status": "INCOMPLETE",
+      "evidence": "Current wire1 readback and prepare replay returned 0, but equality/unchanged-state assertion followed an invalid reconcile expectation and was not reached. Composition1/capture2 current readback/replay not executed; do not credit 3/3."
+    },
+    {
+      "id": "HISTORY_RECEIVE_ONLY_RESTART",
+      "status": "NOT_RUN",
+      "evidence": "Stopped at extra historical reconcile command; restart loop never entered."
+    },
+    {
+      "id": "CLEANUP",
+      "status": "PASS_RESOURCE_RETIREMENT_ONLY",
+      "evidence": "All three families code1/drained; nine exact owned CIDs independently absent; six supervisors exit0; native/PG sockets absent; each exact per-test DB independently absent after DROP. State/PGDATA/images/logs retained."
+    },
+    {
+      "id": "QA_F02_OBSERVER",
+      "status": "PASS_ORACLE_ONLY",
+      "evidence": "Structured reason decoded before assert; unbound stage classified UNRECONCILED separately from process-family state. Three no-effect synthetic controls passed; no new unbound-stage failure occurred live."
+    },
+    {
+      "id": "PROTECTED_PATH_PROTOCOL",
+      "status": "NOT_PASS_PROTOCOL_DEVIATION",
+      "evidence": "Initial unfiltered git status surfaced forbidden untracked pathname only. No content read/copy/hash; subsequent inventories explicit or tracked-only."
+    },
+    {
+      "id": "CANONICAL_BROWSER_MODEL_TARGET",
+      "status": "NOT_RUN_OUT_OF_SCOPE",
+      "evidence": "Reticle NOT_APPLICABLE CLI/process scope; Chisel BLOCKED_NO_GO. No canonical/browser/provider/model/target/r1/global/push actions."
+    }
+  ],
+  "coverage_status_counts": {
+    "PASS_SCOPED": 8,
+    "INCOMPLETE": 1,
+    "NOT_RUN": 1,
+    "PASS_RESOURCE_RETIREMENT_ONLY": 1,
+    "PASS_ORACLE_ONLY": 1,
+    "NOT_PASS_PROTOCOL_DEVIATION": 1,
+    "NOT_RUN_OUT_OF_SCOPE": 1
+  },
+  "findings": [
+    {
+      "id": "FRESH-QA-F01",
+      "kind": "HARNESS_IDENTITY_TOPOLOGY",
+      "status": "FAIL_RETAINED_CORRECTED_IN_FOCUSED_FOLLOWUP",
+      "attempt": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_",
+      "observed": "LF review exit2 IDENTITY_OWNERSHIP before lexical guard",
+      "cause": "New lexical owner reused already reserved records package identity. candidate_store.py:141-168 enforces owner.",
+      "repair": "Fresh DB; same legitimate owner for lexical variants. R2-F01 four controls actually passed later."
+    },
+    {
+      "id": "FRESH-QA-F02",
+      "kind": "HARNESS_FIXTURE_PATH",
+      "status": "FAIL_RETAINED_CORRECTED_IN_NARROWED_HISTORY_ATTEMPT",
+      "attempt": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy",
+      "observed": "copy_seed assertion at b06a_durable/consumer.py:206, before old capture qualification",
+      "cause": "Q/history-capture-source was a sibling of TMPDIR, not a descendant.",
+      "repair": "Scratch caller changed to TMPDIR/history-capture-source; helper guard unchanged. All three old forms were actually authored in final history attempt."
+    },
+    {
+      "id": "FRESH-QA-F03",
+      "kind": "HARNESS_HISTORY_ORACLE",
+      "status": "OPEN_BLOCKS_COMPLETE_HISTORY_PROOF",
+      "attempt": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9",
+      "observed": {
+        "module": "omnis.modules.runs.managed_admission",
+        "operation": "reconcile",
+        "exit": 2,
+        "reason": "NEEDS_RECONCILIATION"
+      },
+      "cause": "Prepared legacy records deliberately have no native final result; reconcile requires final_id at managed_admission.py:585-596. Driver wrongly expected exit0 before readback/replay equality assertions.",
+      "required_next": "Parent may correct ONLY historical oracle to receive-only readback/replay, excluding reconcile on unstarted graphs, then authorize a fresh history-only DB proof. No product change or old DB reuse. No more attempt made here."
+    }
+  ],
+  "native_run_roots": {
+    "ORDERED": {
+      "runtime_boot": "bf3ce35c-c429-46a3-b761-ca35de41345f",
+      "native_root_id": "f8d3e980-dd76-435e-aedd-bf9ec5dea746"
+    },
+    "EMPTY": {
+      "runtime_boot": "96c61249-74f2-4eba-9053-428086e7635f",
+      "native_root_id": "d395eed5-bee8-4738-88f5-5b1142f86056"
+    }
+  },
+  "attempts": [
+    {
+      "id": "corrected-topology",
+      "root": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_",
+      "process_handle": "proc_d0b26013d1a2",
+      "process_exit": 1,
+      "family": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c3p-06t9hpa_/gate.py --config /home/kali/.hermes/cache/scratch/c3p-06t9hpa_/config.json --authorize-final-qa",
+      "driver_final": {
+        "status": "NOT_PASS",
+        "gate_exit": 1,
+        "source_unchanged": true,
+        "final_artifacts_unchanged": true,
+        "history_material_status": "NOT_RUN",
+        "scope": "TARGETED_INSTALLED_NATIVE_NOT_CANONICAL",
+        "criteria_pass": 57,
+        "criteria_fail": 0,
+        "journey_report": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/journey-report.json",
+        "limits": [
+          "TARGETED QA, not canonical or browser QA",
+          "No model/provider/target/personal profile/r1 access",
+          "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+          "Historical graphs newly authored by pinned OLD CLI; no historical DB adopted",
+          "No physical crash/transaction-overlap proof or exhaustive native mutations",
+          "No independent evaluator-call observer: byte-stable replay is not execution census"
+        ]
+      },
+      "journey_report": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/journey-report.json",
+        "sha256": "bad9d758974ee851407d58101c937561827a9cac92d51c1e829d2732dc812c77"
+      },
+      "per_test_database": "omnis_p01_ba95923258e14bb49821400e52bfab9e",
+      "post_drop_readback": {
+        "database": "omnis_p01_ba95923258e14bb49821400e52bfab9e",
+        "exists": false,
+        "administrative_database_observed": true,
+        "independent_connection": true
+      },
+      "cleanup": {
+        "family": {
+          "schema_version": 1,
+          "code": 1,
+          "family_drained": true
+        },
+        "cids": [
+          {
+            "cid": "ec844e2aef7af65ab0a147d41f790e465d0760db0367938d7315f58ba8b97520",
+            "absent": true
+          },
+          {
+            "cid": "380e786ee2d8d4b07e578cdda0c0d3e3de4624eb0f55cef511f4e0cd1fa3a9b9",
+            "absent": true
+          },
+          {
+            "cid": "96d2fa10b128273dc42587e7d53d94845a93f09d4a9100fb0f9222b10a5b699f",
+            "absent": true
+          },
+          {
+            "cid": "2e1d4393933e9514adb28cd4c34de6b78c3ea13406756ccf2a3aaad841942d28",
+            "absent": true
+          }
+        ],
+        "pg_socket_absent": true,
+        "pg_lock_absent": true,
+        "post_drop_readback": {
+          "database": "omnis_p01_ba95923258e14bb49821400e52bfab9e",
+          "exists": false,
+          "administrative_database_observed": true,
+          "independent_connection": true
+        }
+      },
+      "domain_effect_status": "NO_UNRECONCILED_STAGE_OBSERVED",
+      "error": {
+        "type": "AssertionError",
+        "frames": [
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/journey.py",
+            "line": 816,
+            "function": "<module>"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/journey.py",
+            "line": 802,
+            "function": "main"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/journey.py",
+            "line": 624,
+            "function": "lexical_schema"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lexical-history",
+      "root": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy",
+      "process_handle": "proc_81d3b2168bd1",
+      "process_exit": 1,
+      "family": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c3f-baq9epcy/gate.py --config /home/kali/.hermes/cache/scratch/c3f-baq9epcy/config.json --authorize-final-qa",
+      "driver_final": {
+        "status": "NOT_PASS",
+        "gate_exit": 1,
+        "source_unchanged": true,
+        "final_artifacts_unchanged": true,
+        "history_material_status": "NOT_RUN",
+        "scope": "TARGETED_INSTALLED_NATIVE_NOT_CANONICAL",
+        "criteria_pass": 10,
+        "criteria_fail": 0,
+        "journey_report": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/journey-report.json",
+        "limits": [
+          "TARGETED QA, not canonical or browser QA",
+          "No model/provider/target/personal profile/r1 access",
+          "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+          "Historical graphs newly authored by pinned OLD CLI; no historical DB adopted",
+          "No physical crash/transaction-overlap proof or exhaustive native mutations",
+          "No independent evaluator-call observer: byte-stable replay is not execution census"
+        ]
+      },
+      "journey_report": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/journey-report.json",
+        "sha256": "555ff879145a26df4e6e573cb599747126a729a653bf176912ff33d2b886874d"
+      },
+      "per_test_database": "omnis_p01_05dfa823119e4d63b7b41018e6111a78",
+      "post_drop_readback": {
+        "database": "omnis_p01_05dfa823119e4d63b7b41018e6111a78",
+        "exists": false,
+        "administrative_database_observed": true,
+        "independent_connection": true
+      },
+      "cleanup": {
+        "family": {
+          "schema_version": 1,
+          "code": 1,
+          "family_drained": true
+        },
+        "cids": [
+          {
+            "cid": "aaf42b9024fbacb1b6e63f4a575e6248c448faa17a3829f0d99db5fa9af6e295",
+            "absent": true
+          },
+          {
+            "cid": "9bfe7016dfd9b9d7b379799f1c0eef863b7e652e0df372aebe78d6c2ca1bd749",
+            "absent": true
+          }
+        ],
+        "pg_socket_absent": true,
+        "pg_lock_absent": true,
+        "post_drop_readback": {
+          "database": "omnis_p01_05dfa823119e4d63b7b41018e6111a78",
+          "exists": false,
+          "administrative_database_observed": true,
+          "independent_connection": true
+        }
+      },
+      "domain_effect_status": "NO_UNRECONCILED_STAGE_OBSERVED",
+      "error": {
+        "type": "AssertionError",
+        "frames": [
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/journey.py",
+            "line": 749,
+            "function": "<module>"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/journey.py",
+            "line": 736,
+            "function": "main"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/journey.py",
+            "line": 675,
+            "function": "historical_database"
+          },
+          {
+            "file": "/home/kali/OmnisAI/api/tests/fixtures/c03_journey.py",
+            "line": 18,
+            "function": "qualify_capture"
+          },
+          {
+            "file": "/home/kali/OmnisAI/api/tests/fixtures/c03_capture.py",
+            "line": 23,
+            "function": "capture_seed"
+          },
+          {
+            "file": "/home/kali/OmnisAI/api/tests/fixtures/b06a_durable/consumer.py",
+            "line": 206,
+            "function": "copy_seed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "history-only",
+      "root": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9",
+      "process_handle": "proc_7748d9da7673",
+      "process_exit": 1,
+      "family": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c3h-u6efk5n9/gate.py --config /home/kali/.hermes/cache/scratch/c3h-u6efk5n9/config.json --authorize-final-qa",
+      "driver_final": {
+        "status": "NOT_PASS",
+        "gate_exit": 1,
+        "source_unchanged": true,
+        "final_artifacts_unchanged": true,
+        "history_material_status": "NOT_RUN",
+        "scope": "TARGETED_INSTALLED_NATIVE_NOT_CANONICAL",
+        "criteria_pass": 10,
+        "criteria_fail": 0,
+        "journey_report": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/journey-report.json",
+        "limits": [
+          "TARGETED QA, not canonical or browser QA",
+          "No model/provider/target/personal profile/r1 access",
+          "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+          "Historical graphs newly authored by pinned OLD CLI; no historical DB adopted",
+          "No physical crash/transaction-overlap proof or exhaustive native mutations",
+          "No independent evaluator-call observer: byte-stable replay is not execution census"
+        ]
+      },
+      "journey_report": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/journey-report.json",
+        "sha256": "ade1fffadc19cbee7c0e6a9fb251326150828665af5c3e1de4f29d83c60e0c20"
+      },
+      "per_test_database": "omnis_p01_e357e6837b3e4050b4f025895dde6b58",
+      "post_drop_readback": {
+        "database": "omnis_p01_e357e6837b3e4050b4f025895dde6b58",
+        "exists": false,
+        "administrative_database_observed": true,
+        "independent_connection": true
+      },
+      "cleanup": {
+        "family": {
+          "schema_version": 1,
+          "code": 1,
+          "family_drained": true
+        },
+        "cids": [
+          {
+            "cid": "1f8156179a13e11fcdc735fa783b4f31a71d34f2651ee7b8fc0689cb30d66066",
+            "absent": true
+          },
+          {
+            "cid": "1b41e02fbdb2433bd0247bb476a76bb08debb8bc9a2990352f8f3417f820513a",
+            "absent": true
+          },
+          {
+            "cid": "bf0b895fb465c784be78d8100936d9eacdf11703e50627aeb1bb704d669577f9",
+            "absent": true
+          }
+        ],
+        "pg_socket_absent": true,
+        "pg_lock_absent": true,
+        "post_drop_readback": {
+          "database": "omnis_p01_e357e6837b3e4050b4f025895dde6b58",
+          "exists": false,
+          "administrative_database_observed": true,
+          "independent_connection": true
+        }
+      },
+      "domain_effect_status": "NO_UNRECONCILED_STAGE_OBSERVED",
+      "error": {
+        "type": "AssertionError",
+        "frames": [
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/journey.py",
+            "line": 748,
+            "function": "<module>"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/journey.py",
+            "line": 735,
+            "function": "main"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/journey.py",
+            "line": 706,
+            "function": "historical_database"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/journey.py",
+            "line": 175,
+            "function": "cli"
+          }
+        ]
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "attempt": "corrected-topology",
+      "id": "INSTALLED_MIGRATION",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "PACKAGE_EVAL_REAL_TWO_TRANSFORMS",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/qualification.json",
+        "sha256": "80aea8f3e7377978f86be38493b3897ebbf1c3d9120afa73520c0f7b4caf84ea"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "TTY_CONFIRM_PUBLISH_TEMPLATE_PRESERVED",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/publication.json",
+        "sha256": "1222cec4430c738dcbc276d2d8e0cab0d9b34ffd3ab2f11fabd12185be340f44"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/native-image-files-ec844e2aef7a.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ordered_NATIVE_PREPARATION",
+      "status": "PASS",
+      "receipt_ref": {
+        "digest": "f23df098de0bbe5d3d0787ff6494e24cf5bc6a77740fe7d2c745e96390f4e8bd",
+        "id": "2c7da32c-c61d-5923-a825-c446c133754c",
+        "kind": "native-preparation-receipt",
+        "revision": 1
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ordered-preparation.json",
+        "sha256": "844f91a8d5b019e5d6398dfe25ff6aeb2f72fb543bead9769643c5d02bd5a0db"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_METADATA_BEFORE_BRIEF",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_COMPOSITION",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-prepared.json",
+        "sha256": "453c0ddd4646c15652aabd4dd06431d49e9523ffd9cc6e62ac0b2bdfadeb4cfe"
+      },
+      "input_ref": {
+        "digest": "4ed536f10d819200f6362a58296464505ff92bb8947169617b6036a875cd622b",
+        "id": "e9ce7f96-829b-4088-b431-817a56264201",
+        "kind": "contract-case-records",
+        "revision": 1
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_AUTHORITATIVE_SCHEMA",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_INSTALLED_NATIVE_VALIDATOR",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_NATIVE_BIND_RELEASE",
+      "status": "PASS",
+      "seconds": 7.182995884970296,
+      "binding_ref": {
+        "kind": "runtime-binding",
+        "id": "aca130a1-537c-434a-92d3-672950b81b25",
+        "revision": 1,
+        "digest": "a29e3c0a0321b1c44be2b9b3c07759db2a779d2993bed740baface12750737f6"
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-committed-before-release.json",
+        "sha256": "a0d1ef127b9b734ed833211d2d562ea2a5af947956f2343027d3c1a0a994160d"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_NO_MODEL_INCOMPLETE",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ORDERED-blocked.json",
+        "sha256": "efe0e763e3463fbe58a277d18cfdf77d8d7c3802035b1839b944b9d8ff442619"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_RECONCILE_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/native-image-files-380e786ee2d8.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "empty_NATIVE_PREPARATION",
+      "status": "PASS",
+      "receipt_ref": {
+        "digest": "8ebbe5472cfa3aaefc9dae5ba9783cb722e176b7c7cb1254eb750b3b9102b4f4",
+        "id": "7f0f15be-f3af-504d-a682-106b6bd50c97",
+        "kind": "native-preparation-receipt",
+        "revision": 1
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/empty-preparation.json",
+        "sha256": "02d17ec5defb93396da1ca4f28fa08f2a3bd37820b2498b5456947bab735e382"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_METADATA_BEFORE_BRIEF",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_COMPOSITION",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-prepared.json",
+        "sha256": "bdd70741c0fef20a630b6844257082d73852bd9c82430f57d3bc0575dc1b3294"
+      },
+      "input_ref": {
+        "digest": "cf2aa3d960b6eb18c6e256501462db226668dbbe2bbe8141f525064650357501",
+        "id": "6ceb16cd-9f56-417f-bb06-351fc6397b99",
+        "kind": "contract-case-records",
+        "revision": 1
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_AUTHORITATIVE_SCHEMA",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_INSTALLED_NATIVE_VALIDATOR",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_NATIVE_BIND_RELEASE",
+      "status": "PASS",
+      "seconds": 6.710249697964173,
+      "binding_ref": {
+        "kind": "runtime-binding",
+        "id": "c1b29c6e-b267-4c06-bd1a-1305f6f8da14",
+        "revision": 1,
+        "digest": "96d23ad0602cc75787893a1640874fa93c8e97010561b91995071c507f9ae08d"
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-committed-before-release.json",
+        "sha256": "11d1bbdf80ca2c422ccfc9964d876b1dda2c095ad5ab8849b709c55d9229322a"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_NO_MODEL_INCOMPLETE",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/EMPTY-blocked.json",
+        "sha256": "e98e869e14f9cd246420752aa6ccde08ab9616632fa27f50b48d654d4221d0d9"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_RECONCILE_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "FRESH_ROOT_PER_RUN",
+      "status": "PASS",
+      "roots": {
+        "ORDERED": {
+          "runtime_boot": "bf3ce35c-c429-46a3-b761-ca35de41345f",
+          "native_root_id": "f8d3e980-dd76-435e-aedd-bf9ec5dea746"
+        },
+        "EMPTY": {
+          "runtime_boot": "96c61249-74f2-4eba-9053-428086e7635f",
+          "native_root_id": "d395eed5-bee8-4738-88f5-5b1142f86056"
+        }
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "VALUES_DIFFER_BASE_ROLE_STABLE",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "NEVER_STAGED_METADATA_BEFORE_BRIEF",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_missing-slot",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "exact"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_duplicate-slot",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "exact"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_unknown-slot",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "exact"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_zero-ref",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "exact"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_two-ref",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "exact"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_package-eval-in-run",
+      "status": "PASS",
+      "reason": "REF_UNAVAILABLE",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_foreign-owner",
+      "status": "PASS",
+      "reason": "REF_UNAVAILABLE",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_digest",
+      "status": "PASS",
+      "reason": "REF_MISMATCH",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_bool-revision",
+      "status": "PASS",
+      "reason": "INVALID_REQUEST",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_capture-wire-version",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_capture-ref-kind",
+      "status": "PASS",
+      "reason": "MANAGED_REJECTED",
+      "reason_oracle": "bounded-domain-refusal; exact reason observed"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_missing",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_extra",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_type",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_capture",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_method",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_path-space",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_path-backslash",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_status-bool",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_status-range",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_129",
+      "status": "PASS",
+      "reason": "INVALID_JSON"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_INPUT_control",
+      "status": "PASS",
+      "reason": "INVALID_CASE_INPUT"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_ENCODING_BOM",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_ENCODING_UTF8",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "DENY_COMMAND_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "VALID_BIND_AND_REPLAY_AFTER_DENIALS",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_OLD_ASSIGNMENT_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_OLD_ASSIGNMENT_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_STOP_READBACK",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_STOP_READBACK",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/native-image-files-96d2fa10b128.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "ORDERED_RESTART_READBACK_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "attempt": "corrected-topology",
+      "id": "EMPTY_RESTART_READBACK_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "INSTALLED_MIGRATION",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "R2_F01_CR",
+      "status": "PASS",
+      "review_reason": "INVALID_CASE_INPUT",
+      "freeze_reason": "TECHNICAL_REVIEW_MISMATCH",
+      "no_qualified_records": {
+        "candidate-snapshot": 0,
+        "evaluation-admission": 0,
+        "evaluation-receipt": 0,
+        "contract-input-context": 0,
+        "contract-case-records": 0
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "R2_F01_CRLF",
+      "status": "PASS",
+      "review_reason": "INVALID_CASE_INPUT",
+      "freeze_reason": "TECHNICAL_REVIEW_MISMATCH",
+      "no_qualified_records": {
+        "candidate-snapshot": 0,
+        "evaluation-admission": 0,
+        "evaluation-receipt": 0,
+        "contract-input-context": 0,
+        "contract-case-records": 0
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "R2_F01_LF",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/lexical-LF.json",
+        "sha256": "99f3a9003dcdbe4a40d9e06dd7e9b9d9facd2fcb086c8dfaeffc2e3bd524f6f5"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "R2_F01_TAB",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/lexical-TAB.json",
+        "sha256": "62498d89826666f03c2241223e9ee7b0939b898ffc36011515dfa6864a4cbd93"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "HISTORY_OLD_REAL_SLOTLESS_QUALIFICATION",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/history-slotless-qualification.json",
+        "sha256": "71d88efc0b4d105d7e47feb464600136aec28533b827b146e5ac6e73c9873c5a"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/native-image-files-aaf42b9024fb.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "history-slotless_NATIVE_PREPARATION",
+      "status": "PASS",
+      "receipt_ref": {
+        "digest": "4b563b88e38e4ef36eadda818d013844035777fc8aec1cab64297f253ccc5e8f",
+        "id": "d7fdb125-b759-5701-ab3d-f0dc764f661a",
+        "kind": "native-preparation-receipt",
+        "revision": 1
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/history-slotless-preparation.json",
+        "sha256": "07f53b111efb0abcab05b7f9ad2259b762ace89833c47b01910a0532e3d8f13d"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "HISTORY_OLD_prepare",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/history-old-prepare.json",
+        "sha256": "817331c7888f5e465be80369f42e087071460ed2a4e3edd020316d86efc2d5f3"
+      }
+    },
+    {
+      "attempt": "lexical-history",
+      "id": "HISTORY_OLD_prepare-composed",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/history-old-prepare-composed.json",
+        "sha256": "078d9c88c50c6942c37506db93c37b318bf83862d5a4b424e23f6eee4ae608ab"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "INSTALLED_MIGRATION",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "attempt": "history-only",
+      "id": "HISTORY_OLD_REAL_SLOTLESS_QUALIFICATION",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-slotless-qualification.json",
+        "sha256": "3354fdf3c3183d888afeb70eb3194c422282636ac63b8b16b2389eb97fec99d6"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/native-image-files-1f8156179a13.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "history-slotless_NATIVE_PREPARATION",
+      "status": "PASS",
+      "receipt_ref": {
+        "digest": "2c313d59cda47f9ccb1bc52ed5946df4a1491778e0111704d3c55083f531037e",
+        "id": "5ac3e26b-8c94-5758-8542-9b22c12314bd",
+        "kind": "native-preparation-receipt",
+        "revision": 1
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-slotless-preparation.json",
+        "sha256": "b8805827f48d1d0024b16412dfc7d533448fbc7d323fd6871561f7ccdefb4322"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "HISTORY_OLD_prepare",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-old-prepare.json",
+        "sha256": "44ea68812efcb8bc0e592a02c58f61b127a7ad40d33a775a2ef26a63c2c0a034"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "HISTORY_OLD_prepare-composed",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-old-prepare-composed.json",
+        "sha256": "30b3776517fce0081cbf2b0ebd056452bb5c8967b3bcb091e06f5a5f41aeef1a"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "HISTORY_OLD_REAL_CAPTURE_QUALIFICATION",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-capture-qualification.json",
+        "sha256": "c8aec05dc7fbc113cf241e5e5c2c1baf3ca72610c1a3d4a4a69e2ad2ed85fae8"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "NATIVE_IMAGE_BYTES",
+      "status": "PASS",
+      "image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/native-image-files-1b41e02fbdb2.json",
+        "sha256": "4cc614f9ee723f353572fc6880db31b53e4c644547b39b2e8fe86d2a53844f8a"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "history-capture_NATIVE_PREPARATION",
+      "status": "PASS",
+      "receipt_ref": {
+        "digest": "3c5836b414f8e8258de267022b47123d5e607e41655f7bfa9ef165dfc3026b0f",
+        "id": "6337e3a1-ca77-5921-b7c1-17e8be2084c7",
+        "kind": "native-preparation-receipt",
+        "revision": 1
+      },
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-capture-preparation.json",
+        "sha256": "8e2851239d4cd2417e4e1d197488def21569a16866b1baeba81d412d1d57d228"
+      }
+    },
+    {
+      "attempt": "history-only",
+      "id": "HISTORY_OLD_CAPTURE2",
+      "status": "PASS",
+      "snapshot": {
+        "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-old-capture2.json",
+        "sha256": "c78584a0b28fe814dddd1b95ebcf9b85e4778d8b839b80de7d3b6ad9f740d13d"
+      }
+    }
+  ],
+  "exact_cleanup_ids": [
+    {
+      "cid": "ec844e2aef7af65ab0a147d41f790e465d0760db0367938d7315f58ba8b97520",
+      "absent": true
+    },
+    {
+      "cid": "380e786ee2d8d4b07e578cdda0c0d3e3de4624eb0f55cef511f4e0cd1fa3a9b9",
+      "absent": true
+    },
+    {
+      "cid": "96d2fa10b128273dc42587e7d53d94845a93f09d4a9100fb0f9222b10a5b699f",
+      "absent": true
+    },
+    {
+      "cid": "2e1d4393933e9514adb28cd4c34de6b78c3ea13406756ccf2a3aaad841942d28",
+      "absent": true
+    },
+    {
+      "cid": "aaf42b9024fbacb1b6e63f4a575e6248c448faa17a3829f0d99db5fa9af6e295",
+      "absent": true
+    },
+    {
+      "cid": "9bfe7016dfd9b9d7b379799f1c0eef863b7e652e0df372aebe78d6c2ca1bd749",
+      "absent": true
+    },
+    {
+      "cid": "1f8156179a13e11fcdc735fa783b4f31a71d34f2651ee7b8fc0689cb30d66066",
+      "absent": true
+    },
+    {
+      "cid": "1b41e02fbdb2433bd0247bb476a76bb08debb8bc9a2990352f8f3417f820513a",
+      "absent": true
+    },
+    {
+      "cid": "bf0b895fb465c784be78d8100936d9eacdf11703e50627aeb1bb704d669577f9",
+      "absent": true
+    }
+  ],
+  "retained_roots": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/ordered/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/empty/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/restart/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/run/tmp/db-5ee4d7b3a21442c0/data",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/history-slotless/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3f-baq9epcy/run/tmp/db-7b5fe1061bf44a8e/data",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-slotless/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/history-capture/s",
+      "present": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c3h-u6efk5n9/run/tmp/db-0b268ff566ef495f/data",
+      "present": true
+    }
+  ],
+  "native_image_retained": true,
+  "attestation": {
+    "source_bindings": 137,
+    "current_api_files": 71,
+    "current_api_wheel_sha256": "d1710551bf0da08dee32e0abc81142f192bc405ea223418090b3d66f00bcf9a5",
+    "adapter_files": 8,
+    "adapter_wheel_sha256": "e6cd41d14ba34a50a2f9fa0d3972967df4706b3838a291ef801eacc848d5501b",
+    "native_image": "sha256:dadba2d81003c46eb0d95226fa5b5eed8c717f8f9dd11a59bf16e505d9a8c9d4",
+    "history_api": {
+      "source_base": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+      "count": 71,
+      "wheel_sha256": "0cd8f8b2bc9eacdf266f1b865a992e1c87bf062f1e94d5c158104595a0ecd92c"
+    },
+    "all_attested_inputs_unchanged": true,
+    "all_drivers_unchanged_after_launch": true,
+    "all_checkpoint_snapshot_hashes_match": true
+  },
+  "protocol_note": {
+    "status": "DEVIATION",
+    "detail": "Initial unfiltered git status surfaced the protected untracked pathname. No contents accessed/copied/hashed. All subsequent inventory is explicit allowlist or tracked-only; parent must adjudicate."
+  },
+  "files_changed": "Only owned scratch helper copies, fixture/data/log/output artifacts and this report. No source, index, git history, installed artifact or profile modifications.",
+  "lessons_for_parent": "/home/kali/.hermes/cache/scratch/c3p-06t9hpa_/lessons-for-parent.md",
+  "limits": [
+    "TARGETED QA, not canonical or browser QA",
+    "No model/provider/target/personal profile/r1 access",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+    "Historical graphs newly authored by pinned OLD CLI; no historical DB adopted",
+    "No physical crash/transaction-overlap proof or exhaustive native mutations",
+    "No independent evaluator-call observer: byte-stable replay is not execution census",
+    "77 passed checkpoints include repeated setup/attestation/old-production checkpoints; they are not 77 complete tests. Three explicit failed attempts remain, even though checkpoint arrays have no FAIL entry.",
+    "Successful first legacy readback/replay exits alone do not establish equality: the assertion was not reached.",
+    "Native constructor preflight ordering is supported by byte-attested implementation and actual stage/binding/release, not a separate constructor tracer.",
+    "Immutable native grant unchanged; full CLI-stage-plus-release elapsed time is not a direct grant-lifetime measurement.",
+    "Resource retirement does not reconcile historical domain uncertainty.",
+    "No further followup, adoption or current legacy requalification was performed."
+  ]
+}

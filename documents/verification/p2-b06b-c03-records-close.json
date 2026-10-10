@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "status": "CLOSED_SCOPED_C03_INERT_RECORDS_BINDING",
+  "code": "IMPLEMENTED_SCOPED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "decision_owner": "PARENT",
+  "base": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+  "product_snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "canonical_test_snapshot": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+  "native_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "composer_revision": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+  "api_wheel_sha256": "d1710551bf0da08dee32e0abc81142f192bc405ea223418090b3d66f00bcf9a5",
+  "scope": "One mandatory records slot /exact1Ref, contract-case-records value records0..128 under unchanged byte budgets; map-records exactly normalize-operations then build-map. Persistent PACKAGE_EVAL real transformations/TTY Publish -> separate new RUN -> BoundProcedure/all requirements/Brief/composition -> installed native cold binding/release. Not a generic slot registry or new execution authority.",
+  "review_reports": [
+    {
+      "path": "p2-b06b-c03-records-evidence/review-r1.json",
+      "sha256": "ae4cca9351810cb7a8886e1d612cfb9d46421f9fd916371abd7b81991e68dde1"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/review-r2.json",
+      "sha256": "d018a6bbb700a4d7f9622f5b8abb15eb652cf966dfef7eb1ed0e4b028ade5c8c"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/review-client-r1.json",
+      "sha256": "c87c4259b1c4a9770bbeda6f9f751eda97f9a6bd08ed7e1156841c25b556920e"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/review-client-r2.json",
+      "sha256": "32f8637c2dd3d7644ffbdf05d2506342e8d9114a1999ac41b1b4cb4bccd11af1"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "p2-b06b-c03-records-tracer.json",
+      "sha256": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75"
+    },
+    {
+      "path": "p2-b06b-c03-records-source.json",
+      "sha256": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80"
+    },
+    {
+      "path": "p2-b06b-c03-records-review-initial.json",
+      "sha256": "6e225645f8834c870cc5a5db51af5f42a3829aba0e5ef630e1eeca859611ee7d"
+    },
+    {
+      "path": "p2-b06b-c03-records-r2-f01.json",
+      "sha256": "ad6c44d94e25b4eb4afc2843fe0d3700491a5fcfb31334233b35a2dff212886b"
+    },
+    {
+      "path": "p2-b06b-c03-records-installed.json",
+      "sha256": "ef1f98d9e54b8719e62ed10e8572f72b74bd32c02be5a4dc4080b62b2a51db00"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/browser-adjudication.json",
+      "sha256": "751408ee357bfd2cdc0a968d048890ba622b691187972fde7aad05064904e9d8"
+    },
+    {
+      "path": "p2-b06b-c03-records-canonical-fail.json",
+      "sha256": "292d26811222f6bc8bbfe8f7108f1beb1d4b7f87a0da87fd6f4d768e6a5ddd3e"
+    },
+    {
+      "path": "p2-b06b-c03-records-canonical.json",
+      "sha256": "f43b16554c260f7536b33b8b97a9211fffa66979735a8c8396dd12f842d38cca"
+    },
+    {
+      "path": "p2-b06b-c03-records-cleanup.json",
+      "sha256": "6f4fcc2dabd42e0124a4109fd210948c64cd07f8989f1dd77a6667209661024d"
+    },
+    {
+      "path": "p2-b06b-c03-records-evidence/manifest.json",
+      "sha256": "529e52221156506cbec4e2ecdc066ecb6efe81d7ce7461a86c20ff5a9b7e1c4b"
+    }
+  ],
+  "acceptance_matrix": [
+    {
+      "criterion": "typed producer/schema/ownership/provenance and immutable separate namespaces",
+      "status": "PASS_SCOPED",
+      "code": "contract_case_input.py; contract_inputs.py; candidate_catalog.py",
+      "evidence": "source PG33, qualified installed commands and25 installed denials"
+    },
+    {
+      "criterion": "real qualification/Publish/template/input separate from RUN",
+      "status": "PASS_SCOPED",
+      "code": "skill_catalog.py; candidate_catalog.py; catalog_publication.py; new firstparty package/profile",
+      "evidence": "installed qualification/publication artifacts; no values in published template"
+    },
+    {
+      "criterion": "structured value projection, complete MethodPlan, actual binding before release",
+      "status": "PASS_SCOPED",
+      "code": "managed_contract.py; managed_composition.py; managed_admission.py; native prompt_bundle.py/managed_admission_contract.py",
+      "evidence": "ORDERED and EMPTY public artifacts, parent readback and real installed admission"
+    },
+    {
+      "criterion": "idempotency/conflict/rollback after real INSERT and no deterministic reservation",
+      "status": "PASS_SCOPED",
+      "code": "existing owner-lock/store transactions; API records PG tests",
+      "evidence": "PG33 including rollback/replay guards; installed negatives no-write; no lock boundary change"
+    },
+    {
+      "criterion": "strict limits/UTF8/rawschema/Ref and StepOutput parity",
+      "status": "PASS_SCOPED",
+      "code": "API/native records tests and fixed records_schema raw_text before JSON",
+      "evidence": "R2-F01 RED4/GREEN116, runtime377, installed LF/TAB/CR/CRLF; canonical"
+    },
+    {
+      "criterion": "current restart and historical v1/composition1/capture2 replay/readback",
+      "status": "PASS_SCOPED",
+      "code": "version-discriminated stored replay/readback, historical composer pins",
+      "evidence": "installed current restart; fresh old-wheel history21 checkpoints exit0/drained"
+    },
+    {
+      "criterion": "two complementary reviews current product and test-only delta",
+      "status": "APPROVED_SCOPED",
+      "evidence": "R1/R2 on20611d1 and R1/R2 on c0261a7 test delta, hashes readback verified"
+    },
+    {
+      "criterion": "installed live browser required current scope",
+      "status": "PASS_SCOPED_COMPOSITE",
+      "evidence": "59stable IDs,47PASS/8deliberate NOT_RUN/4NOT_IMPLEMENTED;63actual images inspected; fresh8row followup exit0/drained"
+    },
+    {
+      "criterion": "canonical full unchanged make check",
+      "status": "PASS_LOCAL_RECORDED",
+      "evidence": "proc_e3c65fa0961c exit0/family_drained,727stable tracked files at c0261a7"
+    },
+    {
+      "criterion": "owned cleanup and retained failures",
+      "status": "VERIFIED_SCOPED",
+      "evidence": "27exactCIDs parent absent, per-family drains/ownedsocket/process/browser records; retained data/logs, fixture-per-test DROP explicit"
+    }
+  ],
+  "browser_inventory": {
+    "total": 59,
+    "counts": {
+      "PASS": 47,
+      "NOT_IMPLEMENTED": 4,
+      "NOT_RUN": 8
+    },
+    "actual_images_inspected": 63,
+    "parent_reinspections": 4,
+    "limit": "Paired required live viewports clear. One unpaired illustrative full-page capture stays INCONCLUSIVE_CAPTURE_ONLY, not a confirmed blocking live defect or new aesthetic approval."
+  },
+  "remaining": [
+    "Other C03 kinds/cardinalities/optional slots and C04/C05 unaddressed scope, C06–C12/G02/SL09 remain partial.",
+    "No child tool/read positive, RUN method execution/COMPLETE/M1/M2/Brain turn, model/provider/target or public omnis run/CaseSlot UI.",
+    "Then B06c ModelProjection/G-DATA-EARLY -> B06m admission/ledger pre-dispatch -> minimal Settings through Hermes -> P2-live only with separate account/provider/model/data/budget approval.",
+    "configured/authenticated/reachable/inference_ready remain distinct; no autonomous next slice launched by this session."
+  ],
+  "reticle": "NOT_INTEGRATED_UI / NOT_APPLICABLE_CLI",
+  "chisel": "BLOCKED_NO_GO",
+  "git": "Local granular commits only. Final document/receipt/skill-only closure retains product and test bytes; no push or history rewrite. New external B06c/B06m worktrees observed but not adopted."
+}

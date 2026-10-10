@@ -22,24 +22,59 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
      if agent.api_mode == "codex_responses":
          return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
              on_first_delta=getattr(agent, "_codex_on_first_delta", None))
-@@ -961,6 +963,7 @@
+@@ -961,6 +963,8 @@
      aborts in-flight sockets via the registered hook, and a per-call ``timeout``
      equal to the stale budget is the backstop when the abort finds nothing (#85252).
      Both surface a retryable ``TimeoutError`` for the outer retry loop."""
-+    from omnis_hermes.model_terminal import ManagedModelTerminal
++    from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
++    require_model_authority(agent)
      _check_stale_giveup(agent)
      agent._touch_activity("waiting for non-streaming API response")
      # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
-@@ -980,6 +983,8 @@
+@@ -978,8 +982,12 @@
+     # Only a clean return reports the reuse reason; errors/interrupts really
+     # close the client so the retry builds a fresh pool.
      succeeded = False
++    terminal = None
      try:
          response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
-+    except ManagedModelTerminal:
++    except ManagedModelTerminal as error:
++        terminal = error
 +        raise
      except Exception:
          if getattr(agent, "_interrupt_requested", False):
              raise InterruptedError("Agent interrupted during API call") from None
-@@ -2283,6 +2288,8 @@
+@@ -1004,13 +1012,22 @@
+         succeeded = True
+         return response
+     finally:
+-        request.stop_watchdogs()
+-        if getattr(agent, "_active_request_abort", None) is request.abort_hook:
+-            agent._active_request_abort = None
+-        request_client = request.pop_client()
+-        if request_client is not None:
+-            agent._close_request_openai_client(request_client,
+-                reason="request_complete" if succeeded else "request_error_cleanup")
++        try:
++            try:
++                request.stop_watchdogs()
++            finally:
++                try:
++                    if getattr(agent, "_active_request_abort", None) is request.abort_hook:
++                        agent._active_request_abort = None
++                finally:
++                    request_client = request.pop_client()
++                    if request_client is not None:
++                        agent._close_request_openai_client(request_client,
++                            reason="request_complete" if succeeded else "request_error_cleanup")
++        except Exception:
++            if terminal is None:
++                raise
++            terminal.cleanup_uncertain = True
+
+
+ class _RequestClientRegistry:
+@@ -2283,6 +2300,8 @@
 
  def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
      """Request a summary when max iterations are reached. Returns the final response text."""
@@ -48,7 +83,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
      warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
      if getattr(agent, "suppress_status_output", False):
          # Strict machine-readable mode (-Q, oneshot): keep diagnostics off stdout. quiet_mode is
-@@ -3753,6 +3760,8 @@
+@@ -3753,6 +3772,8 @@
      text token (tool-call turns suppress them) and returns a SimpleNamespace in
      the non-streaming response shape. codex_responses delegates to the already-
      streaming codex runner; cron turns and delegated children run inline."""
@@ -194,8 +229,8 @@ diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
                  return _rc.result
              if _rc.action == "break":
                  return None
-+        except ManagedModelTerminal:
-+            return terminal_result()
++        except ManagedModelTerminal as error:
++            return terminal_result(error)
          except InterruptedError:
              if _run_phase(handle_api_interrupt, agent, s).action == "break":
                  return None
@@ -439,7 +474,7 @@ diff --git a/agent/turn_api_error.py b/agent/turn_api_error.py
 +
 +    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
 +    if isinstance(api_error, ManagedModelTerminal) or is_inert_model_context(agent):
-+        return _verdict("return", terminal_result())
++        return _verdict("return", terminal_result(api_error if isinstance(api_error, ManagedModelTerminal) else None))
 
      # Stop spinner silently — retry status is buffered and only flushed when every
      # retry+fallback is exhausted.

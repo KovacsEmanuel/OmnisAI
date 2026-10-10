@@ -963,7 +963,8 @@ def direct_api_call(agent, api_kwargs: dict):
     aborts in-flight sockets via the registered hook, and a per-call ``timeout``
     equal to the stale budget is the backstop when the abort finds nothing (#85252).
     Both surface a retryable ``TimeoutError`` for the outer retry loop."""
-    from omnis_hermes.model_terminal import ManagedModelTerminal
+    from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
+    require_model_authority(agent)
     _check_stale_giveup(agent)
     agent._touch_activity("waiting for non-streaming API response")
     # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
@@ -981,9 +982,11 @@ def direct_api_call(agent, api_kwargs: dict):
     # Only a clean return reports the reuse reason; errors/interrupts really
     # close the client so the retry builds a fresh pool.
     succeeded = False
+    terminal = None
     try:
         response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
-    except ManagedModelTerminal:
+    except ManagedModelTerminal as error:
+        terminal = error
         raise
     except Exception:
         if getattr(agent, "_interrupt_requested", False):
@@ -1009,13 +1012,22 @@ def direct_api_call(agent, api_kwargs: dict):
         succeeded = True
         return response
     finally:
-        request.stop_watchdogs()
-        if getattr(agent, "_active_request_abort", None) is request.abort_hook:
-            agent._active_request_abort = None
-        request_client = request.pop_client()
-        if request_client is not None:
-            agent._close_request_openai_client(request_client,
-                reason="request_complete" if succeeded else "request_error_cleanup")
+        try:
+            try:
+                request.stop_watchdogs()
+            finally:
+                try:
+                    if getattr(agent, "_active_request_abort", None) is request.abort_hook:
+                        agent._active_request_abort = None
+                finally:
+                    request_client = request.pop_client()
+                    if request_client is not None:
+                        agent._close_request_openai_client(request_client,
+                            reason="request_complete" if succeeded else "request_error_cleanup")
+        except Exception:
+            if terminal is None:
+                raise
+            terminal.cleanup_uncertain = True
 
 
 class _RequestClientRegistry:

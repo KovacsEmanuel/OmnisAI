@@ -71,7 +71,7 @@ def handle_api_error(
 
     from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
     if isinstance(api_error, ManagedModelTerminal) or is_inert_model_context(agent):
-        return _verdict("return", terminal_result())
+        return _verdict("return", terminal_result(api_error if isinstance(api_error, ManagedModelTerminal) else None))
 
     # Stop spinner silently — retry status is buffered and only flushed when every
     # retry+fallback is exhausted.

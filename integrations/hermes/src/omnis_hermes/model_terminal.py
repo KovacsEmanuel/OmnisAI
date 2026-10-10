@@ -14,6 +14,7 @@ class ManagedModelTerminal(Exception):
 
     def __init__(self) -> None:
         super().__init__("Omnis model admission: NO_MODEL")
+        self.cleanup_uncertain = False
 
 
 def is_inert_model_context(agent: object = None) -> bool:
@@ -23,7 +24,7 @@ def is_inert_model_context(agent: object = None) -> bool:
     )
 
 
-def terminal_result() -> dict[str, object]:
+def terminal_result(error: ManagedModelTerminal | None = None) -> dict[str, object]:
     # Never return inherited messages, errors, request bodies, token estimates,
     # model output, successful completion or permission to retry.
     return {
@@ -36,6 +37,7 @@ def terminal_result() -> dict[str, object]:
         "messages": [],
         "api_calls": 0,
         "error": "Omnis model admission: NO_MODEL",
+        "cleanup_uncertain": error.cleanup_uncertain if error is not None else False,
     }
 
 

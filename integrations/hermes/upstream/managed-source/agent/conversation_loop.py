@@ -1441,8 +1441,8 @@ def _run_api_retry_loop(agent, s: _LoopState) -> Optional[Dict[str, Any]]:
                 return _rc.result
             if _rc.action == "break":
                 return None
-        except ManagedModelTerminal:
-            return terminal_result()
+        except ManagedModelTerminal as error:
+            return terminal_result(error)
         except InterruptedError:
             if _run_phase(handle_api_interrupt, agent, s).action == "break":
                 return None

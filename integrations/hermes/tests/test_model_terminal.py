@@ -253,3 +253,69 @@ def test_inert_entrypoints_deny_before_context_hooks_or_aux_resolution(filename,
         with pytest.raises(ManagedModelTerminal):
             function(**args)
     assert calls == []
+
+
+@pytest.mark.parametrize("fault", [None, "watchdogs", "pop", "close"])
+def test_direct_late_terminal_survives_cleanup_and_reports_uncertainty(fault, monkeypatch):
+    from omnis_hermes.model_terminal import ManagedModelTerminal, terminal_result
+
+    monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
+    events = []
+    denied = ManagedModelTerminal()
+    client = object()
+
+    def maybe_fail(label):
+        events.append(label)
+        if fault == label:
+            raise RuntimeError("SYNTHETIC_PRIVATE_CLEANUP")
+
+    class Inline:
+        def __init__(self, agent, *args):
+            self.lock, self.stale, self.abort_hook = threading.Lock(), False, object()
+            agent._active_request_abort = self.abort_hook
+
+        def start_watchdogs(self):
+            events.append("start")
+
+        def stop_watchdogs(self):
+            maybe_fail("watchdogs")
+
+        def pop_client(self):
+            maybe_fail("pop")
+            return client
+
+        def make_client(self, *args, **kwargs):
+            raise AssertionError("unexpected client")
+
+    def dispatch(*args, **kwargs):
+        raise denied
+
+    h = load(
+        "chat_completion_helpers.py",
+        ["direct_api_call"],
+        {
+            "_InlineRequest": Inline,
+            "_check_stale_giveup": lambda agent: None,
+            "_resolve_direct_stale_timeout": lambda *args: 10,
+            "_inline_nonstream_hard_timeout": lambda _: None,
+            "_dispatch_nonstreaming_api_request": dispatch,
+            "time": time,
+        },
+    )
+    agent = SimpleNamespace(
+        _touch_activity=lambda *_: None,
+        _interrupt_requested=False,
+        _active_request_abort=None,
+        _close_request_openai_client=lambda *a, **kw: maybe_fail("close"),
+    )
+    with pytest.raises(ManagedModelTerminal) as caught:
+        h.direct_api_call(agent, {})
+    assert caught.value is denied
+    assert events == (
+        ["start", "watchdogs", "pop"] if fault == "pop" else ["start", "watchdogs", "pop", "close"]
+    )
+    assert agent._active_request_abort is None
+    assert getattr(denied, "cleanup_uncertain", False) is (fault is not None)
+    result = terminal_result(denied)
+    assert result["cleanup_uncertain"] is (fault is not None)
+    assert result["failure_retryable"] is False and "SYNTHETIC_PRIVATE_CLEANUP" not in str(result)

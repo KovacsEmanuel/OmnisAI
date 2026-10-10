@@ -89,7 +89,8 @@
       },
       "minimal_remedy": "Refuz timpuriu in direct_api_call inaintea watchdogurilor pentru contextul inert; la un refuz emis de sink conserva explicit rezultatul terminal pe intregul unwind si incearca toate cleanup-urile necesare. Nu-l converti in exceptie generica, nu folosi BaseException ca protocol si nu ascunde cleanup incert. Adauga negativul cu cleanup care ridica si control pe acelasi canal; reseal overlay/manifest/pin impreuna.",
       "reachability_limit": "In pipeline-ul cold curent, guardurile conversation/perform impiedica de obicei intrarea aici; handle_api_error cu flag inert inca prezent re-deny si RuntimeError. Nu revendic retry/credential recovery executat in consumerul complet. Defectul este totusi real la seamul direct pentru care I2 revendica propagare terminala.",
-      "parent_disposition": "PENDING_PARENT_REPRODUCTION"
+      "parent_disposition": "REPRODUCED_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW",
+      "parent_evidence": "Pinned Python3.13.15 original reviewer repro: direct RuntimeError replaces terminal. New late-sink tests cover stop_watchdogs/pop_client/close faults; GREEN15 project terminal cases and3 original R2 controls. Early inert refusal precedes watchdogs; late terminal survives all available cleanup, cleanup_uncertain reported separately; stock nonterminal errors not swallowed."
     },
     {
       "id": "R2-F02",
@@ -115,7 +116,8 @@
       },
       "minimal_remedy": "Dupa join-ul din _interrupt, reverifica si propaga rezultatul terminal cu prioritate; defineste aceeasi precedenta si in polling cand workerul inca dreneaza. Pastreaza bounded join si cleanup-uncertain separat, nu un simplu raise anticipat care abandoneaza workerul. Adauga cursa determinista la testele pinului, apoi reseal complet.",
       "reachability_limit": "Nu demonstreaza emitere, fallback sau auto-wake in runtime-ul instalat; niciun nativ/SDK/provider nu a pornit. Demonstreaza concret ca slotul terminal adaugat nu este suficient pentru propagarea prin anulare.",
-      "parent_disposition": "PENDING_PARENT_REPRODUCTION"
+      "parent_disposition": "REPRODUCED_RED_OPEN",
+      "parent_evidence": "Same original repro on Python3.13.15: real joined worker retained ManagedModelTerminal but caller saw InterruptedError. No effects sentinel and no fixture."
     }
   ],
   "full_mandate": "NOT_CLOSED_MISSING_IMPLEMENTATION_AND_EVIDENCE",

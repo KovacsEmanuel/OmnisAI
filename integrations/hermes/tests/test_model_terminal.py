@@ -319,3 +319,75 @@ def test_direct_late_terminal_survives_cleanup_and_reports_uncertainty(fault, mo
     result = terminal_result(denied)
     assert result["cleanup_uncertain"] is (fault is not None)
     assert result["failure_retryable"] is False and "SYNTHETIC_PRIVATE_CLEANUP" not in str(result)
+
+
+@pytest.mark.parametrize("interrupt", [False, True])
+@pytest.mark.parametrize("cleanup", ["joined", "timeout", "error"])
+def test_worker_latched_terminal_drains_boundedly_before_cancel_or_return(
+    interrupt, cleanup, monkeypatch
+):
+    from omnis_hermes.model_terminal import ManagedModelTerminal, terminal_result
+
+    monkeypatch.setenv("HERMES_OMNIS_INERT", "1")
+    entered, release = threading.Event(), threading.Event()
+    joins = []
+    denied = ManagedModelTerminal()
+
+    class ObservedThread(threading.Thread):
+        def join(self, timeout=None):
+            if timeout == 2.0:
+                assert entered.is_set() and request.result["terminal"] is denied
+                joins.append(timeout)
+                if cleanup != "timeout":
+                    release.set()
+            return super().join(timeout)
+
+    def dispatch(*args, **kwargs):
+        raise denied
+
+    h = SimpleNamespace(
+        threading=SimpleNamespace(Thread=ObservedThread),
+        time=time,
+        contextlib=contextlib,
+        logger=Mock(),
+        _context_thread_target=lambda callback: callback,
+        _dispatch_nonstreaming_api_request=dispatch,
+        _record_interrupted_provider_wait=lambda *a, **kw: None,
+        _join_worker_for_relay_teardown=lambda worker, **kw: worker.join(timeout=2.0),
+    )
+    cls = load("chat_completion_nonstream.py", ["_NonStreamRequest"], {"h": h})._NonStreamRequest
+    request = cls.__new__(cls)
+    request.agent = SimpleNamespace(_touch_activity=lambda *_: None, _interrupt_requested=interrupt)
+    request.api_kwargs = {}
+    request.result = {"response": None, "error": None, "terminal": None}
+    request.cancelled, request.codex_retired, request.codex_token = False, False, None
+    request.codex_watchdog_state = None
+    request.wd = SimpleNamespace(
+        codex=False, ttfb_enabled=False, progress_timeout=0, idle_enabled=False, stale_timeout=10
+    )
+    request.call_start, request.thread = time.time(), None
+    request._emit_wait_notice = lambda *a, **kw: None
+
+    def close(reason):
+        if reason == "request_error_cleanup":
+            entered.set()
+            if not release.wait(5):
+                raise RuntimeError("test fuse expired")
+            if cleanup == "error":
+                raise RuntimeError("SYNTHETIC_PRIVATE_WORKER_CLEANUP")
+
+    request.clients = SimpleNamespace(close_once=close)
+    try:
+        with pytest.raises(ManagedModelTerminal) as caught:
+            request.run()
+        assert caught.value is denied and joins
+        assert denied.cleanup_uncertain is (cleanup != "joined")
+        result = terminal_result(denied)
+        assert result["failure_retryable"] is False
+        assert result["cleanup_uncertain"] is (cleanup != "joined")
+        assert "SYNTHETIC_PRIVATE_WORKER_CLEANUP" not in str(result)
+    finally:
+        release.set()
+        if request.thread is not None:
+            threading.Thread.join(request.thread, timeout=2)
+            assert not request.thread.is_alive()

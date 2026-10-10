@@ -94,15 +94,35 @@ class _NonStreamRequest:
                 return
             self.result["error"] = e
         finally:
-            if watchdog_state_var is not None:
-                watchdog_state_var.reset(watchdog_context_token)
-            # Retire first: close_once can raise, and a leaked token would let
-            # a later worker mistake itself for the owning attempt.
-            self._retire_codex_request_token()
-            # Reuse reason only on a clean response; error or cancel-swallow
-            # really closes so the next attempt builds a fresh pool.
-            self.clients.close_once(
-                "request_complete" if self.result["response"] is not None else "request_error_cleanup")
+            try:
+                try:
+                    if watchdog_state_var is not None:
+                        watchdog_state_var.reset(watchdog_context_token)
+                finally:
+                    try:
+                        self._retire_codex_request_token()
+                    finally:
+                        self.clients.close_once(
+                            "request_complete" if self.result["response"] is not None else "request_error_cleanup")
+            except Exception:
+                terminal = self.result.get("terminal")
+                if terminal is None:
+                    raise
+                terminal.cleanup_uncertain = True
+
+    def _raise_terminal(self):
+        """Admission outcome outranks cancel; a still-live cleanup remains explicit."""
+        terminal = self.result.get("terminal")
+        if terminal is None:
+            return
+        try:
+            if self.thread is not None:
+                self.thread.join(timeout=2.0)
+                if self.thread.is_alive():
+                    terminal.cleanup_uncertain = True
+        except Exception:
+            terminal.cleanup_uncertain = True
+        raise terminal
 
     def _abort_request(self, reason: str) -> None:
         """Watchdog/interrupt kill: abort the request client (kind-aware, #67142)
@@ -269,7 +289,10 @@ class _NonStreamRequest:
         self.cancelled = True
         h.logger.debug("Force-closing httpx client due to interrupt (not a network error).")
         self._abort_request("interrupt_abort")
-        h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
+        try:
+            h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
+        finally:
+            self._raise_terminal()
         raise InterruptedError("Agent interrupted during API call")
 
     def run(self):
@@ -288,8 +311,7 @@ class _NonStreamRequest:
         poll_count = 0
         while t.is_alive():
             t.join(timeout=0.3)
-            if self.result.get("terminal") is not None and not t.is_alive():
-                raise self.result["terminal"]
+            self._raise_terminal()
             poll_count += 1
             # Keep the quiet gateway heartbeat; only silence warrants a notice.
             # Resumed events clear our notice on the next poll, not 30s later.
@@ -316,8 +338,7 @@ class _NonStreamRequest:
                 break
             if agent._interrupt_requested:
                 self._interrupt(elapsed)
-        if self.result.get("terminal") is not None:
-            raise self.result["terminal"]
+        self._raise_terminal()
         if self.result["error"] is not None:
             raise self.result["error"]
         # Success — the provider proved responsive: clear the breaker (#58962).

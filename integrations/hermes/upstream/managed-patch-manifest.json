@@ -14,7 +14,7 @@
     },
     "agent/chat_completion_nonstream.py": {
       "original_sha256": "34d4afad0a0c7228a0518eed4a2521ba1a340f509c83784c74abceb56f1becb7",
-      "patched_sha256": "16bfafb2ee97fe47a605b39720565173ac89f6add802046402cf5c97f581b964"
+      "patched_sha256": "9b7cff41c99906c1a2ec1de491751c107a7c5a8903da1c7f4e9e267407f546ac"
     },
     "agent/cold_admission.py": {
       "original_sha256": null,
@@ -57,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "96ce14f5fb4c3f9905575b4360ee74982b46c5c5ad917841f4be1d364d0c0fbf"
+  "patch_sha256": "400633db041ee7a154c818ce6a4c2bfa83c4544fed5e3d2cd835172c7c61b3f0"
 }

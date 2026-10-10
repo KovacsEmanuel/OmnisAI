@@ -116,8 +116,8 @@
       },
       "minimal_remedy": "Dupa join-ul din _interrupt, reverifica si propaga rezultatul terminal cu prioritate; defineste aceeasi precedenta si in polling cand workerul inca dreneaza. Pastreaza bounded join si cleanup-uncertain separat, nu un simplu raise anticipat care abandoneaza workerul. Adauga cursa determinista la testele pinului, apoi reseal complet.",
       "reachability_limit": "Nu demonstreaza emitere, fallback sau auto-wake in runtime-ul instalat; niciun nativ/SDK/provider nu a pornit. Demonstreaza concret ca slotul terminal adaugat nu este suficient pentru propagarea prin anulare.",
-      "parent_disposition": "REPRODUCED_RED_OPEN",
-      "parent_evidence": "Same original repro on Python3.13.15: real joined worker retained ManagedModelTerminal but caller saw InterruptedError. No effects sentinel and no fixture."
+      "parent_disposition": "REPRODUCED_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW",
+      "parent_evidence": "Original reviewer repro on pinned Python initially2FAIL; now4PASS including actual joined worker. New regressions:3 interrupt RED, then6 cleanup(join/timeout/error)×cancel(bool) GREEN;21 terminal SOURCE cases total. Known terminal takes bounded own-thread join, cleanup errors/liveness reported cleanup_uncertain, no raw cleanup exception escapes as recovery. No installed/native/provider or second PG effect."
     }
   ],
   "full_mandate": "NOT_CLOSED_MISSING_IMPLEMENTATION_AND_EVIDENCE",

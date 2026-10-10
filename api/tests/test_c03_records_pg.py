@@ -9,6 +9,8 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+from sqlalchemy import text as sql
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from fixtures.b06b_publication.consumer import (
     canonical,
@@ -23,8 +25,11 @@ from fixtures.c03_records import EVALUATION_VALUE, qualify_records
 from omnis.core.db import database_engine
 from omnis.modules.instance.schemas import NativePrepareCommand
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.runs.contract_inputs import ContractInputs
 from omnis.modules.runs.managed_admission import ManagedAdmission
 from omnis.modules.runs.native_preparation import NativePreparation
+from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.tasks import managed_store
 from omnis.modules.tasks.managed_contract import blocked_result
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_native_preparation import command, worker_fixture
@@ -33,6 +38,7 @@ from test_native_preparation import command, worker_fixture
 def test_records_qualification_publish_run_composition_replay(
     request: pytest.FixtureRequest,
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
@@ -69,10 +75,14 @@ def test_records_qualification_publish_run_composition_replay(
     )
 
     def cli(
-        module: str, operation: str, value: dict[str, object], expected: int = 0
+        module: str,
+        operation: str,
+        value: dict[str, object],
+        expected: int = 0,
+        raw: bytes | None = None,
     ) -> dict[str, object]:
         path = seed.directory / ("records-" + uuid4().hex + ".json")
-        path.write_bytes(canonical(value))
+        path.write_bytes(canonical(value) if raw is None else raw)
         result = subprocess.run(
             cli_command(
                 module, operation, "--request", str(path), "--catalog-root", str(seed.root)
@@ -255,6 +265,378 @@ def test_records_qualification_publish_run_composition_replay(
                 == historical
             )
             assert canonical(seed.success("readback", release_request, dsn)) == release_before
+
+            # Slow negatives use an independent, never-dispatched assignment.
+            negative_context_request = {**context_request, "command_id": str(uuid4())}
+            negative_context = cli(producer, "create-context", negative_context_request)
+            assert cli(producer, "create-context", negative_context_request)["created"] is False
+            negative_input_request = seed.write(
+                schema_version=2, context_ref=negative_context["context_ref"], input={"records": []}
+            )
+            negative_input = cli(producer, "create-input", negative_input_request)
+            negative_assignment = {
+                **assignment,
+                "command_id": str(uuid4()),
+                "context_ref": negative_context["context_ref"],
+                "slot_values": [{"slot_name": "records", "refs": [negative_input["input_ref"]]}],
+            }
+
+            async def totals() -> dict[str, int]:
+                async with engine.connect() as conn:
+                    return {
+                        name: int(
+                            (await conn.execute(sql("SELECT count(*) FROM " + name))).scalar_one()
+                        )
+                        for name in (
+                            "managed_record",
+                            "managed_run",
+                            "managed_task",
+                            "managed_inbox",
+                            "catalog_record",
+                            "catalog_command",
+                        )
+                    }
+
+            before_denials = await totals()
+            good_ref = mapping(negative_input["input_ref"])
+            ref_denials = [
+                {**good_ref, "id": str(uuid4())},
+                second_input["input_ref"],
+                evaluation["input_ref"],
+                {**good_ref, "kind": "contract-case-input"},
+                {**good_ref, "revision": 2},
+                {**good_ref, "revision": True},
+                {**good_ref, "digest": "f" * 64},
+            ]
+            for bad_ref in ref_denials:
+                assert (
+                    cli(
+                        consumer,
+                        "prepare-composed",
+                        {
+                            **negative_assignment,
+                            "slot_values": [{"slot_name": "records", "refs": [bad_ref]}],
+                        },
+                        2,
+                    )["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+            for slots in (
+                [],
+                [{"slot_name": "records", "refs": []}],
+                [{"slot_name": "records", "refs": [good_ref, good_ref]}],
+                [{"slot_name": "records", "refs": [good_ref]}] * 2,
+                [{"slot_name": "unknown", "refs": [good_ref]}],
+                [{"slot_name": "capture", "refs": [good_ref]}],
+                [{"slot_name": "records", "refs": [good_ref]}] * 129,
+            ):
+                assert (
+                    cli(
+                        consumer,
+                        "prepare-composed",
+                        {**negative_assignment, "slot_values": slots},
+                        2,
+                    )["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+            for delta in (
+                {"owner_id": str(uuid4())},
+                {"schema_version": 2},
+                {"task_count": 2},
+                {"task_count": True},
+                {"context_ref": evaluation["context_ref"]},
+            ):
+                assert (
+                    cli(consumer, "prepare-composed", {**negative_assignment, **delta}, 2)["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+            missing = {k: v for k, v in negative_assignment.items() if k != "slot_values"}
+            assert cli(consumer, "prepare-composed", missing, 2)["status"] == "BLOCKED"
+            row = {"method": "GET", "path": "/", "status": 200}
+            bad_values: list[object] = [
+                {},
+                {"records": [], "extra": 1},
+                {"records": "[]"},
+                {"records": [None]},
+                {"records": [{"method": "GET", "path": "/"}]},
+                {"records": [{**row, "extra": 1}]},
+                {"records": [{**row, "method": "TRACE"}]},
+                {"records": [{**row, "path": "relative"}]},
+                {"records": [{**row, "path": "/a b"}]},
+                {"records": [{**row, "path": "/a\\b"}]},
+                {"records": [{**row, "path": "/\x00"}]},
+                {"records": [{**row, "path": "\ufeff/"}]},
+                *[{"records": [{**row, "status": s}]} for s in (True, "200", 99, 600)],
+                {"records": [row] * 129},
+                {"records": [{**row, "path": "/" + "x" * 239}] * 40},
+                {"capture": "[]"},
+            ]
+            for bad in bad_values:
+                assert (
+                    cli(
+                        producer,
+                        "create-input",
+                        {**negative_input_request, "command_id": str(uuid4()), "input": bad},
+                        2,
+                    )["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+            for raw in (
+                b"\xef\xbb\xbf" + canonical(negative_input_request),
+                b"\xff",
+                canonical(negative_input_request).decode().encode("utf-16"),
+            ):
+                assert (
+                    cli(producer, "create-input", negative_input_request, 2, raw=raw)["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+            for input_delta in (
+                {"schema_version": 1},
+                {"context_ref": evaluation["context_ref"]},
+                {"owner_id": str(uuid4())},
+                {"provenance": {"source_kind": "SYNTHETIC"}},
+                {"kind": "contract-case-records"},
+            ):
+                assert (
+                    cli(
+                        producer,
+                        "create-input",
+                        {**negative_input_request, "command_id": str(uuid4()), **input_delta},
+                        2,
+                    )["status"]
+                    == "BLOCKED"
+                )
+                assert await totals() == before_denials
+
+            # Actual INSERT fault cuts: retain the previously committed input prefix,
+            # roll back every newly written assignment/context/input/command record.
+            original_put = managed_store.put
+            observed: list[str] = []
+            for kind, operation, value in (
+                ("task-brief", "assignment", negative_assignment),
+                (
+                    "contract-case-records",
+                    "input",
+                    {**negative_input_request, "command_id": str(uuid4())},
+                ),
+                ("mission", "context", {**context_request, "command_id": str(uuid4())}),
+            ):
+
+                async def fail_after_insert(
+                    conn: AsyncConnection,
+                    owner: str,
+                    run_id: str,
+                    item: dict[str, object],
+                    expected_kind: str = kind,
+                ) -> None:
+                    await original_put(conn, owner, run_id, item)
+                    if item["kind"] == expected_kind:
+                        observed.append(expected_kind)
+                        assert (
+                            await conn.execute(
+                                sql("SELECT count(*) FROM managed_record WHERE id=:id"),
+                                {"id": item["id"]},
+                            )
+                        ).scalar_one() == 1
+                        raise CatalogError("RECORDS_FAULT_AFTER_INSERT")
+
+                with monkeypatch.context() as patcher:
+                    patcher.setattr(managed_store, "put", fail_after_insert)
+                    with pytest.raises(CatalogError, match="RECORDS_FAULT_AFTER_INSERT"):
+                        if operation == "assignment":
+                            await ManagedAdmission(engine, seed.root).prepare_composed(value)
+                        elif operation == "input":
+                            await ContractInputs(engine, seed.root).create_input(value)
+                        else:
+                            await ContractInputs(engine, seed.root).create_context(value)
+                assert await totals() == before_denials
+            assert observed == ["task-brief", "contract-case-records", "mission"]
+
+            # A fresh process already read the records above; defining-module guards
+            # now prove replay/readback does not execute methods or rebind inputs.
+            def no_rerun(*args: object, **kwargs: object) -> object:
+                raise AssertionError("replay/readback reran PURE or binding")
+
+            with monkeypatch.context() as patcher:
+                for module, symbol in (
+                    ("omnis.modules.settings.skill_catalog", "evaluate_pure"),
+                    ("omnis.modules.settings.candidate_catalog", "evaluate_pure"),
+                    ("omnis.modules.tasks.module_registry", "run_handler"),
+                    ("omnis.modules.tasks.managed_contract", "build_records"),
+                ):
+                    patcher.setattr(module + "." + symbol, no_rerun)
+                patcher.setattr(ManagedAdmission, "_build", no_rerun)
+                patcher.setattr(ContractInputs, "current_source", no_rerun)
+                assert (await ContractInputs(engine, seed.root).create_context(context_request))[
+                    "created"
+                ] is False
+                assert (await ContractInputs(engine, seed.root).create_input(input_request))[
+                    "created"
+                ] is False
+                assert (
+                    canonical(
+                        (await ManagedAdmission(engine, seed.root).prepare_composed(assignment))[
+                            "records"
+                        ]
+                    )
+                    == historical
+                )
+                assert (
+                    canonical(
+                        (
+                            await ManagedAdmission(engine, seed.root).readback(
+                                seed.request(command_id=assignment["command_id"])
+                            )
+                        )["records"]
+                    )
+                    == historical
+                )
+            assert await totals() == before_denials
+        finally:
+            await engine.dispose()
+
+    asyncio.run(run())
+
+
+def test_records_catalog_exact_admission_replay_and_changed_material_denied(
+    request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from omnis.modules.settings.candidate_catalog import CandidateCatalog
+
+    url = request.getfixturevalue("migrated_database_url")
+    dsn = url.render_as_string(hide_password=False)
+    qualified, admitted = qualify_records(tmp_path / "records-evaluation", dsn)
+    seed = qualified.seed
+    input_body = mapping(mapping(admitted["input"])["payload"])
+    provenance = mapping(input_body["provenance"])
+    assert set(provenance) == {"producer_key", "producer_revision", "command_id", "source_kind"}
+    assert provenance["producer_key"] == "contract-case-records"
+    assert provenance["producer_revision"] == "contract-case-records-v1"
+    assert provenance["source_kind"] == "SYNTHETIC"
+    original = seed.request(
+        schema_version=3,
+        command_id=provenance["command_id"],
+        snapshot_ref=qualified.frozen["snapshot_ref"],
+        value=EVALUATION_VALUE,
+    )
+
+    async def run() -> None:
+        engine = database_engine(dsn)
+        catalog = CandidateCatalog(engine, seed.root)
+        try:
+            assert await catalog.dispatch("admit-evaluation-records", original) == admitted
+            for operation, delta in (
+                ("admit-evaluation-records", {"value": {"records": []}}),
+                ("admit-evaluation-records", {"schema_version": 2}),
+                ("admit-evaluation-capture", {"schema_version": 2}),
+                ("admit-evaluation-records", {"owner_id": str(uuid4())}),
+                (
+                    "admit-evaluation-records",
+                    {
+                        "snapshot_ref": {
+                            **mapping(qualified.frozen["snapshot_ref"]),
+                            "digest": "f" * 64,
+                        }
+                    },
+                ),
+            ):
+                with pytest.raises(CatalogError):
+                    await catalog.dispatch(operation, {**original, **delta})
+            with pytest.raises(CatalogError, match="UNBOUND_SLOT"):
+                await catalog.dispatch(
+                    "evaluate",
+                    seed.write(
+                        snapshot_ref=qualified.frozen["snapshot_ref"],
+                        evaluation_kind="PURE",
+                        input=EVALUATION_VALUE,
+                    ),
+                )
+            for reference in (
+                {**mapping(admitted["input_ref"]), "kind": "contract-case-input"},
+                {**mapping(admitted["input_ref"]), "revision": True},
+                {**mapping(admitted["input_ref"]), "revision": 2},
+                {**mapping(admitted["input_ref"]), "digest": "f" * 64},
+            ):
+                with pytest.raises(CatalogError):
+                    await catalog.dispatch(
+                        "evaluate",
+                        seed.write(
+                            schema_version=3,
+                            snapshot_ref=qualified.frozen["snapshot_ref"],
+                            input_ref=reference,
+                            evaluation_kind="PURE",
+                        ),
+                    )
+            with pytest.raises(CatalogError):
+                await catalog.dispatch(
+                    "evaluate",
+                    seed.write(
+                        schema_version=2,
+                        snapshot_ref=qualified.frozen["snapshot_ref"],
+                        input_ref=admitted["input_ref"],
+                        evaluation_kind="PURE",
+                    ),
+                )
+
+            def no_evaluation(*args: object, **kwargs: object) -> object:
+                raise AssertionError("qualification replay executed methods")
+
+            with monkeypatch.context() as patcher:
+                patcher.setattr("omnis.modules.settings.skill_catalog.evaluate_pure", no_evaluation)
+                patcher.setattr(
+                    "omnis.modules.settings.candidate_catalog.evaluate_pure", no_evaluation
+                )
+                patcher.setattr("omnis.modules.tasks.module_registry.run_handler", no_evaluation)
+                for kind, expected in (("STATIC", qualified.static), ("PURE", qualified.pure)):
+                    async with engine.connect() as conn:
+                        command_id = str(
+                            (
+                                await conn.execute(
+                                    sql(
+                                        "SELECT command_id FROM catalog_command WHERE owner_id=:owner AND operation='evaluate' AND result->'evaluation_ref'->>'id'=:id"
+                                    ),
+                                    {
+                                        "owner": seed.owner,
+                                        "id": mapping(expected["evaluation_ref"])["id"],
+                                    },
+                                )
+                            ).scalar_one()
+                        )
+                    replay = seed.request(
+                        schema_version=3,
+                        command_id=command_id,
+                        snapshot_ref=qualified.frozen["snapshot_ref"],
+                        input_ref=admitted["input_ref"],
+                        evaluation_kind=kind,
+                    )
+                    assert await catalog.dispatch("evaluate", replay) == expected
+                assert await catalog.dispatch("admit-evaluation-records", original) == admitted
+
+            # New fixture only: change retained bytes, restore read-only mode, then
+            # require the real qualifier/readback path to refuse rather than restamp.
+            target = (
+                seed.root
+                / "candidates"
+                / str(mapping(qualified.frozen["snapshot_ref"])["id"])
+                / "packages/0/templates/procedures/map-records.yaml"
+            )
+            raw = target.read_bytes()
+            target.chmod(0o600)
+            target.write_bytes(raw + b"\n")
+            target.chmod(0o400)
+            with pytest.raises(CatalogError):
+                await catalog.dispatch(
+                    "admit-evaluation-records", {**original, "command_id": str(uuid4())}
+                )
+            with pytest.raises(CatalogError):
+                await catalog.dispatch(
+                    "readback", seed.request(snapshot_ref=qualified.frozen["snapshot_ref"])
+                )
         finally:
             await engine.dispose()
 

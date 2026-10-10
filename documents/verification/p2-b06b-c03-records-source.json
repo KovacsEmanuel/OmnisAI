@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_SCOPED_SOURCE_PG_NOT_CLOSED",
+  "product_snapshot": "eee917e",
+  "changed_product_bytes_since_tracer": false,
+  "source_files": {
+    "Makefile": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896",
+    "api/tests/test_c03_records_contract.py": "8820f3bec9d7befa4cb344e32afe94b65f6af289ae79da0baa4442902f0a3f49",
+    "api/tests/test_c03_records_pg.py": "69a52b53f6b5110098107b11f03ed21a4001e96a240deeaf6ecf9df03ce91069",
+    "integrations/hermes/tests/test_c03_records.py": "8ff7a1a24fda105533d7af3a6d6339b184ccb4f04537552c37a01a8a3d569af7"
+  },
+  "pg": {
+    "session": "proc_89b48c56ecdc",
+    "target": "test-c03-pg",
+    "exit": 0,
+    "summary": [
+      "29 passed in 162.76s (0:02:42)"
+    ],
+    "family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "root": "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/db-516bf3ac06b849d7",
+    "cid": "35e0c33eeeaca7a5cfcf7c2583bfd6f2640915c15f9cc35f243c8543d0b78bfd",
+    "exact_cid_absent": true,
+    "log_sha256": "ce8e2a97c6491858756179c52fc1b25fe517deaf9f02fd7a3bd5b27a5e6814fc"
+  },
+  "checks": {
+    "make lint-api typecheck-api": 0,
+    "make check-runtime": {
+      "exit": 0,
+      "passed": 373,
+      "AST": 6
+    },
+    "records_compiler": {
+      "passed": 14,
+      "exit": 0
+    },
+    "documentation": {
+      "passed": 72,
+      "exit": 0
+    },
+    "render_check": 0,
+    "diff_check": 0
+  },
+  "covered": [
+    "Structured value and order/duplicates retained; empty and128 short records positive; strict installed Record semantic validation without running handler in producer",
+    "Resealed native positives/denials for value/types/schema/provenance/owner/namespace/refs/versions/budget/StepOutput/slot/omitted requirements",
+    "Producer/native value parity on same stage bytes; capture regression37PASS remains separate",
+    "Real private CLI RUN ref/slot/value/encoding/provenance-grant denials with unchanged managed/catalog counts",
+    "Rollback after actual INSERT and in-transaction readback for assignment task-brief, records input and context mission; prior committed prefix retained",
+    "Private command idempotency/conflict and new-process readback; defining-module guards against method rerun or binding replay",
+    "PACKAGE_EVAL records protocol/provenance and exact STATIC/PURE outputs; no raw UNBOUND_SLOT bypass; exact admission/evaluation replay; foreign/mixed/bool refs refused; changed retained source refuses"
+  ],
+  "retained_failures": [
+    {
+      "boundary": "native test fixture generation",
+      "result": "69FAIL/27PASS at schema_ref mismatch before positives; JSON roundtrip broke shared ref aliases",
+      "fix": "Set all3 schema refs explicitly; identical positive channel96PASS incl2API tests, then full373runtimePASS; no product edit or relaxed validation"
+    },
+    {
+      "boundary": "new catalog replay test",
+      "session": "proc_3b9bec7a44c1",
+      "result": "1FAIL/28PASS exit2/drained, Seed.write duplicate command_id before replay",
+      "fix": "Seed.request preserves explicit command_id for admission/evaluation replay; new29PG PASS",
+      "cid": "896f588622b3c483b32156514cd3f27e41115a3c79ac1ea1bfd2b1b3bd3f69f8",
+      "exact_cid_absent": true
+    }
+  ],
+  "limits": [
+    "Preparation is a labeled double in PG; real installed native cold lifecycle/browser and full canonical not credited",
+    "No lock-frontier change; historical owner-waiter regression in test-c03-pg executes, not a claim of physical crash or new cross-owner protocol",
+    "Per-test databases dropped by attested fixture; owned PGDATA/logs retained",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO"
+  ]
+}

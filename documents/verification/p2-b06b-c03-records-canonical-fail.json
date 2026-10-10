@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_RETAINED",
+  "session": "proc_dde998df6b5d",
+  "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c3z-hxmmq3en/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c3z-hxmmq3en make check UV=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/uv",
+  "snapshot": "20611d11b26b0334123b87f3ef5926e63e867e55",
+  "exit_code": 2,
+  "family": {"schema_version":1,"code":2,"family_drained":true},
+  "tracked_count": 726,
+  "all_tracked_bytes_unchanged": true,
+  "completed_components": {"documentation":72,"development":43,"api":{"passed":1215,"failed":1,"seconds":2226.88}},
+  "failure": {
+    "test": "api/tests/test_native_task_client.py::test_unknown_managed_version_never_requests_authority[omnis-managed-admission-v3]",
+    "classification": "Stale test oracle after explicit wire v3 addition; no new product defect",
+    "expected": "payload denied before authority",
+    "actual_focused": "Runtime disconnected after known protocol passed allowlist",
+    "focused_red": {"exit":1,"passed":12,"failed":1},
+    "repair": "Add v3 to all three current-grant/existing-stream positives; retain future unknown-version denial with v4 plus None/bool/list and all prior no-authority/no-resend/expiry assertions.",
+    "focused_green": {"exit":0,"passed":16},
+    "limits": "Synthetic peer test only. Full canonical retry pending; successful source/installed/browser scope does not turn this run into PASS."
+  },
+  "root": "/home/kali/.hermes/cache/scratch/c3z-hxmmq3en/db-35c452b7aba54f98",
+  "cid": "ed9335fb9edbc7c0b3773c2b662fb391ec0e2c04096b1fd77e1d82684afdf966",
+  "project": "omnis-p01-5b5a690fc6da4f47948a33e8976e0d27",
+  "exact_owned_cleanup": true,
+  "log_sha256": "f63f688fcfec06e2872ff11b1519a516bff875ad40dc194845bf219c92bf279f",
+  "retention": "Owned PGDATA/log retained; per-test databases dropped by existing fixture. No r1/global/push or model/target action."
+}

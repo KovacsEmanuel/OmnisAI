@@ -129,6 +129,8 @@ def compile_catalog(
     from .candidate_store import reference as record_ref
 
     compiled = _compile_catalog(package_roots, profile_path, dependencies=dependencies)
+    if dependencies and any(slot.expected_kind == "contract-case-input" for slot in compiled.slots):
+        raise CatalogError("UNSUPPORTED_CAPTURE_DEPENDENCY")
     by_ref = {canonical(record_ref(artifact(d))): d for d in dependencies}
     # Each exact release is checked once against its own profile and transitive inventory.
     for dependency in dependencies:
@@ -616,6 +618,28 @@ def _compile_catalog(
                         ):
                             raise CatalogError("SCHEMA_TYPE")
 
+        if any(slot.expected_kind == "contract-case-input" for slot in procedure.slots):
+            from omnis.modules.tasks.contract_case_input import (
+                CAPTURE_BINDING,
+                capture_schema,
+                require_capture_slots,
+            )
+
+            require_capture_slots([s.model_dump(mode="json") for s in procedure.slots])
+            if not isinstance(procedure.input_schema_ref, LocalRef):
+                raise CatalogError("UNSUPPORTED_CAPTURE_DEPENDENCY")
+            schema_paths = [
+                binding.path
+                for binding in manifests[key].file_bindings
+                if binding.entity_kind == "schema" and binding.key == procedure.input_schema_ref.key
+            ]
+            if len(schema_paths) != 1:
+                raise CatalogError("REF_TYPE")
+            capture_schema(files_by_package[key][schema_paths[0]])
+            if [b.model_dump(mode="json") for b in procedure.probe[0].input_bindings] != [
+                CAPTURE_BINDING
+            ]:
+                raise CatalogError("INPUT_BINDING")
         field_type(input_schema, "capture", "string")
         field_type(output_schema, "surface_map", "array")
         compiled: list[CompiledStep] = []
@@ -643,7 +667,21 @@ def _compile_catalog(
                 raise CatalogError("OUTPUT_REF")
             in_schema = input_schema if index == 0 else compiled[-1].output_schema
             if index == 0 and step.input_bindings:
-                raise CatalogError("INPUT_BINDING")
+                if [s.model_dump(mode="json") for s in procedure.slots] != [
+                    {
+                        "name": "capture",
+                        "expected_kind": "contract-case-input",
+                        "min_items": 1,
+                        "max_items": 1,
+                    }
+                ] or [b.model_dump(mode="json") for b in step.input_bindings] != [
+                    {
+                        "name": "capture",
+                        "source_ref": {"kind": "CASE_SLOT_REF", "name": "capture"},
+                        "selector": "capture",
+                    }
+                ]:
+                    raise CatalogError("INPUT_BINDING")
             if index > 0:
                 if len(step.input_bindings) != 1:
                     raise CatalogError("INPUT_BINDING")
@@ -801,26 +839,74 @@ def _compile_catalog(
     )
 
 
-def evaluate_pure(candidate: CompiledCatalog, input_object: object) -> "PureEvaluation":
+def evaluate_pure(
+    candidate: CompiledCatalog, input_object: object, *, capture_material: object | None = None
+) -> "PureEvaluation":
+    from omnis.modules.tasks.contract_case_input import (
+        CAPTURE_BINDING,
+        require_capture_slots,
+        validate_material,
+    )
     from omnis.modules.tasks.module_registry import run_handler
 
     from .catalog_models import PureEvaluation
 
+    capture_value: dict[str, object] | None = None
     if candidate.slots:
+        if capture_material is None or input_object is not None:
+            raise CatalogError("UNBOUND_SLOT")
+        require_capture_slots([s.model_dump(mode="json") for s in candidate.slots])
+        if not candidate.steps or [
+            b.model_dump(mode="json") for b in candidate.steps[0].bindings
+        ] != [CAPTURE_BINDING]:
+            raise CatalogError("UNBOUND_SLOT")
+        if not isinstance(capture_material, dict):
+            raise CatalogError("UNBOUND_SLOT")
+        context = capture_material.get("context")
+        body = context.get("payload") if isinstance(context, dict) else None
+        owner = body.get("owner_id") if isinstance(body, dict) else None
+        if not isinstance(owner, str):
+            raise CatalogError("UNBOUND_SLOT")
+        material = validate_material(capture_material, namespace="PACKAGE_EVAL", owner_id=owner)
+        material_schema = cast(dict[str, object], material["schema"])
+        if canonical(material_schema["document"]) != candidate.input_schema:
+            raise CatalogError("UNBOUND_SLOT")
+        capture_value = cast(
+            dict[str, object],
+            cast(dict[str, object], cast(dict[str, object], material["input"])["payload"])["value"],
+        )
+        input_object = capture_value
+    elif capture_material is not None:
         raise CatalogError("UNBOUND_SLOT")
     if candidate.verification_kind != "CONTRACT":
         raise CatalogError("SECURITY_REQUIRES_FIXTURE")
     validate(candidate.input_schema, input_object)
     output_bytes: list[bytes] = []
     succeeded: dict[str, object] = {}
-    for step in candidate.steps:
+    for step_index, step in enumerate(candidate.steps):
         bound_input = input_object
         if step.bindings:
             bound: dict[str, object] = {}
             for binding in step.bindings:
                 source = binding.source_ref
+                if (
+                    isinstance(source, SlotRef)
+                    and step is candidate.steps[0]
+                    and capture_value is not None
+                ):
+                    bound[binding.name] = capture_value["capture"]
+                    continue
                 if not isinstance(source, StepOutputRef):
                     raise CatalogError("UNBOUND_SLOT")
+                if (
+                    step_index == 0
+                    or source.step_id != candidate.steps[step_index - 1].id
+                    or source.output_name != HANDLERS[candidate.steps[step_index - 1].handler][1]
+                    or binding.name != HANDLERS[step.handler][0]
+                    or source.output_name != binding.name
+                    or binding.selector is not None
+                ):
+                    raise CatalogError("MISSING_STEP_OUTPUT")
                 output = succeeded.get(source.step_id)
                 if not isinstance(output, dict) or source.output_name not in output:
                     raise CatalogError("MISSING_STEP_OUTPUT")

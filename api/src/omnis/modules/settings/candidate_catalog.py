@@ -52,6 +52,7 @@ BEHAVIOR_FILES = (
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
     "tasks/module_registry.py",
+    "tasks/contract_case_input.py",
 )
 
 
@@ -104,7 +105,16 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         "freeze": {"draft_ref", "source_draft_refs", "technical_review_ref"},
         "evaluate": {"snapshot_ref", "evaluation_kind", "input"},
         "readback": {"snapshot_ref"},
+        "admit-evaluation-capture": {"snapshot_ref", "value"},
     }
+    capture_v2 = (
+        isinstance(value, dict)
+        and type(value.get("schema_version")) is int
+        and value.get("schema_version") == 2
+        and operation in ("admit-evaluation-capture", "evaluate")
+    )
+    if capture_v2 and operation == "evaluate":
+        fields["evaluate"] = {"snapshot_ref", "evaluation_kind", "input_ref"}
     if operation not in fields or not isinstance(value, dict):
         raise CatalogError("INVALID_REQUEST")
     common = {"schema_version", "owner_id"}
@@ -136,7 +146,11 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
                 check_text(child)
 
     check_text(value)
-    if type(value["schema_version"]) is not int or value["schema_version"] != 1:
+    if (
+        type(value["schema_version"]) is not int
+        or value["schema_version"] != (2 if capture_v2 else 1)
+        or (operation == "admit-evaluation-capture" and not capture_v2)
+    ):
         raise CatalogError("INVALID_REQUEST")
     uuid_string(value["owner_id"])
     if operation != "readback":
@@ -154,6 +168,17 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         for path in [*packages, value["profile"]]:
             if type(path) is not str or not Path(path).is_absolute() or "\x00" in path:
                 raise CatalogError("INVALID_REQUEST")
+    elif capture_v2:
+        if valid_ref(value["snapshot_ref"])["kind"] != "candidate-snapshot":
+            raise CatalogError("INVALID_REQUEST")
+        if operation == "evaluate":
+            if (
+                value["evaluation_kind"] not in ("STATIC", "PURE")
+                or valid_ref(value["input_ref"])["kind"] != "contract-case-input"
+            ):
+                raise CatalogError("INVALID_REQUEST")
+        elif not isinstance(value["value"], dict):
+            raise CatalogError("INVALID_REQUEST")
     elif operation in ("evaluate", "readback"):
         valid_ref(value["snapshot_ref"])
         if operation == "evaluate" and (
@@ -182,6 +207,30 @@ def payload(record: dict[str, object]) -> dict[str, object]:
     if not isinstance(value, dict):
         raise CatalogError("STORAGE_INCOMPATIBLE")
     return value
+
+
+def check_capture_admission(record: object, expected: dict[str, object]) -> None:
+    """Pure shape/pin validation; the caller still owns ledger/group authority."""
+    checked = store.checked(record)
+    ref = valid_ref(store.reference(checked))
+    body = payload(checked)
+    for field, kind in (
+        ("snapshot_ref", "candidate-snapshot"),
+        ("procedure_ref", "procedure"),
+        ("schema_ref", "schema"),
+    ):
+        if valid_ref(body.get(field))["kind"] != kind:
+            raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
+    uuid_string(body.get("owner_id"))
+    if (
+        ref["kind"] != "evaluation-admission"
+        or type(checked["schema_version"]) is not int
+        or checked["schema_version"] != 1
+        or ref["revision"] != 1
+        or type(body.get("version")) is not int
+        or body != expected
+    ):
+        raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
 
 
 class CandidateCatalog:
@@ -278,11 +327,15 @@ class CandidateCatalog:
             await store.lock(connection, "owner:" + owner)
             prior = await store.replay(connection, owner, command, operation, value)
             if prior is not None:
+                if operation == "admit-evaluation-capture":
+                    await self.capture_readback(connection, owner, value, prior)
                 if operation in ("freeze", "evaluate"):
                     ref = prior.get("snapshot_ref", value.get("snapshot_ref"))
                     await self.snapshot_readback(connection, owner, valid_ref(ref))
                 return prior
-            if operation == "evaluate":
+            if operation == "admit-evaluation-capture":
+                result = await self.admit_evaluation_capture(connection, owner, value)
+            elif operation == "evaluate":
                 result = await self.evaluate(connection, owner, value)
             elif operation == "freeze":
                 result = await self.freeze(connection, owner, value)
@@ -400,6 +453,10 @@ class CandidateCatalog:
         # Read back the exact committed command on a fresh connection.
         async with self.engine.connect() as connection:
             readback = await store.replay(connection, owner, command, operation, value)
+            if readback is not None and operation == "admit-evaluation-capture":
+                await self.capture_readback(connection, owner, value, readback)
+            elif readback is not None and operation == "evaluate":
+                await self.snapshot_readback(connection, owner, valid_ref(value["snapshot_ref"]))
         if readback is None:
             raise CatalogError("STORAGE_INCOMPATIBLE")
         return readback
@@ -630,7 +687,21 @@ class CandidateCatalog:
                 raise CatalogError("SNAPSHOT_MISMATCH")
             files = {"receipt.json": canonical(record)}
             input_ref = receipt["input_ref"]
-            if input_ref is not None:
+            capture_v2 = receipt.get("protocol") == "c03-static-pure-capture-v2"
+            if capture_v2:
+                if receipt.get("evaluator") != "omnis-static-pure-capture-v2":
+                    raise CatalogError("EVALUATION_MISMATCH")
+                material = await self.capture_material(
+                    connection, owner, group, snapshot, compiled, records, input_ref
+                )
+                files["input.json"] = canonical(material["input"])
+            elif (
+                receipt.get("protocol") != "b06a-static-pure-v1"
+                or receipt.get("evaluator") != "omnis-static-pure-v1"
+                or (compiled.slots and receipt.get("status") == "PURE_PASS")
+            ):
+                raise CatalogError("EVALUATION_MISMATCH")
+            elif input_ref is not None:
                 input_group, input_record = await store.get(connection, owner, valid_ref(input_ref))
                 if (
                     input_group != group
@@ -668,6 +739,258 @@ class CandidateCatalog:
             "assessment_selectable": False,
         }
 
+    def capture_spec(
+        self,
+        snapshot: dict[str, object],
+        compiled: CompiledCatalog,
+        records: list[dict[str, object]],
+    ) -> tuple[dict[str, object], dict[str, object], bytes, str]:
+        """Resolve schema bytes through the selected frozen procedure, never caller refs."""
+        from omnis.modules.tasks.contract_case_input import (
+            CAPTURE_BINDING,
+            capture_schema,
+            require_capture_slots,
+        )
+
+        from .catalog_models import CandidateRef, LocalRef, Manifest, Procedure, Profile
+        from .catalog_schema import dto
+
+        require_capture_slots([s.model_dump(mode="json") for s in compiled.slots])
+        if (
+            compiled.verification_kind != "CONTRACT"
+            or not compiled.steps
+            or [b.model_dump(mode="json") for b in compiled.steps[0].bindings] != [CAPTURE_BINDING]
+        ):
+            raise CatalogError("UNSUPPORTED_CAPTURE_SLOT")
+        directory = self.root / "candidates" / str(snapshot["id"])
+        profile = dto(read_file(directory / "profile.yaml", 262144), Profile)
+        if len(profile.agent_recipes) != 1 or len(profile.agent_recipes[0].procedure_refs) != 1:
+            raise CatalogError("UNSUPPORTED_RECIPE")
+        selected = profile.agent_recipes[0].procedure_refs[0]
+        if not isinstance(selected, CandidateRef) or selected.entity_kind != "procedure":
+            raise CatalogError("UNSUPPORTED_CAPTURE_SLOT")
+        sources = [
+            payload(r)
+            for r in records
+            if payload(r).get("source_kind") == "package"
+            and payload(r).get("package_key") == selected.package_key
+        ]
+        if len(sources) != 1:
+            raise CatalogError("REF_MISMATCH")
+        package_dir = directory / str(sources[0]["prefix"])
+        manifest = dto(read_file(package_dir / "omnis.yaml", 262144), Manifest)
+        procedures = [
+            dto(read_file(package_dir / path, 262144), Procedure) for path in manifest.procedures
+        ]
+        matches = [p for p in procedures if p.key == selected.key]
+        if len(matches) != 1 or not isinstance(matches[0].input_schema_ref, LocalRef):
+            raise CatalogError("UNSUPPORTED_CAPTURE_SLOT")
+        schema_key = matches[0].input_schema_ref.key
+        paths = [
+            b.path
+            for b in manifest.file_bindings
+            if b.entity_kind == "schema" and b.key == schema_key
+        ]
+        if len(paths) != 1:
+            raise CatalogError("REF_MISMATCH")
+        raw = read_file(package_dir / paths[0], 8192)
+        if canonical(capture_schema(raw)) != compiled.input_schema:
+            raise CatalogError("REF_MISMATCH")
+
+        def selected_ref(kind: str, key: str) -> dict[str, object]:
+            bindings = [
+                b
+                for b in compiled.catalog_bindings
+                if b["package_key"] == selected.package_key
+                and b["entity_kind"] == kind
+                and b["key"] == key
+            ]
+            if len(bindings) != 1:
+                raise CatalogError("REF_MISMATCH")
+            ref = valid_ref(bindings[0]["ref"])
+            if ref["kind"] != kind:
+                raise CatalogError("REF_MISMATCH")
+            return ref
+
+        return (
+            selected_ref("procedure", selected.key),
+            selected_ref("schema", schema_key),
+            raw,
+            paths[0],
+        )
+
+    def admission_payload(
+        self,
+        owner: str,
+        snapshot: dict[str, object],
+        procedure_ref: dict[str, object],
+        schema_ref: dict[str, object],
+    ) -> dict[str, object]:
+        body = payload(snapshot)
+        return {
+            "version": 1,
+            "namespace": "PACKAGE_EVAL",
+            "owner_id": owner,
+            "snapshot_ref": store.reference(snapshot),
+            "procedure_ref": procedure_ref,
+            "schema_ref": schema_ref,
+            "material_digest": body["material_digest"],
+            "resolved_index_digest": body["resolved_index_digest"],
+            "compiler_revision": COMPILER_REVISION,
+        }
+
+    async def capture_material(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        group: str,
+        snapshot: dict[str, object],
+        compiled: CompiledCatalog,
+        records: list[dict[str, object]],
+        input_ref: object,
+    ) -> dict[str, object]:
+        from omnis.modules.tasks.contract_case_input import material_section
+
+        procedure_ref, schema_ref, raw, path = self.capture_spec(snapshot, compiled, records)
+        input_group, input_record = await store.get(connection, owner, valid_ref(input_ref))
+        context_group, context = await store.get(
+            connection, owner, valid_ref(payload(input_record).get("context_ref"))
+        )
+        context_body = payload(context)
+        admission_group, admission = await store.get(
+            connection, owner, valid_ref(context_body.get("basis_ref"))
+        )
+        check_capture_admission(
+            admission, self.admission_payload(owner, snapshot, procedure_ref, schema_ref)
+        )
+        expected_context = {
+            "version": 1,
+            "namespace": "PACKAGE_EVAL",
+            "owner_id": owner,
+            "basis_ref": store.reference(admission),
+            "snapshot_ref": store.reference(snapshot),
+            "procedure_ref": procedure_ref,
+            "schema_ref": schema_ref,
+            "selection_ref": None,
+            "mission_ref": None,
+            "focus_ref": None,
+        }
+        if (
+            input_group != group
+            or context_group != group
+            or admission_group != group
+            or context_body != expected_context
+        ):
+            raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
+        return material_section(context, input_record, schema_ref, raw, schema_path=path)
+
+    async def admit_evaluation_capture(
+        self, connection: AsyncConnection, owner: str, value: dict[str, object]
+    ) -> dict[str, object]:
+        from omnis.modules.tasks.contract_case_input import material_section, produce_input
+
+        ref = valid_ref(value["snapshot_ref"])
+        back = await self.snapshot_readback(connection, owner, ref)
+        group, snapshot = await store.get(connection, owner, ref)
+        if await self.rejected(connection, owner, group):
+            raise CatalogError("CANDIDATE_REJECTED")
+        if await self.frozen_record(connection, owner, group) != snapshot:
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        body = payload(snapshot)
+        _, records = await self.sources(connection, owner, body)
+        refs, index = body["candidate_refs"], back["resolved_index"]
+        if not isinstance(refs, list) or not isinstance(index, dict):
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        compiled = await self.compile_pinned(
+            connection,
+            owner,
+            self.root / "candidates" / str(snapshot["id"]),
+            records,
+            [valid_ref(r) for r in refs],
+            index,
+        )
+        procedure_ref, schema_ref, raw, path = self.capture_spec(snapshot, compiled, records)
+        admission = store.envelope(
+            "evaluation-admission",
+            self.admission_payload(owner, snapshot, procedure_ref, schema_ref),
+        )
+        context = store.envelope(
+            "contract-input-context",
+            {
+                "version": 1,
+                "namespace": "PACKAGE_EVAL",
+                "owner_id": owner,
+                "basis_ref": store.reference(admission),
+                "snapshot_ref": ref,
+                "procedure_ref": procedure_ref,
+                "schema_ref": schema_ref,
+                "selection_ref": None,
+                "mission_ref": None,
+                "focus_ref": None,
+            },
+        )
+        input_record = produce_input(context, value["value"], raw, uuid_string(value["command_id"]))
+        material = material_section(context, input_record, schema_ref, raw, schema_path=path)
+        for record in (admission, context, input_record):
+            await store.put(connection, owner, group, record)
+        return {
+            "admission_ref": store.reference(admission),
+            "admission": admission,
+            "context_ref": store.reference(context),
+            "context": context,
+            "input_ref": store.reference(input_record),
+            "input": input_record,
+            "material": material,
+        }
+
+    async def capture_readback(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        value: dict[str, object],
+        result: dict[str, object],
+    ) -> None:
+        ref = valid_ref(value["snapshot_ref"])
+        back = await self.snapshot_readback(connection, owner, ref)
+        group, snapshot = await store.get(connection, owner, ref)
+        body = payload(snapshot)
+        _, records = await self.sources(connection, owner, body)
+        refs, index = body["candidate_refs"], back["resolved_index"]
+        if not isinstance(refs, list) or not isinstance(index, dict):
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        compiled = await self.compile_pinned(
+            connection,
+            owner,
+            self.root / "candidates" / str(snapshot["id"]),
+            records,
+            [valid_ref(r) for r in refs],
+            index,
+        )
+        material = await self.capture_material(
+            connection, owner, group, snapshot, compiled, records, result.get("input_ref")
+        )
+        context, input_record = material["context"], material["input"]
+        if not isinstance(context, dict) or not isinstance(input_record, dict):
+            raise CatalogError("STORAGE_INCOMPATIBLE")
+        _, admission = await store.get(connection, owner, valid_ref(payload(context)["basis_ref"]))
+        expected = {
+            "admission_ref": store.reference(admission),
+            "admission": admission,
+            "context_ref": store.reference(context),
+            "context": context,
+            "input_ref": store.reference(input_record),
+            "input": input_record,
+            "material": material,
+        }
+        provenance = payload(input_record).get("provenance")
+        if (
+            result != expected
+            or payload(input_record)["value"] != value["value"]
+            or not isinstance(provenance, dict)
+            or provenance.get("command_id") != value["command_id"]
+        ):
+            raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
+
     async def evaluate(
         self, connection: AsyncConnection, owner: str, value: dict[str, object]
     ) -> dict[str, object]:
@@ -689,8 +1012,18 @@ class CandidateCatalog:
             [valid_ref(r) for r in body["candidate_refs"]],
             pinned_index,
         )
+        capture_v2 = value["schema_version"] == 2
+        capture_material = None
         input_record = None
-        if value["evaluation_kind"] == "PURE":
+        if capture_v2:
+            capture_material = await self.capture_material(
+                connection, owner, group, snapshot, compiled, records, value["input_ref"]
+            )
+            checked_input = capture_material["input"]
+            if not isinstance(checked_input, dict):
+                raise CatalogError("STORAGE_INCOMPATIBLE")
+            input_record = checked_input
+        elif value["evaluation_kind"] == "PURE":
             input_record = store.envelope(
                 "evaluation-input",
                 {"snapshot_ref": ref, "input": value["input"], "created_by": owner},
@@ -700,7 +1033,11 @@ class CandidateCatalog:
             if value["evaluation_kind"] == "PURE":
                 outputs = [
                     raw.decode("utf-8")
-                    for raw in evaluate_pure(compiled, value["input"]).outputs_json
+                    for raw in evaluate_pure(
+                        compiled,
+                        None if capture_v2 else value["input"],
+                        capture_material=capture_material,
+                    ).outputs_json
                 ]
             status, reason = str(value["evaluation_kind"]) + "_PASS", None
         except CatalogError as error:
@@ -714,9 +1051,11 @@ class CandidateCatalog:
                 "dependency_closure_refs": body["dependency_closure_refs"],
                 "dependency_closure_digest": digest(canonical(body["dependency_closure_refs"])),
                 "compiler_revision": COMPILER_REVISION,
-                "evaluator": "omnis-static-pure-v1",
+                "evaluator": "omnis-static-pure-capture-v2"
+                if capture_v2
+                else "omnis-static-pure-v1",
                 "evaluator_revision": EVALUATOR_REVISION,
-                "protocol": "b06a-static-pure-v1",
+                "protocol": "c03-static-pure-capture-v2" if capture_v2 else "b06a-static-pure-v1",
                 "tool_versions": {"trusted_handlers": "contract-v1"},
                 "corpus_ref": None,
                 "evaluation_kind": value["evaluation_kind"],
@@ -734,7 +1073,7 @@ class CandidateCatalog:
                 "evidence_refs": [],
                 "target_evidence": "NOT_APPLICABLE",
                 "limits": {
-                    "max_input_bytes": 1048576,
+                    "max_input_bytes": 8192 if capture_v2 else 1048576,
                     "max_output_bytes": compiled.max_output_bytes,
                     "dispatch_timeout_seconds": 15,
                 },
@@ -762,7 +1101,7 @@ class CandidateCatalog:
             ],
         }
         read_material(self.root, "receipts", str(receipt["id"]), [file_source])
-        if input_record is not None:
+        if input_record is not None and not capture_v2:
             await store.put(connection, owner, group, input_record)
         await store.put(connection, owner, group, receipt)
         return {
@@ -807,7 +1146,16 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = SafeParser()
     parser.add_argument(
-        "operation", choices=("capture", "review", "reject", "freeze", "evaluate", "readback")
+        "operation",
+        choices=(
+            "capture",
+            "review",
+            "reject",
+            "freeze",
+            "evaluate",
+            "readback",
+            "admit-evaluation-capture",
+        ),
     )
     parser.add_argument("--request", required=True)
     parser.add_argument("--catalog-root", required=True)

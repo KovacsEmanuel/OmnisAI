@@ -37,6 +37,12 @@ def check_evaluations(
 ) -> None:
     if len(records) != 2:
         raise CatalogError("EVALUATION_MISMATCH")
+    capture_v2 = payload(records[0]).get("protocol") == "c03-static-pure-capture-v2"
+    if capture_v2:
+        first_input = valid_ref(payload(records[0]).get("input_ref"))
+        second_input = valid_ref(payload(records[1]).get("input_ref"))
+        if first_input["kind"] != "contract-case-input" or first_input != second_input:
+            raise CatalogError("EVALUATION_MISMATCH")
     for kind, record in zip(("STATIC", "PURE"), records, strict=True):
         body = payload(record)
         expected = {
@@ -47,8 +53,8 @@ def check_evaluations(
             "dependency_closure_refs": closure,
             "compiler_revision": COMPILER_REVISION,
             "evaluator_revision": EVALUATOR_REVISION,
-            "evaluator": "omnis-static-pure-v1",
-            "protocol": "b06a-static-pure-v1",
+            "evaluator": "omnis-static-pure-capture-v2" if capture_v2 else "omnis-static-pure-v1",
+            "protocol": "c03-static-pure-capture-v2" if capture_v2 else "b06a-static-pure-v1",
             "created_by": value["owner_id"],
             "evaluation_kind": kind,
             "status": kind + "_PASS",

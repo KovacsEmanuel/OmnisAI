@@ -277,8 +277,12 @@ def test_pg_result_before_check_reconcile_once_restart(
                 recipe_limits: Limits | None = None,
                 *,
                 composition_packages: list[dict[str, object]] | None = None,
+                context_only: bool = False,
+                prefix: list[dict[str, object]] | None = None,
+                case_input: dict[str, object] | None = None,
             ) -> list[dict[str, object]]:
                 assert composition_packages is None  # This unchanged probe is legacy v1.
+                assert context_only is False and prefix is None and case_input is None
                 ceiling = min(
                     procedure.limits.deadline_seconds,
                     (recipe_limits or procedure.limits).deadline_seconds,

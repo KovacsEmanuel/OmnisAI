@@ -6,6 +6,7 @@ model admission, provider or second ledger. Source/readback errors are sanitized
 
 from hashlib import sha256
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.modules.runs.managed_admission import ManagedAdmission
@@ -136,6 +137,7 @@ class ModelProjections:
             return result
         except (
             CatalogError,
+            SQLAlchemyError,
             ValueError,
             TypeError,
             KeyError,
@@ -180,6 +182,7 @@ class ModelProjections:
             return result
         except (
             CatalogError,
+            SQLAlchemyError,
             ValueError,
             TypeError,
             KeyError,

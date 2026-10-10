@@ -1046,6 +1046,7 @@ def main() -> int:
             "test-managed-composition-pg",
             "test-c03-pg",
             "test-model-budget-pg",
+            "test-model-admission-pg",
         ),
         default="check-components",
     )

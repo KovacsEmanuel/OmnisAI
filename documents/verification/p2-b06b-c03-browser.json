@@ -1,0 +1,2171 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "PASS_SCOPED_WITH_EXPLICIT_EXCLUSIONS",
+  "product_snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+  "report": {
+    "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/report.json",
+    "sha256": "7cff9b7069517d6e11f17195d0b4fe31fcb8c4975234fceb30473b2e2467be23"
+  },
+  "scope": {
+    "consumer": "Fresh real Chromium Playwright on HTTP served installed wheel+installed supervisor+copied build+own fresh PG18.6 UDS/no-network; no Vite/source API serving.",
+    "viewports": [
+      1280,
+      390,
+      320
+    ],
+    "fresh_browser_contexts": 3,
+    "isolation_limits": "Browser routing blocks non-owned origins; observed zero attempted non-owned origins. Not OS-wide syscall/egress attestation. No providers/targets invoked.",
+    "test_helpers": "Existing source conftest/e2e_processes only test tooling. Candidate interpreter/site-packages loads installed Omnis; API/supervisor child -I -B outside checkout with no source Python path. QA appends test venv site-packages only to import pytest for conftest; no pth processing."
+  },
+  "reconciled": {
+    "counts": {
+      "PASS": 38,
+      "FAIL": 0,
+      "NOT_RUN": 8,
+      "NOT_IMPLEMENTED": 4
+    },
+    "rows": 50,
+    "live_rows": 42,
+    "captures": 28,
+    "independently_inspected": 13,
+    "parent_visual_inspections": [
+      "before-required-errors.png",
+      "supplement-focus-viewport.png",
+      "before-step5-320.png"
+    ],
+    "api_module_hashes_verified": 71,
+    "owned_containers_absent": 3,
+    "exact_ports_without_listeners": [
+      42305,
+      45379,
+      54081
+    ],
+    "report_sha256": "7cff9b7069517d6e11f17195d0b4fe31fcb8c4975234fceb30473b2e2467be23",
+    "parent_verdict": "PASS_SCOPED_WITH_EXPLICIT_EXCLUSIONS"
+  },
+  "scenario_inventory": [
+    {
+      "id": "AUTH-01",
+      "action": "Pair empty then invalid code",
+      "expected": "Required and invalid feedback; cleared field/focus",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-pairing-error.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "AUTH-02",
+      "action": "Issue through private UDS and pair fresh browser",
+      "expected": "HttpOnly Strict cookie; session established",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "instance_id": "d37dc54b-0e21-4d9f-aebe-0e6b94c12776",
+        "generation": 1
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "NAV-01",
+      "action": "Open Home and Engagement navigation on empty DB",
+      "expected": "Real dashboard empty and zero engagements",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-empty-desktop.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "STATE-01",
+      "action": "Hold actual dashboard request, then release",
+      "expected": "Loading displayed, then real empty projection",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "intervention": "delay only, no fulfill"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "STATE-02",
+      "action": "Abort dashboard refresh then retry real request",
+      "expected": "Error/stale surfaced, retry recovers",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "intervention": "request abort"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "NAV-02",
+      "action": "Settings runtime/providers/skills navigation",
+      "expected": "Real instance status; future settings unavailable",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "surfaces": [
+          "Providers",
+          "Skills",
+          "Runtime & data"
+        ],
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-home.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-01",
+      "action": "Save missing mandatory fields",
+      "expected": "Real 422; field summary and error-link focus",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "status": 422,
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-required-errors.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-02",
+      "action": "Switch general to focused and save empty/oversized objective",
+      "expected": "Focused resets untouched default; required and 8193 codepoints denied",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "invalid_codepoints": 8193
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-03",
+      "action": "Invalid scope origin/path/port, repair and conditional add/remove",
+      "expected": "Real API 422 with appropriate field invalid markers",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "negatives": [
+          {
+            "status": 422
+          },
+          {
+            "status": 422
+          },
+          {
+            "status": 422
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "PERSIST-01",
+      "action": "Save initial draft and GET through same browser",
+      "expected": "Revision1 confirmed by real API; setup route",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "id": "9876b90c-74ee-432a-8898-f8938107c83f",
+        "revision": 1,
+        "digest": "4e9d7302c2d68398abd79a0f052031bab7dcfd55187bd4d20cfba65ab059f121"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-04",
+      "action": "Next/Back and Application context; matrix add/remove/edit",
+      "expected": "All context fields and conditional business row usable",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-application-context.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-05",
+      "action": "Visit Identities",
+      "expected": "Anonymous allowed; no invented vault controls",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-identities.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "FORM-06",
+      "action": "Rules/budgets/data policy; invalid negative and range, edit five budgets",
+      "expected": "Invalid input refused; representative controls editable",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-rules.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "PERSIST-02",
+      "action": "Save fields, GET readback and reload",
+      "expected": "All five-step data preserved in revision2",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 2,
+        "digest": "6416773d37919fcf6542ef8f583feadc9db1a9d1f933200be6c3236ceb74d3ed"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "CAS-01",
+      "action": "Two editors load rev2; first saves; second stale saves",
+      "expected": "409 with local text retained, compare no overwrite, explicit discard",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "status": 409,
+        "server_revision": 3,
+        "capture": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-cas-conflict.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "STATE-03",
+      "action": "After real PUT receipt abort confirming GET, then retry",
+      "expected": "No false success; Save disabled; retry exact GET without another PUT",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 4,
+        "no_extra_put": true
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "SEC-01",
+      "action": "Same-fixture Host, Origin, missing/wrong CSRF direct HTTP negatives",
+      "expected": "400/403 denied; exact revision unchanged",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "outcomes": [
+          [
+            400,
+            "INVALID_HOST"
+          ],
+          [
+            403,
+            "INVALID_ORIGIN"
+          ],
+          [
+            403,
+            "INVALID_CSRF"
+          ],
+          [
+            403,
+            "INVALID_CSRF"
+          ]
+        ],
+        "unchanged_revision": 4
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "NAV-03",
+      "action": "Home list → selected engagement → Setup and unknown route",
+      "expected": "Saved draft visible; undeclared server path 404 NOT_FOUND",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "id": "9876b90c-74ee-432a-8898-f8938107c83f"
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "VIEW-before-1280",
+      "action": "All five setup steps at viewport 1280",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "VIEW-before-390",
+      "action": "All five setup steps at viewport 390",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "VIEW-before-320",
+      "action": "All five setup steps at viewport 320",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "KEY-before",
+      "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+      "expected": "Focus visible and unclipped; step keyboard works",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 37,
+        "y": 847.390625,
+        "width": 316,
+        "height": 46,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "LIMIT-before-01",
+      "action": "Inspect Start assessment",
+      "expected": "Unavailable remains explicit; no fake click",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "disabled": true
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "run_stage": "before"
+    },
+    {
+      "id": "LIMIT-before-02",
+      "action": "Inspect current overlay affordances",
+      "expected": "No modal/drawer exists in traversed surfaces; Escape scenario not applicable",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {},
+      "verdict": "NOT_IMPLEMENTED",
+      "run_stage": "before"
+    },
+    {
+      "id": "SEC-before-02",
+      "action": "Inspect storage, URLs, console and page errors",
+      "expected": "No secret in web storage/DOM/URLs/logs; outbound denied",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "external_attempts": 0,
+        "page_errors": 0
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "AUTH-before-logout",
+      "action": "Log out then server GET /api/session",
+      "expected": "Session revoked: 401 with pairing UI; repair by new code",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "after_logout": 401,
+        "repaired": true
+      },
+      "verdict": "PASS",
+      "run_stage": "before"
+    },
+    {
+      "id": "AUTH-06",
+      "action": "Issue through private UDS and pair fresh browser",
+      "expected": "HttpOnly Strict cookie; session established",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "instance_id": "d37dc54b-0e21-4d9f-aebe-0e6b94c12776",
+        "generation": 1
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "PERSIST-03",
+      "action": "New API PID and fresh browser; GET and reload",
+      "expected": "Full revision, digest and payload equal prior backend",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "id": "9876b90c-74ee-432a-8898-f8938107c83f",
+        "revision": 4,
+        "digest": "1560df545853f87dff55b1238f63ac655297550a728c7cef1504b1bc99db31e0"
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "VIEW-after-1280",
+      "action": "All five setup steps at viewport 1280",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "VIEW-after-390",
+      "action": "All five setup steps at viewport 390",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "VIEW-after-320",
+      "action": "All five setup steps at viewport 320",
+      "expected": "No horizontal document overflow; real captures",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "geometry": [
+          {
+            "step": 1,
+            "overflow": false
+          },
+          {
+            "step": 2,
+            "overflow": false
+          },
+          {
+            "step": 3,
+            "overflow": false
+          },
+          {
+            "step": 4,
+            "overflow": false
+          },
+          {
+            "step": 5,
+            "overflow": false
+          }
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "KEY-after",
+      "action": "Reload, Tab skip, Enter main, field keyboard and step Enter",
+      "expected": "Focus visible and unclipped; step keyboard works",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "outline": "2px",
+        "style": "solid",
+        "x": 37,
+        "y": 847.390625,
+        "width": 316,
+        "height": 46,
+        "viewport": 900
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "LIMIT-after-01",
+      "action": "Inspect Start assessment",
+      "expected": "Unavailable remains explicit; no fake click",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "disabled": true
+      },
+      "verdict": "NOT_IMPLEMENTED",
+      "run_stage": "after"
+    },
+    {
+      "id": "LIMIT-after-02",
+      "action": "Inspect current overlay affordances",
+      "expected": "No modal/drawer exists in traversed surfaces; Escape scenario not applicable",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {},
+      "verdict": "NOT_IMPLEMENTED",
+      "run_stage": "after"
+    },
+    {
+      "id": "SEC-after-02",
+      "action": "Inspect storage, URLs, console and page errors",
+      "expected": "No secret in web storage/DOM/URLs/logs; outbound denied",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "external_attempts": 0,
+        "page_errors": 0
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "AUTH-after-logout",
+      "action": "Log out then server GET /api/session",
+      "expected": "Session revoked: 401 with pairing UI; repair by new code",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "after_logout": 401,
+        "repaired": true
+      },
+      "verdict": "PASS",
+      "run_stage": "after"
+    },
+    {
+      "id": "BOUND-01",
+      "action": "Name129 invalid; name128 and objective8192 valid",
+      "expected": "Real 422 then persisted exact limits",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 1,
+        "digest": "bdddeaa8a454375a85105b2cc68c8bf50d31236d902cbe3dc4c176de3659f1ca",
+        "name_limit": 128,
+        "objective_limit": 8192
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "BOUND-02",
+      "action": "Application invalid seed; blank item; oversized workflow1025",
+      "expected": "Real API422 and field error; repairs valid",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "seed_scheme": "javascript denied",
+        "workflow_limit_plus_one": 1025,
+        "empty_item": "denied"
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "BOUND-03",
+      "action": "Missing business principal, repair and save",
+      "expected": "Real API422 on missing required matrix field",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 2
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "BOUND-04",
+      "action": "Effect note1025 invalid; all five effect classes conditional exhaustion; policies",
+      "expected": "422 oversized note; Add disabled after five; remove reenabled; rev3 persisted",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "revision": 3,
+        "effects": 5,
+        "policy": {
+          "model_projection": "REDACTED",
+          "research_egress": "PUBLIC_FACTS",
+          "retention_days": 365
+        },
+        "capture": "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-effect-limit.png"
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "VISUAL-01",
+      "action": "Mobile keyboard skip→field; inspect real viewport vs full-page capture",
+      "expected": "Skip link actually offscreen when field focused; Settings unobscured at top",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "skip": {
+          "top": -100,
+          "bottom": -52,
+          "focused": false,
+          "scroll": 803
+        },
+        "settings": {
+          "x": 23,
+          "y": 81,
+          "width": 83.59375,
+          "height": 44,
+          "visible_hit": true
+        },
+        "viewport_captures": [
+          "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-focus-viewport.png",
+          "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-header-viewport.png"
+        ]
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "SUPP-SEC",
+      "action": "Post-boundary same-origin storage and logs",
+      "expected": "Zero page errors/outbound/storage secrets",
+      "wait": "Playwright condition <=8s; HTTP <=10s",
+      "evidence": {
+        "storage": {
+          "local": 0,
+          "session": 0,
+          "cookie": ""
+        },
+        "instance_id": "c0e2c236-aa9b-4117-a401-d6c5e7ce4255"
+      },
+      "verdict": "PASS",
+      "run_stage": "supplement"
+    },
+    {
+      "id": "EXCL-01",
+      "action": "Exhaustive unchanged C05 64-row variants/full2075 audit",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Previous C05 evidence not promoted as a new run; this is representative new installed QA."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-02",
+      "action": "Aggregate 1,000,000-byte/413 regression",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Prior accepted unchanged consumer; fresh receipt-confirmation recovery was exercised instead."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-03",
+      "action": "Legacy0007 conversion and historical data upgrade",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Own fresh schema0011 only; no existing DB or account adoption."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-04",
+      "action": "C03 CaseSlot/native admission lifecycle",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "No CaseSlot UI exists; parent has independent installed native consumer proof; not repeated here."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-05",
+      "action": "Installed CLI lifecycle/OCI image/OS opener",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Browser consumes installed wheel/supervisor/web directly with reserved listener; not a new CLI/OCI certification."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-06",
+      "action": "Full WCAG/screen-reader/cross-browser/zoom/forced-colors/aesthetic approval",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Chromium at1280/390/320, keyboard/focus and inspected representative captures only."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-07",
+      "action": "Active assessment/LLM/provider/target/research egress",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "Not implemented or explicitly unauthorized; settings remain declarative."
+      },
+      "verdict": "NOT_RUN"
+    },
+    {
+      "id": "EXCL-08",
+      "action": "Multi-page dashboard pagination",
+      "expected": "Explicitly excluded; no transferred PASS",
+      "wait": null,
+      "evidence": {
+        "reason": "One genuine engagement per owned browser dataset; next-page condition not reached."
+      },
+      "verdict": "NOT_RUN"
+    }
+  ],
+  "captures": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-pairing-error.png",
+      "sha256": "d1a56cb6b15e626c16b2f6ebf04d58e0c07142f97410634d0e4586a4b7918dc7",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-empty-desktop.png",
+      "sha256": "5ad96e8880628ec990af8c68dee17cbc9ca4bab85cbc00cccec447979c9b56b3",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Zero engagements and UNAVAILABLE/NOT_RUN metrics honest; no fabricated cost/coverage. General intro wording noted as polish only."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-dashboard-error.png",
+      "sha256": "4a8c1733ef6bee99ab624d3f5608b0b2f4400fb9453700ca6c0ba4402c641a15",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "API unreachable alert, Try again and STALE last-confirmed warning visible."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-home.png",
+      "sha256": "4342afc5b28d8fae4d744a4e9067dce38b5d0cab3a0d121d65847df9bdf4582e",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-required-errors.png",
+      "sha256": "24eee090126235ecd9f805750ad1dc43614864bfbbffa5c1358b849d6f638560",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Six-item summary matches field errors; focused name ring visible; no clipping."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-application-context.png",
+      "sha256": "e0e9db00af0cdbffe9c2e11ac54d6334e551c26b049cbf3d5592fbc8c949072b",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-identities.png",
+      "sha256": "71b85c73a855d9781ba3f14ebd2b94c3e8ae3b26ccb6a2fcbb90aee447e4fa2c",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-rules.png",
+      "sha256": "a69ee65f3ff8f986ea36578c89324bab83481978bba7b1df83b67d41e7a3a880",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-cas-conflict.png",
+      "sha256": "5cc82048365ddb022c9b928aa0ed5fa13697b112bb916f2687d29201b9d4c307",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Local edits preserved/unsaved plus server revision3; compare/discard/keep choices visible."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-readback-unconfirmed.png",
+      "sha256": "7f116c25cc00892014e86db00d689b94db8786b24b82351ce9bf5f71a6547424",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Unconfirmed readback and exact GET retry visible; disabled save. Prior revision3/title remain historical context, not success of pending revision4."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step1-1280.png",
+      "sha256": "4a2e9790a0c9ecdc1e25318de698927460a0ca9a0423fc1dbb5678069780c3ca",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step5-1280.png",
+      "sha256": "3371deffc9736bb30fc3974a1b16390bfced94bdc0e17f49fa485800ab65d471",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Review revision4/FOCUSED_TEST and all saved fields readable; no clipping; narrow sidebar digest wraps awkwardly."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step1-390.png",
+      "sha256": "6819e73e972e526093b712ddd714d63b069b2427b3fcb5e46bb98e9a6a100775",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Mobile single-column form fits; navigation wraps; controls visible; long vertical scroll."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step5-390.png",
+      "sha256": "2d5ed3d030de5cde4b27b8bb27b666bd8a0b46ff2607c4fd5108fa424e598d41",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step1-320.png",
+      "sha256": "a791466fe5e1dc782cc490ec11e0fd3b94637d503088282bce9fddd7a73919e9",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-step5-320.png",
+      "sha256": "6e5d3f03b076b82a2f9b02a529859e668f6d2cccbd8526598e28c0b06b513e20",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Review fields/IDs/URLs wrap without horizontal clipping; Start unavailable explicit."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/before-focus-mobile.png",
+      "sha256": "19f60c6fac86b87c55c2bd27f08f8ab61d08cb219ec03c3820b95b7a579622ab",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Field focus ring complete. Full-page image showed Settings/skip overlap; NOT credited as product defect; actual viewport supplement resolves capture artifact."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-restart-review.png",
+      "sha256": "3371deffc9736bb30fc3974a1b16390bfced94bdc0e17f49fa485800ab65d471",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Revision4 saved review and matching sidebar digest visibly retained; layout intact. Actual restart equality separately verified by API."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step1-1280.png",
+      "sha256": "4a2e9790a0c9ecdc1e25318de698927460a0ca9a0423fc1dbb5678069780c3ca",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step5-1280.png",
+      "sha256": "3371deffc9736bb30fc3974a1b16390bfced94bdc0e17f49fa485800ab65d471",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step1-390.png",
+      "sha256": "6819e73e972e526093b712ddd714d63b069b2427b3fcb5e46bb98e9a6a100775",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step5-390.png",
+      "sha256": "2d5ed3d030de5cde4b27b8bb27b666bd8a0b46ff2607c4fd5108fa424e598d41",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step1-320.png",
+      "sha256": "a791466fe5e1dc782cc490ec11e0fd3b94637d503088282bce9fddd7a73919e9",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-step5-320.png",
+      "sha256": "6e5d3f03b076b82a2f9b02a529859e668f6d2cccbd8526598e28c0b06b513e20",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/captures/after-focus-mobile.png",
+      "sha256": "19f60c6fac86b87c55c2bd27f08f8ab61d08cb219ec03c3820b95b7a579622ab",
+      "inspection_verdict": "NOT_INSPECTED",
+      "inspection": "Retained supplemental capture; no independent visual verdict claimed."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-effect-limit.png",
+      "sha256": "702f8326ccaba9764e09c65339ee89bd79464cb0388933851da5e1825aaec403",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Five DENY effect classes, Add visually disabled, policy365 displayed. Offscreen fixed skip appears in full-page stitching; viewport/DOM oracle established it is offscreen."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-focus-viewport.png",
+      "sha256": "8d1534f49cbc29d4585bb1c97a9cb2282dbaa1c21110433451176926a16bcb8e",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Focused name outline intact on all sides; no header/skip occlusion."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/lb-lr84m537/captures/supplement-header-viewport.png",
+      "sha256": "bbd7e13e1e0963d8dec3cac1fd5295ba0043f15bec06f6b0e28b8704d8a662be",
+      "inspection_verdict": "INSPECTED_SCOPED",
+      "inspection": "Settings fully readable, skip absent; earlier full-page overlap not reproduced in actual viewport."
+    }
+  ],
+  "product_binding": {
+    "product": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+    "initial_head": "c3400a676e001f0ecdcd809c8f88cb7e39823fd3",
+    "final_head": "b24fedd2956e3d798d89473e383ae15b73e3b1e6",
+    "head_delta": "Parent documentation-only advancement acknowledged; no rerun solely for HEAD changes.71 actual installed/source modules rehashed equal tested bytes.",
+    "wheel": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/wheel/omnis_api-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "0cd8f8b2bc9eacdf266f1b865a992e1c87bf062f1e94d5c158104595a0ecd92c",
+    "actual_api_module": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/api.py",
+    "installed_modules": [
+      {
+        "module": "__init__.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/__init__.py",
+        "sha256": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a"
+      },
+      {
+        "module": "api.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/api.py",
+        "sha256": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc"
+      },
+      {
+        "module": "core/db.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/db.py",
+        "sha256": "94c494e42702af9472d65eaac9025e408e13c462aa2c488e7ab28c868df0ee6b"
+      },
+      {
+        "module": "core/errors.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/errors.py",
+        "sha256": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0"
+      },
+      {
+        "module": "core/managed_schema.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/managed_schema.py",
+        "sha256": "e7199ac70adb9f3cc896415826db40d951cd71694c4c060e54273aa6addec53c"
+      },
+      {
+        "module": "core/paths.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/paths.py",
+        "sha256": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb"
+      },
+      {
+        "module": "core/persistence.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/persistence.py",
+        "sha256": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788"
+      },
+      {
+        "module": "core/readiness.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/readiness.py",
+        "sha256": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08"
+      },
+      {
+        "module": "core/schema.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/schema.py",
+        "sha256": "1259028f027d79367cf7a7880e33c71e24571d1187546a0ba36407f11d765163"
+      },
+      {
+        "module": "core/web_assets.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/core/web_assets.py",
+        "sha256": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c"
+      },
+      {
+        "module": "migrate.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrate.py",
+        "sha256": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426"
+      },
+      {
+        "module": "migrations/__init__.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/__init__.py",
+        "sha256": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3"
+      },
+      {
+        "module": "migrations/env.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/env.py",
+        "sha256": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98"
+      },
+      {
+        "module": "migrations/versions/0001_instance_control.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0001_instance_control.py",
+        "sha256": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673"
+      },
+      {
+        "module": "migrations/versions/0002_local_sessions.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0002_local_sessions.py",
+        "sha256": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5"
+      },
+      {
+        "module": "migrations/versions/0003_instance_lifecycle.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0003_instance_lifecycle.py",
+        "sha256": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30"
+      },
+      {
+        "module": "migrations/versions/0004_pairing_receipts.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0004_pairing_receipts.py",
+        "sha256": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8"
+      },
+      {
+        "module": "migrations/versions/0005_stop_fence.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0005_stop_fence.py",
+        "sha256": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406"
+      },
+      {
+        "module": "migrations/versions/0006_stop_reconciliation.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0006_stop_reconciliation.py",
+        "sha256": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607"
+      },
+      {
+        "module": "migrations/versions/0007_engagement_drafts.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0007_engagement_drafts.py",
+        "sha256": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc"
+      },
+      {
+        "module": "migrations/versions/0008_engagement_edit.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0008_engagement_edit.py",
+        "sha256": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7"
+      },
+      {
+        "module": "migrations/versions/0009_catalog_candidates.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0009_catalog_candidates.py",
+        "sha256": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371"
+      },
+      {
+        "module": "migrations/versions/0010_catalog_publications.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0010_catalog_publications.py",
+        "sha256": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea"
+      },
+      {
+        "module": "migrations/versions/0011_managed_tasks.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/migrations/versions/0011_managed_tasks.py",
+        "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d"
+      },
+      {
+        "module": "modules/engagements/dashboard.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/engagements/dashboard.py",
+        "sha256": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb"
+      },
+      {
+        "module": "modules/engagements/routes.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/engagements/routes.py",
+        "sha256": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0"
+      },
+      {
+        "module": "modules/engagements/schemas.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/engagements/schemas.py",
+        "sha256": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143"
+      },
+      {
+        "module": "modules/engagements/service.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/engagements/service.py",
+        "sha256": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd"
+      },
+      {
+        "module": "modules/instance/domain.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/domain.py",
+        "sha256": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f"
+      },
+      {
+        "module": "modules/instance/models.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/models.py",
+        "sha256": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc"
+      },
+      {
+        "module": "modules/instance/records.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/records.py",
+        "sha256": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222"
+      },
+      {
+        "module": "modules/instance/schemas.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/schemas.py",
+        "sha256": "c8872f1ab5bd708e0ad994bcbf358576706d8da3be8f083c4e4bdec9148febf9"
+      },
+      {
+        "module": "modules/instance/service.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218"
+      },
+      {
+        "module": "modules/instance/stop_contract.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/instance/stop_contract.py",
+        "sha256": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9"
+      },
+      {
+        "module": "modules/runs/__init__.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/__init__.py",
+        "sha256": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754"
+      },
+      {
+        "module": "modules/runs/contract_inputs.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/contract_inputs.py",
+        "sha256": "6deb2903087e091ea4269ca300ae8bc95b72414cc50bb80067036941b764fc80"
+      },
+      {
+        "module": "modules/runs/managed_admission.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/managed_admission.py",
+        "sha256": "2d44d900aafdbbc2c8fbb8cfc6af355cd718b8454c40dc618f781c47b9c24da6"
+      },
+      {
+        "module": "modules/runs/native_preparation.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/native_preparation.py",
+        "sha256": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2"
+      },
+      {
+        "module": "modules/runs/native_preparation_models.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/native_preparation_models.py",
+        "sha256": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062"
+      },
+      {
+        "module": "modules/runs/plan_snapshot.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/plan_snapshot.py",
+        "sha256": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c"
+      },
+      {
+        "module": "modules/runs/pure_probe.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/runs/pure_probe.py",
+        "sha256": "50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4"
+      },
+      {
+        "module": "modules/settings/candidate_catalog.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_catalog.py",
+        "sha256": "f518cc4cc9ce89351a4e5c838d1c5fd41658238898161b4de981eee86527e1c5"
+      },
+      {
+        "module": "modules/settings/candidate_index.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_index.py",
+        "sha256": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2"
+      },
+      {
+        "module": "modules/settings/candidate_material.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "module": "modules/settings/candidate_resolution.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_resolution.py",
+        "sha256": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc"
+      },
+      {
+        "module": "modules/settings/candidate_store.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "module": "modules/settings/catalog_models.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "module": "modules/settings/catalog_publication.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/catalog_publication.py",
+        "sha256": "d89dc0858b946941cea490c1f23e5af0ce3393b493f2cc6f1ad7e7d9925229fe"
+      },
+      {
+        "module": "modules/settings/catalog_schema.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "module": "modules/settings/publication_models.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "module": "modules/settings/publication_store.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/publication_store.py",
+        "sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9"
+      },
+      {
+        "module": "modules/settings/skill_catalog.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/settings/skill_catalog.py",
+        "sha256": "8d74405d3c489adcc88e459567c4ad1001b6fb94327f52de11f1f120c9a4c262"
+      },
+      {
+        "module": "modules/tasks/contract_case_input.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/contract_case_input.py",
+        "sha256": "91a566caf10a9c2d42f995615c66e8d9450eddbe4ba8b5c15b3de9eee2acdf63"
+      },
+      {
+        "module": "modules/tasks/execution_selection.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/execution_selection.py",
+        "sha256": "040d22f9d32d5c5e6682c43df6bec11d7f0e1d96dd64566802303c92be1d6493"
+      },
+      {
+        "module": "modules/tasks/managed_composition.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/managed_composition.py",
+        "sha256": "48d106f0008f888b75f2121f6122cedcc96be770a6631a12695877513eed4100"
+      },
+      {
+        "module": "modules/tasks/managed_contract.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/managed_contract.py",
+        "sha256": "017b4223f23f825b860f78d27a362fb2fcbd642a14e6d4ac12856f53ae9cbfd4"
+      },
+      {
+        "module": "modules/tasks/managed_store.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/managed_store.py",
+        "sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d"
+      },
+      {
+        "module": "modules/tasks/module_registry.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/modules/tasks/module_registry.py",
+        "sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2"
+      },
+      {
+        "module": "owner.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/owner.py",
+        "sha256": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930"
+      },
+      {
+        "module": "security/host_origin.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/security/host_origin.py",
+        "sha256": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551"
+      },
+      {
+        "module": "security/routes.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/security/routes.py",
+        "sha256": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d"
+      },
+      {
+        "module": "security/sessions.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/security/sessions.py",
+        "sha256": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc"
+      },
+      {
+        "module": "serve.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/serve.py",
+        "sha256": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345"
+      },
+      {
+        "module": "stop_reconcile.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/stop_reconcile.py",
+        "sha256": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4"
+      },
+      {
+        "module": "supervisor/__main__.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/supervisor/__main__.py",
+        "sha256": "d8c5a599de86a6f74faf3976b9fc5ef2c2352b07dc84cda55a9bb9e913b3c2e6"
+      },
+      {
+        "module": "supervisor/case_slot.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/supervisor/case_slot.py",
+        "sha256": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba"
+      },
+      {
+        "module": "supervisor/native_tasks.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/supervisor/native_tasks.py",
+        "sha256": "45d4bc2e37ec8c3099cc245c96c90e2a34d2f01e0077ea2293e70c5c52787c04"
+      },
+      {
+        "module": "supervisor/runtime_client.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/supervisor/runtime_client.py",
+        "sha256": "d1074f4e87cae01d85399dc20da258a08967e1f7a4917284c3f7f3d1d87d00c3"
+      },
+      {
+        "module": "transport/control_probe.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/transport/control_probe.py",
+        "sha256": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d"
+      },
+      {
+        "module": "transport/local_control.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a"
+      },
+      {
+        "module": "worker.py",
+        "installed": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/lib/python3.13/site-packages/omnis/worker.py",
+        "sha256": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+      }
+    ],
+    "web_files": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/web/assets/fonts-OFL-bSaZbgNk.txt",
+        "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/web/assets/index-qLRttWws.css",
+        "sha256": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/web/assets/index-rbkVcYwN.js",
+        "sha256": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/web/index.html",
+        "sha256": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/web/omnis-web.json",
+        "sha256": "a6dbe0f728184e095461034c9a38174933a3e6a0eba1e9be07c55bc3f48aa225"
+      }
+    ],
+    "http_assets": [
+      {
+        "path": "/assets/fonts-OFL-bSaZbgNk.txt",
+        "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "status": 200
+      },
+      {
+        "path": "/assets/index-qLRttWws.css",
+        "sha256": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+        "status": 200
+      },
+      {
+        "path": "/assets/index-rbkVcYwN.js",
+        "sha256": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+        "status": 200
+      },
+      {
+        "path": "/",
+        "sha256": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09",
+        "status": 200
+      }
+    ],
+    "manifest": {
+      "version": 1,
+      "files": {
+        "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "assets/index-qLRttWws.css": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+        "assets/index-rbkVcYwN.js": "7f6d38490f6ab0ed40e7c384a9e1dbfbbfd11bae1d71a62f57bc823aafc12822",
+        "index.html": "d5a0075184ef2e67fd34cbdf04468585d9b2265cb21e23ce62026b61ce759d09"
+      }
+    },
+    "manifest_checked_against_all_http_assets": true,
+    "manifest_itself_http": 404,
+    "schema": "0011_managed_tasks",
+    "reticle": "NOT_INTEGRATED; not installed/run",
+    "chisel": "NO_GO; not installed/run"
+  },
+  "executions": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc",
+      "command": [
+        "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/lb-05ulbrhc/gate.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "gate_receipts": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc/db-4fae7d6ea8a44641/gate.log.result.json",
+          "content": {
+            "schema_version": 1,
+            "code": 1,
+            "family_drained": true
+          }
+        }
+      ],
+      "journey_report": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc/journey.json",
+      "commands": [
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.migrate",
+            "--initialize"
+          ],
+          "cwd": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/node",
+            "/home/kali/.hermes/cache/scratch/lb-05ulbrhc/driver.mjs",
+            "before"
+          ],
+          "exit": 1
+        }
+      ],
+      "resources": [
+        {
+          "role": "supervisor",
+          "pid": 187943,
+          "identity": [
+            187463,
+            "24519647",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 188024,
+          "identity": [
+            187463,
+            "24519825",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "6",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "before",
+          "pid": 188107,
+          "identity": [
+            187463,
+            "24520093",
+            "R"
+          ]
+        }
+      ],
+      "logs": "Private logs retained; no raw DSN/capability/session/CSRF in this report",
+      "driver_hash": "72b62e2db643c40138a3f12305bd3f8f12c65e9b5af5541f16822cca62fec14a",
+      "journey_hash": "40bf5c52156e02588311d3cf7d3aacc126567a3a017effedb8ac6b0e4987015d",
+      "gate_hash": "b512308efc69dc8fc2728bf4f752eaa67c5e1723368b32afecc24e7dfcb173cb"
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60",
+      "command": [
+        "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/gate.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "gate_receipts": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/db-19695a8c9a1c44fa/gate.log.result.json",
+          "content": {
+            "schema_version": 1,
+            "code": 0,
+            "family_drained": true
+          }
+        }
+      ],
+      "journey_report": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/journey.json",
+      "commands": [
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.migrate",
+            "--initialize"
+          ],
+          "cwd": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/node",
+            "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/driver.mjs",
+            "before"
+          ],
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/node",
+            "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/driver.mjs",
+            "after"
+          ],
+          "exit": 0
+        }
+      ],
+      "resources": [
+        {
+          "role": "supervisor",
+          "pid": 190544,
+          "identity": [
+            190050,
+            "24533112",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 190565,
+          "identity": [
+            190050,
+            "24533275",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "6",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "before",
+          "pid": 190602,
+          "identity": [
+            190050,
+            "24533522",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 190970,
+          "identity": [
+            190050,
+            "24535515",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "8",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "after",
+          "pid": 191021,
+          "identity": [
+            190050,
+            "24535748",
+            "R"
+          ]
+        }
+      ],
+      "logs": "Private logs retained; no raw DSN/capability/session/CSRF in this report",
+      "driver_hash": "4b75e7a1eb722c18989419d2b65841a9d0022205837215b20460a56680e53d85",
+      "journey_hash": "40bf5c52156e02588311d3cf7d3aacc126567a3a017effedb8ac6b0e4987015d",
+      "gate_hash": "b512308efc69dc8fc2728bf4f752eaa67c5e1723368b32afecc24e7dfcb173cb"
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-lr84m537",
+      "command": [
+        "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/lb-lr84m537/gate.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "gate_receipts": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/lb-lr84m537/db-9bdb4406280d45b6/gate.log.result.json",
+          "content": {
+            "schema_version": 1,
+            "code": 0,
+            "family_drained": true
+          }
+        }
+      ],
+      "journey_report": "/home/kali/.hermes/cache/scratch/lb-lr84m537/journey.json",
+      "commands": [
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "omnis.migrate",
+            "--initialize"
+          ],
+          "cwd": "/home/kali/.hermes/cache/scratch/lb-lr84m537",
+          "exit": 0
+        },
+        {
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/node",
+            "/home/kali/.hermes/cache/scratch/lb-lr84m537/driver.mjs",
+            "supplement"
+          ],
+          "exit": 0
+        }
+      ],
+      "resources": [
+        {
+          "role": "supervisor",
+          "pid": 193326,
+          "identity": [
+            192858,
+            "24552379",
+            "R"
+          ]
+        },
+        {
+          "role": "api",
+          "pid": 193371,
+          "identity": [
+            192858,
+            "24552560",
+            "R"
+          ],
+          "argv": [
+            "/home/kali/.hermes/cache/scratch/c03-20261010/candidate-final/api-venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "uvicorn",
+            "omnis.api:create_app",
+            "--factory",
+            "--fd",
+            "6",
+            "--no-access-log",
+            "--no-proxy-headers",
+            "--log-level",
+            "warning",
+            "--timeout-graceful-shutdown",
+            "3"
+          ]
+        },
+        {
+          "role": "browser_driver",
+          "stage": "supplement",
+          "pid": 193406,
+          "identity": [
+            192858,
+            "24552807",
+            "R"
+          ]
+        }
+      ],
+      "logs": "Private logs retained; no raw DSN/capability/session/CSRF in this report",
+      "driver_hash": "a2d2c47bc3a52b25e585abbaf698b1706073254ed338532bede50dd42ca3d007",
+      "journey_hash": "af95aa73b5601a74413c68e7e681ebe10c584f9d4dc676967b1eb9ed25101fed",
+      "gate_hash": "b512308efc69dc8fc2728bf4f752eaa67c5e1723368b32afecc24e7dfcb173cb"
+    }
+  ],
+  "readiness": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60",
+      "results": [
+        {
+          "pid": 190565,
+          "api_ready": true,
+          "dashboard_ready": true,
+          "assessment_ready": false,
+          "reason": null,
+          "dashboard_reason": null
+        },
+        {
+          "pid": 190970,
+          "api_ready": true,
+          "dashboard_ready": true,
+          "assessment_ready": false,
+          "reason": null,
+          "dashboard_reason": null
+        }
+      ]
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-lr84m537",
+      "results": [
+        {
+          "pid": 193371,
+          "api_ready": true,
+          "dashboard_ready": true,
+          "assessment_ready": false,
+          "reason": null,
+          "dashboard_reason": null
+        }
+      ]
+    }
+  ],
+  "backend_restart": {
+    "old_api_pid": 190565,
+    "new_api_pid": 190970,
+    "same_database": true
+  },
+  "real_api_evidence": {
+    "primary_full_revision": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/retained.json",
+    "primary_revision": 4,
+    "boundary_full_revision": "/home/kali/.hermes/cache/scratch/lb-lr84m537/retained.json",
+    "initial_revision": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/revision1.json",
+    "assertions": "Saved POST/PUT receipts checked by GET; exact full-object revision4 equality after real new API PID/fresh browser/reload; CAS409 no overwrite; negatives unchanged revision; logout401 then new pairing."
+  },
+  "browser_monitoring": {
+    "page_errors": 0,
+    "external_attempts": 0,
+    "failed_requests": [
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/api/v1/dashboard",
+        "error": "net::ERR_FAILED",
+        "fault": true,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/api/v1/dashboard",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/api/v1/engagements/9876b90c-74ee-432a-8898-f8938107c83f",
+        "error": "net::ERR_FAILED",
+        "fault": true,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/api/instance",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/api/logout",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "before"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/api/instance",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/api/logout",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "after"
+      },
+      {
+        "path": "/health/ready",
+        "error": "net::ERR_ABORTED",
+        "fault": false,
+        "stage": "supplement"
+      }
+    ],
+    "explicit_injected_failures": 2,
+    "browser_cancellations": 19,
+    "classification_limit": "ERR_ABORTED events were not deliberately route-injected; consistent with unmount/navigation/context closing and session transitions. Event log does not independently correlate each cancellation to transition timing. Not described as zero failed requests. No other unclassified transport error types observed.",
+    "console_events": [
+      {
+        "stage": "before",
+        "events": [
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: net::ERR_FAILED",
+            "fault": true
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 409 (Conflict)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: net::ERR_FAILED",
+            "fault": true
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          }
+        ]
+      },
+      {
+        "stage": "after",
+        "events": [
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          }
+        ]
+      },
+      {
+        "stage": "supplement",
+        "events": [
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          },
+          {
+            "type": "error",
+            "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+            "fault": false
+          }
+        ]
+      }
+    ],
+    "console_note": "401 unpaired/logout,422 validation,409 CAS,404 explicit unknown route, and injected ERR_FAILED retained. No JS pageerror."
+  },
+  "blocking_findings": [],
+  "nonblocking_polish": [
+    {
+      "id": "POLISH-01",
+      "source": "web/src/features/dashboard/copy.ts:4",
+      "finding": "Intro says nothing runs until you choose to start although build cannot start; nearby explicit unavailable text correct. Copy polish, not functional blocker."
+    },
+    {
+      "id": "POLISH-02",
+      "finding": "Sidebar digest wraps awkwardly and long forms require substantial vertical scrolling; no clipped actionable field in inspected viewports."
+    }
+  ],
+  "failure_history": [
+    {
+      "prior_root": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc",
+      "verdict": "HARNESS_ORACLE_FAILURE",
+      "scenario": "NAV-03",
+      "actual": "Unknown hard-navigation route returned HTTP404 NOT_FOUND JSON; oracle wrongly required SPA main/UNAVAILABLE",
+      "correction": "Assert exact HTTP404/NOT_FOUND for non-allowlisted server path; do not change product",
+      "prior_browser_pass": 17,
+      "prior_cleanup": "family/DB/UDS/listener/CID/network absent verified",
+      "product_findings": [],
+      "failed_report": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc/browser-before.json",
+      "gate_exit": 1,
+      "original_failure_retained": true
+    }
+  ],
+  "cleanup": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-05ulbrhc",
+      "container_id": "2b6ca8ebd28ea493958e5d4f3e7667a33b5fdf3d317a554183bb5de90c3a8e34",
+      "project": "omnis-p01-170ccacc46fb46e69e7858c3270b29bd",
+      "inspect_exit": 1,
+      "exact_absent": true,
+      "listing_empty": true,
+      "networks_absent": true,
+      "daemon_same": true,
+      "pg_socket_absent": true,
+      "pgdata_retained": true,
+      "control_socket_absent": true,
+      "port": 45379,
+      "listener_absent": true,
+      "pids_absent": true,
+      "test_database_dropped": true,
+      "family_drained": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60",
+      "container_id": "88c3730b07263f96880b5fc72bfae162fe31ef03a79e23c19179edbb66f9bc13",
+      "project": "omnis-p01-596150e6f5404426956b49fbe7056406",
+      "inspect_exit": 1,
+      "exact_absent": true,
+      "listing_empty": true,
+      "networks_absent": true,
+      "daemon_same": true,
+      "pg_socket_absent": true,
+      "pgdata_retained": true,
+      "control_socket_absent": true,
+      "port": 42305,
+      "listener_absent": true,
+      "pids_absent": true,
+      "test_database_dropped": true,
+      "family_drained": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-lr84m537",
+      "container_id": "1beb0caba48fb2ad951443e16c69acd3050d44683c5426f14265c881422d3b86",
+      "project": "omnis-p01-8725ff4887a0424797a19bf7ff701648",
+      "inspect_exit": 1,
+      "exact_absent": true,
+      "listing_empty": true,
+      "networks_absent": true,
+      "daemon_same": true,
+      "pg_socket_absent": true,
+      "pgdata_retained": true,
+      "control_socket_absent": true,
+      "port": 54081,
+      "listener_absent": true,
+      "pids_absent": true,
+      "test_database_dropped": true,
+      "family_drained": true
+    }
+  ],
+  "retention": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60",
+      "draft_snapshot": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/retained.json",
+      "pgdata": "/home/kali/.hermes/cache/scratch/lb-8w6nbs60/db-19695a8c9a1c44fa/data",
+      "note": "Per-test DB explicitly dropped after family cleanup; JSON exact revision retained; fresh cluster PGDATA retained by existing owner."
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/lb-lr84m537",
+      "draft_snapshot": "/home/kali/.hermes/cache/scratch/lb-lr84m537/retained.json",
+      "pgdata": "/home/kali/.hermes/cache/scratch/lb-lr84m537/db-9bdb4406280d45b6/data",
+      "note": "Per-test DB explicitly dropped after family cleanup; JSON exact revision retained; fresh cluster PGDATA retained by existing owner."
+    }
+  ],
+  "visual_scope": "Representative captures inspected with vision tool, separate from DOM/actions. No aesthetics/WCAG/cross-browser approval. Full-page offscreen fixed-skip artifact investigated via real viewport screenshots+DOM; Settings/focused field unobscured.",
+  "limits": [
+    "Representative delivered UI only; exclusions and NOT_IMPLEMENTED rows are not counted as PASS.",
+    "Parent separately inspected desktop validation, actual mobile focus viewport and320px review images; no new aesthetics/WCAG/crossbrowser approval.",
+    "NOT_RUN exclusions preserve earlier accepted unchanged evidence, not fresh browser execution.",
+    "Final canonical make check remains pending; not B06b/G02/phase2 closure."
+  ]
+}

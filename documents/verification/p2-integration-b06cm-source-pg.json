@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SCOPED_REAL_PG_SOURCE",
+  "snapshot": "197c8efd0f79603a413fd64b38b9f29aca2b4ce8",
+  "owner_session_id": "20261010_215158_76ea2f",
+  "intent_nonce": "8fb96630c92e4c899dd2656346411de7",
+  "outer_exit": 0,
+  "gate_exit": 0,
+  "family_drained": true,
+  "tests_passed": 39,
+  "input_count": 293,
+  "inputs_unchanged": true,
+  "fixture_manifest": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p01/tmp/db-db5bbb4ec5434da6/fixture.json",
+  "fixture_manifest_sha256": "f02b9e64197bed921d11038d151e6ecbe0af4d30ac5285f7c8f2ae54fce56bd6",
+  "gate_family_receipt": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p01/tmp/db-db5bbb4ec5434da6/gate.log.result.json",
+  "gate_family_receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+  "resources": {
+    "db_root": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p01/tmp/db-db5bbb4ec5434da6",
+    "project": "omnis-p01-e5392d0040c24db6bd72e9bdcdc1295e",
+    "cid": "2bcfca11df64866bba12cbcc1bf1daad244da4aff23322565f3e624b88176e6c",
+    "cid_http_status": 404,
+    "daemon_id_matches": true,
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "system_identifier": "7695126933417345054",
+    "project_containers": 0,
+    "project_networks": 0,
+    "uds_absent": true,
+    "lock_absent": true,
+    "owned_process_path_matches": [],
+    "inaccessible_cmdline_count": 0,
+    "uds_listeners": 0,
+    "pgdata_retained": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p01/tmp/db-db5bbb4ec5434da6/data/18/docker",
+    "pgdata_dev_ino_after": [
+      2049,
+      10266553
+    ],
+    "pgdata_pre_migration_dev_ino": "NOT_RECORDED_SEPARATELY; runner attested canonical bind/path/uid/mode and cluster identity before DDL, exact fixture manifest persisted before gate"
+  },
+  "limits": [
+    "SOURCE data-policy/projection/owner/Stop denial and accounting only",
+    "Synthetic upstream identities/transport remain NOT_NATIVE_PROOF",
+    "No SDK serializer, native/warm/model inference, installed/browser/canonical",
+    "Interpreter readback is not physical PostgreSQL restart/restore",
+    "Outer shell zle option warnings preserved; runner/gate exits0, no product failure inferred",
+    "Initial read-only observer exit1 on unrelated non-UTF8 abstract Unix socket name; exact path-byte census corrected, no gate/cleanup replay"
+  ],
+  "serial_handoff": {
+    "status": "READY_FOR_COORDINATOR_RELEASE_OF_P01_SOURCE_SLOT",
+    "pending_owned_fixture_services": false,
+    "cleanup_replayed": false,
+    "second_fixture_started": false,
+    "next_scope_requires_separate_grant": true,
+    "next_scope": "Copy-installed/SDK-no-IO/native-inert/browser/canonical remain not authorized by p01 grant; no automatic launch"
+  }
+}

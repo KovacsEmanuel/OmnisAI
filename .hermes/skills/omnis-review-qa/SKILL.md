@@ -112,5 +112,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - Distinguish full-page capture artifacts from live occlusion. Pair viewport/full-page images at identical scroll/focus, measure bounds and hit tests, and inspect actual pixels. Keep unpaired captures inconclusive rather than changing otherwise-working UI for the screenshot.
 - When deliberately adding a supported wire version, inspect existing unknown-version controls. Add the new version to current-grant/transport positives and move only the obsolete unknown fixture to a genuinely unsupported version, preserving malformed-type, no-authority, no-resend and expiry assertions. Retain the original canonical FAIL; a synthetic peer proves transport only, not native admission.
 
+- When a fix moves denial ahead of setup, keep the original regression but add a bounded late-sink control that actually reaches cleanup. Likewise, a worker joined only by the test finalizer does not prove it was drained before the product returned: observe the latched outcome and join boundary, challenge the after-poll interrupt window, and report timed-out cleanup separately from terminal denial. Do not replace these controls with a growing verifier framework.
+
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

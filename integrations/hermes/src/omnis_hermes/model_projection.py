@@ -137,6 +137,7 @@ def _content(model_input: object, payload: dict[str, object]) -> None:
         ("mission_revision", "mission_ref"),
         ("focus_ref", "focus_ref"),
     ):
+        reference(header[key], REFS[pin])
         if header[key] != payload[pin]:
             raise reject()
     reference(header["result_schema_ref"], "schema")
@@ -156,7 +157,8 @@ def _content(model_input: object, payload: dict[str, object]) -> None:
     if user["input_ref"] is not None:
         expected_context.append(reference(user["input_ref"], "contract-case-records"))
     if [
-        obj(v, {"ref", "epistemic_state", "summary", "mandatory"})["ref"] for v in contexts
+        reference(obj(v, {"ref", "epistemic_state", "summary", "mandatory"})["ref"])
+        for v in contexts
     ] != expected_context:
         raise reject()
     for raw in contexts:

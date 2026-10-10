@@ -314,3 +314,49 @@ def test_serializer_checks_projection_shape_and_canonical_bytes_even_if_resigned
     else:
         with pytest.raises(ValueError, match="Invalid model projection"):
             module.serialize_model_input(value, **pins)
+
+
+@pytest.mark.parametrize(
+    "location",
+    ["snapshot_ref", "mission_revision", "focus_ref", "context-0", "context-1", "context-2"],
+)
+def test_nested_ref_requires_literal_integer_revision(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, location: str
+) -> None:
+    module = adapter(monkeypatch)
+    body = deepcopy(mapping(unit_projection["payload"]))
+
+    def pins(value: dict[str, object]) -> dict[str, object]:
+        payload = mapping(value["payload"])
+        return {
+            "projection_ref": records.reference(value),
+            "owner_id": payload["owner_id"],
+            "run_id": payload["run_id"],
+            "binding_ref": payload["runtime_binding_ref"],
+            "policy_digest": POLICY_DIGEST,
+        }
+
+    positive = module.serialize_model_input(unit_projection, **pins(unit_projection))
+    assert (
+        module.validate_serialized_input(positive, unit_projection, **pins(unit_projection))
+        == positive
+    )
+    carrier = mapping(body["model_input"])
+    message = mapping(sequence(carrier["messages"])[1])
+    user = mapping(load_json(str(message["content"])))
+    if location.startswith("context-"):
+        target = mapping(mapping(sequence(user["context"])[int(location[-1])])["ref"])
+    else:
+        target = mapping(mapping(user["header"])[location])
+    assert type(target["revision"]) is int and target["revision"] == 1
+    target["revision"] = True
+    message["content"] = canonical(user).decode()
+    body["projection_digest"] = sha256(canonical(carrier)).hexdigest()
+    resigned = records.envelope("model-projection", body)
+    # Mutate exact serialized retained bytes and re-sign, so this tests nested
+    # schema enforcement independently of a stale outer projection digest.
+    invalid_bytes = canonical(carrier)
+    with pytest.raises(ValueError, match="Invalid model projection"):
+        module.serialize_model_input(resigned, **pins(resigned))
+    with pytest.raises(ValueError, match="Invalid model projection"):
+        module.validate_serialized_input(invalid_bytes, resigned, **pins(resigned))

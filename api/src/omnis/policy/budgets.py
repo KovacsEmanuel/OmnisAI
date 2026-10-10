@@ -8,6 +8,7 @@ All durable data uses immutable managed_record envelopes. No local ledger cache.
 from datetime import UTC, datetime
 
 import psycopg
+from sqlalchemy import text as sql
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -458,7 +459,29 @@ async def settle(
     await _transaction(connection, owner)
     run, state = await _read(connection, owner, dispatch_ref)
     history = _history(state)
-    replay = receipt_replay(dispatch_ref, value, await store.graph(connection, owner, run))
+    # Receipt identity is owner-wide; _transaction holds that lock until append.
+    provider = value["provider_receipt_ref"]
+    matches = (
+        (
+            await connection.execute(
+                sql(
+                    "SELECT envelope FROM managed_record WHERE owner_id=:owner "
+                    "AND envelope->>'kind'='model-usage-receipt' "
+                    "AND (envelope->'payload'->'usage'->>'receipt_id'=:receipt "
+                    "OR envelope->'payload'->'usage'->'provider_receipt_ref'->>'id' "
+                    "= CAST(:provider AS text))"
+                ),
+                {
+                    "owner": owner,
+                    "receipt": value["receipt_id"],
+                    "provider": None if provider is None else ref(provider)["id"],
+                },
+            )
+        )
+        .scalars()
+        .all()
+    )
+    replay = receipt_replay(dispatch_ref, value, [record(item) for item in matches])
     if replay is not None:
         return replay
     if state["state"] != "SENT":

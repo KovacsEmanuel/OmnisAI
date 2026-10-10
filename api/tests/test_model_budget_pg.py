@@ -46,8 +46,10 @@ asyncio.run(main())
 """
 
 
-async def seed(engine: AsyncEngine) -> tuple[str, str, dict[str, object], dict[str, object]]:
-    owner = str(uuid4())
+async def seed(
+    engine: AsyncEngine, *, owner: str | None = None
+) -> tuple[str, str, dict[str, object], dict[str, object]]:
+    owner = owner or str(uuid4())
     scope = envelope("managed-run", {"accounting_test_only": True})
     run = str(scope["id"])
     req = request()
@@ -311,5 +313,35 @@ async def test_pg_absent_foreign_scope_and_reference_pins_deny(migrated_database
                 conn, owner, str(mapping(req["run_or_job_ref"])["id"])
             )
             assert not any(r["kind"] in {"model-dispatch", "model-reservation"} for r in graph)
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_pg_receipt_reuse_between_same_owner_runs_denied(migrated_database_url: URL) -> None:
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    try:
+        owner, _, req_a, budget_a = await seed(engine)
+        _, _, req_b, budget_b = await seed(engine, owner=owner)
+        async with engine.begin() as conn:
+            first = await budgets.reserve(
+                conn, owner, reference(budget_a), req_a, trusted_purpose="RECON"
+            )
+            second = await budgets.reserve(
+                conn, owner, reference(budget_b), req_b, trusted_purpose="RECON"
+            )
+            await budgets.mark_sent(conn, owner, reference(first))
+            await budgets.mark_sent(conn, owner, reference(second))
+        known = usage("KNOWN", 0)
+        async with engine.begin() as conn:
+            receipt_a = await budgets.settle(conn, owner, reference(first), known)
+        async with engine.begin() as conn:
+            for candidate in (known, {**known, "output_tokens": 1}):
+                with pytest.raises(CatalogError, match="MODEL_RECEIPT_CONFLICT"):
+                    await budgets.settle(conn, owner, reference(second), candidate)
+            assert await budgets.settle(conn, owner, reference(first), known) == receipt_a
+            pending = await budgets.readback(conn, owner, reference(second))
+            assert pending["state"] == "SENT" and pending["charged_output_tokens"] == 10
+            await budgets.settle(conn, owner, reference(second), usage("KNOWN", 2))
     finally:
         await engine.dispose()

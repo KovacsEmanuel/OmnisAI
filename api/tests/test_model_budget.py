@@ -3,6 +3,9 @@
 from collections.abc import Awaitable, Callable
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
+from typing import Self, cast
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -10,6 +13,7 @@ import pytest
 from omnis.modules.settings.candidate_store import envelope, reference
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import canonical
+from omnis.modules.tasks import managed_store
 from omnis.modules.tasks.managed_contract import mapping
 from omnis.policy import budgets as ledger
 from omnis.policy import model_dispatch_contract as contract
@@ -335,3 +339,43 @@ def test_usage_optional_costs_and_overrun_remain_explicit() -> None:
         ledger.require_capacity(
             limits(), [state], "RECON", {"calls": 1, "output_tokens": 1, "wall_seconds": 1}
         )
+
+
+@pytest.mark.asyncio
+async def test_settle_checks_receipt_identity_across_owner_runs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """SQL-result unit control of the real settle path, NOT persistence evidence."""
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    owner = str(uuid4())
+    _, _, first = allocation()
+    _, reservation, second = allocation()
+    known = usage("KNOWN", 0)
+    prior = receipt(first, 2, known)
+    second_run = str(mapping(mapping(second["payload"])["run_or_job_ref"])["id"])
+    state = ledger.reduce_history(second, reservation, [event(second, 1, "SENT")])
+
+    class Rows:
+        def __init__(self, rows: list[dict[str, object]]) -> None:
+            self.rows = rows
+
+        def scalars(self) -> Self:
+            return self
+
+        def all(self) -> list[dict[str, object]]:
+            return self.rows
+
+    async def execute(query: object, parameters: dict[str, object]) -> Rows:
+        assert parameters["owner"] == owner
+        # The prior receipt belongs to run A, not run B. Owner-wide query sees it.
+        return Rows([] if parameters.get("run") == second_run else [prior])
+
+    connection = cast(AsyncConnection, SimpleNamespace(execute=execute))
+    monkeypatch.setattr(ledger, "_transaction", AsyncMock())
+    monkeypatch.setattr(ledger, "_read", AsyncMock(return_value=(second_run, state)))
+    put = AsyncMock()
+    monkeypatch.setattr(managed_store, "put", put)
+    with pytest.raises(CatalogError, match="MODEL_RECEIPT_CONFLICT"):
+        await ledger.settle(connection, owner, reference(second), known)
+    put.assert_not_awaited()

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "status": "P02_COPY_INSTALLED_COMPONENT_PASS_DRAINED_READY_FOR_RELEASE",
+  "source_commit": "bba47c3be59812c30147ad32e47cd67e80a661f1",
+  "execution_head": "e9cc58d2b02250d1fe8a96b92fdde32300dbc582",
+  "branch": "p04-control-topology-wip",
+  "owner_session_id": "20261010_215158_76ea2f",
+  "intent_nonce": "295aaa52911f4d1f8e9b8302bc424bf7",
+  "grant_sha256": "6e082d114b6d60d1729498b45ce44c01957c03d78a4464d13402c2f61140b915",
+  "request_sha256": "0710e3419dc1438d017a3945482bf14c2e70e4f53759a09e69fcb42620a98de5",
+  "target": "test-model-projection-pg",
+  "command": "env -i HOME=/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/home TMPDIR=/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/run/omnis-p2-critical-20261010/integration/record-p02.py",
+  "process_locator": "proc_5ae2b19303aa",
+  "process_join": "Exact process_manage waited result exited, code0; not inferred from handle absence",
+  "outer_exit": 0,
+  "gate_exit": 0,
+  "family_drained": true,
+  "pytest_passed": 1,
+  "pytest_seconds": 33.57,
+  "source_input_count": 119,
+  "artifact_hash_count": 92,
+  "sources_artifacts_recorder_unchanged": true,
+  "producer": {
+    "data_approval_ref": {
+      "digest": "65729ff3bfc9376ac28b4e90ad9171ae0caf810aed0d774fea0d15970a49f5b2",
+      "id": "351139c2-2081-4f64-8d58-7c5d89613264",
+      "kind": "model-data-approval",
+      "revision": 1
+    },
+    "immutable": true,
+    "installed_owner_data_preflight": "BLOCKED_NO_MODEL",
+    "prepare_denials": 7,
+    "private_marker_retained": true,
+    "projection_digest": "2ab10859d171e18fc9ba364ac154522f162194bd5eba693c9bab1ae94b2ce707",
+    "projection_marker_absent": true,
+    "projection_ref": {
+      "digest": "13277c212e16777da397e4990fba095f09f2172b07d94ffb99beac55ba7a5e93",
+      "id": "77dc5d6d-5ebc-4192-acea-86569a8c6abf",
+      "kind": "model-projection",
+      "revision": 1
+    },
+    "read_denials": 7,
+    "replay_exact": true,
+    "source_extra_denials": 7,
+    "status": "PASS_SCOPED",
+    "transaction_abort": true,
+    "upstream": "SYNTHETIC_PROTOCOL_SEED_NOT_NATIVE_PROOF",
+    "zero_model_provider_target": "STRUCTURAL_NO_MODEL; native/provider imports forbidden"
+  },
+  "reader": {
+    "approval_new_process_readback": true,
+    "carrier_bytes": 6720,
+    "carrier_bytes_denials": 3,
+    "carrier_extra_denials": 10,
+    "data_approval_ref": {
+      "digest": "65729ff3bfc9376ac28b4e90ad9171ae0caf810aed0d774fea0d15970a49f5b2",
+      "id": "351139c2-2081-4f64-8d58-7c5d89613264",
+      "kind": "model-data-approval",
+      "revision": 1
+    },
+    "full_sdk_native_consumer": "NOT_INTEGRATED",
+    "known_secret_read_denied": true,
+    "projection_digest": "2ab10859d171e18fc9ba364ac154522f162194bd5eba693c9bab1ae94b2ce707",
+    "projection_ref": {
+      "digest": "13277c212e16777da397e4990fba095f09f2172b07d94ffb99beac55ba7a5e93",
+      "id": "77dc5d6d-5ebc-4192-acea-86569a8c6abf",
+      "kind": "model-projection",
+      "revision": 1
+    },
+    "replay_count": 1,
+    "restart_process_readback": true,
+    "status": "PASS_SCOPED"
+  },
+  "evidence_hashes": {
+    "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-inputs.json": "129697d8e8feb14b7bd871b2482980da8b969a4b4ec126f392dd19737368ecf0",
+    "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-artifacts.json": "c27239ca74e291b84f0085604669c88a34e2b64208677db10c14d4487711f7cf",
+    "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/record-p02.py": "b5f4f98ecd276d05641305418a351a607a98057ec3770f4433f35cf1a89fe30a",
+    "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/fixture-grant-p02.json": "6e082d114b6d60d1729498b45ce44c01957c03d78a4464d13402c2f61140b915",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/fixture.json": "6369ce6903bfbcba6f30d2f2422c664ed2462546d9474bc7395cb5f0595643aa",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/gate.log.result.json": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/gate.log": "10aa1218191d577434f65d82e567812a230c5db26e69914a11c623c03c5f6b71",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/logs/db-stage.stdout": "3c72af42f60cb89e64d8c3bbad1f47ea8a3edfda7d93a629ad9118972b0c2122",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/logs/db-stage.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/projection-journey/producer-report.json": "771d0f523923b945eb005004ac39e3e7e090f8c258690c8b12edce2efae33333",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/projection-journey/reader-report.json": "c71307bccb95a0a9e51fb3418c5ee23af2ca47d5919a635c6f238a8bdd5b4b71",
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/consumed-295aaa52911f4d1f8e9b8302bc424bf7.json": "a2b1549e19696c9549c75d77cc6bd65afed3002c7e96d21a54344b315a5de400"
+  },
+  "resource_readback": {
+    "at_utc": "2026-10-10T23:08:47.745594+00:00",
+    "cid": "15c2c40aa30d54c61bf8c66cb783968165d518e6dc653a42abcf9becb5f1101c",
+    "project": "omnis-p01-1c5508b8074742658b5e44c3fb509880",
+    "project_name_note": "Existing runner uses omnis-p01 label prefix; this is a new unique CID/project and new db root under p02, not reused p01 data",
+    "daemon": {
+      "endpoint": "unix:///run/docker.sock",
+      "identity": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc"
+    },
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "system_identifier": "7695179556476780574",
+    "cid_absent": true,
+    "project_containers": [],
+    "project_networks": [],
+    "uds_absent": true,
+    "socket_lock_absent": true,
+    "postmaster_pid_absent": true,
+    "owned_unix_listener_matches": 0,
+    "owned_process_matches": [],
+    "same_uid_census_inaccessible_predating_gate": [
+      {
+        "pid": 2774,
+        "started_before_gate": true,
+        "start_ticks": 4495
+      },
+      {
+        "pid": 2776,
+        "started_before_gate": true,
+        "start_ticks": 4499
+      },
+      {
+        "pid": 2923,
+        "started_before_gate": true,
+        "start_ticks": 4607
+      },
+      {
+        "pid": 2932,
+        "started_before_gate": true,
+        "start_ticks": 4618
+      },
+      {
+        "pid": 3319,
+        "started_before_gate": true,
+        "start_ticks": 4829
+      }
+    ],
+    "process_census_scope": "Readable same-UID exact owned locators; verified preexisting inaccessible processes excluded, not global all-process absence",
+    "foreign_processes_excluded": 323,
+    "filesystem_identities": {
+      "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7": {
+        "dev": 2049,
+        "ino": 9759077,
+        "uid": 1000,
+        "mode": "0o700"
+      },
+      "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/data": {
+        "dev": 2049,
+        "ino": 9759078,
+        "uid": 1000,
+        "mode": "0o700"
+      },
+      "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/data/18/docker": {
+        "dev": 2049,
+        "ino": 9759082,
+        "uid": 1000,
+        "mode": "0o700"
+      },
+      "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/db-daaec1fe1bca45c7/socket": {
+        "dev": 2049,
+        "ino": 9759079,
+        "uid": 1000,
+        "mode": "0o3775"
+      }
+    },
+    "image_pgdata_build_logs_retained": true
+  },
+  "deadline_original": "2026-10-10T23:08:19.501074+00:00",
+  "deadline_extended": false,
+  "observer_initial_readback": "RO census assertion rejected five inaccessible same-UID preexisting processes; no lifecycle action or gate repeated. Readback classified by proc stat start time before gate, with exact parent family receipt unchanged.",
+  "retries": 0,
+  "cleanup_replayed": false,
+  "database_retention": "Base omnis_test and synthetic journey retained in PGDATA; this journey performs no DROP. Existing owner retired exact CID after family drain.",
+  "limits": [
+    "COPY_INSTALLED component with real PostgreSQL, not independent QA",
+    "Synthetic upstream/native identities NOT_NATIVE_PROOF",
+    "Persistent projection and ModelDispatch approval, actual installed NO_MODEL denial; no real warm/native turn",
+    "Carrier not full SDK DTO; no reserve/SENT/physical Stop barrier/caps acceptance",
+    "No native/SDK/provider/browser/canonical/inference/account/target/global/r1/push"
+  ],
+  "phase2": "NOT_CLOSED",
+  "operational_receipt": {
+    "path": "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-db-readback.json",
+    "sha256": "b691d42219170f985b922cc33cfdee2c8b7cf1cd54c457dd2efa3e4491360a0e"
+  }
+}

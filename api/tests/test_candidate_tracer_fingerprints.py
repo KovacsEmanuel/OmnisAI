@@ -171,6 +171,7 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
         connection,
         owner,
         {
+            "schema_version": 1,
             "snapshot_ref": ref,
             "evaluation_kind": "PURE",
             "input": {"capture": "[]"},

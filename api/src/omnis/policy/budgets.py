@@ -209,7 +209,7 @@ async def _resolved(
         if checked["kind"] not in {"provider-config", "execution-selection"}:
             raise
         _, item = await records.get(connection, owner, checked)
-        return item
+        return record(item, text(checked["kind"]))
 
 
 async def _budget(

@@ -3,6 +3,7 @@
 from collections.abc import Awaitable, Callable
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from types import SimpleNamespace
 from typing import Self, cast
 from unittest.mock import AsyncMock
@@ -379,3 +380,48 @@ async def test_settle_checks_receipt_identity_across_owner_runs(
     with pytest.raises(CatalogError, match="MODEL_RECEIPT_CONFLICT"):
         await ledger.settle(connection, owner, reference(second), known)
     put.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["provider-config", "execution-selection"])
+@pytest.mark.parametrize(
+    "mutation", [None, ("schema_version", 2), ("schema_version", True), ("revision", True)]
+)
+async def test_catalog_resolution_validates_persisted_envelope(
+    kind: str, mutation: tuple[str, object] | None
+) -> None:
+    """Real record readers with SQL rows only doubled; no DB or admission proof."""
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    owner, run = str(uuid4()), str(uuid4())
+    item = envelope(kind, {})
+    if mutation is not None:
+        item[mutation[0]] = mutation[1]
+        item["digest"] = sha256(
+            canonical({k: v for k, v in item.items() if k != "digest"})
+        ).hexdigest()
+    wanted = {**reference(item), "revision": 1}
+
+    class Row:
+        def __init__(self, value: dict[str, object] | None) -> None:
+            self.value = value
+
+        def mappings(self) -> Self:
+            return self
+
+        def one_or_none(self) -> dict[str, object] | None:
+            return self.value
+
+    async def execute(query: object, parameters: dict[str, object]) -> Row:
+        if "FROM managed_record" in str(query):
+            return Row(None)
+        assert "FROM catalog_record" in str(query)
+        assert parameters["id"] == wanted["id"]
+        return Row({"owner_id": owner, "group_id": run, "envelope": item})
+
+    connection = cast(AsyncConnection, SimpleNamespace(execute=execute))
+    if mutation is None:
+        assert await ledger._resolved(connection, owner, run, wanted) == item
+    else:
+        with pytest.raises(CatalogError):
+            await ledger._resolved(connection, owner, run, wanted)

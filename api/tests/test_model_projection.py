@@ -250,6 +250,34 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
             await service.read(connection, owner, run_id, records.reference(projected), approval)
         )
         assert read == projected
+        # Actual independent adapter serialization, not a regex over a dict.
+        monkeypatch.syspath_prepend(
+            str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+        )
+        spec = importlib.util.find_spec("omnis_hermes.model_projection")
+        assert spec is not None, "independent Hermes model-input bytes gate missing"
+        adapter = importlib.import_module("omnis_hermes.model_projection")
+        pins = {
+            "projection_ref": records.reference(read),
+            "owner_id": owner,
+            "run_id": run_id,
+            "binding_ref": records.reference(bound),
+            "policy_digest": policy.POLICY_DIGEST,
+        }
+        serialized = adapter.serialize_model_input(read, **pins)
+        assert serialized == canonical(mapping(read["payload"])["model_input"])
+        assert sha256(serialized).hexdigest() == mapping(read["payload"])["projection_digest"]
+        assert adapter.validate_serialized_input(serialized, read, **pins) == serialized
+        assert b"private=value" not in serialized
+        sent: list[bytes] = []
+        sent.append(adapter.validate_serialized_input(serialized, read, **pins))
+        # Sink has no provider; this is inert carrier proof, NOT full SDK/pre-send/G02-live.
+        assert sent == [serialized]
+        tampered = mapping(load_json(serialized))
+        tampered["extra_body"] = {"headers": "SYNTHETIC_FORBIDDEN_SENTINEL"}
+        with pytest.raises(ValueError, match="Invalid model projection"):
+            adapter.validate_serialized_input(canonical(tampered), read, **pins)
+        assert len(sent) == 1
         again = await service.prepare(
             connection,
             owner,

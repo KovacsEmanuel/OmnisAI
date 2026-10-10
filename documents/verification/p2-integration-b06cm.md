@@ -80,6 +80,12 @@ P02-F01 a identificat o cursă între două citiri READY ale aceluiași grant; p
 
 Pregătirea SOURCE P02 este acum revizuită, însă nu are efecte acordate: holder=null/targets=[] la readback, rootul p02 nu a fost creat. Aprobarea recorderului nu este copy-installed/PG/native PASS și nu rezolvă obligațiile de implementare DTO/turn/config/SENT. Se așteaptă numai grantul exact pentru acest scope înaintea buildului/fixture-ului, fără reluarea P01 sau o a doua lansare ascunsă.
 
+## P02 build/copy-install și import origins — executate separat
+
+[Receiptul buildului](p2-integration-p02-build.json) fixează sursa bba47c3 și grantul exclusiv COPY_INSTALL_API_ADAPTER_FROM_LOCKS. Cele șase comenzi neschimbate au rulat o singură dată, fiecare exit0; procesul exact `proc_855465fa4891` a ieșit0, grupurile comenzilor și cititorul ulterior sunt drenate. Două wheeluri și87 fișiere de pachet corespund byte-exact sursei; copiile instalate sunt regular/single-link, fără editable/package symlink. Cititorul instalat real `-I -B`, din afara checkoutului, a confirmat8 origins și versiunile API/adaptor0.1.0 pe Python3.13.15. Bindingul sursă pre-build rămâne neschimbat; manifestul de artefacte și92 hashes reale sunt în registration p02.
+
+Doar agregarea răspunsului mare al toolului a eșuat pe output trunchiat/per-line și apoi pe footerul cwd; rezultatul complet al execuției reușite a fost recuperat din logul integral, cu footerul exact verificat, fără rebuild/reinstall sau rerulare a cititorului. Warnings zle ale shellului exterior sunt păstrate separat. Aceasta este dovadă build/import-origin, NU QA a consumerului, nativ instalat, SDK, DB/OCI/browser/canonical ori inferență. `test-model-projection-pg` și `record-p02.py` nu au rulat; pentru ele este necesar grant DB distinct. Datele, wheelurile, mediul, cache-urile și logurile sunt păstrate.
+
 ## Revert și continuare
 
 Istoric granular local, fără amend/squash/rebase/reset/stash/push. Revertul importurilor este invers cronologic după inspecția dependențelor, nu înlocuire de arbore. Nicio migrare sau efect extern nu a fost executat de import; originalul protejat nu este citit/copat/hashuit/staged. C03 rămâne CLOSED_SCOPED la bytes lui; B06b/G02, G-DATA-EARLY, G-MODEL, Settings minim și G02-live/G04a rămân distincte și neînchise.

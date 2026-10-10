@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_P02_DB_GRANT",
+  "source_commit": "bba47c3be59812c30147ad32e47cd67e80a661f1",
+  "branch": "p04-control-topology-wip",
+  "owner_session_id": "20261010_215158_76ea2f",
+  "intent_nonce": "295aaa52911f4d1f8e9b8302bc424bf7",
+  "request_sha256": "0710e3419dc1438d017a3945482bf14c2e70e4f53759a09e69fcb42620a98de5",
+  "build_grant_sha256": "72944dee5d2910c7537480632f81d89923963353b5fd087d6fc2b9dfad2f2408",
+  "input_manifest": "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-inputs.json",
+  "input_manifest_sha256": "129697d8e8feb14b7bd871b2482980da8b969a4b4ec126f392dd19737368ecf0",
+  "source_input_count": 119,
+  "sources_unchanged": true,
+  "build_process_locator": "proc_855465fa4891",
+  "build_outer_exit": 0,
+  "commands_executed_once": 6,
+  "command_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "build_duration_seconds": 90.4308340579737,
+  "build_and_origin_binding_seconds": 288.6000707469648,
+  "build_receipt": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/build-result.json",
+  "build_receipt_sha256": "6390f45cb75f0eec78bbfd0c6fc657c8b3d894b4cc33cbea28fcdf882179523c",
+  "family_receipt": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/build-family.json",
+  "family_receipt_sha256": "f594db373cbd11339f91e947f57ce8a5b7532bcd8e616ca3693c011fac423ebc",
+  "family_drained": true,
+  "process_groups_fresh_remaining": [],
+  "origin_reader": {
+    "pid": 1450501,
+    "pgid": 1450501,
+    "exit_code": 0,
+    "group_members_after": [],
+    "cwd": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02",
+    "python": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/installed/venv/bin/python",
+    "flags": [
+      "-I",
+      "-B"
+    ],
+    "stdout": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/logs/origin-reader.stdout",
+    "stderr": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/logs/origin-reader.stderr"
+  },
+  "artifact_manifest": "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-artifacts.json",
+  "artifact_manifest_sha256": "c27239ca74e291b84f0085604669c88a34e2b64208677db10c14d4487711f7cf",
+  "origin_manifest": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/installed-origin.json",
+  "origin_manifest_sha256": "b67be764965bc7abcddb44b8fb7f048821ea3aa446f818ab33ecfe981b1939e2",
+  "wheels": {
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/wheels/api/omnis_api-0.1.0-py3-none-any.whl": {
+      "sha256": "8990a6fa14a8314d3ec4cd1f50f392b50e687407c997c2947f4bc5f2fa189e5f",
+      "bytes": 198617,
+      "package_files": 76
+    },
+    "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/wheels/adapter/omnis_hermes-0.1.0-py3-none-any.whl": {
+      "sha256": "f8c0649599e953c7569a30f3267b05500b873cb572904c4413b18919f9f4065a",
+      "bytes": 39423,
+      "package_files": 11
+    }
+  },
+  "regular_single_link_installed_files": 87,
+  "isolated_installed_origins": 8,
+  "artifact_hash_count": 92,
+  "interpreter_binding": {
+    "entrypoint": "/home/kali/.hermes/cache/scratch/p2i-bd68319d3025/p02/tmp/installed/venv/bin/python",
+    "resolved_pinned_readonly_tool": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "sha256": "20a5569a1bac8de02122347777b6cf2ae12ec1eafd42db990c6a0c5407f96b8e",
+    "package_symlinks_or_editable": false
+  },
+  "deadline": "2026-10-10T23:08:19.501074+00:00",
+  "deadline_extended": false,
+  "deadline_expired_at_readback": false,
+  "database_target": "test-model-projection-pg NOT_RUN_NOT_GRANTED",
+  "recorder_executed": false,
+  "native_sdk_provider_browser_canonical_inference": "NOT_RUN_NOT_GRANTED",
+  "retention": "All wheels/copies/requirements/cache/logs/receipts retained; no services started and no cleanup/kill/replay performed",
+  "metadata_recovery": "Truncated tool capture and numbered-line view could not carry full JSON. Original successful full output parsed with exact Hermes cwd footer recognized; no build/import rerun and no data invented.",
+  "phase2": "NOT_CLOSED",
+  "limits": "Build and isolated import binding are not consumer PG QA, installed-native proof, full SDK/turn/config/SENT/Stop acceptance or arbitrary-process confinement proof.",
+  "operational_receipt": {
+    "path": "/home/kali/.hermes/run/omnis-p2-critical-20261010/integration/p02-build-readback.json",
+    "sha256": "b2fa0f2bb13adfa2c833068eb18912320b93ea8fef5190a983b59fce2af9eddc"
+  },
+  "acceptance": "BUILD_AND_IMPORT_ORIGIN_BINDING_ONLY; NOT_INSTALLED_CONSUMER_QA; DB_NATIVE_SDK_BROWSER_CANONICAL_NOT_RUN"
+}

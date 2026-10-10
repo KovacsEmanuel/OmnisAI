@@ -140,6 +140,21 @@ def main():
             or sha(path.read_bytes()) != expected
         ):
             raise ValueError("P02 installed artifact changed")
+    # Atomic retained consumption: two valid READY readers must not both
+    # enter provisioning. A crash/write error consumes conservatively too;
+    # never remove this marker to retry the same grant.
+    consumed = ATTEMPT / ("consumed-" + NONCE + ".json")
+    fd = os.open(consumed, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "w") as output:
+        json.dump({"owner_session_id": SID, "intent_nonce": NONCE, "target": TARGET}, output)
+        output.flush()
+        os.fsync(output.fileno())
+    directory = os.open(ATTEMPT, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+    attempt["consumed_marker"] = str(consumed)
     attempt["state"] = "GATE_SUBMITTED_ONCE"
     write_registry(value)
     namespace = runpy.run_path(str(REPO / "ops/run_test_db_gate.py"))

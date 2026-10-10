@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "review_id": "P02-SOURCE-8e64ef4-INDEPENDENT",
+  "original_snapshot": "8e64ef4d1636ffc328268bf32d7a2104679738e5",
+  "original_report": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-p02-8e64ef4/report.json",
+  "original_report_sha256": "9343552fe18f837ef4de72f9dc0f2c4c80245a5457a4be53518dbe4bb4063e18",
+  "original_verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "id": "P02-F01",
+      "severity": "P2",
+      "classification": "CONFIRMED_SOURCE_CONCURRENT_ONE_SHOT_ADMISSION_BUG",
+      "title": "READY read and GATE_SUBMITTED_ONCE write do not atomically consume the one-shot grant",
+      "locations": [
+        "documents/verification/p2-integration-p02-recorder.py:104-107",
+        "documents/verification/p2-integration-p02-recorder.py:143-145",
+        "documents/verification/p2-integration-p02-recorder.py:43-59",
+        "documents/verification/p2-integration-p02-recorder.py:190"
+      ],
+      "requirement": "The request permits maximum_attempts=1 and excludes a second fixture; the recorder explicitly claims a single gate and one-shot admission.",
+      "mechanism": "Two invocations can both validate the same grant and read COPY_INSTALLED_ATTESTED_READY_FOR_SINGLE_GATE before either writes. Each retains its own READY snapshot. write_registry uses O_EXCL only for a temporary pathname, which os.replace removes; after the first replacement the second stale writer can create the temporary file again and successfully overwrite the registry. There is no durable exclusive claim or locked compare-and-set before prove_private_fixture. Both invocations can therefore enter the existing provisioning owner. The later manifest callback is too late to prevent a second fixture from starting.",
+      "reproducer": {
+        "file": "bound_grant_repro.py",
+        "result_file": "bound-grant-results.json",
+        "exit_code": 1,
+        "expected": "At most one entry to the existing prove_private_fixture under one bound grant.",
+        "observed": "Real require_grant accepted the same valid synthetic request/grant twice; both observed READY. Real main and real write_registry then admitted two test-model-projection-pg owner entries, each with 900 seconds. No exception in either invocation; all test threads joined. The final assertion failed because 2 != 1.",
+        "substitutions": "Authority reads use synthetic in-memory effects/grant/request data; test metadata and paths are private scratch. A barrier selects the valid concurrent interleaving and serializes actual file replacements. Only runpy's owner entry and signal registration are substituted in this reproducer. The existing owner entry is a no-effect sentinel, not OCI/DB. The barriers do not change grant validation or the recorder state predicate.",
+        "control": "The ordinary single-call metadata path succeeds and the same recorder rejects a sequential second call after its state was consumed. The failure is concurrent admission, not a permanently invalid grant or an always-failing observer.",
+        "effect_count": 0
+      },
+      "minimal_remedy": "Add a retained per-attempt/per-nonce exclusive consumed marker using O_CREAT|O_EXCL|O_NOFOLLOW, or hold a local lock while re-reading READY and durably consuming it. Acquire the claim after validation and before any owner call; preserve it on every outcome and refuse reuse. Keep the existing owner, family, attestor and cleanup untouched. Reproduce in the parent, verify one ordinary positive plus concurrent/sequential refusal, rebind runtime-copy/source/request hashes as needed, and request focused re-review. No new lifecycle framework is necessary.",
+      "impact_limit": "Demonstrated SOURCE admission to a substituted existing-owner entry under a controlled valid interleaving. This is not a physical double-provision observation, an arbitrary-actor privilege escalation, or a model/provider bypass. No real grant existed and none was exercised. An external serialized coordinator is operational mitigation but does not make this recorder's advertised one-shot check atomic.",
+      "disposition": "OPEN_FOR_PARENT_REPRODUCTION_AND_MINIMAL_REMEDIATION"
+    }
+  ],
+  "test_extension_review": {
+    "verdict": "NO_CONCRETE_BLOCKER_FOUND_IN_CHANGED_TEST_SCOPE_SOURCE_ONLY",
+    "opt_in_and_fixture": "The exact OMNIS_TEST_MODEL_PROJECTION_INSTALLED != '1' skip remains. The real fixture verifier, omnis_test database pin and empty public schema check precede migration (lines 592-609). The Makefile enables the opt-in only on its dedicated fixture branch, with pytest plugin/addopts/source environment neutralization (118-124). No unconditional canonical opt-in was added.",
+    "installed_origins": "The script entrypoint unconditionally calls _bootstrap(installed=True). Only api/tests is inserted for fixture helpers in that branch, not api/src or integrations/hermes/src. Each of eight named product/adapter modules must resolve under the installed interpreter prefix and have st_nlink==1, and the parent compares the complete returned hash mapping with installed-origin.json. The added modules include ModelDispatch, NativeTaskOwner, model_admission and model_terminal. Native/provider imports remain denied. The imported test_model_admission_pg function's syspath-prepend belongs to its separate pytest test body and is not executed by importing synthetic_decision.",
+    "owner_and_reader": "Producer calls installed NativeTaskOwner.handle with the actual managed state command_id and explicit decision; the existing owner commits ModelDispatch.prepare before the declared runtime seed callback. Reader calls ModelDispatch.read using persisted owner/run/binding/approval/projection refs and validates the qualified payload through the adapter. This is the actual domain reader, not a fabricated approval report.",
+    "fresh_process": "The produce/read loop makes two separate subprocess.run calls using the fresh installed interpreter, -I -B, external journey cwd and an explicit environment without PYTHONPATH. The qualified reader is inside _read, so it executes in the second process, not merely a second call in the producer. The existing fixture CLI helper chooses installed -I -B -m execution when OMNIS_B06B_INSTALLED=1.",
+    "exact_final_sql_counts": {
+      "model-projection": 1,
+      "runtime-binding": 2,
+      "model-data-approval": 1
+    },
+    "preserved_controls": [
+      "Post-INSERT transaction rollback, then exact replay and immutable UPDATE refusal.",
+      "Wrong owner/run/manifest/binding/composition, empty approval and known-secret denials with unchanged projection count.",
+      "Projection ref revision/id/digest/kind and bool-revision negatives.",
+      "Unknown source fields refused without new immutable input or projection.",
+      "Private marker retained in source, absent from projection and carrier.",
+      "Carrier extra fields, noncanonical/oversized/duplicate-key bytes and stale policy denial."
+    ],
+    "native_limit": "PreparationProtocolSeed.managed explicitly calls adapter.cold_preflight with binding-derived synthetic native root/entries. The fixture keeps native_turn=None/model_calls=0 and labels the seed. This is neither a native loader/transport/root attestation nor SDK/provider/full DTO/turn/config/SENT/Stop proof.",
+    "runtime_status": "NOT_RUN: no wheels built or installed, no actual installed origins read, no PostgreSQL or fresh installed child executed by this review. Count and process claims here concern source structure, not a passing live journey."
+  },
+  "recorder_review": {
+    "runtime_copy_matches_versioned_source": true,
+    "grant": "Real current require_grant refuses immediately with holder=null. A positive synthetic grant and 12 selected invalid holder/SID/nonce/request hash/grant hash/root/target/deadline variants were exercised; recorder-hash and inode divergence were separately refused. These selected negatives are not an exhaustive hostile-JSON schema certification.",
+    "source_artifact_paths": "main requires manifest location/hash, rejects absolute/traversal and named protected input paths, verifies canonical source bytes and canonical artifacts contained in ATTEMPT, and validates the registered root dev/ino/uid/mode before entering the owner. Source-manifest/artifact mutation tests refused before the owner. The real attempt has not reached prepared state: source-manifest completeness, source-to-wheel-to-installed provenance, the full module inventory and artifact hashes still must be populated and attested by the parent before any separate grant/effect. No missing future artifact is credited as verified.",
+    "namespace": "The wrapper patches namespace['prove_private_fixture'].__globals__ rather than runpy's returned dict alone. A test with a distinct returned dictionary exercises the real source owner body with every Docker/DB/process/attestation effect seam substituted. The original manifest writer is called, four filesystem identities and the original manifest hash are recorded, then the existing attestor seam and gate seam are reached. Thus the interception is on the callable's actual globals.",
+    "ddl_frontier": "The recording is before the existing gate and installed application migration/DDL (owner lines 974-988), but after PostgreSQL provision/init/readiness. It must not be described as preceding the container's own initdb.",
+    "failure_cleanup_independence": "Injected callback metadata OSError and callback grant expiry prevent the gate seam and still invoke the existing cleanup seam. Injected final registry failure occurs after that cleanup and does not fabricate a successful readback. The wrapper has no cleanup implementation and leaves GATE_EXITED_READBACK_PENDING for the parent's independent readback, not VERIFIED. These are SOURCE tests of owner control flow, not physical cleanup proof.",
+    "one_shot": "Sequential replay refused; concurrent one-shot admission is blocked by P02-F01."
+  },
+  "proof_limits": [
+    "No source/index/Git/authority/profile/config changes. No old fixture/P01 replay, readback or cleanup. No actual P02 root created.",
+    "No build/install/DB/OCI/native runtime/SDK/browser/provider/network/model/target effects, including after any future parent grant.",
+    "Protected original HTML, auth/.env/dumps, raw private bodies and raw skill contents were not read, copied or hashed. Explicitly requested project methodology files were read as instructions, not runtime skills.",
+    "Reticle NOT_APPLICABLE to SOURCE/metadata; application NOT_INTEGRATED; not executed. Chisel BLOCKED_NO_GO; not executed.",
+    "R1/R2 repaired product acceptance at 8265a9c is not reopened by this recorder finding. Full DTO/native-turn/config/admission reserve/SENT/physical Stop/caps obligations remain unimplemented or unproven as previously recorded.",
+    "SL10/SL11 and B06b/G-DATA-EARLY/G-MODEL/G02/phase2 remain PARTIAL/NOT_CLOSED. Prior C03 and other scoped acceptances are preserved. No fresh canonical or native QA credit is granted."
+  ],
+  "parent_disposition": "P02_F01_REPRODUCED_AND_MINIMALLY_FIXED_PENDING_FOCUSED_REVIEW",
+  "parent_evidence": {
+    "red": "Exact copied stronger reproducer in fresh owned p02-parent-red: two valid READY/grant reads admitted2 no-effect owner entries, exit1, joined threads, audit violations0.",
+    "fix": "Retained per-nonce consumed marker opened O_CREAT|O_EXCL|O_NOFOLLOW after validation and before state write/owner; file+directory fsync, never removed or rearmed.",
+    "green": "Same valid-grant interleaving in fresh p02-parent-green:1 owner entry, losing FileExistsError, all threads joined/audit0. Sentinel no longer waits for second admitted owner; READY-read barrier retained.8 other source controls plus retained-marker READY refusal pass.3 versioned stdlib regression tests pass for single/sequential, concurrent and registry-failure-after-claim.",
+    "limits": "No build/DB/OCI/native/SDK/browser or actualgrant. Existing owner, family, attestor and cleanup unchanged; no general lifecycle/verifier framework."
+  },
+  "execution": "NOT_STARTED_NO_GRANT",
+  "re_review": "PENDING"
+}

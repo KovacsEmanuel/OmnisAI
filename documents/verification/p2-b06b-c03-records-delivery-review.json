@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "report_complete": true,
+  "reviewed_head": "ce54fb2c2430aa8e11637867ebf02ac7abf03a3a",
+  "scope": "Read-only final C03 records closure/evidence/status review; not another product/native audit. Parent sole repository writer.",
+  "verdict": "APPROVED_SCOPED",
+  "findings": [],
+  "checks": {
+    "archive": {
+      "entries": 112,
+      "png_entries": 63,
+      "hash_size_errors": [],
+      "tracked_files": 114,
+      "unexpected_files": []
+    },
+    "close_refs": {
+      "count": 14,
+      "errors": []
+    },
+    "after_canonical": {
+      "changed_paths": 127,
+      "only_docs_and_devskills": true
+    },
+    "between_product_and_tests": [
+      "api/tests/test_native_task_client.py",
+      "documents/verification/p2-b06b-c03-records-canonical-fail.json",
+      "documents/verification/p2-b06b-c03-records.md"
+    ],
+    "canonical_snapshot": {
+      "head": "c0261a7ae2319b57a0a3154d3e79b2ed908418f8",
+      "count": 727,
+      "hash_errors": [],
+      "excluded_count": 5,
+      "checked_hashes": 722
+    },
+    "actual_canonical_family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "cleanup": {
+      "cid_rows": 27,
+      "unique_cids": 27,
+      "all_claim_absent": true,
+      "family_occurrences": 17,
+      "source_locator_errors": []
+    },
+    "browser": {
+      "rows": 59,
+      "unique_ids": 59,
+      "computed_counts": {
+        "PASS": 47,
+        "NOT_IMPLEMENTED": 4,
+        "NOT_RUN": 8
+      },
+      "followup_rows": 8,
+      "followup_counts": {
+        "PASS": 8
+      },
+      "followup_exit": 0,
+      "followup_family": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "initial_exits": [
+        1,
+        1
+      ],
+      "row_source_mismatches": [],
+      "replaced_ids": [
+        "BOUND-01",
+        "BOUND-02",
+        "BOUND-03",
+        "BOUND-04",
+        "OBS-after",
+        "OBS-supplement",
+        "SUPP-SEC",
+        "VISUAL-01"
+      ],
+      "observer_controls": {
+        "PASS": 23
+      }
+    },
+    "archive_originals": {
+      "missing": [],
+      "changed": [],
+      "compared": 112
+    },
+    "review_snapshot_bindings": {
+      "review-r1": {
+        "checked": 56,
+        "errors": [],
+        "verdict": "APPROVED_SCOPED",
+        "snapshot": "20611d1"
+      },
+      "review-r2": {
+        "checked": 53,
+        "errors": [],
+        "verdict": "APPROVED_SCOPED",
+        "snapshot": "20611d1"
+      },
+      "review-client-r1": {
+        "checked": 6,
+        "errors": [],
+        "verdict": "APPROVED_SCOPED",
+        "snapshot": "c0261a7"
+      },
+      "review-client-r2": {
+        "checked": 4,
+        "errors": [],
+        "verdict": "APPROVED_SCOPED",
+        "snapshot": "c0261a7"
+      }
+    },
+    "git_diff_check": {
+      "exit": 0,
+      "output": ""
+    },
+    "installed_checkpoint_counts": {
+      "rows": 77,
+      "unique_ids": 66,
+      "statuses": {
+        "PASS": 77
+      },
+      "aggregate_exits": [
+        1,
+        1,
+        1
+      ]
+    },
+    "history_bytes": [
+      {
+        "version": "v1",
+        "equal": true,
+        "matches_report_sha": true
+      },
+      {
+        "version": "composition1",
+        "equal": true,
+        "matches_report_sha": true
+      },
+      {
+        "version": "capture2",
+        "equal": true,
+        "matches_report_sha": true
+      }
+    ],
+    "final_head": "ce54fb2c2430aa8e11637867ebf02ac7abf03a3a"
+  },
+  "reviewed_sha256": {
+    "README.md": "0e2e66610b54345da21f21f8dee0c995a618abde2f41f129a9d520e812a2bd91",
+    "documents/Omnis_Implementation_Plan.md": "8b441d86e6717a2c8d392ee9455b28152b93d9fc6e0e14c65c5d110fac610f4c",
+    "documents/verification/implementation-status.md": "e4164be0d2e43a6c5f84390478f129938a715539f383a9fbd910c38d201f8199",
+    "documents/verification/p2-b06b.md": "3140f70b86fb3793886a13229eb024a0486a375a7e96b0f37e6199493addf4b9",
+    "documents/verification/p2-b06b-c03-records.md": "4ffd18955f741c1fce0fc3d8eedbec39a7d463d4a58b7519d863c3b532c60655",
+    "documents/verification/p2-b06b-c03-records-close.json": "c4c2fe940f27c81e9dac6681db798980f45029c487c5843a616e3b3daa0daa88",
+    "documents/verification/p2-b06b-c03-records-installed.json": "ef1f98d9e54b8719e62ed10e8572f72b74bd32c02be5a4dc4080b62b2a51db00",
+    "documents/verification/p2-b06b-c03-records-canonical.json": "f43b16554c260f7536b33b8b97a9211fffa66979735a8c8396dd12f842d38cca",
+    "documents/verification/p2-b06b-c03-records-cleanup.json": "6f4fcc2dabd42e0124a4109fd210948c64cd07f8989f1dd77a6667209661024d",
+    "documents/verification/p2-b06b-c03-records-canonical-fail.json": "292d26811222f6bc8bbfe8f7108f1beb1d4b7f87a0da87fd6f4d768e6a5ddd3e",
+    ".hermes/skills/omnis-api-data/SKILL.md": "2372907f4a8914773dada3531c5237b335373d65d6d79dddfaec1f4b04d44de8",
+    ".hermes/skills/omnis-review-qa/SKILL.md": "34741ad6f3c91307d290b6751d6a6e97048daa04a60c3b9edef0d2a925eb692f"
+  },
+  "reviewed_archive_manifest_sha256": "529e52221156506cbec4e2ecdc066ecb6efe81d7ce7461a86c20ff5a9b7e1c4b",
+  "claims_adjudication": {
+    "source": "Product/test paths unchanged after c0261a7; 20611d1 to c0261a7 contains only the reviewed test file plus two record documents. Four actual public review reports approve their exact snapshots and hash bindings match.",
+    "failures": "Initial canonical exit2, initial installed root-reuse UNRECONCILED/non-reusable DBs, three later installed exit1 aggregates, and initial browser exit1 attempts remain retained. New history closes only FRESH-QA-F03 proof frontier; no original aggregate promoted.",
+    "browser": "59 unique reconciled IDs match original/followup verdict sources:47 PASS,8 deliberate NOT_RUN,4 NOT_IMPLEMENTED. Followup8 exit0/drained and23 observer controls separately labelled.63 archived PNG copies hash-identical to source. Visual inspection remains inherited QA/parent evidence, not this review. Unpaired capture remains inconclusive; no new WCAG/aesthetic approval.",
+    "history": "All three published old/new graph byte pairs equal their reported hashes. Corrected history-only actual report exit0/drained21 checkpoints preserves NEEDS_RECONCILIATION denial/no-write and lack of independent evaluator call census.",
+    "canonical": "Actual parent three-field family receipt read directly equals canonical exit0/drained. Component counts agree across current closure/status documents. Raw gate.log not opened or hashed. Canonical manifest727 entries:722 safe entries hash-verified against c0261a7;5 raw bug-bounty entries skipped before file access.",
+    "cleanup": "27 distinct CID entries and all cited source locators agree;17 family receipt occurrences agree with original reports. This is evidence consistency, not a fresh container/process readback or all-clean claim.",
+    "status": "C03 records closed scoped independently of capture; SL09/B06b and G02 remain PARTIAL/NOT_CLOSED. B06c/B06m remain NOT_IMPLEMENTED on branch; worktree observation is not adoption. README/plan19.2/matrix preserve limits and next-step order.",
+    "skills": "Changed development skill lessons match retained lexical/topology/history/browser/version-oracle incidents; not executable pentest catalog or enforcement."
+  },
+  "command_exit": [
+    {
+      "command": "git status --short --branch / git diff --stat / git show --stat --oneline HEAD (protected path excluded)",
+      "exit": 0
+    },
+    {
+      "command": "git diff c0261a7..HEAD --name-only (protected path excluded)",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check c0261a7..HEAD (protected path excluded)",
+      "exit": 0
+    },
+    {
+      "command": "Python JSON counts, archive hash+length+original-copy checks, git-show snapshot hash checks, cleanup locator reconciliation, browser row reconciliation",
+      "exit": 0
+    }
+  ],
+  "limits": [
+    "No services/DB/OCI/browser/model/network/global operations or additional product/native acceptance audits.",
+    "No full suites, render_docs or documentation unittest rerun; approval is closure/evidence consistency, not a new canonical PASS.",
+    "No protected original HTML content/copy/hash/inventory; raw bug-bounty files not loaded. Other worktrees not inspected/adopted.",
+    "Reticle NOT_APPLICABLE for documentation review; recorded UI NOT_INTEGRATED retained. Chisel BLOCKED_NO_GO, not invoked.",
+    "Actual screenshots not re-inspected; cryptographic copy/count bindings and original QA dispositions inspected.",
+    "Public original report claims do not independently prove physical runtime/resource state today.",
+    "Original historical pending statements remain immutable history; current closure points to completed followups rather than rewriting them."
+  ],
+  "workspace_changes": {
+    "repository_files": [],
+    "commits": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/c03-docclose-review-67f5imgn/report.json"
+  },
+  "issues_encountered": [
+    "Two in-memory extraction attempts raised KeyError (read_file dedup response and dict/list assumption); corrected by bounded JSON parsing. No product or repository effects.",
+    "Large initial read outputs were truncated; relevant findings/dispositions/limits were subsequently emitted selectively and counts/hash bindings computed programmatically."
+  ],
+  "proposed_status_delta": "No closure/status correction requested. Parent may archive this report without altering reviewed claims."
+}

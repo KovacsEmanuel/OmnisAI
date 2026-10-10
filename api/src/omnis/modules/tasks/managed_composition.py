@@ -8,6 +8,7 @@ import base64
 import binascii
 from collections.abc import Sequence
 from hashlib import sha256
+from typing import TYPE_CHECKING
 
 from omnis.modules.runs import native_preparation_models as preparation
 from omnis.modules.settings import candidate_store as records
@@ -30,6 +31,9 @@ from omnis.modules.tasks.managed_contract import (
     sequence,
     text,
 )
+
+if TYPE_CHECKING:
+    from omnis.policy.model_projection import SyntheticApproval
 
 PROTOCOL = "omnis-managed-admission-v2"
 # Exact native composer source; parity test binds this to the installed producer.
@@ -484,3 +488,13 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
     if len(canonical(result)) > 32768:
         raise CatalogError("CONTEXT_OVERFLOW")
     return result
+
+
+def project_model_input(composition: object, approval: "SyntheticApproval") -> dict[str, object]:
+    """Separate allowlisted data producer. Never changes the cold composition."""
+    from omnis.policy.model_projection import projection_input, reject
+
+    try:
+        return projection_input(validate(composition), approval)
+    except (CatalogError, ValueError, TypeError, KeyError, UnicodeError, RecursionError):
+        raise reject() from None

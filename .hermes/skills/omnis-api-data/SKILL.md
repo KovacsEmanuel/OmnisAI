@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.15
+version: 0.1.16
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -67,6 +67,8 @@ Include empty optional-looking prose and a leading BOM inside each authored scal
 Decode private JSON request bytes as strict UTF-8 before parsing and reject a leading BOM explicitly. Python's JSON byte-input autodetection can otherwise admit BOM or alternate encodings before a strict DTO sees the request. Pair the invalid-wire control with a valid request at the same pre-DB boundary, then prove the actual persistent consumer refuses without writes; do not change historical record payloads or silently normalize input.
 
 Bound the same canonical RecordEnvelope on producer and native consumer, not only its scalar value and enclosing frame. JSON escaping and provenance/ref overhead can exceed the input-envelope cap while both other caps still pass. Test independently resealed API-origin material below/at/above that exact boundary, and require zero native constructors on refusal. Mirror canonical base64 round-trip checks as well as decoded schema hash/size checks: pad-bit aliases preserve decoded bytes but can create different accepted languages. Update the composer pin and attest the rebuilt installed bytes after a native guard changes.
+
+Validate retained schema lexical bytes before JSON semantic parsing. CR is valid JSON whitespace but forbidden by the native LF/TAB-only document contract; parsing can discard that incompatibility. Compare independently resealed path/size/hash/package/base64 material, keep LF/TAB positive controls and CR/CRLF refusals, and reject before writes/qualification. Preserve raw bytes rather than normalizing them or widening historical accepted contracts.
 
 ## Verification
 Acceptance includes valid/invalid input, concurrency, persistence/restart and schema compatibility. Record exact DB/Python versions and commands. Commit code, schema, tests and necessary docs as one coherent behavior change.

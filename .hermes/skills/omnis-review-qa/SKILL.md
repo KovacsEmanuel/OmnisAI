@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.24
+version: 0.1.25
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -102,6 +102,15 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - Budget cold CLI startup and intermediate readbacks against immutable brief/stage deadlines. Run the positive admission promptly; put optional identity/input denials on a separate never-launched assignment rather than lengthening product grants or letting QA bookkeeping expire the positive.
 - Compare exact named artifact inventories before asserting counts; native patched files and adapter modules are different sets. Stop a live proof after a failed preflight, preserve that failure and correct the observer before a bounded new attempt.
 - Read the actual domain schema before asserting a native receipt field on a TaskResult. Validate the native cause and the domain gaps/method results at their respective records; an invented top-level field must not motivate a product change or a weaker oracle.
+
+## Focused fixture and browser adjudication
+
+- Trace native-root ownership to its physical uniqueness constraint before multi-input installed QA. Separate RUN contexts do not make one native boot/root reusable for multiple RUN bindings. Allocate a fresh owned boot/root per newly staged RUN; never relax uniqueness or product grants for the harness. Resource retirement does not retrospectively reconcile an old unbound stage.
+- Keep catalog identity ownership consistent when qualifying variants of the same package in one private DB. An arbitrary new owner can hit IDENTITY_OWNERSHIP before a lexical refusal; use the legitimate same owner or explicitly distinct identities, then verify the intended frontier. Keep helper paths inside the actual owned TMPDIR required by their contract.
+- For historical unstarted graphs, test exact readback/request replay and receive-only restart; reconcile without a native final result must refuse NEEDS_RECONCILIATION without writes. Do not invent a terminal result to satisfy an extra oracle. Byte equality alone is not an independent evaluator-call census.
+- Attribute browser cancellations to measured request identity/action phase and same-browser successful readiness/pairing/session controls. Preserve cancellations and expected HTTP negatives; never hide unknown failures with a broad ERR_ABORTED exemption or describe expected errors as zero network errors.
+- Distinguish full-page capture artifacts from live occlusion. Pair viewport/full-page images at identical scroll/focus, measure bounds and hit tests, and inspect actual pixels. Keep unpaired captures inconclusive rather than changing otherwise-working UI for the screenshot.
+- When deliberately adding a supported wire version, inspect existing unknown-version controls. Add the new version to current-grant/transport positives and move only the obsolete unknown fixture to a genuinely unsupported version, preserving malformed-type, no-authority, no-resend and expiry assertions. Retain the original canonical FAIL; a synthetic peer proves transport only, not native admission.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

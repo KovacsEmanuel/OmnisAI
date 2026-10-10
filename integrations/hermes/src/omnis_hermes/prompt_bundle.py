@@ -407,6 +407,8 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         raise reject()
     context = envelope(material["context"], "contract-input-context")
     input_record = envelope(material["input"], "contract-case-input")
+    if len(canonical(input_record)) > 8192:
+        raise reject()
     c = obj(
         context["payload"],
         set(

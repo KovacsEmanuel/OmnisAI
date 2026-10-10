@@ -34,7 +34,7 @@ from omnis.modules.tasks.managed_contract import (
 PROTOCOL = "omnis-managed-admission-v2"
 # Exact native composer source; parity test binds this to the installed producer.
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
-COMPOSER_REVISION = "c2c9e4688e150308bd0c65b2df5b5a8ba39c532cde7ba7de807aa02201cc2079"
+COMPOSER_REVISION = "96b0273f911709edcec70430af30a30ce3e33a380ee573a8d5b679d4edc2de41"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",

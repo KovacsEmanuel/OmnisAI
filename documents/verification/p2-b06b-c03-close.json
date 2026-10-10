@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "CLOSED_SCOPED_C03_INERT_CAPTURE_BINDING",
+  "code": "IMPLEMENTED_SCOPED",
+  "proof": "PASS_LOCAL_RECORDED",
+  "review": "APPROVED_SCOPED_COMPOSITE",
+  "base_commit": "e72045415e9f0830d36ff964579837ec2a09542a",
+  "product_commit": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+  "final_test_snapshot": "510a697fa77c646644f63239eec1aa98e6069835",
+  "consumer": "private contract_inputs create-context/create-input -> managed_admission prepare-composed schema2 -> existing supervisor native_tasks stage/release/readback",
+  "scope": {
+    "procedure": "map-capture",
+    "slot": "capture",
+    "kind": "contract-case-input",
+    "min_items": 1,
+    "max_items": 1,
+    "tasks_per_context": 1,
+    "method_execution": false,
+    "schema": "0011_managed_tasks reused; no migration"
+  },
+  "delivered": [
+    "Exact persisted PACKAGE_EVAL admission/context/input -> real STATIC/PURE -> TTY operator confirmation -> Publish retaining CaseSlotRef; no real-run-before-Publish cycle.",
+    "New RUN context -> immutable input, exact owner/context/schema/provenance/kind/revision/digest -> BoundProcedure without CaseSlotRef -> all MethodRequirements -> Brief -> actual value-bearing composition.",
+    "Schema2 private assignment and composition_version2 preserve managed v1/v2 composition1 historical readback; input command replay/idempotency/conflict, no global StepOutput or input/eval namespace substitution.",
+    "Native validates exact schema bytes/path/hash, context/input and aggregate budgets before genuine cold AIAgent constructor; committed binding precedes release; NO_MODEL/BLOCKED/INCOMPLETE and empty consumed_input_refs remain true.",
+    "Different new input/assignment changes actual contextual value; invariant/role content and old assignment bytes stay stable. Prefix envelope UUIDs across different bundles are not claimed identical.",
+    "Real transaction rollback after INSERT, observed owner-lock waiter and single commit on duplicate prepare; guarded no-evaluation/no-rebinding readback/replay."
+  ],
+  "evidence": {
+    "p2-b06b-c03-review.json": {
+      "path": "p2-b06b-c03-review.json",
+      "sha256": "bf5cd184c976fa86197469b1268e57def4f440353ede0d4c225b0bfd4a5e45c0"
+    },
+    "p2-b06b-c03-installed.json": {
+      "path": "p2-b06b-c03-installed.json",
+      "sha256": "3edecd6eb010979915ae3b506cf05631b5e33d3fe40dc6efc042781e12081e4c"
+    },
+    "p2-b06b-c03-browser.json": {
+      "path": "p2-b06b-c03-browser.json",
+      "sha256": "358dde30cc8cf45df1b3bd70e6bbf289d265a4b1bac2ae7201d8f5c4633fc5bd"
+    },
+    "p2-b06b-c03-canonical-fail.json": {
+      "path": "p2-b06b-c03-canonical-fail.json",
+      "sha256": "c495ccde9b35d13f7a0d1d0535155a345600f6eb55c04be89f810d1331d158d9"
+    },
+    "p2-b06b-c03-canonical-pass.json": {
+      "path": "p2-b06b-c03-canonical-pass.json",
+      "sha256": "543c104ec1902f2ca22d7e4a94f462671f3e8b4b550a62e46c6fe175f86a8973"
+    }
+  },
+  "canonical": {
+    "schema_version": 1,
+    "verdict": "PASS_LOCAL_RECORDED",
+    "session": "proc_b050f9cc8a3a",
+    "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c03-20261010/home PATH=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj make check UV=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/uv",
+    "snapshot": "510a697fa77c646644f63239eec1aa98e6069835",
+    "product_snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+    "exit_code": 0,
+    "family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "tracked_count": 705,
+    "all_tracked_bytes_unchanged": true,
+    "component_counts": {
+      "documentation": 72,
+      "development": 43,
+      "api": 1192,
+      "migrations": 23,
+      "web": 82,
+      "e2e": 9,
+      "cli_source": 287,
+      "cli_wheel": 287,
+      "installed_cli_status": 1,
+      "release": 61,
+      "runtime": 279,
+      "native_ast": 6
+    },
+    "counts_limit": "Counts are per component, not a unique product-check total.",
+    "log": "/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj/db-0f90faf34c3c427d/gate.log",
+    "log_sha256": "68639956b5e043ca748cb21d4f4d55af72cc51c7752fe6895250e1491ddcc6a2",
+    "root": "/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj/db-0f90faf34c3c427d",
+    "cid": "cfec3221cf603c94918f5aadab0fdad7bac680a1f6cac1ad108707cad2e0833d",
+    "project": "omnis-p01-8f2e4bf0ea7a4e66b75530c95c0ad278",
+    "exact_owned_cleanup": true,
+    "data_logs_retained": true,
+    "per_test_databases_dropped": true,
+    "prior_canonical": "p2-b06b-c03-canonical-fail.json remains FAIL, never relabelled"
+  },
+  "reviewed_test_repair": {
+    "verdict": "APPROVED_SCOPED_TEST_REPAIR",
+    "snapshot": "510a697fa77c646644f63239eec1aa98e6069835",
+    "reports": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-r1-510a697-hg1w_8lg/report.json",
+        "sha256": "abda6a73e486693015a1fecada6a192525e717edb50a1393b31e3da4eab023ea",
+        "verdict": "APPROVED_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/c03-r2-510a697-focused-review.json",
+        "sha256": "f59c965b59eaea3146c82bf65c43ee067e34ba1a6ee56dbfc3ec5e674f181504",
+        "verdict": "APPROVED_SCOPED"
+      }
+    ],
+    "parent_targeted_pg": {
+      "session": "proc_a0d6a7f87b09",
+      "passed": 27,
+      "exit_code": 0,
+      "family_drained": true
+    },
+    "canonical_retry": "PASS in attached canonical receipt"
+  },
+  "installed": {
+    "criteria": 27,
+    "completed_cli_calls": 69,
+    "cli_exit_counts": {
+      "0": 62,
+      "2": 7
+    },
+    "api_modules": 71,
+    "native_adapter_modules": 8,
+    "patched_native_modules": 6,
+    "image": "sha256:384b1bacf2530f4c59f66856424a106fefabb2d60b1ffe1d8daba9dda8a96d61",
+    "composer_sha256": "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a",
+    "legacy_api_modules": 69,
+    "legacy_source": "d29dc0c",
+    "limit": "The exact8399/32307 adversarial limit control uses API-composer synthetic source identities; actual persistent positive/alias and PG binding barrier are distinct real proofs."
+  },
+  "browser": {
+    "inventory_rows": 50,
+    "PASS": 38,
+    "FAIL": 0,
+    "NOT_RUN": 8,
+    "NOT_IMPLEMENTED": 4,
+    "live_rows": 42,
+    "captures": 28,
+    "independently_inspected": 13,
+    "parent_additional_inspections_of_existing_captures": 3,
+    "scope": "Installed current UI representative regression; not CaseSlot UI, full2075 rerun, aesthetic/WCAG/crossbrowser certification."
+  },
+  "failure_dispositions": [
+    {
+      "id": "BOM_WIRE",
+      "disposition": "Reproduced real PG accepting leading JSON BOM; strict UTF8 request decoding fixed before DB on all3 private consumers."
+    },
+    {
+      "id": "C03-R2-01",
+      "disposition": "Native envelope cap mismatch reproduced, minimally fixed/reviewed/installed preconstructor negative passed."
+    },
+    {
+      "id": "C03-R2-N01",
+      "disposition": "Base64 pad-bit alias mismatch reproduced, strict roundtrip fixed/reviewed/installed negative passed."
+    },
+    {
+      "id": "CANONICAL_TEST_SEAMS",
+      "disposition": "Original21FAIL/1169PASS remains FAIL; independent closure list, explicit legacy version and strict callback signature repaired in separate test-only commits;27 targetedPASS, complementary re-review and new canonical exit0."
+    },
+    {
+      "id": "QA_ORACLES",
+      "disposition": "Initial fixture overflow, publish-vs-readback oracle, Mapping-copy mutation, Qualified attribute, exact frame-summary length and browser404 oracle failures remain recorded; no product limits or assertions weakened."
+    }
+  ],
+  "cleanup": {
+    "owned_container_count": 22,
+    "resources": [
+      {
+        "cid": "119e8cffc6fbc40338557e2cefbc67a641a899f63b083854830488dd10d80c6d",
+        "kind": "parent PG",
+        "project": "omnis-p01-fd3de534afd9412295b0b2c29ee3d936",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-phpjTjBy/db-e7670def371541e6",
+        "family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "88110519db9d672a172dc089255e701532d17d796bba32ae5e7c0217de2fc836",
+        "kind": "parent PG",
+        "project": "omnis-p01-7e12d9a1bc8a417289c593c654e0e135",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-jk0HYrdJ/db-5ded7e150a734302",
+        "family": {
+          "schema_version": 1,
+          "code": 2,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "adf432fc2dc3cc175cbdbc52eef5b727bfe149c69352c6db84fcefb17d388232",
+        "kind": "parent PG",
+        "project": "omnis-p01-1e57d8d328cb4471893d052edb87ee0a",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-BqdxXfNO/db-3df131b0a4874d8d",
+        "family": {
+          "schema_version": 1,
+          "code": 2,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "d1003bf96d4d9699107bc9ff9958477152dba5deaf470998e4a11ebc0a2ea808",
+        "kind": "parent PG",
+        "project": "omnis-p01-9352ecec62804d0b9d99475acd19f0f9",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-tQCK62Av/db-8a3309901b1540a1",
+        "family": {
+          "schema_version": 1,
+          "code": 2,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "3917fafc2db3f24a4779077a23aa51dfbd04a7e3edb992f930cbf5c906b9bf6d",
+        "kind": "parent PG",
+        "project": "omnis-p01-6d46ab6d390a4da6a058cf00d9981070",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-5ATNygjO/db-61933bc97ef74cd2",
+        "family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "6e20ea90515dfed6fe0e77f8c1dd67b3ce6f1f2403afa47be4f63782e639bae9",
+        "kind": "parent PG",
+        "project": "omnis-p01-51787f1258cd4110befd6fb09e8db427",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-g8vEl8zB/db-94fd0a9d808e4ffd",
+        "family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "4a17a3429c9775be634118216d75748bdce4e21411aac7fe04ab3f3983c732cc",
+        "kind": "parent PG",
+        "project": "omnis-p01-93617ab0c9b8489e96fbe04b84198d77",
+        "root": "/home/kali/.hermes/cache/scratch/c3f-D99Tsexe/db-796588eb83ff47ab",
+        "family": {
+          "schema_version": 1,
+          "code": 2,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "1111c87a3a160599addf5bd8cb7529cc77667f2186bbdf6debc44d8462acb0cb",
+        "kind": "parent PG",
+        "project": "omnis-p01-1d9f4d873b564ebfb7b8351e90f15ea7",
+        "root": "/home/kali/.hermes/cache/scratch/c3g-ozcBRrAd/db-e3c23c1195424dcc",
+        "family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "cfec3221cf603c94918f5aadab0fdad7bac680a1f6cac1ad108707cad2e0833d",
+        "kind": "parent PG",
+        "project": "omnis-p01-8f2e4bf0ea7a4e66b75530c95c0ad278",
+        "root": "/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj/db-0f90faf34c3c427d",
+        "family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "data_logs_retained": true,
+        "exact_absence": true
+      },
+      {
+        "cid": "b92fd0be5cc3085d8f79cc2e6f404aa88cacb790a541996cc577af3b8d16dcbe",
+        "kind": "parent never-started artifact attestation",
+        "exact_absence": true
+      },
+      {
+        "cid": "5e9f2a776c4f0f23e0b1e24c7f122a84fa0b0e08b01aac9c4a4f5889e6e803fc",
+        "kind": "parent never-started artifact attestation",
+        "exact_absence": true
+      },
+      {
+        "cid": "321e2f734a950b737f3f9861d88a0b3579afff0a0029654b88f7dc27d3f6e8cb",
+        "kind": "independent native QA PG",
+        "exact_absence": true
+      },
+      {
+        "cid": "6f3570efa2469f1fd3876f26110b3ec133233e2152e1c428be35634532a495ef",
+        "kind": "independent native QA PG",
+        "exact_absence": true
+      },
+      {
+        "cid": "8fa4f7e01ed97e29095929a03a2f9e1dcc3cccd5062ba94da8096de35451b016",
+        "kind": "independent native QA never-started-extraction",
+        "exact_absence": true
+      },
+      {
+        "cid": "73918e5c13273d0cf411ec214e96f3d83833c278f890823b32226b3e3c24349f",
+        "kind": "independent native QA native",
+        "exact_absence": true
+      },
+      {
+        "cid": "57c180e0d925780615d8b75ed2b3865bb7d65ef530a11261ac048fe686a5e938",
+        "kind": "independent native QA native",
+        "exact_absence": true
+      },
+      {
+        "cid": "61043395feb2169b1b9d812b61d6c9a31021cfac8c0e8c4e9a724f076816d2a1",
+        "kind": "independent native QA native",
+        "exact_absence": true
+      },
+      {
+        "cid": "62473e0ffcd2f3672e9063c3504fb1035ade7eb661d7bf87712489f843fd7ac1",
+        "kind": "independent native QA native",
+        "exact_absence": true
+      },
+      {
+        "cid": "dc39da0c9d2b92b57d2c16a7c828309db87edded1feed0c5948cc0ebd3cba970",
+        "kind": "independent native QA native",
+        "exact_absence": true
+      },
+      {
+        "cid": "2b6ca8ebd28ea493958e5d4f3e7667a33b5fdf3d317a554183bb5de90c3a8e34",
+        "kind": "independent browser QA PG",
+        "exact_absence": true
+      },
+      {
+        "cid": "88c3730b07263f96880b5fc72bfae162fe31ef03a79e23c19179edbb66f9bc13",
+        "kind": "independent browser QA PG",
+        "exact_absence": true
+      },
+      {
+        "cid": "1beb0caba48fb2ad951443e16c69acd3050d44683c5426f14265c881422d3b86",
+        "kind": "independent browser QA PG",
+        "exact_absence": true
+      }
+    ],
+    "limit": "Only resources created for C03; not foreign ALL_CLEAN; data/images/logs retained, no prune."
+  },
+  "retention": "Owned PGDATA/catalog/wheels/images/logs/captures retained. Existing fixtures drop per-test DBs; retained PGDATA is not retention of those rows. Scratch is not a durable operator backup.",
+  "worktrees": {
+    "created_from_local_HEAD": "d29dc0c95f8249f7ce106777912dc9d7293b11b5",
+    "retained": [
+      "/home/kali/.hermes/cache/scratch/c03-catalog-capture",
+      "/home/kali/.hermes/cache/scratch/c03-managed-capture"
+    ],
+    "disposition": "Owned child WIP copies are retained; intended changes were integrated byte-exact then corrected/committed in main checkout. No historical worktree adopted or cleaned."
+  },
+  "nonblocking_polish": [
+    "Existing dashboard intro wording and narrow digest wrapping/vertical scrolling; explicit unavailable status remains correct. No redesign."
+  ],
+  "not_closed": [
+    "General C03 input kinds/slots/cardinalities, unsupported procedure forms and true method execution",
+    "Remaining C04/C05 and C06-C12/H03-H08 breadth, positive child domain/tools, predicates/COMPLETE, M1/M2, Brain continuation",
+    "B06b/G02/phase2",
+    "B06c ModelProjection/G-DATA-EARLY -> B06m pre-dispatch admission/ledger -> minimal Settings via native Hermes -> P2-live with separate account/provider/model/data/budget consent"
+  ],
+  "authorization_limits": [
+    "No Omnis inference or target traffic; no fake provider/max_iterations=0/late cancellation substitute.",
+    "No r1 adoption/restart/migration/rollout, global configuration change, push/history rewrite/cron/new monitoring/autonomous continuation.",
+    "Protected original HTML excluded; raw product bug-bounty-triage remains imported/unpublished/unqualified/inactive.",
+    "configured/authenticated/reachable/inference_ready remain distinct; no Omnis model choice needed for C03.",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO.",
+    "No claim of absence of every possible gap."
+  ]
+}

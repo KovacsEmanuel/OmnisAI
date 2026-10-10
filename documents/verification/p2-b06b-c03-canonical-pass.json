@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_LOCAL_RECORDED",
+  "session": "proc_b050f9cc8a3a",
+  "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c03-20261010/home PATH=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj make check UV=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/uv",
+  "snapshot": "510a697fa77c646644f63239eec1aa98e6069835",
+  "product_snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+  "exit_code": 0,
+  "family": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "tracked_count": 705,
+  "all_tracked_bytes_unchanged": true,
+  "component_counts": {
+    "documentation": 72,
+    "development": 43,
+    "api": 1192,
+    "migrations": 23,
+    "web": 82,
+    "e2e": 9,
+    "cli_source": 287,
+    "cli_wheel": 287,
+    "installed_cli_status": 1,
+    "release": 61,
+    "runtime": 279,
+    "native_ast": 6
+  },
+  "counts_limit": "Counts are per component, not a unique product-check total.",
+  "log": "/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj/db-0f90faf34c3c427d/gate.log",
+  "log_sha256": "68639956b5e043ca748cb21d4f4d55af72cc51c7752fe6895250e1491ddcc6a2",
+  "root": "/home/kali/.hermes/cache/scratch/c3f-zGR5y5Gj/db-0f90faf34c3c427d",
+  "cid": "cfec3221cf603c94918f5aadab0fdad7bac680a1f6cac1ad108707cad2e0833d",
+  "project": "omnis-p01-8f2e4bf0ea7a4e66b75530c95c0ad278",
+  "exact_owned_cleanup": true,
+  "data_logs_retained": true,
+  "per_test_databases_dropped": true,
+  "prior_canonical": "p2-b06b-c03-canonical-fail.json remains FAIL, never relabelled"
+}

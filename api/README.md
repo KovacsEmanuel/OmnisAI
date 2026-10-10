@@ -8,6 +8,26 @@ Consumerul cere selection publicată CONTRACT_PROBE/NO_MODEL și receiptul de pr
 
 Rezultatul rămâne autentic BLOCKED/NO_MODEL, MethodCheck INCOMPLETE și consum determinist fără tur Brain. Nu metodă executată, acces child tool/read, CriterionOutcome ori Start assessment. [Registrul](../documents/verification/p2-b06b-composition.md) păstrează exactele probe/reviewuri, corecțiile UI și limitele. Paragrafele P0/P1 de mai jos sunt istoricul componentelor, nu starea integrală curentă.
 
+### C03 — input persistent pentru un singur slot CONTRACT
+
+Produsul `e60dd23` adaugă traseul privat [C03](../documents/verification/p2-b06b-c03.md), cu [review scoped](../documents/verification/p2-b06b-c03-review.json) și [QA installed](../documents/verification/p2-b06b-c03-installed.json). Este implementat și exercitat inert; închiderea completă a feliei cere separat browserul și canonicalul. Nu instalează sau migrează profilul r1, nu introduce UI/endpoint CaseSlot și nu cere alegerea unui model Omnis.
+
+Traseul nou admite template-ul `map-capture` cu unicul slot `capture`, kind `contract-case-input`, cardinalitate exact1, legat la primul pas prin selectorul `capture`. Calificarea folosește comanda privată `candidate_catalog admit-evaluation-capture` cu `schema_version:2`, owner/command IDs, `snapshot_ref` candidat exact și `value:{capture:...}`; `evaluate` schema2 cere același snapshot, `evaluation_kind:STATIC/PURE` și `input_ref` persistent. Confirmarea operatorului și Publish rămân cele existente. Releaseul păstrează CaseSlotRef, nu valorile PACKAGE_EVAL.
+
+Într-un catalog/DB private configurate explicit, consumerii instalați sunt:
+
+```sh
+python -I -B -m omnis.modules.runs.contract_inputs create-context --request <context.json> --catalog-root <private>
+python -I -B -m omnis.modules.runs.contract_inputs create-input --request <input.json> --catalog-root <private>
+python -I -B -m omnis.modules.runs.managed_admission prepare-composed --request <assignment.json> --catalog-root <private>
+```
+
+`create-context` cere exact schema1, `owner_id`, `command_id`, `selection_ref` publicată și `preparation_command_id` al pregătirii native reale; întoarce context/run refs persistente, fără Task. `create-input` cere schema1, owner/command IDs, acel `context_ref` și `input:{capture:...}`; backendul fixează schema, namespace-ul RUN, proveniența și identitatea. `read-context`/`read-input` cer schema1 și owner/command IDs ale comenzii originale. Toate refurile au kind/id/revision/digest exacte; PACKAGE_EVAL nu poate deveni input RUN.
+
+`prepare-composed` schema2 cere toate câmpurile schema1 de mai sus pentru prepare-composed, `task_count:1`, plus `context_ref` și `slot_values:[{slot_name:capture,refs:[<input_ref>]}]`. Inputul trebuie să aparțină contextului; un context primește numai assignmentul inițial. Schema1 fără slot și istoricul managed v1/v2 rămân distincte. Readback/reconcile folosesc în continuare schema1 și owner/command IDs, inclusiv pentru assignmentul nou. Aceeași cheie/payload este replay fără rebinding; alt payload este conflict.
+
+Valoarea capture este Unicode nemodificat, maximum4096bytes UTF-8; envelope-ul inputului și schema originală au maximum8192bytes. UTF-8 invalid, BOM/control neadmise, câmpuri necunoscute, refuri străine, bool ca revision, cardinalitatea greșită și depășirile agregate sunt refuzate, fără trunchiere. Context/input au tranzacții proprii; `_prepare` persistă atomic graphul assignmentului sub lockul ownerului. Composerul consumă efectiv valoarea, iar stage/release folosesc supervisorul și RuntimeClient existente, cu binding comis înainte de release. Nu există TTL nou al inputului sintetic; deadline-ul Brief și fencingul nativ rămân active. Rezultatul copilului rămâne NO_MODEL/BLOCKED, MethodCheck INCOMPLETE și `consumed_input_refs=[]`: legarea nu dovedește execuția metodei.
+
 Acesta este control plane-ul API/PostgreSQL cu supervisor **inert**, reutilizat de [comanda instalată `omnis start --no-open`](../cli/README.md). Pair/open/Stop au probe G00 locale în scope, nu certificare de release. `/health/live` reflectă procesul; `/health/ready` dă HTTP 200 numai cu DB/schema `0010_catalog_publications` compatibile, dar dashboardul cere suplimentar assets/control verificate. `assessment_ready=false`. CLI-ul corelează și identitatea containerului/peer-ului API, originul și bytes-urile asseturilor. PostgreSQL 18.6 rămâne pinul instalației probate; health nu pretinde verificarea versiunii serverului. Probele Uvicorn TCP din acest README sunt numai dezvoltare; produsul păstrează `python -I -m omnis.serve` pe UDS privat.
 
 ## P1-A/B — draftul inert și câmpurile declarative

@@ -33,6 +33,7 @@ from omnis.modules.tasks.managed_contract import (
 
 PROTOCOL = "omnis-managed-admission-v2"
 # Exact native composer source; parity test binds this to the installed producer.
+LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 COMPOSER_REVISION = "c2c9e4688e150308bd0c65b2df5b5a8ba39c532cde7ba7de807aa02201cc2079"
 PROVENANCE = [
     {
@@ -215,12 +216,15 @@ def compose(
     bound: dict[str, object],
     preparation_ref: dict[str, object],
     skills: list[dict[str, object]],
+    *,
+    case_input: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sections = [
         {"section": "base", "record": base},
         {"section": "role", "record": role},
         {"section": "brief", "record": brief},
         {"section": "method", "record": bound},
+        *([] if case_input is None else [case_input]),
         *skills,
     ]
     raw = canonical(sections)
@@ -285,7 +289,7 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
         },
     )
     if (
-        metadata["composer_revision"] != prompt_settings()["composer_revision"]
+        metadata["composer_revision"] not in {COMPOSER_REVISION, LEGACY_COMPOSER_REVISION}
         or metadata["provenance"] != PROVENANCE
         or metadata["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
     ):
@@ -305,7 +309,11 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
         metadata["max_context_tokens"], 256, 65536
     ):
         raise CatalogError("CONTEXT_OVERFLOW")
-    if not 5 <= len(sections) <= 6:
+    has_input = len(sections) > 4 and mapping(sections[4]).get("section") == "case-input"
+    version = 2 if has_input else 1
+    if (has_input and metadata["composer_revision"] != COMPOSER_REVISION) or not 5 + int(
+        has_input
+    ) <= len(sections) <= 6 + int(has_input):
         raise CatalogError("COMPOSITION_REJECTED")
     nested = []
     for section, name, kind in zip(
@@ -321,7 +329,12 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     base, role, brief, bound = nested
     brief_body = mapping(contract.validate_brief(brief)["payload"])
     contract.validate_assignment(brief, bound)
-    validate_skills(sections[4:], metadata["package_refs"])
+    skill_start = 5 if has_input else 4
+    validate_skills(sections[skill_start:], metadata["package_refs"])
+    if has_input:
+        validate_case_section(sections[4], brief, bound, sections[skill_start:])
+    elif brief_body["input_artifact_refs"] != []:
+        raise CatalogError("COMPOSITION_REJECTED")
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
     # Native preflight requires nonempty prose at these method positions.
     # Refuse the same source bytes before persistence, never strip or repair them.
@@ -337,7 +350,7 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
         text(mapping(requirement)["description"])
     method_count = sum(
         mapping(content)["path"] != "SKILL.md"
-        for skill in sections[4:]
+        for skill in sections[skill_start:]
         for content in sequence(mapping(skill)["content"])
     )
     if brief_body["technique_refs"] != [procedure["technique_ref"]] or method_count != 1:
@@ -365,11 +378,65 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
             raise CatalogError("COMPOSITION_REJECTED")
         source = mapping(mapping(manifest)["payload"])
         if (
-            header["run_id"] != source["run_id"]
+            source.get("composition_version") != version
+            or header["run_id"] != source["run_id"]
             or brief_body["execution_selection_ref"] != source["selection_ref"]
         ):
             raise CatalogError("COMPOSITION_REJECTED")
     return result
+
+
+def validate_case_section(
+    value: object, brief: dict[str, object], bound: dict[str, object], skills: list[object]
+) -> None:
+    from omnis.modules.tasks.contract_case_input import validate_material, validate_slot_values
+
+    section = mapping(value)
+    context = mapping(mapping(section["context"])["payload"])
+    validate_material(section, namespace="RUN", owner_id=text(context["owner_id"]))
+    body = mapping(brief["payload"])
+    header = mapping(body["header"])
+    bound_body = mapping(bound["payload"])
+    validate_slot_values(bound_body["slot_values"], section)
+    source = ref(records.reference(mapping(section["input"])), "contract-case-input")
+    if any(
+        context[key] != expected
+        for key, expected in (
+            ("snapshot_ref", header["snapshot_ref"]),
+            ("selection_ref", body["execution_selection_ref"]),
+            ("mission_ref", header["mission_revision"]),
+            ("focus_ref", header["focus_ref"]),
+            ("procedure_ref", bound_body["procedure_ref"]),
+        )
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    if ref(context["basis_ref"], "managed-run")["id"] != header["run_id"] or body[
+        "input_artifact_refs"
+    ] != [source]:
+        raise CatalogError("COMPOSITION_REJECTED")
+    procedure = mapping(bound_body["resolved_procedure"])
+    schema = mapping(section["schema"])
+    if procedure["input_schema_ref"] != schema["ref"] or procedure["slots"] != []:
+        raise CatalogError("COMPOSITION_REJECTED")
+    probes = sequence(procedure["probe"])
+    expected = [{"name": "capture", "source_ref": source, "selector": "capture"}]
+    if not probes or mapping(probes[0])["input_bindings"] != expected:
+        raise CatalogError("COMPOSITION_REJECTED")
+    # Bind original schema bytes to the selected package listing, not a reserialization.
+    raw = base64.b64decode(text(schema["source_b64"], 16384), validate=True)
+    matches = [
+        mapping(f)
+        for s in skills
+        if mapping(mapping(s)["package_ref"])["digest"] == ref(schema["ref"], "schema")["digest"]
+        for f in sequence(mapping(s)["files"])
+        if mapping(f)["path"] == schema["path"]
+    ]
+    if (
+        len(matches) != 1
+        or matches[0]["sha256"] != sha256(raw).hexdigest()
+        or matches[0]["size"] != len(raw)
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
 
 
 def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str, object]:
@@ -389,6 +456,9 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         validated = validate(composition, entry, checked)
         body = mapping(validated["payload"])
         nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
+        sections = sequence(load_json(text(body["text"], 65536)))
+        if mapping(checked["payload"])["composition_version"] == 2:
+            nested.extend([mapping(sections[4])["context"], mapping(sections[4])["input"]])
         for value in [body["prompt_bundle"], *nested]:
             item = mapping(value)
             if local.get(text(item["id"])) != item:

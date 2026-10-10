@@ -93,3 +93,111 @@ async def state(
     if manifest is not None:
         await get(connection, owner, str(result["run_id"]), manifest)
     return result
+
+
+async def owned(
+    connection: AsyncConnection, owner: str, reference: object
+) -> tuple[str, dict[str, object]]:
+    from omnis.modules.settings.candidate_catalog import uuid_string
+
+    checked = ref(reference)
+    row = (
+        await connection.execute(
+            sql("SELECT run_id FROM managed_record WHERE owner_id=:owner AND id=:id"),
+            {"owner": owner, "id": checked["id"]},
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        raise CatalogError("REF_UNAVAILABLE")
+    run = uuid_string(str(row))
+    return run, await get(connection, owner, run, checked)
+
+
+async def graph(connection: AsyncConnection, owner: str, run: str) -> list[dict[str, object]]:
+    rows = (
+        (
+            await connection.execute(
+                sql(
+                    "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run ORDER BY id"
+                ),
+                {"owner": owner, "run": run},
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [record(r) for r in rows]
+
+
+async def command_receipt(
+    connection: AsyncConnection, owner: str, command: str
+) -> dict[str, object]:
+    rows = (
+        (
+            await connection.execute(
+                sql(
+                    "SELECT envelope FROM managed_record WHERE owner_id=:owner AND envelope->>'kind'='contract-input-command' AND envelope->'payload'->>'command_id'=:command"
+                ),
+                {"owner": owner, "command": command},
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not rows:
+        raise CatalogError("REF_UNAVAILABLE")
+    if len(rows) != 1:
+        raise CatalogError("STORAGE_INCOMPATIBLE")
+    return record(rows[0], "contract-input-command")
+
+
+async def command_replay(
+    connection: AsyncConnection, owner: str, command: str, operation: str, request: object
+) -> dict[str, object] | None:
+    from hashlib import sha256
+
+    try:
+        receipt = await command_receipt(connection, owner, command)
+    except CatalogError as error:
+        if error.reason == "REF_UNAVAILABLE":
+            return None
+        raise
+    body = mapping(receipt["payload"])
+    if (
+        body["operation"] != operation
+        or body["request_digest"] != sha256(canonical(request)).hexdigest()
+    ):
+        raise CatalogError("COMMAND_CONFLICT")
+    result = mapping(body["result_refs"])
+    for reference in result.values():
+        await owned(connection, owner, reference)
+    return result
+
+
+async def command_complete(
+    connection: AsyncConnection,
+    owner: str,
+    run: str,
+    command: str,
+    operation: str,
+    request: object,
+    result_refs: dict[str, object],
+) -> None:
+    from hashlib import sha256
+
+    await put(
+        connection,
+        owner,
+        run,
+        catalog.envelope(
+            "contract-input-command",
+            {
+                "version": 1,
+                "owner_id": owner,
+                "command_id": command,
+                "operation": operation,
+                "request_digest": sha256(canonical(request)).hexdigest(),
+                "result_refs": result_refs,
+            },
+        ),
+    )

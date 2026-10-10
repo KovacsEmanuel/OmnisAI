@@ -24,6 +24,17 @@ CAPTURE_BINDING = {
 PRODUCER_REVISION = "contract-case-input-v1"
 
 
+def utf8_json_text(raw: bytes) -> str:
+    """Decode authored request bytes exactly; JSON must not auto-detect encodings."""
+    try:
+        value = raw.decode("utf-8", errors="strict")
+    except UnicodeError:
+        raise CatalogError("INVALID_JSON") from None
+    if value.startswith("\ufeff"):
+        raise CatalogError("INVALID_JSON")
+    return value
+
+
 def _object(value: object, fields: set[str] | None = None) -> dict[str, object]:
     if not isinstance(value, dict) or any(type(k) is not str for k in value):
         raise CatalogError("INVALID_CASE_INPUT")

@@ -20,6 +20,55 @@ BRIEF_FIELDS = set(
 RESULT_EMPTY = "observation_refs evidence_refs candidate_claims controls contradiction_refs next_clues consumed_input_refs criterion_results action_refs effect_refs cleanup_refs".split()
 
 
+def capture_slot_values(value: object) -> list[dict[str, object]]:
+    slots = sequence(value)
+    if len(slots) != 1:
+        raise CatalogError("MANAGED_REJECTED")
+    slot = exact(slots[0], {"slot_name", "refs"})
+    refs = sequence(slot["refs"])
+    if slot["slot_name"] != "capture" or len(refs) != 1:
+        raise CatalogError("MANAGED_REJECTED")
+    return [{"slot_name": "capture", "refs": [ref(refs[0], "contract-case-input")]}]
+
+
+def validate_capture_procedure(value: object, input_ref: object = None) -> None:
+    body = mapping(value)
+    if body["key"] != "map-capture" or any(
+        body[group] != [] for group in ("baseline", "control", "cleanup")
+    ):
+        raise CatalogError("UNSUPPORTED_PROCEDURE")
+    steps = sequence(body["probe"])
+    if len(steps) != 3 or len({text(mapping(s)["id"]) for s in steps}) != 3:
+        raise CatalogError("UNSUPPORTED_PROCEDURE")
+    if input_ref is None:
+        from omnis.modules.tasks.contract_case_input import require_capture_slots
+
+        require_capture_slots(body["slots"])
+        source: object = {"kind": "CASE_SLOT_REF", "name": "capture"}
+    else:
+        source = ref(input_ref, "contract-case-input")
+        if body["slots"] != []:
+            raise CatalogError("UNSUPPORTED_PROCEDURE")
+    if mapping(steps[0])["input_bindings"] != [
+        {"name": "capture", "source_ref": source, "selector": "capture"}
+    ]:
+        raise CatalogError("UNSUPPORTED_PROCEDURE")
+    for index, name in enumerate(("records", "operations"), 1):
+        expected = [
+            {
+                "name": name,
+                "source_ref": {
+                    "kind": "STEP_OUTPUT",
+                    "step_id": mapping(steps[index - 1])["id"],
+                    "output_name": name,
+                },
+                "selector": None,
+            }
+        ]
+        if mapping(steps[index])["input_bindings"] != expected:
+            raise CatalogError("UNSUPPORTED_PROCEDURE")
+
+
 def resolve_local(value: object, package: str, bindings: list[dict[str, object]]) -> object:
     if isinstance(value, dict):
         if value.get("kind") == "LOCAL":
@@ -55,13 +104,16 @@ def build_records(
     recipe_limits: Limits | None = None,
     *,
     composition_packages: list[dict[str, object]] | None = None,
+    context_only: bool = False,
+    prefix: list[dict[str, object]] | None = None,
+    case_input: dict[str, object] | None = None,
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
     if (
         role not in {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
         or procedure.verification_kind != "CONTRACT"
-        or procedure.slots
+        or (procedure.slots and not context_only and case_input is None)
         or procedure.preconditions
         or procedure.requested_capabilities
         or procedure.identity_requirements
@@ -79,7 +131,7 @@ def build_records(
     if len({r.key for r in procedure.method_requirements}) != len(procedure.method_requirements):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     source = mapping(selection["payload"])
-    graph: list[dict[str, object]] = []
+    graph: list[dict[str, object]] = [] if prefix is None else [record(r) for r in prefix]
 
     def add(kind: str, body: dict[str, object]) -> dict[str, object]:
         item = records.envelope(kind, body)
@@ -87,142 +139,229 @@ def build_records(
         graph.append(item)
         return records.reference(item)
 
-    # Core installed action descriptors are local records, not catalog writes.
     local_bindings = list(bindings)
-    for handler in HANDLERS:
-        action = add(
-            "action_definition",
-            {
-                "handler_id": handler,
-                "execution_class": "PURE",
-                "allowed_capability_ids": [],
-                "dispatch_permitted": False,
-            },
-        )
-        local_bindings.append(
-            {
-                "package_key": package,
-                "entity_kind": "action_definition",
-                "key": handler,
-                "ref": action,
-            }
-        )
-    resolved = mapping(resolve_local(procedure.model_dump(mode="json"), package, local_bindings))
-    policy = add(
-        "probe-policy",
-        {
-            "purpose": "CONTRACT_PROBE",
-            "target_actions": 0,
-            "model_calls": 0,
-            "allowed_capability_ids": [],
-        },
-    )
-    scope = add(
-        "probe-scope",
-        {
-            "target_operation_refs": [],
-            "description": "Synthetic managed-admission contract only; no target access.",
-        },
-    )
-    rule = add("focus-selection-rule", {"key": "contract-probe.no-target", "operation_refs": []})
-    criterion = str(uuid4())
-    mission = add(
-        "mission",
-        {
-            "snapshot_ref": source["snapshot_ref"],
-            "assessment_mode": "FULL_ASSESSMENT",
-            "summary": procedure.objective,
-            "criteria": [
+    if prefix is None:
+        # Core installed action descriptors are local records, not catalog writes.
+        local_bindings = list(bindings)
+        for handler in HANDLERS:
+            action = add(
+                "action_definition",
                 {
-                    "id": criterion,
-                    "description": "Record a native NO_MODEL refusal without executing the method.",
-                    "kind": "FUNCTIONAL",
-                    "oracle_ref": None,
+                    "handler_id": handler,
+                    "execution_class": "PURE",
+                    "allowed_capability_ids": [],
+                    "dispatch_permitted": False,
+                },
+            )
+            local_bindings.append(
+                {
+                    "package_key": package,
+                    "entity_kind": "action_definition",
+                    "key": handler,
+                    "ref": action,
                 }
-            ],
-            "non_goals": ["No assessment, method success, provider or target traffic."],
-            "required_operation_refs": [],
-            "basis_refs": [records.reference(selection), preparation_ref],
-            "gaps": ["NO_MODEL; method execution unavailable."],
-            "done_when": [{"criterion_id": criterion, "required": True}],
-        },
-    )
-    focus = add(
-        "focus",
-        {
-            "mission_ref": mission,
-            "state": "BLOCKED",
-            "selection_rule_ref": rule,
-            "bootstrap_budget_ref": None,
-            "test_operation_refs": [],
-            "support_operation_refs": [],
-            "discovery_bootstrap": {"seed_refs": [], "max_actions": 0, "deadline_seconds": 0},
-            "excluded_operation_refs": [],
-            "scope_ref": scope,
-            "policy_ref": policy,
-            "reason": "CONTRACT_PROBE NO_MODEL; no target operations admitted.",
-        },
-    )
-    code_digest = sha256(read_file(Path(__file__))).hexdigest()
-    checker = add(
-        "method-checker",
-        {
-            "key": "managed.no-model",
-            "code_digest": code_digest,
-            "semantics": "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
-        },
-    )
-    base = add(
-        "prompt-content",
-        {
-            "text": "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
-        },
-    )
-    role_ref = add(
-        "prompt-content",
-        {"role": role, "text": "SUPPORT-only cold admission probe; not an assessment."},
-    )
-    prompt = add(
-        "prompt-bundle",
-        {
-            "base_ref": base,
-            "role_refs": [{"role": role, "content_ref": role_ref}],
-            "composer_revision": code_digest,
-            "brief_schema": 1,
-            "result_schema": 1,
-            "package_refs": source["selected_package_refs"],
-            "max_context_bytes": 65536,
-            "max_context_tokens": 65536,
-            "tokenizer_revision": "utf8-byte-upper-bound-v1",
-            "provenance": [],
-            **({} if composition_packages is None else _composition_settings()),
-        },
-    )
-    run = add(
-        "managed-run",
-        {
-            "purpose": "CONTRACT_PROBE",
-            "snapshot_ref": source["snapshot_ref"],
-            "selection_ref": records.reference(selection),
-            "mission_ref": mission,
-            "focus_ref": focus,
-            "policy_ref": policy,
-            "scope_ref": scope,
-            "prompt_bundle_ref": prompt,
-            "method_check_ref": checker,
-            "preparation_receipt_ref": preparation_ref,
-            "method_review_policy": {
-                "mode": "CHECK_ONLY",
-                "required_for_roles": [],
-                "reviewer_recipe_key": None,
-                "max_rework_rounds": 0,
+            )
+        policy = add(
+            "probe-policy",
+            {
+                "purpose": "CONTRACT_PROBE",
+                "target_actions": 0,
+                "model_calls": 0,
+                "allowed_capability_ids": [],
             },
-        },
-    )
-    cursor = add(
-        "managed-cursor",
-        {"run_id": run["id"], "mission_ref": mission, "focus_ref": focus, "sequence": 1},
-    )
+        )
+        scope = add(
+            "probe-scope",
+            {
+                "target_operation_refs": [],
+                "description": "Synthetic managed-admission contract only; no target access.",
+            },
+        )
+        rule = add(
+            "focus-selection-rule", {"key": "contract-probe.no-target", "operation_refs": []}
+        )
+        criterion = str(uuid4())
+        mission = add(
+            "mission",
+            {
+                "snapshot_ref": source["snapshot_ref"],
+                "assessment_mode": "FULL_ASSESSMENT",
+                "summary": procedure.objective,
+                "criteria": [
+                    {
+                        "id": criterion,
+                        "description": "Record a native NO_MODEL refusal without executing the method.",
+                        "kind": "FUNCTIONAL",
+                        "oracle_ref": None,
+                    }
+                ],
+                "non_goals": ["No assessment, method success, provider or target traffic."],
+                "required_operation_refs": [],
+                "basis_refs": [records.reference(selection), preparation_ref],
+                "gaps": ["NO_MODEL; method execution unavailable."],
+                "done_when": [{"criterion_id": criterion, "required": True}],
+            },
+        )
+        focus = add(
+            "focus",
+            {
+                "mission_ref": mission,
+                "state": "BLOCKED",
+                "selection_rule_ref": rule,
+                "bootstrap_budget_ref": None,
+                "test_operation_refs": [],
+                "support_operation_refs": [],
+                "discovery_bootstrap": {"seed_refs": [], "max_actions": 0, "deadline_seconds": 0},
+                "excluded_operation_refs": [],
+                "scope_ref": scope,
+                "policy_ref": policy,
+                "reason": "CONTRACT_PROBE NO_MODEL; no target operations admitted.",
+            },
+        )
+        code_digest = sha256(read_file(Path(__file__))).hexdigest()
+        checker = add(
+            "method-checker",
+            {
+                "key": "managed.no-model",
+                "code_digest": code_digest,
+                "semantics": "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
+            },
+        )
+        base = add(
+            "prompt-content",
+            {
+                "text": "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
+            },
+        )
+        role_ref = add(
+            "prompt-content",
+            {"role": role, "text": "SUPPORT-only cold admission probe; not an assessment."},
+        )
+        prompt = add(
+            "prompt-bundle",
+            {
+                "base_ref": base,
+                "role_refs": [{"role": role, "content_ref": role_ref}],
+                "composer_revision": code_digest,
+                "brief_schema": 1,
+                "result_schema": 1,
+                "package_refs": source["selected_package_refs"],
+                "max_context_bytes": 65536,
+                "max_context_tokens": 65536,
+                "tokenizer_revision": "utf8-byte-upper-bound-v1",
+                "provenance": [],
+                **({} if composition_packages is None else _composition_settings()),
+            },
+        )
+        run = add(
+            "managed-run",
+            {
+                "purpose": "CONTRACT_PROBE",
+                "snapshot_ref": source["snapshot_ref"],
+                "selection_ref": records.reference(selection),
+                "mission_ref": mission,
+                "focus_ref": focus,
+                "policy_ref": policy,
+                "scope_ref": scope,
+                "prompt_bundle_ref": prompt,
+                "method_check_ref": checker,
+                "preparation_receipt_ref": preparation_ref,
+                "method_review_policy": {
+                    "mode": "CHECK_ONLY",
+                    "required_for_roles": [],
+                    "reviewer_recipe_key": None,
+                    "max_rework_rounds": 0,
+                },
+            },
+        )
+        cursor = add(
+            "managed-cursor",
+            {"run_id": run["id"], "mission_ref": mission, "focus_ref": focus, "sequence": 1},
+        )
+    else:
+
+        def retained(kind: str) -> dict[str, object]:
+            matches = [r for r in graph if r["kind"] == kind]
+            if len(matches) != 1:
+                raise CatalogError("REF_UNAVAILABLE")
+            return records.reference(matches[0])
+
+        run, mission, focus, prompt, cursor = (
+            retained(k)
+            for k in ("managed-run", "mission", "focus", "prompt-bundle", "managed-cursor")
+        )
+        run_body = mapping(next(r for r in graph if r["id"] == run["id"])["payload"])
+        if (
+            run_body["selection_ref"] != records.reference(selection)
+            or run_body["preparation_receipt_ref"] != preparation_ref
+        ):
+            raise CatalogError("REF_MISMATCH")
+        metadata = mapping(next(r for r in graph if r["id"] == prompt["id"])["payload"])
+        base = ref(metadata["base_ref"], "prompt-content")
+        role_ref = ref(mapping(sequence(metadata["role_refs"])[0])["content_ref"], "prompt-content")
+        for action in (r for r in graph if r["kind"] == "action_definition"):
+            local_bindings.append(
+                {
+                    "package_key": package,
+                    "entity_kind": "action_definition",
+                    "key": mapping(action["payload"])["handler_id"],
+                    "ref": records.reference(action),
+                }
+            )
+    if context_only:
+        validate_capture_procedure(procedure.model_dump(mode="json"))
+        return graph
+    authored = procedure.model_dump(mode="json")
+    slot_values: list[dict[str, object]] = []
+    input_refs: list[object] = []
+    if case_input is not None:
+        from omnis.modules.tasks.contract_case_input import require_capture_slots, validate_material
+        from omnis.modules.tasks.contract_case_input import slot_values as material_slots
+
+        owner = text(mapping(mapping(case_input["context"])["payload"])["owner_id"])
+        validate_material(case_input, namespace="RUN", owner_id=owner)
+        require_capture_slots(authored["slots"])
+        validate_capture_procedure(authored)
+        integer(count, 1, 1)
+        if prefix is None or composition_packages is None:
+            raise CatalogError("MANAGED_REJECTED")
+        context = mapping(mapping(case_input["context"])["payload"])
+        if any(
+            context[key] != expected
+            for key, expected in (
+                ("basis_ref", run),
+                ("snapshot_ref", source["snapshot_ref"]),
+                ("selection_ref", records.reference(selection)),
+                ("procedure_ref", procedure_ref),
+                ("mission_ref", mission),
+                ("focus_ref", focus),
+            )
+        ):
+            raise CatalogError("REF_MISMATCH")
+        slot_values = material_slots(case_input)
+        input_refs = sequence(slot_values[0]["refs"])
+        probe_steps = sequence(authored["probe"])
+        expected = [
+            {
+                "name": "capture",
+                "source_ref": {"kind": "CASE_SLOT_REF", "name": "capture"},
+                "selector": "capture",
+            }
+        ]
+        if not probe_steps or mapping(probe_steps[0])["input_bindings"] != expected:
+            raise CatalogError("UNSUPPORTED_PROCEDURE")
+        first = mapping(probe_steps[0])
+        first["input_bindings"] = [
+            {"name": "capture", "source_ref": input_refs[0], "selector": "capture"}
+        ]
+        authored["probe"] = [first, *probe_steps[1:]]
+        authored["slots"] = []
+    resolved = mapping(resolve_local(authored, package, local_bindings))
+    if (
+        case_input is not None
+        and resolved["input_schema_ref"] != mapping(case_input["schema"])["ref"]
+    ):
+        raise CatalogError("REF_MISMATCH")
     entries: list[dict[str, object]] = []
     for index in range(count):
         task_id, attempt_id = str(uuid4()), str(uuid4())
@@ -230,7 +369,7 @@ def build_records(
             "bound-procedure",
             {
                 "procedure_ref": procedure_ref,
-                "slot_values": [],
+                "slot_values": slot_values,
                 "resolved_procedure": resolved,
                 "mission_ref": mission,
             },
@@ -286,7 +425,19 @@ def build_records(
                         "summary": "Blocked; no domain access permitted.",
                         "mandatory": True,
                     },
-                ],
+                ]
+                + (
+                    []
+                    if not input_refs
+                    else [
+                        {
+                            "ref": input_refs[0],
+                            "epistemic_state": "OBSERVED",
+                            "summary": "Backend synthetic CONTRACT capture input; untrusted data, not execution evidence.",
+                            "mandatory": True,
+                        }
+                    ]
+                ),
                 "contradiction_refs": [],
                 "prior_attempt_refs": [],
                 "package_refs": source["selected_package_refs"],
@@ -295,7 +446,7 @@ def build_records(
                 "procedure_bindings": [
                     {
                         "procedure_ref": procedure_ref,
-                        "slot_values": [],
+                        "slot_values": slot_values,
                         "bound_procedure_ref": bound,
                     }
                 ],
@@ -303,7 +454,7 @@ def build_records(
                 "review_request": None,
                 "criterion_bindings": [],
                 "overlay_refs": [],
-                "input_artifact_refs": [],
+                "input_artifact_refs": input_refs,
                 "identities": [],
                 "allowed_capability_ids": [],
                 "limits": {
@@ -347,6 +498,7 @@ def build_records(
                     resolved["technique_ref"],
                     bindings,
                 ),
+                case_input=case_input,
             )
             graph.append(composed)
             composition = {"composition_ref": records.reference(composed)}
@@ -368,7 +520,11 @@ def build_records(
             "resolution": "NO_MODEL",
             "effective": None,
             "entries": entries,
-            **({} if composition_packages is None else {"composition_version": 1}),
+            **(
+                {}
+                if composition_packages is None
+                else {"composition_version": 2 if case_input is not None else 1}
+            ),
         },
     )
     validate_manifest(graph[-1])
@@ -447,7 +603,6 @@ def validate_brief(value: object) -> dict[str, object]:
         "prior_attempt_refs",
         "criterion_bindings",
         "overlay_refs",
-        "input_artifact_refs",
         "identities",
         "allowed_capability_ids",
         "stop_conditions",
@@ -490,7 +645,12 @@ def validate_brief(value: object) -> dict[str, object]:
     integer(reserve["actions"], 0, 0)
     integer(reserve["seconds"], 0, 0)
     contexts = sequence(body["context"])
-    if len(contexts) != 2:
+    inputs = sequence(body["input_artifact_refs"])
+    if inputs:
+        if len(inputs) != 1:
+            raise CatalogError("MANAGED_REJECTED")
+        ref(inputs[0], "contract-case-input")
+    if len(contexts) != (3 if inputs else 2):
         raise CatalogError("MANAGED_REJECTED")
     for item in contexts:
         context = exact(item, {"ref", "epistemic_state", "summary", "mandatory"})
@@ -504,7 +664,12 @@ def validate_brief(value: object) -> dict[str, object]:
     binding = exact(bindings[0], {"procedure_ref", "slot_values", "bound_procedure_ref"})
     ref(binding["procedure_ref"], "procedure")
     bound = ref(binding["bound_procedure_ref"], "bound-procedure")
-    if binding["slot_values"] != [] or body["procedure_refs"] != [binding["procedure_ref"]]:
+    slots = capture_slot_values(binding["slot_values"]) if inputs else []
+    if (
+        binding["slot_values"] != slots
+        or (inputs and slots[0]["refs"] != inputs)
+        or body["procedure_refs"] != [binding["procedure_ref"]]
+    ):
         raise CatalogError("MANAGED_REJECTED")
     header = exact(
         body["header"],
@@ -614,17 +779,27 @@ def validate_assignment(brief: object, bound: object) -> None:
     bound_ref = records.reference(bound_record)
     expected_binding = {
         "procedure_ref": bound_body["procedure_ref"],
-        "slot_values": [],
+        "slot_values": bound_body["slot_values"],
         "bound_procedure_ref": bound_ref,
     }
-    if (
-        canonical(body["procedure_bindings"]) != canonical([expected_binding])
-        or bound_body["slot_values"] != []
-        or canonical(bound_body["mission_ref"])
-        != canonical(mapping(body["header"])["mission_revision"])
-    ):
+    if canonical(body["procedure_bindings"]) != canonical([expected_binding]) or canonical(
+        bound_body["mission_ref"]
+    ) != canonical(mapping(body["header"])["mission_revision"]):
         raise CatalogError("ASSIGNMENT_MISMATCH")
     procedure = mapping(bound_body["resolved_procedure"])
+
+    def contains_case_ref(value: object) -> bool:
+        if isinstance(value, dict):
+            return value.get("kind") == "contract-case-input" or any(
+                contains_case_ref(v) for v in value.values()
+            )
+        return isinstance(value, list) and any(contains_case_ref(v) for v in value)
+
+    if not bound_body["slot_values"] and contains_case_ref(procedure):
+        raise CatalogError("ASSIGNMENT_MISMATCH")
+    if bound_body["slot_values"]:
+        slots = capture_slot_values(bound_body["slot_values"])
+        validate_capture_procedure(procedure, sequence(slots[0]["refs"])[0])
     requirements = sequence(procedure["method_requirements"])
     expected = [
         {
@@ -641,6 +816,7 @@ def validate_assignment(brief: object, bound: object) -> None:
     if [mapping(c)["ref"] for c in sequence(body["context"])] != [
         header["mission_revision"],
         header["focus_ref"],
+        *sequence(body["input_artifact_refs"]),
     ]:
         raise CatalogError("ASSIGNMENT_MISMATCH")
 
@@ -767,13 +943,13 @@ def validate_manifest(value: object) -> dict[str, object]:
         | ({"composition_version"} if composed else set()),
     )
     if composed:
-        integer(body["composition_version"], 1, 1)
+        integer(body["composition_version"], 1, 2)
     uuid_string(body["run_id"])
     ref(body["selection_ref"], "execution-selection")
     if body["resolution"] != "NO_MODEL" or body["effective"] is not None:
         raise CatalogError("MANAGED_REJECTED")
     entries = sequence(body["entries"])
-    if not 1 <= len(entries) <= 2:
+    if not 1 <= len(entries) <= (1 if body.get("composition_version") == 2 else 2):
         raise CatalogError("MANAGED_REJECTED")
     identities: set[str] = set()
     for index, raw in enumerate(entries):

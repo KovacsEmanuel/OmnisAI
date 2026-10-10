@@ -1126,12 +1126,16 @@ class CandidateCatalog:
 
 
 def load_request(raw: bytes) -> object:
+    from omnis.modules.tasks.contract_case_input import utf8_json_text
+
+    source = utf8_json_text(raw)
+
     def reject_number(value: str) -> NoReturn:
         raise CatalogError("INVALID_REQUEST")
 
     try:
         return json.loads(
-            raw, object_pairs_hook=pairs, parse_float=reject_number, parse_constant=reject_number
+            source, object_pairs_hook=pairs, parse_float=reject_number, parse_constant=reject_number
         )
     except CatalogError:
         raise

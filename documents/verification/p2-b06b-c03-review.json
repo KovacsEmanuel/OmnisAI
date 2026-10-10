@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT_COORDINATOR",
+  "verdict": "APPROVED_SCOPED_COMPOSITE_CODE",
+  "product_snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+  "scope": "C03 bounded capture qualification/persistence/composition; installed/browser/canonical still pending, not product closure",
+  "reports": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r1-review-55l3_3g3/report.json",
+      "sha256": "d6b1ff87e6728ffbc38eb47ce2c1b8a6202ed97fbd73f86623ebff09fbc30637",
+      "verdict": "APPROVED_SCOPED",
+      "snapshot": "fd1d1490c29aece5fcd7481f5820eb76ebe11949"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-reviewer2-fd1d149/report.json",
+      "sha256": "c950937528af20277778c04e3c9b965234daabb4a28c68e01e21ccb091c89667",
+      "verdict": "CHANGES_REQUESTED",
+      "snapshot": "fd1d1490c29aece5fcd7481f5820eb76ebe11949"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r1-rereview-5e1l3dcn/report.json",
+      "sha256": "1d0b3a2c79eeb163f079e4675f441cfd28379a96d3abf7b6467e5c4e571b2063",
+      "verdict": "APPROVED_SCOPED",
+      "snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/c03-reviewer2-e60dd23/report.json",
+      "sha256": "18591af50f5682684637bf19218b4984aa79aa0d82e3fedbd70954db81998200",
+      "verdict": "APPROVED_SCOPED",
+      "snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f"
+    }
+  ],
+  "original_findings": [
+    {
+      "id": "C03-R2-01",
+      "severity": "MEDIUM / P2",
+      "blocking": true,
+      "title": "Native C03 accepts a contract-case-input envelope larger than the explicit 8192-byte producer limit",
+      "location": {
+        "file": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "lines": [
+          408,
+          409,
+          474,
+          498
+        ]
+      },
+      "related_locations": [
+        {
+          "file": "api/src/omnis/modules/tasks/contract_case_input.py",
+          "lines": [
+            194,
+            195,
+            253,
+            254
+          ]
+        },
+        {
+          "file": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+          "lines": [
+            14,
+            25,
+            70,
+            97
+          ]
+        },
+        {
+          "file": "integrations/hermes/upstream/omnis-managed.patch",
+          "lines": [
+            93,
+            103,
+            122,
+            150
+          ]
+        }
+      ],
+      "reproducer": {
+        "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/c03-reviewer2-fd1d149/reproduce.py",
+        "cwd": "/home/kali/OmnisAI",
+        "stronger_API_origin_command_file": "/home/kali/.hermes/cache/scratch/c03-reviewer2-fd1d149/api-origin-command.txt",
+        "steps": [
+          "Obtain the real producer positive with capture_graph() and stage_payload(); native validate_stage accepts it unchanged.",
+          "Deep-copy the generated stage, replace case-input.input.payload.value.capture with 3800 TAB characters, and independently reseal context/input/BoundProcedure/Brief/composition/manifest using the existing relink helper. No limit, schema or native validator is patched.",
+          "Compare API validate_material/produce_input and the native public validate_stage on those fully correlated bytes."
+        ],
+        "observed": {
+          "case": "API_origin_stage_independently_resealed_tabs",
+          "native": {
+            "accepted": true
+          },
+          "api_material": {
+            "accepted": false,
+            "error": "CatalogError",
+            "reason": "CASE_INPUT_LIMIT"
+          },
+          "frame_bytes": 32307,
+          "input_bytes": 8399
+        },
+        "independent_native_fixture_observed": {
+          "case": "envelope_overflow",
+          "capture_bytes": 3800,
+          "value_bytes": 7614,
+          "input_envelope_bytes": 8399,
+          "frame_bytes": 30680,
+          "producer": {
+            "accepted": false,
+            "error": "CatalogError",
+            "reason": "CASE_INPUT_LIMIT"
+          },
+          "api_material": {
+            "accepted": false,
+            "error": "CatalogError",
+            "reason": "CASE_INPUT_LIMIT"
+          },
+          "native_stage": {
+            "accepted": true
+          }
+        }
+      },
+      "violated_criterion": "Delegated C03 contract: input envelope <=8192 bytes and native independent same-bytes rejection before cold child construction. API producer and API material validator enforce this cap, but native only checks capture bytes (4096), value bytes (8192), and the generic envelope/frame cap (32768).",
+      "impact": "The independent native pre-constructor validator admits an input record that the actual backend producer forbids. Fully resealed API-origin frame is 32307 bytes, so the separate 32768-byte frame cap does not compensate. This is a contract/defense-in-depth defect, not evidence of a working model/target or an unauthenticated external exploit.",
+      "minimal_fix": "In _capture_material explicitly reject len(canonical(input_record)) > 8192 before returning. Add the 3800-TAB envelope-overflow negative and a below-cap positive through validate_stage, including a generated API-origin composition. Update composer SHA/pin and requalify/rebuild only as required by the changed artifact closure.",
+      "proof_boundary": "Real source producer and real native adapter validators; native installed AIAgent construction was not run. Static pinned patch shows validate_stage is the pre-constructor guard at dispatch and SubagentLifecycleService.stage."
+    }
+  ],
+  "original_nonblocking": [
+    {
+      "id": "C03-R2-N01",
+      "severity": "LOW",
+      "title": "Native accepts a noncanonical base64 spelling rejected by the API",
+      "file": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "lines": [
+        451,
+        456
+      ],
+      "observed": {
+        "case": "API_origin_base64_alias",
+        "original_padding": 2,
+        "native": {
+          "accepted": true
+        },
+        "api_material": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "INVALID_CASE_INPUT_SCHEMA"
+        }
+      },
+      "reproducer": "Use the API-origin schema source_b64 (two padding characters); flip the least significant pad bit of the final non-padding base64 character. Decoding produces identical schema bytes. Reseal via relink and compare native validate_stage with API validate_material.",
+      "criterion": "Producer/native accepted-language parity with the explicit base64 round-trip check in contract_case_input.py:225-228.",
+      "limit": "Not counted as a release blocker independently: original decoded schema bytes, digest and size are unchanged. It is not schema substitution or a demonstrated authority escalation.",
+      "minimal_fix": "Mirror base64.b64encode(raw).decode(\"ascii\") == source_b64 in native validation, or explicitly document why the native language intentionally permits aliases."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "C03-R2-01",
+      "original_severity": "MEDIUM / P2",
+      "original_blocking": true,
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "blocking_now": false,
+      "fix_location": "integrations/hermes/src/omnis_hermes/prompt_bundle.py:409-411",
+      "implementation": "Reject canonical input_record envelope sizes above 8192 immediately after envelope validation, before payload/body handling. Existing capture/value/schema/frame caps are unchanged.",
+      "test_location": "api/tests/test_c03_native_limits.py:31-49",
+      "same_channel_evidence": [
+        "Original API-origin fully resealed 3800-TAB case: input 8399 bytes, frame 32307; native now refuses ValueError / Invalid prompt composition. Actual API producer, material validator and composition validator refuse CASE_INPUT_LIMIT.",
+        "Actual producer 3600-TAB positive: input 7999, frame 31732; producer, API material, API composition and native all accept.",
+        "Independent exact boundary: 8192-byte record is accepted by all four checks; 8193-byte record is rejected by all four, with frame sizes 31996 and 31998 respectively.",
+        "Original synthetic native-fixture overflow also now refuses; unchanged ordinary positive, NUL and Unicode overflow controls retain their expected outcomes."
+      ],
+      "red_evidence": "Original snapshot defect established in original report. Parent reports corrected DID NOT RAISE RED after an initial mapping-copy oracle failure; this review did not rerun historical bytes or overwrite that history.",
+      "closure_limit": "Source validate_stage boundary exercised, not installed AIAgent constructor or deployed image."
+    },
+    {
+      "id": "C03-R2-N01",
+      "original_severity": "LOW",
+      "original_blocking": false,
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "blocking_now": false,
+      "fix_location": "integrations/hermes/src/omnis_hermes/prompt_bundle.py:454-459",
+      "implementation": "Require strict decoded schema bytes to re-encode to the exact source_b64 spelling; no normalization or silent substitution.",
+      "test_location": "api/tests/test_c03_native_limits.py:52-76",
+      "same_channel_evidence": [
+        "Original API-origin padded schema: altered final non-padding character pad bit, confirmed different spelling but identical decoded bytes, independently resealed the entire existing stage.",
+        "Native rejects Invalid prompt composition; API material and composition reject INVALID_CASE_INPUT_SCHEMA. Canonical original is accepted on the same generated API-origin channel.",
+        "Every independent matrix case preserves canonical stage bytes before/after validation."
+      ],
+      "closure_limit": "This re-review closes the specific accepted-language mismatch; no schema substitution or authority exploit was claimed originally or now."
+    }
+  ],
+  "parent_reproduction": {
+    "C03-R2-01": "Corrected API-origin test RED DID NOT RAISE; initial Mapping-copy size assertion was a test-oracle failure retained in commit f0ddf93. Minimal native8192 guard, paired pin, GREEN.",
+    "C03-R2-N01": "API-origin pad-bit alias confirmed identical decoded bytes; RED DID NOT RAISE, minimal round-trip equality guard, paired pin, GREEN."
+  },
+  "focused_independent_matrix": [
+    {
+      "case": "original_API_producer_positive",
+      "expected_acceptance": true,
+      "input_bytes": 822,
+      "frame_bytes": 20955,
+      "capture_bytes": 23,
+      "results": {
+        "native": {
+          "accepted": true
+        },
+        "api_material": {
+          "accepted": true
+        },
+        "api_composition": {
+          "accepted": true
+        },
+        "producer": {
+          "accepted": true
+        }
+      },
+      "bytes_unchanged": true
+    },
+    {
+      "case": "API_producer_3600_tabs_positive",
+      "expected_acceptance": true,
+      "input_bytes": 7999,
+      "frame_bytes": 31732,
+      "capture_bytes": 3600,
+      "results": {
+        "native": {
+          "accepted": true
+        },
+        "api_material": {
+          "accepted": true
+        },
+        "api_composition": {
+          "accepted": true
+        },
+        "producer": {
+          "accepted": true
+        }
+      },
+      "bytes_unchanged": true
+    },
+    {
+      "case": "original_API_origin_3800_tabs",
+      "expected_acceptance": false,
+      "input_bytes": 8399,
+      "frame_bytes": 32307,
+      "capture_bytes": 3800,
+      "results": {
+        "native": {
+          "accepted": false,
+          "error": "ValueError",
+          "reason": "Invalid prompt composition"
+        },
+        "api_material": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        },
+        "api_composition": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        },
+        "producer": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        }
+      },
+      "bytes_unchanged": true
+    },
+    {
+      "case": "exact_8192",
+      "expected_acceptance": true,
+      "input_bytes": 8192,
+      "frame_bytes": 31996,
+      "capture_bytes": 3697,
+      "results": {
+        "native": {
+          "accepted": true
+        },
+        "api_material": {
+          "accepted": true
+        },
+        "api_composition": {
+          "accepted": true
+        },
+        "producer": {
+          "accepted": true
+        }
+      },
+      "bytes_unchanged": true
+    },
+    {
+      "case": "exact_8193",
+      "expected_acceptance": false,
+      "input_bytes": 8193,
+      "frame_bytes": 31998,
+      "capture_bytes": 3697,
+      "results": {
+        "native": {
+          "accepted": false,
+          "error": "ValueError",
+          "reason": "Invalid prompt composition"
+        },
+        "api_material": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        },
+        "api_composition": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        },
+        "producer": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "CASE_INPUT_LIMIT"
+        }
+      },
+      "bytes_unchanged": true
+    },
+    {
+      "case": "original_API_origin_base64_padbit_alias",
+      "expected_acceptance": false,
+      "input_bytes": 822,
+      "frame_bytes": 20930,
+      "capture_bytes": 23,
+      "results": {
+        "native": {
+          "accepted": false,
+          "error": "ValueError",
+          "reason": "Invalid prompt composition"
+        },
+        "api_material": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "INVALID_CASE_INPUT_SCHEMA"
+        },
+        "api_composition": {
+          "accepted": false,
+          "error": "CatalogError",
+          "reason": "INVALID_CASE_INPUT_SCHEMA"
+        }
+      },
+      "bytes_unchanged": true,
+      "decoded_schema_identical": true,
+      "padding_count": 2
+    }
+  ],
+  "parent_checks": {
+    "api_origin_and_pin_parity": {
+      "tests": 3,
+      "exit_code": 0
+    },
+    "runtime": {
+      "tests": 279,
+      "ast_tests": 6,
+      "exit_code": 0
+    },
+    "api_lint_type_and_native_lint_format_type": "EXIT_0",
+    "final_targeted_pg": {
+      "session": "proc_6e2e1abfbf8d",
+      "tests": 3,
+      "seconds": 61.39,
+      "exit_code": 0,
+      "family_drained": true
+    }
+  },
+  "pending": [
+    "Independent installed C03 native pre-constructor and lifecycle",
+    "Old-artifact managed v1/v2 historical readback",
+    "Independent installed live browser",
+    "Final canonical make check and owned cleanup"
+  ],
+  "limits": [
+    "Review scopes are complementary, not proof of every possible defect absence.",
+    "No inference, target, warm child access, COMPLETE, Brain turn, B06b/G02 or phase2 closure.",
+    "Original CHANGES_REQUESTED and failing probe attempts are retained."
+  ]
+}

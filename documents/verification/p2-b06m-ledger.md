@@ -1,5 +1,7 @@
 # B06m — checkpoint contabil, nu G-MODEL
 
+**Stare curentă după continuarea serială:** READY_FOR_INTEGRATION accounting-only și READY_FOR_NEXT_HOLDER_INTEGRATION. [Proba PG finală](p2-b06m-pg-final.json) consemnează parent și QA independentă pe biblioteca sursă reală: 33 PASS fiecare (aceleași 23 unit + 10 PG, nu 66 teste unice), exit0/family_drained, inputuri fixate și cleanup exact. Secțiunile inițiale de mai jos păstrează cronologia PG_NOT_RUN, nu starea curentă a acestor zece criterii. Native/projection/fullSDK/installed consumer/Settings rămân NOT_INTEGRATED; SL11 PARTIAL și faza2 NOT_CLOSED.
+
 ## Livrat și nelivrat
 
 Sursa inițială: `ae22022`. `policy/budgets.py` livrează nucleul PostgreSQL al ledgerului în schema0011 existentă: un buget per owner/run, carve-out VALIDATION în total, rezervare imuabilă, tranziții și receipturi append-only. Blocarea tranzacțională folosește ownerul managed și scope-ul runului. Funcțiile nu fac commit, nu trimit date, nu autentifică un tur și nu emit permis de send.
@@ -42,4 +44,12 @@ După ultima editare de produs: **23 teste offline PASS, exit0**, Ruff lint/form
 
 Două re-reviewuri independente **APPROVED_SCOPED** pe snapshotul exact `b46391f6e3f2ad84e601b998c226b94912b334bf`, numai ledgerul intern/F1/F2: `/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-0.log` și `task-1.log`. Ambii au rerulat 23 teste cu exit0. Părintele a verificat diff gol pentru cele patru fișiere față de snapshotul revizuit. Aceste aprobări nu certifică PostgreSQL, admission, B06c, Settings sau bariera pre-send.
 
-Predare **READY_FOR_INSTALLED_QA numai pentru ledgerul contabil; SL11 PARTIAL și native BLOCKED_NATIVE_SEAM**. QA independentă a consumerului PG/nativ rămâne NOT_RUN până la resursele seriale și implementarea connectorului. Interfața contabilă este FROZEN; contractul B06c observat rămâne PROPOSED, dependency commit null. Nu s-au creat DB/containere/native processes; venvul și sursele exacte de pin din scratch sunt păstrate. Main, B06c, profilul r1 și documentul protejat au rămas neatinse. Fără push.
+Predarea **inițială** a fost READY_FOR_INSTALLED_QA numai pentru ledgerul contabil; SL11 PARTIAL și native BLOCKED_NATIVE_SEAM. Atunci QA independentă PG/nativă era NOT_RUN, B06c PROPOSED și nu existau fixture-uri DB proprii. [Contractul continuării](p2-b06m-pg-contract.md) și proba finală de mai sus consemnează acordul serial ulterior și noile efecte, fără a transfera automat rezultatul la native.
+
+## Predare serială contabilă
+
+Configurația minimală `23f835c` și recorderul stdout sincron au review independent APPROVED_SCOPED (`deleg_509afca7/task-0.log`); runnerul diferă numai prin opțiunea noului target, fără semantică/security nouă. Cele două reviewuri sursă pe b46391f sunt păstrate, bytes contabilitate/teste neschimbate. QA independentă `deleg_c5670172/task-0.log` a executat o singură fixture nouă pe `2cdf4fcc6aea78747ba2bfbfc1e260c7c17c47b4`: import real din checkout, PostgreSQL18.6 UDS/no-network, persistență/replay/UNKNOWN, reader nou și overlap observat în pg_locks. Nu este instalare wheel și nici restart fizic PostgreSQL/restore.
+
+Părintele a verificat raportul QA la SHA256 `e20c9437ed4eb5d1e494e7c0b6710c673b381357cb0805480b475368286d383d`, ambele family receipts și absența GET404 a celor două CIDs. Proiecte/networks/UDS/locks proprii absente; PGDATA/receipts păstrate; 13 containere și 9 rețele străine neschimbate; 82 inputuri fixate identice în fiecare gate. Linkul CLI temporar înregistrat a fost retras, venvul țintă păstrat, checkoutul curat. Nu s-a reluat teardownul pentru verificare.
+
+B06c FROZEN `3c1c15a7b95565a6ef51295ab02fb436c5ef5400` este disponibil și verificat curat/byte-equivalent cu d1b8e01 pentru surse/teste/Makefile, dar nu a fost importat: proba contabilă nu depinde de producerul proiecției. Integrarea serială trebuie să păstreze ambele targeturi PG și să lege consumatorul real înaintea modelului. `effects.json` rămâne nemodificat la holder b06m; numai coordonatorul eliberează rândul după predarea explicită. Fără native/provider/target/global config/r1/main/push.

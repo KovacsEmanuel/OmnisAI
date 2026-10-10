@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_INTEGRATION",
+  "scope": "Internal ledger accounting SOURCE plus real PostgreSQL only",
+  "next_holder_readiness": "READY_FOR_NEXT_HOLDER_INTEGRATION",
+  "sl11": "PARTIAL",
+  "g_model": "NOT_COMPLETE",
+  "phase2": "NOT_CLOSED",
+  "source_snapshot": "f55b44e2a57ca3e044822a2ca627c0b95ca97548",
+  "source_review_snapshot": "b46391f6e3f2ad84e601b998c226b94912b334bf",
+  "config_snapshot": "23f835c92de7684ff4ea2550b1cbb4a9fb59e15e",
+  "parent_tested_snapshot": "0e428e89991d2e3f9f6d3bf1195dc661ff39fdb2",
+  "independent_qa_snapshot": "2cdf4fcc6aea78747ba2bfbfc1e260c7c17c47b4",
+  "consumer": {
+    "module": "omnis.policy.budgets",
+    "origin": "/home/kali/.hermes/cache/scratch/omnis-p2-b06m-20261010/api/src/omnis/policy/budgets.py",
+    "source_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "methods": [
+      "create_budget",
+      "reserve",
+      "mark_sent",
+      "release",
+      "settle",
+      "readback"
+    ],
+    "storage": "Immutable schema0011 managed_record plus actual transactional PostgreSQL locks",
+    "metadata": "Synthetic accounting-only fixture records; not authentic turn/binding/projection admission or send permission"
+  },
+  "execution": {
+    "parent": {
+      "outer_exit": 0,
+      "gate_exit": 0,
+      "family_drained": true,
+      "pytest_passed": 33,
+      "unit_cases": 23,
+      "pg_cases": 10,
+      "locator": "documents/verification/p2-b06m-pg-parent.json",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/tmp api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/record_gate.py parent"
+    },
+    "independent_qa": {
+      "verdict": "PASS_SCOPED_INDEPENDENT_SOURCE_REAL_PG_ACCOUNTING",
+      "outer_exit": 0,
+      "gate_exit": 0,
+      "family_drained": true,
+      "pytest_passed": 33,
+      "unit_cases": 23,
+      "pg_cases": 10,
+      "skipped": 0,
+      "command": "umask 077; env -i HOME=/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/tmp /home/kali/.hermes/cache/scratch/omnis-p2-b06m-20261010/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/record_gate.py qa 2>/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/runner.stderr",
+      "pytest_command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_budget.py api/tests/test_model_budget_pg.py -q",
+      "report": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/result.json",
+      "sha256": "e20c9437ed4eb5d1e494e7c0b6710c673b381357cb0805480b475368286d383d",
+      "locator": "/home/kali/.hermes/cache/delegation/live/deleg_c5670172/task-0.log"
+    },
+    "counting": "Two independent runs of the same33case scope, not66unique tests",
+    "real_pg_criteria": [
+      "Persistent immutable allocations and history",
+      "New Python interpreter readback against same running cluster",
+      "SENT UNKNOWN/PARTIAL retains charge then KNOWN settles",
+      "Idempotent replay/conflict and cross-run receipt dedupe",
+      "Four actual overlapping transaction scenarios with waiting advisory lock observed in pg_locks",
+      "Unsafe isolation and foreign scope/ref denials",
+      "SQL UPDATE/DELETE immutability"
+    ],
+    "integrity": {
+      "input_count_each_run": 82,
+      "inputs_unchanged_each_run": true,
+      "recorder_sha256": "8b4cd741f55f3bb3f257fb9bbd5736874f29a5959d6b46218d6be41ed40f93ab",
+      "qa_manifest": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/inputs.json",
+      "qa_manifest_sha256": "7ae8cd68bc4943467fa62b93adbb92d0550c5c473a8072fa6c990c3f0dfad9e2"
+    }
+  },
+  "review": {
+    "source": "Two complementary APPROVED_SCOPED on unchanged b46391f, historical F1/F2 remedies retained",
+    "source_locators": [
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-0.log",
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-1.log"
+    ],
+    "new_config": "APPROVED_SCOPED on23f835c plus exact recorder hash; no runner semantics/security edits",
+    "new_config_locator": "/home/kali/.hermes/cache/delegation/live/deleg_509afca7/task-0.log",
+    "composite": "Previous exact source reviews + scoped new config/registrar review + independent realPG QA; no absolute all-gaps claim"
+  },
+  "cleanup": {
+    "schema_version": 1,
+    "status": "EXACT_OWNED_DRAIN_READBACK_PASS",
+    "session_id": "20261010_185056_95cc16",
+    "read_only": true,
+    "resources": [
+      {
+        "phase": "parent",
+        "cid": "108f4d09646c9ebb3278d088d82fcfc0731501b928999a392360764d9c3b5fdb",
+        "project": "omnis-p01-d1690ebe480d41418b645a49d0f3120f",
+        "db_root": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/tmp/db-320bf7df12354334",
+        "cid_http_status": 404,
+        "project_containers": 0,
+        "project_networks": 0,
+        "uds_absent": true,
+        "lock_absent": true,
+        "data_directory_retained": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/tmp/db-320bf7df12354334/data/18/docker",
+        "data_dev_ino": [
+          2049,
+          10098593
+        ],
+        "gate_family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "tests_passed": 33,
+        "snapshot": "0e428e89991d2e3f9f6d3bf1195dc661ff39fdb2",
+        "input_count": 82,
+        "inputs_unchanged": true,
+        "artifacts_unchanged": true
+      },
+      {
+        "phase": "qa",
+        "cid": "7e581cd7629823e03a09342a3e13a2f67e0b2f7a9f772885c4e83a7c83079874",
+        "project": "omnis-p01-8c2299c62bca49439f86dbea62cfc47a",
+        "db_root": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/tmp/db-346d18afa5a64755",
+        "cid_http_status": 404,
+        "project_containers": 0,
+        "project_networks": 0,
+        "uds_absent": true,
+        "lock_absent": true,
+        "data_directory_retained": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/qa/tmp/db-346d18afa5a64755/data/18/docker",
+        "data_dev_ino": [
+          2049,
+          10123421
+        ],
+        "gate_family": {
+          "schema_version": 1,
+          "code": 0,
+          "family_drained": true
+        },
+        "tests_passed": 33,
+        "snapshot": "2cdf4fcc6aea78747ba2bfbfc1e260c7c17c47b4",
+        "input_count": 82,
+        "inputs_unchanged": true,
+        "artifacts_unchanged": true
+      }
+    ],
+    "resource_count": 2,
+    "foreign_containers_unchanged": 13,
+    "foreign_networks_unchanged": 9,
+    "owned_process_path_matches": [],
+    "inaccessible_cmdline_count": 0,
+    "qa_result_hash_verified": true,
+    "qa_artifact_hashes_verified": 8,
+    "effects_holder_unchanged": "b06m",
+    "method": "GET-only exact own resources and retained paths; no stop/remove repeated",
+    "limits": "No physical PG restart/restore or native/installed consumer; accounting source only",
+    "readback_path": "/home/kali/.hermes/run/omnis-p2-critical-20261010/b06m/pg-final-readback.json",
+    "readback_sha256": "ada07d3295d4835913673c9883874df4f686abe791019375ff0dfa16147ab1ca",
+    "cli_link": {
+      "status": "UNLINK_ACK_AND_ABSENCE_VERIFIED_TARGET_RETAINED",
+      "path": "/home/kali/.hermes/cache/scratch/omnis-p2-b06m-20261010/cli/.venv",
+      "expected_target": "/home/kali/.hermes/cache/scratch/p6m-a95cc16/parent/cli-venv",
+      "retained_target": true,
+      "reason": "Remove only the new registered preflight symlink to restore original clean checkout; retain venv and all DB data"
+    },
+    "baseline_database": "Not dropped; existing conftest alone removes generated per-test databases",
+    "retention": "PGDATA, receipts, isolated homes/tmp and new preflight venv retained",
+    "holder": "effects.json remains b06m; coordinator releases it after parent handoff/readback"
+  },
+  "history": {
+    "initial_scope": "documents/verification/p2-b06m-source-gate.json and initial reviews remain historical; earlier PG_NOT_RUN superseded only for these exercised criteria",
+    "new_preflight": "Missing target RED2 then wired; no fixture and unsafe Make flags deny2; ambient Node22/npm9 detected beforegate, pinned tools used instead",
+    "new_fixture_failures": [],
+    "review_discovery": "Initial snapshot equality noticed documentary-only HEAD advance; consumed config hashes verified identical",
+    "qa_discovery": [
+      {
+        "detail": "Initial lookup used coordinator-root pg-resources.json and found no file; resolved to grant-declared b06m/pg-resources.json and verified it before any effects. No fixture attempt failed or was repeated.",
+        "phase": "read-only discovery"
+      }
+    ]
+  },
+  "dependency": {
+    "b06c_status": "FROZEN_AVAILABLE_NOT_IMPORTED",
+    "b06c_head": "3c1c15a7b95565a6ef51295ab02fb436c5ef5400",
+    "b06c_reviewed_tested": "d1b8e01a5509e08ad36d831fd2886f1f22c3224f",
+    "b06c_clean_and_byte_equivalent_verified": true,
+    "interface": "/home/kali/.hermes/run/omnis-p2-critical-20261010/b06c/interface.json",
+    "reason_no_import": "Independent ledger source/PG test does not consume ModelProjection producer; avoid unrelated merge",
+    "merge_requirement": "Preserve both test-model-projection-pg and test-model-budget-pg in final serial integration"
+  },
+  "limits": {
+    "copy_installed_consumer": "NOT_INTEGRATED_NOT_RUN",
+    "native_projection_full_sdk": "NOT_INTEGRATED",
+    "native_turn_presend_instancecontrol_stop_settings": "NOT_INTEGRATED",
+    "physical_pg_restart_restore": "NOT_RUN; new-process reader only",
+    "provider_live_g02_g04a": "NOT_RUN_UNAUTHORIZED",
+    "global_canonical": "NOT_RUN_HERE; once at final integration",
+    "browser": "NOT_RUN_HERE; final integrated build",
+    "main_r1_config_push": "UNCHANGED_NOT_RUN",
+    "protected_original": "NOT_READ_NOT_COPIED_NOT_HASHED_NOT_STAGED"
+  },
+  "next": "Serial integration of frozen B06c/B06m: authentic native turn/binding/purpose, qualified projection/full SDK request, InstanceControl/Stop, durable SENT and physical bounded sink, then scoped reviews/final canonical/browser. Separate operator agreement required only for later product inference.",
+  "documentary_checks": {
+    "render_docs_check_exit": 0,
+    "documentation_unittest_exit": 0,
+    "documentation_tests_passed": 72,
+    "json_parse_exit": 0,
+    "diff_check_exit": 0,
+    "reviewed_ledger_bytes_unchanged": true,
+    "reviewed_config_bytes_unchanged": true,
+    "scope": "After final notes, no effectful gate replay"
+  }
+}

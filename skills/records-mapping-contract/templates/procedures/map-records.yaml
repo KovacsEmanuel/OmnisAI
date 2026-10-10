@@ -1,0 +1,135 @@
+schema_version: 1
+key: map-records
+technique_ref:
+  kind: LOCAL
+  entity_kind: technique
+  key: records-mapping
+verification_kind: CONTRACT
+non_applicable_groups:
+- group: BASELINE
+  reason: Deterministic transformation has no target baseline.
+- group: CONTROL
+  reason: Invalid/hostile data is covered by evaluator contract tests.
+objective: Map supplied structured synthetic records.
+applicability_predicate_ids: []
+technologies: []
+input_schema_ref:
+  kind: LOCAL
+  entity_kind: schema
+  key: records
+output_schema_ref:
+  kind: LOCAL
+  entity_kind: schema
+  key: surface_map
+preconditions: []
+method_requirements:
+- key: normalize-records
+  description: Normalize supplied records.
+  required: true
+  applies_if: []
+  step_ids:
+  - normalize-operations
+  artifact_schema_refs:
+  - kind: LOCAL
+    entity_kind: schema
+    key: operations
+  evidence_kinds: []
+- key: build-surface-map
+  description: Build a map from the preceding operations output.
+  required: true
+  applies_if: []
+  step_ids:
+  - build-map
+  artifact_schema_refs:
+  - kind: LOCAL
+    entity_kind: schema
+    key: surface_map
+  evidence_kinds: []
+- key: preserve-input-context
+  description: Retain original structured input independently of sorted derivations.
+  required: false
+  applies_if: []
+  step_ids:
+  - normalize-operations
+  artifact_schema_refs:
+  - kind: LOCAL
+    entity_kind: schema
+    key: records
+  evidence_kinds: []
+identity_requirements: []
+business_rule_refs: []
+requested_capabilities: []
+requested_effect_ceiling: PURE
+predicted_signal: Sorted metadata, not security findings.
+baseline: []
+probe:
+- id: normalize-operations
+  action_definition_ref:
+    kind: LOCAL
+    entity_kind: action_definition
+    key: contract.normalize-operations
+  tool_ref: null
+  parameter_schema_ref:
+    kind: LOCAL
+    entity_kind: schema
+    key: empty
+  parameters: {}
+  input_bindings:
+  - name: records
+    source_ref:
+      kind: CASE_SLOT_REF
+      name: records
+    selector: records
+  output_schema_ref:
+    kind: LOCAL
+    entity_kind: schema
+    key: operations
+- id: build-map
+  action_definition_ref:
+    kind: LOCAL
+    entity_kind: action_definition
+    key: contract.build-map
+  tool_ref: null
+  parameter_schema_ref:
+    kind: LOCAL
+    entity_kind: schema
+    key: empty
+  parameters: {}
+  input_bindings:
+  - name: operations
+    source_ref:
+      kind: STEP_OUTPUT
+      step_id: normalize-operations
+      output_name: operations
+    selector: null
+  output_schema_ref:
+    kind: LOCAL
+    entity_kind: schema
+    key: surface_map
+control: []
+evidence_requirements: []
+oracle_ref: null
+slots:
+- name: records
+  expected_kind: contract-case-records
+  min_items: 1
+  max_items: 1
+false_positives:
+- Status codes do not establish vulnerabilities.
+invalidation_predicate_ids: []
+limits:
+  max_attempts: 1
+  max_actions: 2
+  deadline_seconds: 300
+  max_output_bytes: 65536
+  max_fanout: 1
+stop_reason_ids: []
+cleanup: []
+cleanup_not_needed_reason: No IO or mutable state.
+handoff_schema_ref:
+  kind: LOCAL
+  entity_kind: schema
+  key: surface_map
+outcomes:
+- SUCCEEDED
+- BLOCKED

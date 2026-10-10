@@ -20,40 +20,47 @@ BRIEF_FIELDS = set(
 RESULT_EMPTY = "observation_refs evidence_refs candidate_claims controls contradiction_refs next_clues consumed_input_refs criterion_results action_refs effect_refs cleanup_refs".split()
 
 
-def capture_slot_values(value: object) -> list[dict[str, object]]:
+def capture_slot_values(value: object, *, version: int = 1) -> list[dict[str, object]]:
+    from omnis.modules.tasks.contract_case_input import input_contract
+
+    name, kind = input_contract(version)
     slots = sequence(value)
     if len(slots) != 1:
         raise CatalogError("MANAGED_REJECTED")
     slot = exact(slots[0], {"slot_name", "refs"})
     refs = sequence(slot["refs"])
-    if slot["slot_name"] != "capture" or len(refs) != 1:
+    if slot["slot_name"] != name or len(refs) != 1:
         raise CatalogError("MANAGED_REJECTED")
-    return [{"slot_name": "capture", "refs": [ref(refs[0], "contract-case-input")]}]
+    return [{"slot_name": name, "refs": [ref(refs[0], kind)]}]
 
 
-def validate_capture_procedure(value: object, input_ref: object = None) -> None:
+def validate_capture_procedure(
+    value: object, input_ref: object = None, *, version: int = 1
+) -> None:
+    from omnis.modules.tasks.contract_case_input import input_contract, require_slots
+
+    name, kind = input_contract(version)
     body = mapping(value)
-    if body["key"] != "map-capture" or any(
+    if body["key"] != ("map-records" if version == 2 else "map-capture") or any(
         body[group] != [] for group in ("baseline", "control", "cleanup")
     ):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     steps = sequence(body["probe"])
-    if len(steps) != 3 or len({text(mapping(s)["id"]) for s in steps}) != 3:
+    count = 2 if version == 2 else 3
+    if len(steps) != count or len({text(mapping(s)["id"]) for s in steps}) != count:
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     if input_ref is None:
-        from omnis.modules.tasks.contract_case_input import require_capture_slots
-
-        require_capture_slots(body["slots"])
-        source: object = {"kind": "CASE_SLOT_REF", "name": "capture"}
+        require_slots(body["slots"], version=version)
+        source: object = {"kind": "CASE_SLOT_REF", "name": name}
     else:
-        source = ref(input_ref, "contract-case-input")
+        source = ref(input_ref, kind)
         if body["slots"] != []:
             raise CatalogError("UNSUPPORTED_PROCEDURE")
     if mapping(steps[0])["input_bindings"] != [
-        {"name": "capture", "source_ref": source, "selector": "capture"}
+        {"name": name, "source_ref": source, "selector": name}
     ]:
         raise CatalogError("UNSUPPORTED_PROCEDURE")
-    for index, name in enumerate(("records", "operations"), 1):
+    for index, name in enumerate(("operations",) if version == 2 else ("records", "operations"), 1):
         expected = [
             {
                 "name": name,
@@ -308,20 +315,28 @@ def build_records(
                     "ref": records.reference(action),
                 }
             )
+    case_version = 2 if procedure.key == "map-records" else 1
     if context_only:
-        validate_capture_procedure(procedure.model_dump(mode="json"))
+        validate_capture_procedure(procedure.model_dump(mode="json"), version=case_version)
         return graph
     authored = procedure.model_dump(mode="json")
     slot_values: list[dict[str, object]] = []
     input_refs: list[object] = []
     if case_input is not None:
-        from omnis.modules.tasks.contract_case_input import require_capture_slots, validate_material
+        from omnis.modules.tasks.contract_case_input import (
+            first_binding,
+            input_contract,
+            require_slots,
+            validate_material,
+        )
         from omnis.modules.tasks.contract_case_input import slot_values as material_slots
 
         owner = text(mapping(mapping(case_input["context"])["payload"])["owner_id"])
         validate_material(case_input, namespace="RUN", owner_id=owner)
-        require_capture_slots(authored["slots"])
-        validate_capture_procedure(authored)
+        if case_input["version"] != case_version:
+            raise CatalogError("REF_MISMATCH")
+        require_slots(authored["slots"], version=case_version)
+        validate_capture_procedure(authored, version=case_version)
         integer(count, 1, 1)
         if prefix is None or composition_packages is None:
             raise CatalogError("MANAGED_REJECTED")
@@ -341,18 +356,13 @@ def build_records(
         slot_values = material_slots(case_input)
         input_refs = sequence(slot_values[0]["refs"])
         probe_steps = sequence(authored["probe"])
-        expected = [
-            {
-                "name": "capture",
-                "source_ref": {"kind": "CASE_SLOT_REF", "name": "capture"},
-                "selector": "capture",
-            }
-        ]
+        expected = [first_binding(case_version)]
         if not probe_steps or mapping(probe_steps[0])["input_bindings"] != expected:
             raise CatalogError("UNSUPPORTED_PROCEDURE")
         first = mapping(probe_steps[0])
+        input_name, _ = input_contract(case_version)
         first["input_bindings"] = [
-            {"name": "capture", "source_ref": input_refs[0], "selector": "capture"}
+            {"name": input_name, "source_ref": input_refs[0], "selector": input_name}
         ]
         authored["probe"] = [first, *probe_steps[1:]]
         authored["slots"] = []
@@ -433,7 +443,9 @@ def build_records(
                         {
                             "ref": input_refs[0],
                             "epistemic_state": "OBSERVED",
-                            "summary": "Backend synthetic CONTRACT capture input; untrusted data, not execution evidence.",
+                            "summary": "Backend synthetic CONTRACT records input; untrusted data, not execution evidence."
+                            if case_version == 2
+                            else "Backend synthetic CONTRACT capture input; untrusted data, not execution evidence.",
                             "mandatory": True,
                         }
                     ]
@@ -523,7 +535,7 @@ def build_records(
             **(
                 {}
                 if composition_packages is None
-                else {"composition_version": 2 if case_input is not None else 1}
+                else {"composition_version": case_version + 1 if case_input is not None else 1}
             ),
         },
     )
@@ -646,10 +658,12 @@ def validate_brief(value: object) -> dict[str, object]:
     integer(reserve["seconds"], 0, 0)
     contexts = sequence(body["context"])
     inputs = sequence(body["input_artifact_refs"])
+    case_version = 1
     if inputs:
         if len(inputs) != 1:
             raise CatalogError("MANAGED_REJECTED")
-        ref(inputs[0], "contract-case-input")
+        case_version = 2 if ref(inputs[0])["kind"] == "contract-case-records" else 1
+        ref(inputs[0], "contract-case-records" if case_version == 2 else "contract-case-input")
     if len(contexts) != (3 if inputs else 2):
         raise CatalogError("MANAGED_REJECTED")
     for item in contexts:
@@ -664,7 +678,7 @@ def validate_brief(value: object) -> dict[str, object]:
     binding = exact(bindings[0], {"procedure_ref", "slot_values", "bound_procedure_ref"})
     ref(binding["procedure_ref"], "procedure")
     bound = ref(binding["bound_procedure_ref"], "bound-procedure")
-    slots = capture_slot_values(binding["slot_values"]) if inputs else []
+    slots = capture_slot_values(binding["slot_values"], version=case_version) if inputs else []
     if (
         binding["slot_values"] != slots
         or (inputs and slots[0]["refs"] != inputs)
@@ -790,7 +804,7 @@ def validate_assignment(brief: object, bound: object) -> None:
 
     def contains_case_ref(value: object) -> bool:
         if isinstance(value, dict):
-            return value.get("kind") == "contract-case-input" or any(
+            return value.get("kind") in {"contract-case-input", "contract-case-records"} or any(
                 contains_case_ref(v) for v in value.values()
             )
         return isinstance(value, list) and any(contains_case_ref(v) for v in value)
@@ -798,8 +812,9 @@ def validate_assignment(brief: object, bound: object) -> None:
     if not bound_body["slot_values"] and contains_case_ref(procedure):
         raise CatalogError("ASSIGNMENT_MISMATCH")
     if bound_body["slot_values"]:
-        slots = capture_slot_values(bound_body["slot_values"])
-        validate_capture_procedure(procedure, sequence(slots[0]["refs"])[0])
+        version = 2 if procedure["key"] == "map-records" else 1
+        slots = capture_slot_values(bound_body["slot_values"], version=version)
+        validate_capture_procedure(procedure, sequence(slots[0]["refs"])[0], version=version)
     requirements = sequence(procedure["method_requirements"])
     expected = [
         {
@@ -943,13 +958,13 @@ def validate_manifest(value: object) -> dict[str, object]:
         | ({"composition_version"} if composed else set()),
     )
     if composed:
-        integer(body["composition_version"], 1, 2)
+        integer(body["composition_version"], 1, 3)
     uuid_string(body["run_id"])
     ref(body["selection_ref"], "execution-selection")
     if body["resolution"] != "NO_MODEL" or body["effective"] is not None:
         raise CatalogError("MANAGED_REJECTED")
     entries = sequence(body["entries"])
-    if not 1 <= len(entries) <= (1 if body.get("composition_version") == 2 else 2):
+    if not 1 <= len(entries) <= (1 if body.get("composition_version") in (2, 3) else 2):
         raise CatalogError("MANAGED_REJECTED")
     identities: set[str] = set()
     for index, raw in enumerate(entries):
@@ -979,6 +994,8 @@ def validate_manifest(value: object) -> dict[str, object]:
 
 def manifest_protocol(value: object) -> str:
     body = mapping(validate_manifest(value)["payload"])
+    if body.get("composition_version") == 3:
+        return "omnis-managed-admission-v3"
     return "omnis-managed-admission-v2" if "composition_version" in body else PROTOCOL
 
 

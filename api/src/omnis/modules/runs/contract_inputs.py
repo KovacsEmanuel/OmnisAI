@@ -32,7 +32,7 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     elif operation not in {"read-context", "read-input"}:
         raise CatalogError("INVALID_REQUEST")
     result = exact(value, fields)
-    contract.integer(result["schema_version"], 1, 1)
+    contract.integer(result["schema_version"], 1, 2 if operation.startswith("create-") else 1)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
     if operation == "create-context":
@@ -50,9 +50,10 @@ class ContractInputs:
 
     async def create_context(self, request: object) -> dict[str, object]:
         from omnis.modules.runs.managed_admission import ManagedAdmission
-        from omnis.modules.tasks.contract_case_input import require_capture_slots
+        from omnis.modules.tasks.contract_case_input import require_slots
 
         value = validate_request("create-context", request)
+        version = contract.integer(value["schema_version"], 1, 2)
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
         async with asyncio.timeout(15), self.engine.begin() as conn:
             await store.lock(conn, owner)
@@ -60,8 +61,10 @@ class ContractInputs:
             if prior is not None:
                 return {**prior, "created": False}
             managed = ManagedAdmission(self.engine, self.root)
-            source = await managed._source(conn, owner, {**value, "composition_version": 2})
-            require_capture_slots(source.procedure.model_dump(mode="json")["slots"])
+            source = await managed._source(
+                conn, owner, {**value, "composition_version": version + 1}
+            )
+            require_slots(source.procedure.model_dump(mode="json")["slots"], version=version)
             schema_ref, _, _ = source.input_schema()
             graph = source.build(context_only=True)
             run = next(r for r in graph if r["kind"] == "managed-run")
@@ -69,7 +72,7 @@ class ContractInputs:
             context = records.envelope(
                 "contract-input-context",
                 {
-                    "version": 1,
+                    "version": version,
                     "namespace": "RUN",
                     "owner_id": owner,
                     "basis_ref": records.reference(run),
@@ -109,6 +112,8 @@ class ContractInputs:
             run, context = await store.owned(
                 conn, owner, ref(value["context_ref"], "contract-input-context")
             )
+            if mapping(context["payload"])["version"] != value["schema_version"]:
+                raise CatalogError("REF_MISMATCH")
             graph = await store.graph(conn, owner, run)
             source = await self.current_source(conn, owner, context, graph)
             schema_ref, raw_schema, _ = source.input_schema()
@@ -129,7 +134,7 @@ class ContractInputs:
         self, conn: AsyncConnection, owner: str, context: object, graph: list[dict[str, object]]
     ) -> "BuildSource":
         from omnis.modules.runs.managed_admission import ManagedAdmission
-        from omnis.modules.tasks.contract_case_input import require_capture_slots
+        from omnis.modules.tasks.contract_case_input import require_slots
 
         checked = contract.record(context, "contract-input-context")
         body = exact(
@@ -138,7 +143,7 @@ class ContractInputs:
                 "version namespace owner_id basis_ref snapshot_ref procedure_ref schema_ref selection_ref mission_ref focus_ref".split()
             ),
         )
-        contract.integer(body["version"], 1, 1)
+        version = contract.integer(body["version"], 1, 2)
         if body["namespace"] != "RUN" or body["owner_id"] != owner:
             raise CatalogError("REF_UNAVAILABLE")
         basis = ref(body["basis_ref"], "managed-run")
@@ -157,10 +162,10 @@ class ContractInputs:
         source = await ManagedAdmission(self.engine, self.root)._source(
             conn,
             owner,
-            {"selection_ref": body["selection_ref"], "composition_version": 2},
+            {"selection_ref": body["selection_ref"], "composition_version": version + 1},
             preparation_ref=ref(run["preparation_receipt_ref"], "native-preparation-receipt"),
         )
-        require_capture_slots(source.procedure.model_dump(mode="json")["slots"])
+        require_slots(source.procedure.model_dump(mode="json")["slots"], version=version)
         if (
             ref(body["procedure_ref"], "procedure") != source.procedure_ref
             or ref(body["schema_ref"], "schema") != source.input_schema()[0]

@@ -39,10 +39,10 @@ from omnis.modules.tasks.managed_contract import mapping, record, ref, sequence,
 
 def validate_request(operation: str, value: object) -> dict[str, object]:
     version = contract.integer(
-        mapping(value).get("schema_version"), 1, 2 if operation == "prepare-composed" else 1
+        mapping(value).get("schema_version"), 1, 3 if operation == "prepare-composed" else 1
     )
     fields = {"schema_version", "owner_id", "command_id"}
-    if version == 2:
+    if version in (2, 3):
         fields |= {"context_ref", "slot_values"}
     if operation in {"prepare", "prepare-composed"}:
         fields |= {"selection_ref", "preparation_command_id", "task_count"}
@@ -55,10 +55,10 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     if operation in {"prepare", "prepare-composed"}:
         ref(result["selection_ref"], "execution-selection")
         uuid_string(result["preparation_command_id"])
-        contract.integer(result["task_count"], 1, 1 if version == 2 else 2)
-        if version == 2:
+        contract.integer(result["task_count"], 1, 1 if version in (2, 3) else 2)
+        if version in (2, 3):
             ref(result["context_ref"], "contract-input-context")
-            contract.capture_slot_values(result["slot_values"])
+            contract.capture_slot_values(result["slot_values"], version=version - 1)
     return result
 
 
@@ -197,7 +197,7 @@ class ManagedAdmission:
             raise CatalogError("UNRESOLVED_PROCEDURE_REF")
         # Both recipe and procedure ceilings constrain the brief, without removing requirements.
         procedure = selected[0]
-        if request.get("composition_version") in {1, 2}:
+        if request.get("composition_version") in {1, 2, 3}:
             from omnis.modules.tasks.managed_composition import require_recipe
 
             require_recipe(recipe, procedure, source.package_key)
@@ -221,7 +221,7 @@ class ManagedAdmission:
     ) -> list[dict[str, object]]:
         prefix = None
         section = None
-        if request.get("composition_version") == 2:
+        if request.get("composition_version") in (2, 3):
             from omnis.modules.runs.contract_inputs import ContractInputs
             from omnis.modules.tasks.contract_case_input import (
                 material_section,
@@ -231,6 +231,9 @@ class ManagedAdmission:
             run, context = await store.owned(
                 connection, owner, ref(request["context_ref"], "contract-input-context")
             )
+            version = contract.integer(mapping(context["payload"])["version"], 1, 2)
+            if request["composition_version"] != version + 1:
+                raise CatalogError("REF_MISMATCH")
             if (
                 await connection.execute(
                     sql("SELECT 1 FROM managed_run WHERE run_id=:run"), {"run": run}
@@ -255,7 +258,7 @@ class ManagedAdmission:
             )
             if prepared["receipt_ref"] != source.preparation_ref:
                 raise CatalogError("PREPARATION_MISMATCH")
-            slots = contract.capture_slot_values(request["slot_values"])
+            slots = contract.capture_slot_values(request["slot_values"], version=version)
             item = await store.get(connection, owner, run, sequence(slots[0]["refs"])[0])
             schema_ref, raw_schema, path = source.input_schema()
             section = material_section(context, item, schema_ref, raw_schema, schema_path=path)
@@ -264,7 +267,7 @@ class ManagedAdmission:
             source = await self._source(connection, owner, request)
         graph = source.build(
             count=contract.integer(request["task_count"], 1, 2),
-            composed=request.get("composition_version") in {1, 2},
+            composed=request.get("composition_version") in {1, 2, 3},
             prefix=prefix,
             case_input=section,
         )
@@ -304,7 +307,7 @@ class ManagedAdmission:
                 # The scoped cursor is inserted only after its owning run row.
                 retained = (
                     {text(r["id"]): r for r in await store.graph(conn, owner, run)}
-                    if value.get("composition_version") == 2
+                    if value.get("composition_version") in (2, 3)
                     else {}
                 )
                 if any(
@@ -377,7 +380,7 @@ class ManagedAdmission:
         run = uuid_string(state["run_id"])
         # Validate exact retained material before recording uncertain dispatch.
         await self.stage_payload(connection, owner, manifest_ref)
-        if mapping(manifest["payload"]).get("composition_version") == 2:
+        if mapping(manifest["payload"]).get("composition_version") in (2, 3):
             from omnis.modules.runs.contract_inputs import ContractInputs
 
             graph = await store.graph(connection, owner, run)
@@ -662,7 +665,7 @@ class ManagedAdmission:
                         "version namespace owner_id basis_ref snapshot_ref procedure_ref schema_ref selection_ref mission_ref focus_ref".split()
                     ),
                 )
-                contract.integer(body["version"], 1, 1)
+                contract.integer(body["version"], 1, 2)
                 if (
                     body["namespace"] != "RUN"
                     or body["owner_id"] != owner
@@ -681,7 +684,7 @@ class ManagedAdmission:
                         raise CatalogError("REF_MISMATCH")
                 ref(body["procedure_ref"], "procedure")
                 ref(body["schema_ref"], "schema")
-            elif item["kind"] == "contract-case-input":
+            elif item["kind"] in {"contract-case-input", "contract-case-records"}:
                 body = contract.exact(
                     body,
                     {"version", "value", "schema_ref", "owner_id", "context_ref", "provenance"},
@@ -694,6 +697,8 @@ class ManagedAdmission:
                     or context is None
                     or mapping(context["payload"])["owner_id"] != owner
                     or mapping(context["payload"])["namespace"] != "RUN"
+                    or mapping(context["payload"])["version"]
+                    != (2 if item["kind"] == "contract-case-records" else 1)
                     or body["schema_ref"] != mapping(context["payload"])["schema_ref"]
                 ):
                     raise CatalogError("REF_UNAVAILABLE")
@@ -704,6 +709,7 @@ class ManagedAdmission:
                     raise CatalogError("REF_MISMATCH")
             elif reference["kind"] in {
                 "contract-case-input",
+                "contract-case-records",
                 "contract-input-context",
                 "managed-run",
                 "mission",
@@ -841,7 +847,9 @@ class ManagedAdmission:
                 ],
             )
             if (
-                sections[5 if mapping(manifest["payload"]).get("composition_version") == 2 else 4 :]
+                sections[
+                    5 if mapping(manifest["payload"]).get("composition_version") in (2, 3) else 4 :
+                ]
                 != expected
             ):
                 raise CatalogError("COMPOSITION_REJECTED")

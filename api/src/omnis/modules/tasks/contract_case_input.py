@@ -16,12 +16,51 @@ CAPTURE_SLOT = {
     "min_items": 1,
     "max_items": 1,
 }
-CAPTURE_BINDING = {
+CAPTURE_BINDING: dict[str, object] = {
     "name": "capture",
     "source_ref": {"kind": "CASE_SLOT_REF", "name": "capture"},
     "selector": "capture",
 }
 PRODUCER_REVISION = "contract-case-input-v1"
+RECORDS_SLOT = {
+    "name": "records",
+    "expected_kind": "contract-case-records",
+    "min_items": 1,
+    "max_items": 1,
+}
+RECORDS_BINDING: dict[str, object] = {
+    "name": "records",
+    "source_ref": {"kind": "CASE_SLOT_REF", "name": "records"},
+    "selector": "records",
+}
+
+
+def input_contract(version: object) -> tuple[str, str]:
+    """Two explicit contracts, not an extensible kind/selector registry."""
+    if type(version) is int and version == 1:
+        return "capture", "contract-case-input"
+    if type(version) is int and version == 2:
+        return "records", "contract-case-records"
+    raise CatalogError("INVALID_CASE_INPUT")
+
+
+def slot_contract(slots: object) -> int:
+    version = 2 if canonical(slots) == canonical([RECORDS_SLOT]) else 1
+    require_slots(slots, version=version)
+    return version
+
+
+def require_slots(slots: object, *, version: int = 1) -> None:
+    input_contract(version)
+    if version == 1:
+        require_capture_slots(slots)
+    elif canonical(slots) != canonical([RECORDS_SLOT]):
+        raise CatalogError("UNSUPPORTED_RECORDS_SLOT")
+
+
+def first_binding(version: int) -> dict[str, object]:
+    input_contract(version)
+    return deepcopy(RECORDS_BINDING if version == 2 else CAPTURE_BINDING)
 
 
 def utf8_json_text(raw: bytes) -> str:
@@ -111,7 +150,66 @@ def capture_schema(raw_schema: bytes) -> dict[str, object]:
     return deepcopy(document)
 
 
-def validate_value(value: object, raw_schema: bytes) -> dict[str, object]:
+def records_schema(raw_schema: bytes) -> dict[str, object]:
+    """Exact semantic schema of the installed Records handler; retain original bytes."""
+    if type(raw_schema) is not bytes or not 1 <= len(raw_schema) <= 8192:
+        raise CatalogError("INVALID_CASE_INPUT_SCHEMA")
+    document = _object(load_json(utf8_json_text(raw_schema)))
+    expected = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["records"],
+        "properties": {
+            "records": {
+                "type": "array",
+                "maxItems": 128,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["method", "path", "status"],
+                    "properties": {
+                        "method": {
+                            "type": "string",
+                            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+                        },
+                        "path": {"type": "string", "maxLength": 240, "pattern": r"^/[^\\\s]*$"},
+                        "status": {"type": "integer", "minimum": 100, "maximum": 599},
+                    },
+                },
+            },
+        },
+    }
+    if canonical(document) != canonical(expected):
+        raise CatalogError("INVALID_CASE_INPUT_SCHEMA")
+    return deepcopy(document)
+
+
+def input_schema(raw_schema: bytes, *, version: int = 1) -> dict[str, object]:
+    input_contract(version)
+    return records_schema(raw_schema) if version == 2 else capture_schema(raw_schema)
+
+
+def validate_value(value: object, raw_schema: bytes, *, version: int = 1) -> dict[str, object]:
+    input_contract(version)
+    if version == 2:
+        from pydantic import ValidationError
+
+        from omnis.modules.tasks.module_registry import Records
+
+        records_schema(raw_schema)
+        obj = _object(value, {"records"})
+        bounded(obj)
+        try:
+            parsed = Records.model_validate_json(canonical(obj), strict=True)
+        except (ValidationError, UnicodeError):
+            raise CatalogError("INVALID_CASE_INPUT") from None
+        for item in parsed.records:
+            _text(item.method)
+            _text(item.path)
+        if len(canonical(obj)) > 8192:
+            raise CatalogError("CASE_INPUT_LIMIT")
+        return deepcopy(obj)
     document = capture_schema(raw_schema)
     obj = _object(value, {"capture"})
     text = _text(obj["capture"])
@@ -143,7 +241,7 @@ def _context(value: object, *, namespace: str, owner_id: str) -> RecordEnvelope:
     )
     if (
         type(body["version"]) is not int
-        or body["version"] != 1
+        or body["version"] not in (1, 2)
         or body["namespace"] != namespace
         or body["owner_id"] != owner_id
     ):
@@ -175,17 +273,20 @@ def produce_input(
         namespace=_text(body.get("namespace")),
         owner_id=uuid_string(body.get("owner_id")),
     )
+    version = body["version"]
+    _, kind = input_contract(version)
+    assert isinstance(version, int)
     record = records.envelope(
-        "contract-case-input",
+        kind,
         {
             "version": 1,
-            "value": validate_value(value, raw_schema),
+            "value": validate_value(value, raw_schema, version=version),
             "schema_ref": deepcopy(body["schema_ref"]),
             "owner_id": body["owner_id"],
             "context_ref": records.reference(context),
             "provenance": {
-                "producer_key": "contract-case-input",
-                "producer_revision": PRODUCER_REVISION,
+                "producer_key": kind,
+                "producer_revision": kind + "-v1",
                 "command_id": uuid_string(command_id),
                 "source_kind": "SYNTHETIC",
             },
@@ -205,11 +306,16 @@ def validate_material(material: object, *, namespace: str, owner_id: str) -> dic
     if (
         section["section"] != "case-input"
         or type(section["version"]) is not int
-        or section["version"] != 1
+        or section["version"] not in (1, 2)
     ):
         raise CatalogError("INVALID_CASE_INPUT")
     context = _context(section["context"], namespace=namespace, owner_id=owner_id)
     context_body = _object(context["payload"])
+    version = section["version"]
+    _, kind = input_contract(version)
+    assert isinstance(version, int)
+    if context_body["version"] != version:
+        raise CatalogError("INVALID_CASE_INPUT")
     schema = _object(section["schema"], {"ref", "document", "path", "source_b64"})
     if _ref(schema["ref"], "schema") != context_body["schema_ref"]:
         raise CatalogError("INVALID_CASE_INPUT")
@@ -224,9 +330,9 @@ def validate_material(material: object, *, namespace: str, owner_id: str) -> dic
         raise CatalogError("INVALID_CASE_INPUT_SCHEMA") from None
     if base64.b64encode(raw).decode("ascii") != encoded or canonical(
         schema["document"]
-    ) != canonical(capture_schema(raw)):
+    ) != canonical(input_schema(raw, version=version)):
         raise CatalogError("INVALID_CASE_INPUT_SCHEMA")
-    record = _record(section["input"], "contract-case-input")
+    record = _record(section["input"], kind)
     body = _object(
         record["payload"],
         {"version", "value", "schema_ref", "owner_id", "context_ref", "provenance"},
@@ -243,13 +349,13 @@ def validate_material(material: object, *, namespace: str, owner_id: str) -> dic
         body["provenance"], {"producer_key", "producer_revision", "command_id", "source_kind"}
     )
     if provenance != {
-        "producer_key": "contract-case-input",
-        "producer_revision": PRODUCER_REVISION,
+        "producer_key": kind,
+        "producer_revision": kind + "-v1",
         "command_id": uuid_string(provenance["command_id"]),
         "source_kind": "SYNTHETIC",
     }:
         raise CatalogError("INVALID_CASE_INPUT")
-    validate_value(body["value"], raw)
+    validate_value(body["value"], raw, version=version)
     if len(canonical(record)) > 8192:
         raise CatalogError("CASE_INPUT_LIMIT")
     return deepcopy(section)
@@ -264,15 +370,18 @@ def material_section(
     schema_path: str,
 ) -> dict[str, object]:
     body = _object(_object(context_record).get("payload"))
+    version = body.get("version")
+    input_contract(version)
+    assert isinstance(version, int)
     return validate_material(
         {
             "section": "case-input",
-            "version": 1,
+            "version": version,
             "context": context_record,
             "input": input_record,
             "schema": {
                 "ref": schema_ref,
-                "document": capture_schema(raw_schema),
+                "document": input_schema(raw_schema, version=version),
                 "path": schema_path,
                 "source_b64": base64.b64encode(raw_schema).decode("ascii"),
             },
@@ -300,17 +409,19 @@ def slot_values(material: object) -> list[dict[str, object]]:
     checked = validate_material(
         material, namespace=_text(body.get("namespace")), owner_id=_text(body.get("owner_id"))
     )
-    return [{"slot_name": "capture", "refs": [records.reference(_object(checked["input"]))]}]
+    name, _ = input_contract(checked["version"])
+    return [{"slot_name": name, "refs": [records.reference(_object(checked["input"]))]}]
 
 
 def validate_slot_values(value: object, material: object) -> list[dict[str, object]]:
     if type(value) is not list or len(value) != 1:
         raise CatalogError("INVALID_SLOT_VALUES")
     entry = _object(value[0], {"slot_name", "refs"})
+    name, kind = input_contract(_object(material).get("version"))
     refs = entry["refs"]
-    if entry["slot_name"] != "capture" or type(refs) is not list or len(refs) != 1:
+    if entry["slot_name"] != name or type(refs) is not list or len(refs) != 1:
         raise CatalogError("INVALID_SLOT_VALUES")
-    _ref(refs[0], "contract-case-input")
+    _ref(refs[0], kind)
     expected = slot_values(material)
     if value != expected:
         raise CatalogError("INVALID_SLOT_VALUES")

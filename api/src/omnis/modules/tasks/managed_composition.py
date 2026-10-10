@@ -34,7 +34,8 @@ from omnis.modules.tasks.managed_contract import (
 PROTOCOL = "omnis-managed-admission-v2"
 # Exact native composer source; parity test binds this to the installed producer.
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
-COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
+CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
+COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -289,7 +290,8 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
         },
     )
     if (
-        metadata["composer_revision"] not in {COMPOSER_REVISION, LEGACY_COMPOSER_REVISION}
+        metadata["composer_revision"]
+        not in {COMPOSER_REVISION, CAPTURE_COMPOSER_REVISION, LEGACY_COMPOSER_REVISION}
         or metadata["provenance"] != PROVENANCE
         or metadata["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
     ):
@@ -310,10 +312,15 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     ):
         raise CatalogError("CONTEXT_OVERFLOW")
     has_input = len(sections) > 4 and mapping(sections[4]).get("section") == "case-input"
-    version = 2 if has_input else 1
-    if (has_input and metadata["composer_revision"] != COMPOSER_REVISION) or not 5 + int(
-        has_input
-    ) <= len(sections) <= 6 + int(has_input):
+    version = 1 + integer(mapping(sections[4])["version"], 1, 2) if has_input else 1
+    revisions = {COMPOSER_REVISION}
+    if version <= 2:
+        revisions.add(CAPTURE_COMPOSER_REVISION)
+    if version == 1:
+        revisions.add(LEGACY_COMPOSER_REVISION)
+    if metadata["composer_revision"] not in revisions or not 5 + int(has_input) <= len(
+        sections
+    ) <= 6 + int(has_input):
         raise CatalogError("COMPOSITION_REJECTED")
     nested = []
     for section, name, kind in zip(
@@ -389,7 +396,11 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
 def validate_case_section(
     value: object, brief: dict[str, object], bound: dict[str, object], skills: list[object]
 ) -> None:
-    from omnis.modules.tasks.contract_case_input import validate_material, validate_slot_values
+    from omnis.modules.tasks.contract_case_input import (
+        input_contract,
+        validate_material,
+        validate_slot_values,
+    )
 
     section = mapping(value)
     context = mapping(mapping(section["context"])["payload"])
@@ -398,7 +409,8 @@ def validate_case_section(
     header = mapping(body["header"])
     bound_body = mapping(bound["payload"])
     validate_slot_values(bound_body["slot_values"], section)
-    source = ref(records.reference(mapping(section["input"])), "contract-case-input")
+    name, kind = input_contract(section["version"])
+    source = ref(records.reference(mapping(section["input"])), kind)
     if any(
         context[key] != expected
         for key, expected in (
@@ -419,7 +431,7 @@ def validate_case_section(
     if procedure["input_schema_ref"] != schema["ref"] or procedure["slots"] != []:
         raise CatalogError("COMPOSITION_REJECTED")
     probes = sequence(procedure["probe"])
-    expected = [{"name": "capture", "source_ref": source, "selector": "capture"}]
+    expected = [{"name": name, "source_ref": source, "selector": name}]
     if not probes or mapping(probes[0])["input_bindings"] != expected:
         raise CatalogError("COMPOSITION_REJECTED")
     # Bind original schema bytes to the selected package listing, not a reserialization.
@@ -457,7 +469,7 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         body = mapping(validated["payload"])
         nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
         sections = sequence(load_json(text(body["text"], 65536)))
-        if mapping(checked["payload"])["composition_version"] == 2:
+        if mapping(checked["payload"])["composition_version"] in (2, 3):
             nested.extend([mapping(sections[4])["context"], mapping(sections[4])["input"]])
         for value in [body["prompt_bundle"], *nested]:
             item = mapping(value)
@@ -465,7 +477,7 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
                 raise CatalogError("COMPOSITION_REJECTED")
         compositions.append(validated)
     result: dict[str, object] = {
-        "protocol": PROTOCOL,
+        "protocol": contract.manifest_protocol(checked),
         "manifest": checked,
         "compositions": compositions,
     }

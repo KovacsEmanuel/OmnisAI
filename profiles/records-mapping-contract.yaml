@@ -1,0 +1,30 @@
+schema_version: 1
+key: records-mapping-contract
+execution_preference: null
+agent_recipes:
+- key: records-mapper
+  role: RECON
+  package_refs:
+  - kind: CANDIDATE
+    package_key: records-mapping-contract
+    entity_kind: package
+    key: records-mapping-contract
+  technique_refs:
+  - kind: CANDIDATE
+    package_key: records-mapping-contract
+    entity_kind: technique
+    key: records-mapping
+  procedure_refs:
+  - kind: CANDIDATE
+    package_key: records-mapping-contract
+    entity_kind: procedure
+    key: map-records
+  overlay_refs: []
+  execution_preference: null
+  requested_capabilities: []
+  limits:
+    max_attempts: 1
+    max_actions: 2
+    deadline_seconds: 300
+    max_output_bytes: 65536
+    max_fanout: 1

@@ -38,10 +38,15 @@ def check_evaluations(
     if len(records) != 2:
         raise CatalogError("EVALUATION_MISMATCH")
     capture_v2 = payload(records[0]).get("protocol") == "c03-static-pure-capture-v2"
-    if capture_v2:
+    records_v3 = payload(records[0]).get("protocol") == "c03-static-pure-records-v3"
+    if capture_v2 or records_v3:
         first_input = valid_ref(payload(records[0]).get("input_ref"))
         second_input = valid_ref(payload(records[1]).get("input_ref"))
-        if first_input["kind"] != "contract-case-input" or first_input != second_input:
+        if (
+            first_input["kind"]
+            != ("contract-case-records" if records_v3 else "contract-case-input")
+            or first_input != second_input
+        ):
             raise CatalogError("EVALUATION_MISMATCH")
     for kind, record in zip(("STATIC", "PURE"), records, strict=True):
         body = payload(record)
@@ -53,8 +58,16 @@ def check_evaluations(
             "dependency_closure_refs": closure,
             "compiler_revision": COMPILER_REVISION,
             "evaluator_revision": EVALUATOR_REVISION,
-            "evaluator": "omnis-static-pure-capture-v2" if capture_v2 else "omnis-static-pure-v1",
-            "protocol": "c03-static-pure-capture-v2" if capture_v2 else "b06a-static-pure-v1",
+            "evaluator": "omnis-static-pure-records-v3"
+            if records_v3
+            else "omnis-static-pure-capture-v2"
+            if capture_v2
+            else "omnis-static-pure-v1",
+            "protocol": "c03-static-pure-records-v3"
+            if records_v3
+            else "c03-static-pure-capture-v2"
+            if capture_v2
+            else "b06a-static-pure-v1",
             "created_by": value["owner_id"],
             "evaluation_kind": kind,
             "status": kind + "_PASS",

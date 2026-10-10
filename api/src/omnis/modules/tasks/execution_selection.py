@@ -32,12 +32,12 @@ def selection_payload(
     ):
         raise CatalogError("UNSUPPORTED_RECIPE")
     if compiled.slots:
-        from .contract_case_input import CAPTURE_BINDING, require_capture_slots
+        from .contract_case_input import first_binding, slot_contract
 
-        require_capture_slots([s.model_dump(mode="json") for s in compiled.slots])
+        version = slot_contract([s.model_dump(mode="json") for s in compiled.slots])
         if not compiled.steps or [
             b.model_dump(mode="json") for b in compiled.steps[0].bindings
-        ] != [CAPTURE_BINDING]:
+        ] != [first_binding(version)]:
             raise CatalogError("UNSUPPORTED_RECIPE")
     selected: list[dict[str, object]] = []
     for source in recipe.package_refs:

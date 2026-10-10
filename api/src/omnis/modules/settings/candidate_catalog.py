@@ -106,6 +106,7 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         "evaluate": {"snapshot_ref", "evaluation_kind", "input"},
         "readback": {"snapshot_ref"},
         "admit-evaluation-capture": {"snapshot_ref", "value"},
+        "admit-evaluation-records": {"snapshot_ref", "value"},
     }
     capture_v2 = (
         isinstance(value, dict)
@@ -113,7 +114,13 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         and value.get("schema_version") == 2
         and operation in ("admit-evaluation-capture", "evaluate")
     )
-    if capture_v2 and operation == "evaluate":
+    records_v3 = (
+        isinstance(value, dict)
+        and type(value.get("schema_version")) is int
+        and value.get("schema_version") == 3
+        and operation in ("admit-evaluation-records", "evaluate")
+    )
+    if (capture_v2 or records_v3) and operation == "evaluate":
         fields["evaluate"] = {"snapshot_ref", "evaluation_kind", "input_ref"}
     if operation not in fields or not isinstance(value, dict):
         raise CatalogError("INVALID_REQUEST")
@@ -148,8 +155,9 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     check_text(value)
     if (
         type(value["schema_version"]) is not int
-        or value["schema_version"] != (2 if capture_v2 else 1)
+        or value["schema_version"] != (3 if records_v3 else 2 if capture_v2 else 1)
         or (operation == "admit-evaluation-capture" and not capture_v2)
+        or (operation == "admit-evaluation-records" and not records_v3)
     ):
         raise CatalogError("INVALID_REQUEST")
     uuid_string(value["owner_id"])
@@ -168,14 +176,13 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         for path in [*packages, value["profile"]]:
             if type(path) is not str or not Path(path).is_absolute() or "\x00" in path:
                 raise CatalogError("INVALID_REQUEST")
-    elif capture_v2:
+    elif capture_v2 or records_v3:
         if valid_ref(value["snapshot_ref"])["kind"] != "candidate-snapshot":
             raise CatalogError("INVALID_REQUEST")
         if operation == "evaluate":
-            if (
-                value["evaluation_kind"] not in ("STATIC", "PURE")
-                or valid_ref(value["input_ref"])["kind"] != "contract-case-input"
-            ):
+            if value["evaluation_kind"] not in ("STATIC", "PURE") or valid_ref(value["input_ref"])[
+                "kind"
+            ] != ("contract-case-records" if records_v3 else "contract-case-input"):
                 raise CatalogError("INVALID_REQUEST")
         elif not isinstance(value["value"], dict):
             raise CatalogError("INVALID_REQUEST")
@@ -231,6 +238,12 @@ def check_capture_admission(record: object, expected: dict[str, object]) -> None
         or body != expected
     ):
         raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
+
+
+def case_version(compiled: CompiledCatalog) -> int:
+    from omnis.modules.tasks.contract_case_input import slot_contract
+
+    return slot_contract([s.model_dump(mode="json") for s in compiled.slots])
 
 
 class CandidateCatalog:
@@ -327,13 +340,13 @@ class CandidateCatalog:
             await store.lock(connection, "owner:" + owner)
             prior = await store.replay(connection, owner, command, operation, value)
             if prior is not None:
-                if operation == "admit-evaluation-capture":
+                if operation in ("admit-evaluation-capture", "admit-evaluation-records"):
                     await self.capture_readback(connection, owner, value, prior)
                 if operation in ("freeze", "evaluate"):
                     ref = prior.get("snapshot_ref", value.get("snapshot_ref"))
                     await self.snapshot_readback(connection, owner, valid_ref(ref))
                 return prior
-            if operation == "admit-evaluation-capture":
+            if operation in ("admit-evaluation-capture", "admit-evaluation-records"):
                 result = await self.admit_evaluation_capture(connection, owner, value)
             elif operation == "evaluate":
                 result = await self.evaluate(connection, owner, value)
@@ -453,7 +466,10 @@ class CandidateCatalog:
         # Read back the exact committed command on a fresh connection.
         async with self.engine.connect() as connection:
             readback = await store.replay(connection, owner, command, operation, value)
-            if readback is not None and operation == "admit-evaluation-capture":
+            if readback is not None and operation in (
+                "admit-evaluation-capture",
+                "admit-evaluation-records",
+            ):
                 await self.capture_readback(connection, owner, value, readback)
             elif readback is not None and operation == "evaluate":
                 await self.snapshot_readback(connection, owner, valid_ref(value["snapshot_ref"]))
@@ -688,8 +704,11 @@ class CandidateCatalog:
             files = {"receipt.json": canonical(record)}
             input_ref = receipt["input_ref"]
             capture_v2 = receipt.get("protocol") == "c03-static-pure-capture-v2"
-            if capture_v2:
-                if receipt.get("evaluator") != "omnis-static-pure-capture-v2":
+            records_v3 = receipt.get("protocol") == "c03-static-pure-records-v3"
+            if capture_v2 or records_v3:
+                if receipt.get("evaluator") != (
+                    "omnis-static-pure-records-v3" if records_v3 else "omnis-static-pure-capture-v2"
+                ) or case_version(compiled) != (2 if records_v3 else 1):
                     raise CatalogError("EVALUATION_MISMATCH")
                 material = await self.capture_material(
                     connection, owner, group, snapshot, compiled, records, input_ref
@@ -747,19 +766,19 @@ class CandidateCatalog:
     ) -> tuple[dict[str, object], dict[str, object], bytes, str]:
         """Resolve schema bytes through the selected frozen procedure, never caller refs."""
         from omnis.modules.tasks.contract_case_input import (
-            CAPTURE_BINDING,
-            capture_schema,
-            require_capture_slots,
+            first_binding,
+            input_schema,
         )
 
         from .catalog_models import CandidateRef, LocalRef, Manifest, Procedure, Profile
         from .catalog_schema import dto
 
-        require_capture_slots([s.model_dump(mode="json") for s in compiled.slots])
+        version = case_version(compiled)
         if (
             compiled.verification_kind != "CONTRACT"
             or not compiled.steps
-            or [b.model_dump(mode="json") for b in compiled.steps[0].bindings] != [CAPTURE_BINDING]
+            or [b.model_dump(mode="json") for b in compiled.steps[0].bindings]
+            != [first_binding(version)]
         ):
             raise CatalogError("UNSUPPORTED_CAPTURE_SLOT")
         directory = self.root / "candidates" / str(snapshot["id"])
@@ -794,7 +813,7 @@ class CandidateCatalog:
         if len(paths) != 1:
             raise CatalogError("REF_MISMATCH")
         raw = read_file(package_dir / paths[0], 8192)
-        if canonical(capture_schema(raw)) != compiled.input_schema:
+        if canonical(input_schema(raw, version=version)) != compiled.input_schema:
             raise CatalogError("REF_MISMATCH")
 
         def selected_ref(kind: str, key: str) -> dict[str, object]:
@@ -825,10 +844,11 @@ class CandidateCatalog:
         snapshot: dict[str, object],
         procedure_ref: dict[str, object],
         schema_ref: dict[str, object],
+        version: int = 1,
     ) -> dict[str, object]:
         body = payload(snapshot)
         return {
-            "version": 1,
+            "version": version,
             "namespace": "PACKAGE_EVAL",
             "owner_id": owner,
             "snapshot_ref": store.reference(snapshot),
@@ -852,6 +872,7 @@ class CandidateCatalog:
         from omnis.modules.tasks.contract_case_input import material_section
 
         procedure_ref, schema_ref, raw, path = self.capture_spec(snapshot, compiled, records)
+        version = case_version(compiled)
         input_group, input_record = await store.get(connection, owner, valid_ref(input_ref))
         context_group, context = await store.get(
             connection, owner, valid_ref(payload(input_record).get("context_ref"))
@@ -861,10 +882,10 @@ class CandidateCatalog:
             connection, owner, valid_ref(context_body.get("basis_ref"))
         )
         check_capture_admission(
-            admission, self.admission_payload(owner, snapshot, procedure_ref, schema_ref)
+            admission, self.admission_payload(owner, snapshot, procedure_ref, schema_ref, version)
         )
         expected_context = {
-            "version": 1,
+            "version": version,
             "namespace": "PACKAGE_EVAL",
             "owner_id": owner,
             "basis_ref": store.reference(admission),
@@ -910,14 +931,17 @@ class CandidateCatalog:
             index,
         )
         procedure_ref, schema_ref, raw, path = self.capture_spec(snapshot, compiled, records)
+        version = case_version(compiled)
+        if value["schema_version"] != version + 1:
+            raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
         admission = store.envelope(
             "evaluation-admission",
-            self.admission_payload(owner, snapshot, procedure_ref, schema_ref),
+            self.admission_payload(owner, snapshot, procedure_ref, schema_ref, version),
         )
         context = store.envelope(
             "contract-input-context",
             {
-                "version": 1,
+                "version": version,
                 "namespace": "PACKAGE_EVAL",
                 "owner_id": owner,
                 "basis_ref": store.reference(admission),
@@ -985,6 +1009,7 @@ class CandidateCatalog:
         provenance = payload(input_record).get("provenance")
         if (
             result != expected
+            or material["version"] != (2 if value["schema_version"] == 3 else 1)
             or payload(input_record)["value"] != value["value"]
             or not isinstance(provenance, dict)
             or provenance.get("command_id") != value["command_id"]
@@ -1012,10 +1037,13 @@ class CandidateCatalog:
             [valid_ref(r) for r in body["candidate_refs"]],
             pinned_index,
         )
-        capture_v2 = value["schema_version"] == 2
+        capture_v2 = value["schema_version"] in (2, 3)
+        records_v3 = value["schema_version"] == 3
         capture_material = None
         input_record = None
         if capture_v2:
+            if case_version(compiled) != (2 if records_v3 else 1):
+                raise CatalogError("EVALUATION_ADMISSION_MISMATCH")
             capture_material = await self.capture_material(
                 connection, owner, group, snapshot, compiled, records, value["input_ref"]
             )
@@ -1051,11 +1079,17 @@ class CandidateCatalog:
                 "dependency_closure_refs": body["dependency_closure_refs"],
                 "dependency_closure_digest": digest(canonical(body["dependency_closure_refs"])),
                 "compiler_revision": COMPILER_REVISION,
-                "evaluator": "omnis-static-pure-capture-v2"
+                "evaluator": "omnis-static-pure-records-v3"
+                if records_v3
+                else "omnis-static-pure-capture-v2"
                 if capture_v2
                 else "omnis-static-pure-v1",
                 "evaluator_revision": EVALUATOR_REVISION,
-                "protocol": "c03-static-pure-capture-v2" if capture_v2 else "b06a-static-pure-v1",
+                "protocol": "c03-static-pure-records-v3"
+                if records_v3
+                else "c03-static-pure-capture-v2"
+                if capture_v2
+                else "b06a-static-pure-v1",
                 "tool_versions": {"trusted_handlers": "contract-v1"},
                 "corpus_ref": None,
                 "evaluation_kind": value["evaluation_kind"],
@@ -1159,6 +1193,7 @@ def main(argv: list[str] | None = None) -> int:
             "evaluate",
             "readback",
             "admit-evaluation-capture",
+            "admit-evaluation-records",
         ),
     )
     parser.add_argument("--request", required=True)

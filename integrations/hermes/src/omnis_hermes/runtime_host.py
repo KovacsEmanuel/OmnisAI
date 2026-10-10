@@ -270,7 +270,7 @@ class RuntimeHost:
         self._preparation_ready()
         if result["protocol"] != payload["protocol"]:
             raise ValueError("Native managed protocol mismatch")
-        composed = payload["protocol"] == managed.PROTOCOL_V2
+        composed = payload["protocol"] in (managed.PROTOCOL_V2, managed.PROTOCOL_V3)
         if operation == "task_stage":
             manifest = managed.validate_stage(payload)
             rows = managed.entries(

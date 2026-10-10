@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "verdict": "TRACER_PASS_NOT_CLOSED",
+  "base": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+  "scope": "New records PACKAGE_EVAL real transforms/private Publish/new persistent RUN input/BoundProcedure/all requirements/structured composition/native source validator. Preparation double only; installed-native lifecycle NOT_RUN.",
+  "files": {
+    "api/src/omnis/modules/runs/contract_inputs.py": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+    "api/src/omnis/modules/runs/managed_admission.py": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+    "api/src/omnis/modules/settings/candidate_catalog.py": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+    "api/src/omnis/modules/settings/catalog_publication.py": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+    "api/src/omnis/modules/settings/skill_catalog.py": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+    "api/src/omnis/modules/tasks/contract_case_input.py": "7dc360542c41016ff485a0a3aa92aeca58b48cd359d927038e97fbeafd6671bc",
+    "api/src/omnis/modules/tasks/execution_selection.py": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+    "api/src/omnis/modules/tasks/managed_composition.py": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+    "api/src/omnis/modules/tasks/managed_contract.py": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+    "api/src/omnis/supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+    "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+    "api/tests/test_c03_records_contract.py": "49a2afc9b4d1b8ba353710803aa7c510b1f48bd7fc4548f180973996839224ab",
+    "api/tests/test_c03_records_pg.py": "c1478ca06d18db09afbd4d1aadef6630b76579614e10b4806c737946ab8ff06c",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467",
+    "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6",
+    "profiles/records-mapping-contract.yaml": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+    "skills/records-mapping-contract/NOTICE.md": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+    "skills/records-mapping-contract/SKILL.md": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+    "skills/records-mapping-contract/omnis.yaml": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+    "skills/records-mapping-contract/references/methodology.md": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+    "skills/records-mapping-contract/templates/procedures/map-records.yaml": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+    "skills/records-mapping-contract/templates/schemas/empty.schema.json": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+    "skills/records-mapping-contract/templates/schemas/operations.schema.json": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+    "skills/records-mapping-contract/templates/schemas/records.schema.json": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+    "skills/records-mapping-contract/templates/schemas/surface_map.schema.json": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f"
+  },
+  "red": [
+    {
+      "boundary": "compiler valid two-step records source",
+      "exit_code": 1,
+      "reason": "UNSUPPORTED_STEP_COUNT",
+      "log": "/home/kali/.hermes/cache/scratch/c03records-20261010/compiler-red.log"
+    },
+    {
+      "boundary": "PG fresh candidate capture/review/freeze then private admit-evaluation-records",
+      "session": "proc_641c3f46cf5b",
+      "exit_code": 2,
+      "passed": 27,
+      "failed": 1,
+      "reason": "admit-evaluation-records unavailable exit2",
+      "family_drained": true,
+      "cid": "66558a3ebb482637786d84d67e7f0dc4d9605620a5cc7317e31f9244f7c8e3c7",
+      "exact_cid_absent": true,
+      "log_sha256": "bbf225fe70ff0d3d875044e4fb2baeaa676ec8b174fa333936fbcc662f2f953b"
+    }
+  ],
+  "green": {
+    "session": "proc_82d04fd98c00",
+    "command": "env -i HOME=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/home PATH=/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/r3-5gjabhuw api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-c03-pg --uv /home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools/uv --timeout-seconds 900",
+    "exit_code": 0,
+    "passed": 28,
+    "seconds": 120.63,
+    "family_drained": true,
+    "cid": "9b53b1356bd716568c14e1fbf91455d67134ae67dc0898a6c23b16efe9c9f43b",
+    "exact_cid_absent": true,
+    "root": "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/db-d736b4dfd8774120",
+    "log_sha256": "e0a2d2bfeecc9fa798bfe1a693b6559369623343c40bc3358bfed87c12b5353f"
+  },
+  "checks": {
+    "make lint-api typecheck-api": 0,
+    "make check-runtime": {
+      "exit": 0,
+      "pytest_passed": 279,
+      "AST_tests": 6
+    },
+    "git diff --check": 0
+  },
+  "retained_failures": [
+    {
+      "boundary": "native capture regression during WIP",
+      "result": "35FAIL/2PASS caused by input-kind local variable overwritten by context-ref loop; fixed loop variable and37PASS",
+      "product_acceptance": "no historical acceptance reopened; WIP bytes corrected"
+    },
+    {
+      "boundary": "ad-hoc source parity selection included five PG tests outside runner",
+      "result": "165PASS/5ERROR required fixture missing; no DB or effects",
+      "disposition": "NOT_RUN for those PG cases; full canonical will use runner, no guard weakened"
+    },
+    {
+      "boundary": "typing",
+      "result": "first_binding invariant dict type; explicit dict[str,object] annotations; strict mypy now exit0"
+    }
+  ],
+  "not_run": [
+    "independent final code reviews",
+    "independent installed/native QA",
+    "live browser",
+    "final nereduced make check"
+  ],
+  "retention": "Owned PGDATA/logs preserved; per-test DBs dropped by existing fixture. No historical resources adopted, no push."
+}

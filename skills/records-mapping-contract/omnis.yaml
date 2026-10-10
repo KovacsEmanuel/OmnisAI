@@ -1,0 +1,73 @@
+schema_version: 1
+package_key: records-mapping-contract
+version: 0.1.0
+native_name: records-mapping-contract
+execution_preference: null
+skill_path: SKILL.md
+techniques:
+- schema_version: 1
+  key: records-mapping
+  family: recon
+  work_kind: RECON
+  cwe_ids: []
+  standards: []
+  objective: Map supplied records only.
+  hypothesis: Provided records can be grouped deterministically.
+  invariant: No network/model/target effects.
+  method_ref: references/methodology.md
+  applicability_predicate_ids: []
+  technologies: []
+  limitations:
+  - Synthetic input only; not coverage or vulnerability evidence.
+  procedure_refs:
+  - kind: LOCAL
+    entity_kind: procedure
+    key: map-records
+procedures:
+- templates/procedures/map-records.yaml
+support_files:
+- references/methodology.md
+- NOTICE.md
+- templates/schemas/records.schema.json
+- templates/schemas/operations.schema.json
+- templates/schemas/surface_map.schema.json
+- templates/schemas/empty.schema.json
+file_bindings:
+- entity_kind: schema
+  key: records
+  path: templates/schemas/records.schema.json
+- entity_kind: schema
+  key: operations
+  path: templates/schemas/operations.schema.json
+- entity_kind: schema
+  key: surface_map
+  path: templates/schemas/surface_map.schema.json
+- entity_kind: schema
+  key: empty
+  path: templates/schemas/empty.schema.json
+input_schema_ref:
+  kind: LOCAL
+  entity_kind: schema
+  key: records
+output_schema_ref:
+  kind: LOCAL
+  entity_kind: schema
+  key: surface_map
+compatibility:
+  hermes_revision: ee5ee84a345204a3b1d6ef6ba1ab747e602867b9
+  brief_schema: 1
+  result_schema: 1
+  adapter_refs: []
+  tool_refs: []
+  predicate_refs: []
+  oracle_refs: []
+provenance:
+- repository: OmnisAI
+  revision: 5ccf90af410e14abf5bf5d9e9807a44824323b9b
+  path: references/methodology.md
+  source_digest: 8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46
+  license_id: LicenseRef-Omnis-FirstParty
+  notice_paths:
+  - NOTICE.md
+  modification_note: New first-party structured records variant; no upstream code
+    or historical release edited.

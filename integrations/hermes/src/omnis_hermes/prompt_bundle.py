@@ -45,6 +45,7 @@ BASE_TEXT = (
 )
 ROLE_TEXT = "SUPPORT-only cold admission probe; not an assessment."
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
+CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -239,7 +240,10 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
                     key(source["output_name"])
                 else:
                     reference(source)
-                    if source["kind"] == "contract-case-input" and not capture_bound:
+                    if (
+                        source["kind"] in ("contract-case-input", "contract-case-records")
+                        and not capture_bound
+                    ):
                         raise reject()
     seen = set()
     for item in sequence(p["method_requirements"], 1):
@@ -324,8 +328,9 @@ def _brief(
         ("result_schema_ref", "schema"),
     ):
         reference(header[field], kind)
-    input_refs = [] if capture is None else [ref(envelope(capture["input"], "contract-case-input"))]
-    refs(body["input_artifact_refs"], "contract-case-input", len(input_refs), len(input_refs))
+    input_name, input_kind = _input_contract(1 if capture is None else capture["version"])
+    input_refs = [] if capture is None else [ref(envelope(capture["input"], input_kind))]
+    refs(body["input_artifact_refs"], input_kind, len(input_refs), len(input_refs))
     if canonical(body["input_artifact_refs"]) != canonical(input_refs):
         raise reject()
     contexts = sequence(body["context"], 2 + len(input_refs), 2 + len(input_refs))
@@ -352,7 +357,7 @@ def _brief(
     )
     reference(bound["procedure_ref"], "procedure")
     reference(bound["mission_ref"], "mission")
-    slots = [] if capture is None else [{"slot_name": "capture", "refs": input_refs}]
+    slots = [] if capture is None else [{"slot_name": input_name, "refs": input_refs}]
     if bound["mission_ref"] != header["mission_revision"] or canonical(
         bound["slot_values"]
     ) != canonical(slots):
@@ -399,14 +404,61 @@ def _case_ref(value: object, kind: str) -> dict[str, object]:
     return result
 
 
+def _input_contract(version: object) -> tuple[str, str]:
+    checked = integer(version, 1, 2)
+    return (
+        ("records", "contract-case-records") if checked == 2 else ("capture", "contract-case-input")
+    )
+
+
+def _records_value(schema: dict[str, object], value: object) -> None:
+    """Independent installed-handler language check; never executes a PURE step."""
+    methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+    pattern = r"^/[^\\\s]*$"
+    expected = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["records"],
+        "properties": {
+            "records": {
+                "type": "array",
+                "maxItems": 128,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["method", "path", "status"],
+                    "properties": {
+                        "method": {"type": "string", "enum": methods},
+                        "path": {"type": "string", "maxLength": 240, "pattern": pattern},
+                        "status": {"type": "integer", "minimum": 100, "maximum": 599},
+                    },
+                },
+            }
+        },
+    }
+    if canonical(schema) != canonical(expected) or len(canonical(value)) > 8192:
+        raise reject()
+    for raw in sequence(obj(value, {"records"})["records"], 0, 128):
+        item = obj(raw, {"method", "path", "status"})
+        if type(item["method"]) is not str or item["method"] not in methods:
+            raise reject()
+        path = item["path"]
+        if type(path) is not str or len(path) > 240 or re.fullmatch(pattern, path) is None:
+            raise reject()
+        raw_text(path.encode("utf-8"))
+        integer(item["status"], 100, 599)
+
+
 def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
     """Bounded synthetic input only; no source lookup, normalization or execution."""
     material = obj(value, {"section", "version", "context", "input", "schema"})
-    integer(material["version"], 1, 1)
+    version = integer(material["version"], 1, 2)
+    name, kind = _input_contract(version)
     if material["section"] != "case-input":
         raise reject()
     context = envelope(material["context"], "contract-input-context")
-    input_record = envelope(material["input"], "contract-case-input")
+    input_record = envelope(material["input"], kind)
     if len(canonical(input_record)) > 8192:
         raise reject()
     c = obj(
@@ -420,12 +472,13 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         set("version value schema_ref owner_id context_ref provenance".split()),
     )
     for body in (c, v):
-        integer(body["version"], 1, 1)
         uuid(body["owner_id"])
         _case_ref(body["schema_ref"], "schema")
+    integer(c["version"], version, version)
+    integer(v["version"], 1, 1)
     if c["namespace"] != "RUN" or c["owner_id"] != v["owner_id"]:
         raise reject()
-    for field, kind in (
+    for field, ref_kind in (
         ("basis_ref", "managed-run"),
         ("snapshot_ref", "run-snapshot"),
         ("procedure_ref", "procedure"),
@@ -433,7 +486,7 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         ("mission_ref", "mission"),
         ("focus_ref", "focus"),
     ):
-        _case_ref(c[field], kind)
+        _case_ref(c[field], ref_kind)
     if _case_ref(v["context_ref"], "contract-input-context") != ref(context):
         raise reject()
     provenance = obj(
@@ -441,8 +494,8 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
     )
     uuid(provenance["command_id"])
     if {k: provenance[k] for k in ("producer_key", "producer_revision", "source_kind")} != {
-        "producer_key": "contract-case-input",
-        "producer_revision": "contract-case-input-v1",
+        "producer_key": kind,
+        "producer_revision": kind + "-v1",
         "source_kind": "SYNTHETIC",
     }:
         raise reject()
@@ -467,23 +520,26 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         or schema["$schema"] != "https://json-schema.org/draft/2020-12/schema"
         or schema["type"] != "object"
         or schema["additionalProperties"] is not False
-        or schema["required"] != ["capture"]
+        or schema["required"] != [name]
     ):
         raise reject()
-    prop = mapping(obj(schema["properties"], {"capture"})["capture"])
-    obj(prop, {"type", "maxLength"} | ({"minLength"} if "minLength" in prop else set()))
-    maximum = integer(prop["maxLength"], 1, 65536)
-    minimum = integer(prop.get("minLength", 0), 0, maximum)
-    capture = obj(v["value"], {"capture"})["capture"]
-    if (
-        prop["type"] != "string"
-        or type(capture) is not str
-        or not minimum <= len(capture) <= maximum
-        or len(capture.encode("utf-8")) > 4096
-        or len(canonical(v["value"])) > 8192
-    ):
-        raise reject()
-    raw_text(capture.encode("utf-8"))
+    if version == 2:
+        _records_value(schema, v["value"])
+    else:
+        prop = mapping(obj(schema["properties"], {"capture"})["capture"])
+        obj(prop, {"type", "maxLength"} | ({"minLength"} if "minLength" in prop else set()))
+        maximum = integer(prop["maxLength"], 1, 65536)
+        minimum = integer(prop.get("minLength", 0), 0, maximum)
+        capture = obj(v["value"], {"capture"})["capture"]
+        if (
+            prop["type"] != "string"
+            or type(capture) is not str
+            or not minimum <= len(capture) <= maximum
+            or len(capture.encode("utf-8")) > 4096
+            or len(canonical(v["value"])) > 8192
+        ):
+            raise reject()
+        raw_text(capture.encode("utf-8"))
     candidates = [
         mapping(k) for k in skills if mapping(mapping(k)["package_ref"])["digest"] == sr["digest"]
     ]
@@ -522,19 +578,24 @@ def _capture_assignment(
         )
     ):
         raise reject()
-    if p["key"] != "map-capture" or any(p[g] != [] for g in ("baseline", "control", "cleanup")):
+    version = integer(material["version"], 1, 2)
+    name, kind = _input_contract(version)
+    if p["key"] != ("map-records" if version == 2 else "map-capture") or any(
+        p[g] != [] for g in ("baseline", "control", "cleanup")
+    ):
         raise reject()
-    steps = sequence(p["probe"], 3, 3)
+    count = 2 if version == 2 else 3
+    steps = sequence(p["probe"], count, count)
     expected: list[dict[str, object]] = [
         {
-            "name": "capture",
-            "source_ref": ref(envelope(material["input"], "contract-case-input")),
-            "selector": "capture",
+            "name": name,
+            "source_ref": ref(envelope(material["input"], kind)),
+            "selector": name,
         }
     ]
     if canonical(mapping(steps[0])["input_bindings"]) != canonical(expected):
         raise reject()
-    for i, name in enumerate(("records", "operations"), 1):
+    for i, name in enumerate(("operations",) if version == 2 else ("records", "operations"), 1):
         expected = [
             {
                 "name": name,
@@ -647,12 +708,15 @@ def _material(
     raw = payload["text"].encode("utf-8")
     sections = sequence(loads(raw, maximum), 5, 7)
     has_capture = mapping(sections[4]).get("section") == "case-input"
-    actual_version = 2 if has_capture else 1
-    if (version is not None and version != actual_version) or b["composer_revision"] not in (
-        {composer_revision(), LEGACY_COMPOSER_REVISION}
-        if actual_version == 1
-        else {composer_revision()}
-    ):
+    actual_version = 1 + integer(mapping(sections[4])["version"], 1, 2) if has_capture else 1
+    revisions = {composer_revision()}
+    if actual_version <= 2:
+        revisions.add(CAPTURE_COMPOSER_REVISION)
+    if actual_version == 1:
+        revisions.add(LEGACY_COMPOSER_REVISION)
+    if (version is not None and version != actual_version) or b[
+        "composer_revision"
+    ] not in revisions:
         raise reject()
     if (
         canonical(sections) != raw
@@ -716,7 +780,7 @@ def validate_composition(value: object, manifest: object, entry: object) -> byte
         },
     )
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
-    version = integer(launch.get("composition_version"), 1, 2)
+    version = integer(launch.get("composition_version"), 1, 3)
     raw, brief, body = _material(payload, version)
     e = obj(entry, {"batch_index", "task_id", "attempt_id", "brief_ref", "composition_ref", "goal"})
     header = mapping(body["header"])

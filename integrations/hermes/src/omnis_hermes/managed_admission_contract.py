@@ -6,6 +6,7 @@ from .native_preparation_contract import bounded, canonical, digest, obj, refere
 
 PROTOCOL = "omnis-managed-admission-v1"
 PROTOCOL_V2 = "omnis-managed-admission-v2"
+PROTOCOL_V3 = "omnis-managed-admission-v3"
 OPS = frozenset({"task_stage", "task_release", "task_status"})
 RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
@@ -62,13 +63,16 @@ def entries(value: object, *, native: bool, composed: bool = False) -> list[dict
 def wire(value: object, fields: set[str]) -> dict[str, object]:
     bounded(value)
     value = obj(value, fields | {"protocol"})
-    if value["protocol"] not in (PROTOCOL, PROTOCOL_V2) or len(canonical(value)) > MAX_BYTES:
+    if (
+        value["protocol"] not in (PROTOCOL, PROTOCOL_V2, PROTOCOL_V3)
+        or len(canonical(value)) > MAX_BYTES
+    ):
         raise ValueError("Invalid managed protocol")
     return value
 
 
 def validate_stage(value: object) -> dict[str, object]:
-    composed = type(value) is dict and value.get("protocol") == PROTOCOL_V2
+    composed = type(value) is dict and value.get("protocol") in (PROTOCOL_V2, PROTOCOL_V3)
     value = wire(value, {"manifest", "compositions"} if composed else {"manifest"})
     result = envelope(value["manifest"], "launch-manifest")
     fields = {"run_id", "selection_ref", "resolution", "effective", "entries"}
@@ -77,7 +81,8 @@ def validate_stage(value: object) -> dict[str, object]:
     payload = obj(result["payload"], fields)
     if composed and (
         type(payload["composition_version"]) is not int
-        or payload["composition_version"] not in (1, 2)
+        or payload["composition_version"]
+        not in ((3,) if value["protocol"] == PROTOCOL_V3 else (1, 2))
     ):
         raise ValueError("Invalid composition version")
     uuid(payload["run_id"])
@@ -85,8 +90,8 @@ def validate_stage(value: object) -> dict[str, object]:
     if payload["resolution"] != "NO_MODEL" or payload["effective"] is not None:
         raise ValueError("Only NO_MODEL admission is supported")
     rows = entries(payload["entries"], native=False, composed=composed)
-    if composed and payload["composition_version"] == 2 and len(rows) != 1:
-        raise ValueError("Capture composition requires one attempt")
+    if composed and payload["composition_version"] in (2, 3) and len(rows) != 1:
+        raise ValueError("Case input composition requires one attempt")
     if composed:
         from .prompt_bundle import validate_composition
 
@@ -116,7 +121,9 @@ def validate_release(value: object) -> dict[str, object]:
     for k in ("runtime_boot", "run_id", "ticket"):
         uuid(payload[k])
     text(payload["native_root_id"])
-    entries(payload["entries"], native=True, composed=value["protocol"] == PROTOCOL_V2)
+    entries(
+        payload["entries"], native=True, composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3)
+    )
     authority = obj(payload["authority"], {"instance_id", "owner", "epoch", "generation"})
     uuid(authority["instance_id"])
     uuid(authority["owner"])
@@ -145,5 +152,5 @@ def validate_response(value: object) -> dict[str, object]:
     elif value["status"] != "STAGED":
         raise ValueError("Invalid native stage")
     text(value["native_root_id"])
-    entries(value["entries"], native=True, composed=value["protocol"] == PROTOCOL_V2)
+    entries(value["entries"], native=True, composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3))
     return value

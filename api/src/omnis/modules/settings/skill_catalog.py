@@ -129,7 +129,10 @@ def compile_catalog(
     from .candidate_store import reference as record_ref
 
     compiled = _compile_catalog(package_roots, profile_path, dependencies=dependencies)
-    if dependencies and any(slot.expected_kind == "contract-case-input" for slot in compiled.slots):
+    if dependencies and any(
+        slot.expected_kind in {"contract-case-input", "contract-case-records"}
+        for slot in compiled.slots
+    ):
         raise CatalogError("UNSUPPORTED_CAPTURE_DEPENDENCY")
     by_ref = {canonical(record_ref(artifact(d))): d for d in dependencies}
     # Each exact release is checked once against its own profile and transitive inventory.
@@ -564,10 +567,20 @@ def _compile_catalog(
         input_schema = get_schema(key, procedure.input_schema_ref)
         output_schema = get_schema(key, procedure.output_schema_ref)
         get_schema(key, procedure.handoff_schema_ref)
+        from omnis.modules.tasks.contract_case_input import (
+            first_binding,
+            require_slots,
+        )
+        from omnis.modules.tasks.contract_case_input import (
+            input_schema as case_schema,
+        )
+
+        case_version = 2 if procedure.key == "map-records" else 1
+        handlers = tuple(HANDLERS)[case_version - 1 :]
         if (
-            len(procedure.probe) != 3
-            or procedure.limits.max_actions < 3
-            or recipe.limits.max_actions < 3
+            len(procedure.probe) != len(handlers)
+            or procedure.limits.max_actions < len(handlers)
+            or recipe.limits.max_actions < len(handlers)
         ):
             raise CatalogError("UNSUPPORTED_STEP_COUNT")
 
@@ -618,14 +631,13 @@ def _compile_catalog(
                         ):
                             raise CatalogError("SCHEMA_TYPE")
 
-        if any(slot.expected_kind == "contract-case-input" for slot in procedure.slots):
-            from omnis.modules.tasks.contract_case_input import (
-                CAPTURE_BINDING,
-                capture_schema,
-                require_capture_slots,
+        if case_version == 2 or any(
+            slot.expected_kind in {"contract-case-input", "contract-case-records"}
+            for slot in procedure.slots
+        ):
+            require_slots(
+                [s.model_dump(mode="json") for s in procedure.slots], version=case_version
             )
-
-            require_capture_slots([s.model_dump(mode="json") for s in procedure.slots])
             if not isinstance(procedure.input_schema_ref, LocalRef):
                 raise CatalogError("UNSUPPORTED_CAPTURE_DEPENDENCY")
             schema_paths = [
@@ -635,12 +647,16 @@ def _compile_catalog(
             ]
             if len(schema_paths) != 1:
                 raise CatalogError("REF_TYPE")
-            capture_schema(files_by_package[key][schema_paths[0]])
+            case_schema(files_by_package[key][schema_paths[0]], version=case_version)
             if [b.model_dump(mode="json") for b in procedure.probe[0].input_bindings] != [
-                CAPTURE_BINDING
+                first_binding(case_version)
             ]:
                 raise CatalogError("INPUT_BINDING")
-        field_type(input_schema, "capture", "string")
+        field_type(
+            input_schema,
+            "records" if case_version == 2 else "capture",
+            "array" if case_version == 2 else "string",
+        )
         field_type(output_schema, "surface_map", "array")
         compiled: list[CompiledStep] = []
         outputs: dict[str, tuple[str, bytes]] = {}
@@ -654,7 +670,7 @@ def _compile_catalog(
                 raise CatalogError("UNKNOWN_HANDLER")
             handler = action.key
             expected_input, expected_output = HANDLERS[handler]
-            if handler != tuple(HANDLERS)[index] or step.tool_ref is not None:
+            if handler != handlers[index] or step.tool_ref is not None:
                 raise CatalogError("UNSUPPORTED_HANDLER_ORDER")
             parameters_schema = get_schema(key, step.parameter_schema_ref)
             validate(parameters_schema, step.parameters)
@@ -667,19 +683,11 @@ def _compile_catalog(
                 raise CatalogError("OUTPUT_REF")
             in_schema = input_schema if index == 0 else compiled[-1].output_schema
             if index == 0 and step.input_bindings:
-                if [s.model_dump(mode="json") for s in procedure.slots] != [
-                    {
-                        "name": "capture",
-                        "expected_kind": "contract-case-input",
-                        "min_items": 1,
-                        "max_items": 1,
-                    }
-                ] or [b.model_dump(mode="json") for b in step.input_bindings] != [
-                    {
-                        "name": "capture",
-                        "source_ref": {"kind": "CASE_SLOT_REF", "name": "capture"},
-                        "selector": "capture",
-                    }
+                require_slots(
+                    [s.model_dump(mode="json") for s in procedure.slots], version=case_version
+                )
+                if [b.model_dump(mode="json") for b in step.input_bindings] != [
+                    first_binding(case_version)
                 ]:
                     raise CatalogError("INPUT_BINDING")
             if index > 0:
@@ -843,8 +851,9 @@ def evaluate_pure(
     candidate: CompiledCatalog, input_object: object, *, capture_material: object | None = None
 ) -> "PureEvaluation":
     from omnis.modules.tasks.contract_case_input import (
-        CAPTURE_BINDING,
-        require_capture_slots,
+        first_binding,
+        input_contract,
+        slot_contract,
         validate_material,
     )
     from omnis.modules.tasks.module_registry import run_handler
@@ -852,13 +861,14 @@ def evaluate_pure(
     from .catalog_models import PureEvaluation
 
     capture_value: dict[str, object] | None = None
+    version = 1
     if candidate.slots:
         if capture_material is None or input_object is not None:
             raise CatalogError("UNBOUND_SLOT")
-        require_capture_slots([s.model_dump(mode="json") for s in candidate.slots])
+        version = slot_contract([s.model_dump(mode="json") for s in candidate.slots])
         if not candidate.steps or [
             b.model_dump(mode="json") for b in candidate.steps[0].bindings
-        ] != [CAPTURE_BINDING]:
+        ] != [first_binding(version)]:
             raise CatalogError("UNBOUND_SLOT")
         if not isinstance(capture_material, dict):
             raise CatalogError("UNBOUND_SLOT")
@@ -868,6 +878,8 @@ def evaluate_pure(
         if not isinstance(owner, str):
             raise CatalogError("UNBOUND_SLOT")
         material = validate_material(capture_material, namespace="PACKAGE_EVAL", owner_id=owner)
+        if material["version"] != version:
+            raise CatalogError("UNBOUND_SLOT")
         material_schema = cast(dict[str, object], material["schema"])
         if canonical(material_schema["document"]) != candidate.input_schema:
             raise CatalogError("UNBOUND_SLOT")
@@ -894,7 +906,10 @@ def evaluate_pure(
                     and step is candidate.steps[0]
                     and capture_value is not None
                 ):
-                    bound[binding.name] = capture_value["capture"]
+                    name, _ = input_contract(version)
+                    if source.name != name or binding.name != name or binding.selector != name:
+                        raise CatalogError("UNBOUND_SLOT")
+                    bound[binding.name] = capture_value[name]
                     continue
                 if not isinstance(source, StepOutputRef):
                     raise CatalogError("UNBOUND_SLOT")

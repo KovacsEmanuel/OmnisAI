@@ -450,6 +450,7 @@ class RuntimeClient:
         if checked.get("protocol") not in (
             "omnis-managed-admission-v1",
             "omnis-managed-admission-v2",
+            "omnis-managed-admission-v3",
         ):
             raise RuntimeUnavailable("Runtime payload denied")
         try:

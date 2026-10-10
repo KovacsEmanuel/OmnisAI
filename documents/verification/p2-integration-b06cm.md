@@ -1,0 +1,35 @@
+# Integrare serială B06c/B06m — registru de lucru
+
+## Mandat și limite
+
+Owner implementare: SID `20261010_215158_76ea2f`, main `/home/kali/OmnisAI`, branch `p04-control-topology-wip`. Autoritățile coordonatorului au fost citite: `launch.json` este `MONITOR_SINGLE_OWNED_INTEGRATION_USER_SETTINGS_WORK_VERIFIED`, USER80638 byte-exact; continuarea bounded rezolvă checkpointul intermediar HOLD80684. Promptul fixat are SHA256 `ccfb62ca3bd0679b31ccc37d9f5f454bf098dd6e671f3316a2dbf4e9f480fb28`, 38787 bytes. Autoritatea este code-only; niciun grant DB/OCI/copy-installed/native/browser/canonical, warm/model/cont/target/r1/global/push nu este derivat din ea. Workerii sunt FROZEN/read-only; un singur writer în main. Acesta este registrul integrării, nu un plan concurent sau o închidere.
+
+## Import serial verificat
+
+Baseline main `f8700ffcf4dc340b333502b40a0671c3c6079611` păstrat ca strămoș; commiturile C03 de după baza comună `c0261a7ae2319b57a0a3154d3e79b2ed908418f8` nu sunt înlocuite. Listele cronologice și diff_paths din ambele handoffuri au fost comparate exact cu Git. B06c delivery `3c1c15a7b95565a6ef51295ab02fb436c5ef5400`, apoi B06m `3dfb8015627d585b320c346e5af69dbc5affd7c2`: 28 cherry-picks cu `-x`, câte un commit/readback/status înaintea următorului. Snapshot importat: `a7501632c254cb1e7b341deaaf8533a4f8db0d93`. Toate căile importate, exceptând reuniunea Makefile, sunt byte-equal cu livrările workerilor (git diff --exit-code = 0).
+
+Conflictul așteptat la importul `23f835c` a fost numai lista Makefile de targets protejate; rezolvat manual în `46f355c` păstrând test-model-projection-pg și test-model-budget-pg plus toate guardurile. check-components păstrează exact dependențele baseline-ului. Runnerul primește numai alegerea targetului ledger; lifecycle/cleanup/allowlist neschimbate. Patchul propus istoric al B06m nu a fost reaplicat. Notele workerilor păstrează scope-ul, FAIL-urile și verdicturile lor, nu sunt acceptare integrată.
+
+Verificarea fără fixture a Makefile: pentru fiecare din cele două targets, -n/-t/-q/-i refuză explicit Unsafe Make flags cu exit2; fără prerequisite, projection refuză Fresh copy-installed projection preflight required, ledger refuză Dedicated PostgreSQL fixture required, fiecare exit2. Canonicalul și nicio fixture nu au pornit. Aceste refuzuri nu sunt probe PG.
+
+## Contract bounded al primului consumer
+
+Rezultat urmărit: compoziția reală → aprobarea backend exactă → ModelProjections.prepare/read calificat → carrier validat independent → request final non-stream Chat Completions bound la config/turn/attempt → admission/ledger/SENT și veto terminal. Un import sau callback best-effort nu este acel rezultat.
+
+Perimetru: componentele B06c/B06m importate; `api/src/omnis/policy/admission.py` și/sau `modules/runs/model_dispatch.py` cu primul caller; extensii strict necesare în `modules/instance/service.py`, `supervisor/native_tasks.py`/RuntimeClient și adaptorul `integrations/hermes/src/omnis_hermes/model_admission.py`; overlay managed la pinul existent numai pe seamurile autentice. Nu se creează alt owner/runner/store/provider-routing. Schema0011 rămâne până la o nevoie concretă adjudecată. Noi records/versionări numai cu primul producer și reader real.
+
+Tranzacții: InstanceControl → lease → Stop → managed-owner → scope ledger, READ COMMITTED fără autocommit. Ownerul de domeniu nu este ownerul lease. `reserve` nu permite send; callerul deține commitul, SENT trebuie durabil independent înaintea bytes. Replay/readback sunt istorice. Nu se pretinde atomicitate DB/rețea; criteriul Stop/SENT/first-byte rămâne BLOCKED până la un protocol și probe reale suficiente. RELEASED numai din RESERVED cu no-send demonstrat; după SENT, lost response/UNKNOWN păstrează alocarea.
+
+Proveniență: un seed native-turn/provider-config sau un UUID din payload nu autentifică lifecycle-ul. Purpose derivat din binding/work_kind/rol, nu cerere. SyntheticApproval este data-policy, nu permisiune de inferență; noul caller nu poate clasifica automat textele prin hashing. NO_MODEL/effective=null și guardurile cold se păstrează. Modelul dezvoltatorului nu este selecție de produs. Pozitivul nativ warm/config/sink rămâne BLOCKED dacă cere acordul live care lipsește; se implementează și verifică inert denials/conectoare reale, nu provider fals/max_iterations=0.
+
+## Dovezi și resurse
+
+Code-only/unit scratch intenționat înainte de creare: `/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f`, owner această sesiune; subdirectoare private home/tmp/cache pentru teste fixture-free pe sursă și rapoarte. Fără listener, daemon, DB, native runtime, build-installed sau profil operator. Nu reutilizează p6c/p6m/C03. Absența se verifică înaintea mkdir exclusiv; datele sintetice/logurile se păstrează. Execuțiile sunt finite și sincrone; nu există cleanup extern de executat.
+
+Probe SOURCE după import: `api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_denials.py api/tests/test_model_projection_storage.py api/tests/test_model_budget.py -q --tb=short` în HOME/TMPDIR/XDG private noi și plugin autoload dezactivat: exit0, **76 passed**. Python3.13.15/pytest9.1.1/Ruff0.16.9/mypy2.3.1 verificate din mediul main. Scope SOURCE/unit al componentelor importate; nu PG sau consumer integrat. Reviewurile independente pe integrarea finală: NOT_RUN. Cercetarea bounded read-only nu este review de acceptare. PG real / copy-installed / SDK real fără IO / protocol sintetic / INSTALLED_NATIVE / LIVE vor avea rânduri și limite separate, niciun PASS universal.
+
+Înaintea efectelor de integrare se înregistrează `integration/fixture-request.json` și `resources.json` cu un subroot nou, scope/comenzi/targets/deadline/invers și se așteaptă grantul coordonatorului. Acest registru nu acordă grant. FULL make check rulează o singură dată la snapshotul final, după review/QA/drain și numai cu grant/prerequisites verificate; deocamdată NOT_RUN.
+
+## Revert și continuare
+
+Istoric granular local, fără amend/squash/rebase/reset/stash/push. Revertul importurilor este invers cronologic după inspecția dependențelor, nu înlocuire de arbore. Nicio migrare sau efect extern nu a fost executat de import; originalul protejat nu este citit/copat/hashuit/staged. C03 rămâne CLOSED_SCOPED la bytes lui; B06b/G02, G-DATA-EARLY, G-MODEL, Settings minim și G02-live/G04a rămân distincte și neînchise.

@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "reviewed_snapshot": "197c8efd0f79603a413fd64b38b9f29aca2b4ce8",
+  "original_reviews": [
+    {
+      "reviewer": "R1",
+      "path": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-r1-197c8ef/report.json",
+      "sha256": "a8d409e3da3d8640cd91710bb32caa00b1a12d73f4b1f1b517fae364ad6a3b5f",
+      "verdict": "CHANGES_REQUESTED_SCOPED",
+      "limits": [
+        "Nu decid închiderea; raportul transmite defectul, dispozițiile și limitele pentru adjudecarea părintelui.",
+        "Nu am executat DB/OCI/build-installed/native/browser/provider/network/profile/r1/cron/push; nici fixture nouă, nici adopție/cleanup/replay al resurselor părintelui.",
+        "Am exclus originalul HTML, auth/.env/dumps/raw private bodies și bug-bounty-triage înainte de enumerările de material. Nu le-am citit/hashuit/copiat.",
+        "Nicio modificare produs/Git/mission/effects/launch/grants, nici profil/skill global. Scrierile sunt numai raport, verificatoare și teste SOURCE/date sintetice sub rootul nou owned verificat absent înainte de mkdir.",
+        "Teste SOURCE și prefixuri AST nu sunt installed/native. Stock/sentinel controls din testele I2 nu sunt un provider ori un tur warm admis.",
+        "Nu am rulat Ruff/mypy/canonical în acest review și nu le raportez PASS. LSP-ul ambient nu rezolva importurile testelor scratch; interpreterul API explicit le-a executat efectiv.",
+        "Reviewul tratează toate schimbările implementate și consumatorii relevanți, nu face audit exhaustiv al fiecărui corp upstream stock nemodificat sau reauditează C01/PURE/C03 acceptate.",
+        "Nu afirm absența absolută a gap-urilor. R2 și probele fizice rămân axe independente."
+      ]
+    },
+    {
+      "reviewer": "R2",
+      "path": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-r2-197c8ef/report.json",
+      "sha256": "01d50739dd52715d8f1642e682f3305c4c6fa6c1e848576a9d52bee0efeb9964",
+      "verdict": "CHANGES_REQUESTED_SCOPED",
+      "limits": {
+        "db": "NOT_RUN_NO_CHILD_GRANT",
+        "oci_build_install": "NOT_RUN_NOT_AUTHORIZED",
+        "native_full_import": "NOT_RUN_NOT_AUTHORIZED",
+        "provider_client_network": "NOT_RUN_NOT_AUTHORIZED",
+        "sdk_serializer": "NOT_RUN",
+        "browser_sessions_cron_push": "NOT_RUN",
+        "source_prefix_transport": "INERT_PYTHON_SENTINEL_ONLY",
+        "repository_product_git_authority_profile_writes": false,
+        "protected_original_and_private_material_read": false,
+        "new_owned_root_absent_before_creation": true,
+        "owned_root_uid": 1000,
+        "owned_root_mode": "0700",
+        "python_bytecode_disabled": true,
+        "pytest_cache": "NOT_USED_UNITTEST_STDLIB",
+        "thread_cleanup": "REAL_TEST_WORKER_JOINED; no external resource family created",
+        "reticle": "NOT_INTEGRATED; NOT_APPLICABLE pentru proba SOURCE/CLI de fata; nu executat",
+        "chisel": "BLOCKED_NO_GO; nu executat"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1-01",
+      "classification": "CONFIRMED_BUG",
+      "severity": "P2",
+      "path:line": "api/src/omnis/supervisor/native_tasks.py:278-290",
+      "title": "control_task acceptă un receipt model_admission cu protocol/digest invalide și Ref-uri nested cu revision=true",
+      "requirement": "Prompt §4D/§5 și registru I1: replyurile false/extra/UNKNOWN nu devin succes; contract strict, inclusiv Ref-uri nested și bool versus integer, până la callerul real. Validarea ownerului/hostului nu înlocuiește validarea receiptului la cititorul IPC.",
+      "observed": "La control_task real, protocol='not-supported' sau obiect JSON și projection_digest='not-a-digest' sau listă sunt returnate fără refuz. manifest_ref/binding_ref din model_admission sunt comparate prin egalitate Python, fără ref() înaintea comparației: revision=true este egal cu revision=1 din Ref-ul exterior deja validat. CLI main ar publica acest rezultat ca succes de comandă. Starea rămâne BLOCKED/NO_MODEL: nu am demonstrat o autorizare model ori bytes către provider.",
+      "reproducer": {
+        "test_file": "test_r1_control_reply.py",
+        "failing_test": "test_all_receipt_fields_must_be_strict",
+        "channel": "Funcția completă control_task; read_capability, private-root și stream/peer sunt doubles SOURCE explicite, fără socket, server, DB ori native runtime.",
+        "result": "6 failed: DID NOT RAISE CatalogError; 4 passed; exit1",
+        "controls": "Receiptul valid trece pe aceeași cale; model_calls=false, turn fals și extra field sunt refuzate. Negativul atinge exact parserul rezultatului, nu un prerequisite invalid.",
+        "evidence": "control-reply.xml"
+      },
+      "minimal_remedy": "Validează explicit protocolul v2/v3 și digestul SHA256 lowercase; aplică ref(..., kind) tuturor Ref-urilor nested înainte de comparații, apoi compară reprezentările canonice cu Ref-urile exterioare. Reutilizează un validator comun numai dacă nu introduce importuri opționale/cuplaj installed. Păstrează acceptarea controlului valid și refuzul false-count/fake-turn/extra. Reproduce RED în părinte, remediere minimală și re-review focalizat.",
+      "impact_limit": "Acest defect este al frontierei de readback a clientului privat. Hostul și ModelDispatch.accept_preflight au validări mai stricte și nu generează în mod normal aceste replyuri; nu îl prezint ca bypass demonstrat al acelor validări sau al veto-ului nativ.",
+      "disposition": "OPEN_FOR_PARENT_REPRODUCTION",
+      "parent_disposition": "REPRODUCED_6_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW"
+    },
+    {
+      "id": "R2-F01",
+      "severity": "P2",
+      "status": "CONFIRMED_SOURCE_PREFIX",
+      "blocking_scope": "Garantia terminala I2, nu o constatare de trafic live",
+      "title": "Cleanup-ul direct poate suprascrie ManagedModelTerminal",
+      "locations": [
+        "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py:984-987",
+        "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py:1011-1018",
+        "integrations/hermes/tests/test_model_terminal.py:47-66"
+      ],
+      "requirement": "Prompt 4D:157 si 5:177: refuz terminal explicit, fara reclasificare in erori recuperabile; verificare inclusiv cleanup/cancel.",
+      "mechanism": "except ManagedModelTerminal: raise este urmat de finally cu stop_watchdogs/pop_client/close fara conservarea rezultatului terminal. O exceptie din primul cleanup suprascrie refuzul si poate sari cleanup-urile urmatoare. Testul existent substituie aceste operatii cu no-op si nu acopera cazul.",
+      "reproducer": {
+        "file": "source_repro.py",
+        "test": "Repro.test_02_direct_cleanup_must_preserve_terminal",
+        "setup": "Functiile reale direct_api_call si _dispatch_nonstreaming_api_request extrase AST din snapshot; model_terminal real stdlib; HERMES_OMNIS_INERT=1; Inline.stop_watchdogs ridica RuntimeError dupa refuzul sinkului; niciun client real.",
+        "expected": "ManagedModelTerminal pastrat, cleanup incercat bounded si eventualul esec de cleanup raportat separat, fara recovery permis.",
+        "observed": "RuntimeError(SYNTHETIC_CLEANUP_FAILURE), cu __context__ ManagedModelTerminal; lista efectelor sentinel goala.",
+        "execution": "source_repro.py exit1; acest test FAIL"
+      },
+      "minimal_remedy": "Refuz timpuriu in direct_api_call inaintea watchdogurilor pentru contextul inert; la un refuz emis de sink conserva explicit rezultatul terminal pe intregul unwind si incearca toate cleanup-urile necesare. Nu-l converti in exceptie generica, nu folosi BaseException ca protocol si nu ascunde cleanup incert. Adauga negativul cu cleanup care ridica si control pe acelasi canal; reseal overlay/manifest/pin impreuna.",
+      "reachability_limit": "In pipeline-ul cold curent, guardurile conversation/perform impiedica de obicei intrarea aici; handle_api_error cu flag inert inca prezent re-deny si RuntimeError. Nu revendic retry/credential recovery executat in consumerul complet. Defectul este totusi real la seamul direct pentru care I2 revendica propagare terminala.",
+      "parent_disposition": "PENDING_PARENT_REPRODUCTION"
+    },
+    {
+      "id": "R2-F02",
+      "severity": "P2",
+      "status": "CONFIRMED_SOURCE_PREFIX_REAL_JOINED_THREAD",
+      "blocking_scope": "Garantia terminala I2 in cursa cancel/cleanup",
+      "title": "Workerul pierde refuzul deja inregistrat daca interrupt survine cat finally este inca activ",
+      "locations": [
+        "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:79-105",
+        "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:259-273",
+        "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:289-320",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:1444-1454"
+      ],
+      "requirement": "Prompt 4D:157 / 5:177: canalul worker transmite explicit refuzul terminal callerului, fara reclasificare interrupt/recovery/fallback.",
+      "mechanism": "_call salveaza terminal inainte de finally. run il prioritizeaza in bucla doar daca threadul nu mai este viu. Daca close_once inca dreneaza, _interrupt este chemat; acesta face join si apoi ridica neconditionat InterruptedError, chiar cand terminal este deja prezent si threadul s-a terminat. Verificarea terminala de dupa bucla nu mai este atinsa. Callerul retry distinge InterruptedError de ManagedModelTerminal.",
+      "reproducer": {
+        "file": "source_repro.py",
+        "test": "Repro.test_03_worker_cancel_must_preserve_recorded_terminal",
+        "setup": "Clasa reala _NonStreamRequest extrasa AST, thread real. HERMES_OMNIS_INERT=1 produce refuz la sink. close_once(request_error_cleanup) este tinut pe Event bounded; interrupt_requested=true. Callbackul de join elibereaza Event numai dupa observarea terminalului deja salvat si face join real. Toata familia de threaduri a testului este terminata in finally.",
+        "expected": "Callerul primeste ManagedModelTerminal; cancellation nu schimba outcome-ul de admission.",
+        "observed": "Callerul primeste InterruptedError; result.terminal ramane ManagedModelTerminal; worker_joined=true; efecte sentinel=[].",
+        "execution": "source_repro.py exit1; acest test FAIL"
+      },
+      "minimal_remedy": "Dupa join-ul din _interrupt, reverifica si propaga rezultatul terminal cu prioritate; defineste aceeasi precedenta si in polling cand workerul inca dreneaza. Pastreaza bounded join si cleanup-uncertain separat, nu un simplu raise anticipat care abandoneaza workerul. Adauga cursa determinista la testele pinului, apoi reseal complet.",
+      "reachability_limit": "Nu demonstreaza emitere, fallback sau auto-wake in runtime-ul instalat; niciun nativ/SDK/provider nu a pornit. Demonstreaza concret ca slotul terminal adaugat nu este suficient pentru propagarea prin anulare.",
+      "parent_disposition": "PENDING_PARENT_REPRODUCTION"
+    }
+  ],
+  "full_mandate": "NOT_CLOSED_MISSING_IMPLEMENTATION_AND_EVIDENCE",
+  "re_review": "PENDING",
+  "R1_remaining": [
+    {
+      "id": "R1-O1",
+      "classification": "MISSING_IMPLEMENTATION",
+      "requirement": "Prompt P07, §4B: producer/reader native-turn și provider-config/effective selection autentice, purpose derivat, boot/lineage/fencing fixate.",
+      "status": "NOT_IMPLEMENTED_BEYOND_COLD_EXPLICIT_DENIAL",
+      "next": "Livrează numai producerul/consumerul legitim permis de lifecycle și configurația de produs sau păstrează refuzul explicit și adjudecă scope-ul nelivrat. Configurarea autentică viitoare/P4a și pozitivul warm nu se înlocuiesc cu UUID/seed/fake provider."
+    },
+    {
+      "id": "R1-O2",
+      "classification": "MISSING_IMPLEMENTATION",
+      "requirement": "Prompt P04/P09, §4D: DTO SDK final allowlisted și legat de projection/config/turn/attempt după toate mutațiile inclusiv SDK bypass/extra_body.",
+      "status": "NOT_IMPLEMENTED; CARRIER_ONLY",
+      "next": "Builder/validator al întregului request și binding explicit fără reinterpretarea projection_digest; apoi proba serializerului SDK real fără IO pe artefactul admis. Veto-ul înainte de client nu demonstrează această mapare."
+    },
+    {
+      "id": "R1-O3",
+      "classification": "MISSING_IMPLEMENTATION",
+      "requirement": "Prompt §4E: caller autentic reserve/commit, revalidation, SENT durabil independent înainte de bytes și barieră Stop/SENT/first-byte.",
+      "status": "NOT_IMPLEMENTED_IN_REAL_CONSUMER",
+      "next": "Integrează ledgerul în ownerul real, fără al doilea owner/store/routing. Demonstrează fiecare cut și unicitatea încercării fizice; nu deduce zero-send după Stop din TTL/cache/commit intenție. Current ModelDispatch este consumer de date, nu implementarea acestor operații."
+    },
+    {
+      "id": "R1-O4",
+      "classification": "MISSING_IMPLEMENTATION_AND_EVIDENCE",
+      "requirement": "Prompt §4E/§5: calls/output/deadline la consumer, no-send pentru RELEASED, lost-response după SENT fără refund/retry și suport provider nepretins.",
+      "status": "ACCOUNTING_ONLY; PHYSICAL_ENFORCEMENT_NOT_IMPLEMENTED_OR_NOT_EXERCISED",
+      "next": "Păstrează UNKNOWN conservator și financial blocked; leagă caps de ruta efectivă când există consumerul legitim. Testele reducerului și parametrii JSON nu sunt dovada frontierei fizice."
+    },
+    {
+      "id": "R1-O5",
+      "classification": "MISSING_EVIDENCE",
+      "requirement": "Prompt §4F/§5: artefact final calificat copy-installed, native-inert la pin, caller real, al doilea review complementar, QA și full make check final serial.",
+      "status": "NOT_RUN_BY_R1; NOT_ESTABLISHED_BY_SOURCE_PG_RECEIPT",
+      "next": "Numai părintele/coordonatorul acordă scopes noi. Nu se cere R1 să pornească fixture. Reconcilează R2, repară findingul confirmat, fixează noul snapshot și execută probele admise după ultima schimbare. Browser/canonical nu sunt acreditate din SOURCE."
+    },
+    {
+      "id": "R1-O6",
+      "classification": "MISSING_EVIDENCE",
+      "requirement": "Persistența noului record data-policy și readerul calificat după restart/replay, plus no-write la toate refuzurile relevante.",
+      "status": "REAL_PG_SINGLE_JOURNEY_RECORDED; NEW_APPROVAL_FRESH_PROCESS_NOT_SPECIFICALLY_PROVEN",
+      "next": "Testul I1 PG execută consumer.read și readback după Stop în același proces; vechiul B06c avea proces nou pentru proiecție, nu noul ModelDispatch approval reader. Păstrează această diferență și probează noul consumer în proces/artefact nou când este autorizat. Nu cere restart fizic PG dacă doar restartul consumerului este criteriul."
+    },
+    {
+      "id": "R1-O7",
+      "classification": "DOCUMENTARY_RECONCILIATION_PENDING",
+      "requirement": "Prompt §4F/§7: registrele globale reflectă importul și progresul bounded fără ștergerea acceptărilor și FAIL-urilor.",
+      "status": "GLOBAL_MAP_STILL_DESCRIBES_PREINTEGRATION_STATE",
+      "next": "La predarea adjudecată, părintele reconciliază README/implementation-status SL10–SL11 din NOT_IMPLEMENTED în PARTIAL justificat și păstrează gates NOT_CLOSED. Nu schimbă acele rânduri numai pentru numărul testelor; reviewerul nu editează registrele."
+    }
+  ],
+  "R2_remaining": [
+    {
+      "id": "REM-P07",
+      "implementation": "MISSING_AUTHENTIC_WARM_TURN_PRODUCER_READER",
+      "required": "Turn creat prin lifecycle nativ, legat persistent de boot/root/child/session/binding/attempt/lineage; purpose derivat din rol/work_kind, fencing verificat. Nu UUID revendicat sau seed.",
+      "authorization_or_proof_limit": "Warm/inference neautorizate; refuzul cold este legitim. Totusi producerul/readerul absent este lipsa de implementare, nu doar proba NOT_RUN."
+    },
+    {
+      "id": "REM-CONFIG",
+      "implementation": "MISSING_TRUSTED_PROVIDER_CONFIG_EFFECTIVE_SELECTION",
+      "required": "Producer/config requested-effective si reader trusted, pin la run/turn/attempt, niciun import din profilul dezvoltatorului; Settings minim are consumer si autoritate proprii.",
+      "authorization_or_proof_limit": "Settings/P4a si ulterior live au ordine/acord distincte. NO_MODEL nu se ridica prin seed sau completarea unor campuri."
+    },
+    {
+      "id": "REM-DTO-SDK",
+      "implementation": "MISSING_FINAL_MANAGED_DTO_AND_BINDING",
+      "required": "Allowlist a intregului request SDK, inclusiv options/model/caps/transport si post-bypass extra_body; refuz unknown/history/tools/screenshots/arbitrary overrides; distinct record/projection/approval/final-request digests; protectie check-use.",
+      "authorization_or_proof_limit": "SDK serializer real fara IO NOT_RUN; fara grant pentru client/native in acest copil. SOURCE carrier si stand-in create nu il inlocuiesc."
+    },
+    {
+      "id": "REM-SENT-STOP",
+      "implementation": "MISSING_ADMISSION_RESERVE_COMMIT_SENT_PHYSICAL_BARRIER",
+      "required": "Owner trusted revalideaza identitatile/authority/config/selection/projection la reserve si pre-send, in ordinea Instance->lease->Stop->managed-owner->scope. Commit SENT vizibil independent inaintea primilor bytes; ordine Stop/SENT/first-byte demonstrata pe cuts, fara lock Stop tinut pana la raspuns si fara atomicitate DB/retea pretinsa.",
+      "authorization_or_proof_limit": "PG copil interzis; native/send pozitiv neautorizate. Un TTL sau o intentie comisa nu rezolva implementarea barierei fizice. RuntimeClient.managed(inert_probe=True) nu este extensibil implicit la model authority."
+    },
+    {
+      "id": "REM-FAILURE",
+      "implementation": "ACCOUNTING_EXISTS_PHYSICAL_CONSUMER_MISSING",
+      "required": "dispatch_attempt_id unic per incercare fizica; duplicate/conflict fara resend; no-send probat pentru RELEASED; dupa SENT crash/lost-response/timeout/UNKNOWN/PARTIAL pastreaza costul conservator. Readback/settlement dupa Stop/restart receive-only.",
+      "authorization_or_proof_limit": "Istoricul contabil SOURCE/PG nu certifica o fereastra fizica de crash sau ACK-loss."
+    },
+    {
+      "id": "REM-CAPS",
+      "implementation": "JSON_LEDGER_CAPS_ONLY_NO_PHYSICAL_ENFORCEMENT",
+      "required": "calls=1, output_tokens 1..65536, wall_seconds 1..1200 si deadline efectiv impuse la consumer; VALIDATION nu se multiplica pe copil/retry/fallback/aux. Separare cost_estimate/observed/limit; MODEL_FINANCIAL_LIMIT_BLOCKED pana la mecanism verificat.",
+      "authorization_or_proof_limit": "Nicio proba de provider/server cap sau deadline remote; transmiterea unui parametru nu ar fi suficienta."
+    },
+    {
+      "id": "REM-VETO",
+      "implementation": "I2_PARTIAL_CHANGES_REQUESTED",
+      "required": "Remediere F01/F02, controale la wrapper-ele retry/recovery/summary/compression/aux si toate transporturile neadmise; zero effect pe deny, cleanup/cancel fara transformare in succes/retry.",
+      "authorization_or_proof_limit": "Testele SOURCE-prefix sunt permise; native installed are grant separat si nu primeste credit automat."
+    },
+    {
+      "id": "REM-INSTALLED",
+      "implementation": "FINAL_ARTIFACT_NOT_BUILT_HERE",
+      "required": "Calificare pe closure final, source->wheel/copy-install/adaptor/overlay/native-pin atestate, consumator real din afara checkoutului, QA independenta si review focalizat dupa fixuri.",
+      "authorization_or_proof_limit": "Build/OCI/native/full-import/browser sunt interzise acestui copil. P01 PG SOURCE al parintelui nu autorizeaza alte efecte si nu substituie installed."
+    },
+    {
+      "id": "REM-FINAL-GATES",
+      "implementation": "NOT_CLOSED",
+      "required": "Adjudecare R1+R2 pe acelasi snapshot corectat; QA consumer/build final, browser unde cerut, apoi un singur FULL make check final autorizat cu exit0/drain/readback. G02/B06b restante, Settings si G02-live/G04a raman separate.",
+      "authorization_or_proof_limit": "Canonical/browser/live NOT_RUN aici; cont/provider/model/date/buget necesita acord explicit distinct. Nu lansam urmatoarea felie/sesiune."
+    }
+  ]
+}

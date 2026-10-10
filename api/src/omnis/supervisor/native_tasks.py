@@ -258,6 +258,7 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
             if reply["task_status"] not in {"BOUND", "BLOCKED"}:
                 raise CatalogError("TASK_REJECTED")
             if command.action == "model_preflight":
+                from omnis.modules.runs.native_preparation_models import sha
                 from omnis.modules.tasks.managed_contract import exact
 
                 admission = exact(
@@ -277,15 +278,21 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 )
                 ref(admission["projection_ref"], "model-projection")
                 ref(admission["data_approval_ref"], "model-data-approval")
+                manifest_pin = ref(admission["manifest_ref"], "launch-manifest")
+                binding_pin = ref(admission["binding_ref"], "runtime-binding")
+                sha(admission["projection_digest"])
                 if (
                     reply["task_status"] != "BLOCKED"
+                    or type(admission["protocol"]) is not str
+                    or admission["protocol"]
+                    not in ("omnis-managed-admission-v2", "omnis-managed-admission-v3")
                     or admission["status"] != "BLOCKED"
                     or admission["reason"] != "NO_MODEL"
                     or admission["native_turn"] is not None
                     or type(admission["model_calls"]) is not int
                     or admission["model_calls"] != 0
-                    or admission["manifest_ref"] != reply["manifest_ref"]
-                    or admission["binding_ref"] != reply["binding_ref"]
+                    or canonical(manifest_pin) != canonical(reply["manifest_ref"])
+                    or canonical(binding_pin) != canonical(reply["binding_ref"])
                 ):
                     raise CatalogError("TASK_REJECTED")
             return reply

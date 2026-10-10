@@ -30,6 +30,86 @@ Valoarea capture este Unicode nemodificat, maximum4096bytes UTF-8; envelope-ul i
 
 Acesta este control plane-ul API/PostgreSQL cu supervisor **inert**, reutilizat de [comanda instalată `omnis start --no-open`](../cli/README.md). Pair/open/Stop au probe G00 locale în scope, nu certificare de release. `/health/live` reflectă procesul; `/health/ready` dă HTTP 200 numai cu DB/schema `0010_catalog_publications` compatibile, dar dashboardul cere suplimentar assets/control verificate. `assessment_ready=false`. CLI-ul corelează și identitatea containerului/peer-ului API, originul și bytes-urile asseturilor. PostgreSQL 18.6 rămâne pinul instalației probate; health nu pretinde verificarea versiunii serverului. Probele Uvicorn TCP din acest README sunt numai dezvoltare; produsul păstrează `python -I -m omnis.serve` pe UDS privat.
 
+### C03 records — varianta structurată, explicit versionată
+
+`skills/records-mapping-contract/` și `profiles/records-mapping-contract.yaml` sunt materialul first-party nou. Nu modifică release-urile capture. Profilul selectează `records-mapper`, procedura `map-records`: exact `contract.normalize-operations` → `contract.build-map`, cu STEP_OUTPUT operations între pași. Unicul slot records cere un Ref `contract-case-records`; valoarea lui este un obiect `{"records":[{"method":"GET","path":"/synthetic","status":200}]}`, nu un string capture și nu dovada unui parse executat.
+
+Source/PG și validatorul nativ sunt implementate; [registrul records](../documents/verification/p2-b06b-c03-records.md) este autoritatea stării installed/browser/canonical, fără transfer al acceptării capture. Semantica existentă admite records=[] și maximum128 elemente, method enum exact, path absolut bounded și status integer100..599 (nu bool/string). Ordinea și duplicatele inputului rămân immutable; numai cele două transformări produc derivări sortate. Envelope8192/schema8192/graph65536/frame32768 sunt plafoane separate:128 elemente maxime nu garantează încadrarea în bytes. Nu există truncare, normalizare în producer sau TTL inventat.
+
+Versiuni: `admit-evaluation-records` și `evaluate` schema3, input kind nou/provenance backend `contract-case-records-v1`, context payload2/material2, RUN create-context/create-input schema2, prepare-composed schema3/composition3/native wire3. Vechile cereri capture nu acceptă records; read-context/read-input/readback/reconcile rămân schema1, receive-only. Confirmarea TTY/Publish/snapshot/select păstrează comenzile existente.
+
+Exemplu reproductibil de calificare/publicare, numai pe DB/catalog sintetice private pregătite explicit. Nu pornește servicii, nu citește configurația personală și nu selectează un model. `OMNIS_DATABASE_URL` se injectează privat de ownerul fixture-ului, nu se pune în argv sau log. Codul de mai jos folosește exclusiv CLI-urile produsului, nu imports din teste; `PY` este interpreterul API instalat, `WORK` un director nou privat, `REPO` checkoutul sursei first-party. Se rulează dintr-un terminal real: confirmarea cere stdin/stderr TTY și răspunsul operatorului, fără auto-yes.
+
+```python
+import hashlib, json, os, pathlib, subprocess, uuid
+
+py = os.environ["PY"]
+work = pathlib.Path(os.environ["WORK"]).resolve(strict=True)
+repo = pathlib.Path(os.environ["REPO"]).resolve(strict=True)
+catalog = work / "catalog"
+owner = str(uuid.uuid4())
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+def command(module, operation, fields, *, version=1, write=True, confirm=False):
+    value = {"schema_version": version, "owner_id": owner, **fields}
+    if write:
+        value["command_id"] = str(uuid.uuid4())
+    request = work / (str(uuid.uuid4()) + ".json")
+    request.write_bytes(canonical(value))
+    result = subprocess.run(
+        [py, "-I", "-B", "-m", "omnis.modules." + module, operation,
+         "--request", str(request), "--catalog-root", str(catalog)],
+        stdout=subprocess.PIPE, stderr=None if confirm else subprocess.PIPE,
+        check=True, timeout=300 if confirm else 30)
+    return json.loads(result.stdout)
+candidate = "settings.candidate_catalog"
+publication = "settings.catalog_publication"
+captured = command(candidate, "capture", {
+    "author_kind": "OPERATOR", "packages": [str(repo / "skills/records-mapping-contract")],
+    "profile": str(repo / "profiles/records-mapping-contract.yaml")})
+refs = {k: captured[k] for k in ("draft_ref", "source_draft_refs")}
+review = command(candidate, "review", refs)
+frozen = command(candidate, "freeze", {**refs, "technical_review_ref": review["technical_review_ref"]})
+admitted = command(candidate, "admit-evaluation-records", {
+    "snapshot_ref": frozen["snapshot_ref"],
+    "value": {"records": [{"method": "GET", "path": "/evaluation-only", "status": 200}]}}, version=3)
+evaluated = [command(candidate, "evaluate", {
+    "snapshot_ref": frozen["snapshot_ref"], "input_ref": admitted["input_ref"],
+    "evaluation_kind": kind}, version=3) for kind in ("STATIC", "PURE")]
+assert [r["status"] for r in evaluated] == ["STATIC_PASS", "PURE_PASS"]
+head = command(publication, "head", {"draft_ref": captured["draft_ref"]}, write=False)
+body = frozen["snapshot"]["payload"]
+selection = {**refs, "expected_head_generation": head["generation"],
+    "snapshot_ref": frozen["snapshot_ref"], "technical_review_ref": review["technical_review_ref"],
+    "static_evaluation_ref": evaluated[0]["evaluation_ref"],
+    "pure_evaluation_ref": evaluated[1]["evaluation_ref"],
+    "material_digest": body["material_digest"], "resolved_index_digest": body["resolved_index_digest"],
+    "dependency_closure_digest": hashlib.sha256(canonical(body["dependency_closure_refs"])).hexdigest()}
+confirmed = command(publication, "confirm", selection, confirm=True)
+published = command(publication, "publish", {**selection, "confirmation_ref": confirmed["confirmation_ref"]})
+snapshot = command(publication, "snapshot", {"publication_ref": published["publication_ref"]})
+selected = command("runs.pure_probe", "select", {"snapshot_ref": snapshot["snapshot_ref"], "recipe_key": "records-mapper"})
+(work / "records-selection.json").write_bytes(canonical({"owner_id": owner, **selected}))
+```
+
+Pentru RUN, ownerul supervisorului existent trebuie întâi să producă receiptul real prin `python -I -B -m omnis.modules.runs.native_preparation prepare --request <prepare.json> --control-dir <control-privat>`, pentru aceeași selection. Nu inventa preparation_command_id și nu folosi un receipt PACKAGE_EVAL ca pregătire nativă. După acest pas, folosind funcția command și variabilele de mai sus, `preparation_command_id` este command_id al acelei pregătiri reale:
+
+```python
+context = command("runs.contract_inputs", "create-context", {
+    "selection_ref": selected["selection_ref"],
+    "preparation_command_id": preparation_command_id}, version=2)
+new_input = command("runs.contract_inputs", "create-input", {
+    "context_ref": context["context_ref"],
+    "input": {"records": [{"method": "POST", "path": "/new-run-value", "status": 201}]}}, version=2)
+assignment = command("runs.managed_admission", "prepare-composed", {
+    "selection_ref": selected["selection_ref"], "preparation_command_id": preparation_command_id,
+    "task_count": 1, "context_ref": context["context_ref"],
+    "slot_values": [{"slot_name": "records", "refs": [new_input["input_ref"]]}]}, version=3)
+assert assignment["stage_started"] is False
+```
+
+Graphul este comis înainte de stage. Stage/release se cer prin `omnis.supervisor.native_tasks --request <json> --control-dir <control-privat>`, cu autoritatea curentă și command_id/manifest_ref ale assignmentului; aceeași comandă nu se retrimite orbește după rezultat incert. Pentru replay păstrează cererile originale (helperul exemplului generează command IDs noi); aceeași cheie/payload întoarce recordurile originale, alt payload este conflict. Compoziția transportă valoarea structurată și schema originală legată path/size/hash/base64 de package. Copilul rămâne NO_MODEL/BLOCKED și MethodCheck INCOMPLETE, consumed_input_refs=[]; exemplul nu execută metoda RUN și nu deschide Start assessment.
+
 ## P1-A/B — draftul inert și câmpurile declarative
 
 `POST /api/v1/engagements` cere sesiune, Origin și CSRF și persistă prima revizie imutabilă; `GET /{id}` citește revizia, iar lista GET folosește paginare keyset bounded. Scrierile noi cer și `application_context`, `effect_rules`, `budgets`, `data_policy`, `business_matrix` și `business_rules_ref=null`; fiecare este strict tipizat, bounded și doar **declarație de draft**, nu aprobare de efecte ori enforcement. Nu există încă import/cataloage/reguli business publicate: `workflow_profile_ref`, `business_rules_ref`, `application_context.import_ref` sunt numai `null`, iar `operation_refs` sunt goale. Reviziile P1-A vechi rămân citibile exact, fără backfill ori schimbarea digestului. Payloadul canonic are maxim 1.000.000 bytes, iar corpurile POST/PUT au maximum 1 MiB wire; peste ele răspunsurile sunt 422 per corp, respectiv 413, fără creșterea plafonului Pairing. Save nu pornește run/model/requesturi țintă. Migrarea explicită 0006→0007→0008 necesită backup/restaurare verificată pentru date reale; `omnis start` nu face auto-upgrade. [Probe și limite](../documents/verification/p1-data.md). Nu instalați acest bundle peste datele P0 ale operatorului fără o cale de upgrade explicită; wizardul vine în B04.

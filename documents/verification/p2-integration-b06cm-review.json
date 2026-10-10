@@ -64,7 +64,8 @@
       "minimal_remedy": "Validează explicit protocolul v2/v3 și digestul SHA256 lowercase; aplică ref(..., kind) tuturor Ref-urilor nested înainte de comparații, apoi compară reprezentările canonice cu Ref-urile exterioare. Reutilizează un validator comun numai dacă nu introduce importuri opționale/cuplaj installed. Păstrează acceptarea controlului valid și refuzul false-count/fake-turn/extra. Reproduce RED în părinte, remediere minimală și re-review focalizat.",
       "impact_limit": "Acest defect este al frontierei de readback a clientului privat. Hostul și ModelDispatch.accept_preflight au validări mai stricte și nu generează în mod normal aceste replyuri; nu îl prezint ca bypass demonstrat al acelor validări sau al veto-ului nativ.",
       "disposition": "OPEN_FOR_PARENT_REPRODUCTION",
-      "parent_disposition": "REPRODUCED_6_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW"
+      "parent_disposition": "RESOLVED_SCOPED_AT_8265a9c",
+      "re_review_snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c"
     },
     {
       "id": "R2-F01",
@@ -89,8 +90,9 @@
       },
       "minimal_remedy": "Refuz timpuriu in direct_api_call inaintea watchdogurilor pentru contextul inert; la un refuz emis de sink conserva explicit rezultatul terminal pe intregul unwind si incearca toate cleanup-urile necesare. Nu-l converti in exceptie generica, nu folosi BaseException ca protocol si nu ascunde cleanup incert. Adauga negativul cu cleanup care ridica si control pe acelasi canal; reseal overlay/manifest/pin impreuna.",
       "reachability_limit": "In pipeline-ul cold curent, guardurile conversation/perform impiedica de obicei intrarea aici; handle_api_error cu flag inert inca prezent re-deny si RuntimeError. Nu revendic retry/credential recovery executat in consumerul complet. Defectul este totusi real la seamul direct pentru care I2 revendica propagare terminala.",
-      "parent_disposition": "REPRODUCED_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW",
-      "parent_evidence": "Pinned Python3.13.15 original reviewer repro: direct RuntimeError replaces terminal. New late-sink tests cover stop_watchdogs/pop_client/close faults; GREEN15 project terminal cases and3 original R2 controls. Early inert refusal precedes watchdogs; late terminal survives all available cleanup, cleanup_uncertain reported separately; stock nonterminal errors not swallowed."
+      "parent_disposition": "RESOLVED_SCOPED_AT_8265a9c",
+      "parent_evidence": "Pinned Python3.13.15 original reviewer repro: direct RuntimeError replaces terminal. New late-sink tests cover stop_watchdogs/pop_client/close faults; GREEN15 project terminal cases and3 original R2 controls. Early inert refusal precedes watchdogs; late terminal survives all available cleanup, cleanup_uncertain reported separately; stock nonterminal errors not swallowed.",
+      "re_review_snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c"
     },
     {
       "id": "R2-F02",
@@ -116,12 +118,13 @@
       },
       "minimal_remedy": "Dupa join-ul din _interrupt, reverifica si propaga rezultatul terminal cu prioritate; defineste aceeasi precedenta si in polling cand workerul inca dreneaza. Pastreaza bounded join si cleanup-uncertain separat, nu un simplu raise anticipat care abandoneaza workerul. Adauga cursa determinista la testele pinului, apoi reseal complet.",
       "reachability_limit": "Nu demonstreaza emitere, fallback sau auto-wake in runtime-ul instalat; niciun nativ/SDK/provider nu a pornit. Demonstreaza concret ca slotul terminal adaugat nu este suficient pentru propagarea prin anulare.",
-      "parent_disposition": "REPRODUCED_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW",
-      "parent_evidence": "Original reviewer repro on pinned Python initially2FAIL; now4PASS including actual joined worker. New regressions:3 interrupt RED, then6 cleanup(join/timeout/error)×cancel(bool) GREEN;21 terminal SOURCE cases total. Known terminal takes bounded own-thread join, cleanup errors/liveness reported cleanup_uncertain, no raw cleanup exception escapes as recovery. No installed/native/provider or second PG effect."
+      "parent_disposition": "RESOLVED_SCOPED_AT_8265a9c",
+      "parent_evidence": "Original reviewer repro on pinned Python initially2FAIL; now4PASS including actual joined worker. New regressions:3 interrupt RED, then6 cleanup(join/timeout/error)×cancel(bool) GREEN;21 terminal SOURCE cases total. Known terminal takes bounded own-thread join, cleanup errors/liveness reported cleanup_uncertain, no raw cleanup exception escapes as recovery. No installed/native/provider or second PG effect.",
+      "re_review_snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c"
     }
   ],
   "full_mandate": "NOT_CLOSED_MISSING_IMPLEMENTATION_AND_EVIDENCE",
-  "re_review": "PENDING",
+  "re_review": "APPROVED_SCOPED_NAMED_DEFECTS_ONLY",
   "R1_remaining": [
     {
       "id": "R1-O1",
@@ -228,5 +231,137 @@
       "required": "Adjudecare R1+R2 pe acelasi snapshot corectat; QA consumer/build final, browser unde cerut, apoi un singur FULL make check final autorizat cu exit0/drain/readback. G02/B06b restante, Settings si G02-live/G04a raman separate.",
       "authorization_or_proof_limit": "Canonical/browser/live NOT_RUN aici; cont/provider/model/date/buget necesita acord explicit distinct. Nu lansam urmatoarea felie/sesiune."
     }
-  ]
+  ],
+  "remediation_snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c",
+  "focused_reviews": [
+    {
+      "reviewer": "R1",
+      "path": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-r1-fix-8265a9c/report.json",
+      "sha256": "ac4d8f4cf230cb886f857be4c0665daf2d3c8419c5cb59b92983bafa4c3192c5",
+      "snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c",
+      "verdict": "APPROVED_SCOPED_R1_01_PRIVATE_CONTROL_RECEIPT",
+      "dispositions": [
+        {
+          "id": "R1-01",
+          "classification": "CONFIRMED_BUG",
+          "severity": "P2",
+          "path:line": "api/src/omnis/supervisor/native_tasks.py:278-290",
+          "title": "control_task acceptă un receipt model_admission cu protocol/digest invalide și Ref-uri nested cu revision=true",
+          "requirement": "Prompt §4D/§5 și registru I1: replyurile false/extra/UNKNOWN nu devin succes; contract strict, inclusiv Ref-uri nested și bool versus integer, până la callerul real. Validarea ownerului/hostului nu înlocuiește validarea receiptului la cititorul IPC.",
+          "observed": "La control_task real, protocol='not-supported' sau obiect JSON și projection_digest='not-a-digest' sau listă sunt returnate fără refuz. manifest_ref/binding_ref din model_admission sunt comparate prin egalitate Python, fără ref() înaintea comparației: revision=true este egal cu revision=1 din Ref-ul exterior deja validat. CLI main ar publica acest rezultat ca succes de comandă. Starea rămâne BLOCKED/NO_MODEL: nu am demonstrat o autorizare model ori bytes către provider.",
+          "reproducer": {
+            "test_file": "test_r1_control_reply.py",
+            "failing_test": "test_all_receipt_fields_must_be_strict",
+            "channel": "Funcția completă control_task; read_capability, private-root și stream/peer sunt doubles SOURCE explicite, fără socket, server, DB ori native runtime.",
+            "result": "6 failed: DID NOT RAISE CatalogError; 4 passed; exit1",
+            "controls": "Receiptul valid trece pe aceeași cale; model_calls=false, turn fals și extra field sunt refuzate. Negativul atinge exact parserul rezultatului, nu un prerequisite invalid.",
+            "evidence": "control-reply.xml"
+          },
+          "minimal_remedy": "Validează explicit protocolul v2/v3 și digestul SHA256 lowercase; aplică ref(..., kind) tuturor Ref-urilor nested înainte de comparații, apoi compară reprezentările canonice cu Ref-urile exterioare. Reutilizează un validator comun numai dacă nu introduce importuri opționale/cuplaj installed. Păstrează acceptarea controlului valid și refuzul false-count/fake-turn/extra. Reproduce RED în părinte, remediere minimală și re-review focalizat.",
+          "impact_limit": "Acest defect este al frontierei de readback a clientului privat. Hostul și ModelDispatch.accept_preflight au validări mai stricte și nu generează în mod normal aceste replyuri; nu îl prezint ca bypass demonstrat al acelor validări sau al veto-ului nativ.",
+          "disposition": "RESOLVED_ON_EXACT_SNAPSHOT",
+          "original_disposition": "OPEN_FOR_PARENT_REPRODUCTION",
+          "historical_observation_preserved": true,
+          "versioned_parent_disposition_at_input": "REPRODUCED_6_RED_FIXED_SOURCE_PENDING_FOCUSED_REVIEW",
+          "re_review": {
+            "snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c",
+            "repair_commit": "cadac11f689554eec27010847e5fc73db4e04884",
+            "current_locations": [
+              "api/src/omnis/supervisor/native_tasks.py:260-297",
+              "api/tests/test_model_preflight_control.py:62-132"
+            ],
+            "decision": "APPROVED_SCOPED_R1_01_PRIVATE_CONTROL_RECEIPT",
+            "remaining_concrete_blocker_at_this_seam": null,
+            "evidence": {
+              "historical_original_reproducer": "6 failed (DID NOT RAISE CatalogError), 4 passed; exit1; historical-red.xml",
+              "same_byte_original_reproducer_current": "10 passed, including all six named original negatives and the original positive/three negative controls",
+              "committed_real_control_task_regressions": "11 passed: v2/v3 controls and nine denials; project-current.xml",
+              "adjacent_admission_source_regressions": "5 passed; project-current.xml; SOURCE storage/IPC and AST-prefix native lifecycle only",
+              "additional_independent_challenges": 136,
+              "current_source_cases_total": 162,
+              "count_interpretation": "Executions of selected SOURCE cases, including deliberate repeated regression scenarios; not unique capabilities, canonical coverage, installed/native proof or mandate closure."
+            },
+            "mechanism": "Protocolul are tip exact str și allowlist v2/v3; sha() cere str exact și fullmatch [0-9a-f]{64}; fiecare Ref nested trece prin ref()/valid_ref() înaintea comparației. manifest_pin și binding_pin sunt comparate canonical cu Ref-urile exterioare deja validate. Astfel revision=true nu mai poate exploata egalitatea Python True == 1.",
+            "scope_limit": "Validarea receiptului de client nu autentifică singură existența recordurilor projection/approval sau un turn/config real. Verifică forma/digestul și pinii disponibili; nu dovedește DTO SDK, admitere model ori bytes către provider."
+          }
+        }
+      ],
+      "limits": [
+        "Re-review focalizat pe R1-01/cadac11, nu audit integral nou și nu verdict asupra reparațiilor R2.",
+        "Noile case SOURCE nu înlocuiesc implementarea/proba absentă O1–O7. O1–O4 sunt explicit lipsuri de implementare/probă, nu doar lipsa autorizației de rulare.",
+        "Nicio conexiune/socket real, DB, OCI, build/install, SDK, native complet, browser, network/provider, profil/r1, cron, push sau cleanup de resurse externe.",
+        "Nicio scriere în produs/index/config/Git/mission/effects/grants; numai raport/teste SOURCE și artefactele/cache-urile lor în rootul nou owned 0700 verificat absent înaintea creării.",
+        "Dovezile PG și acceptările C03/alte componente rămân istorice la bytes proprii; nu sunt redeschise sau transferate automat.",
+        "UI tooling Reticle NOT_APPLICABLE pentru această probă SOURCE/CLI, instrumentarea aplicației NOT_INTEGRATED; Chisel BLOCKED_NO_GO, neexecutat.",
+        "LSP-ul ambiental nu a rezolvat importurile scratch; execuția reală folosește interpreterul API3.13.15 și a trecut. Nu este o dovadă installed.",
+        "Verdictul final al integrării și reconcilierea documentelor aparțin părintelui; README și harta SL10–SL11 încă descriu preintegrarea."
+      ],
+      "issues_retained": []
+    },
+    {
+      "reviewer": "R2",
+      "path": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-r2-fix-8265a9c/report.json",
+      "sha256": "fef971fa4517eaf6b048cd2948716954aa378cfdf364098cee5482e6e131cefc",
+      "snapshot": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c",
+      "verdict": "APPROVED_SCOPED",
+      "dispositions": [
+        {
+          "id": "R2-F01",
+          "severity": "P2",
+          "original_status": "CONFIRMED_SOURCE_PREFIX",
+          "original_title": "Cleanup-ul direct poate suprascrie ManagedModelTerminal",
+          "current_status": "RESOLVED_SCOPED",
+          "fix_commit": "26c55714a424665074c28e37ee5c902c84224bfa",
+          "locations": [
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py:966-967",
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py:985-990",
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py:1014-1030",
+            "integrations/hermes/src/omnis_hermes/model_terminal.py:15-17,27-40"
+          ],
+          "red": "Original test_02 pe 197c8ef/Python3.13.15: RuntimeError(SYNTHETIC_CLEANUP_FAILURE) in loc de ManagedModelTerminal; zero sentinel effects.",
+          "green": "Original test_02 trece la 8265a9c prin early deny. Separat, cele patru teste late-terminal versionate si testul independent cu _InlineRequest/heartbeat real ajung dupa setup la sinkul real, apoi verifica ordinea watchdogs/pop/close, exceptii simultane, pastrarea terminalului si cleanup_uncertain.",
+          "assessment": "Guardul precede stale check/activity/budget/constructor/watchdogs. Terminalul primit ulterior este retinut explicit. finally imbricate continua operatiile ramase cand watchdog/clear-hook esueaza; cand pop esueaza nu exista client extras de inchis, incertitudinea ramane true. Exceptiile obisnuite fara terminal nu sunt inghitite. Cleanup failure nu este publicat ca mesaj brut ori succes.",
+          "scope_limit": "SOURCE-prefix si thread propriu, nu client SDK/native instalat. Nu certifica terminarea fortata a oricarui callback cleanup blocat, nici SystemExit/KeyboardInterrupt ori crash fizic."
+        },
+        {
+          "id": "R2-F02",
+          "severity": "P2",
+          "original_status": "CONFIRMED_SOURCE_PREFIX_REAL_JOINED_THREAD",
+          "original_title": "Workerul pierde refuzul deja inregistrat daca interrupt survine cat finally este inca activ",
+          "current_status": "RESOLVED_SCOPED",
+          "fix_commit": "8265a9cba2ae4b515a29dd49f3ed0f2fae7a852c",
+          "locations": [
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:79-111",
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:113-125",
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:279-296",
+            "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py:312-341"
+          ],
+          "red": "Original test_03 pe 197c8ef/Python3.13.15: InterruptedError desi result.terminal este ManagedModelTerminal si workerul real fusese joined.",
+          "green": "Original test_03 trece la 8265a9c. Cele sase teste versionate joined/timeout/error x interrupt true/false trec. Testul independent elibereaza dispatch numai in _emit_wait_notice, DUPA verificarea goala din polling, asteapta terminalul latched in cleanup, apoi probeaza _interrupt/abort/join real si propagarea exacta a aceluiasi terminal; control suplimentar cu exceptie din helperul relay-join.",
+          "important_oracle_limit": "Originalul nemodificat nu mai intra obligatoriu in helperul sau interrupt-join: noul polling vede terminalul, face bounded join de 2s si poate reveni cu cleanup_uncertain inaintea release-ului din finalizerul testului. worker_joined din original este readback DUPA rescue-ul testului, nu dovada cleanup complet inainte de return. Nu l-am creditat astfel; probele noi acopera separat joined/timeout si fereastra reala _interrupt.",
+          "assessment": "Prioritate terminal in polling, finally dupa join interrupt si inaintea error/response final. _raise_terminal incearca join(timeout=2.0); timeout ori exceptie de join seteaza incertitudine, nu InterruptedError/succes. Nested reset/retire/close continua cleanup si pastreaza terminalul. Controlul cu worker terminat inaintea primei verificari while trece pe branchul post-loop.",
+          "scope_limit": "Join-ul este bounded per apel, nu promisiune universala de deadline 2s pentru intregul cancel. Un worker inca viu este declarat uncertain; familia sintetica a fiecarui test a fost ulterior eliberata si joined. Nicio familie nativa/provider nu a fost lansata."
+        }
+      ],
+      "limits": {
+        "repository_product_git_authority_config_profile_writes": false,
+        "historical_artifact_writes": false,
+        "protected_original_contents_auth_env_dumps_raw_private_bodies_or_raw_skills_read": false,
+        "db_oci_build_install_native_full_import_sdk_provider_network_browser": "NOT_RUN",
+        "r1_cron_push_cleanup_or_new_session": "NOT_RUN",
+        "all_owned_test_threads_drained": true,
+        "reticle": "NOT_INTEGRATED; NOT_APPLICABLE pentru acest review SOURCE/thread, neexecutat",
+        "chisel": "BLOCKED_NO_GO; neexecutat",
+        "execution_is_not_os_confinement_proof": true
+      },
+      "issues_retained": [
+        "Primul git status generic a enumerat numai numele originalului HTML protejat; continutul nu a fost citit/copat/hashuit/scannat. Citirile si inventarele ulterioare au folosit cai publice explicite. Aceasta abatere de enumerare este pastrata, nu prezentata drept excludere perfecta de la primul apel.",
+        "Nu exista integrations/hermes/tests/conftest.py; nu s-a inventat unul. Testele focalizate au rulat explicit --noconftest, plugin autoload/cache dezactivate.",
+        "Pyright a semnalat doar atributul dinamic al unui ModuleType sintetic in edge_tests.py; scriptul a trecut executia efectiva9/9. Nu este revendicat un gate mypy al helperului ori al produsului.",
+        "Baseline-ul original a iesit intentionat1 cu cele doua FAIL exacte; nu este un esec nou al snapshotului8265a9c si nu a fost rescris ca PASS.",
+        "Primul agregator final a iesit1: presupunea ca JUnit classname contine modulul, dar cu configuratia explicita /dev/null toate classname sunt goale. Totalul23 si testele sunt valide; clasificarea corectata foloseste numele exacte AST din cele doua fisiere, fara rerularea produsului. Esec pastrat in final-readback-initial-fail.json."
+      ]
+    }
+  ],
+  "parent_adjudication": "Initial complementary scope reviews plus focused repairs on exact8265a9c accepted for implemented I1/I2 subset. No named confirmed bug remains from these reports. Missing implementation and evidence obligations remain NOT_CLOSED, not merely lack of execution authority. No absolute absence-of-gaps claim."
 }

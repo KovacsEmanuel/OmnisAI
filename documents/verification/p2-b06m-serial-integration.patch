@@ -9,17 +9,13 @@
  _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
  ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
  $(error Unsafe Make flags for verification; execute the real gate)
-@@ -92,6 +92,12 @@
- test-managed-composition-pg:
- 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
- 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_managed_composition_pg.py -q
-+
+@@ -96,2 +96,8 @@
 +# B06m accounting-only persistence; not native/model integration certification.
 +.PHONY: test-model-budget-pg
 +test-model-budget-pg:
 +	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 +	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_budget.py api/tests/test_model_budget_pg.py -q
- 
++
  .PHONY: test-b06a-pure
  # C03 and affected legacy seams, using the same attested PostgreSQL owner.
 --- a/ops/run_test_db_gate.py

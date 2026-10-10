@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "Internal PostgreSQL model budget accounting source only; not native admission or G-MODEL",
+  "reviewed_snapshot": "ae220223ed1148116eba492deb40605200f8a4dd",
+  "verdict": "CHANGES_REQUESTED",
+  "reviews": [
+    {
+      "charter": "Persistence, concurrency, identity and receipt reconciliation",
+      "locator": "/home/kali/.hermes/cache/delegation/live/deleg_be132289/task-0.log",
+      "finding": "F1: settle receipt search was run-scoped, permitting receipt identity reuse across same-owner runs",
+      "severity": "P1",
+      "parent_reproduction": "test_settle_checks_receipt_identity_across_owner_runs: FAILED DID NOT RAISE CatalogError, exit1",
+      "reproduction_boundary": "Real settle function with SQL-row and prerequisite doubles; NOT PostgreSQL persistence evidence",
+      "fix_commit": "a183108",
+      "fix": "Owner-wide receipt/provider receipt identity lookup under existing managed-owner transaction lock; allocation/history remains run-scoped",
+      "green": "15 offline tests, Ruff lint/format and strict mypy4files exit0; new two-run PG test NOT_RUN"
+    },
+    {
+      "charter": "Strict contracts, ownership, data compatibility and unknown cost/usage semantics",
+      "locator": "/home/kali/.hermes/cache/delegation/live/deleg_be132289/task-1.log",
+      "finding": "F2: catalog fallback accepted schema_version2/True and revisionTrue envelopes that managed reader rejects",
+      "severity": "P2",
+      "parent_reproduction": "test_catalog_resolution_validates_persisted_envelope: 6 failed, 2 valid controls passed, exit1",
+      "reproduction_boundary": "Real _resolved and managed/catalog record readers; SQL rows doubled only",
+      "fix_commit": "f55b44e",
+      "fix": "Apply managed_contract.record to catalog fallback result before return",
+      "green": "23 offline tests, Ruff lint/format and strict mypy4files exit0"
+    }
+  ],
+  "documentary_finding": {
+    "finding": "Stored proposed diff context triggered full-range whitespace checks",
+    "fix_commit": "b46391f",
+    "verification": "git apply --check proposed patch; git diff c0261a7 HEAD --check; exit0 without applying shared-file changes"
+  },
+  "focused_rereview": {
+    "snapshot": "b46391f",
+    "status": "PENDING",
+    "locators": [
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-0.log",
+      "/home/kali/.hermes/cache/delegation/live/deleg_4a8cbb6f/task-1.log"
+    ]
+  },
+  "limits": {
+    "postgresql": "10 tests collected only; execution NOT_RUN, effects holder c03-records",
+    "b06c": "PROPOSED contract read; no dependency commit imported; NOT_INTEGRATED",
+    "admission_stop_native_settings": "NOT_IMPLEMENTED; no reservation-to-bytes proof",
+    "native_gate": "BLOCKED_NATIVE_SEAM",
+    "provider_live": "NOT_RUN, unauthorized",
+    "g_model": "NOT_COMPLETE"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_CANONICAL_RETAINED",
+  "session": "proc_a5d65786209c",
+  "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c03-20261010/home PATH=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c3f-D99Tsexe make check UV=/home/kali/.hermes/cache/scratch/c03-20261010/tools/bin/uv",
+  "snapshot": "b549a221a4993e81ddc31a4f71ed2e6a3e5c5b6b",
+  "product_snapshot": "e60dd23dab7903073b225a6feed0c285e7500e9f",
+  "tracked_count": 704,
+  "all_tracked_bytes_unchanged": true,
+  "exit_code": 2,
+  "family": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "api_results": {
+    "passed": 1169,
+    "failed": 21,
+    "seconds": 2238.24
+  },
+  "failed_test_ids": [
+    "api/tests/test_candidate_tracer_fingerprints.py::test_compiler_revision_identifies_actual_trusted_behavior_bytes",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_evaluation_revision_and_stale_readback_storage_seam",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/candidate_catalog.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/candidate_index.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/candidate_material.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/candidate_store.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/candidate_resolution.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/catalog_models.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/catalog_schema.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/skill_catalog.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-tasks/module_registry.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/candidate_catalog.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/candidate_index.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/candidate_material.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/candidate_store.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/candidate_resolution.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/catalog_models.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/catalog_schema.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/skill_catalog.py]",
+    "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-tasks/module_registry.py]",
+    "api/tests/test_managed_lifecycle.py::test_pg_result_before_check_reconcile_once_restart"
+  ],
+  "prior_components": {
+    "documentation": 72,
+    "development": 43
+  },
+  "later_components": "NOT_RUN after API failure; earlier targeted passes remain separate",
+  "log": "/home/kali/.hermes/cache/scratch/c3f-D99Tsexe/db-796588eb83ff47ab/gate.log",
+  "log_sha256": "7793fddfcab326621c16a89eea8a14d892264955b95441940fd304f42c972b1c",
+  "fixture": {
+    "root": "/home/kali/.hermes/cache/scratch/c3f-D99Tsexe/db-796588eb83ff47ab",
+    "cid": "4a17a3429c9775be634118216d75748bdce4e21411aac7fe04ab3f3983c732cc",
+    "project": "omnis-p01-93617ab0c9b8489e96fbe04b84198d77",
+    "exact_owned_container_network_socket_absent": true,
+    "data_logs_retained": true,
+    "per_test_databases_dropped": true
+  },
+  "diagnosis": [
+    {
+      "case": "fingerprint oracle",
+      "cause": "Independent DEPENDENCIES list omitted new tasks/contract_case_input.py; production closure correctly includes it.",
+      "fix_commit": "7ec5693",
+      "targeted_result": "22PASS/1deselected; adds both domain sensitivity controls for new helper."
+    },
+    {
+      "case": "direct evaluator fixture",
+      "cause": "Unit storage seam bypasses public validator and omitted already-required schema_version; new branch needs explicit legacy1.",
+      "fix_commit": "d6eba0b",
+      "targeted_result": "23PASS full fingerprint module including stale compiler/evaluator denials."
+    },
+    {
+      "case": "legacy expiry wrapper",
+      "cause": "short_builder test wrapper did not mirror context_only/prefix/case_input kwargs.",
+      "state": "Minimal explicit parameters and legacy-only assertions prepared; actual PG rerun pending."
+    }
+  ],
+  "subsequent_targeted_fix": {
+    "commits": ["7ec5693", "d6eba0b", "ec1e1b9"],
+    "session": "proc_a0d6a7f87b09",
+    "target": "test-c03-pg",
+    "passed": 27,
+    "seconds": 87.48,
+    "exit_code": 0,
+    "family_drained": true,
+    "product_bytes_changed": false,
+    "canonical_retry": "PENDING; this record preserves the original FAIL"
+  },
+  "limits": [
+    "No application or adapter code modified to repair these test contracts.",
+    "No closure members removed, thresholds expanded, assertions removed or canonical target narrowed.",
+    "Installed native/browser and complementary reviews remain bound to unchanged product bytes; no fresh canonical PASS yet."
+  ]
+}

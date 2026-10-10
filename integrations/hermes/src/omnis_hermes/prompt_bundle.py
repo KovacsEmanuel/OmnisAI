@@ -4,6 +4,8 @@ No template evaluation, foreign runtime, model, tool or catalog discovery.
 See upstream/composition-NOTICE.md for exact source and modifications.
 """
 
+import base64
+import binascii
 import re
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +44,7 @@ BASE_TEXT = (
     "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
 )
 ROLE_TEXT = "SUPPORT-only cold admission probe; not an assessment."
+LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -262,7 +265,10 @@ def _procedure(value: object) -> dict[str, object]:
 
 
 def _brief(
-    value: object, method: dict[str, object], bundle: dict[str, object]
+    value: object,
+    method: dict[str, object],
+    bundle: dict[str, object],
+    capture: dict[str, object] | None = None,
 ) -> dict[str, object]:
     body = obj(value, BRIEF_FIELDS)
     role = text(body["role"])
@@ -280,7 +286,6 @@ def _brief(
         "prior_attempt_refs",
         "criterion_bindings",
         "overlay_refs",
-        "input_artifact_refs",
         "identities",
         "allowed_capability_ids",
         "stop_conditions",
@@ -317,9 +322,13 @@ def _brief(
         ("result_schema_ref", "schema"),
     ):
         reference(header[field], kind)
-    contexts = sequence(body["context"], 2, 2)
+    input_refs = [] if capture is None else [ref(envelope(capture["input"], "contract-case-input"))]
+    refs(body["input_artifact_refs"], "contract-case-input", len(input_refs), len(input_refs))
+    if canonical(body["input_artifact_refs"]) != canonical(input_refs):
+        raise reject()
+    contexts = sequence(body["context"], 2 + len(input_refs), 2 + len(input_refs))
     for item, expected in zip(
-        contexts, (header["mission_revision"], header["focus_ref"]), strict=True
+        contexts, [header["mission_revision"], header["focus_ref"], *input_refs], strict=True
     ):
         context = obj(item, {"ref", "epistemic_state", "summary", "mandatory"})
         if (
@@ -341,12 +350,15 @@ def _brief(
     )
     reference(bound["procedure_ref"], "procedure")
     reference(bound["mission_ref"], "mission")
-    if bound["mission_ref"] != header["mission_revision"] or bound["slot_values"] != []:
+    slots = [] if capture is None else [{"slot_name": "capture", "refs": input_refs}]
+    if bound["mission_ref"] != header["mission_revision"] or canonical(
+        bound["slot_values"]
+    ) != canonical(slots):
         raise reject()
     p = _procedure(bound["resolved_procedure"])
     expected_binding = {
         "procedure_ref": bound["procedure_ref"],
-        "slot_values": [],
+        "slot_values": slots,
         "bound_procedure_ref": ref(method),
     }
     bindings = sequence(body["procedure_bindings"], 1, 1)
@@ -374,7 +386,162 @@ def _brief(
     chosen_limits, method_limits = limits(body["limits"]), limits(p["limits"])
     if any(cast(int, chosen_limits[k]) > cast(int, method_limits[k]) for k in LIMITS):
         raise reject()
+    if capture is not None:
+        _capture_assignment(capture, body, bound, p)
     return body
+
+
+def _case_ref(value: object, kind: str) -> dict[str, object]:
+    result = reference(value, kind)
+    integer(result["revision"], 1, 2147483646)
+    return result
+
+
+def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
+    """Bounded synthetic input only; no source lookup, normalization or execution."""
+    material = obj(value, {"section", "version", "context", "input", "schema"})
+    integer(material["version"], 1, 1)
+    if material["section"] != "case-input":
+        raise reject()
+    context = envelope(material["context"], "contract-input-context")
+    input_record = envelope(material["input"], "contract-case-input")
+    c = obj(
+        context["payload"],
+        set(
+            "version namespace owner_id basis_ref snapshot_ref procedure_ref schema_ref selection_ref mission_ref focus_ref".split()
+        ),
+    )
+    v = obj(
+        input_record["payload"],
+        set("version value schema_ref owner_id context_ref provenance".split()),
+    )
+    for body in (c, v):
+        integer(body["version"], 1, 1)
+        uuid(body["owner_id"])
+        _case_ref(body["schema_ref"], "schema")
+    if c["namespace"] != "RUN" or c["owner_id"] != v["owner_id"]:
+        raise reject()
+    for field, kind in (
+        ("basis_ref", "managed-run"),
+        ("snapshot_ref", "run-snapshot"),
+        ("procedure_ref", "procedure"),
+        ("selection_ref", "execution-selection"),
+        ("mission_ref", "mission"),
+        ("focus_ref", "focus"),
+    ):
+        _case_ref(c[field], kind)
+    if _case_ref(v["context_ref"], "contract-input-context") != ref(context):
+        raise reject()
+    provenance = obj(
+        v["provenance"], {"producer_key", "producer_revision", "command_id", "source_kind"}
+    )
+    uuid(provenance["command_id"])
+    if {k: provenance[k] for k in ("producer_key", "producer_revision", "source_kind")} != {
+        "producer_key": "contract-case-input",
+        "producer_revision": "contract-case-input-v1",
+        "source_kind": "SYNTHETIC",
+    }:
+        raise reject()
+    s = obj(material["schema"], {"ref", "document", "path", "source_b64"})
+    sr = _case_ref(s["ref"], "schema")
+    if sr != c["schema_ref"] or sr != v["schema_ref"]:
+        raise reject()
+    path = _path(s["path"])
+    try:
+        raw = base64.b64decode(text(s["source_b64"], 10924), validate=True)
+    except (ValueError, binascii.Error):
+        raise reject() from None
+    if not 1 <= len(raw) <= 8192 or raw_text(raw).startswith("\ufeff"):
+        raise reject()
+    schema = obj(
+        s["document"], {"$schema", "type", "additionalProperties", "required", "properties"}
+    )
+    if (
+        canonical(loads(raw, 8192)) != canonical(schema)
+        or schema["$schema"] != "https://json-schema.org/draft/2020-12/schema"
+        or schema["type"] != "object"
+        or schema["additionalProperties"] is not False
+        or schema["required"] != ["capture"]
+    ):
+        raise reject()
+    prop = mapping(obj(schema["properties"], {"capture"})["capture"])
+    obj(prop, {"type", "maxLength"} | ({"minLength"} if "minLength" in prop else set()))
+    maximum = integer(prop["maxLength"], 1, 65536)
+    minimum = integer(prop.get("minLength", 0), 0, maximum)
+    capture = obj(v["value"], {"capture"})["capture"]
+    if (
+        prop["type"] != "string"
+        or type(capture) is not str
+        or not minimum <= len(capture) <= maximum
+        or len(capture.encode("utf-8")) > 4096
+        or len(canonical(v["value"])) > 8192
+    ):
+        raise reject()
+    raw_text(capture.encode("utf-8"))
+    candidates = [
+        mapping(k) for k in skills if mapping(mapping(k)["package_ref"])["digest"] == sr["digest"]
+    ]
+    if len(candidates) != 1:
+        raise reject()
+    files = [mapping(f) for f in sequence(candidates[0]["files"]) if mapping(f)["path"] == path]
+    if (
+        len(files) != 1
+        or files[0]["sha256"] != digest(raw)
+        or type(files[0]["size"]) is not int
+        or files[0]["size"] != len(raw)
+    ):
+        raise reject()
+    if context["id"] == input_record["id"]:
+        raise reject()
+    return material
+
+
+def _capture_assignment(
+    material: dict[str, object],
+    brief: dict[str, object],
+    bound: dict[str, object],
+    p: dict[str, object],
+) -> None:
+    c = mapping(mapping(material["context"])["payload"])
+    h = mapping(brief["header"])
+    if mapping(c["basis_ref"])["id"] != h["run_id"] or any(
+        c[k] != expected
+        for k, expected in (
+            ("snapshot_ref", h["snapshot_ref"]),
+            ("selection_ref", brief["execution_selection_ref"]),
+            ("mission_ref", h["mission_revision"]),
+            ("focus_ref", h["focus_ref"]),
+            ("procedure_ref", bound["procedure_ref"]),
+            ("schema_ref", p["input_schema_ref"]),
+        )
+    ):
+        raise reject()
+    if p["key"] != "map-capture" or any(p[g] != [] for g in ("baseline", "control", "cleanup")):
+        raise reject()
+    steps = sequence(p["probe"], 3, 3)
+    expected: list[dict[str, object]] = [
+        {
+            "name": "capture",
+            "source_ref": ref(envelope(material["input"], "contract-case-input")),
+            "selector": "capture",
+        }
+    ]
+    if canonical(mapping(steps[0])["input_bindings"]) != canonical(expected):
+        raise reject()
+    for i, name in enumerate(("records", "operations"), 1):
+        expected = [
+            {
+                "name": name,
+                "source_ref": {
+                    "kind": "STEP_OUTPUT",
+                    "step_id": mapping(steps[i - 1])["id"],
+                    "output_name": name,
+                },
+                "selector": None,
+            }
+        ]
+        if canonical(mapping(steps[i])["input_bindings"]) != canonical(expected):
+            raise reject()
 
 
 def _path(value: object) -> str:
@@ -449,7 +616,9 @@ def _skills(values: list[object], packages: object) -> None:
         raise reject()
 
 
-def _material(payload: dict[str, object]) -> tuple[bytes, dict[str, object], dict[str, object]]:
+def _material(
+    payload: dict[str, object], version: int | None = None
+) -> tuple[bytes, dict[str, object], dict[str, object]]:
     bounded(payload)
     authored(payload)
     bundle = envelope(payload["prompt_bundle"], "prompt-bundle")
@@ -462,11 +631,7 @@ def _material(payload: dict[str, object]) -> tuple[bytes, dict[str, object], dic
     )
     integer(b["brief_schema"], 1, 1)
     integer(b["result_schema"], 1, 1)
-    if (
-        b["composer_revision"] != composer_revision()
-        or b["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
-        or b["provenance"] != PROVENANCE
-    ):
+    if b["tokenizer_revision"] != "utf8-byte-upper-bound-v1" or b["provenance"] != PROVENANCE:
         raise reject()
     maximum = min(
         integer(b["max_context_bytes"], 1, 65536), integer(b["max_context_tokens"], 1, 65536), 32768
@@ -474,7 +639,15 @@ def _material(payload: dict[str, object]) -> tuple[bytes, dict[str, object], dic
     if type(payload["text"]) is not str:
         raise reject()
     raw = payload["text"].encode("utf-8")
-    sections = sequence(loads(raw, maximum), 5, 6)
+    sections = sequence(loads(raw, maximum), 5, 7)
+    has_capture = mapping(sections[4]).get("section") == "case-input"
+    actual_version = 2 if has_capture else 1
+    if (version is not None and version != actual_version) or b["composer_revision"] not in (
+        {composer_revision(), LEGACY_COMPOSER_REVISION}
+        if actual_version == 1
+        else {composer_revision()}
+    ):
+        raise reject()
     if (
         canonical(sections) != raw
         or sha(payload["text_digest"]) != digest(raw)
@@ -501,7 +674,14 @@ def _material(payload: dict[str, object]) -> tuple[bytes, dict[str, object], dic
         b["base_ref"], "prompt-content"
     ) != ref(base):
         raise reject()
-    body = _brief(brief["payload"], method, bundle)
+    skill_sections = sections[5:] if has_capture else sections[4:]
+    _skills(skill_sections, b["package_refs"])
+    capture = _capture_material(sections[4], skill_sections) if has_capture else None
+    if capture is not None and {mapping(capture[k])["id"] for k in ("context", "input")} & {
+        r["id"] for r in [bundle, *checked]
+    }:
+        raise reject()
+    body = _brief(brief["payload"], method, bundle, capture)
     if obj(role["payload"], {"role", "text"}) != {"role": body["role"], "text": ROLE_TEXT}:
         raise reject()
     roles = {}
@@ -513,7 +693,6 @@ def _material(payload: dict[str, object]) -> tuple[bytes, dict[str, object], dic
         roles[name] = reference(row["content_ref"], "prompt-content")
     if roles.get(cast(str, body["role"])) != ref(role) or b["package_refs"] != body["package_refs"]:
         raise reject()
-    _skills(sections[4:], b["package_refs"])
     return raw, brief, body
 
 
@@ -530,8 +709,9 @@ def validate_composition(value: object, manifest: object, entry: object) -> byte
             "token_upper_bound",
         },
     )
-    raw, brief, body = _material(payload)
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
+    version = integer(launch.get("composition_version"), 1, 2)
+    raw, brief, body = _material(payload, version)
     e = obj(entry, {"batch_index", "task_id", "attempt_id", "brief_ref", "composition_ref", "goal"})
     header = mapping(body["header"])
     if (

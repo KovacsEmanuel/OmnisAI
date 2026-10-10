@@ -76,7 +76,8 @@ def validate_stage(value: object) -> dict[str, object]:
         fields.add("composition_version")
     payload = obj(result["payload"], fields)
     if composed and (
-        type(payload["composition_version"]) is not int or payload["composition_version"] != 1
+        type(payload["composition_version"]) is not int
+        or payload["composition_version"] not in (1, 2)
     ):
         raise ValueError("Invalid composition version")
     uuid(payload["run_id"])
@@ -84,6 +85,8 @@ def validate_stage(value: object) -> dict[str, object]:
     if payload["resolution"] != "NO_MODEL" or payload["effective"] is not None:
         raise ValueError("Only NO_MODEL admission is supported")
     rows = entries(payload["entries"], native=False, composed=composed)
+    if composed and payload["composition_version"] == 2 and len(rows) != 1:
+        raise ValueError("Capture composition requires one attempt")
     if composed:
         from .prompt_bundle import validate_composition
 

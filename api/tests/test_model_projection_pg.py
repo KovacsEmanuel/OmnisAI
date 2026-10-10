@@ -15,7 +15,7 @@ from hashlib import sha256
 from importlib.abc import MetaPathFinder
 from pathlib import Path
 from typing import TypedDict
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text as sql
@@ -54,6 +54,10 @@ def _bootstrap(installed: bool) -> dict[str, str]:
         "omnis.modules.runs.model_projection",
         "omnis.modules.tasks.managed_composition",
         "omnis_hermes.model_projection",
+        "omnis.modules.runs.model_dispatch",
+        "omnis.supervisor.native_tasks",
+        "omnis_hermes.model_admission",
+        "omnis_hermes.model_terminal",
     ):
         module = importlib.import_module(name)
         assert module.__file__ is not None
@@ -71,7 +75,7 @@ async def _produce(directory: Path) -> None:
     from fixtures.c03_journey import publish_capture
     from fixtures.c03_records import qualify_records
     from omnis.core.db import database_engine
-    from omnis.modules.instance.schemas import NativePrepareCommand
+    from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
     from omnis.modules.instance.service import InstanceService
     from omnis.modules.runs.contract_inputs import ContractInputs
     from omnis.modules.runs.managed_admission import ManagedAdmission
@@ -79,9 +83,11 @@ async def _produce(directory: Path) -> None:
     from omnis.modules.runs.native_preparation import NativePreparation
     from omnis.modules.settings import candidate_store as records
     from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.modules.tasks import managed_store
     from omnis.policy.model_projection import SyntheticApproval
+    from omnis.supervisor.native_tasks import NativeTaskOwner
     from test_managed_contract import stage
-    from test_model_projection import text_digests
+    from test_model_admission_pg import synthetic_decision
     from test_native_preparation import command, worker_fixture
 
     dsn = os.environ["OMNIS_DATABASE_URL"]
@@ -120,6 +126,23 @@ async def _produce(directory: Path) -> None:
             bundle: dict[str, object],
         ) -> dict[str, object]:
             return {"preparation": worker_fixture(bundle)}
+
+        async def managed(
+            self,
+            service: InstanceService,
+            owner: UUID,
+            operation: str,
+            payload: dict[str, object],
+        ) -> dict[str, object]:
+            assert operation == "task_model_preflight"
+            await service.runtime_authority(owner, self.epoch, self.generation, inert_probe=True)
+            adapter = importlib.import_module("omnis_hermes.model_admission")
+            body = mapping(mapping(payload["binding"])["payload"])
+            return mapping(
+                adapter.cold_preflight(
+                    payload, native_root_id=body["native_root_id"], native_entries=body["entries"]
+                )
+            )
 
     try:
         epoch = await service.acquire(supervisor)
@@ -221,11 +244,12 @@ async def _produce(directory: Path) -> None:
             mapping(actual[k]) for k in ("manifest", "composition", "binding")
         ]
         run = str(mapping(manifest["payload"])["run_id"])
+        decision = synthetic_decision(seed.owner, run, composition)
         approval = SyntheticApproval(
             seed.owner,
             run,
             canonical(records.reference(composition)),
-            text_digests(composition),
+            frozenset(str(d) for d in sequence(decision["approved_text_digests"])),
             (),
         )
         args = (
@@ -358,6 +382,29 @@ async def _produce(directory: Path) -> None:
                 ).scalar_one() == input_count
         async with engine.begin() as conn:
             assert await projections.read(conn, seed.owner, run, ref, approval) == projected
+            state = await managed_store.state(conn, seed.owner, manifest=args[1])
+        # Installed owner consumer; native transport/identities remain the
+        # declared prerequisite seed, not authentic warm execution proof.
+        data_reply = await NativeTaskOwner(managed, service, supervisor, epoch, runtime).handle(
+            NativeTaskCommand.model_validate(
+                {
+                    "op": "native_task",
+                    "schema_version": 1,
+                    "owner_id": seed.owner,
+                    "command_id": state["command_id"],
+                    "instance_id": str(status.instance_id),
+                    "expected_epoch": epoch,
+                    "expected_generation": status.generation,
+                    "action": "model_preflight",
+                    "manifest_ref": args[1],
+                    "data_approval": decision,
+                }
+            )
+        )
+        admission = mapping(data_reply["model_admission"])
+        assert admission["projection_ref"] == ref and admission["reason"] == "NO_MODEL"
+        assert admission["native_turn"] is None and admission["model_calls"] == 0
+        assert await count() == 1
         (directory / "trusted-read.json").write_bytes(
             canonical(
                 {
@@ -369,6 +416,7 @@ async def _produce(directory: Path) -> None:
                     "composition_ref": args[3],
                     "catalog_root": str(seed.root),
                     "approved_text_digests": sorted(approval.approved_text_digests),
+                    "data_approval_ref": admission["data_approval_ref"],
                 }
             )
         )
@@ -379,6 +427,8 @@ async def _produce(directory: Path) -> None:
                     "status": "PASS_SCOPED",
                     "projection_ref": ref,
                     "projection_digest": mapping(projected["payload"])["projection_digest"],
+                    "data_approval_ref": admission["data_approval_ref"],
+                    "installed_owner_data_preflight": "BLOCKED_NO_MODEL",
                     "transaction_abort": True,
                     "replay_exact": True,
                     "immutable": True,
@@ -407,6 +457,7 @@ async def _read(directory: Path) -> None:
     from fixtures.b06b_publication.consumer import canonical, mapping, sequence
     from omnis.core.db import database_engine
     from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.runs.model_dispatch import ModelDispatch
     from omnis.modules.runs.model_projection import ModelProjections
     from omnis.modules.settings.catalog_models import CatalogError
     from omnis.policy.model_projection import POLICY_DIGEST, SyntheticApproval
@@ -442,6 +493,20 @@ async def _read(directory: Path) -> None:
         }
         raw = serialize_model_input(projected, **pins)
         assert validate_serialized_input(raw, projected, **pins) == raw
+        async with engine.begin() as conn:
+            current = await ModelDispatch(
+                ManagedAdmission(engine, Path(str(data["catalog_root"])))
+            ).read(
+                conn,
+                owner,
+                run,
+                data["binding_ref"],
+                data["data_approval_ref"],
+                data["projection_ref"],
+            )
+        model_adapter = importlib.import_module("omnis_hermes.model_admission")
+        assert model_adapter.validate_preflight(current["payload"]) == raw
+        assert current["approval_ref"] == data["data_approval_ref"]
         assert sha256(raw).hexdigest() == mapping(projected["payload"])["projection_digest"]
         assert MARKER.encode() not in raw
         user = mapping(
@@ -510,6 +575,8 @@ async def _read(directory: Path) -> None:
                     "projection_digest": sha256(raw).hexdigest(),
                     "carrier_bytes": len(raw),
                     "restart_process_readback": True,
+                    "data_approval_ref": data["data_approval_ref"],
+                    "approval_new_process_readback": True,
                     "replay_count": 1,
                     "carrier_extra_denials": len(denied_channels),
                     "carrier_bytes_denials": 3,
@@ -588,6 +655,9 @@ def test_pg_projection_persistent_restart_and_copy_installed(tmp_path: Path) -> 
     reader = json.loads((directory / "reader-report.json").read_bytes())
     assert producer["projection_ref"] == reader["projection_ref"]
     assert producer["projection_digest"] == reader["projection_digest"]
+    assert producer["data_approval_ref"] == reader["data_approval_ref"]
+    assert reader["approval_new_process_readback"] is True
+    assert producer["installed_owner_data_preflight"] == "BLOCKED_NO_MODEL"
     with connect_test_database(url) as conn:
         assert conn.execute(
             "SELECT count(*) FROM managed_record WHERE envelope->>'kind'='model-projection'"
@@ -595,6 +665,9 @@ def test_pg_projection_persistent_restart_and_copy_installed(tmp_path: Path) -> 
         assert conn.execute(
             "SELECT count(*) FROM managed_record WHERE envelope->>'kind'='runtime-binding'"
         ).fetchone() == (2,)
+        assert conn.execute(
+            "SELECT count(*) FROM managed_record WHERE envelope->>'kind'='model-data-approval'"
+        ).fetchone() == (1,)
     # Keep the actual base DB and private synthetic corpus; no DROP/cleanup here.
     # The existing runner drains family, retires its exact CID and retains PGDATA.
     assert (directory / "carrier.json").is_file()

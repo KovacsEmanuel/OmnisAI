@@ -68,6 +68,14 @@ R2 a verificat suplimentar late sink după setup și interrupt apărut după che
 
 P01 a fost eliberat de coordonator după readback; cererea nouă `integration/fixture-request-p02.json` (nonce295aaa52911f4d1f8e9b8302bc424bf7) vizează numai copy-installed API/adaptor și readerul aprobării într-un proces nou pe o fixture nouă. La această adjudecare nu există grant P02, nu a fost construit artefactul și nu a pornit fixture-ul. Native complet/SDK/browser/canonical/live rămân distincte și neautorizate de acest request. Registrele globale reflectă acum PARTIAL pentru SL10/SL11, cu acceptările C03 și toate FAIL-urile păstrate; integrarea continuă, nu este închisă.
 
+## P02 pregătit read-only/code-only, fără efecte
+
+Extensia test-only a journey-ului opt-in B06c atestă suplimentar importurile instalate ModelDispatch/NativeTaskOwner/model_admission/model_terminal. Folosește clasificarea explicită a seedului sintetic deja existent (helper de test, nu autoaprobare în produs), păstrează același projection/ref și toate controalele/counturile originale; noul owner persistă decizia și un proces ulterior citește calificat `model-data-approval`. Native transport/identități rămân seed declarate, nu instalare nativă sau model.
+
+Recorderul arhivat în `p2-integration-p02-recorder.py` reutilizează exact `prove_private_fixture` și familia/cleanupul existent. Singura interceptare înregistrează manifestul original și dev/ino concrete înainte de gate/DDL, remediind lipsa de evidență P01 fără al doilea lifecycle owner. Intrarea cere grant/SID/nonce/hash, root cunoscut, source/artifact hashes și stare one-shot; un callback/metadata fail nu permite migrarea. Până la reviewul sursei, fixarea hashului și grantul separat nu este executat. Patru controale stdlib metadata (fără runner/DB/build) au trecut; Ruff și mypy ale extensiei pytest trec. Acestea nu sunt PASS installed.
+
+Preflightul `uv0.12.19 export --help` a arătat enumul exact `requirements.txt`; draftul neacordat al cererii P02 avea `requirements-txt` și a fost corectat înainte de execuție, cu holder=null/targets[]. Niciun build/instalare/fixture nu a fost consumat pentru a descoperi această diferență. Configurația globală/toolchainul nu au fost schimbate.
+
 ## Revert și continuare
 
 Istoric granular local, fără amend/squash/rebase/reset/stash/push. Revertul importurilor este invers cronologic după inspecția dependențelor, nu înlocuire de arbore. Nicio migrare sau efect extern nu a fost executat de import; originalul protejat nu este citit/copat/hashuit/staged. C03 rămâne CLOSED_SCOPED la bytes lui; B06b/G02, G-DATA-EARLY, G-MODEL, Settings minim și G02-live/G04a rămân distincte și neînchise.

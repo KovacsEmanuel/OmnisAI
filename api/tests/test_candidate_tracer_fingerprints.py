@@ -29,6 +29,7 @@ DEPENDENCIES = (
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
     "tasks/module_registry.py",
+    "tasks/contract_case_input.py",
 )
 
 

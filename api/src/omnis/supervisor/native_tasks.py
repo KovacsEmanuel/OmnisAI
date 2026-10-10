@@ -56,6 +56,35 @@ class NativeTaskOwner:
             "task_status": status,
         }
 
+    async def _model_preflight(
+        self, command: NativeTaskCommand, binding: dict[str, object]
+    ) -> dict[str, object]:
+        from omnis.modules.runs.model_dispatch import ModelDispatch
+
+        if mapping(binding["payload"])["runtime_boot"] != self.runtime.boot:
+            raise CatalogError("TASK_INDETERMINATE")
+        consumer = ModelDispatch(self.domain)
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            prepared = await consumer.prepare(
+                conn,
+                command.owner_id,
+                command.manifest_ref,
+                records.reference(binding),
+                command.data_approval,
+            )
+        # Persistent decision/projection commit precedes IPC. A cold identity
+        # never becomes a native-turn or an allocation by completing this call.
+        result = await self.runtime.managed(
+            self.service, self.owner, "task_model_preflight", mapping(prepared["payload"])
+        )
+        return {
+            **self._reply(command, binding, "BLOCKED"),
+            "model_admission": consumer.accept_preflight(result, prepared),
+        }
+
     async def handle(self, command: NativeTaskCommand) -> dict[str, object]:
         command = NativeTaskCommand.model_validate(command.model_dump(mode="json"))
         async with asyncio.timeout(4):
@@ -84,6 +113,10 @@ class NativeTaskOwner:
                 )
             ):
                 raise CatalogError("COMMAND_CONFLICT")
+            if command.action == "model_preflight":
+                if back["results"] or back["release_started"]:
+                    raise CatalogError("TASK_REJECTED")
+                return await self._model_preflight(command, binding)
             if back["results"]:
                 await self.domain.check(command.owner_id, command.command_id)
                 return self._reply(command, binding, "BLOCKED")
@@ -214,13 +247,47 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError(
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
-            if set(reply) != {"ok", "correlation_id", "manifest_ref", "binding_ref", "task_status"}:
+            fields = {"ok", "correlation_id", "manifest_ref", "binding_ref", "task_status"}
+            if command.action == "model_preflight":
+                fields.add("model_admission")
+            if set(reply) != fields:
                 raise CatalogError("TASK_REJECTED")
             if ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref:
                 raise CatalogError("TASK_REJECTED")
             ref(reply["binding_ref"], "runtime-binding")
             if reply["task_status"] not in {"BOUND", "BLOCKED"}:
                 raise CatalogError("TASK_REJECTED")
+            if command.action == "model_preflight":
+                from omnis.modules.tasks.managed_contract import exact
+
+                admission = exact(
+                    reply["model_admission"],
+                    {
+                        "protocol",
+                        "status",
+                        "reason",
+                        "manifest_ref",
+                        "binding_ref",
+                        "projection_ref",
+                        "projection_digest",
+                        "native_turn",
+                        "model_calls",
+                        "data_approval_ref",
+                    },
+                )
+                ref(admission["projection_ref"], "model-projection")
+                ref(admission["data_approval_ref"], "model-data-approval")
+                if (
+                    reply["task_status"] != "BLOCKED"
+                    or admission["status"] != "BLOCKED"
+                    or admission["reason"] != "NO_MODEL"
+                    or admission["native_turn"] is not None
+                    or type(admission["model_calls"]) is not int
+                    or admission["model_calls"] != 0
+                    or admission["manifest_ref"] != reply["manifest_ref"]
+                    or admission["binding_ref"] != reply["binding_ref"]
+                ):
+                    raise CatalogError("TASK_REJECTED")
             return reply
         finally:
             writer.close()

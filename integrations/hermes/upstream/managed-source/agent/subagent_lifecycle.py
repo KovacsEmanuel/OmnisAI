@@ -322,6 +322,35 @@ class SubagentLifecycleService:
         with _REGISTRY.lock:
             return json.loads(json.dumps(self._cold_batch(payload)["response"]))
 
+    def model_preflight(self, payload):
+        """Consume qualified model data without promoting a cold child to a turn."""
+        from omnis_hermes.model_admission import validate_preflight, cold_preflight
+        from omnis_hermes.native_preparation_contract import canonical
+        from agent.cold_admission import ColdAdmissionDenied
+        payload = json.loads(canonical(payload))
+        validate_preflight(payload)
+        with _REGISTRY.lock:
+            batch = self._cold_batch(payload)
+            parent = self._parent_agent_resolver()
+            self._require_cold_root(batch, parent)
+            body = payload["binding"]["payload"]
+            rows = batch["response"]["entries"]
+            if (batch["binding"] is not None or time.monotonic() >= batch["expires"]
+                    or body["run_id"] != batch["manifest"]["payload"]["run_id"]
+                    or body["entries"] != rows or len(rows) != len(batch["records"])):
+                raise ColdAdmissionDenied("Model preflight lifecycle unavailable")
+            for row, record in zip(rows, batch["records"], strict=True):
+                child = record.agent
+                state = getattr(child, "_cold_state", None)
+                if (record.state != SubagentState.PENDING or state is None or state.closed
+                        or child._subagent_id != row["native_child_id"]
+                        or child.session_id != row["native_session_id"]
+                        or state.native_id != row["native_child_id"]
+                        or state.session_id != row["native_session_id"]
+                        or state.parent_session_id != parent.session_id):
+                    raise ColdAdmissionDenied("Model preflight native lineage unavailable")
+            return cold_preflight(payload, native_root_id=parent._subagent_id, native_entries=rows)
+
     def release(self, payload):
         """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
         from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest

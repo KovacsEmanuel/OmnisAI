@@ -19,7 +19,9 @@ if TYPE_CHECKING:
     from omnis.modules.instance.service import InstanceService, RuntimeAuthority
 
 MAX_FRAME = 64 * 1024
-MANAGED_OPERATIONS = frozenset({"task_stage", "task_release", "task_status"})
+MANAGED_OPERATIONS = frozenset(
+    {"task_stage", "task_release", "task_status", "task_model_preflight"}
+)
 
 
 class RuntimeUnavailable(ValueError):

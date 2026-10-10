@@ -394,6 +394,7 @@ class NativePeer:
                 managed.RPC["task_stage"]: managed.validate_stage,
                 managed.RPC["task_release"]: managed.validate_release,
                 managed.RPC["task_status"]: managed.validate_status,
+                managed.RPC["task_model_preflight"]: managed.validate_model_preflight,
             }[method](params)
         if timeout is not None and (
             not managed_method

@@ -1,3 +1,4 @@
+diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 --- /dev/null
 +++ b/agent/cold_admission.py
 @@ -0,0 +1,69 @@
@@ -70,6 +71,7 @@
 +def require_warm_parent(parent):
 +    if getattr(parent, "_cold_state", None) is not None:
 +        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
+diff --git a/agent/managed_admission_rpc.py b/agent/managed_admission_rpc.py
 --- /dev/null
 +++ b/agent/managed_admission_rpc.py
 @@ -0,0 +1,30 @@
@@ -87,11 +89,11 @@
 +
 +def dispatch(method, params):
 +    global _ROOT, _SERVICE
-+    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release
++    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight
 +    if method not in RPC.values():
 +        raise ValueError("Unknown managed operation")
 +    {RPC["task_stage"]: validate_stage, RPC["task_release"]: validate_release,
-+     RPC["task_status"]: validate_status}[method](params)
++     RPC["task_status"]: validate_status, RPC["task_model_preflight"]: validate_model_preflight}[method](params)
 +    with _LOCK:
 +        if _SERVICE is None:
 +            if method != RPC["task_stage"]:
@@ -102,7 +104,8 @@
 +            _ROOT = AIAgent(cold_admission=ColdAdmission())
 +            _SERVICE = SubagentLifecycleService(lambda: _ROOT)
 +        return {RPC["task_stage"]: _SERVICE.stage, RPC["task_release"]: _SERVICE.release,
-+                RPC["task_status"]: _SERVICE.readback}[method](params)
++                RPC["task_status"]: _SERVICE.readback, RPC["task_model_preflight"]: _SERVICE.model_preflight}[method](params)
+diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
 --- a/agent/subagent_lifecycle.py
 +++ b/agent/subagent_lifecycle.py
 @@ -42,6 +42,7 @@
@@ -113,7 +116,7 @@
      UNKNOWN = "UNKNOWN"
  
  
-@@ -241,9 +242,133 @@
+@@ -241,9 +242,162 @@
  
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -197,6 +200,35 @@
 +        with _REGISTRY.lock:
 +            return json.loads(json.dumps(self._cold_batch(payload)["response"]))
 +
++    def model_preflight(self, payload):
++        """Consume qualified model data without promoting a cold child to a turn."""
++        from omnis_hermes.model_admission import validate_preflight, cold_preflight
++        from omnis_hermes.native_preparation_contract import canonical
++        from agent.cold_admission import ColdAdmissionDenied
++        payload = json.loads(canonical(payload))
++        validate_preflight(payload)
++        with _REGISTRY.lock:
++            batch = self._cold_batch(payload)
++            parent = self._parent_agent_resolver()
++            self._require_cold_root(batch, parent)
++            body = payload["binding"]["payload"]
++            rows = batch["response"]["entries"]
++            if (batch["binding"] is not None or time.monotonic() >= batch["expires"]
++                    or body["run_id"] != batch["manifest"]["payload"]["run_id"]
++                    or body["entries"] != rows or len(rows) != len(batch["records"])):
++                raise ColdAdmissionDenied("Model preflight lifecycle unavailable")
++            for row, record in zip(rows, batch["records"], strict=True):
++                child = record.agent
++                state = getattr(child, "_cold_state", None)
++                if (record.state != SubagentState.PENDING or state is None or state.closed
++                        or child._subagent_id != row["native_child_id"]
++                        or child.session_id != row["native_session_id"]
++                        or state.native_id != row["native_child_id"]
++                        or state.session_id != row["native_session_id"]
++                        or state.parent_session_id != parent.session_id):
++                    raise ColdAdmissionDenied("Model preflight native lineage unavailable")
++            return cold_preflight(payload, native_root_id=parent._subagent_id, native_entries=rows)
++
 +    def release(self, payload):
 +        """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
 +        from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest
@@ -247,6 +279,7 @@
          if parent is None:
              raise SubagentLifecycleError("No active Hermes parent session is available.")
          self._validate_request(request, parent)
+diff --git a/providers/__init__.py b/providers/__init__.py
 --- a/providers/__init__.py
 +++ b/providers/__init__.py
 @@ -160,6 +160,8 @@
@@ -278,6 +311,7 @@
      if _discovered:
          return
      _discovered = True
+diff --git a/run_agent.py b/run_agent.py
 --- a/run_agent.py
 +++ b/run_agent.py
 @@ -13,10 +13,11 @@
@@ -339,6 +373,7 @@
          # close() is the hard owner boundary; shutdown_memory_provider() is idempotent so gateway pre-calls
          # never double-extract.
          session_messages = getattr(self, "_session_messages", None)
+diff --git a/tui_gateway/rpc_dispatch.py b/tui_gateway/rpc_dispatch.py
 --- a/tui_gateway/rpc_dispatch.py
 +++ b/tui_gateway/rpc_dispatch.py
 @@ -19,6 +19,15 @@
@@ -347,7 +382,7 @@
      rid, method, params = normalized
 +    # Private owner-only extension, not a generic management/session allowlist.
 +    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
-+        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status",
++        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status", "omnis.managed.model_preflight",
 +    }:
 +        try:
 +            from agent.managed_admission_rpc import dispatch as managed_dispatch

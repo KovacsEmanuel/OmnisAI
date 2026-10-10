@@ -7,9 +7,15 @@ from .native_preparation_contract import bounded, canonical, digest, obj, refere
 PROTOCOL = "omnis-managed-admission-v1"
 PROTOCOL_V2 = "omnis-managed-admission-v2"
 PROTOCOL_V3 = "omnis-managed-admission-v3"
-OPS = frozenset({"task_stage", "task_release", "task_status"})
+OPS = frozenset({"task_stage", "task_release", "task_status", "task_model_preflight"})
 RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
+
+
+def validate_model_preflight(value: object) -> bytes:
+    from .model_admission import validate_preflight
+
+    return validate_preflight(value)
 
 
 def envelope(value: object, kind: str) -> dict[str, object]:

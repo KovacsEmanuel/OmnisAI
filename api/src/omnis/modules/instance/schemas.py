@@ -1,9 +1,9 @@
 """Small typed DTOs shared by HTTP and local control, never ORM serialization."""
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
 
@@ -80,8 +80,24 @@ class NativeTaskCommand(StrictBody):
     instance_id: str
     expected_generation: int = Field(ge=0, le=9223372036854775807, strict=True)
     expected_epoch: int = Field(ge=1, le=9223372036854775807, strict=True)
-    action: Literal["stage", "release", "receive"]
+    action: Literal["stage", "release", "receive", "model_preflight"]
     manifest_ref: dict[str, object]
+    data_approval: dict[str, object] | None = Field(default=None, repr=False)
+
+    @model_validator(mode="after")
+    def model_preflight(self) -> Self:
+        from omnis.modules.settings.catalog_schema import canonical
+
+        if self.action == "model_preflight":
+            from omnis.modules.runs.model_dispatch import data_decision
+
+            self.data_approval = data_decision(self.data_approval)
+            # Leave framing/capability space inside the unchanged 4096-byte IPC.
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Model preflight command too large")
+        elif self.data_approval is not None:
+            raise ValueError("Data decision only belongs to model preflight")
+        return self
 
     @field_validator("owner_id", "command_id", "instance_id", mode="before")
     @classmethod

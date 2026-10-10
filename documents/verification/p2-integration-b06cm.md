@@ -76,6 +76,10 @@ Recorderul arhivat în `p2-integration-p02-recorder.py` reutilizează exact `pro
 
 Preflightul `uv0.12.19 export --help` a arătat enumul exact `requirements.txt`; draftul neacordat al cererii P02 avea `requirements-txt` și a fost corectat înainte de execuție, cu holder=null/targets[]. Niciun build/instalare/fixture nu a fost consumat pentru a descoperi această diferență. Configurația globală/toolchainul nu au fost schimbate.
 
+P02-F01 a identificat o cursă între două citiri READY ale aceluiași grant; părintele a reprodus cele două intrări în owner pe seam SOURCE fără efecte. Remediul `a49fc60` este numai un marker per-nonce `O_CREAT|O_EXCL|O_NOFOLLOW`, păstrat și fsync-uit înainte de orice owner; registry failure nu rearmează încercarea. Re-reviewul independent a aprobat scoped remediul pe exacta49fc60, runtime copy și sursă SHA `b5f4f98ecd276d05641305418a351a607a98057ec3770f4433f35cf1a89fe30a`; [findingul și dispoziția](p2-integration-p02-review.json) păstrează RED-ul, controalele și eroarea de observer dir_fd din review cu rerularea sa limitată. Înregistrarea dev/ino se face înaintea gate-ului/migrării aplicației, dar după provision/initdb/readiness PostgreSQL; nu este prezentată ca anterioară initdb.
+
+Pregătirea SOURCE P02 este acum revizuită, însă nu are efecte acordate: holder=null/targets=[] la readback, rootul p02 nu a fost creat. Aprobarea recorderului nu este copy-installed/PG/native PASS și nu rezolvă obligațiile de implementare DTO/turn/config/SENT. Se așteaptă numai grantul exact pentru acest scope înaintea buildului/fixture-ului, fără reluarea P01 sau o a doua lansare ascunsă.
+
 ## Revert și continuare
 
 Istoric granular local, fără amend/squash/rebase/reset/stash/push. Revertul importurilor este invers cronologic după inspecția dependențelor, nu înlocuire de arbore. Nicio migrare sau efect extern nu a fost executat de import; originalul protejat nu este citit/copat/hashuit/staged. C03 rămâne CLOSED_SCOPED la bytes lui; B06b/G02, G-DATA-EARLY, G-MODEL, Settings minim și G02-live/G04a rămân distincte și neînchise.

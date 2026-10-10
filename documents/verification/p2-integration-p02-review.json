@@ -73,7 +73,7 @@
     "R1/R2 repaired product acceptance at 8265a9c is not reopened by this recorder finding. Full DTO/native-turn/config/admission reserve/SENT/physical Stop/caps obligations remain unimplemented or unproven as previously recorded.",
     "SL10/SL11 and B06b/G-DATA-EARLY/G-MODEL/G02/phase2 remain PARTIAL/NOT_CLOSED. Prior C03 and other scoped acceptances are preserved. No fresh canonical or native QA credit is granted."
   ],
-  "parent_disposition": "P02_F01_REPRODUCED_AND_MINIMALLY_FIXED_PENDING_FOCUSED_REVIEW",
+  "parent_disposition": "P02_F01_RESOLVED_SOURCE_APPROVED_SCOPED",
   "parent_evidence": {
     "red": "Exact copied stronger reproducer in fresh owned p02-parent-red: two valid READY/grant reads admitted2 no-effect owner entries, exit1, joined threads, audit violations0.",
     "fix": "Retained per-nonce consumed marker opened O_CREAT|O_EXCL|O_NOFOLLOW after validation and before state write/owner; file+directory fsync, never removed or rearmed.",
@@ -81,5 +81,105 @@
     "limits": "No build/DB/OCI/native/SDK/browser or actualgrant. Existing owner, family, attestor and cleanup unchanged; no general lifecycle/verifier framework."
   },
   "execution": "NOT_STARTED_NO_GRANT",
-  "re_review": "PENDING"
+  "re_review": {
+    "verdict": "APPROVED_SCOPED",
+    "snapshot": "a49fc60f61dc1890000c2a8ef944eb9c74d5688b",
+    "report": "/home/kali/.hermes/cache/scratch/p2i-unit-76ea2f/review-p02-fix-a49fc60/report.json",
+    "sha256": "6944f589e1c25c1cc2767ad06605c36fd8aa93caab98d5e8adafc164348af20e",
+    "finding_dispositions": [
+      {
+        "id": "P02-F01",
+        "original_severity": "P2",
+        "original_disposition": "OPEN_FOR_PARENT_REPRODUCTION_AND_MINIMAL_REMEDIATION",
+        "current_disposition": "RESOLVED_SOURCE_APPROVED_SCOPED",
+        "locations": [
+          "documents/verification/p2-integration-p02-recorder.py:143-159",
+          "tests/development/test_p02_recorder_claim.py:79-132"
+        ],
+        "reason": "After validating the grant, READY state, environment, source and artifact hashes, main atomically creates a per-nonce retained marker with O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW and mode 0600. A second valid READY reader loses at that open before any owner entry. Marker content is flushed/fsynced, then the attempt directory is fsynced before registry submission and owner invocation. No deletion or rearm path was added.",
+        "concurrent_evidence": {
+          "real_require_grant_validations": [
+            "COPY_INSTALLED_ATTESTED_READY_FOR_SINGLE_GATE",
+            "COPY_INSTALLED_ATTESTED_READY_FOR_SINGLE_GATE"
+          ],
+          "owner_entries": [
+            {
+              "target": "test-model-projection-pg",
+              "seconds": 900
+            }
+          ],
+          "errors": [
+            "FileExistsError"
+          ],
+          "all_threads_joined": true,
+          "actual_effects": 0,
+          "authority_files_written": false,
+          "audit_violations": [],
+          "marker_retained": true,
+          "marker": {
+            "owner_session_id": "20261010_215158_76ea2f",
+            "intent_nonce": "295aaa52911f4d1f8e9b8302bc424bf7",
+            "target": "test-model-projection-pg"
+          },
+          "registry_state": "GATE_EXITED_READBACK_PENDING",
+          "limit": "Same valid synthetic grant twice; real main/require_grant/write_registry. Owner entry substituted. No OCI/DB launch."
+        },
+        "oracle_delta": "Copied original stronger helper unchanged except removing the admitted-owner barrier and changing assertions to one owner plus FileExistsError loser; added marker/state/audit assertions. The two-party barrier AFTER real require_grant READY validation and serialized real registry replacement remain. The owner cannot be required to wait for a second owner that correct admission forbids.",
+        "positive_and_failclosed": [
+          "Ordinary positive reaches existing owner body, manifest writer, attestor/gate/cleanup seams, and GATE_EXITED_READBACK_PENDING.",
+          "Sequential replay refuses; retained regular or symlink marker with still-READY state refuses at exclusive create, with marker inode/canary unchanged.",
+          "Marker-file and attempt-directory fsync errors retain the marker and READY state, reach no owner, and refuse retry via FileExistsError.",
+          "Registry failure after claim retains consumed marker despite READY registry and refuses reuse (unchanged versioned test).",
+          "Injected owner exception retains marker and GATE_SUBMITTED_ONCE; later invocation refuses before owner."
+        ],
+        "limits": "Real file operations and thread overlap with no-effect owner. Not two physical provisions, cross-host coordination, power-loss durability, or protection against an authorized same-UID/root actor deleting the retained marker."
+      }
+    ],
+    "proof_limits": [
+      "No source/index/Git/authority/profile/config changes. No old fixture/P01 replay, readback or cleanup. No actual P02 root created.",
+      "No build/install/DB/OCI/native runtime/SDK/browser/provider/network/model/target effects, including after any future parent grant.",
+      "Protected original HTML, auth/.env/dumps, raw private bodies and raw skill contents were not read, copied or hashed. Explicitly requested project methodology files were read as instructions, not runtime skills.",
+      "Reticle NOT_APPLICABLE to SOURCE/metadata; application NOT_INTEGRATED; not executed. Chisel BLOCKED_NO_GO; not executed.",
+      "R1/R2 repaired product acceptance at 8265a9c is not reopened by this recorder finding. Full DTO/native-turn/config/admission reserve/SENT/physical Stop/caps obligations remain unimplemented or unproven as previously recorded.",
+      "SL10/SL11 and B06b/G-DATA-EARLY/G-MODEL/G02/phase2 remain PARTIAL/NOT_CLOSED. Prior C03 and other scoped acceptances are preserved. No fresh canonical or native QA credit is granted."
+    ],
+    "issues_retained": [
+      "Initial combined suite was FAIL solely because the reused reviewer audit did not handle dir_fd-relative TemporaryDirectory cleanup. Failure/report retained; limited corrected rerun passes.",
+      "No scope-authorized skill/profile write. The dir_fd audit lesson is recorded here for parent retention if separately authorized."
+    ],
+    "helper_audit_failure": {
+      "result_file": "focused-results.json",
+      "exit_code": 1,
+      "tests_run": 18,
+      "individually_passed_controls": 15,
+      "failures": [
+        "<run_path>.RecorderClaim.test_registry_failure_after_claim_never_rearms_ready",
+        "<run_path>.RecorderClaim.test_single_positive_and_sequential_replay_refusal",
+        "<run_path>.RecorderClaim.test_two_valid_ready_readers_only_one_owner_entry"
+      ],
+      "errors": [],
+      "audit_events_preserved": [
+        "os.remove:outside-owned-root",
+        "os.remove:outside-owned-root",
+        "os.remove:outside-owned-root"
+      ],
+      "classification": "REVIEW_HELPER_DIR_FD_FALSE_POSITIVE_AT_VERSIONED_TEST_CLEANUP; not a recorder failure and not a clean suite PASS.",
+      "reason": "Original reviewer audit resolved os.remove(relative_name, dir_fd=owned_temp_directory) against cwd /home/kali and denied the unlink before execution. All three traces terminate in TemporaryDirectory cleanup; the named test bodies reached completion. No outside-root removal occurred."
+    },
+    "corrected_versioned_rerun": {
+      "tests_run": 3,
+      "test_names": [
+        "test_registry_failure_after_claim_never_rearms_ready",
+        "test_single_positive_and_sequential_replay_refusal",
+        "test_two_valid_ready_readers_only_one_owner_entry"
+      ],
+      "failures": [],
+      "errors": [],
+      "audit_violations": [],
+      "source_unchanged": "/home/kali/OmnisAI/tests/development/test_p02_recorder_claim.py",
+      "prior_failed_run": "focused-results.json",
+      "rerun_reason": "Original reviewer audit treated os.remove(name, dir_fd=owned_dir) as cwd-relative. Resolve that descriptor instead; same root boundary and effect denial preserved.",
+      "limit": "SOURCE metadata only, owner sentinel, no install/DB/OCI/native or real cleanup."
+    }
+  }
 }

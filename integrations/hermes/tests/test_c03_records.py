@@ -336,3 +336,52 @@ def test_api_native_records_value_parity(value):
         outcomes.append(False)
     assert outcomes[0] == outcomes[1]
     assert outcomes[0] == (value not in BAD_VALUES)
+
+
+def schema_stage(raw):
+    """Replace retained source bytes and all package/schema bindings, not just JSON."""
+    stage = records_fixture()
+    payload = stage["compositions"][0]["payload"]
+    sections = json.loads(payload["text"])
+    material, skill = sections[4], sections[5]
+    schema = material["schema"]
+    next(f for f in skill["files"] if f["path"] == schema["path"]).update(
+        sha256=digest(raw), size=len(raw)
+    )
+    skill["package_ref"]["digest"] = digest(canonical(skill["files"]))
+    schema["ref"]["digest"] = skill["package_ref"]["digest"]
+    schema["source_b64"] = base64.b64encode(raw).decode()
+    for body in (material["context"]["payload"], material["input"]["payload"]):
+        body["schema_ref"] = copy.deepcopy(schema["ref"])
+    sections[3]["record"]["payload"]["resolved_procedure"]["input_schema_ref"] = copy.deepcopy(
+        schema["ref"]
+    )
+    for body in (payload["prompt_bundle"]["payload"], sections[2]["record"]["payload"]):
+        body["package_refs"][0] = copy.deepcopy(skill["package_ref"])
+    relink_records(stage, sections)
+    return stage
+
+
+@pytest.mark.parametrize(
+    "suffix,accepted", [(b"\n", True), (b"\t", True), (b"\r", False), (b"\r\n", False)]
+)
+def test_records_schema_lexical_parity_same_resealed_bytes(suffix, accepted):
+    from omnis.modules.tasks import managed_composition
+
+    raw = SCHEMA.read_bytes() + suffix
+    stage = schema_stage(raw)
+    outcomes = []
+    for validator in (
+        lambda: validate_stage(stage),
+        lambda: managed_composition.validate(
+            stage["compositions"][0], stage["manifest"]["payload"]["entries"][0], stage["manifest"]
+        ),
+    ):
+        try:
+            validator()
+            outcomes.append(True)
+        except ValueError:
+            outcomes.append(False)
+    assert outcomes == [accepted, accepted]
+    material = json.loads(stage["compositions"][0]["payload"]["text"])[4]
+    assert base64.b64decode(material["schema"]["source_b64"]) == raw

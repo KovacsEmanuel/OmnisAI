@@ -154,7 +154,9 @@ def records_schema(raw_schema: bytes) -> dict[str, object]:
     """Exact semantic schema of the installed Records handler; retain original bytes."""
     if type(raw_schema) is not bytes or not 1 <= len(raw_schema) <= 8192:
         raise CatalogError("INVALID_CASE_INPUT_SCHEMA")
-    document = _object(load_json(utf8_json_text(raw_schema)))
+    # Retained lexical bytes must satisfy native raw_text before JSON can erase
+    # insignificant whitespace such as CR. Never normalize the schema source.
+    document = _object(load_json(_text(utf8_json_text(raw_schema))))
     expected = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

@@ -641,3 +641,124 @@ def test_records_catalog_exact_admission_replay_and_changed_material_denied(
             await engine.dispose()
 
     asyncio.run(run())
+
+
+@pytest.mark.parametrize(
+    "suffix,accepted", [(b"\n", True), (b"\t", True), (b"\r", False), (b"\r\n", False)]
+)
+def test_records_lexical_schema_pg_refuses_before_qualification(
+    request: pytest.FixtureRequest, tmp_path: Path, suffix: bytes, accepted: bool
+) -> None:
+    from fixtures.c03_records import records_seed
+
+    url = request.getfixturevalue("migrated_database_url")
+    dsn = url.render_as_string(hide_password=False)
+    seed = records_seed(tmp_path / "schema-lexical")
+    path = seed.package / "templates/schemas/records.schema.json"
+    raw = path.read_bytes() + suffix
+    path.write_bytes(raw)
+    captured = seed.success("capture", seed.capture(), dsn, candidate=True)
+    refs = {k: captured[k] for k in ("draft_ref", "source_draft_refs")}
+    review_request = seed.write(**refs)
+    result = seed.invoke("review", review_request, dsn, candidate=True)
+    assert result.returncode == (0 if accepted else 2)
+    if accepted:
+        reviewed = strict_json(result.stdout)
+        frozen = seed.success(
+            "freeze",
+            seed.write(**refs, technical_review_ref=reviewed["technical_review_ref"]),
+            dsn,
+            candidate=True,
+        )
+        admitted = seed.success(
+            "admit-evaluation-records",
+            seed.write(
+                schema_version=3, snapshot_ref=frozen["snapshot_ref"], value={"records": []}
+            ),
+            dsn,
+            candidate=True,
+        )
+        assert mapping(mapping(admitted["input"])["payload"])["value"] == {"records": []}
+        import base64
+
+        assert (
+            base64.b64decode(str(mapping(mapping(admitted["material"])["schema"])["source_b64"]))
+            == raw
+        )
+        evaluated = seed.success(
+            "evaluate",
+            seed.write(
+                schema_version=3,
+                snapshot_ref=frozen["snapshot_ref"],
+                input_ref=admitted["input_ref"],
+                evaluation_kind="PURE",
+            ),
+            dsn,
+            candidate=True,
+        )
+        assert evaluated["status"] == "PURE_PASS"
+        assert [json.loads(str(v)) for v in sequence(evaluated["outputs"])] == [
+            {"operations": []},
+            {"surface_map": []},
+        ]
+        return
+    assert strict_json(result.stderr) == {"status": "BLOCKED", "reason": "INVALID_CASE_INPUT"}
+
+    async def denied_state() -> tuple[dict[str, object], dict[str, int]]:
+        engine = database_engine(dsn)
+        try:
+            async with engine.connect() as conn:
+                review = mapping(
+                    (
+                        await conn.execute(
+                            sql(
+                                "SELECT result FROM catalog_command WHERE owner_id=:owner AND command_id=:command"
+                            ),
+                            {"owner": seed.owner, "command": review_request["command_id"]},
+                        )
+                    ).scalar_one()
+                )
+                counts = {
+                    kind: int(
+                        (
+                            await conn.execute(
+                                sql(
+                                    "SELECT count(*) FROM catalog_record WHERE owner_id=:owner AND kind=:kind"
+                                ),
+                                {"owner": seed.owner, "kind": kind},
+                            )
+                        ).scalar_one()
+                    )
+                    for kind in (
+                        "candidate-snapshot",
+                        "evaluation-admission",
+                        "evaluation-receipt",
+                        "contract-input-context",
+                        "contract-case-records",
+                    )
+                }
+                assert not any(counts.values())
+                counts["reservations"] = int(
+                    (
+                        await conn.execute(sql("SELECT count(*) FROM catalog_reservation"))
+                    ).scalar_one()
+                )
+                for table in ("managed_record", "managed_run", "managed_task"):
+                    counts[table] = int(
+                        (await conn.execute(sql("SELECT count(*) FROM " + table))).scalar_one()
+                    )
+                    assert counts[table] == 0
+                return review, counts
+        finally:
+            await engine.dispose()
+
+    reviewed, before = asyncio.run(denied_state())
+    denied_freeze = seed.invoke(
+        "freeze",
+        seed.write(**refs, technical_review_ref=reviewed["technical_review_ref"]),
+        dsn,
+        candidate=True,
+    )
+    assert denied_freeze.returncode == 2
+    assert asyncio.run(denied_state())[1] == before
+    assert path.read_bytes() == raw

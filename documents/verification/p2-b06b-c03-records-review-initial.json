@@ -1,0 +1,901 @@
+{
+  "schema_version": 1,
+  "decision_owner": "PARENT",
+  "original_snapshot": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+  "original_reports": {
+    "R1": {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim/report.json",
+      "sha256": "c7e476d686313515fd3bb811c4eb4a93a90e67aa0eeca4d06711efd54e7ec845",
+      "report": {
+        "schema_version": 1,
+        "report_id": "C03-RECORDS-R1-c1568bb",
+        "reviewer": "R1 independent acceptance review",
+        "verdict": "APPROVED_SCOPED",
+        "summary": "No confirmed blocking correctness or conformity finding in the frozen C03 records source/test/docs snapshot. Approval is scoped to this source review and the executed deterministic validators, not final installed/browser/canonical acceptance.",
+        "base_sha": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+        "reviewed_sha": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+        "branch": "p04-control-topology-wip",
+        "commit_sequence": [
+          "c1568bb8ca31d55b11847c9976ee5b9f36dc6117 docs(c03): document records private CLI qualification and assignment",
+          "e6bfa41c1c32719bc0ff3d39d285fddfe23f1158 test(c03): exercise records denials rollback and replay on real consumers",
+          "eee917e0f626c46e226228cc292230a4e5c5a1b2 feat(c03): bind persistent structured records through inert composition",
+          "b28a0d32f8477f38eebb49f4106a732ffc72dda5 docs(c03): bound structured records increment and version seams"
+        ],
+        "scope": {
+          "source_paths": 13,
+          "new_material_paths": 10,
+          "all_changed_paths": 32,
+          "review_order": [
+            "requirements/contract/versioning",
+            "qualification/publication",
+            "transaction/owner/persistence",
+            "history/replay",
+            "command usability",
+            "minimality and unchanged authorities"
+          ],
+          "product_snapshot": "eee917e0f626c46e226228cc292230a4e5c5a1b2",
+          "test_snapshot": "e6bfa41c1c32719bc0ff3d39d285fddfe23f1158",
+          "docs_snapshot": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117"
+        },
+        "snapshot_bindings": {
+          "Makefile": {
+            "sha256": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896",
+            "git_blob": "8b50f7ca68124879fe739a947b25e8ab19c96848"
+          },
+          "api/README.md": {
+            "sha256": "23608c58d787a5838a4a2af98e050db1df7a97be17bd8cb44a8afce689127f6e",
+            "git_blob": "719b93987eafc0697d498d7b871939509c6c2af3"
+          },
+          "api/src/omnis/modules/runs/contract_inputs.py": {
+            "sha256": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+            "git_blob": "d03ff2291bc090f106ebf6c196f880a87ee33868"
+          },
+          "api/src/omnis/modules/runs/managed_admission.py": {
+            "sha256": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+            "git_blob": "a11845525d7a69399403c75622102f9e144004d9"
+          },
+          "api/src/omnis/modules/settings/candidate_catalog.py": {
+            "sha256": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+            "git_blob": "ccc74854df0a9f31877140ec46fc492a4b6d753a"
+          },
+          "api/src/omnis/modules/settings/catalog_publication.py": {
+            "sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+            "git_blob": "9677635d1f0d448459f0a292b17dc6ade7975eb3"
+          },
+          "api/src/omnis/modules/settings/skill_catalog.py": {
+            "sha256": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+            "git_blob": "35605d4423dc57ae09c7e457f46de4cbbee99a12"
+          },
+          "api/src/omnis/modules/tasks/contract_case_input.py": {
+            "sha256": "7dc360542c41016ff485a0a3aa92aeca58b48cd359d927038e97fbeafd6671bc",
+            "git_blob": "e3452d5760b74bd3a7f8e0d799c15d5fa7129306"
+          },
+          "api/src/omnis/modules/tasks/execution_selection.py": {
+            "sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+            "git_blob": "00e74132a5c9a213a784035fd71bd423cb76ce81"
+          },
+          "api/src/omnis/modules/tasks/managed_composition.py": {
+            "sha256": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+            "git_blob": "5148cbebb69072ef8d483b29e39bbde1eadf3b79"
+          },
+          "api/src/omnis/modules/tasks/managed_contract.py": {
+            "sha256": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+            "git_blob": "c258f244b8eef4302b761157813b5ba6c3097c44"
+          },
+          "api/src/omnis/supervisor/runtime_client.py": {
+            "sha256": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+            "git_blob": "53baff67ac2a2629b08ac326168e858e0364e936"
+          },
+          "api/tests/fixtures/c03_records.py": {
+            "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+            "git_blob": "2661358b2856a2332431c5910d99363a7cd5a2ea"
+          },
+          "api/tests/test_c03_records_contract.py": {
+            "sha256": "8820f3bec9d7befa4cb344e32afe94b65f6af289ae79da0baa4442902f0a3f49",
+            "git_blob": "ed1936a7022e3ee3fd8bbf41d53de77b44e42bb7"
+          },
+          "api/tests/test_c03_records_pg.py": {
+            "sha256": "69a52b53f6b5110098107b11f03ed21a4001e96a240deeaf6ecf9df03ce91069",
+            "git_blob": "37dc8c32e92794a04447358170f3c9efe7fe5e0e"
+          },
+          "documents/verification/p2-b06b-c03-records-source.json": {
+            "sha256": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80",
+            "git_blob": "17e060a86ae6a644d881122927cec9e1a626d93d"
+          },
+          "documents/verification/p2-b06b-c03-records-tracer.json": {
+            "sha256": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75",
+            "git_blob": "f470b792864fefd6b61db84a2424db0e4a502c5c"
+          },
+          "documents/verification/p2-b06b-c03-records.md": {
+            "sha256": "93f60f73cc3e119d88300b4344f97f8844715db4db488cef7bc7a20f70369b3a",
+            "git_blob": "722eece2fd48fae2b838dd17c15add3caf3318d2"
+          },
+          "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": {
+            "sha256": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467",
+            "git_blob": "07625094d17c63737fc9785d3c4ef0dd6d71419a"
+          },
+          "integrations/hermes/src/omnis_hermes/prompt_bundle.py": {
+            "sha256": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+            "git_blob": "e1188adc936f8f1ae43cfdb41de221994b15dac3"
+          },
+          "integrations/hermes/src/omnis_hermes/runtime_host.py": {
+            "sha256": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6",
+            "git_blob": "661f3d373b968458cc93c9ce2dfd0c8d9599a2c0"
+          },
+          "integrations/hermes/tests/test_c03_records.py": {
+            "sha256": "8ff7a1a24fda105533d7af3a6d6339b184ccb4f04537552c37a01a8a3d569af7",
+            "git_blob": "43b258833db86b7756adabaf96a1d0af437d27dc"
+          },
+          "profiles/records-mapping-contract.yaml": {
+            "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+            "git_blob": "6971b51d5a4e94f8eb2603f54c3212c16c0830c0"
+          },
+          "skills/records-mapping-contract/NOTICE.md": {
+            "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+            "git_blob": "21675f5f7be20602a4abff205059a23808c53dba"
+          },
+          "skills/records-mapping-contract/SKILL.md": {
+            "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+            "git_blob": "1f47a4a89b97d2ff50cb0e22dad186dd6b0a2691"
+          },
+          "skills/records-mapping-contract/omnis.yaml": {
+            "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+            "git_blob": "9e576517e40c662f055ae1f2da55c59247fb6586"
+          },
+          "skills/records-mapping-contract/references/methodology.md": {
+            "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+            "git_blob": "36e3b9f14592b6dfffc349e73d72dd1caca2fab8"
+          },
+          "skills/records-mapping-contract/templates/procedures/map-records.yaml": {
+            "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+            "git_blob": "531e241ede016bdd7a5f977d0d29c32180b0f968"
+          },
+          "skills/records-mapping-contract/templates/schemas/empty.schema.json": {
+            "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+            "git_blob": "47ba54d17dd2f06e7e5ce2f88297bf4424b806fe"
+          },
+          "skills/records-mapping-contract/templates/schemas/operations.schema.json": {
+            "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+            "git_blob": "743a40ddff469243b8e2ac5fb27378c38cd46515"
+          },
+          "skills/records-mapping-contract/templates/schemas/records.schema.json": {
+            "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+            "git_blob": "ee24cbfaf5343588cf8abc564e7bdf8e28494e92"
+          },
+          "skills/records-mapping-contract/templates/schemas/surface_map.schema.json": {
+            "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+            "git_blob": "abebd9c95600915d85a93c7ecec5e74d0ee39b7e"
+          }
+        },
+        "unchanged_authority_bindings": {
+          "api/src/omnis/modules/tasks/module_registry.py": {
+            "sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+            "head_blob": "2a7a0f0cef28fbe7e207ecdcad07e271753129bd",
+            "base_blob": "2a7a0f0cef28fbe7e207ecdcad07e271753129bd"
+          },
+          "skills/recon-mapping-contract/templates/schemas/records.schema.json": {
+            "sha256": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+            "head_blob": "f1463698e1390462800f20350c32262313621000",
+            "base_blob": "f1463698e1390462800f20350c32262313621000"
+          },
+          "api/src/omnis/modules/tasks/managed_store.py": {
+            "sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+            "head_blob": "30e7d9e0a1d7765f75143f6166600a743514202f",
+            "base_blob": "30e7d9e0a1d7765f75143f6166600a743514202f"
+          },
+          "api/src/omnis/modules/settings/candidate_store.py": {
+            "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+            "head_blob": "51418d7b4cbeeedd17f7291c778b63dc6a1a18c3",
+            "base_blob": "51418d7b4cbeeedd17f7291c778b63dc6a1a18c3"
+          },
+          "api/src/omnis/modules/settings/publication_store.py": {
+            "sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+            "head_blob": "f2b68a65847d38932f9ee088cf1e20655b2ee324",
+            "base_blob": "f2b68a65847d38932f9ee088cf1e20655b2ee324"
+          }
+        },
+        "binding_checks": {
+          "product_hashes_match_tracer": true,
+          "test_makefile_hashes_match_source_receipt": true,
+          "new_records_schema_semantically_equal": true,
+          "new_records_schema_byte_equal": false,
+          "schema_formatting_explanation": "Authoritative pretty-printed schema is 969 bytes; new canonical compact material is 505 bytes. Semantic JSON identity verified; original selected bytes remain hash/size-bound.",
+          "composer_revision_matches_current_native_source": true,
+          "tracked_index_clean_at_start_and_finish": true,
+          "head_unchanged_at_finish": true
+        },
+        "requirements": [
+          {
+            "id": "R1-C01",
+            "requirement": "Structured records value and authoritative existing Record/Records language",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/tasks/contract_case_input.py:153-212",
+              "api/src/omnis/modules/tasks/module_registry.py:10-26",
+              "skills/records-mapping-contract/templates/schemas/records.schema.json:1"
+            ],
+            "analysis": "The producer uses the existing strict Records model and exact semantic schema, retaining the supplied object by deep copy. Empty arrays and 128 short records are admitted; method enum, absolute bounded path and integer status are enforced. The new schema is semantically identical to the unchanged authoritative schema; formatting bytes differ, intentionally not conflated with source-byte identity.",
+            "evidence": [
+              "R1-E01",
+              "R1-E02"
+            ]
+          },
+          {
+            "id": "R1-C02",
+            "requirement": "Exactly one records Ref; exactly two existing PURE handlers and local preceding STEP_OUTPUT",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/tasks/contract_case_input.py:25-63,416-428",
+              "api/src/omnis/modules/settings/skill_catalog.py:567-713,850-943",
+              "skills/records-mapping-contract/templates/procedures/map-records.yaml:65-115"
+            ],
+            "analysis": "First binding is records/CASE_SLOT_REF records/selector records. The second binding names the first step operations output with null selector. Compilation fixes handler order to normalize-operations then build-map, forbids the parse step and malformed/missing/duplicate/optional/multiref slots. Evaluation uses a local succeeded map and the immediately preceding compiled step, with no global or cross-attempt output lookup. No handler or oracle was added.",
+            "evidence": [
+              "R1-E01",
+              "R1-E03"
+            ]
+          },
+          {
+            "id": "R1-C03",
+            "requirement": "Explicit version separation, not capture shape reuse",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/settings/candidate_catalog.py:106-187,933-967,1040-1113",
+              "api/src/omnis/modules/runs/contract_inputs.py:26-44,51-131",
+              "api/src/omnis/modules/runs/managed_admission.py:38-61,282-284",
+              "api/src/omnis/modules/tasks/managed_contract.py:955-999",
+              "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-103"
+            ],
+            "analysis": "PACKAGE_EVAL admit-evaluation-records/evaluate use schema3 and records-v3 evaluator/protocol; RUN create-context/input use schema2, context2, records payload1/provenance records-v1. prepare-composed schema3 maps to composition3, case-input material2 and wire3. Read-only commands remain schema1. Native rejects wire/composition/material/context/kind/composer mismatches.",
+            "evidence": [
+              "R1-E01",
+              "parent source/PG receipt"
+            ]
+          },
+          {
+            "id": "R1-C04",
+            "requirement": "Persistent backend PACKAGE_EVAL admission bound to candidate, owner, group and exact schema",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/settings/candidate_catalog.py:327-351,761-968",
+              "api/src/omnis/modules/tasks/contract_case_input.py:229-297"
+            ],
+            "analysis": "Schema and procedure resolve from the pinned frozen selected package, never caller schema/provenance. Admission, PACKAGE_EVAL context and immutable input are inserted in the catalog owner-locked command transaction. capture_material checks input/context/admission group and exact expected context against the selected candidate; rejected or mismatched candidates are refused. RUN material cannot satisfy PACKAGE_EVAL and vice versa.",
+            "evidence": [
+              "parent source/PG receipt",
+              "api/tests/test_c03_records_pg.py:38-75,506-643"
+            ]
+          },
+          {
+            "id": "R1-C05",
+            "requirement": "Real qualification then explicit TTY confirmation/Publish, no case substitution in templates",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/settings/candidate_catalog.py:1019-1148",
+              "api/src/omnis/modules/settings/catalog_publication.py:35-85,118-177,420-455,458-495",
+              "api/src/omnis/modules/settings/skill_catalog.py:895-943"
+            ],
+            "analysis": "PURE calls the two installed handlers and validates outputs, not a fabricated parse or binding receipt. STATIC/PURE publication checks require the same records input Ref, records-v3 evaluator, current compiler/evaluator and exact material/index/closure. Confirmation retains the existing stdin/stderr TTY and explicit yes channel; CAS and exact pins are rechecked after the human wait. Publication/snapshot retain the template; RUN binding is downstream.",
+            "evidence": [
+              "parent source/PG receipt",
+              "api/tests/test_c03_records_pg.py:45-75,267",
+              "api/tests/fixtures/c03_records.py:45-93"
+            ]
+          },
+          {
+            "id": "R1-C06",
+            "requirement": "RUN context/input are separate immutable owner-locked transactions; no caller grants",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/runs/contract_inputs.py:26-44,51-174",
+              "api/src/omnis/modules/tasks/contract_case_input.py:265-297",
+              "api/src/omnis/modules/tasks/managed_store.py:12-54,98-113"
+            ],
+            "analysis": "Each command locks the managed owner and stores canonical envelope plus command receipt in its own engine.begin transaction. Input kind, owner, context/schema and SYNTHETIC producer metadata are derived by the backend. Requests reject extra kind/provenance/grant fields; values are copied without sorting/deduplication. Refs are strict and owner/run scoped. The supplied parent PG tests read fresh-process records and exercise transaction rollback after an actual INSERT.",
+            "evidence": [
+              "R1-E01",
+              "parent source/PG receipt",
+              "api/tests/test_c03_records_pg.py:136-167,300-458"
+            ]
+          },
+          {
+            "id": "R1-C07",
+            "requirement": "Assignment all-or-nothing before dispatch; input selection cannot change preparation or context",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/runs/managed_admission.py:219-354,365-407",
+              "api/src/omnis/modules/runs/contract_inputs.py:133-174"
+            ],
+            "analysis": "_prepare holds the existing owner lock across replay lookup, source/input graph validation and all assignment writes. Context version, unassigned context, selection, native preparation, input owner/run, schema and exact slot Ref are checked before insertion. Existing input prefix is preserved and verified byte-exact; assignment records/tasks commit together before any stage. reserve_dispatch revalidates retained stage/current source and deadline before marking dispatch uncertainty.",
+            "evidence": [
+              "parent source/PG receipt",
+              "api/tests/test_c03_records_pg.py:300-458"
+            ],
+            "limits": [
+              "No independent PostgreSQL/concurrency run by R1. Existing owner-lock semantics were inspected, not certified as a new records overlap/crash protocol."
+            ]
+          },
+          {
+            "id": "R1-C08",
+            "requirement": "BoundProcedure and all MethodRequirements before Brief; metadata before Brief, composition after",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/tasks/managed_contract.py:247-262,318-395,397-516",
+              "api/src/omnis/modules/tasks/managed_contract.py:798-851",
+              "api/src/omnis/modules/tasks/managed_composition.py:396-449"
+            ],
+            "analysis": "PromptBundle metadata is in the context prefix. Binding replaces only the declared first slot source and clears materialized slots; it preserves the preceding-step binding and template source. A bound-procedure and the full requirement list, including required=false, precede task-brief construction. Composition follows the completed Brief and carries the structured input plus original schema bytes. Validation compares exact assignment/requirement references and rejects an omitted requirement.",
+            "evidence": [
+              "R1-E01",
+              "api/tests/test_c03_records_pg.py:177-200"
+            ]
+          },
+          {
+            "id": "R1-C09",
+            "requirement": "Independent byte ceilings, schema/source binding and native pre-constructor refusal",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/tasks/contract_case_input.py:153-157,193-212,295-296,300-361",
+              "api/src/omnis/modules/runs/managed_admission.py:268-276",
+              "api/src/omnis/modules/tasks/managed_composition.py:451-489",
+              "integrations/hermes/src/omnis_hermes/prompt_bundle.py:407-552,703-796",
+              "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-103"
+            ],
+            "analysis": "Cardinality is distinct from schema8192, input envelope8192, graph65536 and native frame32768. Raw schema is strict UTF-8, exact semantic shape, canonical base64, and matched to selected file path/hash/size. Native records validation checks the language independently rather than importing/running handlers. Valid empty/Unicode/128-short inputs and resealed negative cases pass the scoped suite. Oversized records may legally be refused below the cardinality limit, with no truncation or ceiling expansion.",
+            "evidence": [
+              "R1-E01",
+              "R1-E02"
+            ]
+          },
+          {
+            "id": "R1-C10",
+            "requirement": "Idempotency/conflict/restart readback, no PURE rerun or slot rebinding",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/runs/contract_inputs.py:58-62,107-111,176-190",
+              "api/src/omnis/modules/runs/managed_admission.py:286-354,633-765",
+              "api/src/omnis/modules/settings/candidate_catalog.py:327-351,630-759,970-1017",
+              "api/src/omnis/modules/settings/catalog_publication.py:259-299",
+              "api/src/omnis/modules/settings/skill_catalog.py:129-139"
+            ],
+            "analysis": "Matching canonical request digests replay committed refs/records; differing payloads conflict. Managed replay bypasses _build/current_source while retained validation checks exact material without new binding. Qualification replay reads pinned material and stored outputs without evaluate_pure; records dependency-bearing compilation is refused before the dependency qualification execution path. Parent tests patch defining handler/evaluator/build modules, not only a consumer alias, and use fresh CLI processes for readback.",
+            "evidence": [
+              "parent source/PG receipt",
+              "api/tests/test_c03_records_pg.py:200-267,460-499,586-618"
+            ],
+            "limits": [
+              "Fresh-process command readback is not a physical DB/server restart, crash-cut or ACK-loss measurement."
+            ]
+          },
+          {
+            "id": "R1-C11",
+            "requirement": "Retain managed v1/v2/capture historical readback without promoting new qualification",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/src/omnis/modules/tasks/managed_composition.py:34-38,289-330",
+              "api/src/omnis/modules/tasks/managed_contract.py:955-999",
+              "integrations/hermes/src/omnis_hermes/prompt_bundle.py:45-49,703-730",
+              "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:63-94",
+              "api/src/omnis/modules/settings/candidate_catalog.py:630-711"
+            ],
+            "analysis": "Historical composer hashes are accepted only for their compatible older material forms; records material requires the current composer. Protocol v1/v2 remains accepted and v3 is explicitly discriminated. Retained managed validation uses stored records/preparation, not rebuilding assignment. Current qualification remains pinned to exact compiler/evaluator/source, so old eligibility is not silently carried forward.",
+            "evidence": [
+              "R1-E01",
+              "R1-E02",
+              "parent source receipt changed-boundary regressions"
+            ],
+            "limits": [
+              "This is review of the changed compatibility branches, not a new audit or transfer of old C01/capture acceptances. Installed old-to-new history QA remains a separate pending gate."
+            ]
+          },
+          {
+            "id": "R1-C12",
+            "requirement": "Real first-party command usability and bounded code change",
+            "disposition": "CONFORMS_SCOPED",
+            "code": [
+              "api/README.md:33-112",
+              "api/src/omnis/modules/settings/candidate_catalog.py:1180-1230",
+              "api/src/omnis/modules/settings/catalog_publication.py:458-500",
+              "api/src/omnis/modules/settings/publication_models.py:51-99",
+              "api/src/omnis/modules/runs/contract_inputs.py:193-243",
+              "profiles/records-mapping-contract.yaml:1-30",
+              "skills/records-mapping-contract/omnis.yaml:1-73"
+            ],
+            "analysis": "The example uses real private CLI operations, matching versions/fields and distinct evaluation/RUN values; no test fixture imports or synthetic preparation receipt is passed as product authority. It requires a preprovisioned private environment and explicit real native preparation; the TTY confirmation inherits stdin/stderr and does not auto-yes. The new first-party profile selects the new package/procedure with no capabilities. All 13 changed source diffs and 10 material paths were reviewed; module_registry, authoritative schema and store authorities are unchanged. Supervisor changes are limited to the runtime-client wire-v3 allowlist, plus native-host composition discrimination.",
+            "evidence": [
+              "R1-E01",
+              "R1-E02",
+              "R1-E03"
+            ],
+            "limits": [
+              "The documented full end-to-end example was not executed by R1 because DB/native services are excluded. Installed command usability must be exercised by the separate owned QA, not inferred from parser/source review."
+            ]
+          }
+        ],
+        "findings": [],
+        "finding_policy": "No speculative/stylistic issue is escalated; no severity/path/reproducer/fix entry is present because no confirmed defect was found. Pending scheduled QA is an evidence limit, not a missing-capability code finding.",
+        "evidence": {
+          "schema_version": 1,
+          "snapshot": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+          "independent_execution": [
+            {
+              "id": "R1-E01",
+              "command": "env -i HOME=/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim/home PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\",\"integrations/hermes/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"--basetemp=/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim/pytest\",\"api/tests/test_c03_records_contract.py\",\"integrations/hermes/tests/test_c03_records.py\",\"-q\"]))'",
+              "cwd": "/home/kali/OmnisAI",
+              "exit_code": 0,
+              "result": "108 passed, 1 warning in 3.12s",
+              "warning": "PytestConfigWarning: Unknown config option: asyncio_mode. Plugin auto-loading was disabled deliberately; the selected tests are synchronous. No failure or skip was reported.",
+              "boundary": "Source compiler, input producer, independent native records validators and resealed producer/native parity. No DB, installed native process, provider, target or browser."
+            },
+            {
+              "id": "R1-E02",
+              "command": "Explicit-path Python comparison of JSON-decoded new/authority records schemas and their byte lengths; SHA256 current native prompt_bundle.py versus COMPOSER_REVISION; git diff supervisor excluding runtime_client.py; git diff --check base..HEAD with protected document excluded.",
+              "exit_code": 0,
+              "result": {
+                "schema_semantic_identity": true,
+                "schema_raw_sizes": [
+                  969,
+                  505
+                ],
+                "composer_pin_matches": true,
+                "supervisor_changes_excluding_runtime_client": [],
+                "diff_check": "PASS"
+              },
+              "boundary": "Both schemas retain the same semantic object, not identical formatting bytes; native material still binds original selected schema bytes."
+            },
+            {
+              "id": "R1-E03",
+              "command": "Explicit-path git diff enumeration (protected-document exclusion applied as a pathspec), sha256/get-blob for listed paths, authority base/head blob equality, receipt hash comparison.",
+              "exit_code": 0,
+              "result": {
+                "changed_paths": 32,
+                "changed_source_paths": 13,
+                "new_material_paths": 10,
+                "product_tracer_matches": true,
+                "source_receipt_matches": true,
+                "authority_blobs_unchanged": true
+              }
+            }
+          ],
+          "parent_recorded_not_reexecuted": [
+            {
+              "receipt": "documents/verification/p2-b06b-c03-records-source.json",
+              "test": "test-c03-pg",
+              "result": "29 passed; exit0; family_drained=true; exact owned CID absence recorded",
+              "boundary": "Real PG/private commands. The records journey labels native preparation as a double. No installed native lifecycle credit; no DB was accessed by R1."
+            },
+            {
+              "receipt": "documents/verification/p2-b06b-c03-records-source.json",
+              "test": "check-runtime",
+              "result": "373 PASS plus 6 AST; exit0",
+              "boundary": "Source deterministic adapter/AST, not installed consumer."
+            },
+            {
+              "receipt": "documents/verification/p2-b06b-c03-records-source.json",
+              "test": "records compiler / lint / format / strict mypy / docs",
+              "result": "Compiler14 PASS; lint/typecheck exit0; documentation72 PASS; render_check0; diff_check0",
+              "boundary": "Recorded source checks; not independently repeated wholesale."
+            },
+            {
+              "receipt": "documents/verification/p2-b06b-c03-records-tracer.json",
+              "test": "RED then GREEN tracer",
+              "result": "UNSUPPORTED_STEP_COUNT and admit-evaluation-records unavailable RED retained; subsequent PG28 PASS scoped tracer. Later source receipt supersedes count, not prior failures.",
+              "boundary": "No desired verdict was inferred from receipt verdict fields."
+            }
+          ],
+          "not_run": [
+            "PostgreSQL or DB services by reviewer",
+            "installed build/wheel/native cold stage-release for records",
+            "live browser QA",
+            "final unabridged make check",
+            "physical crash/power-loss/server ACK loss",
+            "provider/model/target effects"
+          ],
+          "tool_applicability": {
+            "Reticle": "NOT_APPLICABLE to this read-only source/CLI review; app instrumentation remains NOT_INTEGRATED. No Reticle command executed.",
+            "Chisel": "BLOCKED_NO_GO; no instantiation or reevaluation. Native file tools only."
+          }
+        },
+        "acceptance_limits": [
+          "Source approval does not close C03 records delivery, SL09/B06b, G02 or phase2.",
+          "The parent PG29, runtime373+6 AST, compiler14 and docs72 receipts were read and bound to the reviewed bytes; those suites were not all independently rerun.",
+          "Independent execution was exactly 108 synchronous non-DB tests on compiler/producer/native-validator/parity. One configuration warning arose because plugin autoload was disabled; no failure or skip.",
+          "PG tests substitute native preparation and therefore do not demonstrate installed native cold lifecycle. Installed/native, browser and final full make check remain intentionally pending.",
+          "No DB, Docker, services, provider/model, target, persistent operator profile, browser or credentials were accessed. No physical failure or new cross-owner protocol claim.",
+          "Readback/compatibility inspection does not transfer historical qualification or reopen unchanged C01/capture acceptance.",
+          "Reticle NOT_APPLICABLE for this read-only CLI/source property; app NOT_INTEGRATED. Chisel BLOCKED_NO_GO, unused."
+        ],
+        "workspace_changes": {
+          "repository_files_modified": [],
+          "commits_created": [],
+          "scratch_root": "/home/kali/.hermes/cache/scratch/c03-r1-c1568bb-vj4y_gim",
+          "artifacts": [
+            "snapshot.json",
+            "evidence.json",
+            "report.json",
+            "report.md",
+            "home/",
+            "pytest/"
+          ],
+          "note": "Only new private scratch artifacts and test temporary files. Protected original HTML excluded before Git enumeration; never read/copied/hashed/inventoried. No bug-bounty-triage load."
+        },
+        "proposed_status_delta": [
+          {
+            "scope": "C03 records — AICI",
+            "code": "IMPLEMENTED_SCOPED",
+            "proof": "SOURCE_PG_RECORDED + R1 deterministic108PASS; installed/browser/canonical pending",
+            "review": "R1 APPROVED_SCOPED; parent adjudication and complementary R2 separate",
+            "next": "Independent installed/native and browser QA, then unchanged full canonical on final bytes"
+          },
+          {
+            "scope": "SL09/B06b/G02",
+            "code": "PARTIAL",
+            "proof": "PARTIAL",
+            "review": "NOT_CLOSED",
+            "next": "Do not promote records source approval to global closure"
+          },
+          {
+            "scope": "B06c → B06m → Settings minim → P2-live",
+            "code": "NOT_IMPLEMENTED",
+            "proof": "NOT_RUN",
+            "review": "NOT_REVIEWED",
+            "next": "Retain existing order and explicit later authorization"
+          },
+          {
+            "scope": "Remaining MVP / post-MVP",
+            "code": "No status change",
+            "proof": "No credit from this review",
+            "review": "Outside scope",
+            "next": "Parent-owned global map remains authoritative"
+          }
+        ],
+        "parent_handoff": "Persist the adjudicated scoped conclusion/limits in the existing versioned C03 register before scratch expires. No product remediation requested by R1. Keep the frozen-byte relationship when combining R2 and later live QA."
+      }
+    },
+    "R2": {
+      "path": "/home/kali/.hermes/cache/scratch/c03-r2-7s4ic2fw/report.json",
+      "sha256": "31de3d19fafad7d02a7882aa61f16e5fc7a967407c2569bd6047cedc549a1e74",
+      "report": {
+        "report_id": "C03-RECORDS-R2-c1568bb",
+        "role": "independent complementary acceptance/security review",
+        "verdict": "CHANGES_REQUESTED_SCOPED",
+        "verdict_limits": "One strict records schema parity defect. No demonstrated authority escape, native constructor effect or reservation leak. Not an installed/browser/canonical product PASS.",
+        "snapshot": {
+          "base": "5ccf90af410e14abf5bf5d9e9807a44824323b9b",
+          "head": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+          "branch": "p04-control-topology-wip",
+          "tracked_index_clean_excluding_forbidden_paths": true,
+          "bindings_count": 51,
+          "files_sha256": {
+            "AGENTS.md": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+            "CONTRIBUTING.md": "8a040d6677a35f2281b7d1cf791633a02c14b01fe16cfa2b73b3cf26525504e1",
+            "Makefile": "89d3c825ad2732d1a2f5b1d153a4b6d343323bfc6854313cd4a77f2262128896",
+            "README.md": "0d3f8ac20c64f082b21f53ec51900ec0a09cd907d9947c106b98f0269939d1c9",
+            "api/README.md": "23608c58d787a5838a4a2af98e050db1df7a97be17bd8cb44a8afce689127f6e",
+            "api/pyproject.toml": "bf50046d011a237f6898e9e59a18712f525bd3acba5201107b8f0bf77bcde47f",
+            "api/src/omnis/modules/runs/contract_inputs.py": "84fa074898ed608338ff8685f28f210a08385939b2705a242477137889eefaec",
+            "api/src/omnis/modules/runs/managed_admission.py": "13491897d46a13add4f80d76cfc0663f0947a12b25f41056d79b3dd46b23bd9b",
+            "api/src/omnis/modules/runs/native_preparation_models.py": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062",
+            "api/src/omnis/modules/settings/candidate_catalog.py": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+            "api/src/omnis/modules/settings/catalog_publication.py": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+            "api/src/omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+            "api/src/omnis/modules/settings/skill_catalog.py": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852",
+            "api/src/omnis/modules/tasks/contract_case_input.py": "7dc360542c41016ff485a0a3aa92aeca58b48cd359d927038e97fbeafd6671bc",
+            "api/src/omnis/modules/tasks/execution_selection.py": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+            "api/src/omnis/modules/tasks/managed_composition.py": "8bc5c255a1d7daa37a0a9263ef53d56f5f4c7c588370f6c867ae30a10ca06d55",
+            "api/src/omnis/modules/tasks/managed_contract.py": "5872600e2f0c443bd46c4e60f4c0b25541ebd45f272a342eb4034946be86ecec",
+            "api/src/omnis/modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+            "api/src/omnis/supervisor/runtime_client.py": "006078bb5adf6c1b972cdf4d267db5d69f5fcb99065a940fe219699ce92aadc9",
+            "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+            "api/tests/fixtures/b06a_durable/consumer.py": "b55ccbfaf5c85af4c415d1c4b56b20a10a3c335511c08410b8eca043fe0143d4",
+            "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+            "api/tests/test_c03_records_contract.py": "8820f3bec9d7befa4cb344e32afe94b65f6af289ae79da0baa4442902f0a3f49",
+            "api/tests/test_c03_records_pg.py": "69a52b53f6b5110098107b11f03ed21a4001e96a240deeaf6ecf9df03ce91069",
+            "documents/verification/implementation-status.md": "b2d6fbf837de795a71cca2c2755183d9e4d7c55a3d6d09cf025dfc507004c9a4",
+            "documents/verification/p2-b06b-c03-records-source.json": "bbc9ce7efea5766b8f0b2de5360bc9ea9924812c4f5040b203e40e6a289adb80",
+            "documents/verification/p2-b06b-c03-records-tracer.json": "43c38a5a64d5ef552cebb76f5c7a272fe59c1326826f34169a632eeec277ce75",
+            "documents/verification/p2-b06b-c03-records.md": "93f60f73cc3e119d88300b4344f97f8844715db4db488cef7bc7a20f70369b3a",
+            "integrations/hermes/pin.json": "462e7b173ab23c32db60d399112cb267b9f1b3e19c755fdbf8f29f8cb8387e92",
+            "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "55ed585f36dd5d75b102b7dc44035743d71feff378657273c9a71acc1775a467",
+            "integrations/hermes/src/omnis_hermes/native_preparation_contract.py": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41",
+            "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+            "integrations/hermes/src/omnis_hermes/runtime_host.py": "cbb2f1648239dc6281e5422eec47d7552071440979f8b180eabc09e6cd6d32a6",
+            "integrations/hermes/tests/composition_fixture.py": "53f7e35e91d593fc48b59a99cced158edcddcca53ce30363018d50062322e69a",
+            "integrations/hermes/tests/test_c03_case_input.py": "ab84668921758a7a333f49b0498a73546938a5ffbeecca01dc6d2e276de1ae9f",
+            "integrations/hermes/tests/test_c03_records.py": "8ff7a1a24fda105533d7af3a6d6339b184ccb4f04537552c37a01a8a3d569af7",
+            "integrations/hermes/tests/test_managed_native_source.py": "4e3cc5bf973fb45aae95fd641531388f119d4314b59ad2705f9e5a790336a5c8",
+            "integrations/hermes/tests/test_prompt_bundle.py": "602da77663d77fd04be26b258b196c9ed14cb7383a20fd9631fb67ab29d0e019",
+            "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "b3d2157fbded618996bbbe85ad8bb2e0d043035925eb3ebbe035c5297cd7be6c",
+            "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "032c61dd84dfeea82bd1e2b9e960423f57596d1c6d79eee8c3a9c5a4b360c7f3",
+            "profiles/records-mapping-contract.yaml": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+            "skills/recon-mapping-contract/templates/schemas/records.schema.json": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+            "skills/records-mapping-contract/NOTICE.md": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+            "skills/records-mapping-contract/SKILL.md": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+            "skills/records-mapping-contract/omnis.yaml": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+            "skills/records-mapping-contract/references/methodology.md": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+            "skills/records-mapping-contract/templates/procedures/map-records.yaml": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+            "skills/records-mapping-contract/templates/schemas/empty.schema.json": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+            "skills/records-mapping-contract/templates/schemas/operations.schema.json": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+            "skills/records-mapping-contract/templates/schemas/records.schema.json": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+            "skills/records-mapping-contract/templates/schemas/surface_map.schema.json": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f"
+          },
+          "previous_36_bindings_unchanged": true,
+          "composer_revision": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+          "upstream_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"
+        },
+        "receipt_binding_checks": {
+          "p2-b06b-c03-records-tracer.json": {
+            "matching": 24,
+            "count": 26,
+            "different": [
+              "api/tests/test_c03_records_contract.py",
+              "api/tests/test_c03_records_pg.py"
+            ]
+          },
+          "p2-b06b-c03-records-source.json": {
+            "matching": 4,
+            "count": 4,
+            "different": []
+          }
+        },
+        "findings": [
+          {
+            "id": "R2-F01",
+            "severity": "MEDIUM",
+            "classification": "records-specific validation/parity contract defect; not an observed authorization bypass",
+            "disposition": "CHANGES_REQUESTED_SCOPED under the explicit producer/native same-byte and control-character acceptance criterion; parent to reproduce/adjudicate",
+            "title": "Records schema producer admits CR/CRLF bytes that the native composer rejects",
+            "locations": [
+              "api/src/omnis/modules/tasks/contract_case_input.py:153-185",
+              "api/src/omnis/modules/tasks/contract_case_input.py:193-212,265-297,300-361",
+              "integrations/hermes/src/omnis_hermes/prompt_bundle.py:507-527",
+              "integrations/hermes/src/omnis_hermes/native_preparation_contract.py:133-139"
+            ],
+            "contract": "C03 records mandate: exact retained source bytes, original source_b64/path/hash/size/package, control-character handling and producer/native parity before persistence/reservation/constructor.",
+            "reproducer": "Use the exact authoritative records schema plus one raw CR, or replace its LF bytes with CRLF. Keep parsed schema unchanged; independently update schema source_b64, file hash/size, package digest, schema/package Refs and all affected envelope digests. Both unchanged and mutated stages are fully sealed on the same positive channel. Run probes.py and boundaries.py in fresh owned scratch using api/.venv/bin/python -I -B; scripts record all outcomes.",
+            "observed": {
+              "unchanged": "compile_catalog/records_schema/produce_input/API composition/native stage all accept",
+              "mutated": "compile_catalog, records_schema, produce_input and API composition validator accept; native validate_stage rejects ValueError: Invalid native preparation",
+              "mutated_frame_bytes": [
+                19873,
+                19934
+              ],
+              "overflow_excluded": true,
+              "fixture_dependency": "Synthetic independent resealed wire plus real compiler over copied explicit first-party source; no PostgreSQL/native installation executed."
+            },
+            "cause": "records_schema validates UTF-8/BOM then JSON semantics but does not reject raw C0/C1 controls. JSON permits CR as insignificant whitespace, so it disappears from semantic comparison. Native _capture_material calls raw_text on the retained raw schema and rejects CR.",
+            "impact_and_reachability": "The new PACKAGE_EVAL admission source resolves this schema then calls produce_input/material_section before store.put (candidate_catalog.py:815-817,933-959). Static tracing identifies potential qualification of material later rejected by the native document prerequisite. PostgreSQL persistence of this negative was not executed. No claim of a RUN reservation or constructor side effect: the ordinary integrated RUN path has an earlier mitigating document check.",
+            "mitigation_verified": "native_preparation_models.document refuses identical CR/CRLF source. All retained package files pass this check in native preparation and managed_composition.selected_skills:104-118; _verify_compositions:836-855 reuses selected_skills before _prepare writes. Thus the standalone validator discrepancy does not establish a reachable native dispatch/constructor bypass.",
+            "minimal_fix": "In new records_schema only, reject raw controls with the same strict UTF-8/BOM/LF-TAB policy as the existing document/raw_text validators BEFORE semantic JSON parsing; retain bytes without normalization. Add matching LF/TAB positives and CR/CRLF negatives through compiler, PACKAGE_EVAL and same-byte API/native consumers; prove no new persisted admission/input/evaluation/reservation rows on the real PG path. Do not relax native validation or modify historical capture acceptance."
+          }
+        ],
+        "review_matrix": [
+          {
+            "requirement": "Namespace/owner/context and PACKAGE_EVAL to RUN separation",
+            "result": "SOURCE_REVIEWED + inherited PG evidence inspected",
+            "evidence": "candidate_catalog.capture_material:862-906 pins input/context/admission to owner/group/candidate and exact schema; ContractInputs.current_source:139-173 and ManagedAdmission._build:231-265 bind owner/RUN/context/selection/preparation and slot ref; _verify_graph:638-753 exact references and owner reservations."
+          },
+          {
+            "requirement": "Backend provenance and caller grant refusal",
+            "result": "SOURCE_REVIEWED + tests",
+            "evidence": "produce_input:265-297 owns kind/provenance/command; exact request fields reject caller kind/provenance. Native _capture_material:471-501 validates independently. No new handler or authority surface in diff."
+          },
+          {
+            "requirement": "Qualification/publication exactness",
+            "result": "SOURCE_REVIEWED + parent recorded PG, not independently rerun",
+            "evidence": "case_version/capture_spec resolve exact frozen source schema; evaluate schema3 binds input_ref; check_evaluations:35-85 requires same records input and current compiler/evaluator, owner/snapshot/closure/static+pure. Parent tests: real outputs, operator Publish, release retains template and has no case value."
+          },
+          {
+            "requirement": "Strict records language/order/empty/128, refs and slot cardinality",
+            "result": "PASS_SCOPED_SOURCE except R2-F01 raw schema lexical parity",
+            "evidence": "150 actual selected tests plus additional producer/native scalar/Unicode/ref probes. Canonical immutable input retains order/duplicates; exactly one required records slot and one Ref; no PURE handler called by input validation."
+          },
+          {
+            "requirement": "Versions and historical pins",
+            "result": "SOURCE_REVIEWED + tests",
+            "evidence": "RUN schema2/context2/input1/material2, composition3/wire3; catalog schema3 protocol records-v3. Current composer sha55963352...; old capture70b0... allowed only forms1/2, legacy dfdd... only form1. Historical tests passed; no installed historical proof claimed for this review."
+          },
+          {
+            "requirement": "8192 schema/envelope,65536 graph,32768 frame",
+            "result": "PASS_SCOPED_SOURCE limits unchanged",
+            "evidence": "Boundaries: input envelope8191/8192 ACCEPT,8193 refused on BOTH validators with frame32007<32768. Schema8191/8192 ACCEPT,8193 refused. Graph limit before _verify_graph/writes at managed_admission:274-275; frame limit stage_payload:484-485; no limit widened."
+          },
+          {
+            "requirement": "StepOutput previous declared same-attempt and all method requirements",
+            "result": "PASS_SCOPED_SOURCE + source trace",
+            "evidence": "Compiler maps only existing two handlers, verifies declared previous output at skill_catalog:693-717. Native exact previous step/output binding _capture_assignment:598-611. Invalid forward/global/cross-attempt/undeclared/slot substitutions and omitted requirements included in real executed tests. No copied PURE receipt/consumed_input_refs is produced by preflight."
+          },
+          {
+            "requirement": "Precommit/reservation/constructor and fencing",
+            "result": "SOURCE_REVIEWED + bounded source constructor seam; PG/installed NOT_RUN by R2",
+            "evidence": "_prepare verifies entire graph before first store.put/managed_run; reserve_dispatch revalidates source/material/deadline before started flag, existing supervisor fence reused. Exact native RPC validator runs before cold root; lifecycle.stage validates frozen bytes before child. Source RPC valid positive reaches sentinel constructor once; invalid status and old-wire refuse with zero constructors. Root/registry/limits/lifecycle unchanged in diff."
+          }
+        ],
+        "executed": [
+          {
+            "kind": "nonDB pytest",
+            "argv": [
+              "/home/kali/OmnisAI/api/.venv/bin/python",
+              "-I",
+              "-B",
+              "-c",
+              "import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main(sys.argv[1:]))",
+              "-p",
+              "no:cacheprovider",
+              "-p",
+              "pytest_asyncio.plugin",
+              "-c",
+              "api/pyproject.toml",
+              "--basetemp",
+              "/home/kali/.hermes/cache/scratch/c03-r2-7s4ic2fw/pytest",
+              "api/tests/test_c03_records_contract.py",
+              "integrations/hermes/tests/test_c03_records.py",
+              "integrations/hermes/tests/test_c03_case_input.py",
+              "integrations/hermes/tests/test_managed_native_source.py",
+              "-q"
+            ],
+            "exit_code": 0,
+            "result": "........................................................................ [ 48%]\n........................................................................ [ 96%]\n......                                                                   [100%]\n150 passed in 4.17s",
+            "scope": "150 explicitly selected compiler/records/capture/native-source tests; not installed runtime. See exact argv and output."
+          },
+          {
+            "kind": "independent differential probes",
+            "script": "probes.py",
+            "exit_code": 0,
+            "cases": 51,
+            "notes": "51 observations, not 51 PASS assertions. Two CR/CRLF mismatches preserved. The generic relinker repairs input.context_ref; that location was tested again with the mutation preserved in boundaries.py."
+          },
+          {
+            "kind": "exact boundaries and mitigations",
+            "script": "boundaries.py",
+            "exit_code": 0,
+            "cases": 10,
+            "outcomes": [
+              {
+                "case": "input-envelope-exact:0",
+                "api": "ACCEPT",
+                "native": "ACCEPT",
+                "envelope_bytes": 8191,
+                "frame_bytes": 32005
+              },
+              {
+                "case": "input-envelope-exact:1",
+                "api": "ACCEPT",
+                "native": "ACCEPT",
+                "envelope_bytes": 8192,
+                "frame_bytes": 32006
+              },
+              {
+                "case": "input-envelope-exact:2",
+                "api": "CatalogError:CASE_INPUT_LIMIT",
+                "native": "ValueError:Invalid prompt composition",
+                "envelope_bytes": 8193,
+                "frame_bytes": 32007
+              },
+              {
+                "case": "schema-size-exact:8191",
+                "api": "ACCEPT",
+                "native": "ACCEPT",
+                "envelope_bytes": 859,
+                "frame_bytes": 29502,
+                "schema_validator": "ACCEPT"
+              },
+              {
+                "case": "schema-size-exact:8192",
+                "api": "ACCEPT",
+                "native": "ACCEPT",
+                "envelope_bytes": 859,
+                "frame_bytes": 29502,
+                "schema_validator": "ACCEPT"
+              },
+              {
+                "case": "schema-size-exact:8193",
+                "api": "CatalogError:MANAGED_REJECTED",
+                "native": "ValueError:Invalid prompt composition",
+                "envelope_bytes": 859,
+                "frame_bytes": 29502,
+                "schema_validator": "CatalogError:INVALID_CASE_INPUT_SCHEMA"
+              },
+              {
+                "case": "schema-control:LF",
+                "api": "ACCEPT",
+                "native": "ACCEPT",
+                "envelope_bytes": 859,
+                "frame_bytes": 19869,
+                "input_producer": "ACCEPT",
+                "native_preparation_prerequisite": "ACCEPT"
+              },
+              {
+                "case": "schema-control:CR",
+                "api": "ACCEPT",
+                "native": "ValueError:Invalid native preparation",
+                "envelope_bytes": 859,
+                "frame_bytes": 19873,
+                "input_producer": "ACCEPT",
+                "native_preparation_prerequisite": "CatalogError:PREPARATION_REJECTED"
+              },
+              {
+                "case": "schema-control:CRLF",
+                "api": "ACCEPT",
+                "native": "ValueError:Invalid native preparation",
+                "envelope_bytes": 859,
+                "frame_bytes": 19934,
+                "input_producer": "ACCEPT",
+                "native_preparation_prerequisite": "CatalogError:PREPARATION_REJECTED"
+              },
+              {
+                "case": "context-ref-bool-preserved",
+                "api": "CatalogError:INVALID_REQUEST",
+                "native": "ValueError:Invalid native preparation",
+                "envelope_bytes": 862,
+                "frame_bytes": 19872
+              }
+            ]
+          }
+        ],
+        "parent_evidence_not_rerun": {
+          "pg": [
+            "29 passed in 162.76s (0:02:42)"
+          ],
+          "pg_exit": 0,
+          "family_drained": true,
+          "checks": {
+            "make lint-api typecheck-api": 0,
+            "make check-runtime": {
+              "exit": 0,
+              "passed": 373,
+              "AST": 6
+            },
+            "records_compiler": {
+              "passed": 14,
+              "exit": 0
+            },
+            "documentation": {
+              "passed": 72,
+              "exit": 0
+            },
+            "render_check": 0,
+            "diff_check": 0
+          },
+          "limit": "Versioned receipt and exact test bytes inspected; no raw private logs, DSNs or runtime.boot read. This is not independent runtime attestation."
+        },
+        "not_run": [
+          "PostgreSQL and a durable negative for R2-F01",
+          "physical concurrency/crash/ACK-loss/power-loss",
+          "installed API/wheel/native cold lifecycle on final source",
+          "browser live and visual/accessibility acceptance",
+          "full canonical make check",
+          "provider/model/target traffic"
+        ],
+        "tools": {
+          "Reticle": "NOT_APPLICABLE to this source-only review; product integration remains NOT_INTEGRATED",
+          "Chisel": "BLOCKED_NO_GO; not instantiated"
+        },
+        "files_created": "Only new reviewer-owned scratch: bindings.json/tests.json/tests.log, probes.py/probes.json, boundaries.py/boundaries.json, explicit first-party schema-compiler copies and pytest temp, this report builder/report. No tracked/index/product edits or commits.",
+        "issues_encountered": [
+          "Initial binding command guessed integrations/hermes/upstream/pin.json (absent), exited1 before writing its manifest. Empty new scratch retained; corrected pin is integrations/hermes/pin.json. No product operation was performed.",
+          "Runtime tests have no conftest.py and preparation model lives in runs/native_preparation_models.py, not guessed tasks/native_preparation_contract.py; missing read/lookups corrected without service effects.",
+          "Scratch script static editor import diagnostics reflect dynamic sys.path; actual isolated interpreter execution passed."
+        ],
+        "handling": "Forbidden original HTML and raw bug-bounty-triage never accessed/copied/hashed; excluded before changed-path enumeration. No DB, service, Docker, provider/tool configuration, runtime home, installed operator profile, lifecycle, commit or push action. Parent remains sole product writer.",
+        "next": "Parent reproduce/adjudicate R2-F01 under parity requirement; minimal records-only fix and focused tests/re-review. Then separate installed/browser QA and final canonical gate remain necessary; C03 capture/C01/C05 historical acceptance unchanged, SL09/B06b PARTIAL and G02 not closed."
+      }
+    }
+  },
+  "adjudication": {
+    "R1": "APPROVED_SCOPED original source; later four-path fix requires focused re-review",
+    "R2-F01": "CONFIRMED by parent RED4FAIL/4PASS: API accepts CR/CRLF raw schema while native refuses. No demonstrated dispatch/constructor/authority escape; earlier native document prerequisite mitigates RUN. Minimal records-only guard added, no capture/native/limit change. Re-review pending."
+  },
+  "post_review_delta": [
+    "api/src/omnis/modules/tasks/contract_case_input.py",
+    "api/tests/test_c03_records_contract.py",
+    "api/tests/test_c03_records_pg.py",
+    "integrations/hermes/tests/test_c03_records.py"
+  ],
+  "new_hashes": {
+    "api/src/omnis/modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+    "api/tests/test_c03_records_contract.py": "75234f44f4704f876796916d7f32ee6d3c9c6ffc12c5f80ea9306c2efe6b2028",
+    "api/tests/test_c03_records_pg.py": "37a666c672205dab4c8d775c8bd29cdb27680cb102f9d6e3f083d3f8536cac88",
+    "integrations/hermes/tests/test_c03_records.py": "2731d44ba8a88e5ee7b97017ab5e2623bd4bafd30f7e6567e51060df937ff4ca"
+  }
+}

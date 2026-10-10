@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "finding": "R2-F01",
+  "verdict": "FIXED_TESTED_PENDING_FOCUSED_REVIEW",
+  "reviewed_base": "c1568bb8ca31d55b11847c9976ee5b9f36dc6117",
+  "delta_files": {
+    "api/src/omnis/modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+    "api/tests/test_c03_records_contract.py": "75234f44f4704f876796916d7f32ee6d3c9c6ffc12c5f80ea9306c2efe6b2028",
+    "api/tests/test_c03_records_pg.py": "37a666c672205dab4c8d775c8bd29cdb27680cb102f9d6e3f083d3f8536cac88",
+    "integrations/hermes/tests/test_c03_records.py": "2731d44ba8a88e5ee7b97017ab5e2623bd4bafd30f7e6567e51060df937ff4ca"
+  },
+  "red": {
+    "exit": 1,
+    "failed": 4,
+    "passed": 4,
+    "log": "/home/kali/.hermes/cache/scratch/c03records-20261010/r2-f01-red.log",
+    "log_sha256": "4a1aafaa5e6df250ade0dd60f5b00c13c547adc0727f34a04ac92a47d938ab18"
+  },
+  "green": {
+    "unit_native_records": {
+      "exit": 0,
+      "passed": 116
+    },
+    "pg": {
+      "session": "proc_2b0db8f3df05",
+      "exit": 0,
+      "passed": 33,
+      "seconds": 177.33,
+      "family": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "root": "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/db-df8c9ebbc5044043",
+      "cid": "1aa2a1c8d08bb282cd9110bd8b726055366acc3eed53b86a2fb372fdc0325daf",
+      "exact_cid_absent": true,
+      "log_sha256": "bb5cc8c180d67deab640e076270b4822109b016f139aa2685b8b61af8ba8eee3"
+    },
+    "runtime": {
+      "exit": 0,
+      "passed": 377,
+      "AST": 6
+    },
+    "lint_format_mypy_exit": 0
+  },
+  "scope": "records_schema applies same raw UTF8/BOM/C0/C1 with LF/TAB allowance BEFORE JSON semantics. Original schema bytes retained. Capture validator/native/composer pin unchanged; compiler/evaluator closure necessarily changes, so final QA qualifies fresh source on rebuilt API.",
+  "pg_limits": "CR/CRLF sources are refused earlier at technical review; no CandidateSnapshot/admission/input/evaluation or managed graph exists. The existing proposal-review identity reservations are retained normally; refused freeze adds no reservations. LF/TAB positives freeze/admit/execute both PURE handlers with original schema_b64 bytes. No claim of zero proposal records or physical crash.",
+  "installed_status": "API c1568bb build superseded; must rebuild before installed QA. Native image/adaptor unchanged, can be attested byte-exact to final source.",
+  "remaining": [
+    "focused R1/R2 review",
+    "independent installed/native/browser",
+    "final canonical make check"
+  ]
+}

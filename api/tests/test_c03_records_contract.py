@@ -163,3 +163,26 @@ def test_records_compiler_rejects_unsupported_templates(tmp_path: Path, attack: 
     write_yaml(path, procedure)
     with pytest.raises(CatalogError):
         compile_catalog((seed.package,), seed.profile)
+
+
+@pytest.mark.parametrize(
+    "suffix,accepted", [(b"\n", True), (b"\t", True), (b"\r", False), (b"\r\n", False)]
+)
+def test_records_raw_schema_control_policy(tmp_path: Path, suffix: bytes, accepted: bool) -> None:
+    from fixtures.c03_records import records_seed
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.modules.tasks.contract_case_input import records_schema
+
+    seed = records_seed(tmp_path / "lexical")
+    path = seed.package / "templates/schemas/records.schema.json"
+    raw = path.read_bytes() + suffix
+    path.write_bytes(raw)
+    if accepted:
+        assert records_schema(raw)["required"] == ["records"]
+        assert len(compile_catalog((seed.package,), seed.profile).steps) == 2
+        assert path.read_bytes() == raw
+    else:
+        with pytest.raises(CatalogError):
+            records_schema(raw)
+        with pytest.raises(CatalogError):
+            compile_catalog((seed.package,), seed.profile)

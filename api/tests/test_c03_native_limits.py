@@ -1,5 +1,6 @@
 """Independent resealing of actual API-origin material at the native boundary."""
 
+import base64
 import importlib
 import json
 import sys
@@ -43,6 +44,33 @@ def test_native_rejects_input_envelope_overflow_below_unchanged_frame_cap() -> N
     assert len(canonical(item)) > 8192
     assert len(canonical(stage)) < 32768
     with pytest.raises(CatalogError, match="CASE_INPUT_LIMIT"):
+        managed_composition.validate(sequence(stage["compositions"])[0])
+    with pytest.raises(ValueError):
+        native.validate_stage(stage)
+
+
+def test_native_rejects_noncanonical_base64_alias_without_changing_schema_bytes() -> None:
+    native, helpers = native_tools()
+    graph = capture_graph("[]")
+    stage = managed_composition.stage_payload(graph[-1], graph)
+    assert native.validate_stage(stage) == graph[-1]
+    composition = mapping(sequence(stage["compositions"])[0])
+    sections = sequence(json.loads(str(mapping(composition["payload"])["text"])))
+    material = mapping(sections[4])
+    schema = mapping(material["schema"])
+    encoded = str(schema["source_b64"])
+    padding = len(encoded) - len(encoded.rstrip("="))
+    assert padding in (1, 2)
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    index = len(encoded) - padding - 1
+    alias = encoded[:index] + alphabet[alphabet.index(encoded[index]) ^ 1] + encoded[index + 1 :]
+    assert alias != encoded
+    assert base64.b64decode(alias, validate=True) == base64.b64decode(encoded, validate=True)
+    schema["source_b64"] = alias
+    material["schema"] = schema
+    sections[4] = material
+    helpers.relink(stage, sections)
+    with pytest.raises(CatalogError, match="INVALID_CASE_INPUT_SCHEMA"):
         managed_composition.validate(sequence(stage["compositions"])[0])
     with pytest.raises(ValueError):
         native.validate_stage(stage)

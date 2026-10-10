@@ -455,6 +455,8 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         raw = base64.b64decode(text(s["source_b64"], 10924), validate=True)
     except (ValueError, binascii.Error):
         raise reject() from None
+    if base64.b64encode(raw).decode("ascii") != s["source_b64"]:
+        raise reject()
     if not 1 <= len(raw) <= 8192 or raw_text(raw).startswith("\ufeff"):
         raise reject()
     schema = obj(

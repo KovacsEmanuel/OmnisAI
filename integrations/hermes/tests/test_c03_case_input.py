@@ -318,3 +318,16 @@ def test_capture_exact_unicode_byte_boundary_and_aggregate_frame_denial():
     stage["compositions"][0]["payload"]["text"] += " " * 32768
     with pytest.raises(ValueError):
         validate_stage(stage)
+
+
+def test_legacy_no_slot_cannot_substitute_a_contract_case_input_ref():
+    stage = fixture()
+    assert validate_stage(stage)
+    payload = stage["compositions"][0]["payload"]
+    sections = json.loads(payload["text"])
+    sections[3]["record"]["payload"]["resolved_procedure"]["probe"][0]["input_bindings"] = [
+        {"name": "capture", "selector": "capture", "source_ref": reference("contract-case-input")}
+    ]
+    reseal_graph(stage, sections, payload["prompt_bundle"])
+    with pytest.raises(ValueError):
+        validate_stage(stage)

@@ -151,7 +151,7 @@ def compose(
     return result
 
 
-def _procedure(value: object) -> dict[str, object]:
+def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, object]:
     p = obj(value, PROCEDURE_FIELDS)
     integer(p["schema_version"], 1, 1)
     key(p["key"])
@@ -239,6 +239,8 @@ def _procedure(value: object) -> dict[str, object]:
                     key(source["output_name"])
                 else:
                     reference(source)
+                    if source["kind"] == "contract-case-input" and not capture_bound:
+                        raise reject()
     seen = set()
     for item in sequence(p["method_requirements"], 1):
         requirement = obj(
@@ -355,7 +357,7 @@ def _brief(
         bound["slot_values"]
     ) != canonical(slots):
         raise reject()
-    p = _procedure(bound["resolved_procedure"])
+    p = _procedure(bound["resolved_procedure"], capture_bound=capture is not None)
     expected_binding = {
         "procedure_ref": bound["procedure_ref"],
         "slot_values": slots,

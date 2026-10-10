@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_QA_DRIVER",
+  "process": "proc_db0c551f7a3e",
+  "wrapper_exit": 2,
+  "pytest_exit": 1,
+  "pytest_failed": 1,
+  "gate_exit": 2,
+  "family_drained": true,
+  "scope": "Projection consumer NOT_REACHED: second synthetic stage root repeated within boot",
+  "reproducer": "Actual installed commit_binding raised UniqueViolation managed_run_runtime_boot_native_root_id_key for root-opaque repeated. Test fixture invalid; no product fix. Root token now distinct per assignment, existing uniqueness remains unchanged.",
+  "cleanup": {
+    "cid": "fbb94ff22eb49a1414367f1bf1a30369d9f52242363198a76a156a0ec15bcdef",
+    "project": "omnis-p01-8517402143124793bf5a3a17082143b3",
+    "db_root": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/db-a660108ca1b64d3f",
+    "cid_absent": true,
+    "network_absent": true,
+    "uds_absent": true,
+    "data_present": true
+  },
+  "logs": {
+    "runner": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/runner.log",
+    "gate": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/db-a660108ca1b64d3f/gate.log",
+    "family": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/db-a660108ca1b64d3f/gate.log.result.json"
+  },
+  "input_manifest": "/home/kali/.hermes/cache/scratch/p6c-f6ce893f/input-manifest.json",
+  "preserved": "All fixture data/PGDATA/catalog/install/receipts retained; no PASS or old authority reconstructed."
+}

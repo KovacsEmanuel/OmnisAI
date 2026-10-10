@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.14
+version: 0.1.15
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -63,6 +63,10 @@ Keep optional catalog/source attestation out of ordinary DTO, API, supervisor an
 Before committing a durable reservation, compare the actual producer and runtime validators on identical independently resealed document bytes. Include lexical YAML forms, UTF-8 byte versus character limits, escaped controls, portable path rules and collection uniqueness. Keep the producer at least as restrictive as the consumer, preserve retained bytes, and prove refusal before writes/dispatch on a real qualified-publication PostgreSQL fixture. A downstream deterministic rejection must not become an unnecessary indeterminate reservation.
 
 Include empty optional-looking prose and a leading BOM inside each authored scalar in producer/native parity controls, not only file-level UTF-8 checks. Requalify changed synthetic source through the real publication consumer and require zero durable reservations on deterministic refusal. Independently validate every nested Ref before Python equality: a correctly resealed `revision=true` can compare equal to `1` even when the enclosing envelope is valid; exercise the native pre-constructor boundary as well as the stricter producer.
+
+Decode private JSON request bytes as strict UTF-8 before parsing and reject a leading BOM explicitly. Python's JSON byte-input autodetection can otherwise admit BOM or alternate encodings before a strict DTO sees the request. Pair the invalid-wire control with a valid request at the same pre-DB boundary, then prove the actual persistent consumer refuses without writes; do not change historical record payloads or silently normalize input.
+
+Bound the same canonical RecordEnvelope on producer and native consumer, not only its scalar value and enclosing frame. JSON escaping and provenance/ref overhead can exceed the input-envelope cap while both other caps still pass. Test independently resealed API-origin material below/at/above that exact boundary, and require zero native constructors on refusal. Mirror canonical base64 round-trip checks as well as decoded schema hash/size checks: pad-bit aliases preserve decoded bytes but can create different accepted languages. Update the composer pin and attest the rebuilt installed bytes after a native guard changes.
 
 ## Verification
 Acceptance includes valid/invalid input, concurrency, persistence/restart and schema compatibility. Record exact DB/Python versions and commands. Commit code, schema, tests and necessary docs as one coherent behavior change.

@@ -168,3 +168,107 @@ def test_producer_denies_unclassified_text(tmp_path: Path) -> None:
 
     with pytest.raises(CatalogError, match="MODEL_PROJECTION_REJECTED"):
         producer(composition, approval)
+
+
+def test_persistent_producer_uses_exact_managed_owner_and_readback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """SQL/engine doubles only; NOT a PostgreSQL durability or installed oracle."""
+    import asyncio
+    from unittest.mock import AsyncMock, Mock
+
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+
+    from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.tasks import managed_store
+
+    module_spec = importlib.util.find_spec("omnis.modules.runs.model_projection")
+    assert module_spec is not None, "persistent projection producer/reader missing"
+    module = importlib.import_module("omnis.modules.runs.model_projection")
+    policy = importlib.import_module("omnis.policy.model_projection")
+    owner, graph, launch, composition = source_graph(tmp_path)
+    run_id = str(mapping(launch["payload"])["run_id"])
+    bound = next(r for r in graph if r["kind"] == "runtime-binding")
+    approval = policy.SyntheticApproval(
+        owner_id=owner,
+        run_id=run_id,
+        composition_ref=canonical(records.reference(composition)),
+        approved_text_digests=text_digests(composition),
+        known_secrets=(),
+    )
+    managed = ManagedAdmission(Mock(spec=AsyncEngine))
+    connection = AsyncMock(spec=AsyncConnection)
+    verify_graph = AsyncMock()
+    monkeypatch.setattr(managed, "_verify_graph", verify_graph)
+    monkeypatch.setattr(
+        managed_store,
+        "state",
+        AsyncMock(
+            return_value={
+                "run_id": run_id,
+                "binding_id": bound["id"],
+                "command_id": str(uuid4()),
+            }
+        ),
+    )
+    monkeypatch.setattr(managed_store, "graph", AsyncMock(side_effect=lambda *_: list(graph)))
+
+    async def get(
+        _: object, actual_owner: str, actual_run: str, reference: object
+    ) -> dict[str, object]:
+        assert actual_owner == owner and actual_run == run_id
+        matches = [r for r in graph if records.reference(r) == reference]
+        assert len(matches) == 1
+        return matches[0]
+
+    monkeypatch.setattr(managed_store, "get", get)
+
+    async def exercise() -> None:
+        service = module.ModelProjections(managed)
+        projected = mapping(
+            await service.prepare(
+                connection,
+                owner,
+                records.reference(launch),
+                records.reference(bound),
+                records.reference(composition),
+                approval,
+            )
+        )
+        inserts = [
+            call
+            for call in connection.execute.call_args_list
+            if str(call.args[0]).startswith("INSERT")
+        ]
+        assert len(inserts) == 1
+        assert "INSERT INTO managed_record" in str(inserts[0].args[0])
+        payload = mapping(inserts[0].args[1])
+        assert payload["owner"] == owner and payload["run"] == run_id
+        assert load_json(str(payload["body"])) == projected
+        graph.append(projected)
+        read = mapping(
+            await service.read(connection, owner, run_id, records.reference(projected), approval)
+        )
+        assert read == projected
+        again = await service.prepare(
+            connection,
+            owner,
+            records.reference(launch),
+            records.reference(bound),
+            records.reference(composition),
+            approval,
+        )
+        assert again == projected
+        assert (
+            len(
+                [
+                    c
+                    for c in connection.execute.call_args_list
+                    if str(c.args[0]).startswith("INSERT")
+                ]
+            )
+            == 1
+        )
+        verify_graph.assert_awaited()
+
+    asyncio.run(exercise())

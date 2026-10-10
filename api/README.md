@@ -10,7 +10,7 @@ Rezultatul rămâne autentic BLOCKED/NO_MODEL, MethodCheck INCOMPLETE și consum
 
 ### C03 — input persistent pentru un singur slot CONTRACT
 
-Produsul `e60dd23` adaugă traseul privat [C03](../documents/verification/p2-b06b-c03.md), cu [review scoped](../documents/verification/p2-b06b-c03-review.json) și [QA installed](../documents/verification/p2-b06b-c03-installed.json). Este implementat și exercitat inert; închiderea completă a feliei cere separat browserul și canonicalul. Nu instalează sau migrează profilul r1, nu introduce UI/endpoint CaseSlot și nu cere alegerea unui model Omnis.
+Produsul `e60dd23` adaugă traseul privat [C03](../documents/verification/p2-b06b-c03.md), cu [review scoped](../documents/verification/p2-b06b-c03-review.json) și [QA installed](../documents/verification/p2-b06b-c03-installed.json). [Închiderea scoped](../documents/verification/p2-b06b-c03-close.json) include browserul real și canonicalul final exit0/drained pe `510a697`; corecțiile ulterioare produsului sunt numai în teste. Nu instalează sau migrează profilul r1, nu introduce UI/endpoint CaseSlot și nu cere alegerea unui model Omnis.
 
 Traseul nou admite template-ul `map-capture` cu unicul slot `capture`, kind `contract-case-input`, cardinalitate exact1, legat la primul pas prin selectorul `capture`. Calificarea folosește comanda privată `candidate_catalog admit-evaluation-capture` cu `schema_version:2`, owner/command IDs, `snapshot_ref` candidat exact și `value:{capture:...}`; `evaluate` schema2 cere același snapshot, `evaluation_kind:STATIC/PURE` și `input_ref` persistent. Confirmarea operatorului și Publish rămân cele existente. Releaseul păstrează CaseSlotRef, nu valorile PACKAGE_EVAL.
 

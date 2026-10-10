@@ -1,3 +1,109 @@
+diff --git a/agent/auxiliary_client.py b/agent/auxiliary_client.py
+--- a/agent/auxiliary_client.py
++++ b/agent/auxiliary_client.py
+@@ -7866,6 +7866,8 @@
+     drivers pass to ``_retry_same_provider_*`` / ``_call_fallback_candidate_*``. One immutable
+     runtime snapshot for keying/resolution/retries/fallbacks, so a concurrent /model switch
+     can't mix key and client from different runtimes."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority()
+     main_runtime = _normalize_main_runtime(main_runtime)
+     req = _prepare_aux_request(
+         task, provider=provider, model=model, base_url=base_url, api_key=api_key,
+diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
+--- a/agent/chat_completion_helpers.py
++++ b/agent/chat_completion_helpers.py
+@@ -721,6 +721,8 @@
+     so callers can register it with their abort/close machinery; bedrock / MoA
+     manage their own clients. Interrupt/abort/close semantics stay in callers.
+     """
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     if agent.api_mode == "codex_responses":
+         return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
+             on_first_delta=getattr(agent, "_codex_on_first_delta", None))
+@@ -961,6 +963,7 @@
+     aborts in-flight sockets via the registered hook, and a per-call ``timeout``
+     equal to the stale budget is the backstop when the abort finds nothing (#85252).
+     Both surface a retryable ``TimeoutError`` for the outer retry loop."""
++    from omnis_hermes.model_terminal import ManagedModelTerminal
+     _check_stale_giveup(agent)
+     agent._touch_activity("waiting for non-streaming API response")
+     # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
+@@ -980,6 +983,8 @@
+     succeeded = False
+     try:
+         response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
++    except ManagedModelTerminal:
++        raise
+     except Exception:
+         if getattr(agent, "_interrupt_requested", False):
+             raise InterruptedError("Agent interrupted during API call") from None
+@@ -2283,6 +2288,8 @@
+
+ def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
+     """Request a summary when max iterations are reached. Returns the final response text."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
+     if getattr(agent, "suppress_status_output", False):
+         # Strict machine-readable mode (-Q, oneshot): keep diagnostics off stdout. quiet_mode is
+@@ -3753,6 +3760,8 @@
+     text token (tool-call turns suppress them) and returns a SimpleNamespace in
+     the non-streaming response shape. codex_responses delegates to the already-
+     streaming codex runner; cron turns and delegated children run inline."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     if agent._interrupt_requested:
+         raise InterruptedError("Agent interrupted before streaming API call")
+     if agent.api_mode == "codex_responses":
+diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstream.py
+--- a/agent/chat_completion_nonstream.py
++++ b/agent/chat_completion_nonstream.py
+@@ -14,7 +14,7 @@
+     def __init__(self, agent, api_kwargs: dict):
+         self.agent = agent
+         self.api_kwargs = api_kwargs
+-        self.result = {"response": None, "error": None}
++        self.result = {"response": None, "error": None, "terminal": None}
+         self.clients = h._RequestClientRegistry(agent)
+         # Request-local cancel flag: agent._interrupt_requested is cleared at turn
+         # boundaries but this daemon worker can outlive the turn, so it must know THIS
+@@ -65,6 +65,7 @@
+         return self.clients.set_client(client, kind=kind)
+
+     def _call(self):
++        from omnis_hermes.model_terminal import ManagedModelTerminal
+         watchdog_state_var = watchdog_context_token = None
+         try:
+             self._install_codex_request_token()
+@@ -75,6 +76,8 @@
+                 watchdog_context_token = watchdog_state_var.set(self.codex_watchdog_state)
+             self.result["response"] = h._dispatch_nonstreaming_api_request(
+                 self.agent, self.api_kwargs, make_client=self._make_client)
++        except ManagedModelTerminal as e:
++            self.result["terminal"] = self.result["error"] = e
+         except Exception as e:
+             # Our own force-close caused this error: swallow it, the main
+             # thread raises InterruptedError (#6600). Retirement logs at info
+@@ -285,6 +288,8 @@
+         poll_count = 0
+         while t.is_alive():
+             t.join(timeout=0.3)
++            if self.result.get("terminal") is not None and not t.is_alive():
++                raise self.result["terminal"]
+             poll_count += 1
+             # Keep the quiet gateway heartbeat; only silence warrants a notice.
+             # Resumed events clear our notice on the next poll, not 30s later.
+@@ -311,6 +316,8 @@
+                 break
+             if agent._interrupt_requested:
+                 self._interrupt(elapsed)
++        if self.result.get("terminal") is not None:
++            raise self.result["terminal"]
+         if self.result["error"] is not None:
+             raise self.result["error"]
+         # Success — the provider proved responsive: clear the breaker (#58962).
 diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 --- /dev/null
 +++ b/agent/cold_admission.py
@@ -71,6 +177,38 @@ diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 +def require_warm_parent(parent):
 +    if getattr(parent, "_cold_state", None) is not None:
 +        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
+diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
+--- a/agent/conversation_loop.py
++++ b/agent/conversation_loop.py
+@@ -1423,6 +1423,9 @@
+
+     Returns a turn result dict when a phase ends the turn, else None once the loop is left
+     (success, a restart armed on ``s._retry``, interrupt, or retries exhausted)."""
++    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
++    if is_inert_model_context(agent):
++        return terminal_result()
+     while s.retry_count < s.max_retries:
+         _ng = _run_phase(nous_rate_limit_guard, agent, s)
+         if _ng.action == "return":
+@@ -1438,6 +1441,8 @@
+                 return _rc.result
+             if _rc.action == "break":
+                 return None
++        except ManagedModelTerminal:
++            return terminal_result()
+         except InterruptedError:
+             if _run_phase(handle_api_interrupt, agent, s).action == "break":
+                 return None
+@@ -1471,6 +1476,9 @@
+     store when ``user_message`` carries API-only synthetic prefixes; timestamp / platform id are
+     stored as metadata (platform id lets restart drain recovery dedup). ``persist_user_display_*``:
+     display-only event rendering; the model still receives the message unchanged."""
++    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
++    if is_inert_model_context(agent):
++        return terminal_result()
+     if moa_config is None:
+         user_message, moa_config, persist_user_message = _decode_inline_moa_turn(
+             user_message, persist_user_message
 diff --git a/agent/managed_admission_rpc.py b/agent/managed_admission_rpc.py
 --- /dev/null
 +++ b/agent/managed_admission_rpc.py
@@ -114,10 +252,10 @@ diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
      CANCELLED = "CANCELLED"
 +    BLOCKED = "BLOCKED"
      UNKNOWN = "UNKNOWN"
- 
- 
+
+
 @@ -241,9 +242,162 @@
- 
+
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
 +        self._cold_batches = {}
@@ -271,7 +409,7 @@ diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
 +            batch["binding"] = committed
 +            batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
 +            return json.loads(json.dumps(batch["response"]))
- 
+
      def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
          parent = self._parent_agent_resolver()
 +        from agent.cold_admission import require_warm_parent
@@ -279,11 +417,49 @@ diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
          if parent is None:
              raise SubagentLifecycleError("No active Hermes parent session is available.")
          self._validate_request(request, parent)
+diff --git a/agent/turn_api_call.py b/agent/turn_api_call.py
+--- a/agent/turn_api_call.py
++++ b/agent/turn_api_call.py
+@@ -72,6 +72,8 @@
+     interrupted: Any,
+ ) -> ApiCallVerdict:
+     """Issue the request (see ``_should_stream`` for the streaming decision)."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     response = None
+
+     def _verdict(action: str) -> ApiCallVerdict:
+diff --git a/agent/turn_api_error.py b/agent/turn_api_error.py
+--- a/agent/turn_api_error.py
++++ b/agent/turn_api_error.py
+@@ -68,6 +68,10 @@
+             compression_attempts=compression_attempts,
+             _provider_overflow_recovery_pending=_provider_overflow_recovery_pending, result=result,
+         )
++
++    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
++    if isinstance(api_error, ManagedModelTerminal) or is_inert_model_context(agent):
++        return _verdict("return", terminal_result())
+
+     # Stop spinner silently — retry status is buffered and only flushed when every
+     # retry+fallback is exhausted.
+diff --git a/agent/turn_api_request.py b/agent/turn_api_request.py
+--- a/agent/turn_api_request.py
++++ b/agent/turn_api_request.py
+@@ -97,6 +97,8 @@
+ ) -> ApiRequestBuild:
+     """Assemble the attempt's request in the original order (every mutation happens BEFORE
+     middleware/hooks/debug dumps observe the payload)."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     from agent.conversation_loop import (
+         _moa_client_consumes_prepared_request, _redecorate_prompt_cache_for_provider,
+     )
 diff --git a/providers/__init__.py b/providers/__init__.py
 --- a/providers/__init__.py
 +++ b/providers/__init__.py
 @@ -160,6 +160,8 @@
- 
+
      Returns None if the provider has no profile (falls back to generic).
      """
 +    if os.environ.get("HERMES_OMNIS_INERT") == "1":
@@ -292,7 +468,7 @@ diff --git a/providers/__init__.py b/providers/__init__.py
          _discover_providers()
      layer, home, key = _bound_home_layer()
 @@ -235,6 +237,8 @@
- 
+
  def _home_layer(*, force_stamp_check: bool = False) -> _HomeLayer:
      """The layer for the home bound right now, importing plugin dirs it has not seen yet."""
 +    if os.environ.get("HERMES_OMNIS_INERT") == "1":
@@ -316,16 +492,16 @@ diff --git a/run_agent.py b/run_agent.py
 +++ b/run_agent.py
 @@ -13,10 +13,11 @@
      pass  # partial `hermes update` — only skips the Windows UTF-8 stdio setup
- 
+
  import sys
 +import os
- 
+
  # `hermes-agent` runs this module without hermes_cli.main, which repairs a `hermes update` killed
  # while git wrote the new tree; do it here, before importing anything else from the checkout.
 -if "hermes_cli.main" not in sys.modules:
 +if "hermes_cli.main" not in sys.modules and os.environ.get("HERMES_OMNIS_INERT") != "1":
      from hermes_cli import _early_recovery
- 
+
      if _early_recovery.restore_interrupted_pull():
 @@ -300,14 +301,31 @@
          capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
@@ -358,7 +534,7 @@ diff --git a/run_agent.py b/run_agent.py
 +            if name not in COLD_READABLE:
 +                raise ColdAdmissionDenied("NO_MODEL: cold surface denied")
 +        return object.__getattribute__(self, name)
- 
+
      def _get_session_db_for_recall(self):
          """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
 @@ -968,6 +986,11 @@

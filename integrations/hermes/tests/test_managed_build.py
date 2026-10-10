@@ -31,6 +31,13 @@ def test_managed_patch_is_separate_and_exactly_pinned():
         "agent/cold_admission.py",
         "agent/subagent_lifecycle.py",
         "agent/managed_admission_rpc.py",
+        "agent/auxiliary_client.py",
+        "agent/chat_completion_helpers.py",
+        "agent/chat_completion_nonstream.py",
+        "agent/conversation_loop.py",
+        "agent/turn_api_call.py",
+        "agent/turn_api_error.py",
+        "agent/turn_api_request.py",
         "tui_gateway/rpc_dispatch.py",
         "providers/__init__.py",
     }

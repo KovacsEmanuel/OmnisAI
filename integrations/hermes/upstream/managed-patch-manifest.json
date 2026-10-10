@@ -2,11 +2,27 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "trusted cold NO_MODEL and qualified data preflight only; no warm execution",
+  "scope": "trusted cold NO_MODEL, qualified data preflight and terminal inert model veto; no warm execution or SENT permission",
   "files": {
+    "agent/auxiliary_client.py": {
+      "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
+      "patched_sha256": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a"
+    },
+    "agent/chat_completion_helpers.py": {
+      "original_sha256": "72400c39a7999d617fed99329ec9ea1ed891dc46e5e3349079f1a026f29122a0",
+      "patched_sha256": "d4f44fc10a4417c20a8183345f2e2b378d0d879235a1ba94d2f708d42ec94734"
+    },
+    "agent/chat_completion_nonstream.py": {
+      "original_sha256": "34d4afad0a0c7228a0518eed4a2521ba1a340f509c83784c74abceb56f1becb7",
+      "patched_sha256": "16bfafb2ee97fe47a605b39720565173ac89f6add802046402cf5c97f581b964"
+    },
     "agent/cold_admission.py": {
       "original_sha256": null,
       "patched_sha256": "f2f8fb668965cf59b93828028a8a7a24312f2915e987c6e3ae9fde2ed0ef7566"
+    },
+    "agent/conversation_loop.py": {
+      "original_sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91",
+      "patched_sha256": "a58ff49b50c259d407c9b684f441090767b1c9f5427b7415bb159cc4941de5f6"
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
@@ -15,6 +31,18 @@
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
       "patched_sha256": "3b5e7c810e83e7d2c6a255351093a7c4c6c0ea56032a35342ab52fe667120674"
+    },
+    "agent/turn_api_call.py": {
+      "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
+      "patched_sha256": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33"
+    },
+    "agent/turn_api_error.py": {
+      "original_sha256": "695a29b8117678dc91bb9cf8234d9b2644123ff7f4e309b0cd80e0b3a20ca5d0",
+      "patched_sha256": "f5c9d30494cc43fe055c3660fb072265f4da5be3d5fde805d7985729f23fd4a1"
+    },
+    "agent/turn_api_request.py": {
+      "original_sha256": "e31386cb83cf551026e4df9b589173b54bc913b36fc1a09942a520e68033b59e",
+      "patched_sha256": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a"
     },
     "providers/__init__.py": {
       "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da",
@@ -29,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "9231e2dd8930e71f22255c448a3ba40a13ed457c5aad77e435823fdd2277c988"
+  "patch_sha256": "da07cea5c7a86b237dd63e1b8ed304cb89fe6f1632028aaf6fd429170f70e078"
 }

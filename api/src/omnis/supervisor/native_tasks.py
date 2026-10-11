@@ -139,6 +139,57 @@ class NativeTaskOwner:
             "initialization_data": data.decode(),
         }
 
+    async def _model_initialization(self, command: NativeTaskCommand) -> dict[str, object]:
+        from omnis.modules.runs.model_dispatch import ModelDispatch
+
+        consumer = ModelDispatch(self.domain)
+        authority: dict[str, object] = {
+            "instance_id": command.instance_id,
+            "owner": str(self.owner),
+            "epoch": self.epoch,
+            "generation": command.expected_generation,
+        }
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            payload, observation = await consumer.prepare_initialization(
+                conn,
+                command.owner_id,
+                command.manifest_ref,
+                command.provider_config_ref,
+                command.initialization_id,
+                authority,
+                self.runtime.boot,
+            )
+        if payload["runtime_boot"] != self.runtime.boot:
+            raise CatalogError("TASK_INDETERMINATE")
+        if observation is None:
+            # Committed intent precedes IPC. Pending replay is STATUS, never CREATE.
+            result = await self.runtime.managed(
+                self.service, self.owner, "task_model_initialize", payload
+            )
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                if payload["runtime_boot"] != self.runtime.boot:
+                    raise CatalogError("TASK_INDETERMINATE")
+                observation = await consumer.persist_initialization(
+                    conn, command.owner_id, payload, result
+                )
+                if payload["runtime_boot"] != self.runtime.boot:
+                    raise CatalogError("TASK_INDETERMINATE")
+        return {
+            "ok": True,
+            "manifest_ref": command.manifest_ref,
+            "provider_config_ref": command.provider_config_ref,
+            "initialization_ref": records.reference(observation),
+            "initialization_status": "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM",
+            "inference_status": "HOLD",
+            "initialization_observation": observation,
+        }
+
     async def _handle(self, command: NativeTaskCommand) -> dict[str, object]:
         # Lifecycle command ID is the original prepare ID, never an unused nonce.
         back = await self.domain.readback(
@@ -146,7 +197,7 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
-        if command.action == "model_configuration":
+        if command.action in {"model_configuration", "model_initialization"}:
             if (
                 back["binding"] is not None
                 or back["stage_started"]
@@ -154,6 +205,8 @@ class NativeTaskOwner:
                 or back["results"]
             ):
                 raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+            if command.action == "model_initialization":
+                return await self._model_initialization(command)
             return await self._model_configuration(command)
         protocol = manifest_protocol(back["manifest"])
         binding = None if back["binding"] is None else mapping(back["binding"])
@@ -310,6 +363,116 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError(
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
+            if command.action == "model_initialization":
+                from hashlib import sha256
+
+                from omnis.modules.runs.native_preparation_models import sha
+                from omnis.modules.tasks.managed_contract import exact, integer, record, text
+                from omnis.policy.ready_model_configuration import FIELDS, validate_ready_source
+
+                exact(
+                    reply,
+                    {
+                        "ok",
+                        "correlation_id",
+                        "manifest_ref",
+                        "provider_config_ref",
+                        "initialization_ref",
+                        "initialization_status",
+                        "inference_status",
+                        "initialization_observation",
+                    },
+                )
+                observation = record(
+                    reply["initialization_observation"], "native-initialization-observation"
+                )
+                body = exact(
+                    observation["payload"],
+                    {
+                        "protocol",
+                        "version",
+                        "initialization_id",
+                        "intent_ref",
+                        "owner_id",
+                        "run_id",
+                        "manifest_ref",
+                        "runtime_boot",
+                        "authority",
+                        "source_byte_digest",
+                        "initialization_data_digest",
+                        "provider_config_ref",
+                        "producer_receipt_ref",
+                        "client_status",
+                        "native_turn",
+                        "inference_status",
+                        "model_calls",
+                        "status",
+                        "native_session_id",
+                        "native_instance_id",
+                        "observed_configuration",
+                        "observed_configuration_digest",
+                    },
+                )
+                authority = exact(
+                    body["authority"], {"instance_id", "owner", "epoch", "generation"}
+                )
+                uuid_string(authority["owner"])
+                integer(authority["epoch"], 1)
+                integer(authority["generation"], 0)
+                for key in (
+                    "initialization_id",
+                    "owner_id",
+                    "run_id",
+                    "runtime_boot",
+                    "native_instance_id",
+                ):
+                    uuid_string(body[key])
+                text(body["native_session_id"], 128)
+                integer(body["version"], 1, 1)
+                integer(body["model_calls"], 0, 0)
+                for key, kind in (
+                    ("intent_ref", "native-initialization-intent"),
+                    ("manifest_ref", "launch-manifest"),
+                    ("provider_config_ref", "provider-config"),
+                    ("producer_receipt_ref", "contract-input-command"),
+                ):
+                    ref(body[key], kind)
+                for key in (
+                    "source_byte_digest",
+                    "initialization_data_digest",
+                    "observed_configuration_digest",
+                ):
+                    sha(body[key])
+                config = exact(body["observed_configuration"], FIELDS - {"version", "decision_id"})
+                validate_ready_source(
+                    {**config, "version": 1, "decision_id": body["initialization_id"]}
+                )
+                if (
+                    ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
+                    or ref(reply["provider_config_ref"], "provider-config")
+                    != command.provider_config_ref
+                    or ref(reply["initialization_ref"], "native-initialization-observation")
+                    != records.reference(observation)
+                    or body["manifest_ref"] != command.manifest_ref
+                    or body["provider_config_ref"] != command.provider_config_ref
+                    or body["initialization_id"] != command.initialization_id
+                    or body["owner_id"] != command.owner_id
+                    or authority["instance_id"] != command.instance_id
+                    or authority["epoch"] != command.expected_epoch
+                    or authority["generation"] != command.expected_generation
+                    or body["protocol"] != "omnis-managed-admission-v3"
+                    or reply["initialization_status"] != "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM"
+                    or body["status"] != reply["initialization_status"]
+                    or reply["inference_status"] != "HOLD"
+                    or body["inference_status"] != "HOLD"
+                    or body["client_status"] != "DEFERRED_NO_CREDENTIAL"
+                    or body["native_turn"] is not None
+                    or sha256(canonical(config)).hexdigest()
+                    != body["observed_configuration_digest"]
+                    or body["initialization_data_digest"] != body["observed_configuration_digest"]
+                ):
+                    raise CatalogError("TASK_REJECTED")
+                return reply
             if command.action == "model_configuration":
                 from omnis.modules.tasks.managed_contract import exact
                 from omnis.policy.ready_model_configuration import initialization_data

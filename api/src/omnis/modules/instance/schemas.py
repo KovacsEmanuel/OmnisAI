@@ -80,12 +80,23 @@ class NativeTaskCommand(StrictBody):
     instance_id: str
     expected_generation: int = Field(ge=0, le=9223372036854775807, strict=True)
     expected_epoch: int = Field(ge=1, le=9223372036854775807, strict=True)
-    action: Literal["stage", "release", "receive", "model_preflight", "model_configuration"]
+    action: Literal[
+        "stage",
+        "release",
+        "receive",
+        "model_preflight",
+        "model_configuration",
+        "model_initialization",
+    ]
     manifest_ref: dict[str, object]
     data_approval: dict[str, object] | None = Field(default=None, repr=False)
     configuration: dict[str, object] | None = Field(
         default=None, repr=False, exclude_if=lambda v: v is None
     )
+    provider_config_ref: dict[str, object] | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )
+    initialization_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
 
     @field_validator("configuration", mode="before")
     @classmethod
@@ -99,6 +110,19 @@ class NativeTaskCommand(StrictBody):
     def model_preflight(self) -> Self:
         from omnis.modules.settings.catalog_schema import canonical
 
+        if self.action == "model_initialization":
+            from omnis.modules.settings.candidate_catalog import uuid_string
+            from omnis.modules.tasks.managed_contract import ref
+
+            if self.configuration is not None or self.data_approval is not None:
+                raise ValueError("Initialization consumes owned source, not caller configuration")
+            self.provider_config_ref = ref(self.provider_config_ref, "provider-config")
+            self.initialization_id = uuid_string(self.initialization_id)
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Initialization command too large")
+            return self
+        if self.provider_config_ref is not None or self.initialization_id is not None:
+            raise ValueError("Initialization fields only belong to initialization")
         if self.action == "model_configuration":
             from omnis.policy.ready_model_configuration import validate_ready_source
 

@@ -246,8 +246,16 @@ class RuntimeHost:
             "task_release": managed.validate_release,
             "task_status": managed.validate_status,
             "task_model_preflight": managed.validate_model_preflight,
+            "task_model_initialize": managed.validate_initialization,
         }
         validators[operation](payload)
+        if operation == "task_model_initialize":
+            authority = cast(dict[str, object], payload["authority"])
+            if payload["runtime_boot"] != self.boot or (
+                authority["generation"],
+                authority["epoch"],
+            ) != (self.generation, self.epoch):
+                raise ValueError("Stale initialization authority")
         if operation in ("task_release", "task_model_preflight"):
             binding = cast(
                 dict[str, object], cast(dict[str, object], payload["binding"])["payload"]
@@ -265,6 +273,10 @@ class RuntimeHost:
         remaining = min(3.2, (deadline - time.monotonic_ns()) / 1_000_000_000)
         assert self.peer is not None
         async with asyncio.timeout(remaining):
+            if operation == "task_model_initialize":
+                observed = await self.peer.call(managed.RPC[operation], payload, timeout=remaining)
+                self._preparation_ready()
+                return managed.validate_initialization_result(observed, payload)
             if operation == "task_model_preflight":
                 from .model_admission import validate_preflight_result
 

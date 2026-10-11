@@ -301,15 +301,28 @@ class AIAgent(
         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
         side_agent: bool = False, memory_manager=None,
         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
-        cold_admission=None,
+        cold_admission=None, owned_initialization=None,
     ):
         """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
-        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission")}
+        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization")}
+        if cold_admission is not None and owned_initialization is not None:
+            raise ValueError("Owned initialization cannot carry cold admission")
         if cold_admission is not None:
             from agent.cold_admission import initialize_cold
             if tool_delay is not None:
                 raise ValueError("Cold admission cannot carry warm options")
             initialize_cold(self, cold_admission, init_kwargs)
+            return
+        if owned_initialization is not None:
+            import inspect
+            from omnis_hermes.managed_admission_contract import OwnedInitialization
+            if type(owned_initialization) is not OwnedInitialization or cold_admission is not None or tool_delay is not None:
+                raise ValueError("Owned initialization cannot carry cold/warm options")
+            defaults = inspect.signature(type(self).__init__).parameters
+            if any(value != defaults[key].default for key, value in init_kwargs.items()):
+                raise ValueError("Owned initialization cannot carry warm options")
+            from agent.agent_init import init_agent
+            init_agent(self, owned_initialization=owned_initialization)
             return
         if tool_delay is not None:
             warnings.warn("tool_delay is deprecated and ignored; sequential tool calls "
@@ -318,6 +331,15 @@ class AIAgent(
         init_agent(self, **init_kwargs)
 
     def __getattribute__(self, name):
+        attributes = object.__getattribute__(self, "__dict__")
+        if attributes.get("_owned_initialization") is not None or attributes.get("_owned_core") is not None:
+            # The complete configuration/core phase is not a warm turn/client.
+            # Deny unknown native surfaces before facade/background/lease hooks.
+            readable = {"__dict__", "__class__", "__weakref__", "base_url", "close",
+                "_max_tokens_param", "_reasoning_echo_opt_in", "_anthropic_prompt_cache_policy",
+                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url"}
+            if name not in attributes and name not in readable:
+                raise ValueError("DEFERRED_NO_CREDENTIAL: owned core surface denied")
         # Cold state is complete and closed to ALL warm surfaces, including newly
         # added mixin methods. No observer/middleware exception can fall through.
         state = object.__getattribute__(self, "__dict__").get("_cold_state")
@@ -986,6 +1008,10 @@ class AIAgent(
     def close(self) -> None:
         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
         blocks the rest."""
+        # Owned config cores have no client/context/tools/persistence to retire.
+        if self.__dict__.get("_owned_initialization") is not None:
+            self._owned_core_closed = True
+            return
         # Cold agents own no warm resources and never enter cleanup hooks.
         cold = self.__dict__.get("_cold_state")
         if cold is not None:

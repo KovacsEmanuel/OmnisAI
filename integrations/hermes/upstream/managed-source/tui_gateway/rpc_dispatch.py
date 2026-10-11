@@ -22,6 +22,7 @@ def _handle_admitted_request(req: dict) -> dict | None:
     # Private owner-only extension, not a generic management/session allowlist.
     if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
         "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status", "omnis.managed.model_preflight",
+        "omnis.managed.model_initialize",
     }:
         try:
             from agent.managed_admission_rpc import dispatch as managed_dispatch

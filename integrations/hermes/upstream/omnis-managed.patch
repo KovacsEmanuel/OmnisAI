@@ -1,3 +1,154 @@
+diff --git a/agent/agent_init.py b/agent/agent_init.py
+--- a/agent/agent_init.py
++++ b/agent/agent_init.py
+@@ -17,6 +17,7 @@
+ import time
+ from collections import deque
+ from contextlib import suppress
++from dataclasses import dataclass
+ from datetime import datetime
+ from types import SimpleNamespace
+ from typing import Any, Callable, Dict, List, Optional
+@@ -2316,6 +2317,121 @@
+ )
+
+
++@dataclass(frozen=True)
++class OwnedCore:
++    """Identity/factory binding for a real initialized, deferred-client native core."""
++
++    session_id: str
++    instance_id: str
++    resources: tuple
++    token_parameter: bytes
++    session_start: datetime
++
++
++def configure_owned_core(agent, carrier):
++    from uuid import uuid4
++    from omnis_hermes.managed_admission_contract import OwnedInitialization
++    from omnis_hermes.native_preparation_contract import canonical, loads
++
++    if type(carrier) is not OwnedInitialization or agent.__dict__:
++        raise ValueError("Fresh native core and exact owned carrier required")
++    payload = carrier.payload()  # qualification before the first native factory
++    config = loads(payload["initialization_data"], 2048)
++    agent._owned_initialization = carrier
++    agent._owned_core_closed = False
++    for table in (_CONTROL_STATE, _TURN_STATE, _SESSION_STATE, _STREAM_STATE):
++        _set_defaults(agent, table)
++    # This native table constant contains mutable lists: do not share them.
++    agent._auto_load_skills_result = ("", [], [])
++    agent.iteration_budget = IterationBudget(config["technical_caps"]["calls"])
++    agent.session_start = datetime.now()
++    agent.session_id = new_session_id(agent.session_start)
++    agent._native_instance_id = str(uuid4())
++    agent.model = config["model_id"]
++    agent.provider = config["provider"]
++    agent.requested_provider = agent.provider
++    agent.base_url = config["base_url"]  # native setter/derived hostname
++    agent.api_mode = config["api_mode"]
++    agent.reasoning_config = config["reasoning_config"]
++    agent.max_tokens = config["max_tokens"]
++    agent.capabilities = config["capabilities"]
++    agent.technical_caps = config["technical_caps"]
++    native = config["native_config"]
++    agent._reasoning_echo_flag = native["reasoning_echo"]
++    agent._cache_disabled = not native["prompt_caching"]
++    agent._cache_ttl = "5m" if native["prompt_caching"] else None
++    # Source capabilities are the only custom-provider record; never consult home.
++    agent._custom_providers = []
++    # Resolve actual native eligibility against attached empty custom-provider
++    # DATA, never an ambient registry. The aggregate moa route requires config
++    # discovery and is therefore ineligible at this deferred pre-client phase.
++    eligible, layout = ((False, False) if agent.provider.strip().lower() == "moa"
++                        else agent._anthropic_prompt_cache_policy())
++    agent._use_prompt_caching = (not agent._cache_disabled
++        and agent.capabilities.get("prompt_caching", False) and eligible)
++    agent._use_native_cache_layout = agent._use_prompt_caching and layout
++    agent.context_compressor = None
++    set_config_context_length(agent, native["context_length"])
++    agent.compression_enabled = native["compression"]["enabled"]
++    agent.run_budget_seconds = config["technical_caps"]["wall_seconds"]
++    agent.client = None
++    agent.client_status = "DEFERRED_NO_CREDENTIAL"
++    agent._owned_core_phase = "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM"
++    agent._session_db = None
++    resources = tuple((name, getattr(agent, name)) for table in
++        (_CONTROL_STATE, _TURN_STATE, _SESSION_STATE, _STREAM_STATE)
++        for name, factory in table.items() if callable(factory))
++    resources += (("iteration_budget", agent.iteration_budget),)
++    agent._owned_core = OwnedCore(agent.session_id, agent._native_instance_id, resources,
++        canonical(agent._max_tokens_param(agent.max_tokens)), agent.session_start)
++    observe_owned_core(agent)
++
++
++def observe_owned_core(agent):
++    from omnis_hermes.managed_admission_contract import OwnedInitialization, _exact_data
++    from omnis_hermes.native_preparation_contract import canonical, loads
++
++    carrier = getattr(agent, "_owned_initialization", None)
++    state = getattr(agent, "_owned_core", None)
++    if (type(carrier) is not OwnedInitialization or type(state) is not OwnedCore
++            or getattr(agent, "_owned_core_closed", None) is not False
++            or agent._owned_core_phase != "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM"
++            or agent.client is not None or agent.context_compressor is not None
++            or agent.client_status != "DEFERRED_NO_CREDENTIAL"
++            or agent.session_id != state.session_id or agent._native_instance_id != state.instance_id
++            or agent.session_start is not state.session_start
++            or any(getattr(agent, name) is not resource for name, resource in state.resources)
++            or type(agent.iteration_budget) is not IterationBudget
++            or type(agent.iteration_budget.used) is not int or agent.iteration_budget.used != 0
++            or type(agent._api_call_count) is not int or agent._api_call_count != 0):
++        raise ValueError("Owned native core changed or unavailable")
++    expected = loads(carrier.payload()["initialization_data"], 2048)
++    observed = dict(provider=agent.provider, model_id=agent.model, base_url=agent.base_url,
++        api_mode=agent.api_mode, reasoning_config=agent.reasoning_config, max_tokens=agent.max_tokens,
++        capabilities=agent.capabilities, technical_caps=agent.technical_caps,
++        native_config=dict(reasoning_echo=agent._reasoning_echo_opt_in(), prompt_caching=not agent._cache_disabled,
++            context_length=agent._config_context_length, compression={"enabled": agent.compression_enabled}))
++    _exact_data(observed)
++    if canonical(observed) != canonical(expected):
++        raise ValueError("Live native configuration differs from owned source")
++    eligible, layout = ((False, False) if agent.provider.strip().lower() == "moa"
++                        else agent._anthropic_prompt_cache_policy())
++    use_cache = expected["native_config"]["prompt_caching"] and expected["capabilities"].get("prompt_caching", False) and eligible
++    if (type(agent._reasoning_echo_flag) is not bool or type(agent._cache_disabled) is not bool
++            or type(agent.compression_enabled) is not bool or type(agent.max_tokens) is not int
++            or type(agent.run_budget_seconds) is not int
++            or agent.run_budget_seconds != expected["technical_caps"]["wall_seconds"]
++            or type(agent.iteration_budget.max_total) is not int
++            or agent.iteration_budget.max_total != expected["technical_caps"]["calls"]
++            or canonical(agent._max_tokens_param(agent.max_tokens)) != state.token_parameter
++            or agent._cache_ttl != ("5m" if expected["native_config"]["prompt_caching"] else None)
++            or agent._use_prompt_caching is not use_cache
++            or agent._use_native_cache_layout is not (use_cache and layout)):
++        raise ValueError("Live native configuration differs from owned source")
++    # Projection is assembled from live fields/accessors, then detached.
++    return loads(canonical(observed), 2048)
++
++
+ def init_agent(
+     agent, base_url: str = None, api_key: str = None, provider: str = None, api_mode: str = None,
+     acp_command: str = None, acp_args: list[str] | None = None, command: str = None,
+@@ -2353,7 +2469,17 @@
+     requested_provider: str = None, capabilities: Optional[Dict[str, bool]] = None, cwd: Optional[str] = None,
+     side_agent: bool = False, memory_manager=None,
+     tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
++    owned_initialization=None,
+ ):
++    if owned_initialization is not None:
++        import inspect
++        supplied = locals().copy()
++        defaults = inspect.signature(init_agent).parameters
++        if any(value != defaults[key].default for key, value in supplied.items()
++               if key in defaults and key not in ("agent", "owned_initialization")):
++            raise ValueError("Owned core cannot carry warm options")
++        configure_owned_core(agent, owned_initialization)
++        return
+     _install_safe_stdio()
+
+     _params = locals()
 diff --git a/agent/auxiliary_client.py b/agent/auxiliary_client.py
 --- a/agent/auxiliary_client.py
 +++ b/agent/auxiliary_client.py
@@ -389,7 +540,7 @@ diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
      if moa_config is None:
          user_message, moa_config, persist_user_message = _decode_inline_moa_turn(
              user_message, persist_user_message
-@@ -1629,5 +1637,8 @@
+@@ -1629,6 +1637,9 @@
      ``{turn_id, current_turn_user_idx}`` pair is stamped beside the exact ``messages`` it
      addresses, after every history rewrite including post-turn micro-compaction.
      """
@@ -398,10 +549,11 @@ diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
 +        return terminal_result()
      from agent.turn_context import export_current_turn_boundary
      from tools.vision_tools_history_budget import native_turn_images
+
 diff --git a/agent/managed_admission_rpc.py b/agent/managed_admission_rpc.py
 --- /dev/null
 +++ b/agent/managed_admission_rpc.py
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,78 @@
 +"""Private RPC entry for the reviewed managed admission extension.
 +
 +Only reachable through the fixed inert native stdin peer. No tool registration,
@@ -412,11 +564,59 @@ diff --git a/agent/managed_admission_rpc.py b/agent/managed_admission_rpc.py
 +_ROOT = None
 +_SERVICE = None
 +_LOCK = threading.RLock()
++_INITIALIZATIONS = {}
++_MAX_INITIALIZATIONS = 32
++
++
++def _observed_result(payload, agent):
++    from agent.agent_init import observe_owned_core
++    from omnis_hermes.managed_admission_contract import canonical, initialization_result
++
++    actual = agent._owned_initialization.payload()
++    if canonical({k: v for k, v in actual.items() if k != "mode"}) != canonical({k: v for k, v in payload.items() if k != "mode"}):
++        raise ValueError("Native core belongs to a different initialization")
++    return initialization_result(payload, observation=observe_owned_core(agent),
++        native_session_id=agent.session_id, native_instance_id=agent._native_instance_id)
++
++
++def _initialize(params):
++    from omnis_hermes.managed_admission_contract import (
++        OwnedInitialization, canonical, initialization_result, validate_initialization,
++    )
++    p = validate_initialization(params)  # before any native import/allocation
++    key = p["initialization_id"]
++    bound = canonical({k: v for k, v in p.items() if k != "mode"})
++    with _LOCK:
++        entry = _INITIALIZATIONS.get(key)
++        if entry is not None:
++            if entry["binding"] != bound:
++                raise ValueError("Initialization replay conflict")
++            agent = entry["agent"]
++            if agent is None or agent.__dict__.get("_owned_core_closed") is True:
++                return initialization_result(p)
++            return _observed_result(p, agent)  # every read observes the live core
++        if p["mode"] == "STATUS":
++            return initialization_result(p)  # no import, constructor or reservation
++        if len(_INITIALIZATIONS) >= _MAX_INITIALIZATIONS:
++            raise ValueError("Initialization registry full")
++        # A retained pending/failure marker makes uncertain CREATE non-repeatable.
++        entry = {"binding": bound, "agent": None}
++        _INITIALIZATIONS[key] = entry
++        try:
++            from run_agent import AIAgent
++            agent = AIAgent(owned_initialization=OwnedInitialization(canonical(p)))
++            result = _observed_result(p, agent)
++        except Exception:
++            raise ValueError("Native configuration initialization incomplete") from None
++        entry["agent"] = agent
++        return result
 +
 +
 +def dispatch(method, params):
 +    global _ROOT, _SERVICE
 +    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight
++    if method == RPC["task_model_initialize"]:
++        return _initialize(params)
 +    if method not in RPC.values():
 +        raise ValueError("Unknown managed operation")
 +    {RPC["task_stage"]: validate_stage, RPC["task_release"]: validate_release,
@@ -703,21 +903,34 @@ diff --git a/run_agent.py b/run_agent.py
      from hermes_cli import _early_recovery
 
      if _early_recovery.restore_interrupted_pull():
-@@ -300,14 +301,31 @@
+@@ -300,14 +301,53 @@
          capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
          side_agent: bool = False, memory_manager=None,
          tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
-+        cold_admission=None,
++        cold_admission=None, owned_initialization=None,
      ):
 -        """Forwarder — see ``agent.agent_init.init_agent`` (same keyword parameters, minus ``tool_delay``)."""
 -        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay")}
 +        """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
-+        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission")}
++        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization")}
++        if cold_admission is not None and owned_initialization is not None:
++            raise ValueError("Owned initialization cannot carry cold admission")
 +        if cold_admission is not None:
 +            from agent.cold_admission import initialize_cold
 +            if tool_delay is not None:
 +                raise ValueError("Cold admission cannot carry warm options")
 +            initialize_cold(self, cold_admission, init_kwargs)
++            return
++        if owned_initialization is not None:
++            import inspect
++            from omnis_hermes.managed_admission_contract import OwnedInitialization
++            if type(owned_initialization) is not OwnedInitialization or cold_admission is not None or tool_delay is not None:
++                raise ValueError("Owned initialization cannot carry cold/warm options")
++            defaults = inspect.signature(type(self).__init__).parameters
++            if any(value != defaults[key].default for key, value in init_kwargs.items()):
++                raise ValueError("Owned initialization cannot carry warm options")
++            from agent.agent_init import init_agent
++            init_agent(self, owned_initialization=owned_initialization)
 +            return
          if tool_delay is not None:
              warnings.warn("tool_delay is deprecated and ignored; sequential tool calls "
@@ -726,6 +939,15 @@ diff --git a/run_agent.py b/run_agent.py
          init_agent(self, **init_kwargs)
 +
 +    def __getattribute__(self, name):
++        attributes = object.__getattribute__(self, "__dict__")
++        if attributes.get("_owned_initialization") is not None or attributes.get("_owned_core") is not None:
++            # The complete configuration/core phase is not a warm turn/client.
++            # Deny unknown native surfaces before facade/background/lease hooks.
++            readable = {"__dict__", "__class__", "__weakref__", "base_url", "close",
++                "_max_tokens_param", "_reasoning_echo_opt_in", "_anthropic_prompt_cache_policy",
++                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url"}
++            if name not in attributes and name not in readable:
++                raise ValueError("DEFERRED_NO_CREDENTIAL: owned core surface denied")
 +        # Cold state is complete and closed to ALL warm surfaces, including newly
 +        # added mixin methods. No observer/middleware exception can fall through.
 +        state = object.__getattribute__(self, "__dict__").get("_cold_state")
@@ -737,10 +959,14 @@ diff --git a/run_agent.py b/run_agent.py
 
      def _get_session_db_for_recall(self):
          """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
-@@ -968,6 +986,11 @@
+@@ -968,6 +1008,15 @@
      def close(self) -> None:
          """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
          blocks the rest."""
++        # Owned config cores have no client/context/tools/persistence to retire.
++        if self.__dict__.get("_owned_initialization") is not None:
++            self._owned_core_closed = True
++            return
 +        # Cold agents own no warm resources and never enter cleanup hooks.
 +        cold = self.__dict__.get("_cold_state")
 +        if cold is not None:
@@ -752,13 +978,14 @@ diff --git a/run_agent.py b/run_agent.py
 diff --git a/tui_gateway/rpc_dispatch.py b/tui_gateway/rpc_dispatch.py
 --- a/tui_gateway/rpc_dispatch.py
 +++ b/tui_gateway/rpc_dispatch.py
-@@ -19,6 +19,15 @@
+@@ -19,6 +19,16 @@
      if isinstance(normalized, dict):
          return normalized
      rid, method, params = normalized
 +    # Private owner-only extension, not a generic management/session allowlist.
 +    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
 +        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status", "omnis.managed.model_preflight",
++        "omnis.managed.model_initialize",
 +    }:
 +        try:
 +            from agent.managed_admission_rpc import dispatch as managed_dispatch

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 MAX_FRAME = 64 * 1024
 MANAGED_OPERATIONS = frozenset(
-    {"task_stage", "task_release", "task_status", "task_model_preflight"}
+    {"task_stage", "task_release", "task_status", "task_model_preflight", "task_model_initialize"}
 )
 
 

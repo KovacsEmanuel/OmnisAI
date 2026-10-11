@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "constructor-owned cold configuration observation through qualified owner receipt; NO_MODEL retained, no READY provider-config/native-turn/SENT grant",
+  "scope": "Owned committed source to physical new native configuration/core at pre-client seam; cold unchanged, inference HOLD, no credential/client/turn/dispatch authority",
   "files": {
     "agent/auxiliary_client.py": {
       "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
@@ -26,7 +26,7 @@
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
-      "patched_sha256": "209583c4ce4d99b19cac90adbfde7e692bb16d614169257375d78d7035db83b8"
+      "patched_sha256": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be"
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
@@ -50,12 +50,16 @@
     },
     "run_agent.py": {
       "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
-      "patched_sha256": "4f8dbc5126b63c1e24588cc89039d32a0daadeafda6f3defc61e4e15df9974e6"
+      "patched_sha256": "2477f559f5bd1c52164f2a5af3e3531d4985c2b433732b4cb237bc42e881b8f3"
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
-      "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
+      "patched_sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+    },
+    "agent/agent_init.py": {
+      "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81",
+      "patched_sha256": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73"
     }
   },
-  "patch_sha256": "a23fc58d6998d70bcfe819d615466c7e3f605d76032a8cd720f899559c143890"
+  "patch_sha256": "0d1cc59f7e64ed7c404dfc4362a9c85ff6d4b42f6656902131b6f80c8412c199"
 }

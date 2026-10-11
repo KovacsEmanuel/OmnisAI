@@ -187,6 +187,228 @@ class ModelDispatch:
             raise CatalogError("MODEL_CONFIGURATION_REJECTED")
         return initialization_data(config)
 
+    async def prepare_initialization(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        manifest_ref: object,
+        provider_config_ref: object,
+        initialization_id: object,
+        authority: dict[str, object],
+        runtime_boot: object,
+    ) -> tuple[dict[str, object], dict[str, object] | None]:
+        """Commit caller owns fences; new intent precedes IPC, pending replay is STATUS-only."""
+        from omnis.modules.settings.catalog_schema import load_json
+
+        identity, boot = uuid_string(initialization_id), uuid_string(runtime_boot)
+        data = await self.read_ready_initialization(
+            connection, owner, manifest_ref, provider_config_ref, authority
+        )
+        state = await store.state(connection, owner, manifest=manifest_ref)
+        run = uuid_string(state["run_id"])
+        source = record(
+            await store.get(connection, owner, run, ref(provider_config_ref, "provider-config")),
+            "provider-config",
+        )
+        config = mapping(mapping(source["payload"])["configuration"])
+        producer = await store.command_receipt(
+            connection, owner, uuid_string(config["decision_id"])
+        )
+        request: dict[str, object] = {
+            "manifest_ref": ref(manifest_ref, "launch-manifest"),
+            "provider_config_ref": records.reference(source),
+            "initialization_id": identity,
+            "authority": authority,
+            "runtime_boot": boot,
+        }
+        body: dict[str, object] = {
+            "version": 1,
+            "initialization_id": identity,
+            "owner_id": owner,
+            "run_id": run,
+            "manifest_ref": request["manifest_ref"],
+            "authority": authority,
+            "runtime_boot": boot,
+            "provider_config_ref": records.reference(source),
+            "producer_receipt_ref": records.reference(producer),
+            "source_byte_digest": sha256(canonical(source)).hexdigest(),
+            "initialization_data_digest": sha256(data).hexdigest(),
+            "state": "RESERVED",
+        }
+        prior = await store.command_replay(
+            connection, owner, identity, "model_initialization", request
+        )
+        if prior is None:
+            intent = records.envelope("native-initialization-intent", body)
+            await store.put(connection, owner, run, intent)
+            checked = await store.get(connection, owner, run, records.reference(intent))
+            if canonical(checked) != canonical(intent):
+                raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+            await store.command_complete(
+                connection,
+                owner,
+                run,
+                identity,
+                "model_initialization",
+                request,
+                {"intent_ref": records.reference(intent)},
+            )
+        else:
+            exact(prior, {"intent_ref"})
+            intent = record(
+                await store.get(connection, owner, run, prior["intent_ref"]),
+                "native-initialization-intent",
+            )
+            if canonical(intent["payload"]) != canonical(body):
+                raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        payload: dict[str, object] = {
+            "protocol": "omnis-managed-admission-v3",
+            **{
+                k: body[k]
+                for k in body
+                if k not in {"provider_config_ref", "producer_receipt_ref", "state"}
+            },
+            "mode": "CREATE" if prior is None else "STATUS",
+            "intent_ref": records.reference(intent),
+            "provider_config": source,
+            "producer_receipt": producer,
+            "initialization_data": data.decode(),
+        }
+        if len(canonical(payload)) > 32768:
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        # Detach storage/request aliases before leaving the transaction.
+        payload = mapping(load_json(canonical(payload)))
+        observations = [
+            r
+            for r in await store.graph(connection, owner, run)
+            if r["kind"] == "native-initialization-observation"
+            and canonical(mapping(r["payload"]).get("intent_ref"))
+            == canonical(payload["intent_ref"])
+        ]
+        if len(observations) > 1:
+            raise CatalogError("STORAGE_INCOMPATIBLE")
+        if observations:
+            observed = record(observations[0], "native-initialization-observation")
+            self.accept_initialization(observed["payload"], payload)
+            return payload, observed
+        return payload, None
+
+    @staticmethod
+    def accept_initialization(result: object, payload: dict[str, object]) -> dict[str, object]:
+        """Strict observation DATA; no client, turn or inference authority issued here."""
+        from omnis.modules.runs.native_preparation_models import sha
+        from omnis.modules.settings.catalog_schema import load_json
+        from omnis.policy.ready_model_configuration import exact_configuration_types
+
+        exact_configuration_types(result)
+        common = {
+            **{
+                k: payload[k]
+                for k in (
+                    "protocol",
+                    "version",
+                    "initialization_id",
+                    "intent_ref",
+                    "owner_id",
+                    "run_id",
+                    "manifest_ref",
+                    "runtime_boot",
+                    "authority",
+                    "source_byte_digest",
+                    "initialization_data_digest",
+                )
+            },
+            "provider_config_ref": records.reference(
+                record(payload["provider_config"], "provider-config")
+            ),
+            "producer_receipt_ref": records.reference(
+                record(payload["producer_receipt"], "contract-input-command")
+            ),
+            "client_status": "DEFERRED_NO_CREDENTIAL",
+            "native_turn": None,
+            "inference_status": "HOLD",
+            "model_calls": 0,
+        }
+        observed = exact(
+            result,
+            set(common)
+            | {
+                "status",
+                "native_session_id",
+                "native_instance_id",
+                "observed_configuration",
+                "observed_configuration_digest",
+            },
+        )
+        if canonical({k: observed[k] for k in common}) != canonical(common):
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        for key, kind in (
+            ("intent_ref", "native-initialization-intent"),
+            ("manifest_ref", "launch-manifest"),
+            ("provider_config_ref", "provider-config"),
+            ("producer_receipt_ref", "contract-input-command"),
+        ):
+            ref(observed[key], kind)
+        if observed["status"] == "UNKNOWN":
+            if any(
+                observed[k] is not None
+                for k in (
+                    "native_session_id",
+                    "native_instance_id",
+                    "observed_configuration",
+                    "observed_configuration_digest",
+                )
+            ):
+                raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+            raise CatalogError("TASK_INDETERMINATE")
+        if observed["status"] != "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM":
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        contract.text(observed["native_session_id"], 128)
+        uuid_string(observed["native_instance_id"])
+        config = mapping(load_json(contract.text(payload["initialization_data"], 2048)))
+        if (
+            canonical(observed["observed_configuration"]) != canonical(config)
+            or sha(observed["observed_configuration_digest"])
+            != sha256(canonical(config)).hexdigest()
+        ):
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        return observed
+
+    async def persist_initialization(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        payload: dict[str, object],
+        result: object,
+    ) -> dict[str, object]:
+        """Requalify source/intent/fences after IPC; success only after caller commits."""
+        current, prior = await self.prepare_initialization(
+            connection,
+            owner,
+            payload["manifest_ref"],
+            records.reference(record(payload["provider_config"], "provider-config")),
+            payload["initialization_id"],
+            mapping(payload["authority"]),
+            payload["runtime_boot"],
+        )
+        if canonical({k: v for k, v in current.items() if k != "mode"}) != canonical(
+            {k: v for k, v in payload.items() if k != "mode"}
+        ):
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        checked = self.accept_initialization(result, current)
+        if prior is not None:
+            if canonical(prior["payload"]) != canonical(checked):
+                raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+            return prior
+        item = records.envelope("native-initialization-observation", checked)
+        await store.put(connection, owner, uuid_string(payload["run_id"]), item)
+        back = await store.get(
+            connection, owner, uuid_string(payload["run_id"]), records.reference(item)
+        )
+        if canonical(back) != canonical(item):
+            raise CatalogError("MODEL_INITIALIZATION_REJECTED")
+        return back
+
     @staticmethod
     def accept_preflight(result: object, prepared: dict[str, object]) -> dict[str, object]:
         from omnis.policy.model_configuration import validate_source

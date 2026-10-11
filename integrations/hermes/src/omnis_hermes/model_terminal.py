@@ -20,7 +20,12 @@ class ManagedModelTerminal(Exception):
 def is_inert_model_context(agent: object = None) -> bool:
     attributes = getattr(agent, "__dict__", {})
     return os.environ.get("HERMES_OMNIS_INERT") == "1" or (
-        isinstance(attributes, dict) and attributes.get("_cold_state") is not None
+        isinstance(attributes, dict)
+        and (
+            attributes.get("_cold_state") is not None
+            or attributes.get("_owned_initialization") is not None
+            or attributes.get("_owned_core") is not None
+        )
     )
 
 

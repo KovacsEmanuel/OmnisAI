@@ -1,13 +1,27 @@
 """Exact, bounded managed cold-admission v1. No native import or authority by goal."""
 
+from dataclasses import dataclass
 from typing import cast
+from urllib.parse import urlsplit
 
-from .native_preparation_contract import bounded, canonical, digest, obj, reference, text, uuid
+from .native_preparation_contract import (
+    bounded,
+    canonical,
+    digest,
+    loads,
+    obj,
+    reference,
+    sha,
+    text,
+    uuid,
+)
 
 PROTOCOL = "omnis-managed-admission-v1"
 PROTOCOL_V2 = "omnis-managed-admission-v2"
 PROTOCOL_V3 = "omnis-managed-admission-v3"
-OPS = frozenset({"task_stage", "task_release", "task_status", "task_model_preflight"})
+OPS = frozenset(
+    {"task_stage", "task_release", "task_status", "task_model_preflight", "task_model_initialize"}
+)
 RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
 
@@ -160,3 +174,353 @@ def validate_response(value: object) -> dict[str, object]:
     text(value["native_root_id"])
     entries(value["entries"], native=True, composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3))
     return value
+
+
+_INITIALIZATION_FIELDS = {
+    "version",
+    "mode",
+    "initialization_id",
+    "intent_ref",
+    "owner_id",
+    "run_id",
+    "manifest_ref",
+    "runtime_boot",
+    "authority",
+    "provider_config",
+    "producer_receipt",
+    "initialization_data",
+    "source_byte_digest",
+    "initialization_data_digest",
+}
+_CONFIGURATION_FIELDS = {
+    "provider",
+    "model_id",
+    "base_url",
+    "api_mode",
+    "reasoning_config",
+    "max_tokens",
+    "capabilities",
+    "technical_caps",
+    "native_config",
+}
+_INITIALIZATION_BINDINGS = {
+    "protocol",
+    "version",
+    "initialization_id",
+    "intent_ref",
+    "owner_id",
+    "run_id",
+    "manifest_ref",
+    "runtime_boot",
+    "authority",
+    "source_byte_digest",
+    "initialization_data_digest",
+}
+
+
+def _exact_data(value: object, depth: int = 0) -> None:
+    # Check BEFORE canonical serialization: subclasses must not be laundered.
+    if depth > 16:
+        raise ValueError("Invalid initialization DATA")
+    if type(value) is dict:
+        for key, child in value.items():
+            if type(key) is not str:
+                raise ValueError("Invalid initialization key")
+            _exact_data(key, depth + 1)
+            _exact_data(child, depth + 1)
+    elif type(value) is str:
+        if any(ord(c) < 32 or 127 <= ord(c) <= 159 or c in "\u2028\u2029" for c in value):
+            raise ValueError("Invalid initialization string")
+    elif type(value) not in (int, bool, type(None)):
+        raise ValueError("Invalid initialization type")
+
+
+def _integer(value: object, minimum: int, maximum: int) -> int:
+    if type(value) is not int or not minimum <= value <= maximum:
+        raise ValueError("Invalid initialization integer")
+    return value
+
+
+def _authority(value: object) -> dict[str, object]:
+    result = obj(value, {"instance_id", "owner", "epoch", "generation"})
+    uuid(result["instance_id"])
+    uuid(result["owner"])
+    _integer(result["epoch"], 1, 2**63 - 1)
+    _integer(result["generation"], 0, 2**63 - 1)
+    return result
+
+
+def _configuration(value: object) -> dict[str, object]:
+    _exact_data(value)
+    config = obj(value, _CONFIGURATION_FIELDS | {"version", "decision_id"})
+    _integer(config["version"], 1, 1)
+    uuid(config["decision_id"])
+    for key in ("provider", "model_id"):
+        v = text(config[key], 256)
+        if v != v.strip():
+            raise ValueError("Invalid configuration identity")
+    url = text(config["base_url"], 1024)
+    try:
+        route = urlsplit(url)
+        port = route.port
+    except ValueError:
+        raise ValueError("Invalid configuration URL") from None
+    if (
+        url != url.strip()
+        or any(ord(c) < 33 for c in url)
+        or route.scheme != "https"
+        or not route.hostname
+        or route.username is not None
+        or route.password is not None
+        or "?" in url
+        or "#" in url
+        or route.netloc.endswith(":")
+        or (port is not None and not 1 <= port <= 65535)
+        or config["api_mode"] != "chat_completions"
+    ):
+        raise ValueError("Invalid configuration route")
+    reasoning = config["reasoning_config"]
+    if reasoning is not None:
+        reasoning = obj(reasoning, {"enabled", "effort"})
+        if type(reasoning["enabled"]) is not bool:
+            raise ValueError("Invalid reasoning flag")
+        if reasoning["effort"] is not None:
+            text(reasoning["effort"], 64)
+    caps = obj(config["technical_caps"], {"calls", "output_tokens", "wall_seconds"})
+    _integer(caps["calls"], 1, 1)
+    output = _integer(caps["output_tokens"], 1, 65536)
+    _integer(caps["wall_seconds"], 1, 1200)
+    _integer(config["max_tokens"], 1, output)
+    capabilities = config["capabilities"]
+    if (
+        type(capabilities) is not dict
+        or len(capabilities) > 16
+        or any(
+            type(k) is not str or not k or len(k) > 64 or type(v) is not bool
+            for k, v in capabilities.items()
+        )
+    ):
+        raise ValueError("Invalid capabilities")
+    native = obj(
+        config["native_config"],
+        {"reasoning_echo", "prompt_caching", "context_length", "compression"},
+    )
+    if type(native["reasoning_echo"]) is not bool or type(native["prompt_caching"]) is not bool:
+        raise ValueError("Invalid native policy")
+    _integer(native["context_length"], 1024, 900000)
+    compression = obj(native["compression"], {"enabled"})
+    if type(compression["enabled"]) is not bool or len(canonical(config)) > 2048:
+        raise ValueError("Invalid compression/configuration bound")
+    return config
+
+
+def validate_initialization(value: object) -> dict[str, object]:
+    """Validate DATA, not origin/dispatch authority. Private owner/Host grants remain required."""
+    _exact_data(value)
+    value = wire(value, _INITIALIZATION_FIELDS)
+    if value["protocol"] != PROTOCOL_V3 or value["mode"] not in ("CREATE", "STATUS"):
+        raise ValueError("Invalid initialization protocol/mode")
+    _integer(value["version"], 1, 1)
+    for key in ("initialization_id", "owner_id", "run_id", "runtime_boot"):
+        uuid(value[key])
+    reference(value["intent_ref"], "native-initialization-intent")
+    reference(value["manifest_ref"], "launch-manifest")
+    _authority(value["authority"])
+    source = envelope(value["provider_config"], "provider-config")
+    body = obj(
+        source["payload"],
+        {
+            "version",
+            "owner_id",
+            "run_id",
+            "manifest_ref",
+            "authority",
+            "configuration",
+            "provenance",
+            "status",
+            "inference_authorized",
+        },
+    )
+    _integer(body["version"], 1, 1)
+    _authority(body["authority"])
+    reference(body["manifest_ref"], "launch-manifest")
+    if (
+        any(body[k] != value[k] for k in ("owner_id", "run_id", "manifest_ref", "authority"))
+        or body["provenance"] != "PRIVATE_OWNER_CONFIGURATION_COMMAND_V1"
+        or body["status"] != "READY"
+        or body["inference_authorized"] is not False
+    ):
+        raise ValueError("Invalid initialization source bindings")
+    config = _configuration(body["configuration"])
+    receipt = envelope(value["producer_receipt"], "contract-input-command")
+    command = obj(
+        receipt["payload"],
+        {"version", "owner_id", "command_id", "operation", "request_digest", "result_refs"},
+    )
+    _integer(command["version"], 1, 1)
+    uuid(command["owner_id"])
+    uuid(command["command_id"])
+    sha(command["request_digest"])
+    refs = obj(command["result_refs"], {"provider_config_ref"})
+    reference(refs["provider_config_ref"], "provider-config")
+    request = {
+        "manifest_ref": value["manifest_ref"],
+        "configuration": config,
+        "authority": value["authority"],
+    }
+    if (
+        command["owner_id"] != value["owner_id"]
+        or command["command_id"] != config["decision_id"]
+        or command["operation"] != "model_configuration"
+        or refs["provider_config_ref"] != ref(source)
+        or command["request_digest"] != digest(canonical(request))
+    ):
+        raise ValueError("Invalid initialization producer receipt")
+    raw = value["initialization_data"]
+    if type(raw) is not str:
+        raise ValueError("Invalid initialization bytes")
+    parsed = loads(raw, 2048)
+    if (
+        canonical(parsed) != raw.encode("utf-8")
+        or canonical(parsed) != canonical({k: config[k] for k in _CONFIGURATION_FIELDS})
+        or sha(value["source_byte_digest"]) != digest(canonical(source))
+        or sha(value["initialization_data_digest"]) != digest(raw.encode("utf-8"))
+    ):
+        raise ValueError("Invalid initialization digests/bytes")
+    # Every return is detached, including nested refs, source and receipt.
+    return cast(dict[str, object], loads(canonical(value), MAX_BYTES))
+
+
+@dataclass(frozen=True, slots=True)
+class OwnedInitialization:
+    """Immutable qualified DATA carrier. Its Python type is not model/turn authority."""
+
+    raw: bytes
+
+    def __post_init__(self) -> None:
+        if type(self.raw) is not bytes:
+            raise ValueError("Immutable initialization bytes required")
+        value = validate_initialization(loads(self.raw, MAX_BYTES))
+        if value["mode"] != "CREATE" or canonical(value) != self.raw:
+            raise ValueError("Canonical CREATE carrier required")
+
+    def payload(self) -> dict[str, object]:
+        if type(self.raw) is not bytes:
+            raise ValueError("Immutable initialization bytes required")
+        value = validate_initialization(loads(self.raw, MAX_BYTES))
+        if value["mode"] != "CREATE" or canonical(value) != self.raw:
+            raise ValueError("Canonical CREATE carrier required")
+        return value
+
+
+def initialization_result(
+    payload: object,
+    *,
+    observation: object = None,
+    native_session_id: object = None,
+    native_instance_id: object = None,
+) -> dict[str, object]:
+    """Pure wire assembly only; native RPC supplies its actual live observation."""
+    p = validate_initialization(payload)
+    source = envelope(p["provider_config"], "provider-config")
+    receipt = envelope(p["producer_receipt"], "contract-input-command")
+    result: dict[str, object] = {k: p[k] for k in _INITIALIZATION_BINDINGS}
+    result.update(
+        provider_config_ref=ref(source),
+        producer_receipt_ref=ref(receipt),
+        status="UNKNOWN",
+        native_session_id=None,
+        native_instance_id=None,
+        observed_configuration=None,
+        observed_configuration_digest=None,
+        client_status="DEFERRED_NO_CREDENTIAL",
+        native_turn=None,
+        inference_status="HOLD",
+        model_calls=0,
+    )
+    if observation is not None:
+        result.update(
+            status="CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM",
+            native_session_id=native_session_id,
+            native_instance_id=native_instance_id,
+            observed_configuration=observation,
+            observed_configuration_digest=digest(canonical(observation)),
+        )
+    elif native_session_id is not None or native_instance_id is not None:
+        raise ValueError("Unknown initialization cannot carry identities")
+    return validate_initialization_result(result, p)
+
+
+def validate_initialization_result(value: object, payload: object) -> dict[str, object]:
+    p = validate_initialization(payload)
+    _exact_data(value)
+    value = wire(
+        value,
+        (_INITIALIZATION_BINDINGS - {"protocol"})
+        | {
+            "provider_config_ref",
+            "producer_receipt_ref",
+            "status",
+            "native_session_id",
+            "native_instance_id",
+            "observed_configuration",
+            "observed_configuration_digest",
+            "client_status",
+            "native_turn",
+            "inference_status",
+            "model_calls",
+        },
+    )
+    _integer(value["version"], 1, 1)
+    _integer(value["model_calls"], 0, 0)
+    _authority(value["authority"])
+    reference(value["intent_ref"], "native-initialization-intent")
+    reference(value["manifest_ref"], "launch-manifest")
+    reference(value["provider_config_ref"], "provider-config")
+    reference(value["producer_receipt_ref"], "contract-input-command")
+    if (
+        any(value[k] != p[k] for k in _INITIALIZATION_BINDINGS)
+        or value["provider_config_ref"] != ref(envelope(p["provider_config"], "provider-config"))
+        or value["producer_receipt_ref"]
+        != ref(envelope(p["producer_receipt"], "contract-input-command"))
+        or value["client_status"] != "DEFERRED_NO_CREDENTIAL"
+        or value["native_turn"] is not None
+        or value["inference_status"] != "HOLD"
+    ):
+        raise ValueError("Invalid initialization observation binding")
+    if value["status"] == "UNKNOWN":
+        if any(
+            value[k] is not None
+            for k in (
+                "native_session_id",
+                "native_instance_id",
+                "observed_configuration",
+                "observed_configuration_digest",
+            )
+        ):
+            raise ValueError("Unknown initialization cannot claim native success")
+    elif value["status"] == "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM":
+        text(value["native_session_id"])
+        uuid(value["native_instance_id"])
+        observed = obj(value["observed_configuration"], _CONFIGURATION_FIELDS)
+        # Validate every leaf (strict bool/int distinction) as well as exact source equality.
+        _configuration(
+            {
+                **observed,
+                "version": 1,
+                "decision_id": cast(
+                    dict[str, object],
+                    cast(
+                        dict[str, object],
+                        envelope(p["provider_config"], "provider-config")["payload"],
+                    )["configuration"],
+                )["decision_id"],
+            }
+        )
+        if canonical(observed) != cast(str, p["initialization_data"]).encode("utf-8") or sha(
+            value["observed_configuration_digest"]
+        ) != digest(canonical(observed)):
+            raise ValueError("Native observation differs from qualified configuration")
+    else:
+        raise ValueError("Invalid initialization status")
+    return cast(dict[str, object], loads(canonical(value), MAX_BYTES))

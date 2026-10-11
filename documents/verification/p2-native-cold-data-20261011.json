@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "owner_session_id": "20261011_094100_1f2139",
+  "product_snapshot": "c78dd50f91d59a7c5630134f13fdd0c2b5770b97",
+  "status": "PASS_SCOPED_INSTALLED_NATIVE_COLD_DENIAL_NOT_TRUSTED_TURN",
+  "root": "/home/kali/.hermes/cache/scratch/p2ni-1f2139",
+  "prior_failed_build": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "corrected_local_build": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "corrected_local_build_log_sha256": "df846496b397833dea6d382532aa1ed83f1f9901f2c633b7eae506765db75cb2",
+  "mechanism": "Private-command DOCKER_BUILDKIT=0 legacy local builder, existing locally attested FROM tag, pull=false/network=none, full baseID before/after unchanged; no BuildKit metadata resolver in corrected command. Prior unexpected registry attempt remains FAIL, not retrospectively zero-network.",
+  "base_image_id": "sha256:201c17d4874d693927f2dbf220c5a8bd56904c91cdfd5edf2670c843602d8ae3",
+  "new_image_id": "sha256:a0f568ec612cd093738566f41c5889914af8ac771230597789627833cf86f356",
+  "native_family": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "native_result": {
+    "scope": "INSTALLED_NATIVE_COLD_DENIAL_ONLY_NOT_WARM_TURN_DATA_POSITIVE",
+    "rows": [
+      {
+        "channel": "common",
+        "outcome": "ManagedModelTerminal",
+        "client_calls": 0
+      },
+      {
+        "channel": "direct",
+        "outcome": "ManagedModelTerminal",
+        "client_calls": 0
+      },
+      {
+        "channel": "worker-constructor",
+        "outcome": "ColdAdmissionDenied",
+        "client_calls": 0
+      }
+    ],
+    "provider_io_attempts": [],
+    "source_files_verified": 25,
+    "native_origin": "/opt/hermes/source/agent/chat_completion_helpers.py",
+    "adapter_origin": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_request.py",
+    "cold_real_native_ids_created": true,
+    "native_turn": "NOT_CREATED",
+    "NO_MODEL_preserved": true,
+    "provider_response": "NOT_CREATED",
+    "phase2": "NOT_CLOSED"
+  },
+  "native_log_sha256": "3c68c73414db562554d2c3af696e94c412775c2a91bac90baa232c1e730cadbe",
+  "retirement": {
+    "cid": "51503184f771256bcfdf9e3c4342443fa4044e30047d7b2d0bab26f6c98b3fb7",
+    "image_id": "sha256:a0f568ec612cd093738566f41c5889914af8ac771230597789627833cf86f356",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "exited_code": 0,
+    "family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "scope": "Exact owned retirement, no data/image deletion",
+    "container_absent": true,
+    "daemon_same": true,
+    "image_and_state_retained": true
+  },
+  "retention": "Keep wheel/new image/fresh state/inputs/logs/failed build/receipts. Only exact own exited CID retired after gate0/drained and label/image/daemon readback. No old/r1/root/family adoption.",
+  "scope_limit": "Whole installed native module, actual cold AIAgent generated native identities and refused common/direct/warm-worker construction; no native turn, model client, warm context, config/SENT/skill/result/continuation positive.",
+  "canonical": "DEFER_TO_FINAL_PRODUCT_BOUNDARY_AFTER_NEXT_FUNCTIONAL_SLICE",
+  "live": "HOLD",
+  "phase2": "NOT_CLOSED"
+}

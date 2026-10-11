@@ -713,7 +713,7 @@ def _bedrock_converse_call(api_kwargs: dict, *, stream: bool, on_stream_denied=N
     return finish(raw_response)
 
 
-def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
+def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client, final_request=None):
     """Run one non-streaming LLM request for the active api_mode and return it.
 
     Shared by ``interruptible_api_call`` and ``direct_api_call``. ``make_client(reason,
@@ -721,7 +721,12 @@ def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
     so callers can register it with their abort/close machinery; bedrock / MoA
     manage their own clients. Interrupt/abort/close semantics stay in callers.
     """
-    from omnis_hermes.model_terminal import require_model_authority
+    from omnis_hermes.model_terminal import require_model_authority, is_inert_model_context, deny_model
+    if final_request is not None or is_inert_model_context(agent):
+        from omnis_hermes.model_request import consume_final_request
+        api_kwargs = consume_final_request(final_request, api_kwargs)
+        if agent.api_mode != "chat_completions" or agent.provider == "moa":
+            deny_model()
     require_model_authority(agent)
     if agent.api_mode == "codex_responses":
         return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
@@ -748,6 +753,11 @@ def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
     # request transform. No-op unless this really is the OpenAI SDK, so the
     # MoA facade above and the suite's stand-in clients are unaffected.
     api_kwargs = bypass_chat_sdk_request_transform(api_kwargs, request_client)
+    if final_request is not None:
+        from omnis_hermes.model_request import consume_final_request, final_sdk_guard
+        api_kwargs = consume_final_request(final_request, api_kwargs, post_bypass=True)
+        with final_sdk_guard(request_client, final_request):
+            return request_client.chat.completions.create(**api_kwargs)
     return request_client.chat.completions.create(**api_kwargs)
 
 
@@ -954,7 +964,7 @@ class _InlineRequest:
         return client
 
 
-def direct_api_call(agent, api_kwargs: dict):
+def direct_api_call(agent, api_kwargs: dict, *, final_request=None):
     """Run a non-streaming LLM call inline on the conversation thread (cron turns,
     delegated children — see ``should_use_direct_api_call``): no interrupt worker,
     so the nested-pool deadlock cannot occur. An activity heartbeat keeps
@@ -984,7 +994,8 @@ def direct_api_call(agent, api_kwargs: dict):
     succeeded = False
     terminal = None
     try:
-        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
+        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client,
+            final_request=final_request)
     except ManagedModelTerminal as error:
         terminal = error
         raise
@@ -1252,7 +1263,7 @@ def _codex_silent_hang_hint(agent, api_kwargs: dict) -> Optional[str]:
 
 
 
-def interruptible_api_call(agent, api_kwargs: dict):
+def interruptible_api_call(agent, api_kwargs: dict, *, final_request=None):
     """Run the API call on a worker thread so the caller can detect interrupts
     without waiting for the full HTTP round-trip. Each worker gets its own
     per-request client (interrupts close only that one); a stale-call detector
@@ -1261,11 +1272,11 @@ def interruptible_api_call(agent, api_kwargs: dict):
     # Nested-pool contexts (cron, delegated children) wedge on a worker thread
     # (#62151): run inline. See should_use_direct_api_call.
     if should_use_direct_api_call(agent):
-        return direct_api_call(agent, api_kwargs)
+        return direct_api_call(agent, api_kwargs, final_request=final_request)
     _check_stale_giveup(agent)  # cross-turn stale breaker (#58962), non-streaming sibling
     from agent.chat_completion_nonstream import _NonStreamRequest
 
-    return _NonStreamRequest(agent, api_kwargs).run()
+    return _NonStreamRequest(agent, api_kwargs, final_request=final_request).run()
 
 
 def _consume_ephemeral_reasoning_off(agent) -> bool:

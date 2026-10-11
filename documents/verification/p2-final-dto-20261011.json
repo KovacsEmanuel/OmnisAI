@@ -1,0 +1,661 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SCOPED_DATA_GUARD_SOURCE_AND_REAL_SDK_PASS_NOT_NATIVE_AUTHORITY",
+  "owner_session_id": "20261011_094100_1f2139",
+  "base_commit": "36bed6dd59c7dc15519250eddffb3b7125c1d86d",
+  "snapshot": {
+    "integrations/hermes/src/omnis_hermes/model_request.py": "a0bd4d852067e6bf654bc1684512086194e08fbeb2702b272db08a61bb8e3bfd",
+    "api/tests/test_final_model_request.py": "eca292390cda39758e3fb1d6e6a5df7fe9bd911d223e999ae52251ff9458c792",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py": "222167bd4c8abd41931a1ea530b389dbf71d415910308ec81770d76ae7f44d9c",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py": "8cbc7f6f6439a8802af08b2644311052b900345b4990778ce09e8b54a52b6adf",
+    "integrations/hermes/upstream/omnis-managed.patch": "6dd3e2c4291101d50b79fc3469a64c689d535c10b2a290173dbc2c083cb3c221",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "59d17a05fd3a9c74da6e8785d54b8042f2d775945de91f3e2566187bfd20e670",
+    "integrations/hermes/pin.json": "a55b8f5d184b1c0c20535496b1a27030647bb0124e0c461a5429ee87ae93677f"
+  },
+  "source": {
+    "red_missing_module_exit": 1,
+    "red_missing_sink_keyword_exit": 1,
+    "ctor_mutable_bytes_red": 1,
+    "timeout_bool_red": 1,
+    "post_prepare_client_mutation_red": 1,
+    "affected_tests": 41,
+    "affected_exit": 0,
+    "ruff_format_mypy_exit": 0,
+    "patch_reapply_byte_equal_count": 13
+  },
+  "sdk": {
+    "root": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04",
+    "outer_exit": 0,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "full_measurement": {
+      "scope": "SOURCE_SINK_DATA_GUARD_PLUS_REAL_SDK_NOT_INSTALLED_NATIVE",
+      "bound_measurement": {
+        "denials": [
+          {
+            "name": "incoming-extra-body",
+            "client_calls": 0,
+            "sdk_calls": 0
+          },
+          {
+            "name": "incoming-extra-headers",
+            "client_calls": 0,
+            "sdk_calls": 0
+          },
+          {
+            "name": "incoming-extra-query",
+            "client_calls": 0,
+            "sdk_calls": 0
+          },
+          {
+            "name": "default-client-headers",
+            "sdk_calls": 0
+          },
+          {
+            "name": "cold-no-model-preserved",
+            "client_calls": 0,
+            "sdk_calls": 0
+          }
+        ],
+        "canonical_dto_sha256": "9dafb63208032bb63408197ed8d65560379090040dab0edf69bcf98d7336ceed",
+        "http_body_sha256": "834767b7d583767848089c5b85e4dd4e999759e6c80e059d49bc8a4efc94c33b",
+        "scope": "SOURCE_DATA_GUARD_PLUS_REAL_SDK_NOT_INSTALLED_NATIVE_OR_LEDGER_PROOF"
+      },
+      "namespaces": {
+        "user": "user:[4026533128]",
+        "pid": "pid:[4026533061]",
+        "mnt": "mnt:[4026533056]",
+        "net": "net:[4026533063]"
+      },
+      "seccomp_status": [
+        "NoNewPrivs:\t1",
+        "Seccomp:\t2",
+        "Seccomp_filters:\t1"
+      ],
+      "sdk_prefix": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/venv",
+      "openai_version": "2.24.0",
+      "cases": [
+        {
+          "name": "direct-real-sdk",
+          "http_body_sha256": "98aae6d952597424ac4691bc80c8d83c348a518ca42bef20292f8c1675ff4f97",
+          "body_bytes": 259,
+          "body_fields": [
+            "max_completion_tokens",
+            "messages",
+            "model",
+            "n",
+            "stream",
+            "tools"
+          ],
+          "transport_calls": 0,
+          "timeout_extension": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          },
+          "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+          "http_body": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": []
+          },
+          "request_extensions": {
+            "timeout": {
+              "connect": 1.0,
+              "read": 1.0,
+              "write": 1.0,
+              "pool": 1.0
+            }
+          },
+          "sdk_kwargs": {
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "tools": [],
+            "stream": false,
+            "n": 1,
+            "max_completion_tokens": 64,
+            "timeout": 1.0
+          }
+        },
+        {
+          "name": "real-sdk-post-native-bypass",
+          "http_body_sha256": "98aae6d952597424ac4691bc80c8d83c348a518ca42bef20292f8c1675ff4f97",
+          "body_bytes": 259,
+          "body_fields": [
+            "max_completion_tokens",
+            "messages",
+            "model",
+            "n",
+            "stream",
+            "tools"
+          ],
+          "transport_calls": 0,
+          "timeout_extension": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          },
+          "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+          "http_body": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": []
+          },
+          "request_extensions": {
+            "timeout": {
+              "connect": 1.0,
+              "read": 1.0,
+              "write": 1.0,
+              "pool": 1.0
+            }
+          },
+          "sdk_kwargs": {
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "messages": [],
+            "tools": [],
+            "stream": false,
+            "n": 1,
+            "max_completion_tokens": 64,
+            "timeout": 1.0,
+            "extra_body": {
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+                },
+                {
+                  "role": "user",
+                  "content": "Explicit synthetic bytes: ș / ☃"
+                }
+              ],
+              "tools": []
+            }
+          }
+        },
+        {
+          "name": "characterize-extra-body-message-override-NOT-PRODUCT-ACCEPTANCE",
+          "http_body_sha256": "99f5ddf06c60b9173bc3efd942f31df8c1b61c7a1975f6a26e896d4186368634",
+          "body_bytes": 193,
+          "body_fields": [
+            "max_completion_tokens",
+            "messages",
+            "model",
+            "n",
+            "stream",
+            "tools"
+          ],
+          "transport_calls": 0,
+          "timeout_extension": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          },
+          "http_body_utf8": "{\"messages\":[{\"role\":\"user\",\"content\":\"SYNTHETIC_OVERRIDE_NOT_APPROVED\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+          "http_body": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "SYNTHETIC_OVERRIDE_NOT_APPROVED"
+              }
+            ],
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": []
+          },
+          "request_extensions": {
+            "timeout": {
+              "connect": 1.0,
+              "read": 1.0,
+              "write": 1.0,
+              "pool": 1.0
+            }
+          },
+          "sdk_kwargs": {
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "messages": [],
+            "tools": [],
+            "stream": false,
+            "n": 1,
+            "max_completion_tokens": 64,
+            "timeout": 1.0,
+            "extra_body": {
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "SYNTHETIC_OVERRIDE_NOT_APPROVED"
+                }
+              ],
+              "tools": []
+            }
+          }
+        },
+        {
+          "name": "characterize-extensible-body-NOT-PRODUCT-ACCEPTANCE",
+          "http_body_sha256": "d8402a41f816af0c4d6edbaa288e6ee6d71cdb673dc3b0903c0a722a22f5380d",
+          "body_bytes": 283,
+          "body_fields": [
+            "max_completion_tokens",
+            "messages",
+            "model",
+            "n",
+            "stream",
+            "tools",
+            "unapproved_field"
+          ],
+          "transport_calls": 0,
+          "timeout_extension": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          },
+          "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_OVERRIDE_NOT_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[],\"unapproved_field\":\"SYNTHETIC_UNCLASSIFIED\"}",
+          "http_body": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "model": "SYNTHETIC_OVERRIDE_NOT_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": [],
+            "unapproved_field": "SYNTHETIC_UNCLASSIFIED"
+          },
+          "request_extensions": {
+            "timeout": {
+              "connect": 1.0,
+              "read": 1.0,
+              "write": 1.0,
+              "pool": 1.0
+            }
+          },
+          "sdk_kwargs": {
+            "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+            "messages": [],
+            "tools": [],
+            "stream": false,
+            "n": 1,
+            "max_completion_tokens": 64,
+            "timeout": 1.0,
+            "extra_body": {
+              "model": "SYNTHETIC_OVERRIDE_NOT_CONFIG",
+              "unapproved_field": "SYNTHETIC_UNCLASSIFIED",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+                },
+                {
+                  "role": "user",
+                  "content": "Explicit synthetic bytes: ș / ☃"
+                }
+              ],
+              "tools": []
+            }
+          }
+        },
+        {
+          "name": "ACTUAL_COMMON_SINK_SOURCE_PREFIX_REAL_SDK_BOUND_DATA_NOT_NATIVE_AUTHORITY",
+          "http_body_utf8": "{\"messages\":[{\"content\":\"{\\\"instructions\\\":[{\\\"kind\\\":\\\"base\\\",\\\"source_ref\\\":{\\\"digest\\\":\\\"a2a46dbf39d06798115a58089d8cf6a80419388e3ff0ee095a7e712b490ffcf3\\\",\\\"id\\\":\\\"38ee637f-6b1d-4972-8c68-d9d16a2aeda4\\\",\\\"kind\\\":\\\"prompt-content\\\",\\\"revision\\\":1},\\\"text\\\":\\\"CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only.\\\"},{\\\"kind\\\":\\\"role\\\",\\\"source_ref\\\":{\\\"digest\\\":\\\"f19824dd9d5569ee7cd5ed59a8e7565fca7d151f1d7b7bc630fd6e62bfe7045c\\\",\\\"id\\\":\\\"d792e753-2d73-4586-9041-8e490e5fb937\\\",\\\"kind\\\":\\\"prompt-content\\\",\\\"revision\\\":1},\\\"text\\\":\\\"SUPPORT-only cold admission probe; not an assessment.\\\"},{\\\"kind\\\":\\\"skill\\\",\\\"source_ref\\\":{\\\"digest\\\":\\\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\\\",\\\"id\\\":\\\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\\\",\\\"kind\\\":\\\"package\\\",\\\"revision\\\":1},\\\"text\\\":\\\"---\\\\nname: records-mapping-contract\\\\ndescription: Map structured synthetic records without network or model.\\\\nversion: 0.1.0\\\\nprovenance: OmnisAI first-party parent 5ccf90af410e14abf5bf5d9e9807a44824323b9b\\\\n---\\\\n\\\\n# Records mapping contract\\\\n\\\\n## When to use / not use\\\\nSupplied synthetic method/path/status records only. Not scanning or security findings.\\\\n\\\\n## Inputs / preconditions\\\\nOne persistent contract-case-records Ref; value records is an ordered list of zero to128 strict records. No credentials or inferred parse provenance.\\\\n\\\\n## Method / baseline / control\\\\nNormalize operations, then build map using the declared operations output. No parse step. Baseline/control have explicit non-applicable reasons; invalid/hostile inputs are evaluated separately.\\\\n\\\\n## Evidence / gaps / output\\\\nSorted synthetic surface_map, not Observation, Artifact or assessment evidence. Binding/preflight never counts as method execution.\\\\n\\\\n## Effects / limits / Stop / cleanup\\\\nTwo installed PURE transformations. No IO, provider, target or granted capabilities. Existing aggregate input/context/frame limits apply separately from list cardinality. Invalid or oversized data blocks; no truncation.\\\\n\\\\n## Sources / compatibility / evaluation\\\\nFirst-party NOTICE and pinned Hermes compatibility. New candidate requires real STATIC/PURE qualification and explicit operator confirmation before private Publish. This source does not self-publish.\\\\n\\\"},{\\\"kind\\\":\\\"skill\\\",\\\"source_ref\\\":{\\\"digest\\\":\\\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\\\",\\\"id\\\":\\\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\\\",\\\"kind\\\":\\\"package\\\",\\\"revision\\\":1},\\\"text\\\":\\\"# Records mapping\\\\n\\\\nSupplied structured synthetic records -> normalize operations -> surface map. Input order and duplicates remain immutable; only the two installed PURE handlers derive sorted outputs. Empty records are valid. No parse step, collection, requests, model or security conclusion.\\\\n\\\"}],\\\"method\\\":{\\\"objective\\\":\\\"Map supplied structured synthetic records.\\\",\\\"requirements\\\":[{\\\"description\\\":\\\"Normalize supplied records.\\\",\\\"key\\\":\\\"normalize-records\\\",\\\"required\\\":true,\\\"step_ids\\\":[\\\"normalize-operations\\\"]},{\\\"description\\\":\\\"Build a map from the preceding operations output.\\\",\\\"key\\\":\\\"build-surface-map\\\",\\\"required\\\":true,\\\"step_ids\\\":[\\\"build-map\\\"]},{\\\"description\\\":\\\"Retain original structured input independently of sorted derivations.\\\",\\\"key\\\":\\\"preserve-input-context\\\",\\\"required\\\":false,\\\"step_ids\\\":[\\\"normalize-operations\\\"]}],\\\"source_ref\\\":{\\\"digest\\\":\\\"060262395f24cb5d1b0d7c05cb29cf1eb39b822651040eb59386a9f8e63bae11\\\",\\\"id\\\":\\\"750b65fe-3cc7-4e1c-b8c0-a5e8f6c00228\\\",\\\"kind\\\":\\\"bound-procedure\\\",\\\"revision\\\":1},\\\"steps\\\":[{\\\"action_definition_ref\\\":{\\\"digest\\\":\\\"7b4a83baabd52f38f5cf4c16c187ed55d5b045b8608be53abdbceba88f797003\\\",\\\"id\\\":\\\"15bdbf55-ca73-42f1-9765-b10a9687dcc4\\\",\\\"kind\\\":\\\"action_definition\\\",\\\"revision\\\":1},\\\"id\\\":\\\"normalize-operations\\\"},{\\\"action_definition_ref\\\":{\\\"digest\\\":\\\"4defcd921a3a2e47da46141f0fad0838702f21c2f67d7d10e9b3a5cebe56249a\\\",\\\"id\\\":\\\"d541428e-e393-4cc8-82aa-2761b2b17d0b\\\",\\\"kind\\\":\\\"action_definition\\\",\\\"revision\\\":1},\\\"id\\\":\\\"build-map\\\"}]}}\",\"role\":\"system\"},{\"content\":\"{\\\"context\\\":[{\\\"epistemic_state\\\":\\\"OBSERVED\\\",\\\"mandatory\\\":true,\\\"ref\\\":{\\\"digest\\\":\\\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\\\",\\\"id\\\":\\\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\\\",\\\"kind\\\":\\\"mission\\\",\\\"revision\\\":1},\\\"summary\\\":\\\"Backend synthetic contract-probe mission, not model interpretation.\\\"},{\\\"epistemic_state\\\":\\\"OBSERVED\\\",\\\"mandatory\\\":true,\\\"ref\\\":{\\\"digest\\\":\\\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\\\",\\\"id\\\":\\\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\\\",\\\"kind\\\":\\\"focus\\\",\\\"revision\\\":1},\\\"summary\\\":\\\"Blocked; no domain access permitted.\\\"},{\\\"epistemic_state\\\":\\\"OBSERVED\\\",\\\"mandatory\\\":true,\\\"ref\\\":{\\\"digest\\\":\\\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\\\",\\\"id\\\":\\\"18729574-d238-466d-b064-7d89a2e499b3\\\",\\\"kind\\\":\\\"contract-case-records\\\",\\\"revision\\\":1},\\\"summary\\\":\\\"Backend synthetic CONTRACT records input; untrusted data, not execution evidence.\\\"}],\\\"header\\\":{\\\"attempt_id\\\":\\\"071ea08a-f7a7-429f-8efd-8802bf234479\\\",\\\"brief_revision\\\":1,\\\"focus_ref\\\":{\\\"digest\\\":\\\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\\\",\\\"id\\\":\\\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\\\",\\\"kind\\\":\\\"focus\\\",\\\"revision\\\":1},\\\"mission_revision\\\":{\\\"digest\\\":\\\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\\\",\\\"id\\\":\\\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\\\",\\\"kind\\\":\\\"mission\\\",\\\"revision\\\":1},\\\"result_schema_ref\\\":{\\\"digest\\\":\\\"1b6375267ac9bf762513fcb5422615bf9d81081d1ceeebc3b3db577bf23cbe80\\\",\\\"id\\\":\\\"6b12cd7d-eb29-4183-98a5-977a13fd989d\\\",\\\"kind\\\":\\\"schema\\\",\\\"revision\\\":1},\\\"run_id\\\":\\\"7ed3f068-5cee-4ad7-b721-8d78fccac521\\\",\\\"schema_version\\\":1,\\\"snapshot_ref\\\":{\\\"digest\\\":\\\"01be3237403d67867088a798fb82932d109a2506c9381d021b6bee8d9855f74d\\\",\\\"id\\\":\\\"add1b5c6-c9a4-48cb-a157-8ab88c00bebe\\\",\\\"kind\\\":\\\"run-snapshot\\\",\\\"revision\\\":1},\\\"task_id\\\":\\\"a534a11d-a8ab-4c68-a32c-3498b7d4d8a3\\\",\\\"through_cursor\\\":\\\"48653a9a-2277-4725-83fd-f9eee7501f13\\\"},\\\"hypothesis\\\":\\\"Native admission refuses NO_MODEL before any method step.\\\",\\\"input_ref\\\":{\\\"digest\\\":\\\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\\\",\\\"id\\\":\\\"18729574-d238-466d-b064-7d89a2e499b3\\\",\\\"kind\\\":\\\"contract-case-records\\\",\\\"revision\\\":1},\\\"non_goals\\\":[\\\"No assessment, target/model access, or CriterionOutcome.\\\"],\\\"objective_summary\\\":\\\"Map supplied structured synthetic records.\\\",\\\"priority_reason\\\":\\\"SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.\\\",\\\"records\\\":[{\\\"index\\\":0,\\\"method\\\":\\\"GET\\\",\\\"path\\\":\\\"/[redacted]\\\",\\\"status\\\":200}],\\\"role\\\":\\\"RECON\\\"}\",\"role\":\"user\"}],\"model\":\"SYNTHETIC_SCHEMA_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+          "http_body": {
+            "messages": [
+              {
+                "content": "{\"instructions\":[{\"kind\":\"base\",\"source_ref\":{\"digest\":\"a2a46dbf39d06798115a58089d8cf6a80419388e3ff0ee095a7e712b490ffcf3\",\"id\":\"38ee637f-6b1d-4972-8c68-d9d16a2aeda4\",\"kind\":\"prompt-content\",\"revision\":1},\"text\":\"CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only.\"},{\"kind\":\"role\",\"source_ref\":{\"digest\":\"f19824dd9d5569ee7cd5ed59a8e7565fca7d151f1d7b7bc630fd6e62bfe7045c\",\"id\":\"d792e753-2d73-4586-9041-8e490e5fb937\",\"kind\":\"prompt-content\",\"revision\":1},\"text\":\"SUPPORT-only cold admission probe; not an assessment.\"},{\"kind\":\"skill\",\"source_ref\":{\"digest\":\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\",\"id\":\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\",\"kind\":\"package\",\"revision\":1},\"text\":\"---\\nname: records-mapping-contract\\ndescription: Map structured synthetic records without network or model.\\nversion: 0.1.0\\nprovenance: OmnisAI first-party parent 5ccf90af410e14abf5bf5d9e9807a44824323b9b\\n---\\n\\n# Records mapping contract\\n\\n## When to use / not use\\nSupplied synthetic method/path/status records only. Not scanning or security findings.\\n\\n## Inputs / preconditions\\nOne persistent contract-case-records Ref; value records is an ordered list of zero to128 strict records. No credentials or inferred parse provenance.\\n\\n## Method / baseline / control\\nNormalize operations, then build map using the declared operations output. No parse step. Baseline/control have explicit non-applicable reasons; invalid/hostile inputs are evaluated separately.\\n\\n## Evidence / gaps / output\\nSorted synthetic surface_map, not Observation, Artifact or assessment evidence. Binding/preflight never counts as method execution.\\n\\n## Effects / limits / Stop / cleanup\\nTwo installed PURE transformations. No IO, provider, target or granted capabilities. Existing aggregate input/context/frame limits apply separately from list cardinality. Invalid or oversized data blocks; no truncation.\\n\\n## Sources / compatibility / evaluation\\nFirst-party NOTICE and pinned Hermes compatibility. New candidate requires real STATIC/PURE qualification and explicit operator confirmation before private Publish. This source does not self-publish.\\n\"},{\"kind\":\"skill\",\"source_ref\":{\"digest\":\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\",\"id\":\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\",\"kind\":\"package\",\"revision\":1},\"text\":\"# Records mapping\\n\\nSupplied structured synthetic records -> normalize operations -> surface map. Input order and duplicates remain immutable; only the two installed PURE handlers derive sorted outputs. Empty records are valid. No parse step, collection, requests, model or security conclusion.\\n\"}],\"method\":{\"objective\":\"Map supplied structured synthetic records.\",\"requirements\":[{\"description\":\"Normalize supplied records.\",\"key\":\"normalize-records\",\"required\":true,\"step_ids\":[\"normalize-operations\"]},{\"description\":\"Build a map from the preceding operations output.\",\"key\":\"build-surface-map\",\"required\":true,\"step_ids\":[\"build-map\"]},{\"description\":\"Retain original structured input independently of sorted derivations.\",\"key\":\"preserve-input-context\",\"required\":false,\"step_ids\":[\"normalize-operations\"]}],\"source_ref\":{\"digest\":\"060262395f24cb5d1b0d7c05cb29cf1eb39b822651040eb59386a9f8e63bae11\",\"id\":\"750b65fe-3cc7-4e1c-b8c0-a5e8f6c00228\",\"kind\":\"bound-procedure\",\"revision\":1},\"steps\":[{\"action_definition_ref\":{\"digest\":\"7b4a83baabd52f38f5cf4c16c187ed55d5b045b8608be53abdbceba88f797003\",\"id\":\"15bdbf55-ca73-42f1-9765-b10a9687dcc4\",\"kind\":\"action_definition\",\"revision\":1},\"id\":\"normalize-operations\"},{\"action_definition_ref\":{\"digest\":\"4defcd921a3a2e47da46141f0fad0838702f21c2f67d7d10e9b3a5cebe56249a\",\"id\":\"d541428e-e393-4cc8-82aa-2761b2b17d0b\",\"kind\":\"action_definition\",\"revision\":1},\"id\":\"build-map\"}]}}",
+                "role": "system"
+              },
+              {
+                "content": "{\"context\":[{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\",\"id\":\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\",\"kind\":\"mission\",\"revision\":1},\"summary\":\"Backend synthetic contract-probe mission, not model interpretation.\"},{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\",\"id\":\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\",\"kind\":\"focus\",\"revision\":1},\"summary\":\"Blocked; no domain access permitted.\"},{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\",\"id\":\"18729574-d238-466d-b064-7d89a2e499b3\",\"kind\":\"contract-case-records\",\"revision\":1},\"summary\":\"Backend synthetic CONTRACT records input; untrusted data, not execution evidence.\"}],\"header\":{\"attempt_id\":\"071ea08a-f7a7-429f-8efd-8802bf234479\",\"brief_revision\":1,\"focus_ref\":{\"digest\":\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\",\"id\":\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\",\"kind\":\"focus\",\"revision\":1},\"mission_revision\":{\"digest\":\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\",\"id\":\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\",\"kind\":\"mission\",\"revision\":1},\"result_schema_ref\":{\"digest\":\"1b6375267ac9bf762513fcb5422615bf9d81081d1ceeebc3b3db577bf23cbe80\",\"id\":\"6b12cd7d-eb29-4183-98a5-977a13fd989d\",\"kind\":\"schema\",\"revision\":1},\"run_id\":\"7ed3f068-5cee-4ad7-b721-8d78fccac521\",\"schema_version\":1,\"snapshot_ref\":{\"digest\":\"01be3237403d67867088a798fb82932d109a2506c9381d021b6bee8d9855f74d\",\"id\":\"add1b5c6-c9a4-48cb-a157-8ab88c00bebe\",\"kind\":\"run-snapshot\",\"revision\":1},\"task_id\":\"a534a11d-a8ab-4c68-a32c-3498b7d4d8a3\",\"through_cursor\":\"48653a9a-2277-4725-83fd-f9eee7501f13\"},\"hypothesis\":\"Native admission refuses NO_MODEL before any method step.\",\"input_ref\":{\"digest\":\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\",\"id\":\"18729574-d238-466d-b064-7d89a2e499b3\",\"kind\":\"contract-case-records\",\"revision\":1},\"non_goals\":[\"No assessment, target/model access, or CriterionOutcome.\"],\"objective_summary\":\"Map supplied structured synthetic records.\",\"priority_reason\":\"SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.\",\"records\":[{\"index\":0,\"method\":\"GET\",\"path\":\"/[redacted]\",\"status\":200}],\"role\":\"RECON\"}",
+                "role": "user"
+              }
+            ],
+            "model": "SYNTHETIC_SCHEMA_ONLY_NOT_EFFECTIVE_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": []
+          },
+          "http_body_sha256": "834767b7d583767848089c5b85e4dd4e999759e6c80e059d49bc8a4efc94c33b",
+          "body_bytes": 6821,
+          "sdk_kwargs": {
+            "messages": [
+              {
+                "content": "{\"instructions\":[{\"kind\":\"base\",\"source_ref\":{\"digest\":\"a2a46dbf39d06798115a58089d8cf6a80419388e3ff0ee095a7e712b490ffcf3\",\"id\":\"38ee637f-6b1d-4972-8c68-d9d16a2aeda4\",\"kind\":\"prompt-content\",\"revision\":1},\"text\":\"CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only.\"},{\"kind\":\"role\",\"source_ref\":{\"digest\":\"f19824dd9d5569ee7cd5ed59a8e7565fca7d151f1d7b7bc630fd6e62bfe7045c\",\"id\":\"d792e753-2d73-4586-9041-8e490e5fb937\",\"kind\":\"prompt-content\",\"revision\":1},\"text\":\"SUPPORT-only cold admission probe; not an assessment.\"},{\"kind\":\"skill\",\"source_ref\":{\"digest\":\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\",\"id\":\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\",\"kind\":\"package\",\"revision\":1},\"text\":\"---\\nname: records-mapping-contract\\ndescription: Map structured synthetic records without network or model.\\nversion: 0.1.0\\nprovenance: OmnisAI first-party parent 5ccf90af410e14abf5bf5d9e9807a44824323b9b\\n---\\n\\n# Records mapping contract\\n\\n## When to use / not use\\nSupplied synthetic method/path/status records only. Not scanning or security findings.\\n\\n## Inputs / preconditions\\nOne persistent contract-case-records Ref; value records is an ordered list of zero to128 strict records. No credentials or inferred parse provenance.\\n\\n## Method / baseline / control\\nNormalize operations, then build map using the declared operations output. No parse step. Baseline/control have explicit non-applicable reasons; invalid/hostile inputs are evaluated separately.\\n\\n## Evidence / gaps / output\\nSorted synthetic surface_map, not Observation, Artifact or assessment evidence. Binding/preflight never counts as method execution.\\n\\n## Effects / limits / Stop / cleanup\\nTwo installed PURE transformations. No IO, provider, target or granted capabilities. Existing aggregate input/context/frame limits apply separately from list cardinality. Invalid or oversized data blocks; no truncation.\\n\\n## Sources / compatibility / evaluation\\nFirst-party NOTICE and pinned Hermes compatibility. New candidate requires real STATIC/PURE qualification and explicit operator confirmation before private Publish. This source does not self-publish.\\n\"},{\"kind\":\"skill\",\"source_ref\":{\"digest\":\"8b536ffec8f9c85b93301d93ff6f01e8719882c78983575f14f0a009d1bddbe7\",\"id\":\"26c2f5eb-3aeb-4dd8-836f-9cdc989ab6fc\",\"kind\":\"package\",\"revision\":1},\"text\":\"# Records mapping\\n\\nSupplied structured synthetic records -> normalize operations -> surface map. Input order and duplicates remain immutable; only the two installed PURE handlers derive sorted outputs. Empty records are valid. No parse step, collection, requests, model or security conclusion.\\n\"}],\"method\":{\"objective\":\"Map supplied structured synthetic records.\",\"requirements\":[{\"description\":\"Normalize supplied records.\",\"key\":\"normalize-records\",\"required\":true,\"step_ids\":[\"normalize-operations\"]},{\"description\":\"Build a map from the preceding operations output.\",\"key\":\"build-surface-map\",\"required\":true,\"step_ids\":[\"build-map\"]},{\"description\":\"Retain original structured input independently of sorted derivations.\",\"key\":\"preserve-input-context\",\"required\":false,\"step_ids\":[\"normalize-operations\"]}],\"source_ref\":{\"digest\":\"060262395f24cb5d1b0d7c05cb29cf1eb39b822651040eb59386a9f8e63bae11\",\"id\":\"750b65fe-3cc7-4e1c-b8c0-a5e8f6c00228\",\"kind\":\"bound-procedure\",\"revision\":1},\"steps\":[{\"action_definition_ref\":{\"digest\":\"7b4a83baabd52f38f5cf4c16c187ed55d5b045b8608be53abdbceba88f797003\",\"id\":\"15bdbf55-ca73-42f1-9765-b10a9687dcc4\",\"kind\":\"action_definition\",\"revision\":1},\"id\":\"normalize-operations\"},{\"action_definition_ref\":{\"digest\":\"4defcd921a3a2e47da46141f0fad0838702f21c2f67d7d10e9b3a5cebe56249a\",\"id\":\"d541428e-e393-4cc8-82aa-2761b2b17d0b\",\"kind\":\"action_definition\",\"revision\":1},\"id\":\"build-map\"}]}}",
+                "role": "system"
+              },
+              {
+                "content": "{\"context\":[{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\",\"id\":\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\",\"kind\":\"mission\",\"revision\":1},\"summary\":\"Backend synthetic contract-probe mission, not model interpretation.\"},{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\",\"id\":\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\",\"kind\":\"focus\",\"revision\":1},\"summary\":\"Blocked; no domain access permitted.\"},{\"epistemic_state\":\"OBSERVED\",\"mandatory\":true,\"ref\":{\"digest\":\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\",\"id\":\"18729574-d238-466d-b064-7d89a2e499b3\",\"kind\":\"contract-case-records\",\"revision\":1},\"summary\":\"Backend synthetic CONTRACT records input; untrusted data, not execution evidence.\"}],\"header\":{\"attempt_id\":\"071ea08a-f7a7-429f-8efd-8802bf234479\",\"brief_revision\":1,\"focus_ref\":{\"digest\":\"2bf103e97f80613b27a1662ed0d8289f1aebf01cc962cddd892bca0594edff82\",\"id\":\"96b74497-0a05-4e3c-a19d-6b511c5cd1ed\",\"kind\":\"focus\",\"revision\":1},\"mission_revision\":{\"digest\":\"478e92ede67af41a6e2222ed998a621459979222a5e7559aebbc195cd9444ed6\",\"id\":\"76bf97b7-4734-4a81-8f7e-a4f13cd15189\",\"kind\":\"mission\",\"revision\":1},\"result_schema_ref\":{\"digest\":\"1b6375267ac9bf762513fcb5422615bf9d81081d1ceeebc3b3db577bf23cbe80\",\"id\":\"6b12cd7d-eb29-4183-98a5-977a13fd989d\",\"kind\":\"schema\",\"revision\":1},\"run_id\":\"7ed3f068-5cee-4ad7-b721-8d78fccac521\",\"schema_version\":1,\"snapshot_ref\":{\"digest\":\"01be3237403d67867088a798fb82932d109a2506c9381d021b6bee8d9855f74d\",\"id\":\"add1b5c6-c9a4-48cb-a157-8ab88c00bebe\",\"kind\":\"run-snapshot\",\"revision\":1},\"task_id\":\"a534a11d-a8ab-4c68-a32c-3498b7d4d8a3\",\"through_cursor\":\"48653a9a-2277-4725-83fd-f9eee7501f13\"},\"hypothesis\":\"Native admission refuses NO_MODEL before any method step.\",\"input_ref\":{\"digest\":\"90ab35ff8df9107a3918beef4b2c1c2ee02610058c9265b01466dcad146cf588\",\"id\":\"18729574-d238-466d-b064-7d89a2e499b3\",\"kind\":\"contract-case-records\",\"revision\":1},\"non_goals\":[\"No assessment, target/model access, or CriterionOutcome.\"],\"objective_summary\":\"Map supplied structured synthetic records.\",\"priority_reason\":\"SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.\",\"records\":[{\"index\":0,\"method\":\"GET\",\"path\":\"/[redacted]\",\"status\":200}],\"role\":\"RECON\"}",
+                "role": "user"
+              }
+            ],
+            "model": "SYNTHETIC_SCHEMA_ONLY_NOT_EFFECTIVE_CONFIG",
+            "max_completion_tokens": 64,
+            "n": 1,
+            "stream": false,
+            "tools": [],
+            "timeout": 1.0
+          },
+          "request_extensions": {
+            "timeout": {
+              "connect": 1.0,
+              "read": 1.0,
+              "write": 1.0,
+              "pool": 1.0
+            }
+          },
+          "canonical_dto_sha256": "9dafb63208032bb63408197ed8d65560379090040dab0edf69bcf98d7336ceed",
+          "projection_digest": "0eab9e6d7025ece74e88a800eef5d1329226233af873e2eed0c98d93744d45a4",
+          "transport_calls": 0,
+          "authority": "NOT_CREATED_NOT_NATIVE_AUTHORIZATION"
+        }
+      ],
+      "os_socket_denials": 3,
+      "audit_negative_controls": [
+        {
+          "stage": "dns-control",
+          "event": "socket.getaddrinfo"
+        },
+        {
+          "stage": "sdk-platform-negative-control",
+          "event": "subprocess.Popen"
+        }
+      ],
+      "audit_traces": [
+        {
+          "stage": "dns-control",
+          "event": "socket.getaddrinfo",
+          "frames": [
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/inputs/sdk-noio-probe.py",
+              "line": 35,
+              "function": "<module>"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/socket.py",
+              "line": 983,
+              "function": "getaddrinfo"
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/inputs/sdk-noio-probe.py",
+              "line": 30,
+              "function": "audit"
+            }
+          ]
+        },
+        {
+          "stage": "sdk-platform-negative-control",
+          "event": "subprocess.Popen",
+          "frames": [
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/inputs/sdk-noio-probe.py",
+              "line": 75,
+              "function": "<module>"
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/venv/lib/python3.13/site-packages/openai/_base_client.py",
+              "line": 713,
+              "function": "platform_headers"
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/venv/lib/python3.13/site-packages/openai/_base_client.py",
+              "line": 2095,
+              "function": "platform_headers"
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/venv/lib/python3.13/site-packages/openai/_base_client.py",
+              "line": 2051,
+              "function": "get_platform"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+              "line": 1337,
+              "function": "platform"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+              "line": 942,
+              "function": "__iter__"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/functools.py",
+              "line": 1025,
+              "function": "__get__"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+              "line": 937,
+              "function": "processor"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+              "line": 869,
+              "function": "get"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+              "line": 905,
+              "function": "from_subprocess"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+              "line": 472,
+              "function": "check_output"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+              "line": 554,
+              "function": "run"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+              "line": 1039,
+              "function": "__init__"
+            },
+            {
+              "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+              "line": 1859,
+              "function": "_execute_child"
+            },
+            {
+              "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-04/inputs/sdk-noio-probe.py",
+              "line": 30,
+              "function": "audit"
+            }
+          ]
+        }
+      ],
+      "platform_metadata_headers": {
+        "X-Stainless-Lang": "python",
+        "X-Stainless-Package-Version": "2.24.0",
+        "X-Stainless-OS": "Unknown",
+        "X-Stainless-Arch": "x64",
+        "X-Stainless-Runtime": "CPython",
+        "X-Stainless-Runtime-Version": "3.13.15"
+      },
+      "unexpected_serializer_io": [],
+      "httpx_send_transport_calls": 0,
+      "native_turn_config": "NOT_CREATED",
+      "omnis_managed_veto": "UNCHANGED_NOT_NEUTRALIZED",
+      "product_dto_enforcement": "NOT_IMPLEMENTED_BY_THIS_PROBE",
+      "phase2": "NOT_CLOSED"
+    },
+    "sdk_result_sha256": "95fbc901cc883db7cc981b0b98a4320b8e9aaef432ead3a410fbd23f505d9551",
+    "namespaces_all_distinct_from_parent": true,
+    "source_copies_verified": 15,
+    "provider_response_fabricated": false,
+    "native_warm_agent_created": false,
+    "scope": "SOURCE_COMMON_SINK_PREFIX_PLUS_REAL_SDK_NOT_INSTALLED_NATIVE"
+  },
+  "reviews": [
+    {
+      "label": "dto-r1",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-dto-r1-report.json",
+      "sha256": "f70f697993b107fed9b14ac7df7e75d7f8bac1d89eebaa91003274ee91e37054",
+      "verdict": "APPROVED_SCOPED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1549325,
+        "session_id": "20261011_104053_0e3d74"
+      },
+      "limits": [
+        "Review independent exclusiv asupra subsetului DATA/SOURCE declarat, pe cele șapte hashes exacte și diff față de 36bed6d, inclusiv cele două fișiere proprii untracked. Nu au fost confirmate defecte blocante în acest subset; aprobarea nu se transferă la bytes modificați ulterior.",
+        "Contractul verificat: allowlist integral al DTO/dispatch/caps, proiecție calificată imbricată cu pins și digesturi verificate, copii reconstruite din bytes imuabili, kwargs default-deny înainte și după bypass, guard SOURCE al corpului SDK și plumbing explicit final_request către sinkul nonstream existent.",
+        "Refs native-turn/provider-config/execution-selection, model_id, fencing_epoch și caps sunt numai date de schemă neîncrezute. Concordanța lor internă nu certifică existența, proveniența autentică, configurația efectivă sau autoritatea de dispatch.",
+        "Cele trei preimagini de digest sunt distincte: carrier canonical model_input, DTO canonical integral și corp HTTP în ordinea/encodingul declarat. Digestul corpului HTTP nu este digestul DTO; timeout este legat separat în kwargs și extensiile requestului.",
+        "Verificare independentă executată: api/.venv/bin/python -I -B, pytest pentru api/tests/test_final_model_request.py și integrations/hermes/tests/test_model_terminal.py, cu -p no:cacheprovider, plugin autoload dezactivat și basetemp nou în rădăcina scratch înregistrată: exit0, 39 passed în 10.19s. Un warning asyncio_mode necunoscut provine din dezactivarea pluginurilor; nu este un eșec de produs.",
+        "Controale DATA suplimentare executate în memorie, fără framework nou: 24 inserări de câmpuri necunoscute, 109 omisiuni, 5 nepotriviri de pins, 15 tipuri/limite dispatch și 3 mutații de alias respinse sau izolate conform contractului; trei preimagini/digesturi distincte confirmate și copii post-bypass exacte acceptate.",
+        "Controale allowlist cu reseal real executate în memorie: 24 obiecte exterioare/proiecție și 32 obiecte din conținutul calificat system/user resping cheia suplimentară după recalcularea digestului carrierului, a envelopei și repin. Controlul valid resealed rămâne byte-identical.",
+        "Plumbing verificat pe funcția interruptible_api_call extrasă AST din SOURCE: aceeași instanță de bytes final_request ajunge în ramura direct și în constructorul worker. Doubles exclusiv de protocol încheiate cu ManagedModelTerminal, fără răspuns provider; nu constituie lineage nativ instalat.",
+        "Reseal verificat independent: SHA patch/manifest/pin concordante, runtime_inference_authorized=false; 13 intrări manifest, dintre care 11 fișiere originale cu SHA verificat și 2 fișiere introduse. GNU patch --dry-run și aplicarea în copie scratch: exit0; toate cele 13 rezultate sunt byte-identical cu managed-source.",
+        "Încercări de verificare nereușite păstrate distinct: git apply --check în copia scratch a ieșit 1 cu dev/null absent, apoi GNU patch a verificat și reaplicat exact. Primul probe reseal reconstruia projection_ref și elimina cheia injectată; proba a fost corectată să o păstreze, apoi toate controalele au trecut. Aceste rezultate nu au fost promovate la defecte de produs.",
+        "Cele 41 teste SOURCE și Ruff/format/mypy strict0 raportate de părinte rămân dovezi separate; reviewul a rerulat explicit cele 39 teste de mai sus, nu pretinde rerularea tuturor gate-urilor părintelui. Logul final-source.log al părintelui conține 41 passed în 10.01s.",
+        "NO_MODEL rămâne înaintea clienților; guardul timpuriu direct este neschimbat. Current managed runtime nu are producer autentic de turn/config/selection/purpose, owner reserve/SENT, barieră fizică Stop sau grant live. Aceste obligații amânate sunt cunoscute, nu constatări noi.",
+        "Admissionul de domeniu viitor trebuie să rezolve independent config/turn/selection/purpose/deadline și bugetele/autoritatea. Fixture-ul sursă citit este numai DATA, nu record persistent turn/config/SENT și nu pozitiv nativ.",
+        "SDK: NOT_RUN în acest review. SDK03 măsoară wire-ul original conform contextului furnizat; QA SDK pentru noul guard de produs este pasul următor, nu PASS deja obținut. INSTALLED_NATIVE: NOT_RUN. Nu s-a importat runtime-ul Hermes complet sau SDK-ul și nu s-a executat inferență.",
+        "Fără DB, OCI, browser, instalări, provider/network, canonical/global/r1/cron/push; fără citirea HTML protejat, .env, auth sau a întregii biblioteci. Numai raportul cerut a fost scris în checkout; copiile/probele temporare sunt în /home/kali/.hermes/cache/scratch/p2-implementation-1f2139-dto-01/tmp/review-dto-r1-6vc6c9is. Fără modificări produs/index și fără commit.",
+        "Nu se revendică închiderea SL10/G-MODEL/G02/faza2. Reticle: NOT_APPLICABLE, CLI-only. Chisel: BLOCKED_NO_GO."
+      ]
+    },
+    {
+      "label": "dto-r2",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-dto-r2-report.json",
+      "sha256": "74bf1011ac9bf82f1f7260b18141718145f8e6d4e4bcaef88676850dff3a752c",
+      "verdict": "APPROVED_SCOPED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1549243,
+        "session_id": "20261011_104053_89174c"
+      },
+      "limits": [
+        "Review independent read-only, focalizat pe diff față de 36bed6dd59c7dc15519250eddffb3b7125c1d86d și cele două fișiere untracked deținute de felie. Nu am identificat un defect concret blocant în subsetul DATA declarat; verdictul este legat exclusiv de cei șapte SHA-256 din snapshot, nu de modificări ulterioare.",
+        "SOURCE verificat independent: 31 teste PASS, exit 0, în 9.68s. Selecție: api/tests/test_final_model_request.py integral; integrations/hermes/tests/test_model_terminal.py::test_managed_veto_survives_direct_worker_and_cancel; ::test_direct_late_terminal_survives_cleanup_and_reports_uncertainty; ::test_worker_latched_terminal_drains_boundedly_before_cancel_or_return. Python 3.13.15 din api/.venv/bin/python, -I -B; pytest fără conftest, plugin autoload sau cacheprovider, configurație /dev/null. Root înregistrat: /home/kali/.hermes/cache/scratch/p2-implementation-1f2139-dto-01; tmp separat: /home/kali/.hermes/cache/scratch/p2-implementation-1f2139-dto-01/review-dto-r2-_h95g9k4/pytest-tmp.",
+        "SOURCE suplimentar: 36 controale negative inline, exit 0, folosind doar fixture-for-sdk.json existent, neîncrezut, și shape doubles. Au fost respinse bool/int/NaN/Inf pentru timeout, bool/zero/negativ/float pentru caps și mutații după original prepare: retries, custom headers/query, API-key provider, HTTP auth, redirects, request/response hooks, client, endpoint, body, method, URL, extensions și timeout bool/int/Inf. Restaurarea metodei _prepare_request după fiecare refuz a fost verificată. Aceste controale nu execută SDK-ul și nu certifică toate extensiile posibile ale unui client real.",
+        "Integritatea snapshotului și legăturile pin → manifest → patch, plus cei doi patched_sha256 ai sinkului, au fost verificate independent. runtime_inference_authorized rămâne false. git diff --check 36bed6d pe cele cinci fișiere tracked din felie: exit 0. Reaplicarea întregului patch peste cele 13 originale, Ruff/format/mypy și totalul de 41 teste sunt probe comunicate de părinte, nu rerulate sau revendicate de acest review.",
+        "DTO-ul și kwargs reconstruite din bytes sunt date, nu permisiune. Referințele native-turn/provider-config/execution-selection și model_id rămân UNTRUSTED chiar când schema, proiecția și digesturile corespund. Fixture-urile nu au fost persistate ca turn/config/SENT și nu constituie pozitive native.",
+        "NO_MODEL este păstrat înainte de clienți în sinkul comun; guardul direct timpuriu este neschimbat. Forwarding-ul explicit final_request și propagarea terminalului prin worker/cancel/cleanup sunt acoperite doar la nivel SOURCE. Directul inert refuză înainte să consume DTO-ul, conform frontierei existente. Martorii de transport din testele originale sunt doar martori SOURCE, nu răspunsuri provider și nu autoritate native.",
+        "SDK: NOT_RUN pentru noul guard de produs. SDK03 măsoară wire-ul original, nu validează noul guard ca PASS. Compatibilitatea ordinii/encodingului body, momentul real prepare/send și toate căile de extensii/auth/hooks/retries ale SDK-ului pin-uit trebuie măsurate în următoarea QA SDK; comparația SOURCE cu http_body() nu înlocuiește acea probă.",
+        "INSTALLED_NATIVE: NOT_RUN. Runtime-ul managed rămâne NO_MODEL, fără producător trusted de turn/config/selection/purpose, fără reserve/SENT, fără barieră fizică Stop și fără granted live. Viitoarea admitere de domeniu trebuie să rezolve independent config/turn/purpose/deadline; verificarea comună actuală controlează numai bindingul de date.",
+        "Nu se aprobă completarea SL10/G-MODEL și nu se certifică o barieră fizică Stop/SENT absentă. Obligațiile explicit amânate nu au fost reclasificate ca buguri noi confirmate. Nu s-a făcut re-audit generic B06/C03.",
+        "Reticle: NOT_APPLICABLE — CLI-only. Chisel: BLOCKED_NO_GO.",
+        "Fără DB/OCI/native/browser/install/provider/network/canonical/global/r1/cron/push. Nu au fost citite HTML protejat, .env sau credentiale și nu a fost inspectată întreaga bibliotecă. Nu au fost modificate produsul/indexul, istoricul Git sau configurația agentului; singurul artefact de repo scris de reviewer este acest raport.",
+        "Atestarea Sol6.1 900k/openai-codex/xhigh/priority/YOLO înainte de prima cerere este informația furnizată despre launcher; acest review nu o reatestă și nu folosește configurația modelului de dezvoltare drept autoritate pentru runtime-ul produsului."
+      ]
+    },
+    {
+      "label": "sdk-04-fix",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-sdk-04-fix-report.json",
+      "sha256": "e3ecd3d7a1e8819031d5d0a278f393876b83b4e24293539eeb973f883b7c8488",
+      "verdict": "APPROVED_SCOPED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1555112,
+        "session_id": "20261011_110118_1265e4"
+      },
+      "limits": [
+        "Focused F01 delta/snapshot review, not a generic product audit. R1/R2 approvals are historical exact DATA/SOURCE approvals; their tests were not replayed here.",
+        "Fresh registered sdk04 root; pinned Python3.13.15 -I -B import once, run once, serial, no retry; unchanged run_gate, exec-only wrapper, one-shot marker and 90-second SDK deadline.",
+        "No install/redownload/new mount/seccomp relaxation. Full copied venv/wheels/input hashes retained; prior QA report and old snapshot preserved.",
+        "Source fixture references, provider config/selection/turn identifiers and model remain UNTRUSTED schema data. No native turn/config, reservation/SENT, grant or manufactured warm agent created.",
+        "PASS_SCOPED covers real pre-send SDK serialization and SOURCE data guard only. INSTALLED_NATIVE and live Omnis inference NOT_RUN. Physical Stop/SENT/domain authority and all untested client extensions are not certified.",
+        "No product/index/config/mission/cron/DB/OCI/native/browser/canonical/network/credential/r1/push/phase3 effects performed. Runner DB/OCI branches never invoked; SDK namespace has no egress after active seccomp.",
+        "No fake provider response. Development reviewer model is not Omnis inference. Historical labels containing native bypass describe the copied transform only, not installed-native authorization.",
+        "Root, inputs, logs, marker and receipts retained; no cleanup or replay. SL10/G-MODEL/G02/phase2 not closed."
+      ]
+    }
+  ],
+  "qa_findings": [
+    {
+      "id": "SDK04-QA-F01",
+      "classification": "QA_MOUNT_MAPPING_NOT_PRODUCT_BUG",
+      "red_exit": 1,
+      "fix": "only source imports/path moved beneath existing read-only inputs mount; bwrap argv unchanged",
+      "focused_review": "APPROVED_SCOPED",
+      "sdk_after_fix": "REAL5CASES5DENIALS_EXIT0_DRAINED"
+    }
+  ],
+  "review_operations_limits": [
+    "R1 development frontend exit1 despite completed reviewed report/SOURCE checks; retained as operational deviation, not product gate pass",
+    "Relative report path in parent prompt caused two reports under repo/implementation. Exact newly created reports relocated byte-preserving after registered intent; no deletion or product/index writes; SHA readback verified. Empty dir retained."
+  ],
+  "authority": "Data parser/DTO refs/model strings not trust. Current backend/native producer lacks effective config/selection/purpose/turn; existing NO_MODEL preserved before clients. No reservations/SENT/TaskResult/provider response invented.",
+  "not_run": [
+    "INSTALLED_NATIVE_DATA_GUARD",
+    "FULL_CANONICAL_MAKE_CHECK_FINAL",
+    "trusted turn/config/selection/purpose producer",
+    "caller reserve/commit/SENT independent",
+    "physical Stop/first-byte/caps",
+    "P4a-minim",
+    "P2-live"
+  ],
+  "phase2": "NOT_CLOSED",
+  "after_phase2": "HOLD_NO_PHASE3",
+  "retention": "All fresh SDK/SOURCE roots, bodies, logs, inputs, reviewed snapshots, failed artifacts and markers retained; scratch pruning24h applies"
+}

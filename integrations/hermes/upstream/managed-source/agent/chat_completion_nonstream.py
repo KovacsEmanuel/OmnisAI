@@ -11,9 +11,10 @@ class _NonStreamRequest:
     instance; ``_abort_request`` may run from the poll (stranger) thread.
     """
 
-    def __init__(self, agent, api_kwargs: dict):
+    def __init__(self, agent, api_kwargs: dict, *, final_request=None):
         self.agent = agent
         self.api_kwargs = api_kwargs
+        self.final_request = final_request
         self.result = {"response": None, "error": None, "terminal": None}
         self.clients = h._RequestClientRegistry(agent)
         # Request-local cancel flag: agent._interrupt_requested is cleared at turn
@@ -75,7 +76,8 @@ class _NonStreamRequest:
                 watchdog_state_var = _codex_watchdog_state_var
                 watchdog_context_token = watchdog_state_var.set(self.codex_watchdog_state)
             self.result["response"] = h._dispatch_nonstreaming_api_request(
-                self.agent, self.api_kwargs, make_client=self._make_client)
+                self.agent, self.api_kwargs, make_client=self._make_client,
+                final_request=getattr(self, "final_request", None))
         except ManagedModelTerminal as e:
             self.result["terminal"] = self.result["error"] = e
         except Exception as e:

@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SCOPED_REAL_SDK_SERIALIZER_AFTER_EXPLICIT_DENIED_METADATA_CONTROL",
+  "owner_session_id": "20261011_094100_1f2139",
+  "source_commit": "da2649a",
+  "outer_exit": 0,
+  "gate_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "root": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03",
+  "result_sha256": "987f5963a67e5710f74ca273e01e8eceb336f26bcb6aa9989ae296936e64f101",
+  "log_sha256": "e3081bcfc4afcbebde055cfc014e72ffbf16454189241ea28ae060d6735e4fdd",
+  "host_namespaces": {
+    "user": "user:[4026531837]",
+    "pid": "pid:[4026531836]",
+    "mnt": "mnt:[4026531832]",
+    "net": "net:[4026531833]"
+  },
+  "namespace_comparison": "ALL_FOUR_DISTINCT_FROM_PARENT",
+  "full_measurement": {
+    "scope": "REAL_SDK_SERIALIZER_NO_IO_ONLY_NOT_NATIVE_PROOF",
+    "namespaces": {
+      "user": "user:[4026533128]",
+      "pid": "pid:[4026533061]",
+      "mnt": "mnt:[4026533056]",
+      "net": "net:[4026533063]"
+    },
+    "seccomp_status": [
+      "NoNewPrivs:\t1",
+      "Seccomp:\t2",
+      "Seccomp_filters:\t1"
+    ],
+    "sdk_prefix": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/venv",
+    "openai_version": "2.24.0",
+    "cases": [
+      {
+        "name": "direct-real-sdk",
+        "http_body_sha256": "98aae6d952597424ac4691bc80c8d83c348a518ca42bef20292f8c1675ff4f97",
+        "body_bytes": 259,
+        "body_fields": [
+          "max_completion_tokens",
+          "messages",
+          "model",
+          "n",
+          "stream",
+          "tools"
+        ],
+        "transport_calls": 0,
+        "timeout_extension": {
+          "connect": 1.0,
+          "read": 1.0,
+          "write": 1.0,
+          "pool": 1.0
+        },
+        "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+        "http_body": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+            },
+            {
+              "role": "user",
+              "content": "Explicit synthetic bytes: ș / ☃"
+            }
+          ],
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "max_completion_tokens": 64,
+          "n": 1,
+          "stream": false,
+          "tools": []
+        },
+        "request_extensions": {
+          "timeout": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          }
+        },
+        "sdk_kwargs": {
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "messages": [
+            {
+              "role": "system",
+              "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+            },
+            {
+              "role": "user",
+              "content": "Explicit synthetic bytes: ș / ☃"
+            }
+          ],
+          "tools": [],
+          "stream": false,
+          "n": 1,
+          "max_completion_tokens": 64,
+          "timeout": 1.0
+        }
+      },
+      {
+        "name": "real-sdk-post-native-bypass",
+        "http_body_sha256": "98aae6d952597424ac4691bc80c8d83c348a518ca42bef20292f8c1675ff4f97",
+        "body_bytes": 259,
+        "body_fields": [
+          "max_completion_tokens",
+          "messages",
+          "model",
+          "n",
+          "stream",
+          "tools"
+        ],
+        "transport_calls": 0,
+        "timeout_extension": {
+          "connect": 1.0,
+          "read": 1.0,
+          "write": 1.0,
+          "pool": 1.0
+        },
+        "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+        "http_body": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+            },
+            {
+              "role": "user",
+              "content": "Explicit synthetic bytes: ș / ☃"
+            }
+          ],
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "max_completion_tokens": 64,
+          "n": 1,
+          "stream": false,
+          "tools": []
+        },
+        "request_extensions": {
+          "timeout": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          }
+        },
+        "sdk_kwargs": {
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "messages": [],
+          "tools": [],
+          "stream": false,
+          "n": 1,
+          "max_completion_tokens": 64,
+          "timeout": 1.0,
+          "extra_body": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "tools": []
+          }
+        }
+      },
+      {
+        "name": "characterize-extra-body-message-override-NOT-PRODUCT-ACCEPTANCE",
+        "http_body_sha256": "99f5ddf06c60b9173bc3efd942f31df8c1b61c7a1975f6a26e896d4186368634",
+        "body_bytes": 193,
+        "body_fields": [
+          "max_completion_tokens",
+          "messages",
+          "model",
+          "n",
+          "stream",
+          "tools"
+        ],
+        "transport_calls": 0,
+        "timeout_extension": {
+          "connect": 1.0,
+          "read": 1.0,
+          "write": 1.0,
+          "pool": 1.0
+        },
+        "http_body_utf8": "{\"messages\":[{\"role\":\"user\",\"content\":\"SYNTHETIC_OVERRIDE_NOT_APPROVED\"}],\"model\":\"SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[]}",
+        "http_body": {
+          "messages": [
+            {
+              "role": "user",
+              "content": "SYNTHETIC_OVERRIDE_NOT_APPROVED"
+            }
+          ],
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "max_completion_tokens": 64,
+          "n": 1,
+          "stream": false,
+          "tools": []
+        },
+        "request_extensions": {
+          "timeout": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          }
+        },
+        "sdk_kwargs": {
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "messages": [],
+          "tools": [],
+          "stream": false,
+          "n": 1,
+          "max_completion_tokens": 64,
+          "timeout": 1.0,
+          "extra_body": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "SYNTHETIC_OVERRIDE_NOT_APPROVED"
+              }
+            ],
+            "tools": []
+          }
+        }
+      },
+      {
+        "name": "characterize-extensible-body-NOT-PRODUCT-ACCEPTANCE",
+        "http_body_sha256": "d8402a41f816af0c4d6edbaa288e6ee6d71cdb673dc3b0903c0a722a22f5380d",
+        "body_bytes": 283,
+        "body_fields": [
+          "max_completion_tokens",
+          "messages",
+          "model",
+          "n",
+          "stream",
+          "tools",
+          "unapproved_field"
+        ],
+        "transport_calls": 0,
+        "timeout_extension": {
+          "connect": 1.0,
+          "read": 1.0,
+          "write": 1.0,
+          "pool": 1.0
+        },
+        "http_body_utf8": "{\"messages\":[{\"role\":\"system\",\"content\":\"SYNTHETIC_SDK_SERIALIZATION_TEST\"},{\"role\":\"user\",\"content\":\"Explicit synthetic bytes: ș / ☃\"}],\"model\":\"SYNTHETIC_OVERRIDE_NOT_CONFIG\",\"max_completion_tokens\":64,\"n\":1,\"stream\":false,\"tools\":[],\"unapproved_field\":\"SYNTHETIC_UNCLASSIFIED\"}",
+        "http_body": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+            },
+            {
+              "role": "user",
+              "content": "Explicit synthetic bytes: ș / ☃"
+            }
+          ],
+          "model": "SYNTHETIC_OVERRIDE_NOT_CONFIG",
+          "max_completion_tokens": 64,
+          "n": 1,
+          "stream": false,
+          "tools": [],
+          "unapproved_field": "SYNTHETIC_UNCLASSIFIED"
+        },
+        "request_extensions": {
+          "timeout": {
+            "connect": 1.0,
+            "read": 1.0,
+            "write": 1.0,
+            "pool": 1.0
+          }
+        },
+        "sdk_kwargs": {
+          "model": "SYNTHETIC_SERIALIZATION_ONLY_NOT_EFFECTIVE_CONFIG",
+          "messages": [],
+          "tools": [],
+          "stream": false,
+          "n": 1,
+          "max_completion_tokens": 64,
+          "timeout": 1.0,
+          "extra_body": {
+            "model": "SYNTHETIC_OVERRIDE_NOT_CONFIG",
+            "unapproved_field": "SYNTHETIC_UNCLASSIFIED",
+            "messages": [
+              {
+                "role": "system",
+                "content": "SYNTHETIC_SDK_SERIALIZATION_TEST"
+              },
+              {
+                "role": "user",
+                "content": "Explicit synthetic bytes: ș / ☃"
+              }
+            ],
+            "tools": []
+          }
+        }
+      }
+    ],
+    "os_socket_denials": 3,
+    "audit_negative_controls": [
+      {
+        "stage": "dns-control",
+        "event": "socket.getaddrinfo"
+      },
+      {
+        "stage": "sdk-platform-negative-control",
+        "event": "subprocess.Popen"
+      }
+    ],
+    "audit_traces": [
+      {
+        "stage": "dns-control",
+        "event": "socket.getaddrinfo",
+        "frames": [
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/inputs/sdk-noio-probe.py",
+            "line": 35,
+            "function": "<module>"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/socket.py",
+            "line": 983,
+            "function": "getaddrinfo"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/inputs/sdk-noio-probe.py",
+            "line": 30,
+            "function": "audit"
+          }
+        ]
+      },
+      {
+        "stage": "sdk-platform-negative-control",
+        "event": "subprocess.Popen",
+        "frames": [
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/inputs/sdk-noio-probe.py",
+            "line": 75,
+            "function": "<module>"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/venv/lib/python3.13/site-packages/openai/_base_client.py",
+            "line": 713,
+            "function": "platform_headers"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/venv/lib/python3.13/site-packages/openai/_base_client.py",
+            "line": 2095,
+            "function": "platform_headers"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/venv/lib/python3.13/site-packages/openai/_base_client.py",
+            "line": 2051,
+            "function": "get_platform"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+            "line": 1337,
+            "function": "platform"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+            "line": 942,
+            "function": "__iter__"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/functools.py",
+            "line": 1025,
+            "function": "__get__"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+            "line": 937,
+            "function": "processor"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+            "line": 869,
+            "function": "get"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/platform.py",
+            "line": 905,
+            "function": "from_subprocess"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+            "line": 472,
+            "function": "check_output"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+            "line": 554,
+            "function": "run"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+            "line": 1039,
+            "function": "__init__"
+          },
+          {
+            "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/subprocess.py",
+            "line": 1859,
+            "function": "_execute_child"
+          },
+          {
+            "file": "/home/kali/.hermes/cache/scratch/p2-implementation-1f2139-sdk-03/inputs/sdk-noio-probe.py",
+            "line": 30,
+            "function": "audit"
+          }
+        ]
+      }
+    ],
+    "platform_metadata_headers": {
+      "X-Stainless-Lang": "python",
+      "X-Stainless-Package-Version": "2.24.0",
+      "X-Stainless-OS": "Unknown",
+      "X-Stainless-Arch": "x64",
+      "X-Stainless-Runtime": "CPython",
+      "X-Stainless-Runtime-Version": "3.13.15"
+    },
+    "unexpected_serializer_io": [],
+    "httpx_send_transport_calls": 0,
+    "native_turn_config": "NOT_CREATED",
+    "omnis_managed_veto": "UNCHANGED_NOT_NEUTRALIZED",
+    "product_dto_enforcement": "NOT_IMPLEMENTED_BY_THIS_PROBE",
+    "phase2": "NOT_CLOSED"
+  },
+  "baseline_bypass_equal": true,
+  "extra_body_behavior": "MEASURED_OVERRIDE_MESSAGES_MODEL_AND_UNKNOWN_FIELD_NOT_PRODUCT_DENIAL_PASS",
+  "review": {
+    "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-sdk-03-report.json",
+    "sha256": "63d3d33669b1e19d499e2c0479b696972218c9b7b87bc7449bdd7545ad5f7297",
+    "verdict": "APPROVED_SCOPED_QA_DELTA_ONLY",
+    "settings_before_request": {
+      "model": "gpt-6.1-sol-900k",
+      "provider": "openai-codex",
+      "reasoning": {
+        "enabled": true,
+        "effort": "xhigh"
+      },
+      "service_tier": "priority",
+      "yolo": true,
+      "pid": 1539924,
+      "session_id": "20261011_100612_f4b20d"
+    }
+  },
+  "limits": [
+    "Not zero attempted IO at SDK cold-start; denied platform subprocess now an exact pre-create negative control, stock cached Unknown metadata real, no SDK/platform override",
+    "Previous sdk01/sdk02 FAIL remain; original SDK prelaunch missing receipt remains historical UNCERTAIN",
+    "SDK bytes characterize representation only, not product DTO/authority/ledger/SENT/Stop enforcement",
+    "Not INSTALLED_NATIVE/live/provider response"
+  ],
+  "next_consumer": "_dispatch_nonstreaming_api_request -> request_client.chat.completions.create direct/worker",
+  "phase2": "NOT_CLOSED",
+  "retention": "All SDK roots/logs/inputs/markers retained; no reinstall/redownload/cleanup replay"
+}

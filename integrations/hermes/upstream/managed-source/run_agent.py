@@ -337,7 +337,7 @@ class AIAgent(
             # Deny unknown native surfaces before facade/background/lease hooks.
             readable = {"__dict__", "__class__", "__weakref__", "base_url", "close",
                 "_max_tokens_param", "_reasoning_echo_opt_in", "_anthropic_prompt_cache_policy",
-                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url"}
+                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url", "_hostname_for"}
             if name not in attributes and name not in readable:
                 raise ValueError("DEFERRED_NO_CREDENTIAL: owned core surface denied")
         # Cold state is complete and closed to ALL warm surfaces, including newly

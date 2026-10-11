@@ -50,7 +50,7 @@
     },
     "run_agent.py": {
       "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
-      "patched_sha256": "2477f559f5bd1c52164f2a5af3e3531d4985c2b433732b4cb237bc42e881b8f3"
+      "patched_sha256": "4136020e472766724f71d36f23363079c26e50a99a13ba53f3ac5507f67c21d5"
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
@@ -61,5 +61,5 @@
       "patched_sha256": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73"
     }
   },
-  "patch_sha256": "0d1cc59f7e64ed7c404dfc4362a9c85ff6d4b42f6656902131b6f80c8412c199"
+  "patch_sha256": "96f48036a2f67ad1e4e83141c8c2513dc745e2c54bdbb7b69fd2c45ffdf15a65"
 }

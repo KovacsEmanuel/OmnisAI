@@ -8,6 +8,8 @@ import ast
 import os
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path(os.environ.get("HERMES_NATIVE_SOURCE", ROOT / "upstream/managed-source"))
 
@@ -113,3 +115,42 @@ def test_no_optin_constructor_forwards_stock_options(monkeypatch):
     assert len(calls) == 1
     assert calls[0]["model"] == "stock-model" and calls[0]["quiet_mode"] is True
     assert "cold_admission" not in calls[0]
+
+
+@pytest.mark.parametrize("hostname", ["api.openai.com", "api.githubcopilot.com"])
+def test_owned_configuration_can_resolve_token_cap_without_opening_warm_surfaces(hostname):
+    """Exact native method bodies; SOURCE, not a constructor or provider proof."""
+    tree = ast.parse((SOURCE / "run_agent.py").read_text())
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "AIAgent")
+    methods = {
+        "__getattribute__",
+        "_hostname_for",
+        "_is_direct_openai_url",
+        "_is_azure_openai_url",
+        "_is_github_copilot_url",
+        "_max_tokens_param",
+    }
+    cls.bases = []
+    cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in methods]
+    assert {n.name for n in cls.body} == methods
+    prefix = ast.Module(
+        body=[
+            ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0),
+            cls,
+        ],
+        type_ignores=[],
+    )
+    namespace = {"base_url_host_matches": lambda *_a: False}
+    exec(
+        compile(ast.fix_missing_locations(prefix), "owned-configuration-prefix", "exec"), namespace
+    )
+    actor = namespace["AIAgent"]()
+    actor.__dict__.update(
+        _owned_initialization=object(),  # Denial marker only, never initialization authority.
+        _base_url_hostname=hostname,
+        _base_url_lower=f"https://{hostname}/v1",
+    )
+    assert actor._max_tokens_param(16) == {"max_completion_tokens": 16}
+    for surface in ("run_conversation", "make_client"):
+        with pytest.raises(ValueError, match="DEFERRED_NO_CREDENTIAL"):
+            getattr(actor, surface)

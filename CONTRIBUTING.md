@@ -37,9 +37,15 @@ Păstrăm modelul/providerul, politica de aprobări, limitele globale de delegar
 
 Template-ul de sarcină și roluri este în [.hermes/skills/omnis-delivery/templates/task.md](.hermes/skills/omnis-delivery/templates/task.md). Nu folosim un prompt monolitic de „expert perfect”; lucrăm cu criterii falsificabile și rezultate măsurabile.
 
-### Echipă per felie de implementare
+### Echipă proporțională cu felia de implementare
 
-[Contractul de echipă](.hermes/skills/omnis-delivery/templates/team-slice.md) fixează ordinea: arhitect read-only cu plan bounded și proprietatea fișierelor → doi dezvoltatori pe căi disjuncte/worktree-uri din HEAD local (al doilea poate deține numai teste/cercetare dacă schimbarea are un singur autor) → integrare și snapshot exact → doi revieweri independenți cu mandate complementare → QA live pe consumatorul real după remedierea blocantelor. Pentru UI, QA live înseamnă browser real cu clickuri, tastatură/focus, reload și viewporturi pe build/API/DB proprii; un screenshot sau un test componentă nu înlocuiește acest parcurs. Părintele distribuie sarcinile, transferă byte-exact, adjudecă findings, verifică resursele, face commiturile și închide registrul. Nu delegăm recursiv implicit și nu reluăm reviewul întreg pentru fiecare fix punctual; proba focalizată și re-reviewul urmăresc numai bytes schimbați, iar gate-ul canonic rulează pe snapshotul final la limita feliei. Lipsa unei probe păstrează `BLOCKED/NOT_RUN`, nu un PASS prin numărul agenților.
+[Contractul de echipă](.hermes/skills/omnis-delivery/templates/team-slice.md) are implicit **un autor + cel puțin un reviewer independent read-only pe snapshotul exact integrat**. Arhitectul este necesar numai pentru decizii/interfețe nerezolvate; al doilea dezvoltator numai pentru workstreamuri cu fișiere și criterii efectiv independente, pe worktree-uri din HEAD local. Nu inventăm un rol de teste/cercetare pentru a completa echipa. **Două reviewuri independente complementare sunt obligatorii** când se schimbă authority/epoch/concurrency/model dispatch/Stop, frontiere de efecte/secrete sau contracte cross-runtime: conformitate/ordine/persistență/readback și autorizare/concurență/input/failure/cleanup, după caz.
+
+QA pe consumatorul real este obligatorie când acesta este nou sau afectat, după remedierea blocantelor; reviewerul independent o poate executa cu un contract QA separat, fără un agent suplimentar universal. Browserul este necesar numai pentru UI afectată: clickuri, tastatură/focus, reload și viewporturi pe build/API/DB proprii; un screenshot sau un test componentă nu înlocuiește parcursul. API/CLI se probează prin consumatorul real; pentru documentare sau consumatori neschimbați nu relansăm browserul. Părintele transferă byte-exact, adjudecă toate findings, verifică resursele, face commiturile și închide registrul; copilul nu certifică propria integrare.
+
+Definim o acceptance row, seam producer/consumer, control pozitiv și negativ pe același canal, comenzi și buget. Preflightul determinist relevant rulează o dată; **testele afectate rulează după ultima editare relevantă**, iar re-reviewul focalizat urmărește bytes și call-sites schimbate, nu întregul harness. Manifestul distinge source unchanged/distribution changed: aprobarea comportamentului neschimbat rămâne în scope, fără transfer la source/distribuție schimbate; parser/reapply/build și readbackul identității artefactului schimbat rămân necesare. O listă nouă goală nu închide findings originale fără dispoziție/repro. **Canonicalul complet rulează pe produsul final la integration/phase boundary**, nu pentru fiecare fix, Markdown sau reminder verify-on-stop; suitele țintite nu devin `make check`.
+
+După două cicluri review/remediere numai harness fără progres pe aceeași acceptance row, păstrăm WIP/BLOCKED și restrângem reproducerul/frontiera probei. Numărul și dispozițiile se păstrează între sesiuni; o sesiune nouă sau redenumirea oracle-ului nu resetează contorul. Findings noi de securitate rămân blockers explicite, nu excepții de buget. Lipsa unei probe păstrează `BLOCKED/NOT_RUN`, nu un PASS prin numărul agenților.
 
 ## Status global la orientare și predare
 
@@ -66,6 +72,8 @@ La închidere, actualizează numai diferențele justificate prin Git și dovezi 
 | Pinning, CI, build, release, backup/restore | `omnis-release-ops` |
 
 Nu încărca toate skill-urile în fiecare tură. Citește numai procedura necesară feliei. Skills existente precum `test-driven-development`, `systematic-debugging`, `hermes-agent` și `design-md` completează procedurile, nu înlocuiesc criteriile Omnis.
+
+Reticle se încarcă numai pentru probe UI locale instrumentate și admise; CLI/docs sunt `NOT_APPLICABLE`, UI neinstrumentată `NOT_INTEGRATED`. Chisel rămâne **NO-GO / `BLOCKED_NO_GO`** pe repo/home/profil runtime; skill-ul se încarcă numai pentru reevaluare de adopție autorizată explicit, pe fixture disposable izolat OS, fără fallback nesandboxat/înregistrare automată. O etichetă de applicability în raport este suficientă când nu se aplică; nici încărcarea ceremonială, nici un smoke sintetic repetat nu sunt review sau PASS de produs.
 
 ## Paralelizare fără pierdere de context
 

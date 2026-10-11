@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "owner_sid": "20261011_094100_1f2139",
+  "base": "1683dfbc87ce9034a75f58a6200c4756303cb27b",
+  "state": "CHECKPOINT_WIP_BUDGET_STOP_NOT_PHASE2_FINAL",
+  "behavior": "Private owner model_configuration command computes CONFIG_SOURCE_READY, immutable provider-config and producer receipt; commits then actual qualified first initialization-DATA reader reconstructs exact secret-free material from owned source and producer receipt. Native initialization/inference HOLD. Actual native initializer/turn/config/purpose admission not implemented by this slice.",
+  "snapshot_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "23be6d8181d0d0a24737a3c1931e22339aef6e949f17e9110ea61f1c7f2a8b7c",
+    "api/src/omnis/modules/runs/model_dispatch.py": "26cc69de10b95979d7bc0dc8cf702bd761671b1db5300f5991047a6fc49d7dd5",
+    "api/src/omnis/supervisor/native_tasks.py": "3c8720e728cb48b483ed2655107852decc5ce10e4f044f9ad998876010e6cf0e",
+    "api/src/omnis/policy/ready_model_configuration.py": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4"
+  },
+  "evidence": {
+    "initial_red": {
+      "exit": 1,
+      "failed": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/logs/ready-owner-red.log"
+    },
+    "initial_source": {
+      "exit": 0,
+      "tests": 28
+    },
+    "review_findings_red": {
+      "exit": 1,
+      "failed": 13,
+      "passed": 17,
+      "log": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/logs/ready-findings-red.log"
+    },
+    "affected_final": {
+      "exit": 0,
+      "tests": 47,
+      "seconds": 5.5,
+      "log": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/logs/ready-findings-green.log"
+    },
+    "ruff_exit": 0,
+    "mypy": {
+      "exit": 0,
+      "source_files": 5
+    }
+  },
+  "review": {
+    "initial": "Two independent APPROVED_SCOPED on original snapshot; medium findings reproduced and fixed (T1/T2 stage progress, controls, exact pre-canonicalization types). Original reports retained.",
+    "focused_current": "PENDING_READY_R1_FIX_READY_R2_FIX_NOT_ACCEPTED",
+    "reports": [
+      "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r1-fix-report.json",
+      "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r2-fix-report.json"
+    ],
+    "processes": [
+      "proc_cb2ed8c08df6",
+      "proc_13910dad2e00"
+    ]
+  },
+  "toolchain": "Operator scoped repair accepted; durable PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin UV=/home/kali/.local/share/omnis-toolchains/bin/uv. No archive/checksum/download replay.",
+  "PG": "NOT_RUN_CURRENT_BYTES. scope-ready-pg-01.json registered fresh prdy-1f2139; root not created, PG test not yet edited/launched at governor checkpoint. Environment no longer blocker.",
+  "limits": [
+    "SOURCE storage/domain/fence doubles not PG durability/native/warm proof",
+    "No NO_MODEL promotion or invented native turn/selection/SENT authority",
+    "Reticle NOT_APPLICABLE",
+    "Chisel BLOCKED_NO_GO",
+    "Full make check final NOT_RUN",
+    "No inference/account/target/push/r1/global/mission/cron/phase3 effects"
+  ],
+  "next": "Read complete focused current reports after exact processes exit; clear any concrete blocker with minimal tested correction; integrate real PG owner source commit→first reader controls in existing test_model_admission_pg.py per fresh scope and durable toolchain. Then physical native initializer configuration seam plus legitimate actual turn/config/purpose → reserve/SENT/Stop/first-byte/caps; P4a-minim separate future dependency."
+}

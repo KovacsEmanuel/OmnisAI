@@ -80,14 +80,36 @@ class NativeTaskCommand(StrictBody):
     instance_id: str
     expected_generation: int = Field(ge=0, le=9223372036854775807, strict=True)
     expected_epoch: int = Field(ge=1, le=9223372036854775807, strict=True)
-    action: Literal["stage", "release", "receive", "model_preflight"]
+    action: Literal["stage", "release", "receive", "model_preflight", "model_configuration"]
     manifest_ref: dict[str, object]
     data_approval: dict[str, object] | None = Field(default=None, repr=False)
+    configuration: dict[str, object] | None = Field(
+        default=None, repr=False, exclude_if=lambda v: v is None
+    )
+
+    @field_validator("configuration", mode="before")
+    @classmethod
+    def configuration_types(cls, value: object) -> object:
+        from omnis.policy.ready_model_configuration import exact_configuration_types
+
+        exact_configuration_types(value)
+        return value
 
     @model_validator(mode="after")
     def model_preflight(self) -> Self:
         from omnis.modules.settings.catalog_schema import canonical
 
+        if self.action == "model_configuration":
+            from omnis.policy.ready_model_configuration import validate_ready_source
+
+            if self.data_approval is not None:
+                raise ValueError("Configuration decision is not a data approval")
+            self.configuration = validate_ready_source(self.configuration)
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Configuration command too large")
+            return self
+        if self.configuration is not None:
+            raise ValueError("Configuration only belongs to its owner command")
         if self.action == "model_preflight":
             from omnis.modules.runs.model_dispatch import data_decision
 

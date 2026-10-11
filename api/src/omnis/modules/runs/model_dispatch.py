@@ -54,6 +54,139 @@ class ModelDispatch:
         self.projections = ModelProjections(managed)
         self.known_secrets = known_secrets
 
+    async def prepare_ready_configuration(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        manifest_ref: object,
+        configuration: object,
+        authority: dict[str, object],
+    ) -> dict[str, object]:
+        """Private owner decision; compute readiness of DATA, never execution permission."""
+        from omnis.policy.ready_model_configuration import PROVENANCE, validate_ready_source
+
+        config = validate_ready_source(configuration)
+        await budgets._transaction(connection, owner)
+        state = await store.state(connection, owner, manifest=manifest_ref)
+        run = uuid_string(state["run_id"])
+        manifest = await store.get(connection, owner, run, manifest_ref)
+        contract.validate_manifest(manifest)
+        if (
+            state["binding_id"] is not None
+            or state["stage_started"] is not False
+            or state["release_started"] is not False
+            or state["final_id"] is not None
+        ):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        request = {
+            "manifest_ref": records.reference(manifest),
+            "configuration": config,
+            "authority": authority,
+        }
+        prior = await store.command_replay(
+            connection, owner, str(config["decision_id"]), "model_configuration", request
+        )
+        if prior is not None:
+            return await store.get(connection, owner, run, prior["provider_config_ref"])
+        item = records.envelope(
+            "provider-config",
+            {
+                "version": 1,
+                "owner_id": owner,
+                "run_id": run,
+                "manifest_ref": records.reference(manifest),
+                "authority": authority,
+                "configuration": config,
+                "provenance": PROVENANCE,
+                "status": "READY",
+                "inference_authorized": False,
+            },
+        )
+        await store.put(connection, owner, run, item)
+        checked = await store.get(connection, owner, run, records.reference(item))
+        if canonical(checked) != canonical(item):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        await store.command_complete(
+            connection,
+            owner,
+            run,
+            str(config["decision_id"]),
+            "model_configuration",
+            request,
+            {"provider_config_ref": records.reference(checked)},
+        )
+        return checked
+
+    async def read_ready_initialization(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        manifest_ref: object,
+        provider_config_ref: object,
+        authority: dict[str, object],
+    ) -> bytes:
+        """First initialization reader: only exact owned source, not a request alias."""
+        from omnis.policy.ready_model_configuration import PROVENANCE, initialization_data
+
+        await budgets._transaction(connection, owner)
+        state = await store.state(connection, owner, manifest=manifest_ref)
+        run = uuid_string(state["run_id"])
+        manifest = await store.get(connection, owner, run, manifest_ref)
+        contract.validate_manifest(manifest)
+        if (
+            state["binding_id"] is not None
+            or state["stage_started"] is not False
+            or state["release_started"] is not False
+            or state["final_id"] is not None
+        ):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        item = record(
+            await store.get(connection, owner, run, ref(provider_config_ref, "provider-config")),
+            "provider-config",
+        )
+        body = exact(
+            item["payload"],
+            {
+                "version",
+                "owner_id",
+                "run_id",
+                "manifest_ref",
+                "authority",
+                "configuration",
+                "provenance",
+                "status",
+                "inference_authorized",
+            },
+        )
+        if (
+            type(body["version"]) is not int
+            or body["version"] != 1
+            or body["owner_id"] != owner
+            or body["run_id"] != run
+            or body["manifest_ref"] != records.reference(manifest)
+            or canonical(body["authority"]) != canonical(authority)
+            or body["provenance"] != PROVENANCE
+            or body["status"] != "READY"
+            or body["inference_authorized"] is not False
+        ):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        # Qualification includes the committed decision receipt, not only a
+        # well-shaped record bearing a caller-forged READY/provenance label.
+        from omnis.policy.ready_model_configuration import validate_ready_source
+
+        config = validate_ready_source(body["configuration"])
+        request = {
+            "manifest_ref": records.reference(manifest),
+            "configuration": config,
+            "authority": authority,
+        }
+        produced = await store.command_replay(
+            connection, owner, str(config["decision_id"]), "model_configuration", request
+        )
+        if produced is None or produced != {"provider_config_ref": records.reference(item)}:
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        return initialization_data(config)
+
     @staticmethod
     def accept_preflight(result: object, prepared: dict[str, object]) -> dict[str, object]:
         from omnis.policy.model_configuration import validate_source

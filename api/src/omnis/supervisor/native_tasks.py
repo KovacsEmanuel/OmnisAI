@@ -104,6 +104,41 @@ class NativeTaskOwner:
             except RuntimeUnavailable:
                 raise CatalogError("TASK_INDETERMINATE") from None
 
+    async def _model_configuration(self, command: NativeTaskCommand) -> dict[str, object]:
+        from omnis.modules.runs.model_dispatch import ModelDispatch
+
+        consumer = ModelDispatch(self.domain)
+        authority: dict[str, object] = {
+            "instance_id": command.instance_id,
+            "owner": str(self.owner),
+            "epoch": self.epoch,
+            "generation": command.expected_generation,
+        }
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            item = await consumer.prepare_ready_configuration(
+                conn, command.owner_id, command.manifest_ref, command.configuration, authority
+            )
+        # The first consumer reads committed owned source; all execution grants HOLD.
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            data = await consumer.read_ready_initialization(
+                conn, command.owner_id, command.manifest_ref, records.reference(item), authority
+            )
+        return {
+            "ok": True,
+            "manifest_ref": command.manifest_ref,
+            "provider_config_ref": records.reference(item),
+            "configuration_status": "READY",
+            "initialization_status": "HOLD",
+            "inference_status": "HOLD",
+            "initialization_data": data.decode(),
+        }
+
     async def _handle(self, command: NativeTaskCommand) -> dict[str, object]:
         # Lifecycle command ID is the original prepare ID, never an unused nonce.
         back = await self.domain.readback(
@@ -111,6 +146,15 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
+        if command.action == "model_configuration":
+            if (
+                back["binding"] is not None
+                or back["stage_started"]
+                or back["release_started"]
+                or back["results"]
+            ):
+                raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+            return await self._model_configuration(command)
         protocol = manifest_protocol(back["manifest"])
         binding = None if back["binding"] is None else mapping(back["binding"])
         if binding is not None:
@@ -266,6 +310,35 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError(
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
+            if command.action == "model_configuration":
+                from omnis.modules.tasks.managed_contract import exact
+                from omnis.policy.ready_model_configuration import initialization_data
+
+                exact(
+                    reply,
+                    {
+                        "ok",
+                        "correlation_id",
+                        "manifest_ref",
+                        "provider_config_ref",
+                        "configuration_status",
+                        "initialization_status",
+                        "inference_status",
+                        "initialization_data",
+                    },
+                )
+                if (
+                    ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
+                    or reply["configuration_status"] != "READY"
+                    or reply["initialization_status"] != "HOLD"
+                    or reply["inference_status"] != "HOLD"
+                    or type(reply["initialization_data"]) is not str
+                    or reply["initialization_data"].encode()
+                    != initialization_data(command.configuration)
+                ):
+                    raise CatalogError("TASK_REJECTED")
+                ref(reply["provider_config_ref"], "provider-config")
+                return reply
             fields = {"ok", "correlation_id", "manifest_ref", "binding_ref", "task_status"}
             if command.action == "model_preflight":
                 fields.add("model_admission")

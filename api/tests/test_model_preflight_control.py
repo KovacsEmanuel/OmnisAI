@@ -1,7 +1,6 @@
 """R1-01: actual private-control reader with SOURCE stream doubles, no socket I/O."""
 
 import asyncio
-import copy
 import os
 import struct
 from pathlib import Path
@@ -10,54 +9,39 @@ from uuid import uuid4
 
 import pytest
 
+from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs import native_preparation
-from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks.managed_contract import mapping
 from omnis.supervisor import native_tasks
 from omnis.transport import control_probe
+from test_model_admission import (
+    test_qualified_projection_reaches_cold_admission_without_model_reservation as owner_journey,
+)
 
 
-def fixture_values() -> tuple[dict[str, object], dict[str, object]]:
-    manifest = records.reference(records.envelope("launch-manifest", {}))
-    binding = records.reference(records.envelope("runtime-binding", {}))
-    request: dict[str, object] = {
-        "op": "native_task",
-        "schema_version": 1,
-        "owner_id": str(uuid4()),
-        "command_id": str(uuid4()),
-        "instance_id": str(uuid4()),
-        "expected_generation": 0,
-        "expected_epoch": 1,
-        "action": "model_preflight",
-        "manifest_ref": manifest,
-        "data_approval": {
-            "decision_id": str(uuid4()),
-            "composition_ref": records.reference(records.envelope("prompt-composition", {})),
-            "approved_text_digests": ["a" * 64],
-        },
-    }
-    response: dict[str, object] = {
-        "ok": True,
-        "correlation_id": str(uuid4()),
-        "manifest_ref": manifest,
-        "binding_ref": binding,
-        "task_status": "BLOCKED",
-        "model_admission": {
-            "protocol": "omnis-managed-admission-v3",
-            "status": "BLOCKED",
-            "reason": "NO_MODEL",
-            "manifest_ref": copy.deepcopy(manifest),
-            "binding_ref": copy.deepcopy(binding),
-            "projection_ref": records.reference(records.envelope("model-projection", {})),
-            "projection_digest": "a" * 64,
-            "native_turn": None,
-            "model_calls": 0,
-            "data_approval_ref": records.reference(records.envelope("model-data-approval", {})),
-        },
-    }
-    return request, response
+async def fixture_values(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[dict[str, object], dict[str, object]]:
+    # Capture the complete current producer echo rather than hand-authoring an
+    # obsolete receipt. Storage/native identities remain explicit SOURCE doubles.
+    observed: list[tuple[dict[str, object], dict[str, object]]] = []
+    original = native_tasks.NativeTaskOwner.handle
+
+    async def capture(
+        self: native_tasks.NativeTaskOwner, command: NativeTaskCommand
+    ) -> dict[str, object]:
+        answer = await original(self, command)
+        observed.append((command.model_dump(mode="json"), answer))
+        return answer
+
+    with monkeypatch.context() as producer_patch:
+        producer_patch.setattr(native_tasks.NativeTaskOwner, "handle", capture)
+        await owner_journey(tmp_path, producer_patch)
+    assert len(observed) == 1
+    request, response = observed[0]
+    return request, {**response, "correlation_id": str(uuid4())}
 
 
 async def consume(
@@ -83,8 +67,10 @@ async def consume(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("protocol", ["omnis-managed-admission-v2", "omnis-managed-admission-v3"])
-async def test_valid_receipt_is_accepted(monkeypatch: pytest.MonkeyPatch, protocol: str) -> None:
-    request, response = fixture_values()
+async def test_valid_receipt_is_accepted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, protocol: str
+) -> None:
+    request, response = await fixture_values(tmp_path, monkeypatch)
     response["model_admission"] = {**mapping(response["model_admission"]), "protocol": protocol}
     assert await consume(monkeypatch, request, response) == response
 
@@ -105,9 +91,9 @@ async def test_valid_receipt_is_accepted(monkeypatch: pytest.MonkeyPatch, protoc
     ],
 )
 async def test_all_receipt_fields_must_be_strict(
-    monkeypatch: pytest.MonkeyPatch, mutation: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str
 ) -> None:
-    request, response = fixture_values()
+    request, response = await fixture_values(tmp_path, monkeypatch)
     admission = mapping(response["model_admission"])
     if mutation == "false-model-count":
         admission["model_calls"] = False

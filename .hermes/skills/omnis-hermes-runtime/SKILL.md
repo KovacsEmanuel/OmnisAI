@@ -46,5 +46,13 @@ Route an inert preparation command through the supervisor's already-connected Ru
 - Guard import-time provider discovery as well as client construction. A native import can consult credential sources before an agent exists; exercise the installed pin in a fresh home and record attempted reads independently before a guard raises.
 - Bind each staged batch to its original root object and immutable native/session IDs. Recheck that same live root under the registry lock before replay-as-admission and first release; a different live resolver root cannot revive pending children. Keep terminal receipt readback receive-only and separate from new authority.
 
+## SDK-only preparation
+
+- Treat extracted cache trees as insufficient provenance for original wheel hashes. Acquire only the explicitly granted lock URL/size/SHA closure, then install into a fresh private environment with offline, binary-only, hash-required copy mode; do not expand or update the closure.
+- Check the pinned CLI grammar before consuming an installation intent: `uv pip sync` takes the requirements file positionally, not with `-r`. A parser refusal before installation is a QA-driver failure, not a product or SDK result; preserve it and reconcile the environment before a corrected distinct command.
+- Exercise only the existing family runner's argument parser with the exact proposed argv before passing a namespace command containing standalone `--`. An embedded separator can be consumed by the outer argparse parser before the command starts; a missing family receipt remains UNCERTAIN. An exec-only argv wrapper may be proposed without replacing the owner or weakening isolation, but requires focused exact-snapshot review and real execution before credit.
+- Keep full synthetic HTTP body bytes and request extensions when characterizing SDK serialization; digest/field-name output alone cannot show the model/messages/caps that were actually serialized. A capture-source stub proves driver retention only. No SDK execution means equality, extra_body behavior and namespace/seccomp controls are NOT_RUN, never inferred from installed metadata or static source.
+- Stop after two QA-only repair cycles that do not answer the SDK question; hand off the concrete launch/consumer blocker rather than constructing a third audit. Record development-review traffic separately from forbidden product inference and verify leaf model/effort/Fast/approval settings before its first request rather than assuming delegate inheritance.
+
 ## Verification
 Each G02/G04/G07 subgate has evidence at its actual boundary. Test restart, compression/lineage, duplicate events, wrong identity, stopped run and bounded outputs. Report live LLM tests as not-run until explicitly authorized and exercised.

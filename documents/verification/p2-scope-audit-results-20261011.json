@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "scope": "Four-day audit/alignment and minimal checkpoint repairs; not whole P2 acceptance",
+  "audit_baseline": "33588142f136c3426fbd2ec0efb29bdebfccb5bc",
+  "product_fix_snapshot": "c6fcaa15d3049d65b1c56455990d96952a545357",
+  "typing_alignment_snapshot": "8b7529ad0e0eb6cdf898e474aad0fd836e85fc9a",
+  "native_skill_snapshot": "d7f126595fb804a8e97be45de0034513823115c7",
+  "parent_adjudication": "APPROVED_SCOPED for reproduced repairs and risk-scaled methodology; native pre-client component measured separately; P2 NOT_CLOSED",
+  "reviews": [
+    {
+      "report": "omnis-p2-fix-review1-20261011",
+      "report_sha256": "eb6011966368dcfd51b061b6102d741a3ae95e9d65d936e7ae8c1cf2319198e3",
+      "snapshot": "c6fcaa15d3049d65b1c56455990d96952a545357",
+      "scope": "Seven-path hostname/inventory/format fix, SOURCE and exact distribution",
+      "verdict": "APPROVED_SCOPED",
+      "parent_current_hashes_matched": 7,
+      "blocking_findings": []
+    },
+    {
+      "report": "omnis-p2-fix-review2-20261011",
+      "report_sha256": "ea4c1384c5844d5dbec13e528f36c5b91f97f3ce53de47f46e9ca9d4b2a43213",
+      "snapshot": "c6fcaa15d3049d65b1c56455990d96952a545357",
+      "scope": "Same seven paths, security and SOURCE oracle; no installed execution by reviewer",
+      "verdict": "APPROVED_SCOPED",
+      "parent_current_hashes_matched": 7,
+      "blocking_findings": []
+    },
+    {
+      "report": "omnis-p2-alignment-review-20261011",
+      "report_sha256": "188236f62d0dc2d036d6681898556389f060d57e5d14509228f64f4d3719934c",
+      "snapshot": "8b7529ad0e0eb6cdf898e474aad0fd836e85fc9a",
+      "scope": "Ten paths: typed DTO test, audit/current-history/finite existing normative criteria, risk-scaled delivery/review skills and CONTRIBUTING",
+      "verdicts": {"typing": "APPROVED_SCOPED", "audit_alignment": "APPROVED_SCOPED", "methodology": "APPROVED_SCOPED"},
+      "parent_current_hashes_matched_before_result_recording": 10,
+      "blocking_findings": []
+    },
+    {
+      "report": "omnis-p2-owned-native-qa2-20261011 skill_diff_review",
+      "snapshot": "d7f126595fb804a8e97be45de0034513823115c7",
+      "path": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "sha256": "a66618345eb621e8624ff29bb9e3cc2ce78ddf03c59db20a8934a98461011e94",
+      "scope": "One non-root COPY-access lesson and version bump only",
+      "verdict": "APPROVED_SCOPED",
+      "blocking_findings": []
+    }
+  ],
+  "repair_evidence": {
+    "hostname": {"commit": "0b51b62", "red_failed": 2, "red_passed": 5, "red_exit": 1, "focused_source_passed": 50, "green_exit": 0},
+    "inventory": {"commit": "c0cac1e", "red_failed": 1, "red_passed": 1, "red_exit": 1, "green_passed": 2, "green_exit": 0, "exact_native_inventory": 14},
+    "format": {"commit": "c6fcaa1", "red_ruff_format_exit": 1, "green_ruff_check_format_exit": 0, "green_mypy_exit": 0, "owned_source_passed": 8, "note": "These eight are included in the fifty, not eight additional unique tests"},
+    "typing": {"commit": "8db3753", "standalone_red_mypy_errors": 49, "red_exit": 1, "green_mypy_exit": 0, "green_ruff_check_format_exit": 0, "source_cases_before_after": [23, 23], "unknown_nested_evidence_preserved": true, "gate_configuration_unchanged": true},
+    "distribution": {"reverse_reapply_files": 14, "original_hashes_and_new_file_absence_verified": true, "patched_and_pin_hashes_verified": true}
+  },
+  "native_component_attempts": [
+    {
+      "id": "qa1",
+      "report": "/home/kali/.hermes/cache/scratch/omnis-p2-owned-native-qa-20261011.json",
+      "verdict": "BLOCKED",
+      "exit_code": 2,
+      "cause": "Root-owned private COPY files were unreadable by UID1000; Permission denied before probe import",
+      "constructor": "NOT_RUN",
+      "cid": "6997eeb9b0ddcd82181f186aa5a2edd7b4c3bf880176355d19d70e0a62cd6f49",
+      "own_cleanup_and_parent_exact_absence_verified": true
+    },
+    {
+      "id": "qa2",
+      "report": "/home/kali/.hermes/cache/scratch/omnis-p2-owned-native-qa2-20261011.json",
+      "verdict": "BLOCKED",
+      "exit_code": 1,
+      "cause": "Over-strict QA wrapper demanded UID1000 ownership on inherited root-owned0755 source directory although effective UID read/search succeeded",
+      "constructor": "NOT_RUN",
+      "copied_source_probe_bytes_unchanged": true,
+      "metadata_only_correction": "COPY --chown=1000:1000 on the three existing COPY operations",
+      "cid": "13bba946b5972e69453691529856334fbb068fe09168ca381492b425ddea74de",
+      "own_cleanup_recorded": true
+    },
+    {
+      "id": "parent_direct_consumer",
+      "report": "/home/kali/.hermes/cache/scratch/p2-native-direct-hl4bnek2/result.json",
+      "report_sha256": "07147558d31edad542e3f64a6aa916a4594bca89025b7ff6c11a46154518a21a",
+      "verdict": "PASS_SCOPED",
+      "exit_code": 0,
+      "execution_owner": "parent",
+      "probe_author": "independent QA leaf",
+      "decision": "Narrow to the actual unchanged probe, not another wrapper/verifier/rebuild. Read/search access, not uniform ownership of inherited read-only parents, is the requirement",
+      "probe_sha256": "ddc676b14de4784780da7fe2427e4bd8e6cfdc15fd9ef1065c2cf1731f6da075",
+      "image_id": "sha256:4c7915b50cefb8f8d8abbf42ba68ab22229107c01de69aae157ab33e910c1eb4",
+      "base_image_id": "sha256:df43e5eeef69e6d87de6c50ce723c3719d5bb694627afdf4933442462b33c43d",
+      "source_native_adapter_hashes_verified": 28,
+      "installed_source_and_probe_hashes_verified": 29,
+      "counts": {"AIAgent.__init__": 1, "init_agent": 1, "configure_owned_core": 1},
+      "configuration_status": "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM",
+      "client_status": "DEFERRED_NO_CREDENTIAL",
+      "native_turn": null,
+      "inference_status": "HOLD",
+      "model_calls": 0,
+      "checks": ["actual whole-module constructor/configuration/resource identity", "CREATE/STATUS/replay same IDs without second allocation", "conversation/client-factory/unknown surface denial", "live configuration mutation denial", "closed-core denial and UNKNOWN status without reallocation"],
+      "observer_control_events": 2,
+      "forbidden_real_attempts_on_finite_python_audit_profile_channel": 0,
+      "cid": "b7963422e33662aaa7c09ed4ebab3f4eb5ed94f30b38b447508a8f5fc165c8ba",
+      "exit_before_cleanup": 0,
+      "cleanup_rm_exit": 0,
+      "same_daemon_before_after": true,
+      "exact_cid_absence_and_own_label_absence_read_back": true,
+      "base_image_unchanged": true,
+      "limits": ["Manually authored synthetic untrusted DATA, not owner-produced PostgreSQL/lease/Host authority", "Direct real private RPC Python consumer, not supervisor/stdin transport end-to-end", "Parent execution of the independently authored unchanged probe, not an independently executed PASS", "No provider client, native turn, inference, target or whole P2 credit", "Finite audit/profile observations, not proof of all future IO or every syscall"]
+    }
+  ],
+  "canonical_attempts": [
+    {
+      "snapshot": "f00deec8d6f09163787a14bcf05b41e11bd50f3c",
+      "process": "proc_3df0b5da5fb0",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "exit_code": 2,
+      "verdict": "FAIL",
+      "failed_gate": "typecheck-api",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/db-892e24f8dcac4f2e",
+      "family_drained": true,
+      "exact_owned_db_project_network_absence_parent_verified": true,
+      "data_retained": true,
+      "disposition": "Typed test repaired in8db3753, original FAIL retained; no success transferred retroactively"
+    },
+    {
+      "product_and_test_snapshot": "8b7529ad0e0eb6cdf898e474aad0fd836e85fc9a",
+      "process": "proc_768293cd627b",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "outer_log": "/home/kali/.hermes/cache/scratch/p2-audit-canonical-8b7529a.log",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/db-3e849c8f869f47f7",
+      "verdict": "IN_PROGRESS",
+      "exit_code": null,
+      "family_drained": null,
+      "note": "Product/test bytes unchanged by later skill/results documentation. Pending gate is not PASS or P2 closure"
+    }
+  ],
+  "phase_status": {
+    "P2_inert": "PARTIAL_NOT_CLOSED",
+    "B06b_remaining": "Real child read/tool/method-result/check and compatibility/inbox consumers, not another input/demo",
+    "B06m_remaining": "Existing owner reserve -> durable SENT -> inert transport/receipt/UNKNOWN with Stop/caps/VALIDATION/retry/fallback integrated",
+    "B06c_remaining": "Qualified legitimate final request at that admission seam; complete DATA guard is not authority",
+    "P4a_P2_live": "Separate configuration/readback, new resolved run/selection and explicit account/provider/model/data/budget agreement",
+    "assessment_ready": false,
+    "accounts_or_target_traffic_or_r1_adoption": false,
+    "push": "NOT_REQUESTED_NOT_RUN",
+    "reticle": "NOT_APPLICABLE for code/process scope",
+    "chisel": "BLOCKED_NO_GO retained"
+  }
+}

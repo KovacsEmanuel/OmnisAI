@@ -40,8 +40,9 @@
     }
   },
   "review": {
-    "initial": "Two independent APPROVED_SCOPED on original snapshot; medium findings reproduced and fixed (T1/T2 stage progress, controls, exact pre-canonicalization types). Original reports retained.",
-    "focused_current": "PENDING_READY_R1_FIX_READY_R2_FIX_NOT_ACCEPTED",
+    "initial": "CORRECTED_AFTER_COMPLETE_REPORT_READBACK: both original reviews CHANGES_REQUESTED, not APPROVED_SCOPED. R1 P1/P2/P2 and R2 HIGH/MEDIUM findings reproduced and fixed; original reports/RED retained. The prior initial-approved/medium summary was inaccurate, not evidence.",
+    "focused_current": "ACCEPTED_SCOPED_PRIVATE_OWNER_CONFIGURATION_DATA_SOURCE_AND_FIRST_READER_EXACT5SHA; both focused reports APPROVED_SCOPED, processes exited0, current/Git bytes match; no product/global/native/PG acceptance implied",
+    "adjudication": "documents/verification/p2-ready-configuration-review-20261011.json",
     "reports": [
       "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r1-fix-report.json",
       "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r2-fix-report.json"
@@ -61,5 +62,5 @@
     "Full make check final NOT_RUN",
     "No inference/account/target/push/r1/global/mission/cron/phase3 effects"
   ],
-  "next": "Read complete focused current reports after exact processes exit; clear any concrete blocker with minimal tested correction; integrate real PG owner source commit→first reader controls in existing test_model_admission_pg.py per fresh scope and durable toolchain. Then physical native initializer configuration seam plus legitimate actual turn/config/purpose → reserve/SENT/Stop/first-byte/caps; P4a-minim separate future dependency."
+  "next": "Focused current source reviews accepted only exact5SHA, no scoped blocker remains. Integrate real PG owner source commit→first reader controls in existing test_model_admission_pg.py per fresh scope and durable toolchain. Then physical native initializer configuration seam plus legitimate actual turn/config/purpose → reserve/SENT/Stop/first-byte/caps; P4a-minim separate future dependency."
 }

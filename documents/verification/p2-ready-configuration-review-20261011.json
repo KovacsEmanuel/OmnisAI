@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "owner_sid": "20261011_094100_1f2139",
+  "product_commit": "fb9284eb12712ebb1f84ba150c0993f2f3620eae",
+  "verdict": "ACCEPTED_SCOPED_PRIVATE_OWNER_CONFIGURATION_DATA_SOURCE_AND_FIRST_READER",
+  "phase2_state": "PARTIAL_NOT_CLOSED",
+  "documentation_verification": {
+    "first_attempt": "Hermes runtime Python lacks markdown: renderer exit1, unittest NOT_RUN; failure retained in tool transcript, not a product finding",
+    "accepted_existing_interpreter": "/usr/bin/python3 with existing Markdown3.10.2 at /usr/lib/python3/dist-packages/markdown; matches documents/requirements-docs.txt, no install/download/global edit",
+    "commands": ["/usr/bin/python3 -I -B scripts/render_docs.py --check", "/usr/bin/python3 -I -B -m unittest discover -s tests/documentation -v", "git diff --check on intended documentation paths"],
+    "render_exit": 0,
+    "unittest_exit": 0,
+    "unittest_count": 72,
+    "diff_exit": 0,
+    "limit": "Documentation-only checks after map/edit; source bytes unchanged. Not make check, PG or installed/native gate. Renderer covers five named baseline HTML files, not verification/status Markdown."
+  },
+  "current_snapshot_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "23be6d8181d0d0a24737a3c1931e22339aef6e949f17e9110ea61f1c7f2a8b7c",
+    "api/src/omnis/modules/runs/model_dispatch.py": "26cc69de10b95979d7bc0dc8cf702bd761671b1db5300f5991047a6fc49d7dd5",
+    "api/src/omnis/supervisor/native_tasks.py": "3c8720e728cb48b483ed2655107852decc5ce10e4f044f9ad998876010e6cf0e",
+    "api/src/omnis/policy/ready_model_configuration.py": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4"
+  },
+  "batch": [
+    {
+      "role": "ready-config-seam",
+      "verdict": "IMPLEMENTABLE_INERT_SLICE; FIRST_CONSUMER_SOURCE_RED; FUNCTIONAL_NATIVE_NOT_RUN",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-config-seam-report.json",
+      "sha256": "fce8dff65b96c1d7601c5c1ec966de5aedd5da2341960025414865afb6c1e651",
+      "meaning": "DESIGN_ONLY_NOT_IMPLEMENTATION_ACCEPTANCE"
+    },
+    {
+      "role": "ready-r1",
+      "verdict": "CHANGES_REQUESTED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r1-report.json",
+      "sha256": "a3389b11df7dd13ba5c47947c58ab250e79ff356b2c0621eb8791bd1c5bf3c3e",
+      "meaning": "SUPERSEDED_FINDINGS_PRESERVED_NOT_CURRENT_VERDICT"
+    },
+    {
+      "role": "ready-r2",
+      "verdict": "CHANGES_REQUESTED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r2-report.json",
+      "sha256": "0c1074fe9ab19e9f3b86f7e5357e5c78f4c9ab76fef6c3bc37a9d6e4af03f460",
+      "meaning": "SUPERSEDED_FINDINGS_PRESERVED_NOT_CURRENT_VERDICT"
+    },
+    {
+      "role": "ready-r1-fix",
+      "verdict": "APPROVED_SCOPED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r1-fix-report.json",
+      "sha256": "37f3db959781ea1e8866292a2b4a26bf85e14acc8932864d133c1ad6c679970b",
+      "meaning": "CURRENT_5SHA_SOURCE_DATA_REVIEW"
+    },
+    {
+      "role": "ready-r2-fix",
+      "verdict": "APPROVED_SCOPED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-r2-fix-report.json",
+      "sha256": "d636749f7a7e4febf3665e69c45590de5a121fd4463291fb74b652e8b637936b",
+      "meaning": "CURRENT_5SHA_SOURCE_DATA_REVIEW"
+    }
+  ],
+  "parent_readback": "Complete reports, retained execution logs, pre-request settings, current worktree and Git product bytes agree on exact five SHA256 values. Two focused processes read back exited0; old three process handles no longer retrievable, preserved reports/stdout and prior completed readbacks retained; no relaunch or replay.",
+  "finding_disposition": [
+    {
+      "ids": [
+        "READY-R1-01",
+        "R2-F01"
+      ],
+      "original_severity": [
+        "P1",
+        "HIGH"
+      ],
+      "state": "CLOSED_SCOPED",
+      "cause": "T1/T2 stage/lease-state qualification race",
+      "fix": "Current managed state revalidated under existing managed-owner transaction lock in producer and reader: binding null, exact False stage/release, final null."
+    },
+    {
+      "ids": [
+        "READY-R1-02",
+        "R2-F02"
+      ],
+      "original_severity": [
+        "P2",
+        "MEDIUM"
+      ],
+      "state": "CLOSED_SCOPED",
+      "cause": "Control characters admitted in identifiers/routes",
+      "fix": "C0/DEL/C1/LS/PS rejection on all source string values/keys, no normalization."
+    },
+    {
+      "ids": [
+        "READY-R1-03"
+      ],
+      "original_severity": [
+        "P2"
+      ],
+      "state": "CLOSED_SCOPED",
+      "cause": "Subclass laundering before exact validation",
+      "fix": "Exact recursive Python builtin-type precheck before helper canonicalization and Pydantic field normalization."
+    }
+  ],
+  "retained_product_RED": {
+    "exit": 1,
+    "failed": 13,
+    "passed": 17,
+    "log": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/logs/ready-findings-red.log"
+  },
+  "current_evidence": {
+    "parent_affected_SOURCE": {
+      "passed": 47,
+      "exit": 0
+    },
+    "r1_independent_affected_SOURCE": {
+      "passed": 47,
+      "exit": 0
+    },
+    "r1_focused_SOURCE": {
+      "passed": 371,
+      "exit": 0
+    },
+    "r2_independent_affected_SOURCE": {
+      "passed": 47,
+      "exit": 0
+    },
+    "r2_focused_SOURCE": {
+      "passed": 76,
+      "exit": 0
+    },
+    "static_Ruff_mypy5": {
+      "exit": 0
+    },
+    "ad_hoc": {
+      "passed": 15,
+      "exit": 0,
+      "not_canonical": true
+    }
+  },
+  "retained_reviewer_harness_failures": [
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/ready-r1-fix/logs/runner-initial-syntax-error.log",
+      "exit_code": 1,
+      "description": "Initial isolated reviewer runner had a nested-command quoting SyntaxError before any tests executed; only scratch runner corrected. Failure retained, subsequent full checks all exit0."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/ready-r2-fix/review-kse1rhjp/logs/affected_source_tests_initial_harness_failure.json",
+      "exit_code": 1,
+      "result": "9 failed, 38 passed in 0.90s",
+      "classification": "Reviewer isolated-copy fixture omission: skills/records-mapping-contract/SKILL.md absent; not a product finding."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2ready-1f2139-01/ready-r2-fix/review-kse1rhjp/logs/affected_source_tests_second_harness_failure.json",
+      "exit_code": 1,
+      "result": "9 failed, 38 passed in 0.92s",
+      "classification": "Reviewer isolated-copy fixture omission: profiles/records-mapping-contract.yaml absent; not a product finding. Static fixture assets subsequently copied into own scratch without product/test edits; final SOURCE47 passed."
+    }
+  ],
+  "correction_to_previous_checkpoint": "p2-ready-configuration-20261011.json and control checkpoint previously mislabeled both initial reviews APPROVED_SCOPED/medium. Actual complete initial reports are CHANGES_REQUESTED: R1 P1/P2/P2, R2 HIGH/MEDIUM. This correction preserves original verdicts/failures; only focused fixed5SHA reports are APPROVED_SCOPED.",
+  "limits": [
+    "SOURCE store/domain/fence doubles and inspected definitions, not actual PostgreSQL durability/atomicity/concurrency/crash cuts",
+    "Physical native source-first initialization, actual turn/effective-config/selection/purpose NOT_IMPLEMENTED_NOT_CERTIFIED",
+    "No model compatibility/availability or inference grant; READY is configuration DATA, native initialization and inference HOLD",
+    "Full make check final, installed consumer and P4a/browser NOT_RUN",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no broad discovery/new verifier/product replay",
+    "Toolchain repaired/accepted separately; PG environment unblocked, current new PG proof still NOT_RUN"
+  ],
+  "next": "Execute registered fresh owned PG producer→committed record/receipt→qualified first initialization DATA reader controls using durable PATH/UV, then wire source-first physical native initialization and legitimate turn/config/purpose. Reserve→SENT→Stop/first-byte/caps follows; phase3/live remain HOLD."
+}

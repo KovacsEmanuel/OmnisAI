@@ -1,7 +1,8 @@
 """Real SOURCE PG admission-data tracer; native identities/transport are a seed.
 
-SQL, qualification, owner/fencing, projection, approval persistence and readback
-are real. No native runtime, provider config, turn, SDK or inference is claimed.
+SQL, qualification, owner/fencing, explicit configuration DATA producer/receipt,
+first reader, projection and approval persistence are real. Native runtime,
+actual initialization/turn, model compatibility, SDK and inference are not claimed.
 """
 
 import asyncio
@@ -37,6 +38,7 @@ from test_managed_contract import stage
 from test_model_admission import protocol_configuration
 from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
+from test_ready_model_configuration import configuration
 
 
 def synthetic_decision(owner: str, run: str, composition: dict[str, object]) -> dict[str, object]:
@@ -228,10 +230,127 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
             "action": "stage",
         }
         owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
+        consumer = ModelDispatch(domain)
+        config = configuration()  # explicit SOURCE material, not account/model/turn authority
+        configuration_command = NativeTaskCommand.model_validate(
+            {**lifecycle, "action": "model_configuration", "configuration": config}
+        )
+        authority: dict[str, object] = {
+            "instance_id": str(status.instance_id),
+            "owner": str(supervisor),
+            "epoch": epoch,
+            "generation": status.generation,
+        }
+
+        async def configuration_records() -> list[dict[str, object]]:
+            async with engine.connect() as conn:
+                rows = (
+                    (
+                        await conn.execute(
+                            sql(
+                                "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run "
+                                "AND (envelope->>'kind'='provider-config' OR "
+                                "(envelope->>'kind'='contract-input-command' AND "
+                                "envelope->'payload'->>'operation'='model_configuration')) ORDER BY id"
+                            ),
+                            {"owner": seed.owner, "run": run},
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+            return [mapping(row) for row in rows]
+
+        assert await configuration_records() == [] and native_calls == []
+        # Real INSERT + immutable command receipt in one transaction, then rollback.
+        rollback_source = {**config, "decision_id": str(uuid4())}
+        with pytest.raises(RuntimeError, match="OWNED_READY_CONFIGURATION_ROLLBACK"):
+            async with service.native_preparation_commit(
+                supervisor, epoch, status.generation
+            ) as conn:
+                await consumer.prepare_ready_configuration(
+                    conn, seed.owner, prepared["manifest_ref"], rollback_source, authority
+                )
+                assert (
+                    await conn.execute(
+                        sql(
+                            "SELECT count(*) FROM managed_record WHERE owner_id=:owner AND run_id=:run "
+                            "AND (envelope->>'kind'='provider-config' OR "
+                            "(envelope->>'kind'='contract-input-command' AND "
+                            "envelope->'payload'->>'operation'='model_configuration'))"
+                        ),
+                        {"owner": seed.owner, "run": run},
+                    )
+                ).scalar_one() == 2
+                raise RuntimeError("OWNED_READY_CONFIGURATION_ROLLBACK")
+        assert await configuration_records() == []
+
+        ready = await owner.handle(configuration_command)
+        assert ready["configuration_status"] == "READY"
+        assert ready["initialization_status"] == ready["inference_status"] == "HOLD"
+        from omnis.policy.ready_model_configuration import initialization_data
+
+        actual_records = await configuration_records()
+        assert len(actual_records) == 2
+        config_record = next(row for row in actual_records if row["kind"] == "provider-config")
+        receipt = next(row for row in actual_records if row["kind"] == "contract-input-command")
+        assert ready["provider_config_ref"] == records.reference(config_record)
+        assert mapping(config_record["payload"])["configuration"] == config
+        assert mapping(config_record["payload"])["inference_authorized"] is False
+        assert mapping(receipt["payload"])["command_id"] == config["decision_id"]
+        assert mapping(receipt["payload"])["result_refs"] == {
+            "provider_config_ref": ready["provider_config_ref"]
+        }
+        assert str(ready["initialization_data"]).encode() == initialization_data(config)
+        assert ready == await owner.handle(configuration_command)
+        assert actual_records == await configuration_records()
+        # New engine/connection/consumer reads committed JSONB, not caller aliases.
+        reader_engine = database_engine(dsn)
+        try:
+            reader = ModelDispatch(ManagedAdmission(reader_engine, seed.root))
+            async with reader_engine.begin() as conn:
+                read_configuration = await reader.read_ready_initialization(
+                    conn,
+                    seed.owner,
+                    prepared["manifest_ref"],
+                    ready["provider_config_ref"],
+                    authority,
+                )
+            assert read_configuration == initialization_data(config)
+            for denied_owner, denied_authority in (
+                (str(uuid4()), authority),
+                (seed.owner, {**authority, "generation": status.generation + 1}),
+            ):
+                with pytest.raises(CatalogError):
+                    async with reader_engine.begin() as conn:
+                        await reader.read_ready_initialization(
+                            conn,
+                            denied_owner,
+                            prepared["manifest_ref"],
+                            ready["provider_config_ref"],
+                            denied_authority,
+                        )
+        finally:
+            await reader_engine.dispose()
+        with pytest.raises(CatalogError, match="COMMAND_CONFLICT"):
+            await owner.handle(
+                NativeTaskCommand.model_validate(
+                    {
+                        **lifecycle,
+                        "action": "model_configuration",
+                        "configuration": {**config, "model_id": "CHANGED_EXPLICIT_INPUT"},
+                    }
+                )
+            )
+        assert actual_records == await configuration_records()
+        assert native_calls == [] and await counts() == (0, 0, 0)
+
         bound = await owner.handle(NativeTaskCommand.model_validate(lifecycle))
         assert bound["task_status"] == "BOUND"
+        with pytest.raises(CatalogError, match="MODEL_CONFIGURATION_REJECTED"):
+            await owner.handle(configuration_command)
+        assert actual_records == await configuration_records()
         decision = synthetic_decision(seed.owner, run, composition)
-        consumer = ModelDispatch(domain)
         assert await counts() == (0, 0, 0)
         # Real INSERTs followed by rollback, not a mock that never writes.
         with pytest.raises(RuntimeError, match="OWNED_ROLLBACK"):

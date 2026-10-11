@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "owner_sid": "20261011_094100_1f2139",
+  "kind": "REAL_PG_READY_CONFIGURATION_DATA_PRODUCER_COMMIT_FIRST_READER_NOT_NATIVE_POSITIVE",
+  "outer_exit": 0,
+  "receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "tests_passed": 39,
+  "scope": "scope-ready-pg-01.json",
+  "root": "/home/kali/.hermes/cache/scratch/prdy-1f2139",
+  "fixture": "/home/kali/.hermes/cache/scratch/prdy-1f2139/tmp/db-88ede345d3f648fe",
+  "project": "omnis-p01-9607b56810de4f149c5a5b66bf1cc568",
+  "cid": "a38aaefeb4d9dae13c9a61be30df6e70bfd4121443c03a87391f184915fa32b5",
+  "private_gate_log": "/home/kali/.hermes/cache/scratch/prdy-1f2139/tmp/db-88ede345d3f648fe/gate.log",
+  "exact_retirement_readback": {
+    "container": {
+      "exit": 1,
+      "absent": true
+    },
+    "project_containers": {
+      "exit": 0,
+      "absent": true
+    },
+    "project_networks": {
+      "exit": 0,
+      "absent": true
+    }
+  },
+  "PGDATA_retained": true,
+  "socket_absent": true,
+  "no_replay_or_cleanup_effect": "Only read back original runner cleanup; no stop/rm repeated",
+  "limitations": [
+    "Direct actual NativeTaskOwner/real owner lease/PG transaction/record+receipt/rollback/first reader, not actual native init/turn or IPC private control roundtrip",
+    "Runtime preparation/stage boundary is explicitly synthetic protocol seed",
+    "Model availability/account/provider/inference HOLD"
+  ],
+  "snapshot_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "23be6d8181d0d0a24737a3c1931e22339aef6e949f17e9110ea61f1c7f2a8b7c",
+    "api/src/omnis/modules/runs/model_dispatch.py": "26cc69de10b95979d7bc0dc8cf702bd761671b1db5300f5991047a6fc49d7dd5",
+    "api/src/omnis/supervisor/native_tasks.py": "3c8720e728cb48b483ed2655107852decc5ce10e4f044f9ad998876010e6cf0e",
+    "api/src/omnis/policy/ready_model_configuration.py": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+    "api/tests/test_model_admission_pg.py": "13b1f28787e684434fea8c7fcbe0e515acf14c52b2813c17aa33a780df83d22b"
+  },
+  "reviews": [
+    {
+      "role": "ready-pg-r1",
+      "verdict": "APPROVED_SCOPED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-pg-r1-report.json",
+      "sha256": "1e8c0d3cb1b6a6508798d80621f2e7fd15b4e9799e27c91e94d394f04a3cfbe5"
+    },
+    {
+      "role": "ready-pg-r2",
+      "verdict": "APPROVED_SCOPED",
+      "report": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-ready-pg-r2-report.json",
+      "sha256": "ba499f7efd6b2cef0c7ce091ee790c5a9d61503b91363047768c266a2990aba0"
+    }
+  ],
+  "static": {
+    "Ruff": 0,
+    "mypy_file_count": 1,
+    "mypy_exit": 0
+  },
+  "base": "79e95f601885ff6f7e9d5ba1e61d8c32582aba60",
+  "verdict": "ACCEPTED_SCOPED_REAL_PG_CONFIGURATION_DATA_SOURCE_COMMIT_FIRST_READER",
+  "next": "Physical source-first native initializer consuming qualified owner configuration, then legitimate new model selection/manifest/turn/purpose; no promotion of existing NO_MODEL binding. Live inference/account HOLD."
+}

@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.5
+version: 0.1.6
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -38,6 +38,7 @@ Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundar
 - Establish NO_MODEL before native client initialization and conversation admission, not by cancelling a launched child, setting zero iterations or passing empty toolsets. At the pin, empty `allowed_toolsets` inherits the parent inventory. Keep installed preparation/loading evidence separate from native result/continuation evidence; neither a fake provider nor a deterministic emitter closes the latter boundary.
 - Guard the public request entry before route selection, stale breakers and recovery, not only its worker constructor or shared sink: a stock pre-setup exception can otherwise escape NO_MODEL into credential/fallback handling. Keep a real open-breaker negative and the identical nonmanaged stock control; untrusted DTO refs and absence of an inert environment flag are not turn/config authority.
 - Check exact inventory type before emptiness in a constructor-owned configuration observation: a nonempty tuple subclass can spoof equality with `()`. Require native tuple type before length, retain adversarial controls for both tools/toolsets, and never promote a genuine cold/null observation into READY provider-config or native-turn authority.
+- Preflight effective non-root UID readability and directory searchability for every COPY artifact, including source, adapter, probe and manifest. Hash equality does not prove that imports can execute: preserve private modes with explicit owned COPY ownership rather than switching to root or loosening containment. Classify a pre-import permission exit as QA-driver BLOCKED/constructor NOT_RUN, retain that attempt and correct only owned distribution metadata before one bounded new consumer attempt; do not build another verifier.
 
 ## Document preparation through the existing owner
 

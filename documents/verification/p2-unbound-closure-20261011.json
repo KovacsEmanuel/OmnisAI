@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "owner_session_id": "20261011_094100_1f2139",
+  "product_commit": "d376723fb70aeb7585641e6caad512e8b5622eb1",
+  "state": "UNBOUND_FINDING_CLOSED_SCOPED_NEW_INSTALLED_NEGATIVE_PASS_RETIRED_NOT_PHASE2_FINAL",
+  "snapshot": {
+    "api/tests/test_final_model_request.py": "3f628966c86dd3cd058f873da6371bcf27ea12e5cc1431118c284d86466ce50b",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "c3e980ec72b4f05ea20600eef76ccbcf8b126365f3cbb7d1d771ca4450b65727",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "394cd9298c2801fa06fe6c0b9af95cc364cf4c85592130781742a89e97c4efe9",
+    "integrations/hermes/upstream/omnis-managed.patch": "dcb8e12c1997aa953a7c1feeab4d53bcc1494176d7f1bd3d44facc64016e7627",
+    "integrations/hermes/pin.json": "c17168e280ed73a4759876d79efb9d9af4e29ca45f1caa25b93ad2f12abc6ef9"
+  },
+  "reviews": [
+    {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-unbound-r1-fix-report.json",
+      "sha256": "36db945c18263e874a6e10173b201c73b203783e434463bafa90ee06965e0ada",
+      "verdict": "APPROVED_SCOPED"
+    },
+    {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-unbound-r2-fix-report.json",
+      "sha256": "a725eb678bcd91c8195258039d1bf842e99be0b8a19506bd30058270bb009fcb",
+      "verdict": "APPROVED_SCOPED"
+    },
+    {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-unbound-native-qa-report.json",
+      "sha256": "19c30a244d83d228213d3db3489e4f23777422208bcdb1b50f540bd30fc7d35a",
+      "verdict": "PASS_SCOPED"
+    }
+  ],
+  "finding_disposition": "UNBOUND-R1-01/R2-F01 same public worker stale/recovery blocker; real RED1 + minimal d376 fix + affected49 SOURCE0 preserved; both independent focused approvals exact7 SHA. Original CHANGES_REQUESTED not overwritten/promoted.",
+  "installed_native": {
+    "class": "INSTALLED_NATIVE_SOURCE_OVERLAY_NO_AUTHORITY_NEGATIVE_ONLY",
+    "root": "/home/kali/.hermes/cache/scratch/p2ubn-1f2139",
+    "driver_invocations": 1,
+    "build": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "native": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "finite_result": {
+      "scope": "INSTALLED_NATIVE_SOURCE_OVERLAY_UNBOUND_DENIAL_ONLY",
+      "rows": [
+        {
+          "env": "present",
+          "actor": "real-native-cold",
+          "channel": "common",
+          "denial": "ColdAdmissionDenied"
+        },
+        {
+          "env": "present",
+          "actor": "real-native-cold",
+          "channel": "direct",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "real-native-cold",
+          "channel": "worker-constructor",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "real-native-cold",
+          "channel": "public-worker-entry",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "common",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "direct",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "worker-constructor",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "present",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "public-worker-entry",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "real-native-cold",
+          "channel": "common",
+          "denial": "ColdAdmissionDenied"
+        },
+        {
+          "env": "absent",
+          "actor": "real-native-cold",
+          "channel": "direct",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "real-native-cold",
+          "channel": "worker-constructor",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "real-native-cold",
+          "channel": "public-worker-entry",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "common",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "direct",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "worker-constructor",
+          "denial": "ManagedModelTerminal"
+        },
+        {
+          "env": "absent",
+          "actor": "untrusted-negative-object-not-warm",
+          "channel": "public-worker-entry",
+          "denial": "ManagedModelTerminal"
+        }
+      ],
+      "verified_files": 26,
+      "client_attempts": [],
+      "python_audit_connect_dns_attempts": [],
+      "forbidden_native_entries": [],
+      "native_origin": "/opt/hermes/source/agent/chat_completion_helpers.py",
+      "cold_actual_AIAgent": true,
+      "warm_turn_config_Sent_provider_response": "NOT_CREATED_NOT_AUTHORIZED",
+      "new_adapter_wheel": "NOT_BUILT_SOURCE_OVERLAY_ONLY",
+      "phase2": "NOT_CLOSED"
+    },
+    "actual_native_log_sha256": "f3e631d2cdd9962f98c6b4101aff8dcfa59d1c321ac7da03153cc2d4942326b0",
+    "actual_build_log_sha256": "d20d83335dd9c05dc078e975054e0bfcc42a010cf0b82e28d80c70c5a0086ec8",
+    "base_full_id": "sha256:201c17d4874d693927f2dbf220c5a8bd56904c91cdfd5edf2670c843602d8ae3",
+    "image_id": "sha256:1ac6d6a80f11fce24aca536b39e965ced18e1bccbb4fc15b06e2b3ee53d19a17",
+    "source_files": {
+      "/opt/hermes/source/agent/auxiliary_client.py": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a",
+      "/opt/hermes/source/agent/chat_completion_helpers.py": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2",
+      "/opt/hermes/source/agent/chat_completion_nonstream.py": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f",
+      "/opt/hermes/source/agent/cold_admission.py": "f2f8fb668965cf59b93828028a8a7a24312f2915e987c6e3ae9fde2ed0ef7566",
+      "/opt/hermes/source/agent/conversation_loop.py": "61ec32c118165dfe7cce7702ef08a7e76c32e286fff9eea061524a6390dddfd1",
+      "/opt/hermes/source/agent/managed_admission_rpc.py": "209583c4ce4d99b19cac90adbfde7e692bb16d614169257375d78d7035db83b8",
+      "/opt/hermes/source/agent/subagent_lifecycle.py": "9c46032214022417aa5b924529108f63e15570f012367cc52930d27f01077da2",
+      "/opt/hermes/source/agent/turn_api_call.py": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33",
+      "/opt/hermes/source/agent/turn_api_error.py": "2835f951205dcff0c71d687987cba4f569a9085f65fa6d207163059c0147c58d",
+      "/opt/hermes/source/agent/turn_api_request.py": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a",
+      "/opt/hermes/source/providers/__init__.py": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d",
+      "/opt/hermes/source/run_agent.py": "4f8dbc5126b63c1e24588cc89039d32a0daadeafda6f3defc61e4e15df9974e6",
+      "/opt/hermes/source/tui_gateway/rpc_dispatch.py": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/__init__.py": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/managed_admission_contract.py": "3f836b5083a58dfae1dd076042419fd566410207e2c569ff9e82c4213ec4fac1",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_admission.py": "f869699993a3491bab9f493980ab8ba043a36d4687f94a4e0ab07f066c9e8ceb",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_context.py": "a09bb22c4014e38be141d7f3ccf2840166d7695ca721be5e92eed5d18c211141",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_request.py": "a0bd4d852067e6bf654bc1684512086194e08fbeb2702b272db08a61bb8e3bfd",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_terminal.py": "c3e980ec72b4f05ea20600eef76ccbcf8b126365f3cbb7d1d771ca4450b65727",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_contract.py": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_worker.py": "0d62b2f1af5b02d249ee591edd5915f28fa6ce83820c0d7b2de64f0905159ad0",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/private_paths.py": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/prompt_bundle.py": "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py": "1e68c3a875bd19b0f97ff0179f93617e13e47d26e6db66043fa69af41e3bb13a",
+      "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_protocol.py": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8"
+    }
+  },
+  "retirement": {
+    "exact_cid": "b15d791ea1688cbd8786a6f7bd29b3e36bfa73a1023cfc4b6e8fe2fbb0a36ce4",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "before": "Parent exact CID/image/labels exited0/runningfalse/pid0 after gate0/drained and QA exited0",
+    "rm_exit": 0,
+    "exact_CID_absent": true,
+    "same_daemon_readback": true,
+    "data_image_inputs_logs_receipts_retained": true,
+    "no_replay": true
+  },
+  "reused_unchanged": "distribution2/reapply13/static/docs72; SDK04 utility only unchanged scope, no new SDK. Old native01 unrelated to this fresh guard proof.",
+  "limits": [
+    "Cold native and untrusted negative objects/schema are not warm actors/turn/config/grant",
+    "Zero observed client/network/profile entries on measured channels, not exhaustive absence or future certification",
+    "Copy-only local legacy builder with actual baseID before/after, no RUN/network resolver fallback/download/UV substitute; earlier DockerHub metadata failure retained FAIL",
+    "No new wheel/release installation proof",
+    "Authenic warm config/turn and caller reserve/SENT/physical Stop/caps/child result/continuation remain incomplete",
+    "Full make check deferred final product boundary; no changed Settings/browser surface; Reticle NOT_APPLICABLE, Chisel BLOCKED_NO_GO"
+  ],
+  "phase2": "NOT_CLOSED",
+  "live": "HOLD",
+  "after_phase2": "HOLD_NO_PHASE3"
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "owner_session_id": "20261011_094100_1f2139",
+  "product_head": "c78dd50f91d59a7c5630134f13fdd0c2b5770b97",
+  "state": "WIP_PHASE2_NOT_CLOSED_RUNTIME_BUDGET_BOUNDARY",
+  "accepted_subset": "SOURCE_DATA_GUARD_PLUS_REAL_SDK_ONLY",
+  "native": {
+    "scope_registration": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/scope-native-01.json",
+    "root": "/home/kali/.hermes/cache/scratch/p2ni-1f2139",
+    "wheel_exit": 0,
+    "wheel_family": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "wheel_sha256": "ca1779943065346188dad4efb9872aab3662a341f2d6568df0c5dc3f57584c17",
+    "source_wheel_files_verified": 12,
+    "new_image_requested": "omnis-p2-data-1f2139:qa1",
+    "build_exit": 1,
+    "build_family": {
+      "schema_version": 1,
+      "code": 1,
+      "family_drained": true
+    },
+    "reason": "BuildKit interprets FROM sha256:IMAGE_ID as docker.io/library/sha256 tag, attempted registry metadata and failed before build RUN. --network=none does not cover metadata resolver. Original failure retained.",
+    "native_probe_commands_invoked": 0,
+    "native_probe": "BLOCKED_NOT_RUN_IMAGE_BUILD_SOURCE_REFERENCE",
+    "new_runtime_containers_started": 0,
+    "corrected_build": "NOT_RUN: pre-effect addendum registered; local artifact tag with fullID before/after attestation required. No blind retry or original/base tag mutation.",
+    "image_absence_or_daemon_cleanup_readback": "NOT_RE_ATTESTED_AFTER_BUILD; no cleaned/STOPPED claim",
+    "retention": "wheel/context/fresh state/home/logs/probe remain; no cleanup replay"
+  },
+  "canonical": {
+    "status": "NOT_RUN_BOUNDARY_INCOMPLETE",
+    "reason": "Runtime budget governor required stop of new discovery/verification before installed-native prerequisite cleared; no full make check invoked or weakened",
+    "prerequisites_observed": {
+      "ambient_node": "22.22.0_REJECTED",
+      "ambient_npm": "9.2.0_REJECTED",
+      "read_only_pinned_PATH": "/home/kali/.hermes/cache/scratch/r3-5gjabhuw/tools:/usr/bin:/bin",
+      "selected_node": "24.21.0",
+      "selected_npm": "11.19.0",
+      "uv": "0.12.19",
+      "python_API_CLI": "3.13.15"
+    },
+    "reuse": "Pinned tools only read-only distribution inputs, not old fixture/root/family authority"
+  },
+  "browser": "NOT_APPLICABLE_NEW_SLICE_NO_UI_CHANGE; canonical browser regression NOT_RUN",
+  "next_dependencies": [
+    {
+      "order": 1,
+      "exact": "Apply minimal native QA Dockerfile FROM local already-present artifact tag, assert full baseID201c17... before/after; distinct registered owned build, actual cold whole-native-module probe/origins, exact owned retirement. SDK/source successes unchanged."
+    },
+    {
+      "order": 2,
+      "exact": "Run full unchanged make check serial at corrected final boundary on fresh private fixture, correct pinned tool PATH/Python/browser exposure; retain private logs and exact owner family/drain/readback. No shortcut flags."
+    },
+    {
+      "order": 3,
+      "exact": "Implement authentic native turn/effective-config/selection/purpose producer-reader through existing owner/RPC; current DTO parser refs are untrusted schema and cannot authorize native send."
+    },
+    {
+      "order": 4,
+      "exact": "Existing caller reserve/commit/SENT independent and physical Stop/first-byte/caps; then native child/skill/result/continuation; P4a-minim after P2-inert. Live requires separate account/provider/model/data/budget, not a blocker to inert code work."
+    }
+  ],
+  "why_session_stopped": "Explicit run-time budget governor at >80% of7200s session; not missing inert authorization or a new launch/publication requirement",
+  "inert_authorization": "CURRENT_MANDATE_REMAINS_APPLICABLE; do not request same micro approval",
+  "live": "HOLD",
+  "after_phase2": "HOLD_NO_PHASE3"
+}

@@ -35,6 +35,8 @@ Aceasta este o **proiecție de status, nu un plan concurent**. [Arhitectura](../
 
 ## Legendă: trei axe independente
 
+**Continuarea autorizată — boundary WIP pe `c78dd50`:** [registru DATA](p2-final-dto-20261011.md), [receipt](p2-final-dto-20261011.json), [boundary](p2-final-dto-boundary-20261011.json). Framingul SDK a fost remediat în driverul nou, runnerul neschimbat; SDK03 și QA independentă SDK04 au body-uri complete reale și exit0/drained. Guardul DATA al întregului request este acum consumat de sinkul comun/direct/worker, cu41 SOURCE și două reviews exacte APPROVED_SCOPED;5cazuri/5refuzuri pe SDK real. Acesta nu este producer autentic de config/turn/purpose sau emitere nativă. SL10/SL11 rămân PARTIAL, G-DATA-EARLY/G-MODEL/G02/faza2 NOT_CLOSED. Wheel adaptor exit0/12module exacte, build OCI refuzat la FROM înainte de RUN; INSTALLED_NATIVE și full canonical final BLOCKED/NOT_RUN, fără green transferat din SOURCE/SDK. Governorul bugetului a oprit verificări noi; mandatul inert rămâne valid, nu se cere republicare/launch cosmetic. Următorul prerechizit: corecția referinței locale atestate a imaginii și QA/canonical serial, apoi producerii/ownerul autentic conform firului canonic. Status/docs ale acestui ultim handoff nu au primit rerulare după update (NOT_RUN); acceptările și FAIL-urile istorice sunt păstrate.
+
 | Axă | Valori și interpretare |
 |---|---|
 | Cod | IMPLEMENTED = livrabilul rândului există; PARTIAL = numai o parte; NOT_IMPLEMENTED = livrabil nelivrat, chiar dacă are fundații reutilizabile |

@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.4
+version: 0.1.5
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -55,4 +55,8 @@ Route an inert preparation command through the supervisor's already-connected Ru
 - Stop after two QA-only repair cycles that do not answer the SDK question; hand off the concrete launch/consumer blocker rather than constructing a third audit. Record development-review traffic separately from forbidden product inference and verify leaf model/effort/Fast/approval settings before its first request rather than assuming delegate inheritance.
 
 ## Verification
+
+- Put extra SDK QA source copies beneath an already declared read-only mount, and resolve every source import against the exact bwrap destination map before consuming the attempt. A hash-verified host copy outside all mounts is still unavailable inside the sandbox; repair only the owned mapping/path, never expose a broader home or relax confinement.
+- Keep lazy SDK platform metadata separate from the serialization oracle when it attempts `uname -p`: first preserve the actual denied audit event and source stack, then use a precisely tagged stock metadata negative control under active confinement before any create. Retain every event and require zero additional serializer IO; do not patch SDK/platform, fabricate headers, or call a cached-metadata measurement zero attempted IO at cold-start.
+- Supply absolute control paths for leaf reports. A relative `implementation/...` can land in the repository instead of the owner's deterministic control directory. Preserve the scope deviation and relocate only exact newly created reports with a registered inverse and byte/hash readback; do not delete unknown files or transfer approval to changed product bytes.
 Each G02/G04/G07 subgate has evidence at its actual boundary. Test restart, compression/lineage, duplicate events, wrong identity, stopped run and bounded outputs. Report live LLM tests as not-run until explicitly authorized and exercised.

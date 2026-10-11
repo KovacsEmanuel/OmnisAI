@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.12
+version: 0.1.13
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -60,6 +60,8 @@ Host Playwright/Chromium validation is not certification of the planned executor
 - Read `/proc/net/unix` as bytes when checking an exact owned socket-path prefix: unrelated abstract Unix names need not be UTF-8. Compare the encoded owned path without lossy decoding or ignored errors; never print foreign entries. Keep the resource/family/daemon readback and pre-DDL filesystem identities distinct from an after-only stat, and do not rerun cleanup to repair a read-only census failure.
 
 ## Verification
+
+- Use an already-present local artifact tag (or a newly registered owned alias) whose full image ID is attested before and after a derivative build. Do not write `FROM sha256:<image-id>`: BuildKit can interpret it as the registry repository `sha256` and request remote metadata even with `--pull=false`. `--network=none` confines RUN steps, not the metadata resolver. Preserve an unexpected lookup/failure, classify the settled boundary, register a distinct minimal correction and never claim an offline build or replay an uncertain daemon attempt.
 
 For startup error-path acceptance, load [startup failure boundaries](references/startup-failure-boundaries.md): distinguish signal/timeout/ordinary refusal and verify the installed JSON/exit contract on structurally hostile but byte-bounded input. These checks supplement the existing positive OCI proof, not replace it.
 

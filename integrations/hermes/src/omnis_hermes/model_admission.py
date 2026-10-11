@@ -6,6 +6,7 @@ is deliberately not credited by this carrier consumer.
 """
 
 from . import managed_admission_contract as managed
+from .model_configuration import validate_configuration
 from .model_context import validate_context
 from .model_projection import serialize_model_input, validate_serialized_input
 from .native_preparation_contract import canonical, digest, loads, obj, reference, text, uuid
@@ -36,6 +37,7 @@ RESULT_FIELDS = {
     "model_calls",
     "model_context",
     "model_context_digest",
+    "source_configuration",
 }
 
 
@@ -88,7 +90,7 @@ def validate_preflight(value: object) -> bytes:
     return raw
 
 
-def _result(payload: dict[str, object], raw: bytes) -> dict[str, object]:
+def _result(payload: dict[str, object], raw: bytes, configuration: object) -> dict[str, object]:
     return {
         "protocol": payload["protocol"],
         "status": "BLOCKED",
@@ -101,6 +103,7 @@ def _result(payload: dict[str, object], raw: bytes) -> dict[str, object]:
         "model_calls": 0,
         "model_context": payload["model_context"],
         "model_context_digest": payload["model_context_digest"],
+        "source_configuration": validate_configuration(configuration, payload),
     }
 
 
@@ -109,6 +112,7 @@ def cold_preflight(
     *,
     native_root_id: object,
     native_entries: object,
+    source_configuration: object,
 ) -> dict[str, object]:
     """Native lifecycle calls this under its original-root/registry fence."""
     payload = mapping(loads(canonical(value), 32768))
@@ -120,12 +124,12 @@ def cold_preflight(
     ):
         raise ValueError("Invalid native model lineage")
     # A cold identity is not a turn. Never mint native-turn or reserve model here.
-    return _result(payload, raw)
+    return _result(payload, raw, source_configuration)
 
 
 def validate_preflight_result(value: object, payload: dict[str, object]) -> dict[str, object]:
     result = obj(value, RESULT_FIELDS)
-    expected = _result(payload, validate_preflight(payload))
+    expected = _result(payload, validate_preflight(payload), result["source_configuration"])
     if type(result["model_calls"]) is not int or canonical(result) != canonical(expected):
         raise ValueError("Invalid native model preflight result")
     return result

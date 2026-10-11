@@ -67,3 +67,20 @@ def initialize_cold(agent, admission, kwargs):
 def require_warm_parent(parent):
     if getattr(parent, "_cold_state", None) is not None:
         raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
+
+
+def configuration_snapshot(agent):
+    """Read the constructor-owned configuration; no caller fields or warm defaults."""
+    state = getattr(agent, "_cold_state", None)
+    if (type(state) is not ColdState or type(state.closed) is not bool or state.closed
+            or state.binding is not None or state.terminal is not None
+            or state.native_id != agent._subagent_id or state.session_id != agent.session_id
+            or state.parent_session_id != agent._parent_session_id
+            or agent.provider is not None or agent.model is not None
+            or type(agent.enabled_toolsets) is not tuple or type(agent.tools) is not tuple
+            or len(agent.enabled_toolsets) != 0 or len(agent.tools) != 0):
+        raise ColdAdmissionDenied("Native configuration changed or unavailable")
+    return dict(version=1, source="NATIVE_COLD_INITIALIZER", mode="NO_MODEL",
+                provider=agent.provider, model_id=agent.model,
+                native_child_id=agent._subagent_id, native_session_id=agent.session_id,
+                native_parent_session_id=agent._parent_session_id)

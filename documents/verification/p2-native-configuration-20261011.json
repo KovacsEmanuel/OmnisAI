@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "owner_session_id": "20261011_094100_1f2139",
+  "base": "7d663faaa3e2a09dc97c61f510fb7eb38fd3d511",
+  "status": "IMPLEMENTED_COLD_SOURCE_OBSERVATION_AND_OWNED_RECEIPT_SOURCE_GREEN_SCOPED_REVIEW_NATIVE_COMPONENT_PASS_PG_BLOCKED_NOT_READY_OR_TURN",
+  "snapshot": {
+    "api/src/omnis/modules/runs/model_dispatch.py": "b2814a1c1f9f5f6a99e6b27fa67144664ae2fddd66ed4828c68b019c3fa66ced",
+    "api/src/omnis/supervisor/native_tasks.py": "4f31fcef9669cb69836ac17d0e15b088112c28071723b25dc5c61e78a074d6fb",
+    "api/src/omnis/policy/model_configuration.py": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+    "integrations/hermes/src/omnis_hermes/model_configuration.py": "dde8ad63db05c52a1085e441d625dd200726bb47e5bd9aa7feff469b056b3910",
+    "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "19c0391a80f2721e75a3002714cd4ced90c532cd9f2e3544e5df7e19be4ad6c7",
+    "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+    "api/tests/test_model_admission.py": "b5e15404a9b44fa3ff5b45c6a5fb0695740e1d2783440e87342c3f9b40d10d43",
+    "api/tests/test_model_admission_pg.py": "a79385555736485374458fa1cb4284732711e018b6e6ca01e420be17cbc07c0f",
+    "api/tests/test_model_projection_pg.py": "f9c19061c4af01e885da9510ae00aabf2dad689f257f635202c70a1e4b4d4725",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "fc37a1c68f6102264c5439846a3dbc99ad0f9fb84dfab944affd6e4f93c123c1",
+    "integrations/hermes/upstream/omnis-managed.patch": "6b329cb54bd0d332f3de9ccbfa343c90addbfca127dc8813044487120dbd5e6d",
+    "integrations/hermes/pin.json": "b1b4050f0871adf73d57297c89c6155ee2d2c0111d3fce402952ee8b69aad67c"
+  },
+  "behavior": "Existing task_model_preflight under root/registry fence reads actual selected cold constructor state/configuration; mutation/closed/ref/identity mismatch refused. Existing owner reacquires Instance→lease→Stop after native reply, requalifies source/context/projection, append/replay one immutable bound model-configuration-receipt and reads exact owned stored Ref before reply. Not new RPC/catalog/store; receipt not provider-config/native-turn grant.",
+  "RED_owner": {
+    "exit": 1,
+    "tests_failed": 1,
+    "log": "/home/kali/.hermes/cache/scratch/p2cfg-1f2139-01/logs/config-owner-red.log"
+  },
+  "SOURCE_current": {
+    "exit": 0,
+    "tests": 111,
+    "log": "/home/kali/.hermes/cache/scratch/p2cfg-1f2139-01/logs/config-inventory-green.log",
+    "level": "Source-prefix + registry/identity/storage doubles; no authentic warm source simulated",
+    "static": "Ruff/check/format and strict9-file mypy0, regression strict mypy0 after last edit"
+  },
+  "distribution": {
+    "tests": 2,
+    "exit": 0,
+    "patch_reapply13": "BYTE_IDENTICAL",
+    "pin_manifest_patch": "Exact source/derived snapshot; no new wheel install proof"
+  },
+  "reviews": [
+    {
+      "label": "configuration-r1",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-configuration-r1-report.json",
+      "sha256": "453fc58072b12ee5a1e6070507d51d6d325ea015081b7f51565fd363c7c888d0",
+      "verdict": "APPROVED_SCOPED",
+      "actual_settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1632382,
+        "session_id": "20261011_142339_2fa911"
+      }
+    },
+    {
+      "label": "configuration-r2",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-configuration-r2-report.json",
+      "sha256": "f3cd731ed3478f4c520d7bb79c2852433227f1e8c3cbd41a61bf44da9f5cc483",
+      "verdict": "CHANGES_REQUESTED",
+      "actual_settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1632431,
+        "session_id": "20261011_142338_e49d61"
+      }
+    },
+    {
+      "label": "configuration-r1-fix",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-configuration-r1-fix-report.json",
+      "sha256": "ba4c5e81a2f48a921427317aecf69acbaf0348fce8e97563b5f03ff88fbb4164",
+      "verdict": "APPROVED_SCOPED",
+      "actual_settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1636177,
+        "session_id": "20261011_143337_4a0ef9"
+      }
+    },
+    {
+      "label": "configuration-r2-fix",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-configuration-r2-fix-report.json",
+      "sha256": "96e15facd83499572fe65f6f66265ca9aa544893467886043312f62b0e8f7b7e",
+      "verdict": "APPROVED_SCOPED",
+      "actual_settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1636226,
+        "session_id": "20261011_143337_60732c"
+      }
+    },
+    {
+      "label": "configuration-native-qa",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-configuration-native-qa-report.json",
+      "sha256": "5758b57daacd51be2096c459a9a14e3cd29c1adbd0ceb288701d4b3b281d9ed8",
+      "verdict": "PASS_SCOPED",
+      "actual_settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1638934,
+        "session_id": "20261011_144044_05a903"
+      }
+    }
+  ],
+  "blocking_finding": {
+    "id": "CONFIG-R2-001",
+    "original": "Nonempty tuple subclass tools/toolsets could spoof equality with empty tuple, false unchanged configuration observation",
+    "parent_red": {
+      "exit": 1,
+      "failed": 2,
+      "log": "config-inventory-red.log"
+    },
+    "minimal_fix": "type(value) is tuple before len(value)==0 for both inventories; no equality callback evaluated",
+    "current_green": "111 SOURCE0 including both regression fields",
+    "focused_disposition": "R1/R2 APPROVED_SCOPED current14SHA, original R2 CHANGES_REQUESTED retained; no broader READY/native turn approval"
+  },
+  "new_PG": {
+    "status": "BLOCKED_NOT_RUN_PRELAUNCH",
+    "outer_exit": 2,
+    "log": "/home/kali/.hermes/cache/scratch/pcfg-1f2139/logs/owner-preflight.log",
+    "fixture_paths_created": 0,
+    "DB_effects": 0,
+    "exact_dependency": "Existing unchanged owner requires Node24.21.0 and NPM11.19.0; bounded cached/system readback did not yield exact artifacts, system22.22/9.2 not substituted, no downloads/weakening",
+    "UV_recovered": "Actual0.12.19 executable copied read-only into new owned tools; SHA242e462a... equals pin, version readback0, no adoption of cache/runtime/source authority"
+  },
+  "installed_native_component": {
+    "class": "INSTALLED_NATIVE_COLD_CONFIGURATION_SOURCE_ONLY_NOT_READY_OR_TURN",
+    "build": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "native": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "actual_result": {
+      "scope": "INSTALLED_NATIVE_COLD_CONFIGURATION_SOURCE_ONLY_NOT_READY_OR_TURN",
+      "actual_AIAgent_root_child": true,
+      "source_observation": {
+        "version": 1,
+        "source": "NATIVE_COLD_INITIALIZER",
+        "mode": "NO_MODEL",
+        "provider": null,
+        "model_id": null,
+        "native_child_id": "2abd182f-d032-4e1d-adae-717ed5b86729",
+        "native_session_id": "18b79d09-7101-47c9-a090-5909a8ff31c3",
+        "native_parent_session_id": "df0930a1-5d64-4156-a9d3-9e2d5b7fd533"
+      },
+      "mutation_denials": [
+        "provider",
+        "model",
+        "tools",
+        "enabled_toolsets",
+        "closed"
+      ],
+      "verified_files": 27,
+      "forbidden_native_entries": [],
+      "audit_connect_DNS": [],
+      "native_origin": "/opt/hermes/source/agent/cold_admission.py",
+      "phase2": "NOT_CLOSED",
+      "warm_provider_turn_config_Sent_response": "NOT_CREATED_NOT_AUTHORIZED",
+      "SQL_owner_integration": "NOT_PROVED_BY_THIS_NATIVE_COMPONENT_PROBE"
+    },
+    "QA_frontend_exit": 1,
+    "actual_driver_probe_exit": 0,
+    "QA_helper_readonly_failures_retained": [
+      {
+        "stage": "read-only report inspection",
+        "exit_code": 1,
+        "error": "KeyError exact_snapshot: schema r2 foloseste snapshot, nu exact_snapshot",
+        "effects": 0,
+        "disposition": "Schema citita direct; aprobarea si hashes verificate explicit in preflightul complet. Nu invocare/replay driver."
+      },
+      {
+        "stage": "read-only path-map inspection",
+        "exit_code": 1,
+        "error": "KeyError /opt/hermes/src/agent/auxiliary_client.py: harta instalata foloseste /opt/hermes/source/",
+        "effects": 0,
+        "disposition": "expected.json si Dockerfile citite direct; fiecare din cele27 cai actuale verificata in preflightul complet. Nu mismatch de hash si nu invocare/replay driver."
+      }
+    ],
+    "image_id": "sha256:df43e5eeef69e6d87de6c50ce723c3719d5bb694627afdf4933442462b33c43d",
+    "scope": "One local immutable base/COPY-only legacy build,no RUN/no registry/no UV, new owned namespace/state; actual whole AIAgent root/child—not AST or mocks",
+    "SQL_owner_integration": "NOT_PROVED_BY_COMPONENT_DO_NOT_STITCH_SOURCE_MOCKS_TO_PG_NATIVE"
+  },
+  "retirement": {
+    "CID": "b3435f85bdc94e3e50c808c2b7767599e525ef1c4b31b291ef10d6322bddf858",
+    "before": "Parent actual all artifact SHA/log/result/receipt equality plus own exited0/image/labels/pid0/runningfalse/same daemon",
+    "rm_exit": 0,
+    "exact_CID_absent": true,
+    "same_daemon": true,
+    "all_state_image_inputs_logs_receipts_retained": true,
+    "no_replay": true
+  },
+  "essential_remaining": [
+    "Qualified configured READY/provider-config producer required before new authorized native agent—not this cold observation",
+    "Actual legitimate native turn bound owner/run/binding/task/attempt then qualified selection/purpose→existing final DTO; no source fake IDs as authority",
+    "Independent caller reserve/commit/SENT then physical Stop/first-byte/caps/native child/skill/result/continuation",
+    "Settings P4a-minim follows P2-inert dependencies, prereq live; full serial unchanged make check only final product boundary after actual consumer/browser QA"
+  ],
+  "third_dependency": "NOT_CLOSED_PARTIAL_COLD_SOURCE_ONLY",
+  "phase2": "NOT_CLOSED",
+  "live": "HOLD",
+  "after_phase2": "HOLD_NO_PHASE3",
+  "browser": "NOT_APPLICABLE_NO_UI_CHANGE",
+  "Reticle": "NOT_APPLICABLE",
+  "Chisel": "BLOCKED_NO_GO",
+  "retention": "Keep initial/fixed snapshots, all old failures/receipts/logs/new private state; no original protected HTML, global/r1/mission/cron/push touched"
+}

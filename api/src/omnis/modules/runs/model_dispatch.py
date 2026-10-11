@@ -56,7 +56,11 @@ class ModelDispatch:
 
     @staticmethod
     def accept_preflight(result: object, prepared: dict[str, object]) -> dict[str, object]:
+        from omnis.policy.model_configuration import validate_source
+
         payload = mapping(prepared["payload"])
+        native = mapping(result)
+        configuration = validate_source(native.get("source_configuration"), payload)
         body = mapping(mapping(payload["projection"])["payload"])
         expected: dict[str, object] = {
             "protocol": payload["protocol"],
@@ -70,10 +74,57 @@ class ModelDispatch:
             "model_calls": 0,
             "model_context": payload["model_context"],
             "model_context_digest": payload["model_context_digest"],
+            "source_configuration": configuration,
         }
         if canonical(exact(result, set(expected))) != canonical(expected):
             raise CatalogError("MODEL_PREFLIGHT_REJECTED")
         return {**expected, "data_approval_ref": prepared["approval_ref"]}
+
+    async def persist_configuration(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        prepared: dict[str, object],
+        result: object,
+    ) -> dict[str, object]:
+        """Private owner holds Instance→lease→Stop; commit/read actual RPC observation."""
+        from omnis.policy.model_configuration import configuration_payload
+
+        payload = mapping(prepared["payload"])
+        run = uuid_string(payload["run_id"])
+        current = await self.read(
+            connection,
+            owner,
+            run,
+            records.reference(mapping(payload["binding"])),
+            prepared["approval_ref"],
+            payload["projection_ref"],
+        )
+        if canonical(current) != canonical(prepared):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        accepted = self.accept_preflight(result, current)
+        expected = configuration_payload(
+            mapping(current["payload"]), accepted["source_configuration"]
+        )
+        graph = await store.graph(connection, owner, run)
+        matches = [
+            r
+            for r in graph
+            if r["kind"] == "model-configuration-receipt"
+            and mapping(r["payload"]).get("projection_ref") == payload["projection_ref"]
+        ]
+        if matches:
+            if len(matches) != 1 or canonical(matches[0]["payload"]) != canonical(expected):
+                raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+            receipt = matches[0]
+        else:
+            receipt = records.envelope("model-configuration-receipt", expected)
+            await store.put(connection, owner, run, receipt)
+        # Read the exact owned immutable record, never return a hand-built Ref.
+        checked = await store.get(connection, owner, run, records.reference(receipt))
+        if canonical(checked["payload"]) != canonical(expected):
+            raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        return {**accepted, "configuration_receipt_ref": records.reference(checked)}
 
     def _approval(
         self, item: object, owner: str, run: str, binding_ref: object

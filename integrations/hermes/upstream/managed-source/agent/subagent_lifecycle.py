@@ -352,7 +352,15 @@ class SubagentLifecycleService:
             from omnis_hermes.model_context import validate_context
             validate_context(payload["model_context"], payload,
                 staged_manifest=batch["manifest"], staged_material=batch["composition_material"])
-            return cold_preflight(payload, native_root_id=parent._subagent_id, native_entries=rows)
+            from agent.cold_admission import configuration_snapshot
+            context = payload["model_context"]
+            selected = [record.agent for row, record in zip(rows, batch["records"], strict=True)
+                        if row["task_id"] == context["task_id"] and row["attempt_id"] == context["attempt_id"]]
+            if len(selected) != 1:
+                raise ColdAdmissionDenied("Native configuration assignment unavailable")
+            configuration = configuration_snapshot(selected[0])
+            return cold_preflight(payload, native_root_id=parent._subagent_id,
+                native_entries=rows, source_configuration=configuration)
 
     def release(self, payload):
         """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""

@@ -138,9 +138,14 @@ async def _produce(directory: Path) -> None:
             await service.runtime_authority(owner, self.epoch, self.generation, inert_probe=True)
             adapter = importlib.import_module("omnis_hermes.model_admission")
             body = mapping(mapping(payload["binding"])["payload"])
+            from test_model_admission import protocol_configuration
+
             return mapping(
                 adapter.cold_preflight(
-                    payload, native_root_id=body["native_root_id"], native_entries=body["entries"]
+                    payload,
+                    native_root_id=body["native_root_id"],
+                    native_entries=body["entries"],
+                    source_configuration=protocol_configuration(payload),
                 )
             )
 

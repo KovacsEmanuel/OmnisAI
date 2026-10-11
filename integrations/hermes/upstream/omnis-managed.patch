@@ -270,7 +270,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
 diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 --- /dev/null
 +++ b/agent/cold_admission.py
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,86 @@
 +"""Trusted opt-in cold AIAgent state. No routing, client, tools or conversation.
 +
 +This mode has its own complete finite state, NOT a partially initialized warm
@@ -340,6 +340,23 @@ diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 +def require_warm_parent(parent):
 +    if getattr(parent, "_cold_state", None) is not None:
 +        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
++
++
++def configuration_snapshot(agent):
++    """Read the constructor-owned configuration; no caller fields or warm defaults."""
++    state = getattr(agent, "_cold_state", None)
++    if (type(state) is not ColdState or type(state.closed) is not bool or state.closed
++            or state.binding is not None or state.terminal is not None
++            or state.native_id != agent._subagent_id or state.session_id != agent.session_id
++            or state.parent_session_id != agent._parent_session_id
++            or agent.provider is not None or agent.model is not None
++            or type(agent.enabled_toolsets) is not tuple or type(agent.tools) is not tuple
++            or len(agent.enabled_toolsets) != 0 or len(agent.tools) != 0):
++        raise ColdAdmissionDenied("Native configuration changed or unavailable")
++    return dict(version=1, source="NATIVE_COLD_INITIALIZER", mode="NO_MODEL",
++                provider=agent.provider, model_id=agent.model,
++                native_child_id=agent._subagent_id, native_session_id=agent.session_id,
++                native_parent_session_id=agent._parent_session_id)
 diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
 --- a/agent/conversation_loop.py
 +++ b/agent/conversation_loop.py
@@ -417,7 +434,7 @@ diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
      UNKNOWN = "UNKNOWN"
 
 
-@@ -241,9 +242,165 @@
+@@ -241,9 +242,173 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -531,7 +548,15 @@ diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
 +            from omnis_hermes.model_context import validate_context
 +            validate_context(payload["model_context"], payload,
 +                staged_manifest=batch["manifest"], staged_material=batch["composition_material"])
-+            return cold_preflight(payload, native_root_id=parent._subagent_id, native_entries=rows)
++            from agent.cold_admission import configuration_snapshot
++            context = payload["model_context"]
++            selected = [record.agent for row, record in zip(rows, batch["records"], strict=True)
++                        if row["task_id"] == context["task_id"] and row["attempt_id"] == context["attempt_id"]]
++            if len(selected) != 1:
++                raise ColdAdmissionDenied("Native configuration assignment unavailable")
++            configuration = configuration_snapshot(selected[0])
++            return cold_preflight(payload, native_root_id=parent._subagent_id,
++                native_entries=rows, source_configuration=configuration)
 +
 +    def release(self, payload):
 +        """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""

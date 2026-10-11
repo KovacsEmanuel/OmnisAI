@@ -41,6 +41,28 @@ def preflight_command() -> dict[str, object]:
     }
 
 
+def protocol_configuration(payload: dict[str, object]) -> dict[str, object]:
+    """SOURCE protocol reply data only; NOT a native configuration or warm grant."""
+    context = mapping(payload["model_context"])
+    rows = sequence(mapping(mapping(payload["binding"])["payload"])["entries"])
+    row = next(
+        mapping(r)
+        for r in rows
+        if mapping(r)["task_id"] == context["task_id"]
+        and mapping(r)["attempt_id"] == context["attempt_id"]
+    )
+    return {
+        "version": 1,
+        "source": "NATIVE_COLD_INITIALIZER",
+        "mode": "NO_MODEL",
+        "provider": None,
+        "model_id": None,
+        "native_child_id": row["native_child_id"],
+        "native_session_id": row["native_session_id"],
+        "native_parent_session_id": "SOURCE_PROTOCOL_PARENT_NOT_AUTHORITY",
+    }
+
+
 def test_private_control_accepts_explicit_data_decision_not_model_authority() -> None:
     command = preflight_command()
     try:
@@ -183,6 +205,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
         payload,
         native_root_id=mapping(binding["payload"])["native_root_id"],
         native_entries=[row],
+        source_configuration=protocol_configuration(payload),
     )
     assert receipt["reason"] == "NO_MODEL"
     assert receipt["native_turn"] is None and receipt["model_calls"] == 0
@@ -287,6 +310,11 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     child = SimpleNamespace(
         session_id=row["native_session_id"],
         _subagent_id=row["native_child_id"],
+        _parent_session_id=parent.session_id,
+        provider=None,
+        model=None,
+        tools=(),
+        enabled_toolsets=(),
         _cold_state=SimpleNamespace(
             closed=False,
             session_id=row["native_session_id"],
@@ -311,8 +339,10 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
         "expires": time.monotonic() + 4.5,
     }
     cold = ModuleType("agent.cold_admission")
-    cold.__dict__["ColdAdmissionDenied"] = ValueError
     monkeypatch.setitem(sys.modules, "agent.cold_admission", cold)
+    # Pure producer code is real; identities remain SOURCE doubles, not native proof.
+    exec((source.parent / "cold_admission.py").read_text(), cold.__dict__)
+    child._cold_state = cold.ColdState(child.session_id, child._subagent_id, parent.session_id)
 
     async def peer_call(method: str, value: object, **kwargs: object) -> dict[str, object]:
         assert method == "omnis.managed.model_preflight"
@@ -364,7 +394,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     assert reply["task_status"] == "BLOCKED"
     assert mapping(reply["model_admission"])["reason"] == "NO_MODEL"
     assert mapping(reply["model_admission"])["projection_ref"] == payload["projection_ref"]
-    assert events == ["begin", "commit", "native-data-preflight"]
+    assert events == ["begin", "commit", "native-data-preflight", "begin", "commit"]
     reserve.assert_not_awaited()
 
     from omnis.modules.settings.catalog_models import CatalogError

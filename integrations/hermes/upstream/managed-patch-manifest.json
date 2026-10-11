@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "cold qualified selection/purpose and explicit managed DATA denied without authentic turn/config independently of inert env; no warm/SENT permission",
+  "scope": "constructor-owned cold configuration observation through qualified owner receipt; NO_MODEL retained, no READY provider-config/native-turn/SENT grant",
   "files": {
     "agent/auxiliary_client.py": {
       "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
@@ -18,7 +18,7 @@
     },
     "agent/cold_admission.py": {
       "original_sha256": null,
-      "patched_sha256": "f2f8fb668965cf59b93828028a8a7a24312f2915e987c6e3ae9fde2ed0ef7566"
+      "patched_sha256": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0"
     },
     "agent/conversation_loop.py": {
       "original_sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91",
@@ -30,7 +30,7 @@
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "9c46032214022417aa5b924529108f63e15570f012367cc52930d27f01077da2"
+      "patched_sha256": "19c0391a80f2721e75a3002714cd4ced90c532cd9f2e3544e5df7e19be4ad6c7"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -57,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "dcb8e12c1997aa953a7c1feeab4d53bcc1494176d7f1bd3d44facc64016e7627"
+  "patch_sha256": "6b329cb54bd0d332f3de9ccbfa343c90addbfca127dc8813044487120dbd5e6d"
 }

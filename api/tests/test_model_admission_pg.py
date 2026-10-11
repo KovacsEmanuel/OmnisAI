@@ -34,6 +34,7 @@ from omnis.policy.model_projection import SyntheticApproval, projection_input
 from omnis.supervisor.native_tasks import NativeTaskOwner
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_managed_contract import stage
+from test_model_admission import protocol_configuration
 from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
 
@@ -123,7 +124,10 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
             body = mapping(mapping(payload["binding"])["payload"])
             return mapping(
                 adapter.cold_preflight(
-                    payload, native_root_id=body["native_root_id"], native_entries=body["entries"]
+                    payload,
+                    native_root_id=body["native_root_id"],
+                    native_entries=body["entries"],
+                    source_configuration=protocol_configuration(payload),
                 )
             )
 

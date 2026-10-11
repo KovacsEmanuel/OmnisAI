@@ -84,9 +84,16 @@ class NativeTaskOwner:
         result = await self.runtime.managed(
             self.service, self.owner, "task_model_preflight", mapping(prepared["payload"])
         )
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            admission = await consumer.persist_configuration(
+                conn, command.owner_id, prepared, result
+            )
         return {
             **self._reply(command, binding, "BLOCKED"),
-            "model_admission": consumer.accept_preflight(result, prepared),
+            "model_admission": admission,
         }
 
     async def handle(self, command: NativeTaskCommand) -> dict[str, object]:
@@ -288,6 +295,8 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                         "data_approval_ref",
                         "model_context",
                         "model_context_digest",
+                        "source_configuration",
+                        "configuration_receipt_ref",
                     },
                 )
                 ref(admission["projection_ref"], "model-projection")
@@ -300,6 +309,25 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 from omnis.policy.model_context import validate_context_readback
 
                 context = validate_context_readback(admission["model_context"])
+
+                # Identity/pins of the observation are checked against the exact
+                # owner context; this receipt is never a provider-config grant.
+                ref(admission["configuration_receipt_ref"], "model-configuration-receipt")
+                source = mapping(admission["source_configuration"])
+                from omnis.modules.tasks.managed_contract import integer, text
+                from omnis.policy.model_configuration import SOURCE_FIELDS
+
+                exact(source, SOURCE_FIELDS)
+                integer(source["version"], 1, 1)
+                if (
+                    source["source"] != "NATIVE_COLD_INITIALIZER"
+                    or source["mode"] != "NO_MODEL"
+                    or source["provider"] is not None
+                    or source["model_id"] is not None
+                ):
+                    raise CatalogError("TASK_REJECTED")
+                for key in ("native_child_id", "native_session_id", "native_parent_session_id"):
+                    text(source[key], 128)
                 if (
                     context["owner_id"] != command.owner_id
                     or context["manifest_ref"] != manifest_pin

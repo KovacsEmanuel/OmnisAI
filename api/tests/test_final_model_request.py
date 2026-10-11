@@ -3,31 +3,49 @@
 import importlib
 import importlib.util
 import json
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
+from typing import NoReturn, Protocol
 from uuid import uuid4
 
 import pytest
 
 from omnis.modules.settings.catalog_schema import canonical
+from omnis.modules.tasks.managed_contract import sequence
+from test_model_projection_denials import mapping
 from test_model_projection_denials import unit_projection as unit_projection
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def module(monkeypatch):
+class FinalConsumer(Protocol):
+    def __call__(
+        self, raw: object, observed: object, *, post_bypass: bool = False
+    ) -> dict[str, object]: ...
+
+
+def module(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
     spec = importlib.util.find_spec("omnis_hermes.model_request")
     assert spec is not None, "complete immutable DTO consumer missing, not only carrier"
     return importlib.import_module("omnis_hermes.model_request")
 
 
-def fixture_dto(projection):
-    """Untrusted parser fixture, never persisted as native-turn/config/SENT or used as grant."""
-    body = projection["payload"]
+def prefix_loader() -> Callable[[str, list[str], dict[str, object]], ModuleType]:
+    # The prefix helper lives on the explicitly prepended native test path.
+    loader: Callable[[str, list[str], dict[str, object]], ModuleType] = importlib.import_module(
+        "test_model_terminal"
+    ).load
+    return loader
 
-    def pin(kind):
+
+def fixture_dto(projection: dict[str, object]) -> dict[str, object]:
+    """Untrusted parser fixture, never persisted as native-turn/config/SENT or used as grant."""
+    body = mapping(projection["payload"])
+
+    def pin(kind: str) -> dict[str, object]:
         return {"kind": kind, "id": str(uuid4()), "revision": 1, "digest": "1" * 64}
 
     return {
@@ -49,15 +67,18 @@ def fixture_dto(projection):
     }
 
 
-def test_complete_dto_is_immutable_and_has_distinct_digest_preimages(unit_projection, monkeypatch):
+def test_complete_dto_is_immutable_and_has_distinct_digest_preimages(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     m = module(monkeypatch)
     raw = canonical(fixture_dto(unit_projection))
     frozen = m.parse_final_request(raw)
     before = frozen.sdk_kwargs()
     before["messages"][0]["content"] = "UNTRUSTED_ALIAS_MUTATION"
-    assert frozen.sdk_kwargs()["messages"] == unit_projection["payload"]["model_input"]["messages"]
+    body = mapping(unit_projection["payload"])
+    assert frozen.sdk_kwargs()["messages"] == mapping(body["model_input"])["messages"]
     assert frozen.raw == raw
-    assert frozen.dto_digest != unit_projection["payload"]["projection_digest"]
+    assert frozen.dto_digest != body["projection_digest"]
     assert json.loads(frozen.http_body()) == {
         k: v for k, v in frozen.sdk_kwargs().items() if k != "timeout"
     }
@@ -68,7 +89,9 @@ def test_complete_dto_is_immutable_and_has_distinct_digest_preimages(unit_projec
 @pytest.mark.parametrize(
     "field", ["extra_body", "extra_headers", "extra_query", "history", "metadata"]
 )
-def test_final_incoming_extension_refused_even_empty(unit_projection, monkeypatch, field):
+def test_final_incoming_extension_refused_even_empty(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
     kwargs = frozen.sdk_kwargs()
@@ -77,7 +100,9 @@ def test_final_incoming_extension_refused_even_empty(unit_projection, monkeypatc
         m.consume_final_request(frozen.raw, kwargs)
 
 
-def test_post_bypass_exact_copies_and_wire_body_guard(unit_projection, monkeypatch):
+def test_post_bypass_exact_copies_and_wire_body_guard(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
     before = frozen.sdk_kwargs()
@@ -94,41 +119,49 @@ def test_post_bypass_exact_copies_and_wire_body_guard(unit_projection, monkeypat
 
 
 @pytest.mark.parametrize("value", [True, 0, 65537, "64"])
-def test_final_caps_types_and_bounds_refused(unit_projection, monkeypatch, value):
+def test_final_caps_types_and_bounds_refused(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, value: object
+) -> None:
     m = module(monkeypatch)
     data = fixture_dto(unit_projection)
-    data["dispatch"]["technical_caps"]["output_tokens"] = value
+    mapping(mapping(data["dispatch"])["technical_caps"])["output_tokens"] = value
     with pytest.raises(m.ManagedModelTerminal):
         m.parse_final_request(canonical(data))
 
 
-def test_full_qualified_projection_nested_unknown_refused(unit_projection, monkeypatch):
+def test_full_qualified_projection_nested_unknown_refused(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     m = module(monkeypatch)
     data = fixture_dto(unit_projection)
-    data["projection"]["payload"]["model_input"]["messages"][0]["unknown"] = "SYNTHETIC_FORBIDDEN"
+    body = mapping(mapping(data["projection"])["payload"])
+    messages = sequence(mapping(body["model_input"])["messages"])
+    mapping(messages[0])["unknown"] = "SYNTHETIC_FORBIDDEN"
     with pytest.raises(m.ManagedModelTerminal):
         m.parse_final_request(canonical(data))
 
 
-def test_common_sink_consumes_explicit_dto_but_never_lifts_no_model(unit_projection, monkeypatch):
+def test_common_sink_consumes_explicit_dto_but_never_lifts_no_model(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
-    from test_model_terminal import load
+    load = prefix_loader()
 
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
-    observed = []
-    actual = m.consume_final_request
+    observed: list[bool] = []
+    actual: FinalConsumer = m.consume_final_request
 
-    def spy(*args, **kwargs):
+    def spy(raw: object, value: object, *, post_bypass: bool = False) -> dict[str, object]:
         observed.append(True)
-        return actual(*args, **kwargs)
+        return actual(raw, value, post_bypass=post_bypass)
 
     monkeypatch.setattr(m, "consume_final_request", spy)
     monkeypatch.setenv("HERMES_OMNIS_INERT", "1")
     h = load("chat_completion_helpers.py", ["_dispatch_nonstreaming_api_request"], {})
     agent = SimpleNamespace(api_mode="chat_completions", provider="SOURCE_ONLY")
 
-    def forbidden(*args, **kwargs):
+    def forbidden(*args: object, **kwargs: object) -> NoReturn:
         pytest.fail("NO_MODEL reached client/SDK")
 
     with pytest.raises(m.ManagedModelTerminal):
@@ -138,13 +171,17 @@ def test_common_sink_consumes_explicit_dto_but_never_lifts_no_model(unit_project
     assert observed == [True]
 
 
-def test_frozen_request_direct_constructor_refuses_mutable_bytes(monkeypatch):
+def test_frozen_request_direct_constructor_refuses_mutable_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     m = module(monkeypatch)
     with pytest.raises(m.ManagedModelTerminal):
         m.FinalModelRequest(bytearray(b"{}"))
 
 
-def test_sdk_client_defaults_rechecked_after_original_prepare(unit_projection, monkeypatch):
+def test_sdk_client_defaults_rechecked_after_original_prepare(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     """SOURCE check-use double; callback installation is a denial, never a provider response."""
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
@@ -153,7 +190,7 @@ def test_sdk_client_defaults_rechecked_after_original_prepare(unit_projection, m
         _auth=None, follow_redirects=False, event_hooks={"request": [], "response": []}
     )
 
-    def mutate(request):
+    def mutate(request: object) -> None:
         http.event_hooks["request"].append(lambda request: None)
 
     client = SimpleNamespace(
@@ -176,7 +213,9 @@ def test_sdk_client_defaults_rechecked_after_original_prepare(unit_projection, m
         client._prepare_request(prepared)
 
 
-def test_http_timeout_extension_bool_does_not_equal_bound_float(unit_projection, monkeypatch):
+def test_http_timeout_extension_bool_does_not_equal_bound_float(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
     """SOURCE shape double only, not SDK/native/client authority evidence."""
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
@@ -204,7 +243,9 @@ def test_http_timeout_extension_bool_does_not_equal_bound_float(unit_projection,
 
 
 @pytest.mark.parametrize("channel", ["direct", "worker"])
-def test_explicit_final_bytes_direct_worker_stay_no_model(unit_projection, monkeypatch, channel):
+def test_explicit_final_bytes_direct_worker_stay_no_model(
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, channel: str
+) -> None:
     """Actual function/class prefix and joined thread; NOT installed native lineage."""
     import contextlib
     import threading
@@ -212,24 +253,29 @@ def test_explicit_final_bytes_direct_worker_stay_no_model(unit_projection, monke
     from unittest.mock import Mock
 
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
-    from test_model_terminal import load
+    load = prefix_loader()
 
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
-    seen = []
-    actual = m.consume_final_request
+    seen: list[bool] = []
+    actual: FinalConsumer = m.consume_final_request
 
-    def observe(*args, **kwargs):
+    def observe(raw: object, value: object, *, post_bypass: bool = False) -> dict[str, object]:
         seen.append(True)
-        return actual(*args, **kwargs)
+        return actual(raw, value, post_bypass=post_bypass)
 
     monkeypatch.setattr(m, "consume_final_request", observe)
     monkeypatch.setenv("HERMES_OMNIS_INERT", "1")
     h = load(
         "chat_completion_helpers.py", ["_dispatch_nonstreaming_api_request", "direct_api_call"], {}
     )
-    h.threading, h.contextlib, h.time, h.logger = threading, contextlib, time, Mock()
-    h._context_thread_target = lambda cb: cb
+    h.__dict__.update(
+        threading=threading,
+        contextlib=contextlib,
+        time=time,
+        logger=Mock(),
+        _context_thread_target=lambda cb: cb,
+    )
     agent = SimpleNamespace(
         api_mode="chat_completions",
         provider="SOURCE_ONLY",
@@ -278,20 +324,20 @@ def test_explicit_final_bytes_direct_worker_stay_no_model(unit_projection, monke
 
 @pytest.mark.parametrize("channel", ["sink", "direct", "worker"])
 def test_unbound_managed_dto_cannot_use_stock_route_without_inert_env(
-    unit_projection, monkeypatch, channel
-):
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, channel: str
+) -> None:
     """Untrusted SOURCE negative, not a warm agent/turn/config authority fixture."""
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
-    from test_model_terminal import load
+    load = prefix_loader()
 
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
-    attempted = []
+    attempted: list[str] = []
 
     class ReachedStockRoute(Exception):
         pass
 
-    def client(*args, **kwargs):
+    def client(*args: object, **kwargs: object) -> NoReturn:
         attempted.append("client")
         raise ReachedStockRoute()  # record before refusing; no provider response
 
@@ -309,17 +355,21 @@ def test_unbound_managed_dto_cannot_use_stock_route_without_inert_env(
     )
     monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
 
-    def call():
+    def call() -> object:
+        result: object
         if channel == "sink":
-            return h._dispatch_nonstreaming_api_request(
+            result = h._dispatch_nonstreaming_api_request(
                 agent, frozen.sdk_kwargs(), make_client=client, final_request=frozen.raw
             )
+            return result
         if channel == "direct":
-            return h.direct_api_call(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+            result = h.direct_api_call(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+            return result
         cls = load(
             "chat_completion_nonstream.py", ["_NonStreamRequest"], {"h": h}
         )._NonStreamRequest
-        return cls(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+        result = cls(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+        return result
 
     with pytest.raises(m.ManagedModelTerminal):
         call()
@@ -328,20 +378,20 @@ def test_unbound_managed_dto_cannot_use_stock_route_without_inert_env(
 
 @pytest.mark.parametrize("platform", ["cli", "cron"])
 def test_public_worker_wrapper_keeps_unbound_denial_terminal_with_stale_breaker(
-    unit_projection, monkeypatch, platform
-):
+    unit_projection: dict[str, object], monkeypatch: pytest.MonkeyPatch, platform: str
+) -> None:
     """Actual wrapper/breaker/error-owner SOURCE, not a native-turn/config grant."""
     import contextlib
     import inspect
 
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
-    from test_model_terminal import load
+    load = prefix_loader()
 
     m = module(monkeypatch)
     frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
-    calls = []
+    calls: list[str] = []
 
-    def forbidden(*args, **kwargs):
+    def forbidden(*args: object, **kwargs: object) -> NoReturn:
         calls.append("recovery-or-client")
         raise AssertionError("managed denial reached stock recovery/setup")
 
@@ -371,7 +421,7 @@ def test_public_worker_wrapper_keeps_unbound_denial_terminal_with_stale_breaker(
         ["handle_api_error"],
         {"ApiErrorVerdict": SimpleNamespace, "recover_before_classification": forbidden},
     )
-    args = {
+    args: dict[str, object] = {
         key: None
         for key in inspect.signature(handler.handle_api_error).parameters
         if key != "agent"

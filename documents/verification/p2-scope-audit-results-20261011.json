@@ -126,10 +126,24 @@
       "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
       "outer_log": "/home/kali/.hermes/cache/scratch/p2-audit-canonical-8b7529a.log",
       "fixture_root": "/home/kali/.hermes/cache/scratch/db-3e849c8f869f47f7",
-      "verdict": "IN_PROGRESS",
-      "exit_code": null,
-      "family_drained": null,
-      "note": "Product/test bytes unchanged by later skill/results documentation. Pending gate is not PASS or P2 closure"
+      "verdict": "FAIL",
+      "exit_code": 2,
+      "family_drained": true,
+      "failed_gate": "test-api",
+      "api_counts": {"passed": 1387, "failed": 6, "skipped": 1},
+      "cause": "All six native_task_control regressions received an unrelated data_approval:null field on legacy commands/callbacks",
+      "cid": "2be66d2b3670a456f1bac3ca73b3b0e3872d26c8d978abaaccfb33db7ba32e0f",
+      "exact_owned_db_project_network_absence_parent_verified": true,
+      "data_retained": true,
+      "disposition": "Existing consumer RED6failed/8passed reproduced; minimal schema serialization fix8a353b8 omits only None and retains non-null decisions. Affected57 tests exit0/Ruff0/mypy0; original full FAIL retained",
+      "post_fix_full_canonical": "NOT_RUN on8a353b8; focused57 is not a canonical PASS",
+      "post_fix_review": "APPROVED_SCOPED by both complementary reviews on exact8a353b8 schema bytes; parent adjudicated",
+      "post_fix_schema_sha256": "bf9a05291ead51953bab44bf75a8811c71c4ad4bbdc1b0eb2a3352fad80645a0",
+      "post_fix_review_receipts": [
+        {"report": "omnis-p2-null-approval-review1-20261011.json", "sha256": "82e0cdf4138cd28820e4d5e235942def390a867998e74c9fd09be86bf7e95526", "verdict": "APPROVED_SCOPED", "scope": "Legacy wire/nonnull/caller/replay;57existing SOURCE-UDS tests and21direct controls"},
+        {"report": "omnis-p2-null-approval-review2-20261011.json", "sha256": "99a463a75c40bd2ba1e288c14debc3655bee3ccb49c151732b17607b6e2ec23c", "verdict": "APPROVED_SCOPED", "scope": "Security/strict unknown/null and unchanged authority;32existing tests and33schema controls; counts overlap parent57"}
+      ],
+      "note": "Native installed component source bytes unchanged; API serialization changes separately tested. Phase2 remains NOT_CLOSED; no rerun of old native/browser consumers or green transfer"
     }
   ],
   "phase_status": {

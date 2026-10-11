@@ -28,6 +28,7 @@ def test_managed_patch_is_separate_and_exactly_pinned():
         assert sha(UPSTREAM / "managed-source" / name) == hashes["patched_sha256"]
     assert set(manifest["files"]) == {
         "run_agent.py",
+        "agent/agent_init.py",
         "agent/cold_admission.py",
         "agent/subagent_lifecycle.py",
         "agent/managed_admission_rpc.py",

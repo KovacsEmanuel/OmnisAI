@@ -89,7 +89,9 @@ class NativeTaskCommand(StrictBody):
         "model_initialization",
     ]
     manifest_ref: dict[str, object]
-    data_approval: dict[str, object] | None = Field(default=None, repr=False)
+    data_approval: dict[str, object] | None = Field(
+        default=None, repr=False, exclude_if=lambda v: v is None
+    )
     configuration: dict[str, object] | None = Field(
         default=None, repr=False, exclude_if=lambda v: v is None
     )

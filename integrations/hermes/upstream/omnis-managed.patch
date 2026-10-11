@@ -32,7 +32,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
 +        api_kwargs = consume_final_request(final_request, api_kwargs)
 +        if agent.api_mode != "chat_completions" or agent.provider == "moa":
 +            deny_model()
-+    require_model_authority(agent)
++    require_model_authority(agent, final_request=final_request)
      if agent.api_mode == "codex_responses":
          return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
              on_first_delta=getattr(agent, "_codex_on_first_delta", None))
@@ -62,7 +62,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
      equal to the stale budget is the backstop when the abort finds nothing (#85252).
      Both surface a retryable ``TimeoutError`` for the outer retry loop."""
 +    from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
-+    require_model_authority(agent)
++    require_model_authority(agent, final_request=final_request)
      _check_stale_giveup(agent)
      agent._touch_activity("waiting for non-streaming API response")
      # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
@@ -111,7 +111,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
 
 
  class _RequestClientRegistry:
-@@ -1235,7 +1263,7 @@
+@@ -1235,20 +1263,22 @@
 
 
 
@@ -120,7 +120,10 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
      """Run the API call on a worker thread so the caller can detect interrupts
      without waiting for the full HTTP round-trip. Each worker gets its own
      per-request client (interrupts close only that one); a stale-call detector
-@@ -1244,11 +1272,11 @@
+     kills the connection and raises so the main retry loop can back off / rotate
+     credentials / fall back."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent, final_request=final_request)
      # Nested-pool contexts (cron, delegated children) wedge on a worker thread
      # (#62151): run inline. See should_use_direct_api_call.
      if should_use_direct_api_call(agent):
@@ -134,7 +137,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
 
 
  def _consume_ephemeral_reasoning_off(agent) -> bool:
-@@ -2283,6 +2311,8 @@
+@@ -2283,6 +2313,8 @@
 
  def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
      """Request a summary when max iterations are reached. Returns the final response text."""
@@ -143,7 +146,7 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
      warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
      if getattr(agent, "suppress_status_output", False):
          # Strict machine-readable mode (-Q, oneshot): keep diagnostics off stdout. quiet_mode is
-@@ -3753,6 +3783,8 @@
+@@ -3753,6 +3785,8 @@
      text token (tool-call turns suppress them) and returns a SimpleNamespace in
      the non-streaming response shape. codex_responses delegates to the already-
      streaming codex runner; cron turns and delegated children run inline."""
@@ -155,12 +158,14 @@ diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
 diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstream.py
 --- a/agent/chat_completion_nonstream.py
 +++ b/agent/chat_completion_nonstream.py
-@@ -11,10 +11,11 @@
+@@ -11,10 +11,13 @@
      instance; ``_abort_request`` may run from the poll (stranger) thread.
      """
 
 -    def __init__(self, agent, api_kwargs: dict):
 +    def __init__(self, agent, api_kwargs: dict, *, final_request=None):
++        from omnis_hermes.model_terminal import require_model_authority
++        require_model_authority(agent, final_request=final_request)
          self.agent = agent
          self.api_kwargs = api_kwargs
 -        self.result = {"response": None, "error": None}
@@ -169,7 +174,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
          self.clients = h._RequestClientRegistry(agent)
          # Request-local cancel flag: agent._interrupt_requested is cleared at turn
          # boundaries but this daemon worker can outlive the turn, so it must know THIS
-@@ -65,6 +66,7 @@
+@@ -65,6 +68,7 @@
          return self.clients.set_client(client, kind=kind)
 
      def _call(self):
@@ -177,7 +182,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
          watchdog_state_var = watchdog_context_token = None
          try:
              self._install_codex_request_token()
-@@ -74,7 +76,10 @@
+@@ -74,7 +78,10 @@
                  watchdog_state_var = _codex_watchdog_state_var
                  watchdog_context_token = watchdog_state_var.set(self.codex_watchdog_state)
              self.result["response"] = h._dispatch_nonstreaming_api_request(
@@ -189,7 +194,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
          except Exception as e:
              # Our own force-close caused this error: swallow it, the main
              # thread raises InterruptedError (#6600). Retirement logs at info
-@@ -91,15 +96,35 @@
+@@ -91,15 +98,35 @@
                  return
              self.result["error"] = e
          finally:
@@ -234,7 +239,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
 
      def _abort_request(self, reason: str) -> None:
          """Watchdog/interrupt kill: abort the request client (kind-aware, #67142)
-@@ -266,7 +291,10 @@
+@@ -266,7 +293,10 @@
          self.cancelled = True
          h.logger.debug("Force-closing httpx client due to interrupt (not a network error).")
          self._abort_request("interrupt_abort")
@@ -246,7 +251,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
          raise InterruptedError("Agent interrupted during API call")
 
      def run(self):
-@@ -285,6 +313,7 @@
+@@ -285,6 +315,7 @@
          poll_count = 0
          while t.is_alive():
              t.join(timeout=0.3)
@@ -254,7 +259,7 @@ diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstrea
              poll_count += 1
              # Keep the quiet gateway heartbeat; only silence warrants a notice.
              # Resumed events clear our notice on the next poll, not 30s later.
-@@ -311,6 +340,7 @@
+@@ -311,6 +342,7 @@
                  break
              if agent._interrupt_requested:
                  self._interrupt(elapsed)

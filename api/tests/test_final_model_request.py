@@ -274,3 +274,112 @@ def test_explicit_final_bytes_direct_worker_stay_no_model(unit_projection, monke
         if request is not None and request.thread is not None:
             request.thread.join(timeout=2)
             assert not request.thread.is_alive()
+
+
+@pytest.mark.parametrize("channel", ["sink", "direct", "worker"])
+def test_unbound_managed_dto_cannot_use_stock_route_without_inert_env(
+    unit_projection, monkeypatch, channel
+):
+    """Untrusted SOURCE negative, not a warm agent/turn/config authority fixture."""
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
+    from test_model_terminal import load
+
+    m = module(monkeypatch)
+    frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
+    attempted = []
+
+    class ReachedStockRoute(Exception):
+        pass
+
+    def client(*args, **kwargs):
+        attempted.append("client")
+        raise ReachedStockRoute()  # record before refusing; no provider response
+
+    h = load(
+        "chat_completion_helpers.py",
+        ["_dispatch_nonstreaming_api_request", "direct_api_call"],
+        {"_check_stale_giveup": client, "_RequestClientRegistry": client},
+    )
+    agent = SimpleNamespace(
+        api_mode="chat_completions",
+        provider="UNTRUSTED_NEGATIVE_NOT_NATIVE_CONFIGURATION",
+        _touch_activity=client,
+        _cold_state=None,
+        native_turn_ref=json.loads(frozen.raw)["dispatch"]["native_turn_ref"],
+    )
+    monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
+
+    def call():
+        if channel == "sink":
+            return h._dispatch_nonstreaming_api_request(
+                agent, frozen.sdk_kwargs(), make_client=client, final_request=frozen.raw
+            )
+        if channel == "direct":
+            return h.direct_api_call(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+        cls = load(
+            "chat_completion_nonstream.py", ["_NonStreamRequest"], {"h": h}
+        )._NonStreamRequest
+        return cls(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+
+    with pytest.raises(m.ManagedModelTerminal):
+        call()
+    assert attempted == [], "DATA-only refs reached stock client/setup without native authority"
+
+
+@pytest.mark.parametrize("platform", ["cli", "cron"])
+def test_public_worker_wrapper_keeps_unbound_denial_terminal_with_stale_breaker(
+    unit_projection, monkeypatch, platform
+):
+    """Actual wrapper/breaker/error-owner SOURCE, not a native-turn/config grant."""
+    import contextlib
+    import inspect
+
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/tests"))
+    from test_model_terminal import load
+
+    m = module(monkeypatch)
+    frozen = m.parse_final_request(canonical(fixture_dto(unit_projection)))
+    calls = []
+
+    def forbidden(*args, **kwargs):
+        calls.append("recovery-or-client")
+        raise AssertionError("managed denial reached stock recovery/setup")
+
+    h = load(
+        "chat_completion_helpers.py",
+        [
+            "_stale_streak",
+            "_check_stale_giveup",
+            "should_use_direct_api_call",
+            "interruptible_api_call",
+            "direct_api_call",
+        ],
+        {"env_int": lambda name, default: default, "contextlib": contextlib},
+    )
+    agent = SimpleNamespace(
+        api_mode="chat_completions",
+        provider="UNTRUSTED_SOURCE_NEGATIVE",
+        platform=platform,
+        _cold_state=None,
+        _consecutive_stale_streams=5,
+    )
+    monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
+    with pytest.raises(m.ManagedModelTerminal) as denied:
+        h.interruptible_api_call(agent, frozen.sdk_kwargs(), final_request=frozen.raw)
+    handler = load(
+        "turn_api_error.py",
+        ["handle_api_error"],
+        {"ApiErrorVerdict": SimpleNamespace, "recover_before_classification": forbidden},
+    )
+    args = {
+        key: None
+        for key in inspect.signature(handler.handle_api_error).parameters
+        if key != "agent"
+    }
+    args["api_error"] = denied.value
+    verdict = handler.handle_api_error(SimpleNamespace(thinking_callback=None), **args)
+    assert verdict.action == "return" and verdict.result["failure_retryable"] is False
+    assert verdict.result["model_admission_reason"] == "NO_MODEL" and calls == []
+    # The identical stock nonmanaged caller retains the real stale breaker.
+    with pytest.raises(RuntimeError, match="Provider has been unresponsive"):
+        h.interruptible_api_call(agent, {}, final_request=None)

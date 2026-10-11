@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "trusted cold NO_MODEL with backend-qualified selection/purpose context and staged material correlation; DATA SDK guard, no warm/config/turn/SENT permission",
+  "scope": "cold qualified selection/purpose and explicit managed DATA denied without authentic turn/config independently of inert env; no warm/SENT permission",
   "files": {
     "agent/auxiliary_client.py": {
       "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
@@ -10,11 +10,11 @@
     },
     "agent/chat_completion_helpers.py": {
       "original_sha256": "72400c39a7999d617fed99329ec9ea1ed891dc46e5e3349079f1a026f29122a0",
-      "patched_sha256": "222167bd4c8abd41931a1ea530b389dbf71d415910308ec81770d76ae7f44d9c"
+      "patched_sha256": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2"
     },
     "agent/chat_completion_nonstream.py": {
       "original_sha256": "34d4afad0a0c7228a0518eed4a2521ba1a340f509c83784c74abceb56f1becb7",
-      "patched_sha256": "8cbc7f6f6439a8802af08b2644311052b900345b4990778ce09e8b54a52b6adf"
+      "patched_sha256": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f"
     },
     "agent/cold_admission.py": {
       "original_sha256": null,
@@ -57,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "5b8499f7aa23b3c6a6c1c4c1e6ae8371ba24920fc317b8c23f1ff72f18a2363f"
+  "patch_sha256": "dcb8e12c1997aa953a7c1feeab4d53bcc1494176d7f1bd3d44facc64016e7627"
 }

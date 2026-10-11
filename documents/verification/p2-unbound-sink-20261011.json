@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "owner_session_id": "20261011_094100_1f2139",
+  "base": "bd1f6a9b98ca405b26990ac32914f9ef55c460d8",
+  "status": "WIP_SOURCE_GREEN_BLOCKING_FINDING_FIXED_FOCUSED_REVIEW_AND_NATIVE_NOT_RUN_BUDGET_STOP",
+  "scope": "Explicit Omnis final_request cannot become stock-route authority when env/cold flags absent. Common DATA consume then deny/direct before setup/worker constructor before registry. Public interruptible entry now denies before selector/stale breaker; current missing config/turn producer cannot grant inference.",
+  "snapshot": {
+    "api/tests/test_final_model_request.py": "3f628966c86dd3cd058f873da6371bcf27ea12e5cc1431118c284d86466ce50b",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "c3e980ec72b4f05ea20600eef76ccbcf8b126365f3cbb7d1d771ca4450b65727",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2",
+    "integrations/hermes/upstream/managed-source/agent/chat_completion_nonstream.py": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "394cd9298c2801fa06fe6c0b9af95cc364cf4c85592130781742a89e97c4efe9",
+    "integrations/hermes/upstream/omnis-managed.patch": "dcb8e12c1997aa953a7c1feeab4d53bcc1494176d7f1bd3d44facc64016e7627",
+    "integrations/hermes/pin.json": "c17168e280ed73a4759876d79efb9d9af4e29ca45f1caa25b93ad2f12abc6ef9"
+  },
+  "source": {
+    "initial_red_exit": 1,
+    "initial_red_cases": 3,
+    "initial_green_exit": 0,
+    "initial_green_tests": 42,
+    "first_affected_exit": 0,
+    "first_affected_tests": 49,
+    "logs": "/home/kali/.hermes/cache/scratch/p2turn-1f2139-01/logs",
+    "stock_control": "Existing protocol-only stock test no final/inert/cold preserved; no native/warm grant claimed",
+    "static": "Ruff/check/format and strict adapter mypy exit0"
+  },
+  "reviews": [
+    {
+      "role": "producer-contract",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-producer-contract-report.json",
+      "sha256": "0b6cdae30e368d8d7c4c38c3d737760febe407fb9a2a1197cc21afca6c13f374",
+      "verdict": "CONTRACT_READY_SCOPED; AUTHENTIC_MODEL_POSITIVE_BLOCKED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1607434,
+        "session_id": "20261011_130240_57e0e2"
+      },
+      "blocking_ids": [],
+      "limit": "SOURCE read-only contract/review, not installed/live; original 7-file snapshot for R1/R2 not current fixed bytes"
+    },
+    {
+      "role": "unbound-r1",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-unbound-r1-report.json",
+      "sha256": "0578c3cefe63e924642a7ecc50adec9fdaaf079f878620f8227f24539cc6db4a",
+      "verdict": "CHANGES_REQUESTED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1611171,
+        "session_id": "20261011_131135_4d101d"
+      },
+      "blocking_ids": [
+        "UNBOUND-R1-01"
+      ],
+      "limit": "SOURCE read-only contract/review, not installed/live; original 7-file snapshot for R1/R2 not current fixed bytes"
+    },
+    {
+      "role": "unbound-r2",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-unbound-r2-report.json",
+      "sha256": "a2ba06d3b3e22c565a39ce433f9cc6fe68eb0e3e13ad6a6d89d8d241205a6c2c",
+      "verdict": "CHANGES_REQUESTED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1611217,
+        "session_id": "20261011_131135_9c4c3a"
+      },
+      "blocking_ids": [
+        "R2-F01"
+      ],
+      "limit": "SOURCE read-only contract/review, not installed/live; original 7-file snapshot for R1/R2 not current fixed bytes"
+    }
+  ],
+  "blocking_finding": {
+    "ids": [
+      "UNBOUND-R1-01",
+      "R2-F01"
+    ],
+    "same_defect": "interruptible_api_call stale streak5 raised stock RuntimeError before protected worker constructor; generic recovery reached by reviewer tripwire, no provider response",
+    "parent_red": {
+      "exit": 1,
+      "failed": 1,
+      "passed": 1,
+      "log": "unbound-wrapper-red.log"
+    },
+    "fix": "require_model_authority(final_request=) before routing selector and stale breaker in actual public wrapper",
+    "current_green": {
+      "exit": 0,
+      "tests": 49,
+      "log": "unbound-wrapper-green.log"
+    },
+    "focused_re_review": "NOT_RUN_BUDGET_GOVERNOR_STOP_NO_APPROVAL_TRANSFERRED"
+  },
+  "distribution": {
+    "reapply": "13/13 BYTE_IDENTICAL from verified read-only originals; unchanged patch blocks reused; v1 whitespace artifact failure retained then v2/v3 exact framing",
+    "managed_build_after_final_seal": "2 PASS exit0; Ruff/check/format/strict adapter mypy and git diff-check exit0 after final seal",
+    "new_adapter_wheel": "NOT_BUILT; prior pinned uv locator missing, local uv0.11.7 does not match pinned0.12.19; no download/version substitution"
+  },
+  "native": {
+    "status": "NOT_RUN",
+    "root": "/home/kali/.hermes/cache/scratch/p2ubn-1f2139",
+    "preparation": "Fresh SOURCE untrusted schema-negative DTO and context26 files prepared; no image build/container run. Source inputs superseded by last wrapper fix; current driver/probe changed and scope pins intentionally stale => REFUSE before effects until new reconciliation/registration. Do not run cached driver blindly.",
+    "planned_proof": "Real whole-module installed-native source-overlay negative only, not new wheel/release or warm admission",
+    "resources": "No new Docker effect launched; no cleanup needed or claimed"
+  },
+  "authentic_positive_dependencies": [
+    "Owned qualified effective provider-config producer before new authorized native-agent initialization",
+    "Actual native turn admission bound owner/run/binding/task/attempt; cold cannot warm",
+    "Qualified READY selection/purpose to full DTO followed separately by caller reserve/commit/SENT and physical Stop/caps"
+  ],
+  "sdk": "NOT_REPLAYED. Unchanged model_request serialization utility remains previous SDK evidence scoped; old explicit SOURCE sink positive does not approve current failclosed sink or native authority.",
+  "phase2": "NOT_CLOSED",
+  "live": "HOLD",
+  "after_phase2": "HOLD_NO_PHASE3",
+  "full_make_check": "DEFER_FINAL_PRODUCT_BOUNDARY_NOT_RUN",
+  "browser": "NOT_APPLICABLE_NO_SETTINGS_SURFACE_CHANGED",
+  "reticle": "NOT_APPLICABLE_CLI_MODEL_BOUNDARY",
+  "chisel": "BLOCKED_NO_GO",
+  "retention": "Retain all RED/GREEN/reviews/old+fixed snapshots/generated artifacts/fresh unexecuted fixture state. Original protected HTML untouched. No mission/cron/global/r1/push changes."
+}

@@ -727,7 +727,7 @@ def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client, 
         api_kwargs = consume_final_request(final_request, api_kwargs)
         if agent.api_mode != "chat_completions" or agent.provider == "moa":
             deny_model()
-    require_model_authority(agent)
+    require_model_authority(agent, final_request=final_request)
     if agent.api_mode == "codex_responses":
         return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
             on_first_delta=getattr(agent, "_codex_on_first_delta", None))
@@ -974,7 +974,7 @@ def direct_api_call(agent, api_kwargs: dict, *, final_request=None):
     equal to the stale budget is the backstop when the abort finds nothing (#85252).
     Both surface a retryable ``TimeoutError`` for the outer retry loop."""
     from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
-    require_model_authority(agent)
+    require_model_authority(agent, final_request=final_request)
     _check_stale_giveup(agent)
     agent._touch_activity("waiting for non-streaming API response")
     # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
@@ -1269,6 +1269,8 @@ def interruptible_api_call(agent, api_kwargs: dict, *, final_request=None):
     per-request client (interrupts close only that one); a stale-call detector
     kills the connection and raises so the main retry loop can back off / rotate
     credentials / fall back."""
+    from omnis_hermes.model_terminal import require_model_authority
+    require_model_authority(agent, final_request=final_request)
     # Nested-pool contexts (cron, delegated children) wedge on a worker thread
     # (#62151): run inline. See should_use_direct_api_call.
     if should_use_direct_api_call(agent):

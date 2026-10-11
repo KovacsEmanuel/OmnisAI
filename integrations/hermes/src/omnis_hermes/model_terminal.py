@@ -45,6 +45,9 @@ def deny_model() -> NoReturn:
     raise ManagedModelTerminal()
 
 
-def require_model_authority(agent: object = None) -> None:
-    if is_inert_model_context(agent):
+def require_model_authority(agent: object = None, *, final_request: object = None) -> None:
+    # Explicit Omnis DATA never selects the stock warm route. There is no
+    # authenticated turn/config admission producer yet; neither dropping the
+    # inert env flag nor supplying native-turn-shaped refs provides one.
+    if final_request is not None or is_inert_model_context(agent):
         deny_model()

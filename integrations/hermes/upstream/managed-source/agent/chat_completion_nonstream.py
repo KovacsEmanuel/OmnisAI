@@ -12,6 +12,8 @@ class _NonStreamRequest:
     """
 
     def __init__(self, agent, api_kwargs: dict, *, final_request=None):
+        from omnis_hermes.model_terminal import require_model_authority
+        require_model_authority(agent, final_request=final_request)
         self.agent = agent
         self.api_kwargs = api_kwargs
         self.final_request = final_request

@@ -2,6 +2,7 @@
 
 import base64
 import importlib
+from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
 from uuid import uuid4
@@ -12,7 +13,7 @@ from fixtures.c03_records import records_seed
 from omnis.modules.runs.managed_admission import BuildSource
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.candidate_material import capture
-from omnis.modules.settings.catalog_models import Manifest, Procedure
+from omnis.modules.settings.catalog_models import Manifest, Procedure, Profile
 from omnis.modules.settings.catalog_schema import canonical, dto, load_json
 from omnis.modules.settings.skill_catalog import compile_catalog
 from omnis.modules.tasks import managed_composition
@@ -23,7 +24,9 @@ from test_managed_contract import authority, ref, stage
 
 
 def source_graph(
-    tmp_path: Path, path: str = "/synthetic/orders/123?private=value"
+    tmp_path: Path,
+    path: str = "/synthetic/orders/123?private=value",
+    source_out: list[BuildSource] | None = None,
 ) -> tuple[str, list[dict[str, object]], dict[str, object], dict[str, object]]:
     seed = records_seed(tmp_path / uuid4().hex)
     compiled = compile_catalog((seed.package,), seed.profile)
@@ -38,16 +41,19 @@ def source_graph(
             "package_key": r.package_key,
             "entity_kind": r.entity_kind,
             "key": r.key,
-            "ref": {**ref(r.entity_kind), "digest": package_ref["digest"]},
+            "ref": package_ref
+            if r.entity_kind == "package"
+            else {**ref(r.entity_kind), "digest": package_ref["digest"]},
         }
         for r in compiled.refs
     ]
+    from omnis.modules.tasks.execution_selection import selection_payload
+
+    profile = dto(seed.profile.read_bytes(), Profile)
+    compiled = replace(compiled, catalog_bindings=tuple(bindings))
     selection = records.envelope(
         "execution-selection",
-        {
-            "snapshot_ref": ref("run-snapshot"),
-            "selected_package_refs": [package_ref],
-        },
+        selection_payload(ref("run-snapshot"), profile.agent_recipes[0].key, profile, compiled),
     )
     files = {
         str(mapping(f)["path"]): base64.b64decode(str(mapping(f)["content_b64"]))
@@ -68,6 +74,8 @@ def source_graph(
         files,
         manifest,
     )
+    if source_out is not None:
+        source_out.append(source)
     prefix = source.build(context_only=True)
     run = next(r for r in prefix if r["kind"] == "managed-run")
     body = mapping(run["payload"])

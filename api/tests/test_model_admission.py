@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.modules.instance.schemas import NativeTaskCommand
-from omnis.modules.runs.managed_admission import ManagedAdmission
+from omnis.modules.runs.managed_admission import BuildSource, ManagedAdmission
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_store
@@ -77,7 +77,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     monkeypatch.syspath_prepend(
         str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
     )
-    owner, graph, manifest, composition = source_graph(tmp_path)
+    sources: list[BuildSource] = []
+    owner, graph, manifest, composition = source_graph(tmp_path, source_out=sources)
     run = str(mapping(manifest["payload"])["run_id"])
     binding = next(item for item in graph if item["kind"] == "runtime-binding")
     classified: set[str] = set()
@@ -106,6 +107,23 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     }
     managed = ManagedAdmission(Mock(spec=AsyncEngine))
     monkeypatch.setattr(managed, "_verify_graph", AsyncMock())
+
+    async def source_io(
+        conn: AsyncConnection,
+        actual_owner: str,
+        request: dict[str, object],
+        *,
+        preparation_ref: dict[str, object],
+    ) -> BuildSource:
+        # SOURCE storage/material seam only; producer is actual selection_payload,
+        # full publication/material qualification is tested independently in PG.
+        source = sources[0]
+        assert actual_owner == owner
+        assert request["selection_ref"] == records.reference(source.selection)
+        assert preparation_ref == source.preparation_ref
+        return source
+
+    monkeypatch.setattr(managed, "_source", source_io)
     monkeypatch.setattr(budgets, "_transaction", AsyncMock())
     reserve = AsyncMock(side_effect=AssertionError("cold path reached ledger reserve"))
     monkeypatch.setattr(budgets, "reserve", reserve)
@@ -278,6 +296,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     )
     lifecycle._cold_batches[manifest["id"]] = {
         "manifest": manifest,
+        "composition_material": (canonical(composition),),
         "response": {
             "protocol": payload["protocol"],
             "ticket": payload["ticket"],

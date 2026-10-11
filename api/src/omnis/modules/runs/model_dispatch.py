@@ -6,6 +6,7 @@ uses the existing transaction, immutable managed records and B06c reader.
 """
 
 import re
+from hashlib import sha256
 
 from sqlalchemy import text as sql
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -67,6 +68,8 @@ class ModelDispatch:
             "projection_digest": body["projection_digest"],
             "native_turn": None,
             "model_calls": 0,
+            "model_context": payload["model_context"],
+            "model_context_digest": payload["model_context_digest"],
         }
         if canonical(exact(result, set(expected))) != canonical(expected):
             raise CatalogError("MODEL_PREFLIGHT_REJECTED")
@@ -175,6 +178,7 @@ class ModelDispatch:
         binding = await store.get(connection, owner, run, binding_ref)
         manifest = await store.get(connection, owner, run, body["manifest_ref"])
         contract.validate_binding(binding, manifest)
+        context = await self._context(connection, owner, run, binding, manifest, projection)
         return {
             "approval_ref": records.reference(approved),
             "payload": {
@@ -187,5 +191,54 @@ class ModelDispatch:
                 "projection": projection,
                 "projection_ref": records.reference(projection),
                 "policy_digest": POLICY_DIGEST,
+                "model_context": context,
+                "model_context_digest": sha256(canonical(context)).hexdigest(),
             },
         }
+
+    async def _context(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        run: str,
+        binding: dict[str, object],
+        manifest: dict[str, object],
+        projection: dict[str, object],
+    ) -> dict[str, object]:
+        """Qualified source read in the current owner transaction, never authority from a Ref."""
+        from omnis.policy.model_context import derive_model_context
+
+        graph = await store.graph(connection, owner, run)
+        matches = [r for r in graph if r["kind"] == "managed-run" and r["id"] == run]
+        if len(matches) != 1:
+            raise CatalogError("MODEL_CONTEXT_REJECTED")
+        run_record = matches[0]
+        run_body = mapping(run_record["payload"])
+        projection_body = mapping(projection["payload"])
+        source = await self.projections.managed._source(
+            connection,
+            owner,
+            {
+                "selection_ref": mapping(manifest["payload"])["selection_ref"],
+                "composition_version": mapping(manifest["payload"])["composition_version"],
+            },
+            preparation_ref=ref(run_body["preparation_receipt_ref"], "native-preparation-receipt"),
+        )
+        brief = await store.get(connection, owner, run, projection_body["brief_ref"])
+        brief_body = mapping(brief["payload"])
+        bindings = sequence(brief_body["procedure_bindings"])
+        if len(bindings) != 1:
+            raise CatalogError("MODEL_CONTEXT_REJECTED")
+        bound = await store.get(connection, owner, run, mapping(bindings[0])["bound_procedure_ref"])
+        policy = await store.get(connection, owner, run, run_body["policy_ref"])
+        return derive_model_context(
+            source,
+            owner=owner,
+            run_record=run_record,
+            policy=policy,
+            manifest=manifest,
+            binding=binding,
+            brief=brief,
+            bound=bound,
+            projection=projection,
+        )

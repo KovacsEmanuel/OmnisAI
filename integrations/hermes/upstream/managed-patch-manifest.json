@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "trusted cold NO_MODEL, qualified data preflight, terminal inert veto and explicit immutable final Chat DTO/SDK byte guard; no warm authority or SENT permission",
+  "scope": "trusted cold NO_MODEL with backend-qualified selection/purpose context and staged material correlation; DATA SDK guard, no warm/config/turn/SENT permission",
   "files": {
     "agent/auxiliary_client.py": {
       "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
@@ -30,7 +30,7 @@
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "3b5e7c810e83e7d2c6a255351093a7c4c6c0ea56032a35342ab52fe667120674"
+      "patched_sha256": "9c46032214022417aa5b924529108f63e15570f012367cc52930d27f01077da2"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -57,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "6dd3e2c4291101d50b79fc3469a64c689d535c10b2a290173dbc2c083cb3c221"
+  "patch_sha256": "5b8499f7aa23b3c6a6c1c4c1e6ae8371ba24920fc317b8c23f1ff72f18a2363f"
 }

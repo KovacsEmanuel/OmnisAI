@@ -349,6 +349,9 @@ class SubagentLifecycleService:
                         or state.session_id != row["native_session_id"]
                         or state.parent_session_id != parent.session_id):
                     raise ColdAdmissionDenied("Model preflight native lineage unavailable")
+            from omnis_hermes.model_context import validate_context
+            validate_context(payload["model_context"], payload,
+                staged_manifest=batch["manifest"], staged_material=batch["composition_material"])
             return cold_preflight(payload, native_root_id=parent._subagent_id, native_entries=rows)
 
     def release(self, payload):

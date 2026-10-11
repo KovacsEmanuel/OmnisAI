@@ -26,6 +26,10 @@ from omnis.modules.settings.catalog_schema import canonical, load_json
 from omnis.modules.tasks.managed_contract import PROTOCOL, manifest_protocol, mapping, ref
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
+# Request/capability framing remains 4 KiB. Qualified model context can be
+# 32 KiB internally; reserve bounded server-encoding/envelope overhead in reply.
+NATIVE_TASK_REPLY_MAX_BYTES = 65536
+
 
 class NativeTaskOwner:
     def __init__(
@@ -210,7 +214,9 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
     existing_private_root(directory)
     capability = _read_capability(directory)
     async with asyncio.timeout(4):
-        reader, writer = await asyncio.open_unix_connection(directory / "control.sock", limit=4096)
+        reader, writer = await asyncio.open_unix_connection(
+            directory / "control.sock", limit=NATIVE_TASK_REPLY_MAX_BYTES
+        )
         try:
             peer = writer.get_extra_info("socket").getsockopt(
                 socket.SOL_SOCKET, socket.SO_PEERCRED, 12
@@ -231,7 +237,13 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError("INVALID_REQUEST")
             writer.write(frame)
             await writer.drain()
-            reply = mapping(load_json(await reader.readuntil(b"\n")))
+            try:
+                raw_reply = await reader.readuntil(b"\n")
+            except (asyncio.LimitOverrunError, asyncio.IncompleteReadError):
+                raise CatalogError("TASK_REJECTED") from None
+            if len(raw_reply) > NATIVE_TASK_REPLY_MAX_BYTES:
+                raise CatalogError("TASK_REJECTED")
+            reply = mapping(load_json(raw_reply))
             uuid_string(reply.get("correlation_id"))
             if reply.get("ok") is not True:
                 reason = reply.get("error")
@@ -274,6 +286,8 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                         "native_turn",
                         "model_calls",
                         "data_approval_ref",
+                        "model_context",
+                        "model_context_digest",
                     },
                 )
                 ref(admission["projection_ref"], "model-projection")
@@ -281,6 +295,20 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 manifest_pin = ref(admission["manifest_ref"], "launch-manifest")
                 binding_pin = ref(admission["binding_ref"], "runtime-binding")
                 sha(admission["projection_digest"])
+                from hashlib import sha256
+
+                from omnis.policy.model_context import validate_context_readback
+
+                context = validate_context_readback(admission["model_context"])
+                if (
+                    context["owner_id"] != command.owner_id
+                    or context["manifest_ref"] != manifest_pin
+                    or context["binding_ref"] != binding_pin
+                    or context["projection_ref"] != admission["projection_ref"]
+                    or sha256(canonical(context)).hexdigest()
+                    != sha(admission["model_context_digest"])
+                ):
+                    raise CatalogError("TASK_REJECTED")
                 if (
                     reply["task_status"] != "BLOCKED"
                     or type(admission["protocol"]) is not str

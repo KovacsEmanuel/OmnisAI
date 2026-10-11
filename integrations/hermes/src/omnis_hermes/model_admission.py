@@ -6,6 +6,7 @@ is deliberately not credited by this carrier consumer.
 """
 
 from . import managed_admission_contract as managed
+from .model_context import validate_context
 from .model_projection import serialize_model_input, validate_serialized_input
 from .native_preparation_contract import canonical, digest, loads, obj, reference, text, uuid
 from .prompt_bundle import mapping
@@ -20,6 +21,8 @@ FIELDS = {
     "projection",
     "projection_ref",
     "policy_digest",
+    "model_context",
+    "model_context_digest",
 }
 RESULT_FIELDS = {
     "protocol",
@@ -31,6 +34,8 @@ RESULT_FIELDS = {
     "projection_digest",
     "native_turn",
     "model_calls",
+    "model_context",
+    "model_context_digest",
 }
 
 
@@ -77,6 +82,9 @@ def validate_preflight(value: object) -> bytes:
     header = mapping(content["header"])
     if any(header[k] != selected[0][k] for k in ("task_id", "attempt_id")):
         raise ValueError("Invalid model preflight identity")
+    context = validate_context(payload["model_context"], payload)
+    if digest(canonical(context)) != payload["model_context_digest"]:
+        raise ValueError("Invalid qualified context digest")
     return raw
 
 
@@ -91,6 +99,8 @@ def _result(payload: dict[str, object], raw: bytes) -> dict[str, object]:
         "projection_digest": digest(raw),
         "native_turn": None,
         "model_calls": 0,
+        "model_context": payload["model_context"],
+        "model_context_digest": payload["model_context_digest"],
     }
 
 

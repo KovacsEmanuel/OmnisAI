@@ -6,6 +6,7 @@ are real. No native runtime, provider config, turn, SDK or inference is claimed.
 
 import asyncio
 import importlib
+from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -255,6 +256,24 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
         admission = mapping(answer["model_admission"])
         assert admission["reason"] == "NO_MODEL" and admission["native_turn"] is None
         assert admission["model_calls"] == 0 and await counts() == (1, 1, 0)
+        model_context = mapping(admission["model_context"])
+        assert model_context["selection_ref"] == selected["selection_ref"]
+        assert model_context["purpose"] == "SUPPORT"
+        assert model_context["execution_kind"] == "CONTRACT_PROBE"
+        assert model_context["resolution"] == "NO_MODEL" and model_context["effective"] is None
+        assert mapping(model_context["requested"]) == {
+            "model_key": None,
+            "effort": None,
+            "requirement": "PREFERRED",
+            "on_unavailable": "BLOCK",
+        }
+        # Preserve catalog work_kind; SUPPORT is the execution purpose, not a
+        # rewritten label for the published technique.
+        from omnis.modules.settings.catalog_models import Manifest
+        from omnis.modules.settings.catalog_schema import dto
+
+        authored = dto((seed.package / "omnis.yaml").read_bytes(), Manifest)
+        assert model_context["source_work_kind"] == authored.techniques[0].work_kind
         assert native_calls == ["task_stage", "task_model_preflight", "task_model_preflight"]
         for supplied, reason in (
             ({**decision, "approved_text_digests": ["0" * 64]}, "MODEL_DATA_DECISION_CONFLICT"),
@@ -280,6 +299,31 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
                 admission["projection_ref"],
             )
         assert b"SYNTHETIC_PRIVATE_I1" not in adapter.validate_preflight(read["payload"])
+        assert mapping(read["payload"])["model_context"] == model_context
+        # The catalog is append-only. Insert a new, deliberately untrusted
+        # selection in the same owned group inside a rolled-back transaction;
+        # its valid new Ref must NOT bypass the qualified producer comparison.
+        from omnis.modules.runs.pure_probe import PureProbe
+
+        with pytest.raises(RuntimeError, match="OWNED_SELECTION_POISON_ROLLBACK"):
+            async with engine.begin() as conn:
+                original_selection = mapping(model_context["selection"])
+                payload = deepcopy(mapping(original_selection["payload"]))
+                payload["requested"] = {
+                    **mapping(payload["requested"]),
+                    "model_key": "unapproved-model",
+                }
+                group, _ = await records.get(
+                    conn, seed.owner, mapping(model_context["selection_ref"])
+                )
+                envelope = records.envelope("execution-selection", payload)
+                await records.put(conn, seed.owner, group, envelope)
+                with pytest.raises(CatalogError, match="SELECTION_MISMATCH"):
+                    await PureProbe(engine, seed.root)._selection(
+                        conn, seed.owner, records.reference(envelope)
+                    )
+                raise RuntimeError("OWNED_SELECTION_POISON_ROLLBACK")
+        assert await counts() == (1, 1, 0)
         with pytest.raises(CatalogError):
             async with engine.begin() as conn:
                 await consumer.read(

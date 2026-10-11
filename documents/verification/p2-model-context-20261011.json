@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_QUALIFIED_COLD_SELECTION_PURPOSE_SCOPE_NOT_WARM_MODEL_AUTHORITY",
+  "owner_session_id": "20261011_094100_1f2139",
+  "base": "2ac352518bdcb3d455a67a164caea251ba0e7a06",
+  "snapshot": {
+    "api/src/omnis/modules/runs/model_dispatch.py": "24f324e4e5b9f21d016b714439ac89c586e0223a4f85b8d29982b73bca81a67c",
+    "api/src/omnis/policy/model_context.py": "88b6b694690485503b567cf3b4b3b0798d82a6e9a3c00457432e24b6d6414237",
+    "api/src/omnis/supervisor/native_tasks.py": "2bfc17360c9cdc80d64b1d481782ead045319b193ba370b1159a37f2fd20765a",
+    "integrations/hermes/src/omnis_hermes/model_context.py": "a09bb22c4014e38be141d7f3ccf2840166d7695ca721be5e92eed5d18c211141",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "f869699993a3491bab9f493980ab8ba043a36d4687f94a4e0ab07f066c9e8ceb",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9c46032214022417aa5b924529108f63e15570f012367cc52930d27f01077da2",
+    "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+    "api/tests/test_model_admission.py": "e6b46830cb913131862fb7121b05971e35edbe94146791c22ef7f0f386bfe316",
+    "api/tests/test_model_projection.py": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+    "api/tests/test_model_admission_pg.py": "3fb8659b2833c35cff6dc005310129c0cc5c8e8cd1db6d75f5df91c42e8d8623",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "4d72b0d2f3782651709a387fe085aaabe73495cd845e1043bede63b8952bb116",
+    "integrations/hermes/upstream/omnis-managed.patch": "5b8499f7aa23b3c6a6c1c4c1e6ae8371ba24920fc317b8c23f1ff72f18a2363f",
+    "integrations/hermes/pin.json": "88e3e63f94af615835b5730d7f930223a00d348d12f1bde4d5e144dfcfde2889"
+  },
+  "behavior": "Existing ModelDispatch/NativeTaskOwner read fully qualified published selection/profile/material via _source/_selection; derive SUPPORT from actual CONTRACT_PROBE/zero-effects binding and real source role/Technique.work_kind, native validates cached staged material/root/child and returns exact context/digest over same RPC. Unknown/fake effective/purpose denied without model grant.",
+  "RED_owner_RPC": {
+    "exit": 1,
+    "reason": "Actual owner RuntimeClient.managed omitted model_context"
+  },
+  "SOURCE": {
+    "tests": 78,
+    "exit": 0,
+    "ruff_mypy_affected_exit": 0,
+    "I_O_doubles": "SOURCE storage/native identities explicit, not authenticity acceptance"
+  },
+  "PG": {
+    "PG01": {
+      "exit": 2,
+      "family_drained": true,
+      "reason": "Oracle wrongly expected source_work_kind=SUPPORT, preserved"
+    },
+    "PG02": {
+      "exit": 2,
+      "family_drained": true,
+      "reason": "Observer UPDATE on append-only catalog triggered immutability, preserved"
+    },
+    "PG03": {
+      "exit": 0,
+      "tests": 39,
+      "family": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "root": "/home/kali/.hermes/cache/scratch/pcx3-1f2139/tmp/db-b39c0938a33c4c0c",
+      "cid": "e4804c1042b90d5c6432eb53db3cc094de7d3100b147f97e82e4e548829291c4",
+      "system_id": "7695341802789433374",
+      "qualification": "Actual publication/select/preparation/managed owner; poisoned appended new envelope/ref samegroup rejected by real qualified reader, rollback/replay/Stop/receive-only unchanged. Native protocol remains synthetic, not installed-native proof.",
+      "cleanup": "Exact own CID absent/project containers+networks empty/socket absent/data retained; no cleanup replay",
+      "raw_log": "PRIVATE_RETAINED_NOT_DUMPED"
+    }
+  },
+  "reviews": [
+    {
+      "label": "context-plan",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-context-plan-report.json",
+      "sha256": "717548f7ca9c6bf6cfc172d6fdab83e25e2cc1ca3367a84ef700df37fd0217e3",
+      "verdict": "CONTRACT_SCOPAT; IMPLEMENTARE_SI_ACCEPTANTA_NOT_RUN",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1568376,
+        "session_id": "20261011_115456_5866aa"
+      }
+    },
+    {
+      "label": "context-r1",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-context-r1-report.json",
+      "sha256": "b0e43096a212553292787dbe41e8de4223085ff3086b20af942d7b4c4c6cc958",
+      "verdict": "CHANGES_REQUESTED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1583492,
+        "session_id": "20261011_122216_5bf73b"
+      }
+    },
+    {
+      "label": "context-r2",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-context-r2-report.json",
+      "sha256": "aa6126faab94142354e1228355f2c0bfe3633329a5e302c462b98bc7c30ea2bd",
+      "verdict": "CHANGES_REQUESTED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1583379,
+        "session_id": "20261011_122215_69b483"
+      }
+    },
+    {
+      "label": "context-r1-fix",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-context-r1-fix-report.json",
+      "sha256": "4ea14214e43786fc7aee1813a5e5e5924ae0f6b43fc4da983ded96a20f92f3a0",
+      "verdict": "APPROVED_SCOPED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1594778,
+        "session_id": "20261011_123626_4c8b02"
+      }
+    },
+    {
+      "label": "context-r2-fix",
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/implementation/review-context-r2-fix-report.json",
+      "sha256": "d684ccec661c4641576f26af1acf65a9de24373f663feef04e14d137e2026dc5",
+      "verdict": "APPROVED_SCOPED",
+      "settings": {
+        "model": "gpt-6.1-sol-900k",
+        "provider": "openai-codex",
+        "reasoning": {
+          "enabled": true,
+          "effort": "xhigh"
+        },
+        "service_tier": "priority",
+        "yolo": true,
+        "pid": 1594892,
+        "session_id": "20261011_123626_b61aa5"
+      }
+    }
+  ],
+  "blocking_findings": [
+    {
+      "ids": [
+        "R1-F01",
+        "CTX-R2-01"
+      ],
+      "same_defect": "Full qualified-context echo4976 bytes exceeded private reader4096",
+      "parent_reproduced": "actual real control_task/StreamReader SOURCE transport, LimitOverrunError; new test RED1",
+      "fix": "Reply max65536 only/request4096 unchanged, explicit len and EOF/overrun sanitized TASK_REJECTED; complete echo validation intact",
+      "GREEN": "real owner reply/server serialization/private reader valid and oversized control passed, both focused re-reviews APPROVED_SCOPED"
+    }
+  ],
+  "authority_limits": [
+    "Selection requested/effective NO_MODEL readback is authentic to qualified producer; not trusted effective provider/model READY config",
+    "SUPPORT is cold preflight execution purpose, not ledger PURPOSES or validation budget; catalog work_kind preserved",
+    "No native-turn/provider-config/SENT/reservation/warm/result actor fabricated. Current NO_MODEL always; no provider response/inference/target/global/r1",
+    "Installed-native old cold denial cannot approve new context bytes; new native-context acceptance NOT_RUN; full canonical DEFER_FINAL_PRODUCT_BOUNDARY"
+  ],
+  "phase2": "NOT_CLOSED",
+  "live": "HOLD",
+  "after_phase2": "HOLD_NO_PHASE3",
+  "retention": "All Source/PG/raw private logs/failures/receipts/data preserved"
+}

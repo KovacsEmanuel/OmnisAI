@@ -325,9 +325,18 @@ def test_owned_preclient_core_cannot_enter_public_turn_facade() -> None:
     """SOURCE getter body only; not native construction or turn proof."""
     import ast
 
-    source = Path(__file__).resolve().parents[2] / "integrations/hermes/upstream/managed-source/run_agent.py"
-    cls = next(n for n in ast.parse(source.read_text()).body if isinstance(n, ast.ClassDef) and n.name == "AIAgent")
-    getter = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "__getattribute__")
+    source = (
+        Path(__file__).resolve().parents[2]
+        / "integrations/hermes/upstream/managed-source/run_agent.py"
+    )
+    cls = next(
+        n
+        for n in ast.parse(source.read_text()).body
+        if isinstance(n, ast.ClassDef) and n.name == "AIAgent"
+    )
+    getter = next(
+        n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "__getattribute__"
+    )
     namespace: dict[str, object] = {}
     exec(compile(ast.Module(body=[getter], type_ignores=[]), str(source), "exec"), namespace)
 

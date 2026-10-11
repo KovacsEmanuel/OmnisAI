@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "kind": "P2_FRESH_CONFIRMED_FINDINGS_SCOPED_CLOSURE",
+  "owner_sid": "20261011_202301_d0fb40",
+  "base_head": "72a5d4c704474bec2ed29d6ccf3dd6c9dc1b260d",
+  "product_head": "23941e379c5321170bdd0491ec63308ef4541e08",
+  "commits": {
+    "fixture": "cd6202c",
+    "public_entry": "23941e3"
+  },
+  "sha256": {
+    "api/tests/test_model_preflight_control.py": "2266c97b1eda7139e438869fa0883bd43a1a7f4488f95593f586c6e8bf97b767",
+    "integrations/hermes/tests/test_model_terminal.py": "3fa03dde81ab67884beb27eb6b9dda7c198f466eded661d6c62857b30af71bd6",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402",
+    "integrations/hermes/upstream/omnis-managed.patch": "a23fc58d6998d70bcfe819d615466c7e3f605d76032a8cd720f899559c143890",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "51c64826ca64ab8174741948116d675e82919eafeb7e48c12b1baa5fd1170951",
+    "integrations/hermes/pin.json": "38ec9a2c275cb8f83a0ee25b89c08f8759bb6deb2fac2570769c36d149f6a35d"
+  },
+  "findings": [
+    {
+      "id": "OPEN-EXTENDED-RECEIPT-V2-V3",
+      "state": "CLOSED_SCOPED_SOURCE_FIXTURE_DRIFT",
+      "root_cause": "Handwritten cold fixture omitted four now-required context/configuration fields. Both positives rejected at exact-field reader; old nine negative mutations were false-green at the same incomplete-field guard. Production validator unchanged.",
+      "remedy": "Capture actual NativeTaskOwner.handle output through existing SOURCE owner journey with scoped monkeypatch restoration; complete supported v2/v3 reader controls and original nine mutations.",
+      "red": {
+        "exit": 1,
+        "failed": 2,
+        "passed": 9,
+        "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/preflight-red.log"
+      },
+      "green": {
+        "exit": 0,
+        "passed": 11,
+        "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/preflight-green.log"
+      },
+      "limits": "Storage/native identities/registry/streams are explicit SOURCE doubles. v2 changes supported protocol label on current producer echo, not an independent native v2 producer. No product bypass demonstrated."
+    },
+    {
+      "id": "OPEN-SOURCE-TURN-ENTRY-ORDER",
+      "state": "CLOSED_SCOPED_SOURCE_AND_INSTALLED_NATIVE_NEGATIVE",
+      "root_cause": "Public run_conversation imported agent.turn_context and entered framing/export surfaces before inner denial.",
+      "remedy": "Minimal early public is_inert_model_context -> exact terminal_result before agent/tools dependencies, preserving nonmanaged body and inner guard.",
+      "red": {
+        "exit": 1,
+        "failed": 1,
+        "exception": "ForbiddenNativeDependency: agent.turn_context",
+        "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/turn-red.log"
+      },
+      "green": "Affected45 SOURCE exit0 plus both exact complementary SOURCE approvals and fresh whole-installed public consumer negative QA below.",
+      "limits": "No inference exploit demonstrated. No native-positive initialization/turn or model run acceptance."
+    }
+  ],
+  "source_checks": {
+    "preflight_red": {
+      "exit": 1,
+      "failed": 2,
+      "passed": 9,
+      "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/preflight-red.log"
+    },
+    "turn_red": {
+      "exit": 1,
+      "failed": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/turn-red.log"
+    },
+    "preflight_green": {
+      "exit": 0,
+      "passed": 11,
+      "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/preflight-green.log"
+    },
+    "affected": {
+      "exit": 0,
+      "passed": 45,
+      "log": "/home/kali/.hermes/cache/scratch/p2fresh-d0fb40-01/logs/findings-affected.log"
+    },
+    "static": {
+      "ruff": 0,
+      "format": 0,
+      "mypy": 0,
+      "mypy_files": 1,
+      "build_tests": 2,
+      "build_exit": 0
+    },
+    "patch_reapply": {
+      "exit": 0,
+      "originals_verified": 13,
+      "byte_identical": 13
+    }
+  },
+  "final_distribution_checks": {
+    "managed_build_tests": 2,
+    "exit": 0,
+    "patch_reapply_originals": 13,
+    "patch_reapply_byte_identical": 13,
+    "diff_check": 0,
+    "source_tests_unchanged_since_45_pass": true
+  },
+  "reviews": {
+    "findings-r1": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/findings-r1-report.json",
+      "sha256": "24dab2f7148ed302e4537f3c393590bb23313d2d5aabd0524e3407b85ebf28fb",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "findings-r2": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/findings-r2-report.json",
+      "sha256": "35b9e08fe5d07b6a1f1f4bd7f2373be7fb4a277ba5b5ef2cd7b0178df607cdcb",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "findings-r1-fix": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/findings-r1-fix-report.json",
+      "sha256": "5b28055457f2e66c74bf4afd948b763fff683382cd2143f7ad2ca12b016ee276",
+      "verdict": "CHANGES_REQUESTED"
+    },
+    "findings-r2-fix": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/findings-r2-fix-report.json",
+      "sha256": "b30977b11cab3f23c238fdfa8d8104a24dd1a6840b052270afa4717de5eba27c",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "findings-r1-delta-fix": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/findings-r1-delta-fix-report.json",
+      "sha256": "6709b7b9415b0b43d722d2b0beeaf2c29bed41454af93fb0ead7c4b58fb33457",
+      "verdict": "APPROVED_SCOPED"
+    },
+    "constructor-contract": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/constructor-contract-report.json",
+      "sha256": "c6845932486518d75a71e07d8b01aa734d1f95d4c769f0c2bdb5f718570d8390",
+      "verdict": "BOUNDED_CONSTRUCTOR_IMPLEMENTATION_CONTRACT_NOT_PRODUCT_ACCEPTANCE"
+    },
+    "turn-native-qa": {
+      "path": "/home/kali/.hermes/run/omnis-p2-sol-20261011/rollover-01/implementation/turn-native-qa-report.json",
+      "sha256": "9a8d394545b1a7a1b26b97b10d2d8e42d53aceeb57a2921339d5523967525d73",
+      "verdict": "PASS_SCOPED_NEGATIVE"
+    }
+  },
+  "native_negative_qa": {
+    "actual_native": {
+      "controls": [
+        "inert-unbound-before-import",
+        "actual-cold-off-env-before-import",
+        "nonmanaged-stock-import-control"
+      ],
+      "forbidden_entries": [],
+      "forbidden_io": [],
+      "native_actor_created_and_closed": true,
+      "native_positive_initialization_turn_or_inference": "NOT_RUN",
+      "phase2": "NOT_CLOSED",
+      "public_origin": "/opt/hermes/source/agent/conversation_loop.py",
+      "scope": "INSTALLED_NATIVE_PUBLIC_ENTRY_NEGATIVE_ONLY",
+      "verified_files": 27
+    },
+    "families": {
+      "image-build": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "native-public-turn": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    "cid": "9415d9d4dbdadca8e7387a58f2fb9387e427165faed3342a08c668b7e80beddc",
+    "image_id": "sha256:07ac53d48df93d44230aac59979c222cdc9bf50e9d94c1144601ddea38f0ee21",
+    "frontend_exit": 0
+  },
+  "retirement": {
+    "cid": "9415d9d4dbdadca8e7387a58f2fb9387e427165faed3342a08c668b7e80beddc",
+    "rm_exit": 0,
+    "exact_absence_inspect_exit": 1,
+    "daemon_unchanged": true,
+    "socket_unchanged": true,
+    "image_retained": "sha256:07ac53d48df93d44230aac59979c222cdc9bf50e9d94c1144601ddea38f0ee21",
+    "state_retained": true,
+    "inputs_unchanged": 30,
+    "old_or_foreign_cleanup": false,
+    "scope": "EXACT_OWNED_RETIRED_ONLY"
+  },
+  "retained_failures": [
+    {
+      "event": "Initial development review invocation used runpy CLI with absolute file instead of module",
+      "handles": {
+        "proc_dfadc2618463": 1,
+        "proc_4ee7b421bd2c": 1
+      },
+      "scope": "Prelaunch; no settings artifact/review request; corrected distinct invocation preserved original logs."
+    },
+    {
+      "event": "Initial complementary review frontends exited1 after delivering SOURCE approvals",
+      "handles": {
+        "proc_36227556d01c": 1,
+        "proc_3e4fbf74d76e": 1
+      },
+      "scope": "Not SOURCE test1; original complete reports and scratch test/harness attempts retained."
+    },
+    {
+      "event": "New patch context blank prefix gave git diff --check trailing-whitespace FAIL",
+      "scope": "Removed only unused final blank context and reduced hunk counts; source bytes unchanged. Parent final13 reapply+build2+diff0 and focused approvals."
+    },
+    {
+      "event": "R1 focused metadata reviewer used invalid AST assertion, did not reach roundtrip",
+      "verdict": "CHANGES_REQUESTED",
+      "finding": "REVIEW-INCOMPLETE-DISTRIBUTION-REAPPLY",
+      "disposition": "No product defect; proof boundary narrowed to one actual pinned13 Git roundtrip, completed in separate R1-delta-fix APPROVED_SCOPED. Original report unchanged."
+    },
+    {
+      "event": "R2 SOURCE reviewer harness syntax and pytest-log audit refusals",
+      "scope": "Original failures retained in complete report; corrected owned log path, then actual33SOURCE+5 controls pass. No product validator weakening."
+    },
+    {
+      "event": "Constructor architect frontend1",
+      "scope": "Bounded actionable implementation contract delivered, not code/integration/native acceptance. Later distribution-only drift reconciled by final snapshot without transferring stale approvals."
+    }
+  ],
+  "permissions": {
+    "live": "HOLD_SEPARATE_ACCOUNT_PROVIDER_MODEL_DATA_BUDGET",
+    "phase3": "PROHIBITED",
+    "push": false,
+    "protected_original": "UNREAD_UNCOPIED_UNHASHED_UNSTAGED"
+  },
+  "status": {
+    "phase2": "NOT_CLOSED",
+    "full_final_make_check": "NOT_RUN_DEFERRED_FINAL_PRODUCT_BOUNDARY",
+    "next_dependency": "Qualified committed owner source/receipt -> genuine NEW physical AIAgent init/configuration core and fenced observation, then legitimate NEW selection/manifest/native turn/config/purpose. Scope-owned-core-01 registered; native code candidate in own scratch only, not integrated."
+  },
+  "proof_limits": "Only the two named confirmed findings are closed in measured scope. No universal no-IO/zero-bug claim, no transfer of SOURCE/negative native proof to positive model dispatch or whole phase2. Reticle NOT_APPLICABLE CLI-only; Chisel BLOCKED_NO_GO."
+}

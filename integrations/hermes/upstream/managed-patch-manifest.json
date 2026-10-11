@@ -22,7 +22,7 @@
     },
     "agent/conversation_loop.py": {
       "original_sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91",
-      "patched_sha256": "61ec32c118165dfe7cce7702ef08a7e76c32e286fff9eea061524a6390dddfd1"
+      "patched_sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
@@ -57,5 +57,5 @@
       "patched_sha256": "cac0622fa7e88ac76ad2e08f2cc4eeafcf2f22324b0645c1307015f6ee4c510a"
     }
   },
-  "patch_sha256": "6b329cb54bd0d332f3de9ccbfa343c90addbfca127dc8813044487120dbd5e6d"
+  "patch_sha256": "a23fc58d6998d70bcfe819d615466c7e3f605d76032a8cd720f899559c143890"
 }

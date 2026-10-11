@@ -1637,6 +1637,9 @@ def run_conversation(
     ``{turn_id, current_turn_user_idx}`` pair is stamped beside the exact ``messages`` it
     addresses, after every history rewrite including post-turn micro-compaction.
     """
+    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
+    if is_inert_model_context(agent):
+        return terminal_result()
     from agent.turn_context import export_current_turn_boundary
     from tools.vision_tools_history_budget import native_turn_images
 

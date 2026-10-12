@@ -218,6 +218,7 @@ class RuntimeClient:
         self.reader: asyncio.StreamReader | None = None
         self.writer: asyncio.StreamWriter | None = None
         self.lock = asyncio.Lock()
+        self.recovery_lock = asyncio.Lock()
         self.bootstrap_inventory: BootstrapInventory | None = None
 
     async def connect(self) -> None:
@@ -268,10 +269,16 @@ class RuntimeClient:
         authority: "RuntimeAuthority | None" = None,
         payload: dict[str, object] | None = None,
     ) -> dict[str, object]:
-        if op not in {"launch", "status", "renew", "stop", "prepare"} | MANAGED_OPERATIONS:
+        if (
+            op
+            not in {"launch", "status", "renew", "stop", "prepare", "task_receive"}
+            | MANAGED_OPERATIONS
+        ):
             raise RuntimeUnavailable("Runtime operation denied")
-        if (op == "prepare" or op in MANAGED_OPERATIONS) != (payload is not None):
+        if (op in {"prepare", "task_receive"} or op in MANAGED_OPERATIONS) != (payload is not None):
             raise RuntimeUnavailable("Runtime payload denied")
+        if op == "task_receive" and authority is not None:
+            raise RuntimeUnavailable("Receive-only authority denied")
         if op in {"launch", "renew", "prepare"} | MANAGED_OPERATIONS and authority is None:
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
@@ -291,6 +298,10 @@ class RuntimeClient:
                 if (authority.generation, authority.epoch) != (self.generation, self.epoch):
                     raise RuntimeUnavailable("Runtime authority mismatch")
                 request["deadline_ns"] = authority.deadline_ns
+            if op == "task_receive":
+                request["payload"] = payload
+                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                    raise RuntimeUnavailable("Runtime receive limit")
             timeout = 2.0
             if op in MANAGED_OPERATIONS and authority is not None:
                 request["payload"] = payload
@@ -468,6 +479,32 @@ class RuntimeClient:
         except BaseException:
             await self.close()
             raise
+
+    async def receive(self, payload: dict[str, object], *, expected_boot: str) -> dict[str, object]:
+        """Explicit recovery by this owner, never reconnect-and-resend work.
+
+        Only the original Host boot/fence may return a retained terminal result.
+        Missing retention/replaced Host is indeterminate, not permission to retry.
+        """
+        async with self.recovery_lock:
+            try:
+                if self.boot != expected_boot:
+                    raise RuntimeUnavailable("Historical runtime identity mismatch")
+                if self.writer is None:
+                    try:
+                        await self.connect()
+                    except (OSError, ValueError):
+                        raise RuntimeUnavailable("Runtime recovery unavailable") from None
+                if self.boot != expected_boot:
+                    raise RuntimeUnavailable("Replaced runtime host")
+                response = await self._exchange("task_receive", payload=payload)
+                result = response.get("managed")
+                if not isinstance(result, dict):
+                    raise RuntimeUnavailable("Missing retained managed result")
+                return result
+            except BaseException:
+                await self.close()
+                raise
 
     async def status(self) -> dict[str, object]:
         return await self._exchange("status")

@@ -24,7 +24,7 @@ from fixtures.c03_records import qualify_records
 from omnis.core.db import database_engine
 from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
-from omnis.modules.instance.service import InstanceService
+from omnis.modules.instance.service import InstanceService, RuntimeAuthority
 from omnis.modules.runs.contract_inputs import ContractInputs
 from omnis.modules.runs.managed_admission import BuildSource, ManagedAdmission
 from omnis.modules.runs.native_preparation import NativePreparation
@@ -251,9 +251,21 @@ class PreparationPrerequisite(RuntimeClient):
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
 @pytest.mark.parametrize(
-    "first_final_after_stop,with_criteria",
-    [(False, False), (False, True), (True, True)],
-    ids=["support-zero", "criteria-normal", "criteria-first-late-held"],
+    "first_final_after_stop,with_criteria,lost_reply",
+    [
+        (False, False, False),
+        (False, True, False),
+        (True, True, False),
+        (False, True, True),
+        (True, True, True),
+    ],
+    ids=[
+        "support-zero",
+        "criteria-normal",
+        "criteria-first-late-held",
+        "lost-reply",
+        "lost-reply-post-stop",
+    ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     request: pytest.FixtureRequest,
@@ -261,6 +273,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     monkeypatch: pytest.MonkeyPatch,
     first_final_after_stop: bool,
     with_criteria: bool,
+    lost_reply: bool,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -699,12 +712,199 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     return received
 
                 with monkeypatch.context() as pause:
-                    if first_final_after_stop:
-                        pause.setattr(domain, "ingest_result", stop_before_first_persist)
-                    released = await owner.handle(
-                        NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
-                    )
-                assert seam_calls == int(first_final_after_stop)
+                    if lost_reply:
+                        # Physical reply loss at the Host's UDS writer frontier,
+                        # AFTER the real native final passed Host validation.
+                        # No substituted result, prompt resend or provider.
+                        assert host.owner_writer is not None
+                        wire = host.owner_writer
+                        original_write = wire.write
+                        dropped = []
+
+                        def lose_final(raw: bytes) -> None:
+                            reply = json.loads(raw)
+                            final_reply = reply.get("managed", {})
+                            if reply.get("ok") is True and final_reply.get("status") == "SUCCEEDED":
+                                dropped.append(sha(canonical(final_reply)))
+                                checkpoint(
+                                    lost_reply_frontier="HOST_UDS_BEFORE_WRITE",
+                                    retained_final_sha256=dropped[0],
+                                )
+                                wire.transport.abort()
+                                raise ConnectionResetError("Owned reply deliberately lost")
+                            original_write(raw)
+
+                        pause.setattr(wire, "write", lose_final)
+                        with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                            await owner.handle(
+                                NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
+                            )
+                        assert len(dropped) == 1
+                        # Join THIS connection owner and its bounded native drain.
+                        await asyncio.wait_for(asyncio.gather(*list(host.clients)), 2)
+                        assert runtime.reader is None and runtime.writer is None
+                        assert host.process is not None and host.process.returncode is not None
+                        before = await domain.readback(
+                            seed.request(command_id=assignment["command_id"])
+                        )
+                        assert before["release_started"] is True
+                        assert before["results"] == before["checks"] == before["inbox"] == []
+                        checkpoint(
+                            lost_reply_intent="RELEASE_STARTED_WITHOUT_RESULT",
+                            raw_before_recovery=0,
+                            inbox_before_recovery=0,
+                        )
+                        assert len(host.managed_finals) == 1
+                        retained = next(iter(host.managed_finals.values()))
+                        assert sha(retained) == dropped[0] and len(retained) <= 32768
+                        checkpoint(retained_final_bytes=len(retained), retained_finals=1)
+                        with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                            await owner.handle(
+                                NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
+                            )
+                        assert canonical(
+                            await domain.readback(seed.request(command_id=assignment["command_id"]))
+                        ) == canonical(before)
+                        if first_final_after_stop:
+                            done.set()
+                            await heartbeat
+                            stop_id = uuid4()
+                            generation = await service.shutdown(
+                                stop_id, status.generation, supervisor, epoch
+                            )
+                            stopped = await service.command_readback(
+                                stop_id,
+                                "SHUTDOWN",
+                                status.generation,
+                                generation,
+                                supervisor,
+                                epoch,
+                            )
+                            assert (
+                                generation == status.generation + 1
+                                and stopped.admission_open is False
+                            )
+                            checkpoint(stop_generation=generation)
+                        native_before_receive = observation.read_bytes()
+                        recovery_attempts: list[str] = []
+                        actual_exchange = runtime._exchange
+
+                        async def only_receive(
+                            op: str,
+                            authority: RuntimeAuthority | None = None,
+                            payload: dict[str, object] | None = None,
+                        ) -> dict[str, object]:
+                            recovery_attempts.append(op)
+                            checkpoint(recovery_operations=recovery_attempts)
+                            if op != "task_receive" or authority is not None:
+                                raise AssertionError("RECOVERY_ATTEMPTED_NEW_WORK")
+                            return await actual_exchange(op, authority, payload)
+
+                        pause.setattr(runtime, "_exchange", only_receive)
+                        # Unknown retained ticket on the SAME private receive channel.
+                        from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+                        bound_body = mapping(mapping(before["binding"])["payload"])
+                        receive_payload = {
+                            "protocol": manifest_protocol(prepared["manifest"]),
+                            "ticket": bound_body["ticket"],
+                            "manifest_ref": prepared["manifest_ref"],
+                        }
+                        with pytest.raises(RuntimeUnavailable):
+                            await runtime.receive(
+                                {**receive_payload, "ticket": str(uuid4())},
+                                expected_boot=runtime.boot,
+                            )
+                        assert canonical(
+                            await domain.readback(seed.request(command_id=assignment["command_id"]))
+                        ) == canonical(before)
+                        with pytest.raises(CatalogError, match="^COMMAND_CONFLICT$"):
+                            await owner.handle(
+                                NativeTaskCommand.model_validate(
+                                    {**lifecycle, "action": "receive", "expected_epoch": epoch + 1}
+                                )
+                            )
+                        with pytest.raises(CatalogError, match="^COMMAND_CONFLICT$"):
+                            await NativeTaskOwner(domain, service, uuid4(), epoch, runtime).handle(
+                                NativeTaskCommand.model_validate({**lifecycle, "action": "receive"})
+                            )
+                        # Untrusted mutations of genuine retained bytes traverse
+                        # this owner/ingest consumer; none is positive evidence.
+                        for mutation in ("header", "foreign_child"):
+
+                            async def corrupted_receive(
+                                op: str,
+                                authority: RuntimeAuthority | None = None,
+                                payload: dict[str, object] | None = None,
+                                *,
+                                mutation: str = mutation,
+                            ) -> dict[str, object]:
+                                response = deepcopy(await only_receive(op, authority, payload))
+                                corrupt = mapping(response["managed"])
+                                execution = mapping(sequence(corrupt["executions"])[0])
+                                if mutation == "foreign_child":
+                                    execution["native_child_id"] = str(uuid4())
+                                else:
+                                    changed_result = mapping(sequence(execution["records"])[0])
+                                    mapping(mapping(changed_result["payload"])["header"])[
+                                        "task_id"
+                                    ] = str(uuid4())
+                                    changed_result["digest"] = sha(
+                                        canonical(
+                                            {
+                                                k: v
+                                                for k, v in changed_result.items()
+                                                if k != "digest"
+                                            }
+                                        )
+                                    )
+                                return response
+
+                            pause.setattr(runtime, "_exchange", corrupted_receive)
+                            with pytest.raises(CatalogError):
+                                await owner.handle(
+                                    NativeTaskCommand.model_validate(
+                                        {**lifecycle, "action": "receive"}
+                                    )
+                                )
+                            assert canonical(
+                                await domain.readback(
+                                    seed.request(command_id=assignment["command_id"])
+                                )
+                            ) == canonical(before)
+                        pause.setattr(runtime, "_exchange", only_receive)
+                        released = await owner.handle(
+                            NativeTaskCommand.model_validate({**lifecycle, "action": "receive"})
+                        )
+                        assert recovery_attempts == ["task_receive"] * 4
+                        assert observation.read_bytes() == native_before_receive
+                        recovered = await domain.readback(
+                            seed.request(command_id=assignment["command_id"])
+                        )
+                        native_receipt = next(
+                            mapping(r)
+                            for r in sequence(recovered["records"])
+                            if mapping(r)["kind"] == "native-task-receipt"
+                        )
+                        assert sha(canonical(native_receipt["payload"])) == dropped[0]
+                        checkpoint(
+                            lost_reply_recovered="PASS",
+                            receive_negatives=[
+                                "unknown_ticket",
+                                "foreign_epoch",
+                                "foreign_owner",
+                                "header",
+                                "foreign_child",
+                            ],
+                            first_late_held="PASS" if first_final_after_stop else None,
+                        )
+                    else:
+                        if first_final_after_stop:
+                            pause.setattr(domain, "ingest_result", stop_before_first_persist)
+                        released = await owner.handle(
+                            NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
+                        )
+                assert seam_calls == int(first_final_after_stop and not lost_reply)
                 assert released["task_status"] == "SUCCEEDED"
                 assert released["binding_ref"] == staged["binding_ref"]
                 back_request = seed.request(command_id=assignment["command_id"])

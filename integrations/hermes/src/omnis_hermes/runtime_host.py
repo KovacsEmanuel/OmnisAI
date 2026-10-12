@@ -51,7 +51,7 @@ NATIVE_ENV = {
     "HERMES_DISABLE_LAZY_INSTALLS": "1",
     "HERMES_SKIP_NODE_BOOTSTRAP": "1",
 }
-OPS = frozenset({"launch", "status", "renew", "stop", "prepare"}) | managed.OPS
+OPS = frozenset({"launch", "status", "renew", "stop", "prepare", "task_receive"}) | managed.OPS
 PREPARATION_COMMAND = (
     "/opt/hermes/venv/bin/python",
     "-I",
@@ -117,6 +117,9 @@ class RuntimeHost:
         self.stop_lock = asyncio.Lock()
         self.command_lock = asyncio.Lock()
         self.capabilities: dict[str, object] = {}
+        # Receive-only retention survives native drain, not Host restart. Never
+        # evict a terminal result to make room for an unrecoverable execution.
+        self.managed_finals: dict[str, bytes] = {}
 
     async def __aenter__(self) -> Self:
         private_paths.directory(self.directory)
@@ -252,6 +255,10 @@ class RuntimeHost:
             "task_model_initialize": managed.validate_initialization,
         }
         validators[operation](payload)
+        if operation == "task_release" and (
+            payload["ticket"] not in self.managed_finals and len(self.managed_finals) >= 32
+        ):
+            raise ValueError("Managed result retention full")
         if operation == "task_model_initialize":
             authority = cast(dict[str, object], payload["authority"])
             if payload["runtime_boot"] != self.boot or (
@@ -321,6 +328,26 @@ class RuntimeHost:
                 or any(result[k] != binding[k] for k in ("native_root_id", "entries"))
             ):
                 raise ValueError("Native binding mismatch")
+        if operation == "task_release":
+            # All native response/binding checks precede retention and the UDS
+            # send frontier. Canonical bytes prevent readback alias mutation.
+            ticket = cast(str, result["ticket"])
+            raw = canonical(result)
+            prior = self.managed_finals.get(ticket)
+            if prior is not None and prior != raw:
+                raise ValueError("Managed result retention conflict")
+            self.managed_finals[ticket] = raw
+        return result
+
+    def _receive_managed(self, payload: object) -> dict[str, object]:
+        """Retained terminal bytes only: no grant, peer call or new work."""
+        request = managed.validate_status(payload)
+        raw = self.managed_finals.get(cast(str, request["ticket"]))
+        if raw is None:
+            raise ValueError("Managed result unavailable; reconciliation required")
+        result = managed.validate_response(loads(raw, MAX_FRAME))
+        if any(result[k] != request[k] for k in ("protocol", "ticket", "manifest_ref")):
+            raise ValueError("Managed retained identity mismatch")
         return result
 
     async def _managed_connected(
@@ -679,7 +706,7 @@ class RuntimeHost:
         expected = {"version", "id", "boot", "capability", "generation", "epoch", "op"}
         if body.get("op") in {"launch", "renew", "prepare"} | managed.OPS:
             expected.add("deadline_ns")
-        if body.get("op") in {"prepare"} | managed.OPS:
+        if body.get("op") in {"prepare", "task_receive"} | managed.OPS:
             expected.add("payload")
         if set(body) != expected or type(body["version"]) is not int or body["version"] != 1:
             raise ValueError("Invalid IPC fields")
@@ -703,6 +730,8 @@ class RuntimeHost:
             validate_payload(body["payload"])
             if len(canonical(body)) + 1 > LIMITS["max_runtime_request_bytes"]:
                 raise ValueError("Invalid native preparation")
+        if body["op"] == "task_receive":
+            managed.validate_status(body["payload"])
         if body["op"] in managed.OPS:
             {
                 "task_stage": managed.validate_stage,
@@ -752,6 +781,8 @@ class RuntimeHost:
                             self.deadline_ns = self._grant(body)
                         elif body["op"] == "prepare":
                             preparation = await self._prepare_connected(body, reader)
+                        elif body["op"] == "task_receive":
+                            managed_result = self._receive_managed(body["payload"])
                         elif body["op"] in managed.OPS:
                             managed_result = await self._managed_connected(body, reader)
                         elif body["op"] == "stop":

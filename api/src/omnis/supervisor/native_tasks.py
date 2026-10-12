@@ -212,6 +212,8 @@ class NativeTaskOwner:
         binding = None if back["binding"] is None else mapping(back["binding"])
         if binding is not None:
             authority = mapping(mapping(binding["payload"])["authority"])
+            if command.action == "receive" and authority["owner"] != str(self.owner):
+                raise CatalogError("COMMAND_CONFLICT")
             if any(
                 authority[key] != expected
                 for key, expected in (
@@ -319,7 +321,7 @@ class NativeTaskOwner:
         else:
             if not back["release_started"]:
                 raise CatalogError("TASK_INDETERMINATE")
-            final = await self.runtime.managed(self.service, self.owner, "task_status", payload)
+            final = await self.runtime.receive(payload, expected_boot=str(body["runtime_boot"]))
         # A genuine already-produced result is received without granting new work.
         await self.domain.ingest_result(
             command.owner_id,

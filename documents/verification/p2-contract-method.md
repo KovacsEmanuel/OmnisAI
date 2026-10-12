@@ -72,4 +72,6 @@ Checkpointul `1890f68` este acum integrat byte-exact în **`93b7700`**, cu remed
 
 ## Restul B06b/P2 rămâne deschis
 
+C04 a fost încercat după integrarea history; [registrul](p2-c04-criteria.md) păstrează refuzul PG68108>65536 și compactarea schema-only insuficientă, candidații respinși și baza restaurată. **BLOCKED / NOT_IMPLEMENTED / NOT_REVIEWED**, fără execuție nativă ori persistare CriterionOutcome C04. Nu se transferă PASS-ul tracerului records către aceste tentative.
+
 Nonempty CriterionBinding/CriterionResult/done_when/return_when și predicatele calificate, M1/M2 și lost reply nu sunt închise de acest tracer. First-late-held și restartul readerului persistent au acum acceptarea scoped de mai sus, nu runtime restart sau crash-cut. Capture are probe SOURCE reținute, nu noul journey PG records. Descriptorul checkerului nu probează independent closure-ul implementării sale, iar migrarea nu are istoric nonempty demonstrat. INSTALLED și P2-live sunt NOT_RUN. B06c/B06m reserve→SENT→transport/UNKNOWN și P4a-minim rămân în ordinea planului; fără cont/model/target/r1/adopție/push sau închiderea globală P2.

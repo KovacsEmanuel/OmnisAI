@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "review_id": "C10-SEC-FIX-F01-F04-EXACT16",
+  "verdict": "APPROVED_SCOPED",
+  "approved_scope": [
+    "C10-SEC-F01",
+    "C10-SEC-F02",
+    "C10-SEC-F03",
+    "C10-SEC-F04"
+  ],
+  "scope": "Închiderea SOURCE a reproducerilor originale SEC-F01..F04 și inspecția callsites schimbate pe exact16. Nu aprobare pentru funcționarea integrală a snapshotului, integrare, native/PG sau faza2.",
+  "snapshot_acceptance": "CHANGES_REQUESTED: C10-NATIVE-F01",
+  "integration_approval": false,
+  "candidate": "/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates",
+  "base_head": "d7a51f3adc04be57fe528f6e14425111d3615144",
+  "original_wip_head": "5fac42e31861d5be7ba8f5239eb6473cacd4b925",
+  "observed_final_wip_head": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+  "main_observed_head": "9fb26d5396c81164107eb882f51073c5e74962e6",
+  "head_transition": "Părintele a comis checkpoint WIP 2ca04773e3d3e3d9a30d9601ab8dad45756569b0 în timpul reviewului; bytes exact16 sunt neschimbate. Fără acceptare/integration prin acest commit.",
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-fix-author.json",
+    "sha256": "820e7bc2429fe88e44ba0fc4e9696a3136bd0ccdfa9f79fd6c8c0e2c7d084bca"
+  },
+  "original_security_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-security-review.json",
+    "sha256": "1275fae64076e14b5009f048551e615b3ec2852f3dacfcaa5100b5e7b58daa56"
+  },
+  "snapshot": {
+    "files_count": 16,
+    "repair_files_count": 15,
+    "all_hashes_matched_before_and_after": true,
+    "inventory": [
+      {
+        "relative_path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "4b0027b428f872845d5a196cff8423297dfbace52f98a81ea68b94348e842ca6",
+        "base_sha256": "bc08853f17b2ec6e33e022e3d0d71ad6b0d5887c8152b79028dba8d5e843a1cb",
+        "wip_sha256": "bc08853f17b2ec6e33e022e3d0d71ad6b0d5887c8152b79028dba8d5e843a1cb",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "b4b710ec449d85c014218378444f0ce79b2259974ffafd314b0869e19f697cf9",
+        "base_sha256": "901f2c36cc47c231b16a7f8ffbc43bd6a936d5cb90b8cccb53a94da1a303b6db",
+        "wip_sha256": "8a75b3ca7fa27d31a6c5adbd82385c832c9ae9c41698262da844178531854c74",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "67171296b1e62e1787a3e0050f52facf187c2fc01aef8c2a2b73d68dd80ac2ab",
+        "base_sha256": "9b87dc17293895299fa5088991afa16a0d73639e4bd400c28e4a80544dfe80e3",
+        "wip_sha256": "0cd803d1afb90615944ea5c24ae3ec938af15c91e699c61648c9afb7454a0958",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "b5d3b7223030e7ec1b4691eb1587529e9962b27d1c19789a8cd57891d0c42948",
+        "base_sha256": null,
+        "wip_sha256": null,
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "447f0248ad7b2a6403f3a97f2b78765de690a44ac94df84e5488221a8fdde8f2",
+        "base_sha256": "8edac8d09b398ffb4eb9cf0d45192703a34f478a2f8f7c27e58ca88121d21b0c",
+        "wip_sha256": "ca4c8c63f10217b8fe38345f941cf9769c3f33b3ca0a312675ab0f27a3b066ee",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "00b632efafeffccdbc2911307bf241039b0fa3d6f8c596e5eac1acca55def51a",
+        "base_sha256": null,
+        "wip_sha256": "28afb8bf5f30342ce0ff1b67d1346205dbe190b1257752ef78c5a8132d829459",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/tests/test_contract_method_checks.py",
+        "sha256": "bdb4145efbaad738905cab7984345f961e717c28c90bf80ebf46b5633ad53be1",
+        "base_sha256": "03c898f4f308caaa7f3893930b5ddf7aa0a926727c1cc0914dc14e4bd34f1d89",
+        "wip_sha256": "7824bf4a2ba01cbe90ea9a27a08ec569e30621328e9a7d7e8902464824f0fa2f",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "api/tests/test_contract_method_pg.py",
+        "sha256": "301459607b3c2e50c3cc0375c27ae38363ac70c735f88d22bdccd5336d498e63",
+        "base_sha256": "26c1db42c0c278cc78cb4077dc51f94d28cf9ae4cc1a4d29d3900e4d18e5d4b3",
+        "wip_sha256": "29c82a31aafe79e2c6862dc8f402b476e780b9e377fb7f6975fb870d74fc3cb2",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/pin.json",
+        "sha256": "d3a337feb16745c750bf69da48cc08472e8e25be261f4a541f41cd5d66da04ea",
+        "base_sha256": "9ba9d078d7a09e602736b13dab7320fde6869eec51fbf20da49206923d784f76",
+        "wip_sha256": "9ba9d078d7a09e602736b13dab7320fde6869eec51fbf20da49206923d784f76",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "2e6a5724ed267c077cadd256cbe387e8906b05b227e7ed9df2fdf23d95b911d9",
+        "base_sha256": "83c61928b950956da21a998bf20c0e7dd116c47b72d4c5d8344c626548e45e31",
+        "wip_sha256": "129be3516b8f4619dcf5191c0d75585c42571ae6a9ba72748507c332192b602b",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+        "base_sha256": "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed",
+        "wip_sha256": "9da83974c22b42cadccdf6aa73f426e178130945c9f9907d9f4a1eeaf17b6505",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/tests/test_contract_method.py",
+        "sha256": "7effe60e3e3584132306c2f39eac718b5d3b34647bf10beca4fb78c320053c8a",
+        "base_sha256": "fbba41c2f046a05ea7ea3419fd2e6ed60757f95330f5a78e5a3bff4a6d895c8c",
+        "wip_sha256": "fbba41c2f046a05ea7ea3419fd2e6ed60757f95330f5a78e5a3bff4a6d895c8c",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9",
+        "base_sha256": "602da77663d77fd04be26b258b196c9ed14cb7383a20fd9631fb67ab29d0e019",
+        "wip_sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9",
+        "changed_by_repair": false
+      },
+      {
+        "relative_path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256": "fe141833640fa594dcd60e0f49a44bcfd7b2427c9514ceb03945dc3f0783cc82",
+        "base_sha256": "b1dd4ce425e1bab2cc0954a37d9403999de9bf5b4912e15a1e679ac10b16e341",
+        "wip_sha256": "b1dd4ce425e1bab2cc0954a37d9403999de9bf5b4912e15a1e679ac10b16e341",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256": "c92a64eca492f76e0250a2d15c2fe06b101e52bc03ba47ad813c111df5dbc42e",
+        "base_sha256": "93daa8ec93bbbedc7e0d34e33be0892ee5389070ef7819231e1f8c14a4c9d068",
+        "wip_sha256": "93daa8ec93bbbedc7e0d34e33be0892ee5389070ef7819231e1f8c14a4c9d068",
+        "changed_by_repair": true
+      },
+      {
+        "relative_path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256": "e986304fe64379e0d9c7c6460d6f6b2334d35932ac01251692a96d6b0bbe05f1",
+        "base_sha256": "2decfa157e01475c0f706cf34706c591015dff5ddbe094cd7544faf9b767492d",
+        "wip_sha256": "2decfa157e01475c0f706cf34706c591015dff5ddbe094cd7544faf9b767492d",
+        "changed_by_repair": true
+      }
+    ],
+    "patches": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-fix-full.patch",
+        "sha256": "887edeef7fdf7b4a757044584e558f3dd0e641fb099cf65492a38ae76d1b01d3",
+        "against": "d7a51f3adc04be57fe528f6e14425111d3615144"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-fix-repair.patch",
+        "sha256": "c691a32f9803fd27128712c4a53d01ba6eceac5b232614bdad1e9d82a7be6fb1",
+        "against": "5fac42e31861d5be7ba8f5239eb6473cacd4b925"
+      }
+    ],
+    "checker_closure_count": 13,
+    "checker_closure_inventory": [
+      {
+        "relative_path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "b5d3b7223030e7ec1b4691eb1587529e9962b27d1c19789a8cd57891d0c42948"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "447f0248ad7b2a6403f3a97f2b78765de690a44ac94df84e5488221a8fdde8f2"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "67171296b1e62e1787a3e0050f52facf187c2fc01aef8c2a2b73d68dd80ac2ab"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "b4b710ec449d85c014218378444f0ce79b2259974ffafd314b0869e19f697cf9"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/criterion_checks.py",
+        "sha256": "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/candidate_catalog.py",
+        "sha256": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "relative_path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256": "2532efd801a73e9d1f85a0931b130dcfd2d41797b67fd940afdb4f945942d852"
+      }
+    ]
+  },
+  "dispositions": [
+    {
+      "id": "C10-SEC-F01",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "evidence": "Current v4 map-records cere cele trei done_when și return_when nonempty chiar la missing-all; bundleRef exact și composition_version ajung în API composition/graph/native assignment/check. SOURCE36 include empty-current, erasure subset și resealed full admission denials. Structural-only validate_assignment nu acordă COMPLETE; callsites de credit furnizează bundle/version.",
+      "locations": [
+        "api/src/omnis/modules/tasks/managed_contract.py:98-164",
+        "api/src/omnis/modules/tasks/managed_composition.py:519-529",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:351-405,497,939",
+        "api/src/omnis/modules/runs/managed_admission.py:949-965",
+        "api/src/omnis/modules/tasks/method_checks.py:474-485,557-572"
+      ],
+      "legacy": "717549/1d32/2cec sunt excepții explicite zero-only la v4; v1-v3/capture/cold rămân versiuni distincte. 9da WIP și pins necunoscute nu sunt acceptate. Nu dovadă actuală de real-reader istoric.",
+      "limit": "Propagarea nouă la run_contract este defectă pentru compact, raportată separat C10-NATIVE-F01; această aprobare nu certifică acel caller end-to-end."
+    },
+    {
+      "id": "C10-SEC-F02",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "evidence": "Input SchemaRef, fiecare step.output SchemaRef și toate requirement.artifact SchemaRefs sunt validate exact înainte de comparație; Key înainte de lookup. Exact integer ref revision exclude True. 12 malformed nested variants în SOURCE36; full resealed bool control refuză API/native.",
+      "locations": [
+        "api/src/omnis/modules/tasks/managed_contract.py:42-94,1297-1328",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:295-348"
+      ],
+      "limit": "SOURCE/typed guards, fără dovadă de DB/native constructor autentic."
+    },
+    {
+      "id": "C10-SEC-F03",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "evidence": "Missing/unknown/duplicate/invalid-Key step sets refuză înainte de registry lookup; exact ordered set este verificat înainte de steps[step]. Probe independente full resealed missing/unknown sunt ValueError: Invalid prompt composition; bool schema este ValueError: Invalid native preparation. initialize_contract apelează assignment înainte de uuid4/state allocation; verificat prin cod, nu constructor autentic nou.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:295-327",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:151-166",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:78-88"
+      ],
+      "limit": "Nu broad TypeError catch nou; nu pretind disclosure privată sau RPC executat."
+    },
+    {
+      "id": "C10-SEC-F04",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "evidence": "v2 descriptor pinnează closure13 cu method_checks, registry/validators și helperul însuși. Digest calculat real 388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db. check_execution validează descriptorul retained înainte de COMPLETE; owner trimite recordul din graph, nu Ref singur. SOURCE36 wrong key/digest/arbitrary Ref denials. History acceptă numai trei perechi digest/pin, zero predicates și receive_only is True; 3 positive/15 negative helper controls independente.",
+      "locations": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:13-71",
+        "api/src/omnis/modules/tasks/managed_contract.py:396-411",
+        "api/src/omnis/modules/tasks/method_checks.py:474-485,566-577",
+        "api/src/omnis/modules/runs/managed_admission.py:632-650,673-676,728-746"
+      ],
+      "historical_authority": "Owner derivă receive_only din existența retained method-check pentru result; _check regenerează și compară canonical payload cu check-ul legat de managed_task.check_id înainte de reconciliere/consum. Citit în cod, fără PG nou. Încrederea în graph/owner și invarianta tranzacțională de păstrare sunt prerechizite; parametrul receive_only direct nu este dovadă de istoric.",
+      "limit": "Unknown checker UNKNOWN rămâne nelivrat: refuz METHOD_CHECKER_UNAVAILABLE, nu implementare completă §9.10; SOURCE compatibility nu este reader istoric instalat."
+    }
+  ],
+  "findings": [
+    {
+      "id": "C10-NATIVE-F01",
+      "severity": "MEDIUM",
+      "status": "OPEN_CHANGES_REQUESTED",
+      "title": "Callerul native nou presupune format inline și eșuează după READ1/PURE2 pe assignment compact valid",
+      "file": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "line": 267,
+      "related_locations": [
+        "api/src/omnis/modules/tasks/managed_composition.py:255-285",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:962-1040"
+      ],
+      "description": "run_contract citește direct compositions[0].payload.prompt_bundle. Produsul compose(method_execution=True) emite record-refs-v1: payload are prompt_bundle_ref și bundle-ul este în record_pool. assignment validează și extinde acest format, dar noul caller revine la bytes compacte brute. KeyError apare înainte de intrarea în task_result, după executarea celor două PURE; terminal devine UNKNOWN. Am reprodus independent SOURCE cu funcția reală run_contract/BoundContractTools și fixture compact existent, atât pe current cât și pe legacy717; inline aceleași materialuri reușește.",
+      "observed": {
+        "inline_current": "ACCEPTED; READ1/PURE2/task_result1; SUCCEEDED;6records",
+        "inline_legacy717": "ACCEPTED; READ1/PURE2/task_result1; SUCCEEDED;6records",
+        "compact_current": "assignment ACCEPTED; READ1/PURE2/task_result0; KeyError(prompt_bundle); terminal UNKNOWN",
+        "compact_legacy717": "assignment ACCEPTED; READ1/PURE2/task_result0; KeyError(prompt_bundle); terminal UNKNOWN"
+      },
+      "reproduction": {
+        "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+        "flags": [
+          "-I",
+          "-B",
+          "-c"
+        ],
+        "workdir": "/home/kali/OmnisAI",
+        "code": "import sys,pathlib,json,copy\nfrom types import SimpleNamespace\nfrom uuid import uuid4\nw=pathlib.Path('/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates')\nsys.path[:0]=[str(w/'api/src'),str(w/'api/tests'),str(w/'integrations/hermes/src'),str(w/'integrations/hermes/tests'),str(w/'integrations/hermes/upstream/managed-source')]\nfrom test_contract_method_checks import native_case\nfrom omnis.modules.settings.catalog_schema import canonical\nfrom composition_fixture import seal\nfrom contract_method_native_probe import ContractNative\nfrom omnis_hermes.contract_method import assignment\nfrom agent.contract_execution import ContractState,run_contract\nfrom agent.cold_admission import ColdState\nresults=[]\nfor current in (True,False):\n case=native_case(predicates=current)\n for compact in (False,True):\n  stage=copy.deepcopy(case.stage)\n  if compact: ContractNative.compact(SimpleNamespace(payload=stage))\n  brief,bound,material=assignment(canonical(stage))\n  binding=copy.deepcopy(case.binding); body=binding['payload']\n  entry={k:v for k,v in stage['manifest']['payload']['entries'][0].items() if k!='goal'}\n  child=body['entries'][0]['native_child_id']; session=body['entries'][0]['native_session_id']\n  entry.update(native_child_id=child,native_session_id=session); body['entries']=[entry]; seal(binding)\n  root_session=str(uuid4()); root_id=body['native_root_id']\n  parent=SimpleNamespace(session_id=root_session,_subagent_id=root_id,_cold_state=ColdState(root_session,root_id,None))\n  state=ContractState(session,child,root_session,parent,canonical(stage),canonical(stage['manifest']),brief['payload']['deadline'])\n  agent=SimpleNamespace(_contract_state=state,session_id=session,_subagent_id=child,_parent_session_id=root_session)\n  counts={'reads':0,'pure':0,'task_result':0}\n  def observe(frame,event,arg):\n   if event=='call':\n    name=frame.f_code.co_name\n    if name=='_read_bound_input': counts['reads']+=1\n    elif name=='run_handler': counts['pure']+=1\n    elif name=='task_result': counts['task_result']+=1\n  prior=sys.getprofile(); sys.setprofile(observe)\n  try:\n   result=run_contract(agent,canonical(binding),lambda:True); outcome={'result':'SUCCEEDED','records':len(result['records'])}\n  except Exception as error:\n   outcome={'result':'REFUSED','exception':type(error).__name__,'missing_key':error.args[0] if isinstance(error,KeyError) else None}\n  finally: sys.setprofile(prior)\n  results.append({'pin':'current4a3606' if current else 'legacy717','format':'compact' if compact else 'inline','assignment':'ACCEPTED','state_terminal':state.terminal,'counts':counts,**outcome})\nprint(json.dumps(results,indent=2))\nassert all(x['result']=='SUCCEEDED' for x in results if x['format']=='inline')\nassert all(x['exception']=='KeyError' and x['missing_key']=='prompt_bundle' and x['counts']=={'reads':1,'pure':2,'task_result':0} for x in results if x['format']=='compact')\n",
+        "exit_code": 0,
+        "exit_limit": "Exit0 confirmă reproducerea bugului și pozitivele inline, nu un PASS al consumerului compact."
+      },
+      "remedy": "Rezolvă bundle-ul numai din materialul constructor-owned deja validat, prin existing expanded_payload cu record_pool și exact Ref binding; nu lookup inline, fallback la pin sau record arbitrar. Test RED/GREEN la run_contract pentru current+legacy compact cu control inline; reseal/reapply manifest/pin după ultima editare și re-review focalizat.",
+      "authority_limit": "State holders SOURCE synthetic, nu AIAgent/transport autentic. Părintele a confirmat separat producer.compose(method_execution=True)+stage_payload+assignment; nu revendic acest test drept execuție independentă proprie. Nu declar această constatare cauza RuntimeUnavailable pre-stage anterioare sau cauza exactă a FAIL-ului PG; corelarea READ1/PURE2 nu o dovedește."
+    }
+  ],
+  "executed_evidence": [
+    {
+      "command": "python3 -I -B -c <hashlib/json/pathlib inventory+patch hashes; git status/rev-parse/diff --check>",
+      "exit_code": 0,
+      "result": "Exact16/repair15 și ambele patch SHA matched înainte și după; checkpoint WIP schimbat numai ca HEAD."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pathlib,pytest; w=pathlib.Path(\"/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates\"); sys.path[:0]=[str(w/\"api/src\"),str(w/\"api/tests\")]; raise SystemExit(pytest.main([\"-p\",\"no:cacheprovider\",\"-c\",str(w/\"api/pyproject.toml\"),str(w/\"api/tests/test_c10_bound_predicates.py\"),\"-q\",\"--tb=line\"]))'",
+      "exit_code": 0,
+      "result": "36 passed in 2.25s",
+      "limit": "SOURCE; nu PG/installed/native autentic."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <finding reproduction.code>",
+      "exit_code": 0,
+      "result": "2inline positives;2compact failures confirmed; fiecare READ1/PURE2; zero task_result calls la compact."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <verify historical exact pairs and first-check/nonzero/current-pin/wrong-pair/bool-alias controls>",
+      "exit_code": 0,
+      "result": "3positive exact pairs;15denials METHOD_CHECKER_UNAVAILABLE"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <resealed assignment missing-step/unknown-step/schema-bool controls>",
+      "exit_code": 0,
+      "result": "3sanitized ValueError denials, no KeyError; missing/unknown Invalid prompt composition, bool-ref Invalid native preparation."
+    }
+  ],
+  "real_pg": {
+    "status": "BLOCKED_NOT_PASS",
+    "historical_attempt_preserved": "FAIL",
+    "source": "frozen author report pg_attempt + REAL_NATIVE_PG_FINAL_PRODUCT command",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-c10-fix-consumer-driver.py",
+    "exit_code": 1,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 1,
+      "family_drained": true
+    },
+    "current_case": "FAIL RuntimeUnavailable before native stage; observer READY only, not GatewayReady/native admission. Cause unresolved.",
+    "legacy_case": "FAIL TASK_INDETERMINATE after actual constructor/read1/handler2; no final/result/check/reader proof.",
+    "not_reexecuted": true,
+    "private_logs_or_proofs_read": false,
+    "new_native_complete_pass": false,
+    "installed_pass": false,
+    "previous306_transfer": false,
+    "retention_requirement": "Părintele trebuie să păstreze separat FAIL-ul real și limitele/cleanupul la revizia originală; fixul compact ori re-reviewul SOURCE nu le suprascriu și nu explică retroactiv pre-stage RuntimeUnavailable."
+  },
+  "issues_encountered": [
+    "Probe history inițial SyntaxError/unmatched parenthesis, exit1, corectat doar argv; nicio sursă editată.",
+    "Probe diagnostic inițial aștepta greșit Invalid native preparation pentru missing-step; exit1. Mesajul măsurat corect este Invalid prompt composition; control corectat fără schimbare de produs.",
+    "Regression nouă la consumer compact real SOURCE: C10-NATIVE-F01."
+  ],
+  "limits": [
+    "Read-only repo/source/tests/skills; fără staging/commit de reviewer, servicii, DB nou/PG, model/provider/target/account/profile/global. Numai raportul scratch cerut este creat.",
+    "Fără private whole logs/proof dumps; cleanup PG rămâne evidență raportată de autor/părinte, nu readback independent aici.",
+    "Early partial return unsupported; applicability/preconditions/invalidation/evidence-bearing/generic/multi-procedure/unknown-checker UNKNOWN și M1/M2 rămân nelivrate/unproved.",
+    "No C10/B06b/G02/P2 closure; no native/current-boundary PASS; installed/canonical NOT_RUN.",
+    "Bounds65536/32768/deadline4.5 și input records recipe nu sunt modificate sau relaxate.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, neinvocate."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-bound-predicates-fix-security-rereview.json"
+  ],
+  "files_modified": [],
+  "proposed_status_delta": {
+    "C10": {
+      "implementation": "PARTIAL; finite SEC repairs SOURCE",
+      "proof": "SOURCE36 PASS; compact changed consumer FAIL; real native/PG FAIL/BLOCKED",
+      "review": "SEC-F01..F04 APPROVED_SCOPED; C10-NATIVE-F01 CHANGES_REQUESTED"
+    },
+    "B06b_G02_P2": "NOT_CLOSED unchanged",
+    "next": "Parent narrow compact consumer repair in separate worktree; preserve frozen failures, focused final-byte re-review; resolve pre-stage boundary separately."
+  }
+}

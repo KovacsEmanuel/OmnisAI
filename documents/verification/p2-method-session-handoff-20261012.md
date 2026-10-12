@@ -1,5 +1,7 @@
 # Handoff — P2-inert după metoda nativă, 12 octombrie 2026
 
+**ISTORIC — punctul de reluare de mai jos a fost înlocuit de [handofful C10 current](p2-c10-session-handoff-20261012.md).** History, compact, C04 și C11 au fost ulterior integrate scoped; C10 final este WIP comis separat la8ea28b2, cu re-reviewul ultimei delte încă NOT_RUN. Nu relua reviewul1890f68 sau implementarea history din această notă. FAIL-urile și probele de mai jos rămân la snapshoturile lor.
+
 Checkpoint de sesiune, **nu plan nou**. Autoritate: AGENTS.md, README, plan §7.1/§8/§19 și arhitectura relevantă. Status global: [harta](implementation-status.md); dovezi: [registrul metodei](p2-contract-method.md) și [FAIL canonical păstrat](p2-method-canonical-snapshot5-fail.json).
 
 ## Punctul de reluare

@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "status": "CHECKPOINT_WIP_NOT_INTEGRATED; FINAL_DELTA_REVIEW_PENDING",
+  "reason": "Operator requested fresh-session handoff; no new runtime or canonical execution during handoff.",
+  "main_before_handoff": "9fb26d5396c81164107eb882f51073c5e74962e6",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "integrated_product_base": "d7a51f3adc04be57fe528f6e14425111d3615144",
+  "candidate": {
+    "branch": "work/p2-bound-predicates-nativefix",
+    "head": "8ea28b2794912726428fbc3cac6f6d18269be454",
+    "worktree": "/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix",
+    "history": [
+      "5fac42e31861d5be7ba8f5239eb6473cacd4b925",
+      "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+      "8ea28b2794912726428fbc3cac6f6d18269be454"
+    ],
+    "files_count": 17,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "4b0027b428f872845d5a196cff8423297dfbace52f98a81ea68b94348e842ca6"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "b4b710ec449d85c014218378444f0ce79b2259974ffafd314b0869e19f697cf9"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "67171296b1e62e1787a3e0050f52facf187c2fc01aef8c2a2b73d68dd80ac2ab"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "b5d3b7223030e7ec1b4691eb1587529e9962b27d1c19789a8cd57891d0c42948"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "447f0248ad7b2a6403f3a97f2b78765de690a44ac94df84e5488221a8fdde8f2"
+      },
+      {
+        "path": "api/tests/test_assignment_compact.py",
+        "sha256": "63a2782d824af8983584bf86c22934428994c0fe39976b5397bc59ba029cee77"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "00b632efafeffccdbc2911307bf241039b0fa3d6f8c596e5eac1acca55def51a"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256": "b9cf0ce0fe8608b8d9188307a55274d1a94becdecad5ba6cf69b5dc91eebd776"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "301459607b3c2e50c3cc0375c27ae38363ac70c735f88d22bdccd5336d498e63"
+      },
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "317eb781462dc3b18fd9a9ca28124545e2c8d0c78141122f3d31a7f83ffe6803"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "2e6a5724ed267c077cadd256cbe387e8906b05b227e7ed9df2fdf23d95b911d9"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
+      },
+      {
+        "path": "integrations/hermes/tests/test_contract_method.py",
+        "sha256": "7effe60e3e3584132306c2f39eac718b5d3b34647bf10beca4fb78c320053c8a"
+      },
+      {
+        "path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256": "9b9f04e5617695abd8e724933080bbf110eef50ac0181f1d79a775cd7fe0f22f"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256": "ac07ddc8979df03d7a92595327ae387a4276392e94dc32e09bfe73d564d12aef"
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256": "bc6e6c95ddbeead56f0b64fdbe01dfa2459b245d5e3e42d67b03e29ead459d97"
+      }
+    ],
+    "last_delta_files": [
+      "api/tests/test_assignment_compact.py",
+      "api/tests/test_contract_method_checks.py",
+      "integrations/hermes/pin.json",
+      "integrations/hermes/upstream/managed-patch-manifest.json",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "integrations/hermes/upstream/omnis-managed.patch"
+    ],
+    "last_delta_sha256": "55229e016fd7701875c919126e50e4732e2ab6b71348c81bf50ee1fcaf76a50f"
+  },
+  "findings": {
+    "C10-NORM-F01": "CLOSED_SOURCE_SCOPED at2ca0477; final upstream delta not covered",
+    "C10-SEC-F01": "CLOSED_SOURCE_SCOPED current empty denial versus explicit historical zero",
+    "C10-SEC-F02": "CLOSED_SOURCE_SCOPED nested typed SchemaRefs before equality",
+    "C10-SEC-F03": "CLOSED_SOURCE_SCOPED step guards before lookup/allocation",
+    "C10-SEC-F04": "CLOSED_SOURCE_SCOPED descriptor checks executing checker closure13 and exact historical receive-only pairs",
+    "C10-NATIVE-F01": "FIXED_UNREVIEWED at8ea28b2; actual compact lookup RED2/inlinePASS2 -> final SOURCE135/native21 and genuinePG2PASS"
+  },
+  "reviews": [
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/normative-source-rereview.json",
+      "sha256": "d4b8f571b029d4892e447d253c5315e07d602b12118f687795b7b45851815a0b",
+      "reviewed_snapshot": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+      "scope": "SOURCE C10-NORM-F01/SEC-F01..F04 closed; C10-NATIVE-F01 open at reviewed snapshot; not final8ea28b2 approval"
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/security-source-rereview.json",
+      "sha256": "8403ac5c6f05325b81acdaa7ac67dc5fe24d00142ce3481da6f937a743775413",
+      "reviewed_snapshot": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+      "scope": "SOURCE C10-NORM-F01/SEC-F01..F04 closed; C10-NATIVE-F01 open at reviewed snapshot; not final8ea28b2 approval"
+    }
+  ],
+  "final_source_checks": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py -q --tb=short",
+      "exit": 0,
+      "result": "135 passed in 8.81s; after last test/helper edit, no later product/test edit."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o 'pythonpath=/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix/api/src /home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix/integrations/hermes/src /home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix/integrations/hermes/tests /home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix/integrations/hermes/upstream/managed-source' integrations/hermes/tests/test_contract_method.py integrations/hermes/tests/test_managed_build.py -q --tb=short",
+      "exit": 0,
+      "result": "21 passed in 0.50s; exact absolute paths in executed tool command."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py",
+      "exit": 0,
+      "result": "All checks passed; both helper/test files formatted."
+    },
+    {
+      "command": "MYPYPATH=api/src:api/tests:integrations/hermes/src /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-c10-native-bundle-mypy api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py",
+      "exit": 0,
+      "result": "Success: no issues found in 2 source files"
+    },
+    {
+      "command": "git diff --check; git diff --cached --name-only; final frozen SHA/HEAD verification",
+      "exit": 0,
+      "result": "Six exact final hashes match; HEAD unchanged; staging empty."
+    }
+  ],
+  "author_reports": [
+    {
+      "scratch": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-author.json",
+      "sha256": "b98f922a9f0d15b642a9308a20236392ceea3f028aac974a0f938255d030521e"
+    },
+    {
+      "scratch": "/home/kali/.hermes/cache/scratch/p2-bound-predicates-fix-author.json",
+      "sha256": "820e7bc2429fe88e44ba0fc4e9696a3136bd0ccdfa9f79fd6c8c0e2c7d084bca"
+    },
+    {
+      "scratch": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-fix-author.json",
+      "sha256": "f865888b95e17081ef0ae878f1da6b12d9d780a529f5b9313ddd4da1d8b57ff6"
+    }
+  ],
+  "native_pg": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-c10-native-bundle-consumer-driver.py",
+    "summary": "2 passed, 5 deselected in 56.81s",
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "cases": [
+      {
+        "case": "criteria-normal",
+        "proof_sha256": "028ace50d2f8e87ea546caf2f53472dbef0ec8ed85d9e0f022735e0c641aa511",
+        "scratch_locator": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-qa-evidence/criteria-normal-method-history-proof.json",
+        "native_runs": 1,
+        "reads": 1,
+        "pure_handlers": 2,
+        "native_predicates": 3,
+        "predicate_state": "SATISFIED",
+        "method_check": "COMPLETE",
+        "outcomes": [
+          "BLOCKED",
+          "BLOCKED"
+        ],
+        "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+        "gaps": [
+          "ORACLE_UNAVAILABLE",
+          "CONTROLS_UNAVAILABLE"
+        ],
+        "inbox": 1,
+        "consumed": 1,
+        "admitted": 0,
+        "turn_completed": 0,
+        "readers": 4,
+        "reader_execution_attempts": 0,
+        "native_exit": -9,
+        "native_owned_pids": [],
+        "native_endpoint_absent": true
+      },
+      {
+        "case": "criteria-legacy717",
+        "proof_sha256": "9c9954606ad2d8200add3f9113c5fda2d52eae530ac3f68fc792b031781a14cb",
+        "scratch_locator": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-qa-evidence/criteria-legacy717-method-history-proof.json",
+        "native_runs": 1,
+        "reads": 1,
+        "pure_handlers": 2,
+        "native_predicates": 0,
+        "predicate_state": "HISTORICAL_ZERO",
+        "method_check": "COMPLETE",
+        "outcomes": [
+          "BLOCKED",
+          "BLOCKED"
+        ],
+        "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+        "gaps": [
+          "ORACLE_UNAVAILABLE",
+          "CONTROLS_UNAVAILABLE"
+        ],
+        "inbox": 1,
+        "consumed": 1,
+        "admitted": 0,
+        "turn_completed": 0,
+        "readers": 4,
+        "reader_execution_attempts": 0,
+        "native_exit": -9,
+        "native_owned_pids": [],
+        "native_endpoint_absent": true
+      }
+    ],
+    "reader_unique_count": 8,
+    "first_failure_capsule_empty": true,
+    "limit": "Existing document preparation prerequisite is an explicit double; actual constructor/method/transport/results/check/persistence/restart readers are real. No installed OCI/canonical/global/C10 breadth credit. Legacy717 scenario is fresh producer with old composer pin, not an immutable old installed checker snapshot.",
+    "parent_verified": "17 source hashes; proof hashes/readers/outcomes/markers; receipts and exact owned resource absence"
+  },
+  "distribution": {
+    "native_patch_files": 15,
+    "reapply_sha_match_author": true,
+    "composer_revision": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    "checker_key": "managed.contract-pure.v2",
+    "checker_digest": "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db",
+    "api_checker_closure": 13,
+    "bounds": {
+      "assignment": 65536,
+      "wire": 32768,
+      "deadline_seconds": 4.5,
+      "execution_guard_seconds": 3
+    }
+  },
+  "failed_attempts_retained": [
+    {
+      "scope": "original pre-repair snapshot",
+      "summary": "real native-PG1PASS28.48s before blocking findings; not transferred",
+      "source_report_sha256": "b98f922a9f0d15b642a9308a20236392ceea3f028aac974a0f938255d030521e"
+    },
+    {
+      "scope": "2ca0477",
+      "summary": "2FAIL5deselected45.19s exit1/drained; current RuntimeUnavailable pre-stage UNKNOWN; legacy READ1/PURE2 then TASK_INDETERMINATE; compact KeyError later independently reproduced, no retroactive complete cause attribution"
+    },
+    {
+      "scope": "8ea28b2 same source before final run",
+      "summary": "unguarded runpy preflight accidentally started driver under5s tool timeout; gate130/drained before any case; final corrected tracked run separate2PASS",
+      "product_status": "NOT_RUN_FOR_INTERRUPTED_ATTEMPT"
+    }
+  ],
+  "cleanup_parent_readback": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-5814799b932248a5",
+      "project": "omnis-p01-11f7bcd03e884ea3b089c854a0922e5c",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "owned_containers_networks_absent": true,
+      "data_retained": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-84d7a5081fba411e",
+      "project": "omnis-p01-3d6ce6ea74674c5b8b5b19b8a7ba6deb",
+      "receipt": {
+        "schema_version": 1,
+        "code": 130,
+        "family_drained": true
+      },
+      "owned_containers_networks_absent": true,
+      "data_retained": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-e23126e5750b4cfe",
+      "project": "omnis-p01-b20e21f0bf93426bb6f93dad0c588016",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "owned_containers_networks_absent": true,
+      "data_retained": true
+    }
+  ],
+  "global": {
+    "C10": "PARTIAL_NOT_CLOSED",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "old_immutable_installed_checker_reader": "NOT_RUN",
+    "early_partial_return": "NOT_IMPLEMENTED",
+    "M1_M2_material_qualification": "OPEN",
+    "B06c_B06m_owner_reserve_SENT": "PARTIAL_OPEN",
+    "P4a_minimal": "NOT_IMPLEMENTED",
+    "live": "NO_AUTHORIZATION_FROM_THIS_HANDOFF"
+  },
+  "next": "Focused six-file C10-NATIVE-F01 delta re-review on8ea28b2 with prior unchanged SOURCE dispositions, then exact17 byte integration only if approved. Canonical real once at integrated product boundary after actual prerequisite discovery; retain FAIL/BLOCKED/NOT_RUN honestly."
+}

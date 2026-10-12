@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "verdict": "BLOCKED_CAUSE_UNKNOWN",
+  "finding": "QA-PARTIAL-RETURN-EXECUTION-01",
+  "scope": "One cold launch/handshake/renew attempt through the existing real consumer and private PG/family owner; diagnostic selection stops before stage",
+  "category": "SOURCE_HOST_NOT_INSTALLED",
+  "snapshot": {
+    "head": "b8f470db0636335df4b6b197dbe7d2f34b8b74f5",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "tracked_diff_before_and_after": "EMPTY",
+    "production_and_distribution_changes": false,
+    "partial_return_author_inventory_compared": 17,
+    "partial_return_author_inventory_matches": 16,
+    "only_different_path": "api/tests/test_contract_method_pg.py",
+    "only_difference_reason": "Already committed cb7a5c2 diagnostics, not a change made by this investigation",
+    "consumer_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+    "host_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "peer_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "client_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+    "service_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "preexisting_untracked_preserved": "documents/Omnis_Notite_Originale.html",
+    "preexisting_untracked_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f"
+  },
+  "execution": {
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-launch-frontier-selection.py",
+    "runner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+    "argv_selection": "test_contract_method_pg.py -k qualified-early-return -p p2_launch_frontier_plugin -q --tb=line -rs",
+    "selection_driver_sha256": "4f1d6072f778ead8ac6d6ffea317c78f8c9a951535f48ebac42a7d43cad775d8",
+    "selection_plugin_sha256": "ac27205beb645e91774ee639ded3c5f72ff099e7138d8324c4c7b9b2c371a276",
+    "selection_behavior": "The existing test launches and immediately renews, then retains its committed diagnostic. A test-only autouse plugin replaces NativeTaskOwner.handle with a skip only for action=stage, and refuses every other action. Existing runtime/host/test finalizers still own cleanup. No native emitter/result/peer is substituted.",
+    "collection_preflight": "1/10 tests collected, 9 deselected, 0.44s, exit0",
+    "attempt_count": 1,
+    "summary": "1 skipped, 9 deselected in 16.23s",
+    "skip_reason": "DIAGNOSTIC_LAUNCH_RENEW_REACHED_STAGE_NOT_RUN",
+    "code": 0,
+    "family_receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+    "gate_timeout_seconds": 240,
+    "safety_limits": {
+      "launch_grant_max_seconds": 4.5,
+      "handshake_rpc_timeout_seconds": 0.8,
+      "prewarm": false,
+      "deadline_or_grant_increased": false,
+      "retry": false
+    },
+    "launch_diagnostic": {
+      "elapsed_ms": 3402,
+      "host_state": "STARTING",
+      "operation": "launch",
+      "phase": "handshake_complete",
+      "ready_cancelled": false,
+      "ready_done": true,
+      "remaining_ms": 1095,
+      "transport_failed": false
+    },
+    "client_failure_reason": "NOT_OBSERVED_IN_THIS_ATTEMPT",
+    "native_exit": -9,
+    "native_exit_attribution": "Bounded teardown after the deliberate pre-stage skip, not a launch failure cause",
+    "observer_read_or_handler_events": 0,
+    "stage_read_pure_partial_result_reader_replay": "NOT_RUN",
+    "product_qa_acceptance": "NOT_ESTABLISHED_BY_SKIP"
+  },
+  "artifacts": {
+    "gate_log": "/home/kali/.hermes/cache/scratch/db-1296029fc69148c4/gate.log",
+    "gate_log_sha256": "f29634193958d74efb39006e5407fa518fac92d9008f9022ed181be42148ffb2",
+    "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-329/test_contract_method_real_nati0/method-history-proof.json",
+    "proof_sha256": "dc6dea659d0c236478acd1b56d8e331bc2c8d8f64bc1339b86c36059e700e3ae",
+    "observer": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-329/test_contract_method_real_nati0/native-observation.jsonl",
+    "observer_sha256": "357602b63b50f2f281d2c7a6d69532a12a0735630f159f32288bdd24aab964b0",
+    "original_failed_gate_log_sha256_rechecked": "24ec7d28cd629e8179917bf8645d56c17729c6906a7f26db75ed09e8239e61a9",
+    "original_log_reason_tokens": {
+      "RuntimeUnavailable": true,
+      "Native ready deadline": false,
+      "Native RPC deadline": false,
+      "Native transport unavailable": false,
+      "Runtime refused": false
+    }
+  },
+  "cleanup_parent_readback": {
+    "docker_endpoint": "unix:///run/docker.sock",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "same_daemon": true,
+    "root": "/home/kali/.hermes/cache/scratch/db-1296029fc69148c4",
+    "project": "omnis-p01-031294969fa6400e8f953e99a23f01e1",
+    "container_id": "aacdecd054a95ce45dde6c464dcb054d81ed1f6081547486628ac358c99bb0e3",
+    "exact_cid_http_status": 404,
+    "project_container_ids": [],
+    "project_network_ids": [],
+    "pg_socket_absent": true,
+    "pg_lock_absent": true,
+    "root_and_pgdata_retained": true,
+    "native_directory": "/home/kali/.hermes/cache/scratch/cm-e00d7e57f3fa4e8a8c66a451122e29b6",
+    "native_socket_and_boot_absent": true,
+    "consumer_finalizer_owned_pids": [],
+    "reader_processes": "NOT_CREATED_NOT_RUN",
+    "scope": "Exact owned fixture and endpoints; not a universal VM cleanup claim"
+  },
+  "ad_hoc_selection_controls": {
+    "reason": "User verification reminder; selection-only checks, not another native attempt or product acceptance",
+    "command": "api/.venv/bin/python -I -B -c <runpy with api/src> <scratch>/hermes-verify-launch-selection-kqjzfg76.py",
+    "result": "2 unittest controls PASS, 0.405s, exit0",
+    "controls": ["stage skips, release refuses, monkeypatch restores original consumer", "argv/opt-in/environment/deadline delegate to the existing family owner"],
+    "temporary_script": "REMOVED_AFTER_PASS",
+    "not_suite_green": true
+  },
+  "independent_static_investigation": {
+    "delegation": "deleg_ab711499/sa-0-9b5ea872",
+    "mode": "READ_ONLY_NO_TEST_EXECUTION",
+    "parent_checked_sources": ["service.py:153-187", "runtime_host.py:201-231,618-625,651-817", "runtime_protocol.py:387-479", "runtime_client.py:266-425", "test_contract_method_pg.py:47-178,763-825"],
+    "hypotheses": [
+      "Cold bootstrap before gateway.ready may exhaust the absolute grant; global observer callback and overlay/audit costs are possible fixture contributions, unmeasured",
+      "Ready may precede a 0.8s handshake RPC timeout; remaining grant does not replace the RPC cap",
+      "Transport/inventory/refusal errors share RuntimeClient425 normalization; the original line-only log cannot distinguish them"
+    ],
+    "original_failure_mechanism": "UNKNOWN_NOT_REPRODUCED",
+    "simulated_stall_or_omitted_rpc_response": "NOT_EXECUTED; would characterize refusal only, not explain original native failure"
+  },
+  "disposition": {
+    "finding": "OPEN_BLOCKER_TO_QA_ACCEPTANCE",
+    "product_fix": "NOT_JUSTIFIED_WITHOUT_FAILURE_MECHANISM",
+    "same_frontier_red_green": "NOT_RUN_NO_RED_CAPTURED",
+    "new_full_independent_consumer_qa": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "rest_b06b_b06c_b06m_p2_inert_p4a": "NOT_RUN_DEPENDENT_ON_BLOCKER",
+    "missing_evidence": "A failing cold attempt with before-cleanup ready/RPC timing and first refusal/timeout/transport reason; the positive and cleanup signal cannot supply this retrospectively",
+    "next_concrete_action": "Keep the existing launch-only consumer. If investigation is resumed, use its existing bounded observer to timestamp ready receipt and each of the three actual handshake RPCs, retaining the first error before watchdog/cleanup can alter peer state. Require a captured failure before choosing a product versus fixture fix; no blind repeat, prewarm, increased grants or new supervisor.",
+    "live": "NOT_AUTHORIZED_NOT_RUN"
+  }
+}

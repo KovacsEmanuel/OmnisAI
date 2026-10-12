@@ -2,6 +2,8 @@
 
 Autoritate: contractul [C04](p2-b06b-next-contract.md), arhitectură §9.5/§9.10 și plan §7.1. Nu este plan nou. Baza de produs `93b7700897c13e31ba1f7e6d99ca57b8ea72b61e` are first-late-held/restart reader acceptate separat în [registrul metodei](p2-contract-method.md). C04 rămâne **NOT_IMPLEMENTED / BLOCKED / NOT_REVIEWED** la tentativa de mai jos; continuarea autorizată nu îi transferă acceptare.
 
+**Prerechizita de bytes este acum deblocată scoped în `024a10b`:** [assignment compact acceptat](p2-assignment-compact.md), cap/formulă/input/material/receipts păstrate,49869bytes față de inline65418. Două reviewuri complementare și fixul SEC-COMPACT-F01 re-reviewed,228SOURCE/17native/3PG exit0. C04 nonempty/outcome încă nu este integrat sau aprobat prin acest commit; tentativele BLOCKED de mai jos sunt istorice, nu dovada că noul format este blocat de aceleași bytes.
+
 ## Contractul vertical și limitele
 
 Același seed records calificat/publicat și același input → CriterionBinding explicit, două criterii distincte pe aceeași BoundProcedure → copil AIAgent real/read/PURE → CriterionResult cu exact perechile alocate → regulă trusted fixată, aplicată de backend după rezultatul autentic și receipts/MethodCheck → CriterionOutcome persistent/readback/reconcile idempotent. Header/criteriu omis, duplicat sau străin sunt refuzate. Suportul zero-binding/cold v1–v3 rămâne distinct.

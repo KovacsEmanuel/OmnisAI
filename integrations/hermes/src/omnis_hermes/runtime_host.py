@@ -158,6 +158,9 @@ class RuntimeHost:
     async def __aexit__(self, *_exc: object) -> None:
         if self.server is not None:
             self.server.close()
+            # Python 3.13 wait_closed includes active transports. Close them
+            # before waiting, including a live client on an exception path.
+            self.server.close_clients()
             await self.server.wait_closed()
         if self.watchdog is not None:
             self.watchdog.cancel()

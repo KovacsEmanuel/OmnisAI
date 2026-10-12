@@ -79,6 +79,39 @@ def test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness():
 
 
 @pytest.mark.asyncio
+async def test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server():
+    """Real local IPC/asyncio consumer; no native/provider subprocess."""
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="b05-") as name:
+        root = Path(name)
+        host = await RuntimeHost(root).__aenter__()
+        reader, writer = await asyncio.open_unix_connection(str(root / "runtime.sock"))
+        exiting = None
+        try:
+            async with asyncio.timeout(0.5):
+                while not host.clients:
+                    await asyncio.sleep(0)
+            exiting = asyncio.create_task(host.__aexit__(None, None, None))
+            await asyncio.wait_for(asyncio.shield(exiting), 0.5)
+            assert await asyncio.wait_for(reader.read(), 0.5) == b""
+            assert not host.clients and host.lock_fd is None
+            assert not (root / "runtime.sock").exists()
+            assert not (root / "runtime.boot").exists()
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            if exiting is not None:
+                if not exiting.done():
+                    exiting.cancel()
+                await asyncio.gather(exiting, return_exceptions=True)
+            await host.__aexit__(None, None, None)
+        # The exact own endpoint/lock is reusable, not merely disconnected.
+        async with RuntimeHost(root):
+            pass
+
+
+@pytest.mark.asyncio
 async def test_fixed_native_argv_does_not_import_a_writable_cwd_package():
     from omnis_hermes.runtime_host import NATIVE_COMMAND, RuntimeHost, TestLaunch
 

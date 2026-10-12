@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.16
+version: 0.1.17
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -30,6 +30,8 @@ Read the active architecture, relevant ticket and stack pins. Inspect actual man
 
 ## Pitfalls
 Do not swallow exceptions, retry uncertain external effects as if they were safe, return success for queued completion, or weaken validation to satisfy a linter. An in-memory smoke is not durability; a restart test must restart the owning process and read real state.
+
+- Cross-check a new persistent record against its base domain schema as well as the specialized wire/result contract before emitting it. Include every mandatory field and bound in producer and readback validation; a valid native envelope can still omit required CriterionOutcome fields from architecture §9.3. Pair a genuine stored positive with missing/malformed-field refusal before equality, without rewriting immutable historical records.
 
 - Before a database record cites newly created filesystem material, flush the containing directory namespace bottom-up through the material root and its parent. A file fsync or immediate-child fsync does not persist the parent's new root link; exercise a new-root positive with real delegated fsync, and keep physical power-loss NOT_RUN unless actually probed.
 - Bound derived collections before capturing or reserving anything, using one shared limit at both the request and real material helper. A package cap must reserve capacity for the mandatory profile in the later source-ref budget; prove the exact maximum remains reviewable/rejectable and the next package refuses before filesystem reads. Generated refs at a validator seam are not persistent-DB evidence.

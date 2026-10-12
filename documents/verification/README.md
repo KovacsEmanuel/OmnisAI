@@ -2,6 +2,8 @@
 
 **Orientare globală:** [harta de implementare și review MVP/post-MVP](implementation-status.md) proiectează starea pe planul canonic și separă codul, probele și aprobarea de review. [Contractul/probele skillului de predare](project-status-skill.md) privesc procesul de dezvoltare, nu runtime-ul produsului.
 
+**C11 same-Host actual:** [consumer/FAIL-uri și limite](p2-method-lost-reply.md), [receipt exact](p2-method-lost-reply-close.json); d7a51f3 integrat byte-exact/reviewedscoped, F01/N01 închise, final autentic recuperat fără redispatch și un caz nativ post-Stop PASS. Fulltarget FAIL302/303 păstrat/cauzaUNKNOWN; canonical NOT_RUN, B06b/P2 neînchise.
+
 **Increment actual B06b:** [C04 CONTRACT/no-oracle](p2-c04-criteria.md), [receipt exact](p2-c04-complete-close.json), [prerechizită compactă](p2-assignment-compact.md) și [metodă/istoric receive-only](p2-contract-method.md). `77c835d` este integrat byte-exact/reviewed scoped: două perechi de criteriu native și două outcomes BLOCKED+reason persistente,121SOURCE/4PG-native/19SOURCE-integration exit0 și cleanup propriu. Nu oracle pozitiv ori închidere B06b/P2; canonical post-fix NOT_RUN și FAIL-uri păstrate.
 
 **Ultima acceptare C03 records:** [registru](p2-b06b-c03-records.md), [CLOSE](p2-b06b-c03-records-close.json), [arhivă](p2-b06b-c03-records-evidence/README.md). Produs20611d1 și teste/canonical c0261a7: input structurat persistent/calificare/Publish/binding/consum nativ inert, reviewuri complementare, QA installed/history/browser și make check neredus exit0/drained. Browser59IDs reconciliate47PASS/8excluderi/4NOT_IMPLEMENTED,63imagini inspectate. FAIL-urile și limitele rămân; nu B06b/G02/faza2 închise. Paragrafele de pregătire de mai jos sunt istorice.

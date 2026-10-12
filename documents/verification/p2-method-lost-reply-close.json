@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "status": "INTEGRATED_SCOPED_SAME_HOST_RECEIVE_ONLY",
+  "product_commit": "d7a51f3adc04be57fe528f6e14425111d3615144",
+  "candidate_commits": [
+    "77f5ba687ccc73fe91fd92bdf9142dacd9d21884",
+    "225dc6754fdb124f27c626d8f311d1c0a2ad56c2"
+  ],
+  "files": [
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "03917e2bd038af106b1b8dc958dc0fd12029561722ea65b79f90b6e759b4df8e"
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "26c1db42c0c278cc78cb4077dc51f94d28cf9ae4cc1a4d29d3900e4d18e5d4b3"
+    },
+    {
+      "path": "api/tests/test_native_result_recovery.py",
+      "sha256": "847570a88e6faba8119bcdcb8b766b3b0661027e2b6c1b26d2a6d56f27b33e4a"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "4a0d1cec7dfcd515c3019bbc30b089f8c29be9e545b4f28f54f061a212c5e71c"
+    }
+  ],
+  "reviews": [
+    {
+      "report": "p2-method-lost-reply-normative-review.json",
+      "sha256": "51aa0704959d5748ead743d238ba3964c0b5dfd6017863b24ac1964f6eb98a01",
+      "verdict": "APPROVED_SCOPED"
+    },
+    {
+      "report": "p2-method-lost-reply-security-review.json",
+      "sha256": "3afce00fec0f55705be508d7b4f10c973b41d817ad90397183c886de060f3b3c",
+      "verdict": "CHANGES_REQUESTED"
+    },
+    {
+      "report": "p2-method-recovery-f01-rereview.json",
+      "sha256": "06d38837dea74b378b97dc610c2f5eae06b7f254260a5a3ef3a67eabfed2f44e",
+      "verdict": "APPROVED_SCOPED"
+    }
+  ],
+  "findings": {
+    "C11-SEC-F01": "CLOSED_SCOPED_AFTER_PARENT_RED_GREEN_FOCUSED_REREVIEW",
+    "NORM-C11-N01": "CLOSED_SCOPED_SAME_FAILURE_PROJECTION"
+  },
+  "parent_verification": {
+    "red": "HOST_DEATH_MISSING_SANITIZED_REPLY:1FAIL1PASS0.38s/exit1",
+    "source": "8PASS0.74s/exit0",
+    "runtime_source": "47PASS6.11s/exit0",
+    "quality": "Ruff/format/mypy2/diff0",
+    "integration": "BYTE_EXACT_5_SOURCE_FILES;8PASS0.75s/exit0",
+    "affected_native_case": {
+      "session": "proc_0e7090df5a7a",
+      "command": "python -I -B p2-method-recovery-one-case-driver.py; existing owned run_gate with pinned pytest one lost-reply-post-stop case",
+      "summary": [
+        "1 passed, 5 deselected in 33.48s"
+      ],
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "proof_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-304/test_contract_method_real_nati0/method-history-proof.json",
+      "proof_sha256": "c57f27540b3a7365da81664ae11242c107967c0c03a68ad0b00dbd4ea0cb53b8",
+      "native_runs": 1,
+      "reads": 1,
+      "handlers": 2,
+      "post_stop_held": true,
+      "outcomes": [
+        "BLOCKED",
+        "BLOCKED"
+      ],
+      "inbox": 1,
+      "consumed": 1,
+      "fresh_reader_count": 4,
+      "reader_execution_attempts": 0,
+      "native_exit": -9,
+      "limit": "SOURCE_HOST_NOT_INSTALLED;one_existing_case_not_full_target_green"
+    },
+    "parent_qa_sha256": "303f0ea466c7bc35e5256178312791e13f4144f2ed923826dc3b7c8f1b425e7a"
+  },
+  "historical_native_targets": [
+    {
+      "label": "red",
+      "exit": 2,
+      "summary": [
+        "3 failed, 3 passed in 142.79s (0:02:22)"
+      ],
+      "failed_tests": [
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[support-zero]",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[lost-reply]",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[lost-reply-post-stop]"
+      ],
+      "session": "proc_301d6547f058",
+      "final_snapshot": false,
+      "scope_note": "No aggregation into6/6;oldergreen1predatesforeign-supervisorguard"
+    },
+    {
+      "label": "green1",
+      "exit": 0,
+      "summary": [
+        "6 passed in 159.32s (0:02:39)"
+      ],
+      "failed_tests": [],
+      "session": "proc_e0a3201664b3",
+      "final_snapshot": false,
+      "scope_note": "No aggregation into6/6;oldergreen1predatesforeign-supervisorguard"
+    },
+    {
+      "label": "green-final",
+      "exit": 2,
+      "summary": [
+        "2 failed, 4 passed in 181.43s (0:03:01)"
+      ],
+      "failed_tests": [
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[criteria-normal]",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[criteria-first-late-held]"
+      ],
+      "session": "proc_f87c72fb1918",
+      "final_snapshot": true,
+      "scope_note": "No aggregation into6/6;oldergreen1predatesforeign-supervisorguard"
+    },
+    {
+      "label": "final-retry",
+      "exit": 2,
+      "summary": [
+        "1 failed, 5 passed in 161.53s (0:02:41)"
+      ],
+      "failed_tests": [
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[lost-reply-post-stop]"
+      ],
+      "session": "proc_e5344bdd0c16",
+      "final_snapshot": true,
+      "scope_note": "No aggregation into6/6;oldergreen1predatesforeign-supervisorguard"
+    }
+  ],
+  "resource_readback": {
+    "author_four_owned_projects_absent": true,
+    "author_four_families_drained": true,
+    "affected_final_project": "omnis-p01-7bba3af5169c40dc816e44a95f57aeab",
+    "affected_final_fixture": "/home/kali/.hermes/cache/scratch/db-4ebc6a2ce753424b",
+    "affected_final_resources_absent": true,
+    "native_owned_pids_empty": true,
+    "owned_venv_alias_removed": true,
+    "data_logs_retained": true,
+    "pre_gate_harness_failure": {
+      "fixture_root": "db-729da36c58394f5b",
+      "project": "omnis-p01-0bb52bd6967e426691cfce6d2914ed16",
+      "gate_child_started": false,
+      "cause": "wrapper compared unresolved UV path with resolved runner argv",
+      "cleanup": "attested exact owned CID retired with existing cleanup_owned; data retained; original failure NOT_RUN"
+    },
+    "cleanup_parser_error": "FirstcleanupallowlistmissedendpointKeyError_beforeeffects;correctedstockcleanupthenPASS"
+  },
+  "bounds": {
+    "assignment_bytes": 65536,
+    "cache_entries": 32,
+    "cache_eviction": "NONE_REFUSE_NEW_RELEASE_WHEN_FULL",
+    "cache_max_bytes": 1048576,
+    "native_deadline_seconds": 4.5,
+    "native_result_bytes": 32768,
+    "qualified_predicates": "UNCHANGED",
+    "seed_input": "UNCHANGED_SAME_3_RECORDS"
+  },
+  "diagnosis": {
+    "report": "p2-method-runtime-exchange-diagnosis.json",
+    "sha256": "e240ef3c69bf3cab1b7ed131913df17e0fd707612862e3077a68da42340fb2f0",
+    "status": "PRE_STAGE_CAUSE_UNKNOWN_OBSERVABILITY_LOSS_IDENTIFIED",
+    "observer_ready_is_not_gateway_ready": true,
+    "current_one_case_capsule": {
+      "schema_version": 1,
+      "first_failures": [
+        {
+          "origin": "CLIENT",
+          "exception_class": "IncompleteReadError",
+          "reason": "UNKNOWN",
+          "operation": "task_release",
+          "elapsed_ms": 292
+        },
+        {
+          "origin": "HOST",
+          "exception_class": "ValueError",
+          "reason": "UNKNOWN",
+          "operation": "UNKNOWN"
+        }
+      ]
+    },
+    "capsule_limit": "DeliberatelostreplyEOFandunknown-ticketnegativearenotcauseofoldpre-stagefailure"
+  },
+  "scope_limits": [
+    "OnlyHostUDSBEFORE_WRITEaftergenuinefinal,notnativestdio/providerreplyloss",
+    "OriginalHostmemoryonly,nodurableHost/runtimeRestartRecovery",
+    "Hostdeath/missingcacheTASK_INDETERMINATE_no_retry",
+    "No admitted/turn_completed/Brain/model/target proof",
+    "No positivefunctionaloracle/M1M2/newC10/fullB06b/G02/P2closure",
+    "FulltargetFAIL302/303retained;finalcanonicalNOT_RUN",
+    "No r1/profile/global/rollout/push"
+  ],
+  "canonical": "NOT_RUN_FINAL_INTEGRATED_PRODUCT;previoussnapshot5FAIL2preserved",
+  "next": "C10qualifiedboundpredicateconsumerthenM1M2andremainingB06bforms;B06c/B06m/P4aminimalincanonicalorder"
+}

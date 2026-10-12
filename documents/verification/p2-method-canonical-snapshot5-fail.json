@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "scope": "Canonical run on frozen method snapshot5; preserved failure, not P2 closure",
+  "tested_product_commit": "fb97c8e",
+  "prerequisite_commits": ["35ff2f4", "381c394"],
+  "snapshot_manifest": "/home/kali/.hermes/cache/scratch/contract-method-evidence/review-snapshot5.json",
+  "process": "proc_85e6150485ed",
+  "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "verdict": "FAIL",
+  "exit_code": 2,
+  "failed_gate": "test-api",
+  "counts": {"passed": 1491, "failed": 2, "skipped": 2},
+  "gate_seconds": 2199.27,
+  "failed_test_ids": [
+    "api/tests/test_managed_lifecycle.py::test_pg_result_before_check_reconcile_once_restart",
+    "api/tests/test_native_task_client.py::test_unknown_managed_version_never_requests_authority[omnis-managed-admission-v4]"
+  ],
+  "causes": [
+    "Legacy shortened-brief clock wrapper omitted the new optional method_execution keyword, which the real producer now forwards as False on its unchanged cold path.",
+    "Unknown-wire control still named supported version v4 after the intentionally implemented extension."
+  ],
+  "owned_fixture_root": "/home/kali/.hermes/cache/scratch/db-ba3381309ecd4df9",
+  "cleanup": {"database_absent": true, "networks_absent": true, "socket_absent": true, "uncertain": false, "data_retained": true},
+  "focused_alignment": {
+    "scope": "Only the two existing test fixtures; no product source edit or weaker denial",
+    "changes": ["Add v4 to current-grant stream positives for all three operations; retain malformed controls and use actually unsupported v5 for unknown-wire refusal.", "Accept the optional clock-wrapper keyword and assert method_execution is False; preserve original expiry, replay and no-dispatch assertions."],
+    "stream_controls": {"passed": 19, "exit_code": 0},
+    "real_owned_pg_target": "test-managed-admission-pg",
+    "pg_process": "proc_7b74147a42a7",
+    "pg_counts": {"passed": 181, "exit_code": 0, "seconds": 147.15},
+    "pg_cleanup": {"database_absent": true, "networks_absent": true, "socket_absent": true, "uncertain": false},
+    "ruff_mypy_files": 2,
+    "ruff_mypy_exit_code": 0,
+    "independent_review": "IN_REVIEW on canonical-fixtures-review.json",
+    "canonical_after_alignment": "NOT_RUN; focused PASS is not canonical PASS"
+  },
+  "limits": ["Gates downstream of test-api were not reached in this canonical attempt.", "No accounts, model inference, target traffic, operator instance adoption/restart or push.", "Method tracer Source PG PASS and scoped implementation reviews remain at their own tested boundaries; full B06b/P2 remains open."]
+}

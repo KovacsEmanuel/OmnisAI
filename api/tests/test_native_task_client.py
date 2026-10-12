@@ -76,7 +76,12 @@ async def peer_client(
 @pytest.mark.parametrize("operation", ["task_stage", "task_release", "task_status"])
 @pytest.mark.parametrize(
     "protocol",
-    ["omnis-managed-admission-v1", "omnis-managed-admission-v2", "omnis-managed-admission-v3"],
+    [
+        "omnis-managed-admission-v1",
+        "omnis-managed-admission-v2",
+        "omnis-managed-admission-v3",
+        "omnis-managed-admission-v4",
+    ],
 )
 @pytest.mark.asyncio
 async def test_managed_exchange_uses_current_grant_and_existing_stream(
@@ -144,7 +149,7 @@ async def test_arbitrary_operation_never_requests_authority(ipc_directory: Path)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("protocol", [None, True, [], "omnis-managed-admission-v4"])
+@pytest.mark.parametrize("protocol", [None, True, [], "omnis-managed-admission-v5"])
 async def test_unknown_managed_version_never_requests_authority(
     ipc_directory: Path, protocol: object
 ) -> None:

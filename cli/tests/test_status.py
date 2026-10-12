@@ -55,7 +55,7 @@ class StatusTest(unittest.TestCase):
             "version": 1,
             "instance_id": self.identity,
             "release": "0.1.0",
-            "schema": "0011_managed_tasks",
+            "schema": "0012_contract_methods",
             "project": "omnis-local-1",
             "origin": origin,
         }

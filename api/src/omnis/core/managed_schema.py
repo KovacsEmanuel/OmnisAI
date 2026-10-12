@@ -286,7 +286,14 @@ MANAGED_TABLES: dict[str, tuple[dict[str, ManagedColumn], set[ManagedConstraint]
             (
                 "managed_task_state_check",
                 "c",
-                "CHECK ((state = ANY (ARRAY['QUEUED'::text, 'BOUND'::text, 'BLOCKED'::text])))",
+                "CHECK ((state = ANY (ARRAY['QUEUED'::text, 'BOUND'::text, 'BLOCKED'::text, 'SUCCEEDED'::text])))",
+                True,
+                True,
+            ),
+            (
+                "managed_task_success_check",
+                "c",
+                "CHECK (((state <> 'SUCCEEDED'::text) OR ((result_id IS NOT NULL) AND (check_id IS NOT NULL))))",
                 True,
                 True,
             ),

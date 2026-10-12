@@ -48,7 +48,7 @@ from .lifecycle import (
 from .release import _RELEASE, _put
 from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
 
-EXPECTED_SCHEMA = "0011_managed_tasks"
+EXPECTED_SCHEMA = "0012_contract_methods"
 READY_FIELDS = {
     "format",
     "phase",

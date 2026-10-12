@@ -17,11 +17,12 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import text as sql
 
-from fixtures.b06b_publication.consumer import canonical, mapping, sequence
+from fixtures.b06b_publication.consumer import canonical, mapping, sequence, sha
 from fixtures.b06b_pure_probe.consumer import Probe
 from fixtures.c03_journey import publish_capture
 from fixtures.c03_records import qualify_records
 from omnis.core.db import database_engine
+from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs.contract_inputs import ContractInputs
@@ -174,6 +175,64 @@ finally:
 """
 
 
+# Instrument only forbidden execution aliases, then call the existing managed
+# CLI entry in a NEW interpreter. No emitter, evaluator, owner or reader double.
+RESTART_READER = r"""
+import importlib
+import json
+import os
+import sys
+from pathlib import Path
+source, observer = sys.argv[1:3]
+sys.path.insert(0, source)
+fd = os.open(observer, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+def emit(status, name):
+    raw = json.dumps({"status": status, "name": name, "pid": os.getpid()}).encode() + b"\n"
+    if os.write(fd, raw) != len(raw):
+        raise RuntimeError("Observer unavailable")
+def deny(name):
+    def guard(*args, **kwargs):
+        emit("FORBIDDEN", name)
+        raise AssertionError("RESTART_RERAN_EXECUTION")
+    return guard
+for name in ("skill_catalog", "candidate_catalog"):
+    module = importlib.import_module("omnis.modules.settings." + name)
+    module.evaluate_pure = deny(name + ".evaluate_pure")
+module = importlib.import_module("omnis.modules.runs.pure_probe")
+module.evaluate_pure = deny("pure_probe.evaluate_pure")
+module = importlib.import_module("omnis.modules.tasks.module_registry")
+module.run_handler = deny("module_registry.run_handler")
+module = importlib.import_module("omnis.modules.runs.managed_admission")
+module.BuildSource.build = deny("BuildSource.build")
+module.ManagedAdmission._build = deny("ManagedAdmission._build")
+client = importlib.import_module("omnis.supervisor.runtime_client")
+client.RuntimeClient.__init__ = deny("RuntimeClient.__init__")
+emit("READY", "managed-cli")
+try:
+    code = module.main(sys.argv[3:])
+    emit("EXIT", str(code))
+    raise SystemExit(code)
+finally:
+    os.close(fd)
+"""
+
+
+def require_empty_stderr(stderr: bytes) -> None:
+    """Refuse contradictory diagnostics without pytest rendering private bytes."""
+    if stderr:
+        raise AssertionError("RESTART_CLI_CONTRADICTORY_DIAGNOSTIC") from None
+
+
+def test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report() -> None:
+    require_empty_stderr(b"")
+    marker = b"PUBLIC_SYNTHETIC_PRIVATE_DIAGNOSTIC"
+    with pytest.raises(AssertionError) as refused:
+        require_empty_stderr(marker)
+    assert str(refused.value) == "RESTART_CLI_CONTRADICTORY_DIAGNOSTIC"
+    for style in ("line", "short"):
+        assert marker.decode() not in str(refused.getrepr(style=style))
+
+
 class PreparationPrerequisite(RuntimeClient):
     """Only a document-loading prerequisite double; real transport otherwise."""
 
@@ -191,8 +250,12 @@ class PreparationPrerequisite(RuntimeClient):
     os.environ.get("OMNIS_CONTRACT_METHOD_NATIVE_PG") != "1",
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
+@pytest.mark.parametrize("first_final_after_stop", [False, True], ids=["normal", "first-late-held"])
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
-    request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    request: pytest.FixtureRequest,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    first_final_after_stop: bool,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -201,7 +264,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert tmp_path.resolve().is_relative_to(scratch)
     assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
     assert LIBRARIES.is_dir(), "SOURCE_LIBRARIES_REQUIRED"
-    python = ROOT / "api/.venv/bin/python"
+    # Use the exact pinned interpreter spelling: a worktree .venv alias changes
+    # sys.prefix/import paths and is correctly outside the native audit roots.
+    python = Path("/home/kali/OmnisAI/api/.venv/bin/python")
     assert python.is_file(), "PINNED_PYTHON_REQUIRED"
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
@@ -224,6 +289,69 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     adapter = ROOT / "integrations/hermes/src"
     monkeypatch.syspath_prepend(str(adapter))
     host_module = importlib.import_module("omnis_hermes.runtime_host")
+    proof_path = tmp_path / "method-history-proof.json"
+    proof: dict[str, object] = {"first_final_after_stop": first_final_after_stop}
+
+    def checkpoint(**fields: object) -> None:
+        proof.update(fields)
+        proof_path.write_bytes(canonical(proof))
+        proof_path.chmod(0o600)
+
+    async def restarted_cli(operation: str, back_request: dict[str, object]) -> dict[str, object]:
+        path = tmp_path / ("restart-request-" + uuid4().hex + ".json")
+        path.write_bytes(canonical(back_request))
+        path.chmod(0o600)
+        audit = tmp_path / ("restart-observer-" + uuid4().hex + ".jsonl")
+        audit.touch(mode=0o600)
+        child = await asyncio.create_subprocess_exec(
+            str(python),
+            "-I",
+            "-B",
+            "-c",
+            RESTART_READER,
+            str(ROOT / "api/src"),
+            str(audit),
+            operation,
+            "--request",
+            str(path),
+            "--catalog-root",
+            str(seed.root),
+            cwd=tmp_path,
+            env=seed.environment(dsn),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            stdout, stderr = await asyncio.wait_for(child.communicate(), 15)
+        finally:
+            if child.returncode is None:
+                child.kill()
+                await child.wait()
+        # Diagnostic bytes stay private, including if the CLI unexpectedly fails.
+        for suffix, raw in (("stdout", stdout), ("stderr", stderr)):
+            output = audit.with_suffix("." + suffix)
+            output.write_bytes(raw)
+            output.chmod(0o600)
+        events = [json.loads(line) for line in audit.read_text().splitlines()]
+        assert events == [
+            {"status": "READY", "name": "managed-cli", "pid": child.pid},
+            {"status": "EXIT", "name": "0", "pid": child.pid},
+        ], "RESTART_EXECUTION_OR_OBSERVER_FAILURE"
+        assert child.pid != os.getpid()
+        assert child.returncode == 0, "RESTART_CLI_FAILED"
+        require_empty_stderr(stderr)
+        checkpoint(
+            restart_processes=[
+                *sequence(proof.get("restart_processes", [])),
+                {
+                    "operation": operation,
+                    "pid": child.pid,
+                    "exit": child.returncode,
+                    "execution_attempts": 0,
+                },
+            ]
+        )
+        return mapping(json.loads(stdout))
 
     async def run() -> None:
         engine = database_engine(dsn)
@@ -365,6 +493,68 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 "expected_generation": status.generation,
                 "manifest_ref": prepared["manifest_ref"],
             }
+            # A second, never-launched assignment is only a Stop-stage negative;
+            # it uses the SAME published seed/value, not a new verifier/input.
+            pending = None
+            pending_request = None
+            if first_final_after_stop:
+                pending_context = await inputs.create_method_context(
+                    seed.write(
+                        schema_version=2,
+                        selection_ref=selected["selection_ref"],
+                        preparation_command_id=preparation.command_id,
+                    )
+                )
+                pending_input = await inputs.create_input(
+                    seed.write(
+                        schema_version=2, context_ref=pending_context["context_ref"], input=value
+                    )
+                )
+                pending_request = seed.write(
+                    **{k: v for k, v in assignment.items() if k not in {"owner_id", "command_id"}},
+                )
+                pending_request["context_ref"] = pending_context["context_ref"]
+                pending_request["slot_values"] = [
+                    {"slot_name": "records", "refs": [pending_input["input_ref"]]}
+                ]
+                pending = await domain.prepare_method(pending_request)
+                assert pending["run_id"] != prepared["run_id"]
+
+            async def markers() -> dict[str, object]:
+                async with engine.connect() as conn:
+                    kinds = (
+                        (
+                            await conn.execute(
+                                sql(
+                                    "SELECT envelope->>'kind' AS kind,count(*) AS count "
+                                    "FROM managed_record WHERE run_id=:run GROUP BY envelope->>'kind'"
+                                ),
+                                {"run": prepared["run_id"]},
+                            )
+                        )
+                        .mappings()
+                        .all()
+                    )
+                    counts = {str(r["kind"]): r["count"] for r in kinds}
+                    inbox_counts = (
+                        (
+                            await conn.execute(
+                                sql(
+                                    "SELECT count(*) AS inbox,count(*) FILTER (WHERE i.delivered) AS delivered,"
+                                    "count(*) FILTER (WHERE i.admitted) AS admitted,"
+                                    "count(*) FILTER (WHERE i.turn_completed) AS turn_completed,"
+                                    "count(*) FILTER (WHERE i.domain_result_consumed) AS consumed "
+                                    "FROM managed_inbox i JOIN managed_task t ON t.task_id=i.task_id "
+                                    "WHERE t.run_id=:run"
+                                ),
+                                {"run": prepared["run_id"]},
+                            )
+                        )
+                        .mappings()
+                        .one()
+                    )
+                return {"records": counts, **dict(inbox_counts)}
+
             async with host:
                 await service.heartbeat(supervisor, epoch)
                 await runtime.connect()
@@ -378,9 +568,91 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 # Release immediately after committed stage: the native 4.5s
                 # deadline is unchanged. No readback/negative between the two.
                 # Fail closed: no direct-native rescue or fabricated final.
-                released = await owner.handle(
-                    NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
-                )
+                original_ingest = domain.ingest_result
+                seam_calls = 0
+
+                async def stop_before_first_persist(
+                    owner_id: str,
+                    manifest_ref: object,
+                    final: object,
+                    runtime_boot: object,
+                    authority: object,
+                    *,
+                    held: bool,
+                ) -> dict[str, object]:
+                    nonlocal seam_calls
+                    seam_calls += 1
+                    # This seam is AFTER _exchange returned the genuine native
+                    # finite final AND native_preparation_commit exited. A real
+                    # shutdown on its lock order must complete before ingest.
+                    assert seam_calls == 1 and held is False
+                    assert mapping(final)["status"] == "SUCCEEDED"
+                    assert runtime_boot == runtime.boot
+                    before = await domain.readback(
+                        seed.request(command_id=assignment["command_id"])
+                    )
+                    assert before["release_started"] is True
+                    assert (
+                        before["results"] == [] and before["checks"] == [] and before["inbox"] == []
+                    )
+                    assert not any(
+                        mapping(r)["kind"] == "native-task-receipt"
+                        for r in sequence(before["records"])
+                    )
+                    original_binding = mapping(mapping(before["binding"])["payload"])
+                    assert original_binding["runtime_boot"] == runtime_boot
+                    assert canonical(original_binding["authority"]) == canonical(authority)
+                    native_before_stop = observation.read_bytes()
+                    done.set()
+                    await heartbeat
+                    stop_id = uuid4()
+                    generation = await service.shutdown(
+                        stop_id, status.generation, supervisor, epoch
+                    )
+                    stopped = await service.command_readback(
+                        stop_id, "SHUTDOWN", status.generation, generation, supervisor, epoch
+                    )
+                    assert generation == status.generation + 1
+                    assert stopped.admission_open is False
+                    assert stopped.shutdown_command_id == stop_id
+                    assert stopped.supervisor_epoch == epoch
+                    checkpoint(
+                        first_persist_cut="GENUINE_FINAL_BEFORE_DOMAIN_PERSIST",
+                        original_boot=runtime_boot,
+                        stop_generation=generation,
+                        raw_before_stop=0,
+                        inbox_before_stop=0,
+                    )
+                    received = await original_ingest(
+                        owner_id, manifest_ref, final, runtime_boot, authority, held=held
+                    )
+                    late_inbox = mapping(sequence(received["inbox"])[0])
+                    assert late_inbox["disposition"] == "HELD_FOR_RECONCILIATION"
+                    assert {
+                        k: late_inbox[k]
+                        for k in (
+                            "delivered",
+                            "admitted",
+                            "turn_completed",
+                            "domain_result_consumed",
+                        )
+                    } == {
+                        "delivered": True,
+                        "admitted": False,
+                        "turn_completed": False,
+                        "domain_result_consumed": False,
+                    }
+                    assert observation.read_bytes() == native_before_stop
+                    checkpoint(first_late_held="PASS", first_ingest_markers=await markers())
+                    return received
+
+                with monkeypatch.context() as pause:
+                    if first_final_after_stop:
+                        pause.setattr(domain, "ingest_result", stop_before_first_persist)
+                    released = await owner.handle(
+                        NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
+                    )
+                assert seam_calls == int(first_final_after_stop)
                 assert released["task_status"] == "SUCCEEDED"
                 assert released["binding_ref"] == staged["binding_ref"]
                 back_request = seed.request(command_id=assignment["command_id"])
@@ -418,9 +690,65 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "turn_completed": False,
                     "domain_result_consumed": False,
                 }
+                # Even the ordinary pre-Stop fixture is an admission-CLOSED
+                # inert instance, not a turn grant; receive_disposition requires
+                # admission_open=True for RECEIVED. Preserve that prerequisite.
+                assert status.admission_open is False
+                assert inbox["disposition"] == "HELD_FOR_RECONCILIATION"
                 native = next(r for r in graph if r["kind"] == "native-task-receipt")
                 final = mapping(native["payload"])
                 fence = mapping(binding["payload"])["authority"]
+                durable_markers = await markers()
+                assert durable_markers["inbox"] == durable_markers["delivered"] == 1
+                assert (
+                    durable_markers["admitted"]
+                    == durable_markers["turn_completed"]
+                    == durable_markers["consumed"]
+                    == 0
+                )
+                assert {
+                    k: mapping(durable_markers["records"])[k]
+                    for k in (
+                        "native-task-receipt",
+                        "task-result",
+                        "method-check",
+                        "contract-tool-receipt",
+                        "contract-artifact",
+                    )
+                } == {
+                    "native-task-receipt": 1,
+                    "task-result": 1,
+                    "method-check": 1,
+                    "contract-tool-receipt": 3,
+                    "contract-artifact": 2,
+                }
+                duplicate = await domain.ingest_result(
+                    seed.owner, prepared["manifest_ref"], final, runtime.boot, fence, held=False
+                )
+                assert canonical(duplicate) == canonical(back)
+                assert await markers() == durable_markers
+                # A changed copy of the received result is a negative request,
+                # never an alternate producer or a modification of old evidence.
+                conflict = deepcopy(final)
+                changed = mapping(
+                    sequence(mapping(sequence(conflict["executions"])[0])["records"])[0]
+                )
+                mapping(mapping(changed["payload"])["usage"])["cost"] = "1"
+                changed["digest"] = sha(
+                    canonical({k: v for k, v in changed.items() if k != "digest"})
+                )
+                with pytest.raises(CatalogError, match="^RESULT_CONFLICT$"):
+                    await domain.ingest_result(
+                        seed.owner,
+                        prepared["manifest_ref"],
+                        conflict,
+                        runtime.boot,
+                        fence,
+                        held=False,
+                    )
+                assert canonical(await domain.readback(back_request)) == canonical(back)
+                assert await markers() == durable_markers
+                checkpoint(duplicate_conflict="PASS", durable_markers=durable_markers)
                 # Challenge real received bytes, not an invented execution.
                 for bad_boot, bad_final, reason in (
                     (str(uuid4()), final, "LINEAGE_MISMATCH"),
@@ -452,60 +780,169 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 # No new native calls/evaluator/actions on replay or durable readback.
                 native_before = observation.read_bytes()
 
+                execution_attempts: list[str] = []
+
                 def no_rerun(*args: object, **kwargs: object) -> object:
+                    execution_attempts.append("FORBIDDEN_EXECUTION")
+                    checkpoint(execution_attempts=execution_attempts)
                     raise AssertionError("REPLAY_RERAN_EXECUTION")
 
-                with monkeypatch.context() as patcher:
-                    for module in ("skill_catalog", "candidate_catalog"):
-                        patcher.setattr(
-                            "omnis.modules.settings." + module + ".evaluate_pure", no_rerun
+                if first_final_after_stop:
+                    assert pending is not None and pending_request is not None
+                    pending_before = await domain.readback(
+                        seed.request(command_id=pending_request["command_id"])
+                    )
+                    with monkeypatch.context() as blocked:
+                        blocked.setattr(runtime, "_exchange", no_rerun)
+                        with pytest.raises(ControlConflict) as stage_denied:
+                            await owner.handle(
+                                NativeTaskCommand.model_validate(
+                                    {
+                                        **lifecycle,
+                                        "action": "stage",
+                                        "command_id": pending_request["command_id"],
+                                        "manifest_ref": pending["manifest_ref"],
+                                        "expected_generation": proof["stop_generation"],
+                                    }
+                                )
+                            )
+                        assert stage_denied.value.code == ControlCode.INSTANCE_SHUTTING_DOWN
+                    assert canonical(
+                        await domain.readback(
+                            seed.request(command_id=pending_request["command_id"])
                         )
-                    patcher.setattr("omnis.modules.tasks.module_registry.run_handler", no_rerun)
-                    patcher.setattr(ManagedAdmission, "_build", no_rerun)
-                    assert (await domain.prepare_method(assignment))["created"] is False
-                    assert canonical((await domain.readback(back_request))["records"]) == canonical(
-                        back["records"]
+                    ) == canonical(pending_before)
+                    assert await markers() == durable_markers
+                    assert observation.read_bytes() == native_before
+                    assert execution_attempts == []
+                    checkpoint(new_stage_denial="INSTANCE_SHUTTING_DOWN")
+                    # Deny new IPC work while the same original owner lease is
+                    # still live; managed() also retires its revoked client.
+                    # The later restart oracle snapshots the fully joined peer.
+                    with monkeypatch.context() as blocked:
+                        blocked.setattr(runtime, "_exchange", no_rerun)
+                        for action in ("task_stage", "task_release"):
+                            with pytest.raises(ControlConflict) as denied:
+                                await runtime.managed(
+                                    service,
+                                    supervisor,
+                                    action,
+                                    {
+                                        "protocol": manifest_protocol(prepared["manifest"]),
+                                        "ticket": final["ticket"],
+                                        "manifest_ref": prepared["manifest_ref"],
+                                        "binding": binding,
+                                    },
+                                )
+                            assert denied.value.code == ControlCode.GENERATION_CONFLICT
+                    assert execution_attempts == []
+                    assert await markers() == durable_markers
+                    assert canonical(await domain.readback(back_request)) == canonical(back)
+                    checkpoint(new_runtime_release_stage_denial="GENERATION_CONFLICT")
+
+            # The producer is now retired by its existing Host context; this
+            # restart criterion belongs to the persistent managed reader, not
+            # a live/renewed native grant. Keep the byte-exact observer oracle
+            # on the fully joined producer, without filtering any event.
+            await runtime.close()
+            assert host.process is not None and host.process.returncode is not None
+            assert not host._owned_pids()
+            native_before = observation.read_bytes()
+            with monkeypatch.context() as patcher:
+                for module in ("skill_catalog", "candidate_catalog"):
+                    patcher.setattr("omnis.modules.settings." + module + ".evaluate_pure", no_rerun)
+                patcher.setattr("omnis.modules.runs.pure_probe.evaluate_pure", no_rerun)
+                patcher.setattr("omnis.modules.tasks.module_registry.run_handler", no_rerun)
+                patcher.setattr(BuildSource, "build", no_rerun)
+                patcher.setattr(ManagedAdmission, "_build", no_rerun)
+                assert (await domain.prepare_method(assignment))["created"] is False
+                assert canonical((await domain.readback(back_request))["records"]) == canonical(
+                    back["records"]
+                )
+                assert (
+                    await owner.handle(
+                        NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
                     )
-                    assert (
-                        await owner.handle(
-                            NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
-                        )
-                    )["task_status"] == "SUCCEEDED"
-                    assert (
-                        mapping(sequence((await domain.reconcile(back_request))["inbox"])[0])[
-                            "domain_result_consumed"
-                        ]
-                        is True
+                )["task_status"] == "SUCCEEDED"
+                # Persistent managed CLI/readback/reconcile in fresh reader
+                # processes on THIS owned DB; no runtime restart or adoption.
+                assert canonical(await restarted_cli("readback", back_request)) == canonical(back)
+                assert await markers() == durable_markers
+                restarted = await restarted_cli("reconcile", back_request)
+                assert canonical(restarted["records"]) == canonical(back["records"])
+                restart_inbox = mapping(sequence(restarted["inbox"])[0])
+                assert {
+                    k: restart_inbox[k]
+                    for k in (
+                        "delivered",
+                        "admitted",
+                        "turn_completed",
+                        "domain_result_consumed",
+                        "disposition",
                     )
-                    assert (
-                        mapping(sequence((await domain.reconcile(back_request))["inbox"])[0])[
-                            "domain_result_consumed"
-                        ]
-                        is True
-                    )
+                } == {
+                    **{
+                        k: inbox[k]
+                        for k in ("delivered", "admitted", "turn_completed", "disposition")
+                    },
+                    "domain_result_consumed": True,
+                }
+                consumed_markers = {**durable_markers, "consumed": 1}
+                assert await markers() == consumed_markers
+                assert canonical(await restarted_cli("reconcile", back_request)) == canonical(
+                    restarted
+                )
+                assert canonical(await restarted_cli("readback", back_request)) == canonical(
+                    restarted
+                )
+                assert await markers() == consumed_markers
                 assert observation.read_bytes() == native_before
-                # Historical terminal receipt is receive-only after a real Stop.
-                done.set()
-                await heartbeat
+                assert execution_attempts == []
+                checkpoint(
+                    restart_reconcile="PASS",
+                    consumed_markers=consumed_markers,
+                    execution_attempts=execution_attempts,
+                )
+                assert (
+                    mapping(sequence((await domain.reconcile(back_request))["inbox"])[0])[
+                        "domain_result_consumed"
+                    ]
+                    is True
+                )
+                assert (
+                    mapping(sequence((await domain.reconcile(back_request))["inbox"])[0])[
+                        "domain_result_consumed"
+                    ]
+                    is True
+                )
+            assert observation.read_bytes() == native_before
+            assert await markers() == consumed_markers
+            # Historical terminal receipt is receive-only after a real Stop.
+            done.set()
+            await heartbeat
+            if not first_final_after_stop:
                 await service.shutdown(uuid4(), status.generation, supervisor, epoch)
-                prior = await domain.readback(back_request)
-                assert canonical(
-                    (
-                        await domain.ingest_result(
-                            seed.owner,
-                            prepared["manifest_ref"],
-                            final,
-                            runtime.boot,
-                            fence,
-                            held=True,
-                        )
-                    )["records"]
-                ) == canonical(prior["records"])
-                assert observation.read_bytes() == native_before
-                async with engine.connect() as conn:
-                    assert (
-                        await conn.execute(sql("SELECT count(*) FROM managed_inbox"))
-                    ).scalar_one() == 1
+            prior = await domain.readback(back_request)
+            assert canonical(
+                (
+                    await domain.ingest_result(
+                        seed.owner,
+                        prepared["manifest_ref"],
+                        final,
+                        runtime.boot,
+                        fence,
+                        held=True,
+                    )
+                )["records"]
+            ) == canonical(prior["records"])
+            assert observation.read_bytes() == native_before
+            assert await markers() == consumed_markers
+            assert canonical(await domain.readback(back_request)) == canonical(prior)
+            checkpoint(post_stop_duplicate="PASS", final_markers=await markers())
+            async with engine.connect() as conn:
+                assert (
+                    await conn.execute(sql("SELECT count(*) FROM managed_inbox"))
+                ).scalar_one() == 1
         finally:
             done.set()
             try:
@@ -523,6 +960,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if host is not None:
                 assert not (host.directory / "runtime.sock").exists()
                 assert not (host.directory / "runtime.boot").exists()
+                checkpoint(
+                    native_cleanup="PASS",
+                    native_directory=str(host.directory),
+                    native_exit=None if host.process is None else host.process.returncode,
+                    native_owned_pids=sorted(host._owned_pids()),
+                )
         rows = [json.loads(line) for line in observation.read_text().splitlines()]
         assert {"test": "observer", "status": "READY", "count": 1} in rows
         assert not any(r["test"].startswith("forbidden-") for r in rows)
@@ -532,5 +975,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         assert len([r for r in rows if r["test"] == "_read_bound_input"]) == 1
         assert len([r for r in rows if r["test"] == "run_handler"]) == 2
         assert {"test": "native-release", "status": "SUCCEEDED", "count": 1} in rows
+        checkpoint(
+            native_run_contract=1,
+            native_reads=1,
+            native_handlers=2,
+            forbidden_native_attempts=0,
+            status="PASS_SOURCE_NOT_INSTALLED",
+        )
 
     asyncio.run(run())

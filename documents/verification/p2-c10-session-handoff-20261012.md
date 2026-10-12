@@ -1,4 +1,4 @@
-# Handoff C10 — punct de intrare actual și checkpoint istoric
+# Handoff C10/B06 — prompt de continuare și checkpoint istoric
 
 ## CURRENT — acceptare integrată după reluare
 
@@ -6,7 +6,184 @@ Candidatul8ea28b2 **este integrat** în `25395bd`, după două re-reviewuri comp
 
 **Prompt copy-ready actual:**
 
-> Continuă OmnisAI din registrul `documents/verification/p2-bound-predicates.md` și canonicalul `p2-bound-predicates-canonical-pass.json`, apoi Git real/AGENTS/README/harta și plan§7.1/arhitectură§9.10. C10 records este integrat și aprobat scoped; canonical final exit0/drained peff095af. Nu reimporta candidatul8ea28b2, nu reporni reviewurile sau PG/canonical neschimbate. Delimitează următoarea singură felie C10: `return_when` bounded → rezultat parțial autentic/persistent/readback și MethodCheck INCOMPLETE, fără SUCCEEDED automat; folosește ownerul/callerul/checkerul existente, TDD și review scoped. Păstrează restanțele applicability/unknown checker/M1M2/forme/binding/inventar și ordinea restB06b→B06c/B06m→P4a-minim→P2-live separat autorizat. Un autor, commituri mici, FAIL/limite și N01 LOW păstrate. Fără HTML protejat/r1/profiluri/global/cont/model/target/push. Predare scurtă în română cu cele trei axe și matricea globală.
+Promptul de mai jos înlocuiește mandatul îngust de „numai partial return” cu o continuare secvențială a lipsurilor canonice B06/P2-inert, apoi P4a-minim. Nu este un plan nou, nu închide niciun gate și nu pornește implementarea prin simpla versionare a acestei note. Se execută când operatorul îl transmite sesiunii de implementare. P2-live rămâne separat autorizat.
+
+```text
+Continuă OmnisAI în /home/kali/OmnisAI spre închiderea P2-inert,
+apoi livrează P4a-minim, cu cod minimal și probe relevante. Implementează
+și remediază, nu te limita la un audit, un plan sau alt handoff.
+
+BAZĂ ȘI AUTORITATE
+Baza acestei pregătiri: 65d8c7057f54841f4607622b4045c3e41305236b,
+branch checkpoint/p2-vm-restart-20261011. Citește HEAD/status/diff/staged
+și worktree-urile reale; nu schimba branchul și nu adopta munca străină.
+Produsul C10 records este integrat25395bd, cu remedii9a49d15/46589bf/d3a176b.
+Canonicalul ff095af a trecut exit0/drained; până la baza65d8c70 s-a schimbat
+numai documentația. Nu reimporta8ea28b2 și nu relansa acceptările neschimbate.
+
+Citește AGENTS/CONTRIBUTING/README CURRENT și harta implementation-status.
+Intrare: documents/verification/p2-bound-predicates.md și canonical-pass.json
+cu prefixul p2-bound-predicates-. Autoritate: plan §7/§7.1/§8/§19 și
+arhitectură §5/§5.2/§6.3/§9.3–9.5/§9.9–9.10. Citește registrele B06c/m,
+DATA și B06b numai pentru seamul activ. Secțiunile vechi ale handoffurilor
+sunt istorice; granturile/holderii/nonce-urile lor nu sunt mandate actuale.
+Încarcă skill-urile relevante, nu întregul catalog.
+
+MANDAT FINIT, FĂRĂ ÎNCĂ UN PLAN PARALEL
+Fă o singură comparație scurtă cu cele opt criterii din plan §7.1:
+cerință → owner/caller existent → probă acceptată și snapshot → lipsă.
+Separă defectul confirmat, funcția nelivrată, proba lipsă și live neautorizat.
+Reutilizează evidence pe bytes/artefacte neafectate; nu transforma rapoarte
+SOURCE/AST/SDK în installed/native/live și nu declara skip drept PASS.
+Păstrează această delta în registrul existent, fără alt catalog de faults.
+
+Lucrează în felii mici, coerente și comise, în ordinea de mai jos.
+Continuă automat următoarea felie inertă admisă după acceptare, fără
+reaprobări cosmetice sau oprire după fiecare raport. Nu scrie toate
+restanțele într-un singur commit și nu trece peste un blocker de safety.
+La buget/context insuficient păstrează checkpoint recuperabil, fără DONE fals.
+
+1. TERMINĂ CONSUMATORII B06b, ÎNCEPÂND CU PARTIAL RETURN
+- Pe metoda records existentă, return_when calificat și satisfăcut după
+  un prefix real read/PURE permite predarea bounded fără pașii rămași.
+  Nu prezenta un fault injectat sau rezultat fabricat ca pozitiv.
+- TaskResult autentic: header/refs/context exacte, receipts/artifacts reale,
+  exact un MethodResult per MethodPlan.requirement, stări/motive/gaps corecte.
+  DONE cere probe; cerințele lipsă nu dispar și nu devin N/A.
+- Persistă rezultatul înainte de MethodCheck. Backendul verifică independent
+  prefixul/predicatele și produce INCOMPLETE când un done_when lipsește;
+  fără SUCCEEDED automat sau PASS funcțional fără oracle/controls trusted.
+- Readback/reconcile/replay fără read/PURE/usage/consum dublu; păstrează
+  traseul complet, compact/inline și compatibilitatea cold/legacy admisă.
+- În următoarele felii strict necesare închide restul contractului metodei:
+  applicability/preconditions/invalidation și evidence-bearing obligations,
+  optional versus required, UNKNOWN distinct de NOT_APPLICABLE, checker
+  indisponibil/semantică nedecidabilă → UNKNOWN/gap, fără completitudine falsă.
+  Formele contractate neacoperite rămân explicit deschise, nu „rezolvate”
+  prin broadening arbitrar, regex sau un demo nou.
+- Completează numai lipsurile obligatorii C03/C04/C06–C12/H03–H08:
+  refs/slots/StepOutput/predicate calificate, root/child/batch/attempt reale,
+  mapping comis înainte de acces, două goaluri identice distincte, inventar
+  efectiv fără inheritance neadmis și observer/wrong-identity deny.
+  Lineage autentic/atomic ori refuz fără acces la seamul real este admis;
+  compresia care cere inferență se probează live, nu se simulează ca PASS.
+- M1 exact după M2 aditiv rămâne istoric; input/auth/precondiții invalidate
+  nu devin calificare curentă. Duplicate/conflict/restart/lost reply și
+  receive-only post-Stop → HELD fără wake/model/tools noi/dublu accounting.
+  delivered/admitted/turn_completed/consumed sunt stări distincte.
+  Same-Host cache acceptat nu dovedește crash/restart al întregului runtime.
+- N01 LOW deferred nu este blocker nou; remediază-l proporțional dacă
+  atingi frontiera relevantă, sau păstrează explicit dispoziția motivată.
+
+Trasează producerul, run_contract din agent/contract_execution.py,
+omnis_hermes/contract_method.py:task_result, validatorii/schema/finalul nativ,
+tasks/managed_contract.py, tasks/method_checks.py și
+runs/managed_admission.py:_result_check/reconcile. Nu repara numai helperul
+ignorând callerii, cardinalitatea receipts sau starea task/attempt.
+
+2. LEAGĂ B06c ȘI B06m LA ACELAȘI OWNER REAL
+- Reutilizează ModelProjections/ModelDispatch, NativeTaskOwner,
+  policy/admission.py, policy/budgets.py și adaptorul/sinkul existente;
+  verifică definițiile/usages înainte de stabilirea exactă a paths.
+- Producer/proiecție calificată → decizie data-policy exactă → DTO final
+  immutable → guard integral după transform, pe direct și worker.
+  Aprobarea DATA sau UUID-urile din fixture nu sunt grant, turn/config
+  autentice ori selecție de model. NO_MODEL rămâne înainte de client.
+- Probează SDK real NO-IO unde este necesar, fără egress/provider, și
+  sentinelul pe întreg input/payload/result/error/log. Refuză raw/secrete,
+  unknown sensitive, cross-case și extra_body/headers/query/bypass.
+  Refolosește măsurătorile SDK neschimbate; nu reface serializerul de dragul QA.
+- Owner de produs → reserve tranzacțional COMIS → SENT durabil independent
+  înainte de send → transport de protocol inert declarat → receipt/UNKNOWN.
+  Callerul și bariera efectivă trebuie implementate; contabilitatea singură
+  sau apelurile directe la helper în teste nu închid B06m.
+- Caps calls/output/deadline, rezervă VALIDATION, concurență cu overlap
+  observat, Stop între reserve/send și veto la sink. UNKNOWN după SENT
+  păstrează rezerva; RELEASED numai cu no-send demonstrat. Cost necunoscut
+  nu este zero; limita financiară neimplementată/neprobată rămâne BLOCKED.
+- Retry/fallback/auxiliary sunt readmise și contabilizate ori refuzate;
+  niciun client/provider/retry ascuns. Nu pretinde atomicitate DB/rețea.
+  Proveniența nativă turn/config/purpose și seamul pre-send real se califică
+  pe run nou înainte live; transportul sintetic nu este turn/grant nativ.
+
+3. ACCEPTĂ P2-INERT, APOI P4a-MINIM
+Închide inert numai când toate obligațiile inerte §7.1 au implementare,
+probe la consumerul cerut și review acceptat; fiecare rest live/ulterior
+are motiv canonic, nu doar eticheta „deferred”. Completează și scenariile
+H01/H02 obligatorii lipsă la consumerul extins (reverse/EOF/timeout/
+backpressure/unknown method/no personal grants/drain), fără recertificare B05.
+Installed/copy-installed/native și readerul istoric sunt dovezi distincte;
+produce proba cerută sau păstrează explicit BLOCKED/NOT_RUN.
+
+După închiderea inertă, livrează P4a-minim: catalog read-only, selecție
+explicită, save→readback, status runtime/dependencies și requested/effective
+cu motiv de fallback. REQUIRED nesuportat blochează; fără hot-swap sub copii.
+configured/authenticated/reachable/inference_ready sunt distincte.
+Fără cont se livrează stările indisponibile corecte, nu readiness fabricată.
+Nu conecta conturi și nu face provider discovery/pricing/refresh/inferență.
+
+Pentru P2-live oprește la acordul separat cont/provider/model/date/buget,
+cu blocajul și cererea concretă, o singură dată. Cere run/selection/manifest
+noi, nu „încălzirea” NO_MODEL. Nici P2-inert, nici Settings nu închid G02-live.
+B06j/Jev își păstrează alocarea canonică §8: SDK/typed questions/DecisionReceipt
+și sentinel inert când ajunge la consumerul său; shadow live numai cu acord,
+paired/advisory după G-LOOP. Nu inventa evaluator live sau gate circular
+Jev/editor/research înainte de închiderea inertă ori primul finding.
+
+TESTE ȘI REMEDIERI — PROPORȚIONALE, DAR REALE
+- RED pentru defect/funcție lipsă → fix minimal → GREEN și regresii afectate
+  după ultima editare. Refolosește fixtures și teste; fiecare test nou trebuie
+  să acopere cerință lipsă ori defect reprodus, nu să mărească un număr.
+- Lint/type/contracte și preflight determinist o dată înainte de PG/native;
+  detectează devreme importuri, keyword drift, compact expansion și cold pins.
+- Makefile oferă targets pentru publication/PURE, managed-composition/admission,
+  contract-method/native, model-projection, model-budget și model-admission.
+  Alege doar targets afectate, nu toate la fiecare felie. Targetul Make nu
+  implică acceptare în --target al runnerului: verifică choices și wrapperul
+  real. Native/projection au prerequisites/opt-in distincte; canonicalul
+  standard nu dovedește automat că aceste probe au rulat.
+- PG numai prin ops/run_test_db_gate.py/ownerul existent, fixture nouă proprie
+  atestată, UDS/no-network; fără DSN extern, SQLite fallback sau r1.
+  Build/installed/native cer pin, patch reapply și origini/hashuri reale.
+  Folosește referința locală base atestată, nu FROM sha256:IMAGE_ID interpretat
+  ca registry. Metadata/install/AST/synthetic peer nu sunt integrare nativă.
+- Un autor; minimum review independent exact-snapshot; două reviewuri
+  complementare în paralel la authority/concurrency/Stop/effects/secrets/
+  cross-runtime. QA reală poate intra în aceste roluri, fără agent ceremonial.
+  Reproduce/adjudecă blocantele, repară minimal, rerulează affected checks
+  și cere re-review numai pentru delta/call-sites afectate, până la acceptare.
+- Înainte de acceptarea unui snapshot integrat/faze rulează canonicalul real,
+  nu după fiecare commit, fix, document sau reminder. Fă deterministele și
+  probele afectate întâi pentru a evita eșecuri târzii. Comanda cunoscută:
+  PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv
+  Dacă bytes relevante se schimbă după gate, rerulează gate-urile afectate
+  și canonicalul când snapshotul de integrare este final. Nu redenumi subsetul.
+- Browser numai pentru UI/call path afectat (inclusiv P4a), pe build/API/DB
+  proprii, cu tastatură, stări și persist/readback, nu galerie de screenshots.
+  Join/readback exact resurse proprii și receipt/drain; păstrează date/loguri,
+  FAIL-urile și limitele. Parsează sanitizat, fără dump de secrets/traceback PG.
+
+DISCIPLINĂ ȘI PREDARE
+După două cicluri numai harness fără avans la aceeași cerință, chiar între
+sesiuni: checkpoint WIP/BLOCKED, restrânge reproducerul/frontiera; nu alt
+verifier/owner și nu ignora safety. Pentru prerechizit lipsă încearcă alternativa
+admisă; dacă nu există, raportează cauza concretă, nu output inventat.
+Nu crea framework, supervisor, scheduler, catalog/test runner paralel, alt demo,
+dependență latest, critic LLM/REVIEWER/B18a.r sau editor complet preventiv.
+Schimbările de schemă/contract numai cu consumerul necesar și probele lui;
+păstrează istoricul/pins și compatibilitatea, fără weakening/any/global ignore.
+
+Commituri mici coerente cu motiv/verificări/limite/revert; stage explicit,
+git show/status după fiecare. Notele concise în registrele existente, nu
+raport nou la fiecare apel. Nu modifica/stage HTML-ul protejat, r1/profiluri,
+credenciale, servicii străine sau configurație globală. Fără target/P3/push.
+
+Predare scurtă în română: funcții livrate, fiecare criteriu inert PASS/FAIL/
+BLOCKED/NOT_RUN, review și commituri, probe SOURCE/PG/native/installed/SDK/live
+separate, cleanup propriu, următorul pas sau exact acordul live necesar și
+matricea globală. „Gata” numai pe scope verificat, fără modificări intenționate
+necomise. Nu promite absența tuturor gap-urilor și nu închide P2 din test count.
+```
 
 ## Checkpoint istoric — înainte de acceptarea de mai sus
 

@@ -31,7 +31,13 @@
     "pg_cleanup": {"database_absent": true, "networks_absent": true, "socket_absent": true, "uncertain": false},
     "ruff_mypy_files": 2,
     "ruff_mypy_exit_code": 0,
-    "independent_review": "IN_REVIEW on canonical-fixtures-review.json",
+    "independent_review": "APPROVED_SCOPED on canonical-fixtures-review.json; parent verified both exact current hashes before commits",
+    "fixture_commits": ["02e510f", "b20335c"],
+    "reviewed_hashes": {
+      "api/tests/test_native_task_client.py": "de16f489baf2eb7bd251a713682bd202d7e2f150d75b9227e0e47a7ffd147b72",
+      "api/tests/test_managed_lifecycle.py": "2e254849dcabbd63abc1faa23253a2024bdfbfc278bba879c6792b4b3ecd6052"
+    },
+    "review_findings": [],
     "canonical_after_alignment": "NOT_RUN; focused PASS is not canonical PASS"
   },
   "limits": ["Gates downstream of test-api were not reached in this canonical attempt.", "No accounts, model inference, target traffic, operator instance adoption/restart or push.", "Method tracer Source PG PASS and scoped implementation reviews remain at their own tested boundaries; full B06b/P2 remains open."]

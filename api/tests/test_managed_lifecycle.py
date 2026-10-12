@@ -280,8 +280,10 @@ def test_pg_result_before_check_reconcile_once_restart(
                 context_only: bool = False,
                 prefix: list[dict[str, object]] | None = None,
                 case_input: dict[str, object] | None = None,
+                method_execution: bool = False,
             ) -> list[dict[str, object]]:
                 assert composition_packages is None  # This unchanged probe is legacy v1.
+                assert method_execution is False  # Never promote the shortened cold probe.
                 assert context_only is False and prefix is None and case_input is None
                 ceiling = min(
                     procedure.limits.deadline_seconds,

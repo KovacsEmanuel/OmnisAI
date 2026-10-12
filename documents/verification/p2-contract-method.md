@@ -1,6 +1,6 @@
-# B06b — metoda nativă CONTRACT/PURE (WIP)
+# B06b — metoda nativă CONTRACT/PURE (tracer SOURCE adjudecat)
 
-Autoritate: plan §7.1 și contractul B06b C01–C12; nu este un plan sau audit nou. Baza de lucru este `abac977cf841429a65b4304d9c7abf01233dd3d5`. Codul integrat este încă necomis și în review; acest registru nu închide B06b, G02-inert sau P2.
+Autoritate: plan §7.1 și contractul B06b C01–C12; nu este un plan sau audit nou. Baza de lucru este `abac977cf841429a65b4304d9c7abf01233dd3d5`. Codul este comis în `35ff2f4` (exit UDS), `381c394` (schema/pins) și `fb97c8e` (metodă nativă/inbox). Tracerul records SOURCE este adjudecat scoped; acest registru nu închide B06b, G02-inert sau P2.
 
 ## Contractul feliei
 
@@ -25,7 +25,7 @@ Autoritate: plan §7.1 și contractul B06b C01–C12; nu este un plan sau audit 
 
 Comenzile PG folosesc exclusiv `ops/run_test_db_gate.py:prove_private_fixture("test-contract-method-pg", "/home/kali/.local/share/omnis-toolchains/bin/uv", 600)` și toolchain-ul fixat. Logurile private rămân în scratch; nici DSN, capability sau credentiale nu sunt copiate aici.
 
-## Gates rămase
+## Istoric de remedieri — FAIL-urile sunt păstrate
 
 ### Remedieri după primul review și QA reală
 
@@ -38,6 +38,18 @@ Reviewul independent `B06b-CONTRACT-PURE-v4-normative-snapshot1` a cerut schimb�
 - După ultima schimbare de produs: `make check-runtime` **exit0, 421 pytest + 6 AST, Ruff0/mypy15**. Runnerul existent `contract_method_native_probe.py` pe pinul complet, home nou, **exit0 / 14 teste / effects=[]**, inclusiv read/tool real în AIAgent, replay și refuzuri. Frontiera este SOURCE cu assignment/authority de fixture, nu instalat și nu consumer PG cap-coadă.
 - Fixture-urile PG ale tentativelor părintelui au cleanup/readback propriu DB/rețea/socket absente, uncertain=false; datele/logurile private sunt păstrate. Nu se copiază tracebacks brute, DSN sau capability în Git/chat.
 
-Reviewurile complementare pe snapshotul exact curent sunt în curs. Traseul PG→owner→copil→MethodCheck/inbox complet rămâne **NOT_RUN/BLOCKED** după frontieră; numai producerul a avansat. Plafonul, deadline-urile și oracolele de metodă nu au fost slăbite. Următorul pas este consumerul de încărcare nativă, nu un alt input, verifier sau provider.
+La acel checkpoint, reviewurile și traseul PG complet erau NOT_RUN/BLOCKED. Datele și afirmațiile anterioare rămân istorice, nu se transferă la probele ulterioare.
 
-QA pe consumerul real PG→owner→copil→receipts→MethodCheck/inbox/readback și cele două reviewuri complementare exact-snapshot sunt pendinte. Native SOURCE nu devine INSTALLED și nici metoda PURE nu devine turn/inference. Formele contractate încă neacoperite, M1/M2 și criteriile nonempty rămân deschise până la probele lor. Full canonical final este NOT_RUN; FAIL-urile istorice nu sunt șterse. B06c/B06m owner reserve→SENT și P4a-minim urmează în ordinea autorizată. Fără cont/model/target/r1/adopție/push.
+## Consumerul real și adjudecarea snapshotului 5
+
+- **QA12 PASS_SOURCE_SCOPED:** runnerul existent `prove_private_fixture("test-contract-method-native-pg", "/home/kali/.local/share/omnis-toolchains/bin/uv", 600)`, exit **0**, **1 pytest PASS în 20.96s**. Qualify/Publish pe seedul records nemodificat → selection NO_MODEL/context/input/prepare → owner/client/Host/Peer stdio reale → AIAgent real → read și două transformări PURE → rezultat/receipts autentice → persistare → MethodCheck COMPLETE → inbox/readback/replay/reconcile și duplicat post-Stop. Observație: AIAgent1/read1/handlers2, TaskResult1/receipts3/artifacts2; fără sink/effect interzis observat pe canalul finit Python. Numai workerul pregătirii documentare este un prerequisite double declarat. Aceasta nu este proba INSTALLED sau de sandbox OS.
+- Fixture-ul menține **lease-ul real**, cu `InstanceService.heartbeat` pe același owner/epoch și îl oprește înainte de Stop. Nu schimbă TTL sau deadline-uri. Tentativa11 refuza corect LEASE_LOST când fixture-ul nu întreținea ownerul; nu era motiv de slăbire a guardului. Profilarea include adaptorul pentru handler census și separă metoda publică AIAgent(self) de helperul de implementare(agent).
+- Tentativa10 a avansat la copilul real, dar a rămas în teardown: pe Python3.13 `Server.wait_closed` așteaptă și transporturile active. Runnerul exact a primit TERM prin pidfd, a încheiat **130**, apoi a verificat familia/DB/rețeaua/socketul absente, uncertain=false. Reproducerul idle UDS: RED Timeout0.5s → `close_clients` înainte de wait → GREEN **15 teste host**, EOF/unlink/lock reuse reale. Nu se revendică handler breadth sau containment.
+- **SEC3-F01:** reviewul security3 a demonstrat writer/reader păstrate după anularea v4 `_exchange`. Părintele a reprodus RED la owner după send pe UDS real; fixul închide canalul și reridică excepția în interiorul fence-ului, fără al doilea grant/resend și fără resetarea intenției comise. GREEN **3 teste owner**, Ruff/mypy2 exit0. DB/fence/grant în acest negativ sunt doubles SOURCE, nu dovadă PG de anulare.
+- După ultima editare de produs: `make check-runtime` **exit0, 422 pytest +6 AST, Ruff/mypy15**. Verificarea ad-hoc cerută a rulat **3 teste PASS/exit0** pe schema partajată, UDS exit și owner cancellation; helperul propriu a fost șters după attestation prin FD/conținut. Aceasta nu înlocuiește canonicalul.
+- Două reviewuri complementare au verdict **APPROVED_SCOPED** pe aceleași **47 hashes**, părintele confirmând lipsa driftului înainte de commit: `B06b-focused-independent-security-snapshot5` / SHA256 `c87b595053a8275a9c6d6fa799c8555c5904b1da282b421674cbe057b8229fe7`, și `B06b-CONTRACT-PURE-normative-snapshot5-focused-independent-review` / SHA256 `a3c61d6896cc017dcb0858d579270fa9c916ae5b4f6694b411f56ec96a1d98e9`. Au închis scoped N1-F01/F02, SEC3-F01 și exit-ul hostului; reviewerul security a reprobat bytes vechi RED și bytes curenți GREEN pe ambele defecte de cleanup. Raportul complet și limitele sunt păstrate în scratch; concluziile adjudecate sunt aici.
+- QA12: cleanup/readback DB/rețea/socket proprii absente, uncertain=false, date păstrate. Snapshotul executat/reviewed are aceiași bytes ca commitul `fb97c8e` și cele două prerequisite commits. Canonicalul exact solicitat este pornit ca `proc_85e6150485ed`; **IN_PROGRESS, nu PASS**. Probe focalizate și review nu schimbă FAIL-urile canonicale istorice.
+
+## Restul B06b/P2 rămâne deschis
+
+Nonempty CriterionBinding/CriterionResult/done_when/return_when și predicatele calificate, M1/M2, restart receive-only/lost reply și primul rezultat nou tardiv HELD nu sunt închise de acest tracer. Duplicatul post-Stop nu este primul late-held; readback/reconcile în procesul curent nu este restart real. Capture are probe SOURCE reținute, nu noul journey PG records. Descriptorul checkerului nu probează independent closure-ul implementării sale, iar migrarea nu are istoric nonempty demonstrat. INSTALLED și P2-live sunt NOT_RUN. B06c/B06m reserve→SENT→transport/UNKNOWN și P4a-minim rămân în ordinea planului; fără cont/model/target/r1/adopție/push sau închiderea globală P2.

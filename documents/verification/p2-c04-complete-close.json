@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "status": "CLOSED_SCOPED_CONTRACT_NO_ORACLE",
+  "product_commit": "77c835d28f712ee39f49a39b8d79de2739789497",
+  "candidate_commit": "1aecbea",
+  "base": "024a10bd89e253045f58c7e7f015544bed12e764",
+  "integration": "BYTE_EXACT_12_FILES_PARENT_VERIFIED",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "closed_scope": [
+    "Explicit private criterion allocation fixed in immutable mission/run before assignment",
+    "Two exact native CriterionResult pairs after authentic read1/PURE2",
+    "Trusted source-pinned no-oracle rule persists two BLOCKED outcomes with both gaps and mandatory bounded reason",
+    "Atomic MethodCheck/outcome persistence, strict stored-outcome readback and idempotent reconcile/consumption",
+    "Actual historical compact zero-binding and first authentic final post-Stop HELD positives"
+  ],
+  "finding": {
+    "id": "NORM-C04-F01",
+    "status": "CLOSED_SCOPED_RESOLVED_REVIEWED",
+    "requirement": "Architecture 9.3 CriterionOutcome.reason Text <=2048 is mandatory",
+    "red": "Original genuine PG payloads without reason accepted; new bounded-reason regression rejected valid reason with MANAGED_REJECTED; both RED exit1",
+    "fix": "Deterministic trusted reason emission; exact field/type/length guard before payload equality, no immutable record rewrite",
+    "final_source_sha256": "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8"
+  },
+  "reviews": [
+    {"report":"p2-c04-complete-normative-review.json","sha256":"519e58b15c4e1e51986f153fbe6dfca7ae059144fd1fcc7e05d154b1a7ff5203","verdict":"CHANGES_REQUESTED","scope":"Original twelve-file normative/persistence/readback snapshot; reason finding closed by focused review"},
+    {"report":"p2-c04-complete-security-review.json","sha256":"6eb2aaed51a7161ea79ee60c5a43f1313472a005e33f63ea46c85917505d0ed3","verdict":"APPROVED_SCOPED","scope":"Original finite security/input/failure snapshot, unchanged scope retained only"},
+    {"report":"p2-c04-reason-normative-rereview.json","sha256":"3748ef48e440d4c871e780e392cc08f6966ab7344433ba46b8031443cd59a96c","verdict":"APPROVED_SCOPED","scope":"Reason producer/validator/digest/persistence/readback delta and affected call sites on current exact12 hashes"},
+    {"report":"p2-c04-reason-security-rereview.json","sha256":"5463cc234937c2259d1800a5a8dccf58c9585aa85ae7cec738cdea31773a21b1","verdict":"APPROVED_SCOPED","scope":"Reason field/type/digest/forgery delta and unchanged zero-binding path on current exact12 hashes"}
+  ],
+  "verification": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": ["-I", "-B"],
+    "source": {
+      "command": "python -I -B -m pytest -c api/pyproject.toml api/tests/test_c04_criteria.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_assignment_compact.py api/tests/test_composition_native_parity.py api/tests/test_c03_managed_capture.py::test_composition_one_historical_revision_is_not_reinterpreted_as_two -q --tb=short",
+      "passed": 121, "seconds": 9.75, "exit": 0,
+      "boundary": "SOURCE component controls; not native authenticity or PG from helper holders"
+    },
+    "quality": {"ruff_check":0,"ruff_format":0,"mypy":0,"affected_delta_files":3,"original_pre_reason_quality_files":12,"diff_check":0},
+    "native_pg": {
+      "command": "python -I -B /home/kali/.hermes/cache/scratch/p2-c04-complete-driver.py",
+      "runner": "ops/run_test_db_gate.py:prove_private_fixture('test-contract-method-native-pg', '/home/kali/.local/share/omnis-toolchains/bin/uv', 600)",
+      "driver_sha256": "1a4c5e55fdf95e2acc1faa1511135d88a9aa949d857908565b26c8134844fc3b",
+      "driver_limit": "Stock pin preflight uses existing locked main API/CLI environments; runner/test root remains owned candidate worktree",
+      "session": "proc_50a698ba5c6a", "passed":4, "seconds":97.29, "exit":0, "family_drained":true,
+      "native_scenarios":3,
+      "fourth_test": "Private diagnostic/stderr refusal regression, not another native execution",
+      "unique_restart_reader_pids":12,
+      "each_native_scenario": {"native_run_contract":1,"reads":1,"pure_handlers":2,"inbox":1,"consumed":1,"restart_readers":4,"reader_execution_attempts":0,"native_cleanup":"PASS","native_exit":-9},
+      "criterion_scenarios_each": {"authentic_outcomes_before_negative":2,"outcome":"BLOCKED","reason_present":true,"gaps":["ORACLE_UNAVAILABLE","CONTROLS_UNAVAILABLE"],"post_forgery_outcome_count":3,"forged_outcome_readback":"REFUSED"},
+      "proof_hashes": [
+        {"case":"historical-compact-zero","sha256":"25e5f76261a322152acc005aa7f330cd899c6d6bebb86c3389341d3985f78666"},
+        {"case":"criteria-normal","sha256":"f25776ef65a2296da36a88702f79ff3c2cc6e305d8db2986c1126b506a8772be"},
+        {"case":"criteria-first-late-held","sha256":"0494c15aa5bedf5c65cd8b8153a42d565e762fd26db0b53a3aca81d02d2e032d"}
+      ]
+    },
+    "integrated_source": {"command":"python -I -B -m pytest -c api/pyproject.toml api/tests/test_c04_criteria.py -q --tb=short","passed":19,"seconds":2.76,"exit":0,"current_twelve_hashes_match_review":true},
+    "canonical": "NOT_RUN_FINAL_INTEGRATED_PRODUCT",
+    "last_canonical": "p2-method-canonical-snapshot5-fail.json: FAIL exit2,1491API PASS/2FAIL/2SKIP; fixture fixes scoped, no global green transfer"
+  },
+  "preserved_failures": [
+    {"attempt":"Initial author criteria-normal native attempt","result":"Runtime exchange unavailable","disposition":"Preserved cause unestablished; later PASS is not a diagnosis"},
+    {"session":"proc_c0c32ce827b4","passed":3,"failed":1,"seconds":107.83,"exit":2,"family_drained":true,"failed_case":"historical-compact-support-zero","frontier":"Runtime exchange unavailable before native_run_contract, only READY observed","native_exit":-15,"cleanup":"PASS","disposition":"Preserved cause unestablished; same-byte retry separately PASS"}
+  ],
+  "owned_resource_readback": [
+    {"fixture_root":"/home/kali/.hermes/cache/scratch/db-1f51fe5a9943462e","project":"omnis-p01-ffe08c34c9d8487fa1ad1a6d6ea9d323","receipt_code":2,"family_drained":true,"containers_absent":true,"networks_absent":true,"data_logs_retained":true},
+    {"fixture_root":"/home/kali/.hermes/cache/scratch/db-8771e4e534384493","project":"omnis-p01-d64d4804d01f45279cd4fe5a0c30d366","receipt_code":0,"family_drained":true,"containers_absent":true,"networks_absent":true,"data_logs_retained":true}
+  ],
+  "artifacts": {
+    "scratch_root":"/home/kali/.hermes/cache/scratch",
+    "frozen_inventory":"p2-c04-reason-frozen.json",
+    "frozen_inventory_sha256":"b06e8965a177958287c5b22694720752e31eb2129c25c1100c954cb61df78588",
+    "parent_qa":"p2-c04-reason-parent-qa.json",
+    "parent_qa_sha256":"be9e288486661aebe2b7d331c406c7414509cc5751a0a055e101f611d46de822",
+    "proof_root":"pytest-of-kali/pytest-299",
+    "raw_private_logs_committed":false
+  },
+  "files": [
+    {"relative_path":"api/src/omnis/modules/runs/contract_inputs.py","sha256":"bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab"},
+    {"relative_path":"api/src/omnis/modules/runs/managed_admission.py","sha256":"bc08853f17b2ec6e33e022e3d0d71ad6b0d5887c8152b79028dba8d5e843a1cb"},
+    {"relative_path":"api/src/omnis/modules/tasks/criterion_checks.py","sha256":"30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8"},
+    {"relative_path":"api/src/omnis/modules/tasks/managed_composition.py","sha256":"901f2c36cc47c231b16a7f8ffbc43bd6a936d5cb90b8cccb53a94da1a303b6db"},
+    {"relative_path":"api/src/omnis/modules/tasks/managed_contract.py","sha256":"9b87dc17293895299fa5088991afa16a0d73639e4bd400c28e4a80544dfe80e3"},
+    {"relative_path":"api/src/omnis/modules/tasks/method_checks.py","sha256":"8edac8d09b398ffb4eb9cf0d45192703a34f478a2f8f7c27e58ca88121d21b0c"},
+    {"relative_path":"api/tests/test_c04_criteria.py","sha256":"b45a37546d5a86ee45ac516936c0fe7bd041a301aa52f4da559c5cd2264fab22"},
+    {"relative_path":"api/tests/test_contract_method_checks.py","sha256":"03c898f4f308caaa7f3893930b5ddf7aa0a926727c1cc0914dc14e4bd34f1d89"},
+    {"relative_path":"api/tests/test_contract_method_pg.py","sha256":"fe3f7c8109290f66dc44910c24a616aa4341a982417c9acd3ef22f941938ebf0"},
+    {"relative_path":"integrations/hermes/src/omnis_hermes/contract_method.py","sha256":"83c61928b950956da21a998bf20c0e7dd116c47b72d4c5d8344c626548e45e31"},
+    {"relative_path":"integrations/hermes/src/omnis_hermes/managed_admission_contract.py","sha256":"8bedef85122839a9b33da7989476612b1d466b286e55cfb39dee826b0ad3f97e"},
+    {"relative_path":"integrations/hermes/src/omnis_hermes/prompt_bundle.py","sha256":"717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"}
+  ],
+  "preserved_limits": {"aggregate_cap":65536,"native_wire_expanded_cap":32768,"native_deadline_seconds":4.5,"prior_inline_assignment_bytes":65418,"original_three_record_input_unchanged":true,"published_seed_unchanged":true,"historical_compact_pin":"1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a","current_composer_pin":"717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"},
+  "open_scope": ["Positive functional oracle/controls and other C04 forms","Qualified C10 predicates and remaining B06b forms","C11/H07 actual lost RPC reply recovery","C12 M1/M2 current qualification","INSTALLED distribution and final canonical","B06c/B06m reserve-SENT transport/Stop/caps/VALIDATION/concurrency/retry","P4a-minimal after finite P2-inert closure"],
+  "not_established": ["Runtime restart or physical crash/power-loss","Graceful native teardown or OS sandbox","Inference/Brain turn/provider/target traffic","Full C04/B06b/G02/P2 closure"],
+  "no_external_grants": ["No personal account/credential/profile defaults","No r1 adoption/restart, global daemon/profile change or rollout","No implicit push"],
+  "tools_applicability": {"Reticle":"NOT_APPLICABLE","Chisel":"BLOCKED_NO_GO"}
+}

@@ -1,8 +1,38 @@
 # B06b C04 — criterii nonempty pe metoda records existentă
 
-Autoritate: contractul [C04](p2-b06b-next-contract.md), arhitectură §9.5/§9.10 și plan §7.1. Nu este plan nou. Baza de produs `93b7700897c13e31ba1f7e6d99ca57b8ea72b61e` are first-late-held/restart reader acceptate separat în [registrul metodei](p2-contract-method.md). C04 rămâne **NOT_IMPLEMENTED / BLOCKED / NOT_REVIEWED** la tentativa de mai jos; continuarea autorizată nu îi transferă acceptare.
+Autoritate: contractul [C04](p2-b06b-next-contract.md), arhitectură §9.3/§9.5/§9.10 și plan §7.1. Nu este plan nou. **CURRENT: subsetul CONTRACT/no-oracle este IMPLEMENTED / PASS_SOURCE_SCOPED / APPROVED_SCOPED, integrat byte-exact în `77c835d`.** Alocare explicită → perechi native exacte → două outcome-uri BLOCKED cu reason → persistare/readback/reconcile. C04 integral și B06b/G02/P2 rămân NOT_CLOSED; tentativele BLOCKED de mai jos sunt istorice, nu verdictul actual al subsetului livrat.
 
-**Prerechizita de bytes este acum deblocată scoped în `024a10b`:** [assignment compact acceptat](p2-assignment-compact.md), cap/formulă/input/material/receipts păstrate,49869bytes față de inline65418. Două reviewuri complementare și fixul SEC-COMPACT-F01 re-reviewed,228SOURCE/17native/3PG exit0. C04 nonempty/outcome încă nu este integrat sau aprobat prin acest commit; tentativele BLOCKED de mai jos sunt istorice, nu dovada că noul format este blocat de aceleași bytes.
+**Prerechizita de bytes deblocată scoped în `024a10b`:** [assignment compact acceptat](p2-assignment-compact.md), cap/formulă/input/material/receipts păstrate,49869bytes față de inline65418. Două reviewuri complementare și fixul SEC-COMPACT-F01 re-reviewed,228SOURCE/17native/3PG exit0. Acel commit nu livra C04; consumerul nonempty/persistent are acceptarea proprie de mai jos.
+
+## Subsetul livrat în 77c835d
+
+- `create-method-context` admite opțional `criterion_ids` explicite, strict UUID, unice și bounded; le fixează în misiune/run înaintea assignmentului. Pe aceeași procedură publicată, două bindings și rezultatele native au exactele perechi/header/refs. Nu există alocare sau grant din outputul copilului.
+- Emitentul rămâne `AIAgent.run_contract`/`task_result`, după read1/PURE2 și receipts autentice. Backendul aplică handlerul finit source-pinned `contract.no-oracle-v1`; metadata publicată `oracle_ref=null/control=[]` produce exclusiv **BLOCKED**, cu ORACLE_UNAVAILABLE și CONTROLS_UNAVAILABLE. COMPLETE/SUCCEEDED metodologic nu este PASS funcțional ori SECURITY.
+- MethodCheck/outcomes și markerul consumului se comit în tranzacția ownerului existent; replay/readback regenerează așteptările trusted și refuză missing/duplicate/foreign ori outcome stocat falsificat. Nu rescrie records imuabile. Zero-binding păstrează forma veche, fără câmp de proiecție gol adăugat.
+- Defect normativ **NORM-C04-F01**: `reason: Text ≤2048` din arhitectură §9.3 lipsea. Părintele a reprodus acceptarea payloadurilor PG fără reason și refuzul testului nou, ambele RED/exit1. Fix minimal: reason determinist trusted, obligatoriu/strict/bounded înaintea egalității; gaps/refs/BLOCKED păstrate. Hashul sursei regulii devine `30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8`, fără excepție pentru rule/records vechi malformate.
+- Review inițial normativ **CHANGES_REQUESTED**, complementar security **APPROVED_SCOPED**; ambele re-reviewuri focalizate sunt **APPROVED_SCOPED** pe exact12 hashes. Părintele a verificat rapoartele complete și bytes, a integrat exclusiv cele12 fișiere și a rulat consumerul SOURCE afectat în principal. [Receiptul versionat](p2-c04-complete-close.json) păstrează hashes/probe/dispoziții; nu aprobă cerințe neexaminate.
+
+### Verificări după ultima editare
+
+| Probă | Comandă/frontieră | Rezultat |
+|---|---|---|
+| Regresii SOURCE | Python API `-I -B -m pytest -c api/pyproject.toml` pe C04/MethodCheck/producer/compact/native parity și regression istoric listate în receipt | **121 PASS**,9.75s/exit0 |
+| Quality delta reason | Ruff check/format și mypy strict pe cele3 fișiere schimbate; quality12 înaintea fixului, fără aprobare transferată delta-ului | exit0; diff-check0 |
+| SOURCE PG/native final | Runnerul existent `prove_private_fixture("test-contract-method-native-pg", "/home/kali/.local/share/omnis-toolchains/bin/uv",600)`; driver readonly folosește venvurile main numai pentru pin preflight | **4 PASS**,97.29s/exit0/family_drained=true |
+| Integrare în checkout principal | `python API -I -B -m pytest -c api/pyproject.toml api/tests/test_c04_criteria.py -q --tb=short`; hashes identice celor12 din review | **19 PASS**,2.76s/exit0 |
+| Canonical complet pe produsul integrat | `make check` | **NOT_RUN**; FAIL snapshot5 rămâne |
+
+Cele trei scenarii native sunt compact istoric zero-binding, criterii normale și primul final autentic post-Stop HELD; al patrulea test este negativul diagnostic/stderr, nu o a patra execuție nativă. Fiecare scenariu nativ are read1/PURE2, inbox1/consumed1 și patru readeri CLI noi: **12 PID-uri distincte**, fără execuție nouă. Cele două outcome-uri autentice sunt numărate înaintea rândului falsificat adăugat numai pentru negativul readback, nu deduse din totalul post-atac3.
+
+### Eșecuri și cleanup păstrate
+
+Prima tentativă normală a autorului a avut `Runtime exchange unavailable`; retry-ul ulterior nu i-a explicat cauza. Proba părintelui post-reason `proc_c0c32ce827b4` a avut **1FAIL/3PASS,107.83s,exit2/drained**: legacy zero a eșuat înainte de emitere, numai READY observat, native exit-15/cleanupPASS. Replacementul bounded `proc_50a698ba5c6a` pe aceiași12 bytes a trecut4/4; nu promovează sau diagnostichează retroactiv tentativa eșuată.
+
+Readback Docker propriu: proiectele `omnis-p01-ffe08c34c9d8487fa1ad1a6d6ea9d323` și `omnis-p01-d64d4804d01f45279cd4fe5a0c30d366` fără containers/networks; runner receipts drained, date/loguri private păstrate în `db-1f51fe5a9943462e` și `db-8771e4e534384493`. Host joined, socket/boot absente și lock reacquirabil în probe. Native exit-9 este teardown bounded, nu shutdown graceful/Stop fizic universal. Nicio resursă străină nu este adoptată.
+
+### Limita acceptării și continuarea canonică
+
+Sunt închise numai perechile/headerul nonempty, negativele lor și outcome-ul trusted no-oracle persistent în această formă COMPLETE. Oracle pozitiv/controls, alte forme C04, predicate C10 și forme B06b neacoperite rămân distincte. Next în §7.1/C11/H07: pierdere reală de răspuns RPC și reconcile pe ownerul existent fără resend/rerun; M1/M2 are obligația proprie. Apoi B06c/B06m reserve→SENT→transport inert/caps/Stop, P4a-minim și canonicalul final integrat. Fără code/approval din model, target, r1, profil/daemon, rollout sau push; nici sandbox OS/inferență/tur Brain/INSTALLED din această probă. Cap65536/32768, inputul records original și deadline4.5s sunt păstrate. Revertul codului nu rescrie datele istorice.
 
 ## Contractul vertical și limitele
 
@@ -33,7 +63,7 @@ Al doilea candidat a încercat compactarea obiectelor închise prin `minProperti
 
 **Decizie de frontieră:** următorul pas implementabil este compactarea reprezentării redundante a assignmentului/compoziției pe ownerul existent, cu păstrarea tuturor records/command receipts durabile și a materialului mandatory/ref digests. Măsoară payloadul producerului înainte de noul PG; dovedește aceleași refuzuri și budget65536 pe consumerul real. Nu modifica formula/capul pentru a ascunde overflow, nu șterge receipts, nu scurta seedul și nu credita o admitere SOURCE drept rezultat autentic. După deblocare urmează schema/checkerul nonempty, rezultatul nativ și outcome persistent, apoi review exact. B06c/B06m și P4a-minim nu au fost implementate în această felie; canonicalul final rămâne NOT_RUN.
 
-## Cleanup și continuare punctuală
+## Cleanup și continuare la checkpointul istoric
 
 Fixture proprie `/home/kali/.hermes/cache/scratch/db-097ebce35186490e`, proiect exact `omnis-p01-bff858977d9049828206d738b85c6acc`: runner readback DB/rețea/socket absente, uncertain=false. Părintele a verificat din nou **0 containers/0 networks** sub labelul proiectului exact și absența socket/boot/lock pentru ambele directoare native own; nicio lansare nativă C04 nu avusese loc. Datele/logurile private sunt păstrate.
 

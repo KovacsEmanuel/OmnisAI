@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "report_id": "C10-NATIVE-F01-NORMATIVE-FOCUSED-8ea28b2-FINAL",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Re-review independent normativ/comportamental al remedierii C10-NATIVE-F01 pe delta exactă de șase paths 2ca04773e3d3e3d9a30d9601ab8dad45756569b0..8ea28b2794912726428fbc3cac6f6d18269be454. Aprobare pentru callerul compact/inline current/legacy717 și reseal-ul său, nu audit C10 integral, autentificare SOURCE, integrare sau PASS global.",
+  "integration_approval_by_reviewer": false,
+  "parent_adjudication_required": true,
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix",
+    "branch": "work/p2-bound-predicates-nativefix",
+    "base": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+    "head_before": "8ea28b2794912726428fbc3cac6f6d18269be454",
+    "head_after": "8ea28b2794912726428fbc3cac6f6d18269be454",
+    "main_head_before": "097243d227b8ed5765efa6a52c2c7c2651f03b49",
+    "main_head_after": "097243d227b8ed5765efa6a52c2c7c2651f03b49",
+    "checkpoint": {
+      "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-checkpoint.json",
+      "sha256": "00ccb199792c529abd6026108836dd0e483407f8f2aeda77ce03da4cea2ea149"
+    },
+    "files_count": 6,
+    "inventory": [
+      {
+        "path": "api/tests/test_assignment_compact.py",
+        "sha256_before": "63a2782d824af8983584bf86c22934428994c0fe39976b5397bc59ba029cee77",
+        "sha256_after": "63a2782d824af8983584bf86c22934428994c0fe39976b5397bc59ba029cee77"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256_before": "b9cf0ce0fe8608b8d9188307a55274d1a94becdecad5ba6cf69b5dc91eebd776",
+        "sha256_after": "b9cf0ce0fe8608b8d9188307a55274d1a94becdecad5ba6cf69b5dc91eebd776"
+      },
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256_before": "317eb781462dc3b18fd9a9ca28124545e2c8d0c78141122f3d31a7f83ffe6803",
+        "sha256_after": "317eb781462dc3b18fd9a9ca28124545e2c8d0c78141122f3d31a7f83ffe6803"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256_before": "9b9f04e5617695abd8e724933080bbf110eef50ac0181f1d79a775cd7fe0f22f",
+        "sha256_after": "9b9f04e5617695abd8e724933080bbf110eef50ac0181f1d79a775cd7fe0f22f"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256_before": "ac07ddc8979df03d7a92595327ae387a4276392e94dc32e09bfe73d564d12aef",
+        "sha256_after": "ac07ddc8979df03d7a92595327ae387a4276392e94dc32e09bfe73d564d12aef"
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256_before": "bc6e6c95ddbeead56f0b64fdbe01dfa2459b245d5e3e42d67b03e29ead459d97",
+        "sha256_after": "bc6e6c95ddbeead56f0b64fdbe01dfa2459b245d5e3e42d67b03e29ead459d97"
+      }
+    ],
+    "all_six_match_checkpoint_before_and_after": true,
+    "delta_paths_exact": true,
+    "candidate_clean_before_and_after": true,
+    "candidate_status_after": "## work/p2-bound-predicates-nativefix\n",
+    "main_status_before_and_after": "## checkpoint/p2-vm-restart-20261011\n?? documents/Omnis_Notite_Originale.html\n",
+    "protected_preexisting_html_preserved": true,
+    "unchanged_paths_from_prior_source_review_count": 11,
+    "unchanged_paths_from_prior_source_review": [
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "api/src/omnis/modules/tasks/method_checks.py",
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_contract_method_pg.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "integrations/hermes/tests/test_contract_method.py",
+      "integrations/hermes/tests/test_prompt_bundle.py"
+    ],
+    "checker13_actual_sha_match_prior_review_and_base_blobs": true
+  },
+  "normative_sources": [
+    "/home/kali/OmnisAI/AGENTS.md",
+    "/home/kali/OmnisAI/CONTRIBUTING.md",
+    "/home/kali/OmnisAI/README.md",
+    "/home/kali/OmnisAI/documents/verification/implementation-status.md:19-21",
+    "/home/kali/OmnisAI/documents/verification/p2-c10-session-handoff-20261012.md",
+    "/home/kali/OmnisAI/documents/Omnis_Implementation_Plan.md:268-283 (§7.1)",
+    "/home/kali/OmnisAI/documents/Omnis_MVP_Architecture.md:612-630 (§9.5)",
+    "/home/kali/OmnisAI/documents/Omnis_MVP_Architecture.md:733-771 (§9.10)",
+    "/home/kali/OmnisAI/documents/verification/p2-b06b-next-contract.md:27-47,65-74,87-97"
+  ],
+  "source_reports_verified": [
+    {
+      "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/normative-source-rereview.json",
+      "sha256": "d4b8f571b029d4892e447d253c5315e07d602b12118f687795b7b45851815a0b",
+      "snapshot": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+      "original_verdict": "CHANGES_REQUESTED",
+      "reason": "Originalele închise SOURCE; C10-NATIVE-F01 deschis pe acel snapshot. Nu transfer verdictul global la candidatul nou."
+    },
+    {
+      "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/security-source-rereview.json",
+      "sha256": "8403ac5c6f05325b81acdaa7ac67dc5fe24d00142ce3481da6f937a743775413",
+      "snapshot": "2ca04773e3d3e3d9a30d9601ab8dad45756569b0",
+      "original_verdict": "APPROVED_SCOPED",
+      "reason": "Numai SEC-F01..F04; callerul compact era explicit neaprobat."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-fix-author.json",
+      "sha256": "f865888b95e17081ef0ae878f1da6b12d9d780a529f5b9313ddd4da1d8b57ff6",
+      "metadata_limit": "Raportul autorului este capturat precommit: head=2ca0477/commits=[] și pending review. Snapshotul reviewului prezent este HEAD real8ea28b2 și cele șase hashes frozen, confirmate din checkpoint/Git; nu atribui metadatele vechi candidatului actual."
+    }
+  ],
+  "findings": [],
+  "blocking_findings_count": 0,
+  "finding_dispositions": [
+    {
+      "id": "C10-NATIVE-F01",
+      "original_severity": "HIGH (normative-source-rereview; security îl eticheta MEDIUM)",
+      "status": "CLOSED_SCOPED",
+      "original_file_line": "integrations/hermes/upstream/managed-source/agent/contract_execution.py:265-267 la2ca0477",
+      "current_file_lines": [
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:114-119",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:269-273"
+      ],
+      "requirement": "§9.5/§9.10 și C10: bundle-ul retenut al assignmentului constructor-owned valid trebuie să ajungă la callerul real task_result, inclusiv record-refs-v1, fără lookup inline arbitrar, fără succes înaintea tuturor done și fără modificarea limitelor.",
+      "reproducer": "test_actual_producer_run_contract_retains_bundle_and_completes pentru current-compact/current-inline/legacy717-compact/legacy717-inline: actual API compose(method_execution=True) -> stage_payload -> run_contract/BoundContractTools -> MethodCheck. Pe callerul vechi cele două compact ridică KeyError(prompt_bundle) înainte de task_result, după READ/PURE; inline trece.",
+      "remedy_implemented": "După live _guard și method.assignment(self.state.assignment), callerul încarcă aceiași bytes imuabili bounded și folosește existing native expanded_payload(composition.payload, stage.get(record_pool)). Bundle-ul exact retenut este păstrat pe BoundContractTools și trimis la actual method.task_result după READ1/PURE2 și ultimul guard. Fără domain lookup, pin fallback, evaluator suplimentar ori modificarea checkerului/composerului.",
+      "evidence": "RED retained2FAIL/2inlinePASS verificat; GREEN independent4PASS0.86s pe HEAD8ea28b2; retained native/PG2PASS56.81s hash-bound și markers reale corroborate, fără rerulare.",
+      "closure_limit": "Închide defectul de lookup/propagare pe acest snapshot și formele respective. SOURCE state holders nu autentifică constructorul/transportul; PG existent este SOURCE_HOST_NOT_INSTALLED. Nu închide C10 integral."
+    },
+    {
+      "id": "C10-NORM-F01",
+      "status": "RETAINED_CLOSED_SOURCE_SCOPED",
+      "overlap": "C10-SEC-F01",
+      "rationale": "Bundle/version și closure current mandatory versus legacy explicit zero-only sunt neschimbate față de2ca0477. Refolosesc închiderea versionată, nu un audit nou. Remediul actual repară consumerul care transmite acel bundle."
+    },
+    {
+      "id": "C10-SEC-F01",
+      "status": "RETAINED_CLOSED_SOURCE_SCOPED",
+      "rationale": "Validarea retained bundle/version, current empty denial și excepțiile istorice zero-only sunt byte-exact neschimbate; nu transfer autenticitate/installed ori broad coverage."
+    },
+    {
+      "id": "C10-SEC-F02",
+      "status": "RETAINED_CLOSED_SOURCE_SCOPED",
+      "rationale": "Guardurile typed SchemaRef/revision și validarea tuturor nested refs înainte de equality/lookup sunt neschimbate; nu rerulez F02 separat."
+    },
+    {
+      "id": "C10-SEC-F03",
+      "status": "RETAINED_CLOSED_SOURCE_SCOPED",
+      "rationale": "Guardurile step set/Key/existență înainte de lookup și assignment înainte de identity allocation sunt neschimbate; noua expansiune rulează după assignment. Fără broad catch sau regresie statică la acea ordine."
+    },
+    {
+      "id": "C10-SEC-F04",
+      "status": "RETAINED_CLOSED_SOURCE_SCOPED",
+      "rationale": "Actual13 checker source hashes și base blobs sunt identice cu reviewul anterior. Descriptor v2 și exact historical receive-only pairs/regen equality rămân neschimbate; instalarea checkerului istoric rămâne NOT_RUN."
+    }
+  ],
+  "requirement_code_evidence_matrix": [
+    {
+      "requirement": "Actual compact producer și stage, nu compact DTO inventat",
+      "code": "api/tests/test_contract_method_checks.py:235-272; api/src/omnis/modules/tasks/managed_composition.py:222-287,649-691",
+      "assessment": "CONFORM_SCOPED",
+      "evidence": "Helperul apelează actual compose cu method_execution=True și stage_payload înainte de binding/states. Regresia verifică record-refs-v1, lipsa prompt_bundle inline și equality cu bundle-ul exact retenut."
+    },
+    {
+      "requirement": "Constructor-owned bytes -> guard -> assignment -> exact expansion",
+      "code": "integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-88,114-119; integrations/hermes/src/omnis_hermes/contract_method.py:151-191; integrations/hermes/src/omnis_hermes/prompt_bundle.py:962-1046,1049-1099",
+      "assessment": "CONFORM_STATIC_AND_SOURCE_SCOPED",
+      "evidence": "Assignment impune bytes/canonical/v4, validarea stage/composition/entry. Expansiunea reutilizată impune pool exact7/order/refs/digests/IDs și cap32768; inline refuză pool neașteptat. Nu unpack înaintea live native guard în BoundContractTools."
+    },
+    {
+      "requirement": "Callsite real primește bundle-ul după READ/PURE",
+      "code": "integrations/hermes/upstream/managed-source/agent/contract_execution.py:262-284; integrations/hermes/upstream/managed-source/run_agent.py:1025-1027; integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:277-279,424-485",
+      "assessment": "CONFORM_SCOPED",
+      "evidence": "AIAgent forwarder și lifecycle _release_contract apelează același run_contract, cu binding latched și live guard. task_result primește tools.prompt_bundle după ultimul guard. Source4PASS și markerul retained REAL_AIAgent confirmă că nu este numai un helper nefolosit."
+    },
+    {
+      "requirement": "Current predicates/legacy717 și inline controls pe același consumer",
+      "code": "api/tests/test_assignment_compact.py:25-78; api/tests/test_contract_method_checks.py:204-233,293-329",
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "Patru cazuri parametrizate, actual READ_INPUT/PURE_ACTION/PURE_ACTION, două artifacts, trei MethodResults DONE, MethodCheck COMPLETE și două CriterionResults. Current pin4a3606/nonempty versus exact legacy717/zero; inline trece fără record_pool."
+    },
+    {
+      "requirement": "All done necesare; MethodCheck nu este functional PASS",
+      "code": "integrations/hermes/src/omnis_hermes/contract_method.py:207-286; api/src/omnis/modules/tasks/method_checks.py:470-520; p2-bound-predicates-evidence/normative-source-rereview.json",
+      "assessment": "UNCHANGED_APPROVAL_RETAINED",
+      "evidence": "task_result validează predicatele cu retained bundle, cere any return și all done înainte de succes. Checkerul verifică descriptorul/assignmentul și receipts. Retained PG outcomes rămân două BLOCKED cu reason/gaps, nu PASS funcțional. Early partial handoff nu este implementat prin acest fix."
+    },
+    {
+      "requirement": "Helperul nu slăbește oracolul și nu pretinde autentificare",
+      "code": "api/tests/test_contract_method_checks.py:1-6,28-30,61-83,86-115,293-313",
+      "assessment": "CONFORM_SCOPED_WITH_LIMIT",
+      "evidence": "Synthetic SimpleNamespace/ContractState și lambda True sunt explicit SOURCE-only. Outputul și PURE sunt funcțiile reale, nu mock emitters. Case.check folosește obj pe returnul checkerului: type assertion, păstrează dictionary/unknown fields, nu strip/cast nou/ignore ori rezultat sintetic."
+    }
+  ],
+  "executed_verification": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat (main/candidate); git worktree list --porcelain (main); git diff --name-only 2ca04773e3d3e3d9a30d9601ab8dad45756569b0..8ea28b2794912726428fbc3cac6f6d18269be454",
+      "exit_code": 0,
+      "result": "Snapshot exact/clean în candidat; principal și untracked HTML preexistent păstrate; delta exact6."
+    },
+    {
+      "command": "git diff --no-ext-diff --unified=15 2ca04773e3d3e3d9a30d9601ab8dad45756569b0..8ea28b2794912726428fbc3cac6f6d18269be454 -- api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py integrations/hermes/upstream/managed-source/agent/contract_execution.py integrations/hermes/pin.json integrations/hermes/upstream/managed-patch-manifest.json; git diff --no-ext-diff --unified=8 2ca04773e3d3e3d9a30d9601ab8dad45756569b0..8ea28b2794912726428fbc3cac6f6d18269be454 -- integrations/hermes/upstream/omnis-managed.patch; git diff --check 2ca04773e3d3e3d9a30d9601ab8dad45756569b0..8ea28b2794912726428fbc3cac6f6d18269be454",
+      "exit_code": 0,
+      "result": "Delta focalizată și diff-check PASS."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_assignment_compact.py -k actual_producer_run_contract -q --tb=line",
+      "workdir": "/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix",
+      "exit_code": 1,
+      "executed_tests": 0,
+      "status": "NOT_RUN_PRECOLLECTION",
+      "result": "Plugin already registered under a different name: asyncio. Explicit -p pytest_asyncio.plugin se suprapune cu autoloadul pytest; nu eșec de produs și nu RED."
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_assignment_compact.py -k actual_producer_run_contract -q --tb=line",
+      "workdir": "/home/kali/.hermes/cache/scratch/omnis-p2-bound-predicates-nativefix",
+      "exit_code": 0,
+      "passed": 4,
+      "deselected": 3,
+      "seconds": 0.86,
+      "status": "PASS_SOURCE_SCOPED",
+      "result": ".... [100%]; 4 passed, 3 deselected in 0.86s",
+      "limit": "Numai cele patru regresii permise. SOURCE actual producer/caller/checker cu state holders sintetice; nu autentificare, DB, native service sau installed QA."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <stdlib hashlib/json/pathlib/subprocess: six checkpoint hashes before/after, exact paths/head/status, author/source-review/proof hashes, unchanged11 base blobs, unchanged13 checker hashes/base blobs, retained native marker readback, manifest/pin15 SHA and AST, patch new-file byte equality>",
+      "exit_code": 0,
+      "result": "Toate identity/readback assertions trecute; fără imports de helper, repo writes, fixture ori servicii."
+    }
+  ],
+  "red_green": {
+    "red_origin": "Evidență existentă autor, nu rerulată de reviewer",
+    "red_log": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-red-exact.log",
+    "red_log_sha256": "53205f605fec9190e5787509e4c6ba0be6591888935892e849a504cd9e8478f6",
+    "red_exit_code_recorded": 1,
+    "red_result_verified": "2 failed, 2 passed, 3 deselected in 0.96s",
+    "red_failed_cases": ["current-compact", "legacy717-compact"],
+    "red_failure": "Exact KeyError: prompt_bundle la callerul real; două inline controls trecute",
+    "green_origin": "Execuție independentă pe candidatul exact8ea28b2, fără editări",
+    "green_result": "4 passed, 3 deselected in 0.86s; exit0"
+  },
+  "distribution": {
+    "status": "APPROVED_SCOPED_IDENTITY_AND_CHANGED_ARTIFACT",
+    "native_patch_files_count": 15,
+    "all15_managed_source_sha_match_manifest_and_author": true,
+    "all15_ast_parse": "PASS",
+    "patch_manifest_pin_identity": "PASS",
+    "new_file_patch_bytes_equal_contract_execution_source": true,
+    "all_other_patch_sections_byte_identical_to2ca0477": true,
+    "managed_patch_sha256": "bc6e6c95ddbeead56f0b64fdbe01dfa2459b245d5e3e42d67b03e29ead459d97",
+    "managed_manifest_sha256": "9b9f04e5617695abd8e724933080bbf110eef50ac0181f1d79a775cd7fe0f22f",
+    "upstream_contract_execution_sha256": "ac07ddc8979df03d7a92595327ae387a4276392e94dc32e09bfe73d564d12aef",
+    "upstream_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "composer_revision_unchanged": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    "checker_key_unchanged": "managed.contract-pure.v2",
+    "checker_digest_unchanged": "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db",
+    "reapply": {
+      "recorded_author_status": "PASS15_EXACT_SHA",
+      "rerun_by_reviewer": false,
+      "independent_reapply_execution": "NOT_RUN",
+      "limit": "Reutilizez reapply-ul existent din raportul hash-locked; verific independent toate15 identități/source AST și exact secțiunea schimbată a patchului. Nu este build/installed nou."
+    }
+  },
+  "preserved_bounds": {
+    "assignment_bytes": 65536,
+    "wire_context_result_bytes": 32768,
+    "native_deadline_seconds": 4.5,
+    "execution_guard_seconds": 3,
+    "original_three_record_input_preserved": true,
+    "no_timeout_grant_cap_changes": true,
+    "guard_locator": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:424-467",
+    "runtime_inference_authorized": false
+  },
+  "retained_real_native_pg_evidence": {
+    "status": "PASS_SOURCE_HOST_NOT_INSTALLED_RECORDED",
+    "command_recorded": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-c10-native-bundle-consumer-driver.py",
+    "rerun_by_reviewer": false,
+    "new_pg_native_execution": "NOT_RUN",
+    "recorded_result": "2 passed, 5 deselected in 56.81s",
+    "recorded_exit_code": 0,
+    "recorded_family_drained": true,
+    "evidence_origin": "Checkpoint și author report hash-verified; cele două proof JSON și native-observation JSONL hash-verified, public method/predicate/outcome fields și marker counts citite independent. Fără private gate logs/runtime.boot/capabilities/DSN ori cleanup nou pe daemon.",
+    "cases": [
+      {
+        "case": "criteria-normal",
+        "proof": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-qa-evidence/criteria-normal-method-history-proof.json",
+        "proof_sha256": "028ace50d2f8e87ea546caf2f53472dbef0ec8ed85d9e0f022735e0c641aa511",
+        "observation_sha256": "dbdfb68b57c1b2111ac0d694f837f44d1ef12b9cbcd4f8bb87885bfc275eb9fa",
+        "real_aiaagent_run_markers": 1,
+        "read_markers": 1,
+        "pure_handler_markers": 2,
+        "release_marker": "SUCCEEDED",
+        "bound_predicate_marker": {"state": "SATISFIED", "count": 3},
+        "persistent_method_check": "COMPLETE",
+        "criterion_outcomes": ["BLOCKED", "BLOCKED"],
+        "gaps": ["ORACLE_UNAVAILABLE", "CONTROLS_UNAVAILABLE"],
+        "forbidden_native_markers": 0,
+        "inbox_count_recorded": 1,
+        "consumed_count_recorded": 1,
+        "admitted_recorded": 0,
+        "turn_completed_recorded": 0,
+        "reader_count_recorded": 4,
+        "reader_execution_attempts_recorded": 0
+      },
+      {
+        "case": "criteria-legacy717",
+        "proof": "/home/kali/.hermes/cache/scratch/p2-c10-native-bundle-qa-evidence/criteria-legacy717-method-history-proof.json",
+        "proof_sha256": "9c9954606ad2d8200add3f9113c5fda2d52eae530ac3f68fc792b031781a14cb",
+        "observation_sha256": "a6ba82d9d341899b8eb46c06b0e5e0983530bb8c0344600d5dceefb574559ba4",
+        "real_aiaagent_run_markers": 1,
+        "read_markers": 1,
+        "pure_handler_markers": 2,
+        "release_marker": "SUCCEEDED",
+        "bound_predicate_marker_count": 0,
+        "persistent_method_check": "COMPLETE",
+        "criterion_outcomes": ["BLOCKED", "BLOCKED"],
+        "gaps": ["ORACLE_UNAVAILABLE", "CONTROLS_UNAVAILABLE"],
+        "forbidden_native_markers": 0,
+        "inbox_count_recorded": 1,
+        "consumed_count_recorded": 1,
+        "admitted_recorded": 0,
+        "turn_completed_recorded": 0,
+        "reader_count_recorded": 4,
+        "reader_execution_attempts_recorded": 0,
+        "limit": "Producer fresh cu composer717 și checker nou, nu record/checker istoric installed imuabil."
+      }
+    ],
+    "limits": [
+      "Document preparation este prerequisite double declarat; metoda/constructorul/transportul/result/check/persistence și readerii din proba existentă sunt reali în scope-ul ei.",
+      "MethodCheck COMPLETE nu este functional PASS; outcomes BLOCKED păstrează reason-ul lipsei trusted oracle/controls.",
+      "Native exit-9 este teardown bounded, nu dovadă Stop graceful universal.",
+      "Nu pretind instalare OCI, canonical, Brain turn, cleanup nou independent sau SQL census legacy inbox absent din evidență."
+    ]
+  },
+  "retained_failures_and_not_run": [
+    "2ca0477:2FAIL45.19s/exit1/drained păstrat; current RuntimeUnavailable pre-stage rămâne UNKNOWN. Fixul compact nu este retroactiv cauza dovedită a acelui eșec.",
+    "Preflightul runpy unguarded întrerupt la5s:gate130/drained, zero cazuri/product NOT_RUN; nu RED al produsului și nu șters de PASS-ul final.",
+    "Fulltarget C11 FAIL302/303 și canonical snapshot5 FAIL exit2/1491API PASS2FAIL2SKIP rămân istorice.",
+    "SOURCE135/native-build21/Ruff/mypy sunt evidență existentă, nu rerulate aici; numai SOURCE4 a fost executat de acest reviewer.",
+    "Final integrated canonical, installed OCI și immutable old installed checker reader sunt NOT_RUN."
+  ],
+  "remaining_scope_without_new_gates": [
+    "Părintele compară/adjudecă reviewurile complementare și hashes; integrarea byte-exact17paths și canonicalul real final la frontiera integrată rămân ale părintelui, nu executate/aprobate aici.",
+    "C10 integral/B06b/G02/P2 NOT_CLOSED: early partial return bounded cu rezultat parțial persistent încă NOT_IMPLEMENTED; acest fix repară succesul complet existent, nu acea formă.",
+    "Applicability/preconditions/invalidation/obligații evidence-bearing, unknown checker UNKNOWN, generic/multi-procedure și M1/M2 material qualification rămân deschise în contractul existent.",
+    "Formele C04/C11/H07 și binding/lineage/inventar încă neacoperite rămân scoped/open; fără audit general sau input/demo nou.",
+    "B06c/B06m owner reserve comis -> SENT durabil -> transport/receipt UNKNOWN, caps/VALIDATION/concurrency/Stop/retry/fallback/aux sunt PARTIAL_OPEN.",
+    "P2-inert -> P4a-minim -> P2-live rămâne ordinea; P4a-minim nelivrat, live fără autorizare cont/provider/model/date/buget prin acest review."
+  ],
+  "issues_encountered": [
+    {
+      "issue": "Primul pytest exact a refuzat pluginul asyncio încărcat de două ori, înainte de colectare.",
+      "resolution": "Am păstrat eșecul/zero teste și am rerulat numai aceeași selecție cu PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 și pluginul explicit cerut;4PASS. Fără schimbare repo/config/gates."
+    }
+  ],
+  "effect_boundary": {
+    "repository_files_created_or_modified": [],
+    "scratch_files_created": ["/home/kali/.hermes/cache/scratch/p2-c10-nativefix-normative-final-review.json"],
+    "stage_commit_integration": false,
+    "new_database_fixture": false,
+    "daemon_native_service_rerun": false,
+    "broad_suite_run": false,
+    "network_push_models_targets": false,
+    "global_profiles_r1_modified": false,
+    "private_secret_logs_boot_dsn_capability_read_or_emitted": false,
+    "python_flags": ["-I", "-B"],
+    "pytest_cacheprovider": "disabled",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "proposed_status_delta": {
+    "C10_NATIVE_F01": {"implementation": "FIXED_CANDIDATE8ea28b2", "proof": "INDEPENDENT_SOURCE4PASS; REAL_NATIVE_PG2PASS_RECORDED_NOT_RERUN", "review": "APPROVED_SCOPED_NORMATIVE", "integrated": false},
+    "C10_NORM_F01_SEC_F01_F04": "RETAINED_CLOSED_SOURCE_SCOPED_UNCHANGED",
+    "C10_B06b_G02_P2": "PARTIAL_NOT_CLOSED_UNCHANGED",
+    "next": "Părintele adjudecă exact acest raport și reviewul complementar; dacă acceptă, transferă byte-exact diferența finală și verifică frontiera integrată conform gate-ului existent. Nu rerun PG identic ori gate nou prin acest raport."
+  }
+}

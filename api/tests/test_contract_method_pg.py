@@ -464,6 +464,31 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     case_input=case_input,
                     method_execution=method_execution,
                 )
+                # Reconstruct the former inline representation from these exact
+                # retained records; no seed/input/receipt is removed or recomputed.
+                from omnis.modules.settings import candidate_store
+                from omnis.modules.tasks import managed_composition
+
+                if not context_only:
+                    composition = next(r for r in graph if r["kind"] == "prompt-composition")
+                    assert mapping(composition["payload"])["format"] == "record-refs-v1"
+                    stage_payload = managed_composition.stage_payload(graph[-1], graph)
+                    expanded = managed_composition.expanded_payload(
+                        composition["payload"], stage_payload["record_pool"]
+                    )
+                    inline = candidate_store.envelope("prompt-composition", expanded)
+                    original_graph = [inline if r is composition else r for r in graph]
+                    reclaimed = len(canonical(original_graph)) - len(canonical(graph))
+                    assert reclaimed > 0
+                    assert len(canonical(graph)) + source.preparation_bytes <= 65536
+                    assert canonical(
+                        mapping(mapping(sequence(json.loads(str(expanded["text"])))[4])["input"])[
+                            "payload"
+                        ]
+                    ) == canonical(mapping(mapping(case_input)["input"])["payload"])
+                else:
+                    reclaimed = 0
+                    original_graph = graph
                 # Sizes only: no credentials, payload values or receipt capabilities.
                 (tmp_path / "method-build-sizes.json").write_text(
                     json.dumps(
@@ -471,6 +496,14 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             "graph_bytes": len(canonical(graph)),
                             "preparation_bytes": source.preparation_bytes,
                             "total": len(canonical(graph)) + source.preparation_bytes,
+                            "inline_total": len(canonical(original_graph))
+                            + source.preparation_bytes,
+                            "reclaimed_bytes": reclaimed,
+                            "original_input_sha256": sha(
+                                canonical(mapping(mapping(case_input)["input"])["payload"])
+                            )
+                            if case_input is not None
+                            else None,
                             "records": [
                                 {"kind": r["kind"], "bytes": len(canonical(r))} for r in graph
                             ],

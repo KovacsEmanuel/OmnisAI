@@ -40,7 +40,8 @@ PROTOCOL = "omnis-managed-admission-v2"
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
-COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
+METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
+COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -249,6 +250,38 @@ def compose(
         },
     )
     validate(result, version=4 if method_execution else None)
+    if method_execution:
+        compact_sections = [
+            {
+                "section": mapping(s)["section"],
+                "record_ref": records.reference(mapping(mapping(s)["record"])),
+            }
+            for s in sections[:4]
+        ]
+        material = mapping(sections[4])
+        compact_sections.append(
+            {
+                **{k: v for k, v in material.items() if k not in {"context", "input"}},
+                "context_ref": records.reference(mapping(material["context"])),
+                "input_ref": records.reference(mapping(material["input"])),
+            }
+        )
+        compact = {
+            "format": "record-refs-v1",
+            "prompt_bundle_ref": records.reference(bundle),
+            "sections": [*compact_sections, *sections[5:]],
+            **{
+                k: v
+                for k, v in mapping(result["payload"]).items()
+                if k not in {"prompt_bundle", "text"}
+            },
+        }
+        result = records.envelope("prompt-composition", compact)
+        validate(
+            result,
+            version=4,
+            record_pool=[bundle, base, role, brief, bound, material["context"], material["input"]],
+        )
     return result
 
 
@@ -267,12 +300,116 @@ def _authored_text(value: object) -> None:
             _authored_text(child)
 
 
+def compact_refs(body: object) -> list[dict[str, object]]:
+    compact = exact(
+        body,
+        {
+            "format",
+            "prompt_bundle_ref",
+            "preparation_receipt_ref",
+            "sections",
+            "text_digest",
+            "byte_count",
+            "token_upper_bound",
+        },
+    )
+    if compact["format"] != "record-refs-v1":
+        raise CatalogError("COMPOSITION_REJECTED")
+    parts = sequence(compact["sections"])
+    if not 6 <= len(parts) <= 7:
+        raise CatalogError("COMPOSITION_REJECTED")
+    wanted = [ref(compact["prompt_bundle_ref"], "prompt-bundle")]
+    for part, label, kind in zip(
+        parts[:4],
+        ("base", "role", "brief", "method"),
+        ("prompt-content", "prompt-content", "task-brief", "bound-procedure"),
+        strict=True,
+    ):
+        item = exact(part, {"section", "record_ref"})
+        if item["section"] != label:
+            raise CatalogError("COMPOSITION_REJECTED")
+        wanted.append(ref(item["record_ref"], kind))
+    material = exact(parts[4], {"section", "version", "context_ref", "input_ref", "schema"})
+    if material["section"] != "case-input":
+        raise CatalogError("COMPOSITION_REJECTED")
+    version = integer(material["version"], 1, 2)
+    wanted.extend(
+        [
+            ref(material["context_ref"], "contract-input-context"),
+            ref(
+                material["input_ref"],
+                "contract-case-records" if version == 2 else "contract-case-input",
+            ),
+        ]
+    )
+    if len({text(r["id"]) for r in wanted}) != 7:
+        raise CatalogError("COMPOSITION_REJECTED")
+    return wanted
+
+
+def expanded_payload(body: object, record_pool: object = None) -> dict[str, object]:
+    """Resolve only the exact immutable pool; never perform a domain lookup."""
+    source = mapping(body)
+    if "format" not in source:
+        if record_pool is not None:
+            raise CatalogError("COMPOSITION_REJECTED")
+        return source
+    wanted = compact_refs(source)
+    pool = [record(r) for r in sequence(record_pool)]
+    if len(pool) != 7 or [canonical(records.reference(r)) for r in pool] != [
+        canonical(r) for r in wanted
+    ]:
+        raise CatalogError("COMPOSITION_REJECTED")
+    parts = sequence(source["sections"])
+    sections: list[object] = [
+        {"section": mapping(part)["section"], "record": item}
+        for part, item in zip(parts[:4], pool[1:5], strict=True)
+    ]
+    material = mapping(parts[4])
+    sections.extend(
+        [
+            {
+                **{k: v for k, v in material.items() if k not in {"context_ref", "input_ref"}},
+                "context": pool[5],
+                "input": pool[6],
+            },
+            *parts[5:],
+        ]
+    )
+    raw = canonical(sections)
+    if len(raw) > 32768:
+        raise CatalogError("CONTEXT_OVERFLOW")
+    return {
+        "prompt_bundle": pool[0],
+        "text": raw.decode(),
+        **{
+            k: source[k]
+            for k in ("preparation_receipt_ref", "text_digest", "byte_count", "token_upper_bound")
+        },
+    }
+
+
 def validate(
-    value: object, entry: object = None, manifest: object = None, *, version: int | None = None
+    value: object,
+    entry: object = None,
+    manifest: object = None,
+    *,
+    version: int | None = None,
+    record_pool: object = None,
 ) -> dict[str, object]:
     result = record(value, "prompt-composition")
+    compact = "format" in mapping(result["payload"])
+    if (
+        compact
+        and version != 4
+        and (
+            manifest is None
+            or mapping(mapping(manifest)["payload"]).get("composition_version") != 4
+        )
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
     body = exact(
-        result["payload"],
+        expanded_payload(result["payload"], record_pool),
         {
             "prompt_bundle",
             "preparation_receipt_ref",
@@ -303,6 +440,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            METHOD_COMPOSER_REVISION,
             RECORDS_COMPOSER_REVISION,
             CAPTURE_COMPOSER_REVISION,
             LEGACY_COMPOSER_REVISION,
@@ -340,7 +478,9 @@ def validate(
         if has_input
         else 1
     )
-    revisions = {COMPOSER_REVISION}
+    if compact and metadata["composer_revision"] != COMPOSER_REVISION:
+        raise CatalogError("COMPOSITION_REJECTED")
+    revisions = {COMPOSER_REVISION, METHOD_COMPOSER_REVISION}
     if version <= 3:
         revisions.add(RECORDS_COMPOSER_REVISION)
     if version <= 2:
@@ -498,8 +638,17 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         composition = local.get(text(reference["id"]))
         if composition is None:
             raise CatalogError("COMPOSITION_REJECTED")
-        validated = validate(composition, entry, checked)
-        body = mapping(validated["payload"])
+        compact = "format" in mapping(composition["payload"])
+        pool = None
+        if compact:
+            if (
+                mapping(checked["payload"])["composition_version"] != 4
+                or len(sequence(mapping(checked["payload"])["entries"])) != 1
+            ):
+                raise CatalogError("COMPOSITION_REJECTED")
+            pool = [local.get(text(r["id"])) for r in compact_refs(composition["payload"])]
+        validated = validate(composition, entry, checked, record_pool=pool)
+        body = expanded_payload(validated["payload"], pool)
         nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
         sections = sequence(load_json(text(body["text"], 65536)))
         if mapping(checked["payload"])["composition_version"] in (2, 3, 4):
@@ -513,6 +662,7 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         "protocol": contract.manifest_protocol(checked),
         "manifest": checked,
         "compositions": compositions,
+        **({"record_pool": pool} if pool is not None else {}),
     }
     if len(canonical(result)) > 32768:
         raise CatalogError("CONTEXT_OVERFLOW")

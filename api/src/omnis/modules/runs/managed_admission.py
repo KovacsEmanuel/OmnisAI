@@ -986,7 +986,9 @@ class ManagedAdmission:
         ):
             raise CatalogError("PREPARATION_MISMATCH")
         for raw in sequence(payload["compositions"]):
-            body = mapping(mapping(raw)["payload"])
+            body = managed_composition.expanded_payload(
+                mapping(raw)["payload"], payload.get("record_pool")
+            )
             sections = sequence(load_json(text(body["text"], 65536)))
             brief = mapping(mapping(mapping(sections[2])["record"])["payload"])
             technique = ref(sequence(brief["technique_refs"])[0], "technique")

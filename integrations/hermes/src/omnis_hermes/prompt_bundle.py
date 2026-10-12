@@ -53,6 +53,7 @@ CONTRACT_ROLE_TEXT = "SUPPORT-only native CONTRACT/PURE method; not an assessmen
 RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
+METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -346,7 +347,9 @@ def _brief(
         raise reject()
     contexts = sequence(body["context"], 2 + len(input_refs), 2 + len(input_refs))
     for item, expected in zip(
-        contexts, [header["mission_revision"], header["focus_ref"], *input_refs], strict=True
+        contexts,
+        [header["mission_revision"], header["focus_ref"], *input_refs],
+        strict=True,
     ):
         context = obj(item, {"ref", "epistemic_state", "summary", "mandatory"})
         if (
@@ -364,7 +367,8 @@ def _brief(
     integer(reserve["actions"], 0, 0)
     integer(reserve["seconds"], 0, 0)
     bound = obj(
-        method["payload"], {"procedure_ref", "slot_values", "resolved_procedure", "mission_ref"}
+        method["payload"],
+        {"procedure_ref", "slot_values", "resolved_procedure", "mission_ref"},
     )
     reference(bound["procedure_ref"], "procedure")
     reference(bound["mission_ref"], "mission")
@@ -391,7 +395,10 @@ def _brief(
         raise reject()
     expected_requirements = [
         {
-            "ref": {"bound_procedure_ref": ref(method), "requirement_key": mapping(r)["key"]},
+            "ref": {
+                "bound_procedure_ref": ref(method),
+                "requirement_key": mapping(r)["key"],
+            },
             "applicability": "APPLIES",
             "applicability_basis_refs": [],
             "required": mapping(r)["required"],
@@ -441,7 +448,11 @@ def _records_value(schema: dict[str, object], value: object) -> None:
                     "required": ["method", "path", "status"],
                     "properties": {
                         "method": {"type": "string", "enum": methods},
-                        "path": {"type": "string", "maxLength": 240, "pattern": pattern},
+                        "path": {
+                            "type": "string",
+                            "maxLength": 240,
+                            "pattern": pattern,
+                        },
                         "status": {"type": "integer", "minimum": 100, "maximum": 599},
                     },
                 },
@@ -501,7 +512,8 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
     if _case_ref(v["context_ref"], "contract-input-context") != ref(context):
         raise reject()
     provenance = obj(
-        v["provenance"], {"producer_key", "producer_revision", "command_id", "source_kind"}
+        v["provenance"],
+        {"producer_key", "producer_revision", "command_id", "source_kind"},
     )
     uuid(provenance["command_id"])
     if {k: provenance[k] for k in ("producer_key", "producer_revision", "source_kind")} != {
@@ -524,7 +536,8 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
     if not 1 <= len(raw) <= 8192 or raw_text(raw).startswith("\ufeff"):
         raise reject()
     schema = obj(
-        s["document"], {"$schema", "type", "additionalProperties", "required", "properties"}
+        s["document"],
+        {"$schema", "type", "additionalProperties", "required", "properties"},
     )
     if (
         canonical(loads(raw, 8192)) != canonical(schema)
@@ -538,7 +551,10 @@ def _capture_material(value: object, skills: list[object]) -> dict[str, object]:
         _records_value(schema, v["value"])
     else:
         prop = mapping(obj(schema["properties"], {"capture"})["capture"])
-        obj(prop, {"type", "maxLength"} | ({"minLength"} if "minLength" in prop else set()))
+        obj(
+            prop,
+            {"type", "maxLength"} | ({"minLength"} if "minLength" in prop else set()),
+        )
         maximum = integer(prop["maxLength"], 1, 65536)
         minimum = integer(prop.get("minLength", 0), 0, maximum)
         capture = obj(v["value"], {"capture"})["capture"]
@@ -712,7 +728,9 @@ def _material(
     if b["tokenizer_revision"] != "utf8-byte-upper-bound-v1" or b["provenance"] != PROVENANCE:
         raise reject()
     maximum = min(
-        integer(b["max_context_bytes"], 1, 65536), integer(b["max_context_tokens"], 1, 65536), 32768
+        integer(b["max_context_bytes"], 1, 65536),
+        integer(b["max_context_tokens"], 1, 65536),
+        32768,
     )
     if type(payload["text"]) is not str:
         raise reject()
@@ -725,7 +743,7 @@ def _material(
         if not has_capture:
             raise reject()
         actual_version = 4
-    revisions = {composer_revision()}
+    revisions = {composer_revision(), METHOD_COMPOSER_REVISION}
     if actual_version <= 3:
         revisions.add(RECORDS_COMPOSER_REVISION)
     if actual_version <= 2:
@@ -787,10 +805,102 @@ def _material(
     return raw, brief, body
 
 
-def validate_composition(value: object, manifest: object, entry: object) -> bytes:
+def expanded_payload(body: object, record_pool: object = None) -> dict[str, object]:
+    """Expand only exact retained records, before constructor or domain access."""
+    source = mapping(body)
+    if "format" not in source:
+        if record_pool is not None:
+            raise reject()
+        return source
+    obj(
+        source,
+        {
+            "format",
+            "prompt_bundle_ref",
+            "preparation_receipt_ref",
+            "sections",
+            "text_digest",
+            "byte_count",
+            "token_upper_bound",
+        },
+    )
+    if source["format"] != "record-refs-v1":
+        raise reject()
+    parts = sequence(source["sections"], 6, 7)
+    wanted = [reference(source["prompt_bundle_ref"], "prompt-bundle")]
+    for part, label, kind in zip(
+        parts[:4],
+        ("base", "role", "brief", "method"),
+        ("prompt-content", "prompt-content", "task-brief", "bound-procedure"),
+        strict=True,
+    ):
+        item = obj(part, {"section", "record_ref"})
+        if item["section"] != label:
+            raise reject()
+        wanted.append(reference(item["record_ref"], kind))
+    material = obj(parts[4], {"section", "version", "context_ref", "input_ref", "schema"})
+    if material["section"] != "case-input":
+        raise reject()
+    version = integer(material["version"], 1, 2)
+    wanted.extend(
+        [
+            reference(material["context_ref"], "contract-input-context"),
+            reference(
+                material["input_ref"],
+                "contract-case-records" if version == 2 else "contract-case-input",
+            ),
+        ]
+    )
+    pool = [
+        envelope(r, cast(str, pin["kind"]))
+        for r, pin in zip(sequence(record_pool, 7, 7), wanted, strict=True)
+    ]
+    if len({r["id"] for r in pool}) != 7 or [canonical(ref(r)) for r in pool] != [
+        canonical(r) for r in wanted
+    ]:
+        raise reject()
+    sections: list[object] = [
+        {"section": mapping(part)["section"], "record": item}
+        for part, item in zip(parts[:4], pool[1:5], strict=True)
+    ]
+    sections.extend(
+        [
+            {
+                **{k: v for k, v in material.items() if k not in {"context_ref", "input_ref"}},
+                "context": pool[5],
+                "input": pool[6],
+            },
+            *parts[5:],
+        ]
+    )
+    bounded(sections)
+    raw = canonical(sections)
+    if len(raw) > 32768:
+        raise reject()
+    return {
+        "prompt_bundle": pool[0],
+        "text": raw.decode("utf-8"),
+        **{
+            k: source[k]
+            for k in (
+                "preparation_receipt_ref",
+                "text_digest",
+                "byte_count",
+                "token_upper_bound",
+            )
+        },
+    }
+
+
+def validate_composition(
+    value: object, manifest: object, entry: object, *, record_pool: object = None
+) -> bytes:
     composition = envelope(value, "prompt-composition")
+    launch = mapping(envelope(manifest, "launch-manifest")["payload"])
+    if "format" in mapping(composition["payload"]) and launch.get("composition_version") != 4:
+        raise reject()
     payload = obj(
-        composition["payload"],
+        expanded_payload(composition["payload"], record_pool),
         {
             "prompt_bundle",
             "preparation_receipt_ref",
@@ -803,7 +913,23 @@ def validate_composition(value: object, manifest: object, entry: object) -> byte
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
     version = integer(launch.get("composition_version"), 1, 4)
     raw, brief, body = _material(payload, version)
-    e = obj(entry, {"batch_index", "task_id", "attempt_id", "brief_ref", "composition_ref", "goal"})
+    if (
+        "format" in mapping(composition["payload"])
+        and mapping(mapping(payload["prompt_bundle"])["payload"])["composer_revision"]
+        != composer_revision()
+    ):
+        raise reject()
+    e = obj(
+        entry,
+        {
+            "batch_index",
+            "task_id",
+            "attempt_id",
+            "brief_ref",
+            "composition_ref",
+            "goal",
+        },
+    )
     header = mapping(body["header"])
     if (
         ref(composition) != reference(e["composition_ref"], "prompt-composition")

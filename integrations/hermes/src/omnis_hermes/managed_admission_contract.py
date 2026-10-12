@@ -21,7 +21,13 @@ PROTOCOL_V2 = "omnis-managed-admission-v2"
 PROTOCOL_V3 = "omnis-managed-admission-v3"
 PROTOCOL_V4 = "omnis-managed-admission-v4"
 OPS = frozenset(
-    {"task_stage", "task_release", "task_status", "task_model_preflight", "task_model_initialize"}
+    {
+        "task_stage",
+        "task_release",
+        "task_status",
+        "task_model_preflight",
+        "task_model_initialize",
+    }
 )
 RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
@@ -98,7 +104,15 @@ def validate_stage(value: object) -> dict[str, object]:
         PROTOCOL_V3,
         PROTOCOL_V4,
     )
-    value = wire(value, {"manifest", "compositions"} if composed else {"manifest"})
+    compact = type(value) is dict and "record_pool" in value
+    value = wire(
+        value,
+        ({"manifest", "compositions"} | ({"record_pool"} if compact else set()))
+        if composed
+        else {"manifest"},
+    )
+    if compact and value["protocol"] != PROTOCOL_V4:
+        raise ValueError("Invalid compact assignment protocol")
     result = envelope(value["manifest"], "launch-manifest")
     fields = {"run_id", "selection_ref", "resolution", "effective", "entries"}
     if composed:
@@ -130,7 +144,10 @@ def validate_stage(value: object) -> dict[str, object]:
         if type(compositions) is not list or len(compositions) != len(rows):
             raise ValueError("Incomplete compositions")
         for composition, entry in zip(compositions, rows, strict=True):
-            validate_composition(composition, result, entry)
+            body = envelope(composition, "prompt-composition")["payload"]
+            if type(body) is not dict or compact != ("format" in body):
+                raise ValueError("Invalid compact assignment shape")
+            validate_composition(composition, result, entry, record_pool=value.get("record_pool"))
     return result
 
 
@@ -202,7 +219,8 @@ def validate_response(value: object) -> dict[str, object]:
         if type(executions) is not list or len(executions) != 1:
             raise ValueError("Invalid CONTRACT executions")
         execution = obj(
-            executions[0], {"native_child_id", "native_session_id", "brief_ref", "records"}
+            executions[0],
+            {"native_child_id", "native_session_id", "brief_ref", "records"},
         )
         if any(
             execution[k] != rows[0][k]
@@ -232,7 +250,15 @@ def validate_response(value: object) -> dict[str, object]:
 
         result = obj(
             records[0]["payload"],
-            {"header", "status", "method_results", "method_review", "gaps", "usage", *RESULT_EMPTY},
+            {
+                "header",
+                "status",
+                "method_results",
+                "method_review",
+                "gaps",
+                "usage",
+                *RESULT_EMPTY,
+            },
         )
         if (
             result["status"] != "SUCCEEDED"
@@ -464,7 +490,14 @@ def validate_initialization(value: object) -> dict[str, object]:
     receipt = envelope(value["producer_receipt"], "contract-input-command")
     command = obj(
         receipt["payload"],
-        {"version", "owner_id", "command_id", "operation", "request_digest", "result_refs"},
+        {
+            "version",
+            "owner_id",
+            "command_id",
+            "operation",
+            "request_digest",
+            "result_refs",
+        },
     )
     _integer(command["version"], 1, 1)
     uuid(command["owner_id"])

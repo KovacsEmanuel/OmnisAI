@@ -99,6 +99,170 @@ class ContractNative(unittest.TestCase):
         sys.setprofile(self.previous_profile)
         self.assertEqual(self.attempts, [])
 
+    def compact(self):
+        from composition_fixture import ref, seal
+        from omnis_hermes.native_preparation_contract import canonical
+
+        composition = self.payload["compositions"][0]
+        body = composition["payload"]
+        sections = json.loads(body["text"])
+        pool = [
+            body["prompt_bundle"],
+            *[s["record"] for s in sections[:4]],
+            sections[4]["context"],
+            sections[4]["input"],
+        ]
+        compact_sections = [
+            {"section": s["section"], "record_ref": ref(s["record"])} for s in sections[:4]
+        ]
+        compact_sections.append(
+            {
+                **{k: v for k, v in sections[4].items() if k not in {"context", "input"}},
+                "context_ref": ref(pool[5]),
+                "input_ref": ref(pool[6]),
+            }
+        )
+        composition["payload"] = {
+            **{k: v for k, v in body.items() if k not in {"prompt_bundle", "text"}},
+            "format": "record-refs-v1",
+            "prompt_bundle_ref": ref(pool[0]),
+            "sections": [*compact_sections, *sections[5:]],
+        }
+        seal(composition)
+        self.payload["record_pool"] = pool
+        self.payload["manifest"]["payload"]["entries"][0]["composition_ref"] = ref(composition)
+        seal(self.payload["manifest"])
+        return canonical(sections)
+
+    def test_compact_pool_is_lossless_in_real_native_child(self):
+        from omnis_hermes.contract_method import assignment
+        from omnis_hermes.native_preparation_contract import canonical
+
+        expected = self.compact()
+        brief, bound, material = assignment(canonical(self.payload))
+        sections = json.loads(expected)
+        self.assertEqual(
+            (brief, bound, material), (sections[2]["record"], sections[3]["record"], sections[4])
+        )
+        self.stage()
+        final = self.service.release(self.release)
+        self.assertEqual(final["status"], "SUCCEEDED")
+        self.assertEqual(final, self.service.release(self.release))
+
+    def test_compact_bad_pool_refuses_before_real_native_constructor(self):
+        from copy import deepcopy
+
+        from composition_fixture import seal
+        from run_agent import AIAgent
+
+        self.compact()
+        original = deepcopy(self.payload)
+        constructions = []
+        previous = sys.getprofile()
+
+        def observe(frame, event, arg):
+            if event == "call" and (
+                frame.f_code.co_name in {"initialize_contract", "_read_bound_input", "run_handler"}
+                or (
+                    frame.f_code.co_name == "__init__"
+                    and type(frame.f_locals.get("self")) is AIAgent
+                )
+            ):
+                constructions.append(frame.f_code.co_name)
+
+        try:
+            sys.setprofile(observe)
+            for attack in (
+                "missing",
+                "duplicate",
+                "foreign",
+                "altered",
+                "resealed",
+                "bool-ref",
+                "extra",
+                "foreign-header",
+            ):
+                self.payload = deepcopy(original)
+                pool = self.payload["record_pool"]
+                composition = self.payload["compositions"][0]
+                if attack == "missing":
+                    pool.pop()
+                elif attack == "duplicate":
+                    pool.append(deepcopy(pool[-1]))
+                elif attack == "foreign":
+                    pool[-1]["id"] = str(uuid4())
+                    seal(pool[-1])
+                elif attack in ("altered", "resealed"):
+                    pool[-1]["payload"]["value"] = {"capture": "changed"}
+                    if attack == "resealed":
+                        seal(pool[-1])
+                elif attack == "bool-ref":
+                    composition["payload"]["sections"][0]["record_ref"]["revision"] = True
+                    seal(composition)
+                elif attack == "extra":
+                    pool.reverse()
+                else:
+                    self.payload["manifest"]["payload"]["entries"][0]["attempt_id"] = str(uuid4())
+                    seal(self.payload["manifest"])
+                with self.assertRaises(ValueError):
+                    self.service.stage(self.payload)
+            self.assertEqual(constructions, [])
+        finally:
+            sys.setprofile(previous)
+
+    def test_missing_compact_pin_refuses_stage_and_real_constructor_before_identity(self):
+        from copy import deepcopy
+
+        from agent.contract_execution import ContractAdmission
+        from composition_fixture import ref, seal
+        from omnis_hermes.managed_admission_contract import canonical
+        from run_agent import AIAgent
+
+        self.compact()
+        positive = AIAgent(contract_admission=ContractAdmission(self.root, canonical(self.payload)))
+        self.children.append(positive)
+        self.assertIs(type(positive), AIAgent)
+        self.assertIsNone(positive.provider)
+        self.assertEqual(positive.tools, ())
+        self.assertIn("_contract_state", object.__getattribute__(positive, "__dict__"))
+        bad = deepcopy(self.payload)
+        bundle = bad["record_pool"][0]
+        del bundle["payload"]["composer_revision"]
+        seal(bundle)
+        composition = bad["compositions"][0]
+        composition["payload"]["prompt_bundle_ref"] = ref(bundle)
+        seal(composition)
+        bad["manifest"]["payload"]["entries"][0]["composition_ref"] = ref(composition)
+        seal(bad["manifest"])
+        candidate = object.__new__(AIAgent)
+        calls = []
+        previous = sys.getprofile()
+
+        def observe(frame, event, arg):
+            if event == "call" and frame.f_code.co_name in {
+                "initialize_contract",
+                "assignment",
+                "_read_bound_input",
+                "run_handler",
+            }:
+                calls.append(frame.f_code.co_name)
+            if previous:
+                previous(frame, event, arg)
+
+        try:
+            sys.setprofile(observe)
+            with self.assertRaisesRegex(ValueError, "Invalid native preparation"):
+                self.service.stage(bad)
+            self.assertEqual(calls, [])
+            with self.assertRaisesRegex(ValueError, "Invalid native preparation"):
+                AIAgent.__init__(
+                    candidate, contract_admission=ContractAdmission(self.root, canonical(bad))
+                )
+            self.assertEqual(calls, ["initialize_contract", "assignment"])
+            self.assertEqual(object.__getattribute__(candidate, "__dict__"), {})
+        finally:
+            sys.setprofile(previous)
+
     def stage(self):
         from agent.subagent_lifecycle import _REGISTRY
         from composition_fixture import record

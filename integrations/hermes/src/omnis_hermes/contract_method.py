@@ -39,7 +39,13 @@ RECORDS_SCHEMA = _object(
 OPERATIONS_SCHEMA = _object(
     {
         "operations": _array(
-            _object({"method": METHOD, "path": PATH, "statuses": {**_array(STATUS), "minItems": 1}})
+            _object(
+                {
+                    "method": METHOD,
+                    "path": PATH,
+                    "statuses": {**_array(STATUS), "minItems": 1},
+                }
+            )
         )
     }
 )
@@ -131,7 +137,11 @@ def run_handler(handler: str, input_object: object) -> object:
             )
         return {
             "surface_map": [
-                {"path": path, "methods": sorted(methods), "operation_count": len(methods)}
+                {
+                    "path": path,
+                    "methods": sorted(methods),
+                    "operation_count": len(methods),
+                }
                 for path, methods in sorted(methods_by_path.items())
             ]
         }
@@ -149,8 +159,12 @@ def assignment(stage_raw: bytes) -> tuple[Data, Data, Data]:
     if stage["protocol"] != PROTOCOL_V4 or canonical(stage) != stage_raw:
         raise ValueError("CONTRACT v4 assignment required")
     composition = mapping(sequence(stage["compositions"])[0])
-    payload = mapping(composition["payload"])
-    sections = sequence(loads(cast(str, payload["text"]), MAX_BYTES))
+    from .prompt_bundle import validate_composition
+
+    manifest = mapping(stage["manifest"])
+    entry = sequence(mapping(manifest["payload"])["entries"])[0]
+    raw = validate_composition(composition, manifest, entry, record_pool=stage.get("record_pool"))
+    sections = sequence(loads(raw, MAX_BYTES))
     brief, bound = (mapping(mapping(s)["record"]) for s in sections[2:4])
     material = mapping(sections[4])
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
@@ -191,7 +205,11 @@ RESULT_EMPTY = "observation_refs evidence_refs candidate_claims controls contrad
 
 
 def task_result(
-    brief: Data, bound: Data, original: Data, receipts: list[Data], artifacts: list[Data]
+    brief: Data,
+    bound: Data,
+    original: Data,
+    receipts: list[Data],
+    artifacts: list[Data],
 ) -> Data:
     from .managed_admission_contract import ref
 

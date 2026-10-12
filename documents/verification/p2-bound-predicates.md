@@ -8,6 +8,25 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
+## Continuare autorizată — delta finită §7.1
+
+Mandatul CURRENT din handoff a fost transmis de operator. Snapshotul de intrare este `23080706fb6549eaad6679596a700824bf1f833f`, branch `checkpoint/p2-vm-restart-20261011`; fără modificări tracked/staged la intrare, numai HTML-ul protejat preexistent. Contractul de integrare de mai sus rămâne istoric la cele17 paths; continuarea nu reimportă acel candidat și nu redeschide acceptările neschimbate. Comparația read-only de mai jos separă implementarea lipsă de dovada lipsă și live neautorizat; nu acordă închiderea vreunui gate.
+
+| Criteriu §7.1 | Owner / dovadă existentă | Delta rămasă |
+|---|---|---|
+| Transport/izolare H01/H02 | RuntimeHost/NativePeer/RuntimeClient; B05/slot `dfc549a`, H02 `e5edb25`, [H01](p2-b05-h01-gate.json) scoped | Numai scenariile obligatorii lipsă la consumerul extins: reverse/EOF/timeout/backpressure/unknown-method/no-personal-grants/drain; simulation și native sunt distincte |
+| Catalog/publicare | Settings catalog/store → snapshot; [C01](p2-b06b-c01-close.json), [records](p2-b06b-c03-records-close.json) `20611d1` | Niciun gap nou stabilit în subsetul seed/Publish acceptat; fără alt demo/input. Editor/catalog larg P4b separat |
+| Brief/composer/metodă | `run_contract` → `contract_method.task_result` → `method_checks` → `ManagedAdmission._result_check`; C04 `77c835d`, C10 `25395bd` | Funcție nelivrată: prefix autentic → rezultat parțial persistent → INCOMPLETE, fără SUCCEEDED automat; apoi applicability/preconditions/invalidation/evidence/optional/UNKNOWN și formele contractate restante |
+| Binding/inventar H03–H05 | NativeTaskOwner/binding/lifecycle; [C05](p2-b06b-composition-close.json) `907566d`, records și metoda nativă scoped | Restul obligatoriu root/child/batch/attempt, identical goals/observer/wrong-identity deny, inventar și lineage autentic ori refuz pre-access; compresia care cere inferență rămâne live |
+| Rezultat/inbox H06/H07 | Host receive-only/store/inbox/reconcile; history `93b7700`, [same-Host lost reply](p2-method-lost-reply-close.json) `d7a51f3` | M1/M2 și calificare materială după invalidare; formele C11/H07/restart și readerul istoric installed neprobate. Same-Host cache nu este restart runtime; fără wake/dublu usage/consum |
+| DATA B06c | ModelProjections → ModelDispatch → NativeTaskOwner/model_preflight → guard; [I1/P02](p2-integration-b06cm.md), [DTO/SDK](p2-final-dto-20261011.md) `c78dd50` scoped | Producer/proiecție/decizie calificate și guard integral pe consumerul inert extins, sentinel input/result/error/log; identitățile sintetice nu sunt autoritate de turn/config/model |
+| Admission B06m/H08 | NativeTaskOwner/ModelDispatch și `policy/budgets.py` reserve/mark_sent/settle; [ledger PG](p2-b06m-pg-contract.md) accounting-only | Caller de produs reserve COMIS → SENT durabil → protocol inert → receipt/UNKNOWN, Stop/caps/VALIDATION/concurență/retry. `policy/admission.py` nu există la intrare; financial limit BLOCKED, seamul nativ legitim înainte live |
+| Acceptare snapshot final | [Canonical3](p2-bound-predicates-canonical-pass.json) `ff095af` PASS scoped pe produsul anterior | Review/QA pe bytes și consumeri afectați, canonical real pe snapshotul final de integrare/fază, cleanup/readback/date păstrate. PASS anterior nu certifică funcțiile încă nelivrate |
+
+Prima felie are un singur autor de cod: predare bounded selectată explicit pe metoda records existentă, după read și primul PURE real, cu toate cerințele/refs/gaps și verificarea independentă a prefixului. Traseul complet rămâne implicit; compact/inline și compatibilitatea istorică admisă se păstrează. Testele noi acoperă această lipsă și refuzul lanțurilor rupte, nu un fault injectat prezentat drept pozitiv. Persistarea precede MethodCheck; reconcile/readback nu reexecută metoda. Frontieră: callerii/validatorii/schema/finalul nativ existenți și distribuția pin/patch necesară, fără migrație preventivă, owner/harness/demo nou sau provider. Rezultatul este încă ÎN LUCRU, nu acceptat prin acest contract.
+
+Ordinea autorizată este restB06b → B06c/B06m → acceptare P2-inert → P4a-minim; continuarea inertă nu cere reaprobări cosmetice. Live cere separat cont/provider/model/date/buget și run/selection/manifest noi. N01 LOW/deferred rămâne neblocant; defects închise scoped nu se redeschid fără reproducer nou.
+
 ## Integrare și adjudecare
 
 - Principal la intrare: `097243d227b8ed5765efa6a52c2c7c2651f03b49`, branch `checkpoint/p2-vm-restart-20261011`. Singurul untracked preexistent este HTML-ul protejat; SHA `783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f`, neschimbat la integrare.

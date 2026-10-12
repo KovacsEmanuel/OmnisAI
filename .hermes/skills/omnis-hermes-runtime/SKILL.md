@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.6
+version: 0.1.7
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -48,6 +48,9 @@ Route an inert preparation command through the supervisor's already-connected Ru
 
 - Guard import-time provider discovery as well as client construction. A native import can consult credential sources before an agent exists; exercise the installed pin in a fresh home and record attempted reads independently before a guard raises.
 - Bind each staged batch to its original root object and immutable native/session IDs. Recheck that same live root under the registry lock before replay-as-admission and first release; a different live resolver root cannot revive pending children. Keep terminal receipt readback receive-only and separate from new authority.
+- Keep finite deterministic method execution in a constructor-owned mode distinct from cold refusal and warm/model initialization. Trace import-time stock tool/plugin discovery even when the instance inventory is empty; exclude an unused stock-only helper only at the audited inert pin and preserve the ordinary nonmanaged control. A real method result does not certify an inference turn.
+- Maintain the same real supervisor lease producer in a long disposable consumer probe rather than extending its TTL/grant or forging authority; stop renewal before the Stop scenario. Precompute stable audit roots and profile only relevant Python events so observation does not dominate the immutable operation budget. Separate wrapper and implementation frames when counting one native invocation.
+- Retire an interrupted preobtained-grant exchange before leaving its held fence, preserving committed intent and the original exception without a second grant or resend. Test cancellation after actual writer drain on the real IPC stream. On Python 3.13, close active server clients before `Server.wait_closed`; prove exit, EOF, exact endpoint/lock cleanup and reuse on a live idle-client control.
 
 ## SDK-only preparation
 

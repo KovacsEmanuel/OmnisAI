@@ -62,8 +62,8 @@
     },
     "agent/contract_execution.py": {
       "original_sha256": null,
-      "patched_sha256": "93daa8ec93bbbedc7e0d34e33be0892ee5389070ef7819231e1f8c14a4c9d068"
+      "patched_sha256": "ac07ddc8979df03d7a92595327ae387a4276392e94dc32e09bfe73d564d12aef"
     }
   },
-  "patch_sha256": "2decfa157e01475c0f706cf34706c591015dff5ddbe094cd7544faf9b767492d"
+  "patch_sha256": "bc6e6c95ddbeead56f0b64fdbe01dfa2459b245d5e3e42d67b03e29ead459d97"
 }

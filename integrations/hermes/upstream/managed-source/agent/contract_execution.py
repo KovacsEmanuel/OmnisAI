@@ -13,6 +13,7 @@ from uuid import uuid4
 from agent.cold_admission import ColdAdmissionDenied, ColdState
 from omnis_hermes.managed_admission_contract import canonical, ref, validate_release
 from omnis_hermes.native_preparation_contract import loads
+from omnis_hermes.prompt_bundle import expanded_payload
 from omnis_hermes import contract_method as method
 
 
@@ -112,6 +113,10 @@ class BoundContractTools:
         )
         self._guard()  # no method-material unpacking before the live native guard
         self.brief, self.bound, self.material = method.assignment(self.state.assignment)
+        stage = loads(self.state.assignment, 65536)  # validated before bundle expansion
+        self.prompt_bundle = expanded_payload(
+            stage["compositions"][0]["payload"], stage.get("record_pool")
+        )["prompt_bundle"]
         self.original_ref = ref(self.material["input"])
         self.receipts, self.artifacts = [], []
         self.read = False
@@ -263,7 +268,8 @@ def run_contract(agent, binding, guard):
             )
         tools._guard()
         result = method.task_result(
-            tools.brief, tools.bound, original, tools.receipts, tools.artifacts
+            tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
+            prompt_bundle=tools.prompt_bundle,
         )
         tools._bounded([result])
         execution = {

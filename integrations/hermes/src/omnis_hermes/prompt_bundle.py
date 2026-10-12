@@ -55,6 +55,7 @@ LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf66
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
 COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
+CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -283,11 +284,133 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
     return p
 
 
+# Fixed trusted registry, bound through the published records requirements.
+RECORD_PREDICATES = {
+    "normalize-records": ("normalize-operations", "OUTPUT"),
+    "build-surface-map": ("build-map", "OUTPUT"),
+    "preserve-input-context": ("normalize-operations", "INPUT"),
+}
+
+
+def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
+    p = mapping(procedure)
+    if not {"key", "input_schema_ref", "probe", "method_requirements"} <= set(p):
+        raise reject()
+    if key(p["key"]) != "map-records":
+        raise reject()
+    reference(p["input_schema_ref"], "schema")
+    steps: dict[str, dict[str, object]] = {}
+    for raw in sequence(p["probe"]):
+        row = mapping(raw)
+        if not {"id", "output_schema_ref"} <= set(row):
+            raise reject()
+        name = key(row["id"])
+        reference(row["output_schema_ref"], "schema")
+        if name in steps:
+            raise reject()
+        steps[name] = row
+    if list(steps) != ["normalize-operations", "build-map"]:
+        raise reject()
+    requirements = [mapping(r) for r in sequence(p["method_requirements"])]
+    for row in requirements:
+        if set(row) != {
+            "key",
+            "description",
+            "required",
+            "applies_if",
+            "step_ids",
+            "artifact_schema_refs",
+            "evidence_kinds",
+        }:
+            raise reject()
+        key(row["key"])
+        for step_id in sequence(row["step_ids"]):
+            key(step_id)
+        for schema_ref in sequence(row["artifact_schema_refs"]):
+            reference(schema_ref, "schema")
+    if [r["key"] for r in requirements] != list(RECORD_PREDICATES):
+        raise reject()
+    result: dict[str, dict[str, object]] = {}
+    for requirement in requirements:
+        name = key(requirement["key"])
+        step, source = RECORD_PREDICATES[name]
+        schema = p["input_schema_ref"] if source == "INPUT" else steps[step]["output_schema_ref"]
+        if (
+            requirement["step_ids"] != [step]
+            or requirement["artifact_schema_refs"] != [schema]
+            or requirement["applies_if"] != []
+            or requirement["evidence_kinds"] != []
+            or type(requirement["required"]) is not bool
+            or requirement["required"] is not (source == "OUTPUT")
+        ):
+            raise reject()
+        result[name] = requirement
+    return result
+
+
+def validate_predicates(
+    body: object, bound: object, *, prompt_bundle: object = None, composition_version: object = None
+) -> None:
+    b = mapping(body)
+    for field in ("done_when", "return_when"):
+        seen: set[bytes] = set()
+        for raw in sequence(b[field]):
+            row = obj(raw, {"bound_procedure_ref", "predicate_id"})
+            reference(row["bound_procedure_ref"], "bound-procedure")
+            key(row["predicate_id"])
+            if canonical(row) in seen:
+                raise reject()
+            seen.add(canonical(row))
+    r = envelope(bound, "bound-procedure")
+    required = False
+    if prompt_bundle is not None:
+        bundle = envelope(prompt_bundle, "prompt-bundle")
+        if canonical(reference(b["prompt_bundle_ref"], "prompt-bundle")) != canonical(ref(bundle)):
+            raise reject()
+        version = integer(composition_version, 1, 4)
+        pin = mapping(bundle["payload"])["composer_revision"]
+        revisions = {
+            composer_revision(),
+            CRITERIA_COMPOSER_REVISION,
+            COMPACT_COMPOSER_REVISION,
+            METHOD_COMPOSER_REVISION,
+        }
+        if version <= 3:
+            revisions.add(RECORDS_COMPOSER_REVISION)
+        if version <= 2:
+            revisions.add(CAPTURE_COMPOSER_REVISION)
+        if version == 1:
+            revisions.add(LEGACY_COMPOSER_REVISION)
+        if type(pin) is not str or pin not in revisions:
+            raise reject()
+        procedure = mapping(mapping(r["payload"])["resolved_procedure"])
+        required = version == 4 and pin == composer_revision() and procedure["key"] == "map-records"
+        if (b["done_when"] or b["return_when"]) and (version != 4 or pin != composer_revision()):
+            raise reject()
+    if not b["done_when"] and not b["return_when"] and not required:
+        return  # Structural-only calls confer no completion; consumers supply the retained bundle.
+
+    closure = predicate_closure(mapping(r["payload"])["resolved_procedure"])
+    for field in ("done_when", "return_when"):
+        for raw in sequence(b[field]):
+            row = mapping(raw)
+            if (
+                canonical(row["bound_procedure_ref"]) != canonical(ref(r))
+                or row["predicate_id"] not in closure
+            ):
+                raise reject()
+    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != list(closure) or not b[
+        "return_when"
+    ]:
+        raise reject()
+
+
 def _brief(
     value: object,
     method: dict[str, object],
     bundle: dict[str, object],
     capture: dict[str, object] | None = None,
+    composition_version: int = 1,
 ) -> dict[str, object]:
     body = obj(value, BRIEF_FIELDS)
     role = text(body["role"])
@@ -299,8 +422,6 @@ def _brief(
         raise reject()
     for field in (
         "operation_refs",
-        "done_when",
-        "return_when",
         "contradiction_refs",
         "prior_attempt_refs",
         "overlay_refs",
@@ -373,6 +494,11 @@ def _brief(
         {"procedure_ref", "slot_values", "resolved_procedure", "mission_ref"},
     )
     reference(bound["procedure_ref"], "procedure")
+    validate_predicates(body, method, prompt_bundle=bundle, composition_version=composition_version)
+    if (body["done_when"] or body["return_when"]) and mapping(bundle["payload"])[
+        "composer_revision"
+    ] != composer_revision():
+        raise reject()
     reference(bound["mission_ref"], "mission")
     slots = [] if capture is None else [{"slot_name": input_name, "refs": input_refs}]
     if bound["mission_ref"] != header["mission_revision"] or canonical(
@@ -761,7 +887,12 @@ def _material(
         if not has_capture:
             raise reject()
         actual_version = 4
-    revisions = {composer_revision(), METHOD_COMPOSER_REVISION, COMPACT_COMPOSER_REVISION}
+    revisions = {
+        composer_revision(),
+        METHOD_COMPOSER_REVISION,
+        COMPACT_COMPOSER_REVISION,
+        CRITERIA_COMPOSER_REVISION,
+    }
     if actual_version <= 3:
         revisions.add(RECORDS_COMPOSER_REVISION)
     if actual_version <= 2:
@@ -805,9 +936,10 @@ def _material(
         r["id"] for r in [bundle, *checked]
     }:
         raise reject()
-    body = _brief(brief["payload"], method, bundle, capture)
+    body = _brief(brief["payload"], method, bundle, capture, actual_version)
     if body["criterion_bindings"] and (
-        not contract_method or b["composer_revision"] != composer_revision()
+        not contract_method
+        or b["composer_revision"] not in {composer_revision(), CRITERIA_COMPOSER_REVISION}
     ):
         raise reject()
     if obj(role["payload"], {"role", "text"}) != {
@@ -937,7 +1069,11 @@ def validate_composition(
     raw, brief, body = _material(payload, version)
     if "format" in mapping(composition["payload"]) and mapping(
         mapping(payload["prompt_bundle"])["payload"]
-    )["composer_revision"] not in {composer_revision(), COMPACT_COMPOSER_REVISION}:
+    )["composer_revision"] not in {
+        composer_revision(),
+        COMPACT_COMPOSER_REVISION,
+        CRITERIA_COMPOSER_REVISION,
+    }:
         raise reject()
     e = obj(
         entry,

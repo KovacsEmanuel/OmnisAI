@@ -204,16 +204,86 @@ def record(kind: str, payload: object) -> Data:
 RESULT_EMPTY = "observation_refs evidence_refs candidate_claims controls contradiction_refs next_clues consumed_input_refs criterion_results action_refs effect_refs cleanup_refs".split()
 
 
+def predicate_values(
+    brief: Data,
+    bound: Data,
+    original: Data,
+    receipts: list[Data],
+    artifacts: list[Data],
+    *,
+    prompt_bundle: Data,
+) -> dict[str, bool]:
+    from .managed_admission_contract import ref
+    from .prompt_bundle import RECORD_PREDICATES, predicate_closure, validate_predicates
+
+    body = mapping(brief["payload"])
+    validate_predicates(body, bound, prompt_bundle=prompt_bundle, composition_version=4)
+    if not body["done_when"] and not body["return_when"]:
+        return {}
+    procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+    closure = predicate_closure(procedure)
+    header = body["header"]
+    steps = {mapping(s)["id"]: mapping(s) for s in sequence(procedure["probe"])}
+    values: dict[str, bool] = {}
+    for name, requirement in closure.items():
+        step_id, source = RECORD_PREDICATES[name]
+        step = steps[step_id]
+        matches = [r for r in receipts if mapping(r["payload"])["step_id"] == step_id]
+        outputs = [
+            a for a in artifacts if mapping(a["payload"])["schema_ref"] == step["output_schema_ref"]
+        ]
+        satisfied = len(matches) == 1 and len(outputs) == 1
+        if satisfied:
+            receipt, artifact = mapping(matches[0]["payload"]), mapping(outputs[0]["payload"])
+            validate_value(OUTPUT_SCHEMAS[step_id], artifact["value"])
+            satisfied = (
+                receipt["header"] == header
+                and artifact["header"] == header
+                and receipt["operation"] == "PURE_ACTION"
+                and receipt["action_definition_ref"] == step["action_definition_ref"]
+                and receipt["output_ref"] == ref(outputs[0])
+            )
+        if source == "INPUT":
+            reads = [r for r in receipts if mapping(r["payload"])["operation"] == "READ_INPUT"]
+            satisfied = satisfied and len(reads) == 1
+            if satisfied:
+                read = mapping(reads[0]["payload"])
+                satisfied = (
+                    read["header"] == header
+                    and read["input_refs"] == [ref(original)]
+                    and read["output_ref"] == ref(original)
+                    and mapping(original["payload"])["schema_ref"]
+                    == sequence(requirement["artifact_schema_refs"])[0]
+                )
+        values[name] = satisfied
+    return values
+
+
 def task_result(
     brief: Data,
     bound: Data,
     original: Data,
     receipts: list[Data],
     artifacts: list[Data],
+    *,
+    prompt_bundle: Data,
 ) -> Data:
     from .managed_admission_contract import ref
 
     body = mapping(brief["payload"])
+    values = predicate_values(
+        brief, bound, original, receipts, artifacts, prompt_bundle=prompt_bundle
+    )
+    # A return predicate can permit handoff, but never bypass every done predicate.
+    if values:
+        if not any(
+            values[cast(str, mapping(r)["predicate_id"])] for r in sequence(body["return_when"])
+        ):
+            raise ValueError("BOUND_RETURN_UNSATISFIED")
+        if not all(
+            values[cast(str, mapping(r)["predicate_id"])] for r in sequence(body["done_when"])
+        ):
+            raise ValueError("BOUND_DONE_UNSATISFIED")
     requirements = sequence(
         mapping(mapping(bound["payload"])["resolved_procedure"])["method_requirements"]
     )

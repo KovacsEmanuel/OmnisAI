@@ -18,9 +18,65 @@ from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_composition
 from omnis.modules.tasks.managed_contract import text
+from test_contract_method_checks import native_case
 from test_contract_method_checks import obj as mapping
 from test_contract_method_checks import rows as sequence
 from test_contract_method_producer import method_graph
+
+
+@pytest.mark.parametrize("compact", [True, False], ids=["compact", "inline"])
+@pytest.mark.parametrize("predicates", [True, False], ids=["current", "legacy717"])
+def test_actual_producer_run_contract_retains_bundle_and_completes(
+    compact: bool,
+    predicates: bool,
+) -> None:
+    """Real SOURCE producer/caller; synthetic state is not native authority."""
+    case = native_case(
+        compact=compact,
+        predicates=predicates,
+        criterion_ids=[str(uuid4()), str(uuid4())],
+    )
+    composition = mapping(sequence(case.stage["compositions"])[0])
+    body = mapping(composition["payload"])
+    if compact:
+        assert body["format"] == "record-refs-v1" and "prompt_bundle" not in body
+        expanded = managed_composition.expanded_payload(body, case.stage["record_pool"])
+        assert canonical(expanded["prompt_bundle"]) == canonical(case.prompt_bundle)
+    else:
+        assert body["prompt_bundle"] == case.prompt_bundle and "record_pool" not in case.stage
+    pin = mapping(case.prompt_bundle["payload"])["composer_revision"]
+    assert pin == (
+        managed_composition.COMPOSER_REVISION
+        if predicates
+        else managed_composition.CRITERIA_COMPOSER_REVISION
+    )
+    brief = mapping(case.brief["payload"])
+    assert bool(brief["done_when"]) is predicates
+    assert bool(brief["return_when"]) is predicates
+    result = mapping(sequence(case.execution["records"])[0])
+    receipts = [
+        mapping(r)
+        for r in sequence(case.execution["records"])
+        if mapping(r)["kind"] == "contract-tool-receipt"
+    ]
+    artifacts = [
+        mapping(r)
+        for r in sequence(case.execution["records"])
+        if mapping(r)["kind"] == "contract-artifact"
+    ]
+    assert [mapping(r["payload"])["operation"] for r in receipts] == [
+        "READ_INPUT",
+        "PURE_ACTION",
+        "PURE_ACTION",
+    ]
+    assert len(artifacts) == 2
+    assert mapping(receipts[0]["payload"])["input_refs"] == [records.reference(case.original)]
+    assert mapping(case.execution)["brief_ref"] == records.reference(case.brief)
+    methods = sequence(mapping(result["payload"])["method_results"])
+    assert len(methods) == 3 and all(mapping(r)["state"] == "DONE" for r in methods)
+    assert mapping(case.check()["payload"])["status"] == "COMPLETE"
+    assert len(sequence(mapping(result["payload"])["criterion_results"])) == 2
+    assert mapping(result["payload"])["effect_refs"] == []
 
 
 def missing_composer_pin(stage: dict[str, object]) -> dict[str, object]:

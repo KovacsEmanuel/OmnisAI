@@ -29,6 +29,10 @@ def method_fixture(records=False, value=None):
     payload = stage["compositions"][0]["payload"]
     sections = json.loads(payload["text"])
     bundle = payload["prompt_bundle"]
+    if records:
+        from omnis_hermes.prompt_bundle import CRITERIA_COMPOSER_REVISION
+
+        bundle["payload"]["composer_revision"] = CRITERIA_COMPOSER_REVISION
     for index, text in ((0, BASE), (1, ROLE)):
         sections[index]["record"]["payload"]["text"] = text
         seal(sections[index]["record"])

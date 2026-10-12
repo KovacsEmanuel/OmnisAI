@@ -398,26 +398,91 @@ def _schemas(original: Data, artifacts: list[Data], schemas: dict[str, Data]) ->
             raise CatalogError("METHOD_SCHEMA_MISMATCH") from None
 
 
+def _predicates(
+    brief: Data,
+    bound: Data,
+    original: Data,
+    receipts: list[Data],
+    artifacts: list[Data],
+    *,
+    prompt_bundle: Data,
+    composition_version: object,
+) -> None:
+    body = contract.mapping(brief["payload"])
+    contract.validate_predicates(
+        body, bound, prompt_bundle=prompt_bundle, composition_version=composition_version
+    )
+    if not body["done_when"] and not body["return_when"]:
+        return
+    procedure = contract.mapping(contract.mapping(bound["payload"])["resolved_procedure"])
+    closure = contract.predicate_closure(procedure)
+    values: dict[str, bool] = {}
+    for name, requirement in closure.items():
+        step_id, source = contract.RECORD_PREDICATES[name]
+        matching = [r for r in receipts if contract.mapping(r["payload"])["step_id"] == step_id]
+        outputs = [
+            a
+            for a in [original, *artifacts]
+            if contract.mapping(a["payload"])["schema_ref"]
+            == contract.sequence(requirement["artifact_schema_refs"])[0]
+        ]
+        satisfied = len(matching) == 1 and len(outputs) == 1
+        if satisfied:
+            receipt = contract.mapping(matching[0]["payload"])
+            satisfied = (
+                receipt["header"] == body["header"]
+                and receipt["operation"] == "PURE_ACTION"
+                and (source == "INPUT" or receipt["output_ref"] == records.reference(outputs[0]))
+            )
+        values[name] = satisfied
+    if not all(
+        values[contract.text(contract.mapping(r)["predicate_id"])]
+        for r in contract.sequence(body["done_when"])
+    ) or not any(
+        values[contract.text(contract.mapping(r)["predicate_id"])]
+        for r in contract.sequence(body["return_when"])
+    ):
+        raise CatalogError("BOUND_PREDICATE_GAP")
+
+
 def check_execution(
     brief: object,
     bound: object,
     binding: object,
     execution: object,
-    checker_ref: object,
+    checker: object,
     input_record: object,
     actions: list[dict[str, object]],
     schemas: dict[str, dict[str, object]],
     owner_id: str,
+    *,
+    prompt_bundle: Data,
+    composition_version: object,
+    receive_only: bool = False,
 ) -> dict[str, object]:
     """Return COMPLETE only for the exact receipt chain; malformed/unknown refuses.
 
     Caller owns native authentication, qualification and persistence. This pure
     function validates retained record references and never creates execution
-    evidence. Nonempty bound predicates are deliberately unsupported.
+    evidence. Only source-pinned records predicates are supported.
     """
     try:
         checked_brief = contract.validate_brief(brief)
-        contract.validate_assignment(checked_brief, bound)
+        from omnis.modules.tasks.method_checker_identity import verify
+
+        body = contract.mapping(checked_brief["payload"])
+        checked_checker = verify(
+            checker,
+            pin=contract.text(contract.mapping(prompt_bundle["payload"])["composer_revision"]),
+            receive_only=receive_only,
+            zero_predicates=body["done_when"] == [] and body["return_when"] == [],
+        )
+        contract.validate_assignment(
+            checked_brief,
+            bound,
+            prompt_bundle=prompt_bundle,
+            composition_version=composition_version,
+        )
         checked_bound = _record(bound, "bound-procedure", RECEIPT)
         checked_execution = _exact(
             execution,
@@ -489,12 +554,21 @@ def check_execution(
             if error.reason == UNSUPPORTED:
                 raise
             raise CatalogError(CONFLICT) from None
+        _predicates(
+            checked_brief,
+            checked_bound,
+            original,
+            receipts,
+            artifacts,
+            prompt_bundle=prompt_bundle,
+            composition_version=composition_version,
+        )
         return records.envelope(
             "method-check",
             {
                 "brief_ref": records.reference(checked_brief),
                 "task_result_ref": records.reference(result),
-                "checker_ref": contract.ref(checker_ref, "method-checker"),
+                "checker_ref": records.reference(checked_checker),
                 "status": "COMPLETE",
                 "checked_results": checked_results,
                 "gap_refs": [],

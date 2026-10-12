@@ -730,11 +730,20 @@ class ManagedAdmission:
             bound,
             binding,
             execution,
-            checker_ref,
+            local[uuid_string(checker_ref["id"])],
             original,
             [r for r in values if r["kind"] == "action_definition"],
             schemas,
             owner,
+            prompt_bundle=local[
+                uuid_string(ref(brief_body["prompt_bundle_ref"], "prompt-bundle")["id"])
+            ],
+            composition_version=mapping(manifest["payload"])["composition_version"],
+            receive_only=any(
+                r["kind"] == "method-check"
+                and mapping(r["payload"]).get("task_result_ref") == catalog.reference(result)
+                for r in values
+            ),
         )
 
     async def _method_schemas(
@@ -940,7 +949,19 @@ class ManagedAdmission:
                 raise CatalogError("CURSOR_UNAVAILABLE")
             contract.validate_cursor(header, cursor, local[run])
             bound_ref = ref(mapping(sequence(body["procedure_bindings"])[0])["bound_procedure_ref"])
-            contract.validate_assignment(brief, local[uuid_string(bound_ref["id"])])
+            bundle = local[uuid_string(ref(body["prompt_bundle_ref"], "prompt-bundle")["id"])]
+            manifests = [r for r in graph if r["kind"] == "launch-manifest"]
+            version = (
+                mapping(manifests[0]["payload"]).get("composition_version", 1)
+                if len(manifests) == 1
+                else 1
+            )
+            contract.validate_assignment(
+                brief,
+                local[uuid_string(bound_ref["id"])],
+                prompt_bundle=bundle,
+                composition_version=version,
+            )
             from omnis.modules.tasks import criterion_checks
 
             criterion_checks.validate_assignment(

@@ -20,6 +20,150 @@ BRIEF_FIELDS = set(
 RESULT_EMPTY = "observation_refs evidence_refs candidate_claims controls contradiction_refs next_clues consumed_input_refs criterion_results action_refs effect_refs cleanup_refs".split()
 
 
+# Installed, source-pinned predicates for the existing records method. These
+# names are not package functions: each must bind to this exact requirement and
+# its resolved step/schema closure. Other procedure forms remain unsupported.
+RECORD_PREDICATES = {
+    "normalize-records": ("normalize-operations", "OUTPUT"),
+    "build-surface-map": ("build-map", "OUTPUT"),
+    "preserve-input-context": ("normalize-operations", "INPUT"),
+}
+
+
+def predicate_key(value: object) -> str:
+    import re
+
+    result = text(value, 128)
+    if re.fullmatch(r"[a-z][a-z0-9_.-]{0,127}", result) is None:
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    return result
+
+
+def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
+    p = mapping(procedure)
+    if not {"key", "input_schema_ref", "probe", "method_requirements"} <= set(p):
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    if predicate_key(p["key"]) != "map-records":
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    ref(p["input_schema_ref"], "schema")
+    steps: dict[str, dict[str, object]] = {}
+    for raw in sequence(p["probe"]):
+        row = mapping(raw)
+        if not {"id", "output_schema_ref"} <= set(row):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        name = predicate_key(row["id"])
+        ref(row["output_schema_ref"], "schema")
+        if name in steps:
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        steps[name] = row
+    if list(steps) != ["normalize-operations", "build-map"]:
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    requirements = [mapping(r) for r in sequence(p["method_requirements"])]
+    for row in requirements:
+        if set(row) != {
+            "key",
+            "description",
+            "required",
+            "applies_if",
+            "step_ids",
+            "artifact_schema_refs",
+            "evidence_kinds",
+        }:
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        predicate_key(row["key"])
+        for step_id in sequence(row["step_ids"]):
+            predicate_key(step_id)
+        for schema_ref in sequence(row["artifact_schema_refs"]):
+            ref(schema_ref, "schema")
+    if [r["key"] for r in requirements] != list(RECORD_PREDICATES):
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    result: dict[str, dict[str, object]] = {}
+    for requirement in requirements:
+        name = text(requirement["key"], 128)
+        step, source = RECORD_PREDICATES[name]
+        schema = p["input_schema_ref"] if source == "INPUT" else steps[step]["output_schema_ref"]
+        if (
+            requirement["step_ids"] != [step]
+            or requirement["artifact_schema_refs"] != [schema]
+            or requirement["applies_if"] != []
+            or requirement["evidence_kinds"] != []
+            or type(requirement["required"]) is not bool
+            or requirement["required"] is not (source == "OUTPUT")
+        ):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        result[name] = requirement
+    return result
+
+
+def validate_predicates(
+    body: object, bound: object, *, prompt_bundle: object = None, composition_version: object = None
+) -> None:
+    b = mapping(body)
+    for field in ("done_when", "return_when"):
+        seen: set[bytes] = set()
+        for raw in sequence(b[field]):
+            row = exact(raw, {"bound_procedure_ref", "predicate_id"})
+            ref(row["bound_procedure_ref"], "bound-procedure")
+            predicate_key(row["predicate_id"])
+            if canonical(row) in seen:
+                raise CatalogError("BOUND_PREDICATE_COLLISION")
+            seen.add(canonical(row))
+    r = record(bound, "bound-procedure")
+    required = False
+    if prompt_bundle is not None:
+        from omnis.modules.tasks.managed_composition import (
+            CAPTURE_COMPOSER_REVISION,
+            COMPACT_COMPOSER_REVISION,
+            COMPOSER_REVISION,
+            CRITERIA_COMPOSER_REVISION,
+            LEGACY_COMPOSER_REVISION,
+            METHOD_COMPOSER_REVISION,
+            RECORDS_COMPOSER_REVISION,
+        )
+
+        bundle = record(prompt_bundle, "prompt-bundle")
+        if canonical(ref(b["prompt_bundle_ref"], "prompt-bundle")) != canonical(
+            records.reference(bundle)
+        ):
+            raise CatalogError("BOUND_PREDICATE_GAP")
+        version = integer(composition_version, 1, 4)
+        pin = mapping(bundle["payload"])["composer_revision"]
+        revisions = {
+            COMPOSER_REVISION,
+            CRITERIA_COMPOSER_REVISION,
+            COMPACT_COMPOSER_REVISION,
+            METHOD_COMPOSER_REVISION,
+        }
+        if version <= 3:
+            revisions.add(RECORDS_COMPOSER_REVISION)
+        if version <= 2:
+            revisions.add(CAPTURE_COMPOSER_REVISION)
+        if version == 1:
+            revisions.add(LEGACY_COMPOSER_REVISION)
+        if type(pin) is not str or pin not in revisions:
+            raise CatalogError("BOUND_PREDICATE_GAP")
+        procedure = mapping(mapping(r["payload"])["resolved_procedure"])
+        required = version == 4 and pin == COMPOSER_REVISION and procedure["key"] == "map-records"
+        if (b["done_when"] or b["return_when"]) and (version != 4 or pin != COMPOSER_REVISION):
+            raise CatalogError("BOUND_PREDICATE_GAP")
+    if not b["done_when"] and not b["return_when"] and not required:
+        return  # Structural-only calls confer no completion; consumers supply the retained bundle.
+
+    closure = predicate_closure(mapping(r["payload"])["resolved_procedure"])
+    for field in ("done_when", "return_when"):
+        for raw in sequence(b[field]):
+            row = mapping(raw)
+            if (
+                canonical(row["bound_procedure_ref"]) != canonical(records.reference(r))
+                or row["predicate_id"] not in closure
+            ):
+                raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != list(closure):
+        raise CatalogError("BOUND_PREDICATE_GAP")
+    if not b["return_when"]:
+        raise CatalogError("BOUND_PREDICATE_GAP")
+
+
 def capture_slot_values(value: object, *, version: int = 1) -> list[dict[str, object]]:
     from omnis.modules.tasks.contract_case_input import input_contract
 
@@ -252,16 +396,18 @@ def build_records(
             },
         )
         code_digest = sha256(read_file(Path(__file__))).hexdigest()
-        checker = add(
-            "method-checker",
-            {
-                "key": "managed.contract-pure" if method_execution else "managed.no-model",
+        from omnis.modules.tasks.method_checker_identity import descriptor
+
+        checker_payload: dict[str, object] = (
+            descriptor()
+            if method_execution
+            else {
+                "key": "managed.no-model",
                 "code_digest": code_digest,
-                "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
-                if method_execution
-                else "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
-            },
+                "semantics": "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
+            }
         )
+        checker = add("method-checker", checker_payload)
         base = add(
             "prompt-content",
             {
@@ -436,6 +582,18 @@ def build_records(
                 "mission_ref": mission,
             },
         )
+        prompt_record = next(r for r in graph if r["id"] == prompt["id"])
+        from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
+
+        predicate_names = (
+            list(predicate_closure(resolved))
+            if (
+                method_execution
+                and case_version == 2
+                and mapping(prompt_record["payload"])["composer_revision"] == COMPOSER_REVISION
+            )
+            else []
+        )
         requirements = [
             {
                 "ref": {"bound_procedure_ref": bound, "requirement_key": r.key},
@@ -497,8 +655,12 @@ def build_records(
                 "priority_reason": "CRITERIA: explicit backend allocation; no oracle or controls available."
                 if allocated
                 else "SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.",
-                "done_when": [],
-                "return_when": [],
+                "done_when": [
+                    {"bound_procedure_ref": bound, "predicate_id": name} for name in predicate_names
+                ],
+                "return_when": [{"bound_procedure_ref": bound, "predicate_id": "build-surface-map"}]
+                if predicate_names
+                else [],
                 "context": [
                     {
                         "ref": mission,
@@ -803,8 +965,6 @@ def validate_brief(value: object) -> dict[str, object]:
         raise CatalogError("MANAGED_REJECTED")
     for key in (
         "operation_refs",
-        "done_when",
-        "return_when",
         "contradiction_refs",
         "prior_attempt_refs",
         "overlay_refs",
@@ -979,7 +1139,13 @@ def validate_cursor(header: object, cursor: object, run: object) -> None:
         raise CatalogError("CURSOR_MISMATCH")
 
 
-def validate_assignment(brief: object, bound: object) -> None:
+def validate_assignment(
+    brief: object,
+    bound: object,
+    *,
+    prompt_bundle: object = None,
+    composition_version: object = None,
+) -> None:
     body = mapping(validate_brief(brief)["payload"])
     bound_record = record(bound, "bound-procedure")
     bound_body = exact(
@@ -1017,6 +1183,9 @@ def validate_assignment(brief: object, bound: object) -> None:
         version = 2 if procedure["key"] == "map-records" else 1
         slots = capture_slot_values(bound_body["slot_values"], version=version)
         validate_capture_procedure(procedure, sequence(slots[0]["refs"])[0], version=version)
+    validate_predicates(
+        body, bound_record, prompt_bundle=prompt_bundle, composition_version=composition_version
+    )
     requirements = sequence(procedure["method_requirements"])
     expected = [
         {

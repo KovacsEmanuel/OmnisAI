@@ -1099,7 +1099,7 @@
      _params = locals()
 --- /dev/null
 +++ b/agent/contract_execution.py
-@@ -0,0 +1,281 @@
+@@ -0,0 +1,287 @@
 +"""Constructor-owned finite CONTRACT/PURE child; never a warm/cold promotion.
 +
 +Trusted lifecycle commits the binding and supplies a local fail-closed guard.
@@ -1115,6 +1115,7 @@
 +from agent.cold_admission import ColdAdmissionDenied, ColdState
 +from omnis_hermes.managed_admission_contract import canonical, ref, validate_release
 +from omnis_hermes.native_preparation_contract import loads
++from omnis_hermes.prompt_bundle import expanded_payload
 +from omnis_hermes import contract_method as method
 +
 +
@@ -1214,6 +1215,10 @@
 +        )
 +        self._guard()  # no method-material unpacking before the live native guard
 +        self.brief, self.bound, self.material = method.assignment(self.state.assignment)
++        stage = loads(self.state.assignment, 65536)  # validated before bundle expansion
++        self.prompt_bundle = expanded_payload(
++            stage["compositions"][0]["payload"], stage.get("record_pool")
++        )["prompt_bundle"]
 +        self.original_ref = ref(self.material["input"])
 +        self.receipts, self.artifacts = [], []
 +        self.read = False
@@ -1365,7 +1370,8 @@
 +            )
 +        tools._guard()
 +        result = method.task_result(
-+            tools.brief, tools.bound, original, tools.receipts, tools.artifacts
++            tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
++            prompt_bundle=tools.prompt_bundle,
 +        )
 +        tools._bounded([result])
 +        execution = {

@@ -127,6 +127,9 @@ def reseal_graph(stage, sections, bundle):
     brief["payload"]["procedure_bindings"][0]["bound_procedure_ref"] = ref(bound)
     for requirement in brief["payload"]["method_plan"]["requirements"]:
         requirement["ref"]["bound_procedure_ref"] = ref(bound)
+    for field in ("done_when", "return_when"):
+        for predicate in brief["payload"][field]:
+            predicate["bound_procedure_ref"] = ref(bound)
     seal(brief)
     raw = canonical(sections)
     composition = stage["compositions"][0]

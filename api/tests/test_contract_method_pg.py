@@ -115,7 +115,7 @@ agent.__path__[:0] = [str(managed / "agent"), str(inert / "agent")]
 forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "handle_function_call", "_init_client", "_resolve_runtime",
     "load_credential_pool", "get_api_key", "discover_builtin_tools", "discover_plugins"}
-observed = forbidden | {"run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract"}
+observed = forbidden | {"run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
 entered = {}
 def observe(frame, event, arg):
     if event not in {"call", "return"}:
@@ -144,6 +144,8 @@ def observe(frame, event, arg):
         emit("run_contract", "REAL_AIAgent" if real else "WRONG_TYPE")
         if not real:
             raise RuntimeError("Native child is not real")
+    if event == "return" and name == "predicate_values" and type(arg) is dict and arg:
+        emit("bound-predicates", "SATISFIED" if all(v is True for v in arg.values()) else "GAP", len(arg))
     if event == "call" and name in {"_read_bound_input", "run_handler"}:
         emit(name, "ENTERED")
     if event == "return" and name == "_contract_guard":
@@ -251,17 +253,19 @@ class PreparationPrerequisite(RuntimeClient):
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
 @pytest.mark.parametrize(
-    "first_final_after_stop,with_criteria,lost_reply",
+    "first_final_after_stop,with_criteria,lost_reply,legacy_criteria",
     [
-        (False, False, False),
-        (False, True, False),
-        (True, True, False),
-        (False, True, True),
-        (True, True, True),
+        (False, False, False, False),
+        (False, True, False, False),
+        (False, True, False, True),
+        (True, True, False, False),
+        (False, True, True, False),
+        (True, True, True, False),
     ],
     ids=[
         "support-zero",
         "criteria-normal",
+        "criteria-legacy717",
         "criteria-first-late-held",
         "lost-reply",
         "lost-reply-post-stop",
@@ -274,6 +278,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     first_final_after_stop: bool,
     with_criteria: bool,
     lost_reply: bool,
+    legacy_criteria: bool,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -442,7 +447,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 selection_ref=selected["selection_ref"],
                 preparation_command_id=preparation.command_id,
             )
-            if with_criteria:
+            if with_criteria and not legacy_criteria:
                 context = await inputs.create_method_context(context_request)
             else:
                 from omnis.modules.tasks import managed_composition
@@ -451,10 +456,16 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     historical.setattr(
                         managed_composition,
                         "COMPOSER_REVISION",
-                        managed_composition.COMPACT_COMPOSER_REVISION,
+                        managed_composition.CRITERIA_COMPOSER_REVISION
+                        if legacy_criteria
+                        else managed_composition.COMPACT_COMPOSER_REVISION,
                     )
                     context = await inputs.create_method_context(context_request)
-                checkpoint(historical_compact_pin=managed_composition.COMPACT_COMPOSER_REVISION)
+                checkpoint(
+                    historical_composer_pin=managed_composition.CRITERIA_COMPOSER_REVISION
+                    if legacy_criteria
+                    else managed_composition.COMPACT_COMPOSER_REVISION
+                )
             value = {
                 "records": [
                     {"method": "POST", "path": "/pure-z/é", "status": 201},
@@ -548,6 +559,28 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 observer.setattr(BuildSource, "build", measured_build)
                 prepared = await domain.prepare_method(assignment)
             assert manifest_protocol(prepared["manifest"]) == ("omnis-managed-admission-v4")
+            if with_criteria and not legacy_criteria:
+                briefs = [mapping(r) for r in sequence(prepared["briefs"])]
+                assert len(briefs) == 1
+                body = mapping(briefs[0]["payload"])
+                assert [mapping(r)["predicate_id"] for r in sequence(body["done_when"])] == [
+                    "normalize-records",
+                    "build-surface-map",
+                    "preserve-input-context",
+                ]
+                assert [mapping(r)["predicate_id"] for r in sequence(body["return_when"])] == [
+                    "build-surface-map"
+                ]
+                checkpoint(
+                    bound_predicate_producer="QUALIFIED_NONEMPTY",
+                    done_predicates=3,
+                    return_predicates=1,
+                )
+            if legacy_criteria:
+                body = mapping(mapping(sequence(prepared["briefs"])[0])["payload"])
+                assert body["done_when"] == [] and body["return_when"] == []
+                assert len(sequence(body["criterion_bindings"])) == 2
+                checkpoint(legacy_criteria_zero_predicates="QUALIFIED_717_ZERO")
             lifecycle = {
                 "op": "native_task",
                 "schema_version": 1,
@@ -953,6 +986,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 checks = [mapping(r) for r in sequence(back["checks"])]
                 assert len(checks) == 1 and mapping(checks[0]["payload"])["status"] == "COMPLETE"
                 if with_criteria:
+                    checkpoint(bound_predicate_persistent_check="COMPLETE")
+                if with_criteria:
                     from omnis.modules.settings import candidate_store as stored
                     from omnis.modules.tasks import criterion_checks
 
@@ -1301,6 +1336,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         assert len([r for r in rows if r["test"] == "_read_bound_input"]) == 1
         assert len([r for r in rows if r["test"] == "run_handler"]) == 2
         assert {"test": "native-release", "status": "SUCCEEDED", "count": 1} in rows
+        if with_criteria and not legacy_criteria:
+            assert [r for r in rows if r["test"] == "bound-predicates"] == [
+                {"test": "bound-predicates", "status": "SATISFIED", "count": 3}
+            ]
+            checkpoint(
+                native_bound_predicate_evaluation="SATISFIED", native_bound_predicate_count=3
+            )
         checkpoint(
             native_run_contract=1,
             native_reads=1,

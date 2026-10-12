@@ -55,29 +55,41 @@ class Case:
     actions: list[Data]
     schemas: dict[str, Data]
     owner_id: str
+    prompt_bundle: Data
+    stage: Data
 
-    def check(self) -> Data:
+    def check(self, *, receive_only: bool = False) -> Data:
         try:
             module = importlib.import_module("omnis.modules.tasks.method_checks")
         except ModuleNotFoundError:
             pytest.fail("receipt-backed MethodCheck checker missing")
-        checker = cast(Check, getattr(module, "check_execution", None))
+        checker = getattr(module, "check_execution", None)
         assert callable(checker), "receipt-backed check_execution missing"
-        return checker(
-            self.brief,
-            self.bound,
-            self.binding,
-            self.execution,
-            self.checker,
-            self.original,
-            self.actions,
-            self.schemas,
-            self.owner_id,
+        return obj(
+            checker(
+                self.brief,
+                self.bound,
+                self.binding,
+                self.execution,
+                self.checker,
+                self.original,
+                self.actions,
+                self.schemas,
+                self.owner_id,
+                prompt_bundle=self.prompt_bundle,
+                composition_version=4,
+                receive_only=receive_only,
+            )
         )
 
 
 def native_case(
-    version: int = 2, empty: bool = False, criterion_ids: list[str] | None = None
+    version: int = 2,
+    empty: bool = False,
+    criterion_ids: list[str] | None = None,
+    predicates: bool = False,
+    composer_pin: str | None = None,
+    compact: bool = False,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -189,7 +201,24 @@ def native_case(
                     for r in requirements
                 ]
             }
-        reseal(stage, sections, obj(payload["prompt_bundle"]))
+        if predicates:
+            obj(brief["payload"])["done_when"] = [
+                {"bound_procedure_ref": records.reference(bound), "predicate_id": obj(r)["key"]}
+                for r in rows(procedure["method_requirements"])
+            ]
+            obj(brief["payload"])["return_when"] = [
+                {
+                    "bound_procedure_ref": records.reference(bound),
+                    "predicate_id": "build-surface-map",
+                }
+            ]
+        bundle = obj(payload["prompt_bundle"])
+        from omnis_hermes.prompt_bundle import CRITERIA_COMPOSER_REVISION, composer_revision
+
+        obj(bundle["payload"])["composer_revision"] = composer_pin or (
+            composer_revision() if predicates else CRITERIA_COMPOSER_REVISION
+        )
+        reseal(stage, sections, bundle)
         if criterion_ids:
             rule = records.reference(records.envelope("criterion-outcome-rule", {}))
             obj(brief["payload"])["criterion_bindings"] = [
@@ -203,6 +232,44 @@ def native_case(
             ]
             reseal(stage, sections, obj(payload["prompt_bundle"]))
         manifest = obj(stage["manifest"])
+        if compact:
+            from omnis.modules.tasks import managed_composition
+
+            retained_bundle = obj(payload["prompt_bundle"])
+            base, role = (obj(obj(s)["record"]) for s in sections[:2])
+            material = obj(sections[4])
+            composition = managed_composition.compose(
+                retained_bundle,
+                base,
+                role,
+                brief,
+                bound,
+                obj(payload["preparation_receipt_ref"]),
+                [obj(s) for s in sections[5:]],
+                case_input=material,
+                method_execution=True,
+            )
+            manifest = records.envelope("launch-manifest", obj(manifest["payload"]))
+            obj(rows(obj(manifest["payload"])["entries"])[0])["composition_ref"] = (
+                records.reference(composition)
+            )
+            manifest["digest"] = sha256(
+                canonical({k: v for k, v in manifest.items() if k != "digest"})
+            ).hexdigest()
+            stage = managed_composition.stage_payload(
+                manifest,
+                [
+                    retained_bundle,
+                    base,
+                    role,
+                    brief,
+                    bound,
+                    obj(material["context"]),
+                    original,
+                    composition,
+                    manifest,
+                ],
+            )
         manifest_body = obj(manifest["payload"])
         root_id, root_session, child_id, session_id = (str(uuid4()) for _ in range(4))
         entry = {k: v for k, v in obj(rows(manifest_body["entries"])[0]).items() if k != "goal"}
@@ -244,7 +311,9 @@ def native_case(
             _parent_session_id=root_session,
         )
         execution = run(child, canonical(binding), lambda: True)
-        checker = records.reference(records.envelope("method-checker", {"key": "source-test"}))
+        from omnis.modules.tasks.method_checker_identity import descriptor
+
+        checker = records.envelope("method-checker", descriptor())
         return Case(
             brief,
             bound,
@@ -255,6 +324,8 @@ def native_case(
             actions,
             schemas,
             str(obj(original["payload"])["owner_id"]),
+            obj(payload["prompt_bundle"]),
+            stage,
         )
     finally:
         del sys.path[: len(paths)]
@@ -270,7 +341,7 @@ def test_real_receipts_complete_all_three_published_requirements() -> None:
     assert body["status"] == "COMPLETE"
     assert body["brief_ref"] == records.reference(case.brief)
     assert body["task_result_ref"] == records.reference(result)
-    assert body["checker_ref"] == case.checker
+    assert body["checker_ref"] == records.reference(case.checker)
     assert body["gap_refs"] == []
     checked = rows(body["checked_results"])
     assert len(checked) == 3

@@ -2,14 +2,27 @@
   "schema_version": 1,
   "scope": "PARTIAL_RETURN_SOURCE_HOST_NOT_INSTALLED",
   "snapshot_author_sha256": "b7230bf0ea11ff1d0d66d74887346602239d3a8f1382d8c11ddeed6ced7425af",
-  "parent_disposition": "SOURCE_AND_DISTRIBUTION_APPROVED_SCOPED; independent real-consumer QA and canonical pending",
+  "parent_disposition": "SOURCE_AND_DISTRIBUTION_APPROVED_SCOPED; ACCEPTANCE_BLOCKED_QA; canonical NOT_RUN",
   "product_files_verified": 17,
   "evidence_hashes_verified": 21,
   "reviews": {
     "normative": "6fb213eea88caf7098c9caaeca6191608c7517289acbfa3de3ad5b4985e658ad",
     "security": "ed98edd8751bddb3e8bea2b2cd6766d1501c97e75ecd03c6feef9f16381dad38"
   },
-  "findings": [],
+  "findings": ["QA-PARTIAL-RETURN-EXECUTION-01: independent real-consumer pre-stage RuntimeUnavailable; cause UNKNOWN"],
+  "independent_qa": {
+    "report": "partial-return-independent-qa-fail.json",
+    "sha256": "838fdac610512b0a1500e40950bdb61a133df87665884fcc83a5b82efeea2e18",
+    "snapshot": "c8e84a8ca7d6af1e2e80d35e471973ec5c659735",
+    "code": 1,
+    "family_drained": true,
+    "passed": 0,
+    "failed": 1,
+    "deselected": 7,
+    "reader_processes": 0,
+    "cause": "UNKNOWN",
+    "disposition": "BLOCKER_TO_QA_ACCEPTANCE"
+  },
   "parent_resource_readback": {
     "failed_fixture": "db-84a7574d47894779",
     "passed_fixture": "db-1ef1ba254a494cd2",

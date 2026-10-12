@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.26
+version: 0.1.27
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -63,6 +63,8 @@ For a read-only Python QA helper import, invoke the interpreter with explicit `-
 Treat private bootstrap/RPC receipts as secret-bearing even in a synthetic fixture: never return the whole file through `read_file` or serialize it into tool output. Parse privately and emit only the required nonsensitive field allowlist; for `runtime.boot`, a boot UUID is public evidence but `capability` is not. If exposure occurs, preserve the FAIL/incident and restrict the exact sensitive transcript; the parent must retire and verify the exact owned host/socket/family before an explicitly bounded fresh replacement. Do not reuse the exposed capability, overwrite the failed receipt, copy the transcript into Git, or describe a later clean run as undoing the disclosure.
 
 For PostgreSQL pytest failures, treat raw tracebacks as secret-bearing too: default argument rendering can expose `database_url` even without `--showlocals`. Do not use `read_file`, context grep or a whole-log dump around an assertion; parse privately and emit only nonsecret test/exit/status/reason/count/settlement fields. Preserve the failed run and restrict owned logs; after exposure forbid fixture/credential reuse and verify exact endpoint retirement, without claiming that a later clean probe or private file mode undoes disclosure.
+
+When rejecting private child stdout/stderr, keep raw bytes out of pytest assertion operands: assertion rewriting can interpolate them even in `--tb=line`. Preserve private output files and strict refusal, but raise only a sanitized reason through an explicit condition. Exercise empty-output acceptance and a synthetic nonempty marker refusal on the real pytest exception/line/short report channel; private file modes do not sanitize a rewritten assertion. This does not certify deliberate `--showlocals`/`--showargs` output.
 
 For a confirmed host NSS path failure blocking a real audit or hash-locked dependency install, use the bounded [private NSS procedure](references/private-nss-audit.md). Keep helper review and targeted positives distinct from the canonical suite; do not change the host or bypass audit/hash results.
 

@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-C10-CANONICAL-TYPING-FIX-833381f-FOCUSED",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "summary": "Fixul minimal repară rezoluția surselor adaptorului în typecheck-api fără relaxarea regulilor mypy; facade-ul tipizat reutilizează același helper real de reseal. Nu s-au găsit constatări blocante în delta exactă de patru fișiere. Aprobare numai pentru această delta/configurație și testele afectate, nu canonical PASS, integrare, commit sau acceptare globală C10/B06b/P2.",
+  "scope": {
+    "repository": "/home/kali/OmnisAI",
+    "mode": "independent_read_only_review",
+    "base_head": "833381fcc1080cf1f6e4780d3ff7bea01a3d3b86",
+    "reviewed_against": "HEAD, diff complet al celor patru paths dirty, bytes curenți înainte și după probe",
+    "files": [
+      "api/pyproject.toml",
+      "api/tests/test_python_quality.py",
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_c10_bound_predicates.py"
+    ],
+    "files_count": 4,
+    "diff_stat": {"insertions": 41, "deletions": 8},
+    "acceptance_row": "Canonical Python API quality: imports din adaptorul nativ rezolvate din checkout, tipuri stricte păstrate și negativele C10 resealed neschimbate semantic",
+    "excluded": [
+      "Reauditarea C10 source/F01-F04 sau a contractelor de produs neschimbate",
+      "PostgreSQL, servicii, OCI/native build, installed/runtime QA și full make check",
+      "Profiluri, r1, model/provider/target, conturi, secrete, runtime.boot și loguri brute PG",
+      "Integrare, stage, commit, push, modificări/cleanup în repo ori HTML protejat"
+    ]
+  },
+  "snapshot": {
+    "head_before": "833381fcc1080cf1f6e4780d3ff7bea01a3d3b86",
+    "head_after": "833381fcc1080cf1f6e4780d3ff7bea01a3d3b86",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "status_before_and_after": " M api/pyproject.toml\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_python_quality.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "tracked_files_count": 962,
+    "all_tracked_sha256_before_after_equal": true,
+    "before_manifest": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-fix-review-before.json",
+    "after_manifest": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-fix-review-after.json",
+    "before_manifest_sha256": "e7178b0ff5885e2d267af6407565978cdff9c23d3bac08be24228d0be4111640",
+    "after_manifest_sha256": "e7178b0ff5885e2d267af6407565978cdff9c23d3bac08be24228d0be4111640",
+    "diff_sha256_before_and_after": "7d3db2a003b412f94a46cd724d10b2fafd3096004c74d979a4281828173b155e",
+    "index_sha256_before_and_after": "9b3a1693352bca04b8a53148e01bbe0e8debd7028789ac971f029dfa361615a5",
+    "protected_html_sha256_before_and_after": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+    "inventory": [
+      {
+        "path": "api/pyproject.toml",
+        "head_sha256": "bf50046d011a237f6898e9e59a18712f525bd3acba5201107b8f0bf77bcde47f",
+        "sha256_before": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "sha256_after": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad"
+      },
+      {
+        "path": "api/tests/test_python_quality.py",
+        "head_sha256": "6de069813904b10e24c1e94d43ef882b362a2d219b6dd7c3fd9f5cdacab9848b",
+        "sha256_before": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+        "sha256_after": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "head_sha256": "b9cf0ce0fe8608b8d9188307a55274d1a94becdecad5ba6cf69b5dc91eebd776",
+        "sha256_before": "42eec58a53b6179e6718680a0a389bf99350e4f1a04f61cdeb8041618ebe70bd",
+        "sha256_after": "42eec58a53b6179e6718680a0a389bf99350e4f1a04f61cdeb8041618ebe70bd"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "head_sha256": "00b632efafeffccdbc2911307bf241039b0fa3d6f8c596e5eac1acca55def51a",
+        "sha256_before": "6ca1f5d95d5419f0b15470710040a154e21850e7540a53519e7ab8187121694e",
+        "sha256_after": "6ca1f5d95d5419f0b15470710040a154e21850e7540a53519e7ab8187121694e"
+      }
+    ],
+    "product_distribution_unchanged_against_HEAD": true,
+    "unchanged_scope": "API product source, adaptor/native source, patch/pin/manifest, composer și checker13: nicio delta față de HEAD; toate cele 962 de fișiere tracked sunt identice înainte/după review. Cele două module de test C10/method checks sunt schimbate numai în hunk-urile descrise."
+  },
+  "findings": [],
+  "finding_schema": {
+    "required_if_any": ["id", "severity", "file", "line", "reproducer", "violated_requirement", "remedy"],
+    "confirmed_findings_count": 0,
+    "note": "Lista goală este rezultatul reviewului focalizat pe snapshotul delimitat, nu o garanție de absență a defectelor în afara scope-ului."
+  },
+  "requirements_to_code_to_evidence": [
+    {
+      "requirement": "Rezoluție reală din sursa adaptorului, nu Any, ignore ori follow_imports skip",
+      "code": ["api/pyproject.toml:52-65", "api/tests/test_python_quality.py:193-214"],
+      "review": "Singura cheie mypy schimbată este mypy_path; se adaugă doar integrations/hermes/src după API src/tests. strict, disallow_any_explicit, disallow_any_unimported și warn_unreachable rămân neschimbate. Fără ignore_missing_imports, follow_imports skip/silent, stubs, deps sau Makefile changes. Testul pozitiv acceptă composer_revision ca str, negativul int impune exact return-value.",
+      "evidence": "Noul test a trecut pe make real. Proba mypy verbose cu cwd scratch a emis Parsing /home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/prompt_bundle.py (omnis_hermes.prompt_bundle), exit0 și zero diagnostics. Nu există prompt_bundle.pyi în adaptorul source.",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "requirement": "Cale ancorată în config/checkout, stabilă față de cwd",
+      "code": ["api/pyproject.toml:61-65"],
+      "review": "$MYPY_CONFIG_FILE_DIR ancorează fiecare entry în directorul API din checkout; nu introduce path absolut al acestei VM și nu adaugă tests native care ar produce shadowing. Relocabilitatea la alt checkout este proprietate structurală a expresiei, nu probă pe o copie nouă.",
+      "evidence": "Proba reală mypy din /home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes, cu config-file absolut, rezolvă aceeași sursă reală și trece. Canonicalul Makefile își păstrează cwd=repo și rămâne neschimbat.",
+      "status": "VERIFIED_CWD_AND_STRUCTURAL_RELOCATION"
+    },
+    {
+      "requirement": "Facade tipizat păstrează helperul real și reseal semantic, fără mock/noop/bypass",
+      "code": ["api/tests/test_contract_method_checks.py:86-92", "api/tests/test_contract_method_checks.py:114", "api/tests/test_contract_method_checks.py:227-239", "api/tests/test_c10_bound_predicates.py:198-233"],
+      "review": "Expresia cast Callable + importlib.import_module(test_prompt_bundle).reseal_graph este identică AST cu expresia originală din native_case la HEAD. Facade-ul apelează necondiționat același helper cu aceleași trei obiecte, fără catch, schimbare de return sau autoritate. native_case folosește facade-ul în ambele apeluri existente; C10 înlocuiește numai static importul untyped cu facade-ul. Helperul neschimbat reseal_graph:121-142 resealează bundle/bound/brief/composition/manifest și reference/digest/text.",
+      "evidence": "Comparația AST a expresiei cast a returnat true; cele patru parametrizări resealed C10 empty/schema-bool/unknown-step/missing-step au trecut. Produsul source și helperul native sunt neschimbate.",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "requirement": "Control negativ strict prin canalul real make/mypy, diagnostic exact",
+      "code": ["api/tests/test_python_quality.py:195-214", "Makefile:174-176", "api/tests/test_python_quality.py:72-86"],
+      "review": "Pozitivul și negativul folosesc același fișier temporar, aceeași comandă make și același import. Se schimbă doar return annotation str→int. Se cer make exit0/zero diagnostics apoi make exit2 și lista exactă [(source, return-value, error)], plus bytes negativului nemodificați. Nu acceptă un generic failure/import-not-found sau diagnoze suplimentare.",
+      "evidence": "Testul nou a trecut pe bytes curenți, cu pinned mypy 2.3.1. Setul complet API src/tests a trecut make typecheck-api exit0.",
+      "status": "VERIFIED_SCOPED"
+    },
+    {
+      "requirement": "Read-only și aprobare snapshot-bound",
+      "code": ["AGENTS.md:26-30"],
+      "review": "Reviewul nu modifică repo/index/HEAD/HTML. Inventarele complete de hashuri înainte/după sunt egale și delta conține exact cele patru paths autorizate.",
+      "evidence": "962 hashes egale, index/HEAD/status/diff/protected HTML egale, git diff --check exit0.",
+      "status": "VERIFIED"
+    }
+  ],
+  "execution": {
+    "toolchain": {"python": "3.13.15", "pytest": "9.1.1", "mypy": "2.3.1", "ruff": "0.16.9"},
+    "environment_controls": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "explicit_pytest_plugins": ["no:cacheprovider", "pytest_asyncio.plugin"],
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes",
+      "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/mypy-cache",
+      "removed_for_main_probes": ["PYTHONPATH", "MYPYPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS", "MAKEFLAGS", "MFLAGS", "GNUMAKEFLAGS"],
+      "reviewer_make_override": "MAKEFLAGS=API_PY=/home/kali/OmnisAI/api/.venv/bin/python\\ -B",
+      "override_limit": "Numai flagul -B pentru interzicerea bytecode write; aceleași target/recipe/config/mypy real. make --dry-run a verificat expansiunea python -B -I. Nu reprezintă execuția neschimbată a întregului canonical make check."
+    },
+    "checks": [
+      {
+        "name": "focused_pytest",
+        "cwd": "/home/kali/OmnisAI",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -p pytest_asyncio.plugin --basetemp /home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/pytest api/tests/test_python_quality.py::test_make_typecheck_resolves_native_adapter_and_preserves_type_denial api/tests/test_c10_bound_predicates.py::test_resealed_full_composition_denies_before_native_allocation -q",
+        "exit_code": 0,
+        "result": "5 passed in 3.89s",
+        "outer_duration_seconds": 4.682,
+        "new_quality_test_count": 1,
+        "existing_resealed_c10_test_count": 4,
+        "evidence_handle": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/focused_pytest.json",
+        "scope_limit": "SOURCE/quality tests; nu native authentication, PG/persistence sau installed QA"
+      },
+      {
+        "name": "full_api_typecheck",
+        "cwd": "/home/kali/OmnisAI",
+        "command": "make --no-print-directory typecheck-api",
+        "expanded_paths": "api/src api/tests",
+        "exit_code": 0,
+        "duration_seconds": 15.01,
+        "diagnostics": [],
+        "evidence_handle": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/full_api_typecheck.json",
+        "scope_limit": "Numai targetul typecheck-api; nu lint/test-api/full canonical"
+      },
+      {
+        "name": "real_adapter_source_resolution_from_foreign_cwd",
+        "cwd": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file /home/kali/OmnisAI/api/pyproject.toml --no-incremental --output=json --verbose /home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/adapter_resolution_control.py",
+        "exit_code": 0,
+        "diagnostics": [],
+        "observed_log": "LOG:  Parsing /home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/prompt_bundle.py (omnis_hermes.prompt_bundle)",
+        "evidence_handle": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes/adapter_resolution.json",
+        "scope_limit": "Rezoluție reală și cwd independence a configului; nu copie relocated/packaging/runtime"
+      },
+      {"name": "git_diff_check", "command": "git diff --check", "cwd": "/home/kali/OmnisAI", "exit_code": 0},
+      {"name": "before_after_inventory_readback", "tracked_files_count": 962, "all_sha256_equal": true, "head_index_status_diff_protected_html_equal": true, "exit_code": 0}
+    ]
+  },
+  "prior_evidence_and_dispositions": {
+    "parent_context_not_independently_reexecuted": {
+      "historical_canonical": "proc_98c33787bd32 pe 833381f: FAIL exit2 la typecheck-api, downstream test-api NOT_RUN; păstrat, nu promovat la PASS",
+      "parent_red": "Noul test quality resolves_native_adapter: 1 FAIL/12 deselected, import-not-found/no-any-return prin make real",
+      "parent_green": "make lint-api/typecheck-api exit0 și cinci fișiere quality+C04+C10+method+compact 167 PASS/29.43s; acest raport adaugă numai probele reviewerului enumerate separat"
+    },
+    "existing_product_reviews_read": [
+      {"path": "documents/verification/p2-bound-predicates-evidence/nativefix-normative-final-review.json", "verdict": "APPROVED_SCOPED", "candidate_head": "8ea28b2794912726428fbc3cac6f6d18269be454"},
+      {"path": "documents/verification/p2-bound-predicates-evidence/nativefix-security-distribution-final-review.json", "verdict": "APPROVED_SCOPED", "candidate_head": "8ea28b2794912726428fbc3cac6f6d18269be454"}
+    ],
+    "disposition": "Aprobările source/distribuție neschimbate rămân la scope-urile lor; nu sunt reauditate, redeschise ori extinse. Reviewul de față acoperă separat exact delta quality/test-helper curentă. Părintele adjudecă, înregistrează și comite dacă acceptă.",
+    "orientation_discrepancy": "README și implementation-status păstrează checkpointul istoric C10 neintegrat; Git și dovezile pe HEAD arată integrarea 25395bd urmată de documentarea 833381f. Observație de orientare, nu finding asupra fixului, fără editarea hărții de către reviewer."
+  },
+  "issues_encountered": [
+    {
+      "type": "reviewer_auxiliary_metadata_observer_failure",
+      "description": "Încercările read-only de a extrage metadata mypy au presupus fișiere JSON/slash keys apoi JSON în SQLite; formatul actual este cache binary și decodarea ad-hoc nu a produs dovada. Nu sunt eșecuri ale produsului sau ale testelor.",
+      "disposition": "Abandonat observatorul cache. Dovada a fost produsă separat prin mypy real --verbose pe controlul pozitiv, din cwd scratch. Fără modificări/reparări în repo."
+    },
+    {
+      "type": "reviewer_path_expectation_assertion_failure",
+      "description": "Wrapperul probei verbose a cerut inițial path textual api/../integrations, dar mypy a normalizat corect pathul la integrations. Procesul mypy însuși a returnat exit0 și Parsing sursa corectă.",
+      "disposition": "Readbackul evidence_handle și compararea pathului real au verificat sursa așteptată; proba mypy nu a fost relansată pentru această corecție de observator."
+    },
+    {
+      "type": "out_of_project_lsp_diagnostic",
+      "description": "Editorul scratch a raportat Pyright missing import pentru fixture în afara proiectului, fără mypy_path. Nu este canalul canonical mypy și nu a fost folosit pentru verdict.",
+      "disposition": "Același fixture a trecut mypy pinned cu configurația reală API și sursa adaptorului observată."
+    }
+  ],
+  "artifacts_created_or_modified": {
+    "repository_files": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-fix-review.json",
+    "scratch_manifests": [
+      "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-fix-review-before.json",
+      "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-fix-review-after.json"
+    ],
+    "scratch_probes_root": "/home/kali/.hermes/cache/scratch/p2-c10-canonical-typing-review-probes",
+    "scratch_contents": "Receipturi JSON pentru focused pytest/typecheck/rezoluție, fixture pozitiv/negativ și cache mypy/pytest temporar. Nu s-a executat cleanup în repo."
+  },
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "status_matrix": [
+    {"slice": "P0/P1/B05/B06a", "code": "UNCHANGED", "proof": "HISTORICAL_SCOPED", "review": "UNCHANGED_SCOPED", "next": "Nu se redeschid"},
+    {"slice": "C10 produs integrat", "code": "UNCHANGED_IN_THIS_FIX", "proof": "PRIOR_SCOPED_EVIDENCE", "review": "PRIOR_APPROVED_SCOPED", "next": "Fără transfer la canonical"},
+    {"slice": "AICI: canonical typing fix, 4 paths", "code": "IMPLEMENTED_DIRTY", "proof": "5_TESTS_AND_API_TYPECHECK_PASS_SCOPED", "review": "APPROVED_SCOPED", "next": "Adjudecare/commit de către părinte"},
+    {"slice": "Full canonical", "code": "UNCHANGED", "proof": "HISTORICAL_FAIL_NEW_NOT_RUN_BY_REVIEWER", "review": "NOT_CLAIMED", "next": "Gate separat pe bytes acceptați final"},
+    {"slice": "B06b/G02/P2 și B06c/B06m", "code": "PARTIAL", "proof": "NOT_CLOSED", "review": "NOT_GLOBAL_APPROVAL", "next": "Restul produsului conform ordinii canonice"},
+    {"slice": "P4a-minim/P2-live și rest MVP/post-MVP", "code": "OUT_OF_SCOPE", "proof": "NOT_RUN", "review": "NOT_REVIEWED_HERE", "next": "Autorizații/prerequisites și feliile canonice separate"}
+  ],
+  "final_limits": [
+    "Nicio declarație canonical PASS; full make check, lint-api și full test-api nu au fost executate de reviewer.",
+    "Nicio integrare, stage, commit, push, serviciu/PG/native build ori efect model/target.",
+    "Rezoluția surselor și negativa typing sunt probate; testele resealed sunt SOURCE, nu o nouă acceptare comportamentală exhaustivă C10.",
+    "Parent RED și probele 167 PASS sunt context declarat, distinct de execuția independentă de aici.",
+    "Relocabilitatea configului este verificată structural; cwd independence are probă reală, dar nu a fost creat un checkout separat.",
+    "Raportul scratch trebuie adjudecat și păstrat în registrul versionat de către părinte înainte de expirarea scratchului."
+  ]
+}

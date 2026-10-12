@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_RETAINED_NOT_P2_CLOSURE",
+  "session_id": "proc_98c33787bd32",
+  "tested_head": "833381fcc1080cf1f6e4780d3ff7bea01a3d3b86",
+  "product_commit": "25395bdd0dbeab83afb7894182b7fe88202da104",
+  "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "exit_code": 2,
+  "receipt": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "receipt_sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+  "private_gate_log": {
+    "path": "/home/kali/.hermes/cache/scratch/db-6ff236d0efda4fae/gate.log",
+    "sha256": "b4027cd5fbac11ee99780acaf0a4ba20a1752051c3ccb7f0caeda4fd8617d94d",
+    "raw_log_not_exposed": true
+  },
+  "frozen_snapshot": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-c10-integrated-canonical-before.json",
+    "sha256": "351d925e299a79895b152d1334992f8b628d6091c406e0a70b233ce26bf11347",
+    "files_count": 962,
+    "all_unchanged_at_parent_post_join_readback": true
+  },
+  "failed_gate": "typecheck-api",
+  "diagnostics": [
+    {
+      "file": "api/tests/test_c10_bound_predicates.py",
+      "line": 36,
+      "code": "import-not-found",
+      "message": "Cannot find implementation or library stub for module named \"omnis_hermes.prompt_bundle\""
+    },
+    {
+      "file": "api/tests/test_c10_bound_predicates.py",
+      "line": 46,
+      "code": "import-not-found",
+      "message": "Cannot find implementation or library stub for module named \"omnis_hermes.contract_method\""
+    },
+    {
+      "file": "api/tests/test_c10_bound_predicates.py",
+      "line": 207,
+      "code": "import-not-found",
+      "message": "Cannot find implementation or library stub for module named \"test_prompt_bundle\""
+    },
+    {
+      "file": "api/tests/test_c04_criteria.py",
+      "line": 99,
+      "code": "import-not-found",
+      "message": "Cannot find implementation or library stub for module named \"omnis_hermes.managed_admission_contract\""
+    }
+  ],
+  "focused_reproduction": {
+    "command": "make typecheck-api",
+    "exit_code": 2,
+    "import_not_found_diagnostics": 5,
+    "files": [
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_c04_criteria.py"
+    ],
+    "limit": "Canonical emitted4 diagnostics; standalone emitted5 due repeated module imports. Same resolution defect, not same execution."
+  },
+  "new_regression_red": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_python_quality.py -k resolves_native_adapter -q --tb=short",
+    "exit_code": 1,
+    "passed": 0,
+    "failed": 1,
+    "deselected": 12,
+    "seconds": 1.37,
+    "reason": "import-not-found and no-any-return at the actual Make quality target"
+  },
+  "checks_reached": {
+    "documentation": {
+      "passed": 72,
+      "seconds": 1.752
+    },
+    "development": {
+      "passed": 46,
+      "seconds": 9.635
+    },
+    "api_lint": "PASS_NO_DIAGNOSTICS",
+    "typecheck_api": "FAIL",
+    "test_api": "NOT_RUN",
+    "downstream_product_gates": "NOT_RUN"
+  },
+  "cleanup": {
+    "root": "/home/kali/.hermes/cache/scratch/db-6ff236d0efda4fae",
+    "project": "omnis-p01-e4bbd4fe9e67487994c6f35034293f5c",
+    "container_id": "355d1025a3dbf9ced1619c4f8c2f9a37239c5abbf7ab81d65f744ca09325b1c9",
+    "parent_verified_daemon_identity": true,
+    "owned_containers_absent": true,
+    "owned_networks_absent": true,
+    "owned_uds_absent": true,
+    "uncertain": false,
+    "data_logs_retained": true
+  },
+  "repair_state": {
+    "status": "FIX_TESTED_REVIEW_PENDING_NOT_COMMITTED",
+    "paths": [
+      "api/pyproject.toml",
+      "api/tests/test_python_quality.py",
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_c10_bound_predicates.py"
+    ],
+    "hashes": {
+      "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+      "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+      "api/tests/test_contract_method_checks.py": "42eec58a53b6179e6718680a0a389bf99350e4f1a04f61cdeb8041618ebe70bd",
+      "api/tests/test_c10_bound_predicates.py": "6ca1f5d95d5419f0b15470710040a154e21850e7540a53519e7ab8187121694e"
+    },
+    "green_command": "make lint-api typecheck-api; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest explicit asyncio/no-cache api/tests/test_python_quality.py api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_c04_criteria.py -q --tb=line",
+    "green": {
+      "passed": 167,
+      "seconds": 29.43,
+      "exit_code": 0
+    },
+    "unchanged_candidate_paths": 15
+  },
+  "limits": [
+    "No Makefile change, ignored diagnostic, dependency install or broad stub/untyped helper exemption.",
+    "Prior real PG/native2PASS on unchanged product/source/distribution remains recorded; it is not a canonical PASS.",
+    "Next canonical is NOT_RUN pending focused review/commit; original FAIL preserved."
+  ]
+}

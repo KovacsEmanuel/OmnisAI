@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.19
+version: 0.1.20
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -36,6 +36,10 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - At an explicit receive-only reconnect, normalize only anticipated filesystem/metadata/transport failures at that boundary into the existing sanitized indeterminate exception after cleanup. Exercise original-Host disappearance through the real owner and private control UDS: an uncaught FileNotFoundError can produce EOF and an asyncio traceback with a private filename even when no work is authorized. Preserve cancellation/internal errors and forbid reconnect-and-resend or replacement-Host fallback.
 
 - Obtain newly required data from compact assignments through the existing strict, ref-bound expansion after validating constructor-owned bytes; never assume an inline field also exists in the compact wire payload. Exercise the actual producer-to-caller path with compact and inline controls, including supported historical pins: expanded-only state holders can pass while the real caller fails after read/tool effects. Preserve caps, receipts and code-identity boundaries; a helper approval does not certify the changed caller.
+
+- Distinguish an uncomposed NO_MODEL wire protocol from a numbered composer revision before enforcing code pins. An original cold bundle can pin the graph-builder source rather than the Hermes composer; defaulting a missing composition_version to composer-v1 rejects valid retained cold graphs. Select the branch only from exactly one strictly validated manifest, require zero predicates on the structural-only cold path, and preserve full bundle/version/closure checks on every composed path. Exercise existing prepare/readback/reconcile and no-work/INCOMPLETE controls; do not weaken executable completion or rewrite historical pins to repair cold compatibility.
+
+- Match test-only clock wrappers to the actual producer's optional keywords, rejecting nondefault authority explicitly rather than absorbing unknown kwargs. A late criterion_ids=None signature failure can hide the intended expiry boundary even after an earlier prepare defect is repaired; preserve the failed run and the original deadline/replay/no-dispatch assertions, then test the same real consumer after the minimal fixture correction.
 
 - Before a database record cites newly created filesystem material, flush the containing directory namespace bottom-up through the material root and its parent. A file fsync or immediate-child fsync does not persist the parent's new root link; exercise a new-root positive with real delegated fsync, and keep physical power-loss NOT_RUN unless actually probed.
 - Bound derived collections before capturing or reserving anything, using one shared limit at both the request and real material helper. A package cap must reserve capacity for the mandatory profile in the later source-ref budget; prove the exact maximum remains reviewable/rejectable and the next package refuses before filesystem reads. Generated refs at a validator seam are not persistent-DB evidence.

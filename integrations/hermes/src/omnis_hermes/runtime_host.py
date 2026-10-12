@@ -292,7 +292,11 @@ class RuntimeHost:
         self._preparation_ready()
         if result["protocol"] != payload["protocol"]:
             raise ValueError("Native managed protocol mismatch")
-        composed = payload["protocol"] in (managed.PROTOCOL_V2, managed.PROTOCOL_V3)
+        composed = payload["protocol"] in (
+            managed.PROTOCOL_V2,
+            managed.PROTOCOL_V3,
+            managed.PROTOCOL_V4,
+        )
         if operation == "task_stage":
             manifest = managed.validate_stage(payload)
             rows = managed.entries(
@@ -311,7 +315,8 @@ class RuntimeHost:
             if any(result[k] != payload[k] for k in ("ticket", "manifest_ref")):
                 raise ValueError("Native readback mismatch")
             if operation == "task_release" and (
-                result["status"] != "BLOCKED"
+                result["status"]
+                != ("SUCCEEDED" if payload["protocol"] == managed.PROTOCOL_V4 else "BLOCKED")
                 or result["binding_ref"] != managed.ref(cast(dict[str, object], payload["binding"]))
                 or any(result[k] != binding[k] for k in ("native_root_id", "entries"))
             ):

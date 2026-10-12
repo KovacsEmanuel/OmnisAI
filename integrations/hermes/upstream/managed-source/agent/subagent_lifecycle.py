@@ -264,6 +264,8 @@ class SubagentLifecycleService:
                         or prior["response"]["protocol"] != payload["protocol"]):
                     raise ColdAdmissionDenied("Manifest replay conflict")
                 self._require_cold_root(prior, parent)
+                if prior.get("indeterminate"):
+                    raise ColdAdmissionDenied("CONTRACT execution indeterminate; no retry")
                 return json.loads(json.dumps(prior["response"]))
             if len(self._cold_batches) >= 64:
                 raise ColdAdmissionDenied("Cold registry full")
@@ -272,7 +274,11 @@ class SubagentLifecycleService:
             rows, records = [], []
             try:
                 for entry in manifest["payload"]["entries"]:
-                    child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
+                    if payload["protocol"] == "omnis-managed-admission-v4":
+                        from agent.contract_execution import ContractAdmission
+                        child = AIAgent(contract_admission=ContractAdmission(parent, canonical(payload)))
+                    else:
+                        child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
                     created = time.time()
                     handle = SubagentHandle(
                         PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id, None,
@@ -320,7 +326,10 @@ class SubagentLifecycleService:
         from omnis_hermes.managed_admission_contract import validate_status
         validate_status(payload)
         with _REGISTRY.lock:
-            return json.loads(json.dumps(self._cold_batch(payload)["response"]))
+            batch = self._cold_batch(payload)
+            if batch.get("indeterminate"):
+                raise ValueError("CONTRACT execution indeterminate; no retry")
+            return json.loads(json.dumps(batch["response"]))
 
     def model_preflight(self, payload):
         """Consume qualified model data without promoting a cold child to a turn."""
@@ -331,6 +340,8 @@ class SubagentLifecycleService:
         validate_preflight(payload)
         with _REGISTRY.lock:
             batch = self._cold_batch(payload)
+            if batch["response"]["protocol"] == "omnis-managed-admission-v4":
+                raise ColdAdmissionDenied("CONTRACT method has no model preflight")
             parent = self._parent_agent_resolver()
             self._require_cold_root(batch, parent)
             body = payload["binding"]["payload"]
@@ -366,6 +377,7 @@ class SubagentLifecycleService:
         """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
         from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest
         from agent.cold_admission import ColdAdmissionDenied
+        payload = json.loads(canonical(payload))
         validate_release(payload)
         with _REGISTRY.lock:
             batch = self._cold_batch(payload)
@@ -378,9 +390,13 @@ class SubagentLifecycleService:
             if batch["binding"] is not None:
                 if canonical(binding) != batch["binding"]:
                     raise ColdAdmissionDenied("Immutable binding conflict")
+                if batch.get("indeterminate"):
+                    raise ColdAdmissionDenied("CONTRACT execution indeterminate; no retry")
                 return json.loads(json.dumps(response))
             parent = self._parent_agent_resolver()
             self._require_cold_root(batch, parent)
+            if response["protocol"] == "omnis-managed-admission-v4":
+                return self._release_contract(batch, payload, parent)
             if (time.monotonic() >= batch["expires"]
                     or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
                            for r in batch["records"])):
@@ -404,6 +420,69 @@ class SubagentLifecycleService:
             batch["binding"] = committed
             batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
             return json.loads(json.dumps(batch["response"]))
+
+    def _contract_guard(self, batch, record, parent, committed):
+        from agent.cold_admission import ColdAdmissionDenied
+        from agent.contract_execution import ContractState
+        self._require_cold_root(batch, self._parent_agent_resolver())
+        child = record.agent
+        state = child._contract_state if child is not None else None
+        row, = batch["response"]["entries"]
+        if (type(state) is not ContractState or state.closed or state.parent is not parent
+                or state.parent_session_id != parent.session_id or state.binding != committed
+                or batch["binding"] != committed or record.state != SubagentState.RUNNING
+                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
+                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
+                or child._parent_session_id != parent.session_id
+                or time.monotonic() >= min(batch["expires"], batch["execution_deadline"])):
+            raise ColdAdmissionDenied("CONTRACT live binding unavailable")
+        return True
+
+    def _release_contract(self, batch, payload, parent):
+        from agent.cold_admission import ColdAdmissionDenied
+        from agent.contract_execution import ContractState
+        from omnis_hermes.managed_admission_contract import canonical, digest, ref, validate_response
+        from datetime import datetime, timezone
+        record, = batch["records"]
+        child = record.agent
+        state = child._contract_state if child is not None else None
+        row, = batch["response"]["entries"]
+        # All identity/root/entry/deadline checks precede binding and input access.
+        if (type(state) is not ContractState or state.closed or state.binding is not None
+                or record.state != SubagentState.PENDING or state.parent is not parent
+                or state.parent_session_id != parent.session_id
+                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
+                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
+                or child._parent_session_id != parent.session_id or time.monotonic() >= batch["expires"]):
+            raise ColdAdmissionDenied("CONTRACT stage expired or stopped")
+        if datetime.now(timezone.utc) >= datetime.fromisoformat(state.deadline):
+            raise ColdAdmissionDenied("CONTRACT assignment expired")
+        committed = canonical(payload["binding"])
+        batch["binding"] = committed  # latch BEFORE the first real child method call
+        batch["execution_deadline"] = time.monotonic() + 3.0
+        batch["indeterminate"] = True
+        record.state = SubagentState.RUNNING
+        record.started_at = record.updated_at = time.time()
+        try:
+            execution = child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
+            final = {**batch["response"], "status": "SUCCEEDED", "reason": "CONTRACT_PURE",
+                     "binding_ref": ref(payload["binding"]), "executions": [execution]}
+            validate_response(final)  # whole wire, including aggregate 32768 cap
+            result = SubagentResult(record.handle, SubagentState.SUCCEEDED, True,
+                started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
+                usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
+            record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
+            record.state = SubagentState.SUCCEEDED
+            record.completed_at = record.updated_at = result.completed_at
+            batch["response"] = final
+            batch["indeterminate"] = False
+            return json.loads(json.dumps(final))
+        except BaseException:
+            record.state = SubagentState.UNKNOWN
+            raise
+        finally:
+            child.close()
+            record.agent = None
 
     def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
         parent = self._parent_agent_resolver()

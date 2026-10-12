@@ -87,6 +87,49 @@ def test_inert_provider_home_lookup_never_loads_plugins(monkeypatch):
     assert attempts == ["home-lookup"], "ordinary provider discovery must remain unchanged"
 
 
+def test_inert_runner_import_does_not_load_the_stock_inventory(monkeypatch):
+    """SOURCE import prefix; ordinary stock lookup remains unchanged."""
+    import builtins
+    import types
+    import typing
+
+    tree = ast.parse((SOURCE / "run_agent.py").read_text())
+    prefix = ast.Module(
+        body=[
+            node
+            for node in tree.body
+            if any(
+                isinstance(child, ast.ImportFrom) and child.module == "model_tools"
+                for child in ast.walk(node)
+            )
+            and not isinstance(node, (ast.FunctionDef, ast.ClassDef))
+        ],
+        type_ignores=[],
+    )
+    calls = []
+    original = builtins.__import__
+
+    def imported(name, *args, **kwargs):
+        if name == "model_tools":
+            calls.append(name)
+            return types.SimpleNamespace(get_toolset_for_tool=lambda value: ("stock", value))
+        return original(name, *args, **kwargs)
+
+    namespace = {
+        "os": os,
+        "Optional": typing.Optional,
+        "__builtins__": {**vars(builtins), "__import__": imported},
+    }
+    monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
+    exec(compile(ast.fix_missing_locations(prefix), "runner-import-prefix", "exec"), namespace)
+    assert namespace["get_toolset_for_tool"]("tool") == ("stock", "tool")
+    assert calls == ["model_tools"]
+    calls.clear()
+    monkeypatch.setenv("HERMES_OMNIS_INERT", "1")
+    exec(compile(ast.fix_missing_locations(prefix), "runner-import-prefix", "exec"), namespace)
+    assert calls == [], "inert import loaded the unrelated stock inventory"
+
+
 def test_no_optin_constructor_forwards_stock_options(monkeypatch):
     import sys
     import types

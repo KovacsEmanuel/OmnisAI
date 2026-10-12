@@ -25,17 +25,17 @@ if TYPE_CHECKING:
 
 def validate_request(operation: str, value: object) -> dict[str, object]:
     fields = {"schema_version", "owner_id", "command_id"}
-    if operation == "create-context":
+    if operation in {"create-context", "create-method-context"}:
         fields |= {"selection_ref", "preparation_command_id"}
     elif operation == "create-input":
         fields |= {"context_ref", "input"}
-    elif operation not in {"read-context", "read-input"}:
+    elif operation not in {"read-context", "read-method-context", "read-input"}:
         raise CatalogError("INVALID_REQUEST")
     result = exact(value, fields)
     contract.integer(result["schema_version"], 1, 2 if operation.startswith("create-") else 1)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
-    if operation == "create-context":
+    if operation in {"create-context", "create-method-context"}:
         ref(result["selection_ref"], "execution-selection")
         uuid_string(result["preparation_command_id"])
     elif operation == "create-input":
@@ -48,16 +48,24 @@ class ContractInputs:
     def __init__(self, engine: AsyncEngine, catalog_root: Path | None = None) -> None:
         self.engine, self.root = engine, catalog_root
 
-    async def create_context(self, request: object) -> dict[str, object]:
+    async def create_method_context(self, request: object) -> dict[str, object]:
+        return await self.create_context(request, method_execution=True)
+
+    async def create_context(
+        self, request: object, *, method_execution: bool = False
+    ) -> dict[str, object]:
         from omnis.modules.runs.managed_admission import ManagedAdmission
         from omnis.modules.tasks.contract_case_input import require_slots
 
-        value = validate_request("create-context", request)
+        if type(method_execution) is not bool:
+            raise CatalogError("INVALID_REQUEST")
+        operation = "create-method-context" if method_execution else "create-context"
+        value = validate_request(operation, request)
         version = contract.integer(value["schema_version"], 1, 2)
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
         async with asyncio.timeout(15), self.engine.begin() as conn:
             await store.lock(conn, owner)
-            prior = await store.command_replay(conn, owner, command, "create-context", value)
+            prior = await store.command_replay(conn, owner, command, operation, value)
             if prior is not None:
                 return {**prior, "created": False}
             managed = ManagedAdmission(self.engine, self.root)
@@ -66,7 +74,7 @@ class ContractInputs:
             )
             require_slots(source.procedure.model_dump(mode="json")["slots"], version=version)
             schema_ref, _, _ = source.input_schema()
-            graph = source.build(context_only=True)
+            graph = source.build(context_only=True, method_execution=method_execution)
             run = next(r for r in graph if r["kind"] == "managed-run")
             body = mapping(run["payload"])
             context = records.envelope(
@@ -95,7 +103,7 @@ class ContractInputs:
                 "run_ref": records.reference(run),
             }
             await store.command_complete(
-                conn, owner, uuid_string(run["id"]), command, "create-context", value, result_refs
+                conn, owner, uuid_string(run["id"]), command, operation, value, result_refs
             )
             return {**result_refs, "created": True}
 
@@ -197,7 +205,15 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = Parser()
     parser.add_argument(
-        "operation", choices=("create-context", "create-input", "read-context", "read-input")
+        "operation",
+        choices=(
+            "create-context",
+            "create-method-context",
+            "create-input",
+            "read-context",
+            "read-method-context",
+            "read-input",
+        ),
     )
     parser.add_argument("--request", required=True)
     parser.add_argument("--catalog-root")
@@ -221,6 +237,8 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 if args.operation == "create-context":
                     return await service.create_context(value)
+                if args.operation == "create-method-context":
+                    return await service.create_method_context(value)
                 if args.operation == "create-input":
                     return await service.create_input(value)
                 return await service.read(args.operation, value)

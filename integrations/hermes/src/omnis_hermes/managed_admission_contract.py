@@ -19,6 +19,7 @@ from .native_preparation_contract import (
 PROTOCOL = "omnis-managed-admission-v1"
 PROTOCOL_V2 = "omnis-managed-admission-v2"
 PROTOCOL_V3 = "omnis-managed-admission-v3"
+PROTOCOL_V4 = "omnis-managed-admission-v4"
 OPS = frozenset(
     {"task_stage", "task_release", "task_status", "task_model_preflight", "task_model_initialize"}
 )
@@ -84,7 +85,7 @@ def wire(value: object, fields: set[str]) -> dict[str, object]:
     bounded(value)
     value = obj(value, fields | {"protocol"})
     if (
-        value["protocol"] not in (PROTOCOL, PROTOCOL_V2, PROTOCOL_V3)
+        value["protocol"] not in (PROTOCOL, PROTOCOL_V2, PROTOCOL_V3, PROTOCOL_V4)
         or len(canonical(value)) > MAX_BYTES
     ):
         raise ValueError("Invalid managed protocol")
@@ -92,7 +93,11 @@ def wire(value: object, fields: set[str]) -> dict[str, object]:
 
 
 def validate_stage(value: object) -> dict[str, object]:
-    composed = type(value) is dict and value.get("protocol") in (PROTOCOL_V2, PROTOCOL_V3)
+    composed = type(value) is dict and value.get("protocol") in (
+        PROTOCOL_V2,
+        PROTOCOL_V3,
+        PROTOCOL_V4,
+    )
     value = wire(value, {"manifest", "compositions"} if composed else {"manifest"})
     result = envelope(value["manifest"], "launch-manifest")
     fields = {"run_id", "selection_ref", "resolution", "effective", "entries"}
@@ -102,7 +107,13 @@ def validate_stage(value: object) -> dict[str, object]:
     if composed and (
         type(payload["composition_version"]) is not int
         or payload["composition_version"]
-        not in ((3,) if value["protocol"] == PROTOCOL_V3 else (1, 2))
+        not in (
+            (4,)
+            if value["protocol"] == PROTOCOL_V4
+            else (3,)
+            if value["protocol"] == PROTOCOL_V3
+            else (1, 2)
+        )
     ):
         raise ValueError("Invalid composition version")
     uuid(payload["run_id"])
@@ -110,7 +121,7 @@ def validate_stage(value: object) -> dict[str, object]:
     if payload["resolution"] != "NO_MODEL" or payload["effective"] is not None:
         raise ValueError("Only NO_MODEL admission is supported")
     rows = entries(payload["entries"], native=False, composed=composed)
-    if composed and payload["composition_version"] in (2, 3) and len(rows) != 1:
+    if composed and payload["composition_version"] in (2, 3, 4) and len(rows) != 1:
         raise ValueError("Case input composition requires one attempt")
     if composed:
         from .prompt_bundle import validate_composition
@@ -141,9 +152,13 @@ def validate_release(value: object) -> dict[str, object]:
     for k in ("runtime_boot", "run_id", "ticket"):
         uuid(payload[k])
     text(payload["native_root_id"])
-    entries(
-        payload["entries"], native=True, composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3)
+    rows = entries(
+        payload["entries"],
+        native=True,
+        composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3, PROTOCOL_V4),
     )
+    if value["protocol"] == PROTOCOL_V4 and len(rows) != 1:
+        raise ValueError("CONTRACT release requires one attempt")
     authority = obj(payload["authority"], {"instance_id", "owner", "epoch", "generation"})
     uuid(authority["instance_id"])
     uuid(authority["owner"])
@@ -159,20 +174,114 @@ def validate_release(value: object) -> dict[str, object]:
 def validate_response(value: object) -> dict[str, object]:
     if type(value) is not dict:
         raise ValueError("Invalid managed response")
-    final = value.get("status") == "BLOCKED"
+    success = value.get("protocol") == PROTOCOL_V4 and value.get("status") == "SUCCEEDED"
+    final = value.get("status") == "BLOCKED" or success
     keys = {"status", "ticket", "manifest_ref", "native_root_id", "entries"}
     if final:
         keys |= {"reason", "binding_ref"}
+    if success:
+        keys.add("executions")
     value = wire(value, keys)
     validate_status({k: value[k] for k in ("protocol", "ticket", "manifest_ref")})
     if final:
-        if value["reason"] != "NO_MODEL":
+        if value["reason"] != ("CONTRACT_PURE" if success else "NO_MODEL"):
             raise ValueError("Invalid native refusal")
         reference(value["binding_ref"], "runtime-binding")
     elif value["status"] != "STAGED":
         raise ValueError("Invalid native stage")
     text(value["native_root_id"])
-    entries(value["entries"], native=True, composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3))
+    rows = entries(
+        value["entries"],
+        native=True,
+        composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3, PROTOCOL_V4),
+    )
+    if value["protocol"] == PROTOCOL_V4 and (len(rows) != 1 or (final and not success)):
+        raise ValueError("Invalid CONTRACT response")
+    if success:
+        executions = value["executions"]
+        if type(executions) is not list or len(executions) != 1:
+            raise ValueError("Invalid CONTRACT executions")
+        execution = obj(
+            executions[0], {"native_child_id", "native_session_id", "brief_ref", "records"}
+        )
+        if any(
+            execution[k] != rows[0][k]
+            for k in ("native_child_id", "native_session_id", "brief_ref")
+        ):
+            raise ValueError("Invalid CONTRACT native execution binding")
+        records = execution["records"]
+        if type(records) is not list or len(records) not in (6, 8):
+            raise ValueError("Invalid CONTRACT records")
+        kinds = [
+            obj(r, {"schema_version", "kind", "id", "revision", "payload", "digest"})["kind"]
+            for r in records
+        ]
+        steps = (len(records) - 2) // 2
+        if (
+            kinds
+            != ["task-result"]
+            + ["contract-tool-receipt"] * (steps + 1)
+            + ["contract-artifact"] * steps
+        ):
+            raise ValueError("Invalid CONTRACT record order")
+        if len(
+            {envelope(r, cast(str, k))["id"] for r, k in zip(records, kinds, strict=True)}
+        ) != len(records):
+            raise ValueError("Duplicate CONTRACT records")
+        from .contract_method import RESULT_EMPTY
+
+        result = obj(
+            records[0]["payload"],
+            {"header", "status", "method_results", "method_review", "gaps", "usage", *RESULT_EMPTY},
+        )
+        if (
+            result["status"] != "SUCCEEDED"
+            or result["method_review"] is not None
+            or result["gaps"] != []
+            or result["usage"]
+            != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}
+        ):
+            raise ValueError("Invalid CONTRACT TaskResult")
+        for sequence, record in enumerate(records[1 : steps + 2]):
+            receipt = obj(
+                record["payload"],
+                {
+                    "header",
+                    "binding_ref",
+                    "native_child_id",
+                    "native_session_id",
+                    "sequence",
+                    "operation",
+                    "step_id",
+                    "action_definition_ref",
+                    "input_refs",
+                    "output_ref",
+                },
+            )
+            if (
+                receipt["header"] != result["header"]
+                or receipt["binding_ref"] != value["binding_ref"]
+                or any(receipt[k] != execution[k] for k in ("native_child_id", "native_session_id"))
+                or type(receipt["sequence"]) is not int
+                or receipt["sequence"] != sequence
+                or receipt["operation"] != ("READ_INPUT" if sequence == 0 else "PURE_ACTION")
+            ):
+                raise ValueError("Invalid CONTRACT receipt")
+            if sequence == 0:
+                if receipt["step_id"] is not None or receipt["action_definition_ref"] is not None:
+                    raise ValueError("Invalid CONTRACT input read")
+            else:
+                text(receipt["step_id"])
+                reference(receipt["action_definition_ref"], "action_definition")
+            if type(receipt["input_refs"]) is not list or len(receipt["input_refs"]) != 1:
+                raise ValueError("Invalid CONTRACT input refs")
+            reference(receipt["input_refs"][0])
+            reference(receipt["output_ref"])
+        for record in records[steps + 2 :]:
+            artifact = obj(record["payload"], {"header", "schema_ref", "value"})
+            reference(artifact["schema_ref"], "schema")
+            if artifact["header"] != result["header"]:
+                raise ValueError("Invalid CONTRACT artifact header")
     return value
 
 

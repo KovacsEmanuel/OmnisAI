@@ -39,12 +39,14 @@ from omnis.modules.tasks.managed_contract import mapping, record, ref, sequence,
 
 def validate_request(operation: str, value: object) -> dict[str, object]:
     version = contract.integer(
-        mapping(value).get("schema_version"), 1, 3 if operation == "prepare-composed" else 1
+        mapping(value).get("schema_version"),
+        1,
+        3 if operation in {"prepare-composed", "prepare-method"} else 1,
     )
     fields = {"schema_version", "owner_id", "command_id"}
     if version in (2, 3):
         fields |= {"context_ref", "slot_values"}
-    if operation in {"prepare", "prepare-composed"}:
+    if operation in {"prepare", "prepare-composed", "prepare-method"}:
         fields |= {"selection_ref", "preparation_command_id", "task_count"}
     elif operation not in {"readback", "reconcile"}:
         raise CatalogError("INVALID_REQUEST")
@@ -52,7 +54,9 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     contract.integer(result["schema_version"], version, version)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
-    if operation in {"prepare", "prepare-composed"}:
+    if operation in {"prepare", "prepare-composed", "prepare-method"}:
+        if operation == "prepare-method" and version not in (2, 3):
+            raise CatalogError("INVALID_REQUEST")
         ref(result["selection_ref"], "execution-selection")
         uuid_string(result["preparation_command_id"])
         contract.integer(result["task_count"], 1, 1 if version in (2, 3) else 2)
@@ -102,6 +106,7 @@ class BuildSource:
         context_only: bool = False,
         prefix: list[dict[str, object]] | None = None,
         case_input: dict[str, object] | None = None,
+        method_execution: bool = False,
     ) -> list[dict[str, object]]:
         return contract.build_records(
             self.selection,
@@ -118,6 +123,7 @@ class BuildSource:
             context_only=context_only,
             prefix=prefix,
             case_input=case_input,
+            method_execution=method_execution,
         )
 
 
@@ -197,7 +203,7 @@ class ManagedAdmission:
             raise CatalogError("UNRESOLVED_PROCEDURE_REF")
         # Both recipe and procedure ceilings constrain the brief, without removing requirements.
         procedure = selected[0]
-        if request.get("composition_version") in {1, 2, 3}:
+        if request.get("composition_version") in {1, 2, 3, 4}:
             from omnis.modules.tasks.managed_composition import require_recipe
 
             require_recipe(recipe, procedure, source.package_key)
@@ -221,7 +227,7 @@ class ManagedAdmission:
     ) -> list[dict[str, object]]:
         prefix = None
         section = None
-        if request.get("composition_version") in (2, 3):
+        if request.get("composition_version") in (2, 3, 4):
             from omnis.modules.runs.contract_inputs import ContractInputs
             from omnis.modules.tasks.contract_case_input import (
                 material_section,
@@ -232,7 +238,12 @@ class ManagedAdmission:
                 connection, owner, ref(request["context_ref"], "contract-input-context")
             )
             version = contract.integer(mapping(context["payload"])["version"], 1, 2)
-            if request["composition_version"] != version + 1:
+            if (
+                request["composition_version"] == 4 and request["schema_version"] != version + 1
+            ) or (
+                request["composition_version"] != 4
+                and request["composition_version"] != version + 1
+            ):
                 raise CatalogError("REF_MISMATCH")
             if (
                 await connection.execute(
@@ -267,9 +278,10 @@ class ManagedAdmission:
             source = await self._source(connection, owner, request)
         graph = source.build(
             count=contract.integer(request["task_count"], 1, 2),
-            composed=request.get("composition_version") in {1, 2, 3},
+            composed=request.get("composition_version") in {1, 2, 3, 4},
             prefix=prefix,
             case_input=section,
+            method_execution=request.get("composition_version") == 4,
         )
         if len(canonical(graph)) + source.preparation_bytes > 65536:
             raise CatalogError("CONTEXT_OVERFLOW")
@@ -282,6 +294,10 @@ class ManagedAdmission:
     async def prepare_composed(self, request: object) -> dict[str, object]:
         value = validate_request("prepare-composed", request)
         return await self._prepare({**value, "composition_version": value["schema_version"]})
+
+    async def prepare_method(self, request: object) -> dict[str, object]:
+        value = validate_request("prepare-method", request)
+        return await self._prepare({**value, "composition_version": 4})
 
     async def _prepare(self, value: dict[str, object]) -> dict[str, object]:
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
@@ -307,7 +323,7 @@ class ManagedAdmission:
                 # The scoped cursor is inserted only after its owning run row.
                 retained = (
                     {text(r["id"]): r for r in await store.graph(conn, owner, run)}
-                    if value.get("composition_version") in (2, 3)
+                    if value.get("composition_version") in (2, 3, 4)
                     else {}
                 )
                 if any(
@@ -380,7 +396,7 @@ class ManagedAdmission:
         run = uuid_string(state["run_id"])
         # Validate exact retained material before recording uncertain dispatch.
         await self.stage_payload(connection, owner, manifest_ref)
-        if mapping(manifest["payload"]).get("composition_version") in (2, 3):
+        if mapping(manifest["payload"]).get("composition_version") in (2, 3, 4):
             from omnis.modules.runs.contract_inputs import ContractInputs
 
             graph = await store.graph(connection, owner, run)
@@ -555,8 +571,22 @@ class ManagedAdmission:
                 for raw in sequence(mapping(manifest["payload"])["entries"]):
                     e = mapping(raw)
                     brief = await store.get(conn, owner, run, e["brief_ref"])
-                    result = contract.blocked_result(brief)
-                    await store.put(conn, owner, run, result)
+                    if contract.manifest_protocol(manifest) == "omnis-managed-admission-v4":
+                        executions = [mapping(x) for x in sequence(checked["executions"])]
+                        matching = [x for x in executions if x["brief_ref"] == e["brief_ref"]]
+                        if len(matching) != 1:
+                            raise CatalogError("RESULT_CONFLICT")
+                        emitted = [record(x) for x in sequence(matching[0]["records"])]
+                        result = record(emitted[0], "task-result")
+                        if canonical(mapping(result["payload"])["header"]) != canonical(
+                            mapping(brief["payload"])["header"]
+                        ):
+                            raise CatalogError("ASSIGNMENT_MISMATCH")
+                        for item in emitted:
+                            await store.put(conn, owner, run, item)
+                    else:
+                        result = contract.blocked_result(brief)
+                        await store.put(conn, owner, run, result)
                     await conn.execute(
                         sql(
                             "UPDATE managed_task SET result_id=:id,state='BLOCKED' WHERE task_id=:task AND run_id=:run"
@@ -610,12 +640,20 @@ class ManagedAdmission:
             for row in rows:
                 brief = await store.by_id(conn, owner, run, row["brief_id"])
                 result = await store.by_id(conn, owner, run, row["result_id"])
-                checked = contract.method_check(brief, result, checker_ref)
+                checked = await self._result_check(conn, owner, run, brief, result, checker_ref)
                 if row["check_id"] is None:
                     await store.put(conn, owner, run, checked)
                     await conn.execute(
-                        sql("UPDATE managed_task SET check_id=:id WHERE task_id=:task"),
-                        {"id": checked["id"], "task": row["task_id"]},
+                        sql(
+                            "UPDATE managed_task SET check_id=:id,state=:state WHERE task_id=:task"
+                        ),
+                        {
+                            "id": checked["id"],
+                            "task": row["task_id"],
+                            "state": "SUCCEEDED"
+                            if mapping(checked["payload"])["status"] == "COMPLETE"
+                            else "BLOCKED",
+                        },
                     )
                 else:
                     prior = await store.by_id(conn, owner, run, row["check_id"])
@@ -629,6 +667,132 @@ class ManagedAdmission:
                         {"id": result["id"]},
                     )
         return await self.readback(value)
+
+    async def _result_check(
+        self,
+        conn: AsyncConnection,
+        owner: str,
+        run: str,
+        brief: dict[str, object],
+        result: dict[str, object],
+        checker_ref: dict[str, object],
+        *,
+        graph: list[dict[str, object]] | None = None,
+    ) -> dict[str, object]:
+        if mapping(result["payload"])["status"] != "SUCCEEDED":
+            return contract.method_check(brief, result, checker_ref)
+        from omnis.modules.tasks.method_checks import check_execution
+
+        values = await store.graph(conn, owner, run) if graph is None else graph
+        local = {text(r["id"]): r for r in values}
+        manifests = [r for r in values if r["kind"] == "launch-manifest"]
+        bindings = [r for r in values if r["kind"] == "runtime-binding"]
+        finals = [r for r in values if r["kind"] == "native-task-receipt"]
+        if len(manifests) != 1 or len(bindings) != 1 or len(finals) != 1:
+            raise CatalogError("METHOD_RECEIPT_MISMATCH")
+        manifest, binding = manifests[0], bindings[0]
+        final = contract.validate_final(finals[0]["payload"], manifest, binding)
+        if contract.manifest_protocol(manifest) != "omnis-managed-admission-v4":
+            raise CatalogError("METHOD_RECEIPT_MISMATCH")
+        executions = [mapping(x) for x in sequence(final["executions"])]
+        selected = [e for e in executions if e["brief_ref"] == catalog.reference(brief)]
+        if len(selected) != 1:
+            raise CatalogError("METHOD_RECEIPT_MISMATCH")
+        execution = selected[0]
+        emitted = [record(x) for x in sequence(execution["records"])]
+        if any(local.get(text(r["id"])) != r for r in emitted) or emitted[0] != result:
+            raise CatalogError("METHOD_RECEIPT_MISMATCH")
+        brief_body = mapping(brief["payload"])
+        bound_ref = ref(
+            mapping(sequence(brief_body["procedure_bindings"])[0])["bound_procedure_ref"]
+        )
+        bound = local[uuid_string(bound_ref["id"])]
+        input_ref = ref(sequence(brief_body["input_artifact_refs"])[0])
+        original = local[uuid_string(input_ref["id"])]
+        schemas = await self._method_schemas(conn, owner, local[run], bound)
+        return check_execution(
+            brief,
+            bound,
+            binding,
+            execution,
+            checker_ref,
+            original,
+            [r for r in values if r["kind"] == "action_definition"],
+            schemas,
+            owner,
+        )
+
+    async def _method_schemas(
+        self,
+        conn: AsyncConnection,
+        owner: str,
+        run_record: dict[str, object],
+        bound: dict[str, object],
+    ) -> dict[str, dict[str, object]]:
+        """Read qualified retained schema bytes; never compile/evaluate/reexecute."""
+        from omnis.modules.runs.native_preparation import read_receipt
+
+        preparation_ref = ref(mapping(run_record["payload"])["preparation_receipt_ref"])
+        _, receipt = await catalog.get(conn, owner, preparation_ref)
+        prepared = await read_receipt(conn, owner, ref(mapping(receipt["payload"])["bundle_ref"]))
+        if prepared["receipt_ref"] != preparation_ref:
+            raise CatalogError("PREPARATION_MISMATCH")
+        packages = [
+            mapping(p)
+            for p in sequence(mapping(mapping(prepared["bundle"])["payload"])["packages"])
+        ]
+        procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+        references = [
+            ref(procedure[k], "schema")
+            for k in ("input_schema_ref", "output_schema_ref", "handoff_schema_ref")
+        ]
+        for raw in sequence(procedure["probe"]):
+            step = mapping(raw)
+            references.extend(
+                ref(step[k], "schema") for k in ("parameter_schema_ref", "output_schema_ref")
+            )
+        for raw in sequence(procedure["method_requirements"]):
+            references.extend(
+                ref(r, "schema") for r in sequence(mapping(raw)["artifact_schema_refs"])
+            )
+        documents: dict[str, dict[str, object]] = {}
+        for reference in references:
+            key = canonical(reference).decode()
+            if key in documents:
+                continue
+            found = (
+                (
+                    await conn.execute(
+                        sql(
+                            "SELECT i.package_key,i.entity_key FROM catalog_identity i JOIN catalog_reservation r ON r.id=i.id WHERE i.owner_id=:owner AND i.id=:id AND i.entity_kind='schema' AND r.revision=:revision AND r.digest=:digest"
+                        ),
+                        {**reference, "owner": owner},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if found is None:
+                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+            selected = [p for p in packages if p["package_key"] == found["package_key"]]
+            if len(selected) != 1:
+                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+            files = {
+                text(mapping(f)["path"]): base64.b64decode(
+                    text(mapping(f)["content_b64"], 16384), validate=True
+                )
+                for f in sequence(selected[0]["files"])
+            }
+            manifest = dto(files["omnis.yaml"], Manifest)
+            paths = [
+                b.path
+                for b in manifest.file_bindings
+                if b.entity_kind == "schema" and b.key == found["entity_key"]
+            ]
+            if len(paths) != 1 or paths[0] not in files:
+                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+            documents[key] = mapping(load_json(files[paths[0]]))
+        return documents
 
     async def _verify_graph(
         self, conn: AsyncConnection, owner: str, run: str, graph: list[dict[str, object]]
@@ -781,13 +945,20 @@ class ManagedAdmission:
             except ValidationError:
                 raise CatalogError("RESULT_SCHEMA_MISMATCH") from None
             checker = ref(mapping(local[run]["payload"])["method_check_ref"], "method-checker")
-            expected = contract.method_check(matches[0], result, checker)
-            for check in (
+            existing_checks = [
                 c
                 for c in graph
                 if c["kind"] == "method-check"
                 and mapping(c["payload"]).get("task_result_ref") == catalog.reference(result)
-            ):
+            ]
+            expected = (
+                await self._result_check(conn, owner, run, matches[0], result, checker, graph=graph)
+                if existing_checks
+                else None
+            )
+            for check in existing_checks:
+                if expected is None:
+                    raise CatalogError("STORAGE_INCOMPATIBLE")
                 if canonical(check["payload"]) != canonical(expected["payload"]):
                     raise CatalogError("RESULT_CONFLICT")
 
@@ -848,7 +1019,9 @@ class ManagedAdmission:
             )
             if (
                 sections[
-                    5 if mapping(manifest["payload"]).get("composition_version") in (2, 3) else 4 :
+                    5
+                    if mapping(manifest["payload"]).get("composition_version") in (2, 3, 4)
+                    else 4 :
                 ]
                 != expected
             ):
@@ -925,7 +1098,7 @@ class ManagedAdmission:
                 ):
                     if item[key] is not None:
                         item[key] = str(item[key])
-                if item["state"] not in {"QUEUED", "BOUND", "BLOCKED"}:
+                if item["state"] not in {"QUEUED", "BOUND", "BLOCKED", "SUCCEEDED"}:
                     raise CatalogError("STORAGE_INCOMPATIBLE")
                 tasks.append(item)
             inbox = (
@@ -946,7 +1119,9 @@ class ManagedAdmission:
                 "binding": binding,
                 "binding_ref": None if binding is None else catalog.reference(binding),
                 "run_id": run,
-                "status": "BLOCKED"
+                "status": "SUCCEEDED"
+                if tasks and all(t["state"] == "SUCCEEDED" for t in tasks)
+                else "BLOCKED"
                 if state["final_id"] is not None
                 else "NEEDS_RECONCILIATION"
                 if state["stage_started"]
@@ -972,7 +1147,8 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = Parser()
     parser.add_argument(
-        "operation", choices=("prepare", "prepare-composed", "readback", "reconcile")
+        "operation",
+        choices=("prepare", "prepare-composed", "prepare-method", "readback", "reconcile"),
     )
     parser.add_argument("--request", required=True)
     parser.add_argument("--catalog-root")
@@ -998,6 +1174,8 @@ def main(argv: list[str] | None = None) -> int:
                     return await consumer.prepare(value)
                 if args.operation == "prepare-composed":
                     return await consumer.prepare_composed(value)
+                if args.operation == "prepare-method":
+                    return await consumer.prepare_method(value)
                 if args.operation == "reconcile":
                     return await consumer.reconcile(value)
                 return await consumer.readback(value)

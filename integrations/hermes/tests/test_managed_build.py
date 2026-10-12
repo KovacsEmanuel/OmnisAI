@@ -30,6 +30,7 @@ def test_managed_patch_is_separate_and_exactly_pinned():
         "run_agent.py",
         "agent/agent_init.py",
         "agent/cold_admission.py",
+        "agent/contract_execution.py",
         "agent/subagent_lifecycle.py",
         "agent/managed_admission_rpc.py",
         "agent/auxiliary_client.py",

@@ -39,7 +39,8 @@ PROTOCOL = "omnis-managed-admission-v2"
 # Exact native composer source; parity test binds this to the installed producer.
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
-COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
+RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
+COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -58,6 +59,8 @@ BASE_TEXT = (
     "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
 )
 ROLE_TEXT = "SUPPORT-only cold admission probe; not an assessment."
+CONTRACT_BASE_TEXT = "CONTRACT_PROBE. Deterministic PURE method only; no provider, model, target or stock tools. Read only the bound assignment inputs."
+CONTRACT_ROLE_TEXT = "SUPPORT-only native CONTRACT/PURE method; not an assessment."
 
 
 def prompt_settings() -> dict[str, object]:
@@ -223,6 +226,7 @@ def compose(
     skills: list[dict[str, object]],
     *,
     case_input: dict[str, object] | None = None,
+    method_execution: bool = False,
 ) -> dict[str, object]:
     sections = [
         {"section": "base", "record": base},
@@ -244,7 +248,7 @@ def compose(
             "token_upper_bound": len(raw),
         },
     )
-    validate(result)
+    validate(result, version=4 if method_execution else None)
     return result
 
 
@@ -263,7 +267,9 @@ def _authored_text(value: object) -> None:
             _authored_text(child)
 
 
-def validate(value: object, entry: object = None, manifest: object = None) -> dict[str, object]:
+def validate(
+    value: object, entry: object = None, manifest: object = None, *, version: int | None = None
+) -> dict[str, object]:
     result = record(value, "prompt-composition")
     body = exact(
         result["payload"],
@@ -295,7 +301,12 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     )
     if (
         metadata["composer_revision"]
-        not in {COMPOSER_REVISION, CAPTURE_COMPOSER_REVISION, LEGACY_COMPOSER_REVISION}
+        not in {
+            COMPOSER_REVISION,
+            RECORDS_COMPOSER_REVISION,
+            CAPTURE_COMPOSER_REVISION,
+            LEGACY_COMPOSER_REVISION,
+        }
         or metadata["provenance"] != PROVENANCE
         or metadata["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
     ):
@@ -316,8 +327,22 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     ):
         raise CatalogError("CONTEXT_OVERFLOW")
     has_input = len(sections) > 4 and mapping(sections[4]).get("section") == "case-input"
-    version = 1 + integer(mapping(sections[4])["version"], 1, 2) if has_input else 1
+    method_execution = version == 4 or (
+        manifest is not None
+        and mapping(mapping(manifest)["payload"]).get("composition_version") == 4
+    )
+    if method_execution and not has_input:
+        raise CatalogError("COMPOSITION_REJECTED")
+    version = (
+        4
+        if method_execution
+        else 1 + integer(mapping(sections[4])["version"], 1, 2)
+        if has_input
+        else 1
+    )
     revisions = {COMPOSER_REVISION}
+    if version <= 3:
+        revisions.add(RECORDS_COMPOSER_REVISION)
     if version <= 2:
         revisions.add(CAPTURE_COMPOSER_REVISION)
     if version == 1:
@@ -367,8 +392,12 @@ def validate(value: object, entry: object = None, manifest: object = None) -> di
     if brief_body["technique_refs"] != [procedure["technique_ref"]] or method_count != 1:
         raise CatalogError("COMPOSITION_REJECTED")
     if (
-        base["payload"] != {"text": BASE_TEXT}
-        or role["payload"] != {"role": brief_body["role"], "text": ROLE_TEXT}
+        base["payload"] != {"text": CONTRACT_BASE_TEXT if method_execution else BASE_TEXT}
+        or role["payload"]
+        != {
+            "role": brief_body["role"],
+            "text": CONTRACT_ROLE_TEXT if method_execution else ROLE_TEXT,
+        }
         or metadata["base_ref"] != records.reference(base)
         or metadata["role_refs"]
         != [{"role": brief_body["role"], "content_ref": records.reference(role)}]
@@ -473,7 +502,7 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         body = mapping(validated["payload"])
         nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
         sections = sequence(load_json(text(body["text"], 65536)))
-        if mapping(checked["payload"])["composition_version"] in (2, 3):
+        if mapping(checked["payload"])["composition_version"] in (2, 3, 4):
             nested.extend([mapping(sections[4])["context"], mapping(sections[4])["input"]])
         for value in [body["prompt_bundle"], *nested]:
             item = mapping(value)

@@ -226,8 +226,8 @@ class NativeTaskOwner:
                     raise CatalogError("TASK_REJECTED")
                 return await self._model_preflight(command, binding)
             if back["results"]:
-                await self.domain.check(command.owner_id, command.command_id)
-                return self._reply(command, binding, "BLOCKED")
+                checked = await self.domain.check(command.owner_id, command.command_id)
+                return self._reply(command, binding, str(checked["status"]))
         if command.action == "stage":
             if binding is not None:
                 return self._reply(command, binding, "BOUND")
@@ -290,9 +290,32 @@ class NativeTaskOwner:
                 await self.domain.reserve_dispatch(
                     conn, command.owner_id, command.manifest_ref, "release"
                 )
-            final = await self.runtime.managed(
-                self.service, self.owner, "task_release", {**payload, "binding": binding}
-            )
+            if protocol == "omnis-managed-admission-v4":
+                # Entire finite PURE method is one dispatch under the existing
+                # InstanceControl/lease barrier. Stop waits; no warm/target work.
+                # Obtain the existing short grant before entering its row locks
+                # to avoid a second connection deadlocking against this owner.
+                grant = await self.service.runtime_authority(
+                    self.owner, self.epoch, command.expected_generation, inert_probe=True
+                )
+                async with self.service.native_preparation_commit(
+                    self.owner, self.epoch, command.expected_generation
+                ) as conn:
+                    await self._instance(conn, command)
+                    try:
+                        response = await self.runtime._exchange(
+                            "task_release", grant, {**payload, "binding": binding}
+                        )
+                    except BaseException:
+                        # Match managed()'s interrupted-channel retirement while
+                        # retaining the preobtained grant and committed intent.
+                        await self.runtime.close()
+                        raise
+                    final = mapping(response["managed"])
+            else:
+                final = await self.runtime.managed(
+                    self.service, self.owner, "task_release", {**payload, "binding": binding}
+                )
         else:
             if not back["release_started"]:
                 raise CatalogError("TASK_INDETERMINATE")
@@ -306,8 +329,8 @@ class NativeTaskOwner:
             body["authority"],
             held=False,
         )
-        await self.domain.check(command.owner_id, command.command_id)
-        return self._reply(command, binding, "BLOCKED")
+        checked = await self.domain.check(command.owner_id, command.command_id)
+        return self._reply(command, binding, str(checked["status"]))
 
 
 async def control_task(directory: Path, value: object) -> dict[str, object]:

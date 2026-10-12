@@ -114,9 +114,12 @@ def build_records(
     context_only: bool = False,
     prefix: list[dict[str, object]] | None = None,
     case_input: dict[str, object] | None = None,
+    method_execution: bool = False,
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
+    if type(method_execution) is not bool or (method_execution and composition_packages is None):
+        raise CatalogError("MANAGED_REJECTED")
     if (
         role not in {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
         or procedure.verification_kind != "CONTRACT"
@@ -197,15 +200,21 @@ def build_records(
                 "criteria": [
                     {
                         "id": criterion,
-                        "description": "Record a native NO_MODEL refusal without executing the method.",
+                        "description": "Execute the bound deterministic CONTRACT/PURE method."
+                        if method_execution
+                        else "Record a native NO_MODEL refusal without executing the method.",
                         "kind": "FUNCTIONAL",
                         "oracle_ref": None,
                     }
                 ],
-                "non_goals": ["No assessment, method success, provider or target traffic."],
+                "non_goals": [
+                    "No assessment, provider or target traffic."
+                    if method_execution
+                    else "No assessment, method success, provider or target traffic."
+                ],
                 "required_operation_refs": [],
                 "basis_refs": [records.reference(selection), preparation_ref],
-                "gaps": ["NO_MODEL; method execution unavailable."],
+                "gaps": [] if method_execution else ["NO_MODEL; method execution unavailable."],
                 "done_when": [{"criterion_id": criterion, "required": True}],
             },
         )
@@ -213,7 +222,7 @@ def build_records(
             "focus",
             {
                 "mission_ref": mission,
-                "state": "BLOCKED",
+                "state": "RESOLVED" if method_execution else "BLOCKED",
                 "selection_rule_ref": rule,
                 "bootstrap_budget_ref": None,
                 "test_operation_refs": [],
@@ -229,20 +238,29 @@ def build_records(
         checker = add(
             "method-checker",
             {
-                "key": "managed.no-model",
+                "key": "managed.contract-pure" if method_execution else "managed.no-model",
                 "code_digest": code_digest,
-                "semantics": "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
+                "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+                if method_execution
+                else "All method requirements NOT_RUN; INCOMPLETE. Schema acceptance is not method completion.",
             },
         )
         base = add(
             "prompt-content",
             {
-                "text": "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
+                "text": "CONTRACT_PROBE. Deterministic PURE method only; no provider, model, target or stock tools. Read only the bound assignment inputs."
+                if method_execution
+                else "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
             },
         )
         role_ref = add(
             "prompt-content",
-            {"role": role, "text": "SUPPORT-only cold admission probe; not an assessment."},
+            {
+                "role": role,
+                "text": "SUPPORT-only native CONTRACT/PURE method; not an assessment."
+                if method_execution
+                else "SUPPORT-only cold admission probe; not an assessment.",
+            },
         )
         prompt = add(
             "prompt-bundle",
@@ -405,7 +423,9 @@ def build_records(
             "through_cursor": cursor["id"],
             "brief_revision": 1,
         }
-        result_schema = add("schema", result_json_schema(header, requirements))
+        result_schema = add(
+            "schema", result_json_schema(header, requirements, method_execution=method_execution)
+        )
         header = {**header, "result_schema_ref": result_schema}
         brief = add(
             "task-brief",
@@ -417,7 +437,9 @@ def build_records(
                 "objective_summary": procedure.objective,
                 "non_goals": ["No assessment, target/model access, or CriterionOutcome."],
                 "role": role,
-                "hypothesis": "Native admission refuses NO_MODEL before any method step.",
+                "hypothesis": "Native child executes only bound deterministic PURE steps."
+                if method_execution
+                else "Native admission refuses NO_MODEL before any method step.",
                 "operation_refs": [],
                 "priority_reason": "SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.",
                 "done_when": [],
@@ -511,6 +533,7 @@ def build_records(
                     bindings,
                 ),
                 case_input=case_input,
+                method_execution=method_execution,
             )
             graph.append(composed)
             composition = {"composition_ref": records.reference(composed)}
@@ -535,7 +558,13 @@ def build_records(
             **(
                 {}
                 if composition_packages is None
-                else {"composition_version": case_version + 1 if case_input is not None else 1}
+                else {
+                    "composition_version": 4
+                    if method_execution
+                    else case_version + 1
+                    if case_input is not None
+                    else 1
+                }
             ),
         },
     )
@@ -554,7 +583,10 @@ def _composition_settings() -> dict[str, object]:
 
 
 def result_json_schema(
-    header: dict[str, object], requirements: list[dict[str, object]]
+    header: dict[str, object],
+    requirements: list[dict[str, object]],
+    *,
+    method_execution: bool = False,
 ) -> dict[str, object]:
     def strict_object(properties: dict[str, object]) -> dict[str, object]:
         return {
@@ -595,7 +627,85 @@ def result_json_schema(
         "gaps": {"const": ["NO_MODEL; every published method requirement remains unexecuted."]},
         "usage": {"const": {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}},
     }
-    return {"$schema": "https://json-schema.org/draft/2020-12/schema", **strict_object(properties)}
+    definitions: dict[str, object] = {}
+    if method_execution:
+        reference_schema = strict_object(
+            {
+                "kind": {"type": "string"},
+                "id": {"type": "string", "pattern": "^[0-9a-f-]{36}$"},
+                "revision": {"type": "integer", "const": 1},
+                "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            }
+        )
+        # Compact local definition names avoid repeating long schema paths in
+        # the schema and its escaped prompt-composition copy.
+        definitions["ref"] = reference_schema
+        header_properties["result_schema_ref"] = {
+            "$ref": "#/$defs/ref",
+            "properties": {"kind": {"const": "schema"}},
+        }
+        definitions["r"] = {"type": "array", "items": {"$ref": "#/$defs/ref"}, "maxItems": 128}
+        ref_array = {"$ref": "#/$defs/r"}
+        definitions["m"] = strict_object(
+            {
+                "ref": {"type": "object"},
+                "state": {"const": "DONE"},
+                "basis_refs": ref_array,
+                "artifact_refs": ref_array,
+                "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
+            }
+        )
+        # Share representation only. Prefix constraints retain every exact
+        # requirement/bound identity, field/type rule and collection limit.
+        bound_definitions: dict[bytes, str] = {}
+        prefix_items: list[dict[str, object]] = []
+        for requirement in requirements:
+            required_ref = exact(requirement["ref"], {"bound_procedure_ref", "requirement_key"})
+            bound_ref = ref(required_ref["bound_procedure_ref"], "bound-procedure")
+            name = bound_definitions.get(canonical(bound_ref))
+            if name is None:
+                name = f"b{len(bound_definitions)}"
+                bound_definitions[canonical(bound_ref)] = name
+                definitions[name] = strict_object(
+                    {
+                        "bound_procedure_ref": {"const": bound_ref},
+                        "requirement_key": {"type": "string"},
+                    }
+                )
+            prefix_items.append(
+                {
+                    "$ref": "#/$defs/m",
+                    "properties": {
+                        "ref": {
+                            "$ref": "#/$defs/" + name,
+                            "properties": {
+                                "requirement_key": {
+                                    "const": text(required_ref["requirement_key"], 128)
+                                }
+                            },
+                        }
+                    },
+                }
+            )
+        properties.update(
+            {
+                "status": {"const": "SUCCEEDED"},
+                "method_results": {
+                    "type": "array",
+                    "minItems": len(requirements),
+                    "maxItems": len(requirements),
+                    "prefixItems": prefix_items,
+                },
+                "consumed_input_refs": ref_array,
+                "action_refs": ref_array,
+                "gaps": {"type": "array", "maxItems": 0},
+            }
+        )
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        **strict_object(properties),
+        **({"$defs": definitions} if method_execution else {}),
+    }
 
 
 def validate_brief(value: object) -> dict[str, object]:
@@ -958,13 +1068,13 @@ def validate_manifest(value: object) -> dict[str, object]:
         | ({"composition_version"} if composed else set()),
     )
     if composed:
-        integer(body["composition_version"], 1, 3)
+        integer(body["composition_version"], 1, 4)
     uuid_string(body["run_id"])
     ref(body["selection_ref"], "execution-selection")
     if body["resolution"] != "NO_MODEL" or body["effective"] is not None:
         raise CatalogError("MANAGED_REJECTED")
     entries = sequence(body["entries"])
-    if not 1 <= len(entries) <= (1 if body.get("composition_version") in (2, 3) else 2):
+    if not 1 <= len(entries) <= (1 if body.get("composition_version") in (2, 3, 4) else 2):
         raise CatalogError("MANAGED_REJECTED")
     identities: set[str] = set()
     for index, raw in enumerate(entries):
@@ -994,6 +1104,8 @@ def validate_manifest(value: object) -> dict[str, object]:
 
 def manifest_protocol(value: object) -> str:
     body = mapping(validate_manifest(value)["payload"])
+    if body.get("composition_version") == 4:
+        return "omnis-managed-admission-v4"
     if body.get("composition_version") == 3:
         return "omnis-managed-admission-v3"
     return "omnis-managed-admission-v2" if "composition_version" in body else PROTOCOL
@@ -1086,6 +1198,7 @@ def validate_binding(value: object, manifest: object) -> dict[str, object]:
 
 def validate_final(value: object, manifest: object, binding: object) -> dict[str, object]:
     bound = validate_binding(binding, manifest)
+    method_execution = manifest_protocol(manifest) == "omnis-managed-admission-v4"
     result = exact(
         value,
         {
@@ -1097,15 +1210,18 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
             "binding_ref",
             "native_root_id",
             "entries",
-        },
+        }
+        | ({"executions"} if method_execution else set()),
     )
-    if result["status"] != "BLOCKED" or result["reason"] != "NO_MODEL":
+    if result["status"] != ("SUCCEEDED" if method_execution else "BLOCKED") or result["reason"] != (
+        "CONTRACT_PURE" if method_execution else "NO_MODEL"
+    ):
         raise CatalogError("MANAGED_REJECTED")
     stage = validate_stage(
         {
             k: ("STAGED" if k == "status" else v)
             for k, v in result.items()
-            if k not in {"reason", "binding_ref"}
+            if k not in {"reason", "binding_ref", "executions"}
         },
         manifest,
     )
@@ -1116,4 +1232,28 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
         canonical(stage[k]) != canonical(body[k]) for k in ("ticket", "native_root_id", "entries")
     ):
         raise CatalogError("MANAGED_REJECTED")
+    if method_execution:
+        if len(canonical(result)) > 32768:
+            raise CatalogError("RESULT_OVERFLOW")
+        executions = sequence(result["executions"])
+        entries = sequence(body["entries"])
+        if len(executions) != len(entries):
+            raise CatalogError("RESULT_CONFLICT")
+        for raw, native in zip(executions, entries, strict=True):
+            execution = exact(raw, {"native_child_id", "native_session_id", "brief_ref", "records"})
+            entry = mapping(native)
+            if any(
+                canonical(execution[k]) != canonical(entry[k])
+                for k in ("native_child_id", "native_session_id", "brief_ref")
+            ):
+                raise CatalogError("LINEAGE_MISMATCH")
+            ref(execution["brief_ref"], "task-brief")
+            output = [record(r) for r in sequence(execution["records"])]
+            if len(output) not in (6, 8) or len({text(r["id"]) for r in output}) != len(output):
+                raise CatalogError("RESULT_CONFLICT")
+            steps = (len(output) - 2) // 2
+            if [r["kind"] for r in output] != ["task-result"] + ["contract-tool-receipt"] * (
+                steps + 1
+            ) + ["contract-artifact"] * steps:
+                raise CatalogError("RESULT_CONFLICT")
     return result

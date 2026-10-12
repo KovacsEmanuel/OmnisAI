@@ -1,4 +1,952 @@
-diff --git a/agent/agent_init.py b/agent/agent_init.py
+--- a/agent/auxiliary_client.py
++++ b/agent/auxiliary_client.py
+@@ -7866,6 +7866,8 @@
+     drivers pass to ``_retry_same_provider_*`` / ``_call_fallback_candidate_*``. One immutable
+     runtime snapshot for keying/resolution/retries/fallbacks, so a concurrent /model switch
+     can't mix key and client from different runtimes."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority()
+     main_runtime = _normalize_main_runtime(main_runtime)
+     req = _prepare_aux_request(
+         task, provider=provider, model=model, base_url=base_url, api_key=api_key,
+--- a/agent/chat_completion_helpers.py
++++ b/agent/chat_completion_helpers.py
+@@ -713,7 +713,7 @@
+     return finish(raw_response)
+
+
+-def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
++def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client, final_request=None):
+     """Run one non-streaming LLM request for the active api_mode and return it.
+
+     Shared by ``interruptible_api_call`` and ``direct_api_call``. ``make_client(reason,
+@@ -721,6 +721,13 @@
+     so callers can register it with their abort/close machinery; bedrock / MoA
+     manage their own clients. Interrupt/abort/close semantics stay in callers.
+     """
++    from omnis_hermes.model_terminal import require_model_authority, is_inert_model_context, deny_model
++    if final_request is not None or is_inert_model_context(agent):
++        from omnis_hermes.model_request import consume_final_request
++        api_kwargs = consume_final_request(final_request, api_kwargs)
++        if agent.api_mode != "chat_completions" or agent.provider == "moa":
++            deny_model()
++    require_model_authority(agent, final_request=final_request)
+     if agent.api_mode == "codex_responses":
+         return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
+             on_first_delta=getattr(agent, "_codex_on_first_delta", None))
+@@ -746,6 +753,11 @@
+     # request transform. No-op unless this really is the OpenAI SDK, so the
+     # MoA facade above and the suite's stand-in clients are unaffected.
+     api_kwargs = bypass_chat_sdk_request_transform(api_kwargs, request_client)
++    if final_request is not None:
++        from omnis_hermes.model_request import consume_final_request, final_sdk_guard
++        api_kwargs = consume_final_request(final_request, api_kwargs, post_bypass=True)
++        with final_sdk_guard(request_client, final_request):
++            return request_client.chat.completions.create(**api_kwargs)
+     return request_client.chat.completions.create(**api_kwargs)
+
+
+@@ -952,7 +964,7 @@
+         return client
+
+
+-def direct_api_call(agent, api_kwargs: dict):
++def direct_api_call(agent, api_kwargs: dict, *, final_request=None):
+     """Run a non-streaming LLM call inline on the conversation thread (cron turns,
+     delegated children — see ``should_use_direct_api_call``): no interrupt worker,
+     so the nested-pool deadlock cannot occur. An activity heartbeat keeps
+@@ -961,6 +973,8 @@
+     aborts in-flight sockets via the registered hook, and a per-call ``timeout``
+     equal to the stale budget is the backstop when the abort finds nothing (#85252).
+     Both surface a retryable ``TimeoutError`` for the outer retry loop."""
++    from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
++    require_model_authority(agent, final_request=final_request)
+     _check_stale_giveup(agent)
+     agent._touch_activity("waiting for non-streaming API response")
+     # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
+@@ -978,8 +992,13 @@
+     # Only a clean return reports the reuse reason; errors/interrupts really
+     # close the client so the retry builds a fresh pool.
+     succeeded = False
++    terminal = None
+     try:
+-        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
++        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client,
++            final_request=final_request)
++    except ManagedModelTerminal as error:
++        terminal = error
++        raise
+     except Exception:
+         if getattr(agent, "_interrupt_requested", False):
+             raise InterruptedError("Agent interrupted during API call") from None
+@@ -1004,13 +1023,22 @@
+         succeeded = True
+         return response
+     finally:
+-        request.stop_watchdogs()
+-        if getattr(agent, "_active_request_abort", None) is request.abort_hook:
+-            agent._active_request_abort = None
+-        request_client = request.pop_client()
+-        if request_client is not None:
+-            agent._close_request_openai_client(request_client,
+-                reason="request_complete" if succeeded else "request_error_cleanup")
++        try:
++            try:
++                request.stop_watchdogs()
++            finally:
++                try:
++                    if getattr(agent, "_active_request_abort", None) is request.abort_hook:
++                        agent._active_request_abort = None
++                finally:
++                    request_client = request.pop_client()
++                    if request_client is not None:
++                        agent._close_request_openai_client(request_client,
++                            reason="request_complete" if succeeded else "request_error_cleanup")
++        except Exception:
++            if terminal is None:
++                raise
++            terminal.cleanup_uncertain = True
+
+
+ class _RequestClientRegistry:
+@@ -1235,20 +1263,22 @@
+
+
+
+-def interruptible_api_call(agent, api_kwargs: dict):
++def interruptible_api_call(agent, api_kwargs: dict, *, final_request=None):
+     """Run the API call on a worker thread so the caller can detect interrupts
+     without waiting for the full HTTP round-trip. Each worker gets its own
+     per-request client (interrupts close only that one); a stale-call detector
+     kills the connection and raises so the main retry loop can back off / rotate
+     credentials / fall back."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent, final_request=final_request)
+     # Nested-pool contexts (cron, delegated children) wedge on a worker thread
+     # (#62151): run inline. See should_use_direct_api_call.
+     if should_use_direct_api_call(agent):
+-        return direct_api_call(agent, api_kwargs)
++        return direct_api_call(agent, api_kwargs, final_request=final_request)
+     _check_stale_giveup(agent)  # cross-turn stale breaker (#58962), non-streaming sibling
+     from agent.chat_completion_nonstream import _NonStreamRequest
+
+-    return _NonStreamRequest(agent, api_kwargs).run()
++    return _NonStreamRequest(agent, api_kwargs, final_request=final_request).run()
+
+
+ def _consume_ephemeral_reasoning_off(agent) -> bool:
+@@ -2283,6 +2313,8 @@
+
+ def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
+     """Request a summary when max iterations are reached. Returns the final response text."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
+     if getattr(agent, "suppress_status_output", False):
+         # Strict machine-readable mode (-Q, oneshot): keep diagnostics off stdout. quiet_mode is
+@@ -3753,6 +3785,8 @@
+     text token (tool-call turns suppress them) and returns a SimpleNamespace in
+     the non-streaming response shape. codex_responses delegates to the already-
+     streaming codex runner; cron turns and delegated children run inline."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     if agent._interrupt_requested:
+         raise InterruptedError("Agent interrupted before streaming API call")
+     if agent.api_mode == "codex_responses":
+--- a/agent/chat_completion_nonstream.py
++++ b/agent/chat_completion_nonstream.py
+@@ -11,10 +11,13 @@
+     instance; ``_abort_request`` may run from the poll (stranger) thread.
+     """
+
+-    def __init__(self, agent, api_kwargs: dict):
++    def __init__(self, agent, api_kwargs: dict, *, final_request=None):
++        from omnis_hermes.model_terminal import require_model_authority
++        require_model_authority(agent, final_request=final_request)
+         self.agent = agent
+         self.api_kwargs = api_kwargs
+-        self.result = {"response": None, "error": None}
++        self.final_request = final_request
++        self.result = {"response": None, "error": None, "terminal": None}
+         self.clients = h._RequestClientRegistry(agent)
+         # Request-local cancel flag: agent._interrupt_requested is cleared at turn
+         # boundaries but this daemon worker can outlive the turn, so it must know THIS
+@@ -65,6 +68,7 @@
+         return self.clients.set_client(client, kind=kind)
+
+     def _call(self):
++        from omnis_hermes.model_terminal import ManagedModelTerminal
+         watchdog_state_var = watchdog_context_token = None
+         try:
+             self._install_codex_request_token()
+@@ -74,7 +78,10 @@
+                 watchdog_state_var = _codex_watchdog_state_var
+                 watchdog_context_token = watchdog_state_var.set(self.codex_watchdog_state)
+             self.result["response"] = h._dispatch_nonstreaming_api_request(
+-                self.agent, self.api_kwargs, make_client=self._make_client)
++                self.agent, self.api_kwargs, make_client=self._make_client,
++                final_request=getattr(self, "final_request", None))
++        except ManagedModelTerminal as e:
++            self.result["terminal"] = self.result["error"] = e
+         except Exception as e:
+             # Our own force-close caused this error: swallow it, the main
+             # thread raises InterruptedError (#6600). Retirement logs at info
+@@ -91,15 +98,35 @@
+                 return
+             self.result["error"] = e
+         finally:
+-            if watchdog_state_var is not None:
+-                watchdog_state_var.reset(watchdog_context_token)
+-            # Retire first: close_once can raise, and a leaked token would let
+-            # a later worker mistake itself for the owning attempt.
+-            self._retire_codex_request_token()
+-            # Reuse reason only on a clean response; error or cancel-swallow
+-            # really closes so the next attempt builds a fresh pool.
+-            self.clients.close_once(
+-                "request_complete" if self.result["response"] is not None else "request_error_cleanup")
++            try:
++                try:
++                    if watchdog_state_var is not None:
++                        watchdog_state_var.reset(watchdog_context_token)
++                finally:
++                    try:
++                        self._retire_codex_request_token()
++                    finally:
++                        self.clients.close_once(
++                            "request_complete" if self.result["response"] is not None else "request_error_cleanup")
++            except Exception:
++                terminal = self.result.get("terminal")
++                if terminal is None:
++                    raise
++                terminal.cleanup_uncertain = True
++
++    def _raise_terminal(self):
++        """Admission outcome outranks cancel; a still-live cleanup remains explicit."""
++        terminal = self.result.get("terminal")
++        if terminal is None:
++            return
++        try:
++            if self.thread is not None:
++                self.thread.join(timeout=2.0)
++                if self.thread.is_alive():
++                    terminal.cleanup_uncertain = True
++        except Exception:
++            terminal.cleanup_uncertain = True
++        raise terminal
+
+     def _abort_request(self, reason: str) -> None:
+         """Watchdog/interrupt kill: abort the request client (kind-aware, #67142)
+@@ -266,7 +293,10 @@
+         self.cancelled = True
+         h.logger.debug("Force-closing httpx client due to interrupt (not a network error).")
+         self._abort_request("interrupt_abort")
+-        h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
++        try:
++            h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
++        finally:
++            self._raise_terminal()
+         raise InterruptedError("Agent interrupted during API call")
+
+     def run(self):
+@@ -285,6 +315,7 @@
+         poll_count = 0
+         while t.is_alive():
+             t.join(timeout=0.3)
++            self._raise_terminal()
+             poll_count += 1
+             # Keep the quiet gateway heartbeat; only silence warrants a notice.
+             # Resumed events clear our notice on the next poll, not 30s later.
+@@ -311,6 +342,7 @@
+                 break
+             if agent._interrupt_requested:
+                 self._interrupt(elapsed)
++        self._raise_terminal()
+         if self.result["error"] is not None:
+             raise self.result["error"]
+         # Success — the provider proved responsive: clear the breaker (#58962).
+--- /dev/null
++++ b/agent/cold_admission.py
+@@ -0,0 +1,86 @@
++"""Trusted opt-in cold AIAgent state. No routing, client, tools or conversation.
++
++This mode has its own complete finite state, NOT a partially initialized warm
++agent. All warm surfaces (including lineage, wake, persistence and tools) refuse.
++It cannot be upgraded to warm. The caller must create a new authorized agent.
++"""
++from dataclasses import dataclass
++import inspect
++from uuid import uuid4
++
++
++class ColdAdmissionDenied(ValueError):
++    pass
++
++
++@dataclass(frozen=True)
++class ColdAdmission:
++    resolution: str = "NO_MODEL"
++    parent_session_id: str | None = None
++
++
++@dataclass
++class ColdState:
++    session_id: str
++    native_id: str
++    parent_session_id: str | None
++    closed: bool = False
++    binding: bytes | None = None
++    terminal: str | None = None
++
++    def block(self, binding: bytes) -> str:
++        if self.closed or not binding:
++            raise ColdAdmissionDenied("Cold agent unavailable")
++        if self.binding is not None and self.binding != binding:
++            raise ColdAdmissionDenied("Cold binding conflict")
++        self.binding = binding
++        self.terminal = "BLOCKED"
++        return self.terminal
++
++
++COLD_READABLE = frozenset({
++    "_cold_state", "session_id", "_subagent_id", "_parent_session_id",
++    "_delegate_role", "_delegate_depth", "provider", "model", "enabled_toolsets",
++    "tools", "close", "__class__", "__dict__", "__weakref__",
++})
++
++
++def initialize_cold(agent, admission, kwargs):
++    if type(admission) is not ColdAdmission or admission.resolution != "NO_MODEL":
++        raise ColdAdmissionDenied("Unrecognized cold admission")
++    if admission.parent_session_id is not None and (
++        type(admission.parent_session_id) is not str or not 0 < len(admission.parent_session_id) <= 128
++    ):
++        raise ColdAdmissionDenied("Invalid cold parent")
++    defaults = inspect.signature(type(agent).__init__).parameters
++    if any(value != defaults[key].default for key, value in kwargs.items()):
++        raise ColdAdmissionDenied("Cold admission cannot carry warm options")
++    state = ColdState(str(uuid4()), str(uuid4()), admission.parent_session_id)
++    agent.__dict__.update(
++        _cold_state=state, session_id=state.session_id, _subagent_id=state.native_id,
++        _parent_session_id=state.parent_session_id, _delegate_role="leaf" if state.parent_session_id else "orchestrator",
++        _delegate_depth=1 if state.parent_session_id else 0, provider=None, model=None,
++        enabled_toolsets=(), tools=(),
++    )
++
++
++def require_warm_parent(parent):
++    if getattr(parent, "_cold_state", None) is not None:
++        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
++
++
++def configuration_snapshot(agent):
++    """Read the constructor-owned configuration; no caller fields or warm defaults."""
++    state = getattr(agent, "_cold_state", None)
++    if (type(state) is not ColdState or type(state.closed) is not bool or state.closed
++            or state.binding is not None or state.terminal is not None
++            or state.native_id != agent._subagent_id or state.session_id != agent.session_id
++            or state.parent_session_id != agent._parent_session_id
++            or agent.provider is not None or agent.model is not None
++            or type(agent.enabled_toolsets) is not tuple or type(agent.tools) is not tuple
++            or len(agent.enabled_toolsets) != 0 or len(agent.tools) != 0):
++        raise ColdAdmissionDenied("Native configuration changed or unavailable")
++    return dict(version=1, source="NATIVE_COLD_INITIALIZER", mode="NO_MODEL",
++                provider=agent.provider, model_id=agent.model,
++                native_child_id=agent._subagent_id, native_session_id=agent.session_id,
++                native_parent_session_id=agent._parent_session_id)
+--- a/agent/conversation_loop.py
++++ b/agent/conversation_loop.py
+@@ -1423,6 +1423,9 @@
+
+     Returns a turn result dict when a phase ends the turn, else None once the loop is left
+     (success, a restart armed on ``s._retry``, interrupt, or retries exhausted)."""
++    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
++    if is_inert_model_context(agent):
++        return terminal_result()
+     while s.retry_count < s.max_retries:
+         _ng = _run_phase(nous_rate_limit_guard, agent, s)
+         if _ng.action == "return":
+@@ -1438,6 +1441,8 @@
+                 return _rc.result
+             if _rc.action == "break":
+                 return None
++        except ManagedModelTerminal as error:
++            return terminal_result(error)
+         except InterruptedError:
+             if _run_phase(handle_api_interrupt, agent, s).action == "break":
+                 return None
+@@ -1471,6 +1476,9 @@
+     store when ``user_message`` carries API-only synthetic prefixes; timestamp / platform id are
+     stored as metadata (platform id lets restart drain recovery dedup). ``persist_user_display_*``:
+     display-only event rendering; the model still receives the message unchanged."""
++    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
++    if is_inert_model_context(agent):
++        return terminal_result()
+     if moa_config is None:
+         user_message, moa_config, persist_user_message = _decode_inline_moa_turn(
+             user_message, persist_user_message
+@@ -1629,6 +1637,9 @@
+     ``{turn_id, current_turn_user_idx}`` pair is stamped beside the exact ``messages`` it
+     addresses, after every history rewrite including post-turn micro-compaction.
+     """
++    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
++    if is_inert_model_context(agent):
++        return terminal_result()
+     from agent.turn_context import export_current_turn_boundary
+     from tools.vision_tools_history_budget import native_turn_images
+
+--- /dev/null
++++ b/agent/managed_admission_rpc.py
+@@ -0,0 +1,78 @@
++"""Private RPC entry for the reviewed managed admission extension.
++
++Only reachable through the fixed inert native stdin peer. No tool registration,
++plugin hooks, user goals, observers or skills can invoke this owner surface.
++"""
++import threading
++
++_ROOT = None
++_SERVICE = None
++_LOCK = threading.RLock()
++_INITIALIZATIONS = {}
++_MAX_INITIALIZATIONS = 32
++
++
++def _observed_result(payload, agent):
++    from agent.agent_init import observe_owned_core
++    from omnis_hermes.managed_admission_contract import canonical, initialization_result
++
++    actual = agent._owned_initialization.payload()
++    if canonical({k: v for k, v in actual.items() if k != "mode"}) != canonical({k: v for k, v in payload.items() if k != "mode"}):
++        raise ValueError("Native core belongs to a different initialization")
++    return initialization_result(payload, observation=observe_owned_core(agent),
++        native_session_id=agent.session_id, native_instance_id=agent._native_instance_id)
++
++
++def _initialize(params):
++    from omnis_hermes.managed_admission_contract import (
++        OwnedInitialization, canonical, initialization_result, validate_initialization,
++    )
++    p = validate_initialization(params)  # before any native import/allocation
++    key = p["initialization_id"]
++    bound = canonical({k: v for k, v in p.items() if k != "mode"})
++    with _LOCK:
++        entry = _INITIALIZATIONS.get(key)
++        if entry is not None:
++            if entry["binding"] != bound:
++                raise ValueError("Initialization replay conflict")
++            agent = entry["agent"]
++            if agent is None or agent.__dict__.get("_owned_core_closed") is True:
++                return initialization_result(p)
++            return _observed_result(p, agent)  # every read observes the live core
++        if p["mode"] == "STATUS":
++            return initialization_result(p)  # no import, constructor or reservation
++        if len(_INITIALIZATIONS) >= _MAX_INITIALIZATIONS:
++            raise ValueError("Initialization registry full")
++        # A retained pending/failure marker makes uncertain CREATE non-repeatable.
++        entry = {"binding": bound, "agent": None}
++        _INITIALIZATIONS[key] = entry
++        try:
++            from run_agent import AIAgent
++            agent = AIAgent(owned_initialization=OwnedInitialization(canonical(p)))
++            result = _observed_result(p, agent)
++        except Exception:
++            raise ValueError("Native configuration initialization incomplete") from None
++        entry["agent"] = agent
++        return result
++
++
++def dispatch(method, params):
++    global _ROOT, _SERVICE
++    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight
++    if method == RPC["task_model_initialize"]:
++        return _initialize(params)
++    if method not in RPC.values():
++        raise ValueError("Unknown managed operation")
++    {RPC["task_stage"]: validate_stage, RPC["task_release"]: validate_release,
++     RPC["task_status"]: validate_status, RPC["task_model_preflight"]: validate_model_preflight}[method](params)
++    with _LOCK:
++        if _SERVICE is None:
++            if method != RPC["task_stage"]:
++                raise ValueError("No managed stage")
++            from run_agent import AIAgent
++            from agent.cold_admission import ColdAdmission
++            from agent.subagent_lifecycle import SubagentLifecycleService
++            _ROOT = AIAgent(cold_admission=ColdAdmission())
++            _SERVICE = SubagentLifecycleService(lambda: _ROOT)
++        return {RPC["task_stage"]: _SERVICE.stage, RPC["task_release"]: _SERVICE.release,
++                RPC["task_status"]: _SERVICE.readback, RPC["task_model_preflight"]: _SERVICE.model_preflight}[method](params)
+--- a/agent/subagent_lifecycle.py
++++ b/agent/subagent_lifecycle.py
+@@ -42,6 +42,7 @@
+     INTERRUPTED = "INTERRUPTED"
+     CANCEL_REQUESTED = "CANCEL_REQUESTED"
+     CANCELLED = "CANCELLED"
++    BLOCKED = "BLOCKED"
+     UNKNOWN = "UNKNOWN"
+
+
+@@ -241,9 +242,252 @@
+
+     def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
+         self._parent_agent_resolver = parent_agent_resolver
++        self._cold_batches = {}
++
++    def stage(self, payload):
++        """Create cold native identities, with no executor or conversation admission."""
++        from omnis_hermes.managed_admission_contract import validate_stage, ref, canonical
++        from agent.cold_admission import ColdAdmission, ColdAdmissionDenied
++        from uuid import uuid4
++        # Freeze caller-owned data, then validate the complete material before identities.
++        payload = json.loads(canonical(payload))
++        manifest = validate_stage(payload)
++        composition_material = tuple(canonical(c) for c in payload.get("compositions", []))
++        with _REGISTRY.lock:
++            parent = self._parent_agent_resolver()
++            state = getattr(parent, "_cold_state", None)
++            if state is None or state.closed or state.parent_session_id is not None:
++                raise ColdAdmissionDenied("A live cold native root is required")
++            prior = self._cold_batches.get(manifest["id"])
++            if prior is not None:
++                if (prior["manifest"] != manifest or prior["composition_material"] != composition_material
++                        or prior["response"]["protocol"] != payload["protocol"]):
++                    raise ColdAdmissionDenied("Manifest replay conflict")
++                self._require_cold_root(prior, parent)
++                if prior.get("indeterminate"):
++                    raise ColdAdmissionDenied("CONTRACT execution indeterminate; no retry")
++                return json.loads(json.dumps(prior["response"]))
++            if len(self._cold_batches) >= 64:
++                raise ColdAdmissionDenied("Cold registry full")
++            # Branch precedes _resolve_child_runtime and init_agent, not a late observer.
++            from run_agent import AIAgent
++            rows, records = [], []
++            try:
++                for entry in manifest["payload"]["entries"]:
++                    if payload["protocol"] == "omnis-managed-admission-v4":
++                        from agent.contract_execution import ContractAdmission
++                        child = AIAgent(contract_admission=ContractAdmission(parent, canonical(payload)))
++                    else:
++                        child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
++                    created = time.time()
++                    handle = SubagentHandle(
++                        PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id, None,
++                        created, None, None, "leaf", 1,
++                        self._capability(child._subagent_id, parent.session_id, created),
++                    )
++                    records.append(_Record(handle, SubagentState.PENDING, created, agent=child))
++                    rows.append({**{k:v for k,v in entry.items() if k != "goal"},
++                                 "native_child_id": child._subagent_id, "native_session_id": child.session_id})
++            except BaseException:
++                for record in records:
++                    record.agent.close()
++                raise
++            response = dict(protocol=payload["protocol"], status="STAGED", ticket=str(uuid4()),
++                            manifest_ref=ref(manifest), native_root_id=parent._subagent_id, entries=rows)
++            for record in records:
++                _REGISTRY.records[record.handle.subagent_id] = record
++            self._cold_batches[manifest["id"]] = dict(
++                manifest=json.loads(json.dumps(manifest)), response=response, records=records,
++                composition_material=composition_material,
++                expires=time.monotonic() + 4.5, binding=None,
++                parent=parent, parent_session_id=parent.session_id,
++            )
++            return json.loads(json.dumps(response))
++
++    def _require_cold_root(self, batch, parent):
++        """Admission stays with the original root; status readback is historical."""
++        from agent.cold_admission import ColdAdmissionDenied
++        state = getattr(parent, "_cold_state", None)
++        if (parent is not batch["parent"] or state is None or state.closed
++                or parent.session_id != batch["parent_session_id"]
++                or state.session_id != batch["parent_session_id"]
++                or parent._subagent_id != batch["response"]["native_root_id"]
++                or state.native_id != batch["response"]["native_root_id"]):
++            raise ColdAdmissionDenied("Native root lineage changed or stopped")
++
++    def _cold_batch(self, payload):
++        from agent.cold_admission import ColdAdmissionDenied
++        batch = self._cold_batches.get(payload["manifest_ref"]["id"])
++        if batch is None or any(payload[k] != batch["response"][k] for k in ("protocol", "ticket", "manifest_ref")):
++            raise ColdAdmissionDenied("Unknown native stage")
++        return batch
++
++    def readback(self, payload):
++        from omnis_hermes.managed_admission_contract import validate_status
++        validate_status(payload)
++        with _REGISTRY.lock:
++            batch = self._cold_batch(payload)
++            if batch.get("indeterminate"):
++                raise ValueError("CONTRACT execution indeterminate; no retry")
++            return json.loads(json.dumps(batch["response"]))
++
++    def model_preflight(self, payload):
++        """Consume qualified model data without promoting a cold child to a turn."""
++        from omnis_hermes.model_admission import validate_preflight, cold_preflight
++        from omnis_hermes.native_preparation_contract import canonical
++        from agent.cold_admission import ColdAdmissionDenied
++        payload = json.loads(canonical(payload))
++        validate_preflight(payload)
++        with _REGISTRY.lock:
++            batch = self._cold_batch(payload)
++            if batch["response"]["protocol"] == "omnis-managed-admission-v4":
++                raise ColdAdmissionDenied("CONTRACT method has no model preflight")
++            parent = self._parent_agent_resolver()
++            self._require_cold_root(batch, parent)
++            body = payload["binding"]["payload"]
++            rows = batch["response"]["entries"]
++            if (batch["binding"] is not None or time.monotonic() >= batch["expires"]
++                    or body["run_id"] != batch["manifest"]["payload"]["run_id"]
++                    or body["entries"] != rows or len(rows) != len(batch["records"])):
++                raise ColdAdmissionDenied("Model preflight lifecycle unavailable")
++            for row, record in zip(rows, batch["records"], strict=True):
++                child = record.agent
++                state = getattr(child, "_cold_state", None)
++                if (record.state != SubagentState.PENDING or state is None or state.closed
++                        or child._subagent_id != row["native_child_id"]
++                        or child.session_id != row["native_session_id"]
++                        or state.native_id != row["native_child_id"]
++                        or state.session_id != row["native_session_id"]
++                        or state.parent_session_id != parent.session_id):
++                    raise ColdAdmissionDenied("Model preflight native lineage unavailable")
++            from omnis_hermes.model_context import validate_context
++            validate_context(payload["model_context"], payload,
++                staged_manifest=batch["manifest"], staged_material=batch["composition_material"])
++            from agent.cold_admission import configuration_snapshot
++            context = payload["model_context"]
++            selected = [record.agent for row, record in zip(rows, batch["records"], strict=True)
++                        if row["task_id"] == context["task_id"] and row["attempt_id"] == context["attempt_id"]]
++            if len(selected) != 1:
++                raise ColdAdmissionDenied("Native configuration assignment unavailable")
++            configuration = configuration_snapshot(selected[0])
++            return cold_preflight(payload, native_root_id=parent._subagent_id,
++                native_entries=rows, source_configuration=configuration)
++
++    def release(self, payload):
++        """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
++        from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest
++        from agent.cold_admission import ColdAdmissionDenied
++        payload = json.loads(canonical(payload))
++        validate_release(payload)
++        with _REGISTRY.lock:
++            batch = self._cold_batch(payload)
++            binding = payload["binding"]
++            body, response = binding["payload"], batch["response"]
++            if (body["run_id"] != batch["manifest"]["payload"]["run_id"]
++                    or body["native_root_id"] != response["native_root_id"]
++                    or body["entries"] != response["entries"]):
++                raise ColdAdmissionDenied("Native binding mismatch")
++            if batch["binding"] is not None:
++                if canonical(binding) != batch["binding"]:
++                    raise ColdAdmissionDenied("Immutable binding conflict")
++                if batch.get("indeterminate"):
++                    raise ColdAdmissionDenied("CONTRACT execution indeterminate; no retry")
++                return json.loads(json.dumps(response))
++            parent = self._parent_agent_resolver()
++            self._require_cold_root(batch, parent)
++            if response["protocol"] == "omnis-managed-admission-v4":
++                return self._release_contract(batch, payload, parent)
++            if (time.monotonic() >= batch["expires"]
++                    or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
++                           for r in batch["records"])):
++                raise ColdAdmissionDenied("Native stage expired or stopped")
++            # No observer participates in authority. Validation finishes before mutation.
++            committed = canonical(binding)
++            for record in batch["records"]:
++                child = record.agent
++                state = child._cold_state.block(committed)
++                completed = time.time()
++                result = SubagentResult(
++                    record.handle, SubagentState(state), True, completed_at=completed,
++                    error_classification="NO_MODEL", structured_payload={"binding_ref": ref(binding)},
++                    usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": 0},
++                )
++                result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
++                record.result, record.state = result, result.terminal_state
++                record.completed_at = record.updated_at = completed
++                child.close()
++                record.agent = None
++            batch["binding"] = committed
++            batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
++            return json.loads(json.dumps(batch["response"]))
++
++    def _contract_guard(self, batch, record, parent, committed):
++        from agent.cold_admission import ColdAdmissionDenied
++        from agent.contract_execution import ContractState
++        self._require_cold_root(batch, self._parent_agent_resolver())
++        child = record.agent
++        state = child._contract_state if child is not None else None
++        row, = batch["response"]["entries"]
++        if (type(state) is not ContractState or state.closed or state.parent is not parent
++                or state.parent_session_id != parent.session_id or state.binding != committed
++                or batch["binding"] != committed or record.state != SubagentState.RUNNING
++                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
++                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
++                or child._parent_session_id != parent.session_id
++                or time.monotonic() >= min(batch["expires"], batch["execution_deadline"])):
++            raise ColdAdmissionDenied("CONTRACT live binding unavailable")
++        return True
++
++    def _release_contract(self, batch, payload, parent):
++        from agent.cold_admission import ColdAdmissionDenied
++        from agent.contract_execution import ContractState
++        from omnis_hermes.managed_admission_contract import canonical, digest, ref, validate_response
++        from datetime import datetime, timezone
++        record, = batch["records"]
++        child = record.agent
++        state = child._contract_state if child is not None else None
++        row, = batch["response"]["entries"]
++        # All identity/root/entry/deadline checks precede binding and input access.
++        if (type(state) is not ContractState or state.closed or state.binding is not None
++                or record.state != SubagentState.PENDING or state.parent is not parent
++                or state.parent_session_id != parent.session_id
++                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
++                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
++                or child._parent_session_id != parent.session_id or time.monotonic() >= batch["expires"]):
++            raise ColdAdmissionDenied("CONTRACT stage expired or stopped")
++        if datetime.now(timezone.utc) >= datetime.fromisoformat(state.deadline):
++            raise ColdAdmissionDenied("CONTRACT assignment expired")
++        committed = canonical(payload["binding"])
++        batch["binding"] = committed  # latch BEFORE the first real child method call
++        batch["execution_deadline"] = time.monotonic() + 3.0
++        batch["indeterminate"] = True
++        record.state = SubagentState.RUNNING
++        record.started_at = record.updated_at = time.time()
++        try:
++            execution = child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
++            final = {**batch["response"], "status": "SUCCEEDED", "reason": "CONTRACT_PURE",
++                     "binding_ref": ref(payload["binding"]), "executions": [execution]}
++            validate_response(final)  # whole wire, including aggregate 32768 cap
++            result = SubagentResult(record.handle, SubagentState.SUCCEEDED, True,
++                started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
++                usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
++            record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
++            record.state = SubagentState.SUCCEEDED
++            record.completed_at = record.updated_at = result.completed_at
++            batch["response"] = final
++            batch["indeterminate"] = False
++            return json.loads(json.dumps(final))
++        except BaseException:
++            record.state = SubagentState.UNKNOWN
++            raise
++        finally:
++            child.close()
++            record.agent = None
+
+     def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
+         parent = self._parent_agent_resolver()
++        from agent.cold_admission import require_warm_parent
++        require_warm_parent(parent)
+         if parent is None:
+             raise SubagentLifecycleError("No active Hermes parent session is available.")
+         self._validate_request(request, parent)
+--- a/agent/turn_api_call.py
++++ b/agent/turn_api_call.py
+@@ -72,6 +72,8 @@
+     interrupted: Any,
+ ) -> ApiCallVerdict:
+     """Issue the request (see ``_should_stream`` for the streaming decision)."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     response = None
+
+     def _verdict(action: str) -> ApiCallVerdict:
+--- a/agent/turn_api_error.py
++++ b/agent/turn_api_error.py
+@@ -68,6 +68,10 @@
+             compression_attempts=compression_attempts,
+             _provider_overflow_recovery_pending=_provider_overflow_recovery_pending, result=result,
+         )
++
++    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
++    if isinstance(api_error, ManagedModelTerminal) or is_inert_model_context(agent):
++        return _verdict("return", terminal_result(api_error if isinstance(api_error, ManagedModelTerminal) else None))
+
+     # Stop spinner silently — retry status is buffered and only flushed when every
+     # retry+fallback is exhausted.
+--- a/agent/turn_api_request.py
++++ b/agent/turn_api_request.py
+@@ -97,6 +97,8 @@
+ ) -> ApiRequestBuild:
+     """Assemble the attempt's request in the original order (every mutation happens BEFORE
+     middleware/hooks/debug dumps observe the payload)."""
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent)
+     from agent.conversation_loop import (
+         _moa_client_consumes_prepared_request, _redecorate_prompt_cache_for_provider,
+     )
+--- a/providers/__init__.py
++++ b/providers/__init__.py
+@@ -160,6 +160,8 @@
+
+     Returns None if the provider has no profile (falls back to generic).
+     """
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return None
+     if not _discovered:
+         _discover_providers()
+     layer, home, key = _bound_home_layer()
+@@ -235,6 +237,8 @@
+
+ def _home_layer(*, force_stamp_check: bool = False) -> _HomeLayer:
+     """The layer for the home bound right now, importing plugin dirs it has not seen yet."""
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return _HomeLayer()
+     layer, home, key = _bound_home_layer()
+     _refresh_home_layer(layer, home, key, force=force_stamp_check)
+     return layer
+@@ -560,6 +564,10 @@
+     per profile home and load through :func:`_home_layer` at lookup time.
+     """
+     global _discovered, _discovering
++    # A cold/inert runtime never imports provider plugins: import-time URL/key
++    # resolvers can read credentials even without an AIAgent client.
++    if os.environ.get("HERMES_OMNIS_INERT") == "1":
++        return
+     if _discovered:
+         return
+     _discovered = True
+--- a/run_agent.py
++++ b/run_agent.py
+@@ -13,10 +13,11 @@
+     pass  # partial `hermes update` — only skips the Windows UTF-8 stdio setup
+
+ import sys
++import os
+
+ # `hermes-agent` runs this module without hermes_cli.main, which repairs a `hermes update` killed
+ # while git wrote the new tree; do it here, before importing anything else from the checkout.
+-if "hermes_cli.main" not in sys.modules:
++if "hermes_cli.main" not in sys.modules and os.environ.get("HERMES_OMNIS_INERT") != "1":
+     from hermes_cli import _early_recovery
+
+     if _early_recovery.restore_interrupted_pull():
+@@ -126,7 +127,14 @@
+     logger.info("No .env file found. Using system environment variables.")
+
+
+-from model_tools import get_toolset_for_tool
++if os.environ.get("HERMES_OMNIS_INERT") != "1":
++    from model_tools import get_toolset_for_tool
++else:
++    # This import discovers every stock tool/plugin. Neither a cold root nor
++    # a bounded CONTRACT child uses the CLI's stock-inventory listing helper.
++    def get_toolset_for_tool(tool_name: str) -> Optional[str]:
++        from agent.cold_admission import ColdAdmissionDenied
++        raise ColdAdmissionDenied("Stock inventory unavailable in inert mode")
+ from tools.terminal_tool_lifecycle import cleanup_vm, get_active_env
+ from tools.interrupt import set_interrupt as _set_interrupt
+ from tools.browser_tool_lifecycle import cleanup_browser
+@@ -300,14 +308,63 @@
+         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
+         side_agent: bool = False, memory_manager=None,
+         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
++        cold_admission=None, owned_initialization=None, contract_admission=None,
+     ):
+-        """Forwarder — see ``agent.agent_init.init_agent`` (same keyword parameters, minus ``tool_delay``)."""
+-        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay")}
++        """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
++        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization", "contract_admission")}
++        if contract_admission is not None:
++            if cold_admission is not None or owned_initialization is not None or tool_delay is not None:
++                raise ValueError("CONTRACT admission cannot carry other modes")
++            from agent.contract_execution import initialize_contract
++            initialize_contract(self, contract_admission, init_kwargs)
++            return
++        if cold_admission is not None and owned_initialization is not None:
++            raise ValueError("Owned initialization cannot carry cold admission")
++        if cold_admission is not None:
++            from agent.cold_admission import initialize_cold
++            if tool_delay is not None:
++                raise ValueError("Cold admission cannot carry warm options")
++            initialize_cold(self, cold_admission, init_kwargs)
++            return
++        if owned_initialization is not None:
++            import inspect
++            from omnis_hermes.managed_admission_contract import OwnedInitialization
++            if type(owned_initialization) is not OwnedInitialization or cold_admission is not None or tool_delay is not None:
++                raise ValueError("Owned initialization cannot carry cold/warm options")
++            defaults = inspect.signature(type(self).__init__).parameters
++            if any(value != defaults[key].default for key, value in init_kwargs.items()):
++                raise ValueError("Owned initialization cannot carry warm options")
++            from agent.agent_init import init_agent
++            init_agent(self, owned_initialization=owned_initialization)
++            return
+         if tool_delay is not None:
+             warnings.warn("tool_delay is deprecated and ignored; sequential tool calls "
+                           "no longer sleep between executions.", DeprecationWarning, stacklevel=2)
+         from agent.agent_init import init_agent
+         init_agent(self, **init_kwargs)
++
++    def __getattribute__(self, name):
++        attributes = object.__getattribute__(self, "__dict__")
++        if attributes.get("_contract_state") is not None:
++            from agent.contract_execution import CONTRACT_READABLE
++            if name not in CONTRACT_READABLE:
++                raise ValueError("CONTRACT/PURE: native surface denied")
++        if attributes.get("_owned_initialization") is not None or attributes.get("_owned_core") is not None:
++            # The complete configuration/core phase is not a warm turn/client.
++            # Deny unknown native surfaces before facade/background/lease hooks.
++            readable = {"__dict__", "__class__", "__weakref__", "base_url", "close",
++                "_max_tokens_param", "_reasoning_echo_opt_in", "_anthropic_prompt_cache_policy",
++                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url", "_hostname_for"}
++            if name not in attributes and name not in readable:
++                raise ValueError("DEFERRED_NO_CREDENTIAL: owned core surface denied")
++        # Cold state is complete and closed to ALL warm surfaces, including newly
++        # added mixin methods. No observer/middleware exception can fall through.
++        state = object.__getattribute__(self, "__dict__").get("_cold_state")
++        if state is not None:
++            from agent.cold_admission import COLD_READABLE, ColdAdmissionDenied
++            if name not in COLD_READABLE:
++                raise ColdAdmissionDenied("NO_MODEL: cold surface denied")
++        return object.__getattribute__(self, name)
+
+     def _get_session_db_for_recall(self):
+         """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
+@@ -965,9 +1022,26 @@
+         # from the cache and a rebuilt agent spawns its own child, so an unclosed one leaks for the gateway's life.
+         _quietly(self._close_codex_session)
+
++    def run_contract(self, binding, guard):
++        from agent.contract_execution import run_contract
++        return run_contract(self, binding, guard)
++
+     def close(self) -> None:
+         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
+         blocks the rest."""
++        contract = self.__dict__.get("_contract_state")
++        if contract is not None:
++            contract.closed = True
++            return
++        # Owned config cores have no client/context/tools/persistence to retire.
++        if self.__dict__.get("_owned_initialization") is not None:
++            self._owned_core_closed = True
++            return
++        # Cold agents own no warm resources and never enter cleanup hooks.
++        cold = self.__dict__.get("_cold_state")
++        if cold is not None:
++            cold.closed = True
++            return
+         # close() is the hard owner boundary; shutdown_memory_provider() is idempotent so gateway pre-calls
+         # never double-extract.
+         session_messages = getattr(self, "_session_messages", None)
+--- a/tui_gateway/rpc_dispatch.py
++++ b/tui_gateway/rpc_dispatch.py
+@@ -19,6 +19,16 @@
+     if isinstance(normalized, dict):
+         return normalized
+     rid, method, params = normalized
++    # Private owner-only extension, not a generic management/session allowlist.
++    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
++        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status", "omnis.managed.model_preflight",
++        "omnis.managed.model_initialize",
++    }:
++        try:
++            from agent.managed_admission_rpc import dispatch as managed_dispatch
++            return {"jsonrpc": "2.0", "id": rid, "result": managed_dispatch(method, params)}
++        except Exception:
++            return _err(rid, 4000, "managed admission denied")
+     # Omnis B05 has no live session or Settings/provider authority.
+     if os.environ.get("HERMES_OMNIS_INERT") == "1" and method not in {"client.capabilities", "gateway.capabilities", "ping"}:
+         return _err(rid, -32601, "method unavailable in Omnis inert runtime")
 --- a/agent/agent_init.py
 +++ b/agent/agent_init.py
 @@ -17,6 +17,7 @@
@@ -149,849 +1097,287 @@ diff --git a/agent/agent_init.py b/agent/agent_init.py
      _install_safe_stdio()
 
      _params = locals()
-diff --git a/agent/auxiliary_client.py b/agent/auxiliary_client.py
---- a/agent/auxiliary_client.py
-+++ b/agent/auxiliary_client.py
-@@ -7866,6 +7866,8 @@
-     drivers pass to ``_retry_same_provider_*`` / ``_call_fallback_candidate_*``. One immutable
-     runtime snapshot for keying/resolution/retries/fallbacks, so a concurrent /model switch
-     can't mix key and client from different runtimes."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority()
-     main_runtime = _normalize_main_runtime(main_runtime)
-     req = _prepare_aux_request(
-         task, provider=provider, model=model, base_url=base_url, api_key=api_key,
-diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
---- a/agent/chat_completion_helpers.py
-+++ b/agent/chat_completion_helpers.py
-@@ -713,7 +713,7 @@
-     return finish(raw_response)
-
-
--def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
-+def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client, final_request=None):
-     """Run one non-streaming LLM request for the active api_mode and return it.
-
-     Shared by ``interruptible_api_call`` and ``direct_api_call``. ``make_client(reason,
-@@ -721,6 +721,13 @@
-     so callers can register it with their abort/close machinery; bedrock / MoA
-     manage their own clients. Interrupt/abort/close semantics stay in callers.
-     """
-+    from omnis_hermes.model_terminal import require_model_authority, is_inert_model_context, deny_model
-+    if final_request is not None or is_inert_model_context(agent):
-+        from omnis_hermes.model_request import consume_final_request
-+        api_kwargs = consume_final_request(final_request, api_kwargs)
-+        if agent.api_mode != "chat_completions" or agent.provider == "moa":
-+            deny_model()
-+    require_model_authority(agent, final_request=final_request)
-     if agent.api_mode == "codex_responses":
-         return agent._run_codex_stream(api_kwargs, client=make_client("codex_stream_request"),
-             on_first_delta=getattr(agent, "_codex_on_first_delta", None))
-@@ -746,6 +753,11 @@
-     # request transform. No-op unless this really is the OpenAI SDK, so the
-     # MoA facade above and the suite's stand-in clients are unaffected.
-     api_kwargs = bypass_chat_sdk_request_transform(api_kwargs, request_client)
-+    if final_request is not None:
-+        from omnis_hermes.model_request import consume_final_request, final_sdk_guard
-+        api_kwargs = consume_final_request(final_request, api_kwargs, post_bypass=True)
-+        with final_sdk_guard(request_client, final_request):
-+            return request_client.chat.completions.create(**api_kwargs)
-     return request_client.chat.completions.create(**api_kwargs)
-
-
-@@ -952,7 +964,7 @@
-         return client
-
-
--def direct_api_call(agent, api_kwargs: dict):
-+def direct_api_call(agent, api_kwargs: dict, *, final_request=None):
-     """Run a non-streaming LLM call inline on the conversation thread (cron turns,
-     delegated children — see ``should_use_direct_api_call``): no interrupt worker,
-     so the nested-pool deadlock cannot occur. An activity heartbeat keeps
-@@ -961,6 +973,8 @@
-     aborts in-flight sockets via the registered hook, and a per-call ``timeout``
-     equal to the stale budget is the backstop when the abort finds nothing (#85252).
-     Both surface a retryable ``TimeoutError`` for the outer retry loop."""
-+    from omnis_hermes.model_terminal import ManagedModelTerminal, require_model_authority
-+    require_model_authority(agent, final_request=final_request)
-     _check_stale_giveup(agent)
-     agent._touch_activity("waiting for non-streaming API response")
-     # Resolve the budget BEFORE the heartbeat starts: the resolver may raise
-@@ -978,8 +992,13 @@
-     # Only a clean return reports the reuse reason; errors/interrupts really
-     # close the client so the retry builds a fresh pool.
-     succeeded = False
-+    terminal = None
-     try:
--        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client)
-+        response = _dispatch_nonstreaming_api_request(agent, api_kwargs, make_client=request.make_client,
-+            final_request=final_request)
-+    except ManagedModelTerminal as error:
-+        terminal = error
-+        raise
-     except Exception:
-         if getattr(agent, "_interrupt_requested", False):
-             raise InterruptedError("Agent interrupted during API call") from None
-@@ -1004,13 +1023,22 @@
-         succeeded = True
-         return response
-     finally:
--        request.stop_watchdogs()
--        if getattr(agent, "_active_request_abort", None) is request.abort_hook:
--            agent._active_request_abort = None
--        request_client = request.pop_client()
--        if request_client is not None:
--            agent._close_request_openai_client(request_client,
--                reason="request_complete" if succeeded else "request_error_cleanup")
-+        try:
-+            try:
-+                request.stop_watchdogs()
-+            finally:
-+                try:
-+                    if getattr(agent, "_active_request_abort", None) is request.abort_hook:
-+                        agent._active_request_abort = None
-+                finally:
-+                    request_client = request.pop_client()
-+                    if request_client is not None:
-+                        agent._close_request_openai_client(request_client,
-+                            reason="request_complete" if succeeded else "request_error_cleanup")
-+        except Exception:
-+            if terminal is None:
-+                raise
-+            terminal.cleanup_uncertain = True
-
-
- class _RequestClientRegistry:
-@@ -1235,20 +1263,22 @@
-
-
-
--def interruptible_api_call(agent, api_kwargs: dict):
-+def interruptible_api_call(agent, api_kwargs: dict, *, final_request=None):
-     """Run the API call on a worker thread so the caller can detect interrupts
-     without waiting for the full HTTP round-trip. Each worker gets its own
-     per-request client (interrupts close only that one); a stale-call detector
-     kills the connection and raises so the main retry loop can back off / rotate
-     credentials / fall back."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority(agent, final_request=final_request)
-     # Nested-pool contexts (cron, delegated children) wedge on a worker thread
-     # (#62151): run inline. See should_use_direct_api_call.
-     if should_use_direct_api_call(agent):
--        return direct_api_call(agent, api_kwargs)
-+        return direct_api_call(agent, api_kwargs, final_request=final_request)
-     _check_stale_giveup(agent)  # cross-turn stale breaker (#58962), non-streaming sibling
-     from agent.chat_completion_nonstream import _NonStreamRequest
-
--    return _NonStreamRequest(agent, api_kwargs).run()
-+    return _NonStreamRequest(agent, api_kwargs, final_request=final_request).run()
-
-
- def _consume_ephemeral_reasoning_off(agent) -> bool:
-@@ -2283,6 +2313,8 @@
-
- def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
-     """Request a summary when max iterations are reached. Returns the final response text."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority(agent)
-     warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
-     if getattr(agent, "suppress_status_output", False):
-         # Strict machine-readable mode (-Q, oneshot): keep diagnostics off stdout. quiet_mode is
-@@ -3753,6 +3785,8 @@
-     text token (tool-call turns suppress them) and returns a SimpleNamespace in
-     the non-streaming response shape. codex_responses delegates to the already-
-     streaming codex runner; cron turns and delegated children run inline."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority(agent)
-     if agent._interrupt_requested:
-         raise InterruptedError("Agent interrupted before streaming API call")
-     if agent.api_mode == "codex_responses":
-diff --git a/agent/chat_completion_nonstream.py b/agent/chat_completion_nonstream.py
---- a/agent/chat_completion_nonstream.py
-+++ b/agent/chat_completion_nonstream.py
-@@ -11,10 +11,13 @@
-     instance; ``_abort_request`` may run from the poll (stranger) thread.
-     """
-
--    def __init__(self, agent, api_kwargs: dict):
-+    def __init__(self, agent, api_kwargs: dict, *, final_request=None):
-+        from omnis_hermes.model_terminal import require_model_authority
-+        require_model_authority(agent, final_request=final_request)
-         self.agent = agent
-         self.api_kwargs = api_kwargs
--        self.result = {"response": None, "error": None}
-+        self.final_request = final_request
-+        self.result = {"response": None, "error": None, "terminal": None}
-         self.clients = h._RequestClientRegistry(agent)
-         # Request-local cancel flag: agent._interrupt_requested is cleared at turn
-         # boundaries but this daemon worker can outlive the turn, so it must know THIS
-@@ -65,6 +68,7 @@
-         return self.clients.set_client(client, kind=kind)
-
-     def _call(self):
-+        from omnis_hermes.model_terminal import ManagedModelTerminal
-         watchdog_state_var = watchdog_context_token = None
-         try:
-             self._install_codex_request_token()
-@@ -74,7 +78,10 @@
-                 watchdog_state_var = _codex_watchdog_state_var
-                 watchdog_context_token = watchdog_state_var.set(self.codex_watchdog_state)
-             self.result["response"] = h._dispatch_nonstreaming_api_request(
--                self.agent, self.api_kwargs, make_client=self._make_client)
-+                self.agent, self.api_kwargs, make_client=self._make_client,
-+                final_request=getattr(self, "final_request", None))
-+        except ManagedModelTerminal as e:
-+            self.result["terminal"] = self.result["error"] = e
-         except Exception as e:
-             # Our own force-close caused this error: swallow it, the main
-             # thread raises InterruptedError (#6600). Retirement logs at info
-@@ -91,15 +98,35 @@
-                 return
-             self.result["error"] = e
-         finally:
--            if watchdog_state_var is not None:
--                watchdog_state_var.reset(watchdog_context_token)
--            # Retire first: close_once can raise, and a leaked token would let
--            # a later worker mistake itself for the owning attempt.
--            self._retire_codex_request_token()
--            # Reuse reason only on a clean response; error or cancel-swallow
--            # really closes so the next attempt builds a fresh pool.
--            self.clients.close_once(
--                "request_complete" if self.result["response"] is not None else "request_error_cleanup")
-+            try:
-+                try:
-+                    if watchdog_state_var is not None:
-+                        watchdog_state_var.reset(watchdog_context_token)
-+                finally:
-+                    try:
-+                        self._retire_codex_request_token()
-+                    finally:
-+                        self.clients.close_once(
-+                            "request_complete" if self.result["response"] is not None else "request_error_cleanup")
-+            except Exception:
-+                terminal = self.result.get("terminal")
-+                if terminal is None:
-+                    raise
-+                terminal.cleanup_uncertain = True
-+
-+    def _raise_terminal(self):
-+        """Admission outcome outranks cancel; a still-live cleanup remains explicit."""
-+        terminal = self.result.get("terminal")
-+        if terminal is None:
-+            return
-+        try:
-+            if self.thread is not None:
-+                self.thread.join(timeout=2.0)
-+                if self.thread.is_alive():
-+                    terminal.cleanup_uncertain = True
-+        except Exception:
-+            terminal.cleanup_uncertain = True
-+        raise terminal
-
-     def _abort_request(self, reason: str) -> None:
-         """Watchdog/interrupt kill: abort the request client (kind-aware, #67142)
-@@ -266,7 +293,10 @@
-         self.cancelled = True
-         h.logger.debug("Force-closing httpx client due to interrupt (not a network error).")
-         self._abort_request("interrupt_abort")
--        h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
-+        try:
-+            h._join_worker_for_relay_teardown(self.thread, label="Non-streaming")
-+        finally:
-+            self._raise_terminal()
-         raise InterruptedError("Agent interrupted during API call")
-
-     def run(self):
-@@ -285,6 +315,7 @@
-         poll_count = 0
-         while t.is_alive():
-             t.join(timeout=0.3)
-+            self._raise_terminal()
-             poll_count += 1
-             # Keep the quiet gateway heartbeat; only silence warrants a notice.
-             # Resumed events clear our notice on the next poll, not 30s later.
-@@ -311,6 +342,7 @@
-                 break
-             if agent._interrupt_requested:
-                 self._interrupt(elapsed)
-+        self._raise_terminal()
-         if self.result["error"] is not None:
-             raise self.result["error"]
-         # Success — the provider proved responsive: clear the breaker (#58962).
-diff --git a/agent/cold_admission.py b/agent/cold_admission.py
 --- /dev/null
-+++ b/agent/cold_admission.py
-@@ -0,0 +1,86 @@
-+"""Trusted opt-in cold AIAgent state. No routing, client, tools or conversation.
++++ b/agent/contract_execution.py
+@@ -0,0 +1,281 @@
++"""Constructor-owned finite CONTRACT/PURE child; never a warm/cold promotion.
 +
-+This mode has its own complete finite state, NOT a partially initialized warm
-+agent. All warm surfaces (including lineage, wake, persistence and tools) refuse.
-+It cannot be upgraded to warm. The caller must create a new authorized agent.
++Trusted lifecycle commits the binding and supplies a local fail-closed guard.
++Only retained immutable assignment input and actual previous outputs are read.
++No provider/client/tool inheritance, middleware, observer or conversation loop.
 +"""
++
 +from dataclasses import dataclass
++from datetime import datetime, timezone
 +import inspect
 +from uuid import uuid4
 +
-+
-+class ColdAdmissionDenied(ValueError):
-+    pass
++from agent.cold_admission import ColdAdmissionDenied, ColdState
++from omnis_hermes.managed_admission_contract import canonical, ref, validate_release
++from omnis_hermes.native_preparation_contract import loads
++from omnis_hermes import contract_method as method
 +
 +
 +@dataclass(frozen=True)
-+class ColdAdmission:
-+    resolution: str = "NO_MODEL"
-+    parent_session_id: str | None = None
++class ContractAdmission:
++    parent: object
++    assignment: bytes
 +
 +
 +@dataclass
-+class ColdState:
++class ContractState:
 +    session_id: str
 +    native_id: str
-+    parent_session_id: str | None
++    parent_session_id: str
++    parent: object
++    assignment: bytes
++    manifest: bytes
++    deadline: str
 +    closed: bool = False
 +    binding: bytes | None = None
 +    terminal: str | None = None
 +
-+    def block(self, binding: bytes) -> str:
-+        if self.closed or not binding:
-+            raise ColdAdmissionDenied("Cold agent unavailable")
-+        if self.binding is not None and self.binding != binding:
-+            raise ColdAdmissionDenied("Cold binding conflict")
-+        self.binding = binding
-+        self.terminal = "BLOCKED"
-+        return self.terminal
++
++CONTRACT_READABLE = frozenset(
++    {
++        "_contract_state",
++        "session_id",
++        "_subagent_id",
++        "_parent_session_id",
++        "_delegate_role",
++        "_delegate_depth",
++        "provider",
++        "model",
++        "enabled_toolsets",
++        "tools",
++        "run_contract",
++        "close",
++        "__class__",
++        "__dict__",
++        "__weakref__",
++    }
++)
 +
 +
-+COLD_READABLE = frozenset({
-+    "_cold_state", "session_id", "_subagent_id", "_parent_session_id",
-+    "_delegate_role", "_delegate_depth", "provider", "model", "enabled_toolsets",
-+    "tools", "close", "__class__", "__dict__", "__weakref__",
-+})
-+
-+
-+def initialize_cold(agent, admission, kwargs):
-+    if type(admission) is not ColdAdmission or admission.resolution != "NO_MODEL":
-+        raise ColdAdmissionDenied("Unrecognized cold admission")
-+    if admission.parent_session_id is not None and (
-+        type(admission.parent_session_id) is not str or not 0 < len(admission.parent_session_id) <= 128
-+    ):
-+        raise ColdAdmissionDenied("Invalid cold parent")
++def initialize_contract(agent, admission, kwargs):
++    if type(admission) is not ContractAdmission:
++        raise ColdAdmissionDenied("Unrecognized CONTRACT admission")
 +    defaults = inspect.signature(type(agent).__init__).parameters
 +    if any(value != defaults[key].default for key, value in kwargs.items()):
-+        raise ColdAdmissionDenied("Cold admission cannot carry warm options")
-+    state = ColdState(str(uuid4()), str(uuid4()), admission.parent_session_id)
-+    agent.__dict__.update(
-+        _cold_state=state, session_id=state.session_id, _subagent_id=state.native_id,
-+        _parent_session_id=state.parent_session_id, _delegate_role="leaf" if state.parent_session_id else "orchestrator",
-+        _delegate_depth=1 if state.parent_session_id else 0, provider=None, model=None,
-+        enabled_toolsets=(), tools=(),
++        raise ColdAdmissionDenied("CONTRACT admission cannot carry warm options")
++    parent = admission.parent
++    if type(parent) is not type(agent):
++        raise ColdAdmissionDenied("Native parent required")
++    cold = object.__getattribute__(parent, "__dict__").get("_cold_state")
++    if (
++        type(cold) is not ColdState
++        or cold.closed
++        or cold.parent_session_id is not None
++        or cold.native_id != parent._subagent_id
++        or cold.session_id != parent.session_id
++    ):
++        raise ColdAdmissionDenied("Live cold root required")
++    brief, _, _ = method.assignment(admission.assignment)  # before any identity allocation
++    manifest = canonical(loads(admission.assignment, 32768)["manifest"])
++    state = ContractState(
++        str(uuid4()),
++        str(uuid4()),
++        cold.session_id,
++        parent,
++        admission.assignment,
++        manifest,
++        brief["payload"]["deadline"],
++    )
++    object.__getattribute__(agent, "__dict__").update(
++        _contract_state=state,
++        session_id=state.session_id,
++        _subagent_id=state.native_id,
++        _parent_session_id=state.parent_session_id,
++        _delegate_role="leaf",
++        _delegate_depth=1,
++        provider=None,
++        model=None,
++        tools=(),
++        enabled_toolsets=(),
 +    )
 +
 +
-+def require_warm_parent(parent):
-+    if getattr(parent, "_cold_state", None) is not None:
-+        raise ColdAdmissionDenied("Cold lineage/stock launch unsupported")
++class BoundContractTools:
++    """Ephemeral scope owned by one real child execution, never registered stock tools."""
++
++    def __init__(self, agent, binding, guard):
++        self.agent, self.state, self.binding, self.guard = (
++            agent,
++            agent._contract_state,
++            binding,
++            guard,
++        )
++        self._guard()  # no method-material unpacking before the live native guard
++        self.brief, self.bound, self.material = method.assignment(self.state.assignment)
++        self.original_ref = ref(self.material["input"])
++        self.receipts, self.artifacts = [], []
++        self.read = False
++
++    def _guard(self):
++        # Do not swallow an exception or interpret a falsey observer as approval.
++        if self.guard() is not True:
++            raise ColdAdmissionDenied("CONTRACT guard refused")
++        state, agent = self.state, self.agent
++        parent_state = object.__getattribute__(state.parent, "__dict__").get("_cold_state")
++        if (
++            state.closed
++            or state.binding != self.binding
++            or state.terminal is not None
++            or agent._contract_state is not state
++            or agent._subagent_id != state.native_id
++            or agent.session_id != state.session_id
++            or agent._parent_session_id != state.parent_session_id
++            or type(parent_state) is not ColdState
++            or parent_state.closed
++            or state.parent.session_id != state.parent_session_id
++            or parent_state.session_id != state.parent_session_id
++            or datetime.now(timezone.utc) >= datetime.fromisoformat(state.deadline)
++        ):
++            raise ColdAdmissionDenied("CONTRACT lineage/deadline unavailable")
++
++    def _bounded(self, extra=()):
++        maximum = min(32768, self.brief["payload"]["limits"]["max_output_bytes"])
++        if len(canonical([*self.receipts, *self.artifacts, *extra])) > maximum:
++            raise ColdAdmissionDenied("CONTRACT aggregate output exceeds bound")
++
++    def _receipt(self, operation, step, inputs, output):
++        receipt = method.record(
++            "contract-tool-receipt",
++            {
++                "header": self.brief["payload"]["header"],
++                "binding_ref": ref(loads(self.binding, 32768)),
++                "native_child_id": self.state.native_id,
++                "native_session_id": self.state.session_id,
++                "sequence": len(self.receipts),
++                "operation": operation,
++                "step_id": None if step is None else step["id"],
++                "action_definition_ref": None if step is None else step["action_definition_ref"],
++                "input_refs": inputs,
++                "output_ref": output,
++            },
++        )
++        self._bounded([receipt])
++        self.receipts.append(receipt)
++
++    def read_input(self, requested_ref):
++        self._guard()  # before the real bound input access below
++        if requested_ref != self.original_ref or self.read:
++            raise ColdAdmissionDenied("CONTRACT input scope mismatch")
++        value = self._read_bound_input()
++        self._receipt("READ_INPUT", None, [self.original_ref], self.original_ref)
++        self.read = True
++        return value
++
++    def _read_bound_input(self):
++        return loads(canonical(self.material["input"]), 8192)
++
++    def pure_action(self, step_id, action_definition_ref, input_refs):
++        self._guard()  # before any previous-output read or handler
++        steps = self.bound["payload"]["resolved_procedure"]["probe"]
++        index = len(self.artifacts)
++        if not self.read or index >= len(steps):
++            raise ColdAdmissionDenied("CONTRACT step unavailable")
++        step = steps[index]
++        expected = [self.original_ref] if index == 0 else [ref(self.artifacts[-1])]
++        if (
++            type(step_id) is not str
++            or step_id != step["id"]
++            or action_definition_ref != step["action_definition_ref"]
++            or input_refs != expected
++        ):
++            raise ColdAdmissionDenied("CONTRACT exact step/ref mismatch")
++        (binding,) = step["input_bindings"]
++        if index == 0:
++            if binding["source_ref"] != self.original_ref:
++                raise ColdAdmissionDenied("CONTRACT bound slot mismatch")
++            previous = self.material["input"]["payload"]["value"]
++        else:
++            source = binding["source_ref"]
++            if source != {
++                "kind": "STEP_OUTPUT",
++                "step_id": steps[index - 1]["id"],
++                "output_name": binding["name"],
++            }:
++                raise ColdAdmissionDenied("CONTRACT StepOutput mismatch")
++            previous = self.artifacts[-1]["payload"]["value"]
++        actual_input = {binding["name"]: previous[binding["name"]]}
++        self._guard()  # fail closed immediately before the installed PURE handler
++        output = method.run_handler(method.STEP_HANDLERS[step_id], actual_input)
++        method.validate_value(method.OUTPUT_SCHEMAS[step_id], output)
++        artifact = method.record(
++            "contract-artifact",
++            {
++                "header": self.brief["payload"]["header"],
++                "schema_ref": step["output_schema_ref"],
++                "value": output,
++            },
++        )
++        self._bounded([artifact])
++        self.artifacts.append(artifact)
++        self._receipt("PURE_ACTION", step, expected, ref(artifact))
++        return ref(artifact)
 +
 +
-+def configuration_snapshot(agent):
-+    """Read the constructor-owned configuration; no caller fields or warm defaults."""
-+    state = getattr(agent, "_cold_state", None)
-+    if (type(state) is not ColdState or type(state.closed) is not bool or state.closed
-+            or state.binding is not None or state.terminal is not None
-+            or state.native_id != agent._subagent_id or state.session_id != agent.session_id
-+            or state.parent_session_id != agent._parent_session_id
-+            or agent.provider is not None or agent.model is not None
-+            or type(agent.enabled_toolsets) is not tuple or type(agent.tools) is not tuple
-+            or len(agent.enabled_toolsets) != 0 or len(agent.tools) != 0):
-+        raise ColdAdmissionDenied("Native configuration changed or unavailable")
-+    return dict(version=1, source="NATIVE_COLD_INITIALIZER", mode="NO_MODEL",
-+                provider=agent.provider, model_id=agent.model,
-+                native_child_id=agent._subagent_id, native_session_id=agent.session_id,
-+                native_parent_session_id=agent._parent_session_id)
-diff --git a/agent/conversation_loop.py b/agent/conversation_loop.py
---- a/agent/conversation_loop.py
-+++ b/agent/conversation_loop.py
-@@ -1423,6 +1423,9 @@
-
-     Returns a turn result dict when a phase ends the turn, else None once the loop is left
-     (success, a restart armed on ``s._retry``, interrupt, or retries exhausted)."""
-+    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
-+    if is_inert_model_context(agent):
-+        return terminal_result()
-     while s.retry_count < s.max_retries:
-         _ng = _run_phase(nous_rate_limit_guard, agent, s)
-         if _ng.action == "return":
-@@ -1438,6 +1441,8 @@
-                 return _rc.result
-             if _rc.action == "break":
-                 return None
-+        except ManagedModelTerminal as error:
-+            return terminal_result(error)
-         except InterruptedError:
-             if _run_phase(handle_api_interrupt, agent, s).action == "break":
-                 return None
-@@ -1471,6 +1476,9 @@
-     store when ``user_message`` carries API-only synthetic prefixes; timestamp / platform id are
-     stored as metadata (platform id lets restart drain recovery dedup). ``persist_user_display_*``:
-     display-only event rendering; the model still receives the message unchanged."""
-+    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
-+    if is_inert_model_context(agent):
-+        return terminal_result()
-     if moa_config is None:
-         user_message, moa_config, persist_user_message = _decode_inline_moa_turn(
-             user_message, persist_user_message
-@@ -1629,6 +1637,9 @@
-     ``{turn_id, current_turn_user_idx}`` pair is stamped beside the exact ``messages`` it
-     addresses, after every history rewrite including post-turn micro-compaction.
-     """
-+    from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
-+    if is_inert_model_context(agent):
-+        return terminal_result()
-     from agent.turn_context import export_current_turn_boundary
-     from tools.vision_tools_history_budget import native_turn_images
-
-diff --git a/agent/managed_admission_rpc.py b/agent/managed_admission_rpc.py
---- /dev/null
-+++ b/agent/managed_admission_rpc.py
-@@ -0,0 +1,78 @@
-+"""Private RPC entry for the reviewed managed admission extension.
-+
-+Only reachable through the fixed inert native stdin peer. No tool registration,
-+plugin hooks, user goals, observers or skills can invoke this owner surface.
-+"""
-+import threading
-+
-+_ROOT = None
-+_SERVICE = None
-+_LOCK = threading.RLock()
-+_INITIALIZATIONS = {}
-+_MAX_INITIALIZATIONS = 32
-+
-+
-+def _observed_result(payload, agent):
-+    from agent.agent_init import observe_owned_core
-+    from omnis_hermes.managed_admission_contract import canonical, initialization_result
-+
-+    actual = agent._owned_initialization.payload()
-+    if canonical({k: v for k, v in actual.items() if k != "mode"}) != canonical({k: v for k, v in payload.items() if k != "mode"}):
-+        raise ValueError("Native core belongs to a different initialization")
-+    return initialization_result(payload, observation=observe_owned_core(agent),
-+        native_session_id=agent.session_id, native_instance_id=agent._native_instance_id)
-+
-+
-+def _initialize(params):
-+    from omnis_hermes.managed_admission_contract import (
-+        OwnedInitialization, canonical, initialization_result, validate_initialization,
-+    )
-+    p = validate_initialization(params)  # before any native import/allocation
-+    key = p["initialization_id"]
-+    bound = canonical({k: v for k, v in p.items() if k != "mode"})
-+    with _LOCK:
-+        entry = _INITIALIZATIONS.get(key)
-+        if entry is not None:
-+            if entry["binding"] != bound:
-+                raise ValueError("Initialization replay conflict")
-+            agent = entry["agent"]
-+            if agent is None or agent.__dict__.get("_owned_core_closed") is True:
-+                return initialization_result(p)
-+            return _observed_result(p, agent)  # every read observes the live core
-+        if p["mode"] == "STATUS":
-+            return initialization_result(p)  # no import, constructor or reservation
-+        if len(_INITIALIZATIONS) >= _MAX_INITIALIZATIONS:
-+            raise ValueError("Initialization registry full")
-+        # A retained pending/failure marker makes uncertain CREATE non-repeatable.
-+        entry = {"binding": bound, "agent": None}
-+        _INITIALIZATIONS[key] = entry
-+        try:
-+            from run_agent import AIAgent
-+            agent = AIAgent(owned_initialization=OwnedInitialization(canonical(p)))
-+            result = _observed_result(p, agent)
-+        except Exception:
-+            raise ValueError("Native configuration initialization incomplete") from None
-+        entry["agent"] = agent
-+        return result
-+
-+
-+def dispatch(method, params):
-+    global _ROOT, _SERVICE
-+    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight
-+    if method == RPC["task_model_initialize"]:
-+        return _initialize(params)
-+    if method not in RPC.values():
-+        raise ValueError("Unknown managed operation")
-+    {RPC["task_stage"]: validate_stage, RPC["task_release"]: validate_release,
-+     RPC["task_status"]: validate_status, RPC["task_model_preflight"]: validate_model_preflight}[method](params)
-+    with _LOCK:
-+        if _SERVICE is None:
-+            if method != RPC["task_stage"]:
-+                raise ValueError("No managed stage")
-+            from run_agent import AIAgent
-+            from agent.cold_admission import ColdAdmission
-+            from agent.subagent_lifecycle import SubagentLifecycleService
-+            _ROOT = AIAgent(cold_admission=ColdAdmission())
-+            _SERVICE = SubagentLifecycleService(lambda: _ROOT)
-+        return {RPC["task_stage"]: _SERVICE.stage, RPC["task_release"]: _SERVICE.release,
-+                RPC["task_status"]: _SERVICE.readback, RPC["task_model_preflight"]: _SERVICE.model_preflight}[method](params)
-diff --git a/agent/subagent_lifecycle.py b/agent/subagent_lifecycle.py
---- a/agent/subagent_lifecycle.py
-+++ b/agent/subagent_lifecycle.py
-@@ -42,6 +42,7 @@
-     INTERRUPTED = "INTERRUPTED"
-     CANCEL_REQUESTED = "CANCEL_REQUESTED"
-     CANCELLED = "CANCELLED"
-+    BLOCKED = "BLOCKED"
-     UNKNOWN = "UNKNOWN"
-
-
-@@ -241,9 +242,173 @@
-
-     def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
-         self._parent_agent_resolver = parent_agent_resolver
-+        self._cold_batches = {}
-+
-+    def stage(self, payload):
-+        """Create cold native identities, with no executor or conversation admission."""
-+        from omnis_hermes.managed_admission_contract import validate_stage, ref, canonical
-+        from agent.cold_admission import ColdAdmission, ColdAdmissionDenied
-+        from uuid import uuid4
-+        # Freeze caller-owned data, then validate the complete material before identities.
-+        payload = json.loads(canonical(payload))
-+        manifest = validate_stage(payload)
-+        composition_material = tuple(canonical(c) for c in payload.get("compositions", []))
-+        with _REGISTRY.lock:
-+            parent = self._parent_agent_resolver()
-+            state = getattr(parent, "_cold_state", None)
-+            if state is None or state.closed or state.parent_session_id is not None:
-+                raise ColdAdmissionDenied("A live cold native root is required")
-+            prior = self._cold_batches.get(manifest["id"])
-+            if prior is not None:
-+                if (prior["manifest"] != manifest or prior["composition_material"] != composition_material
-+                        or prior["response"]["protocol"] != payload["protocol"]):
-+                    raise ColdAdmissionDenied("Manifest replay conflict")
-+                self._require_cold_root(prior, parent)
-+                return json.loads(json.dumps(prior["response"]))
-+            if len(self._cold_batches) >= 64:
-+                raise ColdAdmissionDenied("Cold registry full")
-+            # Branch precedes _resolve_child_runtime and init_agent, not a late observer.
-+            from run_agent import AIAgent
-+            rows, records = [], []
-+            try:
-+                for entry in manifest["payload"]["entries"]:
-+                    child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
-+                    created = time.time()
-+                    handle = SubagentHandle(
-+                        PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id, None,
-+                        created, None, None, "leaf", 1,
-+                        self._capability(child._subagent_id, parent.session_id, created),
-+                    )
-+                    records.append(_Record(handle, SubagentState.PENDING, created, agent=child))
-+                    rows.append({**{k:v for k,v in entry.items() if k != "goal"},
-+                                 "native_child_id": child._subagent_id, "native_session_id": child.session_id})
-+            except BaseException:
-+                for record in records:
-+                    record.agent.close()
-+                raise
-+            response = dict(protocol=payload["protocol"], status="STAGED", ticket=str(uuid4()),
-+                            manifest_ref=ref(manifest), native_root_id=parent._subagent_id, entries=rows)
-+            for record in records:
-+                _REGISTRY.records[record.handle.subagent_id] = record
-+            self._cold_batches[manifest["id"]] = dict(
-+                manifest=json.loads(json.dumps(manifest)), response=response, records=records,
-+                composition_material=composition_material,
-+                expires=time.monotonic() + 4.5, binding=None,
-+                parent=parent, parent_session_id=parent.session_id,
++def run_contract(agent, binding, guard):
++    state = agent._contract_state
++    if (
++        type(state) is not ContractState
++        or state.closed
++        or state.binding is not None
++        or type(binding) is not bytes
++        or not callable(guard)
++    ):
++        raise ColdAdmissionDenied("CONTRACT execution unavailable")
++    # Constructor-owned source and native identity, not a task ID in JSON goal.
++    manifest = loads(state.manifest, 32768)
++    bound = loads(binding, 32768)
++    release = {
++        "protocol": "omnis-managed-admission-v4",
++        "ticket": bound["payload"]["ticket"],
++        "manifest_ref": ref(manifest),
++        "binding": bound,
++    }
++    validate_release(release)
++    body = bound["payload"]
++    (entry,) = body["entries"]
++    expected = {k: v for k, v in manifest["payload"]["entries"][0].items() if k != "goal"}
++    expected.update(native_child_id=state.native_id, native_session_id=state.session_id)
++    if (
++        canonical(bound) != binding
++        or entry != expected
++        or body["run_id"] != manifest["payload"]["run_id"]
++        or body["native_root_id"] != state.parent._subagent_id
++    ):
++        raise ColdAdmissionDenied("CONTRACT native binding mismatch")
++    state.binding = binding  # attempted/partial execution can never be repeated
++    try:
++        tools = BoundContractTools(agent, binding, guard)
++        original = tools.read_input(tools.original_ref)
++        previous_ref = tools.original_ref
++        for step in tools.bound["payload"]["resolved_procedure"]["probe"]:
++            previous_ref = tools.pure_action(
++                step["id"], step["action_definition_ref"], [previous_ref]
 +            )
-+            return json.loads(json.dumps(response))
-+
-+    def _require_cold_root(self, batch, parent):
-+        """Admission stays with the original root; status readback is historical."""
-+        from agent.cold_admission import ColdAdmissionDenied
-+        state = getattr(parent, "_cold_state", None)
-+        if (parent is not batch["parent"] or state is None or state.closed
-+                or parent.session_id != batch["parent_session_id"]
-+                or state.session_id != batch["parent_session_id"]
-+                or parent._subagent_id != batch["response"]["native_root_id"]
-+                or state.native_id != batch["response"]["native_root_id"]):
-+            raise ColdAdmissionDenied("Native root lineage changed or stopped")
-+
-+    def _cold_batch(self, payload):
-+        from agent.cold_admission import ColdAdmissionDenied
-+        batch = self._cold_batches.get(payload["manifest_ref"]["id"])
-+        if batch is None or any(payload[k] != batch["response"][k] for k in ("protocol", "ticket", "manifest_ref")):
-+            raise ColdAdmissionDenied("Unknown native stage")
-+        return batch
-+
-+    def readback(self, payload):
-+        from omnis_hermes.managed_admission_contract import validate_status
-+        validate_status(payload)
-+        with _REGISTRY.lock:
-+            return json.loads(json.dumps(self._cold_batch(payload)["response"]))
-+
-+    def model_preflight(self, payload):
-+        """Consume qualified model data without promoting a cold child to a turn."""
-+        from omnis_hermes.model_admission import validate_preflight, cold_preflight
-+        from omnis_hermes.native_preparation_contract import canonical
-+        from agent.cold_admission import ColdAdmissionDenied
-+        payload = json.loads(canonical(payload))
-+        validate_preflight(payload)
-+        with _REGISTRY.lock:
-+            batch = self._cold_batch(payload)
-+            parent = self._parent_agent_resolver()
-+            self._require_cold_root(batch, parent)
-+            body = payload["binding"]["payload"]
-+            rows = batch["response"]["entries"]
-+            if (batch["binding"] is not None or time.monotonic() >= batch["expires"]
-+                    or body["run_id"] != batch["manifest"]["payload"]["run_id"]
-+                    or body["entries"] != rows or len(rows) != len(batch["records"])):
-+                raise ColdAdmissionDenied("Model preflight lifecycle unavailable")
-+            for row, record in zip(rows, batch["records"], strict=True):
-+                child = record.agent
-+                state = getattr(child, "_cold_state", None)
-+                if (record.state != SubagentState.PENDING or state is None or state.closed
-+                        or child._subagent_id != row["native_child_id"]
-+                        or child.session_id != row["native_session_id"]
-+                        or state.native_id != row["native_child_id"]
-+                        or state.session_id != row["native_session_id"]
-+                        or state.parent_session_id != parent.session_id):
-+                    raise ColdAdmissionDenied("Model preflight native lineage unavailable")
-+            from omnis_hermes.model_context import validate_context
-+            validate_context(payload["model_context"], payload,
-+                staged_manifest=batch["manifest"], staged_material=batch["composition_material"])
-+            from agent.cold_admission import configuration_snapshot
-+            context = payload["model_context"]
-+            selected = [record.agent for row, record in zip(rows, batch["records"], strict=True)
-+                        if row["task_id"] == context["task_id"] and row["attempt_id"] == context["attempt_id"]]
-+            if len(selected) != 1:
-+                raise ColdAdmissionDenied("Native configuration assignment unavailable")
-+            configuration = configuration_snapshot(selected[0])
-+            return cold_preflight(payload, native_root_id=parent._subagent_id,
-+                native_entries=rows, source_configuration=configuration)
-+
-+    def release(self, payload):
-+        """Binding barrier; authentic terminal BLOCKED, never a simulated turn."""
-+        from omnis_hermes.managed_admission_contract import validate_release, ref, canonical, digest
-+        from agent.cold_admission import ColdAdmissionDenied
-+        validate_release(payload)
-+        with _REGISTRY.lock:
-+            batch = self._cold_batch(payload)
-+            binding = payload["binding"]
-+            body, response = binding["payload"], batch["response"]
-+            if (body["run_id"] != batch["manifest"]["payload"]["run_id"]
-+                    or body["native_root_id"] != response["native_root_id"]
-+                    or body["entries"] != response["entries"]):
-+                raise ColdAdmissionDenied("Native binding mismatch")
-+            if batch["binding"] is not None:
-+                if canonical(binding) != batch["binding"]:
-+                    raise ColdAdmissionDenied("Immutable binding conflict")
-+                return json.loads(json.dumps(response))
-+            parent = self._parent_agent_resolver()
-+            self._require_cold_root(batch, parent)
-+            if (time.monotonic() >= batch["expires"]
-+                    or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
-+                           for r in batch["records"])):
-+                raise ColdAdmissionDenied("Native stage expired or stopped")
-+            # No observer participates in authority. Validation finishes before mutation.
-+            committed = canonical(binding)
-+            for record in batch["records"]:
-+                child = record.agent
-+                state = child._cold_state.block(committed)
-+                completed = time.time()
-+                result = SubagentResult(
-+                    record.handle, SubagentState(state), True, completed_at=completed,
-+                    error_classification="NO_MODEL", structured_payload={"binding_ref": ref(binding)},
-+                    usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": 0},
-+                )
-+                result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-+                record.result, record.state = result, result.terminal_state
-+                record.completed_at = record.updated_at = completed
-+                child.close()
-+                record.agent = None
-+            batch["binding"] = committed
-+            batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
-+            return json.loads(json.dumps(batch["response"]))
-
-     def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
-         parent = self._parent_agent_resolver()
-+        from agent.cold_admission import require_warm_parent
-+        require_warm_parent(parent)
-         if parent is None:
-             raise SubagentLifecycleError("No active Hermes parent session is available.")
-         self._validate_request(request, parent)
-diff --git a/agent/turn_api_call.py b/agent/turn_api_call.py
---- a/agent/turn_api_call.py
-+++ b/agent/turn_api_call.py
-@@ -72,6 +72,8 @@
-     interrupted: Any,
- ) -> ApiCallVerdict:
-     """Issue the request (see ``_should_stream`` for the streaming decision)."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority(agent)
-     response = None
-
-     def _verdict(action: str) -> ApiCallVerdict:
-diff --git a/agent/turn_api_error.py b/agent/turn_api_error.py
---- a/agent/turn_api_error.py
-+++ b/agent/turn_api_error.py
-@@ -68,6 +68,10 @@
-             compression_attempts=compression_attempts,
-             _provider_overflow_recovery_pending=_provider_overflow_recovery_pending, result=result,
-         )
-+
-+    from omnis_hermes.model_terminal import ManagedModelTerminal, is_inert_model_context, terminal_result
-+    if isinstance(api_error, ManagedModelTerminal) or is_inert_model_context(agent):
-+        return _verdict("return", terminal_result(api_error if isinstance(api_error, ManagedModelTerminal) else None))
-
-     # Stop spinner silently — retry status is buffered and only flushed when every
-     # retry+fallback is exhausted.
-diff --git a/agent/turn_api_request.py b/agent/turn_api_request.py
---- a/agent/turn_api_request.py
-+++ b/agent/turn_api_request.py
-@@ -97,6 +97,8 @@
- ) -> ApiRequestBuild:
-     """Assemble the attempt's request in the original order (every mutation happens BEFORE
-     middleware/hooks/debug dumps observe the payload)."""
-+    from omnis_hermes.model_terminal import require_model_authority
-+    require_model_authority(agent)
-     from agent.conversation_loop import (
-         _moa_client_consumes_prepared_request, _redecorate_prompt_cache_for_provider,
-     )
-diff --git a/providers/__init__.py b/providers/__init__.py
---- a/providers/__init__.py
-+++ b/providers/__init__.py
-@@ -160,6 +160,8 @@
-
-     Returns None if the provider has no profile (falls back to generic).
-     """
-+    if os.environ.get("HERMES_OMNIS_INERT") == "1":
-+        return None
-     if not _discovered:
-         _discover_providers()
-     layer, home, key = _bound_home_layer()
-@@ -235,6 +237,8 @@
-
- def _home_layer(*, force_stamp_check: bool = False) -> _HomeLayer:
-     """The layer for the home bound right now, importing plugin dirs it has not seen yet."""
-+    if os.environ.get("HERMES_OMNIS_INERT") == "1":
-+        return _HomeLayer()
-     layer, home, key = _bound_home_layer()
-     _refresh_home_layer(layer, home, key, force=force_stamp_check)
-     return layer
-@@ -560,6 +564,10 @@
-     per profile home and load through :func:`_home_layer` at lookup time.
-     """
-     global _discovered, _discovering
-+    # A cold/inert runtime never imports provider plugins: import-time URL/key
-+    # resolvers can read credentials even without an AIAgent client.
-+    if os.environ.get("HERMES_OMNIS_INERT") == "1":
-+        return
-     if _discovered:
-         return
-     _discovered = True
-diff --git a/run_agent.py b/run_agent.py
---- a/run_agent.py
-+++ b/run_agent.py
-@@ -13,10 +13,11 @@
-     pass  # partial `hermes update` — only skips the Windows UTF-8 stdio setup
-
- import sys
-+import os
-
- # `hermes-agent` runs this module without hermes_cli.main, which repairs a `hermes update` killed
- # while git wrote the new tree; do it here, before importing anything else from the checkout.
--if "hermes_cli.main" not in sys.modules:
-+if "hermes_cli.main" not in sys.modules and os.environ.get("HERMES_OMNIS_INERT") != "1":
-     from hermes_cli import _early_recovery
-
-     if _early_recovery.restore_interrupted_pull():
-@@ -300,14 +301,53 @@
-         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
-         side_agent: bool = False, memory_manager=None,
-         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
-+        cold_admission=None, owned_initialization=None,
-     ):
--        """Forwarder — see ``agent.agent_init.init_agent`` (same keyword parameters, minus ``tool_delay``)."""
--        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay")}
-+        """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
-+        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization")}
-+        if cold_admission is not None and owned_initialization is not None:
-+            raise ValueError("Owned initialization cannot carry cold admission")
-+        if cold_admission is not None:
-+            from agent.cold_admission import initialize_cold
-+            if tool_delay is not None:
-+                raise ValueError("Cold admission cannot carry warm options")
-+            initialize_cold(self, cold_admission, init_kwargs)
-+            return
-+        if owned_initialization is not None:
-+            import inspect
-+            from omnis_hermes.managed_admission_contract import OwnedInitialization
-+            if type(owned_initialization) is not OwnedInitialization or cold_admission is not None or tool_delay is not None:
-+                raise ValueError("Owned initialization cannot carry cold/warm options")
-+            defaults = inspect.signature(type(self).__init__).parameters
-+            if any(value != defaults[key].default for key, value in init_kwargs.items()):
-+                raise ValueError("Owned initialization cannot carry warm options")
-+            from agent.agent_init import init_agent
-+            init_agent(self, owned_initialization=owned_initialization)
-+            return
-         if tool_delay is not None:
-             warnings.warn("tool_delay is deprecated and ignored; sequential tool calls "
-                           "no longer sleep between executions.", DeprecationWarning, stacklevel=2)
-         from agent.agent_init import init_agent
-         init_agent(self, **init_kwargs)
-+
-+    def __getattribute__(self, name):
-+        attributes = object.__getattribute__(self, "__dict__")
-+        if attributes.get("_owned_initialization") is not None or attributes.get("_owned_core") is not None:
-+            # The complete configuration/core phase is not a warm turn/client.
-+            # Deny unknown native surfaces before facade/background/lease hooks.
-+            readable = {"__dict__", "__class__", "__weakref__", "base_url", "close",
-+                "_max_tokens_param", "_reasoning_echo_opt_in", "_anthropic_prompt_cache_policy",
-+                "_is_direct_openai_url", "_is_azure_openai_url", "_is_github_copilot_url", "_hostname_for"}
-+            if name not in attributes and name not in readable:
-+                raise ValueError("DEFERRED_NO_CREDENTIAL: owned core surface denied")
-+        # Cold state is complete and closed to ALL warm surfaces, including newly
-+        # added mixin methods. No observer/middleware exception can fall through.
-+        state = object.__getattribute__(self, "__dict__").get("_cold_state")
-+        if state is not None:
-+            from agent.cold_admission import COLD_READABLE, ColdAdmissionDenied
-+            if name not in COLD_READABLE:
-+                raise ColdAdmissionDenied("NO_MODEL: cold surface denied")
-+        return object.__getattribute__(self, name)
-
-     def _get_session_db_for_recall(self):
-         """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
-@@ -968,6 +1008,15 @@
-     def close(self) -> None:
-         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
-         blocks the rest."""
-+        # Owned config cores have no client/context/tools/persistence to retire.
-+        if self.__dict__.get("_owned_initialization") is not None:
-+            self._owned_core_closed = True
-+            return
-+        # Cold agents own no warm resources and never enter cleanup hooks.
-+        cold = self.__dict__.get("_cold_state")
-+        if cold is not None:
-+            cold.closed = True
-+            return
-         # close() is the hard owner boundary; shutdown_memory_provider() is idempotent so gateway pre-calls
-         # never double-extract.
-         session_messages = getattr(self, "_session_messages", None)
-diff --git a/tui_gateway/rpc_dispatch.py b/tui_gateway/rpc_dispatch.py
---- a/tui_gateway/rpc_dispatch.py
-+++ b/tui_gateway/rpc_dispatch.py
-@@ -19,6 +19,16 @@
-     if isinstance(normalized, dict):
-         return normalized
-     rid, method, params = normalized
-+    # Private owner-only extension, not a generic management/session allowlist.
-+    if os.environ.get("HERMES_OMNIS_INERT") == "1" and method in {
-+        "omnis.managed.stage", "omnis.managed.release", "omnis.managed.status", "omnis.managed.model_preflight",
-+        "omnis.managed.model_initialize",
-+    }:
-+        try:
-+            from agent.managed_admission_rpc import dispatch as managed_dispatch
-+            return {"jsonrpc": "2.0", "id": rid, "result": managed_dispatch(method, params)}
-+        except Exception:
-+            return _err(rid, 4000, "managed admission denied")
-     # Omnis B05 has no live session or Settings/provider authority.
-     if os.environ.get("HERMES_OMNIS_INERT") == "1" and method not in {"client.capabilities", "gateway.capabilities", "ping"}:
-         return _err(rid, -32601, "method unavailable in Omnis inert runtime")
++        tools._guard()
++        result = method.task_result(
++            tools.brief, tools.bound, original, tools.receipts, tools.artifacts
++        )
++        tools._bounded([result])
++        execution = {
++            "native_child_id": state.native_id,
++            "native_session_id": state.session_id,
++            "brief_ref": ref(tools.brief),
++            "records": [result, *tools.receipts, *tools.artifacts],
++        }
++        if len(canonical(execution)) > 32768:
++            raise ColdAdmissionDenied("CONTRACT native result exceeds bound")
++        state.terminal = "SUCCEEDED"
++        return execution
++    except BaseException:
++        state.terminal = "UNKNOWN"
++        raise

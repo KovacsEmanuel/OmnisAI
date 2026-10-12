@@ -44,6 +44,13 @@ BASE_TEXT = (
     "CONTRACT_PROBE. No provider, model, tools, targets, or domain reads. Return NO_MODEL only."
 )
 ROLE_TEXT = "SUPPORT-only cold admission probe; not an assessment."
+CONTRACT_BASE_TEXT = (
+    "CONTRACT_PROBE. Deterministic PURE method only; no provider, model, target or stock tools. "
+    "Read only the bound assignment inputs."
+)
+CONTRACT_ROLE_TEXT = "SUPPORT-only native CONTRACT/PURE method; not an assessment."
+# Explicit historical source allowlist; never reinterpret cold material as v4.
+RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
@@ -135,7 +142,11 @@ def composer_revision() -> str:
 
 
 def compose(
-    prompt_bundle: object, preparation_receipt_ref: object, sections: object
+    prompt_bundle: object,
+    preparation_receipt_ref: object,
+    sections: object,
+    *,
+    version: int | None = None,
 ) -> dict[str, object]:
     bounded(sections)
     authored(sections)
@@ -148,7 +159,7 @@ def compose(
         "byte_count": len(raw),
         "token_upper_bound": len(raw),
     }
-    _material(result)
+    _material(result, version)
     return result
 
 
@@ -709,7 +720,14 @@ def _material(
     sections = sequence(loads(raw, maximum), 5, 7)
     has_capture = mapping(sections[4]).get("section") == "case-input"
     actual_version = 1 + integer(mapping(sections[4])["version"], 1, 2) if has_capture else 1
+    contract_method = version == 4
+    if contract_method:
+        if not has_capture:
+            raise reject()
+        actual_version = 4
     revisions = {composer_revision()}
+    if actual_version <= 3:
+        revisions.add(RECORDS_COMPOSER_REVISION)
     if actual_version <= 2:
         revisions.add(CAPTURE_COMPOSER_REVISION)
     if actual_version == 1:
@@ -740,9 +758,9 @@ def _material(
     if len({record["id"] for record in [bundle, *checked]}) != len(checked) + 1:
         raise reject()
     base, role, brief, method = checked
-    if obj(base["payload"], {"text"}) != {"text": BASE_TEXT} or reference(
-        b["base_ref"], "prompt-content"
-    ) != ref(base):
+    if obj(base["payload"], {"text"}) != {
+        "text": CONTRACT_BASE_TEXT if contract_method else BASE_TEXT
+    } or reference(b["base_ref"], "prompt-content") != ref(base):
         raise reject()
     skill_sections = sections[5:] if has_capture else sections[4:]
     _skills(skill_sections, b["package_refs"])
@@ -752,7 +770,10 @@ def _material(
     }:
         raise reject()
     body = _brief(brief["payload"], method, bundle, capture)
-    if obj(role["payload"], {"role", "text"}) != {"role": body["role"], "text": ROLE_TEXT}:
+    if obj(role["payload"], {"role", "text"}) != {
+        "role": body["role"],
+        "text": CONTRACT_ROLE_TEXT if contract_method else ROLE_TEXT,
+    }:
         raise reject()
     roles = {}
     for item in sequence(b["role_refs"], 1, 4):
@@ -780,7 +801,7 @@ def validate_composition(value: object, manifest: object, entry: object) -> byte
         },
     )
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
-    version = integer(launch.get("composition_version"), 1, 3)
+    version = integer(launch.get("composition_version"), 1, 4)
     raw, brief, body = _material(payload, version)
     e = obj(entry, {"batch_index", "task_id", "attempt_id", "brief_ref", "composition_ref", "goal"})
     header = mapping(body["header"])

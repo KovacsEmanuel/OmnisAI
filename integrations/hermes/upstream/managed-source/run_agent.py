@@ -127,7 +127,14 @@ if not _loaded_env_paths:
     logger.info("No .env file found. Using system environment variables.")
 
 
-from model_tools import get_toolset_for_tool
+if os.environ.get("HERMES_OMNIS_INERT") != "1":
+    from model_tools import get_toolset_for_tool
+else:
+    # This import discovers every stock tool/plugin. Neither a cold root nor
+    # a bounded CONTRACT child uses the CLI's stock-inventory listing helper.
+    def get_toolset_for_tool(tool_name: str) -> Optional[str]:
+        from agent.cold_admission import ColdAdmissionDenied
+        raise ColdAdmissionDenied("Stock inventory unavailable in inert mode")
 from tools.terminal_tool_lifecycle import cleanup_vm, get_active_env
 from tools.interrupt import set_interrupt as _set_interrupt
 from tools.browser_tool_lifecycle import cleanup_browser
@@ -301,10 +308,16 @@ class AIAgent(
         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
         side_agent: bool = False, memory_manager=None,
         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
-        cold_admission=None, owned_initialization=None,
+        cold_admission=None, owned_initialization=None, contract_admission=None,
     ):
         """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
-        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization")}
+        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization", "contract_admission")}
+        if contract_admission is not None:
+            if cold_admission is not None or owned_initialization is not None or tool_delay is not None:
+                raise ValueError("CONTRACT admission cannot carry other modes")
+            from agent.contract_execution import initialize_contract
+            initialize_contract(self, contract_admission, init_kwargs)
+            return
         if cold_admission is not None and owned_initialization is not None:
             raise ValueError("Owned initialization cannot carry cold admission")
         if cold_admission is not None:
@@ -332,6 +345,10 @@ class AIAgent(
 
     def __getattribute__(self, name):
         attributes = object.__getattribute__(self, "__dict__")
+        if attributes.get("_contract_state") is not None:
+            from agent.contract_execution import CONTRACT_READABLE
+            if name not in CONTRACT_READABLE:
+                raise ValueError("CONTRACT/PURE: native surface denied")
         if attributes.get("_owned_initialization") is not None or attributes.get("_owned_core") is not None:
             # The complete configuration/core phase is not a warm turn/client.
             # Deny unknown native surfaces before facade/background/lease hooks.
@@ -1005,9 +1022,17 @@ class AIAgent(
         # from the cache and a rebuilt agent spawns its own child, so an unclosed one leaks for the gateway's life.
         _quietly(self._close_codex_session)
 
+    def run_contract(self, binding, guard):
+        from agent.contract_execution import run_contract
+        return run_contract(self, binding, guard)
+
     def close(self) -> None:
         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
         blocks the rest."""
+        contract = self.__dict__.get("_contract_state")
+        if contract is not None:
+            contract.closed = True
+            return
         # Owned config cores have no client/context/tools/persistence to retire.
         if self.__dict__.get("_owned_initialization") is not None:
             self._owned_core_closed = True

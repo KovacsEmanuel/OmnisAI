@@ -41,7 +41,8 @@ LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf66
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef85ea9f3b5828c"
 METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
-COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
+COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
+COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -440,6 +441,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            COMPACT_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
             RECORDS_COMPOSER_REVISION,
             CAPTURE_COMPOSER_REVISION,
@@ -478,9 +480,12 @@ def validate(
         if has_input
         else 1
     )
-    if compact and metadata["composer_revision"] != COMPOSER_REVISION:
+    if compact and metadata["composer_revision"] not in {
+        COMPOSER_REVISION,
+        COMPACT_COMPOSER_REVISION,
+    }:
         raise CatalogError("COMPOSITION_REJECTED")
-    revisions = {COMPOSER_REVISION, METHOD_COMPOSER_REVISION}
+    revisions = {COMPOSER_REVISION, METHOD_COMPOSER_REVISION, COMPACT_COMPOSER_REVISION}
     if version <= 3:
         revisions.add(RECORDS_COMPOSER_REVISION)
     if version <= 2:
@@ -504,6 +509,10 @@ def validate(
         nested.append(record(part["record"], kind))
     base, role, brief, bound = nested
     brief_body = mapping(contract.validate_brief(brief)["payload"])
+    if brief_body["criterion_bindings"] and (
+        not method_execution or metadata["composer_revision"] != COMPOSER_REVISION
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
     contract.validate_assignment(brief, bound)
     skill_start = 5 if has_input else 4
     validate_skills(sections[skill_start:], metadata["package_refs"])

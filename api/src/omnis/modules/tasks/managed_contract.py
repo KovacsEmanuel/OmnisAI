@@ -115,9 +115,15 @@ def build_records(
     prefix: list[dict[str, object]] | None = None,
     case_input: dict[str, object] | None = None,
     method_execution: bool = False,
+    criterion_ids: object = None,
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
+    from omnis.modules.tasks import criterion_checks
+
+    allocated = [] if criterion_ids is None else criterion_checks.allocation(criterion_ids)
+    if allocated and (not method_execution or prefix is not None or not context_only):
+        raise CatalogError("CRITERION_ALLOCATION_MISMATCH")
     if type(method_execution) is not bool or (method_execution and composition_packages is None):
         raise CatalogError("MANAGED_REJECTED")
     if (
@@ -191,6 +197,14 @@ def build_records(
             "focus-selection-rule", {"key": "contract-probe.no-target", "operation_refs": []}
         )
         criterion = str(uuid4())
+        rule_ref = (
+            add(
+                "criterion-outcome-rule",
+                criterion_checks.rule_payload(procedure_ref, procedure.model_dump(mode="json")),
+            )
+            if allocated
+            else None
+        )
         mission = add(
             "mission",
             {
@@ -199,13 +213,14 @@ def build_records(
                 "summary": procedure.objective,
                 "criteria": [
                     {
-                        "id": criterion,
+                        "id": criterion_id,
                         "description": "Execute the bound deterministic CONTRACT/PURE method."
                         if method_execution
                         else "Record a native NO_MODEL refusal without executing the method.",
                         "kind": "FUNCTIONAL",
                         "oracle_ref": None,
                     }
+                    for criterion_id in (allocated or [criterion])
                 ],
                 "non_goals": [
                     "No assessment, provider or target traffic."
@@ -215,7 +230,9 @@ def build_records(
                 "required_operation_refs": [],
                 "basis_refs": [records.reference(selection), preparation_ref],
                 "gaps": [] if method_execution else ["NO_MODEL; method execution unavailable."],
-                "done_when": [{"criterion_id": criterion, "required": True}],
+                "done_when": [
+                    {"criterion_id": i, "required": True} for i in (allocated or [criterion])
+                ],
             },
         )
         focus = add(
@@ -297,6 +314,11 @@ def build_records(
                     "reviewer_recipe_key": None,
                     "max_rework_rounds": 0,
                 },
+                **(
+                    {"allocated_criterion_ids": allocated, "criterion_outcome_rule_ref": rule_ref}
+                    if allocated
+                    else {}
+                ),
             },
         )
         cursor = add(
@@ -316,6 +338,18 @@ def build_records(
             for k in ("managed-run", "mission", "focus", "prompt-bundle", "managed-cursor")
         )
         run_body = mapping(next(r for r in graph if r["id"] == run["id"])["payload"])
+        allocated = (
+            criterion_checks.allocation(run_body["allocated_criterion_ids"])
+            if "allocated_criterion_ids" in run_body
+            else []
+        )
+        rule_ref = (
+            ref(run_body["criterion_outcome_rule_ref"], "criterion-outcome-rule")
+            if allocated
+            else None
+        )
+        if allocated and not method_execution:
+            raise CatalogError("CRITERION_ALLOCATION_MISMATCH")
         if (
             run_body["selection_ref"] != records.reference(selection)
             or run_body["preparation_receipt_ref"] != preparation_ref
@@ -423,8 +457,23 @@ def build_records(
             "through_cursor": cursor["id"],
             "brief_revision": 1,
         }
+        criterion_bindings: list[dict[str, object]] = [
+            {
+                "criterion_id": i,
+                "bound_procedure_ref": bound,
+                "step_ids": [mapping(s)["id"] for s in sequence(resolved["probe"])],
+                "outcome_rule_ref": rule_ref,
+            }
+            for i in allocated
+        ]
         result_schema = add(
-            "schema", result_json_schema(header, requirements, method_execution=method_execution)
+            "schema",
+            result_json_schema(
+                header,
+                requirements,
+                method_execution=method_execution,
+                criterion_bindings=criterion_bindings,
+            ),
         )
         header = {**header, "result_schema_ref": result_schema}
         brief = add(
@@ -435,13 +484,19 @@ def build_records(
                 "execution_selection_ref": records.reference(selection),
                 "assessment_mode": "FULL_ASSESSMENT",
                 "objective_summary": procedure.objective,
-                "non_goals": ["No assessment, target/model access, or CriterionOutcome."],
+                "non_goals": [
+                    "No assessment, target/model access, or functional PASS."
+                    if allocated
+                    else "No assessment, target/model access, or CriterionOutcome."
+                ],
                 "role": role,
                 "hypothesis": "Native child executes only bound deterministic PURE steps."
                 if method_execution
                 else "Native admission refuses NO_MODEL before any method step.",
                 "operation_refs": [],
-                "priority_reason": "SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.",
+                "priority_reason": "CRITERIA: explicit backend allocation; no oracle or controls available."
+                if allocated
+                else "SUPPORT: synthetic CONTRACT_PROBE lifecycle; zero target operations and no criterion assignment.",
                 "done_when": [],
                 "return_when": [],
                 "context": [
@@ -486,7 +541,7 @@ def build_records(
                 ],
                 "method_plan": {"requirements": requirements},
                 "review_request": None,
-                "criterion_bindings": [],
+                "criterion_bindings": criterion_bindings,
                 "overlay_refs": [],
                 "input_artifact_refs": input_refs,
                 "identities": [],
@@ -587,6 +642,7 @@ def result_json_schema(
     requirements: list[dict[str, object]],
     *,
     method_execution: bool = False,
+    criterion_bindings: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     def strict_object(properties: dict[str, object]) -> dict[str, object]:
         return {
@@ -701,6 +757,34 @@ def result_json_schema(
                 "gaps": {"type": "array", "maxItems": 0},
             }
         )
+    if criterion_bindings:
+        if not method_execution:
+            raise CatalogError("CRITERION_BINDING_MISMATCH")
+        from omnis.modules.tasks.criterion_checks import bindings
+
+        criteria = bindings(criterion_bindings)
+        properties["criterion_results"] = {
+            "type": "array",
+            "minItems": len(criteria),
+            "maxItems": len(criteria),
+            "prefixItems": [
+                strict_object(
+                    {
+                        "criterion_id": {"const": b["criterion_id"]},
+                        "bound_procedure_ref": {"const": b["bound_procedure_ref"]},
+                        "control_step_ids": {"const": []},
+                        "evidence_refs": {"const": []},
+                        "proposed_outcome": {"enum": ["PASS", "FAIL", "BLOCKED", "INCONCLUSIVE"]},
+                        "gaps": {
+                            "type": "array",
+                            "maxItems": 128,
+                            "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+                        },
+                    }
+                )
+                for b in criteria
+            ],
+        }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         **strict_object(properties),
@@ -723,7 +807,6 @@ def validate_brief(value: object) -> dict[str, object]:
         "return_when",
         "contradiction_refs",
         "prior_attempt_refs",
-        "criterion_bindings",
         "overlay_refs",
         "identities",
         "allowed_capability_ids",
@@ -734,7 +817,10 @@ def validate_brief(value: object) -> dict[str, object]:
             raise CatalogError("MANAGED_REJECTED")
     for key in ("objective_summary", "hypothesis", "priority_reason"):
         text(body[key])
-    if "SUPPORT" not in text(body["priority_reason"]):
+    from omnis.modules.tasks.criterion_checks import bindings as checked_bindings
+
+    criteria = checked_bindings(body["criterion_bindings"])
+    if not criteria and "SUPPORT" not in text(body["priority_reason"]):
         raise CatalogError("MANAGED_REJECTED")
     for item in sequence(body["non_goals"]):
         text(item)
@@ -911,6 +997,12 @@ def validate_assignment(brief: object, bound: object) -> None:
     ) != canonical(mapping(body["header"])["mission_revision"]):
         raise CatalogError("ASSIGNMENT_MISMATCH")
     procedure = mapping(bound_body["resolved_procedure"])
+    from omnis.modules.tasks.criterion_checks import bindings
+
+    known_steps = [mapping(s)["id"] for s in sequence(procedure["probe"])]
+    for criterion in bindings(body["criterion_bindings"]):
+        if criterion["bound_procedure_ref"] != bound_ref or criterion["step_ids"] != known_steps:
+            raise CatalogError("CRITERION_BINDING_MISMATCH")
 
     def contains_case_ref(value: object) -> bool:
         if isinstance(value, dict):
@@ -944,6 +1036,27 @@ def validate_assignment(brief: object, bound: object) -> None:
         *sequence(body["input_artifact_refs"]),
     ]:
         raise CatalogError("ASSIGNMENT_MISMATCH")
+
+
+def validate_result_header(value: object) -> dict[str, object]:
+    header = exact(
+        value,
+        set(
+            "schema_version run_id task_id attempt_id snapshot_ref mission_revision focus_ref through_cursor brief_revision result_schema_ref".split()
+        ),
+    )
+    integer(header["schema_version"], 1, 1)
+    integer(header["brief_revision"], 1, 1)
+    for key in ("run_id", "task_id", "attempt_id", "through_cursor"):
+        uuid_string(header[key])
+    for key, kind in (
+        ("snapshot_ref", "run-snapshot"),
+        ("mission_revision", "mission"),
+        ("focus_ref", "focus"),
+        ("result_schema_ref", "schema"),
+    ):
+        ref(header[key], kind)
+    return header
 
 
 def blocked_result(brief: object) -> dict[str, object]:

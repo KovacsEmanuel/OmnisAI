@@ -76,7 +76,9 @@ class Case:
         )
 
 
-def native_case(version: int = 2, empty: bool = False) -> Case:
+def native_case(
+    version: int = 2, empty: bool = False, criterion_ids: list[str] | None = None
+) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
         str(ROOT / "integrations/hermes/src"),
@@ -188,6 +190,18 @@ def native_case(version: int = 2, empty: bool = False) -> Case:
                 ]
             }
         reseal(stage, sections, obj(payload["prompt_bundle"]))
+        if criterion_ids:
+            rule = records.reference(records.envelope("criterion-outcome-rule", {}))
+            obj(brief["payload"])["criterion_bindings"] = [
+                {
+                    "criterion_id": i,
+                    "bound_procedure_ref": records.reference(bound),
+                    "step_ids": [s["id"] for s in steps],
+                    "outcome_rule_ref": rule,
+                }
+                for i in criterion_ids
+            ]
+            reseal(stage, sections, obj(payload["prompt_bundle"]))
         manifest = obj(stage["manifest"])
         manifest_body = obj(manifest["payload"])
         root_id, root_session, child_id, session_id = (str(uuid4()) for _ in range(4))

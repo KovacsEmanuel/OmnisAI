@@ -268,6 +268,8 @@ def validate_response(value: object) -> dict[str, object]:
             != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}
         ):
             raise ValueError("Invalid CONTRACT TaskResult")
+        _result_header(result["header"])
+        _criterion_results(result["criterion_results"])
         for sequence, record in enumerate(records[1 : steps + 2]):
             receipt = obj(
                 record["payload"],
@@ -309,6 +311,65 @@ def validate_response(value: object) -> dict[str, object]:
             if artifact["header"] != result["header"]:
                 raise ValueError("Invalid CONTRACT artifact header")
     return value
+
+
+def _result_header(value: object) -> dict[str, object]:
+    header = obj(
+        value,
+        set(
+            "schema_version run_id task_id attempt_id snapshot_ref mission_revision focus_ref through_cursor brief_revision result_schema_ref".split()
+        ),
+    )
+    _integer(header["schema_version"], 1, 1)
+    _integer(header["brief_revision"], 1, 1)
+    for name in ("run_id", "task_id", "attempt_id", "through_cursor"):
+        uuid(header[name])
+    for name, kind in (
+        ("snapshot_ref", "run-snapshot"),
+        ("mission_revision", "mission"),
+        ("focus_ref", "focus"),
+        ("result_schema_ref", "schema"),
+    ):
+        reference(header[name], kind)
+    return header
+
+
+def _criterion_results(value: object) -> None:
+    from .prompt_bundle import key, prose, sequence
+
+    seen = set()
+    for raw in sequence(value, 0, 16):
+        row = obj(
+            raw,
+            {
+                "criterion_id",
+                "bound_procedure_ref",
+                "control_step_ids",
+                "evidence_refs",
+                "proposed_outcome",
+                "gaps",
+            },
+        )
+        criterion_id = uuid(row["criterion_id"])
+        bound = reference(row["bound_procedure_ref"], "bound-procedure")
+        _integer(bound["revision"], 1, 1)
+        pair = canonical([criterion_id, bound])
+        if pair in seen or text(row["proposed_outcome"], 16) not in (
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "INCONCLUSIVE",
+        ):
+            raise ValueError("Invalid criterion result")
+        seen.add(pair)
+        controls = [key(s) for s in sequence(row["control_step_ids"])]
+        evidence = [reference(r) for r in sequence(row["evidence_refs"])]
+        if len(set(controls)) != len(controls) or len({canonical(r) for r in evidence}) != len(
+            evidence
+        ):
+            raise ValueError("Invalid criterion result")
+        for gap in sequence(row["gaps"]):
+            prose(gap)
 
 
 _INITIALIZATION_FIELDS = {

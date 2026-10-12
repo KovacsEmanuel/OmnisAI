@@ -290,7 +290,11 @@ def _results(
         CONFLICT,
     )
     brief_body = contract.mapping(brief["payload"])
+    contract.validate_result_header(body["header"])
     _same(body["header"], brief_body["header"], CONFLICT)
+    from omnis.modules.tasks.criterion_checks import result_rows
+
+    criteria = result_rows(result, brief)
     if body["status"] != "SUCCEEDED" or body["method_review"] is not None or body["gaps"] != []:
         raise CatalogError(CONFLICT)
     _same(
@@ -304,6 +308,8 @@ def _results(
             if field == "consumed_input_refs"
             else [records.reference(r) for r in receipts[1:]]
             if field == "action_refs"
+            else criteria
+            if field == "criterion_results"
             else []
         )
         _same(body[field], expected, CONFLICT)

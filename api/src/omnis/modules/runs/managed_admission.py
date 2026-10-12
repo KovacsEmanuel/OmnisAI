@@ -107,6 +107,7 @@ class BuildSource:
         prefix: list[dict[str, object]] | None = None,
         case_input: dict[str, object] | None = None,
         method_execution: bool = False,
+        criterion_ids: object = None,
     ) -> list[dict[str, object]]:
         return contract.build_records(
             self.selection,
@@ -124,6 +125,7 @@ class BuildSource:
             prefix=prefix,
             case_input=case_input,
             method_execution=method_execution,
+            criterion_ids=criterion_ids,
         )
 
 
@@ -582,6 +584,9 @@ class ManagedAdmission:
                             mapping(brief["payload"])["header"]
                         ):
                             raise CatalogError("ASSIGNMENT_MISMATCH")
+                        from omnis.modules.tasks import criterion_checks
+
+                        criterion_checks.result_rows(result, brief)
                         for item in emitted:
                             await store.put(conn, owner, run, item)
                     else:
@@ -637,12 +642,22 @@ class ManagedAdmission:
                 .mappings()
                 .all()
             )
+            retained_graph = await store.graph(conn, owner, run)
+            await self._verify_graph(conn, owner, run, retained_graph)
             for row in rows:
                 brief = await store.by_id(conn, owner, run, row["brief_id"])
                 result = await store.by_id(conn, owner, run, row["result_id"])
                 checked = await self._result_check(conn, owner, run, brief, result, checker_ref)
                 if row["check_id"] is None:
                     await store.put(conn, owner, run, checked)
+                    from omnis.modules.tasks import criterion_checks
+
+                    for payload in criterion_checks.outcome_payloads(
+                        brief, result, checked, retained_graph
+                    ):
+                        await store.put(
+                            conn, owner, run, catalog.envelope("criterion-outcome", payload)
+                        )
                     await conn.execute(
                         sql(
                             "UPDATE managed_task SET check_id=:id,state=:state WHERE task_id=:task"
@@ -885,6 +900,8 @@ class ManagedAdmission:
                 "task-brief",
                 "prompt-composition",
                 "method-checker",
+                "criterion-outcome-rule",
+                "criterion-outcome",
                 "probe-policy",
                 "probe-scope",
                 "focus-selection-rule",
@@ -924,10 +941,22 @@ class ManagedAdmission:
             contract.validate_cursor(header, cursor, local[run])
             bound_ref = ref(mapping(sequence(body["procedure_bindings"])[0])["bound_procedure_ref"])
             contract.validate_assignment(brief, local[uuid_string(bound_ref["id"])])
+            from omnis.modules.tasks import criterion_checks
+
+            criterion_checks.validate_assignment(
+                brief,
+                local[uuid_string(bound_ref["id"])],
+                local[uuid_string(ref(header["mission_revision"], "mission")["id"])],
+                local[run],
+                [r for r in graph if r["kind"] == "criterion-outcome-rule"],
+            )
         for manifest in (r for r in graph if r["kind"] == "launch-manifest"):
             if contract.manifest_protocol(manifest) != contract.PROTOCOL:
                 await self._verify_compositions(conn, owner, run, graph, manifest)
         from jsonschema import Draft202012Validator, ValidationError
+
+        expected_outcomes: list[dict[str, object]] = []
+        from omnis.modules.tasks import criterion_checks
 
         for result in (r for r in graph if r["kind"] == "task-result"):
             header = mapping(mapping(result["payload"])["header"])
@@ -951,6 +980,8 @@ class ManagedAdmission:
                 if c["kind"] == "method-check"
                 and mapping(c["payload"]).get("task_result_ref") == catalog.reference(result)
             ]
+            if len(existing_checks) > 1:
+                raise CatalogError("RESULT_CONFLICT")
             expected = (
                 await self._result_check(conn, owner, run, matches[0], result, checker, graph=graph)
                 if existing_checks
@@ -961,6 +992,12 @@ class ManagedAdmission:
                     raise CatalogError("STORAGE_INCOMPATIBLE")
                 if canonical(check["payload"]) != canonical(expected["payload"]):
                     raise CatalogError("RESULT_CONFLICT")
+                expected_outcomes.extend(
+                    criterion_checks.outcome_payloads(matches[0], result, check, graph)
+                )
+        criterion_checks.validate_outcomes(
+            [r for r in graph if r["kind"] == "criterion-outcome"], expected_outcomes
+        )
 
     async def _verify_compositions(
         self,
@@ -1134,6 +1171,11 @@ class ManagedAdmission:
                 "tasks": tasks,
                 "results": results,
                 "checks": checks,
+                **(
+                    {"criterion_outcomes": [r for r in graph if r["kind"] == "criterion-outcome"]}
+                    if any(mapping(b["payload"])["criterion_bindings"] for b in briefs)
+                    else {}
+                ),
                 "records": graph,
                 "inbox": [
                     {**dict(i), "result_id": str(i["result_id"]), "task_id": str(i["task_id"])}

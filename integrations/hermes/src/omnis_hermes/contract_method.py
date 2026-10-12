@@ -249,4 +249,15 @@ def task_result(
         ref(r) for r in receipts if mapping(r["payload"])["operation"] == "PURE_ACTION"
     ]
     result["consumed_input_refs"] = [ref(original)]
+    result["criterion_results"] = [
+        {
+            "criterion_id": mapping(b)["criterion_id"],
+            "bound_procedure_ref": mapping(b)["bound_procedure_ref"],
+            "control_step_ids": [],
+            "evidence_refs": [],
+            "proposed_outcome": "BLOCKED",
+            "gaps": ["ORACLE_UNAVAILABLE", "CONTROLS_UNAVAILABLE"],
+        }
+        for b in sequence(body["criterion_bindings"])
+    ]
     return record("task-result", result)

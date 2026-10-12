@@ -54,6 +54,7 @@ RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef
 LEGACY_COMPOSER_REVISION = "dfdd1ccad8ad93c13adb28bec45ac5d94d49f29ff53e8371cf6650107b67c11f"
 CAPTURE_COMPOSER_REVISION = "70b0c25c4c844b4af292061987b961cabe6d4cc361f6cda79d8947eb11ccdd8a"
 METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
+COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -302,7 +303,6 @@ def _brief(
         "return_when",
         "contradiction_refs",
         "prior_attempt_refs",
-        "criterion_bindings",
         "overlay_refs",
         "identities",
         "allowed_capability_ids",
@@ -313,7 +313,9 @@ def _brief(
             raise reject()
     for field in ("objective_summary", "hypothesis", "priority_reason"):
         prose(body[field])
-    if "SUPPORT" not in prose(body["priority_reason"]):
+    if not sequence(body["criterion_bindings"], 0, 16) and "SUPPORT" not in prose(
+        body["priority_reason"]
+    ):
         raise reject()
     for item in sequence(body["non_goals"]):
         prose(item)
@@ -408,6 +410,22 @@ def _brief(
     plan = obj(body["method_plan"], {"requirements"})
     if canonical(plan["requirements"]) != canonical(expected_requirements):
         raise reject()
+    seen_criteria = set()
+    for raw in sequence(body["criterion_bindings"], 0, 16):
+        row = obj(raw, {"criterion_id", "bound_procedure_ref", "step_ids", "outcome_rule_ref"})
+        criterion_id = uuid(row["criterion_id"])
+        bound_ref = reference(row["bound_procedure_ref"], "bound-procedure")
+        rule_ref = reference(row["outcome_rule_ref"], "criterion-outcome-rule")
+        integer(bound_ref["revision"], 1, 1)
+        integer(rule_ref["revision"], 1, 1)
+        steps = [key(s) for s in sequence(row["step_ids"], 1)]
+        if (
+            criterion_id in seen_criteria
+            or bound_ref != ref(method)
+            or steps != [mapping(s)["id"] for s in sequence(p["probe"])]
+        ):
+            raise reject()
+        seen_criteria.add(criterion_id)
     chosen_limits, method_limits = limits(body["limits"]), limits(p["limits"])
     if any(cast(int, chosen_limits[k]) > cast(int, method_limits[k]) for k in LIMITS):
         raise reject()
@@ -743,7 +761,7 @@ def _material(
         if not has_capture:
             raise reject()
         actual_version = 4
-    revisions = {composer_revision(), METHOD_COMPOSER_REVISION}
+    revisions = {composer_revision(), METHOD_COMPOSER_REVISION, COMPACT_COMPOSER_REVISION}
     if actual_version <= 3:
         revisions.add(RECORDS_COMPOSER_REVISION)
     if actual_version <= 2:
@@ -788,6 +806,10 @@ def _material(
     }:
         raise reject()
     body = _brief(brief["payload"], method, bundle, capture)
+    if body["criterion_bindings"] and (
+        not contract_method or b["composer_revision"] != composer_revision()
+    ):
+        raise reject()
     if obj(role["payload"], {"role", "text"}) != {
         "role": body["role"],
         "text": CONTRACT_ROLE_TEXT if contract_method else ROLE_TEXT,
@@ -913,11 +935,9 @@ def validate_composition(
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
     version = integer(launch.get("composition_version"), 1, 4)
     raw, brief, body = _material(payload, version)
-    if (
-        "format" in mapping(composition["payload"])
-        and mapping(mapping(payload["prompt_bundle"])["payload"])["composer_revision"]
-        != composer_revision()
-    ):
+    if "format" in mapping(composition["payload"]) and mapping(
+        mapping(payload["prompt_bundle"])["payload"]
+    )["composer_revision"] not in {composer_revision(), COMPACT_COMPOSER_REVISION}:
         raise reject()
     e = obj(
         entry,

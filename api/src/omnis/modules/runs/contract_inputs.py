@@ -31,7 +31,13 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         fields |= {"context_ref", "input"}
     elif operation not in {"read-context", "read-method-context", "read-input"}:
         raise CatalogError("INVALID_REQUEST")
+    if operation == "create-method-context" and "criterion_ids" in mapping(value):
+        fields.add("criterion_ids")
     result = exact(value, fields)
+    if "criterion_ids" in result:
+        from omnis.modules.tasks.criterion_checks import allocation
+
+        allocation(result["criterion_ids"])
     contract.integer(result["schema_version"], 1, 2 if operation.startswith("create-") else 1)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
@@ -74,7 +80,11 @@ class ContractInputs:
             )
             require_slots(source.procedure.model_dump(mode="json")["slots"], version=version)
             schema_ref, _, _ = source.input_schema()
-            graph = source.build(context_only=True, method_execution=method_execution)
+            graph = source.build(
+                context_only=True,
+                method_execution=method_execution,
+                criterion_ids=value.get("criterion_ids"),
+            )
             run = next(r for r in graph if r["kind"] == "managed-run")
             body = mapping(run["payload"])
             context = records.envelope(

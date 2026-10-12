@@ -250,12 +250,17 @@ class PreparationPrerequisite(RuntimeClient):
     os.environ.get("OMNIS_CONTRACT_METHOD_NATIVE_PG") != "1",
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
-@pytest.mark.parametrize("first_final_after_stop", [False, True], ids=["normal", "first-late-held"])
+@pytest.mark.parametrize(
+    "first_final_after_stop,with_criteria",
+    [(False, False), (False, True), (True, True)],
+    ids=["support-zero", "criteria-normal", "criteria-first-late-held"],
+)
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     request: pytest.FixtureRequest,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     first_final_after_stop: bool,
+    with_criteria: bool,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -417,12 +422,26 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             await NativePreparation(engine, seed.root, service, supervisor, epoch, runtime).prepare(
                 preparation
             )
+            criterion_ids = [str(uuid4()), str(uuid4())] if with_criteria else []
             context_request = seed.write(
+                **({"criterion_ids": criterion_ids} if with_criteria else {}),
                 schema_version=2,
                 selection_ref=selected["selection_ref"],
                 preparation_command_id=preparation.command_id,
             )
-            context = await inputs.create_method_context(context_request)
+            if with_criteria:
+                context = await inputs.create_method_context(context_request)
+            else:
+                from omnis.modules.tasks import managed_composition
+
+                with monkeypatch.context() as historical:
+                    historical.setattr(
+                        managed_composition,
+                        "COMPOSER_REVISION",
+                        managed_composition.COMPACT_COMPOSER_REVISION,
+                    )
+                    context = await inputs.create_method_context(context_request)
+                checkpoint(historical_compact_pin=managed_composition.COMPACT_COMPOSER_REVISION)
             value = {
                 "records": [
                     {"method": "POST", "path": "/pure-z/é", "status": 201},
@@ -694,6 +713,26 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 assert mapping(mapping(binding["payload"])["authority"])["owner"] == str(supervisor)
                 assert mapping(binding["payload"])["runtime_boot"] == runtime.boot
                 assert back["status"] == "SUCCEEDED"
+                if with_criteria:
+                    outcomes = [mapping(o) for o in sequence(back["criterion_outcomes"])]
+                    assert len(outcomes) == 2
+                    payloads = [mapping(o["payload"]) for o in outcomes]
+                    from omnis.modules.tasks.criterion_checks import REASON
+
+                    assert all(p["reason"] == REASON for p in payloads)
+                    assert {p["criterion_id"] for p in payloads} == set(criterion_ids)
+                    assert all(
+                        p["outcome"] == "BLOCKED"
+                        and p["gaps"] == ["ORACLE_UNAVAILABLE", "CONTROLS_UNAVAILABLE"]
+                        for p in payloads
+                    )
+                    assert payloads[0]["bound_procedure_ref"] == payloads[1]["bound_procedure_ref"]
+                    checkpoint(criterion_outcomes=payloads, criterion_count=2)
+                else:
+                    assert "criterion_outcomes" not in back
+                    assert not any(
+                        mapping(r)["kind"] == "criterion-outcome" for r in sequence(back["records"])
+                    )
                 result = mapping(sequence(back["results"])[0])
                 assert mapping(result["payload"])["consumed_input_refs"] == [original["input_ref"]]
                 assert mapping(result["payload"])["usage"] == {
@@ -713,6 +752,37 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 assert mapping(ordered[0]["payload"])["output_ref"] == original["input_ref"]
                 checks = [mapping(r) for r in sequence(back["checks"])]
                 assert len(checks) == 1 and mapping(checks[0]["payload"])["status"] == "COMPLETE"
+                if with_criteria:
+                    from omnis.modules.settings import candidate_store as stored
+                    from omnis.modules.tasks import criterion_checks
+
+                    # A child proposal cannot promote the trusted no-oracle rule.
+                    # This helper control is SOURCE, not a second authentic emitter.
+                    proposed = deepcopy(result)
+                    proposed_body = mapping(proposed["payload"])
+                    proposals = [mapping(p) for p in sequence(proposed_body["criterion_results"])]
+                    for proposal in proposals:
+                        proposal["proposed_outcome"] = "PASS"
+                    proposed_body["criterion_results"] = proposals
+                    proposed["payload"] = proposed_body
+                    proposed["digest"] = sha(
+                        canonical({k: v for k, v in proposed.items() if k != "digest"})
+                    )
+                    proposed_check = deepcopy(checks[0])
+                    proposed_check_body = mapping(proposed_check["payload"])
+                    proposed_check_body["task_result_ref"] = stored.reference(proposed)
+                    proposed_check["payload"] = proposed_check_body
+                    proposed_check["digest"] = sha(
+                        canonical({k: v for k, v in proposed_check.items() if k != "digest"})
+                    )
+                    assert all(
+                        p["outcome"] == "BLOCKED"
+                        for p in criterion_checks.outcome_payloads(
+                            sequence(back["briefs"])[0], proposed, proposed_check, graph
+                        )
+                    )
+
+                    checkpoint(no_oracle_no_pass="PASS")
                 inbox = mapping(sequence(back["inbox"])[0])
                 assert {
                     k: inbox[k]
@@ -976,6 +1046,29 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 assert (
                     await conn.execute(sql("SELECT count(*) FROM managed_inbox"))
                 ).scalar_one() == 1
+            if with_criteria:
+                from omnis.modules.settings import candidate_store as stored
+                from omnis.modules.tasks import managed_store
+
+                # Append-only storage is preserved. After all positive restart/
+                # idempotency checks, append one explicitly forged test outcome.
+                # Never UPDATE/DELETE historical envelopes or treat it as evidence.
+                target = mapping(sequence(prior["criterion_outcomes"])[0])
+                forged = stored.envelope(
+                    "criterion-outcome", {**mapping(target["payload"]), "outcome": "PASS"}
+                )
+                async with engine.begin() as conn:
+                    await managed_store.lock(conn, seed.owner)
+                    await managed_store.put(conn, seed.owner, str(prior["run_id"]), forged)
+                with pytest.raises(CatalogError, match="^CRITERION_OUTCOME_MISMATCH$"):
+                    await domain.readback(back_request)
+                with pytest.raises(CatalogError, match="^CRITERION_OUTCOME_MISMATCH$"):
+                    await domain.reconcile(back_request)
+                checkpoint(
+                    forged_outcome_readback="PASS",
+                    adversarial_append_count=1,
+                    post_adversarial_markers=await markers(),
+                )
         finally:
             done.set()
             try:

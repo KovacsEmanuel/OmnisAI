@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_RETAINED_PRODUCT_COLD_LEGACY_REGRESSION",
+  "session_id": "proc_44ee0f4f4b4d",
+  "tested_head": "d593e85bc784701c7fe7051b91df615f100d2309",
+  "product_commit": "25395bdd0dbeab83afb7894182b7fe88202da104",
+  "quality_fix_commit": "9a49d15838a7ed5c2f649c3f7668a254373e1983",
+  "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "exit_code": 2,
+  "receipt": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "receipt_sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+  "private_gate_log": {
+    "path": "/home/kali/.hermes/cache/scratch/db-5476368d55094088/gate.log",
+    "sha256": "e171988f72205f071cd9471b6abba9145c019aa086ca900a87d6021fbd4692e6",
+    "raw_not_exposed": true
+  },
+  "frozen_snapshot": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-c10-integrated-canonical2-before.json",
+    "sha256": "5f0452fa75f9eee60fa38b21fead6a9b1215414ba50877b112ae1f5acf9c257f",
+    "files_count": 964,
+    "all_unchanged_parent_post_join": true
+  },
+  "counts": {
+    "api": {
+      "passed": 1562,
+      "failed": 3,
+      "skipped": 7,
+      "seconds": 2285.02
+    },
+    "docs": {
+      "passed": 72,
+      "seconds": 1.504
+    },
+    "development": {
+      "passed": 46,
+      "seconds": 8.734
+    }
+  },
+  "failed_gate": "test-api",
+  "failed_test_ids": [
+    "api/tests/test_managed_lifecycle.py::test_pg_result_before_check_reconcile_once_restart",
+    "api/tests/test_managed_wire_parity.py::test_pg_qualified_goal_prepare_before_reservation[ascii-preserved]",
+    "api/tests/test_managed_wire_parity.py::test_pg_qualified_goal_prepare_before_reservation[utf8-4096]"
+  ],
+  "public_reason": "BOUND_PREDICATE_GAP",
+  "failing_source": "api/src/omnis/modules/tasks/managed_contract.py:144",
+  "finding": "C10-LEGACY-F01",
+  "root_cause": "Owner _verify_graph confused a validated uncomposed NO_MODEL manifest without composition_version with compiled composer-v1, then rejected the legacy bundle graph-builder source pin as an unknown Hermes composer. Existing real cold prepare/readback consumers are affected, not a fixture drift.",
+  "cleanup": {
+    "root": "/home/kali/.hermes/cache/scratch/db-5476368d55094088",
+    "project": "omnis-p01-829737185a5c48f8a469f94198e874f5",
+    "container_id": "96e787c108a89ed7d73cd172dee4d9266f46d7e8fed1cc07f6b97013ee53cd2c",
+    "parent_verified_exact_daemon": true,
+    "owned_containers_absent": true,
+    "owned_networks_absent": true,
+    "owned_uds_absent": true,
+    "data_logs_retained": true,
+    "uncertain": false
+  },
+  "downstream_gates": "NOT_RUN_AFTER_API_FAILURE",
+  "repair": {
+    "status": "SOURCE_GREEN_PG_AND_REVIEW_PENDING",
+    "paths": [
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/tests/test_managed_wire_parity.py"
+    ],
+    "source_green": "218passed5PGdeselected8.99s/exit0;wholeAPIlint/typeexit0",
+    "boundary": "Exactly one validated manifest; only absent composition_version legacy NO_MODEL uses zero-only structural assignment. All composed1..4 retain bundle+version; no COMPLETE or work grant from this fallback.",
+    "real_pg_target_process": "proc_cebada781942",
+    "reviews": "deleg_b7241e1e pending; no new scoped approval yet",
+    "preflight_failures_retained": [
+      "Unformatted test hunks twice; exact renderer edits applied.",
+      "Two strict object-index diagnostics on emitted manifest; mapping container guards applied, no ignore/Any weakening."
+    ]
+  },
+  "limits": [
+    "Original canonical2 FAIL retained independently of later targeted PASS/fix/review.",
+    "No full C10/B06b/G02/P2 closure, installed historical checker or model/target authorization.",
+    "New canonical after final repair not yet run; changed owner branch requires focused acceptance."
+  ]
+}

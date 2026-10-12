@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SCOPED_COLD_LEGACY_REPAIR_NOT_CANONICAL",
+  "product_fix_commit": "46589bfc2baf955706dbf1e440c8a3bd66801d6a",
+  "fixture_fix_commit": "d3a176bf00698f1f20fd2a7152c4b2c22742bd4b",
+  "green": {
+    "process": "proc_b2b9d26b6aa6",
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-managed-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 900",
+    "passed": 181,
+    "seconds": 139.33,
+    "exit_code": 0,
+    "receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "private_log_sha256": "c176225dc62224aeb0405ac70256b5c088ddbaa7c6690f07522f3def22f15fba",
+    "root": "/home/kali/.hermes/cache/scratch/db-1e98a24283fd450c",
+    "project": "omnis-p01-941aa0c3b9c74f818e5b9c7b6346c6a6",
+    "cid": "40fd65ce24a4d027f0b75d84cb1ab817adc497acddcad21164effa9790aa3295",
+    "parent_verified_cleanup": {
+      "exact_daemon": true,
+      "owned_containers_absent": true,
+      "owned_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true
+    },
+    "limit": "SOURCE and actual PostgreSQL owner/publication/readback cases mixed in existing target. Preparation IPC RuntimeDouble declared; not181 native-auth cases, not full canonical."
+  },
+  "prior_target_fail": {
+    "process": "proc_cebada781942",
+    "passed": 180,
+    "failed": 1,
+    "seconds": 132.0,
+    "exit_code": 2,
+    "receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "private_log_sha256": "ac0a4bb74d9d43074f7a1b89a6ab19ec69920df08fdb7b7a25d27aac4ae8cadf",
+    "reason": "TypeError short_builder unexpected criterion_ids; original cold prepare defect already resolved, late fixture correction separate.",
+    "root": "/home/kali/.hermes/cache/scratch/db-d59161710eb24a8e",
+    "project": "omnis-p01-22166a54e42642249a52025c843d4ab6",
+    "cid": "982fd0646795414b7fe773dfad49049c10a02de931b51431d02da15ab753f5b5",
+    "parent_verified_cleanup": {
+      "exact_daemon": true,
+      "owned_containers_absent": true,
+      "owned_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true
+    }
+  },
+  "source": {
+    "passed": 218,
+    "pg_deselected": 5,
+    "seconds": 8.99,
+    "lint_type_exit": 0,
+    "post_fixture_lint_type_exit": 0
+  },
+  "review_archives": [
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/legacy-cold-normative-review.json",
+      "sha256": "87a75a9205ee2a93e782daff00f8c58b34b3b9b501aa44ec2e858dff34dc3099"
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/legacy-cold-security-review.json",
+      "sha256": "c14725be5e5ffa1d52412303f2f7252e816ad3fac440e7ccf43e63c27d3643ae"
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/legacy-cold-normative-fixture-review.json",
+      "sha256": "2e09e100e5c3b2b30e3469216f7a3db20bbe00db8f4a12e69584961c3940f24a"
+    }
+  ],
+  "adjudication": {
+    "C10-LEGACY-F01": "CLOSED_SCOPED; two complementary reviews + realPG GREEN matched final hashes",
+    "C10-LEGACY-FIXTURE-F01": "CLOSED_SCOPED; separate reviewed2line fix + realPG GREEN, separate commit",
+    "C10-LEGACY-SEC-N01": "LOW_NONBLOCKING_DEFERRED; internal missing-field KeyError fail-closed; CLI source catches and emits MANAGED_REJECTED/exit2; no public malformed-CLI run newly claimed"
+  },
+  "final_files": [
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0"
+    },
+    {
+      "path": "api/tests/test_managed_wire_parity.py",
+      "sha256": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e"
+    },
+    {
+      "path": "api/tests/test_managed_lifecycle.py",
+      "sha256": "35116e91f3f8ad0dca9367af783022928a079490e96df71fee86a41b538aa926"
+    }
+  ],
+  "unchanged_scope": "Native source/patch/pins/composer and API checker13 descriptor unchanged. Original composed-v4 evidence stays at its original real-probe snapshot; changed owner branch reviewed and exercised for cold legacy only.",
+  "remaining": {
+    "canonical_after_final_repair": "NOT_RUN",
+    "C10_B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "legacy_immutable_installed_checker_reader": "NOT_RUN",
+    "early_partial_return": "NOT_IMPLEMENTED",
+    "live": "NO_AUTHORIZATION"
+  },
+  "limits": [
+    "Prior canonical2 FAIL1562PASS3FAIL7SKIP retained separately, not rewritten by this targeted PASS.",
+    "ReticleNOT_APPLICABLE;ChiselBLOCKED_NO_GO; no model/target/r1/profiles/global/push."
+  ]
+}

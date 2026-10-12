@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "review_id": "C10-LEGACY-F01-SECURITY-INPUT-FAILURE",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "blocking_findings": [],
+  "scope_verdict": "Fixul cold legacy este aprobat SECURITY/input/failure pe hashurile exact2; suplimentul fixture de două linii este aprobat separat SOURCE_SCOPED. Nu certifică gate canonical, PG final sau autentificare nativă.",
+  "locator": "/home/kali/.hermes/cache/scratch/p2-c10-legacy-cold-security-review.json",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_before": "d593e85bc784701c7fe7051b91df615f100d2309",
+    "head_after": "d593e85bc784701c7fe7051b91df615f100d2309",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256_before": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0",
+        "sha256_after": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0",
+        "reviewed_lines": "951-968"
+      },
+      {
+        "path": "api/tests/test_managed_wire_parity.py",
+        "sha256_before": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e",
+        "sha256_after": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e",
+        "reviewed_lines": "292-340"
+      },
+      {
+        "path": "api/tests/test_managed_lifecycle.py",
+        "sha256_before_extension": "35116e91f3f8ad0dca9367af783022928a079490e96df71fee86a41b538aa926",
+        "sha256_after_extension": "35116e91f3f8ad0dca9367af783022928a079490e96df71fee86a41b538aa926",
+        "reviewed_lines": "284,288",
+        "scope": "Supliment autorizat prin mesajul mid-turn; separat de exact2."
+      }
+    ],
+    "initial_dirty_tracked_paths": 2,
+    "last_observed_dirty_tracked_paths": 3,
+    "dirty_delta_owner": "Părintele a autorizat explicit cele două linii fixture; nu sunt editările reviewerului.",
+    "protected_untracked": "documents/Omnis_Notite_Originale.html — neinspectat/neatins",
+    "index_and_commits": "Nicio scriere de repo/index/commit."
+  },
+  "requirement_code_evidence": [
+    {
+      "requirement": "Uncomposed v1 NO_MODEL cu predicate goale trebuie să rămână citibil/preparabil; graphbuilder pin nu este Hermes composer pin.",
+      "locator": "managed_admission.py:956-968; managed_contract.py:113-150",
+      "evidence": "legacy_positive ACCEPTED prin _verify_graph real; old_default_v1_regression_RED_control BOUND_PREDICATE_GAP la assignment cu vechiul bundle/version=1."
+    },
+    {
+      "requirement": "Nicio extensie legacy implicită pentru null/bool/unknown; exact un manifest valid înainte de alegerea ramurii.",
+      "locator": "managed_admission.py:953-958; managed_contract.py:1340-1384,1297-1300",
+      "evidence": "Missing/extra/null/true/false/0/5/string/list/object MANAGED_REJECTED. Float1.0 INVALID_TYPE din bounded(record), nu normalizat."
+    },
+    {
+      "requirement": "Ramura fără version nu primește predicate done/return sau completion.",
+      "locator": "managed_admission.py:961-968,697-711; managed_contract.py:1481-1501,1257-1275",
+      "evidence": "Ambele predicate nonempty → BOUND_PREDICATE_GAP; BLOCKED final acceptat; SUCCEEDED/executions legacy refuzate; _result_check BLOCKED→INCOMPLETE și spoof SUCCEEDED→METHOD_RECEIPT_MISMATCH."
+    },
+    {
+      "requirement": "Păstrarea referințelor/ownerului înainte de assignment, fără work/COMPLETE prin downgrade.",
+      "locator": "managed_admission.py:893-943; managed_contract.py:1363-1369,1387-1393; managed_composition.py:649-652",
+      "evidence": "Foreign bound-procedure/prompt-bundle REF_UNAVAILABLE. Ștergerea numai version cu composition_ref păstrat refuzată; erasure complet zero-predicate poate deveni legacy, dar stage_payload produce numai protocol v1/NO_MODEL, nu execută compoziția rămasă."
+    },
+    {
+      "requirement": "Composed1..4 păstrează bundle/version originale; currentv4 nu poate șterge predicatele obligatorii.",
+      "locator": "managed_admission.py:963-968,978-980,738-746; managed_contract.py:129-164; managed_composition.py:525-529",
+      "evidence": "Ramura version!=None este byte-identică semantic callerului precedent. Composedv1 stage pozitiv SOURCE. Patru teste SOURCE checker/native-helper pe holders sintetice: complete pozitiv, două erasures negative și return care nu creditează done lipsă."
+    },
+    {
+      "requirement": "Refuz înainte de persistare/reservare/dispatch; niciun default nou pentru autoritate.",
+      "locator": "managed_admission.py:324 înainte de338-368; reserve_dispatch:400 înainte de421-425; stage_payload:448; readback:1123; _check:646; ingest_result:551,576-594",
+      "evidence": "Trace static al consumatorilor reali; probele independente _verify_graph permit numai SELECT substituit, graf neschimbat. Nu pretind readback PG independent."
+    }
+  ],
+  "source_controls": {
+    "command": "api/.venv/bin/python -I -B -c '\nimport sys, asyncio, json\nfrom copy import deepcopy\nfrom datetime import UTC, datetime\nfrom pathlib import Path\nfrom hashlib import sha256\nfrom unittest.mock import patch\nfrom uuid import uuid4\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nsys.path[:0]=[str(root/'\"'\"'api/src'\"'\"'),str(root/'\"'\"'api/tests'\"'\"')]\nfrom test_managed_composition import inputs\nfrom test_managed_contract import ref, stage, authority\nfrom omnis.modules.tasks import managed_contract as c, managed_composition as mc\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis.modules.settings.catalog_schema import canonical\nfrom omnis.modules.runs.managed_admission import ManagedAdmission\nimport omnis.modules.runs.managed_admission as ma\nselection,bindings,packages,procedure=inputs()\ng=c.build_records(selection,ref('\"'\"'native-preparation-receipt'\"'\"'),next(b['\"'\"'ref'\"'\"'] for b in bindings if b['\"'\"'entity_kind'\"'\"']=='\"'\"'procedure'\"'\"'),procedure,bindings,'\"'\"'b06b-publish-contract'\"'\"','\"'\"'RECON'\"'\"',1,datetime.now(UTC))\nowner=str(uuid4());run=next(r['\"'\"'id'\"'\"'] for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'managed-run'\"'\"')\ndef seal(r): r['\"'\"'digest'\"'\"']=sha256(canonical({k:v for k,v in r.items() if k!='\"'\"'digest'\"'\"'})).hexdigest()\ndef brief_mutation(graph,field,value):\n b=next(r for r in graph if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"');b['\"'\"'payload'\"'\"'][field]=value;seal(b)\n m=graph[-1];m['\"'\"'payload'\"'\"']['\"'\"'entries'\"'\"'][0]['\"'\"'brief_ref'\"'\"']=records.reference(b);seal(m)\nclass SubDB:\n def __init__(self): self.reads=0\n async def execute(self,q,params):\n  assert str(q).startswith('\"'\"'SELECT '\"'\"')\n  self.reads+=1;return self\n def scalar_one_or_none(self): return '\"'\"'SUBSTITUTED_owned_reference'\"'\"'\nasync def get(*args): return None\nmanaged=ManagedAdmission(None,root);results=[]\nasync def verify(name,graph,expected):\n db=SubDB();before=canonical(graph)\n try: await managed._verify_graph(db,owner,next(r['\"'\"'id'\"'\"'] for r in graph if r['\"'\"'kind'\"'\"']=='\"'\"'managed-run'\"'\"'),graph);actual='\"'\"'ACCEPTED'\"'\"'\n except CatalogError as exc: actual=str(exc)\n assert actual==expected,(name,actual,expected)\n assert canonical(graph)==before\n results.append({'\"'\"'case'\"'\"':name,'\"'\"'actual'\"'\"':actual,'\"'\"'db_reads'\"'\"':db.reads,'\"'\"'graph_unchanged'\"'\"':True})\nasync def main():\n with patch.object(ma.catalog,'\"'\"'get'\"'\"',get):\n  await verify('\"'\"'legacy_positive'\"'\"',deepcopy(g),'\"'\"'ACCEPTED'\"'\"')\n  await verify('\"'\"'missing_manifest'\"'\"',[r for r in deepcopy(g) if r['\"'\"'kind'\"'\"']!='\"'\"'launch-manifest'\"'\"'],'\"'\"'MANAGED_REJECTED'\"'\"')\n  await verify('\"'\"'extra_manifest'\"'\"',deepcopy(g)+[records.envelope('\"'\"'launch-manifest'\"'\"',deepcopy(g[-1]['\"'\"'payload'\"'\"']))],'\"'\"'MANAGED_REJECTED'\"'\"')\n  for field in ('\"'\"'done_when'\"'\"','\"'\"'return_when'\"'\"'):\n   bad=deepcopy(g);b=next(r for r in bad if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"')\n   brief_mutation(bad,field,[{'\"'\"'bound_procedure_ref'\"'\"':b['\"'\"'payload'\"'\"']['\"'\"'procedure_bindings'\"'\"'][0]['\"'\"'bound_procedure_ref'\"'\"'],'\"'\"'predicate_id'\"'\"':'\"'\"'normalize-records'\"'\"'}])\n   await verify('\"'\"'legacy_nonempty_'\"'\"'+field,bad,'\"'\"'BOUND_PREDICATE_GAP'\"'\"')\n  for value in (None,True,False,0,5,1.0,'\"'\"'1'\"'\"',[],{}):\n   bad=deepcopy(g);bad[-1]['\"'\"'payload'\"'\"']['\"'\"'composition_version'\"'\"']=value;seal(bad[-1])\n   await verify('\"'\"'version_'\"'\"'+json.dumps(value),bad,'\"'\"'INVALID_TYPE'\"'\"' if type(value) is float else '\"'\"'MANAGED_REJECTED'\"'\"')\n  for kind in ('\"'\"'bound-procedure'\"'\"','\"'\"'prompt-bundle'\"'\"'):\n   bad=deepcopy(g);b=next(r for r in bad if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"')\n   if kind=='\"'\"'prompt-bundle'\"'\"':\n    value=deepcopy(b['\"'\"'payload'\"'\"']['\"'\"'prompt_bundle_ref'\"'\"']);value['\"'\"'id'\"'\"']=str(uuid4());brief_mutation(bad,'\"'\"'prompt_bundle_ref'\"'\"',value)\n   else:\n    value=deepcopy(b['\"'\"'payload'\"'\"']['\"'\"'procedure_bindings'\"'\"']);value[0]['\"'\"'bound_procedure_ref'\"'\"']['\"'\"'id'\"'\"']=str(uuid4());brief_mutation(bad,'\"'\"'procedure_bindings'\"'\"',value)\n   await verify('\"'\"'foreign_'\"'\"'+kind,bad,'\"'\"'REF_UNAVAILABLE'\"'\"')\n  bad=deepcopy(g);bad[-1]['\"'\"'payload'\"'\"']['\"'\"'resolution'\"'\"']='\"'\"'MODEL'\"'\"';seal(bad[-1]);await verify('\"'\"'not_NO_MODEL'\"'\"',bad,'\"'\"'MANAGED_REJECTED'\"'\"')\n  m=g[-1];st=stage(m);binding=c.binding_record(m,st,str(uuid4()),authority());final={**st,'\"'\"'status'\"'\"':'\"'\"'BLOCKED'\"'\"','\"'\"'reason'\"'\"':'\"'\"'NO_MODEL'\"'\"','\"'\"'binding_ref'\"'\"':records.reference(binding)}\n  assert c.validate_final(final,m,binding)==final;results.append({'\"'\"'case'\"'\"':'\"'\"'final_positive'\"'\"','\"'\"'actual'\"'\"':'\"'\"'BLOCKED_NO_MODEL'\"'\"'})\n  for name,update in (('\"'\"'final_SUCCEEDED'\"'\"',{'\"'\"'status'\"'\"':'\"'\"'SUCCEEDED'\"'\"','\"'\"'reason'\"'\"':'\"'\"'CONTRACT_PURE'\"'\"'}),('\"'\"'final_executions'\"'\"',{'\"'\"'executions'\"'\"':[]})):\n   try: c.validate_final({**final,**update},m,binding)\n   except CatalogError as exc: actual=str(exc)\n   else: raise AssertionError('\"'\"'final attack accepted'\"'\"')\n   assert actual=='\"'\"'MANAGED_REJECTED'\"'\"';results.append({'\"'\"'case'\"'\"':name,'\"'\"'actual'\"'\"':actual})\n  b=next(r for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"');checker=next(r for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'method-checker'\"'\"');blocked=c.blocked_result(b)\n  check=await managed._result_check(SubDB(),owner,run,b,blocked,records.reference(checker),graph=g)\n  assert check['\"'\"'payload'\"'\"']['\"'\"'status'\"'\"']=='\"'\"'INCOMPLETE'\"'\"';results.append({'\"'\"'case'\"'\"':'\"'\"'result_check_positive'\"'\"','\"'\"'actual'\"'\"':'\"'\"'INCOMPLETE'\"'\"'})\n  spoof=deepcopy(blocked);spoof['\"'\"'payload'\"'\"']['\"'\"'status'\"'\"']='\"'\"'SUCCEEDED'\"'\"';seal(spoof)\n  try: await managed._result_check(SubDB(),owner,run,b,spoof,records.reference(checker),graph=[*g,binding,records.envelope('\"'\"'native-task-receipt'\"'\"',final)])\n  except CatalogError as exc: actual=str(exc)\n  else: raise AssertionError('\"'\"'legacy COMPLETE'\"'\"')\n  assert actual=='\"'\"'METHOD_RECEIPT_MISMATCH'\"'\"';results.append({'\"'\"'case'\"'\"':'\"'\"'cannot_COMPLETE'\"'\"','\"'\"'actual'\"'\"':actual})\n  bundle=next(r for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'prompt-bundle'\"'\"');bound=next(r for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'bound-procedure'\"'\"')\n  try: c.validate_assignment(b,bound,prompt_bundle=bundle,composition_version=1)\n  except CatalogError as exc: actual=str(exc)\n  else: raise AssertionError('\"'\"'original legacy regression absent'\"'\"')\n  assert actual=='\"'\"'BOUND_PREDICATE_GAP'\"'\"';results.append({'\"'\"'case'\"'\"':'\"'\"'old_default_v1_regression_RED_control'\"'\"','\"'\"'actual'\"'\"':actual})\n  composed=c.build_records(selection,ref('\"'\"'native-preparation-receipt'\"'\"'),next(q['\"'\"'ref'\"'\"'] for q in bindings if q['\"'\"'entity_kind'\"'\"']=='\"'\"'procedure'\"'\"'),procedure,bindings,'\"'\"'b06b-publish-contract'\"'\"','\"'\"'RECON'\"'\"',1,datetime.now(UTC),composition_packages=packages)\n  assert mc.stage_payload(composed[-1],composed)['\"'\"'protocol'\"'\"']=='\"'\"'omnis-managed-admission-v2'\"'\"'\n  results.append({'\"'\"'case'\"'\"':'\"'\"'composed_v1_stage_positive'\"'\"','\"'\"'actual'\"'\"':'\"'\"'ACCEPTED'\"'\"'})\n  downgrade=deepcopy(composed);del downgrade[-1]['\"'\"'payload'\"'\"']['\"'\"'composition_version'\"'\"'];seal(downgrade[-1])\n  await verify('\"'\"'removed_version_retained_composition_ref'\"'\"',downgrade,'\"'\"'MANAGED_REJECTED'\"'\"')\n  del downgrade[-1]['\"'\"'payload'\"'\"']['\"'\"'entries'\"'\"'][0]['\"'\"'composition_ref'\"'\"'];seal(downgrade[-1])\n  await verify('\"'\"'erased_version_and_composition_ref_zero_predicates'\"'\"',downgrade,'\"'\"'ACCEPTED'\"'\"')\n  assert mc.stage_payload(downgrade[-1],downgrade)['\"'\"'protocol'\"'\"']==c.PROTOCOL\n  results.append({'\"'\"'case'\"'\"':'\"'\"'downgrade_forces_NO_MODEL_v1_no_execution'\"'\"','\"'\"'actual'\"'\"':c.PROTOCOL})\nasyncio.run(main())\nprint(json.dumps({'\"'\"'status'\"'\"':'\"'\"'PASS_SOURCE_SCOPED'\"'\"','\"'\"'count'\"'\"':len(results),'\"'\"'cases'\"'\"':results,'\"'\"'limits'\"'\"':['\"'\"'substituted catalog reference lookup and SELECT responses'\"'\"','\"'\"'no real DB, native authentication, process, service, model, target or persistence exercised'\"'\"']}))\n'",
+    "exit_code": 0,
+    "result": {
+      "status": "PASS_SOURCE_SCOPED",
+      "count": 27,
+      "cases": [
+        {
+          "case": "legacy_positive",
+          "actual": "ACCEPTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "missing_manifest",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "extra_manifest",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "legacy_nonempty_done_when",
+          "actual": "BOUND_PREDICATE_GAP",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "legacy_nonempty_return_when",
+          "actual": "BOUND_PREDICATE_GAP",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_null",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_true",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_false",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_0",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_5",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_1.0",
+          "actual": "INVALID_TYPE",
+          "db_reads": 0,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_\"1\"",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_[]",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "version_{}",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "foreign_bound-procedure",
+          "actual": "REF_UNAVAILABLE",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "foreign_prompt-bundle",
+          "actual": "REF_UNAVAILABLE",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "not_NO_MODEL",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "final_positive",
+          "actual": "BLOCKED_NO_MODEL"
+        },
+        {
+          "case": "final_SUCCEEDED",
+          "actual": "MANAGED_REJECTED"
+        },
+        {
+          "case": "final_executions",
+          "actual": "MANAGED_REJECTED"
+        },
+        {
+          "case": "result_check_positive",
+          "actual": "INCOMPLETE"
+        },
+        {
+          "case": "cannot_COMPLETE",
+          "actual": "METHOD_RECEIPT_MISMATCH"
+        },
+        {
+          "case": "old_default_v1_regression_RED_control",
+          "actual": "BOUND_PREDICATE_GAP"
+        },
+        {
+          "case": "composed_v1_stage_positive",
+          "actual": "ACCEPTED"
+        },
+        {
+          "case": "removed_version_retained_composition_ref",
+          "actual": "MANAGED_REJECTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "erased_version_and_composition_ref_zero_predicates",
+          "actual": "ACCEPTED",
+          "db_reads": 8,
+          "graph_unchanged": true
+        },
+        {
+          "case": "downgrade_forces_NO_MODEL_v1_no_execution",
+          "actual": "omnis-managed-admission-v1"
+        }
+      ],
+      "limits": [
+        "substituted catalog reference lookup and SELECT responses",
+        "no real DB, native authentication, process, service, model, target or persistence exercised"
+      ]
+    },
+    "substitutions": {
+      "database": "SubDB: SELECT-only, răspuns sintetic pentru existența referințelor catalog. Nu este PG și nu dovedește autoritate/ownership reală în DB.",
+      "catalog_get": "lookup generic substituit; referințele locale și validators sunt reale.",
+      "native_runtime": "Niciun proces/serviciu nativ. SOURCE helper pytest produce receipts deterministe în proces pe holders sintetice, fără autentificare constructor/owner."
+    }
+  },
+  "targeted_source_tests": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k 'bound_predicates_real_native_receipts_complete or current_empty_predicates_cannot_erase_obligations or return_predicate_does_not_credit_missing_done_receipt' -q --tb=line",
+    "exit_code": 0,
+    "passed": 4,
+    "deselected": 32,
+    "duration_seconds": 0.4,
+    "scope": "SOURCE receipt checker/native-helper; nu PG/live native."
+  },
+  "preserved_probe_failures": [
+    {
+      "attempt": 1,
+      "exit_code": 1,
+      "cause": "Expectație greșită a reviewerului pentru float1.0: INVALID_TYPE din record/bounded, nu MANAGED_REJECTED.",
+      "resolution": "Citit managed_contract.py:1321-1328 și catalog_schema.py:26-46; expectativa reparată numai în probe inline, nu produs/token."
+    },
+    {
+      "attempt": 2,
+      "exit_code": 1,
+      "cause": "Probe a reutilizat run_id legacy pentru un graf composed nou; CURSOR_UNAVAILABLE înainte de ținta manifest.",
+      "resolution": "Corectat probe să transmită run_id din graf actual, păstrând IDs/ref bytes. Pozitive pe același canal înainte de negative; a treia execuție27/27 exit0."
+    }
+  ],
+  "nonblocking_observations": [
+    {
+      "id": "C10-LEGACY-SEC-N01",
+      "severity": "LOW",
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "line": 961,
+      "status": "NON_BLOCKING_FAIL_CLOSED",
+      "finding": "Indexarea done_when/return_when înainte de validate_brief schimbă excepția internă pentru un brief resealed cu câmp lipsă din CatalogError(MANAGED_REJECTED) în KeyError.",
+      "reproducer_command": "api/.venv/bin/python -I -B -c '\nimport sys, asyncio, json\nfrom copy import deepcopy\nfrom datetime import UTC, datetime\nfrom pathlib import Path\nfrom hashlib import sha256\nfrom unittest.mock import patch\nfrom uuid import uuid4\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nsys.path[:0]=[str(root/'\"'\"'api/src'\"'\"'),str(root/'\"'\"'api/tests'\"'\"')]\nfrom test_managed_composition import inputs\nfrom test_managed_contract import ref, stage, authority\nfrom omnis.modules.tasks import managed_contract as c, managed_composition as mc\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis.modules.settings.catalog_schema import canonical\nfrom omnis.modules.runs.managed_admission import ManagedAdmission\nimport omnis.modules.runs.managed_admission as ma\nselection,bindings,packages,procedure=inputs()\ng=c.build_records(selection,ref('\"'\"'native-preparation-receipt'\"'\"'),next(b['\"'\"'ref'\"'\"'] for b in bindings if b['\"'\"'entity_kind'\"'\"']=='\"'\"'procedure'\"'\"'),procedure,bindings,'\"'\"'b06b-publish-contract'\"'\"','\"'\"'RECON'\"'\"',1,datetime.now(UTC))\nowner=str(uuid4());run=next(r['\"'\"'id'\"'\"'] for r in g if r['\"'\"'kind'\"'\"']=='\"'\"'managed-run'\"'\"')\ndef seal(r): r['\"'\"'digest'\"'\"']=sha256(canonical({k:v for k,v in r.items() if k!='\"'\"'digest'\"'\"'})).hexdigest()\ndef brief_mutation(graph,field,value):\n b=next(r for r in graph if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"');b['\"'\"'payload'\"'\"'][field]=value;seal(b)\n m=graph[-1];m['\"'\"'payload'\"'\"']['\"'\"'entries'\"'\"'][0]['\"'\"'brief_ref'\"'\"']=records.reference(b);seal(m)\nclass SubDB:\n def __init__(self): self.reads=0\n async def execute(self,q,params):\n  assert str(q).startswith('\"'\"'SELECT '\"'\"')\n  self.reads+=1;return self\n def scalar_one_or_none(self): return '\"'\"'SUBSTITUTED_owned_reference'\"'\"'\nasync def get(*args): return None\nmanaged=ManagedAdmission(None,root);results=[]\nasync def verify(name,graph,expected):\n db=SubDB();before=canonical(graph)\n try: await managed._verify_graph(db,owner,next(r['\"'\"'id'\"'\"'] for r in graph if r['\"'\"'kind'\"'\"']=='\"'\"'managed-run'\"'\"'),graph);actual='\"'\"'ACCEPTED'\"'\"'\n except CatalogError as exc: actual=str(exc)\n assert actual==expected,(name,actual,expected)\n assert canonical(graph)==before\n results.append({'\"'\"'case'\"'\"':name,'\"'\"'actual'\"'\"':actual,'\"'\"'db_reads'\"'\"':db.reads,'\"'\"'graph_unchanged'\"'\"':True})\n\nasync def main():\n with patch.object(ma.catalog,'\"'\"'get'\"'\"',get):\n  for field in ('\"'\"'done_when'\"'\"','\"'\"'return_when'\"'\"'):\n   bad=deepcopy(g);b=next(r for r in bad if r['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"');del b['\"'\"'payload'\"'\"'][field];seal(b)\n   bad[-1]['\"'\"'payload'\"'\"']['\"'\"'entries'\"'\"'][0]['\"'\"'brief_ref'\"'\"']=records.reference(b);seal(bad[-1])\n   try: await managed._verify_graph(SubDB(),owner,run,bad)\n   except Exception as exc: actual={'\"'\"'type'\"'\"':type(exc).__name__,'\"'\"'reason'\"'\"':str(exc)}\n   bound=next(r for r in bad if r['\"'\"'kind'\"'\"']=='\"'\"'bound-procedure'\"'\"');bundle=next(r for r in bad if r['\"'\"'kind'\"'\"']=='\"'\"'prompt-bundle'\"'\"')\n   try: c.validate_assignment(b,bound,prompt_bundle=bundle,composition_version=1)\n   except Exception as exc: previous_boundary={'\"'\"'type'\"'\"':type(exc).__name__,'\"'\"'reason'\"'\"':str(exc)}\n   results.append({'\"'\"'field_removed'\"'\"':field,'\"'\"'actual_verify_graph'\"'\"':actual,'\"'\"'previous_assignment_boundary'\"'\"':previous_boundary})\nasyncio.run(main());print(json.dumps(results))\n'",
+      "reproducer_exit_code": 0,
+      "observed": [
+        {
+          "field_removed": "done_when",
+          "actual_verify_graph": {
+            "type": "KeyError",
+            "reason": "'done_when'"
+          },
+          "previous_assignment_boundary": {
+            "type": "CatalogError",
+            "reason": "MANAGED_REJECTED"
+          }
+        },
+        {
+          "field_removed": "return_when",
+          "actual_verify_graph": {
+            "type": "KeyError",
+            "reason": "'return_when'"
+          },
+          "previous_assignment_boundary": {
+            "type": "CatalogError",
+            "reason": "MANAGED_REJECTED"
+          }
+        }
+      ],
+      "requirement": "Robustețe/taxonomie de input malformed; nu s-a demonstrat o încălcare de autoritate, work, COMPLETE sau răspunsul public CLI.",
+      "public_boundary": "main:1260-1262 prinde explicit KeyError și păstrează BLOCKED/MANAGED_REJECTED/exit2; lipsește o cale de succes din acest caz.",
+      "remedy": "Opțional validează shape-ul briefului prin validate_brief înainte de indexarea noilor câmpuri, fără .get default care ar ascunde lipsa; testează același resealed missing-field. Nu este motiv de redeschidere F01-F04."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "id": "C10-LEGACY-F01",
+      "disposition": "APPROVED_SCOPED_SECURITY_FIX",
+      "reason": "Remediul distinge v1 uncomposed de composerv1; numai legacy NO_MODEL explicit zero-predicate este structural. Nu a fost găsit bypass nou work/COMPLETE."
+    },
+    {
+      "id": "C10-LEGACY-FIXTURE-F01",
+      "disposition": "APPROVED_SOURCE_SCOPED_PENDING_PARENT_PG_GREEN",
+      "path": "api/tests/test_managed_lifecycle.py:284,288",
+      "reason": "BuildSource.build:128 transmite criterion_ids inclusiv None; short_builder trebuie să accepte argumentul. Noua assertion refuză orice alocare non-None. Original builder păstrează defaultNone (managed_contract.py:262). Nu se schimbă calcul ceiling/now-3, expiry, no-dispatch, readback sau replay (lifecycle.py:290-346).",
+      "verification": "Diff+callsites exact; PG rerun este exclusiv al părintelui, nu executat/observat de reviewer."
+    }
+  ],
+  "parent_reported_evidence": {
+    "source": "Mesaj mid-turn al părintelui, nu logs/receipt citite independent.",
+    "process": "proc_cebada781942",
+    "exit_code": 2,
+    "family_drained": true,
+    "cleanup": "exact, conform părintelui",
+    "passed": 180,
+    "failed": 1,
+    "duration_seconds": 132,
+    "cold_legacy_cases": "pozitivele prepare și noile manifest/nonempty-predicate denials PASS conform părintelui",
+    "failure": "short_builder unexpected criterion_ids — fixture distinctă; noul PG serial rămâne în proprietatea părintelui."
+  },
+  "limits": [
+    "Nu am pornit/poll-uit DB sau procesul PG al părintelui, nu am citit raw PG logs/runtime.boot/DSN/capability/secrete/profiluri private.",
+    "Nu s-au executat build/native process/model/target/global/push/r1 sau servicii.",
+    "Nu redeschid C10F01-F04 și nu creditez duble/observatori drept autentificare.",
+    "Gate canonical2 rămâne FAIL conform contextului (1562PASS/3FAIL/7SKIP); reviewul nu îl promovează.",
+    "Raportul final de integrare și commiturile sunt ale părintelui."
+  ],
+  "tooling": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "repository_writes": [],
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/p2-c10-legacy-cold-security-review.json"
+  ],
+  "handoff": "Părintele verifică hashurile, adjudecă observația LOW și completează PG GREEN pe fixture reparată; commit fixture separat de fixul produs+regresii. Nu declara canonicalPASS."
+}

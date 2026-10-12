@@ -1,0 +1,95 @@
+{
+  "report_id": "p2-c10-legacy-cold-normative-fixture-review",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "approval_kind": "STATIC_FOCUSED_FIXTURE_COMPATIBILITY",
+  "canonical_verdict": "NOT_CLAIMED",
+  "finding_count": 0,
+  "findings": [],
+  "scope": {
+    "finding_under_review": "C10-LEGACY-FIXTURE-F01",
+    "paths": ["api/tests/test_managed_lifecycle.py"],
+    "change": "Exact două linii adăugate: criterion_ids: object = None în short_builder și assert criterion_ids is None înaintea delegării.",
+    "repository": "/home/kali/OmnisAI",
+    "repository_index_read_only": true,
+    "parent_commits_fixture_separately_after_green": true
+  },
+  "snapshot": {
+    "head": "d593e85bc784701c7fe7051b91df615f100d2309",
+    "fixture_sha256": "35116e91f3f8ad0dca9367af783022928a079490e96df71fee86a41b538aa926",
+    "fixture_locators": ["api/tests/test_managed_lifecycle.py:284", "api/tests/test_managed_lifecycle.py:288"],
+    "original_two_paths_still_frozen": {
+      "api/src/omnis/modules/runs/managed_admission.py": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0",
+      "api/tests/test_managed_wire_parity.py": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e"
+    },
+    "preexisting_untracked_preserved": "documents/Omnis_Notite_Originale.html",
+    "original_report": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-c10-legacy-cold-normative-review.json",
+      "sha256": "87a75a9205ee2a93e782daff00f8c58b34b3b9b501aa44ec2e858dff34dc3099",
+      "scope": "Original două paths numai; complet și păstrat nemodificat. Nu se rescrie drept review pe trei paths."
+    }
+  },
+  "disposition": {
+    "id": "C10-LEGACY-FIXTURE-F01",
+    "classification": "Confirmed fixture signature drift, not product regression and not weakening a domain check",
+    "status": "STATIC_FIX_APPROVED; GREEN_PENDING_PARENT",
+    "reproducer": "test_pg_result_before_check_reconcile_once_restart trece prin contextul monkeypatch short_builder la managed.prepare(short_req). source.build transmite explicit criterion_ids=None; semnătura veche short_builder nu accepta keyword-ul și ridica TypeError înaintea probei deadline/expiry.",
+    "failure_locator": "api/src/omnis/modules/runs/managed_admission.py:128",
+    "affected_fixture": "api/tests/test_managed_lifecycle.py:267-305",
+    "requirement": "Testul cold legacy v1 trebuie să exercite guardul BRIEF_EXPIRED și replay/readback/no-dispatch, fără alocare de criterii sau promovare în metodă; wrapperul trebuie să corespundă semnăturii builderului real existent.",
+    "remedy_reviewed": "Acceptă numai parametrul keyword deja existent criterion_ids, default None, și cere identitate is None; original_builder continuă să primească default None fără schimbarea argumentelor sau a ceasului."
+  },
+  "analysis": [
+    {
+      "property": "Keyword/default parity",
+      "status": "SATISFIED_STATIC",
+      "locators": [
+        "api/src/omnis/modules/runs/managed_admission.py:101-128",
+        "api/src/omnis/modules/tasks/managed_contract.py:245-269",
+        "api/tests/test_managed_lifecycle.py:267-305"
+      ],
+      "detail": "source.build avea deja criterion_ids: object = None și transmite keyword-ul la contract.build_records. Builderul real are același default și compiled allocation=[] numai pentru None. Wrapperul acceptă acum același keyword, dar nu autorizează valori noi: is None refuză inclusiv [], False sau o listă de criterii. Delegarea fără keyword este echivalentă exact cu None după această assertion."
+    },
+    {
+      "property": "Cold zero-only and authority preserved",
+      "status": "SATISFIED_STATIC",
+      "locators": ["api/tests/test_managed_lifecycle.py:286-289"],
+      "detail": "Assertions composition_packages is None, method_execution is False, context_only is False și prefix/case_input is None sunt neschimbate. Noul assert întărește explicit faptul că proba shortened legacy cold nu alocă CriterionBindings și nu pretinde method execution. Nu apare **kwargs sau fallback care ar absorbi alte schimbări de contract."
+    },
+    {
+      "property": "Clock/expiry/no-dispatch/replay semantics preserved",
+      "status": "SATISFIED_STATIC",
+      "locators": ["api/tests/test_managed_lifecycle.py:290-346"],
+      "detail": "Calculul ceiling/min, now-timedelta(ceiling-3), deadline wait și stage/release subprobe sunt byte-unchanged în diff. Rămân exact BRIEF_EXPIRED, readback egal înainte/după, replay created=false și operation_started is False. Fixture fix nu scurtează sau elimină niciun assert și nu schimbă o excepție în succes."
+    },
+    {
+      "property": "Proportionality and ordering",
+      "status": "SATISFIED_STATIC",
+      "detail": "Două linii într-un wrapper test-only existent; fără produs/owner/contract/native/patch/checker changes suplimentare. Este potrivit un commit separat pentru fixture după GREEN; eșecul PG anterior trebuie păstrat, iar canonical PASS nu poate fi dedus din static approval."
+    }
+  ],
+  "evidence": {
+    "reviewer": [
+      "git diff -- api/tests/test_managed_lifecycle.py: exact 2 insertions, 0 deletions",
+      "git diff --check: exit0",
+      "sha256sum: cele două paths originale corespund raportului complet și fixture hash corespunde snapshotului separat",
+      "Inspecție read-only wrapper/call site/builder real și assertions existente"
+    ],
+    "reviewer_pg": "NOT_RUN; nu s-a lansat DB, nu s-a poll-uit procesul PG și nu s-au citit loguri brute",
+    "parent_update_received": {
+      "source": "Mesaj direct al părintelui; nu receipt verificat independent de reviewer",
+      "process": "proc_cebada781942",
+      "result": "180 PASS / 1 FAIL / 132s / receipt2 / drained / cleanup exact",
+      "product_fix": "Ambele ASCII/UTF8 și noile read-only graph denials au trecut pe PG real conform părintelui; prepare regression C10-LEGACY-F01 este remediată la consumer.",
+      "remaining_failure": "TypeError short_builder unexpected criterion_ids, separat de fixul produsului; trial FAIL păstrat.",
+      "next_parent_run": "Existing test-managed-admission-pg serial după fixture fix, rezultat încă necreditat aici."
+    }
+  },
+  "limits": [
+    "Acest raport suplimentar aprobă static numai hashul fixture. Nu pretinde runtime GREEN pentru această ultimă editare.",
+    "Raportul inițial rămâne review exact două paths, nu un verdict rescris pe trei paths.",
+    "Părintele adjudecă cele două rapoarte, compară hashes după QA și comite separat fixture/product.",
+    "Source C10 F01–F04 approvals unchanged; rest C10/B06b/G02/P2 și historical installed reader nu sunt certificate.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

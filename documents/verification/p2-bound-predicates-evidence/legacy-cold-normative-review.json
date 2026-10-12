@@ -1,0 +1,219 @@
+{
+  "report_id": "p2-c10-legacy-cold-normative-review",
+  "language": "ro",
+  "role": "independent_read_only_normative_order_reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "canonical_verdict": "NOT_CLAIMED",
+  "finding_count": 0,
+  "findings": [],
+  "scope": {
+    "finding_under_review": "C10-LEGACY-F01",
+    "acceptance": "Ownerul verifică graful cold uncomposed NO_MODEL fără să îl confunde cu composer-v1; numai predicate goale sunt acceptate, fără credit de metodă sau autoritate live.",
+    "repository": "/home/kali/OmnisAI",
+    "paths": [
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/tests/test_managed_wire_parity.py"
+    ],
+    "read_only_repository_and_index": true,
+    "only_created_file": "/home/kali/.hermes/cache/scratch/p2-c10-legacy-cold-normative-review.json",
+    "non_goals": [
+      "review global C10/B06b/G02/P2",
+      "reaprobare SOURCE C10-NORM-F01 / C10-SEC-F01–F04 / C10-NATIVE-F01",
+      "certificare installed historical reader sau transfer al compatibilității records/checkers",
+      "probe COMPLETE noi, native daemon, PostgreSQL propriu ori polling al procesului PG al părintelui",
+      "model, provider, țintă, rețea, profiluri private/r1, runtime.boot, capabilities, DSN sau loguri PG brute",
+      "repo/index/commit/push writes"
+    ]
+  },
+  "snapshot": {
+    "head_before": "d593e85bc784701c7fe7051b91df615f100d2309",
+    "head_after": "d593e85bc784701c7fe7051b91df615f100d2309",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "diff_sha256": "c70f339d615b76790a614b153ded55a5f6a4f70bfa1f8bc5b0bd45f2d72b3c7a",
+    "diff_command": "git diff --binary -- api/src/omnis/modules/runs/managed_admission.py api/tests/test_managed_wire_parity.py | sha256sum",
+    "changed_paths": 2,
+    "insertions": 57,
+    "deletions": 5,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256_before": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0",
+        "sha256_after": "de7dfcae00d2eb858b27ccd67dc7979f325ab33427a920eb04991ac9a20229f0",
+        "insertions": 9,
+        "deletions": 5,
+        "changed_locator": "api/src/omnis/modules/runs/managed_admission.py:953-968"
+      },
+      {
+        "path": "api/tests/test_managed_wire_parity.py",
+        "sha256_before": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e",
+        "sha256_after": "35da90f35361b34b8b827d9138c857c74a0908b2a554fc16a733c482eb53668e",
+        "insertions": 48,
+        "deletions": 0,
+        "changed_locator": "api/tests/test_managed_wire_parity.py:295-340"
+      }
+    ],
+    "hashes_unchanged": true,
+    "index_diff_empty": true,
+    "protected_preexisting_untracked": "documents/Omnis_Notite_Originale.html",
+    "protected_artifact_touched": false,
+    "native_source_patch_pin_composer_checker_changes": "NONE_IN_REPOSITORY_DIFF"
+  },
+  "authority_read": [
+    "AGENTS.md:12-30",
+    "README.md:3-9,61,77",
+    "CONTRIBUTING.md:29-48",
+    "documents/Omnis_MVP_Architecture.md:612-632 (§9.5)",
+    "documents/Omnis_MVP_Architecture.md:733-770 (§9.10)",
+    "documents/Omnis_Implementation_Plan.md:268-283 (§7.1)",
+    "documents/verification/p2-bound-predicates.md:3-33,43-47,59-79",
+    "documents/verification/implementation-status.md:19-21,43-44",
+    "omnis-review-qa skill",
+    "omnis-project-status skill, ORIENT/read-only"
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Version authority comes from exactly one strictly validated retained launch-manifest, not a default of composer-v1.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "api/src/omnis/modules/runs/managed_admission.py:953-958",
+        "api/src/omnis/modules/tasks/managed_contract.py:1340-1393"
+      ],
+      "analysis": "Cardinalitatea este verificată înainte de lookup. validate_manifest verifică envelope/digest, field set exact, NO_MODEL/effective=null și composition_version strict int 1..4 când câmpul există. Absența câmpului nu este echivalentă cu o valoare explicită null sau invalidă. Validarea nouă nu normalizează bool/float/string în versiuni valide.",
+      "evidence": "Inspecție exact-diff și 14 controale SOURCE directe asupra validatorului/protocolului; missing/extra manifest au controale PG adăugate în testul existent, neexecutate de reviewer."
+    },
+    {
+      "requirement": "Original uncomposed protocol-v1 is a structural-only zero-predicate NO_MODEL path, distinct from composed version 1.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "api/src/omnis/modules/runs/managed_admission.py:959-968",
+        "api/src/omnis/modules/tasks/managed_contract.py:398,428-441,588-595,658-663",
+        "api/src/omnis/modules/tasks/managed_contract.py:1142-1207",
+        "api/src/omnis/modules/tasks/managed_composition.py:649-652"
+      ],
+      "analysis": "Builderul uncomposed fixează composer_revision la digestul propriului source, nu la pinul Hermes. O versiune absentă, după validarea manifestului, cere atât done_when cât și return_when falsy, iar validate_assignment fără bundle confirmă apoi tipul/lista și toate obligațiile structurale. Numai predicate efectiv [] trec întregul lanț; un scalar falsy invalid nu obține acceptare. Bundle-ul rămâne rezolvat și refs/digest sunt verificate anterior în graf; nu este eliminat din record sau mutat în alt protocol.",
+      "evidence": "Testul PG existent verifică graful retenut și listele goale; controlul cu done_when nenul este resealed inclusiv brief_ref și digestul manifestului. SOURCE test_build_inert_context_all_requirements_then_blocked_check a trecut în selecția reviewerului."
+    },
+    {
+      "requirement": "Composed versions 1..4 keep bundle+version validation; current v4 cannot erase required predicates.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "api/src/omnis/modules/runs/managed_admission.py:963-980",
+        "api/src/omnis/modules/tasks/managed_contract.py:113-164",
+        "api/src/omnis/modules/runs/managed_admission.py:1027-1092",
+        "api/tests/test_c10_bound_predicates.py:93-108,198-233"
+      ],
+      "analysis": "Orice composition_version validă păstrează apelul cu bundle retenut și versiunea exactă. Verificarea composer pin/closure și required current map-records rămâne neschimbată; nu apare fallback pentru pin invalid. _verify_compositions și stage_payload/expanded_payload continuă pentru toate protocoalele composed. Original-v1 și composer-v1 sunt diferențiate semantic, deși composed 1 și 2 folosesc același protocol wire-v2.",
+      "evidence": "Controalele SOURCE current-empty și full-composition denial au trecut; au trecut toate cele 38 teste selectate. Nu este o nouă probă native authentication/installed."
+    },
+    {
+      "requirement": "NO_MODEL must not confer MethodCheck COMPLETE, task SUCCEEDED, CriterionOutcome PASS or model-turn authority.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "api/src/omnis/modules/tasks/managed_contract.py:1231-1274,1481-1501",
+        "api/src/omnis/modules/runs/managed_admission.py:551-594,646-670,686-747"
+      ],
+      "analysis": "validate_final cere BLOCKED/NO_MODEL fără executions pentru original-v1 și composed-v1..3. Ingesta acestora construiește blocked_result cu toate cerințele NOT_RUN. _result_check pe status diferit de SUCCEEDED folosește method_check care cere payloadul blocked exact și produce INCOMPLETE. Ramura SUCCEEDED cere final autentic și protocol v4. Fixul nu modifică aceste frontiere, receipts, checker13, contabilizare, inbox ori outcome rules.",
+      "evidence": "Inspecție a callerilor și teste SOURCE; nu s-a fabricat final/receipt/model response și nu se revendică COMPLETE nou."
+    },
+    {
+      "requirement": "Preflight precedes new managed graph persistence/reservation/dispatch; readback and reconcile preserve retained graph semantics.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "api/src/omnis/modules/runs/managed_admission.py:321-369,397-400,427-449,645-650,1122-1136",
+        "api/tests/test_managed_wire_parity.py:278-282,295-355"
+      ],
+      "analysis": "_prepare validează manifestul și graful înaintea managed_store.put și a managed_run/managed_task inserts. reserve_dispatch trece prin stage_payload/_verify_graph înainte de a înregistra dispatch; readback/reconcile verifică același graf. Nu se schimbă ordinea de persistare result→check/outcome/inbox. Testele noi cer egalitate exactă a celor patru ledgers după verificări/denials și păstrează assertions reserve/dispatch not awaited, single preparation call, replay created=false/readback exact.",
+      "evidence": "Inspecție a structurii testului real publication/selection/PG. RuntimeDouble este declarat numai pentru preparare IPC; PG/readback/reservation semantics nu sunt înlocuite de rezultate inventate. Reviewerul nu a rulat acest consumer PG."
+    },
+    {
+      "requirement": "Fix remains proportional to C10-LEGACY-F01, preserves prior approvals and canonical order.",
+      "status": "SATISFIED_SCOPED",
+      "locators": [
+        "documents/Omnis_Implementation_Plan.md:270-283",
+        "documents/verification/p2-bound-predicates.md:18-33,45-47,77-79"
+      ],
+      "analysis": "O singură schimbare de owner preflight, cu extinderea testului PG existent și fără alt engine/harness/dependență/schema/fixture framework. Compatibilitatea cold original-v1 nu certifică legacy717 method completion sau installed old checker readback. Acceptările SOURCE anterioare rămân la scope-ul lor; approval-ul prezent este pentru cele două hashes, nu pentru întregul C10 sau canonical.",
+      "evidence": "Diff exact două paths 57+/5-; native/source/patch/pin/composer/checker nu apar ca modificări."
+    }
+  ],
+  "tests_and_checks": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_managed_contract.py api/tests/test_c10_bound_predicates.py -q --tb=line",
+      "exit_code": 0,
+      "passed": 38,
+      "duration_seconds": 2.17,
+      "boundary": "SOURCE only; synthetic identities/state holders, real deterministic helpers; not PostgreSQL/native authentication/persistence or live."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c <in-memory validator controls importing api/src and api/tests explicitly>",
+      "exit_code": 0,
+      "passed_controls": 14,
+      "controls": [
+        {"case": "composition_version absent", "result": "omnis-managed-admission-v1"},
+        {"case": "composition_version=1", "result": "omnis-managed-admission-v2"},
+        {"case": "composition_version=2", "result": "omnis-managed-admission-v2"},
+        {"case": "composition_version=3", "result": "omnis-managed-admission-v3"},
+        {"case": "composition_version=4", "result": "omnis-managed-admission-v4"},
+        {"case": "explicit None", "result": "MANAGED_REJECTED"},
+        {"case": "explicit True", "result": "MANAGED_REJECTED"},
+        {"case": "explicit False", "result": "MANAGED_REJECTED"},
+        {"case": "explicit 0", "result": "MANAGED_REJECTED"},
+        {"case": "explicit 5", "result": "MANAGED_REJECTED"},
+        {"case": "explicit 1.0", "result": "INVALID_TYPE"},
+        {"case": "explicit string 1", "result": "MANAGED_REJECTED"},
+        {"case": "explicit []", "result": "MANAGED_REJECTED"},
+        {"case": "explicit {}", "result": "MANAGED_REJECTED"}
+      ],
+      "reproducer": "Folosește test_managed_contract.manifest(); pentru composed păstrează un entry și adaugă composition_ref valid; reseal prin candidate_store.envelope. Pentru fiecare valoare testează validate_manifest și manifest_protocol; None/bool/out-of-range/string/list/object cer MANAGED_REJECTED, float cere INVALID_TYPE la envelope bounded înaintea integer guard. Fără IO de efect sau fixture DB.",
+      "boundary": "Pure retained manifest grammar/version authority only, not owner DB consumer."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat; sha256sum <exact two paths>",
+      "exit_code": 0,
+      "result": "HEAD, two file hashes, dirty paths and empty index unchanged before/after review."
+    }
+  ],
+  "attempts_retained": [
+    {
+      "kind": "SOURCE validator-control oracle mistake, not product finding",
+      "exit_code": 1,
+      "details": "Prima verificare ad-hoc cerea greșit MANAGED_REJECTED pentru toate tipurile invalide; envelope bounded refuză float 1.0 mai devreme cu INVALID_TYPE. AssertionError a fost real și nu este șters. Un singur rerun, fără editare produs, a verificat exact această frontieră și toate cele 14 controale."
+    }
+  ],
+  "parent_evidence_not_reexecuted_or_read_from_private_logs": {
+    "canonical2": "Contextul delegării raportează proc_44ee0f4f4b4d FAIL exit2, 1562 PASS/3 FAIL/7 SKIP, 2285.02s, receipt2/drained; aceste valori nu sunt probe independente produse de reviewer.",
+    "red_cases": [
+      "test_pg_result_before_check_reconcile_once_restart",
+      "test_pg_qualified_goal_prepare_before_reservation[ascii-preserved]",
+      "test_pg_qualified_goal_prepare_before_reservation[utf8-4096]"
+    ],
+    "reported_red_reason": "BOUND_PREDICATE_GAP la managed_contract.py:144, uncomposed builder digest confundat cu composer pin",
+    "parent_source": "Contextul raportează API lint/type exit0 și 218 SOURCE PASS/5 PG deselected; nu este noua execuție independentă de 38 teste.",
+    "parent_pg_process": "proc_cebada781942",
+    "parent_pg_disposition": "OWNED_BY_PARENT; NOT_POLLED; NOT_READ; NOT_CLAIMED_PASS"
+  },
+  "limits_and_handoff": {
+    "integration_and_commit": "PENDING_PARENT; reviewer nu a modificat repo/index și nu a comis.",
+    "affected_pg_consumer": "Părintele citește receiptul sanitizat și readbackul cleanupului procesului propriu, apoi verifică hashes finale. Verdictul de review nu substituie rezultatul PG.",
+    "canonical": "FAIL istoric păstrat; fix/review/SOURCE nu reprezintă canonical PASS. Gate final pe snapshotul integrat rămâne la părinte.",
+    "compatibility": "Nu se transferă fresh-composed legacy717 ori original-v1 cold în acceptare de installed immutable historical checker/record reader.",
+    "remaining_order": "rest B06b → B06c/B06m owner reserve→SENT→transport/Stop/caps → P4a-minim → P2-live cu acord separat",
+    "global": "C10/B06b/G02/P2 rămân PARTIAL/NOT_CLOSED; early partial return și celelalte forme contractate nu au fost revizuite aici.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "proposed_status_delta": {
+    "C10-LEGACY-F01": {
+      "implementation": "FIX_PRESENT_UNCOMMITTED",
+      "proof": "INDEPENDENT_SOURCE_38_PASS_PLUS_14_MANIFEST_CONTROLS; PG_PENDING_PARENT",
+      "review": "APPROVED_SCOPED_ON_EXACT_TWO_HASHES",
+      "next": "Adjudecare complementară + rezultat PG real + integrare/commit/canonical final owned by parent."
+    },
+    "prior_SOURCE_C10_F01_F04": "UNCHANGED_WITHIN_ORIGINAL_SCOPE",
+    "B06b_G02_P2": "NOT_CLOSED"
+  }
+}

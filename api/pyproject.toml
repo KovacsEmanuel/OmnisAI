@@ -58,7 +58,11 @@ disallow_any_unimported = true
 warn_unreachable = true
 namespace_packages = true
 explicit_package_bases = true
-mypy_path = ["$MYPY_CONFIG_FILE_DIR/src", "$MYPY_CONFIG_FILE_DIR/tests"]
+mypy_path = [
+    "$MYPY_CONFIG_FILE_DIR/src",
+    "$MYPY_CONFIG_FILE_DIR/tests",
+    "$MYPY_CONFIG_FILE_DIR/../integrations/hermes/src",
+]
 
 [tool.pydantic-mypy]
 init_typed = true

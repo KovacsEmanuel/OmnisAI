@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 
 from omnis.modules.settings.catalog_models import CatalogError
-from test_contract_method_checks import native_case, obj, rebind_mutation, rows
+from test_contract_method_checks import native_case, obj, rebind_mutation, reseal_assignment, rows
 
 
 def test_bound_predicates_real_native_receipts_complete() -> None:
@@ -204,7 +204,6 @@ def test_resealed_full_composition_denies_before_native_allocation(attack: str) 
 
     case = native_case(predicates=True)
     from omnis_hermes.contract_method import assignment, task_result
-    from test_prompt_bundle import reseal_graph
 
     stage = case.stage
     payload = obj(obj(rows(stage["compositions"])[0])["payload"])
@@ -221,7 +220,7 @@ def test_resealed_full_composition_denies_before_native_allocation(attack: str) 
         obj(rows(procedure["probe"])[0])["id"] = "foreign-step"
     else:
         rows(procedure["probe"]).pop(0)
-    reseal_graph(stage, sections, case.prompt_bundle)
+    reseal_assignment(stage, sections, case.prompt_bundle)
     with pytest.raises(ValueError):
         assignment(canonical(stage))  # Same guard used before constructor identity allocation.
     manifest = obj(stage["manifest"])

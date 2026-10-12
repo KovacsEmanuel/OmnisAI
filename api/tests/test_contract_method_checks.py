@@ -83,6 +83,15 @@ class Case:
         )
 
 
+def reseal_assignment(stage: Data, sections: list[object], bundle: Data) -> None:
+    """Typed facade for the existing test-only native reseal helper."""
+    reseal = cast(
+        Callable[[Data, list[object], Data], None],
+        importlib.import_module("test_prompt_bundle").reseal_graph,
+    )
+    reseal(stage, sections, bundle)
+
+
 def native_case(
     version: int = 2,
     empty: bool = False,
@@ -102,10 +111,7 @@ def native_case(
         fixture = cast(
             NativeFixture, importlib.import_module("test_contract_method").method_fixture
         )
-        reseal = cast(
-            Callable[[Data, list[object], Data], None],
-            importlib.import_module("test_prompt_bundle").reseal_graph,
-        )
+        reseal = reseal_assignment
         native = importlib.import_module("agent.contract_execution")
         cold = importlib.import_module("agent.cold_admission")
         cold_state = cast(Callable[[str, str, None], object], cold.ColdState)

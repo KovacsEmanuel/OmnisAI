@@ -188,3 +188,27 @@ def test_default_quality_gate_covers_application_and_tests() -> None:
     commands = result.stdout.splitlines()
     for marker in ("ruff check", "ruff format", "-m mypy"):
         assert any(marker in line and "api/src api/tests" in line for line in commands), marker
+
+
+def test_make_typecheck_resolves_native_adapter_and_preserves_type_denial(tmp_path: Path) -> None:
+    source = tmp_path / "native_quality_gate.py"
+    good = (
+        "from omnis_hermes.prompt_bundle import composer_revision\n\n\n"
+        "def checked() -> str:\n    return composer_revision()\n"
+    )
+    command = [
+        "make",
+        "--no-print-directory",
+        "typecheck-api",
+        f"API_CHECK_PATHS={shlex.quote(str(source))}",
+    ]
+    source.write_text(good)
+    accepted = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=45)
+    assert accepted.returncode == 0, accepted.stdout + accepted.stderr
+    assert diagnostics(accepted.stdout, "type") == []
+    bad = good.replace("-> str:", "-> int:")
+    source.write_text(bad)
+    denied = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=45)
+    assert denied.returncode == 2, denied.stdout + denied.stderr
+    assert diagnostics(denied.stdout, "type") == [(str(source), "return-value", "error")]
+    assert source.read_text() == bad

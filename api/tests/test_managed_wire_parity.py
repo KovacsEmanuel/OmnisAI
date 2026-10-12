@@ -3,7 +3,9 @@
 import asyncio
 import importlib
 import json
+from copy import deepcopy
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import AsyncMock
@@ -290,6 +292,52 @@ def test_pg_qualified_goal_prepare_before_reservation(
                     == goal
                 )
                 assert await managed_ledger(engine) != before
+                run_id = str(result["run_id"])
+                retained = await managed_ledger(engine)
+                async with engine.begin() as conn:
+                    graph = [
+                        mapping(r) for r in await managed_store.graph(conn, seed.owner, run_id)
+                    ]
+                    await managed._verify_graph(conn, seed.owner, run_id, graph)
+                    assert "composition_version" not in mapping(mapping(emitted)["payload"])
+                    briefs = [r for r in graph if r["kind"] == "task-brief"]
+                    assert all(
+                        mapping(b["payload"])["done_when"] == []
+                        and mapping(b["payload"])["return_when"] == []
+                        for b in briefs
+                    )
+                    without_manifest = [r for r in graph if r["kind"] != "launch-manifest"]
+                    with pytest.raises(CatalogError, match="^MANAGED_REJECTED$"):
+                        await managed._verify_graph(conn, seed.owner, run_id, without_manifest)
+                    extra = records.envelope(
+                        "launch-manifest", mapping(mapping(emitted)["payload"])
+                    )
+                    with pytest.raises(CatalogError, match="^MANAGED_REJECTED$"):
+                        await managed._verify_graph(conn, seed.owner, run_id, [*graph, extra])
+                    bad = deepcopy(graph)
+                    brief = next(r for r in bad if r["kind"] == "task-brief")
+                    body = mapping(brief["payload"])
+                    body["done_when"] = [
+                        {
+                            "bound_procedure_ref": mapping(sequence(body["procedure_bindings"])[0])[
+                                "bound_procedure_ref"
+                            ],
+                            "predicate_id": "normalize-records",
+                        }
+                    ]
+                    brief["digest"] = sha256(
+                        canonical({k: v for k, v in brief.items() if k != "digest"})
+                    ).hexdigest()
+                    manifest = next(r for r in bad if r["kind"] == "launch-manifest")
+                    mapping(sequence(mapping(manifest["payload"])["entries"])[0])["brief_ref"] = (
+                        records.reference(brief)
+                    )
+                    manifest["digest"] = sha256(
+                        canonical({k: v for k, v in manifest.items() if k != "digest"})
+                    ).hexdigest()
+                    with pytest.raises(CatalogError, match="^BOUND_PREDICATE_GAP$"):
+                        await managed._verify_graph(conn, seed.owner, run_id, bad)
+                assert await managed_ledger(engine) == retained
                 read = {k: request[k] for k in ("schema_version", "owner_id", "command_id")}
                 assert (await managed.readback(read))["manifest"] == emitted
                 committed = await managed_ledger(engine)

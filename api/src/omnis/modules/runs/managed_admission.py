@@ -951,15 +951,19 @@ class ManagedAdmission:
             bound_ref = ref(mapping(sequence(body["procedure_bindings"])[0])["bound_procedure_ref"])
             bundle = local[uuid_string(ref(body["prompt_bundle_ref"], "prompt-bundle")["id"])]
             manifests = [r for r in graph if r["kind"] == "launch-manifest"]
-            version = (
-                mapping(manifests[0]["payload"]).get("composition_version", 1)
-                if len(manifests) == 1
-                else 1
+            if len(manifests) != 1:
+                raise CatalogError("MANAGED_REJECTED")
+            version = mapping(contract.validate_manifest(manifests[0])["payload"]).get(
+                "composition_version"
             )
+            # Uncomposed v1 is the retained NO_MODEL path, not composer v1 or
+            # method completion. Its bundle pins the graph builder, not Hermes.
+            if version is None and (body["done_when"] or body["return_when"]):
+                raise CatalogError("BOUND_PREDICATE_GAP")
             contract.validate_assignment(
                 brief,
                 local[uuid_string(bound_ref["id"])],
-                prompt_bundle=bundle,
+                prompt_bundle=bundle if version is not None else None,
                 composition_version=version,
             )
             from omnis.modules.tasks import criterion_checks

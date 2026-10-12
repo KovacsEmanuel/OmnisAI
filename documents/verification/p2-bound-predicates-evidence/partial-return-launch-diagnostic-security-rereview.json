@@ -1,0 +1,352 @@
+{
+  "schema": "omnis-focused-source-security-rereview-v1",
+  "verdict": "APPROVED_SCOPED",
+  "approval_boundary": "TEST_ONLY phase hardening F01/F02 and S13 actual source argument inventory; not product repair, native QA or unconditional arbitrary-Python-object sanitization.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "e401548ac5116761322d0983ba4d7031ba60cedd",
+    "dirty_checkout": true,
+    "file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+    "original_review_sha256": "ee650aad0d501265d4832b5ad2e02993ee0b74f854acabfb119e9a72ffae8b6c",
+    "predecessor_reconstructed_in_memory_exact_hash_match": true,
+    "protocol_file": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+    "protocol_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "verified_before_and_after": true,
+    "parent_checkpoint_file": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/partial-return-launch-parent-checkpoint.json",
+    "parent_checkpoint_sha256": "62c410c6095fbf96f321a29c72507d27ebb037bb08da5674bcad22ef2745619b",
+    "original_review_report_file": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-review.json",
+    "original_review_report_sha256": "6124eb30d1b69a6ff7305ada56416dbdfdb1bca20bc255289c8a48a3935b5f60"
+  },
+  "findings": [],
+  "original_findings_dispositions": [
+    {
+      "id": "P2-DIAG-SEC-F01",
+      "original_severity": "LOW",
+      "original_status": "REACHABILITY_UNRESOLVED",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "source": "api/tests/test_contract_method_pg.py:229-236,783-785",
+      "evidence": "Exact predecessor ee650a RED: list/dict cause replacement TypeError, zero checkpoints and original as context. Exact current aab18f GREEN: same ValueError object/context, one checkpoint and built-in gateway.ready. Exact type guard short-circuits before membership. No native exploit was originally proven or is claimed now."
+    },
+    {
+      "id": "P2-DIAG-SEC-F02",
+      "original_severity": "LOW",
+      "original_status": "REACHABILITY_UNRESOLVED",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "source": "api/tests/test_contract_method_pg.py:229-236,783-785",
+      "evidence": "Exact predecessor ee650a RED copies SpoofedMethod synthetic marker into phase. Current aab18f rejects subclasses without invoking their hash/equality; actual observer assigns the projected built-in gateway.ready, preserves original exception and emits one marker-free checkpoint. No native/remote construction of SpoofedMethod demonstrated."
+    }
+  ],
+  "controls": [
+    {
+      "id": "S01_FIXED_PUBLIC_ALLOWLIST",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S02_ARGS_TYPES_NO_STR_REPR",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S03_UNKNOWN_TYPES_NO_STR_REPR",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S04_FOUR_ROW_CYCLE_CONTEXT_UNCHANGED",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S05_LONG_CONTEXT_BOUND",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S06_OBSERVER_FIELDS_REASONS_NO_PRIVATE_LOCALS",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S07_BASEEXCEPTION_AND_SYNTHETIC_UNWIND",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S08_SUCCESS_IDENTITY_NO_PAYLOAD_COPY",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S09_NONMATCHING_CODE_FRAME_REFUSED",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S12_OUTER_FINALLY_AST_IDENTICAL_TO_HEAD",
+      "status": "RETAINED_ORIGINAL_SCOPED_PASS_NOT_RERUN",
+      "original_status": "PASS"
+    },
+    {
+      "id": "S10_UNHASHABLE_TRACE_METHOD",
+      "previous_status": "LIMIT_CONFIRMED",
+      "status": "PASS_SOURCE_FIX",
+      "red": [
+        {
+          "id": "list",
+          "original_exception_preserved": false,
+          "original_context_unchanged": true,
+          "exception_type": "TypeError",
+          "checkpoint_count": 0,
+          "phase": null,
+          "marker_absent": true,
+          "exact_builtin_phase": false,
+          "replacement_context_is_original": true
+        },
+        {
+          "id": "dict",
+          "original_exception_preserved": false,
+          "original_context_unchanged": true,
+          "exception_type": "TypeError",
+          "checkpoint_count": 0,
+          "phase": null,
+          "marker_absent": true,
+          "exact_builtin_phase": false,
+          "replacement_context_is_original": true
+        }
+      ],
+      "green": [
+        {
+          "id": "list",
+          "original_exception_preserved": true,
+          "original_context_unchanged": true,
+          "exception_type": "ValueError",
+          "checkpoint_count": 1,
+          "phase": "gateway.ready",
+          "marker_absent": true,
+          "exact_builtin_phase": true,
+          "replacement_context_is_original": false
+        },
+        {
+          "id": "dict",
+          "original_exception_preserved": true,
+          "original_context_unchanged": true,
+          "exception_type": "ValueError",
+          "checkpoint_count": 1,
+          "phase": "gateway.ready",
+          "marker_absent": true,
+          "exact_builtin_phase": true,
+          "replacement_context_is_original": false
+        }
+      ]
+    },
+    {
+      "id": "S11_SPOOFED_TRACE_METHOD",
+      "previous_status": "LIMIT_CONFIRMED",
+      "status": "PASS_SOURCE_FIX",
+      "red": {
+        "id": "spoofed",
+        "original_exception_preserved": true,
+        "original_context_unchanged": true,
+        "exception_type": "ValueError",
+        "checkpoint_count": 1,
+        "phase": "PUBLIC_SYNTHETIC_PRIVATE_PHASE",
+        "marker_absent": false,
+        "exact_builtin_phase": false,
+        "replacement_context_is_original": false
+      },
+      "green": {
+        "id": "spoofed",
+        "original_exception_preserved": true,
+        "original_context_unchanged": true,
+        "exception_type": "ValueError",
+        "checkpoint_count": 1,
+        "phase": "gateway.ready",
+        "marker_absent": true,
+        "exact_builtin_phase": true,
+        "replacement_context_is_original": false
+      },
+      "extra_no_comparison_str_subclass": "PASS: hash/eq hooks raise if invoked; neither invoked"
+    },
+    {
+      "id": "S13_STOCK_TRACE_METHOD_REACHABILITY",
+      "previous_status": "NOT_PROVEN",
+      "status": "RESOLVED_STATIC_NOT_NATIVE",
+      "producer": "NativePeer.handshake at runtime_protocol.py:441-467 -> NativePeer.call(method)",
+      "global": {
+        "name": "SAFE_UNKNOWN",
+        "line": 15,
+        "ast_type": "Constant",
+        "value": "omnis.inert.probe_unknown",
+        "value_exact_type": "str",
+        "global_store_occurrences": 1,
+        "function_parameter_shadow_occurrences": 0
+      },
+      "argument_inventory": [
+        {
+          "line": 453,
+          "argument_ast": "'client.capabilities'",
+          "resolved_value": "client.capabilities",
+          "type": "str",
+          "origin": "exact builtin literal"
+        },
+        {
+          "line": 454,
+          "argument_ast": "'gateway.capabilities'",
+          "resolved_value": "gateway.capabilities",
+          "type": "str",
+          "origin": "exact builtin literal"
+        },
+        {
+          "line": 461,
+          "argument_ast": "SAFE_UNKNOWN",
+          "resolved_value": "omnis.inert.probe_unknown",
+          "type": "str",
+          "origin": "top-level SAFE_UNKNOWN Constant at line 15"
+        }
+      ],
+      "method_parameter": {
+        "call_start_line": 387,
+        "call_end_line": 439,
+        "store_delete_occurrences": 0
+      },
+      "comparison": "Compared actual resolved built-in values as an exact set of three with an independent call-site count. Calls ordered by source line only for display, not by ast.walk traversal. SAFE_UNKNOWN Name resolved via module-level binding; did not require every argument AST to be Constant.",
+      "native_reachability": "NOT_RUN/NOT_CLAIMED"
+    }
+  ],
+  "focused_verification": {
+    "channel": "functions.execute_code inline stdlib SOURCE controls; sys.dont_write_bytecode=True before imports; source/module AST compiled without rewriting its function bodies. No test/dependency module import.",
+    "red_baseline": "In-memory exact inverse of only phase helper/regression/caller fix; SHA256 matches original reviewed ee650a bytes. Repo untouched.",
+    "red_control_count": 4,
+    "green_control_count": 4,
+    "valid_positive_red": {
+      "id": "public_positive",
+      "original_exception_preserved": true,
+      "original_context_unchanged": true,
+      "exception_type": "ValueError",
+      "checkpoint_count": 1,
+      "phase": "client.capabilities",
+      "marker_absent": true,
+      "exact_builtin_phase": true,
+      "replacement_context_is_original": false
+    },
+    "valid_positive_green": {
+      "id": "public_positive",
+      "original_exception_preserved": true,
+      "original_context_unchanged": true,
+      "exception_type": "ValueError",
+      "checkpoint_count": 1,
+      "phase": "client.capabilities",
+      "marker_absent": true,
+      "exact_builtin_phase": true,
+      "replacement_context_is_original": false
+    },
+    "all_four_green_original_exception_preserved": true,
+    "all_four_green_checkpoint_count_one": true,
+    "all_four_green_marker_absent": true,
+    "permanent_regression": {
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [
+        307,
+        325
+      ],
+      "status": "PASS_SOURCE_ACTUAL_TEST_FUNCTION_AST",
+      "valid_public_values": 3,
+      "invalid_values": 6,
+      "invalid_types": [
+        "None",
+        "bool",
+        "list",
+        "dict",
+        "unknown exact str marker",
+        "SpoofedMethod str subclass"
+      ],
+      "heterogeneous_vector_annotation": "tuple[object, ...]"
+    },
+    "consumer": {
+      "lines": [
+        771,
+        811
+      ],
+      "actual_observer_executed": true,
+      "uses_projected_builtin_str": true,
+      "traceback_matching_uses_original_call_code_identity": true
+    },
+    "unchanged_neighboring_controls": "Exact AST equality with hash-matching predecessor for launch_exception_chain, helper regression, stderr guard/regression and outer try/finally teardown. Original approval retained only within its stated SOURCE/synthetic scope; not re-executed.",
+    "execution_exit_code": 0,
+    "git_diff_check_exit_code": 0,
+    "parent_checks_read_not_rerun": {
+      "source_pytest_passed": 3,
+      "deselected": 7,
+      "seconds": 0.48,
+      "exit_code": 0,
+      "ruff_check_format_exit_code": 0,
+      "mypy_files": 1,
+      "mypy_exit_code": 0,
+      "binding": "Read actual parent checkpoint asserting current exact aab18f hash; reviewer independently executes focused AST controls, not pytest/Ruff/mypy."
+    },
+    "doubles": [
+      "original_handshake and original_call exception peers",
+      "peer.ready done/cancelled object",
+      "host state/deadline SimpleNamespace",
+      "in-memory checkpoint collector",
+      "NativePeer annotation name bound to object"
+    ],
+    "real_native_pg_runs": 0,
+    "real_resource_cleanup_runs": 0,
+    "new_runner_files": 0
+  },
+  "counts": {
+    "original_controls": 13,
+    "unchanged_controls_retained_not_rerun": 10,
+    "affected_controls_resolved": 3,
+    "old_concrete_findings_closed_source_scoped": 2,
+    "new_blocking_findings": 0,
+    "new_nonblocking_findings": 0
+  },
+  "original_qa_disposition": {
+    "id": "QA-PARTIAL-RETURN-EXECUTION-01",
+    "status": "REMAINS_BLOCKED",
+    "original_result": "1 FAIL / 20.86s / RuntimeUnavailable before stage/read/PURE; cause UNKNOWN",
+    "basis": "Original report and current repository/parent evidence; not rerun.",
+    "old_diagnostic_positive": "34.10s on d38b55 before parent corrections is diagnostic-only, not a repair GREEN or approval transferable to current failing branch.",
+    "canonical_final": "NOT_RUN",
+    "B06b_G02_P2": "NOT_CLOSED"
+  },
+  "limits": [
+    "Original independent QA remains NOT_PASS/BLOCKED: 1 FAIL / 20.86s, RuntimeUnavailable before stage, cause UNKNOWN (provided context, not rerun).",
+    "Old native positive 34.10s on d38b55 is not transferred to current ee650a failure branch.",
+    "No product closure, no native/PG or blanket suite; no accounts/models/targets/profiles/global changes; no child polling.",
+    "SOURCE seam uses synthetic original_handshake/original_call/checkpoint and context-manager stubs, not real native resource cleanup or filesystem checkpoint durability.",
+    "Original errors intentionally re-raise. Added checkpoint sanitization does not certify default pytest traceback rendering or --showlocals/--showargs against arbitrary private exceptions.",
+    "Helper walks __context__, not an independently distinct __cause__. No bound asserted for traceback depth or hostile metaclass/custom attribute access.",
+    "host_state comes from trusted host source state, not remote payload; no arbitrary replaced-host-state sanitizer claim.",
+    "Reticle NOT_APPLICABLE, Chisel BLOCKED_NO_GO. No status-map/skill edits under the delegated no-edit boundary.",
+    "Approval applies to exact aab18f test bytes and 8ef80a protocol inventory with HEAD e401548, not HEAD alone; modified test is uncommitted parent-owned work.",
+    "Focused synthetic exception-peer SOURCE execution is non-native. No PG, whole 257 suite, installed runtime, actual native failing-path checkpoint/durability or real cleanup tested.",
+    "Static source argument inventory is now complete for NativePeer.handshake, not a universal remote/native reachability proof or protection against malicious mutation of module globals.",
+    "Neighboring helper/private-args/cleanup controls preserved from original review; no broadened __cause__, traceback-depth, hostile metaclass, host-state, pytest traceback or arbitrary object guarantee.",
+    "Other parent-owned untracked review reports appeared during review; test/protocol hashes and HEAD remained unchanged. None were altered or credited.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No skills/status-map/HTML/profile/global edits or commits under delegated read-only boundary."
+  ],
+  "issues_encountered": [
+    {
+      "status": "NONBLOCKING_TOOL_DISCOVERY_FAILURE",
+      "tool": "search_files",
+      "scope": "scratch filename inventory",
+      "detail": "bounded traversal failed; required original report was already read directly and exact predecessor reconstructed with matching SHA, so review did not depend on this inventory."
+    },
+    {
+      "status": "OUTPUT_TRUNCATION_ONLY",
+      "detail": "Initial broad source output truncated by transport; subsequent focused extraction executed complete current source AST. No result fabricated."
+    }
+  ],
+  "proposed_parent_status_delta": "F01/F02 CLOSED_SOURCE_SCOPED; S13 RESOLVED_STATIC_NOT_NATIVE; diagnostic-only re-review APPROVED_SCOPED. Preserve original independent QA blocker/cause UNKNOWN and canonical/native limits. Parent owns adjudication, persistence and commit.",
+  "procedural_lesson_for_parent": "Resolve AST Name arguments through actual producer global/lexical bindings, compare actual values and independent call count rather than AST walk order or Constant-only arguments. No skill edits permitted here.",
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-rereview.json"
+  ],
+  "repository_files_modified": [],
+  "commits_created": []
+}

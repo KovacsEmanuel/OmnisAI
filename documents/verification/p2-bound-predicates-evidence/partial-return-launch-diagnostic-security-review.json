@@ -1,0 +1,171 @@
+{
+  "schema": "omnis-focused-source-security-review-v1",
+  "verdict": "NOT_PASS_BLOCKED_SOURCE_REACHABILITY",
+  "scope": "Only current test delta, existing stock producer inputs and added checkpoint output; not unconditional arbitrary-Python-object sanitization or native/runtime acceptance.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "e401548ac5116761322d0983ba4d7031ba60cedd",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "ee650aad0d501265d4832b5ad2e02993ee0b74f854acabfb119e9a72ffae8b6c",
+    "verified_before_and_after": true
+  },
+  "acceptance": {
+    "bounded_fixed_exception_allowlist": "PASS_SOURCE: maximum four rows on cyclic/31-node context chains; exact built-in string reason filter; eight type tags/eight public reasons (64 combinations). Unknown types/private markers/malformed args collapse to fixed tags.",
+    "no_repr_str": "PASS_SOURCE on tested args and exception classes, including throwing __str__/__repr__; opaque payloads and hostile str-subclass exception args are not rendered, hashed or compared.",
+    "no_raw_dsn_payload_capability_traceback_in_checkpoint": "PASS_SOURCE for actual producer string methods; private synthetic locals do not appear in the fixed-field output. F02 is a confirmed out-of-producer-input limitation, not a universal safe-input claim.",
+    "exception_and_closure_effects": "PASS_SOURCE for supported scalar methods and CancelledError/KeyboardInterrupt/SystemExit: original exception identity and context preserved, synthetic host __aexit__ and outer finally run. Actual outer cleanup finally AST is unchanged from HEAD. Real native cleanup NOT_RUN.",
+    "success_result": "PASS_SOURCE: unchanged handshake return by identity, ready_timeout forwarded, result payload/capability not copied into diagnostic."
+  },
+  "controls": [
+    {
+      "id": "S01_FIXED_PUBLIC_ALLOWLIST",
+      "status": "PASS",
+      "combinations": 64
+    },
+    {
+      "id": "S02_ARGS_TYPES_NO_STR_REPR",
+      "status": "PASS",
+      "vectors": 14
+    },
+    {
+      "id": "S03_UNKNOWN_TYPES_NO_STR_REPR",
+      "status": "PASS",
+      "vectors": 12
+    },
+    {
+      "id": "S04_FOUR_ROW_CYCLE_CONTEXT_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "id": "S05_LONG_CONTEXT_BOUND",
+      "status": "PASS",
+      "input_nodes": 31,
+      "output_rows": 4
+    },
+    {
+      "id": "S06_OBSERVER_FIELDS_REASONS_NO_PRIVATE_LOCALS",
+      "status": "PASS",
+      "vectors": 8
+    },
+    {
+      "id": "S07_BASEEXCEPTION_AND_SYNTHETIC_UNWIND",
+      "status": "PASS",
+      "vectors": 3,
+      "limit": "No native cleanup execution"
+    },
+    {
+      "id": "S08_SUCCESS_IDENTITY_NO_PAYLOAD_COPY",
+      "status": "PASS"
+    },
+    {
+      "id": "S09_NONMATCHING_CODE_FRAME_REFUSED",
+      "status": "PASS"
+    },
+    {
+      "id": "S10_UNHASHABLE_TRACE_METHOD",
+      "status": "LIMIT_CONFIRMED",
+      "vectors": 3,
+      "effect": "TypeError replaces original; no launch_diagnostic checkpoint"
+    },
+    {
+      "id": "S11_SPOOFED_TRACE_METHOD",
+      "status": "LIMIT_CONFIRMED",
+      "effect": "Synthetic marker copied into phase through str-subclass equality/hash"
+    },
+    {
+      "id": "S12_OUTER_FINALLY_AST_IDENTICAL_TO_HEAD",
+      "status": "PASS"
+    },
+    {
+      "id": "S13_STOCK_TRACE_METHOD_REACHABILITY",
+      "status": "NOT_PROVEN",
+      "methods": [
+        "client.capabilities",
+        "gateway.capabilities"
+      ],
+      "unresolved_arguments": [
+        "SAFE_UNKNOWN"
+      ],
+      "argument_ast": [
+        "'client.capabilities'",
+        "'gateway.capabilities'",
+        "SAFE_UNKNOWN"
+      ],
+      "protocol_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+      "reachability": "Static reachability not fully resolved."
+    }
+  ],
+  "counts": {
+    "total": 13,
+    "pass": 10,
+    "confirmed_out_of_scope_limits": 2,
+    "blocking_findings": 1,
+    "nonblocking_findings": 2
+  },
+  "findings": [
+    {
+      "id": "P2-DIAG-SEC-F01",
+      "severity": "LOW",
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "751-757",
+      "title": "Unhashable traceback method masks the original error",
+      "status": "REACHABILITY_UNRESOLVED",
+      "concrete_reproducer": "Compile the unchanged observed_handshake AST in a stdlib namespace. Supply original_handshake that awaits original_call(method); original_call raises ValueError('Runtime refused'). Set method=[] or {}. Since original_call.__code__ matches the traceback frame, method-in-set raises TypeError, with the original ValueError as __context__; checkpoint is never called.",
+      "observed": "S10 reproduced three list/dict vectors. No raw marker was printed.",
+      "reachability": "No reachable native/remote path demonstrated. Stock source producer proof recorded in S13.",
+      "remedy": "Optional test-only hardening: type(method) is str before membership; otherwise retain gateway.ready."
+    },
+    {
+      "id": "P2-DIAG-SEC-F02",
+      "severity": "LOW",
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "752-757",
+      "title": "A hostile str subclass can defeat phase membership projection",
+      "status": "REACHABILITY_UNRESOLVED",
+      "concrete_reproducer": "In the same matching SOURCE call frame use class SpoofedMethod(str) with __hash__ returning hash('client.capabilities') and __eq__ returning other == 'client.capabilities'; instantiate it with PUBLIC_SYNTHETIC_PRIVATE_PAYLOAD. Raise ValueError('Runtime refused'). The serialized checkpoint phase contains the public synthetic marker because phase is assigned the inspected object rather than a trusted literal.",
+      "observed": "S11 reproduced marker inclusion in memory; no genuine secret was read, printed, or written.",
+      "reachability": "Requires hostile replacement of trusted Python source input. Ordinary stock literals and JSON exact strings do not construct this object. S13 carries the actual producer proof.",
+      "remedy": "Optional test-only hardening: exact-str guard plus trusted literal projection."
+    }
+  ],
+  "execution": {
+    "successful_channel": "functions.execute_code: exact helper/observer AST extracted without rewriting; stdlib-only SOURCE controls, sys.dont_write_bytecode=True before imports. All helper/observer assertions completed; producer proof resolves literal arguments or literal-loop bindings rather than assuming AST order.",
+    "dependency_imports": false,
+    "test_module_imports": false,
+    "native_pg_runs": 0,
+    "environment_reads_by_controls": false,
+    "new_runner_files": 0,
+    "failed_attempts": [
+      {
+        "channel": "python3 -I -B -c inline SOURCE controls",
+        "exit_code": 1,
+        "cause": "Reviewer static reachability assertion wrongly required literal call args only; helper/observer controls completed before this assertion."
+      },
+      {
+        "channel": "python3 -I -B -c inline SOURCE controls",
+        "exit_code": 1,
+        "cause": "Reviewer static reachability assertion assumed ast.walk encounter order and an incomplete exact call inventory; helper/observer controls completed before this assertion."
+      },
+      {
+        "channel": "functions.execute_code inline SOURCE controls",
+        "exit_code": 1,
+        "cause": "Reviewer exact argument inventory assertion remained too narrow. Final report derives all actual call values/bindings from unchanged stock AST. No additional helper/observer rerun performed."
+      }
+    ]
+  },
+  "limits": [
+    "Original independent QA remains NOT_PASS/BLOCKED: 1 FAIL / 20.86s, RuntimeUnavailable before stage, cause UNKNOWN (provided context, not rerun).",
+    "Old native positive 34.10s on d38b55 is not transferred to current ee650a failure branch.",
+    "No product closure, no native/PG or blanket suite; no accounts/models/targets/profiles/global changes; no child polling.",
+    "SOURCE seam uses synthetic original_handshake/original_call/checkpoint and context-manager stubs, not real native resource cleanup or filesystem checkpoint durability.",
+    "Original errors intentionally re-raise. Added checkpoint sanitization does not certify default pytest traceback rendering or --showlocals/--showargs against arbitrary private exceptions.",
+    "Helper walks __context__, not an independently distinct __cause__. No bound asserted for traceback depth or hostile metaclass/custom attribute access.",
+    "host_state comes from trusted host source state, not remote payload; no arbitrary replaced-host-state sanitizer claim.",
+    "Reticle NOT_APPLICABLE, Chisel BLOCKED_NO_GO. No status-map/skill edits under the delegated no-edit boundary."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-review.json"
+  ],
+  "repository_files_modified": [],
+  "commits_created": []
+}

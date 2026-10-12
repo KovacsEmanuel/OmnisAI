@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "scope": "TEST_ONLY_NARROW_DIAGNOSTIC; NOT_PRODUCT_REPAIR",
+  "base_product": "c8e84a8ca7d6af1e2e80d35e471973ec5c659735",
+  "diagnostic_child_test_sha256": "d38b55aaf39a9a1c1e7c593729fe2ff9e05d14a4576fdfe5441c6154cab43b28",
+  "current_test_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+  "parent_corrections": [
+    "Reproduced strict mypy no-untyped-def; use actual NativePeer alias/signature, no casts or ignored errors",
+    "RED launch_exception_chain absent -> bounded fixed tags/helper GREEN; never str/repr private error, cycle capped4",
+    "SOURCE F01 list/dict masked original error and F02 str-subclass marker entered phase; RED observer controls -> exact-str finite phase projection + permanent regression -> GREEN",
+    "S13 SAFE_UNKNOWN resolved statically from actual global literal and three handshake call arguments; not native reachability proof",
+    "Strict mypy var-annotated on heterogeneous empty test vectors fixed by explicit tuple[object, ...], no ignores or casts"
+  ],
+  "verification": {
+    "red": {
+      "diagnostic_test": {
+        "failed": 1,
+        "deselected": 8,
+        "exit": 1,
+        "reason": "LAUNCH_FAILURE_DIAGNOSTIC_MISSING"
+      },
+      "mypy": {
+        "exit": 1,
+        "reason": "no-untyped-def"
+      }
+    },
+    "green_before_phase_fix": {
+      "source_tests": 2,
+      "deselected": 7,
+      "seconds": 0.43,
+      "exit": 0,
+      "ruff_check_format_exit": 0,
+      "mypy_files": 1,
+      "mypy_exit": 0,
+      "diff_check_exit": 0
+    },
+    "phase_red": {
+      "exit": 1,
+      "valid_positive": "original exception and one checkpoint preserved",
+      "list_and_dict": "TypeError replaced original and zero checkpoints",
+      "spoofed_str": "synthetic marker copied into phase",
+      "reason": "DIAGNOSTIC_PHASE_TYPE_NOT_CONFINED"
+    },
+    "green_final": {
+      "source_tests": 3,
+      "deselected": 7,
+      "seconds": 0.48,
+      "exit": 0,
+      "ruff_check_format_exit": 0,
+      "mypy_files": 1,
+      "mypy_exit": 0,
+      "diff_check_exit": 0,
+      "same_observer_ast_controls": 4,
+      "each_original_exception_preserved": true,
+      "each_checkpoint_count": 1,
+      "each_private_phase_marker_absent": true,
+      "stock_call_literals": ["client.capabilities", "gateway.capabilities", "omnis.inert.probe_unknown"],
+      "stock_source_reachability": "RESOLVED_STATIC_NOT_NATIVE"
+    }
+  },
+  "observer_review": {
+    "disposition": "APPROVED_SCOPED_TEST_ONLY; NOT_PRODUCT_ACCEPTANCE",
+    "source_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+    "normative_report": "partial-return-launch-diagnostic-normative-rereview.json",
+    "normative_sha256": "043a4ddc9d8cf939b66e7189ac3ef712c0fce7752a3e1f404f046375a55bfce2",
+    "security_report": "partial-return-launch-diagnostic-security-rereview.json",
+    "security_sha256": "a08c5cca54fcf52cb9f26832c2db45bb351f14b54a1a716734c7445ae5c85421",
+    "F01_F02": "CLOSED_SOURCE_SCOPED",
+    "S13": "RESOLVED_STATIC_NOT_NATIVE",
+    "QA_PARTIAL_RETURN_EXECUTION_01": "REMAINS_BLOCKED_CAUSE_UNKNOWN"
+  },
+  "diagnostic_native_before_parent_corrections": {
+    "passed": 1,
+    "deselected": 7,
+    "seconds": 34.1,
+    "exit": 0,
+    "family_drained": true,
+    "handshake_elapsed_ms": 3703,
+    "remaining_ms": 792,
+    "boundary": "SOURCE_HOST_NOT_INSTALLED; preparation prerequisite double"
+  },
+  "parent_artifacts_and_cleanup": {
+    "artifact_hashes_verified": 10,
+    "same_daemon": true,
+    "exact_cid_project_network_absent": true,
+    "pg_and_native_endpoints_absent": true,
+    "reader_processes_absent": 4,
+    "data_retained": true
+  },
+  "limits": [
+    "No production remediation: original root cause UNKNOWN",
+    "Subsequent instrumented positive is not a repair GREEN or independent QA",
+    "Parent helper/source annotations changed after native diagnostic; no new native pass transferred to changed failure path",
+    "Actual native failure diagnostic path NOT_RUN; bounded SOURCE helper is separately tested",
+    "QA-PARTIAL-RETURN-EXECUTION-01 remains blocking",
+    "Canonical final NOT_RUN; B06b/G02/P2 not closed; no new account/model/target/r1/global/push"
+  ]
+}

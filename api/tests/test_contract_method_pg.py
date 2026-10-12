@@ -10,6 +10,7 @@ import asyncio
 import importlib
 import json
 import os
+import time
 from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
@@ -223,6 +224,105 @@ def require_empty_stderr(stderr: bytes) -> None:
     """Refuse contradictory diagnostics without pytest rendering private bytes."""
     if stderr:
         raise AssertionError("RESTART_CLI_CONTRADICTORY_DIAGNOSTIC") from None
+
+
+def launch_rpc_phase(value: object) -> str:
+    if type(value) is str and value in {
+        "client.capabilities",
+        "gateway.capabilities",
+        "omnis.inert.probe_unknown",
+    }:
+        return value
+    return "gateway.ready"
+
+
+def launch_exception_chain(error: BaseException) -> list[dict[str, str]]:
+    """Bounded public tags only; never evaluate or retain exception reprs."""
+    exception_types = {
+        "RuntimeUnavailable",
+        "ProtocolError",
+        "RPCError",
+        "TimeoutError",
+        "CancelledError",
+        "ValueError",
+        "IncompleteReadError",
+        "LimitOverrunError",
+    }
+    public_reasons = {
+        "Runtime exchange unavailable",
+        "Runtime refused",
+        "Native RPC deadline",
+        "Native ready deadline",
+        "Native transport unavailable",
+        "Required capabilities missing",
+        "Unexpected unknown probe",
+        "Unknown probe was accepted",
+    }
+    rows: list[dict[str, str]] = []
+    current: BaseException | None = error
+    while current is not None and len(rows) < 4:
+        name = type(current).__name__
+        arguments = current.args
+        reason = arguments[0] if len(arguments) == 1 and type(arguments[0]) is str else ""
+        rows.append(
+            {
+                "type": name if name in exception_types else "OTHER_EXCEPTION",
+                "reason": reason
+                if name in exception_types and reason in public_reasons
+                else "UNCLASSIFIED",
+            }
+        )
+        current = current.__context__
+    return rows
+
+
+def test_launch_failure_diagnostic_preserves_public_context_not_raw_error() -> None:
+    diagnostic = globals().get("launch_exception_chain")
+    assert callable(diagnostic), "LAUNCH_FAILURE_DIAGNOSTIC_MISSING"
+    marker = "PUBLIC_SYNTHETIC_PRIVATE_LAUNCH_ERROR"
+    outer = ValueError("Runtime exchange unavailable")
+    inner = TimeoutError("Native ready deadline")
+    opaque = RuntimeError(marker)
+    outer.__context__ = inner
+    inner.__context__ = opaque
+    opaque.__context__ = outer
+    result = diagnostic(outer)
+    assert result == [
+        {"type": "ValueError", "reason": "Runtime exchange unavailable"},
+        {"type": "TimeoutError", "reason": "Native ready deadline"},
+        {"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"},
+        {"type": "ValueError", "reason": "Runtime exchange unavailable"},
+    ]
+    assert marker not in canonical(result).decode()
+
+    class ValueErrorWithPrivateRepr(ValueError):
+        def __str__(self) -> str:
+            raise AssertionError("PRIVATE_EXCEPTION_REPR_EVALUATED")
+
+    hostile = ValueErrorWithPrivateRepr(marker)
+    assert diagnostic(hostile) == [{"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"}]
+    assert diagnostic(ValueError(marker)) == [{"type": "ValueError", "reason": "UNCLASSIFIED"}]
+
+
+def test_launch_rpc_phase_projects_exact_public_strings_only() -> None:
+    marker = "PUBLIC_SYNTHETIC_PRIVATE_PHASE"
+
+    class SpoofedMethod(str):
+        def __hash__(self) -> int:
+            return hash("client.capabilities")
+
+        def __eq__(self, other: object) -> bool:
+            return other == "client.capabilities"
+
+    for method in (
+        "client.capabilities",
+        "gateway.capabilities",
+        "omnis.inert.probe_unknown",
+    ):
+        assert launch_rpc_phase(method) == method
+    invalid: tuple[object, ...] = (None, True, [], {}, marker, SpoofedMethod(marker))
+    for value in invalid:
+        assert launch_rpc_phase(value) == "gateway.ready"
 
 
 def test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report() -> None:
@@ -660,11 +760,68 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                 return {"records": counts, **dict(inbox_counts)}
 
+            # Failure-only, fixed-field diagnostics at the real handshake seam.
+            # Never retain RPC payloads, capabilities, exception reprs or stderr.
+            from omnis_hermes.runtime_protocol import NativePeer
+
+            original_handshake = NativePeer.handshake
+            original_call = NativePeer.call
+            diagnostic: dict[str, object] = {}
+
+            async def observed_handshake(
+                peer: NativePeer, *, ready_timeout: float | None = None
+            ) -> dict[str, object]:
+                before = time.monotonic_ns()
+                try:
+                    result = await original_handshake(peer, ready_timeout=ready_timeout)
+                except BaseException as error:
+                    phase = "gateway.ready"
+                    cursor = error.__traceback__
+                    while cursor is not None:
+                        if cursor.tb_frame.f_code is original_call.__code__:
+                            method = cursor.tb_frame.f_locals.get("method")
+                            projected = launch_rpc_phase(method)
+                            if projected != "gateway.ready":
+                                phase = projected
+                        cursor = cursor.tb_next
+                    checkpoint(
+                        launch_diagnostic={
+                            "operation": "launch",
+                            "phase": phase,
+                            "elapsed_ms": (time.monotonic_ns() - before) // 1_000_000,
+                            "remaining_ms": (host.deadline_ns - time.monotonic_ns()) // 1_000_000,
+                            "host_state": host.state,
+                            "ready_done": peer.ready.done(),
+                            "ready_cancelled": peer.ready.cancelled(),
+                            "transport_failed": peer.failure is not None,
+                            "exceptions": launch_exception_chain(error),
+                        }
+                    )
+                    raise
+                diagnostic.update(
+                    operation="launch",
+                    phase="handshake_complete",
+                    elapsed_ms=(time.monotonic_ns() - before) // 1_000_000,
+                    remaining_ms=(host.deadline_ns - time.monotonic_ns()) // 1_000_000,
+                    host_state=host.state,
+                    ready_done=peer.ready.done(),
+                    ready_cancelled=peer.ready.cancelled(),
+                    transport_failed=peer.failure is not None,
+                )
+                return result
+
+            monkeypatch.setattr(host_module.NativePeer, "handshake", observed_handshake)
             async with host:
                 await service.heartbeat(supervisor, epoch)
                 await runtime.connect()
-                assert (await runtime.launch_inert(service, supervisor))["state"] == "READY"
+                try:
+                    ready = await runtime.launch_inert(service, supervisor)
+                except BaseException as error:
+                    checkpoint(launch_client_exceptions=launch_exception_chain(error))
+                    raise
+                assert ready["state"] == "READY"
                 await runtime.renew(service, supervisor)
+                checkpoint(launch_diagnostic=diagnostic)
                 owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
                 staged = await owner.handle(
                     NativeTaskCommand.model_validate({**lifecycle, "action": "stage"})

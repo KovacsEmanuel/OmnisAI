@@ -1,0 +1,113 @@
+{
+  "report_id": "p2-partial-return-launch-diagnostic-normative-review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "ONLY the test-only launch diagnostic working-tree delta in api/tests/test_contract_method_pg.py; not product acceptance, not root-cause repair",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "e401548ac5116761322d0983ba4d7031ba60cedd",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "ee650aad0d501265d4832b5ad2e02993ee0b74f854acabfb119e9a72ffae8b6c",
+    "sha256_initial_and_final_equal": true,
+    "requested_sha256_matches": true,
+    "changed_paths_from_head": ["api/tests/test_contract_method_pg.py"],
+    "comparison": "working tree versus HEAD; git diff c8e84a8..HEAD for this file was empty"
+  },
+  "findings_in_reviewed_delta": [],
+  "retained_blockers": [
+    {
+      "id": "QA-PARTIAL-RETURN-EXECUTION-01",
+      "status": "BLOCKER_TO_QA_ACCEPTANCE",
+      "cause": "UNKNOWN",
+      "disposition": "NOT CLOSED. The original independent 1FAIL/20.86s pre-stage RuntimeUnavailable remains. Later diagnostic-run success does not reproduce, explain, repair, or erase that failure.",
+      "verified_sources": [
+        "README.md:3",
+        "documents/verification/implementation-status.md:13,96",
+        "documents/verification/p2-bound-predicates.md:17"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "lines": "api/tests/test_contract_method_pg.py:734-745,783-785",
+      "result": "PASS_SOURCE_SCOPED",
+      "detail": "The typed observer forwards the original peer and unchanged ready_timeout to the captured original handshake exactly once and returns its same object. Actual runtime_host NativePeer import resolves to runtime_protocol.NativePeer; the observer signature matches the actual handshake signature. No replacement success response, retry, prewarm, grant, or deadline assignment was added. Actual peer methods were read, not imported or executed."
+    },
+    {
+      "lines": "api/tests/test_contract_method_pg.py:746-772,789-796",
+      "result": "PASS_SOURCE_SCOPED",
+      "detail": "Handshake and launch exception paths checkpoint bounded diagnostics and bare-raise. Explicit SOURCE controls confirmed exception object identity, including CancelledError, one launch attempt, no renewal after launch failure, and context-manager exit. Successful handshake diagnostics remain in memory until after runtime.renew; a renewal failure emits no success checkpoint."
+    },
+    {
+      "lines": "api/tests/test_contract_method_pg.py:229-296,747-781",
+      "result": "PASS_SOURCE_SCOPED",
+      "detail": "Exception types/reasons and RPC phase tags are fixed allowlists; elapsed/remaining fields are integer observations only. The exact added helper privacy/context/cycle test passed via AST extraction with a canonical-serialization double. Synthetic private markers were redacted and hostile exception string rendering was not evaluated."
+    },
+    {
+      "lines": "api/tests/test_contract_method_pg.py:463-498,795-803,1481-1502",
+      "result": "PASS_STATIC",
+      "detail": "Normalized AST comparison against HEAD confirmed identical owner heartbeat/lease producer, host constructor and launch argv, renew call, all post-checkpoint stage/release logic, and the four outer-finally cleanup statements. Cleanup resource effects were not rerun."
+    }
+  ],
+  "execution": {
+    "read_only_discovery": {
+      "commands": [
+        "git rev-parse HEAD",
+        "sha256sum api/tests/test_contract_method_pg.py",
+        "git diff -- api/tests/test_contract_method_pg.py",
+        "git diff c8e84a8..HEAD -- api/tests/test_contract_method_pg.py"
+      ],
+      "exit_code": 0
+    },
+    "source_controls": {
+      "interpreter_argv_prefix": ["python3", "-I", "-B", "-c"],
+      "command_description": "Inline stdlib-only AST extraction from the exact reviewed file, compiling the exact added helper/test/observed_handshake plus the six launch-through-checkpoint statements under their original async-with host node. Explicit in-memory doubles supply host, service, runtime, peer, original handshake/call, clock and checkpoint; no project module import, fixture execution, network, subprocess launch, or native PG.",
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "cases": [
+        "exact_module_helper_privacy_context_cycle",
+        "success_forwarding_identity_renew_before_checkpoint",
+        "ready_failure_rethrow",
+        "rpc_failure_fixed_phase",
+        "cancelled_failure_rethrow",
+        "launch_client_failure_no_renew",
+        "renew_failure_no_success_checkpoint"
+      ],
+      "same_exception_identity": true,
+      "ready_timeout_forwarded": 4.5,
+      "synthetic_deadline_unchanged": true,
+      "attempts_per_scenario": 1,
+      "scope": "SOURCE WITH EXPLICIT DOUBLES, NOT REAL NATIVE AND NOT A REPRODUCTION OF THE ORIGINAL FAILURE"
+    },
+    "static_invariants": {
+      "passed": 4,
+      "failed": 0,
+      "cases": [
+        "cleanup_finalbody_identical",
+        "heartbeat_lease_producer_identical",
+        "host_constructor_launch_argv_no_prewarm_identical",
+        "renew_and_post_checkpoint_stage_release_body_identical"
+      ]
+    }
+  },
+  "limits": [
+    "No PostgreSQL/native run or blanket rerun was authorized or performed.",
+    "The original unknown launch failure was not reproduced and no root-cause fix was found or claimed.",
+    "Prior diagnostic child evidence was not rerun or credited as evidence on the corrected final observer bytes.",
+    "Source controls use explicit doubles; they do not certify native RPC, real deadlines, lease renewal effects, resource cleanup, installed consumers, or product acceptance.",
+    "Exception forwarding controls assume successful diagnostic checkpoint writes; filesystem/disk-full/checkpoint-error behavior was not exercised. Source controls did not execute the actual file-writing checkpoint.",
+    "Real outer-finally cleanup was checked for AST identity, not executed; synthetic host exit is not real cleanup attestation.",
+    "No full lint, mypy, pytest, canonical gate, documentation rendering, or broad product review was rerun.",
+    "Approval applies only to this SHA256 and this test-only diagnostic delta. It does not transfer old product approvals or close a previous named blocker.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No repository files, status maps, skills, protected HTML, global settings, profiles, r1, model/target resources, or credentials were modified; no commits or git status command. Only this authorized scratch report was created."
+  ],
+  "handoff": {
+    "test_observer_review": "APPROVED_SCOPED",
+    "source_controls": "7 PASS; 4 static invariants PASS; exit 0",
+    "independent_product_qa": "NOT_PASS / BLOCKED, original UNKNOWN cause retained",
+    "canonical": "NOT_RUN",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "next": "Parent adjudicates the snapshot-bound test-observer approval separately from the still-open original launch/handshake/IPC QA blocker; preserve the failed evidence and do not label subsequent success a repair."
+  }
+}

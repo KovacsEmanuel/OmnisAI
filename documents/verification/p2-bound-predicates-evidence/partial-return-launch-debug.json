@@ -1,0 +1,446 @@
+{
+  "acceptance": {
+    "b06b_g02_p2": "PARTIAL_NOT_CLOSED",
+    "canonical": "NOT_RUN in this task",
+    "diagnostic_run_is_independent_qa": false,
+    "independent_qa": "NOT_PASS retained",
+    "product_gate": "BLOCKED until parent reviews exact diagnostic changes and adjudicates genuine independent QA/canonical final bytes"
+  },
+  "artifacts": [
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/p2-partial-return-independent-qa.json",
+      "mode": "0o600",
+      "sha256": "838fdac610512b0a1500e40950bdb61a133df87665884fcc83a5b82efeea2e18"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/db-a829b95b93e84b75/gate.log",
+      "mode": "0o600",
+      "sha256": "24ec7d28cd629e8179917bf8645d56c17729c6906a7f26db75ed09e8239e61a9"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-327/test_contract_method_real_nati0/method-history-proof.json",
+      "mode": "0o600",
+      "sha256": "3a46ce399015c94066ac9034f3717527a61f711859f922a086c24472a4d6e9a4"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-327/test_contract_method_real_nati0/native-observation.jsonl",
+      "mode": "0o600",
+      "sha256": "231004f88afad152b7b7304ba4b9c7345964e6a79b017cb12223d7d4e44a4409"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "mode": "0o664",
+      "sha256": "024ca85e84a0bf276714e88eacaebec81b86c345fa9642f5d5e561914acfd8d9"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-native-diagnostic.log",
+      "mode": "0o600",
+      "sha256": "8291fdeb41d7e260670397b653fe5083deac38e9c5b4ffa5c39cc493863c569b"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-source-control.log",
+      "mode": "0o600",
+      "sha256": "dee7a466b788f8e44f5b65a9d6abe65c53357f71ce411610af3f7b152309f52f"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/db-d9f0bd2de89345cc/gate.log",
+      "mode": "0o600",
+      "sha256": "abe9195416e99a6c61d74fbeb82085d15fde54d689460b0ef8a74fe29a1e41c3"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/db-d9f0bd2de89345cc/gate.log.result.json",
+      "mode": "0o600",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    },
+    {
+      "artifact": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-328/test_contract_method_real_nati0/method-history-proof.json",
+      "mode": "0o600",
+      "sha256": "096fd64c100556519b2b98ac5ddd43030d669d589e1cecbbbbcb0e02b42871ac"
+    }
+  ],
+  "changes": {
+    "negative_failure_diagnostic_branch": "NOT_EXERCISED by this passing native attempt",
+    "no_diagnostic_assertion_operands": true,
+    "production_code_changed": false,
+    "safety_limits_unchanged": {
+      "execution_guard_seconds": 3,
+      "handshake_rpc_timeout_seconds": 0.8,
+      "launch_grant_seconds": 4.5,
+      "lease_seconds": 5,
+      "managed_timeout_seconds": 3.2
+    },
+    "sensitive_exclusions": [
+      "payloads",
+      "DSNs",
+      "capabilities",
+      "runtime.boot content",
+      "raw stderr",
+      "raw traceback"
+    ],
+    "test_change": "Added failure-only wrapper around actual NativePeer.handshake and client-launch exception capture in existing PG/native test. Fixed operation/phase, elapsed/remaining monotonic milliseconds, Host state, ready-future done/cancelled, transport-failure boolean, bounded allowlisted exception types/public reasons. Actual handshake/calls unchanged and re-raised exceptions preserved. Success diagnostics are held in memory until stock launch is immediately renewed; no success checkpoint before renewal.",
+    "upstream_or_pin_changed": false
+  },
+  "cleanup": {
+    "container_http_status": 404,
+    "data_directory_retained": true,
+    "exact_cid_absent": true,
+    "family_receipt": {
+      "code": 0,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "fixture_root_retained": true,
+    "native_boot_file_absent": true,
+    "native_cleanup": "PASS",
+    "native_finalizer_owned_pid_set": [],
+    "native_runtime_socket_absent": true,
+    "pg_lock_absent": true,
+    "pg_socket_absent": true,
+    "project_container_ids": [],
+    "project_network_http_status": 200,
+    "project_network_ids": [],
+    "project_query_http_status": 200,
+    "reader_pids_currently_absent": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "same_daemon": true
+  },
+  "failed_checkpoint_retained": {
+    "code": 1,
+    "family_drained": true,
+    "gate_log": "/home/kali/.hermes/cache/scratch/db-a829b95b93e84b75/gate.log",
+    "gate_log_sha256": "24ec7d28cd629e8179917bf8645d56c17729c6906a7f26db75ed09e8239e61a9",
+    "native_exit": -15,
+    "native_observation": "ONLY observer READY; no bootstrap exception event; no stage/read/PURE/restart readers",
+    "old_unknown_failures_across_sessions": "Unresolved and not reset, explained or overwritten by this fresh PASS",
+    "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-327/test_contract_method_real_nati0/method-history-proof.json",
+    "proof_sha256": "3a46ce399015c94066ac9034f3717527a61f711859f922a086c24472a4d6e9a4",
+    "report": "/home/kali/.hermes/cache/scratch/p2-partial-return-independent-qa.json",
+    "sha256": "838fdac610512b0a1500e40950bdb61a133df87665884fcc83a5b82efeea2e18",
+    "summary": "1 failed, 7 deselected in 20.86s",
+    "verdict": "NOT_PASS_REAL_CONSUMER_QA"
+  },
+  "fixture": {
+    "container_id": "1ae1362d5174e394ada34a23688d6d9427a8c09cc9d13a9445cb38eda950ebb9",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "project": "omnis-p01-a43872e740034e67b9eb710d7f750777",
+    "root": "/home/kali/.hermes/cache/scratch/db-d9f0bd2de89345cc"
+  },
+  "hypotheses": [
+    {
+      "disposition": "UNCONFIRMED_ORIGINAL; fresh handshake completed in 3703ms with 792ms remaining; no limit increase, prewarm, import/cache ahead of launch or speculative fix",
+      "hypothesis": "Native cold bootstrap/gateway.ready or total launch exceeded the existing absolute grant",
+      "id": "H1",
+      "prediction": "Failure diagnostic shows launch/gateway.ready with ready_done=false and exhausted remaining grant; total deadline may instead cancel after ready",
+      "static_evidence": "Host bounds entire handshake by actual remaining grant; observer READY precedes gateway module imports. SIGTERM follows any Host launch error, so existing native_exit=-15 is compatible but not proof."
+    },
+    {
+      "disposition": "UNCONFIRMED_ORIGINAL; fresh complete handshake returned successfully without transport failure; old refusal cannot be ruled out",
+      "hypothesis": "Ready/inventory/transport/capability validation or one of the 0.8s handshake RPCs refused/timed out",
+      "id": "H2",
+      "prediction": "Failure diagnostic shows specific fixed RPC phase or transport_failed/ready_done plus sanitized exception context",
+      "static_evidence": "Handshake waits gateway.ready then client.capabilities, gateway.capabilities and safe unknown; errors normalize through Host refusal and RuntimeClient catch. Raw stderr deliberately discarded."
+    }
+  ],
+  "issues": [
+    {
+      "details": "Static sanitized artifact probe printed the intended allowlisted fields but exited1 on sorted(list_of_dicts); no sensitive raw log was printed and no external write occurred. Corrected by inspecting field schemas, not replaying product effects.",
+      "kind": "read_only_probe_error"
+    }
+  ],
+  "native_pin_static_attestation": {
+    "actual_native_consumer": "existing BOOTSTRAP routes managed/inert overlays over extracted pinned source then stock tui_gateway.entry; actual entry/server/run_agent base source hashes match corresponding original_sha256 in current committed manifests",
+    "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "checked_base_files": [
+      {
+        "pinned_source_file": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/tui_gateway/entry.py",
+        "sha256": "3384bc81c0bbcafdf9f2b9cb52405c6294efb74542a7728cf0590c5e136e3313"
+      },
+      {
+        "pinned_source_file": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/tui_gateway/server.py",
+        "sha256": "164ad8a1b43671c2a47829502f9a40f4355fc8060f2f6c2506b8aec44f1c0a51"
+      },
+      {
+        "pinned_source_file": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/run_agent.py",
+        "sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33"
+      }
+    ],
+    "git_metadata": "PIN directory is extracted source, not a Git repository; git rev-parse exited128, not provenance proof"
+  },
+  "not_run": [
+    "hypothesis-specific failing RED",
+    "production root-cause remediation",
+    "negative failure diagnostic branch",
+    "new independent real-consumer QA",
+    "full green pair/full 257 source/canonical",
+    "installed OCI path",
+    "provider/model/target traffic"
+  ],
+  "parent_next_step": "Review frozen one-test diagnostic delta and preserved NOT_PASS; do not claim original cause closed from this success. Parent owns documentation/adjudication/commit and canonical acceptance. Any further native attempt or product/pin expansion requires an explicit bounded decision.",
+  "procedural_lesson_for_parent": "Keep sanitized Host handshake exceptions before stop mutates ready/transport state; pair with client __context__ types without retaining wire payloads or raw stderr. A later cold positive does not diagnose an old pre-stage SIGTERM. Existing skill instructions already prohibit speculative attribution; no skill/profile paths changed under this child file allowlist.",
+  "root_cause": {
+    "confirmed_cause": null,
+    "original_failure_explained": false,
+    "reason": "Original private --tb=line log lost the underlying Host/peer reason. RuntimeClient catches ValueError including its own RuntimeUnavailable and suppresses display of __context__; host failure invokes stop, so native_exit=-15 plus only observer READY does not identify timeout versus refusal. The single instrumented fresh attempt passed; no root-cause fix is justified.",
+    "status": "UNKNOWN"
+  },
+  "schema_version": 1,
+  "snapshot": {
+    "base_head": "c8e84a8ca7d6af1e2e80d35e471973ec5c659735",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "head_at_handoff": "e401548ac5116761322d0983ba4d7031ba60cedd",
+    "parent_documentary_commit": "e401548: docs(p2): preserve independent partial-return QA blocker; source baseline remains c8e84a8",
+    "parent_confirmation_original_fixture_retired": "Exact original CID/project/networks/native and PG endpoints absent on same daemon; data retained. This confirmation does not diagnose the original failure.",
+    "code_frozen_after_ruff_before_diagnostic_run": true,
+    "commits_made": 0,
+    "owned_diff_sha256": "5dced37117d1cf8bfa9c2668a6a34ed0f56bbb4a73f153515547930546a14451",
+    "owned_modified_paths": [
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "parent_documentation_changes_not_owned_or_modified": true,
+    "preexisting_untracked_not_modified": "documents/Omnis_Notite_Originale.html",
+    "reviewed_17_inventory": {
+      "changed_paths": [
+        "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py"
+      ],
+      "inventory": [
+        {
+          "current_sha256": "533f6dcd3db9e68fdda2cd7586096cf404373e31e14d9e117cd4051e4af5f15d",
+          "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/managed_admission.py",
+          "reviewed_sha256": "533f6dcd3db9e68fdda2cd7586096cf404373e31e14d9e117cd4051e4af5f15d",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+          "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/criterion_checks.py",
+          "reviewed_sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "859bb6b6a8e3c0327bd11cf7c87cfbeb61b501ab4d5e4fcc5dcd78f7910acbd9",
+          "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_contract.py",
+          "reviewed_sha256": "859bb6b6a8e3c0327bd11cf7c87cfbeb61b501ab4d5e4fcc5dcd78f7910acbd9",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "4b73815b6951d9fb79b2ad23f0555f187191010306bfdf473fb8600f28f193cd",
+          "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checker_identity.py",
+          "reviewed_sha256": "4b73815b6951d9fb79b2ad23f0555f187191010306bfdf473fb8600f28f193cd",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "e417e48f0f7bc6b0d04e453994c4f106213f68ec5ae18ad941c68a4b46327138",
+          "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checks.py",
+          "reviewed_sha256": "e417e48f0f7bc6b0d04e453994c4f106213f68ec5ae18ad941c68a4b46327138",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "ac3f634e87720727ed9c573c294a1bbe4806b5d7e170e09613e2cc2a0ffc3697",
+          "path": "/home/kali/OmnisAI/api/tests/test_c10_bound_predicates.py",
+          "reviewed_sha256": "ac3f634e87720727ed9c573c294a1bbe4806b5d7e170e09613e2cc2a0ffc3697",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "63c5c11cc2e73e7c045a779a7438f4807a3e8190b9e70797f46e77e276a6b6cb",
+          "path": "/home/kali/OmnisAI/api/tests/test_contract_method_checks.py",
+          "reviewed_sha256": "63c5c11cc2e73e7c045a779a7438f4807a3e8190b9e70797f46e77e276a6b6cb",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "d38b55aaf39a9a1c1e7c593729fe2ff9e05d14a4576fdfe5441c6154cab43b28",
+          "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+          "reviewed_sha256": "81c11b313d7eebb843dfce53abe11b6d6feed5deba08e4fbc5891313034faf71",
+          "unchanged_from_reviewed": false
+        },
+        {
+          "current_sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+          "path": "/home/kali/OmnisAI/api/tests/test_contract_method_producer.py",
+          "reviewed_sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+          "path": "/home/kali/OmnisAI/integrations/hermes/pin.json",
+          "reviewed_sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "da5e19d6222d8e74213b0e05afd45b2dc1207674e73c36d40e138782ae9e66fa",
+          "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/contract_method.py",
+          "reviewed_sha256": "da5e19d6222d8e74213b0e05afd45b2dc1207674e73c36d40e138782ae9e66fa",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "0a332d5a814567e30e30582a0ae82334092599d740b82155f355dc340d2f4770",
+          "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+          "reviewed_sha256": "0a332d5a814567e30e30582a0ae82334092599d740b82155f355dc340d2f4770",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+          "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/runtime_host.py",
+          "reviewed_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+          "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-patch-manifest.json",
+          "reviewed_sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+          "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+          "reviewed_sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+          "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+          "reviewed_sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+          "unchanged_from_reviewed": true
+        },
+        {
+          "current_sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+          "path": "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch",
+          "reviewed_sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+          "unchanged_from_reviewed": true
+        }
+      ],
+      "unchanged_count": 16
+    }
+  },
+  "tight_loop": {
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py red",
+    "determinism": "Original symptom not reproduced in the one instrumented fresh run; not a deterministic failing reproducer",
+    "existing_owner": "prove_private_fixture -> run_gate timeout_seconds=240",
+    "native_attempt_count": 1,
+    "red_green": {
+      "green": "Single diagnostic positive only; NOT a repair GREEN",
+      "red": "Original independent QA failure preserved; not a newly observed hypothesis-specific RED",
+      "status": "NOT_RUN_CAUSE_NOT_CONFIRMED"
+    },
+    "red_means": "CASE qualified-early-return, NOT an expected failure",
+    "repair_hypothesis_count": 0,
+    "repeat_after_success": false
+  },
+  "unchanged_launch_seam_source_hashes": [
+    {
+      "base_sha256": "81c11b313d7eebb843dfce53abe11b6d6feed5deba08e4fbc5891313034faf71",
+      "current_sha256": "d38b55aaf39a9a1c1e7c593729fe2ff9e05d14a4576fdfe5441c6154cab43b28",
+      "path": "api/tests/test_contract_method_pg.py",
+      "unchanged": false
+    },
+    {
+      "base_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+      "current_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "current_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+      "current_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "2c4c700f10431839c0a92559c73120aefb24149338a13ff9ed3b776f3e8199e1",
+      "current_sha256": "2c4c700f10431839c0a92559c73120aefb24149338a13ff9ed3b776f3e8199e1",
+      "path": "integrations/hermes/tests/test_startup_budget.py",
+      "unchanged": true
+    }
+  ],
+  "verdict": "BLOCKED_ORIGINAL_CAUSE_UNKNOWN_NARROW_DIAGNOSTIC_PASS",
+  "verification": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_startup_budget.py\",\"-q\",\"--tb=line\"]))'",
+      "exit_code": 0,
+      "kind": "accepted_source_startup_control",
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-source-control.log",
+      "scope": "Synthetic existing slow_ready peer only, not native bootstrap; proves installed stock RuntimeClient waits >2s within actual absolute grant",
+      "summary": "1 passed in 2.64s"
+    },
+    {
+      "commands": [
+        "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+        "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py",
+        "git diff --check"
+      ],
+      "exit_code": 0,
+      "kind": "test_format_lint",
+      "result": "1 file reformatted; All checks passed; diff check clean"
+    },
+    {
+      "command": "umask 077; PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py red",
+      "exit_code": 0,
+      "gate_log": "/home/kali/.hermes/cache/scratch/db-d9f0bd2de89345cc/gate.log",
+      "kind": "single_fresh_native_diagnostic",
+      "observations": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-328/test_contract_method_real_nati0/native-observation.jsonl",
+      "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-328/test_contract_method_real_nati0/method-history-proof.json",
+      "proof_allowlist": {
+        "bound_predicate_persistent_check": "INCOMPLETE",
+        "execution_attempts": [],
+        "forbidden_native_attempts": 0,
+        "launch_diagnostic": {
+          "elapsed_ms": 3703,
+          "host_state": "STARTING",
+          "operation": "launch",
+          "phase": "handshake_complete",
+          "ready_cancelled": false,
+          "ready_done": true,
+          "remaining_ms": 792,
+          "transport_failed": false
+        },
+        "native_exit": -9,
+        "native_handlers": 1,
+        "native_reads": 1,
+        "native_run_contract": 1,
+        "no_oracle_no_pass": "PASS",
+        "post_stop_duplicate": "PASS",
+        "raw_partial_persisted_before_method_check": "PASS",
+        "restart_processes": [
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2002331
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2002356
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2002380
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2002401
+          }
+        ],
+        "restart_reconcile": "PASS",
+        "status": "PASS_SOURCE_NOT_INSTALLED"
+      },
+      "receipt": "/home/kali/.hermes/cache/scratch/db-d9f0bd2de89345cc/gate.log.result.json",
+      "scope": "SOURCE_HOST_NOT_INSTALLED, real pinned native peer/host/client/InstanceService/PG; document-preparation qualification prerequisite remains explicit existing double. Genuine partial persists before MethodCheck, INCOMPLETE/nonfunctional PASS, one read/one PURE, four restarted CLI readers, post-Stop duplicate with no reexecution.",
+      "summary": "1 passed, 7 deselected in 34.10s",
+      "wrapper_log": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-native-diagnostic.log"
+    }
+  ]
+}

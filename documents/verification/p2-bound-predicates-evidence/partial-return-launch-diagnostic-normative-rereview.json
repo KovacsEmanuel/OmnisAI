@@ -1,0 +1,183 @@
+{
+  "schema": "omnis-focused-normative-rereview-v1",
+  "report_id": "p2-partial-return-launch-diagnostic-normative-rereview",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Only the hardened launch_rpc_phase projection, its matching original_call traceback caller, and the added typed regression in api/tests/test_contract_method_pg.py, plus a separately adjudicated runtime-skill documentation supplement. No application or product acceptance.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "e401548ac5116761322d0983ba4d7031ba60cedd",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "test_file": "api/tests/test_contract_method_pg.py",
+    "test_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+    "test_git_blob": "e735fec76b279e88aade2f2c3c1ed0c777e89bec",
+    "previous_reviewed_test_sha256": "ee650aad0d501265d4832b5ad2e02993ee0b74f854acabfb119e9a72ffae8b6c",
+    "skill_file": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+    "skill_sha256": "800dcd7f001f51d773a80d7c9ec969d435be181f218f344f7512585d37e2ae1a",
+    "protocol_file": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+    "protocol_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "requested_hashes_match": true,
+    "reviewed_hashes_initial_and_final_equal": true,
+    "working_tree_uncommitted": true,
+    "concurrent_unrelated_change": "The final git status additionally showed the parent's untracked copies of the original normative and security reports in documents/verification/p2-bound-predicates-evidence/. No reviewed file hash changed and no shared file was edited by this reviewer."
+  },
+  "findings_in_reviewed_delta": [],
+  "acceptance": [
+    {
+      "requirement": "Only exact public built-in strings may become the RPC phase; everything else defaults to gateway.ready.",
+      "code": "api/tests/test_contract_method_pg.py:229-236",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "The exact-str check precedes set membership. All three allowed strings retain their value; None, bool, list, dict, an unknown exact string and a spoofed str subclass take the fixed default. This avoids both unhashable membership TypeError and adversarial subclass equality/hash leakage."
+    },
+    {
+      "requirement": "The observer must project only the captured original_call frame's method without changing its exception or native operation.",
+      "code": "api/tests/test_contract_method_pg.py:771-811,780-786",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "The existing code-object identity guard remains. The only caller change invokes launch_rpc_phase and retains gateway.ready for unsupported values. Four controls compiled from the unchanged observer AST each forwarded ready_timeout=4.5, invoked original_handshake/original_call once, checkpointed once, and re-raised the same exception object without a synthetic private marker."
+    },
+    {
+      "requirement": "A typed regression covers supported strings and malformed/spoofed methods without weakening the observer.",
+      "code": "api/tests/test_contract_method_pg.py:307-325",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "The exact added test was AST-extracted and executed without importing the project or running its fixture: three public positives and six invalid vectors passed. Additional matching-frame controls verified the actual observer caller rather than only the helper."
+    },
+    {
+      "requirement": "Preserve previously approved behavior only where its bytes and scope are unchanged.",
+      "code": "api/tests/test_contract_method_pg.py; prior normative report",
+      "status": "PASS_EXACT_SNAPSHOT_COMPARISON",
+      "evidence": "Removing exactly the new helper and regression and restoring exactly the old membership block reconstructed the full prior file SHA256 ee650aad0d501265d4832b5ad2e02993ee0b74f854acabfb119e9a72ffae8b6c. Thus all other bytes, including launch exception serialization, forwarding, launch/renew ordering, owner/lease/deadline/argv/stage/release and cleanup, are identical to the previously reviewed snapshot."
+    }
+  ],
+  "prior_review_dispositions": [
+    {
+      "source_report": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-normative-review.json",
+      "original_verdict": "APPROVED_SCOPED",
+      "disposition": "RETAINED_ONLY_FOR_UNCHANGED_SCOPE",
+      "detail": "The previous seven SOURCE controls and four static invariants remain historical evidence for their exact snapshot. Byte-identical unaffected behavior retains that approval within its original test-observer scope. They were not rerun, relabeled as current executions, or promoted to native/product acceptance. The changed helper/caller/regression is separately reviewed here."
+    },
+    {
+      "source_report": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-review.json",
+      "original_verdict": "NOT_PASS_BLOCKED_SOURCE_REACHABILITY",
+      "finding": "P2-DIAG-SEC-F01 / S10_UNHASHABLE_TRACE_METHOD",
+      "original_severity": "LOW",
+      "disposition": "CONFIRMED_OUT_OF_PRODUCER_INPUT_LIMIT_REMEDIED_SOURCE_SCOPED",
+      "detail": "Current list and dict matching-frame controls checkpoint gateway.ready once and preserve the original exception. This adjudicates the concrete test-harness reproducer, not a demonstrated remote/native producer defect. The original report is preserved unchanged."
+    },
+    {
+      "source_report": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-review.json",
+      "original_verdict": "NOT_PASS_BLOCKED_SOURCE_REACHABILITY",
+      "finding": "P2-DIAG-SEC-F02 / S11_SPOOFED_TRACE_METHOD",
+      "original_severity": "LOW",
+      "disposition": "CONFIRMED_OUT_OF_PRODUCER_INPUT_LIMIT_REMEDIED_SOURCE_SCOPED",
+      "detail": "The current spoofed str-subclass control is rejected before membership; the matching-frame checkpoint phase is the exact built-in gateway.ready and contains no marker. No genuine secret was read. The original report is preserved unchanged."
+    },
+    {
+      "source_report": "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-security-review.json",
+      "finding": "S13_STOCK_TRACE_METHOD_REACHABILITY",
+      "original_status": "NOT_PROVEN",
+      "disposition": "REVIEWER_STATIC_PROOF_GAP_RESOLVED_STATIC_ONLY",
+      "detail": "Independently read the unchanged protocol AST and resolved its actual module-level SAFE_UNKNOWN Constant to omnis.inert.probe_unknown. The awaited handshake call methods, sorted by source line, are exactly client.capabilities at line453, gateway.capabilities at line454, and omnis.inert.probe_unknown at line461. The old verifier's failed/incomplete assertions remain recorded; this is not a native execution proof."
+    }
+  ],
+  "documentation_supplement": {
+    "verdict": "APPROVED_SCOPED",
+    "scope": "Only version 0.1.7 to 0.1.8 and one new Pitfalls bullet in .hermes/skills/omnis-hermes-runtime/SKILL.md at the stated SHA256.",
+    "findings": [],
+    "exact_delta_check": "PASS: reverting only the version and removing exactly the new bullet reproduced HEAD's entire skill content.",
+    "normative_assessment": "The lesson correctly preserves existing unified-patch framing, section order and unchanged sections; does not require diff --git headers; restricts reconstruction to attested post-inert originals; requires git apply --check plus real apply in an owned copy and complete patched inventory/SHA comparisons before publishing pins. It distinguishes distribution repair from executable source changes, without extending authority or claiming application approval.",
+    "supporting_evidence_boundary": "The supplied parent context reports an accepted15/reapply13-unchanged evidence set. Its reapplication was not repeated by this reviewer and is not represented as a new tool execution. This approval covers the procedural text, not the upstream overlay or manifest.",
+    "application_approval": false
+  },
+  "execution": {
+    "discovery_commands": [
+      "git status --short --branch",
+      "git rev-parse HEAD",
+      "git diff --stat",
+      "git diff -- api/tests/test_contract_method_pg.py .hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "git hash-object api/tests/test_contract_method_pg.py",
+      "sha256sum api/tests/test_contract_method_pg.py .hermes/skills/omnis-hermes-runtime/SKILL.md"
+    ],
+    "discovery_exit_code": 0,
+    "exact_delta_and_static_producer": {
+      "channel": "terminal: python3 -I -B -c, inline stdlib-only source reading, AST and SHA256 comparison; git ls-files and git show for read-only discovery",
+      "exit_code": 0,
+      "previous_full_file_hash_reconstructed": true,
+      "handshake_methods_resolved_from_actual_global_constant": true,
+      "project_imports": 0,
+      "writes": 0
+    },
+    "focused_source_controls": {
+      "channel": "functions.execute_code; sys.dont_write_bytecode=True before imports; compile exact helper, added regression and observed_handshake AST from final file in memory",
+      "exit_code": 0,
+      "exact_added_regression_tests_passed": 1,
+      "regression_positive_vectors": 3,
+      "regression_invalid_vectors": 6,
+      "observer_controls_passed": 4,
+      "observer_controls_failed": 0,
+      "observer_cases": [
+        "valid exact gateway.capabilities -> same public phase",
+        "list -> gateway.ready",
+        "dict -> gateway.ready",
+        "spoofed str subclass -> gateway.ready"
+      ],
+      "each_observer_control": {
+        "same_exception_identity": true,
+        "checkpoint_count": 1,
+        "marker_present": false,
+        "original_handshake_calls": 1,
+        "original_call_calls": 1,
+        "ready_timeout_forwarded": 4.5,
+        "synthetic_deadline_unchanged": true
+      },
+      "project_imports": 0,
+      "native_pg_runs": 0,
+      "writes": 0,
+      "scope": "SOURCE WITH EXPLICIT DOUBLES: synthetic original_call/original_handshake, host/peer/clock/checkpoint; not real native RPC or real checkpoint filesystem effects."
+    },
+    "final_snapshot_check": {
+      "command": "git diff --check && git rev-parse HEAD && sha256sum api/tests/test_contract_method_pg.py .hermes/skills/omnis-hermes-runtime/SKILL.md integrations/hermes/src/omnis_hermes/runtime_protocol.py && git status --short --branch",
+      "exit_code": 0,
+      "all_reviewed_hashes_stable": true
+    },
+    "parent_reported_checks_not_reexecuted_here": "Provided context reports final 3 pytest SOURCE PASS/7deselected/0.48s, four exact observer AST controls, Ruff/mypy one file and diff-check exit0. Independent evidence in this report is the separately executed exact AST regression and four observer controls, exact snapshot comparison, static producer resolution and final diff/hash readback."
+  },
+  "retained_blockers": [
+    {
+      "id": "QA-PARTIAL-RETURN-EXECUTION-01",
+      "status": "NOT_PASS / BLOCKED / NOT_CLOSED",
+      "cause": "UNKNOWN",
+      "detail": "Original independent 1FAIL/20.86s pre-stage RuntimeUnavailable remains. No independent product QA rerun or native failure-path observation was authorized or executed here. A later diagnostic positive, sanitized projection or static producer resolution does not reproduce, explain, repair or erase this failure.",
+      "verified_sources": [
+        "README.md:3",
+        "documents/verification/implementation-status.md:13",
+        "documents/verification/p2-bound-predicates.md:24-30",
+        "documents/verification/p2-bound-predicates-evidence/partial-return-launch-parent-checkpoint.json"
+      ]
+    }
+  ],
+  "limits": [
+    "Approval is bound to the exact SHA256 values stated, the narrow diagnostic delta and the separately scoped documentation bullet; it is not an approval of the application or the entire test harness.",
+    "No new native PostgreSQL, runtime launch, provider/model, target, installed-consumer QA, blanket pytest, whole-product review or canonical suite was performed.",
+    "No pin, product deadline, grant, renewal producer, launch argv, cleanup, model/target authority or runtime product code changed in the focused delta.",
+    "The original exception forwarding guarantee assumes the diagnostic checkpoint succeeds. Real filesystem errors, disk-full/checkpoint failures and actual native cleanup are not exercised by the in-memory doubles.",
+    "No unconditional arbitrary-Python-object sanitization is claimed for unrelated host_state, exception metaclasses/custom attribute access or traceback depth. Exact-str phase projection addresses the named method-vector findings only.",
+    "Default pytest traceback privacy, deliberate showlocals/showargs behavior and native transport error provenance are outside these controls.",
+    "The parent's checkpoint JSON still explicitly binds its earlier two-test results to ee650a; it was read as historical evidence, not final-aab18f validation. Parent owns reconciliation of final snapshot evidence.",
+    "No documentation rendering or blanket documentation suite was rerun for this read-only source/text review. Runtime-skill loader/execution certification and overlay reapply are not claimed.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No repository code, skills, status maps, protected HTML, global settings, profiles or commits were modified. Only this authorized absolute scratch report was created."
+  ],
+  "handoff": {
+    "current_diagnostic_delta_review": "APPROVED_SCOPED",
+    "unchanged_previous_observer_review": "RETAINED_ONLY_WITHIN_ORIGINAL_SCOPE",
+    "runtime_skill_single_bullet_review": "APPROVED_SCOPED_DOCUMENTATION_ONLY",
+    "independent_product_qa": "NOT_PASS / BLOCKED, original UNKNOWN cause retained",
+    "canonical": "NOT_RUN",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "next": "Parent compares exact hashes and adjudicates/versions the focused reports separately from the unresolved original launch/handshake/IPC QA blocker. Do not rerun unchanged product gates or promote this review into application acceptance."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-return-launch-diagnostic-normative-rereview.json"
+  ],
+  "repository_files_modified": [],
+  "commits_created": []
+}

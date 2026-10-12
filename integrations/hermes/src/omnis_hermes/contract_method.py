@@ -274,15 +274,46 @@ def task_result(
     values = predicate_values(
         brief, bound, original, receipts, artifacts, prompt_bundle=prompt_bundle
     )
-    # A return predicate can permit handoff, but never bypass every done predicate.
+    # Only a contiguous real read/PURE prefix may hand off. A late artifact
+    # without its preceding receipt is corrupt evidence, never an early return.
+    procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+    steps = [mapping(s) for s in sequence(procedure["probe"])]
     if values:
+        if not 1 <= len(artifacts) <= len(steps) or len(receipts) != len(artifacts) + 1:
+            raise ValueError("BOUND_DONE_UNSATISFIED")
+        previous = ref(original)
+        for index, receipt_record in enumerate(receipts):
+            receipt = mapping(receipt_record["payload"])
+            step = None if index == 0 else steps[index - 1]
+            output = previous if index == 0 else ref(artifacts[index - 1])
+            if (
+                type(receipt["sequence"]) is not int
+                or receipt["sequence"] != index
+                or receipt["header"] != body["header"]
+                or receipt["input_refs"] != [previous]
+                or receipt["output_ref"] != output
+                or receipt["operation"] != ("READ_INPUT" if step is None else "PURE_ACTION")
+                or receipt["step_id"] != (None if step is None else step["id"])
+                or receipt["action_definition_ref"]
+                != (None if step is None else step["action_definition_ref"])
+                or any(
+                    receipt[k] != mapping(receipts[0]["payload"])[k]
+                    for k in ("binding_ref", "native_child_id", "native_session_id")
+                )
+            ):
+                raise ValueError("BOUND_DONE_UNSATISFIED")
+            if step is not None and (
+                mapping(artifacts[index - 1]["payload"])["header"] != body["header"]
+                or mapping(artifacts[index - 1]["payload"])["schema_ref"]
+                != step["output_schema_ref"]
+            ):
+                raise ValueError("BOUND_DONE_UNSATISFIED")
+            previous = output
         if not any(
             values[cast(str, mapping(r)["predicate_id"])] for r in sequence(body["return_when"])
         ):
             raise ValueError("BOUND_RETURN_UNSATISFIED")
-        if not all(
-            values[cast(str, mapping(r)["predicate_id"])] for r in sequence(body["done_when"])
-        ):
+        if len(artifacts) == len(steps) and not all(values.values()):
             raise ValueError("BOUND_DONE_UNSATISFIED")
     requirements = sequence(
         mapping(mapping(bound["payload"])["resolved_procedure"])["method_requirements"]
@@ -300,19 +331,21 @@ def task_result(
         rows.append(
             dict(
                 ref=planned["ref"],
-                state="DONE",
+                state="DONE" if not values or values[cast(str, requirement["key"])] else "NOT_RUN",
                 basis_refs=basis,
                 artifact_refs=outputs,
-                reason="Bound CONTRACT/PURE method completed.",
+                reason="Bound CONTRACT/PURE method completed."
+                if not values or values[cast(str, requirement["key"])]
+                else "NOT_RUN: " + cast(str, requirement["key"]) + " (qualified early return).",
             )
         )
     result: Data = {
         "header": body["header"],
-        "status": "SUCCEEDED",
+        "status": "INCONCLUSIVE" if any(r["state"] != "DONE" for r in rows) else "SUCCEEDED",
         "method_results": rows,
         "method_review": None,
         **{k: [] for k in RESULT_EMPTY},
-        "gaps": [],
+        "gaps": [r["reason"] for r in rows if r["state"] != "DONE"],
         "usage": {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"},
     }
     result["action_refs"] = [

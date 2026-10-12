@@ -323,7 +323,11 @@ class RuntimeHost:
                 raise ValueError("Native readback mismatch")
             if operation == "task_release" and (
                 result["status"]
-                != ("SUCCEEDED" if payload["protocol"] == managed.PROTOCOL_V4 else "BLOCKED")
+                not in (
+                    ("SUCCEEDED", "INCONCLUSIVE")
+                    if payload["protocol"] == managed.PROTOCOL_V4
+                    else ("BLOCKED",)
+                )
                 or result["binding_ref"] != managed.ref(cast(dict[str, object], payload["binding"]))
                 or any(result[k] != binding[k] for k in ("native_root_id", "entries"))
             ):

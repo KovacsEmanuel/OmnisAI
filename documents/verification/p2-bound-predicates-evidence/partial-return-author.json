@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "base_source_commit": "23080706fb6549eaad6679596a700824bf1f833f",
+  "handoff_head": "58695c68a6f8f6898f7147a8182306ea43c531ca",
+  "status": "IMPLEMENTED_FROZEN_NOT_REVIEWED_NOT_ACCEPTED",
+  "committed": false,
+  "changed_file_count": 17,
+  "changed_files": [
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "533f6dcd3db9e68fdda2cd7586096cf404373e31e14d9e117cd4051e4af5f15d"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/criterion_checks.py",
+      "sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "859bb6b6a8e3c0327bd11cf7c87cfbeb61b501ab4d5e4fcc5dcd78f7910acbd9"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "4b73815b6951d9fb79b2ad23f0555f187191010306bfdf473fb8600f28f193cd"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "e417e48f0f7bc6b0d04e453994c4f106213f68ec5ae18ad941c68a4b46327138"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_c10_bound_predicates.py",
+      "sha256": "ac3f634e87720727ed9c573c294a1bbe4806b5d7e170e09613e2cc2a0ffc3697"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_checks.py",
+      "sha256": "63c5c11cc2e73e7c045a779a7438f4807a3e8190b9e70797f46e77e276a6b6cb"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sha256": "81c11b313d7eebb843dfce53abe11b6d6feed5deba08e4fbc5891313034faf71"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_producer.py",
+      "sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/pin.json",
+      "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "da5e19d6222d8e74213b0e05afd45b2dc1207674e73c36d40e138782ae9e66fa"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "sha256": "0a332d5a814567e30e30582a0ae82334092599d740b82155f355dc340d2f4770"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-patch-manifest.json",
+      "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2"
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch",
+      "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca"
+    }
+  ],
+  "contract": {
+    "observable": "qualified normalize-records early return after real read + normalize PURE; result/all three MethodResults persisted before independent INCOMPLETE check; bounded replay/readback/reconcile without rerun",
+    "request": "existing prepare-method schema_version=3, optional return_predicate_id restricted to normalize-records/build-surface-map, converted to exact qualified BoundPredicateRef",
+    "default": "absent selector remains build-surface-map/full execution; compact/inline/current and admitted zero-predicate legacy retained",
+    "partial": "four records, INCONCLUSIVE native/result, DONE/NOT_RUN/DONE, exact build-surface-map gap; backend task BLOCKED, MethodCheck INCOMPLETE",
+    "criteria": "existing no-oracle rule remains BLOCKED, adds METHOD_INCOMPLETE only for independently checked INCOMPLETE",
+    "identity": "old checker388fe9d + exact composer4a3606b retained receive-only regeneration/equality, never first admission and never partial; older exact zero-predicate pairs retained",
+    "composer_revision": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850 (unchanged)",
+    "checker_descriptor": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "36738cfb398f63d969160c08b7b6b54e91f0ab35818d62fe03ee5528b1d83227",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    }
+  },
+  "necessary_frontier_extensions": {
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "actual root final producer traced from run_contract; previously hardcoded SUCCEEDED",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "actual same-owner Host release caller previously refused any v4 non-SUCCEEDED final",
+    "api/src/omnis/modules/tasks/criterion_checks.py": "same consumer transaction refused INCOMPLETE despite genuine result; emit only BLOCKED+METHOD_INCOMPLETE"
+  },
+  "checks": [
+    {
+      "category": "SOURCE genuine prefix RED: inline and compact returned 6 instead of 4",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-red.log",
+      "sha256": "7c3083ceae5b9db16ea63d0bd5be472fe9b25ab4be05be6335f9233fc215fe8f"
+    },
+    {
+      "category": "SOURCE real run_contract prefix + regressions",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-green1.log",
+      "sha256": "e962846e474f7830d0938a380845c949de7510a3b0c3a6259e45a57fc423e3e5"
+    },
+    {
+      "category": "SOURCE harness import defect plus missing prepare request selection; not clean RED",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-red2.log",
+      "sha256": "5d9f6c3d1ea4a7eba065f06f288f358c0adeac64c946549ba4fe68ffa4c6636f"
+    },
+    {
+      "category": "SOURCE missing native final/prepare request contract",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-red2b.log",
+      "sha256": "a51d7089990af88d9f024a236e3c469a3f5c6b8564912e5c2c22e01a4ba1978e"
+    },
+    {
+      "category": "QA driver typo: nonexistent test_managed_admission_wire_parity.py; zero tests",
+      "exit_code": 4,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-green2.log",
+      "sha256": "952d406404bd334d21169020f00cc0b5515878733ac050d2cc95877d03b410ab"
+    },
+    {
+      "category": "SOURCE 237 pass; five PG fixtures required, not code failure",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-green2b.log",
+      "sha256": "47b241d0cdd14ee6f9d4a59125af9c5436304bb64190e6d6bb52a20cb7590860"
+    },
+    {
+      "category": "two import order defects fixed",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-ruff.log",
+      "sha256": "ed86176df2720531bcb5e83501c8b27d4d6036793e5381e6c23e26af75850b66"
+    },
+    {
+      "category": "SOURCE 237 pass, five unrelated PG cases deselected",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-source-prepg.log",
+      "sha256": "2052baae25f78e23b6d3a301993f0cf70780fa1bb9eda7ac5753380c81ae46b0"
+    },
+    {
+      "category": "SOURCE adapter/native-source suite: 45 pass; watchdog timeout retained",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-native-prepg.log",
+      "sha256": "570bfec8e9580b9afbf75dcd957e224b2f17da0bebb21e7607a8cd94f5efd4cf"
+    },
+    {
+      "category": "same watchdog source control isolated: one pass; original cause UNKNOWN",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-watchdog-isolated.log",
+      "sha256": "71cecd4a03d26fc192e472bf26020cdc2172e564ac64a719b16960d8dffd73a1"
+    },
+    {
+      "category": "ruff/check/format full API and adapter boundaries; mypy 220+15 files",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-prepg-quality.log",
+      "sha256": "4cf99583c6b0e6b270217992750472d6b70e6ff9550242c8542e76fa42499202"
+    },
+    {
+      "category": "SOURCE no-functional-PASS rule control: CRITERION_CHECK_REQUIRED",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-criterion-red.log",
+      "sha256": "821236ff2f4502960a46423a92c3166f16523a5b62f39a81d7750f4fa3c621d2"
+    },
+    {
+      "category": "SOURCE 257 pass, five unrelated PG cases deselected",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-source-final.log",
+      "sha256": "0366f71414d6f76f697788e669d3fa8627ba1b4619b87ce42ef44fd9e3321044"
+    },
+    {
+      "category": "full affected ruff/format and mypy boundaries after last code edits",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-quality-final.log",
+      "sha256": "4cf99583c6b0e6b270217992750472d6b70e6ff9550242c8542e76fa42499202"
+    },
+    {
+      "category": "SOURCE native contract/build/AST 29 pass on final distribution",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-native-final.log",
+      "sha256": "a9b1d5a6a6233273948e645884c47b82b96e82eacc84530910d7dd1a67a27297"
+    }
+  ],
+  "commands": {
+    "SOURCE": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_assignment_compact.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py api/tests/test_managed_contract.py api/tests/test_managed_wire_parity.py api/tests/test_c04_criteria.py -k \"not test_pg_qualified_goal_prepare_before_reservation\" -q --tb=line",
+    "PG_selection_script": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "PG_owner": "existing ops/run_test_db_gate.py prove_private_fixture/run_gate; command selection only, no alternate owner/harness",
+    "native_SOURCE": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_managed_build.py\",\"integrations/hermes/tests/test_managed_native_source.py\",\"-q\",\"--tb=line\"]))' ",
+    "quality": "ruff check --no-fix + format --check api/src api/tests integrations/hermes/src integrations/hermes/tests; mypy --no-incremental api/src api/tests and MYPYPATH=api/src integrations/hermes/src"
+  },
+  "real_consumer_QA": [
+    {
+      "category": "SOURCE_HOST_NOT_INSTALLED: real stock pinned AIAgent/RuntimeHost/NativePeer/RuntimeClient/owner/PostgreSQL; preparation worker is prerequisite double",
+      "selection": "red",
+      "process_handle": "proc_d91d4f471701",
+      "exit_code": 1,
+      "family_drained": true,
+      "summary": [
+        "1 failed, 7 deselected in 29.43s"
+      ],
+      "sanitized_error_tokens": [
+        [
+          "RuntimeUnavailable"
+        ]
+      ],
+      "owner_log": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-red-owner.log",
+      "owner_log_sha256": "6f0a1a4aecec5dfcba6c8c4b7c36d7db3f679db65fefc8e408a4addeccce7166",
+      "log_path": "/home/kali/.hermes/cache/scratch/db-84a7574d47894779/gate.log",
+      "log_sha256": "2287b686ab611a57f8f97edd12086e9909cff4afb01057776b20a58e29d2e874",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-84a7574d47894779/gate.log.result.json",
+      "cleanup": {
+        "project": "omnis-p01-75c414ee20cb4a048077e39b9af15529",
+        "container_id": "275ca0ea8b62ad064d1fe583c27a43097176019316613b80f68071d5210b6ea8",
+        "exact_container_absent": true,
+        "project_network_ids": [],
+        "data_retained": "/home/kali/.hermes/cache/scratch/db-84a7574d47894779"
+      }
+    },
+    {
+      "category": "SOURCE_HOST_NOT_INSTALLED: real stock pinned AIAgent/RuntimeHost/NativePeer/RuntimeClient/owner/PostgreSQL; preparation worker is prerequisite double",
+      "selection": "green",
+      "process_handle": "proc_af2016182b20",
+      "exit_code": 0,
+      "family_drained": true,
+      "summary": [
+        "2 passed, 6 deselected in 62.61s (0:01:02)"
+      ],
+      "sanitized_error_tokens": [],
+      "owner_log": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-green-owner.log",
+      "owner_log_sha256": "aee09f66b218d62f4a9c6f22a4284be3ee6d890b578992b98c9158e1b4d763c0",
+      "log_path": "/home/kali/.hermes/cache/scratch/db-1ef1ba254a494cd2/gate.log",
+      "log_sha256": "1638a081095b19bc9a0e622a6e04583cb496f8d6ea1a791ac8e9bfa11f19142d",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-1ef1ba254a494cd2/gate.log.result.json",
+      "cleanup": {
+        "project": "omnis-p01-b9f3334c3f3f4eea888917a6dcef9634",
+        "container_id": "8e985b9d04d062f6e9cda468898f77ec34d9c48735938b3c0792def23eaf79b4",
+        "exact_container_absent": true,
+        "project_network_ids": [],
+        "data_retained": "/home/kali/.hermes/cache/scratch/db-1ef1ba254a494cd2"
+      }
+    }
+  ],
+  "real_consumer_proofs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-324/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "1a2eabc7fd1e11618e7898f63923d67ff9f9b75e6be121a160c60c1bf550f962",
+      "observed": {
+        "bound_predicate_persistent_check": "COMPLETE",
+        "execution_attempts": [],
+        "forbidden_native_attempts": 0,
+        "native_bound_predicate_count": 3,
+        "native_bound_predicate_evaluation": "SATISFIED",
+        "native_cleanup": "PASS",
+        "native_exit": -9,
+        "native_handlers": 2,
+        "native_owned_pids": [],
+        "native_reads": 1,
+        "native_run_contract": 1,
+        "post_stop_duplicate": "PASS",
+        "restart_reconcile": "PASS",
+        "status": "PASS_SOURCE_NOT_INSTALLED"
+      },
+      "reader_processes": [
+        {
+          "pid": 1992920,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1992924,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1992960,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1992983,
+          "process_path_absent": true
+        }
+      ],
+      "runtime_directory": "/home/kali/.hermes/cache/scratch/cm-557078c297954fc38b95dc8fbc87f8f5",
+      "runtime_sock_absent": true,
+      "runtime_boot_file_absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-324/test_contract_method_real_nati1/method-history-proof.json",
+      "sha256": "95255e7934fe039dffa32ddab8a1a2e5fcebc0f01d19237fb821182ef28ceeff",
+      "observed": {
+        "bound_predicate_persistent_check": "INCOMPLETE",
+        "execution_attempts": [],
+        "forbidden_native_attempts": 0,
+        "native_bound_predicate_count": 3,
+        "native_bound_predicate_evaluation": "GAP",
+        "native_cleanup": "PASS",
+        "native_exit": -9,
+        "native_handlers": 1,
+        "native_owned_pids": [],
+        "native_reads": 1,
+        "native_run_contract": 1,
+        "post_stop_duplicate": "PASS",
+        "raw_partial_persisted_before_method_check": "PASS",
+        "restart_reconcile": "PASS",
+        "status": "PASS_SOURCE_NOT_INSTALLED"
+      },
+      "reader_processes": [
+        {
+          "pid": 1993811,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1993832,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1993854,
+          "process_path_absent": true
+        },
+        {
+          "pid": 1993878,
+          "process_path_absent": true
+        }
+      ],
+      "runtime_directory": "/home/kali/.hermes/cache/scratch/cm-f5c76be7e3624983b860badbaf72214b",
+      "runtime_sock_absent": true,
+      "runtime_boot_file_absent": true
+    }
+  ],
+  "distribution": {
+    "work": "/home/kali/.hermes/cache/scratch/partial-return-patch-e1d0b_3s",
+    "reapplied_files": 15,
+    "patch_sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+    "unchanged_patch_sections_retained": 13,
+    "verification": "stock pinned source -> existing apply_inert_overlay -> git apply --check -> git apply -> exact 15 hashes; final framing preserves baseline unified diff sections",
+    "scope_after_pg": "final reseal changes patch framing/pin hashes only, no executable source change after PG pass; final 29 build/native-source tests exercised resealed bytes",
+    "reseal_driver": "/home/kali/.hermes/cache/scratch/p2-partial-return-reseal.py"
+  },
+  "unresolved_findings_and_limits": [
+    "First nativePG attempt RuntimeUnavailable before stage/child/read/PURE, exact cause UNKNOWN; not functional RED and not explained by criterion fix.",
+    "Initial SOURCE host group retained one watchdog timeout; isolated unchanged case passed. Cause UNKNOWN, no timeout widening.",
+    "Two intermediate reseal parser failures preserved in tool execution: baseline uses unified headers, not diff --git. Corrected from actual bytes; final apply verifies 15 hashes.",
+    "Full canonical intentionally NOT_RUN; parent owns exact-snapshot reviews/integration. Installed-native and authentic immutable old-checker reader NOT_RUN.",
+    "No model/provider/account/target/network discovery/r1/personal/global/push. Remaining B06b/C10 forms and P2 are open."
+  ],
+  "diff_check_exit": 0,
+  "lesson_for_parent": "Preserve original unified-patch sections/order; git no-index framing can create whitespace-only context lines and churn untouched sections. Reapply against attested post-inert originals and verify every closure hash."
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "PARTIAL_RETURN_SOURCE_HOST_NOT_INSTALLED",
+  "snapshot_author_sha256": "b7230bf0ea11ff1d0d66d74887346602239d3a8f1382d8c11ddeed6ced7425af",
+  "parent_disposition": "SOURCE_AND_DISTRIBUTION_APPROVED_SCOPED; independent real-consumer QA and canonical pending",
+  "product_files_verified": 17,
+  "evidence_hashes_verified": 21,
+  "reviews": {
+    "normative": "6fb213eea88caf7098c9caaeca6191608c7517289acbfa3de3ad5b4985e658ad",
+    "security": "ed98edd8751bddb3e8bea2b2cd6766d1501c97e75ecd03c6feef9f16381dad38"
+  },
+  "findings": [],
+  "parent_resource_readback": {
+    "failed_fixture": "db-84a7574d47894779",
+    "passed_fixture": "db-1ef1ba254a494cd2",
+    "same_daemon": true,
+    "exact_cids_absent": true,
+    "project_containers_and_networks_absent": true,
+    "pg_sockets_absent": true,
+    "data_retained": true,
+    "reader_processes_absent": 8,
+    "runtime_endpoints_absent": 2,
+    "receipts": [
+      {
+        "code": 1,
+        "family_drained": true
+      },
+      {
+        "code": 0,
+        "family_drained": true
+      }
+    ]
+  },
+  "limits": [
+    "Source-only state holders are not native authentication",
+    "SOURCE_HOST_NOT_INSTALLED genuine PG/native execution uses preparation prerequisite double",
+    "Historical installed checker reader NOT_RUN",
+    "First nativePG pre-stage RuntimeUnavailable UNKNOWN and earlier watchdog timeout UNKNOWN retained",
+    "P2-inert/live NOT_CLOSED; no model/account/target/r1/global/push"
+  ]
+}

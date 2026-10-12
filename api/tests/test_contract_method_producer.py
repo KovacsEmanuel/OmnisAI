@@ -90,14 +90,15 @@ def test_supervisor_lease_owner_is_not_the_catalog_input_owner() -> None:
 
 
 @pytest.mark.asyncio
-async def test_host_consumes_v4_terminal_on_the_same_protocol_boundary() -> None:
+@pytest.mark.parametrize("early_return", [False, True])
+async def test_host_consumes_v4_terminal_on_the_same_protocol_boundary(early_return: bool) -> None:
     """SOURCE transport simulation, not authentic native/PG acceptance."""
     import time
     from types import SimpleNamespace
 
     from test_contract_method_checks import native_case, obj, rebind_mutation
 
-    case = native_case()
+    case = native_case(predicates=early_return, return_predicate="normalize-records")
     native = import_module("omnis_hermes.runtime_host")
     host = native.RuntimeHost(Path("/nonexistent"))
     obj(case.binding["payload"])["runtime_boot"] = host.boot
@@ -106,7 +107,7 @@ async def test_host_consumes_v4_terminal_on_the_same_protocol_boundary() -> None
     manifest_ref = records.reference(records.envelope("launch-manifest", {}))
     response = {
         "protocol": "omnis-managed-admission-v4",
-        "status": "SUCCEEDED",
+        "status": "INCONCLUSIVE" if early_return else "SUCCEEDED",
         "reason": "CONTRACT_PURE",
         "ticket": body["ticket"],
         "manifest_ref": manifest_ref,

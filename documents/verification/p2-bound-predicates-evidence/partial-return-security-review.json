@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "review_kind": "independent complementary security/input/failure/distribution",
+  "scope": "P2 C10 qualified partial return only; SOURCE and distribution separate",
+  "head": "58695c68a6f8f6898f7147a8182306ea43c531ca",
+  "author_report_sha256": "b7230bf0ea11ff1d0d66d74887346602239d3a8f1382d8c11ddeed6ced7425af",
+  "verified_files": [
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "533f6dcd3db9e68fdda2cd7586096cf404373e31e14d9e117cd4051e4af5f15d",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/criterion_checks.py",
+      "sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "859bb6b6a8e3c0327bd11cf7c87cfbeb61b501ab4d5e4fcc5dcd78f7910acbd9",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "4b73815b6951d9fb79b2ad23f0555f187191010306bfdf473fb8600f28f193cd",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "e417e48f0f7bc6b0d04e453994c4f106213f68ec5ae18ad941c68a4b46327138",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_c10_bound_predicates.py",
+      "sha256": "ac3f634e87720727ed9c573c294a1bbe4806b5d7e170e09613e2cc2a0ffc3697",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_checks.py",
+      "sha256": "63c5c11cc2e73e7c045a779a7438f4807a3e8190b9e70797f46e77e276a6b6cb",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sha256": "81c11b313d7eebb843dfce53abe11b6d6feed5deba08e4fbc5891313034faf71",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_producer.py",
+      "sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/pin.json",
+      "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "da5e19d6222d8e74213b0e05afd45b2dc1207674e73c36d40e138782ae9e66fa",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "sha256": "0a332d5a814567e30e30582a0ae82334092599d740b82155f355dc340d2f4770",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-patch-manifest.json",
+      "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+      "matches_frozen": true
+    },
+    {
+      "path": "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch",
+      "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+      "matches_frozen": true
+    }
+  ],
+  "commands": [
+    {
+      "category": "source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_assignment_compact.py', 'api/tests/test_contract_method_checks.py', 'api/tests/test_c10_bound_predicates.py', 'api/tests/test_contract_method_producer.py', 'api/tests/test_managed_contract.py', 'api/tests/test_managed_wire_parity.py', 'api/tests/test_c04_criteria.py', '-k', 'not test_pg_qualified_goal_prepare_before_reservation', '-q', '--tb=line', '--basetemp', '/home/kali/.hermes/cache/scratch/partial-security-source-4d04je4z/pytest']))"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "env_overrides": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/partial-security-source-4d04je4z",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "OMNIS_TEST_DATABASE_URL": "REMOVED"
+      },
+      "exit_code": 0,
+      "seconds": 15.171,
+      "log_path": "/home/kali/.hermes/cache/scratch/partial-security-source-4d04je4z/source.log",
+      "sha256": "3ee774fe90e647506ab4b5dbd6a96ea19c317f217e16a66d69f09036a083a4e7",
+      "limits": "SOURCE only; real run_contract on synthetic state holders; no PG/native installation/provider."
+    },
+    {
+      "category": "native_source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'integrations/hermes/tests/test_contract_method.py', 'integrations/hermes/tests/test_managed_build.py', 'integrations/hermes/tests/test_managed_native_source.py', '-q', '--tb=line', '--basetemp', '/home/kali/.hermes/cache/scratch/partial-security-native_source-ilh7niu4/pytest']))"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "env_overrides": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/partial-security-native_source-ilh7niu4",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "OMNIS_TEST_DATABASE_URL": "REMOVED"
+      },
+      "exit_code": 0,
+      "seconds": 0.954,
+      "log_path": "/home/kali/.hermes/cache/scratch/partial-security-native_source-ilh7niu4/source.log",
+      "sha256": "09b7a53e929a6f67307d078b2f70fa79a051f2b48959fc0b6894a546f8028def",
+      "limits": "SOURCE only; real run_contract on synthetic state holders; no PG/native installation/provider."
+    },
+    {
+      "category": "distribution",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/partial-security-reapply-0jqseio8/source",
+      "exit_code": 0,
+      "limits": "Private SOURCE only; original hash attestation precedes patch.",
+      "stderr": ""
+    },
+    {
+      "category": "distribution",
+      "argv": [
+        "git",
+        "apply",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/partial-security-reapply-0jqseio8/source",
+      "exit_code": 0,
+      "limits": "Private SOURCE only; original hash attestation precedes patch.",
+      "stderr": ""
+    },
+    {
+      "category": "independent_security_SOURCE_controls",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json,copy,importlib\nfrom pathlib import Path\nfrom unittest.mock import patch\nroot=Path('/home/kali/OmnisAI')\nsys.path[:0]=[str(root/'api/src'),str(root/'api/tests'),str(root/'integrations/hermes/src'),str(root/'integrations/hermes/tests'),str(root/'integrations/hermes/upstream/managed-source')]\nfrom test_contract_method_checks import native_case,rebind_mutation\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_schema import canonical\nfrom omnis.modules.tasks import method_checker_identity as identity,managed_contract\nfrom omnis_hermes import contract_method as method\nfrom omnis_hermes.managed_admission_contract import validate_response\nfrom agent import contract_execution as native\nout=[]\nbase=native_case(predicates=True,return_predicate='normalize-records')\nassert base.check()['payload']['status']=='INCOMPLETE'\nout.append({'name':'partial-positive','status':'INCOMPLETE','rows':[r['state'] for r in base.execution['records'][0]['payload']['method_results']]})\nattacks=['receipt-order','missing-read','missing-normalize','foreign-read-input','foreign-read-output','foreign-header','foreign-child','foreign-session','late-artifact','bool-schema-ref','unknown-receipt-field','null-method-results','bool-method-results','false-na','fake-success','missing-gap','overflow-result','output-cap','action-cap','records-null','records-object','records-empty']\nfor attack in attacks:\n c=copy.deepcopy(base); rs=c.execution['records']; result=rs[0]['payload']\n if attack=='receipt-order': rs[1],rs[2]=rs[2],rs[1]\n elif attack=='missing-read': rs.pop(1)\n elif attack=='missing-normalize': rs.pop(2)\n elif attack=='foreign-read-input':rs[1]['payload']['input_refs']=[records.reference(rs[3])]\n elif attack=='foreign-read-output':rs[1]['payload']['output_ref']=records.reference(rs[3])\n elif attack=='foreign-header':rs[1]['payload']['header']={**rs[1]['payload']['header'],'task_id':'00000000-0000-4000-8000-000000000000'}\n elif attack=='foreign-child':\n  for r in rs[1:3]:r['payload']['native_child_id']='foreign-child'\n elif attack=='foreign-session':c.execution['native_session_id']='foreign-session'\n elif attack=='late-artifact':\n  full=native_case(predicates=True);rs[3]=full.execution['records'][-1]\n elif attack=='bool-schema-ref':rs[3]['payload']['schema_ref']['revision']=True\n elif attack=='unknown-receipt-field':rs[2]['payload']['untrusted']=True\n elif attack=='null-method-results':result['method_results']=None\n elif attack=='bool-method-results':result['method_results']=True\n elif attack=='false-na':result['method_results'][1]['state']='NOT_APPLICABLE'\n elif attack=='fake-success':result['status']='SUCCEEDED'\n elif attack=='missing-gap':result['gaps']=[]\n elif attack=='overflow-result':result['method_results'][1]['reason']='X'*33000\n elif attack=='output-cap':c.brief['payload']['limits']['max_output_bytes']=1024\n elif attack=='action-cap':c.brief['payload']['limits']['max_actions']=1\n elif attack.startswith('records-'):\n  c.execution['records']={'records-null':None,'records-object':{},'records-empty':[]}[attack]\n if not attack.startswith('records-'):rebind_mutation(c)\n try:c.check()\n except CatalogError as e:out.append({'name':attack,'status':'DENIED','reason':e.reason})\n else:raise AssertionError('unexpected acceptance '+attack)\n# Producer must deny a broken prefix even if the selected return value appears present.\nfor attack in ['receipt-order','missing-read','missing-prefix']:\n rs=copy.deepcopy(base.execution['records']);receipt=rs[1:3];artifact=rs[3:]\n if attack=='receipt-order':receipt.reverse()\n elif attack=='missing-read':receipt.pop(0)\n else:receipt[1]['payload']['input_refs']=[records.reference(artifact[0])]\n try:method.task_result(base.brief,base.bound,base.original,receipt,artifact,prompt_bundle=base.prompt_bundle)\n except ValueError as e:out.append({'name':'producer-'+attack,'status':'DENIED','reason':str(e)})\n else:raise AssertionError('producer unexpectedly accepted')\n# Same public prepare-method entry; strict null/bool/container/string denials.\nfrom test_c03_managed_capture import request\nfrom omnis.modules.runs.managed_admission import validate_request\nv=request();v.update(schema_version=3,return_predicate_id='normalize-records',slot_values=[{'slot_name':'records','refs':base.brief['payload']['input_artifact_refs']}])\nassert validate_request('prepare-method',v)==v\nfor i,bad in enumerate([None,True,False,{},[],1,'','foreign.normalize-records','lambda: True']):\n try:validate_request('prepare-method',{**v,'return_predicate_id':bad})\n except CatalogError as e:out.append({'name':'selector-'+str(i),'status':'DENIED','reason':e.reason})\n else:raise AssertionError('selector accepted')\n# Historical exact composer remains receive-only full; wrong pair never accepted.\nold=records.envelope('method-checker',{'key':identity.KEY,'semantics':identity.SEMANTICS,'code_digest':next(iter(identity.FULL_PREDICATE_HISTORICAL))})\nfor receive,pin in [(False,'4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850'),(True,'0'*64)]:\n try:identity.verify(old,pin=pin,receive_only=receive,zero_predicates=False)\n except CatalogError as e:out.append({'name':'historical-denial-'+str(receive),'status':'DENIED','reason':e.reason})\n else:raise AssertionError('historical pair accepted')\n# Observe genuine method calls and latch failure on source state holders, not installed identity.\noriginal_init=native.BoundContractTools.__init__; original_handler=method.run_handler\nfor scenario in ['early-return','expired-before-read','identity-after-normalize','failure-in-normalize']:\n observed={}; calls=[]\n def init(self,agent,binding,guard):\n  observed['agent']=agent\n  if scenario=='expired-before-read':agent._contract_state.deadline='2000-01-01T00:00:00+00:00'\n  original_init(self,agent,binding,guard)\n def handler(name,value):\n  calls.append(name)\n  if scenario=='failure-in-normalize':raise ValueError('SYNTHETIC_HANDLER_FAILURE')\n  answer=original_handler(name,value)\n  if scenario=='identity-after-normalize':observed['agent'].session_id='foreign-session'\n  return answer\n with patch.object(native.BoundContractTools,'__init__',init),patch.object(method,'run_handler',handler):\n  try:c=native_case(predicates=True,return_predicate='normalize-records')\n  except (ValueError,RuntimeError) as e:\n   state=observed['agent']._contract_state\n   assert state.terminal=='UNKNOWN' and state.binding is not None\n   assert calls==([] if scenario=='expired-before-read' else ['contract.normalize-operations'])\n   out.append({'name':scenario,'status':'DENIED','terminal':state.terminal,'binding_latched':True,'handlers':calls,'exception_class':type(e).__name__})\n  else:\n   assert scenario=='early-return' and calls==['contract.normalize-operations']\n   out.append({'name':scenario,'status':c.execution['records'][0]['payload']['status'],'handlers':calls})\nassert identity.descriptor()['code_digest']=='36738cfb398f63d969160c08b7b6b54e91f0ab35818d62fe03ee5528b1d83227'\nprint(json.dumps({'controls':out,'control_count':len(out),'checker_identity':identity.descriptor(),'composer_revision':__import__('omnis_hermes.prompt_bundle',fromlist=['composer_revision']).composer_revision()},sort_keys=True))\n"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "seconds": 1.496,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-security-controls.log",
+      "sha256": "53776578826c00cdd11b54c58e0a62930891771a81ca87fc96c0002bef1cd2a8",
+      "limits": "SOURCE controls reuse existing native_case, real run_contract/handlers but synthetic state/lineage; no new verifier, PG, IPC or installed consumer."
+    },
+    {
+      "category": "Host SOURCE controls",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json,time,copy,asyncio\nfrom pathlib import Path\nfrom types import SimpleNamespace\nfrom uuid import uuid4\nroot=Path('/home/kali/OmnisAI');sys.path[:0]=[str(root/'api/src'),str(root/'api/tests'),str(root/'integrations/hermes/src'),str(root/'integrations/hermes/tests'),str(root/'integrations/hermes/upstream/managed-source')]\nfrom test_contract_method_checks import native_case,rebind_mutation\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.tasks import managed_contract\nfrom omnis_hermes.runtime_host import RuntimeHost\nfrom omnis_hermes.managed_admission_contract import canonical\nout=[]\nasync def run():\n for scenario in ['partial','full','wrong-root','wrong-binding-ref','wrong-entry','gap-null','false-success','aggregate-cap','stale-fence','expired-host']:\n  c=native_case(predicates=True,return_predicate='build-surface-map' if scenario=='full' else 'normalize-records')\n  host=RuntimeHost(Path('/nonexistent'));host.state='READY';host.epoch=1;host.process=SimpleNamespace(returncode=None)\n  c.binding['payload']['runtime_boot']=host.boot;rebind_mutation(c)\n  binding=c.binding['payload'];final={'protocol':'omnis-managed-admission-v4','status':c.execution['records'][0]['payload']['status'],'reason':'CONTRACT_PURE','ticket':binding['ticket'],'manifest_ref':records.reference(c.stage['manifest']),'binding_ref':records.reference(c.binding),'native_root_id':binding['native_root_id'],'entries':copy.deepcopy(binding['entries']),'executions':[c.execution]}\n  managed_contract.validate_final(final,c.stage['manifest'],c.binding)\n  calls=[]\n  async def call(method,payload,**kwargs):calls.append(method);return copy.deepcopy(final)\n  host.peer=SimpleNamespace(call=call,failure=None);host.deadline_ns=time.monotonic_ns()+4_000_000_000\n  if scenario=='wrong-root':final['native_root_id']='foreign-root'\n  elif scenario=='wrong-binding-ref':final['binding_ref']={**final['binding_ref'],'digest':'0'*64}\n  elif scenario=='wrong-entry':final['entries'][0]['native_child_id']='foreign-child'\n  elif scenario=='gap-null':final['executions'][0]['records'][0]['payload']['gaps']=None;rebind_mutation(c)\n  elif scenario=='false-success':final['status']='SUCCEEDED'\n  elif scenario=='aggregate-cap':final['executions'][0]['records'][0]['payload']['gaps']=['X'*33000];rebind_mutation(c)\n  elif scenario=='stale-fence':host.epoch=2\n  elif scenario=='expired-host':host.deadline_ns=time.monotonic_ns()-1\n  body={'version':1,'id':str(uuid4()),'boot':host.boot,'capability':host.capability,'generation':0,'epoch':host.epoch,'op':'task_release','deadline_ns':host.deadline_ns,'payload':{'protocol':final['protocol'],'ticket':binding['ticket'],'manifest_ref':final['manifest_ref'],'binding':c.binding}}\n  try:result=await host._managed(body)\n  except ValueError as e:\n   assert scenario not in ['full','partial'];assert not host.managed_finals\n   assert len(calls)==(0 if scenario in ['stale-fence','expired-host'] else 1)\n   out.append({'scenario':scenario,'outcome':'DENIED','retention_count':0,'peer_calls':len(calls),'reason':str(e)})\n  else:\n   assert scenario in ['partial','full'];assert len(calls)==1;assert host.managed_finals[binding['ticket']]==canonical(final)\n   retained=host._receive_managed({'protocol':final['protocol'],'ticket':binding['ticket'],'manifest_ref':final['manifest_ref']})\n   assert retained==final and len(calls)==1\n   out.append({'scenario':scenario,'outcome':result['status'],'retention_count':1,'peer_calls':1,'receive_only_additional_peer_calls':0})\nasyncio.run(run());print(json.dumps({'controls':out,'count':len(out),'limit':'actual RuntimeHost _managed/_receive_managed with synthetic peer/current grant/process state; not native RPC, constructor authority or installed proof.'},sort_keys=True))\n"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "seconds": 1.29,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-return-security-host-controls.log",
+      "sha256": "70e2863adcd00197c0f7babaaa8381ada55803e2238434a286169226985a5d29",
+      "limits": "Existing Host methods with synthetic peer/process/current grant; no socket/server/process/provider effects; not installed native."
+    },
+    {
+      "category": "final whitespace verification",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "limits": "Whitespace check only; no correctness or runtime claim."
+    }
+  ],
+  "findings": [],
+  "limits": [
+    "READ_ONLY shared code; no PG/OCI/provider/model/account/target/r1/global effects. SOURCE state-holder tests are not installed-native evidence.",
+    "No general P0/P1/B05 audit and no new verifier.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Canonical, real-consumer QA and authentic immutable historical-reader remain parent-owned NOT_RUN."
+  ],
+  "distribution": {
+    "verdict": "APPROVED_SCOPED",
+    "upstream_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "work": "/home/kali/.hermes/cache/scratch/partial-security-reapply-0jqseio8",
+    "originals": [
+      {
+        "path": "agent/auxiliary_client.py",
+        "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a"
+      },
+      {
+        "path": "agent/chat_completion_helpers.py",
+        "original_sha256": "72400c39a7999d617fed99329ec9ea1ed891dc46e5e3349079f1a026f29122a0"
+      },
+      {
+        "path": "agent/chat_completion_nonstream.py",
+        "original_sha256": "34d4afad0a0c7228a0518eed4a2521ba1a340f509c83784c74abceb56f1becb7"
+      },
+      {
+        "path": "agent/cold_admission.py",
+        "original_sha256": null
+      },
+      {
+        "path": "agent/conversation_loop.py",
+        "original_sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91"
+      },
+      {
+        "path": "agent/managed_admission_rpc.py",
+        "original_sha256": null
+      },
+      {
+        "path": "agent/subagent_lifecycle.py",
+        "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c"
+      },
+      {
+        "path": "agent/turn_api_call.py",
+        "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b"
+      },
+      {
+        "path": "agent/turn_api_error.py",
+        "original_sha256": "695a29b8117678dc91bb9cf8234d9b2644123ff7f4e309b0cd80e0b3a20ca5d0"
+      },
+      {
+        "path": "agent/turn_api_request.py",
+        "original_sha256": "e31386cb83cf551026e4df9b589173b54bc913b36fc1a09942a520e68033b59e"
+      },
+      {
+        "path": "providers/__init__.py",
+        "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da"
+      },
+      {
+        "path": "run_agent.py",
+        "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33"
+      },
+      {
+        "path": "tui_gateway/rpc_dispatch.py",
+        "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743"
+      },
+      {
+        "path": "agent/agent_init.py",
+        "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81"
+      },
+      {
+        "path": "agent/contract_execution.py",
+        "original_sha256": null
+      }
+    ],
+    "exact_identity": [
+      {
+        "path": "agent/auxiliary_client.py",
+        "patched_sha256": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a"
+      },
+      {
+        "path": "agent/chat_completion_helpers.py",
+        "patched_sha256": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2"
+      },
+      {
+        "path": "agent/chat_completion_nonstream.py",
+        "patched_sha256": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f"
+      },
+      {
+        "path": "agent/cold_admission.py",
+        "patched_sha256": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0"
+      },
+      {
+        "path": "agent/conversation_loop.py",
+        "patched_sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+      },
+      {
+        "path": "agent/managed_admission_rpc.py",
+        "patched_sha256": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be"
+      },
+      {
+        "path": "agent/subagent_lifecycle.py",
+        "patched_sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2"
+      },
+      {
+        "path": "agent/turn_api_call.py",
+        "patched_sha256": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33"
+      },
+      {
+        "path": "agent/turn_api_error.py",
+        "patched_sha256": "2835f951205dcff0c71d687987cba4f569a9085f65fa6d207163059c0147c58d"
+      },
+      {
+        "path": "agent/turn_api_request.py",
+        "patched_sha256": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a"
+      },
+      {
+        "path": "providers/__init__.py",
+        "patched_sha256": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d"
+      },
+      {
+        "path": "run_agent.py",
+        "patched_sha256": "7a6fdae867c8eb288f92074ee0afd88a059ab274d5833f8bfd229da5ea5ee7c7"
+      },
+      {
+        "path": "tui_gateway/rpc_dispatch.py",
+        "patched_sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+      },
+      {
+        "path": "agent/agent_init.py",
+        "patched_sha256": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73"
+      },
+      {
+        "path": "agent/contract_execution.py",
+        "patched_sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f"
+      }
+    ],
+    "reapplied_files": 15,
+    "unrelated_sections_unchanged": [
+      "agent/auxiliary_client.py",
+      "agent/chat_completion_helpers.py",
+      "agent/chat_completion_nonstream.py",
+      "agent/cold_admission.py",
+      "agent/conversation_loop.py",
+      "agent/managed_admission_rpc.py",
+      "agent/turn_api_call.py",
+      "agent/turn_api_error.py",
+      "agent/turn_api_request.py",
+      "providers/__init__.py",
+      "run_agent.py",
+      "tui_gateway/rpc_dispatch.py",
+      "agent/agent_init.py"
+    ],
+    "patch_sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+    "manifest_sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+    "build_limit": "15 source modules syntax-compiled; no native dependency installation, OCI image, or installed-runtime proof."
+  },
+  "independent_controls": {
+    "checker_identity": {
+      "code_digest": "36738cfb398f63d969160c08b7b6b54e91f0ab35818d62fe03ee5528b1d83227",
+      "key": "managed.contract-pure.v2",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_revision": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    "control_count": 41,
+    "controls": [
+      {
+        "name": "partial-positive",
+        "rows": [
+          "DONE",
+          "NOT_RUN",
+          "DONE"
+        ],
+        "status": "INCOMPLETE"
+      },
+      {
+        "name": "receipt-order",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "missing-read",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "missing-normalize",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "foreign-read-input",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "foreign-read-output",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "foreign-header",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "foreign-child",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "foreign-session",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "late-artifact",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "bool-schema-ref",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "unknown-receipt-field",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "null-method-results",
+        "reason": "RESULT_CONFLICT",
+        "status": "DENIED"
+      },
+      {
+        "name": "bool-method-results",
+        "reason": "RESULT_CONFLICT",
+        "status": "DENIED"
+      },
+      {
+        "name": "false-na",
+        "reason": "RESULT_CONFLICT",
+        "status": "DENIED"
+      },
+      {
+        "name": "fake-success",
+        "reason": "RESULT_CONFLICT",
+        "status": "DENIED"
+      },
+      {
+        "name": "missing-gap",
+        "reason": "RESULT_CONFLICT",
+        "status": "DENIED"
+      },
+      {
+        "name": "overflow-result",
+        "reason": "METHOD_OUTPUT_LIMIT",
+        "status": "DENIED"
+      },
+      {
+        "name": "output-cap",
+        "reason": "METHOD_OUTPUT_LIMIT",
+        "status": "DENIED"
+      },
+      {
+        "name": "action-cap",
+        "reason": "METHOD_ACTION_LIMIT",
+        "status": "DENIED"
+      },
+      {
+        "name": "records-null",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "records-object",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "records-empty",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "status": "DENIED"
+      },
+      {
+        "name": "producer-receipt-order",
+        "reason": "BOUND_DONE_UNSATISFIED",
+        "status": "DENIED"
+      },
+      {
+        "name": "producer-missing-read",
+        "reason": "BOUND_DONE_UNSATISFIED",
+        "status": "DENIED"
+      },
+      {
+        "name": "producer-missing-prefix",
+        "reason": "BOUND_DONE_UNSATISFIED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-0",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-1",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-2",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-3",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-4",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-5",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-6",
+        "reason": "MANAGED_REJECTED",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-7",
+        "reason": "BOUND_PREDICATE_UNAVAILABLE",
+        "status": "DENIED"
+      },
+      {
+        "name": "selector-8",
+        "reason": "BOUND_PREDICATE_UNAVAILABLE",
+        "status": "DENIED"
+      },
+      {
+        "name": "historical-denial-False",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "status": "DENIED"
+      },
+      {
+        "name": "historical-denial-True",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "status": "DENIED"
+      },
+      {
+        "handlers": [
+          "contract.normalize-operations"
+        ],
+        "name": "early-return",
+        "status": "INCONCLUSIVE"
+      },
+      {
+        "binding_latched": true,
+        "exception_class": "ColdAdmissionDenied",
+        "handlers": [],
+        "name": "expired-before-read",
+        "status": "DENIED",
+        "terminal": "UNKNOWN"
+      },
+      {
+        "binding_latched": true,
+        "exception_class": "ColdAdmissionDenied",
+        "handlers": [
+          "contract.normalize-operations"
+        ],
+        "name": "identity-after-normalize",
+        "status": "DENIED",
+        "terminal": "UNKNOWN"
+      },
+      {
+        "binding_latched": true,
+        "exception_class": "ValueError",
+        "handlers": [
+          "contract.normalize-operations"
+        ],
+        "name": "failure-in-normalize",
+        "status": "DENIED",
+        "terminal": "UNKNOWN"
+      }
+    ]
+  },
+  "host_controls": {
+    "controls": [
+      {
+        "outcome": "INCONCLUSIVE",
+        "peer_calls": 1,
+        "receive_only_additional_peer_calls": 0,
+        "retention_count": 1,
+        "scenario": "partial"
+      },
+      {
+        "outcome": "SUCCEEDED",
+        "peer_calls": 1,
+        "receive_only_additional_peer_calls": 0,
+        "retention_count": 1,
+        "scenario": "full"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Native binding mismatch",
+        "retention_count": 0,
+        "scenario": "wrong-root"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Invalid CONTRACT receipt",
+        "retention_count": 0,
+        "scenario": "wrong-binding-ref"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Invalid CONTRACT native execution binding",
+        "retention_count": 0,
+        "scenario": "wrong-entry"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Invalid CONTRACT TaskResult",
+        "retention_count": 0,
+        "scenario": "gap-null"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Invalid CONTRACT records",
+        "retention_count": 0,
+        "scenario": "false-success"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 1,
+        "reason": "Invalid managed protocol",
+        "retention_count": 0,
+        "scenario": "aggregate-cap"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 0,
+        "reason": "Stale managed authority",
+        "retention_count": 0,
+        "scenario": "stale-fence"
+      },
+      {
+        "outcome": "DENIED",
+        "peer_calls": 0,
+        "reason": "Expired preparation authority",
+        "retention_count": 0,
+        "scenario": "expired-host"
+      }
+    ],
+    "count": 10,
+    "limit": "actual RuntimeHost _managed/_receive_managed with synthetic peer/current grant/process state; not native RPC, constructor authority or installed proof."
+  },
+  "source": {
+    "verdict": "APPROVED_SCOPED",
+    "tests": {
+      "api_source": 257,
+      "deselected_pg": 5,
+      "native_source_build_ast": 29,
+      "independent_security_controls": 41,
+      "Host_controls": 10
+    },
+    "checker_closure_files": 13,
+    "checker_descriptor": {
+      "code_digest": "36738cfb398f63d969160c08b7b6b54e91f0ab35818d62fe03ee5528b1d83227",
+      "key": "managed.contract-pure.v2",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_revision": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
+  },
+  "requirement_code_evidence": [
+    {
+      "requirement": "Qualified partial only after genuine read + normalize, contiguous prefix, all three requirements retained; no later handler",
+      "code": [
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:124-225,260-295",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:274-355",
+        "api/src/omnis/modules/tasks/method_checks.py:204-387,427-472"
+      ],
+      "evidence": [
+        "257 SOURCE tests including inline/compact partial and default full",
+        "41 independent controls: early return only contract.normalize-operations; broken order/missing prefix/late artifact/foreign refs deny"
+      ],
+      "verdict": "APPROVED_SCOPED_SOURCE"
+    },
+    {
+      "requirement": "No malformed/null/bool/foreign selector/headers/refs or false N/A/success/gap erasure may grant completion",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:40-77",
+        "api/src/omnis/modules/tasks/managed_contract.py:98-164",
+        "api/src/omnis/modules/tasks/method_checks.py:475-622"
+      ],
+      "evidence": [
+        "selector-0..8, bool-schema-ref, false-na, fake-success, missing-gap, null/bool-method-results in independent controls",
+        "existing 257 selected SOURCE positives and same-boundary negatives"
+      ],
+      "verdict": "APPROVED_SCOPED_SOURCE"
+    },
+    {
+      "requirement": "Native result INCONCLUSIVE, root aggregate final status, same-owner Host and API final agree before retention",
+      "code": [
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:442-487",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:190-324",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:244-344",
+        "api/src/omnis/modules/tasks/managed_contract.py:1500-1564"
+      ],
+      "evidence": [
+        "root producer inspected completely; 29 source/build/AST selected tests",
+        "10 Host controls including full/partial retention and receive-only, wrong root/binding/entry, null gap, false-success, 32768 aggregate cap, stale fence, expired authority",
+        "existing test_partial_final_wire_and_backend_accept_same_authentic_prefix"
+      ],
+      "verdict": "APPROVED_SCOPED_SOURCE",
+      "limit": "Root live producer/backend PG integration NOT_RUN by reviewer; parent requires real-consumer QA after reviews."
+    },
+    {
+      "requirement": "Independent check after raw persistence, incomplete remains BLOCKED and no functional oracle PASS; historical receive-only equality cannot create first COMPLETE or partial",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:537-643,653-779,1018-1056",
+        "api/src/omnis/modules/tasks/criterion_checks.py:202-245",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:54-82",
+        "api/src/omnis/modules/tasks/method_checks.py:595-618"
+      ],
+      "evidence": [
+        "read producer/ingestion/check/readback chain; receive_only only from existing persistent method-check, regenerated payload equality",
+        "source tests current old 388fe9d+exact4a3606b full-only/read-only and pre-C10 zero-predicate pairs",
+        "independent historical first-admission/wrong-pin denials"
+      ],
+      "verdict": "APPROVED_SCOPED_SOURCE",
+      "limit": "Persistence/concurrency execution not performed; author prior PG GREEN is contextual evidence only, not independent QA."
+    },
+    {
+      "requirement": "Strict caps and identity/deadline guards survive early return; failures latch UNKNOWN and cannot reexecute",
+      "code": [
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:124-149,229-295",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:425-487",
+        "api/src/omnis/modules/tasks/method_checks.py:563-574"
+      ],
+      "evidence": [
+        "SOURCE action-cap/output-cap/overflow-result denials",
+        "independent expired-before-read: zero handlers, binding latched, UNKNOWN",
+        "identity-after-normalize/failure-in-normalize: one normalize only, UNKNOWN, binding latched",
+        "Host source expired/stale denials have zero peer calls"
+      ],
+      "verdict": "APPROVED_SCOPED_SOURCE"
+    },
+    {
+      "requirement": "Changed distribution applies to attested pin; preserve unrelated 13 sections; exact 15 module identity",
+      "code": [
+        "ops/prepare_hermes_runtime.py:69-95",
+        "integrations/hermes/pin.json",
+        "integrations/hermes/upstream/managed-patch-manifest.json",
+        "integrations/hermes/upstream/omnis-managed.patch"
+      ],
+      "evidence": [
+        "post-inert 15 originals attested before first git apply",
+        "git apply --check exit0; git apply exit0; compile 15 exact SHA modules",
+        "all 13 unrelated unified patch sections byte-identical vs frozen HEAD; pin/manifest/patch SHA agree"
+      ],
+      "verdict": "APPROVED_SCOPED_DISTRIBUTION",
+      "limit": "No full source archive re-download or build/install; module originals bound to pinned manifest hashes."
+    }
+  ],
+  "verdict": "APPROVED_SCOPED",
+  "blocking_findings_count": 0,
+  "finding_schema": {
+    "required_fields": [
+      "id",
+      "severity",
+      "file",
+      "line",
+      "concrete_reproducer",
+      "violated_requirement",
+      "minimal_fix"
+    ],
+    "note": "No concrete blocking finding reproduced in declared scope; an empty list is not global security certification."
+  },
+  "issues_encountered": [
+    "A read-only discovery attempted nonexistent integrations/hermes/upstream/build_managed.py; recovered through existing ops/prepare_hermes_runtime.py, no execution or edit of missing path.",
+    "Large normative-read stdout truncated twice; exact relevant 9.10 and code seams subsequently read directly.",
+    "Parent-reported initial nativePG RuntimeUnavailable before stage and prior watchdog timeout remain UNKNOWN; no silent retry, widening or attribution in this review."
+  ],
+  "artifact_changes": {
+    "repository_edits": [],
+    "repository_commits": [],
+    "scratch_files": [
+      "/home/kali/.hermes/cache/scratch/p2-partial-return-security-review.json",
+      "/home/kali/.hermes/cache/scratch/p2-partial-return-security-controls.log",
+      "/home/kali/.hermes/cache/scratch/p2-partial-return-security-host-controls.log"
+    ],
+    "scratch_directories": [
+      "/home/kali/.hermes/cache/scratch/partial-security-reapply-0jqseio8",
+      "/home/kali/.hermes/cache/scratch/partial-security-source-4d04je4z",
+      "/home/kali/.hermes/cache/scratch/partial-security-native_source-ilh7niu4"
+    ],
+    "protected_untracked_html": "Preexisting documents/Omnis_Notite_Originale.html left untouched; no content read."
+  },
+  "status_delta_for_parent_only": "Review axis only for frozen partial-return source/distribution: APPROVED_SCOPED; P2/B06b/G02 remain open; independent real-consumer QA and canonical/integration parent-owned. No closing status/map edit.",
+  "final_snapshot_verification": {
+    "head_unchanged": true,
+    "frozen_source_and_distribution_hashes_unchanged": 17,
+    "evidence_log_hashes_verified": true,
+    "independent_control_count_verified": 51,
+    "additional_untracked_observation": "documents/verification/p2-bound-predicates-evidence/partial-return-author.json appeared between initial/final git status; not created or read by reviewer; no impact on frozen17 hashes.",
+    "protected_html_untouched": true
+  }
+}

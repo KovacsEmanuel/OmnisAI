@@ -191,7 +191,10 @@ def validate_release(value: object) -> dict[str, object]:
 def validate_response(value: object) -> dict[str, object]:
     if type(value) is not dict:
         raise ValueError("Invalid managed response")
-    success = value.get("protocol") == PROTOCOL_V4 and value.get("status") == "SUCCEEDED"
+    success = value.get("protocol") == PROTOCOL_V4 and value.get("status") in (
+        "SUCCEEDED",
+        "INCONCLUSIVE",
+    )
     final = value.get("status") == "BLOCKED" or success
     keys = {"status", "ticket", "manifest_ref", "native_root_id", "entries"}
     if final:
@@ -228,7 +231,9 @@ def validate_response(value: object) -> dict[str, object]:
         ):
             raise ValueError("Invalid CONTRACT native execution binding")
         records = execution["records"]
-        if type(records) is not list or len(records) not in (6, 8):
+        if type(records) is not list or len(records) not in (
+            (4,) if value["status"] == "INCONCLUSIVE" else (6, 8)
+        ):
             raise ValueError("Invalid CONTRACT records")
         kinds = [
             obj(r, {"schema_version", "kind", "id", "revision", "payload", "digest"})["kind"]
@@ -261,13 +266,19 @@ def validate_response(value: object) -> dict[str, object]:
             },
         )
         if (
-            result["status"] != "SUCCEEDED"
+            result["status"] != value["status"]
             or result["method_review"] is not None
-            or result["gaps"] != []
+            or (value["status"] == "SUCCEEDED" and result["gaps"] != [])
+            or (value["status"] == "INCONCLUSIVE" and not result["gaps"])
             or result["usage"]
             != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}
         ):
             raise ValueError("Invalid CONTRACT TaskResult")
+        from .prompt_bundle import prose
+        from .prompt_bundle import sequence as items
+
+        for gap in items(result["gaps"]):
+            prose(gap)
         _result_header(result["header"])
         _criterion_results(result["criterion_results"])
         for sequence, record in enumerate(records[1 : steps + 2]):

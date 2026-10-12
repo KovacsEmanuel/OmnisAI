@@ -260,9 +260,17 @@ def build_records(
     case_input: dict[str, object] | None = None,
     method_execution: bool = False,
     criterion_ids: object = None,
+    return_predicate_id: object = None,
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
+    if return_predicate_id is not None and (
+        not method_execution
+        or context_only
+        or case_input is None
+        or predicate_key(return_predicate_id) not in {"normalize-records", "build-surface-map"}
+    ):
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     from omnis.modules.tasks import criterion_checks
 
     allocated = [] if criterion_ids is None else criterion_checks.allocation(criterion_ids)
@@ -594,6 +602,8 @@ def build_records(
             )
             else []
         )
+        if return_predicate_id is not None and not predicate_names:
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         requirements = [
             {
                 "ref": {"bound_procedure_ref": bound, "requirement_key": r.key},
@@ -658,7 +668,12 @@ def build_records(
                 "done_when": [
                     {"bound_procedure_ref": bound, "predicate_id": name} for name in predicate_names
                 ],
-                "return_when": [{"bound_procedure_ref": bound, "predicate_id": "build-surface-map"}]
+                "return_when": [
+                    {
+                        "bound_procedure_ref": bound,
+                        "predicate_id": return_predicate_id or "build-surface-map",
+                    }
+                ]
                 if predicate_names
                 else [],
                 "context": [
@@ -867,7 +882,7 @@ def result_json_schema(
         definitions["m"] = strict_object(
             {
                 "ref": {"type": "object"},
-                "state": {"const": "DONE"},
+                "state": {"enum": ["DONE", "NOT_RUN"]},
                 "basis_refs": ref_array,
                 "artifact_refs": ref_array,
                 "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
@@ -907,7 +922,7 @@ def result_json_schema(
             )
         properties.update(
             {
-                "status": {"const": "SUCCEEDED"},
+                "status": {"enum": ["SUCCEEDED", "INCONCLUSIVE"]},
                 "method_results": {
                     "type": "array",
                     "minItems": len(requirements),
@@ -916,7 +931,11 @@ def result_json_schema(
                 },
                 "consumed_input_refs": ref_array,
                 "action_refs": ref_array,
-                "gaps": {"type": "array", "maxItems": 0},
+                "gaps": {
+                    "type": "array",
+                    "maxItems": 128,
+                    "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+                },
             }
         )
     if criterion_bindings:
@@ -1495,9 +1514,9 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
         }
         | ({"executions"} if method_execution else set()),
     )
-    if result["status"] != ("SUCCEEDED" if method_execution else "BLOCKED") or result["reason"] != (
-        "CONTRACT_PURE" if method_execution else "NO_MODEL"
-    ):
+    if result["status"] not in (
+        ("SUCCEEDED", "INCONCLUSIVE") if method_execution else ("BLOCKED",)
+    ) or result["reason"] != ("CONTRACT_PURE" if method_execution else "NO_MODEL"):
         raise CatalogError("MANAGED_REJECTED")
     stage = validate_stage(
         {
@@ -1531,7 +1550,11 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
                 raise CatalogError("LINEAGE_MISMATCH")
             ref(execution["brief_ref"], "task-brief")
             output = [record(r) for r in sequence(execution["records"])]
-            if len(output) not in (6, 8) or len({text(r["id"]) for r in output}) != len(output):
+            if len(output) not in ((4,) if result["status"] == "INCONCLUSIVE" else (6, 8)) or len(
+                {text(r["id"]) for r in output}
+            ) != len(output):
+                raise CatalogError("RESULT_CONFLICT")
+            if mapping(output[0]["payload"])["status"] != result["status"]:
                 raise CatalogError("RESULT_CONFLICT")
             steps = (len(output) - 2) // 2
             if [r["kind"] for r in output] != ["task-result"] + ["contract-tool-receipt"] * (

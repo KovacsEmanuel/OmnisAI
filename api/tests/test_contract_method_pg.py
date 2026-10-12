@@ -253,14 +253,15 @@ class PreparationPrerequisite(RuntimeClient):
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
 @pytest.mark.parametrize(
-    "first_final_after_stop,with_criteria,lost_reply,legacy_criteria",
+    "first_final_after_stop,with_criteria,lost_reply,legacy_criteria,early_return",
     [
-        (False, False, False, False),
-        (False, True, False, False),
-        (False, True, False, True),
-        (True, True, False, False),
-        (False, True, True, False),
-        (True, True, True, False),
+        (False, False, False, False, False),
+        (False, True, False, False, False),
+        (False, True, False, True, False),
+        (True, True, False, False, False),
+        (False, True, True, False, False),
+        (True, True, True, False, False),
+        (False, True, False, False, True),
     ],
     ids=[
         "support-zero",
@@ -269,6 +270,7 @@ class PreparationPrerequisite(RuntimeClient):
         "criteria-first-late-held",
         "lost-reply",
         "lost-reply-post-stop",
+        "qualified-early-return",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -279,6 +281,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     with_criteria: bool,
     lost_reply: bool,
     legacy_criteria: bool,
+    early_return: bool,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -487,6 +490,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 slot_values=[{"slot_name": "records", "refs": [original["input_ref"]]}],
             )
             actual_build = BuildSource.build
+            if early_return:
+                assignment["return_predicate_id"] = "normalize-records"
 
             def measured_build(
                 source: BuildSource,
@@ -497,6 +502,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 prefix: list[dict[str, object]] | None = None,
                 case_input: dict[str, object] | None = None,
                 method_execution: bool = False,
+                return_predicate_id: object = None,
             ) -> list[dict[str, object]]:
                 graph = actual_build(
                     source,
@@ -506,6 +512,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     prefix=prefix,
                     case_input=case_input,
                     method_execution=method_execution,
+                    return_predicate_id=return_predicate_id,
                 )
                 # Reconstruct the former inline representation from these exact
                 # retained records; no seed/input/receipt is removed or recomputed.
@@ -569,7 +576,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "preserve-input-context",
                 ]
                 assert [mapping(r)["predicate_id"] for r in sequence(body["return_when"])] == [
-                    "build-surface-map"
+                    "normalize-records" if early_return else "build-surface-map"
                 ]
                 checkpoint(
                     bound_predicate_producer="QUALIFIED_NONEMPTY",
@@ -934,18 +941,36 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     else:
                         if first_final_after_stop:
                             pause.setattr(domain, "ingest_result", stop_before_first_persist)
+                        if early_return:
+                            original_check = domain.check
+
+                            async def persisted_before_check(
+                                owner_id: str, command_id: str
+                            ) -> dict[str, object]:
+                                persisted = await domain.readback(
+                                    seed.request(command_id=command_id)
+                                )
+                                assert len(sequence(persisted["results"])) == 1
+                                assert persisted["checks"] == []
+                                raw = mapping(sequence(persisted["results"])[0])
+                                assert mapping(raw["payload"])["status"] == "INCONCLUSIVE"
+                                assert len(sequence(mapping(raw["payload"])["method_results"])) == 3
+                                checkpoint(raw_partial_persisted_before_method_check="PASS")
+                                return await original_check(owner_id, command_id)
+
+                            pause.setattr(domain, "check", persisted_before_check)
                         released = await owner.handle(
                             NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
                         )
                 assert seam_calls == int(first_final_after_stop and not lost_reply)
-                assert released["task_status"] == "SUCCEEDED"
+                assert released["task_status"] == ("BLOCKED" if early_return else "SUCCEEDED")
                 assert released["binding_ref"] == staged["binding_ref"]
                 back_request = seed.request(command_id=assignment["command_id"])
                 back = await domain.readback(back_request)
                 binding = mapping(back["binding"])
                 assert mapping(mapping(binding["payload"])["authority"])["owner"] == str(supervisor)
                 assert mapping(binding["payload"])["runtime_boot"] == runtime.boot
-                assert back["status"] == "SUCCEEDED"
+                assert back["status"] == ("BLOCKED" if early_return else "SUCCEEDED")
                 if with_criteria:
                     outcomes = [mapping(o) for o in sequence(back["criterion_outcomes"])]
                     assert len(outcomes) == 2
@@ -956,7 +981,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     assert {p["criterion_id"] for p in payloads} == set(criterion_ids)
                     assert all(
                         p["outcome"] == "BLOCKED"
-                        and p["gaps"] == ["ORACLE_UNAVAILABLE", "CONTROLS_UNAVAILABLE"]
+                        and p["gaps"]
+                        == [
+                            "ORACLE_UNAVAILABLE",
+                            "CONTROLS_UNAVAILABLE",
+                            *(["METHOD_INCOMPLETE"] if early_return else []),
+                        ]
                         for p in payloads
                     )
                     assert payloads[0]["bound_procedure_ref"] == payloads[1]["bound_procedure_ref"]
@@ -977,16 +1007,30 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 graph = [mapping(r) for r in sequence(back["records"])]
                 receipts = [r for r in graph if r["kind"] == "contract-tool-receipt"]
                 artifacts = [r for r in graph if r["kind"] == "contract-artifact"]
-                assert len(receipts) == 3 and len(artifacts) == 2
+                assert len(receipts) == (2 if early_return else 3) and len(artifacts) == (
+                    1 if early_return else 2
+                )
                 ordered = sorted(
                     receipts, key=lambda r: integer(mapping(r["payload"])["sequence"], 0)
                 )
-                assert [mapping(r["payload"])["sequence"] for r in ordered] == [0, 1, 2]
+                assert [mapping(r["payload"])["sequence"] for r in ordered] == (
+                    [0, 1] if early_return else [0, 1, 2]
+                )
                 assert mapping(ordered[0]["payload"])["output_ref"] == original["input_ref"]
                 checks = [mapping(r) for r in sequence(back["checks"])]
-                assert len(checks) == 1 and mapping(checks[0]["payload"])["status"] == "COMPLETE"
+                expected_check = "INCOMPLETE" if early_return else "COMPLETE"
+                assert (
+                    len(checks) == 1 and mapping(checks[0]["payload"])["status"] == expected_check
+                )
+                if early_return:
+                    methods = [
+                        mapping(r) for r in sequence(mapping(result["payload"])["method_results"])
+                    ]
+                    assert [m["state"] for m in methods] == ["DONE", "NOT_RUN", "DONE"]
+                    assert mapping(result["payload"])["status"] == "INCONCLUSIVE"
+                    assert mapping(checks[0]["payload"])["gap_refs"] == [methods[1]["ref"]]
                 if with_criteria:
-                    checkpoint(bound_predicate_persistent_check="COMPLETE")
+                    checkpoint(bound_predicate_persistent_check=expected_check)
                 if with_criteria:
                     from omnis.modules.settings import candidate_store as stored
                     from omnis.modules.tasks import criterion_checks
@@ -1057,8 +1101,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "native-task-receipt": 1,
                     "task-result": 1,
                     "method-check": 1,
-                    "contract-tool-receipt": 3,
-                    "contract-artifact": 2,
+                    "contract-tool-receipt": 2 if early_return else 3,
+                    "contract-artifact": 1 if early_return else 2,
                 }
                 duplicate = await domain.ingest_result(
                     seed.owner, prepared["manifest_ref"], final, runtime.boot, fence, held=False
@@ -1201,7 +1245,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     await owner.handle(
                         NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
                     )
-                )["task_status"] == "SUCCEEDED"
+                )["task_status"] == ("BLOCKED" if early_return else "SUCCEEDED")
                 # Persistent managed CLI/readback/reconcile in fresh reader
                 # processes on THIS owned DB; no runtime restart or adoption.
                 assert canonical(await restarted_cli("readback", back_request)) == canonical(back)
@@ -1334,19 +1378,26 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             {"test": "run_contract", "status": "REAL_AIAgent", "count": 1}
         ]
         assert len([r for r in rows if r["test"] == "_read_bound_input"]) == 1
-        assert len([r for r in rows if r["test"] == "run_handler"]) == 2
-        assert {"test": "native-release", "status": "SUCCEEDED", "count": 1} in rows
+        assert len([r for r in rows if r["test"] == "run_handler"]) == (1 if early_return else 2)
+        assert {
+            "test": "native-release",
+            "status": "INCONCLUSIVE" if early_return else "SUCCEEDED",
+            "count": 1,
+        } in rows
         if with_criteria and not legacy_criteria:
-            assert [r for r in rows if r["test"] == "bound-predicates"] == [
-                {"test": "bound-predicates", "status": "SATISFIED", "count": 3}
-            ]
+            assert [r for r in rows if r["test"] == "bound-predicates"] == (
+                [{"test": "bound-predicates", "status": "GAP", "count": 3}] * 2
+                if early_return
+                else [{"test": "bound-predicates", "status": "SATISFIED", "count": 3}]
+            )
             checkpoint(
-                native_bound_predicate_evaluation="SATISFIED", native_bound_predicate_count=3
+                native_bound_predicate_evaluation="GAP" if early_return else "SATISFIED",
+                native_bound_predicate_count=3,
             )
         checkpoint(
             native_run_contract=1,
             native_reads=1,
-            native_handlers=2,
+            native_handlers=1 if early_return else 2,
             forbidden_native_attempts=0,
             status="PASS_SOURCE_NOT_INSTALLED",
         )

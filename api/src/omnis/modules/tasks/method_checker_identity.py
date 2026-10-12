@@ -36,6 +36,9 @@ HISTORICAL = {
         "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473",
     },
 }
+FULL_PREDICATE_HISTORICAL = {
+    "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+}
 
 
 def descriptor() -> dict[str, object]:
@@ -59,6 +62,14 @@ def verify(
     digest = contract.text(body["code_digest"], 64)
     if canonical(body) == canonical(descriptor()):
         return record
+    if (
+        receive_only is True
+        and zero_predicates is False
+        and key == KEY
+        and FULL_PREDICATE_HISTORICAL.get(digest) == pin
+        and body["semantics"] == SEMANTICS
+    ):
+        return record  # Retained current-C10 COMPLETE is regenerated/equal by its caller.
     if (
         receive_only is True
         and zero_predicates is True

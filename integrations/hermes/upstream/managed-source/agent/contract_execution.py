@@ -266,6 +266,14 @@ def run_contract(agent, binding, guard):
             previous_ref = tools.pure_action(
                 step["id"], step["action_definition_ref"], [previous_ref]
             )
+            returns = tools.brief["payload"]["return_when"]
+            if any(r["predicate_id"] != "build-surface-map" for r in returns):
+                values = method.predicate_values(
+                    tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
+                    prompt_bundle=tools.prompt_bundle,
+                )
+                if values and any(values[r["predicate_id"]] for r in returns):
+                    break
         tools._guard()
         result = method.task_result(
             tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
@@ -280,7 +288,7 @@ def run_contract(agent, binding, guard):
         }
         if len(canonical(execution)) > 32768:
             raise ColdAdmissionDenied("CONTRACT native result exceeds bound")
-        state.terminal = "SUCCEEDED"
+        state.terminal = result["payload"]["status"]
         return execution
     except BaseException:
         state.terminal = "UNKNOWN"

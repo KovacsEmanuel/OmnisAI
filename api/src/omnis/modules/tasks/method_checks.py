@@ -210,8 +210,17 @@ def _receipts(
     steps: list[Data],
 ) -> tuple[Data, list[Data], list[Data]]:
     published = contract.sequence(raw_records)
-    count = len(steps)
-    if len(published) != 2 + count * 2:
+    count = (len(published) - 2) // 2
+    partial = count < len(steps)
+    body = contract.mapping(brief["payload"])
+    if (
+        len(published) != 2 + count * 2
+        or (
+            partial
+            and (count != 1 or len(steps) != 2 or not body["done_when"] or not body["return_when"])
+        )
+        or count > len(steps)
+    ):
         raise CatalogError(RECEIPT)
     result = _record(published[0], "task-result", CONFLICT)
     receipts = [_record(r, "contract-tool-receipt", RECEIPT) for r in published[1 : count + 2]]
@@ -260,7 +269,7 @@ def _receipts(
             contract.ref(body["action_definition_ref"], "action_definition")
         _same(body, expected, RECEIPT)
         previous = contract.ref(body["output_ref"])
-    for artifact, step in zip(artifacts, steps, strict=True):
+    for artifact, step in zip(artifacts, steps[:count], strict=True):
         body = _exact(artifact["payload"], {"header", "schema_ref", "value"}, RECEIPT)
         contract.ref(body["schema_ref"], "schema")
         _same(body["header"], header, RECEIPT)
@@ -295,7 +304,7 @@ def _results(
     from omnis.modules.tasks.criterion_checks import result_rows
 
     criteria = result_rows(result, brief)
-    if body["status"] != "SUCCEEDED" or body["method_review"] is not None or body["gaps"] != []:
+    if body["method_review"] is not None:
         raise CatalogError(CONFLICT)
     _same(
         body["usage"],
@@ -320,6 +329,12 @@ def _results(
         raise CatalogError(CONFLICT)
     known_steps = [contract.mapping(r["payload"])["step_id"] for r in receipts[1:]]
     known_schemas = [contract.mapping(a["payload"])["schema_ref"] for a in [original, *artifacts]]
+    gaps: list[str] = []
+    procedure_steps = [contract.mapping(s)["id"] for s in contract.sequence(procedure["probe"])]
+    procedure_schemas = [
+        procedure["input_schema_ref"],
+        *[contract.mapping(s)["output_schema_ref"] for s in contract.sequence(procedure["probe"])],
+    ]
     for raw, raw_plan, raw_requirement in zip(results, plan, requirements, strict=True):
         row = _exact(raw, {"ref", "state", "basis_refs", "artifact_refs", "reason"}, CONFLICT)
         requirement = contract.mapping(raw_requirement)
@@ -329,15 +344,24 @@ def _results(
         schemas = _refs(requirement["artifact_schema_refs"], "schema")
         if (
             len({canonical(s) for s in steps}) != len(steps)
-            or any(s not in known_steps for s in steps)
+            or any(s not in procedure_steps for s in steps)
             or len({canonical(s) for s in schemas}) != len(schemas)
-            or any(canonical(s) not in [canonical(k) for k in known_schemas] for s in schemas)
+            or any(canonical(s) not in [canonical(k) for k in procedure_schemas] for s in schemas)
         ):
             raise CatalogError(UNSUPPORTED)
         _same(row["ref"], contract.mapping(raw_plan)["ref"], CONFLICT)
-        if row["state"] != "DONE":
+        done = all(s in known_steps for s in steps) and all(
+            canonical(s) in [canonical(k) for k in known_schemas] for s in schemas
+        )
+        if row["state"] != ("DONE" if done else "NOT_RUN"):
             raise CatalogError(CONFLICT)
         contract.text(row["reason"])
+        if not done:
+            reason = (
+                "NOT_RUN: " + contract.text(requirement["key"], 128) + " (qualified early return)."
+            )
+            _same(row["reason"], reason, CONFLICT)
+            gaps.append(reason)
         _refs(row["basis_refs"], "contract-tool-receipt")
         _refs(row["artifact_refs"])
         _same(
@@ -359,6 +383,8 @@ def _results(
             ],
             CONFLICT,
         )
+    _same(body["gaps"], gaps, CONFLICT)
+    _same(body["status"], "INCONCLUSIVE" if gaps else "SUCCEEDED", CONFLICT)
     return results
 
 
@@ -407,13 +433,13 @@ def _predicates(
     *,
     prompt_bundle: Data,
     composition_version: object,
-) -> None:
+) -> bool:
     body = contract.mapping(brief["payload"])
     contract.validate_predicates(
         body, bound, prompt_bundle=prompt_bundle, composition_version=composition_version
     )
     if not body["done_when"] and not body["return_when"]:
-        return
+        return True
     procedure = contract.mapping(contract.mapping(bound["payload"])["resolved_procedure"])
     closure = contract.predicate_closure(procedure)
     values: dict[str, bool] = {}
@@ -435,14 +461,15 @@ def _predicates(
                 and (source == "INPUT" or receipt["output_ref"] == records.reference(outputs[0]))
             )
         values[name] = satisfied
-    if not all(
-        values[contract.text(contract.mapping(r)["predicate_id"])]
-        for r in contract.sequence(body["done_when"])
-    ) or not any(
+    if not any(
         values[contract.text(contract.mapping(r)["predicate_id"])]
         for r in contract.sequence(body["return_when"])
     ):
         raise CatalogError("BOUND_PREDICATE_GAP")
+    return all(
+        values[contract.text(contract.mapping(r)["predicate_id"])]
+        for r in contract.sequence(body["done_when"])
+    )
 
 
 def check_execution(
@@ -554,7 +581,7 @@ def check_execution(
             if error.reason == UNSUPPORTED:
                 raise
             raise CatalogError(CONFLICT) from None
-        _predicates(
+        complete = _predicates(
             checked_brief,
             checked_bound,
             original,
@@ -563,16 +590,30 @@ def check_execution(
             prompt_bundle=prompt_bundle,
             composition_version=composition_version,
         )
+        from omnis.modules.tasks.method_checker_identity import FULL_PREDICATE_HISTORICAL
+
+        if (
+            not complete
+            and contract.mapping(checked_checker["payload"])["code_digest"]
+            in FULL_PREDICATE_HISTORICAL
+        ):
+            raise CatalogError("METHOD_CHECKER_UNAVAILABLE")
         return records.envelope(
             "method-check",
             {
                 "brief_ref": records.reference(checked_brief),
                 "task_result_ref": records.reference(result),
                 "checker_ref": records.reference(checked_checker),
-                "status": "COMPLETE",
+                "status": "COMPLETE" if complete else "INCOMPLETE",
                 "checked_results": checked_results,
-                "gap_refs": [],
-                "reason": "Exact bound CONTRACT/PURE receipts and published requirements checked.",
+                "gap_refs": [
+                    contract.mapping(r)["ref"]
+                    for r in checked_results
+                    if contract.mapping(r)["state"] != "DONE"
+                ],
+                "reason": "Exact bound CONTRACT/PURE receipts and published requirements checked."
+                if complete
+                else "Qualified early return; missing done predicates remain unexecuted.",
             },
         )
     except CatalogError:

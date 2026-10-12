@@ -38,6 +38,7 @@ class SubagentState(str, enum.Enum):
     STARTING = "STARTING"
     RUNNING = "RUNNING"
     SUCCEEDED = "SUCCEEDED"
+    INCONCLUSIVE = "INCONCLUSIVE"
     FAILED = "FAILED"
     INTERRUPTED = "INTERRUPTED"
     CANCEL_REQUESTED = "CANCEL_REQUESTED"
@@ -465,14 +466,15 @@ class SubagentLifecycleService:
         record.started_at = record.updated_at = time.time()
         try:
             execution = child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
-            final = {**batch["response"], "status": "SUCCEEDED", "reason": "CONTRACT_PURE",
+            terminal = SubagentState(execution["records"][0]["payload"]["status"])
+            final = {**batch["response"], "status": terminal.value, "reason": "CONTRACT_PURE",
                      "binding_ref": ref(payload["binding"]), "executions": [execution]}
             validate_response(final)  # whole wire, including aggregate 32768 cap
-            result = SubagentResult(record.handle, SubagentState.SUCCEEDED, True,
+            result = SubagentResult(record.handle, terminal, True,
                 started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
                 usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
             record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-            record.state = SubagentState.SUCCEEDED
+            record.state = terminal
             record.completed_at = record.updated_at = result.completed_at
             batch["response"] = final
             batch["indeterminate"] = False

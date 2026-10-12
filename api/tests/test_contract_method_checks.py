@@ -99,6 +99,7 @@ def native_case(
     predicates: bool = False,
     composer_pin: str | None = None,
     compact: bool = False,
+    return_predicate: str = "build-surface-map",
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -215,7 +216,7 @@ def native_case(
             obj(brief["payload"])["return_when"] = [
                 {
                     "bound_procedure_ref": records.reference(bound),
-                    "predicate_id": "build-surface-map",
+                    "predicate_id": return_predicate,
                 }
             ]
         bundle = obj(payload["prompt_bundle"])

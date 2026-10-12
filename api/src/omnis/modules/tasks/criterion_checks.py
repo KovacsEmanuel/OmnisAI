@@ -216,7 +216,7 @@ def outcome_payloads(brief: object, result: object, check: object, graph: list[D
         contract.ref(checked["brief_ref"], "task-brief") != records.reference(brief_record)
         or contract.ref(checked["task_result_ref"], "task-result")
         != records.reference(result_record)
-        or checked["status"] != "COMPLETE"
+        or checked["status"] not in {"COMPLETE", "INCOMPLETE"}
     ):
         raise CatalogError("CRITERION_CHECK_REQUIRED")
     procedure = contract.mapping(contract.mapping(bound["payload"])["resolved_procedure"])
@@ -236,7 +236,7 @@ def outcome_payloads(brief: object, result: object, check: object, graph: list[D
             "outcome": "BLOCKED",
             "control_step_ids": [],
             "evidence_refs": [],
-            "gaps": list(GAPS),
+            "gaps": [*GAPS, *(["METHOD_INCOMPLETE"] if checked["status"] == "INCOMPLETE" else [])],
             "reason": REASON,
         }
         for b in assigned

@@ -477,7 +477,12 @@
 +                RPC["task_status"]: _SERVICE.readback, RPC["task_model_preflight"]: _SERVICE.model_preflight}[method](params)
 --- a/agent/subagent_lifecycle.py
 +++ b/agent/subagent_lifecycle.py
-@@ -42,6 +42,7 @@
+@@ -38,10 +38,12 @@
+     STARTING = "STARTING"
+     RUNNING = "RUNNING"
+     SUCCEEDED = "SUCCEEDED"
++    INCONCLUSIVE = "INCONCLUSIVE"
+     FAILED = "FAILED"
      INTERRUPTED = "INTERRUPTED"
      CANCEL_REQUESTED = "CANCEL_REQUESTED"
      CANCELLED = "CANCELLED"
@@ -485,7 +490,7 @@
      UNKNOWN = "UNKNOWN"
 
 
-@@ -241,9 +242,252 @@
+@@ -241,9 +243,253 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -712,14 +717,15 @@
 +        record.started_at = record.updated_at = time.time()
 +        try:
 +            execution = child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
-+            final = {**batch["response"], "status": "SUCCEEDED", "reason": "CONTRACT_PURE",
++            terminal = SubagentState(execution["records"][0]["payload"]["status"])
++            final = {**batch["response"], "status": terminal.value, "reason": "CONTRACT_PURE",
 +                     "binding_ref": ref(payload["binding"]), "executions": [execution]}
 +            validate_response(final)  # whole wire, including aggregate 32768 cap
-+            result = SubagentResult(record.handle, SubagentState.SUCCEEDED, True,
++            result = SubagentResult(record.handle, terminal, True,
 +                started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
 +                usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
 +            record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-+            record.state = SubagentState.SUCCEEDED
++            record.state = terminal
 +            record.completed_at = record.updated_at = result.completed_at
 +            batch["response"] = final
 +            batch["indeterminate"] = False
@@ -1099,7 +1105,7 @@
      _params = locals()
 --- /dev/null
 +++ b/agent/contract_execution.py
-@@ -0,0 +1,287 @@
+@@ -0,0 +1,295 @@
 +"""Constructor-owned finite CONTRACT/PURE child; never a warm/cold promotion.
 +
 +Trusted lifecycle commits the binding and supplies a local fail-closed guard.
@@ -1368,6 +1374,14 @@
 +            previous_ref = tools.pure_action(
 +                step["id"], step["action_definition_ref"], [previous_ref]
 +            )
++            returns = tools.brief["payload"]["return_when"]
++            if any(r["predicate_id"] != "build-surface-map" for r in returns):
++                values = method.predicate_values(
++                    tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
++                    prompt_bundle=tools.prompt_bundle,
++                )
++                if values and any(values[r["predicate_id"]] for r in returns):
++                    break
 +        tools._guard()
 +        result = method.task_result(
 +            tools.brief, tools.bound, original, tools.receipts, tools.artifacts,
@@ -1382,7 +1396,7 @@
 +        }
 +        if len(canonical(execution)) > 32768:
 +            raise ColdAdmissionDenied("CONTRACT native result exceeds bound")
-+        state.terminal = "SUCCEEDED"
++        state.terminal = result["payload"]["status"]
 +        return execution
 +    except BaseException:
 +        state.terminal = "UNKNOWN"

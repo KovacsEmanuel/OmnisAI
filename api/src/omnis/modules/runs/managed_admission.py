@@ -13,7 +13,7 @@ import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import NoReturn
+from typing import NoReturn, TypedDict
 
 from sqlalchemy import text as sql
 from sqlalchemy.exc import SQLAlchemyError
@@ -44,6 +44,11 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         3 if operation in {"prepare-composed", "prepare-method"} else 1,
     )
     fields = {"schema_version", "owner_id", "command_id"}
+    selected_return = "return_predicate_id" in mapping(value)
+    if selected_return:
+        if operation != "prepare-method" or version != 3:
+            raise CatalogError("INVALID_REQUEST")
+        fields.add("return_predicate_id")
     if version in (2, 3):
         fields |= {"context_ref", "slot_values"}
     if operation in {"prepare", "prepare-composed", "prepare-method"}:
@@ -51,6 +56,12 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     elif operation not in {"readback", "reconcile"}:
         raise CatalogError("INVALID_REQUEST")
     result = contract.exact(value, fields)
+    if selected_return:
+        if contract.predicate_key(result["return_predicate_id"]) not in {
+            "normalize-records",
+            "build-surface-map",
+        }:
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     contract.integer(result["schema_version"], version, version)
     uuid_string(result["owner_id"])
     uuid_string(result["command_id"])
@@ -64,6 +75,10 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
             ref(result["context_ref"], "contract-input-context")
             contract.capture_slot_values(result["slot_values"], version=version - 1)
     return result
+
+
+class ReturnSelection(TypedDict, total=False):
+    return_predicate_id: object
 
 
 @dataclass(frozen=True)
@@ -108,7 +123,11 @@ class BuildSource:
         case_input: dict[str, object] | None = None,
         method_execution: bool = False,
         criterion_ids: object = None,
+        return_predicate_id: object = None,
     ) -> list[dict[str, object]]:
+        selected: ReturnSelection = {}
+        if return_predicate_id is not None:
+            selected["return_predicate_id"] = return_predicate_id
         return contract.build_records(
             self.selection,
             self.preparation_ref,
@@ -126,6 +145,7 @@ class BuildSource:
             case_input=case_input,
             method_execution=method_execution,
             criterion_ids=criterion_ids,
+            **selected,
         )
 
 
@@ -278,13 +298,23 @@ class ManagedAdmission:
             validate_slot_values(request["slot_values"], section)
         else:
             source = await self._source(connection, owner, request)
-        graph = source.build(
-            count=contract.integer(request["task_count"], 1, 2),
-            composed=request.get("composition_version") in {1, 2, 3, 4},
-            prefix=prefix,
-            case_input=section,
-            method_execution=request.get("composition_version") == 4,
-        )
+        if "return_predicate_id" in request:
+            graph = source.build(
+                count=contract.integer(request["task_count"], 1, 2),
+                composed=request.get("composition_version") in {1, 2, 3, 4},
+                prefix=prefix,
+                case_input=section,
+                method_execution=request.get("composition_version") == 4,
+                return_predicate_id=request["return_predicate_id"],
+            )
+        else:
+            graph = source.build(
+                count=contract.integer(request["task_count"], 1, 2),
+                composed=request.get("composition_version") in {1, 2, 3, 4},
+                prefix=prefix,
+                case_input=section,
+                method_execution=request.get("composition_version") == 4,
+            )
         if len(canonical(graph)) + source.preparation_bytes > 65536:
             raise CatalogError("CONTEXT_OVERFLOW")
         return graph
@@ -694,13 +724,15 @@ class ManagedAdmission:
         *,
         graph: list[dict[str, object]] | None = None,
     ) -> dict[str, object]:
-        if mapping(result["payload"])["status"] != "SUCCEEDED":
-            return contract.method_check(brief, result, checker_ref)
         from omnis.modules.tasks.method_checks import check_execution
 
         values = await store.graph(conn, owner, run) if graph is None else graph
-        local = {text(r["id"]): r for r in values}
         manifests = [r for r in values if r["kind"] == "launch-manifest"]
+        if len(manifests) != 1:
+            raise CatalogError("METHOD_RECEIPT_MISMATCH")
+        if contract.manifest_protocol(manifests[0]) != "omnis-managed-admission-v4":
+            return contract.method_check(brief, result, checker_ref)
+        local = {text(r["id"]): r for r in values}
         bindings = [r for r in values if r["kind"] == "runtime-binding"]
         finals = [r for r in values if r["kind"] == "native-task-receipt"]
         if len(manifests) != 1 or len(bindings) != 1 or len(finals) != 1:

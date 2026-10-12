@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_LOCAL_RECORDED_CANONICAL_SCOPED_NOT_P2_CLOSURE",
+  "session_id": "proc_51e6e9bf7458",
+  "tested_head": "ff095af2ac1b89a1245111501945dbb34fbb10b3",
+  "product_commit": "46589bfc2baf955706dbf1e440c8a3bd66801d6a",
+  "initial_C10_integration": "25395bdd0dbeab83afb7894182b7fe88202da104",
+  "quality_fix": "9a49d15838a7ed5c2f649c3f7668a254373e1983",
+  "fixture_fix": "d3a176b",
+  "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "exit_code": 0,
+  "receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "receipt_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+  "private_gate_log": {
+    "path": "/home/kali/.hermes/cache/scratch/db-d4b3d399e49e4db3/gate.log",
+    "sha256": "28a919c8161b0afd55459d03c2e6a10aee70c8fe044ef36b3832462bbcd70f65",
+    "raw_not_exposed_or_versioned": true
+  },
+  "frozen_snapshot": {
+    "scratch_path": "/home/kali/.hermes/cache/scratch/p2-c10-integrated-canonical3-before.json",
+    "sha256": "16ce01fe250fac2cc43e81fc4a05b60be670e5b826f3ae210c38fddda50bb76a",
+    "files_count": 969,
+    "all_equal_pre_post": true,
+    "recovery": "Exact tracked source bytes recoverable from tested Git commit; manifest was generated from git ls-files before the gate and every actual hash compared after join."
+  },
+  "counts": {
+    "documentation": 72,
+    "development": 46,
+    "API": {
+      "passed": 1565,
+      "skipped": 7,
+      "seconds": 2189.96
+    },
+    "migrations": {
+      "passed": 23,
+      "seconds": 65.88
+    },
+    "web_tooling": 10,
+    "web_unit": 82,
+    "E2E_browser_API_PG": {
+      "passed": 9,
+      "seconds": 90.07
+    },
+    "CLI_source": {
+      "passed": 287,
+      "seconds": 71.661
+    },
+    "CLI_wheel": {
+      "passed": 287,
+      "seconds": 71.349
+    },
+    "installed_CLI_status": {
+      "passed": 1,
+      "seconds": 4.12
+    },
+    "release": {
+      "passed": 61,
+      "seconds": 18.966
+    },
+    "runtime_SOURCE": {
+      "passed": 422,
+      "seconds": 19.74
+    },
+    "native_AST": {
+      "passed": 6,
+      "seconds": 0.06
+    },
+    "runtime_mypy": {
+      "files": 15,
+      "exit_code": 0
+    }
+  },
+  "skip_limit": "7 API skips reported by existing canonical -q recipe; detailed per-skip reason list is not claimed from that output. Optional native/installed/live requirements remain scoped and are not inferred from exit0.",
+  "quality": "Actual canonical lock/audit/lint/type/contract/build recipes reached successful end; no Makefile/gate weakening, aliases, skip substitutions or fabricated results.",
+  "cleanup_parent_readback": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-6ff236d0efda4fae",
+      "project": "omnis-p01-e4bbd4fe9e67487994c6f35034293f5c",
+      "container_id": "355d1025a3dbf9ced1619c4f8c2f9a37239c5abbf7ab81d65f744ca09325b1c9",
+      "exact_cid_absent": true,
+      "owned_project_containers_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-5476368d55094088",
+      "project": "omnis-p01-829737185a5c48f8a469f94198e874f5",
+      "container_id": "96e787c108a89ed7d73cd172dee4d9266f46d7e8fed1cc07f6b97013ee53cd2c",
+      "exact_cid_absent": true,
+      "owned_project_containers_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-d59161710eb24a8e",
+      "project": "omnis-p01-22166a54e42642249a52025c843d4ab6",
+      "container_id": "982fd0646795414b7fe773dfad49049c10a02de931b51431d02da15ab753f5b5",
+      "exact_cid_absent": true,
+      "owned_project_containers_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-1e98a24283fd450c",
+      "project": "omnis-p01-941aa0c3b9c74f818e5b9c7b6346c6a6",
+      "container_id": "40fd65ce24a4d027f0b75d84cb1ab817adc497acddcad21164effa9790aa3295",
+      "exact_cid_absent": true,
+      "owned_project_containers_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-d4b3d399e49e4db3",
+      "project": "omnis-p01-0dcc0e977ee34887904d1270c8afd3bb",
+      "container_id": "a75105c2489461e8f0d909914193a59ce9f63d23f85d14663e78ba0e1aeec578",
+      "exact_cid_absent": true,
+      "owned_project_containers_networks_absent": true,
+      "uds_absent": true,
+      "data_logs_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    }
+  ],
+  "protected_untracked": {
+    "path": "documents/Omnis_Notite_Originale.html",
+    "sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+    "unchanged_not_staged": true
+  },
+  "findings": {
+    "C10-NATIVE-F01": "CLOSED_SCOPED; complementary reviewed candidate8ea28b2 integrated exact17bytes in25395bd",
+    "C10-NORM-F01_C10-SEC-F01_F04": "Retained CLOSED_SOURCE_SCOPED within original unchanged scopes",
+    "C10-LEGACY-F01": "CLOSED_SCOPED46589bf; complementary reviews and actualPG181PASS",
+    "C10-LEGACY-FIXTURE-F01": "CLOSED_SCOPEDd3a176b; separate reviewed None-only fixture correction and same realPG GREEN",
+    "C10-LEGACY-SEC-N01": "LOW_NONBLOCKING_DEFERRED; internal malformed-field exception taxonomy, public CLI source sanitizes; no new public fault execution claimed"
+  },
+  "retained_failures": [
+    "p2-bound-predicates-canonical-fail.json",
+    "p2-bound-predicates-canonical2-fail.json",
+    "p2-bound-predicates-legacy-cold-close.json prior targeted180PASS1FAIL",
+    "p2-bound-predicates-checkpoint.json prior genuine-native2FAIL/prestageUNKNOWN and interrupteddriver130",
+    "p2-method-canonical-snapshot5-fail.json",
+    "C11 fulltarget302/303 FAIL"
+  ],
+  "global": {
+    "C10": "PARTIAL_NOT_CLOSED",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "early_partial_return": "NOT_IMPLEMENTED",
+    "applicability_M1_M2_other_forms": "OPEN",
+    "immutable_old_installed_checker_reader": "NOT_RUN",
+    "B06c_B06m_owner_reserve_SENT": "PARTIAL_OPEN",
+    "P4a_minimal": "NOT_IMPLEMENTED",
+    "P2_live": "NOT_RUN_NO_AUTHORIZATION"
+  },
+  "limits": [
+    "This canonical PASS applies to executed recipes on tested snapshot, not absolute defect absence or every product requirement.",
+    "Original real native2PASS is a separately recorded SOURCE_HOST_NOT_INSTALLED probe; no new inference turn/installed historical reader credit.",
+    "No model/provider/account/target/r1/operator profile/global daemon changes or push.",
+    "ReticleNOT_APPLICABLE;ChiselBLOCKED_NO_GO."
+  ]
+}

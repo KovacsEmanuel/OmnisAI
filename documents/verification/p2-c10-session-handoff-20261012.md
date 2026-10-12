@@ -1,4 +1,16 @@
-# Handoff CURRENT — C10, reluare fresh după 12 octombrie 2026
+# Handoff C10 — punct de intrare actual și checkpoint istoric
+
+## CURRENT — acceptare integrată după reluare
+
+Candidatul8ea28b2 **este integrat** în `25395bd`, după două re-reviewuri complete APPROVED_SCOPED; C10-NATIVE-F01 închis. Remediile quality/cold legacy/fixture sunt comise separat în `9a49d15`/`46589bf`/`d3a176b`. [Registrul actual și toate dispozițiile](p2-bound-predicates.md), [canonical final versionat](p2-bound-predicates-canonical-pass.json) și [harta](implementation-status.md) înlocuiesc punctul de reluare de mai jos. Canonical3 pe `ff095af`: exit0/drained,969hashes stabile, cleanup exact/date păstrate; C10 integral/B06b/G02/P2 rămân deschise. Observația C10-LEGACY-SEC-N01 este LOW/neblocantă/deferred, nu un blocker ignorat. Git real decide HEAD-ul curent, fără SHA auto-referențial inventat.
+
+**Prompt copy-ready actual:**
+
+> Continuă OmnisAI din registrul `documents/verification/p2-bound-predicates.md` și canonicalul `p2-bound-predicates-canonical-pass.json`, apoi Git real/AGENTS/README/harta și plan§7.1/arhitectură§9.10. C10 records este integrat și aprobat scoped; canonical final exit0/drained peff095af. Nu reimporta candidatul8ea28b2, nu reporni reviewurile sau PG/canonical neschimbate. Delimitează următoarea singură felie C10: `return_when` bounded → rezultat parțial autentic/persistent/readback și MethodCheck INCOMPLETE, fără SUCCEEDED automat; folosește ownerul/callerul/checkerul existente, TDD și review scoped. Păstrează restanțele applicability/unknown checker/M1M2/forme/binding/inventar și ordinea restB06b→B06c/B06m→P4a-minim→P2-live separat autorizat. Un autor, commituri mici, FAIL/limite și N01 LOW păstrate. Fără HTML protejat/r1/profiluri/global/cont/model/target/push. Predare scurtă în română cu cele trei axe și matricea globală.
+
+## Checkpoint istoric — înainte de acceptarea de mai sus
+
+Textul următor și promptul său final sunt păstrate la frontiera inițială. „Neintegrat”, „review pending” și instrucțiunea de oprire aparțin **sesiunii vechi**; nu sunt starea sau următoarea acțiune curentă.
 
 Checkpoint cerut de operator după două compactări. **Oprește implementarea în această sesiune; continuarea este pentru sesiunea nouă.** Nu este un plan concurent. Autoritate: `AGENTS.md`, plan §7.1/§8/§19, arhitectură §5/§6.3/§9.3–9.5/§9.10 și [contractul B06b](p2-b06b-next-contract.md). [Harta](implementation-status.md) este proiecția, nu înlocuiește canonul.
 

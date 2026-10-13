@@ -1,0 +1,2149 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "reviewer_role": "independent_strict_input_version_failure",
+  "verdict": "CHANGES_REQUESTED",
+  "verdict_scope": "Core contracts APPROVED_SCOPED la verificările SOURCE de input/version/failure; affected public caller CHANGES_REQUESTED din INPUT-CONSUMER-01. Fără aprobare globală sau integrare.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+    "author_manifest": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-author.json",
+    "author_manifest_sha256": "034e4b2a87c712eb023c1e21fbf35431088518fb98607446a792fef08f6657cc",
+    "exported_diff": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-exported.patch",
+    "exported_diff_sha256": "bb0a3f938930a3a3f49d21c100fffb1d2a15a6e216565b9b2a6b3b1049501aa4",
+    "exported_diff_matches": true,
+    "changed_file_count": 13,
+    "changed_files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "base_sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "initial_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "final_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "base_observed_sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+        "matches": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "base_sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+        "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "initial_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "final_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "base_observed_sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+        "matches": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "base_sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+        "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "initial_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "final_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "base_observed_sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+        "matches": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "base_sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+        "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "initial_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "final_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "base_observed_sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+        "matches": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "base_sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+        "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "initial_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "final_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "base_observed_sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+        "matches": true
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "base_sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+        "sha256": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5",
+        "initial_sha256": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5",
+        "final_sha256": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5",
+        "base_observed_sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+        "matches": true
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "base_sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+        "sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "initial_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "final_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "base_observed_sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+        "matches": true
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "base_sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+        "sha256": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6",
+        "initial_sha256": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6",
+        "final_sha256": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6",
+        "base_observed_sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+        "matches": true
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "base_sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+        "sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "initial_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "final_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "base_observed_sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+        "matches": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "base_sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+        "sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "initial_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "final_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "base_observed_sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+        "matches": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "base_sha256": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+        "sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "initial_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "final_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "base_observed_sha256": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+        "matches": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "base_sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "initial_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "final_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "base_observed_sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "matches": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "base_sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9",
+        "sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "initial_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "final_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "base_observed_sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9",
+        "matches": true
+      }
+    ],
+    "initial_and_final_13_sha_match": true,
+    "staged_diff_empty": true,
+    "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+    "git_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/managed_admission_contract.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n M integrations/hermes/tests/test_prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "head_changed": false
+  },
+  "versions": {
+    "current_checker_key": "managed.contract-pure.v2",
+    "current_checker_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+    "current_composer": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+    "checker_source_count": 13,
+    "checker_source_closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      }
+    ],
+    "prior_exact_invalidation_pair": {
+      "checker": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+      "composer": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+      "policy": "receive-only, pereche exactă; cele3 predicates/all-row completion originale; new admission rămâne UNKNOWN, formele evidence/optional sunt refuzate pe pin vechi."
+    }
+  },
+  "upstream": {
+    "identity": [
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+        "base_sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-inert.patch",
+        "sha256": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223",
+        "base_sha256": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+        "base_sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+        "base_sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/patch-manifest.json",
+        "sha256": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab",
+        "base_sha256": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "03917e2bd038af106b1b8dc958dc0fd12029561722ea65b79f90b6e759b4df8e",
+        "base_sha256": "03917e2bd038af106b1b8dc958dc0fd12029561722ea65b79f90b6e759b4df8e",
+        "unchanged": true
+      }
+    ],
+    "managed_native_inventory_count": 15,
+    "managed_native_inventory": [
+      {
+        "path": "agent/auxiliary_client.py",
+        "expected": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a",
+        "actual": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a"
+      },
+      {
+        "path": "agent/chat_completion_helpers.py",
+        "expected": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2",
+        "actual": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2"
+      },
+      {
+        "path": "agent/chat_completion_nonstream.py",
+        "expected": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f",
+        "actual": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f"
+      },
+      {
+        "path": "agent/cold_admission.py",
+        "expected": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+        "actual": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0"
+      },
+      {
+        "path": "agent/conversation_loop.py",
+        "expected": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402",
+        "actual": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+      },
+      {
+        "path": "agent/managed_admission_rpc.py",
+        "expected": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be",
+        "actual": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be"
+      },
+      {
+        "path": "agent/subagent_lifecycle.py",
+        "expected": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+        "actual": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2"
+      },
+      {
+        "path": "agent/turn_api_call.py",
+        "expected": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33",
+        "actual": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33"
+      },
+      {
+        "path": "agent/turn_api_error.py",
+        "expected": "2835f951205dcff0c71d687987cba4f569a9085f65fa6d207163059c0147c58d",
+        "actual": "2835f951205dcff0c71d687987cba4f569a9085f65fa6d207163059c0147c58d"
+      },
+      {
+        "path": "agent/turn_api_request.py",
+        "expected": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a",
+        "actual": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a"
+      },
+      {
+        "path": "providers/__init__.py",
+        "expected": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d",
+        "actual": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d"
+      },
+      {
+        "path": "run_agent.py",
+        "expected": "7a6fdae867c8eb288f92074ee0afd88a059ab274d5833f8bfd229da5ea5ee7c7",
+        "actual": "7a6fdae867c8eb288f92074ee0afd88a059ab274d5833f8bfd229da5ea5ee7c7"
+      },
+      {
+        "path": "tui_gateway/rpc_dispatch.py",
+        "expected": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027",
+        "actual": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+      },
+      {
+        "path": "agent/agent_init.py",
+        "expected": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73",
+        "actual": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73"
+      },
+      {
+        "path": "agent/contract_execution.py",
+        "expected": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+        "actual": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f"
+      }
+    ],
+    "managed_all_match": true,
+    "inert_source_count": 5,
+    "inert_all_match": true,
+    "pin_inert_patch_manifest_and_managed_patch_manifest_pairs_match": true,
+    "source_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "unchanged": true,
+    "native_lifecycle_or_runtime_launched": false
+  },
+  "findings": [
+    {
+      "id": "INPUT-CONSUMER-01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "classification": "AFFECTED_CONSUMER_PREEXISTING_DEFECT_NOT_NEW_REGRESSION",
+      "status": "OPEN",
+      "title": "Readerul public native_task refuză succesul metodologic valid, inclusiv prefixul opțional nou",
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "line": 538,
+      "end_line": 539,
+      "related_locations": [
+        "api/src/omnis/supervisor/native_tasks.py:334-335",
+        "api/src/omnis/supervisor/native_tasks.py:53-61",
+        "api/src/omnis/supervisor/native_tasks.py:635",
+        "api/tests/test_contract_method_pg.py:1386",
+        "api/tests/test_contract_method_pg.py:1755"
+      ],
+      "requirement": "Inspectarea tuturor consumerilor formei noi SUCCEEDED/4records cu gap opțional; aceeași acceptare și failure handling pe callerul real, nu doar parserul și owner.handle direct.",
+      "actual": "MethodCheck COMPLETE și NativeTaskOwner._reply(...,\"SUCCEEDED\") sunt valide, dar control_task acceptă numai BOUND/BLOCKED. release-full, release-optional-prefix, receive-full și receive-optional-prefix aruncă TASK_REJECTED la linia539. Cele două controale required-prefix/BLOCKED sunt acceptate.",
+      "expected": "Răspunsul autentic al ownerului cu SUCCEEDED după MethodCheck COMPLETE trebuie livrat identic pe release/receive; prefixul required lipsă rămâne BLOCKED. Stage/model_preflight nu dobândesc drept de succes prin simpla lărgire generică a unui set.",
+      "reproducible_inputs": {
+        "script": "/home/kali/.hermes/cache/scratch/test_p2_evidence_public_control_review.py",
+        "scenarios": [
+          "full: două outputuri reale, trei DONE, COMPLETE",
+          "optional-prefix: un output real, DONE/NOT_RUN/DONE, gap păstrat, COMPLETE",
+          "required-prefix: același prefix real, INCOMPLETE/BLOCKED"
+        ],
+        "actions": [
+          "release",
+          "receive"
+        ],
+        "response_source": "NativeTaskOwner._reply pe statusul check_execution rezultat din metoda SOURCE; correlation_id sintetic adăugat ca în LocalControl.",
+        "request_fields": [
+          "op=native_task",
+          "schema_version=1",
+          "expected_generation=0",
+          "expected_epoch=1",
+          "owner_id/manifest_ref din aceeași fixture",
+          "action=release sau receive"
+        ],
+        "transport_substitution": "test_model_preflight_control.consume existent: AsyncMock stream/UID same-user, existing_private_root și _read_capability substituite înaintea apelului; nicio citire reală de capabilitate sau deschidere socket."
+      },
+      "verification_id": "affected-public-reader-RED",
+      "actual_exit_code": 1,
+      "failed_cases": 4,
+      "control_cases_passed": 2,
+      "minimal_remedy": "Extinde allowlistul readerului pentru SUCCEEDED numai în răspunsurile release/receive autorizate, păstrând validarea exactă a frame/manifest/binding/peer și refuzurile model/stage. Adaugă regresii pe control_task pentru full/optional-prefix/required-prefix × release/receive; nu schimba emisia corectă sau guardurile MethodCheck.",
+      "attribution": "Fișierul readerului este byte-identic cu HEAD/baza; defectul preexistent afectează deja full și devine relevant pentru succesul opțional nou. Nu este atribuit celor13 modificări. Este blocant numai pentru acceptarea callerilor afectați solicitată aici, nu infirmă strictitudinea core checkerului.",
+      "acceptance_limit": "PG QA pregătită cheamă owner.handle direct și CLI readback/reconcile; nu exercită control_task/main. Un viitor PASS al celor3 selecții nu închide automat această constatare."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Proof finit contract-artifact din outputul real al aceluiași attempt; input/count nu substituie DONE.",
+      "code": [
+        "managed_contract.py:164-244",
+        "method_checks.py:201-271",
+        "method_checks.py:429-470",
+        "method_checks.py:310-408",
+        "contract_method.py:265-406"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations"
+      ],
+      "status": "PASS_SOURCE_SCOPED",
+      "detail": "Receipt sequence/action/header/binding/child/session/digest/schema sunt validate înainte de selecția/countul proof. evidence_refs trebuie exact egale cu outputurile validate; duplicate/foreign/input/receipt/reorder/overflow refuzate."
+    },
+    {
+      "requirement": "required_evidence exact pe cerințele publicate required/evidence-bearing ale aceluiași BoundProcedure/MethodPlan.",
+      "code": [
+        "managed_contract.py:236-244",
+        "managed_contract.py:1019-1029",
+        "managed_contract.py:1493-1515",
+        "prompt_bundle.py:799-806"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations"
+      ],
+      "status": "PASS_SOURCE_SCOPED",
+      "detail": "13 mutații × API assignment/native assignment/API composition refuzate; null/scalar/object/missing/duplicate/foreign/unknown/revision bool/missing-extra fields/reorder/overflow. Child plan required demotion și stripped done closure refuzate."
+    },
+    {
+      "requirement": "Optional versus required: toate trei MethodResults și gapurile explicite rămân; done și mandatory minimum decid separat completitudinea.",
+      "code": [
+        "managed_contract.py:873-889",
+        "managed_contract.py:411-418",
+        "contract_method.py:351-390",
+        "method_checks.py:399-408",
+        "method_checks.py:663-714"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations"
+      ],
+      "status": "PASS_SOURCE_SCOPED",
+      "detail": "full/optional-prefix/required-prefix; all-optional empty done closure valid cu return_when calificat; mandatory false minima3/128 păstrează gap + COMPLETE, mandatory true dă INCOMPLETE. Required map missing nu devine succes."
+    },
+    {
+      "requirement": "Refuzuri strict input și UNKNOWN failclosed când checker/schema lipsesc, fără ascunderea unui mismatch disponibil.",
+      "code": [
+        "method_checker_identity.py:78-118",
+        "method_checks.py:637-662",
+        "method_checks.py:694-733",
+        "managed_admission.py:774-820"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations"
+      ],
+      "status": "PASS_SOURCE_SCOPED",
+      "detail": "16 forme de declaration × două implementări refuzate. Checker well-formed necunoscut/schema absentă → UNKNOWN, cu toate gap_refs; schema absentă nu maschează output invalid disponibil. SOURCE existing owner retention tests verifică regenerare/equality/sticky UNKNOWN."
+    },
+    {
+      "requirement": "Version pairing și forme vechi conservate, fără noi obligații retroactive.",
+      "code": [
+        "managed_contract.py:354-418",
+        "prompt_bundle.py:587-650",
+        "method_checker_identity.py:62-65",
+        "method_checker_identity.py:95-117"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations",
+        "source-pin-and-final-snapshot"
+      ],
+      "status": "PASS_SOURCE_SCOPED",
+      "detail": "Perechea invalidation exactă din baseline calculată independent pe13 source hashes. verify acceptă historical numai exact pair/receive_only; wrong current/prior/unknown pins refuzate. Historical check nou → UNKNOWN, receive-only full → COMPLETE; new evidence/optional historical refuzate."
+    },
+    {
+      "requirement": "SUCCEEDED+4records/gap opțional nu promovează success înaintea MethodCheck și trebuie traversat de toți callerii.",
+      "code": [
+        "managed_admission_contract.py:191-321",
+        "managed_contract.py:1796-1858",
+        "managed_admission.py:537-643",
+        "managed_admission.py:653-821",
+        "native_tasks.py:326-335",
+        "native_tasks.py:530-539"
+      ],
+      "evidence": [
+        "source-focused",
+        "independent-input-mutations",
+        "affected-public-reader-RED"
+      ],
+      "status": "CHANGES_REQUESTED_AFFECTED_CALLER",
+      "detail": "Parserii structurali acceptă inclusiv claim required-success fals; checkerul îl refuză. Ingest persistează brut cu task BLOCKED; doar check COMPLETE ridică task la SUCCEEDED. control_task public refuză însă și răspunsul valid SUCCEEDED: INPUT-CONSUMER-01."
+    }
+  ],
+  "caller_audit": [
+    {
+      "caller": "agent.contract_execution.run_contract/BoundContractTools",
+      "locations": "upstream/managed-source/agent/contract_execution.py:170-295",
+      "result": "PASS_STATIC_AND_SOURCE",
+      "detail": "Read/PURE reale, prefix contiguu, validate output, assignment revalidat; excepție latch UNKNOWN/no retry. Sursa corespunde manifestului nemodificat."
+    },
+    {
+      "caller": "SubagentLifecycle._release_contract",
+      "locations": "upstream/managed-source/agent/subagent_lifecycle.py:442-487",
+      "result": "PASS_STATIC_NOT_LAUNCHED",
+      "detail": "Consumă rezultatul din run_contract/task_result, validate_response înainte de retention; latched indeterminate și UNKNOWN pe BaseException."
+    },
+    {
+      "caller": "RuntimeHost._managed/_receive_managed",
+      "locations": "integrations/hermes/src/omnis_hermes/runtime_host.py:244-355",
+      "result": "PASS_STATIC_SOURCE_SEAM_ONLY",
+      "detail": "Parser/binding/manifest/entries înainte de cache; receive numai retained immutable bytes. Nu acordă MethodCheck; task_result și owner sunt frontierele semantice."
+    },
+    {
+      "caller": "RuntimeClient.managed/receive → NativeTaskOwner.handle",
+      "locations": "api/src/omnis/supervisor/runtime_client.py:458-507; native_tasks.py:270-335",
+      "result": "PASS_STATIC_NO_TRANSPORT_EXECUTION",
+      "detail": "Owner ingest_result apoi domain.check, _reply doar după check; receive fără grant nou. Nu credităm mereu SUCCEEDED doar din cardinalitate/parser."
+    },
+    {
+      "caller": "ManagedAdmission.ingest_result/_check/_result_check/_verify_graph/readback/reconcile",
+      "locations": "api/src/omnis/modules/runs/managed_admission.py:537-821,1024-1108,1186-1292",
+      "result": "PASS_STATIC_AND_OWNER_SOURCE_TESTS_NOT_PG",
+      "detail": "Persistare brută separată/check înainte de state success; priorcheck regen/equality; unknown reținut; MethodCheck recalculat când există la reader. Nu recompută PURE handler/evaluator."
+    },
+    {
+      "caller": "native_tasks.control_task/main",
+      "locations": "api/src/omnis/supervisor/native_tasks.py:338-654",
+      "result": "FAIL_SOURCE_REPRODUCED",
+      "finding": "INPUT-CONSUMER-01",
+      "detail": "Success producer→reader real refuzat; reply valid doar BOUND/BLOCKED în setul actual. Testele PG directe nu acoperă acest reader."
+    }
+  ],
+  "prepared_pg_observer": {
+    "execution": "NOT_RUN",
+    "collection": "3/25 (22 deselected), exit0",
+    "wrapper": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "wrapper_sha256": "8f2dfe9d6e4cae8c7a87d835cad1629b0f2819493083f4060b8f575b260fef47",
+    "selectors": {
+      "red": "qualified-early-return",
+      "green": "qualified-early-return or criteria-normal",
+      "applicability": "applicability",
+      "not-applicable": "applicability-not-applicable",
+      "precondition": "procedure-precondition",
+      "invalidation": "procedure-invalidation",
+      "evidence": "evidence-full or evidence-optional-prefix or evidence-required-prefix",
+      "evidence-full": "evidence-full",
+      "evidence-optional-prefix": "evidence-optional-prefix",
+      "evidence-required-prefix": "evidence-required-prefix"
+    },
+    "original_six_selectors_preserved": true,
+    "main_guard": true,
+    "static_review": "Observerul existent sys.monitoring și forbidden-effect/sink recording, read1/PURE1 ori2, trei MethodResults și optional gap, persist-before-check, patru fresh readers, single consume/post-Stop assertions păstrate. Nu a fost pornit; producer/owner PG proof este pending parent.",
+    "proof_gap": "Public control_task/main nu este inclus în această selecție; trebuie regresie separată pentru INPUT-CONSUMER-01."
+  },
+  "verification": [
+    {
+      "id": "source-focused",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review-pytest > /home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review-source.log 2>&1",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "passed": 310,
+      "failed": 0,
+      "duration_seconds": 23.68,
+      "log": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review-source.log",
+      "summary": "........................................................................ [ 23%]\n........................................................................ [ 46%]\n........................................................................ [ 69%]\n........................................................................ [ 92%]\n......................                                                   [100%]\n310 passed in 23.68s",
+      "limit": "SOURCE: state holders native sintetici și seamuri owner/schema declarate; nu autentificare, persistență PG sau runtime live."
+    },
+    {
+      "id": "independent-input-mutations",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-probes.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "passed": 139,
+      "failed": 0,
+      "effect_attempts": [],
+      "results": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-probes.json",
+      "limit": "139 verificări independente, nu 139 teste pytest; read/PURE reale pe identități sintetice. Audit Python, nu confinare syscall OS."
+    },
+    {
+      "id": "adapter-focused",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o \"pythonpath=/home/kali/OmnisAI/api/src /home/kali/OmnisAI/integrations/hermes/src /home/kali/OmnisAI/integrations/hermes/tests /home/kali/OmnisAI/integrations/hermes/upstream/managed-source\" integrations/hermes/tests/test_prompt_bundle.py integrations/hermes/tests/test_contract_method.py integrations/hermes/tests/test_managed_admission.py integrations/hermes/tests/test_managed_native_source.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-evidence-input-review-adapter-pytest > /home/kali/.hermes/cache/scratch/p2-evidence-input-review-adapter.log 2>&1",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "passed": 71,
+      "failed": 0,
+      "duration_seconds": 0.99,
+      "log": "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-adapter.log",
+      "summary": ".......................................................................  [100%]\n71 passed in 0.99s",
+      "limit": "Contract/paritate/identitate SOURCE; nu AIAgent sau lifecycle nativ pornit."
+    },
+    {
+      "id": "affected-public-reader-RED",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o \"pythonpath=/home/kali/OmnisAI/api/src /home/kali/OmnisAI/api/tests /home/kali/OmnisAI/integrations/hermes/src /home/kali/OmnisAI/integrations/hermes/tests /home/kali/OmnisAI/integrations/hermes/upstream/managed-source\" /home/kali/.hermes/cache/scratch/test_p2_evidence_public_control_review.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-evidence-public-control-review-pytest > /home/kali/.hermes/cache/scratch/p2-evidence-public-control-review-red.log 2>&1",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "passed": 2,
+      "failed": 4,
+      "duration_seconds": 1.55,
+      "log": "/home/kali/.hermes/cache/scratch/p2-evidence-public-control-review-red.log",
+      "summary": "FF.FF.                                                                   [100%]\n=================================== FAILURES ===================================\nE   omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\n/home/kali/OmnisAI/api/src/omnis/supervisor/native_tasks.py:539: omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\nE   omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\n/home/kali/OmnisAI/api/src/omnis/supervisor/native_tasks.py:539: omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\nE   omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\n/home/kali/OmnisAI/api/src/omnis/supervisor/native_tasks.py:539: omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\nE   omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\n/home/kali/OmnisAI/api/src/omnis/supervisor/native_tasks.py:539: omnis.modules.settings.catalog_models.CatalogError: TASK_REJECTED\n=========================== short test summary info ============================\nFAILED api::test_public_reader_accepts_exact_owner_method_reply[release-full]\nFAILED api::test_public_reader_accepts_exact_owner_method_reply[release-optional-prefix]\nFAILED api::test_public_reader_accepts_exact_owner_method_reply[receive-full]\nFAILED api::test_public_reader_accepts_exact_owner_method_reply[receive-optional-prefix]\n4 failed, 2 passed in 1.55s",
+      "limit": "Readerul real control_task și producerul real _reply, cu stream/peer/private-root/capability SOURCE doubles existente; zero UDS/PG/credential reads reale."
+    },
+    {
+      "id": "PG-observer-collection-only",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"evidence-full or evidence-optional-prefix or evidence-required-prefix\" --collect-only -q",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "collected": 3,
+      "declared_total": 25,
+      "deselected": 22,
+      "duration_seconds": 0.39,
+      "node_ids": [
+        "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[evidence-full]",
+        "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[evidence-optional-prefix]",
+        "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[evidence-required-prefix]"
+      ],
+      "limit": "Numai colecție. Nu s-a apelat wrapperul PG, fixture DB, runtime sau observer bootstrap."
+    },
+    {
+      "id": "source-pin-and-final-snapshot",
+      "command": "python3 -I -B /home/kali/.hermes/cache/scratch/p2-evidence-input-review-identity.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "changed_files_matching": 13,
+      "native_managed_sources_matching": 15,
+      "checker_sources": 13,
+      "results": "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-identity.json",
+      "limit": "Hash/AST/Git locale, nu reapply/build/install/restart."
+    },
+    {
+      "id": "diff-integrity",
+      "command": "git diff --check; git diff --cached --stat; git diff -- integrations/hermes/pin.json integrations/hermes/upstream; git status --short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "staged_diff_empty": true,
+      "upstream_diff_empty": true,
+      "limit": "Read-only local checkout."
+    }
+  ],
+  "independent_cases": {
+    "schema_version": 1,
+    "scope": "SOURCE_ONLY_SYNTHETIC_STATE_REAL_PURE_TRANSFORMATIONS_NO_RUNTIME_AUTH",
+    "checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_revision": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+    "cases": [
+      {
+        "label": "full",
+        "channel": "backend-check",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "full",
+        "channel": "native-wire",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "full",
+        "channel": "api-final",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "full",
+        "channel": "assignment",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional-prefix",
+        "channel": "backend-check",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional-prefix",
+        "channel": "native-wire",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional-prefix",
+        "channel": "api-final",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional-prefix",
+        "channel": "assignment",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required-prefix",
+        "channel": "backend-check",
+        "expected": [
+          "INCOMPLETE"
+        ],
+        "actual": "INCOMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required-prefix",
+        "channel": "native-wire",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required-prefix",
+        "channel": "api-final",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required-prefix",
+        "channel": "assignment",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/null",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/null",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/null",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/scalar",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/scalar",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/scalar",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/object",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/object",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/object",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/duplicate",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/duplicate",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/duplicate",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-bound-id",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-bound-id",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-bound-id",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-digest",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-digest",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/foreign-digest",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/revision-bool",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/revision-bool",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/revision-bool",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/unknown-requirement",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/unknown-requirement",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/unknown-requirement",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing-field",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing-field",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/missing-field",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/extra-field",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/extra-field",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/extra-field",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/reorder",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/reorder",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/reorder",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/overflow",
+        "channel": "api-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "COUNT_LIMIT",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/overflow",
+        "channel": "native-assignment",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid native preparation",
+        "pass_": true
+      },
+      {
+        "label": "required-evidence/overflow",
+        "channel": "api-composition",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "INVALID_JSON",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/null",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/null",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/object",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/object",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/scalar",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/scalar",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/missing-minimum",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/missing-minimum",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid native preparation",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/missing-mandatory",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/missing-mandatory",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid native preparation",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/extra",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/extra",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid native preparation",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/unknown",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_UNSUPPORTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/unknown",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-bool",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-bool",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-zero",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-zero",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-negative",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-negative",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-overflow",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-overflow",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-float",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "INVALID_TYPE",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-float",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-string",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "MANAGED_REJECTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/minimum-string",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/mandatory-int",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_UNSUPPORTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/mandatory-int",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/mandatory-null",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_UNSUPPORTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/mandatory-null",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/duplicate",
+        "channel": "api-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_UNSUPPORTED",
+        "pass_": true
+      },
+      {
+        "label": "evidence-declaration/duplicate",
+        "channel": "native-declaration",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "minimum/1/False",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/1/True",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/2/False",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/2/True",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/3/False",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/3/True",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "INCOMPLETE"
+        ],
+        "actual": "INCOMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/128/False",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "minimum/128/True",
+        "channel": "same-channel-source+checker",
+        "expected": [
+          "INCOMPLETE"
+        ],
+        "actual": "INCOMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/null",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/scalar",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/missing",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/duplicate",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/foreign",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/unknown-kind",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/revision-bool",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/extra",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/input-as-output",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/receipt-as-output",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/reorder",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "evidence-refs/overflow",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "optional/success",
+        "channel": "backend-check",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional/drop-gap",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "optional/hide-row",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "optional/demote-plan",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "optional/strip-done",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "BOUND_PREDICATE_GAP",
+        "pass_": true
+      },
+      {
+        "label": "optional/available-invalid-value",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_SCHEMA_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "optional/unknown-schema",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "optional/unknown-checker",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required/success",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "forged-required-success",
+        "channel": "native-wire-structural-only",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "forged-required-success",
+        "channel": "api-final-structural-only",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required/drop-gap",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "required/hide-row",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "RESULT_CONFLICT",
+        "pass_": true
+      },
+      {
+        "label": "required/demote-plan",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "ASSIGNMENT_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required/strip-done",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "BOUND_PREDICATE_GAP",
+        "pass_": true
+      },
+      {
+        "label": "required/available-invalid-value",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_SCHEMA_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "required/unknown-schema",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "required/unknown-checker",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/exact-old/False",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/exact-old/True",
+        "channel": "identity-verify",
+        "expected": [
+          "ACCEPT"
+        ],
+        "actual": "ACCEPT",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/current/False",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/current/True",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/precondition/False",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/precondition/True",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/unknown/False",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-pair/unknown/True",
+        "channel": "identity-verify",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-full",
+        "channel": "new-admission-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "historical-full",
+        "channel": "receive-only-check",
+        "expected": [
+          "COMPLETE"
+        ],
+        "actual": "COMPLETE",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "historical-new-form/evidence",
+        "channel": "backend-receive-only",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "BOUND_PREDICATE_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-new-form/evidence",
+        "channel": "native-result",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "historical-new-form/optional",
+        "channel": "backend-receive-only",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "BOUND_PREDICATE_UNAVAILABLE",
+        "pass_": true
+      },
+      {
+        "label": "historical-new-form/optional",
+        "channel": "native-result",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "Invalid prompt composition",
+        "pass_": true
+      },
+      {
+        "label": "schema-unavailable/input",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "schema-unavailable-with-available-mismatch/input",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_SCHEMA_MISMATCH",
+        "pass_": true
+      },
+      {
+        "label": "schema-unavailable/output",
+        "channel": "backend-check",
+        "expected": [
+          "UNKNOWN"
+        ],
+        "actual": "UNKNOWN",
+        "reason": null,
+        "pass_": true
+      },
+      {
+        "label": "schema-unavailable-with-available-mismatch/output",
+        "channel": "backend-check",
+        "expected": [
+          "DENY"
+        ],
+        "actual": "DENY",
+        "reason": "METHOD_SCHEMA_MISMATCH",
+        "pass_": true
+      }
+    ],
+    "counts": {
+      "total": 139,
+      "passed": 139,
+      "failed": 0,
+      "by_channel": {
+        "backend-check": 35,
+        "native-wire": 3,
+        "api-final": 3,
+        "assignment": 3,
+        "api-assignment": 13,
+        "native-assignment": 13,
+        "api-composition": 13,
+        "api-declaration": 16,
+        "native-declaration": 16,
+        "same-channel-source+checker": 8,
+        "native-wire-structural-only": 1,
+        "api-final-structural-only": 1,
+        "identity-verify": 8,
+        "new-admission-check": 1,
+        "receive-only-check": 1,
+        "backend-receive-only": 2,
+        "native-result": 2
+      }
+    },
+    "effect_attempts": [],
+    "limits": [
+      "Python audit hook is not OS syscall confinement",
+      "No PG/Host/CLI/native lifecycle/AIAgent launched",
+      "Structural wire acceptance alone is not method completion"
+    ]
+  },
+  "execution_issues": [
+    {
+      "kind": "SHELL_QUOTING_ERROR",
+      "exit_code": 2,
+      "scope": "Prima încercare inline de identity reader",
+      "actual": "bash unexpected EOF înainte de Python",
+      "disposition": "Înlocuită cu scriptul scratch p2-evidence-input-review-identity.py, apoi exit0 și toate13/pin/patch/source closure verificate; fără remediu de produs sau efect asupra repo-ului."
+    }
+  ],
+  "limits": [
+    "Repo/index read-only; nu s-a comis, modificat sursă, document/protected HTML, skill sau profil.",
+    "Nu s-au executat network/PG/runtime/Host/service/provider/target/browser effects; reproducerea control_task folosește stream/capability/read seams SOURCE.",
+    "SOURCE testele folosesc state holders sintetici și seamuri declarate; transformațiile finite reale nu sunt AIAgent/PG/native authentication/durability proof.",
+    "Freshness externă/ResultQualification, mission promotion, installed historical reader/runtime restart, live closure și canonical final nu sunt certificate și rămân deschise.",
+    "No new general evidence engine/evaluator/registry; oracle/control/functional PASS nu rezultă din MethodCheck COMPLETE.",
+    "Analiză statică a observerului pregătit plus collect-only nu reprezintă QA PG/native.",
+    "Nu este un audit exhaustiv al întregii aplicații sau al tuturor syscalls."
+  ],
+  "tooling": {
+    "Reticle": "NOT_APPLICABLE_SOURCE_CONTRACT_REVIEW",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "repository_files_modified": [],
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review.json",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-probes.py",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-probes.json",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review-source.log",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-adapter.log",
+    "/home/kali/.hermes/cache/scratch/test_p2_evidence_public_control_review.py",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-public-control-review-red.log",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-identity.py",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-identity.json"
+  ],
+  "scratch_test_directories": [
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-review-pytest",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-input-review-adapter-pytest",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-public-control-review-pytest"
+  ],
+  "proposed_parent_status_delta": {
+    "current_slice": "B06b evidence-bearing/optional: SOURCE contracts reviewed scoped; public consumer blocker OPEN. PG/native/QA and integration pending.",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "P4a_minim": "NOT_IMPLEMENTED_NOT_DELIVERED"
+  },
+  "handoff_matrix": [
+    {
+      "slice": "P0/P1",
+      "code": "IMPLEMENTED_HISTORICAL_SCOPED",
+      "proof": "HISTORICAL_ONLY",
+      "review": "UNCHANGED_NOT_REOPENED",
+      "next": "Nu relansa/adopta runtime."
+    },
+    {
+      "slice": "SL09 evidence/optional AICI",
+      "code": "IMPLEMENTED_UNCOMMITTED_EXACT13",
+      "proof": "SOURCE310+ADAPTER71+139CHECKS",
+      "review": "CHANGES_REQUESTED_AFFECTED_PUBLIC_CALLER",
+      "next": "Remediu INPUT-CONSUMER-01 pe consumer, apoi re-review focalizat."
+    },
+    {
+      "slice": "PG/native QA acestei felii",
+      "code": "OBSERVER_PREPARED",
+      "proof": "COLLECT3_OF25_ONLY",
+      "review": "STATIC_ONLY",
+      "next": "Parent adjudication înainte de launch autorizat."
+    },
+    {
+      "slice": "B06b/G02/P2",
+      "code": "PARTIAL",
+      "proof": "CANONICAL_FINAL_NOT_RUN",
+      "review": "NOT_CLOSED",
+      "next": "RestB06b/qualification/history/forme."
+    },
+    {
+      "slice": "B06c/B06m",
+      "code": "PARTIAL",
+      "proof": "NO_NEW_CREDIT",
+      "review": "NOT_CLOSED",
+      "next": "Consumeri prevăzuți de plan, fără efecte noi aici."
+    },
+    {
+      "slice": "P4a-minim/live/restMVP",
+      "code": "NOT_DELIVERED",
+      "proof": "NOT_RUN",
+      "review": "NOT_REVIEWED",
+      "next": "Prerechizite și mandate distincte; fără promovare din SOURCE."
+    }
+  ],
+  "proposed_skill_lesson": "La lărgirea statusurilor producerului, enumeră și probează readerul public al comenzii, nu doar owner.handle și parserii transport. Public control_task poate păstra un allowlist cold învechit; source test autentic producer→reader cu stream seam este preflightul ieftin. Propunere către părinte; skill nemodificat în mandat read-only."
+}

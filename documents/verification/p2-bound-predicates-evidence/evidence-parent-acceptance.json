@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "decision": "ACCEPTED_SOURCE_NATIVE_PRIVATE_UDS_SCOPED",
+  "product_commit": "a4385388fcbe01e0f1477fa0a41b245dcbd36aa7",
+  "reader_fix_commit": "b20f339",
+  "snapshot_files": [
+    {
+      "path": "api/src/omnis/modules/settings/skill_catalog.py",
+      "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19"
+    },
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee"
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108"
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8"
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b"
+    },
+    {
+      "path": "api/tests/test_model_preflight_control.py",
+      "sha256": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b"
+    },
+    {
+      "path": "api/tests/test_native_task_control.py",
+      "sha256": "003ffa5dde05954f3ae59622aaa71245d7322f286182fae3c086ffa2c7fecc7e"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
+    },
+    {
+      "path": "integrations/hermes/tests/test_prompt_bundle.py",
+      "sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813"
+    }
+  ],
+  "qa_report": "documents/verification/p2-bound-predicates-evidence/evidence-independent-qa.json",
+  "qa_report_sha256": "a5e816113aeebb8cea80c22b31f66a0ad1e0f6e5ac42b60d014db4b6813df0af",
+  "review_dispositions": {
+    "EVIDENCE-NORM-QA-01": "CLOSED_SOURCE_SCOPED: native UNKNOWN observer separated from backend check; original RED preserved; no unchanged UNKNOWN live rerun",
+    "INPUT-CONSUMER-01": "CLOSED_SOURCE_NATIVE_SCOPED: genuine successful release/receive reach original public reader; stage/model deny unchanged; scalar type companion fixed",
+    "INPUT-QA-POSTSTOP-01": "CLOSED_SOURCE_NATIVE_SCOPED: cached original public release/receive after real Stop under no-rerun/immutable assertions in all3cases"
+  },
+  "source_gates": {
+    "parent_affected_passed": 381,
+    "parent_affected_exit": 0,
+    "supplement_passed": 41,
+    "oracle_passed": 6,
+    "quality": "Ruff/format/mypy API+adapter PASS; targeted affected bytes PASS after final edits",
+    "boundaries": "SOURCE/state holders where declared, not network or installed inference"
+  },
+  "qa": {
+    "attempts": 1,
+    "wrapper_invocations": 1,
+    "native_cases": 3,
+    "fresh_owned_db_fixtures": 1,
+    "fresh_boots_roots": 3,
+    "fresh_cli_readers": 12,
+    "passed": 3,
+    "deselected": 22,
+    "pytest_seconds": 121.93,
+    "outer_exit": 0,
+    "gate_exit": 0,
+    "family_drained": true,
+    "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py evidence > /home/kali/.hermes/cache/scratch/p2-evidence-independent-qa-x8pnof5z/stdout.log 2> /home/kali/.hermes/cache/scratch/p2-evidence-independent-qa-x8pnof5z/stderr.log",
+    "retry": 0,
+    "prewarm": false,
+    "deadline_or_grant_extension": false
+  },
+  "cases": [
+    {
+      "scenario": "evidence-full",
+      "result": "SUCCEEDED",
+      "backend": "SUCCEEDED",
+      "check": "COMPLETE",
+      "native_counts": {
+        "real_aiagent": 1,
+        "read": 1,
+        "pure": 2,
+        "receipts": 3,
+        "artifacts": 2
+      },
+      "evidence_refs": [
+        {
+          "digest": "d86cc8323383748596f73ff645ef1c0ce3f5f99c56b2b9d9c1820a0339533bdc",
+          "id": "74786122-8767-4255-a32c-f08bfdf15b88",
+          "kind": "contract-artifact",
+          "revision": 1
+        },
+        {
+          "digest": "21cf1e5ef1c8e65c4b1d6cde67be5561a80d893c5a06c29e74948b3142efb63a",
+          "id": "7b696702-6755-4790-8418-d77c02d3909f",
+          "kind": "contract-artifact",
+          "revision": 1
+        }
+      ],
+      "states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [],
+      "public_post_stop_cached_read": "PASS",
+      "functional_outcomes": [
+        "BLOCKED",
+        "BLOCKED"
+      ]
+    },
+    {
+      "scenario": "evidence-optional-prefix",
+      "result": "SUCCEEDED",
+      "backend": "SUCCEEDED",
+      "check": "COMPLETE",
+      "native_counts": {
+        "real_aiagent": 1,
+        "read": 1,
+        "pure": 1,
+        "receipts": 2,
+        "artifacts": 1
+      },
+      "evidence_refs": [
+        {
+          "digest": "da181d79d2a8e04051c4a5c6468505f67998de2b9b1f2236e4b4fec98d477c5d",
+          "id": "1cc9cfc6-6bad-4689-9359-485c9c10cfee",
+          "kind": "contract-artifact",
+          "revision": 1
+        }
+      ],
+      "states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap."
+      ],
+      "public_post_stop_cached_read": "PASS",
+      "functional_outcomes": [
+        "BLOCKED",
+        "BLOCKED"
+      ]
+    },
+    {
+      "scenario": "evidence-required-prefix",
+      "result": "INCONCLUSIVE",
+      "backend": "BLOCKED",
+      "check": "INCOMPLETE",
+      "native_counts": {
+        "real_aiagent": 1,
+        "read": 1,
+        "pure": 1,
+        "receipts": 2,
+        "artifacts": 1
+      },
+      "evidence_refs": [
+        {
+          "digest": "ec62aa6bc47510ca023f02782d3b391976cea73939c5df93fdc75e267e38e2c4",
+          "id": "14872e67-869c-4eb2-88ac-177273d0cb7f",
+          "kind": "contract-artifact",
+          "revision": 1
+        }
+      ],
+      "states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return)."
+      ],
+      "public_post_stop_cached_read": "PASS",
+      "functional_outcomes": [
+        "BLOCKED",
+        "BLOCKED"
+      ]
+    }
+  ],
+  "parent_readback": {
+    "scope_files_sha256_match": 16,
+    "artifact_inventory_count_verified": 222,
+    "review_bindings_count_verified": 7,
+    "earlier_stdout_label_correction": "A stdout label said8; actual verified list is7, counted/corrected without consumer rerun.",
+    "same_daemon_exact_cid_project_network_endpoints_absent": true,
+    "owned_control_runtime_locks_reacquirable": 6,
+    "owned_cli_readers_absent": 12,
+    "outer_runner_pid_absent": true,
+    "pg18_data_and_logs_retained": true,
+    "gate_result": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "nonsecret_fixture_identity": {
+      "schema_version": 1,
+      "root": "/home/kali/.hermes/cache/scratch/db-ee3dcf8879c3475e",
+      "project": "omnis-p01-eac6063868c4432f9902c59019df1ae0",
+      "container_id": "eea4aef2f84fc8b35981887b4460e6e0d7e96b7d7c6e1f046256191bf374e50b",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "system_identifier": "7696144833528811550"
+    }
+  },
+  "report_transfer": {
+    "reports": 9,
+    "method": "write_file from exact original UTF-8 text, source/destination SHA equality",
+    "prior_failed_transfer": "Rendered read_file long-string reconstruction failed JSON before writing normative-rereview; exact source preserved, no product edit or QA rerun."
+  },
+  "limitations": {
+    "author_declared_failures": [
+      "Initial wire fixture reason=null hit parser refusal; corrected to actual CONTRACT_PURE before crediting valid-wire cardinality RED. Both failures retained.",
+      "Six producer fixture failures came from mutating mapping() copies; reconstruct authored rows explicitly. No product guard relaxed.",
+      "First broad SOURCE selection:459PASS/5 PG setup errors because no DB env. No DB/native fixture launched. Final selection explicitly excludes those five.",
+      "Intermediate regression ran before composer hash synchronization; retained as distribution-in-progress failure, not fabricated product gap/pass.",
+      "Mypy rejected one object-typed manifest reference in test; obj validation fix, final strict mypy GREEN.",
+      "Product RED->GREEN covers full evidence, optional required closure, minimum, success-prefix wire cardinality, spoofed kind, historical compact and all-optional prefix checker."
+    ],
+    "earlier_partial_prerequisite_and_other_accepted_slice_failures": "Retained at original reports and CURRENT registers, not reopened or relabelled",
+    "postrun_report_extraction_issues": [
+      {
+        "exit": 1,
+        "reason": "Symlink alias proof enumeration asserted count before resolve/dedupe; corrected read-only path set, three unique proofs. No consumer rerun or bytes edit."
+      },
+      {
+        "exit": 1,
+        "reason": "Record-shape discovery wrongly asked resolved_procedure.steps; actual steps are probe/baseline/control/cleanup. Corrected read-only observation and validated real probe chain, no product change."
+      }
+    ],
+    "terminal_shell_start_warning": "zle option warnings outside redirected test output; process actual exit0, private stderr empty",
+    "SOURCE_HOST_NOT_INSTALLED": true,
+    "PreparationPrerequisite": "Explicit reused document-preparation/qualification prerequisite double; native result/RuntimeHost/NativePeer/RuntimeClient/LocalControl/control_task/NativeTaskOwner not substituted",
+    "no_runtime_restart_proof": true,
+    "fresh_readers_are_not_runtime_restart": true,
+    "native_exit_minus9": "Actual original bounded teardown, not cause/Stop graceful/runtime restart inference",
+    "installed_historical_reader": "NOT_RUN",
+    "inference_provider_accounts_targets": "NOT_RUN_NOT_AUTHORIZED",
+    "canonical_final": "NOT_RUN",
+    "global_gate": "B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED",
+    "os_containment": "No new OS sandbox claim; PG no-network and constructor/observer Python boundary remain distinct",
+    "data_retention": "Owned PG18 data/18/docker, case artifacts and logs retained; no backups/deletion/global cleanup/foreign adoption",
+    "control_secret_handling": "No capability contents or raw PG traceback/DSN/bootstrap emitted; parse only nonsecret identities/digests/phases",
+    "Reticle": "NOT_APPLICABLE_CLI_NATIVE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "global_gates": {
+    "B06b": "PARTIAL_NOT_CLOSED",
+    "G02": "PARTIAL_NOT_CLOSED",
+    "P2_inert": "NOT_ACCEPTED",
+    "canonical_final": "NOT_RUN",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "P2_live": "NOT_RUN_NOT_AUTHORIZED"
+  },
+  "next": "RestB06b finite forms/binding/inventory and historical M1M2/current qualification/restart/installed reader through existing consumers; then B06c/m, final P2-inert, P4a-minim. No launch audit or accepted-slice rerun."
+}

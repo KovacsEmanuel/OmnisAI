@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_SCOPED_PENDING_PARENT_REVIEWS_AND_PG_NATIVE_QA",
+  "language": "ro",
+  "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "committed": false,
+  "pushed": false,
+  "snapshot": {
+    "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+    "changed_files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "base_sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "base_sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+        "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "base_sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+        "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "base_sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+        "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "base_sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+        "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "base_sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+        "sha256": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "base_sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+        "sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "base_sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+        "sha256": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "base_sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+        "sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "base_sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+        "sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "base_sha256": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+        "sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "base_sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
+      },
+      {
+        "path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "base_sha256": "309bc0c6d6f34ade287710494a37dd2eb7107eb8c59af8c05a07192960e5c1c9",
+        "sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813"
+      }
+    ],
+    "composer_revision": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+    "checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "checker_source_count": 13,
+    "exported_diff": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-exported.patch",
+      "sha256": "bb0a3f938930a3a3f49d21c100fffb1d2a15a6e216565b9b2a6b3b1049501aa4"
+    },
+    "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+    "staged_diff_empty": true
+  },
+  "scope": {
+    "acceptance_row": "B06b evidence-bearing obligations + optional versus required, existing records method",
+    "changed_paths": 13,
+    "single_author": true,
+    "seam": [
+      "skill_catalog.compile_catalog",
+      "BuildSource.build/managed_contract.build_records",
+      "managed_composition.validate",
+      "prompt_bundle._brief/contract_method.assignment",
+      "existing agent.contract_execution.run_contract/BoundContractTools",
+      "contract_method.task_result",
+      "method_checks.check_execution",
+      "ManagedAdmission._result_check; existing check/reconcile/readback callers"
+    ],
+    "additional_paths": "None. Existing affected API/adapter tests and existing scratch selector only. No upstream edits, new framework/emitter/runner, services, migrations, docs/status/skills."
+  },
+  "definition": {
+    "kind": "contract-artifact",
+    "requirements": [
+      "normalize-records",
+      "build-surface-map"
+    ],
+    "proof": "Actual same-attempt PURE output only. Exact step/action/schema/header/ref digest, original input owner/context and child/session/binding chain are checked; available schema/value checked independently. Input refs or a reference count alone never establish DONE.",
+    "preserve_input_context": "Third MethodResult remains present, cites original input and normalize receipt. Input is not admitted as the new output evidence kind.",
+    "procedure_evidence_requirements": "[] or one exact {kind:contract-artifact,minimum:int 1..128,mandatory:bool}; requires at least one evidence-bearing requirement. Unknown/duplicate/foreign/malformed/overflow forms refused.",
+    "required_evidence": "Exact MethodRequirementRefs for published required requirements declaring evidence_kinds, qualified to the same BoundProcedure/MethodPlan. Backend copies published required, cannot demote via child.",
+    "minimum": "Count exact verified output proofs after receipt/schema validation. Shortfall always retains coverage gap; mandatory=true blocks COMPLETE/SUCCEEDED; mandatory=false retains gap without blocking otherwise-required completion.",
+    "optional": "All rows remain explicit. Missing optional map is NOT_RUN with reason + Optional coverage gap, still COMPLETE/SUCCEEDED if all required DONE, every compiled done_when satisfied and mandatory minima met. Required missing map stays INCOMPLETE/INCONCLUSIVE; return alone is not success.",
+    "done_when": "New pin compiles exact published required closure; default full keeps all three rows/status/cardinality but two required done predicates, removing hidden mandatory preserve-input-context. All-optional supports empty done closure while retaining qualified return_when.",
+    "mission_promotion": "OPEN: no actual supported caller to promote optional for mission/coverage promises in this finite slice. No invented promotion API; published required flags are preserved.",
+    "historical": "Previous invalidation 25e785... checker/a33fa... composer admitted only receive-only with independent owner regeneration/equality. Older pins keep original three-predicate/all-row completion semantics and cannot acquire new evidence/optional forms. Closure13 and UNKNOWN causes preserved."
+  },
+  "verification": [
+    {
+      "label": "RED-full",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k evidence_full -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-full-red.log",
+      "sha256": "552ed96c7cab7b488beb1929b7ae80237d83e2361734df4a3c1a1daac858c6ff",
+      "summary": "2 failed, 96 deselected in 0.75s"
+    },
+    {
+      "label": "GREEN-full",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k evidence_full -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-full-green.log",
+      "sha256": "8519822f95d44dec234102f2f58403c262b3a715466323fcd522e38d60496503",
+      "summary": "2 passed, 96 deselected in 0.73s"
+    },
+    {
+      "label": "RED-optional",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k evidence_prefix -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-optional-red.log",
+      "sha256": "d9875e67b3b07b5955d14d1dc806808fe998f76171c67c6d8827d4b24f2cd537",
+      "summary": "2 failed, 2 passed, 98 deselected in 1.14s"
+    },
+    {
+      "label": "GREEN-optional",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"evidence_prefix or evidence_full\" -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-optional-green.log",
+      "sha256": "76a7416935e05e1b77859dd722d042e2bdee00236330db2ca4a0f20fa825f0b7",
+      "summary": "6 passed, 96 deselected in 1.11s"
+    },
+    {
+      "label": "RED-minimum-and-malformed-wire-fixture",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"evidence_minimum or optional_prefix_final\" -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-minimum-wire-red.log",
+      "sha256": "3f3426d03e79ee9034e348d585da16888acdc7d11bb41f30b7fd37a7a7b88685",
+      "summary": "3 failed, 102 deselected in 0.77s"
+    },
+    {
+      "label": "RED-valid-wire-consumer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k optional_prefix_final -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-wire-valid-red.log",
+      "sha256": "9933b0fd3bcf1c7f12a74ab88ce192d064bbf8c946f7f9f61f814678b0a0df22",
+      "summary": "1 failed, 104 deselected in 0.61s"
+    },
+    {
+      "label": "RED-spoofed-kind",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"evidence_declarations or evidence_count\" -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-negative-red.log",
+      "sha256": "c3c5d0f692e573e58ef2f1948087aa9f47d01c48cb8c243d600aaa4ed95a25bc",
+      "summary": "1 failed, 19 passed, 105 deselected in 1.57s"
+    },
+    {
+      "label": "RED-historical-compact",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k invalidation_historical_pair -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-history-compact-red.log",
+      "sha256": "5442c63f8392aa660739648f88a4792198d39d82c15f4aec6dec65dedd9a141a",
+      "summary": "2 failed, 2 passed, 130 deselected in 0.64s"
+    },
+    {
+      "label": "RED-all-optional",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k all_optional_prefix -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-alloptional-red.log",
+      "sha256": "c4693d17a411c57790e174f1fe372346a02fa3809b1746b83c720945c4317ccb",
+      "summary": "1 failed, 134 deselected in 0.46s"
+    },
+    {
+      "label": "GREEN-all-optional",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k \"all_optional_prefix or all-optional-prefix\" -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-alloptional-green.log",
+      "sha256": "218d2287f67887eee1b783a61a958f968f565b446aa1355144bfff4eea262680",
+      "summary": "3 passed, 152 deselected in 0.91s"
+    },
+    {
+      "label": "GREEN-producer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k evidence -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-producer-green.log",
+      "sha256": "504f02ed00540f074a34a930aa33159e7522deb1124d257369a13139f52b089d",
+      "summary": "6 passed, 12 deselected in 2.04s"
+    },
+    {
+      "label": "SOURCE-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_assignment_compact.py api/tests/test_c04_criteria.py api/tests/test_managed_wire_parity.py api/tests/test_b06a_catalog.py -k \"not test_pg_qualified_goal_prepare_before_reservation\" -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-final-api.log",
+      "sha256": "be9fa7d291b9c110128bb485b2b6a35e206bb1a53d80391f0f80374a543cf0e0",
+      "summary": "464 passed, 5 deselected in 66.88s (0:01:06)"
+    },
+    {
+      "label": "ADAPTER-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o \"pythonpath=/home/kali/OmnisAI/api/src /home/kali/OmnisAI/integrations/hermes/src /home/kali/OmnisAI/integrations/hermes/tests /home/kali/OmnisAI/integrations/hermes/upstream/managed-source\" integrations/hermes/tests/test_prompt_bundle.py integrations/hermes/tests/test_contract_method.py integrations/hermes/tests/test_managed_admission.py integrations/hermes/tests/test_managed_build.py integrations/hermes/tests/test_host.py integrations/hermes/tests/test_client.py integrations/hermes/tests/test_managed_composition.py integrations/hermes/tests/test_c03_case_input.py integrations/hermes/tests/test_c03_records.py integrations/hermes/tests/test_managed_native_source.py -q --tb=line",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-final-adapter.log",
+      "sha256": "76303a2928bd1fd909aa643a6886c4acbbb4dff7ac1e95228c49089ac32df71c",
+      "summary": "231 passed in 6.78s"
+    },
+    {
+      "label": "PG-collect-only",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"evidence-full or evidence-optional-prefix or evidence-required-prefix\" --collect-only -q",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-pg-collect.log",
+      "sha256": "0948e7ceedddf311a6fa820f3d5bbb74a60ea4ee6c0d5550133a8364df1632dc",
+      "summary": "3/25 tests collected (22 deselected) in 0.38s"
+    }
+  ],
+  "quality": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src api/tests",
+      "exit_code": 0,
+      "result": "Success: no issues found in 220 source files"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME MYPYPATH=api/src api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src",
+      "exit_code": 0,
+      "result": "Success: no issues found in 15 source files"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src api/tests integrations/hermes/src integrations/hermes/tests",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src api/tests integrations/hermes/src integrations/hermes/tests",
+      "exit_code": 0,
+      "result": "264 files already formatted"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "build": {
+    "commands": [
+      {
+        "command": "/home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel api --out-dir /home/kali/.hermes/cache/scratch/p2-evidence-obligations-wheels-0ce4701fc4",
+        "exit_code": 0
+      },
+      {
+        "command": "/home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel integrations/hermes --out-dir /home/kali/.hermes/cache/scratch/p2-evidence-obligations-wheels-0ce4701fc4",
+        "exit_code": 0
+      }
+    ],
+    "inventory": {
+      "api": {
+        "wheel": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-wheels-0ce4701fc4/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "4d85b449c02411b1c501fd375a7c0fdd95123eddede838e2c02f8b41764d59ad",
+        "module_count": 83,
+        "exact_inventory": {
+          "omnis/__init__.py": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a",
+          "omnis/api.py": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc",
+          "omnis/core/db.py": "4fd7c9ce59dfb806eec07058ec8067a3f9f6ea8df5b0c7a0bc45a51501405fdb",
+          "omnis/core/errors.py": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0",
+          "omnis/core/managed_schema.py": "20e08df042ca512e9c8ee5bdd3e75ccf3db71254d9266916d570edf14a08dcb0",
+          "omnis/core/paths.py": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb",
+          "omnis/core/persistence.py": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788",
+          "omnis/core/readiness.py": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08",
+          "omnis/core/schema.py": "1259028f027d79367cf7a7880e33c71e24571d1187546a0ba36407f11d765163",
+          "omnis/core/web_assets.py": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c",
+          "omnis/migrate.py": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426",
+          "omnis/migrations/__init__.py": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3",
+          "omnis/migrations/env.py": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98",
+          "omnis/migrations/versions/0001_instance_control.py": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673",
+          "omnis/migrations/versions/0002_local_sessions.py": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5",
+          "omnis/migrations/versions/0003_instance_lifecycle.py": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30",
+          "omnis/migrations/versions/0004_pairing_receipts.py": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8",
+          "omnis/migrations/versions/0005_stop_fence.py": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406",
+          "omnis/migrations/versions/0006_stop_reconciliation.py": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607",
+          "omnis/migrations/versions/0007_engagement_drafts.py": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc",
+          "omnis/migrations/versions/0008_engagement_edit.py": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7",
+          "omnis/migrations/versions/0009_catalog_candidates.py": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371",
+          "omnis/migrations/versions/0010_catalog_publications.py": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea",
+          "omnis/migrations/versions/0011_managed_tasks.py": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d",
+          "omnis/migrations/versions/0012_contract_methods.py": "679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c",
+          "omnis/modules/engagements/dashboard.py": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb",
+          "omnis/modules/engagements/routes.py": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0",
+          "omnis/modules/engagements/schemas.py": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143",
+          "omnis/modules/engagements/service.py": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd",
+          "omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+          "omnis/modules/instance/models.py": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc",
+          "omnis/modules/instance/records.py": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222",
+          "omnis/modules/instance/schemas.py": "bf9a05291ead51953bab44bf75a8811c71c4ad4bbdc1b0eb2a3352fad80645a0",
+          "omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+          "omnis/modules/instance/stop_contract.py": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9",
+          "omnis/modules/runs/__init__.py": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754",
+          "omnis/modules/runs/contract_inputs.py": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab",
+          "omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+          "omnis/modules/runs/model_dispatch.py": "649660fc0827bc540a3b78d70831417606d1bcbe66e052fa3b50d6ca34187b65",
+          "omnis/modules/runs/model_projection.py": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+          "omnis/modules/runs/native_preparation.py": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2",
+          "omnis/modules/runs/native_preparation_models.py": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062",
+          "omnis/modules/runs/plan_snapshot.py": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c",
+          "omnis/modules/runs/pure_probe.py": "50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4",
+          "omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+          "omnis/modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+          "omnis/modules/settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+          "omnis/modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+          "omnis/modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+          "omnis/modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+          "omnis/modules/settings/catalog_publication.py": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+          "omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+          "omnis/modules/settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+          "omnis/modules/settings/publication_store.py": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9",
+          "omnis/modules/settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+          "omnis/modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+          "omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+          "omnis/modules/tasks/execution_selection.py": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3",
+          "omnis/modules/tasks/managed_composition.py": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+          "omnis/modules/tasks/managed_contract.py": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+          "omnis/modules/tasks/managed_store.py": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+          "omnis/modules/tasks/method_checker_identity.py": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+          "omnis/modules/tasks/method_checks.py": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+          "omnis/modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+          "omnis/owner.py": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930",
+          "omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+          "omnis/policy/model_configuration.py": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25",
+          "omnis/policy/model_context.py": "88b6b694690485503b567cf3b4b3b0798d82a6e9a3c00457432e24b6d6414237",
+          "omnis/policy/model_dispatch_contract.py": "5f1ce6856e0f39140e94b99dba75ab1db46b12d715b30c574aa3be6b4a4243c0",
+          "omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+          "omnis/policy/ready_model_configuration.py": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2",
+          "omnis/security/host_origin.py": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551",
+          "omnis/security/routes.py": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d",
+          "omnis/security/sessions.py": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc",
+          "omnis/serve.py": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345",
+          "omnis/stop_reconcile.py": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4",
+          "omnis/supervisor/__main__.py": "d8c5a599de86a6f74faf3976b9fc5ef2c2352b07dc84cda55a9bb9e913b3c2e6",
+          "omnis/supervisor/case_slot.py": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba",
+          "omnis/supervisor/native_tasks.py": "03917e2bd038af106b1b8dc958dc0fd12029561722ea65b79f90b6e759b4df8e",
+          "omnis/supervisor/runtime_client.py": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+          "omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+          "omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+          "omnis/worker.py": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+        }
+      },
+      "adapter": {
+        "wheel": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-wheels-0ce4701fc4/omnis_hermes-0.1.0-py3-none-any.whl",
+        "sha256": "8a86adfd19c83f0d3dc102129917ca2b4245eacb110190bd1ed5e0929f6aac25",
+        "module_count": 15,
+        "exact_inventory": {
+          "omnis_hermes/__init__.py": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59",
+          "omnis_hermes/contract_method.py": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+          "omnis_hermes/managed_admission_contract.py": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+          "omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+          "omnis_hermes/model_configuration.py": "dde8ad63db05c52a1085e441d625dd200726bb47e5bd9aa7feff469b056b3910",
+          "omnis_hermes/model_context.py": "a09bb22c4014e38be141d7f3ccf2840166d7695ca721be5e92eed5d18c211141",
+          "omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+          "omnis_hermes/model_request.py": "a0bd4d852067e6bf654bc1684512086194e08fbeb2702b272db08a61bb8e3bfd",
+          "omnis_hermes/model_terminal.py": "8d8b7c533ed7f24574ea58784b5701d387abc2d8b9cdce92489b424993b0079b",
+          "omnis_hermes/native_preparation_contract.py": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41",
+          "omnis_hermes/native_preparation_worker.py": "0d62b2f1af5b02d249ee591edd5915f28fa6ce83820c0d7b2de64f0905159ad0",
+          "omnis_hermes/private_paths.py": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+          "omnis_hermes/prompt_bundle.py": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+          "omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+          "omnis_hermes/runtime_protocol.py": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8"
+        }
+      },
+      "prerequisite": {
+        "source_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+        "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+        "original_files": 15208,
+        "exact_inventory": true,
+        "libraries_present": true,
+        "native_imported": false,
+        "native_launched": false
+      },
+      "consumer_qa": {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+          "evidence"
+        ],
+        "pytest_argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "/home/kali/OmnisAI/api/pyproject.toml",
+          "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+          "-k",
+          "evidence-full or evidence-optional-prefix or evidence-required-prefix",
+          "-q",
+          "--tb=line"
+        ],
+        "original_choices_preserved": 6,
+        "choices": [
+          "red",
+          "green",
+          "applicability",
+          "not-applicable",
+          "precondition",
+          "invalidation",
+          "evidence",
+          "evidence-full",
+          "evidence-optional-prefix",
+          "evidence-required-prefix"
+        ],
+        "main_guard": true,
+        "execution": "NOT_RUN_PARENT_REVIEW_HOLD"
+      }
+    },
+    "final_wheel_imports_and_API_factory_exit_code": 0,
+    "classification": "Offline SOURCE distributions; exact 83 API and 15 adapter module inventories. Not OCI/installed/native admission.",
+    "upstream": "managed-source/pin/patches/overlay manifest unchanged. Existing run_contract already reads result status and executes genuine prefix; no upstream edit/reseal required."
+  },
+  "prepared_consumer_qa": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "evidence"
+    ],
+    "pytest_argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "-k",
+      "evidence-full or evidence-optional-prefix or evidence-required-prefix",
+      "-q",
+      "--tb=line"
+    ],
+    "original_choices_preserved": 6,
+    "choices": [
+      "red",
+      "green",
+      "applicability",
+      "not-applicable",
+      "precondition",
+      "invalidation",
+      "evidence",
+      "evidence-full",
+      "evidence-optional-prefix",
+      "evidence-required-prefix"
+    ],
+    "main_guard": true,
+    "execution": "NOT_RUN_PARENT_REVIEW_HOLD"
+  },
+  "qa_cases": {
+    "evidence-full": "Fresh qualified/published seed, own fresh native boot/root, read1/PURE2 -> 3DONE/2actual evidence refs/COMPLETE; two outcomes BLOCKED without oracle.",
+    "evidence-optional-prefix": "Fresh qualified optional map seed, own fresh native boot/root, read1/PURE1 -> DONE/NOT_RUN/DONE, actual one proof, optional reason+gap, SUCCEEDED/COMPLETE.",
+    "evidence-required-prefix": "Fresh qualified required map seed, own fresh native boot/root, same real prefix/one proof/three rows -> INCONCLUSIVE/INCOMPLETE, backend BLOCKED, METHOD_INCOMPLETE.",
+    "retained_assertions": "Existing persist-before-check, authentic final/binding/schema, _result_check, reconcile/readback, four fresh readers, single consume and post-Stop receive-only. Fresh home/root per parametrized RUN; never reused boot across RUNs."
+  },
+  "retained_failures_and_dispositions": [
+    "Initial wire fixture reason=null hit parser refusal; corrected to actual CONTRACT_PURE before crediting valid-wire cardinality RED. Both failures retained.",
+    "Six producer fixture failures came from mutating mapping() copies; reconstruct authored rows explicitly. No product guard relaxed.",
+    "First broad SOURCE selection:459PASS/5 PG setup errors because no DB env. No DB/native fixture launched. Final selection explicitly excludes those five.",
+    "Intermediate regression ran before composer hash synchronization; retained as distribution-in-progress failure, not fabricated product gap/pass.",
+    "Mypy rejected one object-typed manifest reference in test; obj validation fix, final strict mypy GREEN.",
+    "Product RED->GREEN covers full evidence, optional required closure, minimum, success-prefix wire cardinality, spoofed kind, historical compact and all-optional prefix checker."
+  ],
+  "limits": [
+    "PG/native actual execution NOT_RUN_PARENT_REVIEW_HOLD. Only exact collect3/25, source archive15208 inventory and selector parser preflight performed. Parent must obtain two complementary approvals before launch.",
+    "SOURCE native records come from real run_contract/read/PURE on synthetic state holders, not AIAgent/PG/native authentication. Owner SOURCE test uses explicitly substituted schema/graph seams, not durability.",
+    "No general evaluator/registry or Evidence engine, receipt-as-new-evidence-kind, vulnerability/control/oracle PASS, external auth/input ResultQualification, model/provider/account/target, runtime restart or installed historical reader.",
+    "Mission promotion OPEN; required NOT_APPLICABLE behavior remains the accepted existing incomplete behavior; optional N/A has existing proof/reason/gap.",
+    "Canonical final NOT_RUN. B06b/G02/P2 remain PARTIAL/NOT_CLOSED; P4a-minim not claimed. Parent owns adjudication, QA and commit.",
+    "No shared index mutation/commit/docs/status/skills/global services/profile changes. Protected HTML SHA matches versioned checkpoint."
+  ]
+}

@@ -1,8 +1,8 @@
 # Handoff C10/B06 — prompt de continuare și checkpoint istoric
 
-## CURRENT — predare după acceptarea preconditions, 13 octombrie
+## CURRENT — continuare după acceptarea evidence/optional, 13 octombrie
 
-**Oprirea sesiunii este cerută de operator, nu un blocker nou al produsului.** Felia curentă este comisă și acceptată scoped. Continuarea în sesiunea nouă este **implementare/remediere cu cod minimal**, până la P2-inert → P4a-minim; P2-live cere acord separat. Nu porni alt audit, plan, verifier sau owner. Acest handoff proiectează planul §7.1/§8 și registrele existente, fără a extinde criteriile.
+**Mandatul de continuare este în curs, nu suspendat la checkpointul istoric preconditions.** Invalidation `879efe6` și evidence/optional `a438538` cu reader fix `b20f339` sunt comise și acceptate scoped în [registrul CURRENT](p2-bound-predicates.md). Ultima [QA independentă](p2-bound-predicates-evidence/evidence-independent-qa.json):3PG/native PASS121.93s/exit0/drained; [părinte](p2-bound-predicates-evidence/evidence-parent-acceptance.json):16SHA/222artefacte/7bindings, cleanup exact/date păstrate. Full/optional cu required satisfăcute COMPLETE, required-prefix INCOMPLETE; public cached release/receive după Stop și12readeri fără reexecuție. Findings reader/oracle/scheduling remediate/re-reviewuite; nu se reiau aceste felii sau launch audit. Continuarea este **restB06b forme/binding/inventar/calificare M1M2/history/restart**, apoi B06c/m→acceptare P2-inert→P4a-minim; P2-live cere acord separat. Nu porni alt audit, plan, verifier sau owner. Acest handoff proiectează planul §7.1/§8 și registrele existente, fără a extinde criteriile. Snapshotul și unele limitări de mai jos sunt istorice înaintea continuării; Git și registrul CURRENT decid bytes/starea actuală.
 
 ### Snapshot și ce nu se reia
 
@@ -20,7 +20,7 @@
 |---|---|---|
 | Transport/izolare B05/H01/H02 | B05/slot/bootstrap și probele H01/H02 acceptate la frontierele lor | Numai lipsurile la consumerul extins: reverse/EOF/timeout/backpressure/unknown method, no personal grants și drain owned; synthetic peer nu este nativ. Nu recertificare B05 neschimbat |
 | Catalog/publicare B06a/b | Seed real calificat/Publish exact/CAS, snapshot pinned NO_MODEL și readback/replay acceptate | Recalifică fixture-ul afectat de compiler/evaluator/pin nou; nu transfera calificări vechi și nu introduce alt demo/editor/catalog larg |
-| Brief/composer/metodă B06b | Read/PURE/receipts reale, full+partial, applicability/preconditions finite, UNKNOWN păstrat, outcomes fără oracle BLOCKED | **Următoarea felie: invalidation**, apoi obligații evidence-bearing și optional versus required; toate cerințele/stările/motivele/gaps, required_evidence și formele refs/slots/StepOutput/predicate contractate încă neacoperite. Refuzul prudent existent nu înseamnă funcție implementată. SOURCE preflight și checker nu substituie consumerul real |
+| Brief/composer/metodă B06b | Read/PURE/receipts reale, full+partial, applicability/preconditions/invalidation finite, UNKNOWN păstrat; evidence/optional pe same-attempt artifacts și required closure acceptate scoped; outcomes fără oracle BLOCKED | Restul cerințelor/stărilor/motivelor/gaps și formelor refs/slots/StepOutput/predicate contractate neacoperite rămâne explicit deschis. Refuzul prudent existent nu înseamnă funcție implementată. SOURCE preflight și checker nu substituie consumerul real; nu relansa cazurile acceptate neafectate |
 | Binding/inventar H03–H05 | Mapping și inventar native probate în subseturile documentate | Root/child/batch/attempt distincte, mapping comis pre-access, goaluri identice cu identități distincte, inventar efectiv, wrong-identity/observer failure deny; lineage autentic/atomic sau refuz fără acces. Compresia care cere inferență rămâne live, nu pozitiv simulat |
 | Rezultat/inbox H06/H07 | Persist→check, replay/reconcile/consum o dată, receive-only post-Stop și cache same-Host acceptate scoped | M1 după M2 aditiv rămâne istoric; input/auth/precondiții invalidate nu primesc calificare curentă. Duplicate/conflict/restart/lost reply și HELD fără wake/execuții/consum dublu; markerii delivered/admitted/turn_completed/consumed distincte. **Restart runtime real și installed historical-reader încă NOT_RUN**; Same-Host cache și legacy producer fresh nu le închid |
 | DATA B06c | ModelProjections/decizie DATA, DTO guard final/direct-worker și SDK real NO-IO cu acceptări scoped în registre | Producer/proiecție calificată → decizie DATA exactă → DTO final immutable → guard integral după transform pe consumerul real. Sentinel întreg input/payload/result/error/log; raw/secrete/unknown sensitive/cross-case/bypass refuzate. Refolosește SDK neafectat; probează SDK real NO-IO numai unde schimbarea consumerului o cere. DATA/UUID sintetic nu acordă model; NO_MODEL rămâne pre-client |
@@ -73,8 +73,8 @@ HEAD real poate include commitul documentar al handoffului. Păstrează toate
 schimbările preexistente și documents/Omnis_Notite_Originale.html neatins.
 Partial return, applicability/UNKNOWN finite și preconditions finite sunt
 acceptate scoped: nu relua auditul launch sau probele lor neschimbate.
-Începe cu invalidation pe consumerii existenți, apoi evidence/optional și
-restB06b (forme, binding/inventar/lineage, M1/M2, restart/history), B06c și
+Invalidation și evidence/optional au avansat și sunt acceptate scoped;
+continuă restB06b (forme, binding/inventar/lineage, M1/M2, restart/history), B06c și
 callerul B06m reserve COMIS→SENT durabil→protocol inert→receipt/UNKNOWN.
 Folosește delta celor8criterii și toate limitele/probele din CURRENT.
 Nu presupune policy/admission.py existent; verifică definiții/usages,

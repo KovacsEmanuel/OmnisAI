@@ -1,0 +1,835 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "role": "Independent normative and persistence/readback reviewer",
+  "verdict": "CHANGES_REQUESTED",
+  "verdict_reason": "Un finding MEDIUM în oracle-ul PG modificat: native-release pentru UNKNOWN este confundat cu starea backend. Semantica finită de produs examinată este conformă SOURCE/scoped; nu declar PG/native ori durabilitate PASS. Re-review focalizat după corecția minimală de test; părintele adjudecă.",
+  "scope_verdicts": {
+    "finite_product_semantics": "APPROVED_SOURCE_SCOPED",
+    "persistent_transaction_order": "STATIC_CONFORMANT_PG_NOT_RUN",
+    "owner_exact_result_no_rerun_unknown_readback": "APPROVED_SOURCE_SEAM_SCOPED",
+    "changed_pg_oracle": "CHANGES_REQUESTED_QA_01",
+    "real_pg_native_evidence3": "NOT_RUN",
+    "full_integration": "NOT_APPROVED_NOT_CLOSED"
+  },
+  "repository": "/home/kali/OmnisAI",
+  "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+  "snapshot": {
+    "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+    "changed_files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "expected": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "expected": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "expected": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "expected": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "expected": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5",
+        "expected": "fa8fc9186bddf5c9ffa9d22563ad9bf245fe22b6dee4996f1f1101db42b236d5"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "expected": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6",
+        "expected": "54b6545346ca0e21d77b30c7acdf8d440bb347574170b9e3c1c7307c12a5a7d6"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "expected": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "expected": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "expected": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "expected": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
+      },
+      {
+        "path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "expected": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813"
+      }
+    ],
+    "changed_file_count": 13,
+    "all_hashes_match": true,
+    "diff_sha256": "bb0a3f938930a3a3f49d21c100fffb1d2a15a6e216565b9b2a6b3b1049501aa4",
+    "diff_matches_export": true,
+    "author_report_sha256": "034e4b2a87c712eb023c1e21fbf35431088518fb98607446a792fef08f6657cc",
+    "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+    "index_empty": true,
+    "git_status": " M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/managed_admission_contract.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n M integrations/hermes/tests/test_prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "initial_all13_match": true,
+    "final_all13_match": true,
+    "initial_diff_equal_export": true,
+    "final_diff_equal_export": true,
+    "initial_final_index_empty": true,
+    "author_report_path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-author.json",
+    "exported_diff_path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-exported.patch",
+    "composer_revision": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+    "current_checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "checker_source_count": 13
+  },
+  "normative_sources": [
+    {
+      "path": "documents/verification/p2-c10-session-handoff-20261012.md",
+      "sections": "CURRENT:3–95; acceptance23–28; caller30–35; verification38–55"
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates.md",
+      "sections": "CURRENT invalidation11–19; previous scope7 and history entries as historical only"
+    },
+    {
+      "path": "documents/Omnis_MVP_Architecture.md",
+      "sections": "§9.4:587–610; §9.5:612–632; §9.10:733–770"
+    },
+    {
+      "path": "README.md",
+      "sections": "CURRENT:3; scope/handoff87"
+    },
+    {
+      "path": "documents/verification/implementation-status.md",
+      "sections": "CURRENT:13–17; no status edits"
+    }
+  ],
+  "findings": [
+    {
+      "id": "EVIDENCE-NORM-QA-01",
+      "severity": "MEDIUM",
+      "category": "CHANGED_TEST_ORACLE_REGRESSION_NOT_PRODUCT_DEFECT",
+      "blocking_for": "Aprobarea integrală a frozen13, regresia PG applicability-unknown/canonical; nu desființează acceptarea istorică și nu demonstrează un eșec al celor3cazuri evidence.",
+      "path": "api/tests/test_contract_method_pg.py",
+      "line": 1891,
+      "related_lines": [
+        580,
+        582,
+        1075,
+        1087,
+        1090,
+        1893
+      ],
+      "title": "Oracle-ul native-release confundă UNKNOWN backend cu statusul rezultatului nativ autentic.",
+      "reproducible_input": {
+        "pytest_case": "test_contract_method_real_native_pg_owner_receipts_check_inbox[applicability-unknown]",
+        "early_return": false,
+        "applicability": "unknown",
+        "synthetic_records": [
+          {
+            "method": "POST",
+            "path": "/synthetic-z",
+            "status": 201
+          },
+          {
+            "method": "GET",
+            "path": "/synthetic-a",
+            "status": 404
+          },
+          {
+            "method": "GET",
+            "path": "/synthetic-a",
+            "status": 200
+          }
+        ],
+        "method": "full read1/PURE2, required=[true,true,false], applies_if=records-nonempty expected true; indisponibilitatea schemei numai la primul check backend"
+      },
+      "expected": {
+        "native_task_result_status": "SUCCEEDED",
+        "native_release_event": {
+          "test": "native-release",
+          "status": "SUCCEEDED",
+          "count": 1
+        },
+        "backend_method_check": "UNKNOWN",
+        "backend_task_status": "BLOCKED"
+      },
+      "actual": {
+        "changed_incomplete_expression": true,
+        "required_by_current_assertion": {
+          "test": "native-release",
+          "status": "INCONCLUSIVE",
+          "count": 1
+        },
+        "source_produced_native_result": "SUCCEEDED",
+        "source_check_with_unavailable_schema": "UNKNOWN",
+        "current_assertion_satisfied": false
+      },
+      "reproduction_command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-probe.py",
+      "reproduction_exit_code": 0,
+      "reproduction_meaning": "Detectorul rulează run_contract/read/PURE real SOURCE pe state holders, aplică schema={} la checker și evaluează AST exact pentru incomplete (linia580) și oracle-ul assert de la1889. Exit0 confirmă mismatchul așteptat de detector, NU un PG PASS/FAIL. Cazul real PG nu a fost lansat.",
+      "normative_requirement": [
+        "Arhitectură §9.10:744/750/752 — check după result exact; indisponibilitatea checkerului/schema produce UNKNOWN, fără rescrierea rezultatului autentic.",
+        "Arhitectură §9.5:628 — SUCCEEDED copil nu este autoritate asupra calificării backend.",
+        "Handoff CURRENT:41–42 / review QA — probe pe frontiera măsurată; păstrează UNKNOWN distinct, fără oracle care atribuie faultul backend producerului."
+      ],
+      "minimal_remedy": "Separă statusul native-release de incomplete backend. În acest parametru unknown păstrează SUCCEEDED nativ; păstrează UNKNOWN/BLOCKED în backend. De exemplu derivează native_inconclusive din (early_return and applicability != evidence-optional-prefix) or applicability == not-applicable, fără unknown. Nu modifica checkerul, granturile, fixture lifecycle-ul ori semantica UNKNOWN pentru a satisface testul.",
+      "verification_needed": "SOURCE RED→GREEN pe exact oracle-ul schimbat pentru full/optional-prefix/required-prefix/unknown; re-review focalizat pe acest hunk. Apoi QA autorizată evidence3. Nu relansa vechile launch/applicability/precondition/invalidation numai pentru constatarea de test; proba PG a acestei tentative rămâne NOT_RUN."
+    }
+  ],
+  "finding_count": 1,
+  "finding_counts": {
+    "MEDIUM": 1,
+    "HIGH": 0,
+    "CRITICAL": 0
+  },
+  "requirement_producer_consumer_evidence_matrix": [
+    {
+      "id": "FINITE-EVIDENCE",
+      "requirement": "Unicul kind contract-artifact; numai output PURE autentic, nu input/receipt-as-kind; declarație [] sau exact1minimum/mandatory row.",
+      "norm": "§9.4:593; §9.10:739/750",
+      "producer": [
+        "api/src/omnis/modules/settings/skill_catalog.py:521",
+        "api/src/omnis/modules/tasks/managed_contract.py:164–244",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:409–491"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/method_checks.py:201–271,310–322,429–470"
+      ],
+      "evidence": [
+        "SOURCE-API controls malformed/schema/input/duplicate/foreign/header/value/overflow",
+        "SOURCE-ADAPTER",
+        "INDEPENDENT-FINITE-PROBE"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "id": "REQUIRED-EVIDENCE",
+      "requirement": "Exact MethodRequirementRefs către required publicate care declară evidence_kinds; same BoundProcedure/MethodPlan; child nu demotează.",
+      "norm": "§9.5:621/624; §9.10:742/750/754",
+      "producer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:892–894,1022–1026"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:1493–1515",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:799–804",
+        "api/src/omnis/modules/tasks/method_checks.py:632–636"
+      ],
+      "evidence": [
+        "SOURCE-API required-evidence-gap/demote/strip-done negatives",
+        "16 independent cases exact required_evidence checks"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED",
+      "mission_promotion": "OPEN; niciun caller nou inventat; flags publicate păstrate"
+    },
+    {
+      "id": "DONE-CLOSURE",
+      "requirement": "Noul pin compilează exact closure required; return_when calificat fără succes automat; all-optional păstrează return_when, zero done closure admis.",
+      "norm": "§9.10:754",
+      "producer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:876–890,947–957"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:408–420",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:644–655",
+        "api/src/omnis/modules/tasks/method_checks.py:473–518"
+      ],
+      "evidence": [
+        "SOURCE-API full/optional/required/all-optional/strip-done",
+        "16 independent cases inline+compact"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "id": "ALL-ROWS",
+      "requirement": "Exact3MethodResults inclusiv optional/NOT_RUN; reason/gaps/basis/artifact refs conservate, original input rămâne al treilea output declarat.",
+      "norm": "§9.10:742–743/750",
+      "producer": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:325–390"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/method_checks.py:323–409"
+      ],
+      "evidence": [
+        "SOURCE-API cardinality controls",
+        "INDEPENDENT-FINITE-PROBE 3rows, third input exact, map missing NOT_RUN with coverage reason"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "id": "COMPLETION-MINIMUM",
+      "requirement": "Minimum numai după receipts/schema, mandatory true blochează; false păstrează gap fără PASS funcțional.",
+      "norm": "§9.4:593; §9.10:744/754",
+      "producer": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:365–390"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/method_checks.py:399–409,637–681,703–727"
+      ],
+      "evidence": [
+        "SOURCE-API minimum true/false controls",
+        "independent full minimum3 and optional-prefix minimum2, true/false × inline/compact"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "id": "WIRE-CARDINALITY",
+      "requirement": "Prefix optional SUCCEEDED cu4records și gaps acceptat structural; full records6; parity exact; backend semantic check rămâne obligatoriu.",
+      "norm": "§9.5:622; §9.10:743/752",
+      "producer": [
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:234–273"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:1849–1856",
+        "api/src/omnis/modules/runs/managed_admission.py:741–750"
+      ],
+      "evidence": [
+        "SOURCE-API optional-prefix-final test",
+        "SOURCE-ADAPTER malformed response tests",
+        "PG selection3 COLLECT_ONLY"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED_NOT_NATIVE_AUTH_PROOF"
+    },
+    {
+      "id": "PERSIST-BEFORE-CHECK",
+      "requirement": "Exact result/receipts/artifacts persistate înainte check; check/outcomes nu sunt preimagine a result.",
+      "norm": "§9.10:744/752",
+      "producer": [
+        "api/src/omnis/modules/runs/managed_admission.py:537–643"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/runs/managed_admission.py:653–714"
+      ],
+      "evidence": [
+        "static transaction boundary engine.begin exits at642 before readback",
+        "new PG prefix cut assertions1370–1380 inspected; not launched"
+      ],
+      "result": "STATIC_CONFORMANT_PG_NOT_RUN"
+    },
+    {
+      "id": "READBACK-RECONCILE",
+      "requirement": "Exact retained final/emitted records; check independently regenerated and equality; no rerun/single consumption.",
+      "norm": "§9.10:744/752; handoff25",
+      "producer": [
+        "api/src/omnis/modules/runs/managed_admission.py:759–821"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/runs/managed_admission.py:703–713,1067–1108,1186–1222"
+      ],
+      "evidence": [
+        "64 actual SOURCE owner invocations with graph/schema doubles",
+        "native defining module/retained alias read/PURE/task_result guards raised on invocation; zero such calls",
+        "static SQL atomic consume/update inspected"
+      ],
+      "result": "SOURCE_AND_STATIC_SCOPED_FULL_PERSISTENT_READBACK_NOT_RUN"
+    },
+    {
+      "id": "UNKNOWN",
+      "requirement": "Missing schema/checker = UNKNOWN; malformed available material refuses; existing UNKNOWN cause/gaps immutable when availability recovers.",
+      "norm": "§9.10:744/750; handoff23/25",
+      "producer": [
+        "api/src/omnis/modules/tasks/method_checks.py:637–643,694–718"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/runs/managed_admission.py:759–821"
+      ],
+      "evidence": [
+        "SOURCE-API existing UNKNOWN and prior-tamper tests",
+        "16 current evidence-bearing cases schema-unavailable then available exact owner prior payload"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED_PRODUCT; changed PG oracle QA-01 CHANGES_REQUESTED"
+    },
+    {
+      "id": "FUNCTIONAL-VERDICT",
+      "requirement": "COMPLETE/evidence count nu acordă functional PASS; allocated criteria remain BLOCKED/no oracle.",
+      "norm": "§9.5:626/628; §9.10:754",
+      "producer": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:395–404"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:203–283"
+      ],
+      "evidence": [
+        "static no-positive oracle branch unchanged",
+        "SOURCE-API existing criterion complete/incomplete/unknown and forged-PASS controls",
+        "PG expected2outcomes each BLOCKED inspected; NOT_RUN"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED_OUTCOME_PG_NOT_RUN"
+    },
+    {
+      "id": "HISTORY",
+      "requirement": "Old invalidation25e785/a33fa exact receive-only, original3done closure/allrow semantics; older pins cannot gain evidence/optional; no first success from historical checker.",
+      "norm": "handoff historical/readback limits; §9.10:752",
+      "producer": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:62–65,78–118"
+      ],
+      "consumer": [
+        "api/src/omnis/modules/tasks/managed_contract.py:354–421",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:587–655",
+        "api/src/omnis/modules/runs/managed_admission.py:759–821"
+      ],
+      "evidence": [
+        "BASE-HISTORICAL-PINS independent closure13 digest",
+        "SOURCE-API old invalidation compact/inline full/prefix and no-new-evidence/optional negatives"
+      ],
+      "result": "APPROVED_SOURCE_SCOPED_INSTALLED_HISTORICAL_READER_NOT_RUN"
+    },
+    {
+      "id": "PREPARED-CONSUMER",
+      "requirement": "Fresh qualified/published seed → authentic finite native/PG full+optional-prefix+required-prefix → stored check/outcomes/readers/reconcile.",
+      "norm": "handoff41–46; §9.10:744/752",
+      "producer": [
+        "api/tests/test_contract_method_pg.py:552–568"
+      ],
+      "consumer": [
+        "api/tests/test_contract_method_pg.py:1370–1538,1755–1830"
+      ],
+      "evidence": [
+        "PG-SELECTION-COLLECT exact3/25"
+      ],
+      "result": "NOT_RUN_PER_READ_ONLY_CONTRACT; reviewed test orchestration not product acceptance"
+    }
+  ],
+  "verification": {
+    "cwd": "/home/kali/OmnisAI",
+    "commands": [
+      {
+        "id": "SOURCE-API",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -q --tb=line",
+        "exit_code": 0,
+        "passed": 310,
+        "elapsed_seconds": 23.47,
+        "stdout_summary": "310 passed in 23.47s",
+        "boundary": "SOURCE; sinteză de state holders, nu AIAgent/Host/PG live"
+      },
+      {
+        "id": "SOURCE-ADAPTER",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o 'pythonpath=/home/kali/OmnisAI/api/src /home/kali/OmnisAI/integrations/hermes/src /home/kali/OmnisAI/integrations/hermes/tests /home/kali/OmnisAI/integrations/hermes/upstream/managed-source' integrations/hermes/tests/test_prompt_bundle.py integrations/hermes/tests/test_contract_method.py integrations/hermes/tests/test_managed_admission.py -q --tb=line",
+        "exit_code": 0,
+        "passed": 63,
+        "elapsed_seconds": 0.87,
+        "stdout_summary": "63 passed in 0.87s",
+        "boundary": "SOURCE/adapter, fără Host/servicii/native process"
+      },
+      {
+        "id": "INDEPENDENT-FINITE-PROBE",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-probe.py",
+        "exit_code": 0,
+        "matrix_cases": 16,
+        "owner_invocations": 64,
+        "stdout_summary": "16 cazuri inline/compact, 64 invocări reale _result_check cu graph/schema seam substituite; finding QA-01 detectat prin AST-ul exact al oracle-ului PG.",
+        "boundary": "SOURCE_ONLY_SYNTHETIC_STATE_AND_SCHEMA_READER"
+      },
+      {
+        "id": "PG-SELECTION-COLLECT",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_TEST_DATABASE_URL -u OMNIS_TEST_NATIVE_METHOD -u OMNIS_TEST_NATIVE_HISTORY PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'evidence-full or evidence-optional-prefix or evidence-required-prefix' --collect-only -q",
+        "exit_code": 0,
+        "collected": 3,
+        "available": 25,
+        "deselected": 22,
+        "elapsed_seconds": 0.35,
+        "stdout_summary": "3/25 tests collected (22 deselected) in 0.35s",
+        "boundary": "COLLECT_ONLY; fixtures/native/DB NOT_RUN"
+      },
+      {
+        "id": "DIFF-CHECK",
+        "command": "git diff --check",
+        "exit_code": 0,
+        "stdout_summary": "Fără diagnostic"
+      },
+      {
+        "id": "BASE-HISTORICAL-PINS",
+        "command_description": "api/.venv/bin/python -I -B -c: AST din git show BASE:method_checker_identity.py → SOURCES; SHA256 de bytes git show pentru fiecare dintre13paths; JSON canonic sort_keys/separators → digest; SHA256 git show BASE:prompt_bundle.py.",
+        "exit_code": 0,
+        "source_count": 13,
+        "checker_digest": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+        "composer_digest": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "boundary": "READ_ONLY_GIT_BYTES_NO_OLD_RUNTIME_EXECUTION"
+      }
+    ],
+    "independent_pytest_passed_total": 373,
+    "independent_matrix_cases": 16,
+    "owner_source_invocations": 64,
+    "author_counts_not_my_execution": {
+      "api": 464,
+      "adapter": 231,
+      "classification": "AUTHOR_RECORDED_ONLY; nu declarate ca rerulate independent"
+    }
+  },
+  "actual_observations": [
+    {
+      "name": "full",
+      "compact": false,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [],
+      "gap_count": 0,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-prefix",
+      "compact": false,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "required-prefix",
+      "compact": false,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return)."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "all-optional-prefix",
+      "compact": false,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "mandatory-minimum-full",
+      "compact": false,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [
+        "EVIDENCE_MINIMUM: contract-artifact (2/3); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-minimum-full",
+      "compact": false,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [
+        "EVIDENCE_MINIMUM: contract-artifact (2/3); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "mandatory-minimum-optional-prefix",
+      "compact": false,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap.",
+        "EVIDENCE_MINIMUM: contract-artifact (1/2); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-minimum-optional-prefix",
+      "compact": false,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap.",
+        "EVIDENCE_MINIMUM: contract-artifact (1/2); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "full",
+      "compact": true,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [],
+      "gap_count": 0,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-prefix",
+      "compact": true,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "required-prefix",
+      "compact": true,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return)."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "all-optional-prefix",
+      "compact": true,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap."
+      ],
+      "gap_count": 1,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "mandatory-minimum-full",
+      "compact": true,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [
+        "EVIDENCE_MINIMUM: contract-artifact (2/3); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-minimum-full",
+      "compact": true,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 2,
+      "method_states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "gaps": [
+        "EVIDENCE_MINIMUM: contract-artifact (2/3); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "mandatory-minimum-optional-prefix",
+      "compact": true,
+      "result": "INCONCLUSIVE",
+      "check": "INCOMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap.",
+        "EVIDENCE_MINIMUM: contract-artifact (1/2); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "optional-minimum-optional-prefix",
+      "compact": true,
+      "result": "SUCCEEDED",
+      "check": "COMPLETE",
+      "proofs": 1,
+      "method_states": [
+        "DONE",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "gaps": [
+        "NOT_RUN: build-surface-map (qualified early return). Optional coverage gap.",
+        "EVIDENCE_MINIMUM: contract-artifact (1/2); coverage gap."
+      ],
+      "gap_count": 2,
+      "owner_no_rerun": true,
+      "prior_unknown_preserved": true,
+      "graph_unchanged": true
+    },
+    {
+      "name": "changed-PG-UNKNOWN-oracle",
+      "classification": "CONFIRMED_SOURCE_ORACLE_MISMATCH_NOT_PG_EXECUTED",
+      "input": {
+        "early_return": false,
+        "applicability": "unknown"
+      },
+      "native_result_status": "SUCCEEDED",
+      "backend_method_check": "UNKNOWN",
+      "actual_release_event": {
+        "test": "native-release",
+        "status": "SUCCEEDED",
+        "count": 1
+      },
+      "required_by_current_pg_assertion": {
+        "test": "native-release",
+        "status": "INCONCLUSIVE",
+        "count": 1
+      },
+      "assertion_satisfied": false,
+      "lines": {
+        "incomplete": 580,
+        "oracle": 1889
+      }
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-probe.json",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-final-snapshot.json",
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-review.json"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "index_or_commits_changed": false,
+  "limits": [
+    "Read-only offline SOURCE numai. Nici DB, AIAgent/Host/native process, provider/account, target/network, browser, installed runtime sau full canonical lansat.",
+    "native_case execută real run_contract/read/PURE pe synthetic state holders; nu autentifică bindingul/child/session ca produs live. Authentic output la această probă înseamnă produs de algoritmul real SOURCE, nu autentificare nativă live.",
+    "64 invocări _result_check sunt callerul real cu explicit graph/schema seams și Mock AsyncConnection/AsyncEngine; fără SQL writes, restart/durability, full _verify_graph/readback sau consume real. Persistance/readback full sunt STATIC+NOT_RUN.",
+    "QA-01 este un defect reprodus al expresiei oracle schimbate, nu un FAIL PG măsurat. AST exact + status SOURCE authentic, nu output inventat al Hostului. Selecția evidence3 nu include cazul unknown.",
+    "Nu redeschid acceptările launch/partial/applicability/preconditions/invalidation pe bytes neafectați. QA-01 privește exclusiv linia1891 schimbată care a alterat oracle-ul UNKNOWN existent.",
+    "Exact pin pair istoric revalidat din git bytes; actual installed historical checker reader și runtime restart rămân NOT_RUN. SOURCE first-check/historical tests nu sunt această probă.",
+    "Mission promotion rămâne OPEN în felia finită. Nu consumer/framework/registry/emitter/owner nou, general Evidence engine, auth external ResultQualification, oracle SECURITY sau functional PASS.",
+    "Părintele reproduce/adjudecă findingul, remediază testul și decide QA/commitul. B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED; canonical final NOT_RUN.",
+    "Fără repo/docs/status/skills/global profile/credentials/HTML/index/commit edits. Fișiere numai scratch; protected HTML SHA exact păstrat.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Nu review de UI/estetică."
+  ],
+  "next_action": "Fix minimal QA-01 SOURCE RED→GREEN și re-review numai hunk/test fără schimbarea mecanismului produs. După două reviewuri complementare aprobate pe snapshotul actual, consumer QA autorizată evidence3; nu lansa din acest raport read-only."
+}

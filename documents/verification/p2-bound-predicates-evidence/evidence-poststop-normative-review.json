@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "reviewer_role": "Independent focused normative prepared-QA scheduling re-review",
+  "repository": "/home/kali/OmnisAI",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Numai delta din api/tests/test_contract_method_pg.py față de snapshotul celor două re-reviewuri precedente: pregătirea apelurilor publice cached release/receive după InstanceService.shutdown și etichetarea fazei. Nicio aprobare PG/native/integrare nouă.",
+  "verdict_reason": "Cele trei cazuri evidence activează listenerul original și shutdownul normal înaintea noilor apeluri release/receive. Apelurile AFTER_STOP sunt după duplicatul domain-level și înaintea outcome-ului adversarial, prin același submit_task→control_task→LocalControl→NativeTaskOwner. Guardurile no-rerun, bytes native, markers și readback canonical păstrează frontiera receive-only. Testul static original al findingului este GREEN pe SHA PG nou; celelalte 15 SHA sunt identice înainte/final.",
+  "snapshot": {
+    "base_head": "d3a938d888cfda54db8c0139d163df750d40c809",
+    "head_initial": "d3a938d888cfda54db8c0139d163df750d40c809",
+    "head_final": "b20f33901a01acc093a20bec9a785e21a97d9cf1",
+    "head_change_policy": "Mesajul direct al părintelui autorizează avansul granular HEAD/index pentru cele trei căi SOURCE deja aprobate; HEAD vechi nu este criteriu de stabilitate. Comparate bytes frozen16 și diff față de BASE, fără scrieri Git ale reviewerului.",
+    "parent_announced_commit_paths": [
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/tests/test_native_task_control.py",
+      "api/tests/test_model_preflight_control.py"
+    ],
+    "file_count": 16,
+    "unchanged_from_prior_count": 15,
+    "delta_paths": [
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "prior_review_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "expected_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "initial_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "final_sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "prior_review_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "expected_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "initial_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "final_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "prior_review_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "expected_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "initial_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "final_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "prior_review_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "expected_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "initial_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "final_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "prior_review_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "expected_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "initial_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "final_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "prior_review_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "expected_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "initial_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "final_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "prior_review_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+        "expected_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+        "initial_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+        "final_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "prior_review_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "expected_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "initial_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "final_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "prior_review_sha256": "77edd167bd85f7b72ea9c4a6d0e80d849275987f588b8652edc6135a8b2fb1aa",
+        "expected_sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8",
+        "initial_sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8",
+        "final_sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8",
+        "matches_expected": true,
+        "unchanged_from_prior_review": false
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "prior_review_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "expected_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "initial_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "final_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/tests/test_model_preflight_control.py",
+        "prior_review_sha256": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+        "expected_sha256": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+        "initial_sha256": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+        "final_sha256": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "api/tests/test_native_task_control.py",
+        "prior_review_sha256": "003ffa5dde05954f3ae59622aaa71245d7322f286182fae3c086ffa2c7fecc7e",
+        "expected_sha256": "003ffa5dde05954f3ae59622aaa71245d7322f286182fae3c086ffa2c7fecc7e",
+        "initial_sha256": "003ffa5dde05954f3ae59622aaa71245d7322f286182fae3c086ffa2c7fecc7e",
+        "final_sha256": "003ffa5dde05954f3ae59622aaa71245d7322f286182fae3c086ffa2c7fecc7e",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "prior_review_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "expected_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "initial_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "final_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "prior_review_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "expected_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "initial_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "final_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "prior_review_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "expected_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "initial_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "final_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_prompt_bundle.py",
+        "prior_review_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "expected_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "initial_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "final_sha256": "aa46315fc26e74e3d3dbc029b2c3cbf4e7d9cfd0b13dd3963aebcfe143df7813",
+        "matches_expected": true,
+        "unchanged_from_prior_review": true
+      }
+    ],
+    "all16_initial_final_stable": true,
+    "all16_expected_match": true,
+    "15_prior_sha_unchanged": true,
+    "base_to_frozen16_diff_sha256_initial": "e0667371724c1ad1a6b957e447919d08e1724cf109a45ae4cbd54b7d1f1538ec",
+    "base_to_frozen16_diff_sha256_final": "e0667371724c1ad1a6b957e447919d08e1724cf109a45ae4cbd54b7d1f1538ec",
+    "initial_git_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/src/omnis/supervisor/native_tasks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M api/tests/test_model_preflight_control.py\n M api/tests/test_native_task_control.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/managed_admission_contract.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n M integrations/hermes/tests/test_prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "final_git_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/managed_admission_contract.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n M integrations/hermes/tests/test_prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "staged_diff_empty_initial": true,
+    "staged_diff_empty_final": true,
+    "parent_commit_observation": "b20f339 fix(supervisor): deliver successful method replies on the public reader\n api/src/omnis/supervisor/native_tasks.py  |  5 +++-\n api/tests/test_model_preflight_control.py |  5 +++-\n api/tests/test_native_task_control.py     | 39 +++++++++++++++++++++++++++++++\n 3 files changed, 47 insertions(+), 2 deletions(-)",
+    "delta_comparison": "Reconstrucție doar în memorie din git show BASE:PG și exportul reviewed focused-fix.patch. SHA reconstruit 77edd167bd85f7b72ea9c4a6d0e80d849275987f588b8652edc6135a8b2fb1aa verificat înainte de compararea bytes curente; nu apply/worktree/script nou.",
+    "previous_to_current_pg_unified_delta_sha256": "62834ebe51199b9f0e0e20b9a06fd936666aa022197a92f08124d2141e644dec",
+    "delta_hunks": [
+      "1068/1076: keyword-only phase default ACTIVE și câmp phase în checkpoint",
+      "1853-1878: numai replay public after real Stop, guards și invariant readbacks"
+    ],
+    "protected_untracked_html": "Preexistent; numai intrarea din git status observată. Conținutul nu a fost citit/hash-uit/editat/adoptat."
+  },
+  "input_reports": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-parent-fixes.json",
+      "expected_sha256": "864325f6a713f3a9dd050738a30d983d2eec487c84977ce605c5213a66f84910",
+      "sha256": "864325f6a713f3a9dd050738a30d983d2eec487c84977ce605c5213a66f84910"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-normative-rereview.json",
+      "expected_sha256": "07c84277fbc0269b02a21f89033576ad787e30251d0f3081f638f9ce098ea9b1",
+      "sha256": "07c84277fbc0269b02a21f89033576ad787e30251d0f3081f638f9ce098ea9b1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-input-rereview.json",
+      "expected_sha256": "5c9f1a5ecd625824f146d773aca213be8ab204e400b54d1ed13f0d36b18d5dbc",
+      "sha256": "5c9f1a5ecd625824f146d773aca213be8ab204e400b54d1ed13f0d36b18d5dbc"
+    }
+  ],
+  "named_finding_dispositions": [
+    {
+      "id": "INPUT-QA-POSTSTOP-01",
+      "original_severity": "MEDIUM",
+      "classification": "PREPARED_QA_COVERAGE_AND_CLAIM_GAP_NOT_PRODUCT_DEFECT",
+      "disposition": "CLOSED_PREPARED_QA_SOURCE_SCOPED",
+      "current_locations": [
+        "api/tests/test_contract_method_pg.py:486-488",
+        "api/tests/test_contract_method_pg.py:1060-1079",
+        "api/tests/test_contract_method_pg.py:1831-1878"
+      ],
+      "accepted_fix": "Adăugate exact cached public release/receive la1868/1871 sub public_control is not None, după await service.shutdown la1835 și duplicatul domain.ingest_result la1839, înaintea forged outcome la1890-1896. Faza AFTER_STOP este explicită; replayul anterior la1771/1775 rămâne ACTIVE, fără claim post-Stop pentru Host retirement.",
+      "parent_red_preserved": {
+        "source": "Contextul delegat + raportul input SHA5c9f1a5e…",
+        "exact_prepared_test": "1 failed,40 deselected1.00s/exit1 (părinte; nu rerulat aici)",
+        "original_supplement": "40 passed,1 failed1.09s/exit1 din raportul input; nu înlocuit/discarded"
+      },
+      "independent_green": {
+        "command_id": "PREPARED_PUBLIC_POSTSTOP_STATIC",
+        "passed": 1,
+        "deselected": 40,
+        "seconds": 1.25,
+        "exit_code": 0,
+        "scope": "AST scheduling only; no DB/UDS/shutdown execution"
+      },
+      "no_new_work_frontier": "Aceleași defining evaluate_pure + aliasuri, run_handler, BuildSource.build, ManagedAdmission._build, runtime._exchange au no_rerun. no_rerun înregistrează tentativa înainte de raise; execution_attempts, bytes observation, consumed_markers și canonical(prior) sunt apoi verificate. Acestea sunt assertions pregătite, nu probe reale executate în acest review.",
+      "remaining_proof": "Actual PG/native evidence3 după Stop NOT_RUN; închiderea findingului certifică remediul de schedule/claim, nu efectele măsurate."
+    },
+    {
+      "id": "EVIDENCE-NORM-QA-01",
+      "disposition": "PRESERVED_CLOSED_SOURCE_SCOPED",
+      "reason": "Fixul observerului acceptat în raportul normativ anterior este neatins în delta reconstruită. Nu rerulat oracle6 și nu inferat PG UNKNOWN PASS."
+    },
+    {
+      "id": "INPUT-CONSUMER-01",
+      "disposition": "PRESERVED_CLOSED_SOURCE_SCOPED",
+      "reason": "native_tasks.py și cele două teste ale readerului sunt byte-identice cu ambele re-reviewuri anterioare; avansul de commit al părintelui nu schimbă bytes/aprobarea SOURCE. Nu rerulate cele33/381/control cases."
+    },
+    {
+      "id": "PARENT-TASK-STATUS-TYPEERROR",
+      "disposition": "PRESERVED_CLOSED_SOURCE_SCOPED",
+      "reason": "Companion finding deja închis în raportul input; nicio modificare de produs/input handling în delta PG."
+    },
+    {
+      "id": "PUBLIC_POST_STOP_SCOPE",
+      "disposition": "RESOLVED_PREPARED_STATIC_COVERAGE_ONLY",
+      "classification": "Prior normative coverage limit, not a product finding",
+      "reason": "Limita precedentă NOT_COVERED_BY_CURRENT_ORCHESTRATION este acum înlocuită de apeluri explicite după shutdown; execution proof rămâne NOT_RUN."
+    }
+  ],
+  "new_findings": [],
+  "blocking_finding_count": 0,
+  "requirement_code_evidence": [
+    {
+      "id": "REAL_STOP_BEFORE_PUBLIC_CACHED_READS",
+      "norm": "Architecture §4:158-162; prior INPUT-QA-POSTSTOP-01 expected frontier",
+      "locations": [
+        "PG:486-488",
+        "PG:1831-1878",
+        "instance/service.py:382-403"
+      ],
+      "analysis": "evidence3 au first_final_after_stop=False/lost_reply=False, deci shutdownul normal la1835 este awaited. Metoda reală închide admission și incrementează generation în tranzacție; runtime.close la1756 nu este substituit pentru Stop. Noile apeluri sunt ulterior, în același run.",
+      "evidence": "Static original regression1PASS; lexical/control-flow inspection",
+      "status": "STATIC_CONFORMANT_NOT_RUN_REAL_STOP"
+    },
+    {
+      "id": "SAME_ORIGINAL_PUBLIC_CONSUMER",
+      "locations": [
+        "PG:937-946",
+        "PG:1060-1079",
+        "PG:1868-1873",
+        "native_tasks.py:193-232"
+      ],
+      "analysis": "submit_task păstrează lifecycle/manifest_ref/command_id/expected authority și apelează control_task când public_control există. Listenerul este același LocalControl(native_task=owner.handle) creat numai pentru cele3 evidence. Result-present branch a ownerului folosește domain.check și _reply înainte de reserve/managed work, fără grant nou.",
+      "status": "STATIC_PRESERVED_REAL_UDS_NOT_RUN"
+    },
+    {
+      "id": "NO_RERUN_AND_IMMUTABLE_READBACK",
+      "locations": [
+        "PG:974-1007",
+        "PG:1692-1697",
+        "PG:1856-1877"
+      ],
+      "analysis": "Defining evaluator în skill_catalog și aliasurile candidate_catalog/pure_probe, module_registry.run_handler, BuildSource.build, ManagedAdmission._build, runtime._exchange sunt observate prin guardul existent. Ulterior sunt cerute zero tentative, bytes native identice, exact record/inbox/consume counts și canonical readback egal cu prior. Verificarea include canal independent de excepția guardului.",
+      "status": "ASSERTIONS_PREPARED_STATIC_CONFORMANT_NOT_EXECUTED"
+    },
+    {
+      "id": "PERSISTED_RESULT_NOT_FORGED_SUCCESS",
+      "norm": "Architecture §9.5:628/630; prior normative acceptance preserved",
+      "locations": [
+        "PG:1836-1852",
+        "PG:1868-1877",
+        "PG:1883-1905"
+      ],
+      "analysis": "prior și duplicatul post-Stop preced apelurile; statusul rămâne BLOCKED pentru required-prefix și SUCCEEDED pentru cele două legitime, fără inferență PASS funcțional. Adversarial append al outcome-ului este după toate positives; nu poate alimenta public replay/readback.",
+      "status": "STATIC_ORDER_PRESERVED_REAL_PERSISTENCE_NOT_RUN"
+    },
+    {
+      "id": "PHASE_CLAIM_AND_LIFECYCLE",
+      "locations": [
+        "PG:1068-1076",
+        "PG:1771-1777",
+        "PG:1868-1878",
+        "PG:1906-1924"
+      ],
+      "analysis": "Proof tags disting ACTIVE de AFTER_STOP. Setupul înainte de launch/grant și finalizerul listener/cap/socket/lock înainte de engine.dispose nu au niciun delta față de PG reconstruit anterior. Nu owner/emitter/runner/buget/grant/pin/closure nou.",
+      "status": "STATIC_CONFORMANT_NOT_RUN_CLEANUP"
+    }
+  ],
+  "verification": [
+    {
+      "id": "INITIAL_FROZEN16_SHA",
+      "command": "api/.venv/bin/python -I -B -c 'import pathlib,json,hashlib,subprocess\nroot=pathlib.Path(\"/home/kali/OmnisAI\"); scratch=pathlib.Path(\"/home/kali/.hermes/cache/scratch\")\nrefs={\"p2-evidence-obligations-parent-fixes.json\":\"864325f6a713f3a9dd050738a30d983d2eec487c84977ce605c5213a66f84910\",\"p2-evidence-obligations-normative-rereview.json\":\"07c84277fbc0269b02a21f89033576ad787e30251d0f3081f638f9ce098ea9b1\",\"p2-evidence-obligations-input-rereview.json\":\"5c9f1a5ecd625824f146d773aca213be8ab204e400b54d1ed13f0d36b18d5dbc\"}\ninputs=[{\"path\":str(scratch/p),\"expected_sha256\":h,\"sha256\":hashlib.sha256((scratch/p).read_bytes()).hexdigest()} for p,h in refs.items()]\nf=json.loads((scratch/\"p2-evidence-obligations-parent-fixes.json\").read_text())\npg=\"api/tests/test_contract_method_pg.py\"; pgsha=\"1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8\"\nfiles=[{\"path\":x[\"path\"],\"prior_sha256\":x[\"sha256\"],\"expected_sha256\":pgsha if x[\"path\"]==pg else x[\"sha256\"],\"sha256\":hashlib.sha256((root/x[\"path\"]).read_bytes()).hexdigest()} for x in f[\"snapshot_files\"]]\ngit=lambda *a:subprocess.check_output([\"git\",*a],cwd=root)\nstatus=git(\"status\",\"--short\",\"--branch\").decode(); head=git(\"rev-parse\",\"HEAD\").decode().strip(); staged=git(\"diff\",\"--cached\",\"--binary\")\npaths=git(\"diff\",\"--name-only\").decode().splitlines()\nprint(json.dumps({\"head\":head,\"git_status\":status,\"staged_diff_empty\":not staged,\"staged_diff_sha256\":hashlib.sha256(staged).hexdigest(),\"inputs\":inputs,\"inputs_match\":all(x[\"sha256\"]==x[\"expected_sha256\"] for x in inputs),\"files\":files,\"file_count\":len(files),\"unchanged_prior_count\":sum(x[\"sha256\"]==x[\"prior_sha256\"] for x in files),\"changed_prior_paths\":[x[\"path\"] for x in files if x[\"sha256\"]!=x[\"prior_sha256\"]],\"all_expected_match\":all(x[\"sha256\"]==x[\"expected_sha256\"] for x in files),\"tracked_diff_paths_match_manifest\":set(paths)=={x[\"path\"] for x in files},\"full16_diff_sha256\":hashlib.sha256(git(\"diff\",f[\"base_head\"],\"--\",*[x[\"path\"] for x in files])).hexdigest()},indent=2))\n'",
+      "exit_code": 0,
+      "boundary": "16 named source/test SHA plus three input-report SHA; protected HTML excluded"
+    },
+    {
+      "id": "PG_ONLY_REVIEWED_DELTA",
+      "command": "api/.venv/bin/python -I -B -c 'import pathlib,json,hashlib,subprocess,re,difflib\nroot=pathlib.Path(\"/home/kali/OmnisAI\"); scratch=pathlib.Path(\"/home/kali/.hermes/cache/scratch\")\nf=json.loads((scratch/\"p2-evidence-obligations-parent-fixes.json\").read_text()); path=\"api/tests/test_contract_method_pg.py\"\nsrc=subprocess.check_output([\"git\",\"show\",f[\"base_head\"]+\":\"+path],cwd=root).decode().splitlines(keepends=True)\npatch=(scratch/\"p2-evidence-obligations-focused-fix.patch\").read_text().splitlines(keepends=True); chunks={}; key=None\nfor line in patch:\n if line.startswith(\"diff --git a/\"): key=line.split(\" b/\",1)[1].strip(); chunks[key]=[]\n elif key: chunks[key].append(line)\nlines=chunks[path]; out=[]; pos=0; i=0\nwhile i<len(lines):\n m=re.match(r\"@@ -(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@\",lines[i])\n if not m: i+=1; continue\n start=int(m[1])-1; out.extend(src[pos:start]); pos=start; i+=1\n while i<len(lines) and not lines[i].startswith(\"@@ \"):\n  l=lines[i]\n  if l.startswith(\" \"): assert src[pos]==l[1:]; out.append(l[1:]); pos+=1\n  elif l.startswith(\"-\"): assert src[pos]==l[1:]; pos+=1\n  elif l.startswith(\"+\"): out.append(l[1:])\n  elif not l.startswith(\"\\\\\"): raise AssertionError(\"bad hunk\")\n  i+=1\nout.extend(src[pos:]); earlier=\"\".join(out); current=(root/path).read_text(); expected=next(x[\"sha256\"] for x in f[\"snapshot_files\"] if x[\"path\"]==path)\nassert hashlib.sha256(earlier.encode()).hexdigest()==expected\nprint(\"PRIOR_PG_RECONSTRUCTION_SHA_MATCH\",expected)\ndelta=\"\".join(difflib.unified_diff(earlier.splitlines(keepends=True),current.splitlines(keepends=True),fromfile=\"previous-reviewed/\"+path,tofile=\"current/\"+path,n=4))\nprint(\"DELTA_SHA256\",hashlib.sha256(delta.encode()).hexdigest()); print(delta)\n'",
+      "exit_code": 0,
+      "output": "PRIOR_PG_RECONSTRUCTION_SHA_MATCH 77edd167bd85f7b72ea9c4a6d0e80d849275987f588b8652edc6135a8b2fb1aa\nDELTA_SHA256 62834ebe51199b9f0e0e20b9a06fd936666aa022197a92f08124d2141e644dec\n--- previous-reviewed/api/tests/test_contract_method_pg.py\n+++ current/api/tests/test_contract_method_pg.py\n@@ -1064,17 +1064,17 @@\n                 public_control = await LocalControl(\n                     directory, service, supervisor, epoch, native_task=owner.handle\n                 ).__aenter__()\n \n-            async def submit_task(action: str) -> dict[str, object]:\n+            async def submit_task(action: str, *, phase: str = \"ACTIVE\") -> dict[str, object]:\n                 command = NativeTaskCommand.model_validate({**lifecycle, \"action\": action})\n                 if public_control is None:\n                     return await owner.handle(command)\n                 answer = await control_task(directory, command.model_dump(mode=\"json\"))\n                 checkpoint(\n                     public_control_actions=[\n                         *sequence(proof.get(\"public_control_actions\", [])),\n-                        {\"action\": action, \"task_status\": answer[\"task_status\"]},\n+                        {\"action\": action, \"phase\": phase, \"task_status\": answer[\"task_status\"]},\n                     ]\n                 )\n                 return answer\n \n@@ -1849,8 +1849,34 @@\n             assert observation.read_bytes() == native_before\n             assert await markers() == consumed_markers\n             assert canonical(await domain.readback(back_request)) == canonical(prior)\n             checkpoint(post_stop_duplicate=\"PASS\", final_markers=await markers())\n+            if public_control is not None:\n+                # Stop is the generation/fence transition above, not Host retirement.\n+                # Only the already committed result/check may reach this public reader.\n+                with monkeypatch.context() as receive_only:\n+                    for module in (\"skill_catalog\", \"candidate_catalog\"):\n+                        receive_only.setattr(\n+                            \"omnis.modules.settings.\" + module + \".evaluate_pure\", no_rerun\n+                        )\n+                    receive_only.setattr(\"omnis.modules.runs.pure_probe.evaluate_pure\", no_rerun)\n+                    receive_only.setattr(\n+                        \"omnis.modules.tasks.module_registry.run_handler\", no_rerun\n+                    )\n+                    receive_only.setattr(BuildSource, \"build\", no_rerun)\n+                    receive_only.setattr(ManagedAdmission, \"_build\", no_rerun)\n+                    receive_only.setattr(runtime, \"_exchange\", no_rerun)\n+                    assert (await submit_task(\"release\", phase=\"AFTER_STOP\"))[\"task_status\"] == (\n+                        \"BLOCKED\" if incomplete else \"SUCCEEDED\"\n+                    )\n+                    assert (await submit_task(\"receive\", phase=\"AFTER_STOP\"))[\"task_status\"] == (\n+                        \"BLOCKED\" if incomplete else \"SUCCEEDED\"\n+                    )\n+                assert execution_attempts == []\n+                assert observation.read_bytes() == native_before\n+                assert await markers() == consumed_markers\n+                assert canonical(await domain.readback(back_request)) == canonical(prior)\n+                checkpoint(public_post_stop_cached_read=\"PASS\")\n             async with engine.connect() as conn:\n                 assert (\n                     await conn.execute(sql(\"SELECT count(*) FROM managed_inbox\"))\n                 ).scalar_one() == 1",
+      "boundary": "In-memory reconstruction only; validated old PG SHA before diff"
+    },
+    {
+      "id": "PREPARED_PUBLIC_POSTSTOP_STATIC",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_TEST_DATABASE_URL -u OMNIS_TEST_NATIVE_METHOD -u OMNIS_TEST_NATIVE_HISTORY -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml -o 'pythonpath=/home/kali/OmnisAI/api/src /home/kali/OmnisAI/api/tests /home/kali/OmnisAI/integrations/hermes/src /home/kali/OmnisAI/integrations/hermes/tests /home/kali/OmnisAI/integrations/hermes/upstream/managed-source' /home/kali/.hermes/cache/scratch/test_p2_evidence_input_rereview.py -k prepared_evidence_public -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-evidence-poststop-normative-static-pytest",
+      "exit_code": 0,
+      "output": ".                                                                        [100%]\n1 passed, 40 deselected in 1.25s",
+      "passed": 1,
+      "deselected": 40,
+      "seconds": 1.25,
+      "boundary": "Only exact static scheduling test; 40 SOURCE controls deselected, no PG/native/UDS effects"
+    },
+    {
+      "id": "FINAL_FROZEN16_SHA_BASE_BOUND",
+      "command": "api/.venv/bin/python -I -B -c 'import pathlib,json,hashlib,subprocess\nroot=pathlib.Path(\"/home/kali/OmnisAI\"); scratch=pathlib.Path(\"/home/kali/.hermes/cache/scratch\")\nrefs={\"p2-evidence-obligations-parent-fixes.json\":\"864325f6a713f3a9dd050738a30d983d2eec487c84977ce605c5213a66f84910\",\"p2-evidence-obligations-normative-rereview.json\":\"07c84277fbc0269b02a21f89033576ad787e30251d0f3081f638f9ce098ea9b1\",\"p2-evidence-obligations-input-rereview.json\":\"5c9f1a5ecd625824f146d773aca213be8ab204e400b54d1ed13f0d36b18d5dbc\"}\ninputs=[{\"path\":str(scratch/p),\"expected_sha256\":h,\"sha256\":hashlib.sha256((scratch/p).read_bytes()).hexdigest()} for p,h in refs.items()]\nf=json.loads((scratch/\"p2-evidence-obligations-parent-fixes.json\").read_text())\npg=\"api/tests/test_contract_method_pg.py\"; pgsha=\"1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8\"\nfiles=[{\"path\":x[\"path\"],\"prior_sha256\":x[\"sha256\"],\"expected_sha256\":pgsha if x[\"path\"]==pg else x[\"sha256\"],\"sha256\":hashlib.sha256((root/x[\"path\"]).read_bytes()).hexdigest()} for x in f[\"snapshot_files\"]]\ngit=lambda *a:subprocess.check_output([\"git\",*a],cwd=root)\nstatus=git(\"status\",\"--short\",\"--branch\").decode(); head=git(\"rev-parse\",\"HEAD\").decode().strip(); staged=git(\"diff\",\"--cached\",\"--binary\")\npaths=git(\"diff\",f[\"base_head\"],\"--name-only\").decode().splitlines()\nprint(json.dumps({\"head\":head,\"git_status\":status,\"staged_diff_empty\":not staged,\"staged_diff_sha256\":hashlib.sha256(staged).hexdigest(),\"inputs\":inputs,\"inputs_match\":all(x[\"sha256\"]==x[\"expected_sha256\"] for x in inputs),\"files\":files,\"file_count\":len(files),\"unchanged_prior_count\":sum(x[\"sha256\"]==x[\"prior_sha256\"] for x in files),\"changed_prior_paths\":[x[\"path\"] for x in files if x[\"sha256\"]!=x[\"prior_sha256\"]],\"all_expected_match\":all(x[\"sha256\"]==x[\"expected_sha256\"] for x in files),\"tracked_diff_paths_match_manifest\":set(paths)=={x[\"path\"] for x in files},\"full16_diff_sha256\":hashlib.sha256(git(\"diff\",f[\"base_head\"],\"--\",*[x[\"path\"] for x in files])).hexdigest()},indent=2))\n'",
+      "exit_code": 0,
+      "boundary": "Compare exact16 bytes and BASE diff; parent HEAD/index advance allowed"
+    },
+    {
+      "id": "INITIAL_GIT_DIFF_INTEGRITY",
+      "command": "git diff --check && git log -4 --oneline && git log -1 --format='%H %s' -- documents/verification/implementation-status.md && git diff --cached --stat",
+      "exit_code": 0,
+      "output": "d3a938d docs(p2): accept finite invalidation on the real inert consumer\n879efe6 feat(method): enforce finite records invalidation before assignment\nb901be0 docs(status): reconcile SL09 with accepted finite preconditions\n5e0ad6e docs(p2): hand off remaining inert obligations after precondition acceptance\nd3a938d888cfda54db8c0139d163df750d40c809 docs(p2): accept finite invalidation on the real inert consumer"
+    },
+    {
+      "id": "PARENT_COMMIT_OBSERVATION_AND_FINAL_DIFF_INTEGRITY",
+      "command": "git log d3a938d888cfda54db8c0139d163df750d40c809..HEAD --oneline --stat; git diff --check",
+      "exit_code": 0,
+      "output": "b20f339 fix(supervisor): deliver successful method replies on the public reader\n api/src/omnis/supervisor/native_tasks.py  |  5 +++-\n api/tests/test_model_preflight_control.py |  5 +++-\n api/tests/test_native_task_control.py     | 39 +++++++++++++++++++++++++++++++\n 3 files changed, 47 insertions(+), 2 deletions(-)",
+      "boundary": "Read-only; no reviewer stage/commit/reset/push"
+    }
+  ],
+  "parent_recorded_not_independently_reexecuted": {
+    "final_prepared_single_static": "1PASS40deselected1.40s exit0 după ultima format editare",
+    "source_supplement": "41PASS1.72s exit0",
+    "native_release_ast_oracle": "6PASS1.17s exit0",
+    "type_lint_format": "mypy PG1filePASS/RuffPASS; primul format exit1 pe un wrap păstrat, corectat→formatPASS",
+    "actual_evidence_pg_native_three": "NOT_RUN"
+  },
+  "scope_verdicts": {
+    "single_prepared_pg_scheduling_delta": "APPROVED_SCOPED_STATIC",
+    "INPUT_QA_POSTSTOP_01": "CLOSED_PREPARED_QA_SOURCE_SCOPED",
+    "prior_15_frozen_sha": "UNCHANGED_APPROVALS_PRESERVED_AT_ORIGINAL_SCOPE",
+    "actual_evidence3_PG_UDS_native": "NOT_RUN",
+    "integration_full_canonical": "NOT_RUN_NOT_APPROVED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED"
+  },
+  "limits": [
+    "Read-only focused one-file delta; no broad review/source work or reopened requirement.",
+    "Exact scheduling regression proves AST ordering only. No measured shutdown, authenticated UDS, persistent SQL, native no-rerun, resource cleanup or cold timing PASS.",
+    "No PostgreSQL/native/runtime/provider/account/target/profile/credentials/browser/network/protected-HTML operations; no service launch, installed historical reader or restart proof.",
+    "No source/shared docs/status/skills/index/commit modifications by reviewer. Parent-authorized commit advancement observed separately; all16 frozen bytes stable.",
+    "Only one named static test executed with pinned api Python -I -B, sanitized ambient Python/Pytest/PG/native flags, plugin autoload disabled, asyncio plugin/no-cacheprovider and scratch basetemp. No33/381/all-core/canonical rerun and no new reminder verifier.",
+    "All retained RED/FAIL histories remain; a later GREEN/static approval does not undo older failures or establish live evidence3 acceptance.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no visual/full-MVP acceptance.",
+    "Parent owns complementary review adjudication, bounded actual evidence3 QA on final SHA, exact cleanup/readback, persistence of reports and integration commits."
+  ],
+  "issues_encountered": [],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-evidence-obligations-poststop-normative-review.json"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "scratch_pytest_basetemp": "/home/kali/.hermes/cache/scratch/p2-evidence-poststop-normative-static-pytest",
+  "index_or_commits_changed_by_reviewer": false,
+  "handoff_matrix": [
+    {
+      "slice": "P0/P1",
+      "code": "IMPLEMENTED_HISTORICAL_SCOPED",
+      "proof": "HISTORICAL_ONLY",
+      "review": "UNCHANGED_NOT_REOPENED",
+      "next": "Fără reluare/adopție."
+    },
+    {
+      "slice": "SL09 prepared post-Stop delta AICI",
+      "code": "PG_TEST_DELTA_FROZEN",
+      "proof": "1STATIC_PASS_EXIT0",
+      "review": "APPROVED_SCOPED",
+      "next": "Părintele adjudecă report/QA."
+    },
+    {
+      "slice": "PG/UDS/native evidence3",
+      "code": "PREPARED",
+      "proof": "NOT_RUN",
+      "review": "STATIC_ONLY",
+      "next": "QA reală admisă pe snapshot final."
+    },
+    {
+      "slice": "B06b/G02/P2",
+      "code": "PARTIAL",
+      "proof": "CANONICAL_FINAL_NOT_RUN",
+      "review": "NOT_CLOSED",
+      "next": "Rest B06b→B06c/m conform plan."
+    },
+    {
+      "slice": "B06c/B06m",
+      "code": "PARTIAL",
+      "proof": "NO_NEW_CREDIT",
+      "review": "NOT_CLOSED",
+      "next": "Consumerii inerți existenți."
+    },
+    {
+      "slice": "P4a-minim/live/restMVP",
+      "code": "NOT_DELIVERED",
+      "proof": "NOT_RUN",
+      "review": "NOT_REVIEWED",
+      "next": "Prerechizite/mandat distincte."
+    }
+  ],
+  "next_action": "Adjudecare a acestui re-review strict deltaPG și a celui complementar; dacă aprobate, numai evidence3 QA actuală admisă cu aceleași granturi, booturi proprii și cleanup. Nu infera PG PASS din1staticPASS și nu relansa gate-uri neschimbate."
+}

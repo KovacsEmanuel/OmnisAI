@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.22
+version: 0.1.23
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -36,6 +36,8 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Preserve an immutable recorded UNKNOWN's exact cause and obligation gaps after independent receipt/input/available-schema revalidation. The presence of a prior check does not prove an old checker recorded historical success; receive-only compatibility must not retroactively upgrade current UNKNOWN, and altered or duplicate prior payloads must refuse.
 
 - Cross-check a new persistent record against its base domain schema as well as the specialized wire/result contract before emitting it. Include every mandatory field and bound in producer and readback validation; a valid native envelope can still omit required CriterionOutcome fields from architecture §9.3. Pair a genuine stored positive with missing/malformed-field refusal before equality, without rewriting immutable historical records.
+
+- Validate a newly supported MethodResult state against the actual assignment-specific TaskResult schema generated and persisted by the producer, not only wire parsing or MethodCheck. Inspect intersecting shared `$defs` and per-requirement constraints: widening one enum can still leave the other rejecting the same authentic row. Keep NOT_APPLICABLE exact, prove full/prefix through that generated schema in SOURCE, then exercise public persistence/readback before crediting native acceptance. A SOURCE schema defect does not establish the unseen inner cause of an older normalized runtime refusal.
 
 - At an explicit receive-only reconnect, normalize only anticipated filesystem/metadata/transport failures at that boundary into the existing sanitized indeterminate exception after cleanup. Exercise original-Host disappearance through the real owner and private control UDS: an uncaught FileNotFoundError can produce EOF and an asyncio traceback with a private filename even when no work is authorized. Preserve cancellation/internal errors and forbid reconnect-and-resend or replacement-Host fallback.
 

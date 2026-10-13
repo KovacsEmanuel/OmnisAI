@@ -756,8 +756,38 @@ class ManagedAdmission:
         bound = local[uuid_string(bound_ref["id"])]
         input_ref = ref(sequence(brief_body["input_artifact_refs"])[0])
         original = local[uuid_string(input_ref["id"])]
-        schemas = await self._method_schemas(conn, owner, local[run], bound)
-        return check_execution(
+        prior_checks = [
+            record(r, "method-check")
+            for r in values
+            if r["kind"] == "method-check"
+            and mapping(r["payload"]).get("task_result_ref") == catalog.reference(result)
+        ]
+        if len(prior_checks) > 1:
+            raise CatalogError("RESULT_CONFLICT")
+        prior = mapping(prior_checks[0]["payload"]) if prior_checks else None
+        checker_missing = (
+            "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility."
+        )
+        schema_missing = (
+            "METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility."
+        )
+        retained_unknown = prior is not None and prior.get("status") == "UNKNOWN"
+        if (
+            retained_unknown
+            and prior is not None
+            and (
+                type(prior.get("reason")) is not str
+                or prior["reason"] not in {checker_missing, schema_missing}
+            )
+        ):
+            raise CatalogError("RESULT_CONFLICT")
+        try:
+            schemas = await self._method_schemas(conn, owner, local[run], bound)
+        except CatalogError as error:
+            if error.reason != "METHOD_SCHEMA_UNAVAILABLE":
+                raise
+            schemas = {}
+        checked = check_execution(
             brief,
             bound,
             binding,
@@ -771,12 +801,24 @@ class ManagedAdmission:
                 uuid_string(ref(brief_body["prompt_bundle_ref"], "prompt-bundle")["id"])
             ],
             composition_version=mapping(manifest["payload"])["composition_version"],
-            receive_only=any(
-                r["kind"] == "method-check"
-                and mapping(r["payload"]).get("task_result_ref") == catalog.reference(result)
-                for r in values
+            receive_only=bool(prior_checks)
+            and not (
+                retained_unknown and prior is not None and prior.get("reason") == checker_missing
             ),
         )
+        if retained_unknown and prior is not None:
+            # Revalidate every available schema and the authentic receipt chain,
+            # but do not retroactively qualify an immutable recorded UNKNOWN.
+            payload = mapping(checked["payload"])
+            payload.update(
+                status="UNKNOWN",
+                reason=prior["reason"],
+                gap_refs=[mapping(r)["ref"] for r in sequence(payload["checked_results"])],
+            )
+            if canonical(payload) != canonical(prior):
+                raise CatalogError("RESULT_CONFLICT")
+            return catalog.envelope("method-check", payload)
+        return checked
 
     async def _method_schemas(
         self,
@@ -829,10 +871,12 @@ class ManagedAdmission:
                 .one_or_none()
             )
             if found is None:
-                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+                continue  # Preserve other qualified documents for mismatch checks.
             selected = [p for p in packages if p["package_key"] == found["package_key"]]
+            if not selected:
+                continue
             if len(selected) != 1:
-                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+                raise CatalogError("METHOD_SCHEMA_MISMATCH")
             files = {
                 text(mapping(f)["path"]): base64.b64decode(
                     text(mapping(f)["content_b64"], 16384), validate=True
@@ -845,8 +889,12 @@ class ManagedAdmission:
                 for b in manifest.file_bindings
                 if b.entity_kind == "schema" and b.key == found["entity_key"]
             ]
-            if len(paths) != 1 or paths[0] not in files:
-                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
+            if not paths:
+                continue
+            if len(paths) != 1:
+                raise CatalogError("METHOD_SCHEMA_MISMATCH")
+            if paths[0] not in files:
+                continue
             documents[key] = mapping(load_json(files[paths[0]]))
         return documents
 
@@ -1006,6 +1054,7 @@ class ManagedAdmission:
                 local[uuid_string(ref(header["mission_revision"], "mission")["id"])],
                 local[run],
                 [r for r in graph if r["kind"] == "criterion-outcome-rule"],
+                receive_only=True,
             )
         for manifest in (r for r in graph if r["kind"] == "launch-manifest"):
             if contract.manifest_protocol(manifest) != contract.PROTOCOL:
@@ -1050,7 +1099,9 @@ class ManagedAdmission:
                 if canonical(check["payload"]) != canonical(expected["payload"]):
                     raise CatalogError("RESULT_CONFLICT")
                 expected_outcomes.extend(
-                    criterion_checks.outcome_payloads(matches[0], result, check, graph)
+                    criterion_checks.outcome_payloads(
+                        matches[0], result, check, graph, receive_only=True
+                    )
                 )
         criterion_checks.validate_outcomes(
             [r for r in graph if r["kind"] == "criterion-outcome"], expected_outcomes

@@ -1,0 +1,162 @@
+{
+  "report_id": "P2-APPLICABILITY-NORMATIVE-REVIEW",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent read-only normative/correctness review of the frozen 12-file single contract.records-nonempty MethodRequirement.applies_if candidate; affected producer, native SOURCE consumer, checker, persistence/readback and criterion-outcome caller only.",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "product_base": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-method-applicability-author.json",
+    "verified_sha256": "c4bcd87b832e66e21c30d783b69353afba6d493c8ae029051342f627376db103",
+    "author_status_not_accepted": "FROZEN_CANDIDATE_BLOCKED_REAL_QA_NOT_ACCEPTED"
+  },
+  "snapshot": {
+    "count": 12,
+    "all_hashes_verified_before_and_after_source_probes": true,
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "91d8ec98bf7c6c66cb89bbf56ff2850aee0fda032d345e75f85ad2a05a0605bf",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "069ed634cb734b553ee9050405cae46005b1c8047e791268cbd9c5c2425986aa",
+      "api/src/omnis/modules/tasks/method_checks.py": "908d15b6e9a7dec89a2416f42f6f308155b6339e79fd546c0de662852f854164",
+      "api/tests/test_c10_bound_predicates.py": "11bc43f29bcc04db6563954795b8d1d435cf3b9a86d8520d429d36f3b223528b",
+      "api/tests/test_contract_method_checks.py": "984060f62c953ed03bc32fc1057df8bbc50202d3259dc9b8dde7dabc4f9a76c1",
+      "api/tests/test_contract_method_pg.py": "903445819e1cf5cf432171b8b46b1a43760723f0b9210b179931d78c8f71e40f",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "staged_changes": false,
+    "candidate_committed": false,
+    "preexisting_protected_html_preserved": "documents/Omnis_Notite_Originale.html remains untracked; not read or edited by reviewer",
+    "observer_fix_146749d_preserved": true
+  },
+  "normative_sources": [
+    "AGENTS.md:24-31,33-39",
+    "CONTRIBUTING.md:29-48",
+    "documents/Omnis_MVP_Architecture.md:739-754,766-770",
+    "documents/Omnis_Implementation_Plan.md:268-283",
+    "documents/verification/implementation-status.md:13,100-104,134"
+  ],
+  "findings": [
+    {
+      "id": "NORM-APPLICABILITY-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Allocated mission criteria reject the newly supported UNKNOWN MethodCheck and prevent durable outcome/check completion",
+      "locations": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:219-221",
+        "api/src/omnis/modules/tasks/criterion_checks.py:239",
+        "api/src/omnis/modules/runs/managed_admission.py:680-706",
+        "api/src/omnis/modules/runs/managed_admission.py:1064-1071",
+        "api/tests/test_contract_method_pg.py:481-484,978-989"
+      ],
+      "requirement": "Architecture 9.10 requires checker-unavailable/undecidable UNKNOWN with retained gaps and addressable result/check; selected mission criteria/outcomes remain separate and cannot silently omit uncertainty. Plan 7.1 requires the affected actual caller, not a helper-only or unallocated positive.",
+      "observed": "outcome_payloads accepts COMPLETE and INCOMPLETE on the same existing two-criteria fixture and returns two BLOCKED outcomes with oracle/control gaps; UNKNOWN raises CRITERION_CHECK_REQUIRED. The transaction in _check writes the check and outcomes together, so this exception rolls the check/outcomes back while the separately committed raw result remains. Readback with such a check would also reject through _verify_graph. The candidate's UNKNOWN PG case deliberately uses with_criteria=False, avoiding this necessary consumer.",
+      "source_reproducer": "Use api/.venv/bin/python -I -B with api/src and api/tests inserted in sys.path; reuse test_c04_criteria.criteria_graph([uuid4, uuid4]) and the existing SOURCE rule setup in test_c10_bound_predicates.test_incomplete_check_rule_is_blocked_not_functional_pass. Keep otherwise-identical brief/result/check refs, result criterion pairs, checked_results and gap_refs; vary only method-check.status through COMPLETE, INCOMPLETE, UNKNOWN, then call criterion_checks.outcome_payloads(brief,result,check,graph).",
+      "executed_results": {
+        "COMPLETE": "two BLOCKED outcomes; gaps ORACLE_UNAVAILABLE, CONTROLS_UNAVAILABLE",
+        "INCOMPLETE": "two BLOCKED outcomes; same gaps plus METHOD_INCOMPLETE",
+        "UNKNOWN": "CatalogError CRITERION_CHECK_REQUIRED",
+        "probe_exit_code": 0,
+        "interpretation": "Probe assertions confirmed the defect; exit zero is not product acceptance. Outcome-rule seam uses synthetic check records, not native authentication or PostgreSQL proof."
+      },
+      "remedy": "Adapt the affected criterion caller to retain UNKNOWN as a non-success BLOCKED outcome with explicit uncertainty gaps/reason/check binding. Do not relabel it INCOMPLETE or omit allocated criteria. Add same-channel SOURCE controls and a real affected QA scenario with allocated criteria. This already disclosed omission is still an acceptance blocker; an author allowlist does not waive it.",
+      "known_to_author": true
+    },
+    {
+      "id": "NORM-APPLICABILITY-F02",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "A newly persisted checker-unavailable UNKNOWN is regenerated as COMPLETE on receive-only readback",
+      "locations": [
+        "api/src/omnis/modules/runs/managed_admission.py:759-765,777-795",
+        "api/src/omnis/modules/runs/managed_admission.py:703-706,1051-1068",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:70-89",
+        "api/src/omnis/modules/tasks/method_checks.py:515-527,634-654",
+        "api/tests/test_c10_bound_predicates.py:90-98"
+      ],
+      "requirement": "Architecture 9.10 requires immutable exact result/check lineage and explicit UNKNOWN/gaps, with historical reception separate from new authority. A newly recorded UNKNOWN must remain readable/replayable without acquiring retrospective COMPLETE or deleting its recorded gaps.",
+      "observed": "For the recognized historical FULL checker digest 388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db and original 4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850 composer, first check returns UNKNOWN/METHOD_CHECKER_UNAVAILABLE with three gaps. After retaining that check, _result_check sets receive_only=True; verify now admits the historical checker and regenerates COMPLETE with zero gaps. The retained_unknown special case recognizes only the schema-unavailable reason, not checker-unavailable UNKNOWN. The equality guards consequently raise RESULT_CONFLICT on actual persisted readback/reconcile rather than preserve the first verdict. The changed test explicitly compares UNKNOWN first-check to historical COMPLETE replay but never tests retaining the newly generated UNKNOWN.",
+      "source_reproducer": "Reuse test_contract_method_checks.native_case(predicates=True, composer_pin='4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850'); replace checker with records.envelope('method-checker', {'key': KEY, 'semantics': SEMANTICS, 'code_digest': '388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db'}). Compare case.check() and case.check(receive_only=True). Also exercise actual ManagedAdmission._result_check twice over the same SOURCE native execution/manifest/final/binding graph, adding the first check to the graph before call two and using an in-memory schema reader returning case.schemas.",
+      "executed_results": {
+        "pure_checker_first_status": "UNKNOWN",
+        "pure_checker_receive_only_status": "COMPLETE",
+        "actual_result_check_first_status": "UNKNOWN",
+        "actual_result_check_after_retaining_first_status": "COMPLETE",
+        "first_gap_count": 3,
+        "readback_gap_count": 0,
+        "payload_equal": false,
+        "both_probe_exit_codes": 0,
+        "interpretation": "Actual _result_check seam exercised without DB; graph/run and schema reader are synthetic, SOURCE execution records use the existing helper. RESULT_CONFLICT at the enclosing immutable equality guard is code-traced, not a live PostgreSQL assertion. No native process/model/target was launched."
+      },
+      "remedy": "Distinguish historical checks actually recorded by the old checker from newly recorded UNKNOWN under the current checker. Preserve the latter's exact payload/gaps on receive-only validation while still validating retained result/receipt/input integrity. Keep both historical COMPLETE and partial INCOMPLETE compatibility positives, and add the first-current-UNKNOWN -> persist -> readback/reconcile regression. Do not grant new COMPLETE merely because any prior check exists."
+    }
+  ],
+  "trace": [
+    {
+      "seam": "Catalog -> bound producer -> MethodPlan",
+      "locations": "skill_catalog.py:510-520; managed_contract.py:42-101,642-690",
+      "assessment": "Single trusted predicate/key/one slot/strict boolean/on_missing finite allowlist; producer reconstructs applies_if with the original Ref rather than mutating a mapping copy. All requirements and required flags retained; basis is the exact original RecordEnvelope Ref. Missing compile input yields UNKNOWN with no invented basis. General preconditions/invalidation/evidence remain rejected."
+    },
+    {
+      "seam": "Assignment -> native SOURCE preflight -> execution/result",
+      "locations": "managed_contract.py:1287-1310; prompt_bundle.py:170-226,592-604; contract_method.py:321-365",
+      "assessment": "Backend structural assignment alone accepts a known conditional row with exact basis, but native preflight independently derives the row from actual material and refuses UNKNOWN/foreign/false plan. Native SOURCE result builder retains every row and binds NOT_APPLICABLE to original input, empty artifacts and explicit reason; conservatively returns INCONCLUSIVE. It does not skip the PURE procedure."
+    },
+    {
+      "seam": "Authenticated native final -> raw persistence -> independent MethodCheck",
+      "locations": "managed_admission.py:580-643; managed_contract.py:1635-1644; managed_admission_contract.py:232-243; method_checks.py:47-155,158-195,338-401,489-655",
+      "assessment": "Wire validators support genuine four/six-record INCONCLUSIVE outputs. Existing owner authentication/manifest/binding seam precedes raw commit; raw records remain addressable before checker transaction. Checker validates exact child/header/input/context/action/receipt/artifact refs and limits without running PURE handlers. It recomputes applicability against original input, rejects false NA and retains INCOMPLETE/UNKNOWN gaps. SOURCE tests prove the deterministic seam, not authentication/process/PG integration."
+    },
+    {
+      "seam": "Optional/required and UNKNOWN vs NA",
+      "assessment": "Required flags stay [true,true,false] in covered first-party cases. Optional rows are never omitted. All non-DONE rows, including NA, currently conservatively make INCOMPLETE/INCONCLUSIVE; this does not claim the full normative optional-completion policy. NA requires actual known input predicate proof; unavailable schema/checker generates UNKNOWN/all obligation gaps rather than NA. Missing conditional input is compile-UNKNOWN but assignment/native reject access. Tests condition the required second row; optional conditional behavior has no explicit product QA in this candidate."
+    },
+    {
+      "seam": "Check -> outcomes -> persist/readback/replay",
+      "assessment": "Task success requires COMPLETE; INCOMPLETE/UNKNOWN project BLOCKED. Schema-unavailable UNKNOWN has a retained-reason path, while checker-unavailable UNKNOWN does not. Allocated criteria still reject UNKNOWN. These are concrete missing callers, not permission to bypass acceptance. Historical old composer/partial-checker identities are enumerated receive-only; freshly produced old-pin fixtures are not installed historical-reader proof."
+    }
+  ],
+  "verification": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_assignment_compact.py -q --tb=line",
+      "exit_code": 0,
+      "observed": "166 passed in 11.90s",
+      "boundary": "Existing bounded SOURCE tests; no PostgreSQL/native process/inference/target QA. Existing native_case executes deterministic SOURCE code with synthetic state."
+    },
+    {
+      "command": "Two api/.venv/bin/python -I -B -c existing-fixture seam probes described in findings F01/F02",
+      "exit_codes": [0, 0],
+      "observed": "F01 UNKNOWN rejected at criterion rule; F02 UNKNOWN -> COMPLETE reproduced both in pure checker and actual _result_check caller",
+      "boundary": "No repository changes; no new harness, PostgreSQL or native process; synthetic rule/graph/schema seams explicitly identified."
+    },
+    {
+      "command": "git diff --check; git status --short --branch; SHA-256 comparison of exact 12 files before and after probes",
+      "exit_code": 0,
+      "observed": "Diff check clean; candidate hashes unchanged and all match author manifest; no staged changes; preexisting untracked protected HTML remains."
+    }
+  ],
+  "acceptance_blockers": [
+    "F01 and F02 must be reproduced/adjudicated and minimally fixed, with focused exact-byte re-review.",
+    "Final real affected PostgreSQL/native QA is not GREEN: all three author attempts have actual code 1. The latest failure reached NA persistence/readback but a final fixture assertion was corrected afterwards; that correction has not had real QA. Earlier APPLIES/UNKNOWN positives belong to prior bytes and cannot certify this frozen snapshot.",
+    "Unknown real QA avoids allocated criteria and does not close F01; add the necessary caller coverage rather than accepting the narrower green subset.",
+    "Installed native/historical-reader proof and full canonical final are NOT_RUN; the claimed source wheel identity does not replace consumer execution."
+  ],
+  "limits": [
+    "No PostgreSQL, Docker, native process, provider, target, remote, r1, credential or secret reads/effects performed by reviewer.",
+    "No repository edits, commits, skill changes or status-map reconciliation; reviewer is read-only and parent owns integration.",
+    "No P2/G02/B06b closure or acceptance of author failed QA; prior observer-fix acceptance remains preserved at its original scope.",
+    "Procedure-level preconditions/applicability/invalidation/evidence and other method forms remain unsupported; this review approves neither their absence nor a phase gate.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no tool smoke performed.",
+    "Parent should retain this scratch report's adjudicated findings in the existing versioned register before scratch expiry."
+  ],
+  "created_files": ["/home/kali/.hermes/cache/scratch/p2-applicability-normative-review.json"],
+  "modified_repo_files": [],
+  "proposed_status_delta": {
+    "SL09_B06b_current_candidate": {"code": "PARTIAL", "proof": "SOURCE_PASS_REAL_QA_NOT_ACCEPTED", "review": "CHANGES_REQUESTED"},
+    "G02_P2": "PARTIAL_NOT_CLOSED",
+    "next": "Repair the two affected UNKNOWN callers, focused review and real affected QA on final bytes; parent owns canonical/integration."
+  }
+}

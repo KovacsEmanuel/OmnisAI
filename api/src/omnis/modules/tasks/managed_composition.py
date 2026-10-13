@@ -43,7 +43,8 @@ RECORDS_COMPOSER_REVISION = "55963352e1b855f51f379bdfb0cf0ff49b0004dacb40aad32ef
 METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b09c78698f473"
 COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
-COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
+PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
+COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -442,6 +443,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            PREDICATE_COMPOSER_REVISION,
             COMPACT_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
@@ -484,12 +486,14 @@ def validate(
     )
     if compact and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        PREDICATE_COMPOSER_REVISION,
         COMPACT_COMPOSER_REVISION,
         CRITERIA_COMPOSER_REVISION,
     }:
         raise CatalogError("COMPOSITION_REJECTED")
     revisions = {
         COMPOSER_REVISION,
+        PREDICATE_COMPOSER_REVISION,
         METHOD_COMPOSER_REVISION,
         COMPACT_COMPOSER_REVISION,
         CRITERIA_COMPOSER_REVISION,
@@ -519,11 +523,13 @@ def validate(
     brief_body = mapping(contract.validate_brief(brief)["payload"])
     if brief_body["criterion_bindings"] and (
         not method_execution
-        or metadata["composer_revision"] not in {COMPOSER_REVISION, CRITERIA_COMPOSER_REVISION}
+        or metadata["composer_revision"]
+        not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, CRITERIA_COMPOSER_REVISION}
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     if (brief_body["done_when"] or brief_body["return_when"]) and (
-        not method_execution or metadata["composer_revision"] != COMPOSER_REVISION
+        not method_execution
+        or metadata["composer_revision"] not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION}
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     contract.validate_assignment(brief, bound, prompt_bundle=bundle, composition_version=version)
@@ -534,6 +540,11 @@ def validate(
     elif brief_body["input_artifact_refs"] != []:
         raise CatalogError("COMPOSITION_REJECTED")
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+    if (
+        any(mapping(r)["applies_if"] for r in sequence(procedure["method_requirements"]))
+        and metadata["composer_revision"] != COMPOSER_REVISION
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
     # Native preflight requires nonempty prose at these method positions.
     # Refuse the same source bytes before persistence, never strip or repair them.
     for field in ("objective", "predicted_signal"):

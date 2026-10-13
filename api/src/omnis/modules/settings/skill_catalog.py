@@ -510,10 +510,13 @@ def _compile_catalog(
             ):
                 raise CatalogError("METHOD_REQUIREMENT_REF")
             requirement_keys.add(requirement.key)
-            if requirement.applies_if or requirement.evidence_kinds:
+            if requirement.evidence_kinds:
                 raise CatalogError("UNSUPPORTED_FEATURE")
             for artifact_schema in requirement.artifact_schema_refs:
                 get_schema(key, artifact_schema)
+        from omnis.modules.tasks.managed_contract import requirement_conditions
+
+        requirement_conditions(procedure.model_dump(mode="json"))
         if any(
             (
                 procedure.applicability_predicate_ids,

@@ -39,6 +39,69 @@ def predicate_key(value: object) -> str:
     return result
 
 
+def requirement_conditions(procedure: object, input_ref: object = None) -> None:
+    """Finite installed input predicate; no expression/package-code evaluation."""
+    p = mapping(procedure)
+    source = (
+        {"kind": "CASE_SLOT_REF", "name": "records"}
+        if input_ref is None
+        else ref(input_ref, "contract-case-records")
+    )
+    for raw in sequence(p["method_requirements"]):
+        conditions = sequence(mapping(raw)["applies_if"])
+        if not conditions:
+            continue
+        if p["key"] != "map-records" or len(conditions) != 1:
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        condition = exact(conditions[0], {"predicate_id", "input_refs", "expected", "on_missing"})
+        if (
+            condition["predicate_id"] != "contract.records-nonempty"
+            or type(condition["expected"]) is not bool
+            or condition["on_missing"] not in ("BLOCKED", "INCONCLUSIVE")
+            or canonical(condition["input_refs"]) != canonical([source])
+        ):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+
+
+def compile_method_plan(bound: object, original: object = None) -> list[dict[str, object]]:
+    """Compile all obligations from the exact bound procedure and retained input."""
+    b = record(bound, "bound-procedure")
+    p = mapping(mapping(b["payload"])["resolved_procedure"])
+    available = None
+    if any(mapping(r)["applies_if"] for r in sequence(p["method_requirements"])):
+        input_ref = mapping(sequence(mapping(sequence(p["probe"])[0])["input_bindings"])[0])[
+            "source_ref"
+        ]
+        requirement_conditions(p, input_ref)
+        available = None if original is None else record(original, "contract-case-records")
+        if available is not None and canonical(records.reference(available)) != canonical(
+            input_ref
+        ):
+            raise CatalogError("REF_MISMATCH")
+    rows: list[dict[str, object]] = []
+    for raw in sequence(p["method_requirements"]):
+        r = mapping(raw)
+        state, basis = "APPLIES", []
+        if r["applies_if"]:
+            if available is None:
+                state = "UNKNOWN"
+            else:
+                value = exact(mapping(available["payload"])["value"], {"records"})
+                present = len(sequence(value["records"])) != 0
+                condition = mapping(sequence(r["applies_if"])[0])
+                state = "APPLIES" if present is condition["expected"] else "NOT_APPLICABLE"
+                basis = [records.reference(available)]
+        rows.append(
+            {
+                "ref": {"bound_procedure_ref": records.reference(b), "requirement_key": r["key"]},
+                "applicability": state,
+                "applicability_basis_refs": basis,
+                "required": r["required"],
+            }
+        )
+    return rows
+
+
 def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
     p = mapping(procedure)
     if not {"key", "input_schema_ref", "probe", "method_requirements"} <= set(p):
@@ -85,7 +148,6 @@ def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
         if (
             requirement["step_ids"] != [step]
             or requirement["artifact_schema_refs"] != [schema]
-            or requirement["applies_if"] != []
             or requirement["evidence_kinds"] != []
             or type(requirement["required"]) is not bool
             or requirement["required"] is not (source == "OUTPUT")
@@ -118,6 +180,7 @@ def validate_predicates(
             CRITERIA_COMPOSER_REVISION,
             LEGACY_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
+            PREDICATE_COMPOSER_REVISION,
             RECORDS_COMPOSER_REVISION,
         )
 
@@ -130,6 +193,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             COMPOSER_REVISION,
+            PREDICATE_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
             COMPACT_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
@@ -143,8 +207,14 @@ def validate_predicates(
         if type(pin) is not str or pin not in revisions:
             raise CatalogError("BOUND_PREDICATE_GAP")
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
-        required = version == 4 and pin == COMPOSER_REVISION and procedure["key"] == "map-records"
-        if (b["done_when"] or b["return_when"]) and (version != 4 or pin != COMPOSER_REVISION):
+        required = (
+            version == 4
+            and pin in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION}
+            and procedure["key"] == "map-records"
+        )
+        if (b["done_when"] or b["return_when"]) and (
+            version != 4 or pin not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION}
+        ):
             raise CatalogError("BOUND_PREDICATE_GAP")
     if not b["done_when"] and not b["return_when"] and not required:
         return  # Structural-only calls confer no completion; consumers supply the retained bundle.
@@ -292,10 +362,11 @@ def build_records(
         or procedure.stop_reason_ids
         or procedure.oracle_ref is not None
         or not 1 <= len(procedure.method_requirements) <= 128
-        or any(r.applies_if or r.evidence_kinds for r in procedure.method_requirements)
+        or any(r.evidence_kinds for r in procedure.method_requirements)
         or "BLOCKED" not in procedure.outcomes
     ):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
+    requirement_conditions(procedure.model_dump(mode="json"))
     if len({r.key for r in procedure.method_requirements}) != len(procedure.method_requirements):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     source = mapping(selection["payload"])
@@ -571,6 +642,16 @@ def build_records(
             {"name": input_name, "source_ref": input_refs[0], "selector": input_name}
         ]
         authored["probe"] = [first, *probe_steps[1:]]
+        authored["method_requirements"] = [
+            {
+                **mapping(raw_requirement),
+                "applies_if": [
+                    {**mapping(raw_condition), "input_refs": list(input_refs)}
+                    for raw_condition in sequence(mapping(raw_requirement)["applies_if"])
+                ],
+            }
+            for raw_requirement in sequence(authored["method_requirements"])
+        ]
         authored["slots"] = []
     resolved = mapping(resolve_local(authored, package, local_bindings))
     if (
@@ -604,15 +685,9 @@ def build_records(
         )
         if return_predicate_id is not None and not predicate_names:
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
-        requirements = [
-            {
-                "ref": {"bound_procedure_ref": bound, "requirement_key": r.key},
-                "applicability": "APPLIES",
-                "applicability_basis_refs": [],
-                "required": r.required,
-            }
-            for r in procedure.method_requirements
-        ]
+        requirements = compile_method_plan(
+            graph[-1], None if case_input is None else case_input["input"]
+        )
         # Exact per-assignment result schema: no success/evidence can be injected.
         header: dict[str, object] = {
             "schema_version": 1,
@@ -882,7 +957,7 @@ def result_json_schema(
         definitions["m"] = strict_object(
             {
                 "ref": {"type": "object"},
-                "state": {"enum": ["DONE", "NOT_RUN"]},
+                "state": {"enum": ["DONE", "NOT_RUN", "NOT_APPLICABLE"]},
                 "basis_refs": ref_array,
                 "artifact_refs": ref_array,
                 "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
@@ -909,6 +984,9 @@ def result_json_schema(
                 {
                     "$ref": "#/$defs/m",
                     "properties": {
+                        "state": {"const": "NOT_APPLICABLE"}
+                        if requirement["applicability"] == "NOT_APPLICABLE"
+                        else {"enum": ["DONE", "NOT_RUN"]},
                         "ref": {
                             "$ref": "#/$defs/" + name,
                             "properties": {
@@ -916,7 +994,7 @@ def result_json_schema(
                                     "const": text(required_ref["requirement_key"], 128)
                                 }
                             },
-                        }
+                        },
                     },
                 }
             )
@@ -1091,10 +1169,11 @@ def validate_brief(value: object) -> dict[str, object]:
         if (
             canonical(requirement) in seen
             or type(row["required"]) is not bool
-            or row["applicability"] != "APPLIES"
-            or row["applicability_basis_refs"] != []
+            or row["applicability"] not in ("APPLIES", "NOT_APPLICABLE", "UNKNOWN")
         ):
             raise CatalogError("MANAGED_REJECTED")
+        for basis in sequence(row["applicability_basis_refs"]):
+            ref(basis, "contract-case-records")
         seen.add(canonical(requirement))
     return result
 
@@ -1206,15 +1285,21 @@ def validate_assignment(
         body, bound_record, prompt_bundle=prompt_bundle, composition_version=composition_version
     )
     requirements = sequence(procedure["method_requirements"])
-    expected = [
-        {
-            "ref": {"bound_procedure_ref": bound_ref, "requirement_key": mapping(r)["key"]},
-            "required": mapping(r)["required"],
-            "applicability": "APPLIES",
-            "applicability_basis_refs": [],
-        }
-        for r in requirements
-    ]
+    expected = compile_method_plan(bound_record)
+    if any(mapping(r)["applies_if"] for r in requirements):
+        requirement_conditions(procedure, sequence(body["input_artifact_refs"])[0])
+        for row, published in zip(
+            expected, sequence(mapping(body["method_plan"])["requirements"]), strict=True
+        ):
+            candidate = mapping(published)
+            if row["applicability"] == "UNKNOWN":
+                if (
+                    candidate["applicability"] not in ("APPLIES", "NOT_APPLICABLE")
+                    or candidate["applicability_basis_refs"] != body["input_artifact_refs"]
+                ):
+                    raise CatalogError("ASSIGNMENT_MISMATCH")
+                row["applicability"] = candidate["applicability"]
+                row["applicability_basis_refs"] = candidate["applicability_basis_refs"]
     if canonical(mapping(body["method_plan"])["requirements"]) != canonical(expected):
         raise CatalogError("ASSIGNMENT_MISMATCH")
     header = mapping(body["header"])
@@ -1550,7 +1635,7 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
                 raise CatalogError("LINEAGE_MISMATCH")
             ref(execution["brief_ref"], "task-brief")
             output = [record(r) for r in sequence(execution["records"])]
-            if len(output) not in ((4,) if result["status"] == "INCONCLUSIVE" else (6, 8)) or len(
+            if len(output) not in ((4, 6) if result["status"] == "INCONCLUSIVE" else (6, 8)) or len(
                 {text(r["id"]) for r in output}
             ) != len(output):
                 raise CatalogError("RESULT_CONFLICT")

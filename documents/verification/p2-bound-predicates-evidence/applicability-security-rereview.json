@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "review": "independent-focused-security-distribution-rereview",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "SOURCE corrections for SEC-APPLICABILITY-01/02/03/04; bounded immutable UNKNOWN and exact historical no-oracle receive-only compatibility; final wheel/source byte identity only. Not live/integration/product-phase acceptance.",
+  "repository": "/home/kali/OmnisAI",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "snapshot": {
+    "count": 15,
+    "hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+      "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "diff_sha256": "8dc81281b19840c84300e7bd588c57e71731cf1fe92722cf9d60f1e2bd039ca5",
+    "integrated_report_sha256": "1a2eb6c79ec237fc3d00d1083906e301b788fc0408c4b39b58c67e32e5bd4a9e",
+    "before_after_identical": true
+  },
+  "acceptance_contract": {
+    "allowed": "Read-only exact frozen 15 files plus affected direct consumers; SOURCE reproducer and bounded cases, scratch report only.",
+    "forbidden": "No repository edits/stage/commit/remote, PG/native boot/provider/model/target/global/profile/secret reads, full audit or recertification.",
+    "original_findings_accounted": 4,
+    "original_reproducer_unchanged_sha256": "34c110789bdc0561dabb4d77c0a11e16502ea8a736bd2604beacdbd1241c6cb1"
+  },
+  "findings_dispositions": [
+    {
+      "id": "SEC-APPLICABILITY-01",
+      "severity_original": "MEDIUM",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "blocking_on_reviewed_source": false,
+      "locations": [
+        "api/src/omnis/modules/tasks/method_checks.py:422-463",
+        "api/src/omnis/modules/runs/managed_admission.py:843-899"
+      ],
+      "evidence": "Original malformed operations output refuses METHOD_SCHEMA_MISMATCH both with all schemas and with missing input schema. Valid missing-schema control stays UNKNOWN/three gaps. Focused SOURCE checks cover mixed orders, available malformed documents as METHOD_SCHEMA_INVALID, non-value required documents and actual owner partial-map retention. Two supplemental retained UNKNOWN controls independently refuse a later decidable mismatch before retention.",
+      "limit": "No real qualified PG schema reader or native outcome transaction run."
+    },
+    {
+      "id": "SEC-APPLICABILITY-02",
+      "severity_original": "MEDIUM",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "blocking_on_reviewed_source": false,
+      "locations": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:65-97",
+        "api/src/omnis/modules/tasks/method_checks.py:537-555"
+      ],
+      "evidence": "All three original malformed descriptor cases now refuse METHOD_CHECKER_INVALID. Exact fieldset/type/bounded strings and 64 lower-hex digest validation precede identity availability. Focused fresh/receive-only controls cover bool/object/list/empty/oversize text, short/nonhex/uppercase/newline/bool SHA and missing/extra fields; well-formed unavailable identity stays UNKNOWN with exact checked rows/every gap.",
+      "limit": "SOURCE checker eligibility, not installed authentication."
+    },
+    {
+      "id": "SEC-APPLICABILITY-03",
+      "severity_original": "MEDIUM",
+      "disposition": "RESOLVED_SOURCE_DIRECT_CONSUMER_REAL_QA_NOT_RUN",
+      "blocking_on_reviewed_source": false,
+      "locations": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:237-280",
+        "api/src/omnis/modules/runs/managed_admission.py:676-706"
+      ],
+      "evidence": "Original two allocated criteria now produce exactly two BLOCKED outcomes and ORACLE_UNAVAILABLE/CONTROLS_UNAVAILABLE/METHOD_UNKNOWN for UNKNOWN; INCOMPLETE control still has METHOD_INCOMPLETE. Current COMPLETE is still no-oracle BLOCKED, not functional PASS. Owner status path only promotes COMPLETE to SUCCEEDED.",
+      "limit": "Transactional check/outcome/inbox settlement and fresh-process readers on final bytes require real PG/native QA. Changed PG test has two allocated criteria and first-check-only explicit qualification-unavailability fixture, then actual qualified readers; it was inspected, not executed."
+    },
+    {
+      "id": "SEC-APPLICABILITY-04",
+      "severity_original": "MEDIUM",
+      "disposition": "RESOLVED_SOURCE_AND_DISTRIBUTION_IDENTITY_SCOPED",
+      "blocking_on_reviewed_source": false,
+      "locations": [
+        "api/src/omnis/modules/settings/candidate_catalog.py:45-73",
+        "api/src/omnis/modules/settings/skill_catalog.py:517-522",
+        "api/tests/test_candidate_tracer_fingerprints.py:202-235"
+      ],
+      "evidence": "Original virtual managed_contract source mutation changes compiler identity and is read once. Focused sensitivity tests run both compiler/evaluator domains across every named closure dependency, including managed_contract and publication_models. Exact actual source identity positive and stale readback storage-seam denial pass. Final API wheel includes byte-exact current closure, with cold factory importing neither optional catalog nor applicability module.",
+      "limit": "No historical PASS/qualification records changed or requalified. Stale readback uses explicit authority/storage doubles; no durable qualification, installed service or full canonical gate."
+    }
+  ],
+  "new_findings": [],
+  "receive_only_boundaries": {
+    "immutable_unknown": {
+      "disposition": "APPROVED_SOURCE_SCOPED",
+      "locations": [
+        "api/src/omnis/modules/runs/managed_admission.py:759-820"
+      ],
+      "result": "Current owner SOURCE first-check UNKNOWN is never upgraded on later available qualification; exact initial cause, all gap refs and checked rows are retained canonically. Both cause branches exercised; altered gaps, nonstring reason and duplicate checks refuse RESULT_CONFLICT. Receipt/input/method-plan/value validation precedes retention; supplemental later mismatches still refuse.",
+      "limitation": "Graph/schema/SQL doubles are explicit, no native authentication or durable readback proof."
+    },
+    "historical_rule": {
+      "disposition": "APPROVED_SOURCE_RECEIVE_ONLY_SCOPED",
+      "locations": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:22-25",
+        "api/src/omnis/modules/tasks/criterion_checks.py:169-200",
+        "api/src/omnis/modules/tasks/criterion_checks.py:237-249"
+      ],
+      "supported": {
+        "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b": [
+          "COMPLETE",
+          "INCOMPLETE"
+        ],
+        "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8": [
+          "COMPLETE"
+        ]
+      },
+      "result": "Exact source SHA read back from original integrated e6e91a6 and 77c835d. Only receive_only is True allows those digests; all other canonical descriptor fields remain current-exact. Fresh, truthy integer, old UNKNOWN, unsupported old INCOMPLETE and changed key/procedure_key/permitted outcomes/oracle refuse. Supported states retain BLOCKED and original gap semantics.",
+      "authorization_limit": "Receive-only graph validation is also used by stage material inspection and is NOT itself dispatch authority. Actual reserve_dispatch still requires lock, nonreplayed stage/release, current_source for composed input versions and unexpired brief; supervisor/fence/Stop/bootstrap/pins unchanged. No executable fresh old-rule authorization or installed historical-reader QA is claimed."
+    },
+    "historical_checker": "Exact historical checker/pin lookup remains receive-only; malformed descriptors never enter it. Fresh unavailable FULL plus a partial execution stays UNKNOWN; old FULL receive-only partial still refuses. Current retained checker-UNKNOWN calls fresh eligibility validation rather than retroactively allowing historical promotion."
+  },
+  "verification": {
+    "original_reproducer": {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py",
+      "output": "[\n  {\n    \"case\": \"invalid-output-with-all-schemas\",\n    \"refused\": \"METHOD_SCHEMA_MISMATCH\"\n  },\n  {\n    \"case\": \"invalid-output-with-missing-input-schema\",\n    \"refused\": \"METHOD_SCHEMA_MISMATCH\"\n  },\n  {\n    \"case\": \"valid-output-with-missing-input-schema\",\n    \"status\": \"UNKNOWN\",\n    \"reason\": \"METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility.\",\n    \"gaps\": 3\n  },\n  {\n    \"case\": \"malformed-checker-semantics-bool\",\n    \"refused\": \"METHOD_CHECKER_INVALID\"\n  },\n  {\n    \"case\": \"malformed-checker-semantics-dict\",\n    \"refused\": \"METHOD_CHECKER_INVALID\"\n  },\n  {\n    \"case\": \"malformed-checker-code_digest-str\",\n    \"refused\": \"METHOD_CHECKER_INVALID\"\n  },\n  {\n    \"case\": \"allocated-criteria-INCOMPLETE\",\n    \"outcomes\": [\n      \"BLOCKED\",\n      \"BLOCKED\"\n    ],\n    \"gaps\": [\n      [\n        \"ORACLE_UNAVAILABLE\",\n        \"CONTROLS_UNAVAILABLE\",\n        \"METHOD_INCOMPLETE\"\n      ],\n      [\n        \"ORACLE_UNAVAILABLE\",\n        \"CONTROLS_UNAVAILABLE\",\n        \"METHOD_INCOMPLETE\"\n      ]\n    ]\n  },\n  {\n    \"case\": \"allocated-criteria-UNKNOWN\",\n    \"outcomes\": [\n      \"BLOCKED\",\n      \"BLOCKED\"\n    ],\n    \"gaps\": [\n      [\n        \"ORACLE_UNAVAILABLE\",\n        \"CONTROLS_UNAVAILABLE\",\n        \"METHOD_UNKNOWN\"\n      ],\n      [\n        \"ORACLE_UNAVAILABLE\",\n        \"CONTROLS_UNAVAILABLE\",\n        \"METHOD_UNKNOWN\"\n      ]\n    ]\n  },\n  {\n    \"case\": \"compiler-fingerprint-virtual-applicability-source-change\",\n    \"same_identity\": false,\n    \"applicability_module_reads\": 1,\n    \"managed_contract_in_closure\": true\n  }\n]",
+      "exit_code": 0,
+      "error": null,
+      "cases": [
+        {
+          "case": "invalid-output-with-all-schemas",
+          "refused": "METHOD_SCHEMA_MISMATCH"
+        },
+        {
+          "case": "invalid-output-with-missing-input-schema",
+          "refused": "METHOD_SCHEMA_MISMATCH"
+        },
+        {
+          "case": "valid-output-with-missing-input-schema",
+          "status": "UNKNOWN",
+          "reason": "METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility.",
+          "gaps": 3
+        },
+        {
+          "case": "malformed-checker-semantics-bool",
+          "refused": "METHOD_CHECKER_INVALID"
+        },
+        {
+          "case": "malformed-checker-semantics-dict",
+          "refused": "METHOD_CHECKER_INVALID"
+        },
+        {
+          "case": "malformed-checker-code_digest-str",
+          "refused": "METHOD_CHECKER_INVALID"
+        },
+        {
+          "case": "allocated-criteria-INCOMPLETE",
+          "outcomes": [
+            "BLOCKED",
+            "BLOCKED"
+          ],
+          "gaps": [
+            [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_INCOMPLETE"
+            ],
+            [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_INCOMPLETE"
+            ]
+          ]
+        },
+        {
+          "case": "allocated-criteria-UNKNOWN",
+          "outcomes": [
+            "BLOCKED",
+            "BLOCKED"
+          ],
+          "gaps": [
+            [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_UNKNOWN"
+            ],
+            [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_UNKNOWN"
+            ]
+          ]
+        },
+        {
+          "case": "compiler-fingerprint-virtual-applicability-source-change",
+          "same_identity": false,
+          "applicability_module_reads": 1,
+          "managed_contract_in_closure": true
+        }
+      ],
+      "count": 9,
+      "asserted_dispositions": true,
+      "classification": "SOURCE_SYNTHETIC_RECORDS_REAL_FINITE_ADAPTER_PRODUCER_NOT_NATIVE_BOOT_OR_AUTH"
+    },
+    "focused_source": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_available_value_mismatch'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_malformed_available_document'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_malformed_checker_descriptor_refuses_distinct_from_unavailable'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_well_formed_unavailable_checker_retains_every_gap'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_non_value_parameter_schema_is_required_and_validated'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py::test_historical_full_checker_partial_first_check_is_unknown_only'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py::test_owner_retains_current_unknown_without_historical_promotion'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py::test_historical_no_oracle_rule_is_receive_only'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py::test_owner_keeps_available_schemas_after_missing_binding'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py::test_incomplete_check_rule_is_blocked_not_functional_pass'\"'\"', '\"'\"'api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=line'\"'\"']))'",
+      "output": "........................................................................ [ 80%]\n.................                                                        [100%]\n89 passed in 4.71s",
+      "exit_code": 0,
+      "error": null,
+      "passed": 89,
+      "selected_tests": [
+        "api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_available_value_mismatch",
+        "api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_malformed_available_document",
+        "api/tests/test_contract_method_checks.py::test_malformed_checker_descriptor_refuses_distinct_from_unavailable",
+        "api/tests/test_contract_method_checks.py::test_well_formed_unavailable_checker_retains_every_gap",
+        "api/tests/test_contract_method_checks.py::test_non_value_parameter_schema_is_required_and_validated",
+        "api/tests/test_contract_method_checks.py::test_historical_full_checker_partial_first_check_is_unknown_only",
+        "api/tests/test_c10_bound_predicates.py::test_owner_retains_current_unknown_without_historical_promotion",
+        "api/tests/test_c10_bound_predicates.py::test_historical_no_oracle_rule_is_receive_only",
+        "api/tests/test_c10_bound_predicates.py::test_owner_keeps_available_schemas_after_missing_binding",
+        "api/tests/test_c10_bound_predicates.py::test_incomplete_check_rule_is_blocked_not_functional_pass",
+        "api/tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam"
+      ],
+      "classification": "SOURCE_WITH_EXPLICIT_GRAPH_SCHEMA_SQL_DOUBLES_WHERE_DOCUMENTED"
+    },
+    "stale_qualification_source": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'api/tests/test_candidate_tracer_fingerprints.py::test_compiler_revision_identifies_actual_trusted_behavior_bytes'\"'\"', '\"'\"'api/tests/test_candidate_tracer_fingerprints.py::test_evaluation_revision_and_stale_readback_storage_seam'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=line'\"'\"']))'",
+      "output": "..                                                                       [100%]\n2 passed in 0.48s",
+      "exit_code": 0,
+      "error": null,
+      "passed": 2,
+      "limit": "Compilation/material/receipt code real; authority/storage substituted, no PG durability."
+    },
+    "source_tests_total": 91,
+    "supplemental_boundaries": {
+      "output": "{\n  \"count\": 22,\n  \"cases\": [\n    {\n      \"case\": \"df2babe1-COMPLETE-receive\",\n      \"outcomes\": [\n        \"BLOCKED\",\n        \"BLOCKED\"\n      ]\n    },\n    {\n      \"case\": \"df2babe1-INCOMPLETE-receive\",\n      \"outcomes\": [\n        \"BLOCKED\",\n        \"BLOCKED\"\n      ]\n    },\n    {\n      \"case\": \"df2babe1-UNKNOWN-receive\",\n      \"refused\": \"CRITERION_CHECK_REQUIRED\"\n    },\n    {\n      \"case\": \"df2babe1-fresh\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"df2babe1-truthy-not-bool\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"df2babe1-altered-key\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"df2babe1-altered-procedure_key\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"df2babe1-altered-permitted_outcomes\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"df2babe1-altered-oracle_ref\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-COMPLETE-receive\",\n      \"outcomes\": [\n        \"BLOCKED\",\n        \"BLOCKED\"\n      ]\n    },\n    {\n      \"case\": \"30cf2d05-INCOMPLETE-receive\",\n      \"refused\": \"CRITERION_CHECK_REQUIRED\"\n    },\n    {\n      \"case\": \"30cf2d05-UNKNOWN-receive\",\n      \"refused\": \"CRITERION_CHECK_REQUIRED\"\n    },\n    {\n      \"case\": \"30cf2d05-fresh\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-truthy-not-bool\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-altered-key\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-altered-procedure_key\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-altered-permitted_outcomes\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"30cf2d05-altered-oracle_ref\",\n      \"refused\": \"CRITERION_RULE_UNAVAILABLE\"\n    },\n    {\n      \"case\": \"retained-schema-unknown-does-not-mask-now-decidable-mismatch\",\n      \"refused\": \"METHOD_SCHEMA_MISMATCH\"\n    },\n    {\n      \"case\": \"retained-checker-unknown-does-not-mask-now-decidable-mismatch\",\n      \"refused\": \"METHOD_SCHEMA_MISMATCH\"\n    },\n    {\n      \"case\": \"historical-rule-source-e6e91a661e89c3891b04eb72e4cf2dd4686572ac\",\n      \"sha256\": \"df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b\",\n      \"matches\": true\n    },\n    {\n      \"case\": \"historical-rule-source-77c835d\",\n      \"sha256\": \"30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8\",\n      \"matches\": true\n    }\n  ],\n  \"classification\": \"SOURCE_SYNTHETIC_GRAPH_SCHEMA_AND_RECORDS_NOT_AUTH_OR_PG_QA\"\n}",
+      "exit_code": 0,
+      "error": null,
+      "command": "api/.venv/bin/python -I -B -c 'import sys,copy,asyncio,json,hashlib,subprocess\nfrom pathlib import Path\nfrom uuid import uuid4\nsys.path[:0]=['\"'\"'/home/kali/OmnisAI/api/src'\"'\"','\"'\"'/home/kali/OmnisAI/api/tests'\"'\"']\nimport pytest\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis.modules.tasks import criterion_checks as c, managed_contract\nfrom test_c04_criteria import criteria_graph\nfrom test_c10_bound_predicates import test_owner_retains_current_unknown_without_historical_promotion as owner_test\nobserved=[]\ndef expect(name, fn, reason=None):\n    try:\n        out=fn()\n    except CatalogError as e:\n        assert e.reason==reason,(name,e.reason,reason)\n        observed.append({'\"'\"'case'\"'\"':name,'\"'\"'refused'\"'\"':e.reason})\n    else:\n        assert reason is None,name\n        assert len(out)==2 and all(x['\"'\"'outcome'\"'\"']=='\"'\"'BLOCKED'\"'\"' for x in out)\n        observed.append({'\"'\"'case'\"'\"':name,'\"'\"'outcomes'\"'\"':[x['\"'\"'outcome'\"'\"'] for x in out]})\ndef fixture(digest, extra=None):\n    real=c.rule_payload\n    def old(p,b): return {**real(p,b),'\"'\"'code_digest'\"'\"':digest,**(extra or {})}\n    c.rule_payload=old\n    try: graph=criteria_graph([str(uuid4()),str(uuid4())])\n    finally: c.rule_payload=real\n    brief=next(x for x in graph if x['\"'\"'kind'\"'\"']=='\"'\"'task-brief'\"'\"')\n    payload=managed_contract.blocked_result(brief)['\"'\"'payload'\"'\"']\n    payload['\"'\"'criterion_results'\"'\"']=[{'\"'\"'criterion_id'\"'\"':x['\"'\"'criterion_id'\"'\"'],'\"'\"'bound_procedure_ref'\"'\"':x['\"'\"'bound_procedure_ref'\"'\"'],'\"'\"'proposed_outcome'\"'\"':'\"'\"'PASS'\"'\"','\"'\"'control_step_ids'\"'\"':[],'\"'\"'evidence_refs'\"'\"':[],'\"'\"'gaps'\"'\"':list(c.GAPS)} for x in brief['\"'\"'payload'\"'\"']['\"'\"'criterion_bindings'\"'\"']]\n    result=records.envelope('\"'\"'task-result'\"'\"',payload)\n    def call(status,ro):\n        check=records.envelope('\"'\"'method-check'\"'\"',{'\"'\"'brief_ref'\"'\"':records.reference(brief),'\"'\"'task_result_ref'\"'\"':records.reference(result),'\"'\"'status'\"'\"':status})\n        return c.outcome_payloads(brief,result,check,graph,receive_only=ro)\n    return call\nfor digest,statuses in c.HISTORICAL_RULES.items():\n    call=fixture(digest)\n    prefix=digest[:8]\n    for status in ('\"'\"'COMPLETE'\"'\"','\"'\"'INCOMPLETE'\"'\"','\"'\"'UNKNOWN'\"'\"'):\n        expect(prefix+'\"'\"'-'\"'\"'+status+'\"'\"'-receive'\"'\"',lambda:call(status,True),None if status in statuses else '\"'\"'CRITERION_CHECK_REQUIRED'\"'\"')\n    expect(prefix+'\"'\"'-fresh'\"'\"',lambda:call('\"'\"'COMPLETE'\"'\"',False),'\"'\"'CRITERION_RULE_UNAVAILABLE'\"'\"')\n    expect(prefix+'\"'\"'-truthy-not-bool'\"'\"',lambda:call('\"'\"'COMPLETE'\"'\"',1),'\"'\"'CRITERION_RULE_UNAVAILABLE'\"'\"')\n    for field,value in [('\"'\"'key'\"'\"','\"'\"'foreign.rule'\"'\"'),('\"'\"'procedure_key'\"'\"','\"'\"'foreign-procedure'\"'\"'),('\"'\"'permitted_outcomes'\"'\"',['\"'\"'PASS'\"'\"']),('\"'\"'oracle_ref'\"'\"',{'\"'\"'fake'\"'\"':'\"'\"'oracle'\"'\"'})]:\n        attack=fixture(digest,{field:value})\n        expect(prefix+'\"'\"'-altered-'\"'\"'+field,lambda:attack('\"'\"'COMPLETE'\"'\"',True),'\"'\"'CRITERION_RULE_UNAVAILABLE'\"'\"')\nclass SchemaAttack(pytest.MonkeyPatch):\n    def setattr(self,*args,**kwargs):\n        if len(args)>=3 and args[1]=='\"'\"'_method_schemas'\"'\"':\n            target,name,reader=args[:3]\n            calls=0\n            async def wrapped(*a,**k):\n                nonlocal calls\n                docs=copy.deepcopy(await reader(*a,**k)); calls+=1\n                if calls==2:\n                    hits=[d for d in docs.values() if '\"'\"'operations'\"'\"' in d.get('\"'\"'properties'\"'\"',{})]\n                    assert len(hits)==1\n                    hits[0]['\"'\"'properties'\"'\"']['\"'\"'operations'\"'\"']={'\"'\"'type'\"'\"':'\"'\"'integer'\"'\"'}\n                return docs\n            args=(target,name,wrapped,*args[3:])\n        return super().setattr(*args,**kwargs)\nfor unavailable in ('\"'\"'schema'\"'\"','\"'\"'checker'\"'\"'):\n    with SchemaAttack.context() as mp:\n        try: asyncio.run(owner_test(mp,unavailable,None))\n        except CatalogError as e:\n            assert e.reason=='\"'\"'METHOD_SCHEMA_MISMATCH'\"'\"'\n            observed.append({'\"'\"'case'\"'\"':'\"'\"'retained-'\"'\"'+unavailable+'\"'\"'-unknown-does-not-mask-now-decidable-mismatch'\"'\"','\"'\"'refused'\"'\"':e.reason})\n        else: raise AssertionError('\"'\"'Missing current value validation'\"'\"')\nfor rev,digest in [('\"'\"'e6e91a661e89c3891b04eb72e4cf2dd4686572ac'\"'\"','\"'\"'df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b'\"'\"'),('\"'\"'77c835d'\"'\"','\"'\"'30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8'\"'\"')]:\n    raw=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',rev+'\"'\"':api/src/omnis/modules/tasks/criterion_checks.py'\"'\"'],cwd='\"'\"'/home/kali/OmnisAI'\"'\"')\n    assert hashlib.sha256(raw).hexdigest()==digest\n    observed.append({'\"'\"'case'\"'\"':'\"'\"'historical-rule-source-'\"'\"'+rev,'\"'\"'sha256'\"'\"':digest,'\"'\"'matches'\"'\"':True})\nprint(json.dumps({'\"'\"'count'\"'\"':len(observed),'\"'\"'cases'\"'\"':observed,'\"'\"'classification'\"'\"':'\"'\"'SOURCE_SYNTHETIC_GRAPH_SCHEMA_AND_RECORDS_NOT_AUTH_OR_PG_QA'\"'\"'},indent=2))\n'",
+      "cases": [
+        {
+          "case": "df2babe1-COMPLETE-receive",
+          "outcomes": [
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "case": "df2babe1-INCOMPLETE-receive",
+          "outcomes": [
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "case": "df2babe1-UNKNOWN-receive",
+          "refused": "CRITERION_CHECK_REQUIRED"
+        },
+        {
+          "case": "df2babe1-fresh",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "df2babe1-truthy-not-bool",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "df2babe1-altered-key",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "df2babe1-altered-procedure_key",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "df2babe1-altered-permitted_outcomes",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "df2babe1-altered-oracle_ref",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-COMPLETE-receive",
+          "outcomes": [
+            "BLOCKED",
+            "BLOCKED"
+          ]
+        },
+        {
+          "case": "30cf2d05-INCOMPLETE-receive",
+          "refused": "CRITERION_CHECK_REQUIRED"
+        },
+        {
+          "case": "30cf2d05-UNKNOWN-receive",
+          "refused": "CRITERION_CHECK_REQUIRED"
+        },
+        {
+          "case": "30cf2d05-fresh",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-truthy-not-bool",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-altered-key",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-altered-procedure_key",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-altered-permitted_outcomes",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "30cf2d05-altered-oracle_ref",
+          "refused": "CRITERION_RULE_UNAVAILABLE"
+        },
+        {
+          "case": "retained-schema-unknown-does-not-mask-now-decidable-mismatch",
+          "refused": "METHOD_SCHEMA_MISMATCH"
+        },
+        {
+          "case": "retained-checker-unknown-does-not-mask-now-decidable-mismatch",
+          "refused": "METHOD_SCHEMA_MISMATCH"
+        },
+        {
+          "case": "historical-rule-source-e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+          "sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+          "matches": true
+        },
+        {
+          "case": "historical-rule-source-77c835d",
+          "sha256": "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8",
+          "matches": true
+        }
+      ],
+      "count": 22,
+      "classification": "SOURCE_SYNTHETIC_GRAPH_SCHEMA_AND_RECORDS_NOT_AUTH_OR_PG_QA"
+    },
+    "source_identity": {
+      "command": "api/.venv/bin/python -I -B -c 'import json,hashlib,zipfile,subprocess\nfrom pathlib import Path\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nsnapshot=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-applicability-integrated-source.json'\"'\"')\nmanifest=json.loads(snapshot.read_text())\nh=lambda b:hashlib.sha256(b).hexdigest()\nactual={p:h((root/p).read_bytes()) for p in manifest['\"'\"'snapshot'\"'\"']['\"'\"'files'\"'\"']}\nassert len(actual)==15 and actual==manifest['\"'\"'snapshot'\"'\"']['\"'\"'files'\"'\"']\noriginal=json.loads(Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-applicability-security-review.json'\"'\"').read_text())\nrepro=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py'\"'\"')\nassert h(repro.read_bytes())==original['\"'\"'reproducer_sha256'\"'\"']\nwheels=[]\nfor w in manifest['\"'\"'distribution'\"'\"']['\"'\"'wheels'\"'\"']:\n    p=Path(w['\"'\"'path'\"'\"']); assert h(p.read_bytes())==w['\"'\"'sha256'\"'\"']\n    prefix='\"'\"'api/src'\"'\"' if '\"'\"'omnis_api'\"'\"' in p.name else '\"'\"'integrations/hermes/src'\"'\"'\n    with zipfile.ZipFile(p) as z:\n        modules=[n for n in z.namelist() if n.endswith('\"'\"'.py'\"'\"')]\n        assert len(modules)==w['\"'\"'module_count'\"'\"'] and len(set(modules))==len(modules)\n        matches={n:z.read(n)==(root/prefix/n).read_bytes() for n in modules}\n        assert all(matches.values())\n    wheels.append({'\"'\"'path'\"'\"':str(p),'\"'\"'sha256'\"'\"':w['\"'\"'sha256'\"'\"'],'\"'\"'module_count'\"'\"':len(modules),'\"'\"'all_source_byte_equal'\"'\"':True})\ndiff=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--'\"'\"',*actual],cwd=root)\nprint(json.dumps({'\"'\"'head'\"'\"':subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],cwd=root,text=True).strip(),'\"'\"'snapshot_report_sha256'\"'\"':h(snapshot.read_bytes()),'\"'\"'count'\"'\"':len(actual),'\"'\"'hashes'\"'\"':actual,'\"'\"'snapshot_matches'\"'\"':True,'\"'\"'diff_sha256'\"'\"':h(diff),'\"'\"'original_reproducer_sha256'\"'\"':h(repro.read_bytes()),'\"'\"'distribution'\"'\"':wheels,'\"'\"'protected_html_sha256'\"'\"':h((root/'\"'\"'documents/Omnis_Notite_Originale.html'\"'\"').read_bytes())},indent=2))\n'",
+      "exit_code": 0,
+      "result": {
+        "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+        "snapshot_report_sha256": "1a2eb6c79ec237fc3d00d1083906e301b788fc0408c4b39b58c67e32e5bd4a9e",
+        "count": 15,
+        "hashes": {
+          "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+          "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+          "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+          "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+          "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+          "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+          "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+          "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+          "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+          "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+          "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+          "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+          "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+          "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+          "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+        },
+        "snapshot_matches": true,
+        "diff_sha256": "8dc81281b19840c84300e7bd588c57e71731cf1fe92722cf9d60f1e2bd039ca5",
+        "original_reproducer_sha256": "34c110789bdc0561dabb4d77c0a11e16502ea8a736bd2604beacdbd1241c6cb1",
+        "distribution": [
+          {
+            "path": "/home/kali/.hermes/cache/scratch/p2-applicability-final-wheels/omnis_api-0.1.0-py3-none-any.whl",
+            "sha256": "48e2964941d10119fadf99304eb96c85ab092d857d550321925ed18f5f98b776",
+            "module_count": 83,
+            "all_source_byte_equal": true
+          },
+          {
+            "path": "/home/kali/.hermes/cache/scratch/p2-applicability-final-wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+            "sha256": "4867d4f2c5112c7e3370226ae2eee96c36c15254f0aa3889b64fcf1c642995bb",
+            "module_count": 15,
+            "all_source_byte_equal": true
+          }
+        ],
+        "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f"
+      },
+      "final_reread_exit": 0,
+      "unchanged": true
+    },
+    "native_distribution_identity": {
+      "command": "api/.venv/bin/python -I -B -c 'import json,hashlib,subprocess\nfrom pathlib import Path\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"'); h=lambda b:hashlib.sha256(b).hexdigest()\nbase=root/'\"'\"'integrations/hermes'\"'\"'; pin=json.loads((base/'\"'\"'pin.json'\"'\"').read_text())\nmanifest_path=base/'\"'\"'upstream/managed-patch-manifest.json'\"'\"'; manifest=json.loads(manifest_path.read_text())\noverlay=base/'\"'\"'upstream/managed-source'\"'\"'; files={p.relative_to(overlay).as_posix():h(p.read_bytes()) for p in overlay.rglob('\"'\"'*.py'\"'\"')}\nassert len(files)==15 and set(files)==set(manifest['\"'\"'files'\"'\"'])\nassert all(v==manifest['\"'\"'files'\"'\"'][k]['\"'\"'patched_sha256'\"'\"'] for k,v in files.items())\nchecks={}\nfor p, expected in [(base/'\"'\"'upstream/omnis-managed.patch'\"'\"',pin['\"'\"'managed_patch_sha256'\"'\"']),(manifest_path,pin['\"'\"'managed_patch_manifest_sha256'\"'\"']),(base/'\"'\"'upstream/omnis-inert.patch'\"'\"',pin['\"'\"'patch_sha256'\"'\"']),(base/'\"'\"'upstream/patch-manifest.json'\"'\"',pin['\"'\"'patch_manifest_sha256'\"'\"'])]:\n    assert h(p.read_bytes())==expected\n    checks[str(p.relative_to(root))]=expected\nfor p in [base/'\"'\"'pin.json'\"'\"',manifest_path,base/'\"'\"'upstream/patch-manifest.json'\"'\"',base/'\"'\"'upstream/omnis-managed.patch'\"'\"',base/'\"'\"'upstream/omnis-inert.patch'\"'\"',*[overlay/k for k in files]]:\n    assert p.read_bytes()==subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"','\"'\"'HEAD:'\"'\"'+str(p.relative_to(root))],cwd=root)\nprint(json.dumps({'\"'\"'native_overlay_inventory'\"'\"':len(files),'\"'\"'overlay_manifest_matches'\"'\"':True,'\"'\"'native_source_patch_manifest_pin_unchanged_at_HEAD'\"'\"':True,'\"'\"'pin_hash_fields_match'\"'\"':True,'\"'\"'checked_distribution_hashes'\"'\"':checks},indent=2))\n'",
+      "output": "{\n  \"native_overlay_inventory\": 15,\n  \"overlay_manifest_matches\": true,\n  \"native_source_patch_manifest_pin_unchanged_at_HEAD\": true,\n  \"pin_hash_fields_match\": true,\n  \"checked_distribution_hashes\": {\n    \"integrations/hermes/upstream/omnis-managed.patch\": \"0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca\",\n    \"integrations/hermes/upstream/managed-patch-manifest.json\": \"c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77\",\n    \"integrations/hermes/upstream/omnis-inert.patch\": \"481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223\",\n    \"integrations/hermes/upstream/patch-manifest.json\": \"2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab\"\n  }\n}",
+      "exit_code": 0,
+      "error": null,
+      "result": {
+        "native_overlay_inventory": 15,
+        "overlay_manifest_matches": true,
+        "native_source_patch_manifest_pin_unchanged_at_HEAD": true,
+        "pin_hash_fields_match": true,
+        "checked_distribution_hashes": {
+          "integrations/hermes/upstream/omnis-managed.patch": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+          "integrations/hermes/upstream/managed-patch-manifest.json": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+          "integrations/hermes/upstream/omnis-inert.patch": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223",
+          "integrations/hermes/upstream/patch-manifest.json": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab"
+        }
+      }
+    },
+    "final_wheel_factory": {
+      "command": "api/.venv/bin/python -I -B -c 'import sys; sys.path.insert(0,sys.argv[1]); import omnis; from omnis.api import create_app; assert str(omnis.__file__).startswith(sys.argv[1]); assert create_app().routes; assert \"omnis.modules.settings.candidate_catalog\" not in sys.modules; assert \"omnis.modules.tasks.managed_contract\" not in sys.modules; print(\"Final API wheel import/factory PASS; optional catalog/applicability not imported; no lifespan/service/DB\")' /home/kali/.hermes/cache/scratch/p2-applicability-final-wheels/omnis_api-0.1.0-py3-none-any.whl",
+      "output": "Final API wheel import/factory PASS; optional catalog/applicability not imported; no lifespan/service/DB",
+      "exit_code": 0,
+      "error": null
+    },
+    "git_final": {
+      "output": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/managed_admission.py\n M api/src/omnis/modules/settings/candidate_catalog.py\n M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/criterion_checks.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_candidate_tracer_fingerprints.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/managed_admission_contract.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html",
+      "exit_code": 0,
+      "error": null
+    }
+  },
+  "limits": {
+    "PG": "NOT_RUN_FINAL_BYTES",
+    "native": "NOT_RUN_FINAL_BYTES",
+    "installed_historical_reader": "NOT_RUN",
+    "canonical": "NOT_RUN_NO_RECERTIFICATION",
+    "full_api_adapter_mypy_ruff": "NOT_RERUN_PARENT_REPORTED_310_68_220_15_SCOPED_RESULTS_NOT_INDEPENDENTLY_TRANSFERRED",
+    "build": "NOT_RERUN; parent canonical uv0.12.19 offline wheels read back byte-exact",
+    "patch_reapply": "NOT_RUN_UNCHANGED_PATCH_AND_OVERLAY_BYTES",
+    "prior_failures": "Original 3 PG/native FAIL and parent resource-drain/data-retention evidence preserved, not superseded or attributed by this review.",
+    "P2_G02_B06b": "PARTIAL_NOT_CLOSED",
+    "security_claim": "No authority/effect escalation asserted; strict-input, uncertainty propagation, history retention and integrity closure reviewed only.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "issues_encountered": [],
+  "repository_modified_by_reviewer": false,
+  "staged_or_committed": false,
+  "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f",
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/p2-applicability-security-rereview.json"
+  ],
+  "skill_update": "NOT_APPLICABLE_READ_ONLY_WRITE_BOUNDARY; parent owns any versioned procedure/status reconciliation",
+  "proposed_parent_status_delta": "All four named security findings resolved for frozen SOURCE scope; security/distribution re-review APPROVED_SCOPED. Keep real final PG/native QA, installed historical reader and canonical/P2 acceptance NOT_RUN/NOT_CLOSED; parent adjudicates complementary review and integration."
+}

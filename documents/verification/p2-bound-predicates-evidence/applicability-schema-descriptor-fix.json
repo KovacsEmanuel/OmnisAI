@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_SOURCE_SCOPED_PENDING_PARENT_INTEGRATION",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "scope": "SEC-APPLICABILITY-01/02 SOURCE checker fixes, plus parent-requested F02 checker eligibility and complete procedure schema inventory only.",
+  "allowed_files": [
+    "api/src/omnis/modules/tasks/method_checks.py",
+    "api/src/omnis/modules/tasks/method_checker_identity.py",
+    "api/tests/test_contract_method_checks.py"
+  ],
+  "hashes_before": {
+    "api/src/omnis/modules/tasks/method_checks.py": "908d15b6e9a7dec89a2416f42f6f308155b6339e79fd546c0de662852f854164",
+    "api/src/omnis/modules/tasks/method_checker_identity.py": "069ed634cb734b553ee9050405cae46005b1c8047e791268cbd9c5c2425986aa",
+    "api/tests/test_contract_method_checks.py": "984060f62c953ed03bc32fc1057df8bbc50202d3259dc9b8dde7dabc4f9a76c1"
+  },
+  "hashes_after": {
+    "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+    "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+    "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81"
+  },
+  "findings_disposition": [
+    {
+      "id": "SEC-APPLICABILITY-01",
+      "disposition": "FIXED_SOURCE_CHECKER",
+      "change": "Collect procedure input/output/handoff, step parameter/output, all requirement artifact, and actual value schema refs; validate every available required document; validate each available original/artifact value before reporting missing qualification. Present malformed documents refuse METHOD_SCHEMA_INVALID; available value mismatches refuse METHOD_SCHEMA_MISMATCH. Missing even non-value required schema yields UNKNOWN/all gaps. Owner partial-map integration is parent-owned."
+    },
+    {
+      "id": "SEC-APPLICABILITY-02",
+      "disposition": "FIXED_SOURCE_CHECKER",
+      "change": "Validate exact key/code_digest/semantics fields, exact bounded string types, and 64 lower-hex SHA syntax before current/historical identity lookup. Malformed descriptors refuse METHOD_CHECKER_INVALID. Well-formed unknown identities remain UNKNOWN with exact results and every gap."
+    },
+    {
+      "id": "F02",
+      "disposition": "FIXED_AFFECTED_CHECKER_ELIGIBILITY_ONLY",
+      "change": "FULL_PREDICATE_HISTORICAL partial restriction applies only when historical checker is available: fresh unavailable legacy FULL plus real partial returns UNKNOWN; receive-only supported old FULL still refuses partial. Parent owns immutable UNKNOWN/readback handling."
+    }
+  ],
+  "red_green": [
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-checker-descriptor-green.log",
+      "summary": "30 passed in 1.81s",
+      "exit": 0,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_malformed_checker_descriptor_refuses_distinct_from_unavailable\",\"api/tests/test_contract_method_checks.py::test_well_formed_unavailable_checker_retains_every_gap\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "passed": 30
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-schema-values-red.log",
+      "summary": "6 failed, 2 passed in 0.95s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_available_value_mismatch\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 6,
+        "passed": 2
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-checker-descriptor-red.log",
+      "summary": "28 failed, 2 passed in 2.94s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_malformed_checker_descriptor_refuses_distinct_from_unavailable\",\"api/tests/test_contract_method_checks.py::test_well_formed_unavailable_checker_retains_every_gap\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 28,
+        "passed": 2
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-nonvalue-schema-red.log",
+      "summary": "4 failed, 2 passed in 0.81s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_non_value_parameter_schema_is_required_and_validated\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 4,
+        "passed": 2
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-schema-values-green.log",
+      "summary": "11 passed in 1.02s",
+      "exit": 0,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_available_value_mismatch\",\"api/tests/test_contract_method_checks.py::test_missing_qualified_schema_cannot_complete\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "passed": 11
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-schema-documents-red.log",
+      "summary": "6 failed, 2 passed in 0.99s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_malformed_available_document\",\"api/tests/test_contract_method_checks.py::test_schema_validation_checks_actual_output_without_recomputation\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 6,
+        "passed": 2
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-checker-f02-green.log",
+      "summary": "3 passed in 0.66s",
+      "exit": 0,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_historical_full_checker_partial_first_check_is_unknown_only\",\"api/tests/test_c10_bound_predicates.py::test_current_c10_historical_descriptor_is_receive_only_full_scope\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "passed": 3
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-schema-documents-green.log",
+      "summary": "8 passed in 0.85s",
+      "exit": 0,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_malformed_available_document\",\"api/tests/test_contract_method_checks.py::test_schema_validation_checks_actual_output_without_recomputation\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "passed": 8
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-schema-values-red-corrected.log",
+      "summary": "4 failed, 4 passed in 0.92s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_missing_schema_does_not_mask_available_value_mismatch\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 4,
+        "passed": 4
+      }
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-checker-f02-red.log",
+      "summary": "1 failed, 1 passed in 0.65s",
+      "exit": 1,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"api/tests/test_contract_method_checks.py::test_historical_full_checker_partial_first_check_is_unknown_only\",\"-q\",\"--tb=short\"]))'",
+      "counts": {
+        "failed": 1,
+        "passed": 1
+      }
+    }
+  ],
+  "verification_commands": {
+    "source_regressions": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'",
+      "output": "........................................................................ [ 34%]\n........................................................................ [ 69%]\n...............................................................          [100%]\n207 passed in 12.42s",
+      "exit_code": 0,
+      "error": null
+    },
+    "mypy": {
+      "command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/dev/null api/src api/tests",
+      "output": "Success: no issues found in 220 source files",
+      "exit_code": 0,
+      "error": null
+    },
+    "ruff_diff": {
+      "command": "api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/tests/test_contract_method_checks.py && api/.venv/bin/python -I -B -m ruff format --check --no-cache --config api/pyproject.toml api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/tests/test_contract_method_checks.py && git diff --check -- api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/tests/test_contract_method_checks.py",
+      "output": "All checks passed!\n3 files already formatted",
+      "exit_code": 0,
+      "error": null
+    }
+  },
+  "counts": {
+    "final_source_tests_passed": 207,
+    "new_parameterized_cases": 50,
+    "mypy_files": 220,
+    "ruff_files": 3
+  },
+  "preserved": "Candidate applicability semantics, receipt/identity/integrity checks, limits and lexical grammar, historical FULL/PARTIAL receive-only tests, preexisting dirty paths and protected untracked HTML. No staging or commit.",
+  "issues_encountered": [
+    "Initial invalid-input negative replaced the top-level records shape and was rejected earlier by MANAGED_REJECTED; corrected only the test to mutate a record status to bool, preserving applicability shape and reaching schema validation. Both RED logs retained.",
+    "Ruff format checks initially failed only for added line wrapping; corrected owned files and reran all final scoped checks.",
+    "Concurrent parent/other child paths changed outside ownership; no findings inferred from mid-run fingerprint changes."
+  ],
+  "remaining": {
+    "parent": "Integrate owner partial schema map, exact retained UNKNOWN policy and criterion outcomes; settle other writer fingerprint closure; run frozen integrated checks and focused review; commit owned accepted changes.",
+    "native": "NOT_RUN_NO_NATIVE_BOOT_OR_INSTALLED_QA",
+    "PG": "NOT_RUN",
+    "wheel": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "independent_review": "PARENT_OWNED_PENDING"
+  },
+  "writes_outside_repository": "Only finite evidence logs, before-hash JSON and this report under declared scratch path; no skills updated due explicit write boundary.",
+  "non_value_schema_green": {
+    "evidence": "verification_commands.source_regressions",
+    "status": "PASS_INCLUDED_IN_FINAL_207_TESTS",
+    "cases": 6
+  }
+}

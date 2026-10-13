@@ -338,7 +338,7 @@ def _results(
     for raw, raw_plan, raw_requirement in zip(results, plan, requirements, strict=True):
         row = _exact(raw, {"ref", "state", "basis_refs", "artifact_refs", "reason"}, CONFLICT)
         requirement = contract.mapping(raw_requirement)
-        if requirement["applies_if"] != [] or requirement["evidence_kinds"] != []:
+        if requirement["evidence_kinds"] != []:
             raise CatalogError(UNSUPPORTED)
         steps = contract.sequence(requirement["step_ids"])
         schemas = _refs(requirement["artifact_schema_refs"], "schema")
@@ -350,6 +350,20 @@ def _results(
         ):
             raise CatalogError(UNSUPPORTED)
         _same(row["ref"], contract.mapping(raw_plan)["ref"], CONFLICT)
+        if contract.mapping(raw_plan)["applicability"] == "NOT_APPLICABLE":
+            _same(row["state"], "NOT_APPLICABLE", CONFLICT)
+            _same(
+                row["basis_refs"], contract.mapping(raw_plan)["applicability_basis_refs"], CONFLICT
+            )
+            _same(row["artifact_refs"], [], CONFLICT)
+            reason = (
+                "NOT_APPLICABLE: "
+                + contract.text(requirement["key"], 128)
+                + " (bound input predicate)."
+            )
+            _same(row["reason"], reason, CONFLICT)
+            gaps.append(reason)
+            continue
         done = all(s in known_steps for s in steps) and all(
             canonical(s) in [canonical(k) for k in known_schemas] for s in schemas
         )
@@ -405,23 +419,48 @@ def _lexical(document: object, value: object) -> None:
             _lexical(document["items"], child)
 
 
-def _schemas(original: Data, artifacts: list[Data], schemas: dict[str, Data]) -> None:
+def _schemas(
+    original: Data, artifacts: list[Data], schemas: dict[str, Data], procedure: Data
+) -> None:
+    references = [
+        procedure[k] for k in ("input_schema_ref", "output_schema_ref", "handoff_schema_ref")
+    ]
+    for raw in contract.sequence(procedure["probe"]):
+        step = contract.mapping(raw)
+        references.extend(step[k] for k in ("parameter_schema_ref", "output_schema_ref"))
+    for raw in contract.sequence(procedure["method_requirements"]):
+        references.extend(contract.sequence(contract.mapping(raw)["artifact_schema_refs"]))
+    references.extend(
+        contract.mapping(item["payload"])["schema_ref"] for item in [original, *artifacts]
+    )
+    unavailable = False
+    documents: dict[str, tuple[Data, bytes]] = {}
+    for reference in references:
+        key = canonical(contract.ref(reference, "schema")).decode()
+        if type(schemas) is not dict or key not in schemas:
+            unavailable = True
+            continue
+        if key in documents:
+            continue
+        try:
+            document = contract.mapping(schemas[key])
+            raw_schema = schema(canonical(document))  # Bounded, no external resolution.
+        except (CatalogError, TypeError, ValueError, RecursionError):
+            raise CatalogError("METHOD_SCHEMA_INVALID") from None
+        documents[key] = document, raw_schema
     for item in [original, *artifacts]:
         body = contract.mapping(item["payload"])
-        schema_ref = contract.ref(body["schema_ref"], "schema")
+        key = canonical(contract.ref(body["schema_ref"], "schema")).decode()
+        if key not in documents:
+            continue
+        document, raw_schema = documents[key]
         try:
-            key = canonical(schema_ref).decode()
-            if type(schemas) is not dict or key not in schemas:
-                raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
-            document = contract.mapping(schemas[key])
-            raw = schema(canonical(document))  # Supported, bounded, no external resolution.
-        except (CatalogError, TypeError, ValueError, RecursionError):
-            raise CatalogError("METHOD_SCHEMA_UNAVAILABLE") from None
-        try:
-            validate(raw, body["value"])
+            validate(raw_schema, body["value"])
             _lexical(document, body["value"])
         except (CatalogError, TypeError, ValueError, RecursionError):
             raise CatalogError("METHOD_SCHEMA_MISMATCH") from None
+    if unavailable:
+        raise CatalogError("METHOD_SCHEMA_UNAVAILABLE")
 
 
 def _predicates(
@@ -498,12 +537,19 @@ def check_execution(
         from omnis.modules.tasks.method_checker_identity import verify
 
         body = contract.mapping(checked_brief["payload"])
-        checked_checker = verify(
-            checker,
-            pin=contract.text(contract.mapping(prompt_bundle["payload"])["composer_revision"]),
-            receive_only=receive_only,
-            zero_predicates=body["done_when"] == [] and body["return_when"] == [],
-        )
+        checker_unavailable = False
+        checked_checker = contract.record(checker, "method-checker")
+        try:
+            checked_checker = verify(
+                checker,
+                pin=contract.text(contract.mapping(prompt_bundle["payload"])["composer_revision"]),
+                receive_only=receive_only,
+                zero_predicates=body["done_when"] == [] and body["return_when"] == [],
+            )
+        except CatalogError as error:
+            if error.reason != "METHOD_CHECKER_UNAVAILABLE":
+                raise
+            checker_unavailable = True
         contract.validate_assignment(
             checked_brief,
             bound,
@@ -572,7 +618,18 @@ def check_execution(
             or len(canonical(checked_execution)) > 32768
         ):
             raise CatalogError("METHOD_OUTPUT_LIMIT")
-        _schemas(original, artifacts, schemas)
+        _same(
+            contract.mapping(body["method_plan"])["requirements"],
+            contract.compile_method_plan(checked_bound, original),
+            CONFLICT,
+        )
+        schema_unavailable = False
+        try:
+            _schemas(original, artifacts, schemas, procedure)
+        except CatalogError as error:
+            if error.reason != "METHOD_SCHEMA_UNAVAILABLE":
+                raise
+            schema_unavailable = True
         try:
             checked_results = _results(
                 result, checked_brief, procedure, receipts, artifacts, original
@@ -590,28 +647,35 @@ def check_execution(
             prompt_bundle=prompt_bundle,
             composition_version=composition_version,
         )
+        complete = complete and all(contract.mapping(r)["state"] == "DONE" for r in checked_results)
         from omnis.modules.tasks.method_checker_identity import FULL_PREDICATE_HISTORICAL
 
         if (
             not complete
+            and not checker_unavailable
             and contract.mapping(checked_checker["payload"])["code_digest"]
             in FULL_PREDICATE_HISTORICAL
         ):
             raise CatalogError("METHOD_CHECKER_UNAVAILABLE")
+        uncertain = schema_unavailable or checker_unavailable
         return records.envelope(
             "method-check",
             {
                 "brief_ref": records.reference(checked_brief),
                 "task_result_ref": records.reference(result),
                 "checker_ref": records.reference(checked_checker),
-                "status": "COMPLETE" if complete else "INCOMPLETE",
+                "status": "UNKNOWN" if uncertain else "COMPLETE" if complete else "INCOMPLETE",
                 "checked_results": checked_results,
                 "gap_refs": [
                     contract.mapping(r)["ref"]
                     for r in checked_results
-                    if contract.mapping(r)["state"] != "DONE"
+                    if uncertain or contract.mapping(r)["state"] != "DONE"
                 ],
-                "reason": "Exact bound CONTRACT/PURE receipts and published requirements checked."
+                "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility."
+                if checker_unavailable
+                else "METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility."
+                if schema_unavailable
+                else "Exact bound CONTRACT/PURE receipts and published requirements checked."
                 if complete
                 else "Qualified early return; missing done predicates remain unexecuted.",
             },

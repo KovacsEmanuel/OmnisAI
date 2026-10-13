@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-APPLICABILITY-NORMATIVE-REREVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "SOURCE-only normative fixes for NORM-APPLICABILITY-F01/F02, their affected direct callers and exact historical no-oracle/checker reception compatibility on the frozen integrated 15-file snapshot. Explicit finding-by-finding adjudication, not approval inferred from an empty new findings list.",
+  "acceptance_status": "SOURCE_FIXES_APPROVED_REAL_QA_NOT_RUN_NOT_ACCEPTED",
+  "repository": "/home/kali/OmnisAI",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "product_base": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "snapshot": {
+    "count": 15,
+    "all_hashes_match_integrated_manifest_before_and_after_source_probes": true,
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-applicability-integrated-source.json",
+    "manifest_sha256": "1a2eb6c79ec237fc3d00d1083906e301b788fc0408c4b39b58c67e32e5bd4a9e",
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+      "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "staged_changes": false,
+    "candidate_committed": false,
+    "protected_untracked_html": "documents/Omnis_Notite_Originale.html preserved, not read or edited",
+    "reviewer_modified_repository_files": []
+  },
+  "input_reports": {
+    "/home/kali/.hermes/cache/scratch/p2-applicability-normative-review.json": "f610a2614105fbd5d0e29c0a9bc96c6834b0037fb0a1e22499fc0f8646e20db4",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-parent-fix-notes.json": "f41c9de356754eedf61e83c36c75f8b60a1daa60d093e93381ad6714c6bbec3b",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-schema-descriptor-fix.json": "cedc4a493e37dc901fef32a8b881f96d71d1ead4e12131c791e0942664fbaf92",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-fix.json": "8ec92910db4e178f45daa79c447e10edd99b63a8f6d05bd86a71ab6b11d43cba",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-security-review.json": "2eacbb28780ce203d8851d14eae98dc3841c42841b7d48ec2f2ccfca00305f43"
+  },
+  "normative_sources": [
+    "AGENTS.md implementation/review and read-only child rules",
+    "CONTRIBUTING.md:29-48",
+    "documents/Omnis_MVP_Architecture.md:739-754,766-770",
+    "documents/Omnis_Implementation_Plan.md:268-283",
+    "documents/verification/implementation-status.md:13,100-104,134",
+    "Existing trusted finite no-oracle rule source at HEAD/e6e91a661e89c3891b04eb72e4cf2dd4686572ac and 77c835d; original descriptor fields, supported statuses and outcome payloads compared directly with Git source"
+  ],
+  "original_findings_dispositions": [
+    {
+      "id": "NORM-APPLICABILITY-F01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_FIX_APPROVED_SCOPED_REAL_QA_PENDING",
+      "source_blocking_now": false,
+      "locations": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:203-283",
+        "api/src/omnis/modules/runs/managed_admission.py:675-706,1091-1107",
+        "api/tests/test_c10_bound_predicates.py:116-171",
+        "api/tests/test_contract_method_pg.py:469-493,979-1000,1305-1338"
+      ],
+      "adjudication": "The original same-channel two-criteria reproducer is GREEN. UNKNOWN is explicitly admitted only by the current no-oracle rule, returns exactly two allocated BLOCKED outcomes, preserves ORACLE_UNAVAILABLE and CONTROLS_UNAVAILABLE, adds METHOD_UNKNOWN and a bounded explicit uncertainty reason, and binds each outcome to the exact MethodCheck Ref. COMPLETE/INCOMPLETE controls preserve their prior gaps and reason. The existing transaction caller calls this fixed function without weakening atomic check/outcome storage; task state remains BLOCKED for UNKNOWN. Graph read validation invokes the same fixed function with explicit receive_only=True. No criteria omission or UNKNOWN relabeling remains in these affected SOURCE callers.",
+      "red_evidence": "Parent fix notes retain original UNKNOWN -> CRITERION_CHECK_REQUIRED RED: 1 failed, 2 passed, exit1; original independent report and parent reproduction remain historical.",
+      "green_evidence": "Reviewer executed test_incomplete_check_rule_is_blocked_not_functional_pass for COMPLETE, INCOMPLETE and UNKNOWN as part of the 36-test selection, exit0.",
+      "real_consumer_limit": "PG variant now allocates two criteria for UNKNOWN and substitutes missing qualification only at the first independent check; subsequent real schema reads must preserve UNKNOWN. This is a reviewed fixture change, not executed PG/native acceptance. Transaction durability and real readback/reconcile on final bytes remain NOT_RUN."
+    },
+    {
+      "id": "NORM-APPLICABILITY-F02",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_FIX_APPROVED_SCOPED_REAL_QA_PENDING",
+      "source_blocking_now": false,
+      "locations": [
+        "api/src/omnis/modules/runs/managed_admission.py:759-820,1082-1100",
+        "api/src/omnis/modules/tasks/method_checks.py:537-561,618-684",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:60-97",
+        "api/tests/test_c10_bound_predicates.py:470-566"
+      ],
+      "adjudication": "The original actual _result_check reproducer is GREEN: current first-check UNKNOWN caused by unavailable checker remains the exact canonical UNKNOWN payload with all three obligation gaps after retention. Checker-unavailable retained UNKNOWN explicitly disables the historical receive-only qualification branch. Schema-unavailable UNKNOWN also remains immutable after schema availability returns. Available schemas, bound input/plan, emitted records and native final/receipt chain are independently revalidated before retaining the exact recorded reason/gaps; duplicate prior checks, removed gaps and a non-string reason refuse RESULT_CONFLICT. Equality at enclosing graph/readback validation no longer fails from retrospective UNKNOWN -> COMPLETE promotion. Historical checks actually represented as COMPLETE/full and INCOMPLETE/partial remain exact receive-only positives; fresh old-checker use still returns UNKNOWN rather than acquiring success.",
+      "red_evidence": "Original independent report reproduces UNKNOWN/three gaps -> COMPLETE/no gaps in pure helper and actual _result_check. Parent fix notes retain 1 failed, 1 passed exit1 plus malformed-reason RED 2 failed, 6 passed exit1.",
+      "green_evidence": "Reviewer executed eight checker/schema retention and prior-tamper parameter cases in the 36-test selection. Additional direct-owner probes preserve new unavailable historical FULL and PARTIAL checks as UNKNOWN/three gaps, while retained historical FULL COMPLETE and PARTIAL INCOMPLETE reproduce exactly, all exit0.",
+      "real_consumer_limit": "SOURCE synthetic graph/schema/connection seam only. No live owner authentication, PostgreSQL persistence, native process, installed historical reader or restart execution was claimed."
+    },
+    {
+      "id": "SEC-APPLICABILITY-01",
+      "disposition": "NOT_INDEPENDENTLY_ADJUDICATED_BY_THIS_NORMATIVE_REREVIEW",
+      "note": "Original ID retained explicitly. Partial-schema accumulation and available-schema revalidation were traced only as an F02 dependency; child SOURCE fix report and integrated parent tests are evidence inputs, not this review's independent security approval. Complementary frozen-snapshot security reviewer/parent owns closure."
+    },
+    {
+      "id": "SEC-APPLICABILITY-02",
+      "disposition": "NOT_INDEPENDENTLY_ADJUDICATED_BY_THIS_NORMATIVE_REREVIEW",
+      "note": "Original ID retained explicitly. Exact checker descriptor validation was traced as an F02 dependency. Complementary security review owns its original malformed-descriptor reproducer and closure."
+    },
+    {
+      "id": "SEC-APPLICABILITY-03",
+      "disposition": "SAME_REPRODUCER_AS_NORM_APPLICABILITY_F01_CLOSED_SOURCE_SCOPED",
+      "note": "Allocated UNKNOWN caller covered directly above; no real-consumer acceptance transferred."
+    },
+    {
+      "id": "SEC-APPLICABILITY-04",
+      "disposition": "NOT_INDEPENDENTLY_ADJUDICATED_BY_THIS_NORMATIVE_REREVIEW",
+      "note": "Original fingerprint ID retained explicitly; corresponding child report reviewed as input only. No new compiler/evaluator security audit or qualification execution; complementary reviewer/parent owns closure."
+    }
+  ],
+  "history_preservation": {
+    "assessment": "APPROVED_SOURCE_SCOPED",
+    "current_rule_digest": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+    "historical_rule_descriptors": [
+      {
+        "revision": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+        "sha256_verified_from_git_source": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+        "supported_check_statuses": ["COMPLETE", "INCOMPLETE"],
+        "all_outcome_payload_bytes_equal_to_executed_old_source": true
+      },
+      {
+        "revision": "77c835d",
+        "sha256_verified_from_git_source": "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8",
+        "supported_check_statuses": ["COMPLETE"],
+        "all_outcome_payload_bytes_equal_to_executed_old_source": true
+      }
+    ],
+    "restrictions": [
+      "Only receive_only is True admits enumerated old no-oracle rule digests; ordinary first-check outcome generation refuses old rule identity.",
+      "Every other descriptor field must equal the current finite no-oracle descriptor canonically; five same-channel field mutations across both old digests were explicitly refused with CRITERION_RULE_UNAVAILABLE.",
+      "Historical rules retain original supported status sets: neither gains UNKNOWN, and 77c835d does not gain INCOMPLETE.",
+      "Historical checker identities remain composer/scope bound; old FULL cannot receive partial work as eligible, while old PARTIAL retains INCOMPLETE compatibility.",
+      "Recorded current UNKNOWN is not evidence of a historical success check and cannot retroactively qualify itself.",
+      "Original three PG/native FAIL attempts are not promoted or overwritten; their retained-resource readback is a parent-provided fact, not reexecuted here."
+    ],
+    "consumer_trace": "_verify_graph explicitly supplies receive_only=True to criterion assignment and exact expected-outcome reproduction; _check first publication uses the default fresh path. check_execution independently verifies receipts and actual plan, and the owner performs canonical equality with the immutable prior payload.",
+    "limit": "Old-source outcome comparison uses actual Git source executed in memory with only its self-file digest reader represented by the verified old digest. Historical checker records are synthetic SOURCE fixtures, not an installed old producer/reader or PG proof."
+  },
+  "finite_requirement_matrix": [
+    {
+      "criterion": "Single contract.records-nonempty applicability using actual original input",
+      "status": "SOURCE_PASS_SCOPED",
+      "evidence": "managed_contract.compile_method_plan and native prompt_bundle.method_plan derive APPLIES/NOT_APPLICABLE from the exact original input Ref/value; six compact/full expected true/false and empty/nonempty cases passed."
+    },
+    {
+      "criterion": "Retain every requirement and exact basis; UNKNOWN is not NA",
+      "status": "SOURCE_PASS_SCOPED",
+      "evidence": "Required flags remain [true,true,false], all three rows retained, NA carries exact original Ref with empty artifacts and explicit reason. Missing input yields compile UNKNOWN/no invented basis and actual assignment/checker refuses it; foreign/unsupported/duplicate condition controls passed."
+    },
+    {
+      "criterion": "Checker/schema qualification unavailable remains UNKNOWN with obligation gaps",
+      "status": "SOURCE_PASS_SCOPED",
+      "evidence": "Missing qualified input/operations/surface-map schema controls passed, each retains three gap refs; unavailable checker retains the original checked results and does not become NA or success."
+    },
+    {
+      "criterion": "Allocated UNKNOWN produces non-success outcomes at the existing caller",
+      "status": "SOURCE_PASS_SCOPED_REAL_PG_NOT_RUN",
+      "evidence": "F01 explicit disposition, three same-channel status controls, two exact criterion/check-bound outcomes and traced existing transaction/readback callers."
+    },
+    {
+      "criterion": "Retained UNKNOWN and historical success/incomplete checks remain immutable/readable",
+      "status": "SOURCE_PASS_SCOPED_INSTALLED_PG_NOT_RUN",
+      "evidence": "F02 explicit disposition, eight retention/tamper tests, four extra direct-owner current-vs-historical full/partial probes, three exact old-source outcome comparisons and ten descriptor denials."
+    },
+    {
+      "criterion": "Real final affected consumer QA and final snapshot acceptance",
+      "status": "NOT_RUN_NOT_ACCEPTED",
+      "evidence": "No authorized fourth PG/native attempt performed. Original three FAILs preserved; no independent native/PG acceptance on these final 15 hashes. Canonical and installed historical-reader proof remain separate."
+    },
+    {
+      "criterion": "General procedure preconditions, invalidation, evidence, optional-completion policy and other forms",
+      "status": "OUTSIDE_FEATURE_NOT_APPROVED",
+      "evidence": "Finite condition only; conservative INCOMPLETE/INCONCLUSIVE for NA is not claimed as the full normative optional-completion policy. Existing broader method gaps remain open."
+    }
+  ],
+  "verification": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py -k 'incomplete_check_rule or owner_retains_current_unknown or historical or applicability or missing_qualified_schema or owner_keeps_available_schemas' -q --tb=line",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "observed": "36 passed, 181 deselected in 3.93s",
+      "boundary": "Focused SOURCE tests only, explicitly synthetic native state, owner graph/schema and connection seams; real deterministic SOURCE run_contract/BoundContractTools records, no native process or DB."
+    },
+    {
+      "command_prefix": "api/.venv/bin/python -I -B -c",
+      "procedure": "Read criterion_checks.py from Git at e6e91a661e89c3891b04eb72e4cf2dd4686572ac and 77c835d; hash actual bytes; execute trusted old source in an in-memory module and bind its self-digest rule_payload to the verified historical digest. On criteria_graph with two criteria and identical otherwise-valid result/check refs, compare current receive_only outcomes canonically with old outcomes for old-supported statuses. Then use native_case over original historical composer with FULL/PARTIAL descriptor and actual ManagedAdmission._result_check over synthetic manifest/binding/emitted/final graph; retain first new UNKNOWN and compare exact payload, then separately retain supported historical check and compare exact payload.",
+      "exit_code": 0,
+      "asserted_cases": 7,
+      "observed": "Three historical rule payload comparisons equal; FULL and PARTIAL newly recorded UNKNOWN remain UNKNOWN/three gaps; retained FULL COMPLETE and PARTIAL INCOMPLETE remain equal.",
+      "boundary": "Only digest-read identity seam substituted for executing old rule source; SOURCE native producer with synthetic state, Mock AsyncEngine/AsyncConnection and in-memory schema reader; no SQL or process authentication."
+    },
+    {
+      "command_prefix": "api/.venv/bin/python -I -B -c",
+      "procedure": "For each verified historical rule digest, use criteria_graph with two criteria and a test-only rule_payload producer that changes exactly key, procedure_key, oracle_ref, control_step_ids or permitted_outcomes. Restore real rule_payload before invoking actual criterion_checks.validate_assignment(..., receive_only=True); require the exact CRITERION_RULE_UNAVAILABLE reason for every correctly resealed record/ref graph.",
+      "exit_code": 0,
+      "asserted_cases": 10,
+      "observed": "All five descriptor field mutations at each of two historical digests refused CRITERION_RULE_UNAVAILABLE.",
+      "boundary": "Same assignment-validation channel as valid historical descriptors; synthetic producer graph, not persisted data or PG."
+    },
+    {
+      "command": "git diff --check; git status --short --branch; git rev-parse HEAD; git diff --cached --stat; api/.venv/bin/python -I -B -c <SHA-256 comparisons against integrated manifest and Git rule source>",
+      "exit_code": 0,
+      "observed": "All 15 source hashes match the manifest before and after SOURCE tests and historical-owner probe; no staged changes or reviewer repo writes; diff check clean; HEAD unchanged."
+    }
+  ],
+  "issues_encountered": [
+    {
+      "status": "REVIEW_PROBE_HARNESS_FAIL_PRESERVED_NOT_PRODUCT_FINDING",
+      "command_prefix": "api/.venv/bin/python -I -B -c",
+      "exit_code": 1,
+      "observed": "Initial extra descriptor probe used unsupported candidate_store.envelope(identity=...) and failed TypeError before its descriptor/owner assertions. No product result credited from that invocation.",
+      "correction": "Read actual envelope signature; separated exact historical-owner comparison from proper synthetic-producer descriptor mutations. Corrected finite probes then returned exit0 with explicit 7 and 10 asserted cases; no product edits or weakened oracle."
+    }
+  ],
+  "new_findings": [],
+  "remaining_acceptance_blockers": [
+    "Independent final-byte affected native/PG QA with allocated UNKNOWN criteria and exact durable readback/reconcile is NOT_RUN. No fourth attempt before separate authorization.",
+    "Complementary frozen-snapshot security adjudication remains separate for SEC-APPLICABILITY-01/02/04; child fix reports and this normative approval do not substitute for it.",
+    "Installed historical-reader and new full canonical final remain NOT_RUN; SOURCE compatibility and parent wheel identity evidence do not prove them.",
+    "Parent owns final integration/adjudication, versioned finding dispositions and commits; this dirty snapshot is not a committed delivered slice."
+  ],
+  "limits": [
+    "No new general audit, SQL execution, PostgreSQL/Docker/native launch, provider/model/target traffic, remote/r1 activity, credential/secret reads, repository edits, staging, commits, skill writes or status-map reconciliation.",
+    "Source approval does not close P2/G02/B06b/P4a-minim, procedure-level general forms or other unreviewed requirements.",
+    "Original failed QA, uncertainty and prior scoped approvals remain at their own revisions; no retrospective PASS transfer.",
+    "Parent integrated 310 API SOURCE, 68 adapter SOURCE, mypy/ruff and offline wheel identity results were read as evidence inputs, not rerun or independently re-certified here.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no tool smoke.",
+    "Persist the adjudicated findings and limits in the existing versioned verification register before scratch expiry; parent-owned action, not performed by reviewer."
+  ],
+  "proposed_status_delta": {
+    "SL09_B06b_finite_applicability_fixes": {"code": "IMPLEMENTED_FINITE_SOURCE_UNCOMMITTED", "proof": "SOURCE_PASS_REAL_QA_NOT_RUN", "review": "APPROVED_SCOPED_NORMATIVE_ONLY"},
+    "G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED_NOT_RUN",
+    "next": "Parent adjudicates complementary exact-snapshot review, then separately authorized affected native/PG QA and integration gates; no approval to relaunch native from this report."
+  },
+  "created_files": ["/home/kali/.hermes/cache/scratch/p2-applicability-normative-rereview.json"],
+  "modified_repository_files": []
+}

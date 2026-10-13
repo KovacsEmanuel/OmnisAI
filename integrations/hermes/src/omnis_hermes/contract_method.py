@@ -234,7 +234,10 @@ def predicate_values(
         ]
         satisfied = len(matches) == 1 and len(outputs) == 1
         if satisfied:
-            receipt, artifact = mapping(matches[0]["payload"]), mapping(outputs[0]["payload"])
+            receipt, artifact = (
+                mapping(matches[0]["payload"]),
+                mapping(outputs[0]["payload"]),
+            )
             validate_value(OUTPUT_SCHEMAS[step_id], artifact["value"])
             satisfied = (
                 receipt["header"] == header
@@ -328,6 +331,19 @@ def task_result(
         outputs = [ref(a) for a in artifacts if mapping(a["payload"])["schema_ref"] in schemas]
         if mapping(original["payload"])["schema_ref"] in schemas:
             outputs.insert(0, ref(original))
+        if planned["applicability"] == "NOT_APPLICABLE":
+            rows.append(
+                dict(
+                    ref=planned["ref"],
+                    state="NOT_APPLICABLE",
+                    basis_refs=planned["applicability_basis_refs"],
+                    artifact_refs=[],
+                    reason="NOT_APPLICABLE: "
+                    + cast(str, requirement["key"])
+                    + " (bound input predicate).",
+                )
+            )
+            continue
         rows.append(
             dict(
                 ref=planned["ref"],

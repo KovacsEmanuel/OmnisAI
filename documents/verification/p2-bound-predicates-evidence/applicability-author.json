@@ -1,0 +1,377 @@
+{
+  "status": "FROZEN_CANDIDATE_BLOCKED_REAL_QA_NOT_ACCEPTED",
+  "base": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+  "started": "2026-10-13T05:57:03.412950+00:00",
+  "scope": "single installed contract.records-nonempty applies_if Precondition; known APPLIES/NOT_APPLICABLE with actual original refs; unavailable schema UNKNOWN",
+  "non_goals": [
+    "B06b closure",
+    "model/target",
+    "new owner/harness/input",
+    "historical record mutation"
+  ],
+  "checks": [
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-red.log",
+      "sha256": "a61ed417c1d3e858a48f4d08c3d44616f4045a343844ed28474dad6c705e00b7",
+      "summary": [
+        "6 failed, 92 deselected in 0.40s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-seam-red.log",
+      "sha256": "49a327b8cd3e6cacb22a68a79ba631c40d5543df50c8cd525ea5b2e719c8f5ef",
+      "summary": [
+        "6 failed, 92 deselected in 0.38s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-consumer-red.log",
+      "sha256": "f4ca7155c8d1c56cb9f77c3c599e74f7e1b3ed014c1499e0cce18203acfa2fa1",
+      "summary": [
+        "6 failed, 92 deselected in 0.49s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-original-unknown-red.log",
+      "sha256": "8ed6ee5ce7c8bdbb66ca328347ac265527e75c9092c7f96f7bf73ba1fd23a8a6",
+      "summary": [
+        "ORIGINAL_CONSUMER_RED: expected UNKNOWN with retained gaps, actual=METHOD_SCHEMA_UNAVAILABLE"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-na-final-red.log",
+      "sha256": "36b1d2357027a94fa2c081a3391ba701a0ebb06df7dd699f520cfcfe523de4d0",
+      "summary": [
+        "1 failed, 104 deselected in 0.42s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-na-final-red2.log",
+      "sha256": "09355710e1484d1a2ad3766e23c84903f1449f2a88ecc7e12eb1847989942182",
+      "summary": [
+        "1 failed, 104 deselected in 0.34s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-na-final-green.log",
+      "sha256": "e7c929574693769c38a7135c45ff58759c760ec1a4c6634334c72d67e5bb7c07",
+      "summary": [
+        "13 passed, 92 deselected in 1.46s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-source-frozen.log",
+      "sha256": "2b50762ddd78893539971379a1d50d146d69a137c0593273dc51c4f6b4404e5c",
+      "summary": [
+        "166 passed in 11.66s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-mypy-frozen.log",
+      "sha256": "ebdbbaf6654c58d94cca8e47bb9701e2b410772d4a0c32631e3f71b0eab642b3",
+      "summary": [
+        "Success: no issues found in 220 source files"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-native-contract-final.log",
+      "sha256": "2b7e8b2ae449b6a9ec7f847f7d8c164a310bea7adb339f428718282bfcfcca55",
+      "summary": [
+        "63 passed in 0.88s"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-native-mypy-final.log",
+      "sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a",
+      "summary": [
+        "Success: no issues found in 15 source files"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-lint-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-applicability-wheel-final.log",
+      "sha256": "979ad17a808ff413b3fa8ab86f437bfde6998ee0fe7c44ff7cf7a2713284fce1",
+      "summary": [
+        "Successfully built /home/kali/.hermes/cache/scratch/p2-applicability-wheel-final/omnis_hermes-0.1.0-py3-none-any.whl"
+      ]
+    }
+  ],
+  "remaining": [
+    "procedure-level preconditions/applicability/invalidation/evidence explicitly unsupported",
+    "criterion_checks UNKNOWN needs two-line dependent adaptation outside delegated allowlist: status enum line219 + gaps line239; UNKNOWN PG selected no allocation",
+    "installed distribution and full canonical not claimed"
+  ],
+  "pg_failed_attempt": {
+    "session": "proc_fdc7e9db4c36",
+    "gate": "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/gate.log",
+    "owner_log": "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner.log",
+    "actual_code": 1,
+    "shell_exit": 0,
+    "family_drained": true,
+    "tests": "3 failed, 17 deselected in 36.44s",
+    "cause": "producer resolve_local at managed_contract.py:308 rejected unbound CASE_SLOT_REF because mapping() returns copies; condition substitution had modified a temporary mapping only",
+    "fix": "reconstruct exact requirement/applies_if list with resolved bound input refs; no normalization/registry expansion/deadline changes"
+  },
+  "cleanup_failed_attempt": [
+    {
+      "fixture_root": "/home/kali/.hermes/cache/scratch/db-da38895b961845a3",
+      "observed_at": "2026-10-13T06:16:33.892907+00:00",
+      "same_daemon": true,
+      "exact_container_absent": true,
+      "project_containers_absent": true,
+      "project_networks_absent": true,
+      "uds_absent": true,
+      "pg18_data_retained": true,
+      "gate_log_retained": true,
+      "family_receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      }
+    }
+  ],
+  "snapshot": {
+    "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+    "product_base": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "91d8ec98bf7c6c66cb89bbf56ff2850aee0fda032d345e75f85ad2a05a0605bf",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "069ed634cb734b553ee9050405cae46005b1c8047e791268cbd9c5c2425986aa",
+      "api/src/omnis/modules/tasks/method_checks.py": "908d15b6e9a7dec89a2416f42f6f308155b6339e79fd546c0de662852f854164",
+      "api/tests/test_c10_bound_predicates.py": "11bc43f29bcc04db6563954795b8d1d435cf3b9a86d8520d429d36f3b223528b",
+      "api/tests/test_contract_method_checks.py": "984060f62c953ed03bc32fc1057df8bbc50202d3259dc9b8dde7dabc4f9a76c1",
+      "api/tests/test_contract_method_pg.py": "903445819e1cf5cf432171b8b46b1a43760723f0b9210b179931d78c8f71e40f",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "count": 12,
+    "commit": "NOT_COMMITTED_CHILD_PARENT_OWNS_INTEGRATION",
+    "review": "NOT_REVIEWED",
+    "protected_html_sha256": "783c5b8dc3f4c00b0e3d3267560bc9a5abedeb4fab44f96eb07718a545b9c79f"
+  },
+  "behavior_scope": {
+    "supported": "Single finite installed contract.records-nonempty Precondition in MethodRequirement.applies_if, exactly one bound records input, actual typed records-list length vs strict expected bool. No expression or import execution. Empty applies_if retains original APPLIES/empty basis behavior.",
+    "producer": "Catalog validates exact predicate/key/source slot, compiler resolves that exact slot to current input and emits every required and optional MethodPlan row with original RecordEnvelope Ref basis.",
+    "native": "Constructor preflight independently checks actual input/plan before effects; real read/PURE produces DONE with receipts or conservative NOT_APPLICABLE with backend basis and INCONCLUSIVE.",
+    "checker": "Independent receipt/schema/input eligibility check rejects foreign refs and false N/A; any N/A remains INCOMPLETE/non-success. Unavailable schema/checker yields UNKNOWN/all obligation gaps, not N/A.",
+    "readback": "Original plan/result retained. Schema-UNKNOWN receive-only replay retains original UNKNOWN without fetching/evaluating schema again; receipts and graph integrity still checked.",
+    "negative_subset": "Missing conditional input compiles UNKNOWN/no fake basis; assignment/native refuses unknown before access. Unknown predicate, duplicate condition, foreign ref/slot, wrong expected/on_missing refuse.",
+    "limitations": [
+      "procedure-level preconditions/applicability/invalidation/evidence explicitly unsupported",
+      "criterion_checks UNKNOWN needs two-line dependent adaptation outside delegated allowlist: status enum line219 + gaps line239; UNKNOWN PG selected no allocation",
+      "installed distribution and full canonical not claimed"
+    ]
+  },
+  "attempts": [
+    {
+      "label": "initial-slot",
+      "session": "proc_fdc7e9db4c36",
+      "owner_log": "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner.log",
+      "gate_log": "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/gate.log",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/gate.log.result.json",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "summary": [
+        "3 failed, 17 deselected in 36.44s"
+      ],
+      "locations": [
+        "api/src/omnis/modules/tasks/managed_contract.py:308"
+      ],
+      "cleanup": {
+        "observed_at": "2026-10-13T06:24:34.531514+00:00",
+        "same_daemon": true,
+        "exact_cid_absent": true,
+        "project_containers_absent": true,
+        "project_networks_absent": true,
+        "uds_absent": true,
+        "pg18_data_retained": true,
+        "logs_retained": true
+      },
+      "hashes": {
+        "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner.log": "e5d78c4ff7d70613b876074da47691a6235be2edd05a10bb579b9ee44093e1a4",
+        "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/gate.log": "3f6a4d31b64418629fd61787a433fe0c34226aaa3dd92c7dd3f430eccca5e44c",
+        "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/gate.log.result.json": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7",
+        "/home/kali/.hermes/cache/scratch/db-da38895b961845a3/fixture.json": "434c24ca958765213f3c29596067f849f6410b83e7d0906b179892f4b792619b"
+      },
+      "diagnosis": "producer resolve_local at managed_contract.py:308 rejected unbound CASE_SLOT_REF because mapping() returns copies; condition substitution had modified a temporary mapping only",
+      "attribution": "PRODUCT_AUTHOR_SLOT_BINDING_BUG; fixed reconstructing list, not mutating mapping() copy; no fixture/historical source changes"
+    },
+    {
+      "label": "slot-fixed",
+      "session": "proc_1a34e66eba55",
+      "owner_log": "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner-slot-fix.log",
+      "gate_log": "/home/kali/.hermes/cache/scratch/db-16df8925f6054470/gate.log",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-16df8925f6054470/gate.log.result.json",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "summary": [
+        "1 failed, 2 passed, 17 deselected in 80.15s (0:01:20)"
+      ],
+      "locations": [
+        "api/src/omnis/supervisor/native_tasks.py:105"
+      ],
+      "cleanup": {
+        "observed_at": "2026-10-13T06:24:34.692902+00:00",
+        "same_daemon": true,
+        "exact_cid_absent": true,
+        "project_containers_absent": true,
+        "project_networks_absent": true,
+        "uds_absent": true,
+        "pg18_data_retained": true,
+        "logs_retained": true
+      },
+      "hashes": {
+        "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner-slot-fix.log": "fc7f0af6603acaea2939076a6c63a6c139f47d8724c5a01f30244aa243f9f0b5",
+        "/home/kali/.hermes/cache/scratch/db-16df8925f6054470/gate.log": "c2461540de76697bd5ec2aab1050e34109e74b6f6749e8bf49c3b40e6af1969a",
+        "/home/kali/.hermes/cache/scratch/db-16df8925f6054470/gate.log.result.json": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7",
+        "/home/kali/.hermes/cache/scratch/db-16df8925f6054470/fixture.json": "19fd7f17404728ceea3835b0e6389df31b8cc3f90aa972b5bf0a70cd80c7fb30"
+      },
+      "diagnosis": "Only NOT_APPLICABLE failed TASK_INDETERMINATE at release. Narrow SOURCE reproduced exact native validate_response ValueError Invalid CONTRACT records for genuine full 6-record INCONCLUSIVE output; API final had same 4-record-only assumption.",
+      "attribution": "PRODUCT_NATIVE_AND_API_WIRE_CARDINALITY; minimal 4/6 record support fixed and SOURCE GREEN; APPLIES and schema UNKNOWN passed this actual run at its prior snapshot, no final acceptance transfer"
+    },
+    {
+      "label": "na-wire-fixed",
+      "session": "proc_54e40c407d82",
+      "owner_log": "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner-na-final.log",
+      "gate_log": "/home/kali/.hermes/cache/scratch/db-c5b9f748e0c04bc7/gate.log",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/db-c5b9f748e0c04bc7/gate.log.result.json",
+      "receipt": {
+        "schema_version": 1,
+        "code": 1,
+        "family_drained": true
+      },
+      "summary": [
+        "1 failed, 19 deselected in 27.98s"
+      ],
+      "locations": [
+        "api/tests/test_contract_method_pg.py:1739"
+      ],
+      "cleanup": {
+        "observed_at": "2026-10-13T06:24:34.838368+00:00",
+        "same_daemon": true,
+        "exact_cid_absent": true,
+        "project_containers_absent": true,
+        "project_networks_absent": true,
+        "uds_absent": true,
+        "pg18_data_retained": true,
+        "logs_retained": true
+      },
+      "hashes": {
+        "/home/kali/.hermes/cache/scratch/p2-applicability-pg-owner-na-final.log": "11ce8b8a21dffb038046651cfadc82201cd1cf653c9e806f20696b97717298b6",
+        "/home/kali/.hermes/cache/scratch/db-c5b9f748e0c04bc7/gate.log": "de5ea9729f8000647f72ee3c220be1b2de18dd1eeb87772939d25f5a22962d45",
+        "/home/kali/.hermes/cache/scratch/db-c5b9f748e0c04bc7/gate.log.result.json": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7",
+        "/home/kali/.hermes/cache/scratch/db-c5b9f748e0c04bc7/fixture.json": "7fdee65dc6aaa880d08107e8d9931859804b1cf90f2579028a7853d4095722a6"
+      },
+      "diagnosis": "Reached persistence/MethodCheck INCOMPLETE/BLOCKED, readback/reconcile/replay/post-Stop/restarted CLI assertions, real native read1/PURE2 and cleanup; final test oracle line1739 still expected native-release SUCCEEDED whenever early_return=False, despite genuine INCONCLUSIVE for known N/A.",
+      "attribution": "TEST_ASSERTION_EXPECTATION; observed status INCONCLUSIVE is correct. Minimal assertion fix includes applicability==not-applicable. BOOTSTRAP/sys.monitoring unchanged. NO FOURTH PG ATTEMPT by parent instruction."
+    }
+  ],
+  "verification_commands": {
+    "source_frozen": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_assignment_compact.py -q --tb=line",
+    "source_exit": 0,
+    "mypy_frozen": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src api/tests",
+    "mypy_exit": 0,
+    "native_mypy": "env -u PYTHONPATH MYPYPATH=api/src api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src",
+    "native_mypy_exit": 0,
+    "ruff": "ruff format --config api/pyproject.toml --check and ruff check --config api/pyproject.toml --no-fix exact 12 changed Python paths",
+    "ruff_exit": 0,
+    "native_source_exit": 0,
+    "diff_check_exit": 0,
+    "PG": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py applicability (first/second); not-applicable (third)",
+    "PG_ALL_THREE_CODE": 1,
+    "native_category": "SOURCE_HOST_NOT_INSTALLED / document preparation prerequisite double / real AIAgent+owner+PG UDS no-network, no model or target",
+    "canonical": "NOT_RUN_PARENT_INTEGRATION_BOUNDARY"
+  },
+  "distribution": {
+    "composer": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "composer_source_sha256": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "checker_previous_partial_receive_only_identity_preserved": "36738cfb... exact old composer4a3606...; no historical record mutation",
+    "native_overlay_inventory_count": 15,
+    "native_overlay_hashes_match": true,
+    "overlay_patch_pin_manifest_bytes_unchanged": true,
+    "wheel_path": "/home/kali/.hermes/cache/scratch/p2-applicability-wheel-final/omnis_hermes-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "4867d4f2c5112c7e3370226ae2eee96c36c15254f0aa3889b64fcf1c642995bb",
+    "wheel_module_count": 15,
+    "wheel_source_match": true,
+    "wheel_build_exit": 0,
+    "installed_native": "NOT_RUN"
+  },
+  "owned_native_proofs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati2/method-history-proof.json",
+      "sha256": "7345cc03461f429dc8903a1f3c1e936b4773f2001619d9b62aac83e5b1d46284",
+      "status": "PASS_SOURCE_NOT_INSTALLED",
+      "applicability": "unknown",
+      "native_cleanup": "PASS",
+      "native_endpoint_absent": true,
+      "native_owned_pids": [],
+      "reader_count": 4,
+      "reader_pids_absent": true,
+      "observer_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati2/native-observation.jsonl"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati1/method-history-proof.json",
+      "sha256": "040e02bccf852e5ea8d680e5bbe0055106d3b02423ace2592ebe0a10a9701d79",
+      "status": null,
+      "applicability": null,
+      "native_cleanup": "PASS",
+      "native_endpoint_absent": true,
+      "native_owned_pids": [],
+      "reader_count": 0,
+      "reader_pids_absent": true,
+      "observer_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati1/native-observation.jsonl"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "30fa25a3166c0799d8be7461ba00b23dbc62de926a7586949c5a02d28a2f51bc",
+      "status": "PASS_SOURCE_NOT_INSTALLED",
+      "applicability": "applies",
+      "native_cleanup": "PASS",
+      "native_endpoint_absent": true,
+      "native_owned_pids": [],
+      "reader_count": 4,
+      "reader_pids_absent": true,
+      "observer_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-335/test_contract_method_real_nati0/native-observation.jsonl"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-336/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "ac6a9ee7484cef1e4d983b1bf7af83b57c0cf93a6aa3de705297411b4b449288",
+      "status": null,
+      "applicability": "not-applicable",
+      "native_cleanup": "PASS",
+      "native_endpoint_absent": true,
+      "native_owned_pids": [],
+      "reader_count": 4,
+      "reader_pids_absent": true,
+      "observer_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-336/test_contract_method_real_naticurrent/native-observation.jsonl"
+    }
+  ],
+  "test_observer_bootstrap_unchanged": true,
+  "completed_at": "2026-10-13T06:24:34.916802+00:00",
+  "next": "Parent exact-byte complementary review of 12-file candidate, permit/minimal criterion_checks UNKNOWN adaptation if desired, then fresh affected NOT_APPLICABLE native/PG QA on corrected test expectation. No acceptance/P2/P4a done.",
+  "ad_hoc_verification": {
+    "classification": "AD_HOC_SOURCE_ONLY_NOT_SUITE_GREEN",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/hermes-verify-hx4yja9e/hermes-verify-applicability.py",
+    "exit_code": 0,
+    "output": "AD_HOC_SOURCE_PASS: four applicability/unknown controls; no PG/model/target; not suite acceptance",
+    "script_sha256": "c5fa85d70f147e26a7ff9526ce090f2743962fb6e39ee46cbcd1f929e4eb8393",
+    "script_cleaned": true,
+    "directory_cleaned": true,
+    "observed_at": "2026-10-13T06:26:08.540660+00:00"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_FIXES_IN_PROGRESS_NOT_ACCEPTED",
+  "base_head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "review_inputs": [
+    "/home/kali/.hermes/cache/scratch/p2-applicability-normative-review.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-security-review.json"
+  ],
+  "parent_reproductions": {
+    "security_original": {"command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py", "exit": 0, "cases": 9, "interpretation": "Confirmed reported defects; not acceptance"},
+    "historical_checker": "Original SOURCE first check UNKNOWN/three gaps -> receive_only COMPLETE/no gaps, differing payloads. No DB/native process asserted."
+  },
+  "parent_changes": [
+    "NORM-APPLICABILITY-F01 / SEC-APPLICABILITY-03: allocated UNKNOWN produces exactly allocated BLOCKED outcomes, METHOD_UNKNOWN gap and bounded explicit uncertainty reason; COMPLETE and INCOMPLETE behavior preserved.",
+    "NORM-APPLICABILITY-F02: owner independently revalidates receipts/input/all available schemas but retains exact prior UNKNOWN/recorded reason/all obligation gaps, refusing altered or duplicate prior checks. No historical promotion from a newly recorded UNKNOWN.",
+    "SEC-APPLICABILITY-01 owner half: _method_schemas preserves later available documents after a missing lookup/package/path; ambiguous material refuses. Checker half owned by child separately.",
+    "Historical no-oracle descriptors: exact hashes from e6e91a6 (df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b) and 77c835d (30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8) admitted only on explicitly receive-only validation, with descriptor equality and original supported status sets. Old code does not gain UNKNOWN or fresh qualification. These are SOURCE compatibility controls, not installed historical-reader evidence.",
+    "Existing PG UNKNOWN variant now allocates two criteria and injects missing qualification on only the first independent check; subsequent real schema readback must keep the recorded UNKNOWN. Existing runner/consumer/bootstrap retained. Native/PG final NOT_RUN."
+  ],
+  "source_red_green": [
+    {"selection": "incomplete_check_rule", "red": "1 failed, 2 passed; CRITERION_CHECK_REQUIRED on UNKNOWN", "red_exit": 1, "green": "3 passed", "green_exit": 0},
+    {"selection": "owner_retains_current_unknown", "red": "1 failed, 1 passed; checker UNKNOWN payload promoted on receive-only", "red_exit": 1, "green": "9 passed combined retention/outcome/historical selection", "green_exit": 0},
+    {"selection": "historical_no_oracle", "red": "3 failed; missing receive_only seam after old digest refusal positive", "red_exit": 1, "green": "12 passed combined historical/outcome/owner selection", "green_exit": 0},
+    {"selection": "owner_retains_current_unknown with prior tampering", "red": "2 failed, 6 passed; reason-list TypeError", "red_exit": 1, "green": "18 passed combined selection after exact string guard", "green_exit": 0},
+    {"selection": "owner_keeps_available_schemas", "red": "1 failed; METHOD_SCHEMA_UNAVAILABLE before later available schemas", "red_exit": 1, "green": "19 passed combined selection", "green_exit": 0}
+  ],
+  "latest_parent_checks": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_c04_criteria.py -q --tb=line",
+    "exit": 0,
+    "observed": "81 passed in 6.69s",
+    "ruff_format": "4 parent-owned files formatted",
+    "ruff_check": "All checks passed, exit0",
+    "collection": "3/20 applicability PG cases collected, 17 deselected; no real execution",
+    "git_diff_check": "exit0",
+    "limit": "Parallel child edits may affect dependency fingerprint closure; integrated frozen affected checks still required after all writers settle."
+  },
+  "parallel_children": {
+    "delegation": "deleg_6ca33e10",
+    "schema_descriptor": "method_checks.py/method_checker_identity.py/test_contract_method_checks.py only",
+    "fingerprint": "candidate_catalog.py and discovered existing fingerprint test only"
+  },
+  "remaining": [
+    "Read back children reports after completion; freeze final integrated snapshot and run affected checks.",
+    "Focused complementary re-review must adjudicate all original findings; SOURCE corrections are not acceptance.",
+    "Independent real affected native/PG execution with own fresh fixture/family/cleanup remains NOT_RUN on final bytes.",
+    "Original three PG FAIL records remain preserved and exact retired resources/data retention verified by parent.",
+    "P2-inert acceptance, canonical final, installed historical reader and P4a-minim remain NOT_RUN/NOT_CLOSED. No live/provider/target authorization."
+  ]
+}

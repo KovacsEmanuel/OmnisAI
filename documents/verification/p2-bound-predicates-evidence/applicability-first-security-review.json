@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "review": "independent-security-input-failure-distribution",
+  "verdict": "CHANGES_REQUESTED",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "product_base": "e6e91a661e89c3891b04eb72e4cf2dd4686572ac",
+  "author_report_sha256": "c4bcd87b832e66e21c30d783b69353afba6d493c8ae029051342f627376db103",
+  "scope": "Exact frozen 12 candidate files and direct consumers only; SOURCE and artifact identity review; no PG/native runtime/provider/network/model/credentials/profile/repository writes.",
+  "candidate_count": 12,
+  "hashes": {
+    "api/src/omnis/modules/runs/managed_admission.py": "91d8ec98bf7c6c66cb89bbf56ff2850aee0fda032d345e75f85ad2a05a0605bf",
+    "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+    "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+    "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+    "api/src/omnis/modules/tasks/method_checker_identity.py": "069ed634cb734b553ee9050405cae46005b1c8047e791268cbd9c5c2425986aa",
+    "api/src/omnis/modules/tasks/method_checks.py": "908d15b6e9a7dec89a2416f42f6f308155b6339e79fd546c0de662852f854164",
+    "api/tests/test_c10_bound_predicates.py": "11bc43f29bcc04db6563954795b8d1d435cf3b9a86d8520d429d36f3b223528b",
+    "api/tests/test_contract_method_checks.py": "984060f62c953ed03bc32fc1057df8bbc50202d3259dc9b8dde7dabc4f9a76c1",
+    "api/tests/test_contract_method_pg.py": "903445819e1cf5cf432171b8b46b1a43760723f0b9210b179931d78c8f71e40f",
+    "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+    "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "api/src/omnis/modules/settings/candidate_catalog.py": "b1278662e63311142be9e9dc96c491fe9ff5c03a8f6554c64fb5d4fb54eb5e2d",
+    "api/src/omnis/modules/tasks/criterion_checks.py": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b"
+  },
+  "frozen_matches": true,
+  "reproducer_sha256": "34c110789bdc0561dabb4d77c0a11e16502ea8a736bd2604beacdbd1241c6cb1",
+  "reproducer": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py",
+    "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py",
+    "exit": 0,
+    "classification": "SOURCE_SYNTHETIC_RECORDS_REAL_NATIVE_FINITE_PRODUCER_NOT_CONSTRUCTOR_OR_AUTHENTICATION_QA",
+    "cases": 9
+  },
+  "findings": [
+    {
+      "id": "SEC-APPLICABILITY-01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "title": "Schema unavailability short-circuits known invalid artifact validation",
+      "locations": [
+        "api/src/omnis/modules/tasks/method_checks.py:422-438",
+        "api/src/omnis/modules/tasks/method_checks.py:601-607",
+        "api/src/omnis/modules/runs/managed_admission.py:767-776"
+      ],
+      "repro_case": "invalid-output-with-missing-input-schema",
+      "actual": "Resealed operations=\"not-an-array\" refuses METHOD_SCHEMA_MISMATCH with all qualified schemas. Delete only the input schema; identical malformed operations output now produces UNKNOWN/all three gaps rather than refusing. Valid output with missing input schema produces UNKNOWN as intended.",
+      "impact": "UNKNOWN fallback bypasses validation of later artifacts whose schemas remain available; malformed execution is represented as an eligible UNKNOWN check, not a contract/schema error. No COMPLETE or N/A escalation demonstrated. Owner also discards all schema documents on its first unavailable schema.",
+      "requirement": "Invalid schema/value/identity must remain refusal; unavailable qualification may produce UNKNOWN, but must not mask a separately decidable mismatch.",
+      "remedy": "Accumulate unavailable qualification per item, continue validating every available schema/value, prioritize any mismatch refusal. Preserve partial schema material in the owner instead of replacing it wholesale with {}. Add mixed missing+invalid negative in both orders."
+    },
+    {
+      "id": "SEC-APPLICABILITY-02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "title": "Malformed checker descriptors are normalized to unavailable UNKNOWN",
+      "locations": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:65-68",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:90",
+        "api/src/omnis/modules/tasks/method_checks.py:515-527"
+      ],
+      "repro_case": [
+        "malformed-checker-semantics-bool",
+        "malformed-checker-semantics-dict",
+        "malformed-checker-code_digest-str"
+      ],
+      "actual": "Current descriptor changed only to semantics=false, semantics={unexpected:object}, or code_digest=\"not-a-sha256\" each yields UNKNOWN, METHOD_CHECKER_UNAVAILABLE and three gaps.",
+      "impact": "The new catch widens well-formed unavailable identity handling to schema/type-invalid descriptors. No COMPLETE escalation demonstrated.",
+      "requirement": "Strict checker identity/schema validation must precede the unavailable fallback; SHA identifier syntax and semantic text type must not be repaired/treated as missing eligibility.",
+      "remedy": "Validate exact descriptor field types, digest syntax/length and bounded semantic text before identity lookup. Use a distinct malformed-descriptor error not caught as METHOD_CHECKER_UNAVAILABLE; preserve UNKNOWN for well-formed unknown identities."
+    },
+    {
+      "id": "SEC-APPLICABILITY-03",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "known_author_limit": true,
+      "title": "Allocated criterion consumer still rejects UNKNOWN and rolls back check publication",
+      "locations": [
+        "api/src/omnis/modules/tasks/criterion_checks.py:219",
+        "api/src/omnis/modules/tasks/criterion_checks.py:239",
+        "api/src/omnis/modules/runs/managed_admission.py:681-686"
+      ],
+      "repro_case": [
+        "allocated-criteria-INCOMPLETE",
+        "allocated-criteria-UNKNOWN"
+      ],
+      "actual": "Same otherwise-valid two-criterion fixture produces two BLOCKED outcomes and METHOD_INCOMPLETE gaps for INCOMPLETE; UNKNOWN refuses CRITERION_CHECK_REQUIRED.",
+      "impact": "_check stores the new check and then calls this consumer within one transaction. With allocated criteria UNKNOWN cannot settle a check/outcome/inbox; native UNKNOWN author QA intentionally selected no allocation. This is a confirmed direct-consumer integration gap, not false success.",
+      "requirement": "New UNKNOWN result must propagate conservatively through existing allocated outcomes and remain non-successful.",
+      "remedy": "Permit UNKNOWN at this direct consumer, include explicit method uncertainty gap and retain BLOCKED/no PASS; add allocation-bearing SOURCE and affected native/PG consumer QA. No change to observer/guard/deadlines."
+    },
+    {
+      "id": "SEC-APPLICABILITY-04",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "title": "New catalog applicability behavior is outside compiler/evaluator fingerprint closure",
+      "locations": [
+        "api/src/omnis/modules/settings/skill_catalog.py:517-519",
+        "api/src/omnis/modules/settings/candidate_catalog.py:45-56",
+        "api/src/omnis/modules/settings/candidate_catalog.py:59-71"
+      ],
+      "repro_case": "compiler-fingerprint-virtual-applicability-source-change",
+      "actual": "_compile_catalog newly invokes tasks.managed_contract.requirement_conditions, but BEHAVIOR_FILES omits tasks/managed_contract.py. The real behavior_revision called with a virtual reader that changes only that source returns identical compiler identity and never reads the changed module (0 reads). No repository bytes changed.",
+      "impact": "Two distributions differing in the trusted applicability validator can share COMPILER_REVISION/EVALUATOR_REVISION and thus qualification identity. Checker closure includes the file, but does not repair candidate compilation/evaluation closure.",
+      "requirement": "Fingerprint closure must cover executable trusted compiler/evaluator behavior used for qualification/publication.",
+      "remedy": "Extend candidate behavior closure to include the newly invoked validator and its trusted transitive behavior dependencies, or move this finite validation into an already-hashed shared module. Add behavioral dependency closure regression and reconcile newly minted qualification identities; do not silently promote historical records."
+    }
+  ],
+  "verified": [
+    {
+      "gate": "source frozen exact command from author verification_commands.source_frozen",
+      "exit": 0,
+      "result": "166 passed in 12.01s"
+    },
+    {
+      "gate": "native adapter SOURCE test_contract_method.py + test_prompt_bundle.py + test_managed_composition.py with explicit sys.path, pytest_asyncio.plugin, no cacheprovider and -I -B",
+      "exit": 0,
+      "result": "68 passed in 0.93s",
+      "limit": "No native AIAgent boot/installed QA; wider selection than reported 63."
+    },
+    {
+      "gate": "API mypy no-incremental",
+      "exit": 0,
+      "result": "220 source files, no issues"
+    },
+    {
+      "gate": "adapter mypy no-incremental MYPYPATH=api/src",
+      "exit": 0,
+      "result": "15 source files, no issues"
+    },
+    {
+      "gate": "git diff --check",
+      "exit": 0
+    },
+    {
+      "gate": "distribution identity",
+      "exit": 0,
+      "wheel_sha256": "4867d4f2c5112c7e3370226ae2eee96c36c15254f0aa3889b64fcf1c642995bb",
+      "wheel_modules": 15,
+      "all_wheel_modules_equal_source": true,
+      "native_overlay_inventory": 15,
+      "all_overlay_manifest_hashes_equal_source": true,
+      "pin_patch_hash_match": true,
+      "pin_manifest_hash_match": true,
+      "installed": "NOT_RUN",
+      "patch_reapply": "NOT_RUN_UNCHANGED_SOURCE"
+    },
+    {
+      "gate": "final scope hash readback",
+      "all_12_match_author": true,
+      "protected_preexisting_html_match": true
+    }
+  ],
+  "reviewer_command_failures": [
+    {
+      "exit": 2,
+      "reason": "Initial adapter SOURCE command lacked explicit src path; 3 collection ModuleNotFoundError errors, corrected without installation."
+    },
+    {
+      "exit": 1,
+      "reason": "Next adapter SOURCE command lacked asyncio plugin: 67 passed/1 async test failed; corrected command 68 passed."
+    }
+  ],
+  "nonfinding_review": {
+    "conditions": "Exact finite predicate/input ref, strict bool, cardinality and missing policy checked on producer/native/checker; source tests cover foreign/duplicate conditions and missing input UNKNOWN refusal.",
+    "basis": "Producer compiles every obligation with immutable original ref; native independent actual input-plan equality is invoked from existing constructor-owned assignment preflight before identity allocation.",
+    "readback": "Existing graph context/ownership/ref checks and raw result equality remain. Schema-UNKNOWN retention is receive-only; prior check payload must match regenerated payload. No history promotion or execution call newly introduced in changed readback path found statically; no fresh live no-rerun proof claimed.",
+    "wire": "4/6 INCONCLUSIVE cardinality keeps ordering, duplicate-ID, lineage and receipt checks; current SOURCE positives pass."
+  },
+  "limits": {
+    "PG": "NOT_RUN_BY_REVIEWER; author three exit1 failed attempts preserved; NOT_APPLICABLE final native/PG scenario still NOT_RUN after assertion repair",
+    "installed_native": "QA_NOT_RUN",
+    "canonical": "NOT_RUN",
+    "P2_G02_B06b": "PARTIAL_NOT_CLOSED",
+    "historical_qa": "No historical PASS transferred; observer/sys.monitoring/guard criteria unchanged",
+    "security_claim": "No authority/effect escalation reproduced; findings concern strict-input refusal, integrity closure and UNKNOWN integration."
+  },
+  "writes": [
+    "/home/kali/.hermes/cache/scratch/p2-applicability-security-repro.py",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-security-review.json"
+  ],
+  "repository_modified_by_reviewer": false,
+  "skill_update": "NOT_APPLICABLE_READ_ONLY_CONTRACT_PARENT_OWNS_RECONCILIATION"
+}

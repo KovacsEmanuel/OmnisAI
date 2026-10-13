@@ -19,8 +19,9 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy import text as sql
+from sqlalchemy.ext.asyncio import AsyncConnection
 
-from fixtures.b06b_publication.consumer import canonical, mapping, sequence, sha
+from fixtures.b06b_publication.consumer import Seed, canonical, mapping, sequence, sha
 from fixtures.b06b_pure_probe.consumer import Probe
 from fixtures.c03_journey import publish_capture
 from fixtures.c03_records import qualify_records
@@ -468,15 +469,18 @@ class PreparationPrerequisite(RuntimeClient):
     reason="Explicit pinned native SOURCE consumer QA; not default unit/installed evidence",
 )
 @pytest.mark.parametrize(
-    "first_final_after_stop,with_criteria,lost_reply,legacy_criteria,early_return",
+    "first_final_after_stop,with_criteria,lost_reply,legacy_criteria,early_return,applicability",
     [
-        (False, False, False, False, False),
-        (False, True, False, False, False),
-        (False, True, False, True, False),
-        (True, True, False, False, False),
-        (False, True, True, False, False),
-        (True, True, True, False, False),
-        (False, True, False, False, True),
+        (False, False, False, False, False, None),
+        (False, True, False, False, False, None),
+        (False, True, False, True, False, None),
+        (True, True, False, False, False, None),
+        (False, True, True, False, False, None),
+        (True, True, True, False, False, None),
+        (False, True, False, False, True, None),
+        (False, True, False, False, False, "applies"),
+        (False, True, False, False, False, "not-applicable"),
+        (False, True, False, False, False, "unknown"),
     ],
     ids=[
         "support-zero",
@@ -486,6 +490,9 @@ class PreparationPrerequisite(RuntimeClient):
         "lost-reply",
         "lost-reply-post-stop",
         "qualified-early-return",
+        "applicability-applies",
+        "applicability-not-applicable",
+        "applicability-unknown",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -497,6 +504,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     lost_reply: bool,
     legacy_criteria: bool,
     early_return: bool,
+    applicability: str | None,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
@@ -511,6 +519,30 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert python.is_file(), "PINNED_PYTHON_REQUIRED"
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
+    if applicability is not None:
+        import yaml
+
+        from fixtures import c03_records
+        from omnis.modules.settings.catalog_schema import load_yaml
+
+        actual_seed = c03_records.records_seed
+
+        def conditional_seed(directory: Path) -> Seed:
+            seed = actual_seed(directory)
+            path = seed.package / "templates/procedures/map-records.yaml"
+            authored = mapping(load_yaml(path.read_bytes()))
+            mapping(sequence(authored["method_requirements"])[1])["applies_if"] = [
+                {
+                    "predicate_id": "contract.records-nonempty",
+                    "input_refs": [{"kind": "CASE_SLOT_REF", "name": "records"}],
+                    "expected": True,
+                    "on_missing": "INCONCLUSIVE",
+                }
+            ]
+            path.write_text(yaml.safe_dump(authored, sort_keys=False))
+            return seed
+
+        monkeypatch.setattr(c03_records, "records_seed", conditional_seed)
     qualified, evaluation = qualify_records(tmp_path / "qualified", dsn)
     seed = qualified.seed
     _, snapshot = publish_capture(qualified, dsn)
@@ -665,7 +697,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 selection_ref=selected["selection_ref"],
                 preparation_command_id=preparation.command_id,
             )
-            if with_criteria and not legacy_criteria:
+            if applicability is not None or (with_criteria and not legacy_criteria):
                 context = await inputs.create_method_context(context_request)
             else:
                 from omnis.modules.tasks import managed_composition
@@ -691,6 +723,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     {"method": "GET", "path": "/pure-a", "status": 200},
                 ]
             }
+            if applicability == "not-applicable":
+                value = {"records": []}
             input_request = seed.write(
                 schema_version=2, context_ref=context["context_ref"], input=value
             )
@@ -945,6 +979,25 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 # Release immediately after committed stage: the native 4.5s
                 # deadline is unchanged. No readback/negative between the two.
                 # Fail closed: no direct-native rescue or fabricated final.
+                if applicability == "unknown":
+                    qualified_schemas = domain._method_schemas
+                    unavailable_checks = 0
+
+                    async def unavailable_schema(
+                        conn: AsyncConnection,
+                        owner: str,
+                        run_record: dict[str, object],
+                        bound: dict[str, object],
+                    ) -> dict[str, dict[str, object]]:
+                        nonlocal unavailable_checks
+                        unavailable_checks += 1
+                        if unavailable_checks == 1:
+                            # Controlled qualification unavailability only on
+                            # the first independent check, never a fake result.
+                            return {}
+                        return await qualified_schemas(conn, owner, run_record, bound)
+
+                    monkeypatch.setattr(domain, "_method_schemas", unavailable_schema)
                 original_ingest = domain.ingest_result
                 seam_calls = 0
 
@@ -1235,21 +1288,38 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
                         )
                 assert seam_calls == int(first_final_after_stop and not lost_reply)
-                assert released["task_status"] == ("BLOCKED" if early_return else "SUCCEEDED")
+                assert released["task_status"] == (
+                    "BLOCKED"
+                    if early_return or applicability in {"not-applicable", "unknown"}
+                    else "SUCCEEDED"
+                )
                 assert released["binding_ref"] == staged["binding_ref"]
                 back_request = seed.request(command_id=assignment["command_id"])
                 back = await domain.readback(back_request)
                 binding = mapping(back["binding"])
                 assert mapping(mapping(binding["payload"])["authority"])["owner"] == str(supervisor)
                 assert mapping(binding["payload"])["runtime_boot"] == runtime.boot
-                assert back["status"] == ("BLOCKED" if early_return else "SUCCEEDED")
+                assert back["status"] == (
+                    "BLOCKED"
+                    if early_return or applicability in {"not-applicable", "unknown"}
+                    else "SUCCEEDED"
+                )
                 if with_criteria:
                     outcomes = [mapping(o) for o in sequence(back["criterion_outcomes"])]
                     assert len(outcomes) == 2
                     payloads = [mapping(o["payload"]) for o in outcomes]
                     from omnis.modules.tasks.criterion_checks import REASON
 
-                    assert all(p["reason"] == REASON for p in payloads)
+                    assert all(
+                        p["reason"]
+                        == REASON
+                        + (
+                            " MethodCheck is UNKNOWN; method eligibility remains unestablished."
+                            if applicability == "unknown"
+                            else ""
+                        )
+                        for p in payloads
+                    )
                     assert {p["criterion_id"] for p in payloads} == set(criterion_ids)
                     assert all(
                         p["outcome"] == "BLOCKED"
@@ -1257,7 +1327,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         == [
                             "ORACLE_UNAVAILABLE",
                             "CONTROLS_UNAVAILABLE",
-                            *(["METHOD_INCOMPLETE"] if early_return else []),
+                            *(
+                                ["METHOD_UNKNOWN"]
+                                if applicability == "unknown"
+                                else ["METHOD_INCOMPLETE"]
+                                if early_return or applicability == "not-applicable"
+                                else []
+                            ),
                         ]
                         for p in payloads
                     )
@@ -1290,7 +1366,35 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 assert mapping(ordered[0]["payload"])["output_ref"] == original["input_ref"]
                 checks = [mapping(r) for r in sequence(back["checks"])]
-                expected_check = "INCOMPLETE" if early_return else "COMPLETE"
+                expected_check = (
+                    "UNKNOWN"
+                    if applicability == "unknown"
+                    else "INCOMPLETE"
+                    if early_return or applicability == "not-applicable"
+                    else "COMPLETE"
+                )
+                if applicability is not None:
+                    plan = mapping(mapping(sequence(back["briefs"])[0])["payload"])["method_plan"]
+                    planned = [mapping(r) for r in sequence(mapping(plan)["requirements"])]
+                    assert [r["required"] for r in planned] == [True, True, False]
+                    assert planned[1]["applicability"] == (
+                        "NOT_APPLICABLE" if applicability == "not-applicable" else "APPLIES"
+                    )
+                    assert planned[1]["applicability_basis_refs"] == [original["input_ref"]]
+                    methods = [
+                        mapping(r) for r in sequence(mapping(result["payload"])["method_results"])
+                    ]
+                    assert methods[1]["state"] == (
+                        "NOT_APPLICABLE" if applicability == "not-applicable" else "DONE"
+                    )
+                    if applicability == "not-applicable":
+                        assert mapping(result["payload"])["status"] == "INCONCLUSIVE"
+                        assert methods[1]["basis_refs"] == [original["input_ref"]]
+                    checkpoint(
+                        applicability=applicability,
+                        retained_method_plan=plan,
+                        unknown_is_not_na=expected_check == "UNKNOWN",
+                    )
                 assert (
                     len(checks) == 1 and mapping(checks[0]["payload"])["status"] == expected_check
                 )
@@ -1517,7 +1621,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     await owner.handle(
                         NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
                     )
-                )["task_status"] == ("BLOCKED" if early_return else "SUCCEEDED")
+                )["task_status"] == (
+                    "BLOCKED"
+                    if early_return or applicability in {"not-applicable", "unknown"}
+                    else "SUCCEEDED"
+                )
                 # Persistent managed CLI/readback/reconcile in fresh reader
                 # processes on THIS owned DB; no runtime restart or adoption.
                 assert canonical(await restarted_cli("readback", back_request)) == canonical(back)
@@ -1653,7 +1761,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         assert len([r for r in rows if r["test"] == "run_handler"]) == (1 if early_return else 2)
         assert {
             "test": "native-release",
-            "status": "INCONCLUSIVE" if early_return else "SUCCEEDED",
+            "status": "INCONCLUSIVE"
+            if early_return or applicability == "not-applicable"
+            else "SUCCEEDED",
             "count": 1,
         } in rows
         if with_criteria and not legacy_criteria:

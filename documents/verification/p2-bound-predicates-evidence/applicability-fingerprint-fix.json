@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "finding": "SEC-APPLICABILITY-04",
+  "status": "FIXED_SOURCE_SCOPED_PARENT_INTEGRATION_AND_REVIEW_PENDING",
+  "head": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "repository": "/home/kali/OmnisAI",
+  "owned_files": [
+    "api/src/omnis/modules/settings/candidate_catalog.py",
+    "api/tests/test_candidate_tracer_fingerprints.py"
+  ],
+  "owned_file_sha256": {
+    "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+    "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d"
+  },
+  "change": "Added only two trusted source-byte dependencies to existing behavior_revision; retained all ten previous entries, domains and process-start identity derivation; no literal pins/records/import refactor.",
+  "closure": {
+    "added": [
+      "tasks/managed_contract.py",
+      "settings/publication_models.py"
+    ],
+    "entry": "skill_catalog._compile_catalog.build_procedure -> requirement_conditions(procedure.model_dump(mode=json))",
+    "local_calls": "requirement_conditions -> mapping/sequence/exact; exact -> mapping, bounded, clean_text, canonical, load_json; clean_text recursively traverses authored values",
+    "already_covered": {
+      "settings/catalog_models.py": "CatalogError and Procedure.model_dump schema/type behavior",
+      "settings/catalog_schema.py": "bounded/canonical/load_json -> pairs/no_number/bounded",
+      "settings/candidate_catalog.py": "valid_ref -> uuid_string on the optional bound-input branch",
+      "settings/candidate_store.py": "record/reference helpers already covered, although not invoked by this compiler validator call",
+      "settings/skill_catalog.py": "compiler caller and delegated trusted reader"
+    },
+    "not_added": "managed_composition/criterion_checks/method_checker_identity and runtime/provider modules: imported only in other functions not invoked by requirement_conditions; no import-graph-wide expansion",
+    "startup": "Function-local compiler import remains unchanged; fingerprint reads source bytes without importing either new dependency."
+  },
+  "verification": {
+    "red": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_candidate_tracer_fingerprints.py",
+        "-k",
+        "each_dependency and (managed_contract or publication_models)",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/OmnisAI/api",
+      "exit": 1,
+      "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/publication_models.py] _\ntests/test_candidate_tracer_fingerprints.py:221: in test_each_dependency_changes_identity_delegated_read_seam\n    assert catalog.behavior_revision(domain) != before\nE   AssertionError: assert 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673' != 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673'\nE    +  where 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673' = <function behavior_revision at 0x7f4ae6f131a0>('omnis-candidate-compiler-v1')\nE    +    where <function behavior_revision at 0x7f4ae6f131a0> = catalog.behavior_revision\n_ test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-tasks/managed_contract.py] _\ntests/test_candidate_tracer_fingerprints.py:221: in test_each_dependency_changes_identity_delegated_read_seam\n    assert catalog.behavior_revision(domain) != before\nE   AssertionError: assert 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673' != 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673'\nE    +  where 'sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673' = <function behavior_revision at 0x7f4ae6f131a0>('omnis-candidate-compiler-v1')\nE    +    where <function behavior_revision at 0x7f4ae6f131a0> = catalog.behavior_revision\n_ test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/publication_models.py] _\ntests/test_candidate_tracer_fingerprints.py:221: in test_each_dependency_changes_identity_delegated_read_seam\n    assert catalog.behavior_revision(domain) != before\nE   AssertionError: assert 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff' != 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff'\nE    +  where 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff' = <function behavior_revision at 0x7f4ae6f131a0>('omnis-candidate-evaluator-v1')\nE    +    where <function behavior_revision at 0x7f4ae6f131a0> = catalog.behavior_revision\n_ test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-tasks/managed_contract.py] _\ntests/test_candidate_tracer_fingerprints.py:221: in test_each_dependency_changes_identity_delegated_read_seam\n    assert catalog.behavior_revision(domain) != before\nE   AssertionError: assert 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff' != 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff'\nE    +  where 'sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff' = <function behavior_revision at 0x7f4ae6f131a0>('omnis-candidate-evaluator-v1')\nE    +    where <function behavior_revision at 0x7f4ae6f131a0> = catalog.behavior_revision\n=========================== short test summary info ============================\nFAILED tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-settings/publication_models.py]\nFAILED tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-compiler-v1-tasks/managed_contract.py]\nFAILED tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-settings/publication_models.py]\nFAILED tests/test_candidate_tracer_fingerprints.py::test_each_dependency_changes_identity_delegated_read_seam[omnis-candidate-evaluator-v1-tasks/managed_contract.py]\n4 failed, 23 deselected in 0.31s\n",
+      "stderr": ""
+    },
+    "green": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_candidate_tracer_fingerprints.py",
+        "tests/test_b06a_catalog.py",
+        "tests/test_c03_catalog_capture.py",
+        "tests/test_native_preparation_startup.py",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/OmnisAI/api",
+      "exit": 0,
+      "stdout": ".............................................................            [100%]\n61 passed in 39.11s\n",
+      "stderr": ""
+    },
+    "quality": [
+      {
+        "command": [
+          "/home/kali/OmnisAI/api/.venv/bin/ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/src/omnis/modules/settings/candidate_catalog.py",
+          "api/tests/test_candidate_tracer_fingerprints.py"
+        ],
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--no-incremental",
+          "--cache-dir=/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-mypy",
+          "--config-file",
+          "api/pyproject.toml",
+          "api/src/omnis/modules/settings/candidate_catalog.py",
+          "api/tests/test_candidate_tracer_fingerprints.py"
+        ],
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "stdout": "Success: no issues found in 2 source files\n",
+        "stderr": ""
+      }
+    ],
+    "format": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "api/pyproject.toml",
+        "api/src/omnis/modules/settings/candidate_catalog.py",
+        "api/tests/test_candidate_tracer_fingerprints.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "stdout": "2 files already formatted\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "wheel_build": {
+      "command": [
+        "/home/kali/.local/bin/uv",
+        "build",
+        "--offline",
+        "--wheel",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-wheel",
+        "api"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "tool_version": "uv 0.11.7 (x86_64-unknown-linux-gnu)",
+      "limit": "Not canonical pinned uv 0.12.19 build; offline backend was resolved from existing cache; no network/install."
+    },
+    "wheel_startup": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path.insert(0,sys.argv[1]); import omnis; from omnis.api import create_app; assert str(omnis.__file__).startswith(sys.argv[1]); assert create_app().routes; assert \"omnis.modules.settings.candidate_catalog\" not in sys.modules; assert \"omnis.modules.tasks.managed_contract\" not in sys.modules; print(\"Wheel import + factory OK; optional catalog and applicability modules absent\")",
+        "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-wheel/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch",
+      "exit": 0,
+      "stdout": "Wheel import + factory OK; optional catalog and applicability modules absent\n",
+      "stderr": "",
+      "wheel_sha256": "c5ca84b44a4fc8db9faea0292c190e64a02a18899a303e5a12700506f6dc0962",
+      "builder": "uv 0.11.7; offline targeted only, not canonical pinned builder"
+    },
+    "wheel_current_behavior_file_matches": {
+      "settings/candidate_catalog.py": true,
+      "settings/candidate_index.py": true,
+      "settings/candidate_material.py": true,
+      "settings/candidate_store.py": true,
+      "settings/candidate_resolution.py": true,
+      "settings/catalog_models.py": true,
+      "settings/catalog_schema.py": true,
+      "settings/skill_catalog.py": true,
+      "settings/publication_models.py": true,
+      "tasks/module_registry.py": true,
+      "tasks/contract_case_input.py": true,
+      "tasks/managed_contract.py": true
+    }
+  },
+  "identities": {
+    "before_fix": {
+      "compiler_revision": "sha256:397d47e1f2f9b034e23177bb3d40cacdf2ca75f5610b95be94682aff3073e673",
+      "evaluator_revision": "sha256:4b101b5e19e4b44f772f4cc915c6ba75424873cfc22d59708d2816d01b54e5ff"
+    },
+    "new_qualification_code_identities": {
+      "hashes": {
+        "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+        "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+        "api/src/omnis/modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+        "api/src/omnis/modules/settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+        "api/src/omnis/modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+        "api/src/omnis/modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+        "api/src/omnis/modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+        "api/src/omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+        "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+        "api/src/omnis/modules/settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+        "api/src/omnis/modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+        "api/src/omnis/modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+        "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07"
+      },
+      "compiler_revision": "sha256:3ea67b7cc4377b2efd90d77298d241806e3729b841f2a5d908c0f57b0e9385eb",
+      "evaluator_revision": "sha256:a107b39c253f87452701cd3e255a10305466cef6ca568b3e591b561591dfd405",
+      "recomputed": {
+        "compiler": "sha256:3ea67b7cc4377b2efd90d77298d241806e3729b841f2a5d908c0f57b0e9385eb",
+        "evaluator": "sha256:a107b39c253f87452701cd3e255a10305466cef6ca568b3e591b561591dfd405"
+      }
+    },
+    "historical": "No historical pins, records, qualifications or PASS altered/transferred; stale compiler/evaluator revision denial remains exercised by existing real receipt/readback storage-seam test. Fresh durable qualification/publication not run; parent must qualify new fixtures on integrated final bytes."
+  },
+  "evidence_limits": [
+    "61 affected SOURCE tests passed; no PostgreSQL, native boot, provider/model/network/target or installed application runtime.",
+    "Virtual changed-reader controls delegate actual safe read_file(Path) before appending bytes; both new dependencies tested against both domains. Untouched files give the same deterministic identity. No source files mutated for sensitivity probes.",
+    "Receipt test uses substituted storage/authority seams, not transaction/durability or historical installed-reader proof.",
+    "Real ZIP-wheel import/factory uses current closure bytes, not a launched service or canonical release build.",
+    "Concurrent other authors own preexisting candidate paths and criterion_checks.py; no edits by this child outside its two allowed source/test paths; protected HTML preserved.",
+    "No stage/commit/docs/global/profile/pins changes; parent owns integration and independent review.",
+    "No new harness/verifier and no skill write under restricted write scope."
+  ],
+  "scratch_artifacts": [
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-red.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-green.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-quality.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-identities.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-wheel-startup.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-fingerprint-wheel/omnis_api-0.1.0-py3-none-any.whl"
+  ],
+  "issues": [
+    "Available uv launcher was 0.11.7 rather than project canonical 0.12.19; targeted offline wheel factory PASS is explicitly limited and does not claim canonical build."
+  ]
+}

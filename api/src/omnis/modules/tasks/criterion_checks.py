@@ -17,6 +17,12 @@ REASON = (
     "No trusted oracle or control receipts are available; "
     "PURE method completion is not a functional verdict."
 )
+# Exact integrated no-oracle implementations, not new-admission identities.
+# Descriptor equality and each implementation's supported states still apply.
+HISTORICAL_RULES = {
+    "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b": {"COMPLETE", "INCOMPLETE"},
+    "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8": {"COMPLETE"},
+}
 
 
 def allocation(value: object) -> list[str]:
@@ -115,7 +121,13 @@ def result_rows(result: object, brief: object) -> list[Data]:
 
 
 def validate_assignment(
-    brief: object, bound: object, mission: object, run: object, rules: list[Data]
+    brief: object,
+    bound: object,
+    mission: object,
+    run: object,
+    rules: list[Data],
+    *,
+    receive_only: bool = False,
 ) -> None:
     body = contract.mapping(contract.validate_brief(brief)["payload"])
     rows = bindings(body["criterion_bindings"])
@@ -174,7 +186,10 @@ def validate_assignment(
     step_ids(descriptor["control_step_ids"])
     for outcome in contract.sequence(descriptor["permitted_outcomes"]):
         contract.text(outcome, 16)
-    if canonical(descriptor) != canonical(rule_payload(bound_body["procedure_ref"], procedure)):
+    expected = rule_payload(bound_body["procedure_ref"], procedure)
+    if receive_only is True and descriptor["code_digest"] in HISTORICAL_RULES:
+        expected["code_digest"] = descriptor["code_digest"]
+    if canonical(descriptor) != canonical(expected):
         raise CatalogError("CRITERION_RULE_UNAVAILABLE")
     for row in rows:
         if (
@@ -185,7 +200,14 @@ def validate_assignment(
             raise CatalogError("CRITERION_BINDING_MISMATCH")
 
 
-def outcome_payloads(brief: object, result: object, check: object, graph: list[Data]) -> list[Data]:
+def outcome_payloads(
+    brief: object,
+    result: object,
+    check: object,
+    graph: list[Data],
+    *,
+    receive_only: bool = False,
+) -> list[Data]:
     """Apply only the pinned finite backend rule, after owner-authenticated MethodCheck."""
     brief_record = contract.validate_brief(brief)
     result_record = contract.record(result, "task-result")
@@ -209,15 +231,21 @@ def outcome_payloads(brief: object, result: object, check: object, graph: list[D
         mission,
         run,
         [r for r in graph if r["kind"] == "criterion-outcome-rule"],
+        receive_only=receive_only,
     )
     result_rows(result_record, brief_record)
     checked = contract.mapping(check_record["payload"])
+    status = contract.text(checked["status"], 16)
     if (
         contract.ref(checked["brief_ref"], "task-brief") != records.reference(brief_record)
         or contract.ref(checked["task_result_ref"], "task-result")
         != records.reference(result_record)
-        or checked["status"] not in {"COMPLETE", "INCOMPLETE"}
+        or status not in {"COMPLETE", "INCOMPLETE", "UNKNOWN"}
     ):
+        raise CatalogError("CRITERION_CHECK_REQUIRED")
+    rule = local[uuid_string(contract.ref(assigned[0]["outcome_rule_ref"])["id"])]
+    digest = contract.text(contract.mapping(rule["payload"])["code_digest"], 64)
+    if digest in HISTORICAL_RULES and status not in HISTORICAL_RULES[digest]:
         raise CatalogError("CRITERION_CHECK_REQUIRED")
     procedure = contract.mapping(contract.mapping(bound["payload"])["resolved_procedure"])
     # No trusted positive oracle/control consumer is implemented in this subset.
@@ -236,8 +264,20 @@ def outcome_payloads(brief: object, result: object, check: object, graph: list[D
             "outcome": "BLOCKED",
             "control_step_ids": [],
             "evidence_refs": [],
-            "gaps": [*GAPS, *(["METHOD_INCOMPLETE"] if checked["status"] == "INCOMPLETE" else [])],
-            "reason": REASON,
+            "gaps": [
+                *GAPS,
+                *(
+                    ["METHOD_" + contract.text(checked["status"])]
+                    if checked["status"] != "COMPLETE"
+                    else []
+                ),
+            ],
+            "reason": REASON
+            + (
+                " MethodCheck is UNKNOWN; method eligibility remains unestablished."
+                if checked["status"] == "UNKNOWN"
+                else ""
+            ),
         }
         for b in assigned
     ]

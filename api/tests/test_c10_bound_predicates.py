@@ -87,14 +87,20 @@ def test_current_c10_historical_descriptor_is_receive_only_full_scope() -> None:
             "code_digest": "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db",
         },
     )
-    case = native_case(predicates=True)
+    case = native_case(
+        predicates=True,
+        composer_pin="4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    )
     expected = obj(case.check()["payload"])
     case.checker = historical
     expected["checker_ref"] = records.reference(historical)
-    with pytest.raises(CatalogError, match="METHOD_CHECKER_UNAVAILABLE"):
-        case.check()
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"
     assert canonical(obj(case.check(receive_only=True)["payload"])) == canonical(expected)
-    partial = native_case(predicates=True, return_predicate="normalize-records")
+    partial = native_case(
+        predicates=True,
+        return_predicate="normalize-records",
+        composer_pin="4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    )
     partial.checker = historical
     with pytest.raises(CatalogError, match="METHOD_CHECKER_UNAVAILABLE"):
         partial.check(receive_only=True)
@@ -108,7 +114,13 @@ def test_bound_predicates_real_native_receipts_complete() -> None:
     assert obj(case.check()["payload"])["status"] == "COMPLETE"
 
 
-def test_incomplete_check_rule_is_blocked_not_functional_pass() -> None:
+@pytest.mark.parametrize(
+    "method_status,method_gap",
+    [("COMPLETE", None), ("INCOMPLETE", "METHOD_INCOMPLETE"), ("UNKNOWN", "METHOD_UNKNOWN")],
+)
+def test_incomplete_check_rule_is_blocked_not_functional_pass(
+    method_status: str, method_gap: str | None
+) -> None:
     """SOURCE rule control only; this is not a native/partial execution positive."""
     from omnis.modules.settings import candidate_store as records
     from omnis.modules.tasks import criterion_checks, managed_contract
@@ -138,7 +150,7 @@ def test_incomplete_check_rule_is_blocked_not_functional_pass() -> None:
             "brief_ref": records.reference(brief),
             "task_result_ref": records.reference(result),
             "checker_ref": records.reference(checker),
-            "status": "INCOMPLETE",
+            "status": method_status,
             "checked_results": payload["method_results"],
             "gap_refs": [obj(r)["ref"] for r in rows(payload["method_results"])],
             "reason": "SOURCE rule control: no completion is being certified.",
@@ -147,7 +159,16 @@ def test_incomplete_check_rule_is_blocked_not_functional_pass() -> None:
     outcomes = criterion_checks.outcome_payloads(brief, result, check, graph)
     assert len(outcomes) == 2
     assert all(o["outcome"] == "BLOCKED" for o in outcomes)
-    assert all(o["gaps"] == [*criterion_checks.GAPS, "METHOD_INCOMPLETE"] for o in outcomes)
+    assert all(
+        o["gaps"] == [*criterion_checks.GAPS, *([method_gap] if method_gap else [])]
+        for o in outcomes
+    )
+    assert all(o["method_check_ref"] == records.reference(check) for o in outcomes)
+    assert [o["criterion_id"] for o in outcomes] == [
+        obj(b)["criterion_id"] for b in rows(body["criterion_bindings"])
+    ]
+    if method_status == "UNKNOWN":
+        assert all("UNKNOWN" in str(o["reason"]) for o in outcomes)
 
 
 def test_partial_final_wire_and_backend_accept_same_authentic_prefix() -> None:
@@ -268,8 +289,10 @@ def test_checker_identity_must_match_executing_checker(attack: str) -> None:
         "unknown" if attack == "key" else "0" * 64
     )
     case.checker = records.envelope("method-checker", descriptor)
-    with pytest.raises(CatalogError):
-        case.check()
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == "UNKNOWN"
+    assert len(rows(checked["gap_refs"])) == 3
+    assert "METHOD_CHECKER_UNAVAILABLE" in str(checked["reason"])
 
 
 def test_arbitrary_checker_ref_alone_never_grants_complete() -> None:
@@ -382,8 +405,7 @@ def test_explicit_legacy_zero_and_historical_check_payload_are_receive_compatibl
             else "125c9f79457f2e1437d7de7b31a81eb659062ee4a8e398a25ec670fb503aa611",
         },
     )
-    with pytest.raises(CatalogError, match="METHOD_CHECKER_UNAVAILABLE"):
-        case.check()  # A historical descriptor never grants a first COMPLETE.
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"  # Never first COMPLETE.
     current["checker_ref"] = records.reference(case.checker)
     assert canonical(obj(case.check(receive_only=True)["payload"])) == canonical(current)
 
@@ -440,3 +462,245 @@ def test_bound_predicate_false_na_and_foreign_header_refuse() -> None:
         rebind_mutation(case)
         with pytest.raises(CatalogError):
             case.check()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("unavailable", ["checker", "schema"])
+@pytest.mark.parametrize("tamper", [None, "gap", "reason-list", "duplicate"])
+async def test_owner_retains_current_unknown_without_historical_promotion(
+    monkeypatch: pytest.MonkeyPatch, unavailable: str, tamper: str | None
+) -> None:
+    """Actual owner seam over SOURCE execution; synthetic graph/schema reader, no DB."""
+    from unittest.mock import Mock
+
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+
+    from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.settings.catalog_schema import canonical
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        composer_pin="4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    )
+    if unavailable == "checker":
+        case.checker = records.envelope(
+            "method-checker",
+            {
+                "key": KEY,
+                "semantics": SEMANTICS,
+                "code_digest": "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db",
+            },
+        )
+    manifest = obj(case.stage["manifest"])
+    binding = obj(case.binding["payload"])
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    final = records.envelope(
+        "native-task-receipt",
+        {
+            "protocol": "omnis-managed-admission-v4",
+            "status": "SUCCEEDED",
+            "reason": "CONTRACT_PURE",
+            "ticket": binding["ticket"],
+            "manifest_ref": records.reference(manifest),
+            "binding_ref": records.reference(case.binding),
+            "native_root_id": binding["native_root_id"],
+            "entries": binding["entries"],
+            "executions": [case.execution],
+        },
+    )
+    run = records.envelope("managed-run", {})
+    graph = [
+        run,
+        manifest,
+        case.brief,
+        case.bound,
+        case.binding,
+        case.original,
+        case.prompt_bundle,
+        case.checker,
+        *case.actions,
+        *emitted,
+        final,
+    ]
+    domain = ManagedAdmission(Mock(spec=AsyncEngine))
+    available = unavailable != "schema"
+
+    async def schemas(*args: object, **kwargs: object) -> dict[str, dict[str, object]]:
+        return case.schemas if available else {}
+
+    monkeypatch.setattr(domain, "_method_schemas", schemas)
+    conn = Mock(spec=AsyncConnection)
+    checker_ref = records.reference(case.checker)
+    first = await domain._result_check(
+        conn, case.owner_id, str(run["id"]), case.brief, emitted[0], checker_ref, graph=graph
+    )
+    assert obj(first["payload"])["status"] == "UNKNOWN"
+    assert len(rows(obj(first["payload"])["gap_refs"])) == 3
+    prior_payload = obj(first["payload"])
+    if tamper == "gap":
+        prior_payload = {**prior_payload, "gap_refs": []}
+    elif tamper == "reason-list":
+        prior_payload = {**prior_payload, "reason": [prior_payload["reason"]]}
+    retained = records.envelope("method-check", prior_payload)
+    graph.append(retained)
+    if tamper == "duplicate":
+        graph.append(records.envelope("method-check", prior_payload))
+    available = True
+    if tamper is not None:
+        with pytest.raises(CatalogError, match="RESULT_CONFLICT"):
+            await domain._result_check(
+                conn,
+                case.owner_id,
+                str(run["id"]),
+                case.brief,
+                emitted[0],
+                checker_ref,
+                graph=graph,
+            )
+        return
+    second = await domain._result_check(
+        conn, case.owner_id, str(run["id"]), case.brief, emitted[0], checker_ref, graph=graph
+    )
+    assert canonical(second["payload"]) == canonical(first["payload"])
+    assert obj(second["payload"])["status"] == "UNKNOWN"
+
+
+@pytest.mark.parametrize(
+    "digest,status",
+    [
+        ("df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b", "INCOMPLETE"),
+        ("df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b", "COMPLETE"),
+        ("30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8", "COMPLETE"),
+    ],
+)
+def test_historical_no_oracle_rule_is_receive_only(
+    monkeypatch: pytest.MonkeyPatch, digest: str, status: str
+) -> None:
+    """Exact historical SOURCE identities; not an installed historical reader proof."""
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks import criterion_checks, managed_contract
+    from test_c04_criteria import criteria_graph
+
+    original_rule = criterion_checks.rule_payload
+
+    def old_rule(procedure_ref: object, procedure: object) -> dict[str, object]:
+        return {**original_rule(procedure_ref, procedure), "code_digest": digest}
+
+    with monkeypatch.context() as old:
+        old.setattr(criterion_checks, "rule_payload", old_rule)
+        graph = criteria_graph([str(uuid4()), str(uuid4())])
+    brief = next(r for r in graph if r["kind"] == "task-brief")
+    payload = obj(managed_contract.blocked_result(brief)["payload"])
+    payload["criterion_results"] = [
+        {
+            "criterion_id": obj(b)["criterion_id"],
+            "bound_procedure_ref": obj(b)["bound_procedure_ref"],
+            "proposed_outcome": "BLOCKED",
+            "control_step_ids": [],
+            "evidence_refs": [],
+            "gaps": list(criterion_checks.GAPS),
+        }
+        for b in rows(obj(brief["payload"])["criterion_bindings"])
+    ]
+    result = records.envelope("task-result", payload)
+    check = records.envelope(
+        "method-check",
+        {
+            "brief_ref": records.reference(brief),
+            "task_result_ref": records.reference(result),
+            "status": status,
+        },
+    )
+    with pytest.raises(CatalogError, match="CRITERION_RULE_UNAVAILABLE"):
+        criterion_checks.outcome_payloads(brief, result, check, graph)
+    outcomes = criterion_checks.outcome_payloads(brief, result, check, graph, receive_only=True)
+    assert len(outcomes) == 2 and all(o["outcome"] == "BLOCKED" for o in outcomes)
+    assert all(
+        o["gaps"]
+        == [*criterion_checks.GAPS, *(["METHOD_INCOMPLETE"] if status == "INCOMPLETE" else [])]
+        for o in outcomes
+    )
+    unknown = records.envelope("method-check", {**obj(check["payload"]), "status": "UNKNOWN"})
+    with pytest.raises(CatalogError, match="CRITERION_CHECK_REQUIRED"):
+        criterion_checks.outcome_payloads(brief, result, unknown, graph, receive_only=True)
+
+
+@pytest.mark.asyncio
+async def test_owner_keeps_available_schemas_after_missing_binding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Actual schema-reader SOURCE seam; SQL/preparation are explicit test doubles."""
+    import base64
+    from pathlib import Path
+    from unittest.mock import AsyncMock, Mock
+
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+
+    from omnis.modules.runs import native_preparation
+    from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.settings.catalog_models import Manifest
+    from omnis.modules.settings.catalog_schema import canonical, dto, load_json
+
+    case = native_case(predicates=True)
+    root = Path(__file__).resolve().parents[2] / "skills/records-mapping-contract"
+    manifest = dto((root / "omnis.yaml").read_bytes(), Manifest)
+    schema_bindings = [b for b in manifest.file_bindings if b.entity_kind == "schema"]
+    files = {"omnis.yaml": (root / "omnis.yaml").read_bytes()}
+    files.update({b.path: (root / b.path).read_bytes() for b in schema_bindings})
+    identity_keys: dict[str, str] = {}
+    for key, document in case.schemas.items():
+        matching = [
+            b for b in schema_bindings if canonical(load_json(files[b.path])) == canonical(document)
+        ]
+        assert len(matching) == 1
+        identity_keys[str(obj(load_json(key))["id"])] = matching[0].key
+    missing = obj(case.original["payload"])["schema_ref"]
+    missing_id = str(obj(missing)["id"])
+    receipt = records.envelope(
+        "native-preparation-receipt",
+        {"bundle_ref": records.reference(records.envelope("native-document-bundle", {}))},
+    )
+    run = records.envelope("managed-run", {"preparation_receipt_ref": records.reference(receipt)})
+    bundle = records.envelope(
+        "native-document-bundle",
+        {
+            "packages": [
+                {
+                    "package_key": manifest.package_key,
+                    "files": [
+                        {"path": path, "content_b64": base64.b64encode(raw).decode()}
+                        for path, raw in files.items()
+                    ],
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr(records, "get", AsyncMock(return_value=(None, receipt)))
+    monkeypatch.setattr(
+        native_preparation,
+        "read_receipt",
+        AsyncMock(return_value={"receipt_ref": records.reference(receipt), "bundle": bundle}),
+    )
+    conn = Mock(spec=AsyncConnection)
+
+    async def execute(statement: object, parameters: dict[str, object]) -> Mock:
+        value = (
+            None
+            if parameters["id"] == missing_id
+            else {
+                "package_key": manifest.package_key,
+                "entity_key": identity_keys[str(parameters["id"])],
+            }
+        )
+        query = Mock()
+        query.mappings.return_value.one_or_none.return_value = value
+        return query
+
+    conn.execute = execute
+    domain = ManagedAdmission(Mock(spec=AsyncEngine))
+    available = await domain._method_schemas(conn, case.owner_id, run, case.bound)
+    assert available == {k: v for k, v in case.schemas.items() if k != canonical(missing).decode()}
+    assert available

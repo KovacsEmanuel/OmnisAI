@@ -1,5 +1,6 @@
 """Installed checker/registry/validation closure, not prompt or native authority."""
 
+import re
 from hashlib import sha256
 from pathlib import Path
 
@@ -41,6 +42,11 @@ FULL_PREDICATE_HISTORICAL = {
 }
 
 
+PARTIAL_PREDICATE_HISTORICAL = {
+    "36738cfb398f63d969160c08b7b6b54e91f0ab35818d62fe03ee5528b1d83227": "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -57,16 +63,25 @@ def verify(
     from omnis.modules.tasks import managed_contract as contract
 
     record = contract.record(checker, "method-checker")
-    body = contract.exact(record["payload"], {"key", "code_digest", "semantics"})
-    key = contract.text(body["key"], 128)
-    digest = contract.text(body["code_digest"], 64)
+    try:
+        body = contract.exact(record["payload"], {"key", "code_digest", "semantics"})
+        key = contract.text(body["key"], 128)
+        digest = contract.text(body["code_digest"], 64)
+        contract.text(body["semantics"])
+        if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise CatalogError("METHOD_CHECKER_INVALID")
+    except (CatalogError, TypeError, ValueError, RecursionError):
+        raise CatalogError("METHOD_CHECKER_INVALID") from None
     if canonical(body) == canonical(descriptor()):
         return record
     if (
         receive_only is True
         and zero_predicates is False
         and key == KEY
-        and FULL_PREDICATE_HISTORICAL.get(digest) == pin
+        and (
+            FULL_PREDICATE_HISTORICAL.get(digest) == pin
+            or PARTIAL_PREDICATE_HISTORICAL.get(digest) == pin
+        )
         and body["semantics"] == SEMANTICS
     ):
         return record  # Retained current-C10 COMPLETE is regenerated/equal by its caller.

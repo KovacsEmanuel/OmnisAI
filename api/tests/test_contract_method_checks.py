@@ -100,6 +100,7 @@ def native_case(
     composer_pin: str | None = None,
     compact: bool = False,
     return_predicate: str = "build-surface-map",
+    applies_expected: bool | None = None,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -167,6 +168,13 @@ def native_case(
             schemas[canonical(step["output_schema_ref"]).decode()] = obj(
                 load_json(path.read_bytes())
             )
+            schemas[canonical(step["parameter_schema_ref"]).decode()] = obj(
+                load_json(
+                    (
+                        ROOT / "skills/records-mapping-contract/templates/schemas/empty.schema.json"
+                    ).read_bytes()
+                )
+            )
         material_schema = obj(obj(sections[4])["schema"])
         schemas[canonical(procedure["input_schema_ref"]).decode()] = obj(
             material_schema["document"]
@@ -207,6 +215,23 @@ def native_case(
                     }
                     for r in requirements
                 ]
+            }
+        if applies_expected is not None:
+            from omnis.modules.tasks import managed_contract
+
+            obj(rows(procedure["method_requirements"])[1])["applies_if"] = [
+                {
+                    "predicate_id": "contract.records-nonempty",
+                    "input_refs": [records.reference(original)],
+                    "expected": applies_expected,
+                    "on_missing": "INCONCLUSIVE",
+                }
+            ]
+            bound["digest"] = sha256(
+                canonical({k: v for k, v in bound.items() if k != "digest"})
+            ).hexdigest()
+            obj(brief["payload"])["method_plan"] = {
+                "requirements": managed_contract.compile_method_plan(bound, original)
             }
         if predicates:
             obj(brief["payload"])["done_when"] = [
@@ -338,6 +363,103 @@ def native_case(
         del sys.path[: len(paths)]
 
 
+@pytest.mark.parametrize("empty,expected", [(False, True), (True, True), (False, False)])
+@pytest.mark.parametrize("compact", [False, True])
+def test_bound_applicability_uses_actual_input_and_retains_every_obligation(
+    empty: bool, expected: bool, compact: bool
+) -> None:
+    case = native_case(predicates=True, compact=compact, empty=empty, applies_expected=expected)
+    plan = [obj(r) for r in rows(obj(obj(case.brief["payload"])["method_plan"])["requirements"])]
+    applies = (not empty) is expected
+    assert [r["required"] for r in plan] == [True, True, False]
+    assert [r["applicability"] for r in plan] == [
+        "APPLIES",
+        "APPLIES" if applies else "NOT_APPLICABLE",
+        "APPLIES",
+    ]
+    assert plan[1]["applicability_basis_refs"] == [records.reference(case.original)]
+    body = obj(obj(rows(case.execution["records"])[0])["payload"])
+    methods = [obj(r) for r in rows(body["method_results"])]
+    assert methods[1]["state"] == ("DONE" if applies else "NOT_APPLICABLE")
+    if not applies:
+        assert methods[1]["basis_refs"] == [records.reference(case.original)]
+        assert methods[1]["artifact_refs"] == []
+        assert body["status"] == "INCONCLUSIVE"
+    check = obj(case.check()["payload"])
+    assert check["status"] == ("COMPLETE" if applies else "INCOMPLETE")
+    assert check["checked_results"] == methods
+    assert obj(case.check(receive_only=True)["payload"]) == check
+
+
+@pytest.mark.parametrize(
+    "attack", ["predicate", "foreign-input", "bool-expected", "missing-policy", "duplicate"]
+)
+def test_bound_applicability_unknown_or_foreign_condition_never_becomes_na(attack: str) -> None:
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(predicates=True, applies_expected=True)
+    from omnis_hermes.prompt_bundle import method_plan
+
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    condition = obj(rows(obj(rows(p["method_requirements"])[1])["applies_if"])[0])
+    if attack == "predicate":
+        condition["predicate_id"] = "foreign.records-nonempty"
+    elif attack == "foreign-input":
+        obj(rows(condition["input_refs"])[0])["id"] = str(uuid4())
+    elif attack == "bool-expected":
+        condition["expected"] = 1
+    elif attack == "missing-policy":
+        condition["on_missing"] = "NOT_APPLICABLE"
+    else:
+        obj(rows(p["method_requirements"])[1])["applies_if"] = [condition, condition]
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        managed_contract.compile_method_plan(case.bound, case.original)
+    with pytest.raises(ValueError):
+        method_plan(case.bound, case.original)
+    with pytest.raises(CatalogError):
+        case.check()
+
+
+def test_full_native_not_applicable_final_uses_existing_response_validators() -> None:
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(predicates=True, empty=True, applies_expected=True)
+    from omnis_hermes.managed_admission_contract import validate_response
+
+    binding = obj(case.binding["payload"])
+    final = {
+        "protocol": "omnis-managed-admission-v4",
+        "status": "INCONCLUSIVE",
+        "reason": "CONTRACT_PURE",
+        "ticket": binding["ticket"],
+        "manifest_ref": records.reference(obj(case.stage["manifest"])),
+        "binding_ref": records.reference(case.binding),
+        "native_root_id": binding["native_root_id"],
+        "entries": binding["entries"],
+        "executions": [case.execution],
+    }
+    assert validate_response(final) == final
+    assert managed_contract.validate_final(final, case.stage["manifest"], case.binding) == final
+
+
+def test_missing_applicability_input_is_unknown_not_false() -> None:
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(predicates=True, applies_expected=True)
+    from omnis_hermes.prompt_bundle import method_plan
+
+    planned = managed_contract.compile_method_plan(case.bound)
+    assert planned == method_plan(case.bound)
+    assert [r["applicability"] for r in planned] == ["APPLIES", "UNKNOWN", "APPLIES"]
+    assert planned[1]["applicability_basis_refs"] == []
+    assert len(planned) == 3
+    obj(obj(case.brief["payload"])["method_plan"])["requirements"] = planned
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check()
+
+
 def test_real_receipts_complete_all_three_published_requirements() -> None:
     case = native_case()
     check = case.check()
@@ -405,8 +527,54 @@ def test_missing_qualified_schema_cannot_complete(position: str) -> None:
         ]
     )
     del case.schemas[canonical(key).decode()]
-    with pytest.raises(CatalogError, match="^METHOD_SCHEMA_UNAVAILABLE$"):
-        case.check()
+    check = obj(case.check()["payload"])
+    assert check["status"] == "UNKNOWN"
+    assert (
+        check["checked_results"]
+        == obj(obj(rows(case.execution["records"])[0])["payload"])["method_results"]
+    )
+    assert len(rows(check["gap_refs"])) == 3
+    assert "METHOD_SCHEMA_UNAVAILABLE" in str(check["reason"])
+    assert obj(case.check(receive_only=True)["payload"]) == check
+
+
+@pytest.mark.parametrize(
+    "missing,invalid",
+    [
+        ("input", "operations"),
+        ("operations", "input"),
+        ("operations", "surface_map"),
+        ("surface_map", "operations"),
+    ],
+)
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_missing_schema_does_not_mask_available_value_mismatch(
+    missing: str, invalid: str, receive_only: bool
+) -> None:
+    case = native_case(predicates=True, applies_expected=True)
+    items = {
+        "input": case.original,
+        **{
+            name: artifact
+            for name, artifact in zip(
+                ("operations", "surface_map"),
+                [
+                    obj(r)
+                    for r in rows(case.execution["records"])
+                    if obj(r)["kind"] == "contract-artifact"
+                ],
+                strict=True,
+            )
+        },
+    }
+    if invalid == "input":
+        obj(rows(obj(obj(case.original["payload"])["value"])["records"])[0])["status"] = True
+    else:
+        obj(items[invalid]["payload"])["value"] = {invalid: "not-an-array"}
+    rebind_mutation(case)
+    del case.schemas[canonical(obj(items[missing]["payload"])["schema_ref"]).decode()]
+    with pytest.raises(CatalogError, match="^METHOD_SCHEMA_MISMATCH$"):
+        case.check(receive_only=receive_only)
 
 
 @pytest.mark.parametrize(
@@ -433,12 +601,154 @@ def test_schema_validation_checks_actual_output_without_recomputation(attack: st
         )
     rebind_mutation(case)
     reason = (
-        "METHOD_SCHEMA_UNAVAILABLE"
+        "METHOD_SCHEMA_INVALID"
         if attack in ("external-schema", "schema-type")
         else "METHOD_SCHEMA_MISMATCH"
     )
     with pytest.raises(CatalogError, match="^" + reason + "$"):
         case.check()
+
+
+@pytest.mark.parametrize("missing,invalid", [("input", "operations"), ("operations", "input")])
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_missing_schema_does_not_mask_malformed_available_document(
+    missing: str, invalid: str, receive_only: bool
+) -> None:
+    case = native_case(predicates=True, applies_expected=True)
+    artifact = next(
+        obj(r) for r in rows(case.execution["records"]) if obj(r)["kind"] == "contract-artifact"
+    )
+    keys = {
+        "input": canonical(obj(case.original["payload"])["schema_ref"]).decode(),
+        "operations": canonical(obj(artifact["payload"])["schema_ref"]).decode(),
+    }
+    del case.schemas[keys[missing]]
+    case.schemas[keys[invalid]] = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": 7,
+    }
+    with pytest.raises(CatalogError, match="^METHOD_SCHEMA_INVALID$"):
+        case.check(receive_only=receive_only)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("semantics", False),
+        ("semantics", {"unexpected": "object"}),
+        ("semantics", []),
+        ("semantics", ""),
+        ("semantics", "x" * 4097),
+        ("code_digest", "not-a-sha256"),
+        ("code_digest", "f" * 63),
+        ("code_digest", "g" * 64),
+        ("code_digest", "F" * 64),
+        ("code_digest", "f" * 64 + "\n"),
+        ("code_digest", False),
+        ("key", False),
+        ("extra", True),
+        ("missing", None),
+    ],
+    ids=[
+        "semantics-bool",
+        "semantics-object",
+        "semantics-list",
+        "semantics-empty",
+        "semantics-oversize",
+        "digest-not-sha",
+        "digest-short",
+        "digest-nonhex",
+        "digest-uppercase",
+        "digest-final-lf",
+        "digest-bool",
+        "key-bool",
+        "extra-field",
+        "missing-field",
+    ],
+)
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_malformed_checker_descriptor_refuses_distinct_from_unavailable(
+    field: str, value: object, receive_only: bool
+) -> None:
+    case = native_case(predicates=True, applies_expected=True)
+    descriptor = obj(case.checker["payload"]).copy()
+    if field == "missing":
+        del descriptor["semantics"]
+    else:
+        descriptor[field] = value
+    case.checker = records.envelope("method-checker", descriptor)
+    with pytest.raises(CatalogError, match="^METHOD_CHECKER_INVALID$"):
+        case.check(receive_only=receive_only)
+
+
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_well_formed_unavailable_checker_retains_every_gap(receive_only: bool) -> None:
+    case = native_case(predicates=True, applies_expected=True)
+    descriptor = obj(case.checker["payload"]).copy()
+    descriptor["code_digest"] = "0" * 64
+    case.checker = records.envelope("method-checker", descriptor)
+    check = obj(case.check(receive_only=receive_only)["payload"])
+    methods = rows(obj(obj(rows(case.execution["records"])[0])["payload"])["method_results"])
+    assert check["status"] == "UNKNOWN"
+    assert check["checker_ref"] == records.reference(case.checker)
+    assert check["checked_results"] == methods
+    assert check["gap_refs"] == [obj(row)["ref"] for row in methods]
+    assert str(check["reason"]).startswith("METHOD_CHECKER_UNAVAILABLE;")
+
+
+@pytest.mark.parametrize("state", ["available", "missing", "invalid"])
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_non_value_parameter_schema_is_required_and_validated(
+    state: str, receive_only: bool
+) -> None:
+    case = native_case(predicates=True, applies_expected=True)
+    procedure = obj(obj(case.bound["payload"])["resolved_procedure"])
+    key = canonical(obj(rows(procedure["probe"])[0])["parameter_schema_ref"]).decode()
+    if state == "missing":
+        del case.schemas[key]
+    elif state == "invalid":
+        case.schemas[key] = {"type": 7}
+        with pytest.raises(CatalogError, match="^METHOD_SCHEMA_INVALID$"):
+            case.check(receive_only=receive_only)
+        return
+    check = obj(case.check(receive_only=receive_only)["payload"])
+    methods = rows(obj(obj(rows(case.execution["records"])[0])["payload"])["method_results"])
+    assert check["status"] == ("UNKNOWN" if state == "missing" else "COMPLETE")
+    assert check["checked_results"] == methods
+    assert check["gap_refs"] == ([obj(row)["ref"] for row in methods] if state == "missing" else [])
+    if state == "missing":
+        assert str(check["reason"]).startswith("METHOD_SCHEMA_UNAVAILABLE;")
+
+
+@pytest.mark.parametrize("receive_only", [False, True])
+def test_historical_full_checker_partial_first_check_is_unknown_only(
+    receive_only: bool,
+) -> None:
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        return_predicate="normalize-records",
+        composer_pin="4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+    )
+    case.checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "semantics": SEMANTICS,
+            "code_digest": "388fe9da680951249202045b10e10245d42352a0c194413d221d647b54a085db",
+        },
+    )
+    if receive_only:
+        with pytest.raises(CatalogError, match="^METHOD_CHECKER_UNAVAILABLE$"):
+            case.check(receive_only=True)
+    else:
+        check = obj(case.check()["payload"])
+        methods = rows(obj(obj(rows(case.execution["records"])[0])["payload"])["method_results"])
+        assert check["status"] == "UNKNOWN"
+        assert check["checked_results"] == methods
+        assert check["gap_refs"] == [obj(row)["ref"] for row in methods]
+        assert str(check["reason"]).startswith("METHOD_CHECKER_UNAVAILABLE;")
 
 
 def test_aggregate_bytes_are_bounded_before_complete() -> None:

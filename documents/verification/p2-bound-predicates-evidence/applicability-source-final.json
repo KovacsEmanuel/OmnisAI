@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "status": "INTEGRATED_SOURCE_PASS_REVIEW_PENDING_REAL_QA_NOT_RUN",
+  "base": "06c681cebed53bee9ce6cb9724b56b9314991ae1",
+  "snapshot": {
+    "count": 15,
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+      "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    }
+  },
+  "checks": {
+    "api_source": {
+      "exit": 0,
+      "passed": 310,
+      "seconds": 49.99,
+      "selection": [
+        "test_contract_method_checks.py",
+        "test_contract_method_producer.py",
+        "test_c10_bound_predicates.py",
+        "test_assignment_compact.py",
+        "test_c04_criteria.py",
+        "test_candidate_tracer_fingerprints.py",
+        "test_b06a_catalog.py",
+        "test_c03_catalog_capture.py",
+        "test_native_preparation_startup.py"
+      ]
+    },
+    "api_mypy": {
+      "exit": 0,
+      "files": 220
+    },
+    "api_ruff": {
+      "exit": 0,
+      "formatted_files": 224
+    },
+    "adapter_source": {
+      "exit": 0,
+      "passed": 68,
+      "seconds": 0.9,
+      "selection": [
+        "test_contract_method.py",
+        "test_prompt_bundle.py",
+        "test_managed_composition.py"
+      ]
+    },
+    "adapter_mypy": {
+      "exit": 0,
+      "files": 15
+    },
+    "wheel_build": {
+      "uv": "0.12.19",
+      "offline": true,
+      "exit": 0
+    },
+    "diff_check_exit": 0
+  },
+  "distribution": {
+    "wheels": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-applicability-final-wheels/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "48e2964941d10119fadf99304eb96c85ab092d857d550321925ed18f5f98b776",
+        "module_count": 83,
+        "source_byte_identity": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-applicability-final-wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+        "sha256": "4867d4f2c5112c7e3370226ae2eee96c36c15254f0aa3889b64fcf1c642995bb",
+        "module_count": 15,
+        "source_byte_identity": true
+      }
+    ],
+    "unchanged_overlay_modules": 15,
+    "patch_manifest_pin_source_unchanged": true,
+    "bootstrap_observer_unchanged": true,
+    "composer_sha256": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "installed_native": "NOT_RUN",
+    "patch_reapply": "NOT_RUN_UNCHANGED_NATIVE_PATCH_AND_SOURCE"
+  },
+  "findings": {
+    "NORM-APPLICABILITY-F01": "FIXED_SOURCE_OUTCOME_CALLER_REAL_QA_PENDING",
+    "NORM-APPLICABILITY-F02": "FIXED_SOURCE_IMMUTABLE_RECEIVE_ONLY_UNKNOWN_REAL_QA_PENDING",
+    "SEC-APPLICABILITY-01": "FIXED_SOURCE_SCHEMA_AND_OWNER_PARTIAL_MAP",
+    "SEC-APPLICABILITY-02": "FIXED_SOURCE_STRICT_CHECKER_DESCRIPTOR",
+    "SEC-APPLICABILITY-03": "SAME_AS_NORM_F01",
+    "SEC-APPLICABILITY-04": "FIXED_SOURCE_TRANSITIVE_FINGERPRINT"
+  },
+  "prior_failed_native_attempts": "All3 retained; parent exact resources absent/drained/data retained readback, no acceptance transfer",
+  "limits": [
+    "Finite contract.records-nonempty applicability only; procedure preconditions/invalidation/evidence/optional policy remain outside this feature",
+    "SOURCE/historical compatibility does not prove installed historical reader",
+    "Fresh allocated UNKNOWN PG variant first-check unavailability is explicit controlled qualification fixture, not fake native execution/result",
+    "Native PG on these final15 source files NOT_RUN",
+    "Independent focused re-review pending; no P2/G02/P4a closure",
+    "No provider/model/target/r1/push/global/profile changes"
+  ]
+}

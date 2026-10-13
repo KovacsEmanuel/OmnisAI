@@ -232,7 +232,7 @@ def validate_response(value: object) -> dict[str, object]:
             raise ValueError("Invalid CONTRACT native execution binding")
         records = execution["records"]
         if type(records) is not list or len(records) not in (
-            (4,) if value["status"] == "INCONCLUSIVE" else (6, 8)
+            (4, 6) if value["status"] == "INCONCLUSIVE" else (6, 8)
         ):
             raise ValueError("Invalid CONTRACT records")
         kinds = [

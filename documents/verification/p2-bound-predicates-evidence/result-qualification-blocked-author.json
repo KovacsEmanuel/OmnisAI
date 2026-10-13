@@ -1,0 +1,177 @@
+{
+  "status": "BLOCKED_SCHEMA_EXPANSION_REQUIRED_BEFORE_IMPLEMENTATION",
+  "completed_slice": false,
+  "repository": "/home/kali/OmnisAI",
+  "base_git_sha": "7615a338f8c3069ee4661a25b98b0746758de06a",
+  "final_git_sha": "f6b6c93b97eb36dafb546d869999871d17779b29",
+  "base_advance": {
+    "classification": "PARENT_DOC_SKILL_ONLY",
+    "path": ".hermes/skills/omnis-api-data/SKILL.md",
+    "version": "0.1.23",
+    "product_paths_unchanged": true,
+    "skill_reloaded": true
+  },
+  "product_files_created_or_modified": [],
+  "author_commits": [],
+  "diff": {
+    "handle": "/home/kali/.hermes/cache/scratch/p2-result-qualification.patch",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_diff_check_exit": 0
+  },
+  "contract": {
+    "handle": "/home/kali/.hermes/cache/scratch/p2-result-qualification-contract.json",
+    "sha256": "88d354b2cfb0e6ff253764b18979e53df42bc72273336fc19f42998c9fc8a53b",
+    "acceptance": "Byte-exact historic M1 TaskResult/header/MethodCheck preserved under trusted additive M2; current-state proof derived under existing owner lock; append-only qualification only, no functional PASS/rerun/inbox/usage/consumption duplication; finite incompatible/unknown state denied or requires revalidation.",
+    "path_cap": 8,
+    "authority": [
+      "AGENTS.md and CONTRIBUTING.md",
+      "README.md CURRENT",
+      "documents/verification/p2-c10-session-handoff-20261012.md CURRENT and prompt",
+      "documents/Omnis_Implementation_Plan.md section 7.1",
+      "documents/Omnis_MVP_Architecture.md section 6.3 lines 405-420 and section 9.3 lines 548-556"
+    ]
+  },
+  "findings": [
+    {
+      "id": "RQ-SCHEMA-01",
+      "severity": "BLOCKER",
+      "state": "REPORTED_BEFORE_ANY_PRODUCT_EDIT",
+      "source": "api/src/omnis/migrations/versions/0011_managed_tasks.py:18",
+      "exact_constraint": "CHECK (envelope->>'revision' = '1')",
+      "current_schema_attestation": "api/src/omnis/core/managed_schema.py:80-86 expects managed_record_envelope_check2 with CHECK (((envelope ->> 'revision'::text) = '1'::text)), validated and enforced",
+      "effect": "A canonical MissionSpec M2 envelope with revision=2 cannot be persisted even if Python validators alone are widened.",
+      "probe_limit": "DDL inspected, not executed. No PG fixture/native process launched."
+    },
+    {
+      "id": "RQ-SOURCE-02",
+      "severity": "BLOCKER",
+      "state": "REPRODUCED_SOURCE_RED",
+      "source": "api/src/omnis/modules/tasks/managed_contract.py:1663",
+      "exact_guard": "integer(result['revision'], 1, 1)",
+      "callers": [
+        "managed_store.put -> managed_contract.record before SQL",
+        "managed_store.by_id -> managed_contract.record",
+        "managed_store.graph -> managed_contract.record",
+        "ManagedAdmission.readback -> managed_contract.record for every graph row",
+        "ManagedAdmission._verify_graph -> managed_contract.record for every graph row"
+      ],
+      "effect": "Original M1 reaches the SOURCE SQL-boundary double; resealed well-formed MissionSpec revision=2 raises MANAGED_REJECTED before SQL."
+    },
+    {
+      "id": "RQ-IDENTITY-03",
+      "severity": "DESIGN_PREREQUISITE",
+      "state": "REPORTED_NOT_WORKED_AROUND",
+      "source": "api/src/omnis/migrations/versions/0011_managed_tasks.py:14",
+      "exact_constraint": "id uuid PRIMARY KEY",
+      "effect": "A second revision under the same mission ID also conflicts with the current append-only primary key. Parent must decide canonical stable mission identity versus separately addressed revision identity; no UUID/revision=1 M2 substitution was invented."
+    }
+  ],
+  "decisions": [
+    "No migration, schema pin change, record validator broadening or identity workaround without parent authorization; this is the explicit blocker exception in the task.",
+    "Do not implement a nominal ResultQualification against fabricated M2/current freshness. A requester boolean or unverified Ref is not authority.",
+    "Do not return ELIGIBLE for unavailable/unsupported auth/target/business state. NO_TARGET synthetic input cannot prove real auth freshness.",
+    "Keep immutable M1 result/check/criterion outcomes and historic assignment/cursor unchanged.",
+    "New-work admission is separate: managed_contract.build retained() currently requires exactly one mission. Any future revision implementation must explicitly refuse unsupported prepare transitions, not resurrect old assignments.",
+    "No accepted partial-return/applicability/precondition/invalidation/evidence/PARTIAL QA replay, no launch audit, no new framework/owner/table."
+  ],
+  "real_red_green": {
+    "RED": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-schema-red-tmp /home/kali/.hermes/cache/scratch/p2-result-qualification-schema-red.py -q",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "result": "1 failed, 1 passed in 2.95s",
+      "failure": "test_m2_revision_two_can_reach_existing_persistence_boundary: MANAGED_REJECTED at managed_contract.integer(value=2, minimum=1, maximum=1)",
+      "positive_control": "test_m1_reaches_existing_source_sql_boundary passed",
+      "probe": "/home/kali/.hermes/cache/scratch/p2-result-qualification-schema-red.py",
+      "probe_sha256": "5e60d6173b46aa7abf5635917abe30f0219e7a77293ebc7f282063a2899c04c0",
+      "log": "/home/kali/.hermes/cache/scratch/p2-result-qualification-schema-red.log",
+      "log_sha256": "5631b08d29a6ba70200d3a2a1f886e581986a81d5284c0d59b7bb08fde4248bb",
+      "classification": "SOURCE validator reproduction with explicit recording SQL-boundary double, not PG persistence/native evidence"
+    },
+    "GREEN": {"status": "NOT_RUN_BLOCKED_SCHEMA_SCOPE", "logs": []},
+    "regressions_lint_mypy_format_build": "NOT_RUN_NO_PRODUCT_EDIT",
+    "interpreter": "Python 3.13.15 from api/.venv/bin/python -I -B",
+    "final_readback": "git diff --check exit0; tracked diff zero bytes; git status only protected preexisting untracked documents/Omnis_Notite_Originale.html"
+  },
+  "base_final_paths": [
+    {"path": "api/src/omnis/modules/tasks/result_qualification.py", "base_sha256": null, "final_sha256": null, "changed": false},
+    {"path": "api/src/omnis/modules/runs/contract_inputs.py", "base_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab", "final_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab", "changed": false},
+    {"path": "api/src/omnis/modules/runs/managed_admission.py", "base_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9", "final_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9", "changed": false},
+    {"path": "api/src/omnis/modules/tasks/managed_store.py", "base_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d", "final_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d", "changed": false},
+    {"path": "api/tests/test_result_qualification.py", "base_sha256": null, "final_sha256": null, "changed": false},
+    {"path": "api/tests/test_result_qualification_pg.py", "base_sha256": null, "final_sha256": null, "changed": false},
+    {"path": "api/tests/test_contract_method_pg.py", "base_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f", "final_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f", "changed": false},
+    {"path": "api/src/omnis/migrations/versions/0011_managed_tasks.py", "base_sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d", "final_sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d", "changed": false},
+    {"path": "api/src/omnis/core/managed_schema.py", "base_sha256": "20e08df042ca512e9c8ee5bdd3e75ccf3db71254d9266916d570edf14a08dcb0", "final_sha256": "20e08df042ca512e9c8ee5bdd3e75ccf3db71254d9266916d570edf14a08dcb0", "changed": false},
+    {"path": "api/src/omnis/modules/tasks/managed_contract.py", "base_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff", "final_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff", "changed": false}
+  ],
+  "caller_record_order": {
+    "existing": [
+      "ContractInputs.create_method_context -> validate_request before engine.begin -> owner lock -> command_replay -> ManagedAdmission._source -> BuildSource.build(context_only) -> _verify_graph -> managed_record inserts -> command_complete",
+      "ContractInputs.create_input -> validate_request -> owner lock -> command_replay -> owned context/current_source -> produce_input schema validation -> managed_record insert -> command_complete",
+      "ManagedAdmission.prepare_method -> validate_request -> owner lock -> retained graph/build -> graph verification -> persist before native dispatch",
+      "NativeTaskOwner authentic result -> ManagedAdmission.ingest_result historical receive-only -> result/receipts/artifacts/inbox persist -> check -> _result_check receipt chain + retained schemas -> immutable MethodCheck/criterion outcomes",
+      "reconcile -> owner lock -> retained graph verification -> existing result/check payload equality -> one-use inbox domain_result_consumed; readback never changes header"
+    ],
+    "new": "NOT_IMPLEMENTED; canonical mission revision blocked before result qualification work"
+  },
+  "manifest_closure": {
+    "changes": [],
+    "checker_source_closure_changed": false,
+    "composer_native_source_changed": false,
+    "comment": "No managed_contract.py/criterion_checks.py edits, no code-identity cutover, no distribution/build changes."
+  },
+  "genuine_pg_native_scenario": {
+    "status": "NOT_PREPARED_SCHEMA_BLOCKER",
+    "executed": false,
+    "collect_only": "NOT_RUN; no invented runnable node or passing collection claim",
+    "existing_runner": "ops/run_test_db_gate.py prove_private_fixture/run_gate via existing private selection wrapper, not direct external DB",
+    "existing_consumer": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox",
+    "existing_selection_wrapper": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "desired_future_node_id": "result-qualification-m1-m2 (PROPOSED_ONLY_NODE_ABSENT)",
+    "desired_future_pytest_argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "/home/kali/OmnisAI/api/pyproject.toml", "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py", "-k", "result-qualification-m1-m2", "-q", "--tb=line"],
+    "prerequisites": [
+      "Parent authorization for canonical mission revision/storage identity and necessary migration/pin expansion",
+      "Completed TDD qualification/input/current-state commands and affected SOURCE regressions/lint/mypy/format on exact snapshot",
+      "Two independent complementary reviews adjudicated before any PG/native launch",
+      "Committed final snapshot supplied by parent; no author commits",
+      "Original shared attested new private fixture, PostgreSQL18 UDS/no-network, no existing DB/r1 adoption",
+      "Pinned uv /home/kali/.local/share/omnis-toolchains/bin/uv",
+      "Source pin /home/kali/.hermes/cache/scratch/contract-method-evidence/pinned with run_agent.py and original exact libraries path from consumer; preflight original hashes without prewarming",
+      "Unchanged original native budgets, NO_MODEL, grants, observer and preparation-double labeling",
+      "Existing NativeTaskOwner/private control and public UDS cached release/receive consumer on authentic full result",
+      "Same genuine result/MethodCheck across additive M2, known finite input drift/invalidation and missing/unsupported states; malformed/foreign/ref/conflict controls on same commands; generated assignment-specific persisted TaskResult schema must still validate exact full result, no NOT_APPLICABLE broadening",
+      "Byte-exact historic readback, no rerun/new work/functional PASS/double inbox/usage/consumption, post-Stop receive-only controls, exact cleanup/drain preserving data/logs"
+    ]
+  },
+  "schema_expansion_inventory": {
+    "necessary_before_implementation": [
+      "New migration after 0012_contract_methods; cannot edit historical migration",
+      "api/src/omnis/core/managed_schema.py exact DDL attestation",
+      "api/src/omnis/core/db.py exact SCHEMA_REVISION",
+      "Strict specialized mission revision validator consumed by managed_store/readback/_verify_graph without weakening historical result validators",
+      "Reviewed identity scheme compatible with managed_record primary key and references",
+      "SOURCE and genuine private-PG migration/current-consumer tests"
+    ],
+    "additional_exact_schema_pins_found": [
+      "cli/src/omnis_cli/instance.py",
+      "cli/src/omnis_cli/release.py",
+      "cli/src/omnis_cli/start.py",
+      "ops/build_control_bundle.py",
+      "api/tests/test_contract_method_migration.py",
+      "api/tests/test_stop_schema.py",
+      "api/tests/fixtures/b06a_durable/releases.py",
+      "cli/integration/installed_start.py",
+      "cli/integration/control_topology.py"
+    ],
+    "scope_conclusion": "This exceeds the original allowed paths and may exceed max8 paths. Parent must negotiate an explicit coherent schema foundation slice or approved canonical representation before qualification implementation; do not broaden under the original author grant."
+  },
+  "limits": [
+    "Requested vertical slice NOT_IMPLEMENTED; this report does not claim completion or substitute an audit for a working qualification.",
+    "Real RED preserved; no GREEN fabricated, no PG/native/canonical acceptance claimed.",
+    "No protected untracked HTML read/edit/delete; no staging/commits/push or product modifications.",
+    "No new owner/table/protocol/framework, no auth freshness simulation, no model/account/provider/target/global/profile effects.",
+    "B06b/G02/P2 remain PARTIAL; P4a-minim not delivered."
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "status": "DECISION_RECOMMENDED_SCHEMA_PREREQUISITE_NOT_IMPLEMENTED",
+  "repository": "/home/kali/OmnisAI",
+  "reviewed_head": "f6b6c93b97eb36dafb546d869999871d17779b29",
+  "scope": "Bounded read-only adjudication of M1/M2 mission revision identity and storage; no implementation, phase audit, launches or test reruns.",
+  "decision": {
+    "recommended_contract": "Keep MissionSpec/RecordEnvelope.id equal to the original mission UUID across M1 and M2. Address mission revisions by (kind=mission, id, revision), and verify digest separately. M1Ref is (mission, original UUID, 1, original digest); M2Ref is (mission, same UUID, 2, independently computed digest).",
+    "normative_certainty": "Architecture does not expressly require every RecordEnvelope.id to remain stable across revisions, nor prescribe a storage primary key. It DOES require exact revision addressability, immutable history and a stable logical mission identity for cumulative focused budgeting. Stable MissionSpec.id is the recommended local contract, not a claim that the canon explicitly bans every alternative representation.",
+    "distinct_revision_record_uuid_with_basis_only": "NOT_ESTABLISHED_CANONICAL. A new UUID/revision=2 plus an arbitrary mission Ref in basis_refs proves neither unique same-mission lineage nor the meaning of future budget mission_id. basis_refs is a plural evidence/dependency field, not a specified predecessor/root relation. New UUID/revision=1 is expressly not a genuine M2. Distinct revision UUIDs could be architecture-compatible ONLY after specifying and enforcing an immutable stable logical mission/root identity, unique lineage/revision addressing and budget-key derivation; those are extra contracts absent from current sources. Do not adopt that alternative merely to retain the present PK.",
+    "focused_budget_identity": "Future (run_id, mission_id, FOCUS_BOOTSTRAP) uses the unchanged original mission UUID, not a revision storage UUID, revision number, new FocusEnvelope ID or fresh counter. An additive revision does not mint a new budget definition/deadline. The current finite FULL_ASSESSMENT path still has null bootstrap_budget_ref and zero/empty discovery; no focused bootstrap implementation is authorized.",
+    "least_complex_scoped_storage": "Retain managed_record as the existing immutable revision-1/FK ledger. Add one narrowly scoped immutable mission revision extension table for revision=2, anchored to its original mission row and composite-addressed by (mission_id, revision). This avoids changing any existing managed_run/task/inbox FK target or rebuilding historical envelopes. It is a proposed additional table requiring explicit parent scope authorization, not an already implemented or proven-minimum DDL design.",
+    "why_this_over_global_surrogate_rekey": "All existing FK-targeted kinds remain revision1 and their original IDs remain exact row identities. Only mission requires the new revision. A mission-only extension localizes new SQL addressing while leaving historical managed_record PK, envelope.id=id and revision=1 constraints intact. A global surrogate/composite migration is coherent but changes a much larger established storage contract without a current consumer requiring generalized revisions."
+  },
+  "canonical_sources": [
+    {"source": "documents/Omnis_MVP_Architecture.md:407-418", "supports": "Historical ingest, current qualification and new admission are distinct; preserve A/M1 after additive M2; invalid state requires revalidation/ineligibility; exact ResultQualification refs, no automatic functional PASS."},
+    {"source": "documents/Omnis_MVP_Architecture.md:420", "supports": "Obligation/execution identities are semantic and structured; revision/UUID churn is not a reason to repeat work or reset limits."},
+    {"source": "documents/Omnis_MVP_Architecture.md:424-426", "supports": "Cumulative focused bootstrap definition is keyed by run_id/mission_id and preserved across additive revisions/re-entry/restart; FULL_ASSESSMENT has no focused budget."},
+    {"source": "documents/Omnis_MVP_Architecture.md:464,479", "supports": "Authority keys/FKs are constrained columns; scoped ownership requires composite FKs or validation, not guessed-ID joins."},
+    {"source": "documents/Omnis_MVP_Architecture.md:530-534", "supports": "Strict Ref includes kind/id/revision/digest; exact canonical digest includes backend-owned ID and revision; every revision immutable; physical storage not prescribed."},
+    {"source": "documents/Omnis_MVP_Architecture.md:550-556", "supports": "Mission has basis_refs but no specified predecessor or logical-root field. Mission/focus append-only under immutable request; consumers cite consumed revision; material objective/mode change requires Stop/new run."}
+  ],
+  "observed_blockers": [
+    {"source": "api/src/omnis/migrations/versions/0011_managed_tasks.py:13-25", "finding": "managed_record.id PK plus envelope.id=id and revision=1 prevent same-ID revision2; immutable trigger prevents rewriting M1."},
+    {"source": "api/src/omnis/migrations/versions/0011_managed_tasks.py:26-57", "finding": "Existing run/manifest/binding/final/brief/result/check/inbox FKs target managed_record(id); preserve those exact meanings."},
+    {"source": "api/src/omnis/modules/tasks/managed_contract.py:1660-1667", "finding": "record() rejects every revision other than integer1 before storage/readback/graph verification."},
+    {"source": "api/src/omnis/modules/tasks/managed_store.py:16-54,98-129", "finding": "put/by_id/get/owned/graph assume one managed_record row per envelope UUID; get already compares complete canonical Ref after lookup."},
+    {"source": "api/src/omnis/modules/runs/managed_admission.py:918-923,970-974,1048-1055", "finding": "Graph uniqueness/lookup is ID-only, including historical mission selection; cannot safely admit M1+M2 with stable ID."},
+    {"source": "api/src/omnis/modules/tasks/criterion_checks.py:222-235", "finding": "Outcome reconstruction uses an ID-only map and must resolve the mission from the historical header's exact Ref; last-row-wins would silently select M2."},
+    {"source": "api/src/omnis/modules/tasks/managed_contract.py:763-772", "finding": "Builder requires exactly one retained mission. Keep revised-context new-work preparation refused; do not replace this with latest mission or resurrect an existing assignment."}
+  ],
+  "minimal_coherent_prerequisite_slice": {
+    "observable_acceptance": "An owned mission M1 and a genuine backend-authored M2 with the same mission UUID/revision2 coexist durably; exact reads and retained M1 graph/result/check reconstruction work without historical byte changes; nonmission revisions remain exactly1; revised-context prepare remains refused and grants no new work.",
+    "proposed_migration": "api/src/omnis/migrations/versions/0013_mission_revisions.py (NEW, proposed), down_revision=0012_contract_methods; do not edit 0011/0012.",
+    "ddl_contract": [
+      "Keep managed_record PK and all existing external FKs and its existing envelope/revision1/immutability checks unchanged. Add a UNIQUE(id,owner_id,run_id) root key if using the recommended composite ownership FK; this is additive DDL, not record mutation.",
+      "Add managed_mission_revision with mission_id uuid, owner_id uuid, run_id uuid, revision bigint, envelope jsonb; all NOT NULL; PRIMARY KEY(mission_id,revision); FOREIGN KEY(mission_id,owner_id,run_id) REFERENCES managed_record(id,owner_id,run_id). The current slice accepts revision=2 ONLY; no generalized arbitrary positive revisions.",
+      "Strict SQL constraints require object envelope, kind=mission, UUID envelope.id=mission_id, numeric integer envelope.revision=revision, numeric integer schema_version=1. Missing/null/string/boolean/fractional fields must fail, including CHECK-NULL loopholes. Keep canonical envelope fields only in authored validation and digest resealing/readback.",
+      "Validate the immutable root is exactly kind mission/revision1 under the same owner/run. A root-kind insertion guard must be enforced and exactly attested, not merely assumed from the FK, because managed_record contains multiple kinds. Verify the exact M1Ref occurs once as the mission predecessor in M2 basis_refs; forbid a second mission basis for this finite transition, self-basis and foreign/unavailable/wrong-digest basis. This is a new narrow lineage interpretation to record explicitly, not an existing meaning of generic basis_refs.",
+      "Block UPDATE/DELETE/TRUNCATE on the extension table, preserving M1 and M2. Do not add mutable latest-mission pointer, ledger, scheduler, admission table or new runtime owner. Store M1 only in managed_record and M2 only in the extension, preventing two physical copies of a revision.",
+      "Do not hash JSONB serialization. Use the existing CanonicalJSON envelope rule; compute M2 digest from same mission UUID, integer2 and authored payload, then independently validate it on read. PostgreSQL JSONB semantic storage is not proof of original wire-byte retention."
+    ],
+    "source_contract": [
+      "Use a specialized backend mission-revision constructor/validator; leave candidate_store.envelope's generic UUID/revision1 defaults and catalog_record storage unchanged. Validate exact schema, finite same-request lineage and allowed additive content before writes. Storage success by itself is not a compatibility or freshness proof.",
+      "Allow managed_contract.record revision2 only for a strictly validated mission. Every other kind, including focus, task-result, method-check, contract-input-command, qualification and catalog-side records, remains exactly integer1 in this slice. Boolean/string revisions never coerce.",
+      "managed_store.get/owned resolve mission by id+revision then compare full Ref including digest and ownership; by_id remains the explicit legacy revision1/FK-row lookup and never means latest. graph merges base and extension deterministically by kind/id/revision, without dropping M1 or M2.",
+      "Graph uniqueness is on (kind,id,revision), and same (kind,id,revision) with different digest/payload is conflict. Resolve every mission from exact consumed Ref, especially historic criterion outcome reconstruction; an ID-only dictionary containing multiple mission revisions is forbidden. Keep nonmission legacy lookups explicitly revision1 rather than overwriting.",
+      "readback must use the unified graph reader; its current direct SELECT managed_record otherwise hides M2. Do not rewrite managed-run/context/focus/cursor/brief/header/TaskResult/MethodCheck to point at M2; those remain the original consumed M1 refs.",
+      "Preparation for new work on a revised mission/context explicitly refuses before assignment persistence or native effects. Existing single-mission builder fail-closed behavior remains; idempotent retrieval of an already admitted M1 receipt is historical readback, not permission to dispatch it again.",
+      "No ResultQualification semantics, semantic dedup engine, replan, coverage denominator, auth freshness or focused ledger implementation in this prerequisite. Qualification work follows separately, on finite retained current records and proof of compatibility."
+    ]
+  },
+  "necessary_source_consumers": [
+    {"source": "api/src/omnis/core/managed_schema.py:51-88", "action": "Add exact extension table columns/constraints and additive root key; retain base revision1 checks."},
+    {"source": "api/src/omnis/core/schema.py:377-472", "action": "Exact attestation must include new immutability and root-insert guard definitions/types/enabled state, not only columns/constraint names. Existing trigger attestor expects exactly one immutable trigger per listed table and cannot blindly absorb a second guard."},
+    {"source": "api/src/omnis/core/db.py:16,86-105", "action": "Single exact new head; old head stays incompatible, no readiness auto-migration."},
+    {"source": "api/src/omnis/modules/tasks/managed_contract.py:1660-1667,763-772", "action": "Mission-only revision2 validator and revised-context new-admission refusal; preserve generic/nonmission revision1."},
+    {"source": "api/src/omnis/modules/tasks/managed_store.py:16-54,98-129,154-203", "action": "Narrow extension write, composite mission resolution, graph union, exact command replay/readback; reuse managed-owner transaction lock."},
+    {"source": "api/src/omnis/modules/runs/managed_admission.py:250-317,331-363,898-1055,1183-1209", "action": "Ref-key graph validation/historical mission resolution; unified readback; explicitly prevent M2 new-work prepare. The retained-map/dedup path must not collapse revisions if reachable."},
+    {"source": "api/src/omnis/modules/tasks/criterion_checks.py:123-143,203-235", "action": "Select historical mission by exact header Ref for outcomes; never current/latest mission. Preserve original checks/outcomes."},
+    {"source": "api/src/omnis/modules/runs/contract_inputs.py:69-117,151-192", "action": "Owning command/transaction seam for later additive mission write; existing context's M1 refs remain exact. No new admission authority in prerequisite."},
+    {"source": "api/src/omnis/modules/tasks/managed_contract.py:1060; api/src/omnis/modules/tasks/managed_composition.py:716-722", "action": "ID-only new-composition maps remain safe ONLY behind explicit revised-graph refusal. Do not widen native/composer acceptance to make M2 admission work."},
+    {"source": "api/src/omnis/modules/settings/candidate_store.py:13-26,35-74", "action": "Leave generic catalog envelope/PK/ref behavior unchanged; do not globally generalize catalog storage."}
+  ],
+  "exact_schema_pins": {
+    "production_change_to_new_exact_head": [
+      "api/src/omnis/core/db.py:16",
+      "cli/src/omnis_cli/instance.py:103",
+      "cli/src/omnis_cli/release.py:22",
+      "cli/src/omnis_cli/start.py:51",
+      "ops/build_control_bundle.py:128"
+    ],
+    "fresh_current_fixture_or_consumer_pins": [
+      "api/tests/test_stop_schema.py:130",
+      "api/tests/test_cli_status.py:45",
+      "api/tests/fixtures/b06a_durable/releases.py:347-349",
+      "cli/tests/test_stop.py:59,1005",
+      "cli/tests/test_status.py:58",
+      "cli/tests/test_schema_compatibility.py:24,54,61",
+      "cli/tests/test_install.py:64,87,92",
+      "cli/tests/stop_owner_fixture.py:179,216",
+      "cli/tests/test_ready_journal.py:33",
+      "cli/tests/test_installed_pointer_schema.py:49",
+      "cli/integration/control_topology.py:920",
+      "cli/integration/installed_start.py:604-614 (finally must restore the new current head after intentional incompatible stamp)"
+    ],
+    "historical_do_not_blind_replace": [
+      "api/src/omnis/migrations/versions/0012_contract_methods.py:5-6 remains historical revision/down_revision",
+      "api/tests/test_contract_method_migration.py:21-23,31,56 preserve the explicit 0011->0012 chain and intermediate target assertion. Separate current-head assertion at20/26 from historical migration-stage probes; add an 0012->0013 preservation probe rather than relabeling old DDL as0013.",
+      "Existing retained release manifests, published preparation receipts, historical schema denial controls and documents/verification evidence remain pinned to their original bytes; a new source/bundle pin does not upgrade them."
+    ]
+  },
+  "source_identity_cutover": {
+    "sources": "api/src/omnis/modules/tasks/method_checker_identity.py:14-28,81-88,106-133",
+    "risk": "managed_contract.py and criterion_checks.py are checker fingerprint closure members. Editing them changes current checker identity even if the method algorithm is unchanged; M1 MethodCheck readback would otherwise fail against the new descriptor.",
+    "required": "Capture the exact pre-edit checker descriptor/composer pair from the current bytes and preserve that exact identity as receive-only compatibility, with independent unchanged historical payload reconstruction/equality. Also capture the pre-edit criterion_checks.py SHA: criterion-outcome-rule.code_digest hashes that whole file (criterion_checks.py:46-58), and receive-only validation recognizes only exact HISTORICAL_RULES entries and supported check states (criterion_checks.py:20-25,189-193,247-249). A ref-key lookup edit changes that rule identity; preserve the original exact digest and actually supported COMPLETE/INCOMPLETE/UNKNOWN states only after proving unchanged historical outcome reconstruction. Do not rewrite old checker/rule records or digests, force current descriptors to old bytes, or admit historical pins for new preparation. Fresh fixtures must use freshly qualified current bytes. Native/composer source need not change for this storage slice."
+  },
+  "pg_acceptance_required_not_run": {
+    "environment": "Only an explicitly authorized newly owned attested disposable PostgreSQL18 UDS/no-network fixture using existing private fixture attestor and runner; empty DB and populated0012 upgrade. No existing operator DB/r1/adoption, service launch or migration occurred in this review.",
+    "positive": [
+      "Fresh empty upgrade to proposed0013 and populated0012->0013; before/after exact original canonical envelopes, FK values and counts retained, with no UPDATE of managed history. Exact PostgreSQL schema attestation passes.",
+      "Persist M1/revision1 and M2/sameUUID/revision2 through real managed-store transaction; close/reopen DB connections and resolve both exact Refs under owner/run; graph includes both deterministically. Check independently computed digests rather than trusting producer equality.",
+      "Pre-existing valid M1 TaskResult/header/brief/MethodCheck/outcomes and original generated result schema read back unchanged after M2 through actual _verify_graph and outcome reconstruction. Use an authentic retained finite result for integration evidence, not a SQL row pretending to prove native execution.",
+      "Same owner/command/exact request returns same M2Ref, row count and receipt without duplicate event/result/usage/inbox/consumption. Rollback injection before command_complete leaves neither M2 nor a success receipt.",
+      "Existing revision1 FK paths still resolve exact run/manifest/binding/final/brief/result/check rows. Existing historical receive/reconcile stays read-only with respect to M1 header/result/check bytes and never grants a new assignment."
+    ],
+    "negative": [
+      "Revision2 for any nonmission kind, including focus, refuses both application and raw-SQL storage boundaries; generic managed_record revision1 checks remain enforced.",
+      "Mission revisions true, strings, zero, negative, fractional, null/missing, and unsupported revision3 refuse before write and cannot pass SQL via CHECK null semantics.",
+      "M2 with a new mission UUID instead of the anchored stable UUID, nonexistent root, nonmission root, foreign owner/run, duplicate tuple/conflicting payload, missing/duplicate/self/foreign/wrong-revision/wrong-digest mission basis refuses atomically. Correct UUID existence alone is not lineage or ownership proof.",
+      "Exact Ref reads with altered kind/revision/digest or foreign owner/run refuse; stale M1Ref still returns M1 and NEVER M2. Corrupt/resealed semantic mismatches are independently rejected.",
+      "UPDATE/DELETE/TRUNCATE on either historical or extension ledger refuses; mutate/remove/disable trigger or change default/PK/FK/check validation/enforcement and exact schema readiness refuses.",
+      "Same command ID with a changed request conflicts; competing commands for the same mission revision cannot create twoM2 rows or overwrite history; concurrent transaction failure has no leaked receipt.",
+      "prepare_method against revised context/graph refuses before managed_run/task/brief/manifest writes, stage/read/tool/model/target activity. No selecting latest, filtering away M2 to make old assignment executable or relaxing builder uniqueness.",
+      "Material mode/objective/request change in same mission refuses; missing compatibility/current finite state never becomes fresh ELIGIBLE/PASS in later qualification. No focused budget allocation/refill occurs in this finite FULL_ASSESSMENT slice.",
+      "A stamped0013 with old/incomplete DDL fails; old0012 with new application still fails current-head readiness. Do not support both heads by weakening exact pins."
+    ],
+    "proof_limit": "All acceptance items are REQUIRED_FUTURE_PROBES, not executed results. Review author inspected sources only. Parent's prior RED is provenance, not new PG acceptance."
+  },
+  "alternatives": [
+    {"option": "Distinct envelope UUID per revision plus parent basis", "verdict": "Not recommended under present canon/finite contract", "reason": "Would require new logical-root interpretation and enforcement, unique lineage and a fixed future budget mission_id mapping; arbitrary basis_refs linkage is insufficient. Can be reconsidered only with explicit reviewed identity contract, not convenience."},
+    {"option": "Single managed_record ledger with surrogate storage row UUID and unique logical(kind,id,revision)", "verdict": "Coherent larger alternative", "reason": "Preserve old FK row UUIDs, separate storage ID from canonical envelope ID, enforce all nonmission revision1 and update every exact resolver/map/DDL attestor. Existing envelope.id=id no longer universal; risk of confusing row ID with logical mission ID. No current nonmission consumer requires this generalization."},
+    {"option": "Replace managed_record PK with composite(id,revision) and migrate every FK to include revision", "verdict": "Coherent but larger, not minimal prerequisite", "reason": "Existing FK meanings can be preserved with explicit revision1 columns/constraints, but needs invasive dependent-FK rewrite and rollback proof without current benefit."},
+    {"option": "Overwrite M1, newUUID/revision1 pseudo-M2, or widen validators only", "verdict": "REJECTED", "reason": "Breaks immutable history/genuine revision2, leaves SQL refusal, or provides no logical identity/ownership/compatibility proof."}
+  ],
+  "rollback_and_data_boundary": {
+    "review": "No repository/data/runtime effects; only this scratch decision artifact was written.",
+    "implementation_source_rollback": "A future coherent local commit is reversed with git revert only after inspecting dependencies; this does not reverse PostgreSQL DDL or published artifacts.",
+    "database": "Recommend explicit downgrade refusal consistent with0011/0012: reviewed backup restoration is required. Never drop M2 history, disable immutable triggers, delete rows, merely restamp alembic_version or automatically migrate an existing operator instance to make the old application appear ready. Even an additive table is not safely erasable after acknowledged M2 refs/receipts exist.",
+    "future_migration_authorization": "Before any populated/operator DB migration: authorized stopped/fenced instance, nonsensitive before/after schema/identity values, compatible full backup and verified restore plan covering DB plus linked retained artifacts; preserve logs/data and published pins. This review authorizes none of those operations. Disposable acceptance fixtures remain separately owned and retained/cleaned only by their attested runner.",
+    "boundary": "Prerequisite schema/storage does not authorize model/provider/account/target traffic, native launches, new mission admission, auth refresh, general replan/coverage/focused budgeting, r1/global/profile changes, staging, commits or push."
+  },
+  "verification": {
+    "executed": ["git status --short --branch", "git diff --stat", "git rev-parse HEAD", "git show --stat --oneline HEAD", "Focused source read_file/search_files calls"],
+    "initial_git_exit_code": 0,
+    "initial_tracked_diff": "empty",
+    "protected_preexisting_untracked": "documents/Omnis_Notite_Originale.html (not read/edited)",
+    "tests": "NOT_RUN_REQUESTED_READ_ONLY",
+    "pg_native_services": "NOT_RUN",
+    "repo_edits": [],
+    "created_files": ["/home/kali/.hermes/cache/scratch/p2-result-qualification-schema-decision-review.json"]
+  },
+  "issues": [
+    "Canon leaves physical storage and stable-envelope-ID wording underdetermined; the recommendation makes the least additional identity interpretation explicit instead of claiming textual certainty.",
+    "The original author path cap/no-table grant cannot absorb this prerequisite. Parent must explicitly authorize a separate coherent schema/pin expansion; do not silently proceed within the original qualification slice.",
+    "The extension-table DDL/trigger/attestor design is a recommendation backed by source invariants, not an executed proof of complexity or migration correctness. PostgreSQL acceptance remains mandatory before product claims."
+  ]
+}

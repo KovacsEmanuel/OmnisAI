@@ -44,8 +44,9 @@ METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b
 COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
-COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -444,6 +445,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
             COMPACT_COMPOSER_REVISION,
@@ -488,6 +490,7 @@ def validate(
     )
     if compact and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
         COMPACT_COMPOSER_REVISION,
@@ -496,6 +499,7 @@ def validate(
         raise CatalogError("COMPOSITION_REJECTED")
     revisions = {
         COMPOSER_REVISION,
+        PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
         METHOD_COMPOSER_REVISION,
@@ -530,6 +534,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
@@ -539,7 +544,12 @@ def validate(
     if (brief_body["done_when"] or brief_body["return_when"]) and (
         not method_execution
         or metadata["composer_revision"]
-        not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
+        not in {
+            COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
+            PREDICATE_COMPOSER_REVISION,
+            APPLICABILITY_COMPOSER_REVISION,
+        }
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     contract.validate_assignment(brief, bound, prompt_bundle=bundle, composition_version=version)
@@ -550,13 +560,22 @@ def validate(
     elif brief_body["input_artifact_refs"] != []:
         raise CatalogError("COMPOSITION_REJECTED")
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
-    if procedure["preconditions"] and (
+    if procedure["invalidation_predicate_ids"] and (
         not method_execution or metadata["composer_revision"] != COMPOSER_REVISION
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    if procedure["preconditions"] and (
+        not method_execution
+        or metadata["composer_revision"] not in {COMPOSER_REVISION, PRECONDITION_COMPOSER_REVISION}
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     if any(
         mapping(r)["applies_if"] for r in sequence(procedure["method_requirements"])
-    ) and metadata["composer_revision"] not in {COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}:
+    ) and metadata["composer_revision"] not in {
+        COMPOSER_REVISION,
+        PRECONDITION_COMPOSER_REVISION,
+        APPLICABILITY_COMPOSER_REVISION,
+    }:
         raise CatalogError("COMPOSITION_REJECTED")
     # Native preflight requires nonempty prose at these method positions.
     # Refuse the same source bytes before persistence, never strip or repair them.
@@ -647,6 +666,7 @@ def validate_case_section(
         raise CatalogError("COMPOSITION_REJECTED")
     procedure = mapping(bound_body["resolved_procedure"])
     contract.require_preconditions(procedure, section["input"])
+    contract.require_not_invalidated(procedure, section["input"])
     schema = mapping(section["schema"])
     if procedure["input_schema_ref"] != schema["ref"] or procedure["slots"] != []:
         raise CatalogError("COMPOSITION_REJECTED")

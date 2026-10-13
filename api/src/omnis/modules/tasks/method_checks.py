@@ -108,7 +108,6 @@ def _procedure(bound: Data, original: Data, actions: list[Data]) -> tuple[Data, 
         raise CatalogError(UNSUPPORTED)
     for key in (
         "applicability_predicate_ids",
-        "invalidation_predicate_ids",
         "requested_capabilities",
         "identity_requirements",
         "business_rule_refs",
@@ -579,6 +578,7 @@ def check_execution(
         try:
             _input(original, body, procedure, uuid_string(owner_id))
             contract.require_preconditions(procedure, original)
+            contract.require_not_invalidated(procedure, original)
             result, receipts, artifacts = _receipts(
                 checked_execution["records"],
                 original,
@@ -589,7 +589,7 @@ def check_execution(
             )
         except CatalogError as error:
             if error.reason in (CONFLICT, "METHOD_OUTPUT_LIMIT") or error.reason.startswith(
-                "PROCEDURE_PRECONDITION_"
+                ("PROCEDURE_PRECONDITION_", "PROCEDURE_INVALIDAT")
             ):
                 raise
             raise CatalogError(RECEIPT) from None

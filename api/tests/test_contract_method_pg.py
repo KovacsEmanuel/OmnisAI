@@ -482,6 +482,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "not-applicable"),
         (False, True, False, False, False, "unknown"),
         (False, True, False, False, False, "precondition"),
+        (False, True, False, False, False, "invalidation"),
     ],
     ids=[
         "support-zero",
@@ -495,6 +496,7 @@ class PreparationPrerequisite(RuntimeClient):
         "applicability-not-applicable",
         "applicability-unknown",
         "procedure-precondition",
+        "procedure-invalidation",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -543,6 +545,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             ]
             if applicability == "precondition":
                 authored["preconditions"] = conditions
+            elif applicability == "invalidation":
+                authored["invalidation_predicate_ids"] = ["contract.records-empty"]
             else:
                 mapping(sequence(authored["method_requirements"])[1])["applies_if"] = conditions
             path.write_text(yaml.safe_dump(authored, sort_keys=False))
@@ -736,7 +740,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             )
             original = await inputs.create_input(input_request)
             assert original["input_ref"] != evaluation["input_ref"]
-            if applicability == "precondition":
+            if applicability in {"precondition", "invalidation"}:
                 denied_context = await inputs.create_method_context(
                     seed.write(
                         schema_version=2,
@@ -758,7 +762,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     before_runs = (
                         await conn.execute(sql("SELECT count(*) FROM managed_run"))
                     ).scalar_one()
-                with pytest.raises(CatalogError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+                denial = (
+                    "PROCEDURE_PRECONDITION_FALSE"
+                    if applicability == "precondition"
+                    else "PROCEDURE_INVALIDATED"
+                )
+                with pytest.raises(CatalogError, match="^" + denial + "$"):
                     await domain.prepare_method(
                         seed.write(
                             schema_version=3,
@@ -779,8 +788,14 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         await conn.execute(sql("SELECT count(*) FROM managed_run"))
                     ).scalar_one() == before_runs
                 checkpoint(
-                    precondition_false="REFUSED_BEFORE_ASSIGNMENT_WRITES",
-                    precondition_native="NOT_RUN_YET",
+                    **{
+                        (
+                            "precondition_false"
+                            if applicability == "precondition"
+                            else "invalidation_true"
+                        ): "REFUSED_BEFORE_ASSIGNMENT_WRITES",
+                        applicability + "_native": "NOT_RUN_YET",
+                    }
                 )
             assignment = seed.write(
                 schema_version=3,
@@ -1425,6 +1440,18 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     if early_return or applicability == "not-applicable"
                     else "COMPLETE"
                 )
+                if applicability == "invalidation":
+                    bound = next(r for r in graph if r["kind"] == "bound-procedure")
+                    procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
+                    assert procedure["invalidation_predicate_ids"] == ["contract.records-empty"]
+                    methods = [
+                        mapping(r) for r in sequence(mapping(result["payload"])["method_results"])
+                    ]
+                    assert len(methods) == 3 and all(r["state"] == "DONE" for r in methods)
+                    checkpoint(
+                        invalidation_native="NOT_INVALIDATED",
+                        invalidation_method_check=expected_check,
+                    )
                 if applicability in {"applies", "not-applicable", "unknown"}:
                     plan = mapping(mapping(sequence(back["briefs"])[0])["payload"])["method_plan"]
                     planned = [mapping(r) for r in sequence(mapping(plan)["requirements"])]

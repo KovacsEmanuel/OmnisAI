@@ -53,6 +53,12 @@ APPLICABILITY_HISTORICAL = {
 }
 
 
+# Exact precondition producer before finite invalidation: receive-only.
+PRECONDITION_HISTORICAL = {
+    "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -88,6 +94,7 @@ def verify(
             FULL_PREDICATE_HISTORICAL.get(digest) == pin
             or PARTIAL_PREDICATE_HISTORICAL.get(digest) == pin
             or APPLICABILITY_HISTORICAL.get(digest) == pin
+            or PRECONDITION_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

@@ -514,9 +514,13 @@ def _compile_catalog(
                 raise CatalogError("UNSUPPORTED_FEATURE")
             for artifact_schema in requirement.artifact_schema_refs:
                 get_schema(key, artifact_schema)
-        from omnis.modules.tasks.managed_contract import requirement_conditions
+        from omnis.modules.tasks.managed_contract import (
+            invalidation_declaration,
+            requirement_conditions,
+        )
 
         requirement_conditions(procedure.model_dump(mode="json"))
+        invalidation_declaration(procedure.model_dump(mode="json"))
         if any(
             (
                 procedure.applicability_predicate_ids,
@@ -524,7 +528,6 @@ def _compile_catalog(
                 procedure.identity_requirements,
                 procedure.requested_capabilities,
                 procedure.evidence_requirements,
-                procedure.invalidation_predicate_ids,
                 procedure.stop_reason_ids,
                 procedure.oracle_ref,
             )

@@ -102,6 +102,7 @@ def native_case(
     return_predicate: str = "build-surface-map",
     applies_expected: bool | None = None,
     precondition_expected: bool | None = None,
+    invalidation: bool = False,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -243,6 +244,8 @@ def native_case(
                     "on_missing": "INCONCLUSIVE",
                 }
             ]
+        if invalidation:
+            procedure["invalidation_predicate_ids"] = ["contract.records-empty"]
         if predicates:
             obj(brief["payload"])["done_when"] = [
                 {"bound_procedure_ref": records.reference(bound), "predicate_id": obj(r)["key"]}

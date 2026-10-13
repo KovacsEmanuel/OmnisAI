@@ -15,8 +15,9 @@ from test_c03_managed_capture import capture_source, material
 
 
 @pytest.mark.parametrize("empty", [False, True])
+@pytest.mark.parametrize("guard", ["precondition", "invalidation", "invalidation-old-pin"])
 def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
-    tmp_path: Path, empty: bool
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, empty: bool, guard: str
 ) -> None:
     from uuid import uuid4
 
@@ -41,6 +42,9 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             "on_missing": "BLOCKED",
         }
     ]
+    if guard.startswith("invalidation"):
+        authored["preconditions"] = []
+        authored["invalidation_predicate_ids"] = ["contract.records-empty"]
     write_yaml(path, authored)
     compiled = compile_catalog((seed.package,), seed.profile)
     retained, sources, _ = capture([str(seed.package)], str(seed.profile))
@@ -78,7 +82,14 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
         {p: (seed.package / p).read_bytes() for p in PATHS},
         dto((seed.package / "omnis.yaml").read_bytes(), Manifest),
     )
-    prefix = source.build(context_only=True, method_execution=True)
+    with monkeypatch.context() as prior:
+        if guard == "invalidation-old-pin":
+            prior.setattr(
+                managed_composition,
+                "COMPOSER_REVISION",
+                managed_composition.PRECONDITION_COMPOSER_REVISION,
+            )
+        prefix = source.build(context_only=True, method_execution=True)
     run = next(r for r in prefix if r["kind"] == "managed-run")
     body = mapping(run["payload"])
     schema_ref, raw, schema_path = source.input_schema()
@@ -101,8 +112,23 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
     section = material_section(context, item, schema_ref, raw, schema_path=schema_path)
     prefix.extend([context, item])
     before = canonical(prefix)
+    if guard == "invalidation-old-pin":
+        attempts: list[str] = []
+
+        def forbidden_uuid() -> object:
+            attempts.append("uuid")
+            raise AssertionError("old pin refused after assignment allocation")
+
+        monkeypatch.setattr(managed_contract, "uuid4", forbidden_uuid)
+        with pytest.raises(CatalogError, match="^BOUND_PREDICATE_UNAVAILABLE$"):
+            source.build(prefix=prefix, case_input=section, method_execution=True)
+        assert attempts == [] and canonical(prefix) == before
+        return
     if empty:
-        with pytest.raises(CatalogError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+        reason = (
+            "PROCEDURE_PRECONDITION_FALSE" if guard == "precondition" else "PROCEDURE_INVALIDATED"
+        )
+        with pytest.raises(CatalogError, match="^" + reason + "$"):
             source.build(prefix=prefix, case_input=section, method_execution=True)
         assert canonical(prefix) == before
         assert not any(
@@ -113,9 +139,12 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
         graph = source.build(prefix=prefix, case_input=section, method_execution=True)
         bound = next(r for r in graph if r["kind"] == "bound-procedure")
         resolved = mapping(mapping(bound["payload"])["resolved_procedure"])
-        assert mapping(managed_contract.sequence(resolved["preconditions"])[0])["input_refs"] == [
-            records.reference(item)
-        ]
+        if guard == "precondition":
+            assert mapping(managed_contract.sequence(resolved["preconditions"])[0])[
+                "input_refs"
+            ] == [records.reference(item)]
+        else:
+            assert resolved["invalidation_predicate_ids"] == ["contract.records-empty"]
         brief = next(r for r in graph if r["kind"] == "task-brief")
         assert (
             len(

@@ -58,6 +58,7 @@ COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1
 CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -192,6 +193,41 @@ def requirement_conditions(procedure: object, input_ref: object) -> None:
             raise reject()
 
 
+def invalidation_declaration(procedure: object) -> None:
+    p = mapping(procedure)
+    ids = sequence(p["invalidation_predicate_ids"])
+    if ids and (
+        type(p["key"]) is not str
+        or p["key"] != "map-records"
+        or len(ids) != 1
+        or type(ids[0]) is not str
+        or ids[0] != "contract.records-empty"
+    ):
+        raise reject()
+
+
+def require_not_invalidated(procedure: object, original: object = None) -> None:
+    """Finite admission guard, not external freshness or ResultQualification."""
+    p = mapping(procedure)
+    invalidation_declaration(p)
+    if not p["invalidation_predicate_ids"]:
+        return
+    if original is None:
+        raise ValueError("PROCEDURE_INVALIDATION_UNKNOWN")
+    source = mapping(sequence(mapping(sequence(p["probe"])[0])["input_bindings"])[0])["source_ref"]
+    available = envelope(original, "contract-case-records")
+    if canonical(ref(available)) != canonical(reference(source, "contract-case-records")):
+        raise reject()
+    payload = mapping(available["payload"])
+    if canonical(reference(payload["schema_ref"], "schema")) != canonical(
+        reference(p["input_schema_ref"], "schema")
+    ):
+        raise reject()
+    value = obj(payload["value"], {"records"})
+    if not sequence(value["records"]):
+        raise ValueError("PROCEDURE_INVALIDATED")
+
+
 def require_preconditions(procedure: object, original: object = None) -> None:
     """Independent finite preflight from retained constructor-owned material."""
     p = mapping(procedure)
@@ -251,6 +287,7 @@ def method_plan(bound: object, original: object = None) -> list[dict[str, object
 
 def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, object]:
     p = obj(value, PROCEDURE_FIELDS)
+    invalidation_declaration(p)
     integer(p["schema_version"], 1, 1)
     key(p["key"])
     if (
@@ -266,7 +303,6 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
         "requested_capabilities",
         "evidence_requirements",
         "slots",
-        "invalidation_predicate_ids",
         "stop_reason_ids",
     ):
         if p[field] != []:
@@ -455,6 +491,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             composer_revision(),
+            PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
@@ -470,10 +507,17 @@ def validate_predicates(
         if type(pin) is not str or pin not in revisions:
             raise reject()
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
+        if procedure["invalidation_predicate_ids"] and (version != 4 or pin != composer_revision()):
+            raise reject()
         required = (
             version == 4
             and pin
-            in {composer_revision(), PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
+            in {
+                composer_revision(),
+                PRECONDITION_COMPOSER_REVISION,
+                PREDICATE_COMPOSER_REVISION,
+                APPLICABILITY_COMPOSER_REVISION,
+            }
             and procedure["key"] == "map-records"
         )
         if (b["done_when"] or b["return_when"]) and (
@@ -481,6 +525,7 @@ def validate_predicates(
             or pin
             not in {
                 composer_revision(),
+                PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
                 APPLICABILITY_COMPOSER_REVISION,
             }
@@ -596,7 +641,12 @@ def _brief(
     validate_predicates(body, method, prompt_bundle=bundle, composition_version=composition_version)
     if (body["done_when"] or body["return_when"]) and mapping(bundle["payload"])[
         "composer_revision"
-    ] not in {composer_revision(), PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}:
+    ] not in {
+        composer_revision(),
+        PRECONDITION_COMPOSER_REVISION,
+        PREDICATE_COMPOSER_REVISION,
+        APPLICABILITY_COMPOSER_REVISION,
+    }:
         raise reject()
     reference(bound["mission_ref"], "mission")
     slots = [] if capture is None else [{"slot_name": input_name, "refs": input_refs}]
@@ -607,10 +657,17 @@ def _brief(
     p = _procedure(bound["resolved_procedure"], capture_bound=capture is not None)
     if p["preconditions"] and (
         composition_version != 4
-        or mapping(bundle["payload"])["composer_revision"] != composer_revision()
+        or mapping(bundle["payload"])["composer_revision"]
+        not in {composer_revision(), PRECONDITION_COMPOSER_REVISION}
     ):
         raise reject()
     require_preconditions(p, None if capture is None else capture["input"])
+    if p["invalidation_predicate_ids"] and (
+        composition_version != 4
+        or mapping(bundle["payload"])["composer_revision"] != composer_revision()
+    ):
+        raise reject()
+    require_not_invalidated(p, None if capture is None else capture["input"])
     expected_binding = {
         "procedure_ref": bound["procedure_ref"],
         "slot_values": slots,
@@ -628,7 +685,11 @@ def _brief(
         raise reject()
     if any(mapping(r)["applies_if"] for r in sequence(p["method_requirements"])) and mapping(
         bundle["payload"]
-    )["composer_revision"] not in {composer_revision(), APPLICABILITY_COMPOSER_REVISION}:
+    )["composer_revision"] not in {
+        composer_revision(),
+        PRECONDITION_COMPOSER_REVISION,
+        APPLICABILITY_COMPOSER_REVISION,
+    }:
         raise reject()
     expected_requirements = method_plan(method, None if capture is None else capture["input"])
     if any(r["applicability"] == "UNKNOWN" for r in expected_requirements):
@@ -989,6 +1050,7 @@ def _material(
         actual_version = 4
     revisions = {
         composer_revision(),
+        PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
         METHOD_COMPOSER_REVISION,
@@ -1044,6 +1106,7 @@ def _material(
         or b["composer_revision"]
         not in {
             composer_revision(),
+            PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
@@ -1179,6 +1242,7 @@ def validate_composition(
         mapping(payload["prompt_bundle"])["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
         COMPACT_COMPOSER_REVISION,

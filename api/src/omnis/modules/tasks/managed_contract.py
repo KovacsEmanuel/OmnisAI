@@ -67,6 +67,42 @@ def requirement_conditions(procedure: object, input_ref: object = None) -> None:
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
 
 
+def invalidation_declaration(procedure: object) -> None:
+    """One installed predicate on the existing records input, not a registry."""
+    p = mapping(procedure)
+    ids = sequence(p["invalidation_predicate_ids"])
+    if ids and (
+        type(p["key"]) is not str
+        or p["key"] != "map-records"
+        or len(ids) != 1
+        or type(ids[0]) is not str
+        or ids[0] != "contract.records-empty"
+    ):
+        raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+
+
+def require_not_invalidated(procedure: object, original: object = None) -> None:
+    """Admission guard only; no external auth/input freshness qualification."""
+    p = mapping(procedure)
+    invalidation_declaration(p)
+    if not p["invalidation_predicate_ids"]:
+        return
+    if original is None:
+        raise CatalogError("PROCEDURE_INVALIDATION_UNKNOWN")
+    source = mapping(sequence(mapping(sequence(p["probe"])[0])["input_bindings"])[0])["source_ref"]
+    available = record(original, "contract-case-records")
+    if canonical(records.reference(available)) != canonical(ref(source, "contract-case-records")):
+        raise CatalogError("REF_MISMATCH")
+    payload = mapping(available["payload"])
+    if canonical(ref(payload["schema_ref"], "schema")) != canonical(
+        ref(p["input_schema_ref"], "schema")
+    ):
+        raise CatalogError("REF_MISMATCH")
+    value = exact(payload["value"], {"records"})
+    if not sequence(value["records"]):
+        raise CatalogError("PROCEDURE_INVALIDATED")
+
+
 def require_preconditions(procedure: object, original: object = None) -> None:
     """Refuse false/UNKNOWN before admission; never turn a precondition into N/A."""
     p = mapping(procedure)
@@ -204,6 +240,7 @@ def validate_predicates(
             CRITERIA_COMPOSER_REVISION,
             LEGACY_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             RECORDS_COMPOSER_REVISION,
         )
@@ -217,6 +254,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             APPLICABILITY_COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
             COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
@@ -232,16 +270,28 @@ def validate_predicates(
         if type(pin) is not str or pin not in revisions:
             raise CatalogError("BOUND_PREDICATE_GAP")
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
+        if procedure["invalidation_predicate_ids"] and (version != 4 or pin != COMPOSER_REVISION):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         required = (
             version == 4
             and pin
-            in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
+            in {
+                COMPOSER_REVISION,
+                PRECONDITION_COMPOSER_REVISION,
+                PREDICATE_COMPOSER_REVISION,
+                APPLICABILITY_COMPOSER_REVISION,
+            }
             and procedure["key"] == "map-records"
         )
         if (b["done_when"] or b["return_when"]) and (
             version != 4
             or pin
-            not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
+            not in {
+                COMPOSER_REVISION,
+                PRECONDITION_COMPOSER_REVISION,
+                PREDICATE_COMPOSER_REVISION,
+                APPLICABILITY_COMPOSER_REVISION,
+            }
         ):
             raise CatalogError("BOUND_PREDICATE_GAP")
     if not b["done_when"] and not b["return_when"] and not required:
@@ -386,7 +436,6 @@ def build_records(
         or procedure.business_rule_refs
         or procedure.evidence_requirements
         or procedure.applicability_predicate_ids
-        or procedure.invalidation_predicate_ids
         or procedure.stop_reason_ids
         or procedure.oracle_ref is not None
         or not 1 <= len(procedure.method_requirements) <= 128
@@ -395,6 +444,7 @@ def build_records(
     ):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     requirement_conditions(procedure.model_dump(mode="json"))
+    invalidation_declaration(procedure.model_dump(mode="json"))
     if len({r.key for r in procedure.method_requirements}) != len(procedure.method_requirements):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
     source = mapping(selection["payload"])
@@ -686,7 +736,17 @@ def build_records(
         ]
         authored["slots"] = []
     resolved = mapping(resolve_local(authored, package, local_bindings))
+    if resolved["invalidation_predicate_ids"]:
+        from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
+
+        retained_prompt = next(r for r in graph if r["id"] == prompt["id"])
+        if (
+            not method_execution
+            or mapping(retained_prompt["payload"])["composer_revision"] != COMPOSER_REVISION
+        ):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     require_preconditions(resolved, None if case_input is None else case_input["input"])
+    require_not_invalidated(resolved, None if case_input is None else case_input["input"])
     if (
         case_input is not None
         and resolved["input_schema_ref"] != mapping(case_input["schema"])["ref"]
@@ -1294,6 +1354,7 @@ def validate_assignment(
     ) != canonical(mapping(body["header"])["mission_revision"]):
         raise CatalogError("ASSIGNMENT_MISMATCH")
     procedure = mapping(bound_body["resolved_procedure"])
+    invalidation_declaration(procedure)
     from omnis.modules.tasks.criterion_checks import bindings
 
     known_steps = [mapping(s)["id"] for s in sequence(procedure["probe"])]

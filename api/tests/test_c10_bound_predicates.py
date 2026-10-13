@@ -10,6 +10,186 @@ from test_contract_method_checks import native_case, obj, rebind_mutation, resea
 
 
 @pytest.mark.parametrize("compact", [False, True])
+def test_invalidation_nonempty_runs_real_source_read_pure_and_keeps_obligations(
+    compact: bool,
+) -> None:
+    case = native_case(predicates=True, compact=compact, invalidation=True)
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    assert [
+        obj(r["payload"])["operation"] for r in emitted if r["kind"] == "contract-tool-receipt"
+    ] == ["READ_INPUT", "PURE_ACTION", "PURE_ACTION"]
+    results = rows(obj(emitted[0]["payload"])["method_results"])
+    assert len(results) == 3 and all(obj(r)["state"] == "DONE" for r in results)
+    assert obj(case.check()["payload"])["status"] == "COMPLETE"
+
+
+def test_invalidation_empty_refuses_native_initialization_before_uuid_or_access(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib
+    import json
+
+    from omnis.modules.settings.catalog_schema import canonical
+
+    case = native_case(predicates=True, empty=True)
+    native = importlib.import_module("agent.contract_execution")
+    method = importlib.import_module("omnis_hermes.contract_method")
+    payload = obj(obj(rows(case.stage["compositions"])[0])["payload"])
+    sections = rows(json.loads(str(payload["text"])))
+    p = obj(obj(obj(obj(sections[3])["record"])["payload"])["resolved_procedure"])
+    p["invalidation_predicate_ids"] = ["contract.records-empty"]
+    reseal_assignment(case.stage, sections, case.prompt_bundle)
+    attempts: list[str] = []
+
+    def forbidden(*args: object, **kwargs: object) -> object:
+        attempts.append("uuid-or-access")
+        raise AssertionError("invalidation refused too late")
+
+    class SourceAgent:
+        session_id: str
+        _subagent_id: str
+        _cold_state: object
+
+    parent = SourceAgent()
+    child = SourceAgent()
+    parent.session_id = "source-root-session"
+    parent._subagent_id = "source-root-id"
+    parent._cold_state = native.ColdState(parent.session_id, parent._subagent_id, None)
+    monkeypatch.setattr(native, "uuid4", forbidden)
+    monkeypatch.setattr(native.BoundContractTools, "_read_bound_input", forbidden)
+    monkeypatch.setattr(method, "run_handler", forbidden)
+    with pytest.raises(ValueError, match="^PROCEDURE_INVALIDATED$"):
+        native.initialize_contract(
+            child, native.ContractAdmission(parent, canonical(case.stage)), {}
+        )
+    assert attempts == []
+    assert child.__dict__ == {}
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_prior_precondition_pair_is_exact_receive_only_compatible(compact: bool) -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        compact=compact,
+        precondition_expected=True,
+        composer_pin="065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+    )
+    case.checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "semantics": SEMANTICS,
+            "code_digest": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+        },
+    )
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"
+    checked = obj(case.check(receive_only=True)["payload"])
+    assert checked["status"] == "COMPLETE"
+    assert len(rows(checked["checked_results"])) == 3 and checked["gap_refs"] == []
+
+
+@pytest.mark.parametrize(
+    "pin",
+    [
+        "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+        "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+        "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850",
+        "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed",
+    ],
+)
+def test_invalidation_cannot_be_added_to_retained_older_pin(pin: str) -> None:
+    case = native_case(predicates=not pin.startswith("717"), composer_pin=pin)
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    p["invalidation_predicate_ids"] = ["contract.records-empty"]
+
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check(receive_only=True)
+    from omnis_hermes.contract_method import task_result
+
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    with pytest.raises(ValueError):
+        task_result(
+            case.brief,
+            case.bound,
+            case.original,
+            [r for r in emitted if r["kind"] == "contract-tool-receipt"],
+            [r for r in emitted if r["kind"] == "contract-artifact"],
+            prompt_bundle=case.prompt_bundle,
+        )
+
+
+def test_invalidation_missing_input_is_unknown_on_both_finite_guards() -> None:
+    from omnis.modules.tasks.managed_contract import require_not_invalidated as api_guard
+
+    case = native_case(predicates=True, invalidation=True)
+    from omnis_hermes.prompt_bundle import require_not_invalidated as native_guard
+
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    api_guard(p, case.original)
+    native_guard(p, case.original)
+    with pytest.raises(CatalogError, match="^PROCEDURE_INVALIDATION_UNKNOWN$"):
+        api_guard(p)
+    with pytest.raises(ValueError, match="^PROCEDURE_INVALIDATION_UNKNOWN$"):
+        native_guard(p)
+
+
+@pytest.mark.parametrize(
+    "attack", ["unknown", "duplicate", "foreign-procedure", "nonstring", "spoofed-string"]
+)
+def test_invalidation_declaration_is_exact_finite_key_only(attack: str) -> None:
+    from omnis.modules.tasks.managed_contract import invalidation_declaration as api_declaration
+
+    case = native_case(predicates=True, invalidation=True)
+    from omnis_hermes.prompt_bundle import invalidation_declaration as native_declaration
+
+    p = deepcopy(obj(obj(case.bound["payload"])["resolved_procedure"]))
+    if attack == "unknown":
+        p["invalidation_predicate_ids"] = ["contract.records-nonempty"]
+    elif attack == "duplicate":
+        p["invalidation_predicate_ids"] = ["contract.records-empty", "contract.records-empty"]
+    elif attack == "foreign-procedure":
+        p["key"] = "map-capture"
+    elif attack == "nonstring":
+        p["invalidation_predicate_ids"] = [True]
+    else:
+
+        class SpoofedString(str):
+            def __eq__(self, other: object) -> bool:
+                return True
+
+        p["invalidation_predicate_ids"] = [SpoofedString("foreign")]
+    with pytest.raises(CatalogError, match="^BOUND_PREDICATE_UNAVAILABLE$"):
+        api_declaration(p)
+    with pytest.raises(ValueError):
+        native_declaration(p)
+
+
+def test_invalidation_checker_and_result_refuse_genuine_empty_receipts() -> None:
+    case = native_case(predicates=True, empty=True)
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    p["invalidation_predicate_ids"] = ["contract.records-empty"]
+    rebind_mutation(case)
+    with pytest.raises(CatalogError, match="^PROCEDURE_INVALIDATED$"):
+        case.check()
+    from omnis_hermes.contract_method import task_result
+
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    with pytest.raises(ValueError, match="^PROCEDURE_INVALIDATED$"):
+        task_result(
+            case.brief,
+            case.bound,
+            case.original,
+            [r for r in emitted if r["kind"] == "contract-tool-receipt"],
+            [r for r in emitted if r["kind"] == "contract-artifact"],
+            prompt_bundle=case.prompt_bundle,
+        )
+
+
+@pytest.mark.parametrize("compact", [False, True])
 @pytest.mark.parametrize("empty,expected", [(False, True), (True, False)])
 def test_procedure_precondition_real_source_producer_keeps_all_obligations(
     compact: bool, empty: bool, expected: bool

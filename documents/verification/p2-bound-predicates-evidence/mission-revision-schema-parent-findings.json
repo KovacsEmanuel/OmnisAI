@@ -1,0 +1,30 @@
+{
+  "status": "CHANGES_REQUESTED_SOURCE_PARENT_REPRODUCED_PG_NOT_RUN",
+  "base_head": "45fa7ff304367bbd78b042da4f8dbb49004fed1e",
+  "finding_dispositions": {
+    "INPUT-MR-F01": "CONFIRMED_SOURCE_ROOT_UNQUALIFIED_NO_FIXED_PATH; actual temp shadow-root PG execution NOT_RUN",
+    "INPUT-MR-F02": "CONFIRMED_SOURCE_THREE_BARE_RELATION_TOKENS_NO_PHYSICAL_IDENTITY; actual alias false-ready PG execution NOT_RUN",
+    "INPUT-MR-F03": "CONFIRMED_SOURCE_JSON_ID_CAST_TO_UUID_NOT_STRING; PostgreSQL UUID alternative form documented, actual numeric insertion NOT_RUN"
+  },
+  "parent_reproducer": {
+    "reviewer_source_probe": "p2-ms-input-review-source-probe.py",
+    "exact_synthetic_catalog_accepted": true,
+    "bare_mission_lookup_count": 3,
+    "namespace_and_kind_reads": false,
+    "root_unqualified": true,
+    "guard_proconfig_unset_accepted": true,
+    "new_independent_SOURCE_regressions": "Three inline unittest regressions against emitted SQL and actual catalog decision with declared driver double",
+    "result": "3 FAIL,0.013s,exit1",
+    "limits": "SOURCE/query-shape, not real database exploit or enforcement proof"
+  },
+  "corrective_scope": "Only6 existing foundation paths;17 source/pin paths unchanged, no old migrations/global privilege audit/qualification/new authority. Fixed namespace/OID relation binding and exact JSON-string identity, RED->GREEN thentwofocusedre-reviews before realPG.",
+  "historical_reviews": "Original normative APPROVED_SOURCE remains at old23SHA; complementary CHANGES_REQUESTED not discarded. Later new empty findings must explicitly close F01/F02/F03.",
+  "global_gates": {
+    "PG": "NOT_RUN",
+    "canonical_final": "NOT_RUN",
+    "M2API": "NOT_IMPLEMENTED",
+    "ResultQualification": "NOT_IMPLEMENTED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a": "NOT_IMPLEMENTED"
+  }
+}

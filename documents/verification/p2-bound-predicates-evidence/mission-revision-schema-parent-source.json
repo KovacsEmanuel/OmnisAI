@@ -1,0 +1,77 @@
+{
+  "status": "PASS_SOURCE_ONLY_PENDING_TWO_REVIEWS_AND_REAL_PRIVATE_PG",
+  "base_head": "45fa7ff304367bbd78b042da4f8dbb49004fed1e",
+  "author_report": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-author.json",
+  "author_report_sha256": "1b63ce2f1c77ec9d78e6ccb4300c55b042e719ffd90ce34c51d0ac73e5db6347",
+  "snapshot_verification": {
+    "frozen_file_count": 23,
+    "all_source_sha_match": true,
+    "old_migrations_unchanged": 2,
+    "method_consumer_sources_unchanged": 6,
+    "author_log_sha_verified": 33,
+    "exported_patch_sha_match_and_reverse_check": true
+  },
+  "parent_checks": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-parent-source api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_managed_contract.py -k 'not test_pg' -q --tb=line",
+      "passed": 255,
+      "deselected_pg": 29,
+      "seconds": 16.04,
+      "exit": 0,
+      "scope": "SOURCE and explicit driver doubles, no PG"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p2-ms-parent-empty-config cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_schema_compatibility.py -v",
+      "passed": 2,
+      "exit": 0,
+      "scope": "CLI pure source current0013/old schema denials"
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "exit": 0,
+      "output": "[][]",
+      "scope": "Real Make JSON Ruff/format/mypy targets; empty diagnostic arrays are not product acceptance"
+    },
+    {
+      "command": "Direct Ruff check/format plus mypy --no-incremental on core/db.py, core/managed_schema.py, core/schema.py, migrations/versions/0013_mission_revisions.py, tests/test_mission_revision_schema.py, tests/test_mission_revision_migration.py",
+      "checked_files": 6,
+      "exit": 0,
+      "output": "All checks passed;6 files already formatted;no issues in6 source files"
+    },
+    {
+      "command": "Hash every author log and both ZIP wheels; compare every API84/CLI21 source module byte-exact with wheel entries; read release.json and checksum every manifest-bound payload",
+      "exit": 0,
+      "API_modules": 84,
+      "CLI_modules": 21,
+      "bundle_files": 10,
+      "bundle_schema": "0013_mission_revisions",
+      "scope": "BUILT_NOT_INSTALLED_NOT_LAUNCHED"
+    }
+  ],
+  "prepared_selection": {
+    "wrapper": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22",
+    "selection": "mission-revision",
+    "actual_existing_target": "test-contract-method-pg",
+    "runner": "ops/run_test_db_gate.py prove_private_fixture/run_gate unchanged",
+    "timeout_seconds": 240,
+    "files": ["api/tests/test_mission_revision_migration.py", "api/tests/test_contract_method_migration.py"],
+    "k": "test_pg",
+    "native_opt_in": false,
+    "source_wrapper_controls": 3,
+    "help_exit": 0,
+    "collection_exit": 0,
+    "selected": 29,
+    "collected": 31,
+    "deselected": 2,
+    "scope": "Selection/preflight only, same actual family owner; no provisioning or launch"
+  },
+  "limits": [
+    "Review and PG acceptance pending; source deparser expectations not confirmed on real PostgreSQL",
+    "M2 API consumer and ResultQualification NOT_IMPLEMENTED; record/store/graph still revision1-only",
+    "Method/native/composer identity closure unchanged",
+    "No installed/native/browser/canonical execution",
+    "No r1/operator data/account/model/target/global/push effects",
+    "B06b/G02/P2 PARTIAL_NOT_CLOSED; P4a NOT_IMPLEMENTED"
+  ]
+}

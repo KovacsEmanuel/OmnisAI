@@ -1,0 +1,1074 @@
+{
+  "status": "PREPARED_SOURCE_VERIFIED_PENDING_INDEPENDENT_REVIEWS_AND_PRIVATE_PG",
+  "repository": "/home/kali/OmnisAI",
+  "base_head": "45fa7ff304367bbd78b042da4f8dbb49004fed1e",
+  "scope": "ONE mission revision2 schema/storage prerequisite; 23 allowed paths, one writer, no commits/index writes/PG/native/operator launch.",
+  "author_result": {
+    "migration": "0013_mission_revisions after byte-exact0012; one extension managed_mission_revision, stable mission_id/revision2 only, all five columns NOT NULL, composite owner/run FK, immutable base and extension.",
+    "base_changes": "Only additive managed_record UNIQUE(id,owner_id,run_id); original columns, defaults, checks, PK, existing FKs and immutable migration/body remain unchanged.",
+    "guard": "Actual same-owner/run root must be mission/revision integer1/schema integer1 with matching original ID and digest; exactly one exact M1 mission predecessor in payload.basis_refs, no self/foreign/missing/wrong/duplicate mission predecessor.",
+    "strict_sql": "Object envelope; mission kind; matching UUID; revision column2; numeric JSON integer2/schema_version integer1, and lexical integer comparison; IS TRUE closes missing/JSON-null CHECK loopholes. No JSONB serialization hashing.",
+    "readiness": "Exact columns/defaults/every constraint/NOT NULL names/validated/enforced plus both trigger identities, body, trigger event type/enabled/condition/args, function language/return/security/config/kind/volatility/strictness/namespace and deferrability. New second guard handled only for new table; original single-trigger contracts retained.",
+    "pins": "Single new exact current head in API core/db, CLI instance/release/start, bundle builder, all listed fresh fixtures and integration restore-finally.0012 added to CLI instance/DB/release old-schema denials; historic0011->0012 stage and PG function preserved.",
+    "no_consumer": "record()/managed_store/graph/method checker/criterion compiler untouched. Current application cannot create/read M2. SQL storage success is NOT mission compatibility, freshness, qualification, native result acceptance or new-admission approval."
+  },
+  "frozen_files": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14288,
+      "sha256": "b41d1728c28f73c305ebdcdb1853bae70432e571217899a0de4628bb1a5380d8"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 19643,
+      "sha256": "ae5ce8a55e81e728fba29c9ecaf74ea8a1c29d44f41af81d8453bb1ce4c888d4"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4412,
+      "sha256": "db6b52fde84f880261bf35d177e9fb2237bdbbd79a5920e93d1df68927a795ad"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 16977,
+      "sha256": "462c43bd3bdb0090bbdecc6bf4ec1cad08835194c930e6aff11f068c1d5859cc"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 11555,
+      "sha256": "7bbdfdfa2927a6e1dc6a07b6b33826120bdf974ad67b5f2a353700f43f366e17"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 5163,
+      "sha256": "e23a5e6e5d4575883b90696c7c2756168e88a6a4a8a9d448d24f52bb3056e48b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "file_count": 23,
+  "exported_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema.patch",
+    "sha256": "bda2fdba980350f2c47528a6a51340a14983c0665d862459407398f4475bf6e3",
+    "reverse_apply_check_exit": 0,
+    "format": "Full git unified binary-capable patch, includes all 20 tracked modifications and 3 new files; no index changes."
+  },
+  "old_migrations": {
+    "api/src/omnis/migrations/versions/0011_managed_tasks.py": {
+      "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d",
+      "unchanged": true
+    },
+    "api/src/omnis/migrations/versions/0012_contract_methods.py": {
+      "sha256": "679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c",
+      "unchanged": true
+    }
+  },
+  "unchanged_consumer_sha256": {
+    "api/src/omnis/modules/runs/managed_admission.py": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+    "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+    "api/src/omnis/modules/tasks/managed_composition.py": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+    "api/src/omnis/modules/tasks/managed_contract.py": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+    "api/src/omnis/modules/tasks/managed_store.py": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+    "api/src/omnis/modules/tasks/method_checker_identity.py": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4"
+  },
+  "source_invariants_verified": {
+    "all_original_managed_table_contracts_unchanged_except_one_anchor": true,
+    "historical_pg_method_test_byte_exact": true,
+    "cached_diff_empty": true
+  },
+  "current_pin_inventory": {
+    "before": [
+      {
+        "path": "api/src/omnis/core/db.py",
+        "line": 16,
+        "text": "SCHEMA_REVISION = \"0012_contract_methods\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+        "line": 5,
+        "text": "revision = \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0012_contract_methods.py",
+        "line": 5,
+        "text": "revision = \"0012_contract_methods\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0012_contract_methods.py",
+        "line": 6,
+        "text": "down_revision = \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/tests/fixtures/b06a_durable/releases.py",
+        "line": 348,
+        "text": "(\"0012_contract_methods\",)"
+      },
+      {
+        "path": "api/tests/test_cli_status.py",
+        "line": 45,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 20,
+        "text": "assert scripts.get_current_head() == \"0012_contract_methods\""
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 21,
+        "text": "revision = scripts.get_revision(\"0012_contract_methods\")"
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 23,
+        "text": "assert revision.down_revision == \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 31,
+        "text": "for revision in (\"0011_managed_tasks\", \"0012_contract_methods\"):"
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 56,
+        "text": "\"0012_contract_methods\","
+      },
+      {
+        "path": "api/tests/test_stop_schema.py",
+        "line": 130,
+        "text": "assert script.get_current_head() == SCHEMA_REVISION == \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/integration/control_topology.py",
+        "line": 920,
+        "text": "!= \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/integration/installed_start.py",
+        "line": 614,
+        "text": "runtime.psql(db, \"UPDATE alembic_version SET version_num='0012_contract_methods'\")"
+      },
+      {
+        "path": "cli/src/omnis_cli/instance.py",
+        "line": 103,
+        "text": "or raw[\"schema\"] != \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "line": 22,
+        "text": "_SCHEMA = \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "line": 51,
+        "text": "EXPECTED_SCHEMA = \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "line": 179,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "line": 216,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 64,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 87,
+        "text": "self.manifest[\"schema\"] = \"0012_contract_methods\""
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 92,
+        "text": "\"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_installed_pointer_schema.py",
+        "line": 49,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_ready_journal.py",
+        "line": 33,
+        "text": "identity, \"0.1.0\", \"0012_contract_methods\", project, f\"http://127.0.0.1:{self.port}\""
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 24,
+        "text": "\"SELECT version_num FROM alembic_version\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 35,
+        "text": "\"0011_managed_tasks\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 54,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 61,
+        "text": "self.assertEqual(load_instance(root).schema, \"0012_contract_methods\")"
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 63,
+        "text": "\"0011_managed_tasks\","
+      },
+      {
+        "path": "cli/tests/test_status.py",
+        "line": 58,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "line": 59,
+        "text": "\"schema\": \"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "line": 1005,
+        "text": "return \"0012_contract_methods\""
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "line": 128,
+        "text": "\"schema\": \"0012_contract_methods\","
+      }
+    ],
+    "after": [
+      {
+        "path": "api/src/omnis/core/db.py",
+        "line": 16,
+        "text": "SCHEMA_REVISION = \"0013_mission_revisions\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+        "line": 5,
+        "text": "revision = \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0012_contract_methods.py",
+        "line": 5,
+        "text": "revision = \"0012_contract_methods\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0012_contract_methods.py",
+        "line": 6,
+        "text": "down_revision = \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0013_mission_revisions.py",
+        "line": 9,
+        "text": "revision = \"0013_mission_revisions\""
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0013_mission_revisions.py",
+        "line": 10,
+        "text": "down_revision = \"0012_contract_methods\""
+      },
+      {
+        "path": "api/tests/fixtures/b06a_durable/releases.py",
+        "line": 348,
+        "text": "(\"0013_mission_revisions\",)"
+      },
+      {
+        "path": "api/tests/test_cli_status.py",
+        "line": 45,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 20,
+        "text": "assert scripts.get_current_head() == \"0013_mission_revisions\""
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 21,
+        "text": "revision = scripts.get_revision(\"0012_contract_methods\")"
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 23,
+        "text": "assert revision.down_revision == \"0011_managed_tasks\""
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 31,
+        "text": "for revision in (\"0011_managed_tasks\", \"0012_contract_methods\"):"
+      },
+      {
+        "path": "api/tests/test_contract_method_migration.py",
+        "line": 56,
+        "text": "\"0012_contract_methods\","
+      },
+      {
+        "path": "api/tests/test_mission_revision_migration.py",
+        "line": 25,
+        "text": "HEAD = \"0013_mission_revisions\""
+      },
+      {
+        "path": "api/tests/test_mission_revision_migration.py",
+        "line": 26,
+        "text": "PREVIOUS = \"0012_contract_methods\""
+      },
+      {
+        "path": "api/tests/test_mission_revision_migration.py",
+        "line": 345,
+        "text": "\"UPDATE alembic_version SET version_num='0012_contract_methods'\","
+      },
+      {
+        "path": "api/tests/test_mission_revision_migration.py",
+        "line": 379,
+        "text": "migration = import_module(\"omnis.migrations.versions.0013_mission_revisions\")"
+      },
+      {
+        "path": "api/tests/test_mission_revision_schema.py",
+        "line": 21,
+        "text": "assert scripts.get_current_head() == SCHEMA_REVISION == \"0013_mission_revisions\""
+      },
+      {
+        "path": "api/tests/test_mission_revision_schema.py",
+        "line": 22,
+        "text": "revision = scripts.get_revision(\"0013_mission_revisions\")"
+      },
+      {
+        "path": "api/tests/test_mission_revision_schema.py",
+        "line": 23,
+        "text": "assert revision is not None and revision.down_revision == \"0012_contract_methods\""
+      },
+      {
+        "path": "api/tests/test_mission_revision_schema.py",
+        "line": 58,
+        "text": "migration = import_module(\"omnis.migrations.versions.0013_mission_revisions\")"
+      },
+      {
+        "path": "api/tests/test_mission_revision_schema.py",
+        "line": 74,
+        "text": "migration = import_module(\"omnis.migrations.versions.0013_mission_revisions\")"
+      },
+      {
+        "path": "api/tests/test_stop_schema.py",
+        "line": 138,
+        "text": "assert script.get_current_head() == SCHEMA_REVISION == \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/integration/control_topology.py",
+        "line": 920,
+        "text": "!= \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/integration/installed_start.py",
+        "line": 614,
+        "text": "runtime.psql(db, \"UPDATE alembic_version SET version_num='0013_mission_revisions'\")"
+      },
+      {
+        "path": "cli/src/omnis_cli/instance.py",
+        "line": 103,
+        "text": "or raw[\"schema\"] != \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "line": 22,
+        "text": "_SCHEMA = \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "line": 51,
+        "text": "EXPECTED_SCHEMA = \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "line": 179,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "line": 216,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 64,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 87,
+        "text": "self.manifest[\"schema\"] = \"0013_mission_revisions\""
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 92,
+        "text": "\"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "line": 95,
+        "text": "for previous in (\"0012_contract_methods\", \"0009_catalog_candidates\"):"
+      },
+      {
+        "path": "cli/tests/test_installed_pointer_schema.py",
+        "line": 49,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_ready_journal.py",
+        "line": 33,
+        "text": "identity, \"0.1.0\", \"0013_mission_revisions\", project, f\"http://127.0.0.1:{self.port}\""
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 24,
+        "text": "\"SELECT version_num FROM alembic_version\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 35,
+        "text": "\"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 36,
+        "text": "\"0011_managed_tasks\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 55,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 62,
+        "text": "self.assertEqual(load_instance(root).schema, \"0013_mission_revisions\")"
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 64,
+        "text": "\"0012_contract_methods\","
+      },
+      {
+        "path": "cli/tests/test_schema_compatibility.py",
+        "line": 65,
+        "text": "\"0011_managed_tasks\","
+      },
+      {
+        "path": "cli/tests/test_status.py",
+        "line": 58,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "line": 59,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "line": 1005,
+        "text": "return \"0013_mission_revisions\""
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "line": 128,
+        "text": "\"schema\": \"0013_mission_revisions\","
+      }
+    ]
+  },
+  "tdd": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-red api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 1,
+      "result": "Original 3 failed: old head, missing extension contract, missing new migration.",
+      "log": "p2-mission-revision-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_schema_compatibility.py -v",
+      "exit": 1,
+      "result": "Original 2 current0013 positives refused by old CLI DB/instance consumers.",
+      "log": "p2-mission-pin-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-guard-red api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 1,
+      "result": "12 invalid guard catalog rows falsely accepted;4 positives passed.",
+      "log": "p2-mission-guard-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-flags-red api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 1,
+      "result": "9 changed function/trigger flags falsely accepted;16 passed.",
+      "log": "p2-mission-flags-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-green1 api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 0,
+      "result": "16 SOURCE passed after minimum foundation/guard implementation.",
+      "log": "p2-mission-revision-green1.log"
+    }
+  ],
+  "final_checks": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-final-green api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_managed_contract.py -k \"not test_pg\" -q --tb=line",
+      "exit": 0,
+      "result": "255 passed,29 PG nodes deselected; SOURCE/driver doubles, not PostgreSQL.",
+      "log": "p2-mission-api-source-final.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p2-ms-empty-config cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -v",
+      "exit": 0,
+      "result": "287 source CLI tests; no PG/native/operator service launch.",
+      "log": "p2-mission-cli-source.log"
+    },
+    {
+      "command": "API/CLI uv0.12.19 offline wheel builds with explicit component .venv interpreter; API ZIP-wheel import/create_app/head/migration-byte check; CLI ZIP-wheel pure compatibility/install/pointer/status/journal suite under private XDG_CONFIG_HOME. Exact commands preserved in author tool transcript.",
+      "exit": 0,
+      "result": "API84/CLI21 wheel modules byte-exact current checkout;36 pure CLI wheel controls passed. Console subprocess controls use existing CLI environment, not a new installation; installed/native proof not claimed.",
+      "logs": [
+        "p2-mission-api-build.log",
+        "p2-mission-api-wheel-check.log",
+        "p2-mission-cli-build.log",
+        "p2-mission-cli-wheel-green.log"
+      ]
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src api/tests cli/src cli/tests ops/build_control_bundle.py cli/integration",
+      "exit": 0,
+      "log": "p2-mission-ruff-final.log"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src api/tests cli/src cli/tests ops/build_control_bundle.py cli/integration",
+      "exit": 0,
+      "result": "307 files already formatted.",
+      "log": "p2-mission-format-final.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-ms-mypy-final api/src api/tests cli/src",
+      "exit": 0,
+      "result": "244 source files, no issues.",
+      "log": "p2-mission-mypy-final.log"
+    },
+    {
+      "command": "env -u PYTHONPATH MYPYPATH=cli/src api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-ms-ops-mypy ops/build_control_bundle.py",
+      "exit": 0,
+      "log": "p2-mission-bundle-mypy.log"
+    },
+    {
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-mission-revision-schema.patch && git diff --check && git diff --cached --stat",
+      "exit": 0,
+      "result": "Patch reversible as an exact source change; index unchanged."
+    }
+  ],
+  "wheels": {
+    "api": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "29474508934cee98e08d9b82a4bce700397a1a91f33d163abbf129155e39fa25",
+      "source_exact_module_count": 84
+    },
+    "cli": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "7a42c204404f378a16f5caa47a2ab330138c7ae5f453f51cdc258760c87359ce",
+      "source_exact_module_count": 21
+    }
+  },
+  "bundle": {
+    "root": "/home/kali/.hermes/cache/scratch/p2-ms-control-bundle",
+    "manifest_sha256": "fb32e334c50b180721a13a0920e01687e1888781580d9a18d22d337f2546555b",
+    "schema": "0013_mission_revisions",
+    "status": "BUILT_AND_EXACT_MANIFEST_READBACK; NOT_INSTALLED_NOT_LAUNCHED",
+    "payload_count": 10,
+    "web": "Existing local web/dist checksum-checked; no new web build or visual acceptance claimed.",
+    "logs": [
+      "p2-mission-bundle-final.log",
+      "p2-mission-bundle-readback.log"
+    ]
+  },
+  "postgresql_preparation": {
+    "execution": "COLLECTED_ONLY; actual PG migration/DDL/deparser/enforcement proof remains unexecuted pending two complementary independent exact-snapshot reviews.",
+    "collection_command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_mission_revision_migration.py api/tests/test_contract_method_migration.py --collect-only -q --tb=line",
+    "collection_exit": 0,
+    "collected_total": 31,
+    "real_pg_selected_count": 29,
+    "selected_nodes": [
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[empty0013]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[populated0012_to0013]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_denials_are_atomic_before_valid_insert",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-0]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-1]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-2]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-3]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-4]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-5]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-6]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-7]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-8]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-9]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-10]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-11]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-12]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-13]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-14]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-15]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-16]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-17]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-20]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-21]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-22]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-23]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-24]",
+      "api/tests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints"
+    ],
+    "planned_selection": [
+      "api/tests/test_mission_revision_migration.py",
+      "api/tests/test_contract_method_migration.py",
+      "-k",
+      "test_pg",
+      "-q",
+      "--tb=line"
+    ],
+    "prerequisites": [
+      "Two complementary APPROVED_SCOPED reviews on exactly the frozen23SHA and patch; parent adjudicates findings before any PG.",
+      "Fresh owned PG18.6 UDS/no-network fixture only, through existing ops/run_test_db_gate.py and conftest verify_test_database/connect_test_database; actual connected pg_control_system identifier, image/CID/daemon/binds/UID/socket are attested before DDL and cleanup.",
+      "Pinned Python3.13.15 API/CLI and uv0.12.19, actual Node/npm runner preflight pins; private HOME/toolchain access and short TMPDIR under authorized scratch; no ambient PG/DOCKER/COMPOSE overrides; no old fixture adoption.",
+      "Existing runner owns test family/finite deadline/log/cleanup and retains exact owned data. Raw failures stay private with --tb=line; never dump a DSN.",
+      "The CLI --target grammar has no new mission target. Use the existing run_gate/prove_private_fixture programmatic selection seam with the exact pytest argv after parent review; do not invent a --target, edit Makefile or add a new lifecycle owner."
+    ],
+    "coverage": "Empty0013 and populated0012->0013; exact all old public rows/FK definitions/readback/digests after close/reopen; sameUUID M1/M2; invalid type/null/missing/nonmission/root/ownership/predecessor/duplicate; base/nonmission revision2 refusal; UPDATE/DELETE/TRUNCATE refusals;25 exact readiness DDL mutations with transactional rollback and fresh ready control; historical0011->0012 PG stage retained.",
+    "proof_limits": "Synthetic canonical SQL history/envelopes prove DDL only. They do not stand in for a native TaskResult/header/MethodCheck/outcome graph; that consumer integration follows after foundation acceptance. Full schema deparser strings and actual enforcement MUST be measured on real PG, not inferred from driver doubles."
+  },
+  "issues_encountered": [
+    "Expected REDs retained byte-for-byte in private log artifacts; no original failure was relabeled PASS.",
+    "Initial Ruff import/style and mypy fixture typing issues corrected without ignores/casts or relaxed tests; all failed logs retained.",
+    "First CLI ZIP-wheel status test invocation lacked private XDG_CONFIG_HOME and failed10/36. Repeated with explicit private config root:36PASS, no lifecycle/product logic change; original failure retained.",
+    "Bundle preparation first refused a symlink uv path, then relative runpy __file__ inputs. Resolved pinned uv binary and absolute script path satisfy existing canonical-input contracts; final bundle/readback exit0. No guard was weakened.",
+    "First exported patch missed newline separators from terminal output and reverse-check failed. Exact diff chunks rejoined with terminating newlines; final reverse-check exit0, original repository bytes unaffected.",
+    "Alembic migration env is intentionally online-only; no offline or real PG migration was attempted. SOURCE emitted-SQL/catalog controls are not native PostgreSQL acceptance.",
+    "New PG nodes have no existing CLI --target name; programmatic existing-runner selection must be reviewed by the parent before launch; no new runner/Makefile edit supplied."
+  ],
+  "rollback": "Source only: parent may remove exactly this reviewed patch (or git revert its later coherent commit) after dependency inspection. Git reversal does not revert DB or published history. New migration downgrade explicitly refuses; future populated/operator rollback requires authorized stopped/fenced instance, compatible full backup and independently verified restore. Never drop M2, disable immutable guards, restamp old head or auto-migrate/adopt operator/r1 data.",
+  "limits": {
+    "API_M2_consumer": "NOT_IMPLEMENTED; legacy record revision1 boundary unchanged",
+    "ResultQualification": "NOT_IMPLEMENTED",
+    "focused_budget_ledger_auth_freshness_coverage_new_work": "NOT_IMPLEMENTED_BY_THIS_SLICE",
+    "private_PG_native_installed": "NOT_EXECUTED",
+    "canonical_final": "NOT_RUN_RESERVED_FOR_FINAL_PHASE_FRONTIER",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "commits_staging_push": "NONE_PARENT_OWNS_INTEGRATION",
+    "protected_preexisting_untracked": "documents/Omnis_Notite_Originale.html untouched, not read/edited/deleted"
+  },
+  "private_log_artifacts": {
+    "p2-mission-api-build.log": {
+      "bytes": 119,
+      "last_lines": [
+        "Building wheel...",
+        "Successfully built /home/kali/.hermes/cache/scratch/p2-ms-api-wheel/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-api-build.log",
+      "sha256": "039b5c86872221c0020df9b9feac40afd52a1f29c41ed1edc59f8a3df8f1d370"
+    },
+    "p2-mission-api-regressions.log": {
+      "bytes": 261,
+      "last_lines": [
+        "........................................................................ [ 39%]",
+        "........................................................................ [ 79%]",
+        ".....................................                                    [100%]",
+        "181 passed in 13.55s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-api-regressions.log",
+      "sha256": "3e1d4c5392ba59625160e33e5e1de13b5671fd2b1c56f685e0dceca3f56958d0"
+    },
+    "p2-mission-api-source-final.log": {
+      "bytes": 356,
+      "last_lines": [
+        "........................................................................ [ 28%]",
+        "........................................................................ [ 56%]",
+        "........................................................................ [ 84%]",
+        ".......................................                                  [100%]",
+        "255 passed, 29 deselected in 13.95s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-api-source-final.log",
+      "sha256": "3980181a60d3edcfd28cafe1ca701ed2a93a88a2ce7bfe4d282dcb5b2926a582"
+    },
+    "p2-mission-api-wheel-check.log": {
+      "bytes": 85,
+      "last_lines": [
+        "API wheel ZIP import + factory + migration bytes/current head OK; no service started"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-api-wheel-check.log",
+      "sha256": "0f8c1577f477895c8af771d27c47eb9692c610f3a416068bdb7eb82e643ba21c"
+    },
+    "p2-mission-bundle-build.log": {
+      "bytes": 15,
+      "last_lines": [
+        "BUNDLE_REFUSED"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-build.log",
+      "sha256": "2af1e6863d887981cb4b58def501e7cdb00f3e3adb4db472251c845138b63f79"
+    },
+    "p2-mission-bundle-diagnostic.log": {
+      "bytes": 1240,
+      "last_lines": [
+        "    import sys,runpy,pathlib; sys.path.insert(0,\"/home/kali/OmnisAI/cli/src\"); r=runpy.run_path(\"ops/build_control_bundle.py\"); P=pathlib.Path; args=[\"/home/kali/.hermes/cache/scratch/p2-ms-api-wheel/omnis_api-0.1.0-py3-none-any.whl\",\"/home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl\",\"/home/kali/.hermes/cache/scratch/p2-ms-requirements.txt\",\"/home/kali/OmnisAI/web/dist\",\"/home/kali/.hermes/cache/scratch/p2-ms-control-bundle\"]; r[\"build_bundle\"](*map(P,args))",
+        "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^",
+        "  File \"ops/build_control_bundle.py\", line 56, in build_bundle",
+        "    raise BundleError(\"Explicit pinned uv is required\")",
+        "<run_path>.BundleError: Explicit pinned uv is required"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-diagnostic.log",
+      "sha256": "5125e282c979feec6811faa0b05c09b9df4a11af12d2304c61c754506b8e33a7"
+    },
+    "p2-mission-bundle-diagnostic2.log": {
+      "bytes": 1456,
+      "last_lines": [
+        "    \"ops/Dockerfile\": _canonical_file(Path(__file__).with_name(\"Dockerfile.control\")),",
+        "                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"ops/build_control_bundle.py\", line 26, in _canonical_file",
+        "    raise BundleError(\"Noncanonical input\")",
+        "<run_path>.BundleError: Noncanonical input"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-diagnostic2.log",
+      "sha256": "e9c06dfd12a286b5d748ff8ae9417fb7d9820b7fc7baae46efb1c463be78ad74"
+    },
+    "p2-mission-bundle-final.log": {
+      "bytes": 13,
+      "last_lines": [
+        "BUNDLE_READY"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-final.log",
+      "sha256": "9e7b883a6d08d13bfa6f4ac1a536fe3ae19626cdfec027a61b56270c8e4fe924"
+    },
+    "p2-mission-bundle-green.log": {
+      "bytes": 15,
+      "last_lines": [
+        "BUNDLE_REFUSED"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-green.log",
+      "sha256": "2af1e6863d887981cb4b58def501e7cdb00f3e3adb4db472251c845138b63f79"
+    },
+    "p2-mission-bundle-mypy.log": {
+      "bytes": 42,
+      "last_lines": [
+        "Success: no issues found in 1 source file"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-mypy.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    "p2-mission-bundle-readback.log": {
+      "bytes": 163,
+      "last_lines": [
+        "Bundle readback: current head, 10 checksum-bound files; no install/launch",
+        "release_manifest_sha256=fb32e334c50b180721a13a0920e01687e1888781580d9a18d22d337f2546555b"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-bundle-readback.log",
+      "sha256": "bee8dfbbb704791b50bbdfa06b2cd60098edcfb0d40d9e4c590553e9f11efc62"
+    },
+    "p2-mission-cli-build.log": {
+      "bytes": 119,
+      "last_lines": [
+        "Building wheel...",
+        "Successfully built /home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-cli-build.log",
+      "sha256": "9d902205ee5c196a647745d7ed84e3e687730e7c638d65228356c5505636ff0f"
+    },
+    "p2-mission-cli-source.log": {
+      "bytes": 49006,
+      "last_lines": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 287 tests in 71.939s",
+        "",
+        "OK"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-cli-source.log",
+      "sha256": "e1d82c49f312f0cc8c403978229298979530eea4ec1c654a22df58fd5e020edd"
+    },
+    "p2-mission-cli-wheel-check.log": {
+      "bytes": 6038,
+      "last_lines": [
+        "----------------------------------------------------------------------",
+        "Ran 36 tests in 6.757s",
+        "",
+        "FAILED (failures=10)",
+        "ZIP-wheel pure consumer controls: 36"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-cli-wheel-check.log",
+      "sha256": "928ea3e8b1cb6f719508403ed112b15a23442332db1a6dc576aef0d8aee7667d"
+    },
+    "p2-mission-cli-wheel-green.log": {
+      "bytes": 172,
+      "last_lines": [
+        "----------------------------------------------------------------------",
+        "Ran 36 tests in 7.744s",
+        "",
+        "OK",
+        "ZIP-wheel pure consumer controls: 36"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-cli-wheel-green.log",
+      "sha256": "362527282497a08e43e197f1937b447c49d54ad8b11a59093d7f968167baeb6c"
+    },
+    "p2-mission-current-green1.log": {
+      "bytes": 113,
+      "last_lines": [
+        ".................................                                        [100%]",
+        "33 passed, 1 deselected in 0.46s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-current-green1.log",
+      "sha256": "035bdfba838531f354a0a53a716dd5fa4720de785a12b853bb7d5c5ec9052867"
+    },
+    "p2-mission-current-green2.log": {
+      "bytes": 194,
+      "last_lines": [
+        "........................................................................ [ 97%]",
+        "..                                                                       [100%]",
+        "74 passed, 29 deselected in 0.86s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-current-green2.log",
+      "sha256": "eec863ce845c50815e5cc71483496c9c5fe5592f23234657dabaa8cbbd45f9e8"
+    },
+    "p2-mission-flags-red.log": {
+      "bytes": 2607,
+      "last_lines": [
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation18]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation19]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation20]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation21]",
+        "9 failed, 16 passed in 0.41s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-flags-red.log",
+      "sha256": "737db1733bb09aebc2db4e02fcf9f0e83cd1a0e79ccd375714158f35f79861b9"
+    },
+    "p2-mission-format-final.log": {
+      "bytes": 28,
+      "last_lines": [
+        "307 files already formatted"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-format-final.log",
+      "sha256": "70bc9d5318c5e5e4bbf178cd401d971841efd6521725b284f734710dad3f4015"
+    },
+    "p2-mission-guard-red.log": {
+      "bytes": 3480,
+      "last_lines": [
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation9]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation10]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation11]",
+        "FAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[mutation12]",
+        "12 failed, 4 passed in 0.30s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-guard-red.log",
+      "sha256": "b7e742ed0db2bdf549881119dbe36a2469c841d72141c83fa8a8d2a3eeade0ce"
+    },
+    "p2-mission-mypy-final.log": {
+      "bytes": 45,
+      "last_lines": [
+        "Success: no issues found in 244 source files"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-mypy-final.log",
+      "sha256": "4e2859e3af318482d45f7591ca53ca97016f9c6dd8cd0359aa137c41128a03ac"
+    },
+    "p2-mission-mypy-first.log": {
+      "bytes": 725,
+      "last_lines": [
+        "api/tests/test_mission_revision_migration.py:164: error: Need type annotation for \"basis\"  [var-annotated]",
+        "api/tests/test_mission_revision_migration.py:178: error: Incompatible types in assignment (expression has type \"object\", variable has type \"bool | int | None\")  [assignment]",
+        "api/tests/test_mission_revision_schema.py:116: error: Call to untyped function (unknown) in typed context  [no-untyped-call]",
+        "api/tests/test_stop_schema.py:97: error: Returning Any from function declared to return \"Mock\"  [no-any-return]",
+        "Found 5 errors in 3 files (checked 7 source files)"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-mypy-first.log",
+      "sha256": "74f4c3f810293d03e97b16a6a28afd0e67ab6d03a99044cdb86e0d6487b14f05"
+    },
+    "p2-mission-mypy-full.log": {
+      "bytes": 45,
+      "last_lines": [
+        "Success: no issues found in 244 source files"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-mypy-full.log",
+      "sha256": "4e2859e3af318482d45f7591ca53ca97016f9c6dd8cd0359aa137c41128a03ac"
+    },
+    "p2-mission-mypy-second.log": {
+      "bytes": 731,
+      "last_lines": [
+        "api/tests/test_mission_revision_schema.py:281: error: No overload variant of \"__setitem__\" of \"list\" matches argument types \"int\", \"object\"  [call-overload]",
+        "api/tests/test_mission_revision_schema.py:281: note: Possible overload variants:",
+        "api/tests/test_mission_revision_schema.py:281: note:     def __setitem__(self, SupportsIndex, bool | str | None, /) -> None",
+        "api/tests/test_mission_revision_schema.py:281: note:     def __setitem__(self, slice[SupportsIndex | None, SupportsIndex | None, SupportsIndex | None], Iterable[bool | str | None], /) -> None",
+        "Found 2 errors in 1 file (checked 7 source files)"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-mypy-second.log",
+      "sha256": "b7fcfd0e5ef17f399ecc76507d91ca64849fcf3334fc3ca8850d49aa97f4e9b3"
+    },
+    "p2-mission-pg-collection-final.log": {
+      "bytes": 3434,
+      "last_lines": [
+        "tests/test_mission_revision_migration.py::test_mission_revision_downgrade_explicitly_refuses",
+        "tests/test_contract_method_migration.py::test_method_execution_schema_is_explicit_and_chained",
+        "tests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints",
+        "",
+        "31 tests collected in 0.20s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-pg-collection-final.log",
+      "sha256": "59047ead0a20caae477df78ce85bf0130fe20ade45be06625c3de65ab8a619e2"
+    },
+    "p2-mission-pg-collection-first.log": {
+      "bytes": 2681,
+      "last_lines": [
+        "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]",
+        "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]",
+        "tests/test_mission_revision_migration.py::test_mission_revision_downgrade_explicitly_refuses",
+        "",
+        "24 tests collected in 0.12s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-pg-collection-first.log",
+      "sha256": "d185e4e765d5566388be337ef42ee4fedc402acbe352b14a36c5ed4b3ac604ec"
+    },
+    "p2-mission-pin-green.log": {
+      "bytes": 378,
+      "last_lines": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 2 tests in 0.004s",
+        "",
+        "OK"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-pin-green.log",
+      "sha256": "58b48c00973ac67a072ccc64896c391c59d8f5c5a06489db6b690c4fd2ff5d6d"
+    },
+    "p2-mission-pin-red.log": {
+      "bytes": 1945,
+      "last_lines": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 2 tests in 0.002s",
+        "",
+        "FAILED (errors=2)"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-pin-red.log",
+      "sha256": "950c6cd41c96f13eef5b1adda555e12db9147c23a87b0328ea30eb4d7867b718"
+    },
+    "p2-mission-requirements.log": {
+      "bytes": 13407,
+      "last_lines": [
+        "    --hash=sha256:c2169a8b0a7a5e9674da5a135ccdfb2b3e671b333ed9fed17b41f73c34476e81 \\",
+        "    --hash=sha256:f1b8bd365d8d210c55353f4d7f8d6d8561c0ba50d704b700d195a9424bba0d79",
+        "uvicorn==0.54.0 \\",
+        "    --hash=sha256:505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf \\",
+        "    --hash=sha256:a2e33cbfaa0306f8e6b0c13e0cb89d7d7a2da3e62b90c66e18c33d9807b28620"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-requirements.log",
+      "sha256": "4d679c2a2d9ed7d348ad4fce901988d7bdcfa9ff1dfc50214c1b71ea74b2036e"
+    },
+    "p2-mission-revision-green1.log": {
+      "bytes": 99,
+      "last_lines": [
+        "................                                                         [100%]",
+        "16 passed in 0.38s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-green1.log",
+      "sha256": "a1e273a73eb201f745d6c38b321f3f02f52968f578342d72d20202bc7194c4ac"
+    },
+    "p2-mission-revision-red.log": {
+      "bytes": 1728,
+      "last_lines": [
+        "=========================== short test summary info ============================",
+        "FAILED api/tests/test_mission_revision_schema.py::test_mission_revision_head_keeps_historical_chain",
+        "FAILED api/tests/test_mission_revision_schema.py::test_mission_extension_is_not_a_generic_rekey",
+        "FAILED api/tests/test_mission_revision_schema.py::test_mission_revision_ddl_emits_guard_and_immutable_extension",
+        "3 failed in 0.23s"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-red.log",
+      "sha256": "f87909ba04e5ccd87dd3548567f1f3ad36bc093a5a77861d5a509b115b381e24"
+    },
+    "p2-mission-ruff-final.log": {
+      "bytes": 19,
+      "last_lines": [
+        "All checks passed!"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "p2-mission-ruff-first.log": {
+      "bytes": 1490,
+      "last_lines": [
+        "6 | from unittest.mock import AsyncMock, Mock",
+        "  |",
+        "",
+        "Found 2 errors.",
+        "[*] 2 fixable with the `--fix` option."
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-ruff-first.log",
+      "sha256": "451b9dec7a1eb1026f486433c8cbbc0ee2cce0153ba6d2b8a031351c169f2aa6"
+    }
+  },
+  "final_git_status": " M api/src/omnis/core/db.py\n M api/src/omnis/core/managed_schema.py\n M api/src/omnis/core/schema.py\n M api/tests/fixtures/b06a_durable/releases.py\n M api/tests/test_cli_status.py\n M api/tests/test_contract_method_migration.py\n M api/tests/test_stop_schema.py\n M cli/integration/control_topology.py\n M cli/integration/installed_start.py\n M cli/src/omnis_cli/instance.py\n M cli/src/omnis_cli/release.py\n M cli/src/omnis_cli/start.py\n M cli/tests/stop_owner_fixture.py\n M cli/tests/test_install.py\n M cli/tests/test_installed_pointer_schema.py\n M cli/tests/test_ready_journal.py\n M cli/tests/test_schema_compatibility.py\n M cli/tests/test_status.py\n M cli/tests/test_stop.py\n M ops/build_control_bundle.py\n?? api/src/omnis/migrations/versions/0013_mission_revisions.py\n?? api/tests/test_mission_revision_migration.py\n?? api/tests/test_mission_revision_schema.py\n?? documents/Omnis_Notite_Originale.html\n"
+}

@@ -87,6 +87,63 @@ def test_two_step_requirement_real_source_full_and_partial(compact: bool, prefix
     assert validate_response(final) == final
     assert managed_contract.validate_final(final, case.stage["manifest"], case.binding) == final
 
+    from jsonschema import Draft202012Validator
+
+    brief_body = obj(case.brief["payload"])
+    schema = managed_contract.result_json_schema(
+        {k: v for k, v in obj(brief_body["header"]).items() if k != "result_schema_ref"},
+        [obj(r) for r in rows(obj(brief_body["method_plan"])["requirements"])],
+        method_execution=True,
+        criterion_bindings=[obj(r) for r in rows(brief_body["criterion_bindings"])],
+    )
+    # Same generated handoff schema enforced by the persisted owner readback,
+    # not only native wire/cardinality or the independent method checker.
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(body)
+
+
+def test_pre_schema_partial_checker_is_exact_receive_only() -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS, verify
+
+    checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "code_digest": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+            "semantics": SEMANTICS,
+        },
+    )
+    pin = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    with pytest.raises(CatalogError, match="^METHOD_CHECKER_UNAVAILABLE$"):
+        verify(checker, pin=pin, receive_only=False, zero_predicates=False)
+    with pytest.raises(CatalogError, match="^METHOD_CHECKER_UNAVAILABLE$"):
+        verify(checker, pin="0" * 64, receive_only=True, zero_predicates=False)
+    assert verify(checker, pin=pin, receive_only=True, zero_predicates=False) == checker
+
+
+def test_generated_schema_keeps_non_applicable_state_exact() -> None:
+    from jsonschema import Draft202012Validator, ValidationError
+
+    from omnis.modules.tasks.managed_contract import result_json_schema
+
+    case = native_case(predicates=True, two_step_requirement=True, applies_expected=False)
+    brief = obj(case.brief["payload"])
+    schema = result_json_schema(
+        {k: v for k, v in obj(brief["header"]).items() if k != "result_schema_ref"},
+        [obj(r) for r in rows(obj(brief["method_plan"])["requirements"])],
+        method_execution=True,
+    )
+    payload = obj(obj(rows(case.execution["records"])[0])["payload"])
+    validator = Draft202012Validator(schema)
+    validator.validate(payload)
+    assert obj(rows(payload["method_results"])[1])["state"] == "NOT_APPLICABLE"
+    for state in ("PARTIAL", "DONE", "BLOCKED", "UNKNOWN"):
+        bad = deepcopy(payload)
+        obj(rows(bad["method_results"])[1])["state"] = state
+        with pytest.raises(ValidationError):
+            validator.validate(bad)
+
 
 @pytest.mark.parametrize(
     "attack", ["missing", "duplicate", "reversed", "foreign-schema", "foreign-step", "other-key"]

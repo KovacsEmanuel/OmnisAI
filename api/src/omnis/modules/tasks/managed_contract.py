@@ -1189,7 +1189,7 @@ def result_json_schema(
         definitions["m"] = strict_object(
             {
                 "ref": {"type": "object"},
-                "state": {"enum": ["DONE", "NOT_RUN", "NOT_APPLICABLE"]},
+                "state": {"enum": ["DONE", "PARTIAL", "NOT_RUN", "NOT_APPLICABLE"]},
                 "basis_refs": ref_array,
                 "artifact_refs": ref_array,
                 "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
@@ -1218,7 +1218,7 @@ def result_json_schema(
                     "properties": {
                         "state": {"const": "NOT_APPLICABLE"}
                         if requirement["applicability"] == "NOT_APPLICABLE"
-                        else {"enum": ["DONE", "NOT_RUN"]},
+                        else {"enum": ["DONE", "PARTIAL", "NOT_RUN"]},
                         "ref": {
                             "$ref": "#/$defs/" + name,
                             "properties": {

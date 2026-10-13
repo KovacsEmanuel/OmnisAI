@@ -71,6 +71,13 @@ EVIDENCE_HISTORICAL = {
 }
 
 
+# Exact two-step producer before its generated TaskResult schema admitted PARTIAL.
+# Its recorded schema remains immutable and independently validated on readback.
+PARTIAL_SCHEMA_HISTORICAL = {
+    "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -109,6 +116,7 @@ def verify(
             or PRECONDITION_HISTORICAL.get(digest) == pin
             or INVALIDATION_HISTORICAL.get(digest) == pin
             or EVIDENCE_HISTORICAL.get(digest) == pin
+            or PARTIAL_SCHEMA_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

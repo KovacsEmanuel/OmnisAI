@@ -1,0 +1,1877 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-APPLICABILITY-INDEPENDENT-REAL-QA",
+  "verdict": "PASS_SOURCE_NATIVE_SCOPED",
+  "acceptance_owner": "PARENT_ADJUDICATION_REQUIRED",
+  "repository": "/home/kali/OmnisAI",
+  "tested_head": "0aeb328d0a6cfbe05024dbd69e5366ea8ef67162",
+  "snapshot": {
+    "count": 15,
+    "before": {
+      "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+      "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "after": {
+      "api/src/omnis/modules/runs/managed_admission.py": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/skill_catalog.py": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "api/src/omnis/modules/tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "api/src/omnis/modules/tasks/managed_composition.py": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "api/src/omnis/modules/tasks/managed_contract.py": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "api/src/omnis/modules/tasks/method_checks.py": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "api/tests/test_c10_bound_predicates.py": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "api/tests/test_candidate_tracer_fingerprints.py": "7713ac1985516feabdd78b1be6bb001cdb8944ecb40db8c0b59cbf57b117fc3d",
+      "api/tests/test_contract_method_checks.py": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "api/tests/test_contract_method_pg.py": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
+    },
+    "unchanged": true,
+    "manifest": {
+      "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/applicability-source-final.json",
+      "sha256": "1a2eb6c79ec237fc3d00d1083906e301b788fc0408c4b39b58c67e32e5bd4a9e"
+    },
+    "wrapper_sha256": "31d73e1b19284bbaac32f29e0f93f9728d9ae7921d224db334b010deed40d74e",
+    "runner_sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+  },
+  "execution": {
+    "invocations": 1,
+    "retries": 0,
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py applicability",
+    "workdir": "/home/kali/OmnisAI",
+    "owner_exit_code": 0,
+    "gate_timeout_seconds": 240,
+    "stdout_observed": "3 passed, 17 deselected in 79.39s",
+    "passed": 3,
+    "deselected": 17,
+    "seconds": 79.39,
+    "owner_log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-applicability-independent-owner.log",
+      "sha256": "40ecb9c29fc482f98f98ad862d0ace420f8c3ef52f1e981743c85c27504e232e"
+    },
+    "gate_log": {
+      "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/gate.log",
+      "sha256": "c7436748b00202d44d65bb6cc27e537d9af8637d7998f7cf5f61a861a20cfbd6"
+    },
+    "family_receipt_count": 1,
+    "family_receipts": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/gate.log.result.json",
+        "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    ]
+  },
+  "fixture": {
+    "root": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2",
+    "project": "omnis-p01-97bac399d4684ce98f8aee18e7c3def3",
+    "container_id": "b8a666a57b6e2c1a2e209a36698731285ec9a950084d1d04cb1a622879a5e962",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+  },
+  "fixture_manifest_locator": {
+    "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/fixture.json",
+    "sha256": "158aaa325a193f9c2e3f11f8289f5685e4fb6aec681e2856958d4cdfb47c280d"
+  },
+  "cleanup": {
+    "same_daemon": {
+      "exit_code": 0,
+      "confirmed": true
+    },
+    "exact_cid_absent": {
+      "exit_code": 1,
+      "confirmed": true
+    },
+    "exact_project_absent": {
+      "exit_code": 0,
+      "confirmed": true
+    },
+    "exact_project_networks_absent": {
+      "exit_code": 0,
+      "confirmed": true
+    },
+    "pg_uds": {
+      "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/socket/.s.PGSQL.5432",
+      "absent_lstat": true
+    },
+    "retained_pgdata": {
+      "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/data/18/docker",
+      "major": "18",
+      "directory_present": true,
+      "version_locator": {
+        "path": "/home/kali/.hermes/cache/scratch/db-7ba52470c6d247e2/data/18/docker/PG_VERSION",
+        "sha256": "7ee29791fc17e986b97128845622b077fb45e349fdb80523fac9dba879b4ad60"
+      }
+    }
+  },
+  "case_count": 3,
+  "fresh_cli_count": 12,
+  "aggregate_native_counts": {
+    "genuine_AIAgent_methods": 3,
+    "genuine_reads": 3,
+    "PURE_handlers": 6,
+    "task_results": 3,
+    "tool_receipts": 9,
+    "artifacts": 6
+  },
+  "cases": [
+    {
+      "case": "applies",
+      "proof": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/method-history-proof.json",
+        "sha256": "c15013108b9ce88d2b8bebbe2ad6b9e380afd938c5641d057d2a6a6766ba169f"
+      },
+      "native_observer": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/native-observation.jsonl",
+        "sha256": "8cf05e26039454d43158133046ff04447c09ecb3d03a2b7cb5630eef38426aea"
+      },
+      "native_home": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/native-home",
+      "native_runtime_directory": "/home/kali/.hermes/cache/scratch/cm-682f1628a1cc4d9e9acb9821b2093e8a",
+      "native_exit_code": -9,
+      "native_owned_pids_final": [],
+      "native_leader_pid": "NOT_RECORDED_BY_EXISTING_PROOF",
+      "tombstone_readback": {
+        "runtime.sock": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-682f1628a1cc4d9e9acb9821b2093e8a/runtime.sock",
+          "absent_lstat": true
+        },
+        "runtime.boot": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-682f1628a1cc4d9e9acb9821b2093e8a/runtime.boot",
+          "absent_lstat": true
+        }
+      },
+      "launch_diagnostic": {
+        "elapsed_ms": 2220,
+        "host_state": "STARTING",
+        "operation": "launch",
+        "phase": "handshake_complete",
+        "ready_cancelled": false,
+        "ready_done": true,
+        "remaining_ms": 2276,
+        "transport_failed": false
+      },
+      "observer_counts": {
+        "run_contract": 1,
+        "_read_bound_input": 1,
+        "run_handler": 2,
+        "task-result": 1,
+        "contract-tool-receipt": 3,
+        "contract-artifact": 2
+      },
+      "native_release_status": [
+        "SUCCEEDED"
+      ],
+      "task_result_ref": {
+        "id": "d0e8675d-74e2-4452-aa56-76097f0515be",
+        "kind": "task-result",
+        "digest": "938a30ac101e20ad257363774b4f167186eabbe7322066c43c1f8ac9883e6520",
+        "revision": 1
+      },
+      "native_task_result_status": "SUCCEEDED",
+      "domain_task_status": "SUCCEEDED",
+      "method_check_ref": {
+        "id": "00f6db6c-826a-4028-a7cb-9ea7493a4621",
+        "kind": "method-check",
+        "digest": "da4dc1c98a9abcd33faf0a34cb08d45fc2ef013b820e3f887b051eca2b401aa7",
+        "revision": 1
+      },
+      "method_check_status": "COMPLETE",
+      "method_check_reason": "Exact bound CONTRACT/PURE receipts and published requirements checked.",
+      "method_check_gap_refs": [],
+      "method_results": [
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+              "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "normalize-records"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "e0f65045e378d63a7dcdd98c7d6aafdea9328f0fd5e6f6954803b116187d9684",
+              "id": "5a3061bb-eb93-4400-b1c1-d5ee8d30b629",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "41033d3e9c69f4a374bbf8220bccbd8bcb727d8d22de59bfba70b9f7638466dc",
+              "id": "704ee862-3b96-4156-aaee-2e4384451011",
+              "kind": "contract-artifact",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+              "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "build-surface-map"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "9a32a918121b9116156708211bbe4d9f4b4af4abfe2dc4f8f66be81b3fdcd226",
+              "id": "1736cda6-5f84-40d0-b4df-4080ebd674eb",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "4b9b5d578458f88599ecd540a0276955f194411f4d89e6e87dcc08a7cb766b1a",
+              "id": "69866118-a6ea-482f-bc69-a24fb7d0fa49",
+              "kind": "contract-artifact",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+              "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "preserve-input-context"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "e0f65045e378d63a7dcdd98c7d6aafdea9328f0fd5e6f6954803b116187d9684",
+              "id": "5a3061bb-eb93-4400-b1c1-d5ee8d30b629",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "8badfbcbe8cb6f13e6a556d6b2c1c80fd6933eff8c4ca6f57e0f62b6d6ceac59",
+              "id": "dd08726c-a234-42b6-af13-4181aaba61ae",
+              "kind": "contract-case-records",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        }
+      ],
+      "retained_method_plan": {
+        "requirements": [
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+                "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "normalize-records"
+            },
+            "required": true
+          },
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [
+              {
+                "digest": "8badfbcbe8cb6f13e6a556d6b2c1c80fd6933eff8c4ca6f57e0f62b6d6ceac59",
+                "id": "dd08726c-a234-42b6-af13-4181aaba61ae",
+                "kind": "contract-case-records",
+                "revision": 1
+              }
+            ],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+                "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "build-surface-map"
+            },
+            "required": true
+          },
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+                "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "preserve-input-context"
+            },
+            "required": false
+          }
+        ]
+      },
+      "usage": {
+        "cost": "0",
+        "model_calls": 0,
+        "state": "KNOWN",
+        "target_actions": 0
+      },
+      "criterion_outcomes": [
+        {
+          "bound_procedure_ref": {
+            "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+            "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "17f012b1720280b7d4223b49ccd869a7d21b65d0c54aac60fc8dec4fd16ba19c",
+            "id": "464f226e-412a-401e-bb35-282b9ef190f4",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "2abf7628-b78f-4a68-8b14-42b85f354844",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE"
+          ],
+          "method_check_ref": {
+            "digest": "da4dc1c98a9abcd33faf0a34cb08d45fc2ef013b820e3f887b051eca2b401aa7",
+            "id": "00f6db6c-826a-4028-a7cb-9ea7493a4621",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "f78b99831e78ca4bcce6209ba754b70b6c977d4102ca376336dfb2923454753e",
+            "id": "adf2248b-a71d-4222-bfc1-b6459671c9b7",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "773d786faa06edcede6e84014a5caf1f19a61e42f01204da1d2cc1954d291a05",
+            "id": "18fe5855-64c9-4cbf-84d0-792467c0c223",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "938a30ac101e20ad257363774b4f167186eabbe7322066c43c1f8ac9883e6520",
+            "id": "d0e8675d-74e2-4452-aa56-76097f0515be",
+            "kind": "task-result",
+            "revision": 1
+          }
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "5ce139bd6b1b58c2be63a805da42a0e2df8e868ad1b9641a0e3a8cfa77725316",
+            "id": "329c24c4-8185-4fd3-af83-4c8d89e82912",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "17f012b1720280b7d4223b49ccd869a7d21b65d0c54aac60fc8dec4fd16ba19c",
+            "id": "464f226e-412a-401e-bb35-282b9ef190f4",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "a7a88f67-8293-492e-9477-5029079fc276",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE"
+          ],
+          "method_check_ref": {
+            "digest": "da4dc1c98a9abcd33faf0a34cb08d45fc2ef013b820e3f887b051eca2b401aa7",
+            "id": "00f6db6c-826a-4028-a7cb-9ea7493a4621",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "f78b99831e78ca4bcce6209ba754b70b6c977d4102ca376336dfb2923454753e",
+            "id": "adf2248b-a71d-4222-bfc1-b6459671c9b7",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "773d786faa06edcede6e84014a5caf1f19a61e42f01204da1d2cc1954d291a05",
+            "id": "18fe5855-64c9-4cbf-84d0-792467c0c223",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "938a30ac101e20ad257363774b4f167186eabbe7322066c43c1f8ac9883e6520",
+            "id": "d0e8675d-74e2-4452-aa56-76097f0515be",
+            "kind": "task-result",
+            "revision": 1
+          }
+        }
+      ],
+      "durable_markers": {
+        "admitted": 0,
+        "consumed": 0,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "consumed_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "final_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "post_adversarial_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 3,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "restart_processes": [
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2089871
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2089874
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2089896
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2089899
+        }
+      ],
+      "cli_receipts": [
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-16e4424609ab4681aa60717bcb6c8de2.jsonl",
+            "sha256": "e1e756d7066e4bb5d256769af819dd5c75806a38013dda3a7e3c5b5806791d6c"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-16e4424609ab4681aa60717bcb6c8de2.stdout",
+            "sha256": "5305924fea7ee55858cdb45423c705e2e5aa54b305253c7628a4ee536d15fa69"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-16e4424609ab4681aa60717bcb6c8de2.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2089899,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-c2b52c59c5504c8c916067a1b7f5ca4d.jsonl",
+            "sha256": "9cc9eb411c0cf2ab6a7150c3026cefb06a79f4b08f8f69d704b9b3397190654a"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-c2b52c59c5504c8c916067a1b7f5ca4d.stdout",
+            "sha256": "4f01d3fd5f03ff841e6217abb734c561ece33c1862820ce9fc9ae219e0ffce1c"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-c2b52c59c5504c8c916067a1b7f5ca4d.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2089871,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f3901e88ea05474aac023d0e8d2ccac9.jsonl",
+            "sha256": "5810fd5c76837694bb998f38f6a312306806e525153b1648d7361f219a0a07a7"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f3901e88ea05474aac023d0e8d2ccac9.stdout",
+            "sha256": "5305924fea7ee55858cdb45423c705e2e5aa54b305253c7628a4ee536d15fa69"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f3901e88ea05474aac023d0e8d2ccac9.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2089874,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f42b87d0af6d401ebcfcf26a28642235.jsonl",
+            "sha256": "a213928ead882ba71c3ea660090705975977a820f66c5d9a316162d09d974f5c"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f42b87d0af6d401ebcfcf26a28642235.stdout",
+            "sha256": "5305924fea7ee55858cdb45423c705e2e5aa54b305253c7628a4ee536d15fa69"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati0/restart-observer-f42b87d0af6d401ebcfcf26a28642235.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2089896,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        }
+      ],
+      "no_rerun_execution_attempts": [],
+      "post_stop_receive_only_duplicate": "PASS",
+      "duplicate_conflict": "PASS",
+      "forged_outcome_refusal": "PASS",
+      "unknown_is_not_na": false
+    },
+    {
+      "case": "not-applicable",
+      "proof": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/method-history-proof.json",
+        "sha256": "b9281de3673650a17c0cacf43f999e34eb7e61aecaad2931fac6cc9613c5b4df"
+      },
+      "native_observer": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/native-observation.jsonl",
+        "sha256": "ef1e4c1d1dee0dd16d5efd992bba52e9e2690b25afff33190fd02e121231e212"
+      },
+      "native_home": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/native-home",
+      "native_runtime_directory": "/home/kali/.hermes/cache/scratch/cm-4cf55540e4b547ceaa1009f7fd4671f2",
+      "native_exit_code": -9,
+      "native_owned_pids_final": [],
+      "native_leader_pid": "NOT_RECORDED_BY_EXISTING_PROOF",
+      "tombstone_readback": {
+        "runtime.sock": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-4cf55540e4b547ceaa1009f7fd4671f2/runtime.sock",
+          "absent_lstat": true
+        },
+        "runtime.boot": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-4cf55540e4b547ceaa1009f7fd4671f2/runtime.boot",
+          "absent_lstat": true
+        }
+      },
+      "launch_diagnostic": {
+        "elapsed_ms": 2100,
+        "host_state": "STARTING",
+        "operation": "launch",
+        "phase": "handshake_complete",
+        "ready_cancelled": false,
+        "ready_done": true,
+        "remaining_ms": 2397,
+        "transport_failed": false
+      },
+      "observer_counts": {
+        "run_contract": 1,
+        "_read_bound_input": 1,
+        "run_handler": 2,
+        "task-result": 1,
+        "contract-tool-receipt": 3,
+        "contract-artifact": 2
+      },
+      "native_release_status": [
+        "INCONCLUSIVE"
+      ],
+      "task_result_ref": {
+        "id": "c11ee5d4-b345-47e4-afc6-85db00dd192e",
+        "kind": "task-result",
+        "digest": "c8b9c97de1afeca565b077f3a9b5f042cff6eb54de86cc97b8cc810bf80a9344",
+        "revision": 1
+      },
+      "native_task_result_status": "INCONCLUSIVE",
+      "domain_task_status": "BLOCKED",
+      "method_check_ref": {
+        "id": "0e64b4ca-044d-4966-9920-040f7ec8863f",
+        "kind": "method-check",
+        "digest": "41a662d2710f99c695d5a16fe4e57cdd50ac3c4aac120bdd51a5dfcfedbacc17",
+        "revision": 1
+      },
+      "method_check_status": "INCOMPLETE",
+      "method_check_reason": "Qualified early return; missing done predicates remain unexecuted.",
+      "method_check_gap_refs": [
+        {
+          "bound_procedure_ref": {
+            "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+            "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "requirement_key": "build-surface-map"
+        }
+      ],
+      "method_results": [
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+              "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "normalize-records"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "5c06dad173957d66c85d5fc8b7c35d0505cae991801a44a4fe7153e70c3be4a9",
+              "id": "f7836a0a-00bd-43eb-90ec-70349db24fb3",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "2fbc102e22b5519ff4afce884657d650035c3c68910eed9f1f4e7e03aab1b780",
+              "id": "eff99d96-5b0f-4f87-803d-eab4bbc05ea3",
+              "kind": "contract-artifact",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+              "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "build-surface-map"
+          },
+          "state": "NOT_APPLICABLE",
+          "basis_refs": [
+            {
+              "digest": "93346391d70492f55f9dfbf245ff62d438dece03232bc8dc088600c1f756a785",
+              "id": "569f8889-36b5-4bad-bdd9-ffd8c2450c77",
+              "kind": "contract-case-records",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [],
+          "reason": "NOT_APPLICABLE: build-surface-map (bound input predicate)."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+              "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "preserve-input-context"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "5c06dad173957d66c85d5fc8b7c35d0505cae991801a44a4fe7153e70c3be4a9",
+              "id": "f7836a0a-00bd-43eb-90ec-70349db24fb3",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "93346391d70492f55f9dfbf245ff62d438dece03232bc8dc088600c1f756a785",
+              "id": "569f8889-36b5-4bad-bdd9-ffd8c2450c77",
+              "kind": "contract-case-records",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        }
+      ],
+      "retained_method_plan": {
+        "requirements": [
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+                "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "normalize-records"
+            },
+            "required": true
+          },
+          {
+            "applicability": "NOT_APPLICABLE",
+            "applicability_basis_refs": [
+              {
+                "digest": "93346391d70492f55f9dfbf245ff62d438dece03232bc8dc088600c1f756a785",
+                "id": "569f8889-36b5-4bad-bdd9-ffd8c2450c77",
+                "kind": "contract-case-records",
+                "revision": 1
+              }
+            ],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+                "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "build-surface-map"
+            },
+            "required": true
+          },
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+                "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "preserve-input-context"
+            },
+            "required": false
+          }
+        ]
+      },
+      "usage": {
+        "cost": "0",
+        "model_calls": 0,
+        "state": "KNOWN",
+        "target_actions": 0
+      },
+      "criterion_outcomes": [
+        {
+          "bound_procedure_ref": {
+            "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+            "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "6399cce3f8099bde2abb36416d8797645ae5b64f4e7a1fdafaad93071acc889a",
+            "id": "c649d7cb-f40b-49c8-854b-5361b918ee2d",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "2cbc65e0-15d9-4d32-9e88-9d8d05f9f33b",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ],
+          "method_check_ref": {
+            "digest": "41a662d2710f99c695d5a16fe4e57cdd50ac3c4aac120bdd51a5dfcfedbacc17",
+            "id": "0e64b4ca-044d-4966-9920-040f7ec8863f",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "0d204a8b5c775bb5b538445386400b025c2f5d9bfdcd399863b583f3b3b314fb",
+            "id": "b2dc0e4d-5beb-4e82-b470-272fdfcb0f31",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "51b46c149979a887d466812c232f3d17030b3bf1828193e5b40ed424a32dcaf2",
+            "id": "a142f2e7-2a0a-4db6-ae23-d5697e2b918f",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "c8b9c97de1afeca565b077f3a9b5f042cff6eb54de86cc97b8cc810bf80a9344",
+            "id": "c11ee5d4-b345-47e4-afc6-85db00dd192e",
+            "kind": "task-result",
+            "revision": 1
+          }
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "b3ef884dc56e3e3c709908a1b490f0dad44a1d7a652f2ea8ca545cc1f6a9987e",
+            "id": "05b20249-bff9-4ace-9cf2-2b1681253b21",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "6399cce3f8099bde2abb36416d8797645ae5b64f4e7a1fdafaad93071acc889a",
+            "id": "c649d7cb-f40b-49c8-854b-5361b918ee2d",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "3c96bb5c-ba0f-4280-8f91-e7e4c3fd773c",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ],
+          "method_check_ref": {
+            "digest": "41a662d2710f99c695d5a16fe4e57cdd50ac3c4aac120bdd51a5dfcfedbacc17",
+            "id": "0e64b4ca-044d-4966-9920-040f7ec8863f",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "0d204a8b5c775bb5b538445386400b025c2f5d9bfdcd399863b583f3b3b314fb",
+            "id": "b2dc0e4d-5beb-4e82-b470-272fdfcb0f31",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "51b46c149979a887d466812c232f3d17030b3bf1828193e5b40ed424a32dcaf2",
+            "id": "a142f2e7-2a0a-4db6-ae23-d5697e2b918f",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "c8b9c97de1afeca565b077f3a9b5f042cff6eb54de86cc97b8cc810bf80a9344",
+            "id": "c11ee5d4-b345-47e4-afc6-85db00dd192e",
+            "kind": "task-result",
+            "revision": 1
+          }
+        }
+      ],
+      "durable_markers": {
+        "admitted": 0,
+        "consumed": 0,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "consumed_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "final_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "post_adversarial_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 3,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "restart_processes": [
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2090659
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2090662
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2090685
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2090687
+        }
+      ],
+      "cli_receipts": [
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-1b6f00abab894b3bb6f9a250935d372a.jsonl",
+            "sha256": "cabe392ab6d4c637602479a29c70d6e9175a2d18c9afd51ae281031122a11b66"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-1b6f00abab894b3bb6f9a250935d372a.stdout",
+            "sha256": "fb23c15d6a3dbf029f998427504cf0421fe7a7a2c032ed44396b43f9ac534b5d"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-1b6f00abab894b3bb6f9a250935d372a.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2090662,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-4f35d293d9b545fbae4d086044590eca.jsonl",
+            "sha256": "95375036f2d99bd17df203c15fcb2288f3f8f08a6e87db0975386a603a5e1bf8"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-4f35d293d9b545fbae4d086044590eca.stdout",
+            "sha256": "fb23c15d6a3dbf029f998427504cf0421fe7a7a2c032ed44396b43f9ac534b5d"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-4f35d293d9b545fbae4d086044590eca.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2090687,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-9302d92e6c8048bbaf5570bc4e42d1da.jsonl",
+            "sha256": "c49eea4ce0773a0ba59f1fe21a79f41e9b2c4b6d2a176e5251f7cc4b342f1702"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-9302d92e6c8048bbaf5570bc4e42d1da.stdout",
+            "sha256": "fb23c15d6a3dbf029f998427504cf0421fe7a7a2c032ed44396b43f9ac534b5d"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-9302d92e6c8048bbaf5570bc4e42d1da.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2090685,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-c45d5dee7a8a4677974bcf7bacde83c9.jsonl",
+            "sha256": "98b07e0cc2b55bcaa59e103dc44ede5191f7ed5181c03dcba4618a2112860a66"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-c45d5dee7a8a4677974bcf7bacde83c9.stdout",
+            "sha256": "8720e27c073206cff466ebcfdb048223faee351ef993242ad24bb29a5f42a1a5"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati1/restart-observer-c45d5dee7a8a4677974bcf7bacde83c9.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2090659,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        }
+      ],
+      "no_rerun_execution_attempts": [],
+      "post_stop_receive_only_duplicate": "PASS",
+      "duplicate_conflict": "PASS",
+      "forged_outcome_refusal": "PASS",
+      "unknown_is_not_na": false
+    },
+    {
+      "case": "unknown",
+      "proof": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/method-history-proof.json",
+        "sha256": "bb1d003f8a9a89e63864583ee0c1e15a6bd4d81c7f61a9a5bb239d3724c271d9"
+      },
+      "native_observer": {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/native-observation.jsonl",
+        "sha256": "0ed5794019873408d96a9831a04a89240cefaea94c315754a5a22819a3610d3c"
+      },
+      "native_home": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/native-home",
+      "native_runtime_directory": "/home/kali/.hermes/cache/scratch/cm-14e76530f8d84b10a537db8d0c1a1605",
+      "native_exit_code": -9,
+      "native_owned_pids_final": [],
+      "native_leader_pid": "NOT_RECORDED_BY_EXISTING_PROOF",
+      "tombstone_readback": {
+        "runtime.sock": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-14e76530f8d84b10a537db8d0c1a1605/runtime.sock",
+          "absent_lstat": true
+        },
+        "runtime.boot": {
+          "path": "/home/kali/.hermes/cache/scratch/cm-14e76530f8d84b10a537db8d0c1a1605/runtime.boot",
+          "absent_lstat": true
+        }
+      },
+      "launch_diagnostic": {
+        "elapsed_ms": 2253,
+        "host_state": "STARTING",
+        "operation": "launch",
+        "phase": "handshake_complete",
+        "ready_cancelled": false,
+        "ready_done": true,
+        "remaining_ms": 2243,
+        "transport_failed": false
+      },
+      "observer_counts": {
+        "run_contract": 1,
+        "_read_bound_input": 1,
+        "run_handler": 2,
+        "task-result": 1,
+        "contract-tool-receipt": 3,
+        "contract-artifact": 2
+      },
+      "native_release_status": [
+        "SUCCEEDED"
+      ],
+      "task_result_ref": {
+        "id": "43675442-d27e-4b18-900b-92926f3de97e",
+        "kind": "task-result",
+        "digest": "e189d95d0273558250d92be5f4d5d27a41cbd770ab6ff1f0823ddb836d34d627",
+        "revision": 1
+      },
+      "native_task_result_status": "SUCCEEDED",
+      "domain_task_status": "BLOCKED",
+      "method_check_ref": {
+        "id": "bc35b707-35a0-4acc-961f-339d8a037a6a",
+        "kind": "method-check",
+        "digest": "0151ac79ce9f9b8a83390220adf1a3330abe09797e995b90e32affbcefd2606c",
+        "revision": 1
+      },
+      "method_check_status": "UNKNOWN",
+      "method_check_reason": "METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility.",
+      "method_check_gap_refs": [
+        {
+          "bound_procedure_ref": {
+            "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+            "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "requirement_key": "normalize-records"
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+            "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "requirement_key": "build-surface-map"
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+            "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "requirement_key": "preserve-input-context"
+        }
+      ],
+      "method_results": [
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+              "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "normalize-records"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "5ba3ad35bc198cd7f90849db80dfdf48ead30a6a5506773a7545c2dee5c1a618",
+              "id": "f1382d81-8c3d-4898-b71a-19b6b1a5e602",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "e5825564176a2f725bb94aee943679a77f88ba7a9ab1c10a0ae3b78cca25a35a",
+              "id": "9c996709-bdbd-45b2-ae3e-0d2712f1d3e5",
+              "kind": "contract-artifact",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+              "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "build-surface-map"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "83c6d881eca15d2d54f1271340d1bc14159a8204ec78c25cde8aa7767eb3635c",
+              "id": "0a414e08-f5ec-41b8-b268-ec4056c52a4c",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "7d557d5aeaf82ca92499eeaa4799f3f0786afca0802cde2e2828cfb36e2bded3",
+              "id": "021163f8-a3da-441a-bba5-d0b45fb12e28",
+              "kind": "contract-artifact",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        },
+        {
+          "ref": {
+            "bound_procedure_ref": {
+              "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+              "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+              "kind": "bound-procedure",
+              "revision": 1
+            },
+            "requirement_key": "preserve-input-context"
+          },
+          "state": "DONE",
+          "basis_refs": [
+            {
+              "digest": "5ba3ad35bc198cd7f90849db80dfdf48ead30a6a5506773a7545c2dee5c1a618",
+              "id": "f1382d81-8c3d-4898-b71a-19b6b1a5e602",
+              "kind": "contract-tool-receipt",
+              "revision": 1
+            }
+          ],
+          "artifact_refs": [
+            {
+              "digest": "cbc5558aa04b08dbff87abd387efd37530c7ff8f2e02b72c328e88b5fa25e827",
+              "id": "cd81e12e-ef8d-4534-a615-bc787b61e802",
+              "kind": "contract-case-records",
+              "revision": 1
+            }
+          ],
+          "reason": "Bound CONTRACT/PURE method completed."
+        }
+      ],
+      "retained_method_plan": {
+        "requirements": [
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+                "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "normalize-records"
+            },
+            "required": true
+          },
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [
+              {
+                "digest": "cbc5558aa04b08dbff87abd387efd37530c7ff8f2e02b72c328e88b5fa25e827",
+                "id": "cd81e12e-ef8d-4534-a615-bc787b61e802",
+                "kind": "contract-case-records",
+                "revision": 1
+              }
+            ],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+                "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "build-surface-map"
+            },
+            "required": true
+          },
+          {
+            "applicability": "APPLIES",
+            "applicability_basis_refs": [],
+            "ref": {
+              "bound_procedure_ref": {
+                "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+                "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+                "kind": "bound-procedure",
+                "revision": 1
+              },
+              "requirement_key": "preserve-input-context"
+            },
+            "required": false
+          }
+        ]
+      },
+      "usage": {
+        "cost": "0",
+        "model_calls": 0,
+        "state": "KNOWN",
+        "target_actions": 0
+      },
+      "criterion_outcomes": [
+        {
+          "bound_procedure_ref": {
+            "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+            "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "d761451969da5c645bed436e541402fb13215f0e2eff3eaeb77a02ca9acfe28e",
+            "id": "cca970b0-1ffb-46b5-940d-0abf7363595e",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "c6a07491-7fac-4a69-a91a-6ceb4998733f",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_UNKNOWN"
+          ],
+          "method_check_ref": {
+            "digest": "0151ac79ce9f9b8a83390220adf1a3330abe09797e995b90e32affbcefd2606c",
+            "id": "bc35b707-35a0-4acc-961f-339d8a037a6a",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "f662b8ab6a99275c7f2115d38306868598d382bb93f2fdb6ad4927f29ab38405",
+            "id": "0966dc65-8af5-4d56-b83f-7503f777a9c0",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "bd14ebf98b69c8bba0e8abcf449deba644ca0b45caad45413564a3461c517153",
+            "id": "76c0337b-7f79-480e-bc2d-dd0286325bf6",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict. MethodCheck is UNKNOWN; method eligibility remains unestablished.",
+          "task_result_ref": {
+            "digest": "e189d95d0273558250d92be5f4d5d27a41cbd770ab6ff1f0823ddb836d34d627",
+            "id": "43675442-d27e-4b18-900b-92926f3de97e",
+            "kind": "task-result",
+            "revision": 1
+          }
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "61b4ca6869e0bbc51f2ae9f10b61447e8fd0408e428561a966d070a1f486c51a",
+            "id": "56e92ae9-3202-4d39-a51c-3e719064cb99",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "d761451969da5c645bed436e541402fb13215f0e2eff3eaeb77a02ca9acfe28e",
+            "id": "cca970b0-1ffb-46b5-940d-0abf7363595e",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "3e41eae4-ebfe-41e4-ba9d-f11e9cbbb32e",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_UNKNOWN"
+          ],
+          "method_check_ref": {
+            "digest": "0151ac79ce9f9b8a83390220adf1a3330abe09797e995b90e32affbcefd2606c",
+            "id": "bc35b707-35a0-4acc-961f-339d8a037a6a",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "f662b8ab6a99275c7f2115d38306868598d382bb93f2fdb6ad4927f29ab38405",
+            "id": "0966dc65-8af5-4d56-b83f-7503f777a9c0",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "bd14ebf98b69c8bba0e8abcf449deba644ca0b45caad45413564a3461c517153",
+            "id": "76c0337b-7f79-480e-bc2d-dd0286325bf6",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict. MethodCheck is UNKNOWN; method eligibility remains unestablished.",
+          "task_result_ref": {
+            "digest": "e189d95d0273558250d92be5f4d5d27a41cbd770ab6ff1f0823ddb836d34d627",
+            "id": "43675442-d27e-4b18-900b-92926f3de97e",
+            "kind": "task-result",
+            "revision": 1
+          }
+        }
+      ],
+      "durable_markers": {
+        "admitted": 0,
+        "consumed": 0,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "consumed_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "final_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 2,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "post_adversarial_markers": {
+        "admitted": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1,
+        "records": {
+          "action_definition": 3,
+          "bound-procedure": 1,
+          "contract-artifact": 2,
+          "contract-case-records": 1,
+          "contract-input-command": 2,
+          "contract-input-context": 1,
+          "contract-tool-receipt": 3,
+          "criterion-outcome": 3,
+          "criterion-outcome-rule": 1,
+          "focus": 1,
+          "focus-selection-rule": 1,
+          "launch-manifest": 1,
+          "managed-cursor": 1,
+          "managed-run": 1,
+          "method-check": 1,
+          "method-checker": 1,
+          "mission": 1,
+          "native-task-receipt": 1,
+          "probe-policy": 1,
+          "probe-scope": 1,
+          "prompt-bundle": 1,
+          "prompt-composition": 1,
+          "prompt-content": 2,
+          "runtime-binding": 1,
+          "schema": 1,
+          "task-brief": 1,
+          "task-result": 1
+        },
+        "turn_completed": 0
+      },
+      "restart_processes": [
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2091455
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2091477
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2091479
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2091502
+        }
+      ],
+      "cli_receipts": [
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-07e4091258594b6f8adfb2782fcd98c0.jsonl",
+            "sha256": "9536a48f2f0e3d15112c89e6106a1d92ec45bf79ca3caff150b6aa07c370a720"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-07e4091258594b6f8adfb2782fcd98c0.stdout",
+            "sha256": "1e800a08e069624d6e60ff32fc6cd92e2d635f849989b4cd53298a05868d03aa"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-07e4091258594b6f8adfb2782fcd98c0.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2091455,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-6c107cec324b46098a9f5215ddc503d7.jsonl",
+            "sha256": "ba09b1cdab0d916e2c3cda396a042637d633c9f7a620ea378b32de762cacfead"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-6c107cec324b46098a9f5215ddc503d7.stdout",
+            "sha256": "0cef4c3449c8a34f06bdd1085df815f40442875cb1e3d90e4bc4090364afcb80"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-6c107cec324b46098a9f5215ddc503d7.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2091479,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-98a24e22f7e943e4a8dba142b74e6c81.jsonl",
+            "sha256": "277ed63568030a78ecaea0e06b5a20f975f08ce923a217c975b7f2fbf6a3217f"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-98a24e22f7e943e4a8dba142b74e6c81.stdout",
+            "sha256": "0cef4c3449c8a34f06bdd1085df815f40442875cb1e3d90e4bc4090364afcb80"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-98a24e22f7e943e4a8dba142b74e6c81.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2091477,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        },
+        {
+          "observer": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-cdfe59a2a05b4fa8a9394902f898900e.jsonl",
+            "sha256": "f0bff99639879973b8e48a85b9cd6284e4f81b353e1b6fabf8d0ad339c180c7d"
+          },
+          "stdout": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-cdfe59a2a05b4fa8a9394902f898900e.stdout",
+            "sha256": "0cef4c3449c8a34f06bdd1085df815f40442875cb1e3d90e4bc4090364afcb80"
+          },
+          "stderr": {
+            "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-340/test_contract_method_real_nati2/restart-observer-cdfe59a2a05b4fa8a9394902f898900e.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "pid": 2091502,
+          "exit_code": 0,
+          "execution_attempts": 0,
+          "pid_absent_readback": true
+        }
+      ],
+      "no_rerun_execution_attempts": [],
+      "post_stop_receive_only_duplicate": "PASS",
+      "duplicate_conflict": "PASS",
+      "forged_outcome_refusal": "PASS",
+      "unknown_is_not_na": true
+    }
+  ],
+  "git_status_after": "## checkpoint/p2-vm-restart-20261011\n?? documents/Omnis_Notite_Originale.html",
+  "modified_repository_files": [],
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED: pinned real AIAgent + NativePeer + RuntimeHost + RuntimeClient + existing domain owner + real private PostgreSQL; not OCI/installed/historical installed-reader acceptance.",
+    "Document preparation is the unchanged reviewed qualification prerequisite double.",
+    "UNKNOWN uses controlled qualification unavailability only at the first independent check; native execution, result and references are genuine. Later qualified schema readback retains exact UNKNOWN with all three obligation gaps.",
+    "NOT_APPLICABLE remains INCONCLUSIVE/INCOMPLETE; UNKNOWN has genuine native PURE SUCCEEDED but domain BLOCKED/MethodCheck UNKNOWN. Neither is a functional PASS; every allocated criterion stays BLOCKED.",
+    "Existing Host teardown returns native exit -9; proof reports drained owned family and endpoint removal, not native graceful shutdown or whole-namespace STOPPED certification. Native leader PID was not persisted by this existing proof and is not invented.",
+    "One original PG fixture and three fresh native homes only. Existing owner performs cleanup; independent GET-only exact same-daemon/CID/project/network/UDS readback. PG18 data and private test/CLI/observer logs retained; no separate retained PG server log asserted.",
+    "No retry/prewarm/extra grants/deadline changes; no SOURCE/canonical/SDK/B05 rerun, general audit, model/account/provider/target/r1/remote/global/profile edits.",
+    "Finite records-nonempty applicability only; broader optional-completion/preconditions/invalidation/evidence, B06b/G02/P2/P4a-minim and new canonical remain open.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "observer_collection_issues": [
+    "Initial proof glob omitted pytest truncated test directory; corrected read-only collection resolved symlink aliases and deduplicated to exactly three current proofs. No consumer retry.",
+    "Initial source-spill JSON decoding failed before consumer launch; source re-read from complete saved spill, no product effects or test result credited.",
+    "Initial GET-only report check assumed a version field instead of the actual Ref revision; KeyError before report write, no consumer relaunch or fixture effects. Corrected exact four-field Ref equality after public field readback."
+  ],
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/p2-applicability-independent-before.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-independent-inventory.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-independent-report-readback.py",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-independent-qa.json",
+    "/home/kali/.hermes/cache/scratch/p2-applicability-independent-owner.log"
+  ],
+  "proposed_status_delta": {
+    "SL09_finite_applicability_AICI": {
+      "code": "IMPLEMENTED_FINITE_COMMITTED",
+      "proof": "PASS_SOURCE_NATIVE_SCOPED",
+      "review": "PARENT_REPORTED_TWO_APPROVED_SCOPED_FOCUSED_REVIEWS"
+    },
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED_NOT_RUN",
+    "canonical": "NOT_RUN"
+  }
+}

@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.20
+version: 0.1.21
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -30,6 +30,10 @@ Read the active architecture, relevant ticket and stack pins. Inspect actual man
 
 ## Pitfalls
 Do not swallow exceptions, retry uncertain external effects as if they were safe, return success for queued completion, or weaken validation to satisfy a linter. An in-memory smoke is not durability; a restart test must restart the owning process and read real state.
+
+- Accumulate missing qualification while validating every available required schema and value; keep the reader's partial material instead of discarding it on the first missing item. A separately decidable malformed document/value/identity must refuse, not become UNKNOWN. Require descriptor field types and identifier syntax before distinguishing well-formed unavailable identities.
+- Carry a newly supported check state through every allocated outcome and transaction/readback caller. A zero-allocation positive can hide rollback of check/outcome publication; pair allocated COMPLETE/INCOMPLETE/UNKNOWN controls and real durable settlement, keeping functional verdicts separate.
+- Preserve an immutable recorded UNKNOWN's exact cause and obligation gaps after independent receipt/input/available-schema revalidation. The presence of a prior check does not prove an old checker recorded historical success; receive-only compatibility must not retroactively upgrade current UNKNOWN, and altered or duplicate prior payloads must refuse.
 
 - Cross-check a new persistent record against its base domain schema as well as the specialized wire/result contract before emitting it. Include every mandatory field and bound in producer and readback validation; a valid native envelope can still omit required CriterionOutcome fields from architecture §9.3. Pair a genuine stored positive with missing/malformed-field refusal before equality, without rewriting immutable historical records.
 

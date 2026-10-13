@@ -691,6 +691,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         done = asyncio.Event()
         heartbeat: asyncio.Task[None] | None = None
         public_control: LocalControl | None = None
+        dispatch_waiters: list[asyncio.Task[dict[str, object]]] = []
         try:
             epoch = await service.acquire(supervisor)
             status = await service.owned_status(supervisor, epoch)
@@ -1030,6 +1031,26 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                 return {"records": counts, **dict(inbox_counts)}
 
+            async def mission_snapshot(conn: AsyncConnection) -> bytes:
+                # Full rows/envelopes stay private; failures print only labels.
+                snapshots: dict[str, object] = {}
+                for table, query in (
+                    ("records", "SELECT to_jsonb(r) FROM public.managed_record r ORDER BY id"),
+                    (
+                        "revision2",
+                        "SELECT to_jsonb(r) FROM public.managed_mission_revision r ORDER BY mission_id,revision",
+                    ),
+                    ("runs", "SELECT to_jsonb(r) FROM public.managed_run r ORDER BY run_id"),
+                    ("tasks", "SELECT to_jsonb(r) FROM public.managed_task r ORDER BY task_id"),
+                    ("inbox", "SELECT to_jsonb(r) FROM public.managed_inbox r ORDER BY result_id"),
+                ):
+                    snapshots[table] = list((await conn.execute(sql(query))).scalars().all())
+                return canonical(snapshots)
+
+            async def mission_census() -> bytes:
+                async with engine.connect() as conn:
+                    return await mission_snapshot(conn)
+
             # Failure-only, fixed-field diagnostics at the real handshake seam.
             # Never retain RPC payloads, capabilities, exception reprs or stderr.
             from omnis_hermes.runtime_protocol import NativePeer
@@ -1126,6 +1147,94 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     if applicability == "partial-requirement-prefix"
                     else owner.handle,
                 ).__aenter__()
+
+            # F01: pause AFTER the real reservation/owner lock, observe the
+            # append transaction blocked in PostgreSQL, then let commit finish.
+            # This adds no grant/deadline/Host; the same owner still sends once.
+            overlap_operations: list[str] = []
+            dispatch_censuses: dict[asyncio.Task[dict[str, object]], bytes] = {}
+            waiter_pids: dict[asyncio.Task[dict[str, object]], int] = {}
+            if applicability == "mission-consumer":
+                from omnis.modules.tasks import managed_store
+
+                owner_lock = managed_store.lock
+
+                async def observed_owner_lock(conn: AsyncConnection, owner_id: str) -> None:
+                    task = asyncio.current_task()
+                    for waiter in dispatch_waiters:
+                        if task is waiter:
+                            waiter_pids[waiter] = (
+                                await conn.execute(sql("SELECT pg_backend_pid()"))
+                            ).scalar_one()
+                    await owner_lock(conn, owner_id)
+
+                monkeypatch.setattr(managed_store, "lock", observed_owner_lock)
+                reserve_dispatch = domain.reserve_dispatch
+
+                async def overlap_reservation(
+                    conn: AsyncConnection, owner_id: str, manifest_ref: object, operation: str
+                ) -> dict[str, object]:
+                    manifest = await reserve_dispatch(conn, owner_id, manifest_ref, operation)
+                    blocker = (await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+                    request = seed.write(
+                        schema_version=1,
+                        context_ref=context["context_ref"],
+                        mission_ref=mapping(
+                            mapping(mapping(sequence(prepared["briefs"])[0])["payload"])["header"]
+                        )["mission_revision"],
+                        criterion_id=str(uuid4()),
+                    )
+                    waiter = asyncio.create_task(inputs.append_mission(request))
+                    dispatch_waiters.append(waiter)
+                    dispatch_censuses[waiter] = await mission_snapshot(conn)
+                    try:
+                        async with asyncio.timeout(0.75), engine.connect() as observer:
+                            while True:
+                                pid = waiter_pids.get(waiter)
+                                if (
+                                    pid is not None
+                                    and blocker
+                                    in (
+                                        await observer.execute(
+                                            sql("SELECT pg_blocking_pids(:waiter)"), {"waiter": pid}
+                                        )
+                                    ).scalar_one()
+                                ):
+                                    break
+                                if waiter.done():
+                                    raise AssertionError("MISSION_APPEND_DID_NOT_WAIT")
+                                await asyncio.sleep(0.01)
+                        overlap_operations.append(operation)
+                        return manifest
+                    except BaseException:
+                        waiter.cancel()
+                        await asyncio.gather(waiter, return_exceptions=True)
+                        raise
+
+                monkeypatch.setattr(domain, "reserve_dispatch", overlap_reservation)
+                original_exchange = runtime._exchange
+
+                async def settle_append_before_send(
+                    op: str,
+                    authority: RuntimeAuthority | None = None,
+                    payload: dict[str, object] | None = None,
+                ) -> dict[str, object]:
+                    if op in {"task_stage", "task_release"}:
+                        waiter = dispatch_waiters[-1]
+                        try:
+                            await asyncio.wait_for(waiter, 0.75)
+                        except CatalogError as error:
+                            if error.reason != "NEEDS_RECONCILIATION":
+                                raise AssertionError(
+                                    "MISSION_APPEND_WRONG_DISPATCH_DENIAL"
+                                ) from None
+                        else:
+                            raise AssertionError("MISSION_APPEND_CROSSED_DISPATCH")
+                        if await mission_census() != dispatch_censuses[waiter]:
+                            raise AssertionError("MISSION_DISPATCH_APPEND_DENIAL_CENSUS_CHANGED")
+                    return await original_exchange(op, authority, payload)
+
+                monkeypatch.setattr(runtime, "_exchange", settle_append_before_send)
 
             async def submit_task(action: str, *, phase: str = "ACTIVE") -> dict[str, object]:
                 command = NativeTaskCommand.model_validate({**lifecycle, "action": action})
@@ -1870,10 +1979,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
 
                 async def private_input_cli(
-                    operation: str, value: dict[str, object]
+                    operation: str, value: dict[str, object] | bytes, *, reason: str | None = None
                 ) -> dict[str, object]:
                     path = tmp_path / ("mission-command-" + uuid4().hex + ".json")
-                    path.write_bytes(canonical(value))
+                    path.write_bytes(value if isinstance(value, bytes) else canonical(value))
                     path.chmod(0o600)
                     child = await asyncio.create_subprocess_exec(
                         str(python),
@@ -1902,10 +2011,28 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         output = path.with_suffix("." + suffix)
                         output.write_bytes(raw)
                         output.chmod(0o600)
-                    assert child.returncode == 0, "PRIVATE_MISSION_COMMAND_FAILED"
+                    if reason is not None:
+                        expected = canonical({"status": "BLOCKED", "reason": reason}) + b"\n"
+                        if (child.returncode, stdout, stderr) != (2, b"", expected):
+                            raise AssertionError("PRIVATE_MISSION_DENIAL_TUPLE_MISMATCH")
+                        return {}
+                    if child.returncode != 0:
+                        raise AssertionError("PRIVATE_MISSION_COMMAND_FAILED")
                     require_empty_stderr(stderr)
                     return mapping(json.loads(stdout))
 
+                rollback_census = await mission_census()
+                async with engine.begin() as conn:
+                    await managed_store.lock(conn, seed.owner)
+                    for table in ("managed_run", "managed_task", "managed_inbox"):
+                        await conn.execute(
+                            sql(
+                                f"CREATE TEMP TABLE {table} (LIKE public.{table} INCLUDING ALL) ON COMMIT DROP"
+                            )
+                        )
+                    await inputs._require_settled(conn, seed.owner, str(back["run_id"]), m1_graph)
+                if await mission_census() != rollback_census:
+                    raise AssertionError("MISSION_TERMINAL_SHADOW_CENSUS_CHANGED")
                 rollback_markers = await markers()
 
                 async def fail_receipt(*args: object, **kwargs: object) -> None:
@@ -1916,6 +2043,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     with pytest.raises(CatalogError, match="TEST_RECEIPT_ROLLBACK"):
                         await inputs.append_mission(append_request)
                 assert await markers() == rollback_markers
+                if await mission_census() != rollback_census:
+                    raise AssertionError("MISSION_ROLLBACK_CENSUS_CHANGED")
                 async with engine.connect() as conn:
                     assert (
                         await conn.execute(
@@ -1938,6 +2067,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 m2 = mapping(read["mission"])
                 assert read["predecessor"] == mission and m2["id"] == mission["id"]
                 assert m2["revision"] == 2
+                shadow_census = await mission_census()
                 async with engine.begin() as conn:
                     await managed_store.lock(conn, seed.owner)
                     # Same-session shadows cannot replace attested public rows.
@@ -1984,6 +2114,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     ):
                         with pytest.raises(CatalogError):
                             await managed_store.get(conn, seed.owner, str(back["run_id"]), wrong)
+                        if await mission_snapshot(conn) != shadow_census:
+                            raise AssertionError("MISSION_SHADOW_DENIAL_CENSUS_CHANGED")
                 back = await domain.readback(back_request)
                 added = [
                     mapping(r)
@@ -2008,32 +2140,134 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "manifest",
                 ):
                     assert canonical(back[field]) == canonical(m1_back[field])
-                durable_markers = await markers()
-                for bad in (
-                    {**append_request, "criterion_id": str(uuid4())},
-                    {**append_request, "owner_id": str(uuid4())},
-                    {
-                        **append_request,
-                        "mission_ref": {**stored.reference(mission), "digest": "0" * 64},
-                    },
-                    {**append_request, "criterion_id": True},
-                    {**append_request, "mission_ref": stored.reference(m2)},
+                assert overlap_operations == ["stage", "release"]
+                # Opposite ordering on one fresh, never-dispatched assignment.
+                # Release cannot have an authentic binding here: the real
+                # BINDING_REQUIRED denial must not be bypassed with a fake one.
+                fresh_context = await inputs.create_method_context(
+                    seed.write(
+                        schema_version=2,
+                        selection_ref=selected["selection_ref"],
+                        preparation_command_id=preparation.command_id,
+                    )
+                )
+                fresh_input = await inputs.create_input(
+                    seed.write(
+                        schema_version=2,
+                        context_ref=fresh_context["context_ref"],
+                        input=value,
+                    )
+                )
+                fresh_assignment = {
+                    **assignment,
+                    "command_id": str(uuid4()),
+                    "context_ref": fresh_context["context_ref"],
+                    "slot_values": [{"slot_name": "records", "refs": [fresh_input["input_ref"]]}],
+                }
+                fresh = await domain.prepare_method(fresh_assignment)
+                fresh_request = seed.write(
+                    schema_version=1,
+                    context_ref=fresh_context["context_ref"],
+                    mission_ref=mapping(
+                        mapping(mapping(sequence(fresh["briefs"])[0])["payload"])["header"]
+                    )["mission_revision"],
+                    criterion_id=str(uuid4()),
+                )
+                qualified = inputs.current_source
+
+                async def reserve_fresh(operation: str) -> dict[str, object]:
+                    async with engine.begin() as conn:
+                        return await reserve_dispatch(
+                            conn, seed.owner, fresh["manifest_ref"], operation
+                        )
+
+                async def append_holds_lock(
+                    conn: AsyncConnection,
+                    owner_id: str,
+                    context_record: object,
+                    graph: list[dict[str, object]],
+                ) -> BuildSource:
+                    source = await qualified(conn, owner_id, context_record, graph)
+                    blocker = (await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+                    for operation in ("stage", "release"):
+                        dispatch_waiters.append(asyncio.create_task(reserve_fresh(operation)))
+                    async with asyncio.timeout(0.75), engine.connect() as observer:
+                        while True:
+                            blocked = 0
+                            for waiter in dispatch_waiters[-2:]:
+                                pid = waiter_pids.get(waiter)
+                                if (
+                                    pid is not None
+                                    and blocker
+                                    in (
+                                        await observer.execute(
+                                            sql("SELECT pg_blocking_pids(:waiter)"), {"waiter": pid}
+                                        )
+                                    ).scalar_one()
+                                ):
+                                    blocked += 1
+                            if blocked == 2:
+                                break
+                            if any(t.done() for t in dispatch_waiters[-2:]):
+                                raise AssertionError("MISSION_DISPATCH_DID_NOT_WAIT")
+                            await asyncio.sleep(0.01)
+                    return source
+
+                with monkeypatch.context() as append_pause:
+                    append_pause.setattr(inputs, "current_source", append_holds_lock)
+                    fresh_append = await inputs.append_mission(fresh_request)
+                fresh_census = await mission_census()
+                for waiter, reason in zip(
+                    dispatch_waiters[-2:],
+                    ("MISSION_REVISION_NEW_WORK_UNSUPPORTED", "BINDING_REQUIRED"),
+                    strict=True,
                 ):
-                    with pytest.raises(CatalogError):
-                        await inputs.append_mission(bad)
+                    with pytest.raises(CatalogError, match="^" + reason + "$"):
+                        await asyncio.wait_for(waiter, 0.75)
+                    if await mission_census() != fresh_census:
+                        raise AssertionError("MISSION_DISPATCH_DENIAL_CENSUS_CHANGED")
+                assert fresh_append["created"] is True
+                assert canonical(await domain.readback(back_request)) == canonical(back)
+                durable_markers = await markers()
+                durable_census = await mission_census()
+                for bad, reason in (
+                    ({**append_request, "criterion_id": str(uuid4())}, "COMMAND_CONFLICT"),
+                    ({**append_request, "owner_id": str(uuid4())}, "REF_UNAVAILABLE"),
+                    (
+                        {
+                            **append_request,
+                            "mission_ref": {**stored.reference(mission), "digest": "0" * 64},
+                        },
+                        "REF_MISMATCH",
+                    ),
+                    ({**append_request, "criterion_id": True}, "INVALID_REQUEST"),
+                    ({**append_request, "mission_ref": stored.reference(m2)}, "MANAGED_REJECTED"),
+                    ({**append_request, "command_id": str(uuid4())}, "MISSION_REVISION_CONFLICT"),
+                    (b"\xef\xbb\xbf" + canonical(append_request), "INVALID_JSON"),
+                ):
+                    await private_input_cli("append-mission", bad, reason=reason)
                     assert await markers() == durable_markers
+                    if await mission_census() != durable_census:
+                        raise AssertionError("MISSION_DENIAL_CENSUS_CHANGED")
                 with pytest.raises(CatalogError, match="MISSION_REVISION_NEW_WORK_UNSUPPORTED"):
                     await domain.prepare_method({**assignment, "command_id": str(uuid4())})
+                if await mission_census() != durable_census:
+                    raise AssertionError("MISSION_PREPARE_DENIAL_CENSUS_CHANGED")
                 async with engine.begin() as conn:
                     with pytest.raises(CatalogError, match="MISSION_REVISION_NEW_WORK_UNSUPPORTED"):
                         await domain.stage_payload(conn, seed.owner, prepared["manifest_ref"])
+                if await mission_census() != durable_census:
+                    raise AssertionError("MISSION_STAGE_DENIAL_CENSUS_CHANGED")
                 assert await markers() == durable_markers
                 assert observation.read_bytes() == native_before
                 checkpoint(
                     mission_revision_consumer="M1_IMMUTABLE_M2_APPENDED",
                     mission_refs=[stored.reference(mission), appended["mission_ref"]],
                     mission_new_work="REFUSED_BEFORE_WRITES_NATIVE",
-                    mission_private_cli="APPEND_REPLAY_READ",
+                    mission_private_cli="APPEND_REPLAY_READ_AND_SEVEN_EXACT_DENIAL_TUPLES",
+                    mission_overlap="RESERVATION_FIRST_STAGE_RELEASE_AND_APPEND_FIRST_STAGE_RELEASE",
+                    mission_append_first_release="BINDING_REQUIRED_NO_FABRICATED_BINDING",
+                    mission_census="ALL_FIVE_TABLE_ROWS_AND_ENVELOPES_EXACT_AFTER_EACH_FAULT_DENIAL",
                     mission_atomic_receipt_rollback="PASS",
                     mission_same_session_temp_shadow_reads="PUBLIC_EXACT",
                 )
@@ -2184,6 +2418,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     post_adversarial_markers=await markers(),
                 )
         finally:
+            for waiter in dispatch_waiters:
+                if not waiter.done():
+                    waiter.cancel()
+            await asyncio.gather(*dispatch_waiters, return_exceptions=True)
             done.set()
             try:
                 if heartbeat is not None:

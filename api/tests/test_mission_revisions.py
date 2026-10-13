@@ -1,13 +1,16 @@
 """Finite M2 SOURCE controls; SQL doubles are not PostgreSQL/native evidence."""
 
 import importlib
+import json
 import subprocess
 from collections.abc import Awaitable, Callable, Sequence
+from contextlib import asynccontextmanager
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
 from types import ModuleType, SimpleNamespace, TracebackType
 from typing import Protocol, cast
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
@@ -139,6 +142,13 @@ class SQLDouble:
         self.owner, self.run, self.graph = owner, run, deepcopy(graph)
         self.writes: list[str] = []
         self.locked = False
+        self.state: Data | None = None
+        self.tasks: list[Data] = []
+        self.inbox: list[Data] = []
+        self.lifecycle_reads = 0
+
+    async def dispose(self) -> None:
+        pass
 
     def begin(self) -> "SQLDouble":
         return self
@@ -159,6 +169,21 @@ class SQLDouble:
         if "pg_advisory_xact_lock" in query:
             self.locked = True
             return Result([])
+        if query == "SELECT * FROM public.managed_run WHERE owner_id=:owner AND run_id=:run":
+            assert self.locked and args == {"owner": self.owner, "run": self.run}
+            self.lifecycle_reads += 1
+            return Result([] if self.state is None else [self.state])
+        if query == "SELECT * FROM public.managed_task WHERE run_id=:run ORDER BY batch_index":
+            assert self.locked and args == {"run": self.run}
+            return Result(self.tasks)
+        if query == (
+            "SELECT i.* FROM public.managed_inbox i JOIN public.managed_task t "
+            "ON t.task_id=i.task_id WHERE t.run_id=:run ORDER BY t.batch_index"
+        ):
+            assert self.locked and args == {"run": self.run}
+            return Result(self.inbox)
+        if "managed_run" in query or "managed_task" in query or "managed_inbox" in query:
+            raise AssertionError("Unmodelled lifecycle query: " + query)
         if "INSERT INTO" in query:
             assert self.locked
             item = contract.mapping(
@@ -204,6 +229,306 @@ class SQLDouble:
         raise AssertionError(query)
 
 
+def test_private_cli_denial_tuples_and_never_dispatched_replay(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Real CLI/service with SOURCE SQL/qualification seams; not PG evidence."""
+    from omnis.modules.runs import contract_inputs
+
+    graph = criteria_graph([str(uuid4())])
+    context = next(r for r in graph if r["kind"] == "contract-input-context")
+    context["payload"] = {**contract.mapping(context["payload"]), "version": 2}
+    context["digest"] = sha256(
+        canonical({k: v for k, v in context.items() if k != "digest"})
+    ).hexdigest()
+    body = contract.mapping(context["payload"])
+    conn = SQLDouble(
+        cast(str, body["owner_id"]), cast(str, contract.ref(body["basis_ref"])["id"]), graph
+    )
+
+    async def qualified(*args: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            procedure=SimpleNamespace(key="map-records", verification_kind="CONTRACT")
+        )
+
+    monkeypatch.setattr(ContractInputs, "current_source", qualified)
+    monkeypatch.setattr(contract_inputs, "database_engine", lambda url: cast(AsyncEngine, conn))
+    monkeypatch.setenv("OMNIS_DATABASE_URL", "source-double-not-a-dsn")
+    request = {
+        "schema_version": 1,
+        "owner_id": conn.owner,
+        "command_id": str(uuid4()),
+        "context_ref": records.reference(context),
+        "mission_ref": body["mission_ref"],
+        "criterion_id": str(uuid4()),
+    }
+    path = tmp_path / "request.json"
+    path.write_bytes(canonical(request))
+    argv = ["append-mission", "--request", str(path)]
+    assert contract_inputs.main(argv) == 0
+    output = capsys.readouterr()
+    appended = contract.mapping(json.loads(output.out))
+    assert output.err == "" and appended["created"] is True
+    before = canonical(conn.graph)
+    for bad, reason in (
+        ({**request, "criterion_id": str(uuid4())}, "COMMAND_CONFLICT"),
+        ({**request, "owner_id": str(uuid4())}, "REF_UNAVAILABLE"),
+        (
+            {
+                **request,
+                "mission_ref": {**contract.ref(request["mission_ref"]), "digest": "0" * 64},
+            },
+            "REF_MISMATCH",
+        ),
+        ({**request, "criterion_id": True}, "INVALID_REQUEST"),
+        ({**request, "mission_ref": appended["mission_ref"]}, "MANAGED_REJECTED"),
+        ({**request, "command_id": str(uuid4())}, "MISSION_REVISION_CONFLICT"),
+        (b"\xef\xbb\xbf" + canonical(request), "INVALID_JSON"),
+    ):
+        path.write_bytes(bad if isinstance(bad, bytes) else canonical(bad))
+        exit_code = contract_inputs.main(argv)
+        output = capsys.readouterr()
+        assert (exit_code, output.out, output.err) == (
+            2,
+            "",
+            canonical({"status": "BLOCKED", "reason": reason}).decode() + "\n",
+        )
+        assert canonical(conn.graph) == before and len(conn.writes) == 2
+
+    # Replay/read must not consult mutable dispatch state or requalify.
+    async def forbidden(*args: object) -> SimpleNamespace:
+        raise AssertionError("Replay reached qualification")
+
+    monkeypatch.setattr(ContractInputs, "current_source", forbidden)
+    conn.state = {
+        "stage_started": True,
+        "release_started": True,
+        "binding_id": None,
+        "final_id": None,
+    }
+    path.write_bytes(canonical(request))
+    assert contract_inputs.main(argv) == 0
+    output = capsys.readouterr()
+    assert output.err == "" and contract.mapping(json.loads(output.out))["created"] is False
+    read_request = {k: request[k] for k in ("schema_version", "owner_id", "command_id")}
+    path.write_bytes(canonical(read_request))
+    assert contract_inputs.main(["read-mission", "--request", str(path)]) == 0
+    output = capsys.readouterr()
+    assert (
+        output.err == ""
+        and contract.mapping(json.loads(output.out))["mission_ref"] == appended["mission_ref"]
+    )
+    assert canonical(conn.graph) == before and conn.lifecycle_reads == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("operation", ["stage", "release"])
+@pytest.mark.parametrize("ordering", ["no-cutover", "reservation-first", "append-first"])
+async def test_owner_dispatch_cutover_orderings_at_same_sink(
+    monkeypatch: pytest.MonkeyPatch, operation: str, ordering: str
+) -> None:
+    """Real owner/append; domain/transaction/sink doubles, no terminal fabrication."""
+    from collections.abc import AsyncIterator
+    from uuid import UUID
+
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.tasks import managed_store
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    graph = criteria_graph([str(uuid4())])
+    context = next(r for r in graph if r["kind"] == "contract-input-context")
+    context["payload"] = {**contract.mapping(context["payload"]), "version": 2}
+    context["digest"] = sha256(
+        canonical({k: v for k, v in context.items() if k != "digest"})
+    ).hexdigest()
+    body = contract.mapping(context["payload"])
+    conn = SQLDouble(
+        cast(str, body["owner_id"]), cast(str, contract.ref(body["basis_ref"])["id"]), graph
+    )
+    inputs = ContractInputs(cast(AsyncEngine, conn))
+
+    async def qualified(*args: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            procedure=SimpleNamespace(key="map-records", verification_kind="CONTRACT")
+        )
+
+    monkeypatch.setattr(inputs, "current_source", qualified)
+    request = {
+        "schema_version": 1,
+        "owner_id": conn.owner,
+        "command_id": str(uuid4()),
+        "context_ref": records.reference(context),
+        "mission_ref": body["mission_ref"],
+        "criterion_id": str(uuid4()),
+    }
+    manifest = next(r for r in graph if r["kind"] == "launch-manifest")
+    instance, supervisor, boot = str(uuid4()), uuid4(), str(uuid4())
+    # Release-only source state is deliberately NOT terminal authority.
+    binding = records.envelope(
+        "runtime-binding",
+        {
+            "runtime_boot": boot,
+            "ticket": str(uuid4()),
+            "authority": {
+                "owner": str(supervisor),
+                "instance_id": instance,
+                "epoch": 1,
+                "generation": 0,
+            },
+        },
+    )
+    domain = Mock()
+    domain.readback = AsyncMock(
+        return_value={
+            "manifest_ref": records.reference(manifest),
+            "manifest": manifest,
+            "binding": binding if operation == "release" else None,
+            "results": [],
+            "stage_started": False,
+            "release_started": False,
+        }
+    )
+    events: list[str] = []
+
+    async def material(*args: object) -> Data:
+        revisions().require_no_revision(
+            await managed_store.graph(cast(AsyncConnection, conn), conn.owner, conn.run)
+        )
+        return {"protocol": "omnis-managed-admission-v4", "manifest": manifest}
+
+    domain.stage_payload = material
+
+    async def reserve(*args: object) -> Data:
+        await material()
+        conn.state = {
+            "stage_started": True,
+            "release_started": operation == "release",
+            "binding_id": None,
+            "final_id": None,
+        }
+        events.append("dispatch-reserved")
+        return manifest
+
+    domain.reserve_dispatch = reserve
+
+    @asynccontextmanager
+    async def fence(*args: object) -> AsyncIterator[object]:
+        yield SimpleNamespace(
+            execute=AsyncMock(return_value=SimpleNamespace(scalar_one=lambda: instance))
+        )
+        if ordering == "reservation-first" and "append-denied" not in events:
+            before = canonical(conn.graph)
+            with pytest.raises(CatalogError, match="^NEEDS_RECONCILIATION$"):
+                await inputs.append_mission(request)
+            assert canonical(conn.graph) == before and not conn.writes
+            events.append("append-denied")
+
+    service = SimpleNamespace(native_preparation_commit=fence, runtime_authority=AsyncMock())
+
+    async def sink(*args: object) -> Data:
+        events.append("native-sink")
+        raise CatalogError("TEST_SOURCE_SINK")
+
+    runtime = SimpleNamespace(boot=boot, managed=sink, _exchange=sink, close=AsyncMock())
+    owner = NativeTaskOwner(
+        cast(ManagedAdmission, domain),
+        cast(InstanceService, service),
+        UUID(str(supervisor)),
+        1,
+        cast(RuntimeClient, runtime),
+    )
+    if ordering == "append-first":
+        assert (await inputs.append_mission(request))["created"] is True
+    command = NativeTaskCommand.model_validate(
+        {
+            "op": "native_task",
+            "schema_version": 1,
+            "owner_id": conn.owner,
+            "command_id": str(uuid4()),
+            "instance_id": instance,
+            "expected_generation": 0,
+            "expected_epoch": 1,
+            "action": operation,
+            "manifest_ref": records.reference(manifest),
+        }
+    )
+    with pytest.raises(
+        CatalogError,
+        match="^"
+        + (
+            "MISSION_REVISION_NEW_WORK_UNSUPPORTED"
+            if ordering == "append-first"
+            else "TEST_SOURCE_SINK"
+        )
+        + "$",
+    ):
+        await owner.handle(command)
+    assert events.count("native-sink") == (0 if ordering == "append-first" else 1)
+    if ordering == "reservation-first":
+        assert events == ["dispatch-reserved", "append-denied", "native-sink"]
+    if ordering == "append-first":
+        conn.state = {
+            "stage_started": True,
+            "release_started": True,
+            "binding_id": None,
+            "final_id": None,
+        }
+        assert (await inputs.append_mission(request))["created"] is False
+        assert (
+            await inputs.read(
+                "read-mission",
+                {k: request[k] for k in ("schema_version", "owner_id", "command_id")},
+            )
+        )["mission_ref"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("operation", ["stage", "release"])
+async def test_append_refuses_committed_dispatch_intent_before_m2_write(
+    monkeypatch: pytest.MonkeyPatch, operation: str
+) -> None:
+    graph = criteria_graph([str(uuid4())])
+    context = next(r for r in graph if r["kind"] == "contract-input-context")
+    context["payload"] = {**contract.mapping(context["payload"]), "version": 2}
+    context["digest"] = sha256(
+        canonical({k: v for k, v in context.items() if k != "digest"})
+    ).hexdigest()
+    body = contract.mapping(context["payload"])
+    conn = SQLDouble(
+        cast(str, body["owner_id"]), cast(str, contract.ref(body["basis_ref"])["id"]), graph
+    )
+    conn.state = {
+        "stage_started": True,
+        "release_started": operation == "release",
+        "binding_id": None,
+        "final_id": None,
+    }
+    inputs = ContractInputs(cast(AsyncEngine, conn))
+
+    async def qualified(*args: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            procedure=SimpleNamespace(key="map-records", verification_kind="CONTRACT")
+        )
+
+    monkeypatch.setattr(inputs, "current_source", qualified)
+    request = {
+        "schema_version": 1,
+        "owner_id": conn.owner,
+        "command_id": str(uuid4()),
+        "context_ref": records.reference(context),
+        "mission_ref": body["mission_ref"],
+        "criterion_id": str(uuid4()),
+    }
+    before = canonical(conn.graph)
+    with pytest.raises(CatalogError, match="^NEEDS_RECONCILIATION$"):
+        await inputs.append_mission(request)
+    assert canonical(conn.graph) == before and not conn.writes
+    assert conn.lifecycle_reads == 1
+
+
 @pytest.mark.asyncio
 async def test_owner_command_store_read_graph_replay_and_new_work_denial(
     monkeypatch: pytest.MonkeyPatch,
@@ -222,6 +547,22 @@ async def test_owner_command_store_read_graph_replay_and_new_work_denial(
     run = cast(str, contract.ref(body["basis_ref"])["id"])
     conn = SQLDouble(owner, run, graph)
     inputs = ContractInputs(cast(AsyncEngine, conn))
+    conn.state = {
+        "stage_started": False,
+        "release_started": False,
+        "binding_id": None,
+        "final_id": None,
+    }
+    conn.tasks = [
+        {
+            "state": "QUEUED",
+            "result_id": None,
+            "check_id": None,
+            "runtime_boot": None,
+            "native_child_id": None,
+            "native_session_id": None,
+        }
+    ]
 
     async def qualified_source(*args: object) -> SimpleNamespace:
         assert conn.locked

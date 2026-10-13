@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
+from sqlalchemy import text as sql
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
@@ -181,6 +182,7 @@ class ContractInputs:
                 return {**prior, "created": False}
             if any(r["kind"] == "mission" and r["revision"] == 2 for r in graph):
                 raise CatalogError("MISSION_REVISION_CONFLICT")
+            await self._require_settled(conn, owner, run, graph)
             source = await self.current_source(conn, owner, context, graph)
             if (
                 source.procedure.key != "map-records"
@@ -197,6 +199,132 @@ class ContractInputs:
                 conn, owner, run, command, "append-mission", value, result_refs
             )
             return {**result_refs, "created": True}
+
+    async def _require_settled(
+        self, conn: AsyncConnection, owner: str, run: str, graph: list[dict[str, object]]
+    ) -> None:
+        """Owner lock spans this check and M2 commit, not the later native send.
+
+        A committed dispatch intent therefore fences cutover until authentic
+        final/result/check settlement. Replay does not pass through this guard.
+        All authority reads are public-bound; temp shadows cannot grant no-work.
+        """
+        state = (
+            (
+                await conn.execute(
+                    sql("SELECT * FROM public.managed_run WHERE owner_id=:owner AND run_id=:run"),
+                    {"owner": owner, "run": run},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        tasks = (
+            (
+                await conn.execute(
+                    sql("SELECT * FROM public.managed_task WHERE run_id=:run ORDER BY batch_index"),
+                    {"run": run},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        inbox = (
+            (
+                await conn.execute(
+                    sql(
+                        "SELECT i.* FROM public.managed_inbox i JOIN public.managed_task t ON t.task_id=i.task_id WHERE t.run_id=:run ORDER BY t.batch_index"
+                    ),
+                    {"run": run},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        work_kinds = {"runtime-binding", "native-task-receipt", "task-result", "method-check"}
+        if state is None or (
+            state["stage_started"] is False
+            and state["release_started"] is False
+            and state["binding_id"] is None
+            and state["final_id"] is None
+        ):
+            if (
+                inbox
+                or any(r["kind"] in work_kinds for r in graph)
+                or (state is None and tasks)
+                or any(
+                    t["state"] != "QUEUED"
+                    or any(
+                        t[k] is not None
+                        for k in (
+                            "result_id",
+                            "check_id",
+                            "runtime_boot",
+                            "native_child_id",
+                            "native_session_id",
+                        )
+                    )
+                    for t in tasks
+                )
+            ):
+                raise CatalogError("NEEDS_RECONCILIATION")
+            return
+        if (
+            state["stage_started"] is not True
+            or state["release_started"] is not True
+            or state["binding_id"] is None
+            or state["final_id"] is None
+            or not tasks
+        ):
+            raise CatalogError("NEEDS_RECONCILIATION")
+        manifest = contract.validate_manifest(
+            await store.by_id(conn, owner, run, state["manifest_id"])
+        )
+        binding = contract.validate_binding(
+            await store.by_id(conn, owner, run, state["binding_id"]), manifest
+        )
+        final = contract.record(
+            await store.by_id(conn, owner, run, state["final_id"]), "native-task-receipt"
+        )
+        contract.validate_final(final["payload"], manifest, binding)
+        entries = [mapping(e) for e in contract.sequence(mapping(manifest["payload"])["entries"])]
+        if len(tasks) != len(entries) or len(inbox) != len(tasks):
+            raise CatalogError("NEEDS_RECONCILIATION")
+        for task, entry, received in zip(tasks, entries, inbox, strict=True):
+            if (
+                str(task["task_id"]) != entry["task_id"]
+                or str(task["brief_id"]) != ref(entry["brief_ref"])["id"]
+                or task["result_id"] is None
+                or task["check_id"] is None
+                or task["state"] not in {"BLOCKED", "SUCCEEDED"}
+                or str(received["task_id"]) != str(task["task_id"])
+                or str(received["result_id"]) != str(task["result_id"])
+                or received["delivered"] is not True
+                or received["admitted"] is not False
+                or received["turn_completed"] is not False
+                or type(received["domain_result_consumed"]) is not bool
+                or received["disposition"] not in {"RECEIVED", "HELD_FOR_RECONCILIATION"}
+            ):
+                raise CatalogError("NEEDS_RECONCILIATION")
+            result = contract.record(
+                await store.by_id(conn, owner, run, task["result_id"]), "task-result"
+            )
+            check = contract.record(
+                await store.by_id(conn, owner, run, task["check_id"]), "method-check"
+            )
+            body = mapping(check["payload"])
+            if (
+                body.get("task_result_ref") != records.reference(result)
+                or body.get("brief_ref") != entry["brief_ref"]
+                or body.get("status") not in {"COMPLETE", "INCOMPLETE", "UNKNOWN"}
+                or task["state"] != ("SUCCEEDED" if body["status"] == "COMPLETE" else "BLOCKED")
+            ):
+                raise CatalogError("NEEDS_RECONCILIATION")
+        # Reuse receive-only receipt/check/outcome validation in this transaction;
+        # opening readback's second owner-locked transaction would deadlock.
+        from omnis.modules.runs.managed_admission import ManagedAdmission
+
+        await ManagedAdmission(self.engine, self.root)._verify_graph(conn, owner, run, graph)
 
     async def current_source(
         self, conn: AsyncConnection, owner: str, context: object, graph: list[dict[str, object]]

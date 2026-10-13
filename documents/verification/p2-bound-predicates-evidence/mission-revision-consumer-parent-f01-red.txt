@@ -1,0 +1,8 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+E   AssertionError: M2 committed before task_stage but owner still invoked native sink
+    assert 'task_stage-sink' not in ['validated-M1', 'validated-M1', 'dispatch-reserved', 'M2-committed', 'task_stage-sink']
+/home/kali/.hermes/cache/scratch/p2-mr-input-review-probes.py:148: AssertionError: M2 committed before task_stage but owner still invoked native sink
+=========================== short test summary info ============================
+FAILED api::test_m2_append_must_fence_stage_after_dispatch_transaction_commit
+1 failed, 9 deselected in 1.79s

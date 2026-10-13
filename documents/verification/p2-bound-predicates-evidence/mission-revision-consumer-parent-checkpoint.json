@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_INPUT_M2_F01_SOURCE_REPRODUCED",
+  "checkpoint_commit": "227cfd60c58c585199c1d5536631f9705f104325",
+  "candidate_base": "c29d397365dc67b89c8fb79bccfafccffa303a51",
+  "preceding_head": "395d9069a2775abab5ac4c1f2958758a03d282a3",
+  "checkpoint_reason": "User requested next-session handoff after repeated context compaction. No additional implementation or PG/native attempt is authorized by this handoff.",
+  "scope": "Finite mission-only M2 consumer; no ResultQualification/ELIGIBLE/freshness or new work under M2.",
+  "author_report": {
+    "path": "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-author.json",
+    "sha256": "84e31b7c7f99b23cf91c22881d482831f8c9f52fc768b084fb901b2fef978e07",
+    "transfer": "exact original bytes via write_file"
+  },
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+      "before_sha256": null,
+      "final_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "new": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "before_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "final_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_store.py",
+      "before_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "final_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+      "before_sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "final_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "before_sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "final_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "before_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab",
+      "final_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "before_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "final_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+      "new": false
+    },
+    {
+      "path": "api/tests/test_mission_revisions.py",
+      "before_sha256": null,
+      "final_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+      "new": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "before_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "final_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+      "new": false
+    }
+  ],
+  "parent_verification": {
+    "source": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-parent-source api/tests/test_mission_revisions.py api/tests/test_c04_criteria.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_managed_composition.py api/tests/test_c03_managed_capture.py api/tests/test_contract_method_pg.py -k 'not real_native_pg' -q --tb=short",
+      "passed": 473,
+      "deselected": 18,
+      "seconds": 47.71,
+      "exit_code": 0,
+      "process_session": "proc_b4ea58c5b6fe",
+      "process_status": "exited",
+      "log": "/home/kali/.hermes/cache/scratch/p2-mr-parent-source.log",
+      "log_sha256": "c8aaa978fc4003635e10d01c50d7a361fd3f58592e60588594014415e12f0e64",
+      "limit": "SOURCE only; SQL/qualification doubles and synthetic holder controls are not private PG/native/installed history proof."
+    },
+    "quality": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "exit_code": 0
+    },
+    "artifacts": {
+      "frozen_before_and_after_sha": 9,
+      "author_log_hashes_verified": 32,
+      "patch_reverse_check_exit": 0,
+      "patch_sha256": "80a029da2d5f1bd333f1e970e3d024a4bf7208369f99e26a5fccdb27ae9dd6cc",
+      "wheel_byte_exact_modules": 85,
+      "wheel_sha256": "01976ee1e90ac7dacd4c1a293496b4965fa3baae9064dac38dfd49cd6a211350",
+      "wheel_status": "built, not installed",
+      "wrapper_sha256": "798cc243ee99c1f7b48b554335c1a857d874a00ded8c416e11162c8bc45f7c84"
+    }
+  },
+  "reviews": {
+    "status": "COMPLETED_CHANGES_REQUESTED",
+    "delegation_id": "deleg_1a9ab899",
+    "active_children_at_handoff": 0,
+    "reports": {
+      "normative": {
+        "path": "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-normative-review.json",
+        "sha256": "dabf4e533941663bde9230c8b42c2ae570847efbd8d9c1b1d351e6c29c3e0144",
+        "verdict": "APPROVED_SOURCE_SCOPED"
+      },
+      "input": {
+        "path": "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-input-review.json",
+        "sha256": "afb44e577e2893d5182e448544e9f2f6d2037436edf32b6461674e65646a4965",
+        "verdict": "CHANGES_REQUESTED"
+      }
+    },
+    "parent_disposition": "Normative APPROVED_SOURCE_SCOPED preserved; input CHANGES_REQUESTED and INPUT-M2-F01 reproduced. No runtime QA admitted; no code fix in this session because user requested handoff."
+  },
+  "non_effects": {
+    "pg_native_new_attempts": 0,
+    "schema_changes": 0,
+    "provider_model_target": "NOT_RUN",
+    "push": false,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html not read/edit/delete"
+  },
+  "next": {
+    "first": "Minimal TDD fix INPUT-M2-F01 using persisted dispatch state under the same owner lock; affected checks and focused complementary re-review. Do not repeat the full audit or approve from normative-only review.",
+    "qa_after_approval": "Only after the blocker and QA-definition gaps are cleared and both reviews adjudicated: one fresh mission-consumer attempt under the original private PG/native owner; currently NOT_ADMITTED.",
+    "deferred": [
+      "ResultQualification",
+      "installed historical-reader",
+      "actual runtime restart",
+      "remaining canonical B06b forms/binding/inventory",
+      "B06c/B06m caller",
+      "canonical final make check",
+      "P4a-minim",
+      "P2-live separately authorized"
+    ]
+  },
+  "limits": [
+    "Checkpoint is not accepted SOURCE/native integration or phase closure.",
+    "Existing0013 38PG foundation and accepted native slices were not relaunched.",
+    "Fresh current-M1 result after M2 does not prove an authentic old-checker installed historical-reader.",
+    "No runtime restart or external auth/input freshness proof."
+  ],
+  "review_status_at_product_commit": "IN_REVIEW_NOT_ADJUDICATED",
+  "finding_dispositions": [
+    {
+      "finding_id": "INPUT-M2-F01",
+      "severity": "HIGH",
+      "status": "OPEN_CONFIRMED_SOURCE_BLOCKER",
+      "mechanism": "append_mission can commit M2 after owner dispatch intent commit and before task_stage sink; owner advisory lock does not span the DB/IPC boundary. Release has an analogous window by inspection, not independently executed.",
+      "parent_reproducer": {
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-parent-f01-red /home/kali/.hermes/cache/scratch/p2-mr-input-review-probes.py -k test_m2_append_must_fence_stage_after_dispatch_transaction_commit -q --tb=line",
+        "failed": 1,
+        "deselected": 9,
+        "seconds": 1.79,
+        "exit_code": 1,
+        "same_channel_M1_positive": "completed before failing M2 negative in the same parametrized loop",
+        "events": [
+          "validated-M1",
+          "validated-M1",
+          "dispatch-reserved",
+          "M2-committed",
+          "task_stage-sink"
+        ],
+        "probe_versioned_path": "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-input-reproducer.py",
+        "probe_sha256": "5ae028c9b560b3511d1d52aeba33fa20e5b3f537d6388754280586d47bfaf1a8",
+        "log_versioned_path": "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-parent-f01-red.txt",
+        "log_sha256": "27ca1d38c73664e86e4c4525dfa8c5660da1c02915d07acf3b7c5895451a1fda",
+        "limits": "Product NativeTaskOwner.handle and ContractInputs.append_mission with SOURCE SQL/domain/service/sink doubles; not real PG overlap/native send/installed exploit. No code edited."
+      },
+      "minimal_next_fix": "Under the same managed-owner lock reject first M2 append over persisted reserved/staged/release in-flight or unsettled/uncertain work. Permit a never-dispatched context and authenticated terminal M1 history. Verify both stage/release orderings, idempotent historical replay, and use the existing persistent intent, not a second owner or pre-send recheck with another TOCTOU gap. Exact predicate must be derived from actual managed_run/receipt schema before edit."
+    }
+  ],
+  "qa_definition_limits": [
+    "INPUT-M2-LIMIT-QA-CHANNEL: private CLI negative controls and exact reason/tuple are not yet covered by prepared runtime scenario.",
+    "INPUT-M2-LIMIT-QA-CONCURRENCY: no observed PG overlap/waiter; preserve NOT_RUN and define bounded orderings after fix review.",
+    "INPUT-M2-LIMIT-QA-ROLLBACK-CENSUS: current markers omit managed_mission_revision; include exact row2/envelope readback after all denials/faults.",
+    "INPUT-M2-LIMIT-QA-CLEANUP: future real original-owner family receipt and exact resource readback required; no runtime family launched here."
+  ]
+}

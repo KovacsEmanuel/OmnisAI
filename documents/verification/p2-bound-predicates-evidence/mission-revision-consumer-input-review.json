@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-M2-CONSUMER-INPUT-REVIEW",
+  "verdict": "CHANGES_REQUESTED",
+  "language": "ro",
+  "scope": "Review independent SOURCE pe cele nouă fișiere frozen: input, ownership, refs/revision/digest, tranzacție, replay, concurență, failure, sanitizare și simplitate. Nu acceptare PG/native, integrare sau ResultQualification.",
+  "repository": "/home/kali/OmnisAI",
+  "head_before": "395d9069a2775abab5ac4c1f2958758a03d282a3",
+  "head_after": "395d9069a2775abab5ac4c1f2958758a03d282a3",
+  "author_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-author.json",
+    "sha256": "84e31b7c7f99b23cf91c22881d482831f8c9f52fc768b084fb901b2fef978e07",
+    "independently_verified": true
+  },
+  "exported_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer.patch",
+    "sha256": "80a029da2d5f1bd333f1e970e3d024a4bf7208369f99e26a5fccdb27ae9dd6cc",
+    "hash_verified": true,
+    "reapply_in_this_review": "NOT_RUN"
+  },
+  "files_count": 9,
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+      "before_sha256": null,
+      "review_start_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "review_final_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "before_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "review_start_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "review_final_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_store.py",
+      "before_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "review_start_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "review_final_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+      "before_sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "review_start_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "review_final_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "before_sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "review_start_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "review_final_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "before_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab",
+      "review_start_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+      "review_final_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "before_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "review_start_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+      "review_final_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/tests/test_mission_revisions.py",
+      "before_sha256": null,
+      "review_start_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+      "review_final_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+      "matches_frozen": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "before_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "review_start_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+      "review_final_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+      "matches_frozen": true
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "INPUT-M2-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "status": "OPEN_SOURCE_REPRODUCED",
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "line_start": 166,
+      "line_end": 190,
+      "related_locations": [
+        "api/src/omnis/modules/runs/managed_admission.py:413-454",
+        "api/src/omnis/supervisor/native_tasks.py:238-256",
+        "api/src/omnis/supervisor/native_tasks.py:288-310"
+      ],
+      "title": "Append M2 nu fence-uiește dispatchul rezervat, dar încă netrimis; lockul owner este eliberat înaintea sinkului nativ.",
+      "requirement": "După M2 trebuie refuzat lucrul nou înainte stage/dispatch/native; rămân permise numai citirea istorică/cached și reconcilierea receive-only. Un lock tranzacțional nu este o barieră DB/IPC atomică.",
+      "mechanism": "reserve_dispatch verifică graful M1 și persistă stage_started/release_started în tranzacția ownerului. NativeTaskOwner iese din această tranzacție înainte task_stage și, pe release v4, înainte obținerea grantului și a doua tranzacție. Între commitul rezervării și trimitere, append_mission poate lua același advisory lock și publica M2+receipt: verifică doar materialul immutable, replayul și existența M2, nu starea unui dispatch in-flight/unsettled. Ownerul continuă apoi spre sink fără revalidarea misiunii. A doua tranzacție release ține InstanceControl, nu lockul managed-owner în raport cu appendul.",
+      "reproducer": {
+        "file": "/home/kali/.hermes/cache/scratch/p2-mr-input-review-probes.py",
+        "sha256": "5ae028c9b560b3511d1d52aeba33fa20e5b3f537d6388754280586d47bfaf1a8",
+        "test": "test_m2_append_must_fence_stage_after_dispatch_transaction_commit",
+        "steps": [
+          "Pozitiv M1: invocă NativeTaskOwner.handle(stage), validează material M1 și permite același sink fake task_stage exact o dată.",
+          "Negativ pe același owner: la ieșirea context-managerului tranzacției de rezervare, înainte sink, execută ContractInputs.append_mission real pe SQLDouble cu aceleași owner/run și current_source qualification double.",
+          "Appendul publică M2 și receipt în holderul SOURCE; NativeTaskOwner.handle continuă și invocă fake task_stage după M2-committed.",
+          "Aserțiunea zero task_stage după M2 eșuează determinist. Nu există conexiune PostgreSQL, UDS/Host, proces nativ, provider sau efect target."
+        ],
+        "observed_events": ["validated-M1", "validated-M1", "dispatch-reserved", "M2-committed", "task_stage-sink"],
+        "result": "FAIL intenționat al cerinței, nu eroare de fixture: controlul M1 trece, iar negativul M2 atinge sinkul fake.",
+        "limits": "Handle și append sunt metodele produsului. readback/reserve_dispatch/material/service/transaction/sink sunt doubles SOURCE explicit. Nu dovedește lock-wait/overlap PG, rollback PG, expediere nativă reală sau exploit instalat. Calea release are aceeași fereastră prin inspecție de cod; nu a fost executată separat."
+      },
+      "remedy": "Remediu minimal pe appendul owner-locked: inspectează starea persistentă a assignmentului/dispatchului sub același lock și refuză M2 dacă există stage/release rezervat sau staged work încă nesettled/uncertain; permite istoricul terminal autentic și contextul încă neexpediat. Astfel o rezervare comisă înainte M2 împiedică appendul până la settlement, iar M2 comis înainte rezervare face stage_payload să refuze. Alternativ definește o barieră comună de owner care acoperă appendul și frontiera reală de send, fără a pretinde atomicitate DB/rețea. Păstrează receipturile și refuză incertitudinea, nu o considera no-send. Adaugă RED→GREEN pe aceleași stage/release orderings și o probă PG bounded de overlap numai după adjudecare/autorizare; nu e suficient un recheck care lasă altă fereastră TOCTOU."
+    }
+  ],
+  "verified_source_properties": [
+    {
+      "property": "Tipuri și sintaxă înainte replay/effects",
+      "evidence": "validate_request înainte engine.begin în append_mission; exact/integer/uuid_string/ref resping bool, float, null, list/object în scalari/ref-fields, UUID necanonic și digest invalid. Probe independente prin serviciul real atât înainte prima scriere, cât și după receipt existent; graful și census writes rămân identice.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "property": "Replay istoric versus prima qualification",
+      "evidence": "Prima append trece current_source înainte cele două INSERT-uri. Replayul identic și read-mission după M2 nu apelează current_source; proba înlocuiește current_source cu un callback care ar eșua la apel. Command ID nou cu M2 existent este MISSION_REVISION_CONFLICT; schimbarea criterion/request digest este conflict în testele frozen.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "property": "Ownership/run și exact Ref",
+      "evidence": "owned selectează owner în public.managed_record; get/by_id compară owner/run înainte acceptare și canonical Ref/digest după citire; M2 cere pair ancorat M1. Testele frozen verifică owner străin/digest/revision/kind/ref incompatibile fără scrieri SOURCE.",
+      "status": "REVIEWED_SOURCE_SCOPED"
+    },
+    {
+      "property": "Public lookups și same-session shadow",
+      "evidence": "Noile lookup-uri managed_record și managed_mission_revision, UNION graph, command receipt și cele două INSERT-uri append sunt explicit public-qualified. Testul PG pregătit creează temp shadows în aceeași sesiune și citește M1/M2/by_id pozitiv, plus malformed refs. Nu am reluat fundația FK/OID 0013 acceptată.",
+      "status": "SOURCE_REVIEWED_PG_NOT_RUN",
+      "limits": "Controlul PG adăugat probează store reads după append, nu întregul first-append/replay/read-mission în acea sesiune shadowed. Catalog qualification are seamuri existente; nu am revendicat attestation fizică nouă din această inspecție."
+    },
+    {
+      "property": "Immutability/aditivitate/graph fără ID overwrite",
+      "evidence": "Constructorul creează același UUID/revision2 și digest recalculat; validate_pair păstrează snapshot/mod/summary/vechi criteria/done_when/non-goals/basis, un FUNCTIONAL fără oracle și predecessor exact. index ref-complet refuză duplicate; legacy_index alege explicit revision1; outcome_payloads rezolvă mission_ref din result header. Testele frozen M1/M2 ambele ordini și old-rule reconstruction COMPLETE/INCOMPLETE/UNKNOWN au trecut SOURCE.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "property": "Atomic M2+command receipt și timeout/failure",
+      "evidence": "Ambele INSERT-uri sunt într-un engine.begin, sub lock owner și asyncio.timeout(15); nu există efect nativ în append. CLI normalizează SQLAlchemyError/TimeoutError în DATABASE_UNAVAILABLE și erorile de parser în diagnostic bounded. Read are timeout4. Testul PG pregătit injectează eșec command_complete după M2 INSERT și verifică absența row2 plus readback M1 original.",
+      "status": "REVIEWED_SOURCE_SCOPED_PG_ROLLBACK_NOT_RUN",
+      "limits": "SQLDouble nu face rollback și nu este dovadă de commit/ACK/crash/durabilitate/lock-wait PG."
+    },
+    {
+      "property": "Malformed wire JSON sanitizat pre-DB",
+      "evidence": "Opt controale independente prin main(append-mission): BOM UTF8, UTF16, duplicate top/nested, float, NaN, surrogate și invalid UTF8. Toate returnează exit2, stdout gol și BLOCKED fără traceback sau marker DSN; database_engine este callback interzis. Probe SOURCE-only.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "property": "Cutoff secvențial new-work și receive-only pins",
+      "evidence": "create_input/_build/builder/stage_payload refuză M2 înainte source/build/composition/native; historical rule/checker perechi exacte și helperul din closure14 sunt incluse. Testele frozen current checker old-pin receive-only COMPLETE/INCOMPLETE/UNKNOWN, wrong composer și new-admission refusals trec SOURCE. Nu există ResultQualification/ELIGIBLE/freshness/oracle nou sau PASS funcțional.",
+      "status": "PASS_SOURCE_SEQUENTIAL_ONLY",
+      "limits": "Nu acoperă fereastra concurentă INPUT-M2-F01; old-pin reconstruct este SOURCE, nu reader istoric installed."
+    },
+    {
+      "property": "Simplitate/scop",
+      "evidence": "O operație append/read pe ContractInputs, un helper mission-only, store existent și un tabel foundation existent; fără framework, owner, scheduler, evaluator general sau migrare suplimentară. Nu am identificat o problemă de stil care să justifice refactor independent.",
+      "status": "REVIEWED_SOURCE_SCOPED"
+    }
+  ],
+  "executions": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-input-review-tests api/tests/test_mission_revisions.py -q --tb=short",
+      "exit": 0,
+      "passed": 24,
+      "seconds": 5.39,
+      "scope": "Teste frozen SOURCE; nicio fixture PG/native pornită. Nu suite canonical."
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-input-review-probe-temp /home/kali/.hermes/cache/scratch/p2-mr-input-review-probes.py -q --tb=short",
+      "exit": 1,
+      "passed": 9,
+      "failed": 1,
+      "seconds": 3.58,
+      "failure_test": "test_m2_append_must_fence_stage_after_dispatch_transaction_commit",
+      "scope": "Ultima probă SOURCE bounded deja pregătită; fără DB/IPC/native/provider. Nu retry sau relansare suite după steering."
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "scope": "Whitespace numai; nu gate produs."
+    },
+    {
+      "command": "Hash SHA256 author/patch/nouă fișiere înainte și după; git status --short --branch și git rev-parse HEAD",
+      "exit": 0,
+      "scope": "Nouă matches frozen, nouă before matches Git HEAD sau null pentru fișiere noi, nouă unchanged-during-review; HEAD și status repo neschimbate."
+    }
+  ],
+  "qa_definition_limits": [
+    {
+      "id": "INPUT-M2-LIMIT-QA-CHANNEL",
+      "path_line": "api/tests/test_contract_method_pg.py:1872-1906,2011-2024",
+      "description": "private_input_cli probează numai pozitivele append/replay/read. Negativele de request se execută prin serviciul Python și acceptă orice CatalogError, fără reason exact; acestea nu certifică refuzul prin același CLI pentru wire malformed/owner/digest/conflict.",
+      "disposition": "Dovadă incompletă pentru viitoarea QA, nu FAIL runtime inventat. Înainte de credit, părintele trebuie să definească negative CLI pe același canal cu tuple/diagnostic exact și state unchanged."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-CONCURRENCY",
+      "path_line": "api/tests/test_contract_method_pg.py:1910-2037",
+      "description": "Noul scenariu nu observă tranzacții overlapping/waiter sau orderings între append și dispatch; append/replay/read secvențiale nu sunt concurrency proof.",
+      "disposition": "NOT_RUN; trebuie păstrat explicit și remediate orderings INPUT-M2-F01 înainte runtime acceptance."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-ROLLBACK-CENSUS",
+      "path_line": "api/tests/test_contract_method_pg.py:998-1031,1910-1928,2010-2031",
+      "description": "markers numără numai managed_record/inbox; nu numără managed_mission_revision. Rollbackul first-append verifică explicit row2=0, dar negativele ulterioare se bazează numai pe markers și nu compară separat row2+envelopes immutable.",
+      "disposition": "Limită a oracle-ului pregătit; nu declar tranzacție PG PASS. Include census/readback row2 exact la negative și la faulturi noi."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-CLEANUP",
+      "path_line": "api/tests/test_contract_method_pg.py:1895-1901",
+      "description": "private_input_cli are timeout20 și kill/wait pentru copilul direct; nu introduce owner/native nou. Acest block nu este o probă de settlement al unei familii native ori de crash-cut. Cleanupul comun trebuie observat prin receiptul gate-ului și exact resource readback după o QA autorizată.",
+      "disposition": "NOT_RUN; nicio pretenție drained/cleanup PG/native produsă de acest review."
+    }
+  ],
+  "not_run": [
+    "PostgreSQL foundation 38 probe acceptate: nu au fost relansate.",
+    "Scenariul mission-consumer PG/native/public UDS: NOT_RUN, gated de ambele reviewuri și adjudecare.",
+    "Overlap PG, pg_blocking_pids, transaction failure/commit/ACK-loss și durabilitate: NOT_RUN.",
+    "Owner/native dispatch real, post-Stop cached public readers și fresh CLI restart pe DB reală: NOT_RUN.",
+    "Installed historical checker/rule consumer și runtime restart: NOT_RUN.",
+    "Canonical make check/full integration: NOT_RUN, rezervat părintelui.",
+    "Provider/model/target/network extern, r1/operator DB/profiluri/global: neatinse."
+  ],
+  "steering_disposition": "La steering pentru handoff imediat am oprit extinderea reviewului/QA; am încheiat numai proba SOURCE deja pregătită, hash final și raportul. Nu am reparat produsul, lansat PG/native sau rerulat suite după constatare. Findingul rămâne deschis pentru adjudecarea părintelui; nicio aprobare dorită nu a fost presupusă.",
+  "non_effects": {
+    "repo_files_created_modified_deleted": [],
+    "git_stage": false,
+    "commits": 0,
+    "push": false,
+    "pg_calls": 0,
+    "native_process_or_ipc_calls": 0,
+    "provider_calls": 0,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_MODIFIED_NOT_DELETED",
+    "profile_skill_global_edits": false
+  },
+  "scratch_artifacts": [
+    "/home/kali/.hermes/cache/scratch/p2-mr-input-snapshot-before.json",
+    "/home/kali/.hermes/cache/scratch/p2-mr-input-snapshot-final.json",
+    "/home/kali/.hermes/cache/scratch/p2-mr-input-review-probes.py",
+    "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-input-review.json"
+  ],
+  "status_delta_proposed_to_parent": {
+    "schema0013": "Acceptarea foundation scoped rămâne neschimbată.",
+    "mission_consumer": "IMPLEMENTED_SOURCE / CHANGES_REQUESTED: INPUT-M2-F01 deschis; nu integrare ori runtime PASS.",
+    "B06b_G02_P2": "PARTIAL/NOT_CLOSED; reviewul nu închide tracked task.",
+    "next": "Păstrează raportul și reproducerul exact în handoff; adjudecă/remediază minimal INPUT-M2-F01 în sesiunea următoare, apoi re-review focalizat și doar QA autorizată."
+  },
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_CLI_SOURCE_REVIEW",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "lesson_proposed_parent_only": "Pentru un cutoff append-only care interzice efecte viitoare, advisory lock la validarea/reservarea DB nu este suficient dacă ownerul face send după commit. Refuză appendul peste intenturi in-flight/unsettled sau definește o barieră efectiv comună; probează pozitivul și interleavingul negativ pe același owner/sink. Nicio modificare skill în acest review read-only."
+}

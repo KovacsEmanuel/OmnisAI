@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_VERIFIED_PG_NATIVE_COLLECT_ONLY_NOT_REVIEWED",
+  "base": "c29d397365dc67b89c8fb79bccfafccffa303a51",
+  "head_at_handoff": "395d9069a2775abab5ac4c1f2958758a03d282a3",
+  "head_advance": {
+    "commit": "395d9069a2775abab5ac4c1f2958758a03d282a3",
+    "classification": "DOC_SKILL_ONLY_PARENT",
+    "owned_product_base_bytes_unchanged": true
+  },
+  "scope": "Finite FULL_ASSESSMENT CONTRACT_PROBE/map-records owner-locked additive M2. Not ResultQualification/ELIGIBLE/freshness/coverage/replan.",
+  "paths_count": 9,
+  "max_paths": 10,
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+      "before_sha256": null,
+      "final_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "new": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "before_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "final_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_store.py",
+      "before_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+      "final_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+      "before_sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "final_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "before_sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "final_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "before_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab",
+      "final_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "before_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "final_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+      "new": false
+    },
+    {
+      "path": "api/tests/test_mission_revisions.py",
+      "before_sha256": null,
+      "final_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+      "new": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "before_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "final_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+      "new": false
+    }
+  ],
+  "exported_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer.patch",
+    "sha256": "80a029da2d5f1bd333f1e970e3d024a4bf7208369f99e26a5fccdb27ae9dd6cc",
+    "reverse_check_exit": 0,
+    "base_apply_check_exit": 0,
+    "reconstructed_final_paths_byte_exact": 9
+  },
+  "source_verification": {
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-source-final2 api/tests/test_mission_revisions.py api/tests/test_c04_criteria.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_managed_composition.py api/tests/test_c03_managed_capture.py api/tests/test_contract_method_pg.py -k \"not real_native_pg\" -q --tb=short",
+    "passed": 473,
+    "deselected_native_pg": 18,
+    "seconds": 40.14,
+    "exit": 0,
+    "limits": "SQLDouble and qualification doubles labeled. In-process real native producer on synthetic holders is SOURCE, not authentic owner/PG acceptance."
+  },
+  "tdd": {
+    "red1": "2 FAIL: revision2 record + append grammar missing",
+    "green1": "2 PASS",
+    "red2": "1 FAIL/2 PASS: owner command missing",
+    "green2_initial": "1 FAIL/2 PASS: SQL double missed public qualifier; preserved",
+    "green2b": "3 PASS",
+    "red3": "4 FAIL/4 PASS: graph ID collision, old COMPLETE/INCOMPLETE UNKNOWN, rule new-admission cutoff",
+    "green3": "8 PASS",
+    "red4": "1 FAIL/17 PASS: M2 stage reached composition",
+    "red5": "1 FAIL/18 PASS: retained builder lacked explicit M2 denial",
+    "green5": "19 PASS",
+    "red6": "1 FAIL: new resolver absent from trusted checker closure",
+    "red7": "1 FAIL/1 PASS: historical checker reached new stage",
+    "final_green_and_regressions": "473 PASS/18 deselected, exit0",
+    "regression1": "470 PASS/1 FAIL: existing legacy INSERT spelling assertion; preserve legacy writer, explicitly public-bind new append receipt",
+    "regression_final_before_last_guard": "471 PASS/18 deselected40.89s exit0",
+    "quality_attempts": "First Ruff call omitted explicit config (6 pre-existing import-layout false positives + 1 local whitespace); explicit config left 1 real import spacing fixed. Mypy initial untyped test doubles fixed; 2 later errors fixed. All failures retained."
+  },
+  "quality": {
+    "ruff_check": "PASS exit0 explicit api/pyproject.toml no-fix",
+    "ruff_format_check": "PASS exit0 9 unchanged files",
+    "mypy": "PASS exit0 no-incremental 9 source files",
+    "git_diff_check": "PASS exit0"
+  },
+  "wheel": {
+    "wheel": "/home/kali/.hermes/cache/scratch/p2-mr-wheel/omnis_api-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "01976ee1e90ac7dacd4c1a293496b4965fa3baae9064dac38dfd49cd6a211350",
+    "modules_byte_exact": 85,
+    "factory": {
+      "factory": "PASS_NO_OPT_IN_NO_DB",
+      "checker": {
+        "key": "managed.contract-pure.v2",
+        "code_digest": "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5",
+        "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+      }
+    },
+    "checker_closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a"
+      },
+      {
+        "path": "tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      }
+    ],
+    "composer_unchanged": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "prerequisites": {
+      "run_agent_present": true,
+      "libraries_directory_present": true,
+      "archive_present": true,
+      "native_launch": false,
+      "prewarm": false,
+      "run_agent_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
+      "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "original_export_files_byte_exact": 15208
+    }
+  },
+  "checker_cutover": {
+    "before_descriptor": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "current_descriptor": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_before": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "composer_current": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "before_closure": {
+      "tasks/method_checker_identity.py": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "tasks/method_checks.py": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "tasks/managed_contract.py": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "tasks/managed_composition.py": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "tasks/criterion_checks.py": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+      "tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+    },
+    "final_closure": {
+      "tasks/method_checker_identity.py": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "tasks/method_checks.py": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "tasks/managed_contract.py": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "tasks/managed_composition.py": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "tasks/criterion_checks.py": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "tasks/mission_revisions.py": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+    },
+    "new_closure_member": "tasks/mission_revisions.py (13 -> 14; pin the newly trusted resolver, do not omit it)",
+    "receive_only_pair": [
+      "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+      "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    ],
+    "supported_states": [
+      "COMPLETE",
+      "INCOMPLETE",
+      "UNKNOWN"
+    ],
+    "new_admission_denials": "BuildSource retained builder and stage_payload verify exact current checker receive_only=False; _prepare/stage reject old rules receive_only=False; M2 refuses before _source/build/new writes/native."
+  },
+  "rule_cutover": {
+    "before_code_digest": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+    "current_code_digest": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+    "receive_only_states": [
+      "COMPLETE",
+      "INCOMPLETE",
+      "UNKNOWN"
+    ],
+    "unchanged_function_ast": [
+      "allocation",
+      "step_ids",
+      "rule_payload",
+      "bindings",
+      "result_rows",
+      "validate_assignment",
+      "validate_outcomes"
+    ],
+    "semantic_reconstruction": "Three SOURCE tests execute exact Git pre-edit rule bytes, show old M2 last-row-wins refusal, compare new outcomes byte-exact with original M1 for COMPLETE/INCOMPLETE/UNKNOWN in both graph orders. Synthetic result/check explicitly not native evidence; MethodCheck algorithm file byte-unchanged. No historical refs/pins/evidence rewritten."
+  },
+  "consumer_order": [
+    "strict bounded request and nested Ref/types before transaction",
+    "owner advisory lock; resolve owned context and exact M1 Ref in same run",
+    "union graph identity/conflict/predecessor validation; finite no-target support and deterministic additive constructor",
+    "exact command replay/conflict before writes; independently qualified current_source/map-records for first append",
+    "insert anchored immutable revision2 first; immutable append command receipt second in one transaction",
+    "read-mission resolves context/M1/M2 exact refs without source freshness, header rewrite or execution",
+    "historical readback includes both revisions; ID-only callers explicitly revision1; assignment/composition reconstruct original M1",
+    "new prepare/input/build/stage/dispatch explicitly refuse M2; historical receipt retrieval is not redispatch"
+  ],
+  "limits": {
+    "mission_revisions": [
+      1,
+      2
+    ],
+    "criteria": "1..64; exactly one independent additive FUNCTIONAL/no-oracle criterion",
+    "ref_lists": "max128 unique; exactly one exact M1 predecessor appended to unchanged original nonmission basis",
+    "texts": "summary/non_goals/gaps<=4096; description<=1024; strict clean_text and bounded canonical envelope<=1MiB",
+    "command_wire": "existing strict UTF8/duplicate-free 16384-byte CLI boundary",
+    "append_timeout_seconds": 15,
+    "read_timeout_seconds": 4,
+    "unchanged": "Original M1 context/run/focus/cursor/snapshot/objective/non-goals/preconditions/criteria/done_when/assignment/result/check/outcomes. Existing native grants/NO_MODEL/4.5s budget/observer unchanged; no new boot."
+  },
+  "qa": {
+    "status": "COLLECT_ONLY_NO_PG_NO_NATIVE_LAUNCH",
+    "selection": "mission-consumer",
+    "nodeid": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[mission-consumer]",
+    "collected": 1,
+    "deselected": 27,
+    "wrapper": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py",
+    "collect_command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py --collect-only",
+    "future_after_reviews_command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py --review-adjudicated",
+    "owner": "Existing ops/run_test_db_gate.py prove_private_fixture(test-contract-method-native-pg, pinned_uv,240), fresh PG18 UDS/no-network; no new service/owner/emitter.",
+    "scenario": "One authentic full result on one native boot, producer retired; actual private CLI append/replay/read M2; byte-exact M1 material/result/check/outcomes and exact owned M1/M2 reads; atomic receipt rollback and same-session temp-shadow positive; conflict/foreign/wrong refs/types; newprepare/stage refusal; four real public cached readers (2 before Stop +2 after Stop), existing four fresh CLI readback/reconcile processes, single inbox/usage/consume and post-Stop duplicate receive-only.",
+    "prerequisites": {
+      "run_agent_present": true,
+      "libraries_directory_present": true,
+      "archive_present": true,
+      "native_launch": false,
+      "prewarm": false,
+      "run_agent_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
+      "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "original_export_files_byte_exact": 15208
+    },
+    "preparation": "Existing explicit PreparationPrerequisiteDouble; SOURCE_HOST_NOT_INSTALLED",
+    "review_gate": "Two complementary exact-snapshot reviews and parent adjudication mandatory before any launch.",
+    "foundation": "Accepted 0013 38PG foundation NOT_RELAUNCHED",
+    "canonical": "NOT_RUN_RESERVED_PARENT_INTEGRATION",
+    "authentic_old_checker_installed_history": "NOT_RUN; SOURCE exact old-pin receive-only reconstruction is not fresh installed-history/native acceptance"
+  },
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-artifact-check.log",
+      "sha256": "84c4bd59d4dcf7aa09452e046fc20e06fe261dd085ff22bf0754335d17d62391",
+      "summary": "}"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-collect-final.log",
+      "sha256": "49d5e27226c2e50881338ebd78c20f24f9b319b8b296346f1c2db6fc6cdb9d18",
+      "summary": "1/28 tests collected (27 deselected) in 0.36s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-collect1.log",
+      "sha256": "6781623ddc1b7dd1caed5c16cc8335d99e141bc042af9d0d848aedd21581d17e",
+      "summary": "1/28 tests collected (27 deselected) in 0.39s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-format-final.log",
+      "sha256": "771594e2a0886f67c035a2c6112d3bc981d27994797170e6b310c5aed0e08f06",
+      "summary": "3 files reformatted, 6 files left unchanged"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-format-final2.log",
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+      "summary": "9 files already formatted"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-green1.log",
+      "sha256": "8061d30d23b5c5346a7b785068c9bedd8da31ad3104c9aeec5cf56815e6451a1",
+      "summary": "2 passed in 0.62s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-green2.log",
+      "sha256": "4e6b9e694d8b5c90c7ffca898d53f139eb29c215bc2bc9b75efb0e61c8072589",
+      "summary": "1 failed, 2 passed in 0.80s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-green2b.log",
+      "sha256": "e4a83d98291cacef1f761b1435e3e140b0c01d4052f0c4f023c038670c1b49a1",
+      "summary": "3 passed in 0.92s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-green3.log",
+      "sha256": "28c9157400275bf3dc22b5ef8d435a7c6ce9718f291cfbaad2d76ed7d244d09d",
+      "summary": "8 passed in 1.56s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-green5.log",
+      "sha256": "e6e85c9202eeb4ea4f5d5a243d3f9a3e6e16f9c210769b5367e028fb061871b7",
+      "summary": "19 passed in 3.49s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-mypy-final.log",
+      "sha256": "46984ca20bf69f7b14ec1fd9bd82101d56a4e109e68f016fd2a04f22481b09b3",
+      "summary": "Success: no issues found in 9 source files"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-mypy-final2.log",
+      "sha256": "46984ca20bf69f7b14ec1fd9bd82101d56a4e109e68f016fd2a04f22481b09b3",
+      "summary": "Success: no issues found in 9 source files"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-mypy1.log",
+      "sha256": "86b8cce90c22996c79be57856c4b0d297aeb5b31efef0279080b6608bd96ce41",
+      "summary": "Found 24 errors in 1 file (checked 8 source files)"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-mypy2.log",
+      "sha256": "a95417b471c927c8a758fd8b3565b44efaac9046f4175096ba8af8fb941dd584",
+      "summary": "Found 2 errors in 2 files (checked 9 source files)"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-mypy3.log",
+      "sha256": "46984ca20bf69f7b14ec1fd9bd82101d56a4e109e68f016fd2a04f22481b09b3",
+      "summary": "Success: no issues found in 9 source files"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red1.log",
+      "sha256": "1b6da70638d8c8c8b8287056b1f8e213347fd9239190aef204a67bc45266f9a6",
+      "summary": "2 failed in 0.64s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red2.log",
+      "sha256": "edcf1a89a0b35c32f4562ce6b9a7febe11140c76fcef3c90273ed5f4d6d85ba3",
+      "summary": "1 failed, 2 passed in 0.78s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red3.log",
+      "sha256": "03b663acd66b0555712b169b6974daec2c5c60e4a45a52357b28e5d95b6a1d6a",
+      "summary": "4 failed, 4 passed in 1.60s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red4.log",
+      "sha256": "d6a3c399d01ce6ce30eaa78393aa8b11997a391ec090568cc6339d19bc98e42c",
+      "summary": "1 failed, 17 passed in 3.21s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red5.log",
+      "sha256": "89078df7d1ef056288add61ebd1d8dd359b6cb1ce457c8ed7bf9b24034bfdcbd",
+      "summary": "1 failed, 18 passed in 3.65s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red6.log",
+      "sha256": "dea96fbeb4b079883a6b9ca1a75ef1f2d18b5cb4c9f6c4d01b525be26f3e9bb0",
+      "summary": "1 failed in 0.30s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-red7.log",
+      "sha256": "402286f600efda1aa0f74ecc59a29199632879a0b9fdaa87e6d3c0727ae96f81",
+      "summary": "1 failed, 1 passed, 22 deselected in 0.69s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed!"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-ruff-final2.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed!"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-ruff1.log",
+      "sha256": "3a47d39554da163ab1c4689c9f92b42325e975b552c76de3d77f4e276eb3956d",
+      "summary": "[*] 7 fixable with the `--fix` option."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-ruff2.log",
+      "sha256": "696b29d4050a90ea5ab68249aa77a52863bb77d58325e837ba6d660dd327c507",
+      "summary": "[*] 1 fixable with the `--fix` option."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-source-final.log",
+      "sha256": "9083ec2b0cec2077a0b23d93837268fe0480675f5b80147a9a67f9a5b9739a83",
+      "summary": "471 passed, 18 deselected in 40.89s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-source-final2.log",
+      "sha256": "ff77ca7cc1a4ab12375fd1390ac61699244c153e7f844a9adaa83e91dbfbe5a3",
+      "summary": "473 passed, 18 deselected in 40.14s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-source1.log",
+      "sha256": "402f2e00e22a71121ae99fde7b1ab627c763f04e3e4756dc070274e43f7a8a5a",
+      "summary": "1 failed, 470 passed, 18 deselected in 40.24s"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-wheel-build-final.log",
+      "sha256": "cd4b78b87fc62cbeee39aed6717d4fdab7a6ceda8c72b1fe8cbfca38c4516180",
+      "summary": "Successfully built /home/kali/.hermes/cache/scratch/p2-mr-wheel/omnis_api-0.1.0-py3-none-any.whl"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-wheel-build.log",
+      "sha256": "cd4b78b87fc62cbeee39aed6717d4fdab7a6ceda8c72b1fe8cbfca38c4516180",
+      "summary": "Successfully built /home/kali/.hermes/cache/scratch/p2-mr-wheel/omnis_api-0.1.0-py3-none-any.whl"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mr-wrapper-collect-final.log",
+      "sha256": "6d14d16d838d557accea0628856da316b424f01434b697b5650f266cafcee4bb",
+      "summary": "1/28 tests collected (27 deselected) in 0.38s"
+    }
+  ],
+  "non_effects": {
+    "commits": 0,
+    "stage": false,
+    "push": false,
+    "pg_native_launch": false,
+    "schema_migration": false,
+    "operator_db_profiles_global_accounts_targets_models_secrets": "NOT_TOUCHED",
+    "protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_MODIFIED_NOT_DELETED"
+  },
+  "remaining": [
+    "Two complementary reviews/parent adjudication",
+    "One fresh collected PG/native/public-owner consumer QA after reviews",
+    "ResultQualification separate; B06b/G02/P2 PARTIAL and canonical NOT_RUN",
+    "No functional PASS/wake/reopen/freshness claim"
+  ],
+  "lessons_for_parent_only": [
+    "New helper consumed by trusted checker belongs in current source closure (13->14).",
+    "Preserve assignment-specific ID-only revision1 semantics; exact mission Ref is mandatory for historical result/outcome reconstruction.",
+    "UNION ALL expression ordering requires an outer SELECT in PostgreSQL; SOURCE SQL doubles do not prove PG syntax/constraints."
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-MISSION-REVISION-CONSUMER-NORMATIVE-SOURCE-REVIEW",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "language": "ro",
+  "summary": "Nicio constatare blocantă confirmată în reviewul normativ/ordine/persistență/readback al celor 9 căi frozen. Aprobarea acoperă codul și controalele SOURCE, nu acceptarea PostgreSQL/native/installed sau închiderea integrării.",
+  "scope": "Consumer M2 finit FULL_ASSESSMENT/CONTRACT_PROBE/map-records: append/read owner-locked, același MissionSpec UUID rev1/rev2, extensie aditivă independentă FUNCTIONAL/no-oracle, Ref exact, istoric M1 immutable, refuz lucru nou și compatibilitate receive-only checker/rule exact pre-edit.",
+  "snapshot": {
+    "repo": "/home/kali/OmnisAI",
+    "head": "227cfd60c58c585199c1d5536631f9705f104325",
+    "product_base": "c29d397365dc67b89c8fb79bccfafccffa303a51",
+    "author_report": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-author.json",
+    "author_report_sha256": "84e31b7c7f99b23cf91c22881d482831f8c9f52fc768b084fb901b2fef978e07",
+    "exported_patch_sha256_independently_verified": "80a029da2d5f1bd333f1e970e3d024a4bf7208369f99e26a5fccdb27ae9dd6cc",
+    "files_count": 9,
+    "all_frozen_hashes_match": true,
+    "all_review_before_final_hashes_stable": true,
+    "all_tracked_base_hashes_match_HEAD": true,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+        "base_sha256": null,
+        "before_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "base_sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+        "before_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "base_sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d",
+        "before_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+        "base_sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+        "before_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "base_sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+        "before_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "base_sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab",
+        "before_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "079bd2fb94e31e0e124d5c3aca87e9c6554d34936333f1c052386add2dad331d",
+        "stable": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "base_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+        "before_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+        "stable": true
+      },
+      {
+        "path": "api/tests/test_mission_revisions.py",
+        "base_sha256": null,
+        "before_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "6f189d5c79b2c3d9a95db7842a1ecc48054f7c9c5ef8edc7fdecd6f5d0496439",
+        "stable": true
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "base_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+        "before_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+        "matches_frozen": true,
+        "base_matches": true,
+        "final_sha256": "58da43bac403feaea38e653d470b1604fec58e2097d2f6f8f4f3c59b38b6bc7d",
+        "stable": true
+      }
+    ]
+  },
+  "authority_read": [
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md CURRENT",
+    "documents/verification/implementation-status.md CURRENT/SL09–SL13",
+    "documents/verification/p2-c10-session-handoff-20261012.md CURRENT",
+    "documents/verification/p2-result-qualification-schema-decision.md",
+    "documents/Omnis_MVP_Architecture.md §6.3 și §9.3–§9.5 relevante",
+    "omnis-review-qa",
+    "omnis-api-data",
+    "omnis-project-status ORIENT"
+  ],
+  "findings_count": 0,
+  "findings": [],
+  "requirement_code_evidence": [
+    {
+      "id": "NORM-M2-IDENTITY-ADDITIVE",
+      "requirement": "UUID mission stabil, revision2/digest independent, numai criteriu FUNCTIONAL fără oracle; predecessor unic M1 exact și rest material păstrat.",
+      "code": [
+        "api/src/omnis/modules/tasks/mission_revisions.py:18-104",
+        "api/src/omnis/modules/tasks/managed_contract.py:1677-1688"
+      ],
+      "evidence": "Inspecție payload/validate_pair/append și SOURCE test_m2_record_exact_revision_schema_and_graph_identity, test_additive_pair_rejects_material_changes_and_bad_types.",
+      "status": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "id": "NORM-M2-OWNER-ORDER-ATOMIC",
+      "requirement": "Cerere strictă înainte tranzacție; owner lock; context și M1 owned/run exact; conflict/replay înainte scrieri; M2 și receipt în aceeași tranzacție.",
+      "code": [
+        "api/src/omnis/modules/runs/contract_inputs.py:26-57",
+        "api/src/omnis/modules/runs/contract_inputs.py:161-199",
+        "api/src/omnis/modules/tasks/managed_store.py:16-49",
+        "api/src/omnis/modules/tasks/managed_store.py:184-255"
+      ],
+      "evidence": "SOURCE owner-command/store/read/replay/denial trece; engine.begin include ambele inserts. INSERT/read root nou public-qualified. Rollback fizic PostgreSQL nu a fost executat de reviewer.",
+      "status": "APPROVED_SOURCE_SCOPED_PG_NOT_RUN"
+    },
+    {
+      "id": "NORM-M2-EXACT-GRAPH-READ",
+      "requirement": "M1/M2 coexistă fără ID overwrite; Ref strict kind/id/revision/digest și ownership/run; duplicate/conflicting same id/revision refuzat; ID-only explicit M1.",
+      "code": [
+        "api/src/omnis/modules/tasks/mission_revisions.py:107-142",
+        "api/src/omnis/modules/tasks/managed_store.py:52-102",
+        "api/src/omnis/modules/tasks/managed_store.py:146-181",
+        "api/src/omnis/modules/runs/contract_inputs.py:244-263"
+      ],
+      "evidence": "SOURCE resolve/legacy_index în ambele ordini, duplicate/type negatives, owner command exact get/by_id/graph/read. UNION ALL + outer ORDER BY inspectat; sintaxa/enforcement real PG rămân NOT_RUN.",
+      "status": "APPROVED_SOURCE_SCOPED_PG_NOT_RUN"
+    },
+    {
+      "id": "NORM-M1-HISTORY-CONSUMERS",
+      "requirement": "Header/context/run/focus/cursor și rezultat/check/outcomes rămân M1; reconstrucția consumă mission Ref din header, nu latest.",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:907-1122",
+        "api/src/omnis/modules/runs/managed_admission.py:720-827",
+        "api/src/omnis/modules/runs/managed_admission.py:1124-1138",
+        "api/src/omnis/modules/runs/managed_admission.py:1202-1298",
+        "api/src/omnis/modules/tasks/criterion_checks.py:226-241"
+      ],
+      "evidence": "SOURCE _verify_graph cu două revizii; trei stări COMPLETE/INCOMPLETE/UNKNOWN compară byte-exact outcome M1 cu algoritmul Git pre-edit, în ambele ordini; vechiul last-row-wins este refuzat explicit. Reconstrucția compoziției folosește legacy_index revision1.",
+      "status": "APPROVED_SOURCE_SCOPED_AUTHENTIC_PG_NATIVE_NOT_RUN"
+    },
+    {
+      "id": "NORM-M2-NEW-WORK-DENIAL",
+      "requirement": "Nicio admitere nouă sub context revizuit; refuz înainte current_source/build/assignment writes/stage/native. Replay receipt istoric nu este redispatch.",
+      "code": [
+        "api/src/omnis/modules/runs/contract_inputs.py:127-146",
+        "api/src/omnis/modules/runs/managed_admission.py:244-279",
+        "api/src/omnis/modules/runs/managed_admission.py:334-402",
+        "api/src/omnis/modules/runs/managed_admission.py:413-483",
+        "api/src/omnis/modules/tasks/managed_contract.py:546-563",
+        "api/src/omnis/supervisor/native_tasks.py:193-335 (context read-only)"
+      ],
+      "evidence": "SOURCE create-input/_build și retained builder refuză M2; stage refuse înainte compoziție, inclusiv checker vechi. Traseul supervisor cached result return precede stage/release. Probe public UDS/native actuale nu au rulat.",
+      "status": "APPROVED_SOURCE_SCOPED_NATIVE_NOT_RUN"
+    },
+    {
+      "id": "NORM-HISTORICAL-PINS",
+      "requirement": "Checker pre-edit exact/composer exact numai receive-only; closure actual include helper nou; rule exact pre-edit acceptă numai descriptor reconstructibil și stările suportate.",
+      "code": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:14-29,81-140",
+        "api/src/omnis/modules/tasks/criterion_checks.py:22-30,128-205,245-256"
+      ],
+      "evidence": "13 hashes pre-edit reconstruite din Git dau descriptorul 833b5690... exact. Closure actual 14 hashes calculată independent dă 5a0f0d58... și include mission_revisions.py. SOURCE COMPLETE/INCOMPLETE/UNKNOWN receive-only și wrong composer/new-admission denials trec. Synthetic old-positive nu este installed history.",
+      "status": "APPROVED_SOURCE_SCOPED_INSTALLED_HISTORY_NOT_RUN"
+    },
+    {
+      "id": "NORM-NO-PROMOTION",
+      "requirement": "Fără ResultQualification/ELIGIBLE/freshness/new-oracle/functional PASS/replan, rescrieri M1 sau granturi noi.",
+      "code": [
+        "api/src/omnis/modules/tasks/mission_revisions.py:1,15,86-104",
+        "api/src/omnis/modules/tasks/criterion_checks.py:258-289",
+        "frozen9 diff integral"
+      ],
+      "evidence": "Diff inspectat și SOURCE regresii; noul criteriu nu intră în vechea alocare/header, outcome existent rămâne BLOCKED și fără oracle. Composer și sursa method_checks neschimbate față de pre-edit.",
+      "status": "APPROVED_SOURCE_SCOPED"
+    }
+  ],
+  "independent_execution": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-normative-source api/tests/test_mission_revisions.py api/tests/test_c04_criteria.py api/tests/test_contract_method_checks.py api/tests/test_managed_composition.py -q --tb=short",
+      "exit_code": 0,
+      "passed": 221,
+      "seconds": 26.24,
+      "boundary": "SOURCE: doubles declarate și producer in-process sintetic; fără PostgreSQL, Host nativ, installed consumer ori provider."
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-mr-normative-producer api/tests/test_contract_method_producer.py api/tests/test_c03_managed_capture.py -q --tb=short",
+      "exit_code": 0,
+      "passed": 53,
+      "seconds": 7.67,
+      "boundary": "SOURCE producer/capture; nu QA PG/native/installed."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "boundary": "Whitespace diff, nu corectitudine semantică."
+    }
+  ],
+  "independent_source_passed_total": 274,
+  "checker_identity": {
+    "pre_edit_descriptor_digest_independently_reconstructed": "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+    "pre_edit_closure_count": 13,
+    "current_descriptor_digest_independently_reconstructed": "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5",
+    "current_closure_count": 14,
+    "current_closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a"
+      },
+      {
+        "path": "tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      }
+    ],
+    "historical_composer_exact_receive_only": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "historical_rule_source_sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb",
+    "supported_rule_states": [
+      "COMPLETE",
+      "INCOMPLETE",
+      "UNKNOWN"
+    ]
+  },
+  "planned_pg_test_review_only": {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[mission-consumer]",
+    "status": "NOT_RUN",
+    "code_review": "Noul branch reutilizează M1 autentic din consumerul existent, retired producer înainte append CLI/replay/read; M1 history comparison, rollback receipt, exact public M1/M2 get/by_id și same-session temp tables, negatives/prepare/stage denials, cached public release/receive înainte/după Stop și readers CLI. Structura oracle observă aceste proprietăți; nu certific execuția lor.",
+    "limits": [
+      "SOURCE_HOST_NOT_INSTALLED/preparation double",
+      "markers nu include managed_mission_revision; rollback verifică explicit count0 și readback integral separat",
+      "no-rerun SOURCE aliases + observer native declarat nu sunt confinare OS universală",
+      "nu runtime restart sau installed historical checker proof"
+    ]
+  },
+  "not_run": [
+    "PG/native/public-owner consumer M2 QA fresh",
+    "Atomic rollback/enforcement/temp-shadow readback pe PostgreSQL pentru noul consumer",
+    "Installed historical checker/rule result autentic, produs de versiunea veche",
+    "Runtime restart/physical crash/power-loss",
+    "Canonical make check (rezervat părintelui la integrarea finală)",
+    "Reviewul complementar auth/concurrency/input/failure nu este substituit de acest raport"
+  ],
+  "non_effects": {
+    "repository_read_only": true,
+    "repository_files_modified": [],
+    "stage": false,
+    "commit": false,
+    "push": false,
+    "pg_calls": false,
+    "native_launch": false,
+    "provider_calls": false,
+    "operator_db_profiles_global_targets": "NOT_TOUCHED",
+    "protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_EDITED_NOT_DELETED",
+    "scratch_artifacts_created": [
+      "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-normative-before.json",
+      "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-normative-review.json",
+      "/home/kali/.hermes/cache/scratch/p2-mr-normative-source (pytest basetemp)",
+      "/home/kali/.hermes/cache/scratch/p2-mr-normative-producer (pytest basetemp)"
+    ]
+  },
+  "issues_encountered": [],
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "handoff": {
+    "user_steering": "Oprite probele noi la cererea de handoff; fără implementare/QA nouă ori relansare de suite după steering.",
+    "integration": "NOT_CLOSED_PARENT_OWNED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "next": "Predare snapshotului și adjudecare părinte; QA reală/canonical rămân explicit NOT_RUN pentru sesiunea următoare, nu launch acum."
+  }
+}

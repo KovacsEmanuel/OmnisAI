@@ -2,6 +2,10 @@
 
 Aceasta este decizia locală pentru următoarea felie din plan §7.1, nu un plan concurent și nu acceptare B06b/P2. Baza de produs: `f6b6c93b97eb36dafb546d869999871d17779b29`; PARTIAL este acceptat scoped în `7615a33`. Nu se reiau probele acceptate sau auditul launch.
 
+## CURRENT — consumer checkpoint, nu acceptare
+
+`227cfd6` păstrează consumerul finit revision-aware în9fișiere pe fundația0013 acceptată. [Autor](p2-bound-predicates-evidence/mission-revision-consumer-author.json), [checkpoint părinte](p2-bound-predicates-evidence/mission-revision-consumer-parent-checkpoint.json):473SOURCE PASS47.71s/exit0, quality0,9SHA/32loguri/85module wheel byte-exact. Normativ APPROVED_SOURCE_SCOPED, input **CHANGES_REQUESTED/INPUT-M2-F01**, părinte1SOURCE FAIL1.79s: append M2 între reservation commit și sink. **BLOCKED, NEACCEPTAT; PG/native consumer NOT_RUN/NOT_ADMITTED.** Remediu preferat: guard pe append sub același managed-owner lock, refuz peste intenturi in-flight/unsettled, terminal M1/replay păstrate; citește starea/receipturile reale, nu inventa settlement sau alt owner. Perechile vechi checker/composer/rule sunt receive-only, nu admission/installed history. Utilizatorul a cerut handoff; [CURRENT](p2-c10-session-handoff-20261012.md) fixează findingul, reproducerul și cele3limite QA, apoi re-review delta înainte QA fresh. ResultQualification încă neimplementat; lipsa freshness/evidence nu devine ELIGIBLE. Secțiunile următoare păstrează decizia și acceptarea fundației, nu acceptarea noului consumer.
+
 ## Blocaj reprodus, fără implementare pretinsă
 
 [Autorul](p2-bound-predicates-evidence/result-qualification-blocked-author.json) a oprit înaintea editării produsului: validatorul `managed_contract.record` și CHECK-ul `managed_record` acceptă numai revision=1; PK-ul id nu poate păstra două revizii ale aceluiași UUID. Părintele a reprodus pe aceeași SOURCE boundary cu SQL double declarat:
@@ -57,4 +61,4 @@ Două reviewuri complementare pe snapshot exact înainte de PG; părintele repro
 
 Nu migrăm sau pornim r1/DB-ul operatorului, nu adoptăm fixture-uri vechi. DDL before/after:0012→0013 numai disposable. Datele/logurile rămân păstrate și resursele proprii se verifică exact. Git revert inversează source, **nu DDL/history**. Downgrade refuză; orice migrare ulterioară de date ale operatorului cere instanță oprită/fenced, backup complet compatibil și restaurare verificată explicit autorizate. Nu drop M2, disable triggers sau simplu restamp ca rollback.
 
-**Stare: schema foundation IMPLEMENTED/ACCEPTED_SOURCE_PRIVATE_PG_SCOPED pe9437072; M2API/ResultQualification NOT_IMPLEMENTED; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED; canonical final NOT_RUN.** Fără cont/provider/inferență/target/P3/r1/global/push. Acceptarea DDL nu este integrare consumer M2, rezultat nativ, qualification ori închidere de fază.
+**Stare: schema foundation IMPLEMENTED/ACCEPTED_SOURCE_PRIVATE_PG_SCOPED pe9437072; consumer M2 checkpoint227cfd6 IMPLEMENTED_SOURCE/CHANGES_REQUESTED/BLOCKED INPUT-M2-F01, PG/native NOT_RUN; ResultQualification NOT_IMPLEMENTED; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED; canonical final NOT_RUN.** Fără cont/provider/inferență/target/P3/r1/global/push. Acceptarea DDL nu este integrare consumer M2, rezultat nativ, qualification ori închidere de fază.

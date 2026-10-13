@@ -1,6 +1,17 @@
 {
   "scope": "Hermes active default profile; no other profile modified",
   "profile_files_committed": false,
+  "original_setup_entries_are_historical": true,
+  "current_verify_on_stop": {
+    "scope": "Active default profile only; global user request to reduce avoidable recursive verification overhead",
+    "before_effective": true,
+    "after_effective": false,
+    "apply": "hermes config set agent.verify_on_stop false",
+    "rollback": "hermes config set agent.verify_on_stop true",
+    "verification": "Actual CLI set exit0/get false; installed native verify_on_stop_enabled true/false controls PASS, readonly current-profile config false, no HERMES_VERIFY_ON_STOP override, _verify_on_stop_nudge returned None; exit0.",
+    "reason": "Duplicate synthetic reminders prompted extra report-verification scripts despite scoped PASS; disable the optional nudge, not required tests or review.",
+    "limits": "SOUL/global skill content has scoped independent review, not automatic compliance or runtime/P2 acceptance. pre_verify hooks, approvals/security, model/provider, credentials and other profiles are not changed; queued old notices can still arrive. Private profile files are not committed. Global before/after backups and original review are retained under /home/kali/.hermes/backups/product-first-dd28b570c7f6404faaf169ca422fb442."
+  },
   "changes": [
     {
       "key": "skills.trusted_project_dirs",
@@ -20,7 +31,7 @@
       "verification": "CLI readback true; installed native verify_on_stop_enabled returned true; guard actually requested missing-evidence verification in this session."
     }
   ],
-  "unchanged": ["model/provider/credentials", "approval policy", "delegation limits", "global SOUL.md", "checkpoints configuration", "other profiles"],
+  "unchanged_at_original_setup": ["model/provider/credentials", "approval policy", "delegation limits", "global SOUL.md", "checkpoints configuration", "other profiles"],
   "limits": [
     "verify_on_stop is a bounded follow-up, not a test runner, hard commit enforcement or guarantee of correctness.",
     "The guard did not recognize unittest discovery as a canonical project command; focused ad-hoc verification was run separately.",

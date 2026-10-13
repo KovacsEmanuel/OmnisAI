@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.28
+version: 0.1.29
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -104,8 +104,9 @@ Trace replay/readback through pinned compiler and dependency validation before c
 
 - Check the existing consumer's exact source/library prerequisites before spending a fresh PG/native attempt. A scratch source export can disappear between accepted slices; missing PIN/run_agent.py is a prerequisite FAIL, not a launch or product defect. Restore only the declared commit from a hash-matching archive, verify the original file inventory and overlay inputs without launch, preserve the failed attempt, and use a separately recorded fresh fixture. Do not substitute an unpinned installed/personal tree, prewarm imports or change product deadlines.
 - Budget cold CLI startup and intermediate readbacks against immutable brief/stage deadlines. Run the positive admission promptly; put optional identity/input denials on a separate never-launched assignment rather than lengthening product grants or letting QA bookkeeping expire the positive.
-- Compare exact named artifact inventories before asserting counts; native patched files and adapter modules are different sets. Stop a live proof after a failed preflight, preserve that failure and correct the observer before a bounded new attempt.
-- Read the actual domain schema before asserting a native receipt field on a TaskResult. Validate the native cause and the domain gaps/method results at their respective records; an invented top-level field must not motivate a product change or a weaker oracle.
+- Compare exact named artifact inventories before asserting counts; resolve and deduplicate symlink aliases before counting physical artifacts. Native patched files and adapter modules are different sets. Stop a live proof after a failed preflight, preserve that failure and correct the observer before a bounded new attempt.
+- Read the actual domain schema before asserting a native receipt field on a TaskResult or a flat steps field on a procedure; inspect its declared probe/baseline/control/cleanup groups. Validate the native cause and the domain gaps/method results at their respective records; an invented field must not motivate a product change, weaker oracle or replay of a successful consumer for report-only discovery.
+- Transfer snapshot-bound reports from their exact original bytes, not reconstructed rendered read_file lines; long-string truncation/redaction can corrupt otherwise valid JSON. Use write_file on the exact source text and compare source/destination SHA, retaining the failed transfer without changing product bytes or rerunning its QA.
 
 ## Focused fixture and browser adjudication
 

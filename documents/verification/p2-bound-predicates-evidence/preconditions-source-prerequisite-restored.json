@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_PREREQUISITE_RESTORED",
+  "scope": "Original full source export only; NOT product repair, build/install/runtime or functional QA.",
+  "base_head": "77d38a1844f0137baa9f654f43892a840ff4c0e8",
+  "first_failure": "SOURCE_PIN_REQUIRED before launch",
+  "origin_of_prior_absence": "UNKNOWN; scratch pruning plausible but not demonstrated",
+  "before": {
+    "pinned_source_exists": false
+  },
+  "after": {
+    "source": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "run_agent_present": true,
+    "symlinks": 0,
+    "original_files": 15208,
+    "all_archive_file_hashes_match": true
+  },
+  "origin": {
+    "git_object_store": "/home/kali/.hermes/hermes-agent/.git",
+    "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "archive": "/home/kali/.hermes/cache/scratch/preconditions-source-prerequisite-c0bmp9wp/source.tar",
+    "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "matches_declared_source_archive_sha256": true,
+    "archive_bytes": 199147520
+  },
+  "verification": {
+    "input_hashes": {
+      "uv.lock": "5b3798f326209475abca8ef7cbf7c9406f12e687c28c0b540dfe597466f48590",
+      "pyproject.toml": "6f969b9fdff95e7269ec808361e3ae8be5357036e6257e53a3306878cf8c41dd",
+      "LICENSE": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+      "run_agent.py": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33"
+    },
+    "inert_original_files_attested": 5,
+    "actual_consumer_prerequisite_assertions": {
+      "passed": 2,
+      "execution": "Actual PIN/LIBRARIES constants and source assertions AST-selected from existing consumer; no fixture/native import or launch",
+      "classification": "PREREQUISITE_ONLY"
+    }
+  },
+  "changes": {
+    "product_source": "UNCHANGED",
+    "pin_overlay_manifest": "UNCHANGED",
+    "network_calls": 0,
+    "native_started": false,
+    "provider_calls": 0,
+    "personal_credentials_read": false
+  },
+  "rollback": "Remove only the freshly recorded original-source export/archive after dependent probes settle; no DB/fixture/data rollback and no deletion during QA.",
+  "consumer_qa": "NOT_RUN_AFTER_RESTORE",
+  "full_source_inventory_receipt": {
+    "path": "/home/kali/.hermes/cache/scratch/preconditions-source-prerequisite-c0bmp9wp/source-prerequisite-receipt.json",
+    "sha256": "89cd83f959f8170ac207ff7db73a30e8a6670a12d72756ba7c7076e7dd63be61",
+    "status": "all 15208 original files matched independently hashed archive members"
+  }
+}

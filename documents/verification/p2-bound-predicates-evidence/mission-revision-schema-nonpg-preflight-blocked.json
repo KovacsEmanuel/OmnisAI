@@ -1,0 +1,649 @@
+{
+  "acceptance_census": {
+    "F01_first_call_same_session_temp_shadow_denial_positive_rollback": [],
+    "F02_public_namespace_physical_oid_denial_positive_rollback": [],
+    "F03_numeric_and_32digit_uuid_alias_exact_check_denial_canonical_positive_rollback": [],
+    "atomic_denials_and_immutability": [],
+    "empty0013_and_populated0012_to0013": [],
+    "historical0011_to0012_constraints": [],
+    "readiness_ddl_30": []
+  },
+  "attempts": 0,
+  "git_status_final": [
+    "## checkpoint/p2-vm-restart-20261011",
+    "?? documents/Omnis_Notite_Originale.html"
+  ],
+  "hashed_nonsecret_physical_artifact_count": 31,
+  "issues_encountered": [
+    {
+      "boundary": "qa_observer",
+      "exception_class": "RuntimeError",
+      "reason": "details withheld to avoid private diagnostics"
+    },
+    {
+      "boundary": "inventory",
+      "exception_class": "FileNotFoundError",
+      "reason": "metadata unavailable"
+    }
+  ],
+  "limits": [
+    "Synthetic raw SQL rows are not native TaskResults or historical application execution.",
+    "No API M2 consumer, ResultQualification, native history, current freshness, emitter, public UDS product result, model, provider, account, target, installed runtime, r1 or global operation.",
+    "Close/reopen is attested SQL connection close/reopen, not server or runtime restart.",
+    "Readiness accepts/refuses schema shape; no functional PASS inferred.",
+    "Canonical make check final NOT_RUN; SOURCE prerequisites are not PostgreSQL results.",
+    "Raw pytest/owner logs and PGDATA content are potentially secret-bearing and excluded from content hashes; their retention/mode/physical file metadata is recorded. Private credential file is not serialized or hashed.",
+    "Unknown grammar, arbitrary epochs, future consumer behavior and physical crash/power loss are NOT_RUN."
+  ],
+  "observed_head_final": "6bc84e2e39884390e0150f944cf058f695705da5",
+  "physical_artifact_count": 32,
+  "physical_artifact_inventory": [
+    {
+      "aliases": [],
+      "bytes": 6715,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/src/omnis/core/db.py",
+      "physical_device": 2049,
+      "physical_inode": 8682599,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    {
+      "aliases": [],
+      "bytes": 14304,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/src/omnis/core/managed_schema.py",
+      "physical_device": 2049,
+      "physical_inode": 8682248,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    {
+      "aliases": [],
+      "bytes": 21740,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/src/omnis/core/schema.py",
+      "physical_device": 2049,
+      "physical_inode": 8685920,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    {
+      "aliases": [],
+      "bytes": 4540,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/src/omnis/migrations/versions/0013_mission_revisions.py",
+      "physical_device": 2049,
+      "physical_inode": 7652393,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    {
+      "aliases": [],
+      "bytes": 22504,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/fixtures/b06a_durable/releases.py",
+      "physical_device": 2049,
+      "physical_inode": 8041383,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    {
+      "aliases": [],
+      "bytes": 4146,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/test_cli_status.py",
+      "physical_device": 2049,
+      "physical_inode": 8041446,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    {
+      "aliases": [],
+      "bytes": 2504,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_migration.py",
+      "physical_device": 2049,
+      "physical_inode": 8012113,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    {
+      "aliases": [],
+      "bytes": 24710,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/test_mission_revision_migration.py",
+      "physical_device": 2049,
+      "physical_inode": 8041430,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    {
+      "aliases": [],
+      "bytes": 18536,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py",
+      "physical_device": 2049,
+      "physical_inode": 8041452,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    {
+      "aliases": [],
+      "bytes": 2718,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/test_stop_schema.py",
+      "physical_device": 2049,
+      "physical_inode": 8041451,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    {
+      "aliases": [],
+      "bytes": 39786,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/integration/control_topology.py",
+      "physical_device": 2049,
+      "physical_inode": 7646528,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    {
+      "aliases": [],
+      "bytes": 42008,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/integration/installed_start.py",
+      "physical_device": 2049,
+      "physical_inode": 7646526,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    {
+      "aliases": [],
+      "bytes": 3698,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/src/omnis_cli/instance.py",
+      "physical_device": 2049,
+      "physical_inode": 7652395,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    {
+      "aliases": [],
+      "bytes": 10841,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/src/omnis_cli/release.py",
+      "physical_device": 2049,
+      "physical_inode": 7652299,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    {
+      "aliases": [],
+      "bytes": 53631,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/src/omnis_cli/start.py",
+      "physical_device": 2049,
+      "physical_inode": 7646620,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    {
+      "aliases": [],
+      "bytes": 15396,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/stop_owner_fixture.py",
+      "physical_device": 2049,
+      "physical_inode": 7646539,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    {
+      "aliases": [],
+      "bytes": 8497,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_install.py",
+      "physical_device": 2049,
+      "physical_inode": 7646529,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    {
+      "aliases": [],
+      "bytes": 12213,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_installed_pointer_schema.py",
+      "physical_device": 2049,
+      "physical_inode": 7646525,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    {
+      "aliases": [],
+      "bytes": 4144,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_ready_journal.py",
+      "physical_device": 2049,
+      "physical_inode": 7646533,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    {
+      "aliases": [],
+      "bytes": 2880,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_schema_compatibility.py",
+      "physical_device": 2049,
+      "physical_inode": 7652369,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    {
+      "aliases": [],
+      "bytes": 17915,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_status.py",
+      "physical_device": 2049,
+      "physical_inode": 7646521,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    {
+      "aliases": [],
+      "bytes": 58372,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/cli/tests/test_stop.py",
+      "physical_device": 2049,
+      "physical_inode": 7646520,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    {
+      "aliases": [],
+      "bytes": 6151,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/ops/build_control_bundle.py",
+      "physical_device": 2049,
+      "physical_inode": 7646519,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    },
+    {
+      "aliases": [],
+      "bytes": 20094,
+      "mode": "0o664",
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-pg-qa-observer.py",
+      "physical_device": 2049,
+      "physical_inode": 8837710,
+      "sha256": "1eecd65c27dfe07f73dace72bd84523e51a4940c9bebb4e1712178ba1ff63ab5"
+    },
+    {
+      "aliases": [],
+      "bytes": 2606,
+      "mode": "0o664",
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "physical_device": 2049,
+      "physical_inode": 8837664,
+      "sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22"
+    },
+    {
+      "aliases": [],
+      "bytes": 61380,
+      "mode": "0o664",
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-parent-fixes.json",
+      "physical_device": 2049,
+      "physical_inode": 8837709,
+      "sha256": "69e58ec9464982100c46b21417f6522ed37b66baaec43c81c8ee18eb934e66e4"
+    },
+    {
+      "aliases": [],
+      "bytes": 41804,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+      "physical_device": 2049,
+      "physical_inode": 7646591,
+      "sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+    },
+    {
+      "aliases": [],
+      "bytes": 1752,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/ops/compose.test.yaml",
+      "physical_device": 2049,
+      "physical_inode": 7619186,
+      "sha256": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e"
+    },
+    {
+      "aliases": [],
+      "bytes": 5967,
+      "mode": "0o664",
+      "path": "/home/kali/OmnisAI/api/tests/conftest.py",
+      "physical_device": 2049,
+      "physical_inode": 8038310,
+      "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b"
+    },
+    {
+      "aliases": [],
+      "bytes": 4303,
+      "content_hash_exclusion": "potentially secret-bearing raw log or PGDATA",
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-independent-pg-qa-collection.private.log",
+      "physical_device": 2049,
+      "physical_inode": 8837707,
+      "sha256": null
+    },
+    {
+      "aliases": [],
+      "bytes": 46424,
+      "mode": "0o664",
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-normative-rereview.json",
+      "physical_device": 2049,
+      "physical_inode": 8837716,
+      "sha256": "b42266066ec6a53d7826668785f911350901580d16e7dcafdd820e0c57f0ecd1"
+    },
+    {
+      "aliases": [],
+      "bytes": 31138,
+      "mode": "0o664",
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-input-rereview.json",
+      "physical_device": 2049,
+      "physical_inode": 8837714,
+      "sha256": "d5dccc30c904debf01541acec3628d4c80c2e1af0000634eeb8a763ac72b15ee"
+    }
+  ],
+  "preflight": {
+    "architecture": "amd64",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "image_reference": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+    "pins": {
+      "api_python": "3.13.15",
+      "cli_python": "3.13.15",
+      "node": "24.21.0",
+      "npm": "11.19.0",
+      "uv": "0.12.19"
+    },
+    "status": "PASS_READ_ONLY_NOT_PG_RESULT",
+    "uv_resolved": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  },
+  "product_sha": "9437072ef9a472526ff0f638f6f462632b0b847c",
+  "remaining_failures": [],
+  "repository": "/home/kali/OmnisAI",
+  "review_handles": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-normative-rereview.json",
+      "sha256": "b42266066ec6a53d7826668785f911350901580d16e7dcafdd820e0c57f0ecd1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-input-rereview.json",
+      "sha256": "d5dccc30c904debf01541acec3628d4c80c2e1af0000634eeb8a763ac72b15ee"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "ACTUAL_PRIVATE_POSTGRESQL_FOUNDATION_ONLY",
+  "secret_credential_file_excluded": true,
+  "source23_before": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "source23_expected": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "source23_final": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "source23_match_committed_product": true,
+  "source23_unchanged": true,
+  "status": "BLOCKED_PRECONDITION",
+  "test_id_execution_attribution": "Collection is not execution proof; only observed summary/failure IDs recorded"
+}

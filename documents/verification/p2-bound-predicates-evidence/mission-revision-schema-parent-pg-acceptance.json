@@ -1,0 +1,296 @@
+{
+  "decision": "ACCEPTED_SOURCE_PRIVATE_PG_SCHEMA_FOUNDATION_SCOPED",
+  "product_sha": "9437072ef9a472526ff0f638f6f462632b0b847c",
+  "qa_report": "documents/verification/p2-bound-predicates-evidence/mission-revision-schema-independent-pg-qa.json",
+  "qa_report_sha256": "163de9f53cd41dd25aac6308aaad29fed2f5b138d5c940473c7e918cade90775",
+  "files": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "reviews": "Two complementary focused APPROVED_SOURCE_SCOPED exact23SHA,6delta17unchanged; three findings explicitly closed SOURCE then measured current PG negatives/positives",
+  "actual_attempt": {
+    "attempts": 1,
+    "invocation": {
+      "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+        "mission-revision"
+      ],
+      "native_opt_in": false,
+      "original_gate_target": "test-contract-method-pg",
+      "other_operator_state_unchanged": true,
+      "owned_environment_filter": [
+        "PG*",
+        "DOCKER_*",
+        "COMPOSE_*",
+        "PYTEST_*",
+        "PYTHONPATH",
+        "PYTHONHOME",
+        "OMNIS_CONTRACT_METHOD_NATIVE_PG"
+      ],
+      "pytest_argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "/home/kali/OmnisAI/api/tests/test_mission_revision_migration.py",
+        "/home/kali/OmnisAI/api/tests/test_contract_method_migration.py",
+        "-k",
+        "test_pg",
+        "-q",
+        "--tb=line"
+      ],
+      "selection_only_wrapper": true,
+      "timeout_seconds": 240,
+      "uv": "/home/kali/.local/share/omnis-toolchains/bin/uv"
+    },
+    "pytest": {
+      "deselected": 2,
+      "errors": 0,
+      "failed": 0,
+      "passed": 38,
+      "seconds": 90.65,
+      "skipped": 0
+    },
+    "owner_exit_code": 0,
+    "gate_receipt": {
+      "code": 0,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "elapsed_seconds": 95.663
+  },
+  "acceptance_census": {
+    "F01_first_call_same_session_temp_shadow_denial_positive_rollback": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back"
+    ],
+    "F02_public_namespace_physical_oid_denial_positive_rollback": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]"
+    ],
+    "F03_numeric_and_32digit_uuid_alias_exact_check_denial_canonical_positive_rollback": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string"
+    ],
+    "atomic_denials_and_immutability": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_denials_are_atomic_before_valid_insert"
+    ],
+    "empty0013_and_populated0012_to0013": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[empty0013]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[populated0012_to0013]"
+    ],
+    "historical0011_to0012_constraints": [
+      "tests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints"
+    ],
+    "readiness_ddl_30": [
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-0]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-1]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-2]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-3]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-4]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-5]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-6]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-7]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-8]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-9]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-10]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-11]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-12]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-13]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-14]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-15]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-16]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-17]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-20]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-21]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-22]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-23]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-24]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-25]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-26]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-27]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-28]",
+      "tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-29]"
+    ]
+  },
+  "parent_verification": {
+    "source23_sha_match_current_and_committed": true,
+    "test_ids_dedup_count": 38,
+    "physical_file_metadata_verified": 1312,
+    "nonsecret_artifact_SHA_verified": 35,
+    "secret_bearing_logs_PGDATA_content_not_read_or_hashed": true,
+    "same_daemon_exactCID_project_network_socket_absent": true,
+    "original_owner_PID_absent": true,
+    "PG18_data_image_retained": true,
+    "two_original_reports_transferred_byteexact": true
+  },
+  "fixture_public_metadata": {
+    "container_id": "88c6b6f83a8b0bfd66aee91eda90fefa9800a8822f5dc6a1af0ac41ae518b248",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "project": "omnis-p01-9ae9d449ac7c4159aed15d4efe1d05e7",
+    "root": "/home/kali/.hermes/cache/scratch/db-1f0bfc34383542b6",
+    "schema_version": 1,
+    "system_identifier": "7696222896001024030"
+  },
+  "active_fixture_attestation": {
+    "daemon_preflight_matches": true,
+    "image_preflight_matches": true,
+    "receipt": {
+      "container_id": "88c6b6f83a8b0bfd66aee91eda90fefa9800a8822f5dc6a1af0ac41ae518b248",
+      "project": "omnis-p01-9ae9d449ac7c4159aed15d4efe1d05e7",
+      "schema_version": 1,
+      "socket_directory": "/home/kali/.hermes/cache/scratch/db-1f0bfc34383542b6/socket",
+      "system_identifier": "7696222896001024030"
+    },
+    "status": "PASS"
+  },
+  "pg_readback": {
+    "channel": "original shared fixture attestor then conftest.connect_test_database; SELECT only",
+    "connected_system_identifier": "7696222896001024030",
+    "database": "omnis_test",
+    "role": "omnis_test",
+    "server_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "status": "PASS",
+    "system_identifier_matches_manifest": true,
+    "unix_socket": true
+  },
+  "findings_current_acceptance": {
+    "INPUT-MR-F01": "CLOSED_CURRENT_SOURCE_PRIVATE_PG_SCOPED: exact current guard/readiness/constraint denial, same-channel positive, history/rollback readback; no old exploit success inferred",
+    "INPUT-MR-F02": "CLOSED_CURRENT_SOURCE_PRIVATE_PG_SCOPED: exact current guard/readiness/constraint denial, same-channel positive, history/rollback readback; no old exploit success inferred",
+    "INPUT-MR-F03": "CLOSED_CURRENT_SOURCE_PRIVATE_PG_SCOPED: exact current guard/readiness/constraint denial, same-channel positive, history/rollback readback; no old exploit success inferred"
+  },
+  "retained_failures": {
+    "nonpg_observer_census_refusal": {
+      "actual_pg_attempts": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-independent-nonpg-preflight-blocked.json",
+      "reason": "SelectedTestCensusMismatch: observer regex excluded actual tests/ nodeid prefix; actual original collection 38/40, two deselected. No product or PG failure. No prerequisite check or collection replay.",
+      "sha256": "fade581ca782059f758bfd6ada10630af3515096a91d8f3083868d5e33f772fe"
+    },
+    "original_source_defects_and_CHANGES_REQUESTED": "Preserved original author/normative/input/SOURCE RED reports in same evidence directory",
+    "report_annotation_refusal": "Child delivery includes failed JSON patch syntax validation. Parent read actual persisted report: valid JSON and SHA163de9...; source23 unchanged. Refused annotation is not PG failure or successful report mutation; original report transferred exactly, no reconstructed bytes."
+  },
+  "scope_limits": [
+    "Synthetic raw SQL rows are not native TaskResults or historical application execution.",
+    "No API M2 consumer, ResultQualification, native history, current freshness, emitter, public UDS product result, model, provider, account, target, installed runtime, r1 or global operation.",
+    "Close/reopen is attested SQL connection close/reopen, not server or runtime restart.",
+    "Readiness accepts/refuses schema shape; no functional PASS inferred.",
+    "Canonical make check final NOT_RUN; SOURCE prerequisites are not PostgreSQL results.",
+    "Raw pytest/owner logs and PGDATA content are potentially secret-bearing and excluded from content hashes; their retention/mode/physical file metadata is recorded. Private credential file is not serialized or hashed.",
+    "Unknown grammar, arbitrary epochs, future consumer behavior and physical crash/power loss are NOT_RUN."
+  ],
+  "remaining": {
+    "API_M2_revision_aware_consumer": "NOT_IMPLEMENTED",
+    "ResultQualification": "NOT_IMPLEMENTED",
+    "installed_historical_reader_runtime_restart": "NOT_RUN",
+    "binding_inventory_rest_forms": "NOT_CLOSED",
+    "B06c_B06m": "PARTIAL_PENDING",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "P4a_minim": "NOT_IMPLEMENTED"
+  },
+  "next": "Finite revision-aware store/ref/graph/readback/owner command using existing consumers, historical mission from exact headerRef, refuse new admission; then ResultQualification finite current-state."
+}

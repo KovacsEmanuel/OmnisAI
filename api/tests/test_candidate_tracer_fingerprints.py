@@ -28,8 +28,10 @@ DEPENDENCIES = (
     "settings/catalog_models.py",
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
+    "settings/publication_models.py",
     "tasks/module_registry.py",
     "tasks/contract_case_input.py",
+    "tasks/managed_contract.py",
 )
 
 
@@ -204,6 +206,7 @@ def test_each_dependency_changes_identity_delegated_read_seam(
 ) -> None:
     root = Path(catalog.__file__).parent.parent
     before = catalog.behavior_revision(domain)
+    assert catalog.behavior_revision(domain) == before
     real_read = read_file
     reads: list[str] = []
 

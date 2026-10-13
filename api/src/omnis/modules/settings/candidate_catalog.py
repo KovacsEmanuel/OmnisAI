@@ -51,8 +51,10 @@ BEHAVIOR_FILES = (
     "settings/catalog_models.py",
     "settings/catalog_schema.py",
     "settings/skill_catalog.py",
+    "settings/publication_models.py",  # requirement_conditions -> exact -> clean_text
     "tasks/module_registry.py",
     "tasks/contract_case_input.py",
+    "tasks/managed_contract.py",  # Compiler applicability validator and its local helpers.
 )
 
 

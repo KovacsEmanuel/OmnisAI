@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.24
+version: 0.1.25
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -72,6 +72,7 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Keep health/status observation separate from authority renewal. Inspect the entire reused IPC handler, not only its command name: a status dispatch may call heartbeat. Reproduce with PostgreSQL expiry readback, continue polling across expiry without the owner loop, and require the lease to expire unchanged; validate owner/epoch without extending it.
 - Require container-local TCP health for the final PostgreSQL server when the image initializes through a temporary Unix-only server. Prove the distinction with a fresh owned PG18 init marker: Unix pg_isready may exit0 before init completes while localhost TCP refuses, then the same TCP health must pass on the final server. Keep ports unpublished and the network private; pg_isready proves connection admission, not authentication/schema/identity. A phase spike does not establish an unrelated historical command failure or certify the installed bundle; rebuild and run its canonical gate separately.
 - At service entry, validate exact authority argument types/ranges before the idempotent replay lookup. Python `True == 1` and permissive driver coercion can turn an invalid revision into the original successful receipt; test the real PostgreSQL first-write and existing-receipt paths with invalid types and a valid replay control.
+- When an append-only context cutover forbids future work, serialize it against the existing persisted dispatch intent, not only validation under a transaction lock. A committed reservation can be followed by a send after that lock is released. Refuse cutover over in-flight/unsettled/uncertain work under the same owner lock, or define a genuinely common effect barrier; preserve terminal historical reads and never-dispatched positives. Exercise both reservation-before-cutover and cutover-before-reservation for stage/release on the same owner/sink, and distinguish SOURCE doubles from observed PG overlap. A second pre-send read alone can leave another TOCTOU window.
 - Strict DTOs cannot detect duplicate JSON members once FastAPI has decoded the body. For versioned draft writes, reject duplicate keys recursively on the already bounded, authenticated body before DTO parsing; exercise top-level and nested duplicates through POST/PUT plus a valid control, without weakening Host/Origin/session/CSRF or Pairing limits. An escaped unpaired surrogate may already yield a sanitized body-level 422 before field validation; measure that boundary before claiming it becomes a 500.
 - Run long private-DB targets as tracked background jobs with pinned tool paths and exact-session readback. A foreground executor deadline can terminate the gate owner before its cleanup receipt, leaving an active synthetic fixture; never relabel this as cleanup or adopt/delete that historical fixture to force a green test.
 

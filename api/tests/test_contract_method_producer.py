@@ -25,6 +25,8 @@ from test_c03_managed_capture import capture_source, material
         "evidence-optional-prefix",
         "evidence-required-prefix",
         "evidence-all-optional-prefix",
+        "partial-requirement-full",
+        "partial-requirement-prefix",
     ],
 )
 def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
@@ -76,6 +78,21 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
         authored["evidence_requirements"] = [
             {"kind": "contract-artifact", "minimum": 1, "mandatory": True}
         ]
+    if guard.startswith("partial-requirement-"):
+        authored["preconditions"] = []
+        requirements = [
+            mapping(r) for r in managed_contract.sequence(authored["method_requirements"])
+        ]
+        requirements[0]["step_ids"] = ["normalize-operations", "build-map"]
+        from copy import deepcopy
+
+        requirements[0]["artifact_schema_refs"] = deepcopy(
+            [
+                *managed_contract.sequence(requirements[0]["artifact_schema_refs"]),
+                *managed_contract.sequence(requirements[1]["artifact_schema_refs"]),
+            ]
+        )
+        authored["method_requirements"] = requirements
     write_yaml(path, authored)
     compiled = compile_catalog((seed.package,), seed.profile)
     retained, sources, _ = capture([str(seed.package)], str(seed.profile))
@@ -155,7 +172,7 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             source.build(prefix=prefix, case_input=section, method_execution=True)
         assert attempts == [] and canonical(prefix) == before
         return
-    if empty and not guard.startswith("evidence-"):
+    if empty and not guard.startswith(("evidence-", "partial-requirement-")):
         reason = (
             "PROCEDURE_PRECONDITION_FALSE" if guard == "precondition" else "PROCEDURE_INVALIDATED"
         )
@@ -171,7 +188,13 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             prefix=prefix,
             case_input=section,
             method_execution=True,
-            return_predicate_id="normalize-records" if guard.endswith("prefix") else None,
+            return_predicate_id=(
+                "preserve-input-context"
+                if guard == "partial-requirement-prefix"
+                else "normalize-records"
+                if guard.endswith("prefix")
+                else None
+            ),
         )
         bound = next(r for r in graph if r["kind"] == "bound-procedure")
         resolved = mapping(mapping(bound["payload"])["resolved_procedure"])
@@ -191,6 +214,29 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             == 3
         )
         assert canonical(graph[: len(prefix)]) == before
+        if guard.startswith("partial-requirement-"):
+            requirement = mapping(managed_contract.sequence(resolved["method_requirements"])[0])
+            steps = [mapping(s) for s in managed_contract.sequence(resolved["probe"])]
+            assert requirement["step_ids"] == [s["id"] for s in steps]
+            assert requirement["artifact_schema_refs"] == [s["output_schema_ref"] for s in steps]
+            brief_body = mapping(brief["payload"])
+            assert [
+                mapping(r)["predicate_id"]
+                for r in managed_contract.sequence(brief_body["done_when"])
+            ] == ["normalize-records", "build-surface-map"]
+            assert mapping(managed_contract.sequence(brief_body["return_when"])[0])[
+                "predicate_id"
+            ] == ("preserve-input-context" if guard.endswith("prefix") else "build-surface-map")
+            stage = managed_composition.stage_payload(graph[-1], graph)
+            adapter = str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+            sys.path.insert(0, adapter)
+            try:
+                assert (
+                    import_module("omnis_hermes.managed_admission_contract").validate_stage(stage)
+                    == graph[-1]
+                )
+            finally:
+                sys.path.remove(adapter)
         if guard.startswith("evidence-"):
             brief_body = mapping(brief["payload"])
             keys = (
@@ -209,9 +255,6 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
                 for r in managed_contract.sequence(brief_body["required_evidence"])
             ] == keys
             stage = managed_composition.stage_payload(graph[-1], graph)
-            import sys
-            from importlib import import_module
-
             adapter = str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
             sys.path.insert(0, adapter)
             try:

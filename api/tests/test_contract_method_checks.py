@@ -108,6 +108,7 @@ def native_case(
     all_optional: bool = False,
     evidence_minimum: int | None = None,
     evidence_mandatory: bool = True,
+    two_step_requirement: bool = False,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -223,6 +224,10 @@ def native_case(
                     for r in requirements
                 ]
             }
+        if two_step_requirement:
+            requirement = obj(rows(procedure["method_requirements"])[0])
+            requirement["step_ids"] = [s["id"] for s in steps]
+            requirement["artifact_schema_refs"] = [s["output_schema_ref"] for s in steps]
         if applies_expected is not None:
             from omnis.modules.tasks import managed_contract
 
@@ -281,7 +286,9 @@ def native_case(
             obj(brief["payload"])["done_when"] = [
                 {"bound_procedure_ref": records.reference(bound), "predicate_id": obj(r)["key"]}
                 for r in rows(procedure["method_requirements"])
-                if composer_pin is not None or obj(r)["required"]
+                if composer_pin
+                not in (None, "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36")
+                or obj(r)["required"]
             ]
             obj(brief["payload"])["return_when"] = [
                 {

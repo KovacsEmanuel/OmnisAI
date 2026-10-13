@@ -363,12 +363,21 @@ def _results(
         done = all(s in known_steps for s in steps) and all(
             canonical(s) in [canonical(k) for k in known_schemas] for s in schemas
         )
-        if row["state"] != ("DONE" if done else "NOT_RUN"):
+        state = "DONE" if done else "NOT_RUN"
+        if not done and any(
+            step["id"] in steps
+            and step["id"] in known_steps
+            and canonical(step["output_schema_ref"]) in [canonical(k) for k in known_schemas]
+            for step in [contract.mapping(s) for s in contract.sequence(procedure["probe"])]
+        ):
+            state = "PARTIAL"
+        if row["state"] != state:
             raise CatalogError(CONFLICT)
         contract.text(row["reason"])
         if not done:
             reason = (
-                "NOT_RUN: "
+                state
+                + ": "
                 + contract.text(requirement["key"], 128)
                 + " (qualified early return)."
                 + (" Optional coverage gap." if not contract.mapping(raw_plan)["required"] else "")
@@ -490,23 +499,30 @@ def _predicates(
     closure = contract.predicate_closure(procedure)
     values: dict[str, bool] = {}
     for name, requirement in closure.items():
-        step_id, source = contract.RECORD_PREDICATES[name]
-        matching = [r for r in receipts if contract.mapping(r["payload"])["step_id"] == step_id]
-        outputs = [
-            a
-            for a in [original, *artifacts]
-            if contract.mapping(a["payload"])["schema_ref"]
-            == contract.sequence(requirement["artifact_schema_refs"])[0]
-        ]
-        satisfied = len(matching) == 1 and len(outputs) == 1
-        if satisfied:
-            receipt = contract.mapping(matching[0]["payload"])
-            satisfied = (
-                receipt["header"] == body["header"]
-                and receipt["operation"] == "PURE_ACTION"
-                and (source == "INPUT" or receipt["output_ref"] == records.reference(outputs[0]))
-            )
-        values[name] = satisfied
+        _, source = contract.RECORD_PREDICATES[name]
+        values[name] = True
+        for step_id, schema_ref in zip(
+            contract.sequence(requirement["step_ids"]),
+            contract.sequence(requirement["artifact_schema_refs"]),
+            strict=True,
+        ):
+            matching = [r for r in receipts if contract.mapping(r["payload"])["step_id"] == step_id]
+            outputs = [
+                a
+                for a in [original, *artifacts]
+                if contract.mapping(a["payload"])["schema_ref"] == schema_ref
+            ]
+            satisfied = len(matching) == 1 and len(outputs) == 1
+            if satisfied:
+                receipt = contract.mapping(matching[0]["payload"])
+                satisfied = (
+                    receipt["header"] == body["header"]
+                    and receipt["operation"] == "PURE_ACTION"
+                    and (
+                        source == "INPUT" or receipt["output_ref"] == records.reference(outputs[0])
+                    )
+                )
+            values[name] = values[name] and satisfied
     if not any(
         values[contract.text(contract.mapping(r)["predicate_id"])]
         for r in contract.sequence(body["return_when"])
@@ -641,11 +657,15 @@ def check_execution(
             if error.reason != "METHOD_SCHEMA_UNAVAILABLE":
                 raise
             schema_unavailable = True
-        from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
-
-        optional_completion = (
-            contract.mapping(prompt_bundle["payload"])["composer_revision"] == COMPOSER_REVISION
+        from omnis.modules.tasks.managed_composition import (
+            COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
         )
+
+        optional_completion = contract.mapping(prompt_bundle["payload"])["composer_revision"] in {
+            COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+        }
         try:
             checked_results = _results(
                 result,

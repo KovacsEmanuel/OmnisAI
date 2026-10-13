@@ -287,9 +287,16 @@ def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
         name = text(requirement["key"], 128)
         step, source = RECORD_PREDICATES[name]
         schema = p["input_schema_ref"] if source == "INPUT" else steps[step]["output_schema_ref"]
+        step_ids = [step]
+        schemas = [schema]
+        if name == "normalize-records" and requirement["step_ids"] == list(steps):
+            step_ids = list(steps)
+            schemas = [s["output_schema_ref"] for s in steps.values()]
+            if len({canonical(s) for s in schemas}) != 2:
+                raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         if (
-            requirement["step_ids"] != [step]
-            or requirement["artifact_schema_refs"] != [schema]
+            requirement["step_ids"] != step_ids
+            or requirement["artifact_schema_refs"] != schemas
             or type(requirement["required"]) is not bool
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
@@ -320,6 +327,7 @@ def validate_predicates(
             COMPACT_COMPOSER_REVISION,
             COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             LEGACY_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
@@ -337,6 +345,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             APPLICABILITY_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             COMPOSER_REVISION,
@@ -355,10 +364,12 @@ def validate_predicates(
             raise CatalogError("BOUND_PREDICATE_GAP")
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
         if procedure["invalidation_predicate_ids"] and (
-            version != 4 or pin not in {COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+            version != 4
+            or pin
+            not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
-        if pin != COMPOSER_REVISION and (
+        if pin not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION} and (
             procedure["evidence_requirements"]
             or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
             or (
@@ -372,11 +383,23 @@ def validate_predicates(
             )
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        if (
+            pin != COMPOSER_REVISION
+            and procedure["key"] == "map-records"
+            and any(
+                mapping(req)["step_ids"]
+                != [RECORD_PREDICATES[predicate_key(mapping(req)["key"])][0]]
+                for req in sequence(procedure["method_requirements"])
+                if mapping(req)["key"] in RECORD_PREDICATES
+            )
+        ):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         required = (
             version == 4
             and pin
             in {
                 COMPOSER_REVISION,
+                EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
@@ -389,6 +412,7 @@ def validate_predicates(
             or pin
             not in {
                 COMPOSER_REVISION,
+                EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
@@ -410,7 +434,7 @@ def validate_predicates(
                 raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     expected_done = (
         [name for name, requirement in closure.items() if requirement["required"]]
-        if prompt_bundle is not None and pin == COMPOSER_REVISION
+        if prompt_bundle is not None and pin in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION}
         else list(closure)
     )
     if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done:
@@ -523,7 +547,7 @@ def build_records(
         not method_execution
         or context_only
         or case_input is None
-        or predicate_key(return_predicate_id) not in {"normalize-records", "build-surface-map"}
+        or predicate_key(return_predicate_id) not in RECORD_PREDICATES
     ):
         raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     from omnis.modules.tasks import criterion_checks

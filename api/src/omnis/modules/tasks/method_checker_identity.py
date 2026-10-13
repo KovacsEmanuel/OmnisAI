@@ -65,6 +65,12 @@ INVALIDATION_HISTORICAL = {
 }
 
 
+# Exact evidence/optional producer before the two-step PARTIAL form: receive-only.
+EVIDENCE_HISTORICAL = {
+    "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -102,6 +108,7 @@ def verify(
             or APPLICABILITY_HISTORICAL.get(digest) == pin
             or PRECONDITION_HISTORICAL.get(digest) == pin
             or INVALIDATION_HISTORICAL.get(digest) == pin
+            or EVIDENCE_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

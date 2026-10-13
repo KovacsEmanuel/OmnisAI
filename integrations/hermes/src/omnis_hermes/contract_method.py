@@ -226,26 +226,32 @@ def predicate_values(
     steps = {mapping(s)["id"]: mapping(s) for s in sequence(procedure["probe"])}
     values: dict[str, bool] = {}
     for name, requirement in closure.items():
-        step_id, source = RECORD_PREDICATES[name]
-        step = steps[step_id]
-        matches = [r for r in receipts if mapping(r["payload"])["step_id"] == step_id]
-        outputs = [
-            a for a in artifacts if mapping(a["payload"])["schema_ref"] == step["output_schema_ref"]
-        ]
-        satisfied = len(matches) == 1 and len(outputs) == 1
-        if satisfied:
-            receipt, artifact = (
-                mapping(matches[0]["payload"]),
-                mapping(outputs[0]["payload"]),
-            )
-            validate_value(OUTPUT_SCHEMAS[step_id], artifact["value"])
-            satisfied = (
-                receipt["header"] == header
-                and artifact["header"] == header
-                and receipt["operation"] == "PURE_ACTION"
-                and receipt["action_definition_ref"] == step["action_definition_ref"]
-                and receipt["output_ref"] == ref(outputs[0])
-            )
+        _, source = RECORD_PREDICATES[name]
+        satisfied = True
+        for raw_step_id in sequence(requirement["step_ids"]):
+            step_id = cast(str, raw_step_id)
+            step = steps[step_id]
+            matches = [r for r in receipts if mapping(r["payload"])["step_id"] == step_id]
+            outputs = [
+                a
+                for a in artifacts
+                if mapping(a["payload"])["schema_ref"] == step["output_schema_ref"]
+            ]
+            step_satisfied = len(matches) == 1 and len(outputs) == 1
+            if step_satisfied:
+                receipt, artifact = (
+                    mapping(matches[0]["payload"]),
+                    mapping(outputs[0]["payload"]),
+                )
+                validate_value(OUTPUT_SCHEMAS[step_id], artifact["value"])
+                step_satisfied = (
+                    receipt["header"] == header
+                    and artifact["header"] == header
+                    and receipt["operation"] == "PURE_ACTION"
+                    and receipt["action_definition_ref"] == step["action_definition_ref"]
+                    and receipt["output_ref"] == ref(outputs[0])
+                )
+            satisfied = satisfied and step_satisfied
         if source == "INPUT":
             reads = [r for r in receipts if mapping(r["payload"])["operation"] == "READ_INPUT"]
             satisfied = satisfied and len(reads) == 1
@@ -348,23 +354,39 @@ def task_result(
                 )
             )
             continue
+        state = (
+            "DONE"
+            if not values or values[cast(str, requirement["key"])]
+            else "PARTIAL"
+            if basis and outputs
+            else "NOT_RUN"
+        )
         rows.append(
             dict(
                 ref=planned["ref"],
-                state="DONE" if not values or values[cast(str, requirement["key"])] else "NOT_RUN",
+                state=state,
                 basis_refs=basis,
                 artifact_refs=outputs,
                 reason="Bound CONTRACT/PURE method completed."
-                if not values or values[cast(str, requirement["key"])]
-                else "NOT_RUN: "
+                if state == "DONE"
+                else state
+                + ": "
                 + cast(str, requirement["key"])
                 + " (qualified early return)."
                 + (" Optional coverage gap." if not planned["required"] else ""),
             )
         )
-    from .prompt_bundle import composer_revision, evidence_minimum, evidence_outputs
+    from .prompt_bundle import (
+        EVIDENCE_COMPOSER_REVISION,
+        composer_revision,
+        evidence_minimum,
+        evidence_outputs,
+    )
 
-    current = mapping(prompt_bundle["payload"])["composer_revision"] == composer_revision()
+    current = mapping(prompt_bundle["payload"])["composer_revision"] in {
+        composer_revision(),
+        EVIDENCE_COMPOSER_REVISION,
+    }
     proof_refs = evidence_outputs(procedure, artifacts)
     proof_gaps, proof_complete = evidence_minimum(procedure, proof_refs)
     result: Data = {

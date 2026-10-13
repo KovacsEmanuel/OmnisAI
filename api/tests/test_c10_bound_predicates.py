@@ -9,6 +9,239 @@ from omnis.modules.settings.catalog_models import CatalogError
 from test_contract_method_checks import native_case, obj, rebind_mutation, reseal_assignment, rows
 
 
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("prefix", [False, True])
+def test_two_step_requirement_real_source_full_and_partial(compact: bool, prefix: bool) -> None:
+    from omnis.modules.settings import candidate_store as records
+
+    case = native_case(
+        predicates=True,
+        compact=compact,
+        two_step_requirement=True,
+        return_predicate="preserve-input-context" if prefix else "build-surface-map",
+        criterion_ids=[str(uuid4()), str(uuid4())],
+    )
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    receipts = [r for r in emitted if r["kind"] == "contract-tool-receipt"]
+    artifacts = [r for r in emitted if r["kind"] == "contract-artifact"]
+    assert len(emitted) == (4 if prefix else 6)
+    assert [obj(r["payload"])["step_id"] for r in receipts] == (
+        [None, "normalize-operations"] if prefix else [None, "normalize-operations", "build-map"]
+    )
+    body = obj(emitted[0]["payload"])
+    methods = [obj(r) for r in rows(body["method_results"])]
+    assert [obj(r["ref"])["requirement_key"] for r in methods] == [
+        "normalize-records",
+        "build-surface-map",
+        "preserve-input-context",
+    ]
+    assert [r["state"] for r in methods] == (
+        ["PARTIAL", "NOT_RUN", "DONE"] if prefix else ["DONE"] * 3
+    )
+    assert methods[0]["basis_refs"] == [records.reference(r) for r in receipts[1:]]
+    assert methods[0]["artifact_refs"] == [records.reference(a) for a in artifacts]
+    assert methods[2]["basis_refs"] == [records.reference(receipts[1])]
+    assert methods[2]["artifact_refs"] == [records.reference(case.original)]
+    assert body["gaps"] == (
+        [
+            "PARTIAL: normalize-records (qualified early return).",
+            "NOT_RUN: build-surface-map (qualified early return).",
+        ]
+        if prefix
+        else []
+    )
+    assert body["status"] == ("INCONCLUSIVE" if prefix else "SUCCEEDED")
+    assert body["evidence_refs"] == []
+    assert body["action_refs"] == [records.reference(r) for r in receipts[1:]]
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == ("INCOMPLETE" if prefix else "COMPLETE")
+    assert checked["checked_results"] == methods
+    assert checked["gap_refs"] == ([r["ref"] for r in methods[:2]] if prefix else [])
+    assert obj(case.check(receive_only=True)["payload"]) == checked
+    assert all(obj(r)["proposed_outcome"] == "BLOCKED" for r in rows(body["criterion_results"]))
+
+    from omnis_hermes.contract_method import predicate_values
+    from omnis_hermes.managed_admission_contract import validate_response
+
+    from omnis.modules.tasks import managed_contract
+
+    assert predicate_values(
+        case.brief, case.bound, case.original, receipts, artifacts, prompt_bundle=case.prompt_bundle
+    ) == {
+        "normalize-records": not prefix,
+        "build-surface-map": not prefix,
+        "preserve-input-context": True,
+    }
+    binding = obj(case.binding["payload"])
+    final = {
+        "protocol": "omnis-managed-admission-v4",
+        "status": body["status"],
+        "reason": "CONTRACT_PURE",
+        "ticket": binding["ticket"],
+        "manifest_ref": records.reference(obj(case.stage["manifest"])),
+        "binding_ref": records.reference(case.binding),
+        "native_root_id": binding["native_root_id"],
+        "entries": binding["entries"],
+        "executions": [case.execution],
+    }
+    assert validate_response(final) == final
+    assert managed_contract.validate_final(final, case.stage["manifest"], case.binding) == final
+
+
+@pytest.mark.parametrize(
+    "attack", ["missing", "duplicate", "reversed", "foreign-schema", "foreign-step", "other-key"]
+)
+def test_two_step_requirement_closure_remains_finite(attack: str) -> None:
+    from omnis.modules.tasks.managed_contract import predicate_closure as api_closure
+
+    case = native_case(predicates=True)
+    from omnis_hermes.prompt_bundle import predicate_closure as native_closure
+
+    procedure = deepcopy(obj(obj(case.bound["payload"])["resolved_procedure"]))
+    steps = [obj(s) for s in rows(procedure["probe"])]
+    requirement = obj(rows(procedure["method_requirements"])[0])
+    requirement["step_ids"] = [s["id"] for s in steps]
+    requirement["artifact_schema_refs"] = [s["output_schema_ref"] for s in steps]
+    if attack == "missing":
+        rows(requirement["artifact_schema_refs"]).pop()
+    elif attack == "duplicate":
+        rows(requirement["artifact_schema_refs"])[1] = rows(requirement["artifact_schema_refs"])[0]
+    elif attack == "reversed":
+        rows(requirement["step_ids"]).reverse()
+        rows(requirement["artifact_schema_refs"]).reverse()
+    elif attack == "foreign-schema":
+        rows(requirement["artifact_schema_refs"])[1] = procedure["input_schema_ref"]
+    elif attack == "foreign-step":
+        rows(requirement["step_ids"])[1] = "parse-capture"
+    else:
+        other = obj(rows(procedure["method_requirements"])[1])
+        other["step_ids"] = requirement["step_ids"]
+        other["artifact_schema_refs"] = requirement["artifact_schema_refs"]
+    with pytest.raises(CatalogError, match="^BOUND_PREDICATE_UNAVAILABLE$"):
+        api_closure(procedure)
+    with pytest.raises(ValueError):
+        native_closure(procedure)
+    # The same malformed declaration is resealed into a complete assignment,
+    # not only presented to a helper; native refuses before identity/access.
+    import json
+
+    from omnis_hermes.contract_method import assignment
+
+    from omnis.modules.settings.catalog_schema import canonical
+    from omnis.modules.tasks import managed_composition
+
+    stage = deepcopy(case.stage)
+    payload = obj(obj(rows(stage["compositions"])[0])["payload"])
+    sections = rows(json.loads(str(payload["text"])))
+    obj(obj(obj(sections[3])["record"])["payload"])["resolved_procedure"] = procedure
+    reseal_assignment(stage, sections, case.prompt_bundle)
+    with pytest.raises(ValueError):
+        assignment(canonical(stage))
+    manifest = obj(stage["manifest"])
+    with pytest.raises(CatalogError):
+        managed_composition.validate(
+            rows(stage["compositions"])[0], rows(obj(manifest["payload"])["entries"])[0], manifest
+        )
+
+
+@pytest.mark.parametrize("prefix", [False, True])
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "forged-partial",
+        "done",
+        "rows",
+        "basis",
+        "artifacts",
+        "truncated",
+        "swapped-artifacts",
+        "step-id",
+        "duplicate-receipt",
+        "bad-output",
+    ],
+)
+def test_two_step_requirement_claims_cannot_replace_actual_receipts(
+    prefix: bool, attack: str
+) -> None:
+    case = native_case(
+        predicates=True,
+        two_step_requirement=True,
+        return_predicate="preserve-input-context" if prefix else "build-surface-map",
+    )
+    emitted = rows(case.execution["records"])
+    body = obj(obj(emitted[0])["payload"])
+    methods = rows(body["method_results"])
+    if attack == "forged-partial":
+        obj(methods[1 if prefix else 0])["state"] = "PARTIAL"
+    elif attack == "done":
+        obj(methods[0])["state"] = "DONE" if prefix else "NOT_RUN"
+    elif attack == "rows":
+        methods.pop()
+    elif attack == "basis":
+        obj(methods[0])["basis_refs"] = []
+    elif attack == "artifacts":
+        obj(methods[0])["artifact_refs"] = []
+    elif attack == "truncated":
+        emitted.pop()
+    elif attack == "step-id":
+        obj(obj(emitted[2])["payload"])["step_id"] = "build-map"
+    elif attack == "duplicate-receipt":
+        emitted[2] = deepcopy(emitted[1])
+    elif attack == "swapped-artifacts":
+        if prefix:
+            obj(obj(emitted[-1])["payload"])["schema_ref"] = obj(
+                rows(obj(obj(case.bound["payload"])["resolved_procedure"])["probe"])[1]
+            )["output_schema_ref"]
+        else:
+            emitted[-2], emitted[-1] = emitted[-1], emitted[-2]
+    else:
+        obj(obj(emitted[-1])["payload"])["value"] = {"operations": True}
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check()
+
+
+@pytest.mark.parametrize("prefix", [False, True])
+@pytest.mark.parametrize("fault", ["checker", "schema", "not-applicable"])
+def test_two_step_requirement_unknown_and_noapp_do_not_become_success(
+    prefix: bool, fault: str
+) -> None:
+    from omnis.modules.settings import candidate_store as records
+
+    case = native_case(
+        predicates=True,
+        two_step_requirement=True,
+        empty=fault == "not-applicable",
+        applies_expected=True if fault == "not-applicable" else None,
+        return_predicate="preserve-input-context" if prefix else "build-surface-map",
+    )
+    if fault == "checker":
+        payload = obj(case.checker["payload"])
+        case.checker = records.envelope("method-checker", {**payload, "code_digest": "0" * 64})
+    elif fault == "schema":
+        case.schemas = {}
+    body = obj(obj(rows(case.execution["records"])[0])["payload"])
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == ("INCOMPLETE" if fault == "not-applicable" else "UNKNOWN")
+    assert checked["checked_results"] == body["method_results"]
+    if fault == "not-applicable":
+        assert obj(rows(body["method_results"])[1])["state"] == "NOT_APPLICABLE"
+        assert body["status"] == "INCONCLUSIVE"
+    else:
+        assert checked["gap_refs"] == [obj(r)["ref"] for r in rows(body["method_results"])]
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_old_evidence_pin_never_authorizes_two_step_requirement(compact: bool) -> None:
+    with pytest.raises(CatalogError if compact else ValueError):
+        native_case(
+            predicates=True,
+            compact=compact,
+            two_step_requirement=True,
+            composer_pin="c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        )
+
+
 @pytest.mark.parametrize(
     "early_return,applicability",
     [
@@ -18,6 +251,8 @@ from test_contract_method_checks import native_case, obj, rebind_mutation, resea
         (False, "evidence-full"),
         (True, "evidence-optional-prefix"),
         (True, "evidence-required-prefix"),
+        (False, "partial-requirement-full"),
+        (True, "partial-requirement-prefix"),
     ],
 )
 def test_native_release_oracle_keeps_backend_unknown_separate(
@@ -32,9 +267,15 @@ def test_native_release_oracle_keeps_backend_unknown_separate(
         predicates=True,
         evidence=evidence,
         map_required=applicability != "evidence-optional-prefix",
+        two_step_requirement=applicability
+        in {"partial-requirement-full", "partial-requirement-prefix"},
         empty=applicability == "not-applicable",
         applies_expected=True if applicability in {"unknown", "not-applicable"} else None,
-        return_predicate="normalize-records" if early_return else "build-surface-map",
+        return_predicate="preserve-input-context"
+        if applicability == "partial-requirement-prefix"
+        else "normalize-records"
+        if early_return
+        else "build-surface-map",
     )
     raw_status = obj(obj(rows(case.execution["records"])[0])["payload"])["status"]
     if applicability == "unknown":
@@ -362,6 +603,58 @@ def test_invalidation_historical_pair_is_receive_only_without_new_semantics(
     assert checked["status"] == ("INCOMPLETE" if prefix else "COMPLETE")
     assert len(rows(obj(case.brief["payload"])["done_when"])) == 3
     assert obj(obj(rows(case.execution["records"])[0])["payload"])["evidence_refs"] == []
+
+
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("prefix", [False, True])
+def test_evidence_historical_pair_retains_receive_only_exact_semantics(
+    compact: bool, prefix: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        compact=compact,
+        evidence=True,
+        invalidation=True,
+        composer_pin="c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        map_required=not prefix,
+        return_predicate="normalize-records" if prefix else "build-surface-map",
+    )
+    case.checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "semantics": SEMANTICS,
+            "code_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+        },
+    )
+    from omnis_hermes import contract_method
+
+    def forbidden(*args: object, **kwargs: object) -> object:
+        raise AssertionError("historical checker reexecuted method")
+
+    monkeypatch.setattr(contract_method, "run_handler", forbidden)
+    monkeypatch.setattr("omnis.modules.tasks.module_registry.run_handler", forbidden)
+    monkeypatch.setattr("omnis.modules.settings.skill_catalog.evaluate_pure", forbidden)
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"
+    checked = obj(case.check(receive_only=True)["payload"])
+    body = obj(obj(rows(case.execution["records"])[0])["payload"])
+    assert checked["status"] == "COMPLETE" and body["status"] == "SUCCEEDED"
+    assert checked["checked_results"] == body["method_results"]
+    assert [obj(r)["state"] for r in rows(body["method_results"])] == (
+        ["DONE", "NOT_RUN", "DONE"] if prefix else ["DONE"] * 3
+    )
+    assert obj(case.check(receive_only=True)["payload"]) == checked
+    changed = obj(obj(case.bound["payload"])["resolved_procedure"])
+    requirement = obj(rows(changed["method_requirements"])[0])
+    steps = [obj(s) for s in rows(changed["probe"])]
+    requirement["step_ids"] = [s["id"] for s in steps]
+    requirement["artifact_schema_refs"] = [s["output_schema_ref"] for s in steps]
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check(receive_only=True)
 
 
 @pytest.mark.parametrize("attack", ["evidence", "optional"])

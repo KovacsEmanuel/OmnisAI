@@ -60,6 +60,7 @@ PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa931108
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 INVALIDATION_COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+EVIDENCE_COMPOSER_REVISION = "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -532,9 +533,16 @@ def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
         name = key(requirement["key"])
         step, source = RECORD_PREDICATES[name]
         schema = p["input_schema_ref"] if source == "INPUT" else steps[step]["output_schema_ref"]
+        step_ids = [step]
+        schemas = [schema]
+        if name == "normalize-records" and requirement["step_ids"] == list(steps):
+            step_ids = list(steps)
+            schemas = [s["output_schema_ref"] for s in steps.values()]
+            if len({canonical(s) for s in schemas}) != 2:
+                raise reject()
         if (
-            requirement["step_ids"] != [step]
-            or requirement["artifact_schema_refs"] != [schema]
+            requirement["step_ids"] != step_ids
+            or requirement["artifact_schema_refs"] != schemas
             or type(requirement["required"]) is not bool
         ):
             raise reject()
@@ -570,6 +578,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             composer_revision(),
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -588,10 +597,12 @@ def validate_predicates(
             raise reject()
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
         if procedure["invalidation_predicate_ids"] and (
-            version != 4 or pin not in {composer_revision(), INVALIDATION_COMPOSER_REVISION}
+            version != 4
+            or pin
+            not in {composer_revision(), EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
         ):
             raise reject()
-        if pin != composer_revision() and (
+        if pin not in {composer_revision(), EVIDENCE_COMPOSER_REVISION} and (
             procedure["evidence_requirements"]
             or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
             or (
@@ -605,11 +616,22 @@ def validate_predicates(
             )
         ):
             raise reject()
+        if (
+            pin != composer_revision()
+            and procedure["key"] == "map-records"
+            and any(
+                mapping(req)["step_ids"] != [RECORD_PREDICATES[key(mapping(req)["key"])][0]]
+                for req in sequence(procedure["method_requirements"])
+                if mapping(req)["key"] in RECORD_PREDICATES
+            )
+        ):
+            raise reject()
         required = (
             version == 4
             and pin
             in {
                 composer_revision(),
+                EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
@@ -622,6 +644,7 @@ def validate_predicates(
             or pin
             not in {
                 composer_revision(),
+                EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
@@ -643,7 +666,7 @@ def validate_predicates(
                 raise reject()
     expected_done = (
         [name for name, requirement in closure.items() if requirement["required"]]
-        if prompt_bundle is not None and pin == composer_revision()
+        if prompt_bundle is not None and pin in {composer_revision(), EVIDENCE_COMPOSER_REVISION}
         else list(closure)
     )
     if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done or not b[
@@ -745,6 +768,7 @@ def _brief(
         "composer_revision"
     ] not in {
         composer_revision(),
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
@@ -761,14 +785,19 @@ def _brief(
     if p["preconditions"] and (
         composition_version != 4
         or mapping(bundle["payload"])["composer_revision"]
-        not in {composer_revision(), INVALIDATION_COMPOSER_REVISION, PRECONDITION_COMPOSER_REVISION}
+        not in {
+            composer_revision(),
+            EVIDENCE_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
+        }
     ):
         raise reject()
     require_preconditions(p, None if capture is None else capture["input"])
     if p["invalidation_predicate_ids"] and (
         composition_version != 4
         or mapping(bundle["payload"])["composer_revision"]
-        not in {composer_revision(), INVALIDATION_COMPOSER_REVISION}
+        not in {composer_revision(), EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
     ):
         raise reject()
     require_not_invalidated(p, None if capture is None else capture["input"])
@@ -791,6 +820,7 @@ def _brief(
         bundle["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
@@ -1157,6 +1187,7 @@ def _material(
         actual_version = 4
     revisions = {
         composer_revision(),
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
@@ -1214,6 +1245,7 @@ def _material(
         or b["composer_revision"]
         not in {
             composer_revision(),
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -1351,6 +1383,7 @@ def validate_composition(
         mapping(payload["prompt_bundle"])["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,

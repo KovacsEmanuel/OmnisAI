@@ -486,6 +486,8 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "evidence-full"),
         (False, True, False, False, True, "evidence-optional-prefix"),
         (False, True, False, False, True, "evidence-required-prefix"),
+        (False, True, False, False, False, "partial-requirement-full"),
+        (False, True, False, False, True, "partial-requirement-prefix"),
     ],
     ids=[
         "support-zero",
@@ -503,6 +505,8 @@ class PreparationPrerequisite(RuntimeClient):
         "evidence-full",
         "evidence-optional-prefix",
         "evidence-required-prefix",
+        "partial-requirement-full",
+        "partial-requirement-prefix",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -549,7 +553,17 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "on_missing": "INCONCLUSIVE",
                 }
             ]
-            if applicability.startswith("evidence-"):
+            if applicability.startswith("partial-requirement-"):
+                requirements = [mapping(r) for r in sequence(authored["method_requirements"])]
+                requirements[0]["step_ids"] = ["normalize-operations", "build-map"]
+                requirements[0]["artifact_schema_refs"] = deepcopy(
+                    [
+                        *sequence(requirements[0]["artifact_schema_refs"]),
+                        *sequence(requirements[1]["artifact_schema_refs"]),
+                    ]
+                )
+                authored["method_requirements"] = requirements
+            elif applicability.startswith("evidence-"):
                 authored["method_requirements"] = [
                     {
                         **mapping(raw),
@@ -838,7 +852,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             )
             actual_build = BuildSource.build
             if early_return:
-                assignment["return_predicate_id"] = "normalize-records"
+                assignment["return_predicate_id"] = (
+                    "preserve-input-context"
+                    if applicability == "partial-requirement-prefix"
+                    else "normalize-records"
+                )
 
             def measured_build(
                 source: BuildSource,
@@ -922,7 +940,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     *([] if applicability == "evidence-optional-prefix" else ["build-surface-map"]),
                 ]
                 assert [mapping(r)["predicate_id"] for r in sequence(body["return_when"])] == [
-                    "normalize-records" if early_return else "build-surface-map"
+                    "preserve-input-context"
+                    if applicability == "partial-requirement-prefix"
+                    else "normalize-records"
+                    if early_return
+                    else "build-surface-map"
                 ]
                 checkpoint(
                     bound_predicate_producer="QUALIFIED_NONEMPTY",
@@ -1058,7 +1080,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
 
             monkeypatch.setattr(host_module.NativePeer, "handshake", observed_handshake)
             owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
-            if applicability is not None and applicability.startswith("evidence-"):
+            if applicability is not None and applicability.startswith(
+                ("evidence-", "partial-requirement-")
+            ):
                 # Same owner, kernel peer and private capability; no response emitter.
                 # Establish the listener before launch, not inside the native grant.
                 public_control = await LocalControl(
@@ -1521,11 +1545,47 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     methods = [
                         mapping(r) for r in sequence(mapping(result["payload"])["method_results"])
                     ]
-                    assert [m["state"] for m in methods] == ["DONE", "NOT_RUN", "DONE"]
+                    assert [m["state"] for m in methods] == [
+                        "PARTIAL" if applicability == "partial-requirement-prefix" else "DONE",
+                        "NOT_RUN",
+                        "DONE",
+                    ]
                     assert mapping(result["payload"])["status"] == (
                         "INCONCLUSIVE" if incomplete else "SUCCEEDED"
                     )
-                    assert mapping(checks[0]["payload"])["gap_refs"] == [methods[1]["ref"]]
+                    assert mapping(checks[0]["payload"])["gap_refs"] == (
+                        [m["ref"] for m in methods[:2]]
+                        if applicability == "partial-requirement-prefix"
+                        else [methods[1]["ref"]]
+                    )
+                if applicability is not None and applicability.startswith("partial-requirement-"):
+                    from omnis.modules.settings import candidate_store as stored
+
+                    body = mapping(result["payload"])
+                    methods = [mapping(r) for r in sequence(body["method_results"])]
+                    assert [m["state"] for m in methods] == (
+                        ["PARTIAL", "NOT_RUN", "DONE"] if early_return else ["DONE"] * 3
+                    )
+                    assert methods[0]["basis_refs"] == [stored.reference(r) for r in ordered[1:]]
+                    assert methods[0]["artifact_refs"] == [
+                        mapping(r["payload"])["output_ref"] for r in ordered[1:]
+                    ]
+                    assert methods[2]["artifact_refs"] == [original["input_ref"]]
+                    assert body["gaps"] == (
+                        [
+                            "PARTIAL: normalize-records (qualified early return).",
+                            "NOT_RUN: build-surface-map (qualified early return).",
+                        ]
+                        if early_return
+                        else []
+                    )
+                    assert body["evidence_refs"] == []
+                    assert mapping(checks[0]["payload"])["checked_results"] == methods
+                    checkpoint(
+                        partial_requirement_method_results=methods,
+                        partial_requirement_gaps=body["gaps"],
+                        partial_requirement_check=expected_check,
+                    )
                 if applicability is not None and applicability.startswith("evidence-"):
                     from omnis.modules.settings import candidate_store as stored
 

@@ -44,10 +44,11 @@ METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b
 COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
-COMPOSER_REVISION = "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
+COMPOSER_REVISION = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 INVALIDATION_COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+EVIDENCE_COMPOSER_REVISION = "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
 PROVENANCE = [
     {
         "repository": "https://github.com/usestrix/strix",
@@ -446,6 +447,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -492,6 +494,7 @@ def validate(
     )
     if compact and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
@@ -502,6 +505,7 @@ def validate(
         raise CatalogError("COMPOSITION_REJECTED")
     revisions = {
         COMPOSER_REVISION,
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
@@ -538,6 +542,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -551,6 +556,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -568,19 +574,26 @@ def validate(
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
     if procedure["invalidation_predicate_ids"] and (
         not method_execution
-        or metadata["composer_revision"] not in {COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+        or metadata["composer_revision"]
+        not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     if procedure["preconditions"] and (
         not method_execution
         or metadata["composer_revision"]
-        not in {COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION, PRECONDITION_COMPOSER_REVISION}
+        not in {
+            COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
+            PRECONDITION_COMPOSER_REVISION,
+        }
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     if any(
         mapping(r)["applies_if"] for r in sequence(procedure["method_requirements"])
     ) and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,

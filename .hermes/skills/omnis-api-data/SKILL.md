@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.21
+version: 0.1.22
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -71,6 +71,8 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Run long private-DB targets as tracked background jobs with pinned tool paths and exact-session readback. A foreground executor deadline can terminate the gate owner before its cleanup receipt, leaving an active synthetic fixture; never relabel this as cleanup or adopt/delete that historical fixture to force a green test.
 
 ## Optional consumers and cross-runtime admission
+
+When authoring a fixture, account for defensive container copies: `managed_contract.mapping` returns a new dict, so reassign changed requirement rows into the authored payload before serializing. When sharing resolved schema refs across YAML sections, deepcopy the new section rather than retaining aliases to the old section; the real parser rejects YAML anchors/aliases. Confirm the intended serialized declaration reaches the targeted RED guard before changing product code.
 
 Keep optional catalog/source attestation out of ordinary DTO, API, supervisor and transport imports. A filesystem-only fingerprint reader can break ZIP-wheel startup even when source tests pass. Use operation-local imports or TYPE_CHECKING where appropriate, then test fresh no-opt-in imports and the real wheel factory; do not weaken the source reader to hide the coupling.
 

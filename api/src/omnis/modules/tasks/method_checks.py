@@ -111,7 +111,6 @@ def _procedure(bound: Data, original: Data, actions: list[Data]) -> tuple[Data, 
         "requested_capabilities",
         "identity_requirements",
         "business_rule_refs",
-        "evidence_requirements",
         "stop_reason_ids",
     ):
         if procedure[key] != []:
@@ -213,10 +212,7 @@ def _receipts(
     body = contract.mapping(brief["payload"])
     if (
         len(published) != 2 + count * 2
-        or (
-            partial
-            and (count != 1 or len(steps) != 2 or not body["done_when"] or not body["return_when"])
-        )
+        or (partial and (count != 1 or len(steps) != 2 or not body["return_when"]))
         or count > len(steps)
     ):
         raise CatalogError(RECEIPT)
@@ -282,6 +278,8 @@ def _results(
     receipts: list[Data],
     artifacts: list[Data],
     original: Data,
+    *,
+    optional_completion: bool,
 ) -> list[object]:
     body = _exact(
         result["payload"],
@@ -315,6 +313,8 @@ def _results(
             if field == "consumed_input_refs"
             else [records.reference(r) for r in receipts[1:]]
             if field == "action_refs"
+            else contract.evidence_outputs(procedure, artifacts)
+            if field == "evidence_refs"
             else criteria
             if field == "criterion_results"
             else []
@@ -336,8 +336,6 @@ def _results(
     for raw, raw_plan, raw_requirement in zip(results, plan, requirements, strict=True):
         row = _exact(raw, {"ref", "state", "basis_refs", "artifact_refs", "reason"}, CONFLICT)
         requirement = contract.mapping(raw_requirement)
-        if requirement["evidence_kinds"] != []:
-            raise CatalogError(UNSUPPORTED)
         steps = contract.sequence(requirement["step_ids"])
         schemas = _refs(requirement["artifact_schema_refs"], "schema")
         if (
@@ -370,7 +368,10 @@ def _results(
         contract.text(row["reason"])
         if not done:
             reason = (
-                "NOT_RUN: " + contract.text(requirement["key"], 128) + " (qualified early return)."
+                "NOT_RUN: "
+                + contract.text(requirement["key"], 128)
+                + " (qualified early return)."
+                + (" Optional coverage gap." if not contract.mapping(raw_plan)["required"] else "")
             )
             _same(row["reason"], reason, CONFLICT)
             gaps.append(reason)
@@ -395,8 +396,16 @@ def _results(
             ],
             CONFLICT,
         )
-    _same(body["gaps"], gaps, CONFLICT)
-    _same(body["status"], "INCONCLUSIVE" if gaps else "SUCCEEDED", CONFLICT)
+    proof_gaps, proof_complete = contract.evidence_minimum(
+        procedure, contract.evidence_outputs(procedure, artifacts)
+    )
+    _same(body["gaps"], gaps + proof_gaps, CONFLICT)
+    complete = all(
+        (optional_completion and not contract.mapping(planned)["required"])
+        or contract.mapping(row)["state"] == "DONE"
+        for planned, row in zip(plan, results, strict=True)
+    )
+    _same(body["status"], "SUCCEEDED" if complete and proof_complete else "INCONCLUSIVE", CONFLICT)
     return results
 
 
@@ -632,9 +641,20 @@ def check_execution(
             if error.reason != "METHOD_SCHEMA_UNAVAILABLE":
                 raise
             schema_unavailable = True
+        from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
+
+        optional_completion = (
+            contract.mapping(prompt_bundle["payload"])["composer_revision"] == COMPOSER_REVISION
+        )
         try:
             checked_results = _results(
-                result, checked_brief, procedure, receipts, artifacts, original
+                result,
+                checked_brief,
+                procedure,
+                receipts,
+                artifacts,
+                original,
+                optional_completion=optional_completion,
             )
         except CatalogError as error:
             if error.reason == UNSUPPORTED:
@@ -649,7 +669,16 @@ def check_execution(
             prompt_bundle=prompt_bundle,
             composition_version=composition_version,
         )
-        complete = complete and all(contract.mapping(r)["state"] == "DONE" for r in checked_results)
+        plan = contract.sequence(contract.mapping(body["method_plan"])["requirements"])
+        complete = complete and all(
+            (optional_completion and not contract.mapping(planned)["required"])
+            or contract.mapping(row)["state"] == "DONE"
+            for planned, row in zip(plan, checked_results, strict=True)
+        )
+        proof_gaps, proof_complete = contract.evidence_minimum(
+            procedure, contract.evidence_outputs(procedure, artifacts)
+        )
+        complete = complete and proof_complete
         from omnis.modules.tasks.method_checker_identity import (
             APPLICABILITY_HISTORICAL,
             FULL_PREDICATE_HISTORICAL,
@@ -673,8 +702,15 @@ def check_execution(
                 "checked_results": checked_results,
                 "gap_refs": [
                     contract.mapping(r)["ref"]
-                    for r in checked_results
-                    if uncertain or contract.mapping(r)["state"] != "DONE"
+                    for index, r in enumerate(checked_results)
+                    if uncertain
+                    or contract.mapping(r)["state"] != "DONE"
+                    or (
+                        proof_gaps
+                        and contract.mapping(
+                            contract.sequence(procedure["method_requirements"])[index]
+                        )["evidence_kinds"]
+                    )
                 ],
                 "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility."
                 if checker_unavailable
@@ -682,6 +718,8 @@ def check_execution(
                 if schema_unavailable
                 else "Exact bound CONTRACT/PURE receipts and published requirements checked."
                 if complete
+                else "Procedure evidence minimum not met; coverage gap retained."
+                if proof_gaps
                 else "Bound input predicate is NOT_APPLICABLE; all method steps executed."
                 if len(artifacts) == len(steps)
                 and contract.mapping(checked_checker["payload"])["code_digest"]

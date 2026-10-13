@@ -231,9 +231,7 @@ def validate_response(value: object) -> dict[str, object]:
         ):
             raise ValueError("Invalid CONTRACT native execution binding")
         records = execution["records"]
-        if type(records) is not list or len(records) not in (
-            (4, 6) if value["status"] == "INCONCLUSIVE" else (6, 8)
-        ):
+        if type(records) is not list or len(records) not in (4, 6, 8):
             raise ValueError("Invalid CONTRACT records")
         kinds = [
             obj(r, {"schema_version", "kind", "id", "revision", "payload", "digest"})["kind"]
@@ -268,7 +266,6 @@ def validate_response(value: object) -> dict[str, object]:
         if (
             result["status"] != value["status"]
             or result["method_review"] is not None
-            or (value["status"] == "SUCCEEDED" and result["gaps"] != [])
             or (value["status"] == "INCONCLUSIVE" and not result["gaps"])
             or result["usage"]
             != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}

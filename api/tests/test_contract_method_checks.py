@@ -103,6 +103,11 @@ def native_case(
     applies_expected: bool | None = None,
     precondition_expected: bool | None = None,
     invalidation: bool = False,
+    evidence: bool = False,
+    map_required: bool | None = None,
+    all_optional: bool = False,
+    evidence_minimum: int | None = None,
+    evidence_mandatory: bool = True,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -246,10 +251,37 @@ def native_case(
             ]
         if invalidation:
             procedure["invalidation_predicate_ids"] = ["contract.records-empty"]
+        if all_optional:
+            for raw in rows(procedure["method_requirements"]):
+                obj(raw)["required"] = False
+            for raw in rows(obj(obj(brief["payload"])["method_plan"])["requirements"]):
+                obj(raw)["required"] = False
+        if map_required is not None:
+            obj(rows(procedure["method_requirements"])[1])["required"] = map_required
+            obj(rows(obj(obj(brief["payload"])["method_plan"])["requirements"])[1])["required"] = (
+                map_required
+            )
+        if evidence_minimum is not None:
+            procedure["evidence_requirements"] = [
+                {
+                    "kind": "contract-artifact",
+                    "minimum": evidence_minimum,
+                    "mandatory": evidence_mandatory,
+                }
+            ]
+        if evidence:
+            for requirement in [obj(r) for r in rows(procedure["method_requirements"])][:2]:
+                requirement["evidence_kinds"] = ["contract-artifact"]
+            obj(brief["payload"])["required_evidence"] = [
+                obj(r)["ref"]
+                for r in rows(obj(obj(brief["payload"])["method_plan"])["requirements"])
+                if obj(r)["required"]
+            ]
         if predicates:
             obj(brief["payload"])["done_when"] = [
                 {"bound_procedure_ref": records.reference(bound), "predicate_id": obj(r)["key"]}
                 for r in rows(procedure["method_requirements"])
+                if composer_pin is not None or obj(r)["required"]
             ]
             obj(brief["payload"])["return_when"] = [
                 {

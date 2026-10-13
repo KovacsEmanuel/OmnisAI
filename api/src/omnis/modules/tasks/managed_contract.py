@@ -161,6 +161,89 @@ def compile_method_plan(bound: object, original: object = None) -> list[dict[str
     return rows
 
 
+def evidence_declaration(procedure: object) -> None:
+    """Finite inert proof: authenticated PURE output artifacts, never input refs."""
+    p = mapping(procedure)
+    requirements = [mapping(r) for r in sequence(p["method_requirements"])]
+    declared = sequence(p["evidence_requirements"])
+    bearing = [r for r in requirements if sequence(r["evidence_kinds"])]
+    if not bearing and not declared:
+        return
+    if p["key"] != "map-records" or (declared and not bearing):
+        raise CatalogError("METHOD_UNSUPPORTED")
+    steps = [mapping(s) for s in sequence(p["probe"])]
+    for requirement in bearing:
+        matches = [s for s in steps if requirement["step_ids"] == [s["id"]]]
+        if (
+            any(type(kind) is not str for kind in sequence(requirement["evidence_kinds"]))
+            or requirement["evidence_kinds"] != ["contract-artifact"]
+            or requirement["key"] not in ("normalize-records", "build-surface-map")
+            or len(matches) != 1
+            or requirement["artifact_schema_refs"] != [matches[0]["output_schema_ref"]]
+        ):
+            raise CatalogError("METHOD_UNSUPPORTED")
+    if len(declared) > 1:
+        raise CatalogError("METHOD_UNSUPPORTED")
+    for raw in declared:
+        row = exact(raw, {"kind", "minimum", "mandatory"})
+        if (
+            type(row["kind"]) is not str
+            or row["kind"] != "contract-artifact"
+            or type(row["mandatory"]) is not bool
+        ):
+            raise CatalogError("METHOD_UNSUPPORTED")
+        integer(row["minimum"], 1, 128)
+
+
+def evidence_outputs(
+    procedure: object, artifacts: list[dict[str, object]]
+) -> list[dict[str, object]]:
+    """Select verified same-attempt outputs; caller validates receipts/bytes first."""
+    p = mapping(procedure)
+    evidence_declaration(p)
+    schemas = [
+        s
+        for raw in sequence(p["method_requirements"])
+        if (r := mapping(raw))["evidence_kinds"]
+        for s in sequence(r["artifact_schema_refs"])
+    ]
+    return [
+        records.reference(a)
+        for a in artifacts
+        if p["evidence_requirements"] or mapping(a["payload"])["schema_ref"] in schemas
+    ]
+
+
+def evidence_minimum(
+    procedure: object, verified_outputs: list[dict[str, object]]
+) -> tuple[list[str], bool]:
+    """Count only outputs already verified against the exact authenticated chain."""
+    p = mapping(procedure)
+    evidence_declaration(p)
+    gaps: list[str] = []
+    complete = True
+    for raw in sequence(p["evidence_requirements"]):
+        row = mapping(raw)
+        minimum = integer(row["minimum"], 1, 128)
+        if len(verified_outputs) < minimum:
+            gaps.append(
+                f"EVIDENCE_MINIMUM: contract-artifact ({len(verified_outputs)}/{minimum}); coverage gap."
+            )
+            complete = complete and not row["mandatory"]
+    return gaps, complete
+
+
+def required_evidence(bound: object) -> list[dict[str, object]]:
+    b = record(bound, "bound-procedure")
+    p = mapping(mapping(b["payload"])["resolved_procedure"])
+    evidence_declaration(p)
+    return [
+        {"bound_procedure_ref": records.reference(b), "requirement_key": r["key"]}
+        for raw in sequence(p["method_requirements"])
+        if (r := mapping(raw))["required"] and r["evidence_kinds"]
+    ]
+
+
 def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
     p = mapping(procedure)
     if not {"key", "input_schema_ref", "probe", "method_requirements"} <= set(p):
@@ -207,12 +290,11 @@ def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
         if (
             requirement["step_ids"] != [step]
             or requirement["artifact_schema_refs"] != [schema]
-            or requirement["evidence_kinds"] != []
             or type(requirement["required"]) is not bool
-            or requirement["required"] is not (source == "OUTPUT")
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         result[name] = requirement
+    evidence_declaration(p)
     return result
 
 
@@ -238,6 +320,7 @@ def validate_predicates(
             COMPACT_COMPOSER_REVISION,
             COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
             LEGACY_COMPOSER_REVISION,
             METHOD_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -254,6 +337,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             APPLICABILITY_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
@@ -270,13 +354,30 @@ def validate_predicates(
         if type(pin) is not str or pin not in revisions:
             raise CatalogError("BOUND_PREDICATE_GAP")
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
-        if procedure["invalidation_predicate_ids"] and (version != 4 or pin != COMPOSER_REVISION):
+        if procedure["invalidation_predicate_ids"] and (
+            version != 4 or pin not in {COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+        ):
+            raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+        if pin != COMPOSER_REVISION and (
+            procedure["evidence_requirements"]
+            or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
+            or (
+                procedure["key"] == "map-records"
+                and any(
+                    mapping(r)["required"]
+                    is not (RECORD_PREDICATES[text(mapping(r)["key"])][1] == "OUTPUT")
+                    for r in sequence(procedure["method_requirements"])
+                    if mapping(r)["key"] in RECORD_PREDICATES
+                )
+            )
+        ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         required = (
             version == 4
             and pin
             in {
                 COMPOSER_REVISION,
+                INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
                 APPLICABILITY_COMPOSER_REVISION,
@@ -288,6 +389,7 @@ def validate_predicates(
             or pin
             not in {
                 COMPOSER_REVISION,
+                INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
                 APPLICABILITY_COMPOSER_REVISION,
@@ -306,7 +408,12 @@ def validate_predicates(
                 or row["predicate_id"] not in closure
             ):
                 raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
-    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != list(closure):
+    expected_done = (
+        [name for name, requirement in closure.items() if requirement["required"]]
+        if prompt_bundle is not None and pin == COMPOSER_REVISION
+        else list(closure)
+    )
+    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done:
         raise CatalogError("BOUND_PREDICATE_GAP")
     if not b["return_when"]:
         raise CatalogError("BOUND_PREDICATE_GAP")
@@ -434,15 +541,14 @@ def build_records(
         or procedure.requested_capabilities
         or procedure.identity_requirements
         or procedure.business_rule_refs
-        or procedure.evidence_requirements
         or procedure.applicability_predicate_ids
         or procedure.stop_reason_ids
         or procedure.oracle_ref is not None
         or not 1 <= len(procedure.method_requirements) <= 128
-        or any(r.evidence_kinds for r in procedure.method_requirements)
         or "BLOCKED" not in procedure.outcomes
     ):
         raise CatalogError("UNSUPPORTED_PROCEDURE")
+    evidence_declaration(procedure.model_dump(mode="json"))
     requirement_conditions(procedure.model_dump(mode="json"))
     invalidation_declaration(procedure.model_dump(mode="json"))
     if len({r.key for r in procedure.method_requirements}) != len(procedure.method_requirements):
@@ -767,16 +873,21 @@ def build_records(
         prompt_record = next(r for r in graph if r["id"] == prompt["id"])
         from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
 
+        predicates_enabled = (
+            method_execution
+            and case_version == 2
+            and mapping(prompt_record["payload"])["composer_revision"] == COMPOSER_REVISION
+        )
         predicate_names = (
-            list(predicate_closure(resolved))
-            if (
-                method_execution
-                and case_version == 2
-                and mapping(prompt_record["payload"])["composer_revision"] == COMPOSER_REVISION
-            )
+            [
+                name
+                for name, requirement in predicate_closure(resolved).items()
+                if requirement["required"]
+            ]
+            if predicates_enabled
             else []
         )
-        if return_predicate_id is not None and not predicate_names:
+        if return_predicate_id is not None and not predicates_enabled:
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         requirements = compile_method_plan(
             graph[-1], None if case_input is None else case_input["input"]
@@ -842,7 +953,7 @@ def build_records(
                         "predicate_id": return_predicate_id or "build-surface-map",
                     }
                 ]
-                if predicate_names
+                if predicates_enabled
                 else [],
                 "context": [
                     {
@@ -908,7 +1019,11 @@ def build_records(
                 .replace("+00:00", "Z"),
                 "validation_reserve": {"actions": 0, "seconds": 0},
                 "stop_conditions": [],
-                "required_evidence": [],
+                "required_evidence": [
+                    {"bound_procedure_ref": bound, "requirement_key": r.key}
+                    for r in procedure.method_requirements
+                    if r.required and r.evidence_kinds
+                ],
             },
         )
         validate_brief(graph[-1])
@@ -1102,6 +1217,7 @@ def result_json_schema(
                 },
                 "consumed_input_refs": ref_array,
                 "action_refs": ref_array,
+                "evidence_refs": {**ref_array, "uniqueItems": True},
                 "gaps": {
                     "type": "array",
                     "maxItems": 128,
@@ -1161,7 +1277,6 @@ def validate_brief(value: object) -> dict[str, object]:
         "identities",
         "allowed_capability_ids",
         "stop_conditions",
-        "required_evidence",
     ):
         if sequence(body[key]) != []:
             raise CatalogError("MANAGED_REJECTED")
@@ -1378,6 +1493,8 @@ def validate_assignment(
     validate_predicates(
         body, bound_record, prompt_bundle=prompt_bundle, composition_version=composition_version
     )
+    if canonical(body["required_evidence"]) != canonical(required_evidence(bound_record)):
+        raise CatalogError("ASSIGNMENT_MISMATCH")
     requirements = sequence(procedure["method_requirements"])
     expected = compile_method_plan(bound_record)
     if any(mapping(r)["applies_if"] for r in requirements):
@@ -1729,9 +1846,7 @@ def validate_final(value: object, manifest: object, binding: object) -> dict[str
                 raise CatalogError("LINEAGE_MISMATCH")
             ref(execution["brief_ref"], "task-brief")
             output = [record(r) for r in sequence(execution["records"])]
-            if len(output) not in ((4, 6) if result["status"] == "INCONCLUSIVE" else (6, 8)) or len(
-                {text(r["id"]) for r in output}
-            ) != len(output):
+            if len(output) not in (4, 6, 8) or len({text(r["id"]) for r in output}) != len(output):
                 raise CatalogError("RESULT_CONFLICT")
             if mapping(output[0]["payload"])["status"] != result["status"]:
                 raise CatalogError("RESULT_CONFLICT")

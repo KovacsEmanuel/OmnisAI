@@ -356,18 +356,38 @@ def task_result(
                 artifact_refs=outputs,
                 reason="Bound CONTRACT/PURE method completed."
                 if not values or values[cast(str, requirement["key"])]
-                else "NOT_RUN: " + cast(str, requirement["key"]) + " (qualified early return).",
+                else "NOT_RUN: "
+                + cast(str, requirement["key"])
+                + " (qualified early return)."
+                + (" Optional coverage gap." if not planned["required"] else ""),
             )
         )
+    from .prompt_bundle import composer_revision, evidence_minimum, evidence_outputs
+
+    current = mapping(prompt_bundle["payload"])["composer_revision"] == composer_revision()
+    proof_refs = evidence_outputs(procedure, artifacts)
+    proof_gaps, proof_complete = evidence_minimum(procedure, proof_refs)
     result: Data = {
         "header": body["header"],
-        "status": "INCONCLUSIVE" if any(r["state"] != "DONE" for r in rows) else "SUCCEEDED",
+        "status": "SUCCEEDED"
+        if (
+            all(
+                (current and not mapping(planned)["required"]) or row["state"] == "DONE"
+                for planned, row in zip(plan, rows, strict=True)
+            )
+            and all(
+                values[cast(str, mapping(r)["predicate_id"])] for r in sequence(body["done_when"])
+            )
+            and proof_complete
+        )
+        else "INCONCLUSIVE",
         "method_results": rows,
         "method_review": None,
         **{k: [] for k in RESULT_EMPTY},
-        "gaps": [r["reason"] for r in rows if r["state"] != "DONE"],
+        "gaps": [r["reason"] for r in rows if r["state"] != "DONE"] + proof_gaps,
         "usage": {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"},
     }
+    result["evidence_refs"] = proof_refs
     result["action_refs"] = [
         ref(r) for r in receipts if mapping(r["payload"])["operation"] == "PURE_ACTION"
     ]

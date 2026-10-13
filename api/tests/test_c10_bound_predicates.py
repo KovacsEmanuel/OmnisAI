@@ -9,6 +9,274 @@ from omnis.modules.settings.catalog_models import CatalogError
 from test_contract_method_checks import native_case, obj, rebind_mutation, reseal_assignment, rows
 
 
+@pytest.mark.parametrize(
+    "early_return,applicability",
+    [
+        (False, None),
+        (False, "unknown"),
+        (False, "not-applicable"),
+        (False, "evidence-full"),
+        (True, "evidence-optional-prefix"),
+        (True, "evidence-required-prefix"),
+    ],
+)
+def test_native_release_oracle_keeps_backend_unknown_separate(
+    early_return: bool, applicability: str | None
+) -> None:
+    """Regression of the actual PG observer expression; no PG/native auth proof."""
+    import ast
+    from pathlib import Path
+
+    evidence = applicability is not None and applicability.startswith("evidence-")
+    case = native_case(
+        predicates=True,
+        evidence=evidence,
+        map_required=applicability != "evidence-optional-prefix",
+        empty=applicability == "not-applicable",
+        applies_expected=True if applicability in {"unknown", "not-applicable"} else None,
+        return_predicate="normalize-records" if early_return else "build-surface-map",
+    )
+    raw_status = obj(obj(rows(case.execution["records"])[0])["payload"])["status"]
+    if applicability == "unknown":
+        case.schemas = {}
+        assert obj(case.check()["payload"])["status"] == "UNKNOWN"
+        assert raw_status == "SUCCEEDED"
+    tree = ast.parse((Path(__file__).with_name("test_contract_method_pg.py")).read_text())
+    function = next(
+        n
+        for n in tree.body
+        if isinstance(n, ast.FunctionDef)
+        and n.name == "test_contract_method_real_native_pg_owner_receipts_check_inbox"
+    )
+    incomplete = next(
+        n.value
+        for n in function.body
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "incomplete" for t in n.targets)
+    )
+    oracle = next(
+        n.test.left
+        for n in ast.walk(function)
+        if isinstance(n, ast.Assert)
+        and isinstance(n.test, ast.Compare)
+        and isinstance(n.test.left, ast.Dict)
+        and any(
+            isinstance(v, ast.Constant) and v.value == "native-release" for v in n.test.left.values
+        )
+    )
+    context = {"early_return": early_return, "applicability": applicability}
+    context["incomplete"] = eval(
+        compile(ast.Expression(incomplete), "<PG-backend-incomplete>", "eval"), {}, context
+    )
+    expected_event = eval(
+        compile(ast.Expression(oracle), "<PG-native-release-oracle>", "eval"), {}, context
+    )
+    assert expected_event == {"test": "native-release", "status": raw_status, "count": 1}
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "unknown",
+        "duplicate",
+        "input",
+        "schema",
+        "minimum-bool",
+        "minimum-overflow",
+        "mandatory-type",
+        "declaration-duplicate",
+        "spoofed-kind",
+    ],
+)
+def test_evidence_declarations_refuse_unsupported_or_ambiguous_proof(attack: str) -> None:
+    from omnis.modules.tasks.managed_contract import evidence_declaration as api_declaration
+
+    case = native_case(predicates=True, evidence=True)
+    from omnis_hermes.prompt_bundle import evidence_declaration as native_declaration
+
+    p = deepcopy(obj(obj(case.bound["payload"])["resolved_procedure"]))
+    r = obj(rows(p["method_requirements"])[0])
+    if attack == "unknown":
+        r["evidence_kinds"] = ["uninstalled-proof"]
+    elif attack == "duplicate":
+        r["evidence_kinds"] = ["contract-artifact", "contract-artifact"]
+    elif attack == "input":
+        obj(rows(p["method_requirements"])[2])["evidence_kinds"] = ["contract-artifact"]
+    elif attack == "schema":
+        r["artifact_schema_refs"] = [p["input_schema_ref"]]
+    elif attack == "spoofed-kind":
+
+        class Spoofed(str):
+            def __eq__(self, other: object) -> bool:
+                return True
+
+        r["evidence_kinds"] = [Spoofed("foreign")]
+    else:
+        declaration = {"kind": "contract-artifact", "minimum": 1, "mandatory": True}
+        if attack == "minimum-bool":
+            declaration["minimum"] = True
+        elif attack == "minimum-overflow":
+            declaration["minimum"] = 129
+        elif attack == "mandatory-type":
+            declaration["mandatory"] = 1
+        p["evidence_requirements"] = [declaration] * (2 if attack == "declaration-duplicate" else 1)
+    with pytest.raises(CatalogError):
+        api_declaration(p)
+    with pytest.raises(ValueError):
+        native_declaration(p)
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "missing",
+        "duplicate",
+        "foreign",
+        "input",
+        "overflow",
+        "foreign-header",
+        "bad-value",
+        "row-proof",
+        "required-evidence-gap",
+        "demote",
+        "strip-done",
+    ],
+)
+def test_evidence_count_cannot_replace_verified_same_attempt_chain(attack: str) -> None:
+    from omnis.modules.settings import candidate_store as records
+
+    case = native_case(predicates=True, evidence=True)
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    body = obj(emitted[0]["payload"])
+    if attack == "missing":
+        body["evidence_refs"] = []
+    elif attack == "duplicate":
+        rows(body["evidence_refs"]).append(deepcopy(rows(body["evidence_refs"])[0]))
+    elif attack == "foreign":
+        obj(rows(body["evidence_refs"])[0])["id"] = str(uuid4())
+    elif attack == "input":
+        body["evidence_refs"] = [records.reference(case.original)]
+    elif attack == "overflow":
+        body["evidence_refs"] = [records.reference(emitted[-1])] * 129
+    elif attack == "foreign-header":
+        obj(obj(emitted[-1]["payload"])["header"])["attempt_id"] = str(uuid4())
+    elif attack == "bad-value":
+        obj(emitted[-1]["payload"])["value"] = {"surface_map": True}
+    elif attack == "row-proof":
+        obj(rows(body["method_results"])[0])["artifact_refs"] = [records.reference(case.original)]
+    elif attack == "required-evidence-gap":
+        obj(case.brief["payload"])["required_evidence"] = []
+    elif attack == "demote":
+        obj(rows(obj(obj(case.brief["payload"])["method_plan"])["requirements"])[0])["required"] = (
+            False
+        )
+    else:
+        obj(case.brief["payload"])["done_when"] = []
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check()
+
+
+def test_all_optional_prefix_keeps_return_and_coverage_without_hidden_done_obligations() -> None:
+    case = native_case(
+        predicates=True, evidence=True, all_optional=True, return_predicate="normalize-records"
+    )
+    body = obj(obj(rows(case.execution["records"])[0])["payload"])
+    assert obj(case.brief["payload"])["done_when"] == []
+    assert obj(case.brief["payload"])["required_evidence"] == []
+    assert body["status"] == "SUCCEEDED" and len(rows(body["method_results"])) == 3
+    assert len(rows(body["gaps"])) == 1
+    assert obj(case.check()["payload"])["status"] == "COMPLETE"
+
+
+@pytest.mark.parametrize("mandatory,expected", [(False, "COMPLETE"), (True, "INCOMPLETE")])
+def test_procedure_evidence_minimum_changes_completion_not_execution(
+    mandatory: bool, expected: str
+) -> None:
+    case = native_case(
+        predicates=True, evidence=True, evidence_minimum=3, evidence_mandatory=mandatory
+    )
+    body = obj(obj(rows(case.execution["records"])[0])["payload"])
+    assert len(rows(body["evidence_refs"])) == 2
+    assert all(obj(r)["state"] == "DONE" for r in rows(body["method_results"]))
+    assert body["gaps"] == ["EVIDENCE_MINIMUM: contract-artifact (2/3); coverage gap."]
+    assert body["status"] == ("INCONCLUSIVE" if mandatory else "SUCCEEDED")
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == expected
+    assert checked["gap_refs"] == [obj(r)["ref"] for r in rows(body["method_results"])[:2]]
+
+
+def test_optional_prefix_final_is_accepted_by_real_wire_consumers() -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(
+        predicates=True, evidence=True, map_required=False, return_predicate="normalize-records"
+    )
+    from omnis_hermes.managed_admission_contract import validate_response
+
+    binding = obj(case.binding["payload"])
+    final = {
+        "protocol": "omnis-managed-admission-v4",
+        "status": "SUCCEEDED",
+        "reason": "CONTRACT_PURE",
+        "ticket": binding["ticket"],
+        "manifest_ref": records.reference(obj(case.stage["manifest"])),
+        "binding_ref": records.reference(case.binding),
+        "native_root_id": binding["native_root_id"],
+        "entries": binding["entries"],
+        "executions": [case.execution],
+    }
+    assert validate_response(final) == final
+    assert managed_contract.validate_final(final, case.stage["manifest"], case.binding) == final
+
+
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("required", [False, True])
+def test_evidence_prefix_optional_is_visible_but_only_required_blocks(
+    compact: bool, required: bool
+) -> None:
+    from omnis.modules.settings import candidate_store as records
+
+    case = native_case(
+        predicates=True,
+        compact=compact,
+        evidence=True,
+        map_required=required,
+        return_predicate="normalize-records",
+    )
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    assert len(emitted) == 4
+    body = obj(emitted[0]["payload"])
+    methods = [obj(r) for r in rows(body["method_results"])]
+    assert [r["state"] for r in methods] == ["DONE", "NOT_RUN", "DONE"]
+    assert methods[1]["basis_refs"] == methods[1]["artifact_refs"] == []
+    assert body["gaps"] == [methods[1]["reason"]]
+    assert body["evidence_refs"] == [records.reference(emitted[-1])]
+    assert body["status"] == ("INCONCLUSIVE" if required else "SUCCEEDED")
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == ("INCOMPLETE" if required else "COMPLETE")
+    assert checked["checked_results"] == methods and checked["gap_refs"] == [methods[1]["ref"]]
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_evidence_full_cites_real_same_attempt_outputs(compact: bool) -> None:
+    from omnis.modules.settings import candidate_store as records
+
+    case = native_case(predicates=True, compact=compact, evidence=True)
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    artifacts = [r for r in emitted if r["kind"] == "contract-artifact"]
+    body = obj(emitted[0]["payload"])
+    assert body["evidence_refs"] == [records.reference(a) for a in artifacts]
+    methods = [obj(r) for r in rows(body["method_results"])]
+    assert all(r["state"] == "DONE" for r in methods) and len(methods) == 3
+    assert methods[0]["artifact_refs"] == [records.reference(artifacts[0])]
+    assert methods[1]["artifact_refs"] == [records.reference(artifacts[1])]
+    assert body["status"] == "SUCCEEDED" and body["gaps"] == []
+    assert obj(case.brief["payload"])["required_evidence"] == [r["ref"] for r in methods[:2]]
+    assert obj(case.check()["payload"])["status"] == "COMPLETE"
+
+
 @pytest.mark.parametrize("compact", [False, True])
 def test_invalidation_nonempty_runs_real_source_read_pure_and_keeps_obligations(
     compact: bool,
@@ -64,6 +332,65 @@ def test_invalidation_empty_refuses_native_initialization_before_uuid_or_access(
         )
     assert attempts == []
     assert child.__dict__ == {}
+
+
+@pytest.mark.parametrize("prefix", [False, True])
+@pytest.mark.parametrize("compact", [False, True])
+def test_invalidation_historical_pair_is_receive_only_without_new_semantics(
+    prefix: bool, compact: bool
+) -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        invalidation=True,
+        compact=compact,
+        composer_pin="a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        return_predicate="normalize-records" if prefix else "build-surface-map",
+    )
+    case.checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "semantics": SEMANTICS,
+            "code_digest": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+        },
+    )
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"
+    checked = obj(case.check(receive_only=True)["payload"])
+    assert checked["status"] == ("INCOMPLETE" if prefix else "COMPLETE")
+    assert len(rows(obj(case.brief["payload"])["done_when"])) == 3
+    assert obj(obj(rows(case.execution["records"])[0])["payload"])["evidence_refs"] == []
+
+
+@pytest.mark.parametrize("attack", ["evidence", "optional"])
+def test_old_invalidation_pin_cannot_acquire_evidence_or_optional_forms(attack: str) -> None:
+    case = native_case(
+        predicates=True,
+        invalidation=True,
+        composer_pin="a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+    )
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    if attack == "evidence":
+        obj(rows(p["method_requirements"])[0])["evidence_kinds"] = ["contract-artifact"]
+    else:
+        obj(rows(p["method_requirements"])[1])["required"] = False
+    rebind_mutation(case)
+    with pytest.raises(CatalogError):
+        case.check(receive_only=True)
+    from omnis_hermes.contract_method import task_result
+
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    with pytest.raises(ValueError):
+        task_result(
+            case.brief,
+            case.bound,
+            case.original,
+            [r for r in emitted if r["kind"] == "contract-tool-receipt"],
+            [r for r in emitted if r["kind"] == "contract-artifact"],
+            prompt_bundle=case.prompt_bundle,
+        )
 
 
 @pytest.mark.parametrize("compact", [False, True])
@@ -448,7 +775,10 @@ def test_missing_native_precondition_material_refuses_before_access(
 def test_bound_predicates_real_native_receipts_complete() -> None:
     case = native_case(predicates=True)
     brief = obj(case.brief["payload"])
-    assert len(rows(brief["done_when"])) == 3
+    assert [obj(r)["predicate_id"] for r in rows(brief["done_when"])] == [
+        "normalize-records",
+        "build-surface-map",
+    ]
     assert len(rows(brief["return_when"])) == 1
     assert obj(case.check()["payload"])["status"] == "COMPLETE"
 
@@ -801,6 +1131,92 @@ def test_bound_predicate_false_na_and_foreign_header_refuse() -> None:
         rebind_mutation(case)
         with pytest.raises(CatalogError):
             case.check()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("scenario", ["full", "optional-prefix", "required-prefix"])
+async def test_evidence_owner_consumer_preserves_status_and_readonly_check(
+    monkeypatch: pytest.MonkeyPatch, scenario: str
+) -> None:
+    """Real owner seam, SOURCE state holders/schema seam; not PG/native auth."""
+    from unittest.mock import Mock
+
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+
+    from omnis.modules.runs.managed_admission import ManagedAdmission
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.settings.catalog_schema import canonical
+
+    case = native_case(
+        predicates=True,
+        compact=True,
+        evidence=True,
+        map_required=scenario != "optional-prefix",
+        return_predicate="build-surface-map" if scenario == "full" else "normalize-records",
+    )
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    binding = obj(case.binding["payload"])
+    manifest = obj(case.stage["manifest"])
+    final = records.envelope(
+        "native-task-receipt",
+        {
+            "protocol": "omnis-managed-admission-v4",
+            "status": obj(emitted[0]["payload"])["status"],
+            "reason": "CONTRACT_PURE",
+            "ticket": binding["ticket"],
+            "manifest_ref": records.reference(manifest),
+            "binding_ref": records.reference(case.binding),
+            "native_root_id": binding["native_root_id"],
+            "entries": binding["entries"],
+            "executions": [case.execution],
+        },
+    )
+    run = records.envelope("managed-run", {})
+    graph = [
+        run,
+        manifest,
+        case.brief,
+        case.bound,
+        case.binding,
+        case.original,
+        case.prompt_bundle,
+        case.checker,
+        *case.actions,
+        *emitted,
+        final,
+    ]
+    domain = ManagedAdmission(Mock(spec=AsyncEngine))
+
+    async def schemas(*args: object, **kwargs: object) -> dict[str, dict[str, object]]:
+        return case.schemas
+
+    monkeypatch.setattr(domain, "_method_schemas", schemas)
+    conn = Mock(spec=AsyncConnection)
+    first = await domain._result_check(
+        conn,
+        case.owner_id,
+        str(run["id"]),
+        case.brief,
+        emitted[0],
+        records.reference(case.checker),
+        graph=graph,
+    )
+    assert obj(first["payload"])["status"] == (
+        "INCOMPLETE" if scenario == "required-prefix" else "COMPLETE"
+    )
+    assert obj(first["payload"])["checked_results"] == obj(emitted[0]["payload"])["method_results"]
+    graph.append(first)
+    before = canonical(graph)
+    second = await domain._result_check(
+        conn,
+        case.owner_id,
+        str(run["id"]),
+        case.brief,
+        emitted[0],
+        records.reference(case.checker),
+        graph=graph,
+    )
+    assert first["payload"] == second["payload"] and canonical(graph) == before
 
 
 @pytest.mark.asyncio

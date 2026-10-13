@@ -59,6 +59,12 @@ PRECONDITION_HISTORICAL = {
 }
 
 
+# Exact invalidation producer before evidence/optional semantics: receive-only.
+INVALIDATION_HISTORICAL = {
+    "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -95,6 +101,7 @@ def verify(
             or PARTIAL_PREDICATE_HISTORICAL.get(digest) == pin
             or APPLICABILITY_HISTORICAL.get(digest) == pin
             or PRECONDITION_HISTORICAL.get(digest) == pin
+            or INVALIDATION_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

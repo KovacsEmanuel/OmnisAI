@@ -483,6 +483,9 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "unknown"),
         (False, True, False, False, False, "precondition"),
         (False, True, False, False, False, "invalidation"),
+        (False, True, False, False, False, "evidence-full"),
+        (False, True, False, False, True, "evidence-optional-prefix"),
+        (False, True, False, False, True, "evidence-required-prefix"),
     ],
     ids=[
         "support-zero",
@@ -497,6 +500,9 @@ class PreparationPrerequisite(RuntimeClient):
         "applicability-unknown",
         "procedure-precondition",
         "procedure-invalidation",
+        "evidence-full",
+        "evidence-optional-prefix",
+        "evidence-required-prefix",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -543,7 +549,25 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "on_missing": "INCONCLUSIVE",
                 }
             ]
-            if applicability == "precondition":
+            if applicability.startswith("evidence-"):
+                authored["method_requirements"] = [
+                    {
+                        **mapping(raw),
+                        "evidence_kinds": ["contract-artifact"] if index < 2 else [],
+                        "required": applicability != "evidence-optional-prefix"
+                        if index == 1
+                        else mapping(raw)["required"],
+                    }
+                    for index, raw in enumerate(sequence(authored["method_requirements"]))
+                ]
+                authored["evidence_requirements"] = [
+                    {
+                        "kind": "contract-artifact",
+                        "minimum": 2 if applicability == "evidence-full" else 1,
+                        "mandatory": True,
+                    }
+                ]
+            elif applicability == "precondition":
                 authored["preconditions"] = conditions
             elif applicability == "invalidation":
                 authored["invalidation_predicate_ids"] = ["contract.records-empty"]
@@ -553,6 +577,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             return seed
 
         monkeypatch.setattr(c03_records, "records_seed", conditional_seed)
+    incomplete = (
+        early_return and applicability != "evidence-optional-prefix"
+    ) or applicability in {"not-applicable", "unknown"}
     qualified, evaluation = qualify_records(tmp_path / "qualified", dsn)
     seed = qualified.seed
     _, snapshot = publish_capture(qualified, dsn)
@@ -637,6 +664,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         return mapping(json.loads(stdout))
 
     async def run() -> None:
+        from omnis.supervisor.native_tasks import control_task
+        from omnis.transport.local_control import LocalControl
+
         engine = database_engine(dsn)
         service, supervisor = InstanceService(engine), uuid4()
         domain, inputs = ManagedAdmission(engine, seed.root), ContractInputs(engine, seed.root)
@@ -644,6 +674,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         host = None
         done = asyncio.Event()
         heartbeat: asyncio.Task[None] | None = None
+        public_control: LocalControl | None = None
         try:
             epoch = await service.acquire(supervisor)
             status = await service.owned_status(supervisor, epoch)
@@ -888,15 +919,14 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 body = mapping(briefs[0]["payload"])
                 assert [mapping(r)["predicate_id"] for r in sequence(body["done_when"])] == [
                     "normalize-records",
-                    "build-surface-map",
-                    "preserve-input-context",
+                    *([] if applicability == "evidence-optional-prefix" else ["build-surface-map"]),
                 ]
                 assert [mapping(r)["predicate_id"] for r in sequence(body["return_when"])] == [
                     "normalize-records" if early_return else "build-surface-map"
                 ]
                 checkpoint(
                     bound_predicate_producer="QUALIFIED_NONEMPTY",
-                    done_predicates=3,
+                    done_predicates=len(sequence(body["done_when"])),
                     return_predicates=1,
                 )
             if legacy_criteria:
@@ -1027,6 +1057,27 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 return result
 
             monkeypatch.setattr(host_module.NativePeer, "handshake", observed_handshake)
+            owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
+            if applicability is not None and applicability.startswith("evidence-"):
+                # Same owner, kernel peer and private capability; no response emitter.
+                # Establish the listener before launch, not inside the native grant.
+                public_control = await LocalControl(
+                    directory, service, supervisor, epoch, native_task=owner.handle
+                ).__aenter__()
+
+            async def submit_task(action: str, *, phase: str = "ACTIVE") -> dict[str, object]:
+                command = NativeTaskCommand.model_validate({**lifecycle, "action": action})
+                if public_control is None:
+                    return await owner.handle(command)
+                answer = await control_task(directory, command.model_dump(mode="json"))
+                checkpoint(
+                    public_control_actions=[
+                        *sequence(proof.get("public_control_actions", [])),
+                        {"action": action, "phase": phase, "task_status": answer["task_status"]},
+                    ]
+                )
+                return answer
+
             async with host:
                 await service.heartbeat(supervisor, epoch)
                 await runtime.connect()
@@ -1038,10 +1089,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 assert ready["state"] == "READY"
                 await runtime.renew(service, supervisor)
                 checkpoint(launch_diagnostic=diagnostic)
-                owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
-                staged = await owner.handle(
-                    NativeTaskCommand.model_validate({**lifecycle, "action": "stage"})
-                )
+                staged = await submit_task("stage")
                 assert staged["task_status"] == "BOUND"
                 # Release immediately after committed stage: the native 4.5s
                 # deadline is unchanged. No readback/negative between the two.
@@ -1345,32 +1393,24 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                                 assert len(sequence(persisted["results"])) == 1
                                 assert persisted["checks"] == []
                                 raw = mapping(sequence(persisted["results"])[0])
-                                assert mapping(raw["payload"])["status"] == "INCONCLUSIVE"
+                                assert mapping(raw["payload"])["status"] == (
+                                    "INCONCLUSIVE" if incomplete else "SUCCEEDED"
+                                )
                                 assert len(sequence(mapping(raw["payload"])["method_results"])) == 3
                                 checkpoint(raw_partial_persisted_before_method_check="PASS")
                                 return await original_check(owner_id, command_id)
 
                             pause.setattr(domain, "check", persisted_before_check)
-                        released = await owner.handle(
-                            NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
-                        )
+                        released = await submit_task("release")
                 assert seam_calls == int(first_final_after_stop and not lost_reply)
-                assert released["task_status"] == (
-                    "BLOCKED"
-                    if early_return or applicability in {"not-applicable", "unknown"}
-                    else "SUCCEEDED"
-                )
+                assert released["task_status"] == ("BLOCKED" if incomplete else "SUCCEEDED")
                 assert released["binding_ref"] == staged["binding_ref"]
                 back_request = seed.request(command_id=assignment["command_id"])
                 back = await domain.readback(back_request)
                 binding = mapping(back["binding"])
                 assert mapping(mapping(binding["payload"])["authority"])["owner"] == str(supervisor)
                 assert mapping(binding["payload"])["runtime_boot"] == runtime.boot
-                assert back["status"] == (
-                    "BLOCKED"
-                    if early_return or applicability in {"not-applicable", "unknown"}
-                    else "SUCCEEDED"
-                )
+                assert back["status"] == ("BLOCKED" if incomplete else "SUCCEEDED")
                 if with_criteria:
                     outcomes = [mapping(o) for o in sequence(back["criterion_outcomes"])]
                     assert len(outcomes) == 2
@@ -1398,7 +1438,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                                 ["METHOD_UNKNOWN"]
                                 if applicability == "unknown"
                                 else ["METHOD_INCOMPLETE"]
-                                if early_return or applicability == "not-applicable"
+                                if incomplete
                                 else []
                             ),
                         ]
@@ -1437,7 +1477,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "UNKNOWN"
                     if applicability == "unknown"
                     else "INCOMPLETE"
-                    if early_return or applicability == "not-applicable"
+                    if incomplete
                     else "COMPLETE"
                 )
                 if applicability == "invalidation":
@@ -1482,8 +1522,40 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         mapping(r) for r in sequence(mapping(result["payload"])["method_results"])
                     ]
                     assert [m["state"] for m in methods] == ["DONE", "NOT_RUN", "DONE"]
-                    assert mapping(result["payload"])["status"] == "INCONCLUSIVE"
+                    assert mapping(result["payload"])["status"] == (
+                        "INCONCLUSIVE" if incomplete else "SUCCEEDED"
+                    )
                     assert mapping(checks[0]["payload"])["gap_refs"] == [methods[1]["ref"]]
+                if applicability is not None and applicability.startswith("evidence-"):
+                    from omnis.modules.settings import candidate_store as stored
+
+                    body = mapping(result["payload"])
+                    actual_proof = [stored.reference(a) for a in artifacts]
+                    assert body["evidence_refs"] == actual_proof
+                    methods = [mapping(r) for r in sequence(body["method_results"])]
+                    assert len(methods) == 3
+                    for index in range(1 if early_return else 2):
+                        assert methods[index]["artifact_refs"] == [actual_proof[index]]
+                    brief_body = mapping(mapping(sequence(back["briefs"])[0])["payload"])
+                    assert brief_body["required_evidence"] == [
+                        methods[0]["ref"],
+                        *(
+                            []
+                            if applicability == "evidence-optional-prefix"
+                            else [methods[1]["ref"]]
+                        ),
+                    ]
+                    assert body["gaps"] == ([methods[1]["reason"]] if early_return else [])
+                    assert methods[2]["artifact_refs"] == [original["input_ref"]]
+                    checkpoint(
+                        evidence_scenario=applicability,
+                        actual_evidence_refs=actual_proof,
+                        method_results=methods,
+                        task_result_status=body["status"],
+                        method_gaps=body["gaps"],
+                        required_evidence=brief_body["required_evidence"],
+                        method_check=expected_check,
+                    )
                 if with_criteria:
                     checkpoint(bound_predicate_persistent_check=expected_check)
                 if with_criteria:
@@ -1696,15 +1768,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 assert canonical((await domain.readback(back_request))["records"]) == canonical(
                     back["records"]
                 )
-                assert (
-                    await owner.handle(
-                        NativeTaskCommand.model_validate({**lifecycle, "action": "release"})
-                    )
-                )["task_status"] == (
-                    "BLOCKED"
-                    if early_return or applicability in {"not-applicable", "unknown"}
-                    else "SUCCEEDED"
+                assert (await submit_task("release"))["task_status"] == (
+                    "BLOCKED" if incomplete else "SUCCEEDED"
                 )
+                if public_control is not None:
+                    assert (await submit_task("receive"))["task_status"] == (
+                        "BLOCKED" if incomplete else "SUCCEEDED"
+                    )
                 # Persistent managed CLI/readback/reconcile in fresh reader
                 # processes on THIS owned DB; no runtime restart or adoption.
                 assert canonical(await restarted_cli("readback", back_request)) == canonical(back)
@@ -1780,6 +1850,32 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             assert await markers() == consumed_markers
             assert canonical(await domain.readback(back_request)) == canonical(prior)
             checkpoint(post_stop_duplicate="PASS", final_markers=await markers())
+            if public_control is not None:
+                # Stop is the generation/fence transition above, not Host retirement.
+                # Only the already committed result/check may reach this public reader.
+                with monkeypatch.context() as receive_only:
+                    for module in ("skill_catalog", "candidate_catalog"):
+                        receive_only.setattr(
+                            "omnis.modules.settings." + module + ".evaluate_pure", no_rerun
+                        )
+                    receive_only.setattr("omnis.modules.runs.pure_probe.evaluate_pure", no_rerun)
+                    receive_only.setattr(
+                        "omnis.modules.tasks.module_registry.run_handler", no_rerun
+                    )
+                    receive_only.setattr(BuildSource, "build", no_rerun)
+                    receive_only.setattr(ManagedAdmission, "_build", no_rerun)
+                    receive_only.setattr(runtime, "_exchange", no_rerun)
+                    assert (await submit_task("release", phase="AFTER_STOP"))["task_status"] == (
+                        "BLOCKED" if incomplete else "SUCCEEDED"
+                    )
+                    assert (await submit_task("receive", phase="AFTER_STOP"))["task_status"] == (
+                        "BLOCKED" if incomplete else "SUCCEEDED"
+                    )
+                assert execution_attempts == []
+                assert observation.read_bytes() == native_before
+                assert await markers() == consumed_markers
+                assert canonical(await domain.readback(back_request)) == canonical(prior)
+                checkpoint(public_post_stop_cached_read="PASS")
             async with engine.connect() as conn:
                 assert (
                     await conn.execute(sql("SELECT count(*) FROM managed_inbox"))
@@ -1817,7 +1913,15 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     if runtime is not None:
                         await runtime.close()
                 finally:
-                    await engine.dispose()
+                    try:
+                        if public_control is not None:
+                            await public_control.__aexit__(None, None, None)
+                            assert public_control.lock_fd is None
+                            assert not (public_control.directory / "control.sock").exists()
+                            assert not (public_control.directory / "control.cap").exists()
+                            checkpoint(public_control_cleanup="PASS")
+                    finally:
+                        await engine.dispose()
             if host is not None and host.process is not None:
                 assert host.process.returncode is not None, "NATIVE_CLEANUP_UNCERTAIN"
                 assert not host._owned_pids(), "NATIVE_FAMILY_UNCERTAIN"
@@ -1840,9 +1944,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         assert len([r for r in rows if r["test"] == "run_handler"]) == (1 if early_return else 2)
         assert {
             "test": "native-release",
-            "status": "INCONCLUSIVE"
-            if early_return or applicability == "not-applicable"
-            else "SUCCEEDED",
+            "status": "INCONCLUSIVE" if incomplete and applicability != "unknown" else "SUCCEEDED",
             "count": 1,
         } in rows
         if with_criteria and not legacy_criteria:

@@ -15,7 +15,18 @@ from test_c03_managed_capture import capture_source, material
 
 
 @pytest.mark.parametrize("empty", [False, True])
-@pytest.mark.parametrize("guard", ["precondition", "invalidation", "invalidation-old-pin"])
+@pytest.mark.parametrize(
+    "guard",
+    [
+        "precondition",
+        "invalidation",
+        "invalidation-old-pin",
+        "evidence-full",
+        "evidence-optional-prefix",
+        "evidence-required-prefix",
+        "evidence-all-optional-prefix",
+    ],
+)
 def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, empty: bool, guard: str
 ) -> None:
@@ -45,6 +56,26 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
     if guard.startswith("invalidation"):
         authored["preconditions"] = []
         authored["invalidation_predicate_ids"] = ["contract.records-empty"]
+    if guard.startswith("evidence-"):
+        authored["preconditions"] = []
+        authored["method_requirements"] = [
+            {
+                **mapping(raw),
+                "evidence_kinds": ["contract-artifact"] if index < 2 else [],
+                "required": guard != "evidence-optional-prefix"
+                if index == 1
+                else mapping(raw)["required"],
+            }
+            for index, raw in enumerate(managed_contract.sequence(authored["method_requirements"]))
+        ]
+        if guard == "evidence-all-optional-prefix":
+            authored["method_requirements"] = [
+                {**mapping(r), "required": False}
+                for r in managed_contract.sequence(authored["method_requirements"])
+            ]
+        authored["evidence_requirements"] = [
+            {"kind": "contract-artifact", "minimum": 1, "mandatory": True}
+        ]
     write_yaml(path, authored)
     compiled = compile_catalog((seed.package,), seed.profile)
     retained, sources, _ = capture([str(seed.package)], str(seed.profile))
@@ -124,7 +155,7 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             source.build(prefix=prefix, case_input=section, method_execution=True)
         assert attempts == [] and canonical(prefix) == before
         return
-    if empty:
+    if empty and not guard.startswith("evidence-"):
         reason = (
             "PROCEDURE_PRECONDITION_FALSE" if guard == "precondition" else "PROCEDURE_INVALIDATED"
         )
@@ -136,14 +167,19 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             for r in prefix
         )
     else:
-        graph = source.build(prefix=prefix, case_input=section, method_execution=True)
+        graph = source.build(
+            prefix=prefix,
+            case_input=section,
+            method_execution=True,
+            return_predicate_id="normalize-records" if guard.endswith("prefix") else None,
+        )
         bound = next(r for r in graph if r["kind"] == "bound-procedure")
         resolved = mapping(mapping(bound["payload"])["resolved_procedure"])
         if guard == "precondition":
             assert mapping(managed_contract.sequence(resolved["preconditions"])[0])[
                 "input_refs"
             ] == [records.reference(item)]
-        else:
+        elif guard.startswith("invalidation"):
             assert resolved["invalidation_predicate_ids"] == ["contract.records-empty"]
         brief = next(r for r in graph if r["kind"] == "task-brief")
         assert (
@@ -155,6 +191,36 @@ def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
             == 3
         )
         assert canonical(graph[: len(prefix)]) == before
+        if guard.startswith("evidence-"):
+            brief_body = mapping(brief["payload"])
+            keys = (
+                []
+                if guard == "evidence-all-optional-prefix"
+                else ["normalize-records"]
+                + ([] if guard == "evidence-optional-prefix" else ["build-surface-map"])
+            )
+            assert len(managed_contract.sequence(brief_body["return_when"])) == 1
+            assert [
+                mapping(r)["predicate_id"]
+                for r in managed_contract.sequence(brief_body["done_when"])
+            ] == keys
+            assert [
+                mapping(r)["requirement_key"]
+                for r in managed_contract.sequence(brief_body["required_evidence"])
+            ] == keys
+            stage = managed_composition.stage_payload(graph[-1], graph)
+            import sys
+            from importlib import import_module
+
+            adapter = str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+            sys.path.insert(0, adapter)
+            try:
+                assert (
+                    import_module("omnis_hermes.managed_admission_contract").validate_stage(stage)
+                    == graph[-1]
+                )
+            finally:
+                sys.path.remove(adapter)
 
 
 def method_graph() -> list[dict[str, object]]:

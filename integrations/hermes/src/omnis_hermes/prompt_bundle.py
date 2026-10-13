@@ -59,6 +59,7 @@ CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee7
 PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+INVALIDATION_COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
     "header prompt_bundle_ref execution_selection_ref assessment_mode objective_summary non_goals role hypothesis operation_refs priority_reason done_when return_when context contradiction_refs prior_attempt_refs package_refs technique_refs procedure_refs procedure_bindings method_plan review_request criterion_bindings overlay_refs input_artifact_refs identities allowed_capability_ids limits deadline validation_reserve stop_conditions required_evidence".split()
@@ -301,7 +302,6 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
         "identity_requirements",
         "business_rule_refs",
         "requested_capabilities",
-        "evidence_requirements",
         "slots",
         "stop_reason_ids",
     ):
@@ -386,11 +386,7 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
             ),
         )
         name = key(requirement["key"])
-        if (
-            name in seen
-            or type(requirement["required"]) is not bool
-            or requirement["evidence_kinds"] != []
-        ):
+        if name in seen or type(requirement["required"]) is not bool:
             raise reject()
         seen.add(name)
         prose(requirement["description"])
@@ -398,6 +394,7 @@ def _procedure(value: object, *, capture_bound: bool = False) -> dict[str, objec
             if key(required_step) not in step_ids:
                 raise reject()
         refs(requirement["artifact_schema_refs"], "schema", 0)
+    evidence_declaration(p)
     return p
 
 
@@ -407,6 +404,89 @@ RECORD_PREDICATES = {
     "build-surface-map": ("build-map", "OUTPUT"),
     "preserve-input-context": ("normalize-operations", "INPUT"),
 }
+
+
+def evidence_declaration(procedure: object) -> None:
+    """Finite inert proof: authenticated PURE output artifacts, never input refs."""
+    p = mapping(procedure)
+    requirements = [mapping(r) for r in sequence(p["method_requirements"])]
+    declared = sequence(p["evidence_requirements"])
+    bearing = [r for r in requirements if sequence(r["evidence_kinds"])]
+    if not bearing and not declared:
+        return
+    if p["key"] != "map-records" or (declared and not bearing):
+        raise reject()
+    steps = [mapping(s) for s in sequence(p["probe"])]
+    for requirement in bearing:
+        matches = [s for s in steps if requirement["step_ids"] == [s["id"]]]
+        if (
+            any(type(kind) is not str for kind in sequence(requirement["evidence_kinds"]))
+            or requirement["evidence_kinds"] != ["contract-artifact"]
+            or requirement["key"] not in ("normalize-records", "build-surface-map")
+            or len(matches) != 1
+            or requirement["artifact_schema_refs"] != [matches[0]["output_schema_ref"]]
+        ):
+            raise reject()
+    if len(declared) > 1:
+        raise reject()
+    for raw in declared:
+        row = obj(raw, {"kind", "minimum", "mandatory"})
+        if (
+            type(row["kind"]) is not str
+            or row["kind"] != "contract-artifact"
+            or type(row["mandatory"]) is not bool
+        ):
+            raise reject()
+        integer(row["minimum"], 1, 128)
+
+
+def evidence_outputs(
+    procedure: object, artifacts: list[dict[str, object]]
+) -> list[dict[str, object]]:
+    """Select verified same-attempt outputs; caller validates receipts/bytes first."""
+    p = mapping(procedure)
+    evidence_declaration(p)
+    schemas = [
+        s
+        for raw in sequence(p["method_requirements"])
+        if (r := mapping(raw))["evidence_kinds"]
+        for s in sequence(r["artifact_schema_refs"])
+    ]
+    return [
+        ref(a)
+        for a in artifacts
+        if p["evidence_requirements"] or mapping(a["payload"])["schema_ref"] in schemas
+    ]
+
+
+def evidence_minimum(
+    procedure: object, verified_outputs: list[dict[str, object]]
+) -> tuple[list[str], bool]:
+    """Count only outputs already verified against the exact authenticated chain."""
+    p = mapping(procedure)
+    evidence_declaration(p)
+    gaps: list[str] = []
+    complete = True
+    for raw in sequence(p["evidence_requirements"]):
+        row = mapping(raw)
+        minimum = integer(row["minimum"], 1, 128)
+        if len(verified_outputs) < minimum:
+            gaps.append(
+                f"EVIDENCE_MINIMUM: contract-artifact ({len(verified_outputs)}/{minimum}); coverage gap."
+            )
+            complete = complete and not row["mandatory"]
+    return gaps, complete
+
+
+def required_evidence(bound: object) -> list[dict[str, object]]:
+    b = envelope(bound, "bound-procedure")
+    p = mapping(mapping(b["payload"])["resolved_procedure"])
+    evidence_declaration(p)
+    return [
+        {"bound_procedure_ref": ref(b), "requirement_key": r["key"]}
+        for raw in sequence(p["method_requirements"])
+        if (r := mapping(raw))["required"] and r["evidence_kinds"]
+    ]
 
 
 def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
@@ -455,12 +535,11 @@ def predicate_closure(procedure: object) -> dict[str, dict[str, object]]:
         if (
             requirement["step_ids"] != [step]
             or requirement["artifact_schema_refs"] != [schema]
-            or requirement["evidence_kinds"] != []
             or type(requirement["required"]) is not bool
-            or requirement["required"] is not (source == "OUTPUT")
         ):
             raise reject()
         result[name] = requirement
+    evidence_declaration(p)
     return result
 
 
@@ -491,6 +570,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             composer_revision(),
+            INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
@@ -507,13 +587,30 @@ def validate_predicates(
         if type(pin) is not str or pin not in revisions:
             raise reject()
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
-        if procedure["invalidation_predicate_ids"] and (version != 4 or pin != composer_revision()):
+        if procedure["invalidation_predicate_ids"] and (
+            version != 4 or pin not in {composer_revision(), INVALIDATION_COMPOSER_REVISION}
+        ):
+            raise reject()
+        if pin != composer_revision() and (
+            procedure["evidence_requirements"]
+            or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
+            or (
+                procedure["key"] == "map-records"
+                and any(
+                    mapping(r)["required"]
+                    is not (RECORD_PREDICATES[key(mapping(r)["key"])][1] == "OUTPUT")
+                    for r in sequence(procedure["method_requirements"])
+                    if mapping(r)["key"] in RECORD_PREDICATES
+                )
+            )
+        ):
             raise reject()
         required = (
             version == 4
             and pin
             in {
                 composer_revision(),
+                INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
                 APPLICABILITY_COMPOSER_REVISION,
@@ -525,6 +622,7 @@ def validate_predicates(
             or pin
             not in {
                 composer_revision(),
+                INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
                 PREDICATE_COMPOSER_REVISION,
                 APPLICABILITY_COMPOSER_REVISION,
@@ -543,7 +641,12 @@ def validate_predicates(
                 or row["predicate_id"] not in closure
             ):
                 raise reject()
-    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != list(closure) or not b[
+    expected_done = (
+        [name for name, requirement in closure.items() if requirement["required"]]
+        if prompt_bundle is not None and pin == composer_revision()
+        else list(closure)
+    )
+    if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done or not b[
         "return_when"
     ]:
         raise reject()
@@ -572,7 +675,6 @@ def _brief(
         "identities",
         "allowed_capability_ids",
         "stop_conditions",
-        "required_evidence",
     ):
         if body[field] != []:
             raise reject()
@@ -643,6 +745,7 @@ def _brief(
         "composer_revision"
     ] not in {
         composer_revision(),
+        INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
@@ -658,13 +761,14 @@ def _brief(
     if p["preconditions"] and (
         composition_version != 4
         or mapping(bundle["payload"])["composer_revision"]
-        not in {composer_revision(), PRECONDITION_COMPOSER_REVISION}
+        not in {composer_revision(), INVALIDATION_COMPOSER_REVISION, PRECONDITION_COMPOSER_REVISION}
     ):
         raise reject()
     require_preconditions(p, None if capture is None else capture["input"])
     if p["invalidation_predicate_ids"] and (
         composition_version != 4
-        or mapping(bundle["payload"])["composer_revision"] != composer_revision()
+        or mapping(bundle["payload"])["composer_revision"]
+        not in {composer_revision(), INVALIDATION_COMPOSER_REVISION}
     ):
         raise reject()
     require_not_invalidated(p, None if capture is None else capture["input"])
@@ -687,9 +791,12 @@ def _brief(
         bundle["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
     }:
+        raise reject()
+    if canonical(body["required_evidence"]) != canonical(required_evidence(method)):
         raise reject()
     expected_requirements = method_plan(method, None if capture is None else capture["input"])
     if any(r["applicability"] == "UNKNOWN" for r in expected_requirements):
@@ -1050,6 +1157,7 @@ def _material(
         actual_version = 4
     revisions = {
         composer_revision(),
+        INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,
@@ -1106,6 +1214,7 @@ def _material(
         or b["composer_revision"]
         not in {
             composer_revision(),
+            INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             APPLICABILITY_COMPOSER_REVISION,
@@ -1242,6 +1351,7 @@ def validate_composition(
         mapping(payload["prompt_bundle"])["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
         PREDICATE_COMPOSER_REVISION,
         APPLICABILITY_COMPOSER_REVISION,

@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from omnis.core.managed_schema import MANAGED_TABLES
+from omnis.core.managed_schema import MANAGED_TABLES, MISSION_REVISION_GUARD
 
 type ColumnSpec = tuple[str, bool, str | None]
 type ConstraintSpec = tuple[str, str, str, bool, bool]
@@ -378,26 +378,61 @@ AUTHORITY_TABLES.update(MANAGED_TABLES)
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
+    # Physical identity is required only for the new extension and its FK root;
+    # historical authority contracts below remain unchanged. Never resolve the
+    # extension again through the caller's search_path after this OID lookup.
+    physical_oids: dict[str, int] = {}
+    for name in ("managed_mission_revision", "managed_record"):
+        identities = (
+            await connection.execute(
+                text(
+                    "SELECT c.oid, n.nspname, c.relname, c.relkind, c.relpersistence "
+                    "FROM pg_catalog.pg_class c "
+                    "JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace "
+                    "WHERE c.oid = pg_catalog.to_regclass(:table)"
+                ),
+                {"table": f"public.{name}"},
+            )
+        ).all()
+        if len(identities) != 1 or len(identities[0]) != 5:
+            return False
+        oid, namespace, relation, kind, persistence = identities[0]
+        if (
+            type(oid) is not int
+            or oid <= 0
+            or (namespace, relation, kind, persistence) != ("public", name, "r", "p")
+        ):
+            return False
+        physical_oids[name] = oid
+    mission_oid = physical_oids["managed_mission_revision"]
+    root_oid = physical_oids["managed_record"]
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
+        mission = table == "managed_mission_revision"
+        catalog = "pg_catalog." if mission else ""
+        relation_filter = ":relation_oid" if mission else "to_regclass(:table)"
+        parameters: dict[str, str | int] = (
+            {"relation_oid": mission_oid} if mission else {"table": table}
+        )
         columns = (
             await connection.execute(
                 text(
-                    "SELECT a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull, "
-                    "pg_get_expr(d.adbin, d.adrelid) FROM pg_attribute a "
-                    "LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
-                    "WHERE a.attrelid = to_regclass(:table) AND a.attnum > 0 AND NOT a.attisdropped"
+                    f"SELECT a.attname, {catalog}format_type(a.atttypid, a.atttypmod), a.attnotnull, "
+                    f"{catalog}pg_get_expr(d.adbin, d.adrelid) FROM {catalog}pg_attribute a "
+                    f"LEFT JOIN {catalog}pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum "
+                    f"WHERE a.attrelid = {relation_filter} AND a.attnum > 0 AND NOT a.attisdropped"
                 ),
-                {"table": table},
+                parameters,
             )
         ).all()
         constraints = (
             await connection.execute(
                 text(
-                    "SELECT conname, contype, pg_get_constraintdef(oid), convalidated, conenforced "
-                    "FROM pg_constraint WHERE conrelid = to_regclass(:table)"
+                    f"SELECT conname, contype, {catalog}pg_get_constraintdef(oid), convalidated, conenforced"
+                    + (", confrelid " if mission else " ")
+                    + f"FROM {catalog}pg_constraint WHERE conrelid = {relation_filter}"
                 ),
-                {"table": table},
+                parameters,
             )
         ).all()
         required = {
@@ -409,7 +444,15 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             name: (kind, not_null, default) for name, kind, not_null, default in columns
         } != expected_columns:
             return False
-        if set(constraints) != expected_constraints | required:
+        if mission:
+            if any(
+                len(row) != 6 or row[5] != (root_oid if row[1] == "f" else 0) for row in constraints
+            ):
+                return False
+            observed_constraints = {tuple(row[:5]) for row in constraints}
+        else:
+            observed_constraints = {tuple(row) for row in constraints}
+        if observed_constraints != expected_constraints | required:
             return False
     for table, name, function, message in (
         (
@@ -470,6 +513,73 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             )
         ]:
             return False
+    # Only the mission extension has a second guard. Preserve the exact single
+    # immutable-trigger contract for every historical authority table above.
+    mission_triggers = (
+        await connection.execute(
+            text(
+                "SELECT t.tgname, t.tgtype, t.tgenabled, p.proname, p.prosrc, "
+                "l.lanname, p.prosecdef, p.pronargs, t.tgnargs, t.tgqual IS NULL, "
+                "t.tgattr::text, p.prorettype::regtype::text, p.proconfig, "
+                "p.prokind, p.provolatile, p.proisstrict, t.tgdeferrable, t.tginitdeferred, "
+                "t.tgconstraint = 0, t.tgargs = ''::bytea, p.pronamespace::regnamespace::text "
+                "FROM pg_catalog.pg_trigger t JOIN pg_catalog.pg_proc p ON p.oid = t.tgfoid "
+                "JOIN pg_catalog.pg_language l ON l.oid = p.prolang "
+                "WHERE t.tgrelid = :relation_oid AND NOT t.tgisinternal "
+                "ORDER BY t.tgname"
+            ),
+            {"relation_oid": mission_oid},
+        )
+    ).all()
+    if [tuple(row) for row in mission_triggers] != [
+        (
+            "managed_mission_revision_no_change",
+            58,
+            "O",
+            "managed_mission_revision_immutable",
+            "BEGIN\n        RAISE EXCEPTION 'mission revisions are immutable';\n        END;",
+            "plpgsql",
+            False,
+            0,
+            0,
+            True,
+            "",
+            "trigger",
+            None,
+            "f",
+            "v",
+            False,
+            False,
+            False,
+            True,
+            True,
+            "public",
+        ),
+        (
+            "managed_mission_revision_root",
+            7,
+            "O",
+            "managed_mission_revision_guard",
+            MISSION_REVISION_GUARD,
+            "plpgsql",
+            False,
+            0,
+            0,
+            True,
+            "",
+            "trigger",
+            ["search_path=pg_catalog, pg_temp"],
+            "f",
+            "v",
+            False,
+            False,
+            False,
+            True,
+            True,
+            "public",
+        ),
+    ]:
+        return False
     return all(
         (
             await connection.execute(

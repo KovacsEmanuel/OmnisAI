@@ -17,13 +17,13 @@ def test_method_execution_schema_is_explicit_and_chained() -> None:
     config = Config(str(root / "alembic.ini"))
     config.set_main_option("script_location", str(root / "src/omnis/migrations"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == "0012_contract_methods"
+    assert scripts.get_current_head() == "0013_mission_revisions"
     revision = scripts.get_revision("0012_contract_methods")
     assert revision is not None
     assert revision.down_revision == "0011_managed_tasks"
     from omnis.core.db import SCHEMA_REVISION
 
-    assert SCHEMA_REVISION == revision.revision
+    assert SCHEMA_REVISION == scripts.get_current_head()
 
 
 def test_pg_method_upgrade_preserves_history_and_exact_constraints(empty_database_url: URL) -> None:

@@ -19,7 +19,7 @@ class ReleaseError(ValueError):
 
 
 _RELEASE = "0.1.0"
-_SCHEMA = "0012_contract_methods"
+_SCHEMA = "0013_mission_revisions"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
     f"cli/omnis_cli-{_RELEASE}-py3-none-any.whl",

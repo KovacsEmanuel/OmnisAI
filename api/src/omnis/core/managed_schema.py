@@ -3,6 +3,43 @@
 type ManagedColumn = tuple[str, bool, str | None]
 type ManagedConstraint = tuple[str, str, str, bool, bool]
 
+# Independently pinned function body: readiness must not trust migration imports.
+MISSION_REVISION_GUARD = """DECLARE
+        root jsonb;
+        predecessor jsonb;
+        basis jsonb;
+        mission_basis jsonb;
+        mission_count bigint;
+        BEGIN
+        SELECT envelope INTO root FROM public.managed_record
+            WHERE id = NEW.mission_id AND owner_id = NEW.owner_id AND run_id = NEW.run_id;
+        IF NOT FOUND OR (root->'kind' = '"mission"'::jsonb
+            AND root->'revision' = '1'::jsonb AND root->>'revision' = '1'
+            AND root->'schema_version' = '1'::jsonb AND root->>'schema_version' = '1'
+            AND root->'id' = to_jsonb(NEW.mission_id::text)
+            AND jsonb_typeof(root->'digest') = 'string'
+            AND root->>'digest' ~ '^[0-9a-f]{64}$') IS NOT TRUE THEN
+            RAISE EXCEPTION 'invalid mission revision root';
+        END IF;
+        basis := NEW.envelope->'payload'->'basis_refs';
+        IF jsonb_typeof(basis) IS DISTINCT FROM 'array' THEN
+            RAISE EXCEPTION 'invalid mission predecessor';
+        END IF;
+        SELECT count(*) INTO mission_count FROM jsonb_array_elements(basis) AS refs(value)
+            WHERE value->'kind' = '"mission"'::jsonb;
+        IF mission_count <> 1 THEN
+            RAISE EXCEPTION 'invalid mission predecessor';
+        END IF;
+        SELECT value INTO mission_basis FROM jsonb_array_elements(basis) AS refs(value)
+            WHERE value->'kind' = '"mission"'::jsonb;
+        predecessor := jsonb_build_object('kind', 'mission', 'id', NEW.mission_id::text,
+            'revision', 1, 'digest', root->>'digest');
+        IF (mission_basis = predecessor AND mission_basis->>'revision' = '1') IS NOT TRUE THEN
+            RAISE EXCEPTION 'invalid mission predecessor';
+        END IF;
+        RETURN NEW;
+        END;"""
+
 MANAGED_TABLES: dict[str, tuple[dict[str, ManagedColumn], set[ManagedConstraint]]] = {
     "managed_inbox": (
         {
@@ -85,6 +122,76 @@ MANAGED_TABLES: dict[str, tuple[dict[str, ManagedColumn], set[ManagedConstraint]
                 True,
             ),
             ("managed_record_pkey", "p", "PRIMARY KEY (id)", True, True),
+            (
+                "managed_record_id_owner_run_key",
+                "u",
+                "UNIQUE (id, owner_id, run_id)",
+                True,
+                True,
+            ),
+        },
+    ),
+    "managed_mission_revision": (
+        {
+            "mission_id": ("uuid", True, None),
+            "owner_id": ("uuid", True, None),
+            "run_id": ("uuid", True, None),
+            "revision": ("bigint", True, None),
+            "envelope": ("jsonb", True, None),
+        },
+        {
+            (
+                "managed_mission_revision_pkey",
+                "p",
+                "PRIMARY KEY (mission_id, revision)",
+                True,
+                True,
+            ),
+            (
+                "managed_mission_revision_root_fkey",
+                "f",
+                "FOREIGN KEY (mission_id, owner_id, run_id) REFERENCES managed_record(id, owner_id, run_id)",
+                True,
+                True,
+            ),
+            ("managed_mission_revision_number_check", "c", "CHECK ((revision = 2))", True, True),
+            (
+                "managed_mission_revision_object_check",
+                "c",
+                "CHECK ((jsonb_typeof(envelope) = 'object'::text))",
+                True,
+                True,
+            ),
+            (
+                "managed_mission_revision_kind_check",
+                "c",
+                "CHECK ((((envelope -> 'kind'::text) = '\"mission\"'::jsonb) IS TRUE))",
+                True,
+                True,
+            ),
+            (
+                "managed_mission_revision_id_check",
+                "c",
+                "CHECK ((((envelope -> 'id'::text) = to_jsonb((mission_id)::text)) IS TRUE))",
+                True,
+                True,
+            ),
+            (
+                "managed_mission_revision_schema_check",
+                "c",
+                "CHECK (((((envelope -> 'schema_version'::text) = '1'::jsonb) AND "
+                "((envelope ->> 'schema_version'::text) = '1'::text)) IS TRUE))",
+                True,
+                True,
+            ),
+            (
+                "managed_mission_revision_revision_check",
+                "c",
+                "CHECK (((((envelope -> 'revision'::text) = '2'::jsonb) AND "
+                "((envelope ->> 'revision'::text) = '2'::text)) IS TRUE))",
+                True,
+                True,
+            ),
         },
     ),
     "managed_run": (

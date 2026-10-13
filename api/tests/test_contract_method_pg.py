@@ -1080,13 +1080,48 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
 
             monkeypatch.setattr(host_module.NativePeer, "handshake", observed_handshake)
             owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
+
+            async def observe_native_task(command: NativeTaskCommand) -> dict[str, object]:
+                try:
+                    return await owner.handle(command)
+                except CatalogError as error:
+                    # Retain a bounded domain reason before LocalControl masks it.
+                    # Never retain exception text, private values or response bytes.
+                    safe_reasons = {
+                        "RESULT_SCHEMA_MISMATCH",
+                        "RESULT_CONFLICT",
+                        "METHOD_RECEIPT_MISMATCH",
+                        "METHOD_SCHEMA_MISMATCH",
+                        "METHOD_SCHEMA_INVALID",
+                        "COMPOSITION_REJECTED",
+                        "ASSIGNMENT_MISMATCH",
+                        "LINEAGE_MISMATCH",
+                        "MANAGED_REJECTED",
+                        "TASK_REJECTED",
+                    }
+                    checkpoint(
+                        public_owner_error={
+                            "action": command.action,
+                            "reason": error.reason
+                            if type(error.reason) is str and error.reason in safe_reasons
+                            else "UNCLASSIFIED_CATALOG_ERROR",
+                        }
+                    )
+                    raise
+
             if applicability is not None and applicability.startswith(
                 ("evidence-", "partial-requirement-")
             ):
                 # Same owner, kernel peer and private capability; no response emitter.
                 # Establish the listener before launch, not inside the native grant.
                 public_control = await LocalControl(
-                    directory, service, supervisor, epoch, native_task=owner.handle
+                    directory,
+                    service,
+                    supervisor,
+                    epoch,
+                    native_task=observe_native_task
+                    if applicability == "partial-requirement-prefix"
+                    else owner.handle,
                 ).__aenter__()
 
             async def submit_task(action: str, *, phase: str = "ACTIVE") -> dict[str, object]:

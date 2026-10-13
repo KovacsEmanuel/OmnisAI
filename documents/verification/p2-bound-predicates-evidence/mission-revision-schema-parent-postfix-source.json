@@ -1,0 +1,65 @@
+{
+  "status": "PASS_SOURCE_FIXED_PENDING_TWO_FOCUSED_REVIEWS_AND_PRIVATE_PG",
+  "base_head": "45f1c6fff54bde99308e9602ad7c4e6e3392010b",
+  "fix_report": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-parent-fixes.json",
+  "fix_report_sha256": "69e58ec9464982100c46b21417f6522ed37b66baaec43c81c8ee18eb934e66e4",
+  "snapshot": {
+    "file_count": 23,
+    "delta_count": 6,
+    "unchanged_count": 17,
+    "all_current_SHA_match_after23": true,
+    "old_migrations_unchanged": 2,
+    "method_consumer_sources_unchanged": 6,
+    "all_reported_new_log_SHA_match": true,
+    "both_patch_reverse_checks": "exit0",
+    "git_diff_check": "exit0"
+  },
+  "actual_parent_checks": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-parent-fixed-source api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_managed_contract.py -k 'not test_pg' -q --tb=line",
+      "passed": 275,
+      "deselected_pg": 38,
+      "seconds": 16.00,
+      "exit": 0,
+      "scope": "SOURCE/declared driver doubles only"
+    },
+    {
+      "command": "Direct Ruff check/format and mypy --no-incremental on exact6delta paths",
+      "checked_files": 6,
+      "exit": 0,
+      "output": "All checks passed;6 already formatted;no issues in6 source files"
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_mission_revision_migration.py api/tests/test_contract_method_migration.py -k test_pg --collect-only -q --tb=line",
+      "selected": 38,
+      "collected": 40,
+      "deselected": 2,
+      "seconds": 0.28,
+      "exit": 0,
+      "scope": "Collection only; PG NOT_RUN"
+    },
+    {
+      "command": "Current API84/CLI21 source modules ZIP byte comparisons and fixed bundle10 checksum readback",
+      "API_modules": 84,
+      "CLI_modules": 21,
+      "bundle_files": 10,
+      "bundle_schema": "0013_mission_revisions",
+      "exit": 0,
+      "scope": "Built, not installed/launched. Previous API wheel/bundle remain preserved obsolete artifacts."
+    }
+  ],
+  "PG_selection_wrapper_sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22",
+  "findings": {
+    "INPUT-MR-F01": "FIXED_SOURCE_AWAITING_FOCUSED_REVIEW_AND_PG",
+    "INPUT-MR-F02": "FIXED_SOURCE_AWAITING_FOCUSED_REVIEW_AND_PG",
+    "INPUT-MR-F03": "FIXED_SOURCE_AWAITING_FOCUSED_REVIEW_AND_PG"
+  },
+  "global": {
+    "PG": "NOT_RUN",
+    "canonical_final": "NOT_RUN",
+    "M2_API": "NOT_IMPLEMENTED",
+    "ResultQualification": "NOT_IMPLEMENTED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a": "NOT_IMPLEMENTED"
+  }
+}

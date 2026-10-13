@@ -35,7 +35,13 @@ Ordinea detaliază dependența deja obligatorie B06b, nu mută gate-ul sau planu
 
 ## Probe, resurse și rollback
 
-### Candidatul SOURCE și reviewurile originale — fără acceptare PG
+### CURRENT — cod9437072, re-reviewuri SOURCE adjudecate; PG în curs
+
+[Remediile](p2-bound-predicates-evidence/mission-revision-schema-parent-fixes.json) păstrează RED-urile și repară F01 rootul public/search_path/proconfig, F02 identitatea publică/OID/kind/persistence/FK și F03 JSON-string exact fără UUID cast. [Re-reviewurile normativ](p2-bound-predicates-evidence/mission-revision-schema-normative-rereview.json)/[input](p2-bound-predicates-evidence/mission-revision-schema-input-rereview.json) APPROVED_SOURCE_SCOPED pe23SHA/6delta17neschimbate închid explicit cele trei constatări **numai SOURCE**. [Părintele post-fix](p2-bound-predicates-evidence/mission-revision-schema-parent-postfix-source.json):275SOURCE PASS16.00s/38PGdeselected, quality6PASS, patchuri reverse-check0, API84/CLI21wheel byte-exact și10payloaduri noului bundle exact, nu installed. Observerul păstrează14legacy controls; vechiul API wheel/bundle rămân artefacte originale obsolete pentru bytes curenți, nu sunt șterse/resigilate.
+
+[Adjudecarea](p2-bound-predicates-evidence/mission-revision-schema-parent-source-adjudication.json) acceptă SOURCE și admite **o singură tentativă PG fresh** pe produsul comis `9437072ef9a472526ff0f638f6f462632b0b847c`:38/40probe colectate, toate29originale plus9noi, prin același runner/owner și deadline240. Familia/DDL/deparser/enforcement/cleanup reale rămân de observat; IN_PROGRESS nu este PASS. Nu se promovează SQL history synthetic la rezultat nativ. Consumerul Python M2 și ResultQualification rămân neimplementate; după acceptarea fundației urmează consumerul revision-aware existent, nu alt audit/owner.
+
+### Istoric — candidatul original SOURCE și constatările înaintea remedierii
 
 [Autorul](p2-bound-predicates-evidence/mission-revision-schema-author.json) a pregătit23paths: migrare/attestare/pinuri și probe PG numai colectate. [Părintele](p2-bound-predicates-evidence/mission-revision-schema-parent-source.json) verifică23SHA/33loguri,255SOURCE PASS16.04s și2CLI pure PASS, lint/type, API84/CLI21module wheel byte-exact și10payloaduri bundle; construit, nu installed/native. Reviewul [normativ](p2-bound-predicates-evidence/mission-revision-schema-normative-review.json) este APPROVED_SOURCE_SCOPED la snapshotul original. Reviewul [input](p2-bound-predicates-evidence/mission-revision-schema-input-review.json) este **CHANGES_REQUESTED**; nu este închis de acele teste SOURCE.
 
@@ -45,4 +51,4 @@ Două reviewuri complementare pe snapshot exact înainte de PG; părintele repro
 
 Nu migrăm sau pornim r1/DB-ul operatorului, nu adoptăm fixture-uri vechi. DDL before/after:0012→0013 numai disposable. Datele/logurile rămân păstrate și resursele proprii se verifică exact. Git revert inversează source, **nu DDL/history**. Downgrade refuză; orice migrare ulterioară de date ale operatorului cere instanță oprită/fenced, backup complet compatibil și restaurare verificată explicit autorizate. Nu drop M2, disable triggers sau simplu restamp ca rollback.
 
-**Stare: M1/M2 BLOCKED_SCHEMA până la prerechizit; ResultQualification NOT_IMPLEMENTED; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED; canonical final NOT_RUN.** Fără cont/provider/inferență/target/P3/r1/global/push. Reviewul acestei decizii nu este acceptare PostgreSQL sau cod implementat.
+**Stare: schema foundation IMPLEMENTED/SOURCE_APPROVED_SCOPED pe9437072, PG în curs/neacceptat; M2API/ResultQualification NOT_IMPLEMENTED; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED; canonical final NOT_RUN.** Fără cont/provider/inferență/target/P3/r1/global/push. Source/review/decizie nu sunt acceptare PostgreSQL, integrare consumer sau fază.

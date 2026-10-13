@@ -1,0 +1,544 @@
+{
+  "report_id": "p2-mission-revision-schema-input-rereview",
+  "repository": "/home/kali/OmnisAI",
+  "base_head": "45f1c6fff54bde99308e9602ad7c4e6e3392010b",
+  "original_base_head": "45fa7ff304367bbd78b042da4f8dbb49004fed1e",
+  "review_role": "Independent complementary security/input/failure focused re-review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "approval_scope": "Only6 fixes and affected tests at current23SHA; explicit source disposition F01/F02/F03. No child phase closure, integration acceptance or PostgreSQL/runtime PASS. Parent adjudicates.",
+  "findings": [],
+  "new_blocking_finding_count": 0,
+  "finding_dispositions": [
+    {
+      "id": "INPUT-MR-F01",
+      "original_severity": "HIGH",
+      "disposition": "RESOLVED_SOURCE_SCOPED_PG_NOT_RUN",
+      "source_locations": [
+        "api/src/omnis/migrations/versions/0013_mission_revisions.py:43-78",
+        "api/src/omnis/core/managed_schema.py:7-41",
+        "api/src/omnis/core/schema.py:518-581"
+      ],
+      "verified_fix": "Root read is explicit public.managed_record, matches public FK target; new PL/pgSQL guard is invoker (prosecdef=False) with exact search_path=pg_catalog, pg_temp. Pinned body independently equals emitted DDL. Exact proconfig list, not NULL boolean, is compared; missing/reordered/extra-GUC configurations refuse. Existing generic immutable functions remain scoped to their historical contract.",
+      "original_reproducer_disposition": "Old first-call temporary mission shadow over a genuine public focus root no longer supplies the guard root by source inspection. Real PG first-call denial is defined, not executed.",
+      "SOURCE_evidence": [
+        "focused_affected_SOURCE",
+        "independent_observer_input_challenges"
+      ],
+      "PG_definition": "test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back: fresh session negative is first guard invocation; exact invalid-root exception; same-session genuine public mission positive despite temp nonmission same-UUID row; unchanged history/zero failed inserts and final outer rollback removes roots, extension and temp table.",
+      "PG_status": "NOT_RUN"
+    },
+    {
+      "id": "INPUT-MR-F02",
+      "original_severity": "HIGH",
+      "disposition": "RESOLVED_SOURCE_SCOPED_PG_NOT_RUN",
+      "source_locations": [
+        "api/src/omnis/core/schema.py:380-456",
+        "api/src/omnis/core/schema.py:518-581",
+        "api/src/omnis/migrations/versions/0013_mission_revisions.py:17-86"
+      ],
+      "verified_fix": "Both new extension and root require exactly one five-field public namespace/name, ordinary relkind=r, persistent relpersistence=p, positive exact-int OID. Qualified pg_catalog lookup precedes catalog reads. All3 new-extension reads bind admitted mission_oid, no re-resolution through caller path. All6 constraint fields preserved until exact arity/confrelid check; FK confrelid must equal admitted public root_oid; non-FK targets zero. Exact column/default/validated/enforced constraint census and both full trigger rows retained. New DDL table/function/FK references are public-qualified. Historical table locator scope is deliberately not globally rewritten.",
+      "original_reproducer_disposition": "Moving intact extension to caller-first schema cannot hide absent public relation or a LIKE replacement lacking FK/triggers. Source doubles and query-shape tests pass current fix; actual PG alias mutations NOT_RUN.",
+      "SOURCE_evidence": [
+        "focused_affected_SOURCE",
+        "independent_observer_input_challenges"
+      ],
+      "PG_definition": "test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public/public_like_alias]: genuine readiness before and after harmless caller-first schema; moved intact alias OID observed; same-connection incompatible readiness for required public relation; rollback restores exact original public OID and removes shadow schema; fresh connection readiness. ddl-28/29 add unlogged and temp-only negatives with rollback positive.",
+      "PG_status": "NOT_RUN"
+    },
+    {
+      "id": "INPUT-MR-F03",
+      "original_severity": "MEDIUM",
+      "disposition": "RESOLVED_SOURCE_SCOPED_PG_NOT_RUN",
+      "source_locations": [
+        "api/src/omnis/migrations/versions/0013_mission_revisions.py:34-35",
+        "api/src/omnis/core/managed_schema.py:172-178",
+        "api/tests/test_mission_revision_schema.py:451-470"
+      ],
+      "verified_fix": "New CHECK ((envelope->'id' = to_jsonb(mission_id::text)) IS TRUE) preserves exact JSON string and canonical UUID spelling; no JSON-id text-to-UUID cast. Pinned deparser expectation is updated independently. Numeric/null/missing/bool/UUID lexical aliases cannot pass by source semantics; actual PG evaluation remains unmeasured. Generic revision1 JSON id CHECK remains unchanged as required.",
+      "original_reproducer_disposition": "All-digit same-UUID numeric JSON scalar and 32-digit string alias no longer compare equal to canonical JSON-string id. Concrete definition checks exact managed_mission_revision_id_check rather than any psycopg error.",
+      "SOURCE_evidence": [
+        "focused_affected_SOURCE"
+      ],
+      "PG_definition": "test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string: numeric and unhyphenated string negatives on same transaction; expected CheckViolation plus exact constraint name; independently resealed digest; zero extension rows and unchanged roots; canonical string positive; final rollback restores original history and zero extensions.",
+      "PG_status": "NOT_RUN"
+    }
+  ],
+  "frozen_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-parent-fixes.json",
+    "sha256": "69e58ec9464982100c46b21417f6522ed37b66baaec43c81c8ee18eb934e66e4",
+    "matched_expected_sha256": true
+  },
+  "file_count": 23,
+  "before23": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14288,
+      "sha256": "b41d1728c28f73c305ebdcdb1853bae70432e571217899a0de4628bb1a5380d8"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 19643,
+      "sha256": "ae5ce8a55e81e728fba29c9ecaf74ea8a1c29d44f41af81d8453bb1ce4c888d4"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4412,
+      "sha256": "db6b52fde84f880261bf35d177e9fb2237bdbbd79a5920e93d1df68927a795ad"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 16977,
+      "sha256": "462c43bd3bdb0090bbdecc6bf4ec1cad08835194c930e6aff11f068c1d5859cc"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 11555,
+      "sha256": "7bbdfdfa2927a6e1dc6a07b6b33826120bdf974ad67b5f2a353700f43f366e17"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 5163,
+      "sha256": "e23a5e6e5d4575883b90696c7c2756168e88a6a4a8a9d448d24f52bb3056e48b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "final23": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "review_start23_matches_final23": true,
+  "all23_match_fixed_manifest": true,
+  "original_report_final23_matches_before23": true,
+  "exact_delta_paths": [
+    "api/src/omnis/core/managed_schema.py",
+    "api/src/omnis/core/schema.py",
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py",
+    "api/tests/test_mission_revision_migration.py",
+    "api/tests/test_mission_revision_schema.py",
+    "api/tests/test_stop_schema.py"
+  ],
+  "delta_count": 6,
+  "unchanged17_paths": [
+    "api/src/omnis/core/db.py",
+    "api/tests/fixtures/b06a_durable/releases.py",
+    "api/tests/test_cli_status.py",
+    "api/tests/test_contract_method_migration.py",
+    "cli/integration/control_topology.py",
+    "cli/integration/installed_start.py",
+    "cli/src/omnis_cli/instance.py",
+    "cli/src/omnis_cli/release.py",
+    "cli/src/omnis_cli/start.py",
+    "cli/tests/stop_owner_fixture.py",
+    "cli/tests/test_install.py",
+    "cli/tests/test_installed_pointer_schema.py",
+    "cli/tests/test_ready_journal.py",
+    "cli/tests/test_schema_compatibility.py",
+    "cli/tests/test_status.py",
+    "cli/tests/test_stop.py",
+    "ops/build_control_bundle.py"
+  ],
+  "unchanged_count": 17,
+  "SOURCEchecks": [
+    {
+      "name": "focused_affected_SOURCE",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-source api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py -k 'not test_pg' -q --tb=line",
+      "workdir": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "93 passed, 37 deselected in 1.40s",
+      "boundary": "SOURCE/explicit synthetic catalog rows; no database fixtures executed"
+    },
+    {
+      "name": "independent_observer_input_challenges",
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-ms-input-rereview-probe.py",
+      "workdir": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "13/13 SOURCE challenges PASS",
+      "census": {
+        "physical_identity": 2,
+        "columns": 18,
+        "constraints": 18,
+        "triggers": 8,
+        "singleton": 1
+      },
+      "cases": [
+        {
+          "case": "genuine_complete_catalog",
+          "ready": true,
+          "PASS": true
+        },
+        {
+          "case": "root_namespace",
+          "ready": false,
+          "marker_retained": false,
+          "PASS": true
+        },
+        {
+          "case": "root_unlogged",
+          "ready": false,
+          "marker_retained": false,
+          "PASS": true
+        },
+        {
+          "case": "root_view",
+          "ready": false,
+          "marker_retained": false,
+          "PASS": true
+        },
+        {
+          "case": "duplicate_identity",
+          "ready": false,
+          "marker_retained": false,
+          "PASS": true
+        },
+        {
+          "case": "physical_unknown_field",
+          "ready": false,
+          "marker_retained": true,
+          "PASS": true
+        },
+        {
+          "case": "mission_trigger_unknown_field",
+          "ready": false,
+          "marker_retained": true,
+          "PASS": true
+        },
+        {
+          "case": "legacy_trigger_unknown_field",
+          "ready": false,
+          "marker_retained": true,
+          "PASS": true
+        },
+        {
+          "case": "constraint_unknown_field",
+          "ready": false,
+          "marker_retained": true,
+          "PASS": true
+        },
+        {
+          "case": "nested_proconfig_unknown_field",
+          "ready": false,
+          "marker_retained": true,
+          "PASS": true
+        },
+        {
+          "case": "stop_observer_extra_unknown",
+          "refused_false_green": true,
+          "PASS": true
+        },
+        {
+          "case": "stop_observer_nested_unknown",
+          "refused_false_green": true,
+          "PASS": true
+        },
+        {
+          "case": "stop_observer_positive_after_challenges",
+          "PASS": true
+        }
+      ],
+      "probe": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-probe.py",
+        "sha256": "bedec1b73d7023279467d0dcb534778f1a037b4b2def57e83b6e79398b29fbca"
+      },
+      "result_artifact": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-probe-result.json",
+        "sha256": "3f4ba7eb03caf6fee1088090e99c27f2097148eb63a6f748fe2db1d3a46b308b"
+      },
+      "limit": "Synthetic driver-double denial/observer-preservation evidence, not PostgreSQL enforcement or deparser proof"
+    },
+    {
+      "name": "patch_identity_and_reverse_checks",
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-prefixed-delta.patch && git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-full-fromHEAD.patch && git diff --check && git diff --cached --stat",
+      "workdir": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Both reverse checks and diff check PASS; no staged paths"
+    },
+    {
+      "name": "snapshot23_hash_readback",
+      "result": "23/23 match fixed manifest before and after focused execution; original report final23 equals fixed manifest before23;6 changed/17 unchanged",
+      "manifest_sha256": "69e58ec9464982100c46b21417f6522ed37b66baaec43c81c8ee18eb934e66e4",
+      "exit": 0
+    }
+  ],
+  "requirement_assessment": {
+    "caller_path_and_root_physical_binding": "SOURCE verified new guard fixed trusted lookup and explicit public root plus matching physical FK OID; global legacy privilege/path hardening NOT_REVIEWED by this focused fix.",
+    "strict_CHECK_NULL_and_coercion": "New kind/id/schema/revision use JSON equality and IS TRUE; schema/revision also exact text form for integer spellings. Required relational fields/envelope NOT NULL, revision exactly2. Root separately demands exact mission kind, string id, revision/schema1 and digest string/lowercase64. Guard uses IS NOT TRUE/IS DISTINCT FROM to deny missing/null. Existing denial definitions exercise missing/null/bools/strings/fractions/1.0/2.0 and wrong relational values before a same-channel valid insert.",
+    "predecessor": "basis_refs must be array, exactly one mission-kind entry; exact whole predecessor JSON object (kind/id/revision/digest) plus revision string1 denies missing/extra fields, duplicate/wrong mission ref and coercions. Other nonmission basis refs are not newly constrained by this storage-only invariant.",
+    "immutability": "Statement-level BEFORE UPDATE/DELETE/TRUNCATE refusal remains exact; guard flags/body/config and both trigger rows are compared without dropping fields. PG definitions pair actual insert with UPDATE/DELETE/TRUNCATE denial and unchanged readback, not run here.",
+    "canonical_and_history_limits": "CanonicalJSON/digest/full payload/schema validation are backend responsibilities; SQL JSONB is not canonical byte or duplicate-wire-member proof. M2 consumer/constructor/API/ResultQualification NOT_IMPLEMENTED, not credited from synthetic sealed SQL rows. Historical generic revision1 PK/FKs/immutability retained; empty/populated0012 upgrade definitions compare all prior tables/FKs and close/reopen M1/M2 with independent digest checks. These definitions do not provide genuine native TaskResult/checker history, runtime restart, functional verdict or admission grants.",
+    "SOURCE_observer_census_unknownfields": "Positive observer exercised all18 authority tables (18 column+18 constraint reads),2 physical identity reads,8 trigger reads,1 singleton. All3 mission reads share admitted OID. New independent13-case probe rejects root namespace/kind/persistence drift, duplicate identity, unknown physical/constraint/trigger fields and nested proconfig markers. The changed Stop observer refuses false-clean positives when top-level extra tuple or nested marker is supplied; its genuine positive still passes afterward. Full tuple conversion preserves unknown fields; mission constraint projection occurs only after exact six-field arity and FK-OID validation."
+  },
+  "PGNOT_RUN": true,
+  "PG": {
+    "status": "NOT_RUN",
+    "census_status": "COLLECT_ONLY",
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-collection api/tests/test_mission_revision_migration.py api/tests/test_contract_method_migration.py --collect-only -k test_pg -q --tb=line",
+    "workdir": "/home/kali/OmnisAI",
+    "exit": 0,
+    "result": "38/40 tests collected (2 deselected) in 0.36s",
+    "selected": 38,
+    "total": 40,
+    "deselected": 2,
+    "DDL_mutation_count": 30,
+    "selected_nodes": [
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[empty0013]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[populated0012_to0013]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_denials_are_atomic_before_valid_insert",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-0]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-1]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-2]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-3]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-4]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-5]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-6]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-7]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-8]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-9]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-10]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-11]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-12]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-13]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-14]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-15]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-16]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-17]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-20]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-21]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-22]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-23]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-24]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-25]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-26]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-27]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-28]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-29]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]",
+      "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]",
+      "api/tests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints"
+    ],
+    "definition_assessment": "Original PG controls retained. F01 first-call same-session negative/positive/outer rollback; F02 caller-schema same-channel ready/incompatible/rollback/OID positive; F03 exact-constraint alias denials/canonical positive/rollback; proconfig reset/reorder/extraGUC ddl25-27 ready->refusal->rollback-ready. No guard/deparser/DDL/rollback/physical reopen was executed.",
+    "pending_acceptance_proof": "Parent adjudication then fresh owned PG18 UDS/no-network fixture via unchanged reviewed selection wrapper/private owner; no adoption of old private fixture or report."
+  },
+  "unchanged_consumer_closure": {
+    "status": "SIX_ORIGINAL_CONSUMER_SHA_VERIFIED_UNCHANGED",
+    "paths": [
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/src/omnis/modules/tasks/criterion_checks.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/managed_store.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py"
+    ],
+    "limit": "Hash preservation only; no unchanged consumer gate rerun or new M2 consumer approval."
+  },
+  "selection_wrapper_preserved": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22",
+    "status": "UNCHANGED_SHA_VERIFIED_NOT_EXECUTED",
+    "limit": "Prior SOURCE_ONLY wrapper approval remains delegated to original private owner; no PG execution in this review."
+  },
+  "old_migrations_verified_unchanged": [
+    {
+      "path": "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+      "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d",
+      "match": true
+    },
+    {
+      "path": "api/src/omnis/migrations/versions/0012_contract_methods.py",
+      "sha256": "679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c",
+      "match": true
+    }
+  ],
+  "patches": {
+    "pre_fix_delta": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-prefixed-delta.patch",
+      "sha256": "7788bec925459dcfb6c2c2fcf4f55d36d6ab2ddd71eb52f13bec33b9383ae9ea",
+      "reverse_check_exit": 0
+    },
+    "full_from_HEAD": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-full-fromHEAD.patch",
+      "sha256": "8d27addd8f4f7316df6c4d94c36abcd6ff60b13716bb57e4ff46abb41f96cde9",
+      "reverse_check_exit": 0
+    }
+  },
+  "remaining_acceptance_blockers": [
+    {
+      "type": "UNMEASURED_RUNTIME_PROOF_NOT_NEW_SOURCE_DEFECT",
+      "status": "PG_NOT_RUN",
+      "description": "Exact current PostgreSQL DDL/deparser/proconfig/trigger/constraint evaluation, atomic rejection/rollback and durable upgrade/reopen still require parent-owned private execution; SOURCE approval is not product acceptance."
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-ms-input-rereview-probe-result.json",
+    "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-input-rereview.json"
+  ],
+  "repo_files_modified": [],
+  "index_or_commits": "NONE; parent owns integration",
+  "issues_encountered": [
+    "No focused test failure or new source blocker reproduced. Scratch probe editor static import diagnostics are caused by runtime sys.path setup; real pinned interpreter execution exit0 verified imports."
+  ],
+  "scope_limits": [
+    "No PostgreSQL, Docker, native, installed, service, account, model, provider, target, r1, global operations or secret reads.",
+    "No protected documents/Omnis_Notite_Originale.html read/edit/delete.",
+    "No rerun unchanged255 SOURCE/allCLI/canonical suites; only93 affected SOURCE and13 focused independent challenges.",
+    "Original reports/failures retained; original normative approval does not transfer to changed source.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no tooling installation.",
+    "B06b/G02/P2 PARTIAL_NOT_CLOSED, M2API and ResultQualification NOT_IMPLEMENTED, canonical final NOT_RUN."
+  ],
+  "status_delta_for_parent": "Propose F01/F02/F03 source blockers resolved on current23SHA, with scoped input approval only. Preserve PG_NOT_RUN and original failures; parent combines complementary re-review and decides next private proof/integration. No repository map changes by read-only child."
+}

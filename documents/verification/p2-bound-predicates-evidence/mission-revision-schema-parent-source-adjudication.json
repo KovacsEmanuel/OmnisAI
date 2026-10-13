@@ -1,0 +1,46 @@
+{
+  "decision": "APPROVED_SOURCE_SCOPED_PARENT_ADJUDICATED_PRIVATE_PG_ONE_ATTEMPT_ADMITTED",
+  "product_head": "9437072ef9a472526ff0f638f6f462632b0b847c",
+  "scope": "Mission revision2 schema-only foundation; no M2 API/qualification/native/installed/phase approval",
+  "reviews": {
+    "normative_rereview_sha256": "b42266066ec6a53d7826668785f911350901580d16e7dcafdd820e0c57f0ecd1",
+    "input_rereview_sha256": "d5dccc30c904debf01541acec3628d4c80c2e1af0000634eeb8a763ac72b15ee",
+    "both": "APPROVED_SOURCE_SCOPED exact23SHA,6delta17unchanged,explicit3findingdispositions"
+  },
+  "finding_dispositions": {
+    "INPUT-MR-F01": "RESOLVED_SOURCE_SCOPED; actual PG enforcement/negative+positive pending one fresh attempt",
+    "INPUT-MR-F02": "RESOLVED_SOURCE_SCOPED; actual PG enforcement/negative+positive pending one fresh attempt",
+    "INPUT-MR-F03": "RESOLVED_SOURCE_SCOPED; actual PG enforcement/negative+positive pending one fresh attempt"
+  },
+  "parent_verification": {
+    "current23_sha_review_match": true,
+    "source_passed": 275,
+    "seconds": 16.0,
+    "exit": 0,
+    "quality6": "Ruff/format/mypy PASS",
+    "API84_CLI21_wheel_byteexact": true,
+    "bundle10_checksum_bound_0013": true,
+    "PG_collected": 38,
+    "total_collected": 40,
+    "PGNOTRUN_at_admission": true,
+    "old_0011_0012_and_method_consumers_preserved": true
+  },
+  "accepted_resource_boundary": {
+    "attempts": 1,
+    "existing_runner": "ops/run_test_db_gate.py run_gate/prove_private_fixture unchanged",
+    "scratch_selection": "p2-partial-return-pg-selection.py mission-revision",
+    "wrapper_sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22",
+    "target": "test-contract-method-pg",
+    "timeout_seconds": 240,
+    "fresh_attested_PG18_UDS_no_network_only": true,
+    "native_installed_operator_r1_models_accounts_targets_global": "NOT_AUTHORIZED",
+    "retry": "No blind retry or code edits in QA; failed invocation retained; exact owner cleanup/data readback required"
+  },
+  "remaining": {
+    "PG": "IN_PROGRESS_NOT_YET_ACCEPTED",
+    "canonical_final": "NOT_RUN",
+    "M2_API_ResultQualification": "NOT_IMPLEMENTED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a": "NOT_IMPLEMENTED"
+  }
+}

@@ -1,0 +1,788 @@
+{
+  "status": "PREPARED_SOURCE_FIXED_NOT_ACCEPTED_PENDING_TWO_FOCUSED_RE_REVIEWS_AND_PRIVATE_PG",
+  "repository": "/home/kali/OmnisAI",
+  "original_base_head": "45fa7ff304367bbd78b042da4f8dbb49004fed1e",
+  "full_patch_base_head": "45f1c6fff54bde99308e9602ad7c4e6e3392010b",
+  "head_advance": "Parent-only documentation commit45f1c6f; no product source staged/committed by this author.",
+  "normative_requirement": "documents/verification/p2-result-qualification-schema-decision.md",
+  "input_review": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-input-review.json",
+    "bytes": 33481,
+    "sha256": "146b5137dc316dafc843c59855a16941576465da5c5373a23ee9a196174eeb0f"
+  },
+  "original_author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-author.json",
+    "bytes": 53897,
+    "sha256": "1b63ce2f1c77ec9d78e6ccb4300c55b042e719ffd90ce34c51d0ac73e5db6347"
+  },
+  "finding_dispositions": [
+    {
+      "id": "INPUT-MR-F01",
+      "disposition": "FIXED_SOURCE_PENDING_TWO_FOCUSED_RE_REVIEWS_AND_ACTUAL_PG",
+      "fix": "New invoker guard explicitly reads public.managed_record; new guard SET search_path TO pg_catalog, pg_temp; independent exact body and exact p.proconfig array attested. SECURITY DEFINER remains false.",
+      "new_red": [
+        "f01-red"
+      ],
+      "green": [
+        "f01-green2",
+        "source-final"
+      ],
+      "PG_definitions": [
+        "test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back",
+        "ddl-20",
+        "ddl-25",
+        "ddl-26",
+        "ddl-27"
+      ],
+      "PG_status": "NOT_RUN"
+    },
+    {
+      "id": "INPUT-MR-F02",
+      "disposition": "FIXED_SOURCE_PENDING_TWO_FOCUSED_RE_REVIEWS_AND_ACTUAL_PG",
+      "fix": "Explicit public physical extension/root pg_class+pg_namespace+name/ordinary/persistent/OID admission. New extension attributes/constraints/triggers share the admitted OID, with confrelid checked against admitted public root OID. All0013 DDL relation/function references explicitly public. Historical attestor behavior not generally expanded.",
+      "new_red": [
+        "f02-red"
+      ],
+      "green": [
+        "f02-green",
+        "source-final"
+      ],
+      "PG_definitions": [
+        "test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]",
+        "test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]",
+        "ddl-28",
+        "ddl-29"
+      ],
+      "PG_status": "NOT_RUN"
+    },
+    {
+      "id": "INPUT-MR-F03",
+      "disposition": "FIXED_SOURCE_PENDING_TWO_FOCUSED_RE_REVIEWS_AND_ACTUAL_PG",
+      "fix": "New CHECK ((envelope->'id' = to_jsonb(mission_id::text)) IS TRUE); exact independently pinned deparser expectation. Generic revision1 ledger is unchanged.",
+      "new_red": [
+        "f03-real-red"
+      ],
+      "green": [
+        "f03-real-green",
+        "source-final"
+      ],
+      "PG_definitions": [
+        "test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string"
+      ],
+      "PG_status": "NOT_RUN"
+    }
+  ],
+  "original_RED_evidence": {
+    "author_foundation_TDD": [
+      {
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-red api/tests/test_mission_revision_schema.py -q --tb=line",
+        "exit": 1,
+        "result": "Original 3 failed: old head, missing extension contract, missing new migration.",
+        "log": "p2-mission-revision-red.log",
+        "log_artifact": {
+          "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-red.log",
+          "bytes": 1728,
+          "sha256": "f87909ba04e5ccd87dd3548567f1f3ad36bc093a5a77861d5a509b115b381e24"
+        }
+      },
+      {
+        "command": "env -u PYTHONPATH -u PYTHONHOME cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_schema_compatibility.py -v",
+        "exit": 1,
+        "result": "Original 2 current0013 positives refused by old CLI DB/instance consumers.",
+        "log": "p2-mission-pin-red.log",
+        "log_artifact": {
+          "path": "/home/kali/.hermes/cache/scratch/p2-mission-pin-red.log",
+          "bytes": 1945,
+          "sha256": "950c6cd41c96f13eef5b1adda555e12db9147c23a87b0328ea30eb4d7867b718"
+        }
+      },
+      {
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-guard-red api/tests/test_mission_revision_schema.py -q --tb=line",
+        "exit": 1,
+        "result": "12 invalid guard catalog rows falsely accepted;4 positives passed.",
+        "log": "p2-mission-guard-red.log",
+        "log_artifact": {
+          "path": "/home/kali/.hermes/cache/scratch/p2-mission-guard-red.log",
+          "bytes": 3480,
+          "sha256": "b7e742ed0db2bdf549881119dbe36a2469c841d72141c83fa8a8d2a3eeade0ce"
+        }
+      },
+      {
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-flags-red api/tests/test_mission_revision_schema.py -q --tb=line",
+        "exit": 1,
+        "result": "9 changed function/trigger flags falsely accepted;16 passed.",
+        "log": "p2-mission-flags-red.log",
+        "log_artifact": {
+          "path": "/home/kali/.hermes/cache/scratch/p2-mission-flags-red.log",
+          "bytes": 2607,
+          "sha256": "737db1733bb09aebc2db4e02fcf9f0e83cd1a0e79ccd375714158f35f79861b9"
+        }
+      },
+      {
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-green1 api/tests/test_mission_revision_schema.py -q --tb=line",
+        "exit": 0,
+        "result": "16 SOURCE passed after minimum foundation/guard implementation.",
+        "log": "p2-mission-revision-green1.log",
+        "log_artifact": {
+          "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-green1.log",
+          "bytes": 99,
+          "sha256": "a1e273a73eb201f745d6c38b321f3f02f52968f578342d72d20202bc7194c4ac"
+        }
+      }
+    ],
+    "parent_finding_regressions": {
+      "source": "documents/verification/p2-bound-predicates-evidence/mission-revision-schema-parent-findings.json",
+      "actual_reported_result": "3 FAIL,0.013s,exit1",
+      "channel": "PARENT_REPORTED_SOURCE_ONLY_NOT_REEXECUTED",
+      "command_limit": "Inline unittest source is not retained in this durable parent report; do not fabricate the unavailable inline command/log. New durable regressions below supersede only the proof gap, not historical bytes."
+    },
+    "original_reviewer_source_probe": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-ms-input-review-source-probe.py",
+      "report": "/home/kali/.hermes/cache/scratch/p2-mission-revision-schema-input-review.json",
+      "probe": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-ms-input-review-source-probe.py",
+        "bytes": 2418,
+        "sha256": "7e7d8e4aa1e770f4d1ab632f760a104e236e3f16000c6bd8940b390f19ee8204"
+      },
+      "execution": "Previously executed on original frozen bytes; not rerun with changed helpers/migration."
+    }
+  },
+  "new_actual_commands_logs_RED_GREEN_quality_build": [
+    {
+      "name": "f01-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f01-red api/tests/test_mission_revision_schema.py -k \"guard_uses_public_root or guard_attests_exact_proconfig\" -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f01-red.log",
+      "sha256": "4e4ee1f7c678ae9b13acdd50ce7ef75ec7e5ade4698a82a6b71c6e8f056ad2bf",
+      "summary": "FF                                                                       [100%]\n=================================== FAILURES ===================================\nE   AssertionError: assert 'SET search_path TO pg_catalog, pg_temp' in ' RETURNS trigger LANGUAGE plpgsql '\n     +  where ' RETURNS trigger LANGUAGE plpgsql ' = <built-in method group of re.Match object at 0x7fa1f7fe4360>(1)\n     +    where <built-in method group of re.Match object at 0x7fa1f7fe4360> = <re.Match object; span=(1488, 3287), match='CREATE FUNCTION managed_mission_revision_guard() >.group\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:331: AssertionError: assert 'SET search_path TO pg_catalog, pg_temp' in ' RETURNS trigger LANGUAGE plpgsql '\nE   AssertionError: assert 'p.proconfig IS NULL' not in 'SELECT t.tg... BY t.tgname'\n      \n      'p.proconfig IS NULL' is contained here:\n      ?           ^\n        pe::text, p.proconfig IS NULL, p.prokind, p.provolatile, p.proisstrict, t.tgdeferrable, t.tginitdeferred, t.tgconstraint = 0, t.tgargs = ''::bytea, p.pronamespace::regnamespace::text FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid JOIN pg_language l ON l.oid = p.prolang WHERE t.tgrelid = to_regclass(:table) AND NOT t.tgisinternal ORDER BY t.tgname\n      ?           ^^^^^^^^^^^^^^^^^^^^\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:345: AssertionError: assert 'p.proconfig IS NULL' not in 'SELECT t.tg... BY t.tgname'\n=========================== short test summary info ============================\nFAILED api/tests/test_mission_revision_schema.py::test_source_guard_uses_public_root_and_fixed_lookup_path\nFAILED api/tests/test_mission_revision_schema.py::test_source_guard_attests_exact_proconfig_not_null_boolean\n2 failed, 56 deselected in 0.20s\n"
+    },
+    {
+      "name": "f01-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f01-green api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f01-green.log",
+      "sha256": "0e782e205f15da25a355b66e5d950461da5906bd3e465d531d079655e5af7c4d",
+      "summary": "...FF....................................................F               [100%]\n=================================== FAILURES ===================================\nE   assert False is (None is None)\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:247: assert False is (None is None)\nE   assert False is (None is None)\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:247: assert False is (None is None)\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:346: assert False is True\n=========================== short test summary info ============================\nFAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-immutable]\nFAILED api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-root_guard]\nFAILED api/tests/test_mission_revision_schema.py::test_source_guard_attests_exact_proconfig_not_null_boolean\n3 failed, 55 passed in 0.69s\n"
+    },
+    {
+      "name": "f01-green2",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f01-green2 api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f01-green2.log",
+      "sha256": "b70acca4a91277ceef9010c9c50ed1d229577616ff1050a207aa88bbfc3102e6",
+      "summary": "..........................................................               [100%]\n58 passed in 0.76s\n"
+    },
+    {
+      "name": "f02-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f02-red api/tests/test_mission_revision_schema.py -k \"physical or oid\" -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f02-red.log",
+      "sha256": "cf05099dcc703367760d4cd162e45702e8ab3b27fcb4eac5b7575d5fd2ce06f9",
+      "summary": "e/kali/OmnisAI/api/tests/test_mission_revision_schema.py:402: assert True is False\nE   assert True is False\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:402: assert True is False\nE   assert True is False\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:402: assert True is False\nE   assert True is False\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:402: assert True is False\nE   assert True is False\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:402: assert True is False\nE   assert True is False\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:421: assert True is False\n=========================== short test summary info ============================\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_catalog_reads_bind_one_public_physical_oid\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[None]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row1]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row2]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row3]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row4]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row5]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row6]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row7]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row8]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_noncanonical_physical_identity[identity_row9]\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_refuses_fk_target_oid_alias\n12 failed, 58 deselected in 0.36s\n"
+    },
+    {
+      "name": "f02-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f02-green api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f02-green.log",
+      "sha256": "6a760f38e14f4e7dbe53db050ac91be3b55caff545337aec8bb6b561b7d15949",
+      "summary": "......................................................................   [100%]\n70 passed in 0.82s\n"
+    },
+    {
+      "name": "f03-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f03-red api/tests/test_mission_revision_schema.py -k id_check_preserves -q --tb=line",
+      "exit": 5,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f03-red.log",
+      "sha256": "099242fbae201049a9d5884c3f5ef4efaf8f03fcd979627e0d0b4897c605ea9f",
+      "summary": "\n70 deselected in 0.21s\n"
+    },
+    {
+      "name": "f03-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f03-green api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f03-green.log",
+      "sha256": "52e0ce583cee98a1ed1b642ce39d91b73fccb725840aed179d1be6e22e8a38fe",
+      "summary": "......................................................................   [100%]\n70 passed in 0.74s\n"
+    },
+    {
+      "name": "f03-real-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f03-real-red api/tests/test_mission_revision_schema.py -k id_check_preserves -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f03-real-red.log",
+      "sha256": "bb966e3df2941cdae3d0d12b939a0d749bd87a332ae83267162836067b89ae82",
+      "summary": "F                                                                        [100%]\n=================================== FAILURES ===================================\nE   AssertionError: assert 'CHECK (((env..._id) IS TRUE)' == 'CHECK ((enve...xt)) IS TRUE)'\n      \n      - CHECK ((envelope->'id' = to_jsonb(mission_id::text)) IS TRUE)\n      ?                          ---------          ------ -\n      + CHECK (((envelope->>'id')::uuid = mission_id) IS TRUE)\n      ?       +            +    +++++++\n/home/kali/OmnisAI/api/tests/test_mission_revision_schema.py:442: AssertionError: assert 'CHECK (((env..._id) IS TRUE)' == 'CHECK ((enve...xt)) IS TRUE)'\n=========================== short test summary info ============================\nFAILED api/tests/test_mission_revision_schema.py::test_source_mission_id_check_preserves_json_string_identity\n1 failed, 70 deselected in 0.20s\n"
+    },
+    {
+      "name": "f03-real-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-f03-real-green api/tests/test_mission_revision_schema.py -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-f03-real-green.log",
+      "sha256": "31c64d8f2284765029764bf73eda49cfc52ab9cc2fcfa4a8b587891b17375c69",
+      "summary": ".......................................................................  [100%]\n71 passed in 0.78s\n"
+    },
+    {
+      "name": "stop-observer-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-stop-observer-red api/tests/test_stop_schema.py -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-stop-observer-red.log",
+      "sha256": "e39ee0ddbd1e44943ce13d99cc517e0d8da4635017c8422dcb41255a7268f2f2",
+      "summary": ".FFFFFFF........                                                         [100%]\n=================================== FAILURES ===================================\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\nE   assert False is True\n/home/kali/OmnisAI/api/tests/test_stop_schema.py:131: assert False is True\n=========================== short test summary info ============================\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-managed_record]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-instance_stop_reconciliation]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-engagement_revision]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-catalog_record]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-catalog_identity]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-catalog_reservation]\nFAILED api/tests/test_stop_schema.py::test_schema_refuses_conditional_immutability_trigger[True-catalog_command]\n7 failed, 9 passed in 0.25s\n"
+    },
+    {
+      "name": "stop-observer-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-stop-observer-green api/tests/test_stop_schema.py -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-stop-observer-green.log",
+      "sha256": "82b57a32cf2a6790a70040cb9eb52b4e2571a7b283c95c69a982acd880870d84",
+      "summary": "................                                                         [100%]\n16 passed in 0.34s\n"
+    },
+    {
+      "name": "source-expanded",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-expanded api/tests/test_mission_revision_schema.py api/tests/test_stop_schema.py api/tests/test_mission_revision_migration.py -k \"not test_pg\" -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-source-expanded.log",
+      "sha256": "0c5d6b90af7264aff0cac1b7a127fe6570b57aa34feaa06106670980a699504e",
+      "summary": "........................................................................ [ 77%]\n.....................                                                    [100%]\n93 passed, 37 deselected in 0.99s\n"
+    },
+    {
+      "name": "ruff-first",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-ruff-first.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed!\n"
+    },
+    {
+      "name": "format-six",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-format-six.log",
+      "sha256": "9a5245d2c7957a6cba6bbc41ed0760427c73d5e3f3c67f8541b2a77b26573071",
+      "summary": "4 files reformatted, 2 files left unchanged\n"
+    },
+    {
+      "name": "source255-expanded",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-final-source api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_managed_contract.py -k \"not test_pg\" -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-source255-expanded.log",
+      "sha256": "d8ce32d968c1ae1d561b3517558c7fa0ed415ed8fa675feb5c25b7ab459e45f4",
+      "summary": "........................................................................ [ 26%]\n........................................................................ [ 52%]\n........................................................................ [ 78%]\n...........................................................              [100%]\n275 passed, 38 deselected in 14.24s\n"
+    },
+    {
+      "name": "mypy-six",
+      "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-ms-fixes-mypy api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-mypy-six.log",
+      "sha256": "71e9ea57128e6ec2952af26fb1840dd6990e635abb84d97ad66fbf3d655bc44c",
+      "summary": "api/src/omnis/core/schema.py:454: error: Argument 1 to \"set\" has incompatible type \"Sequence[Row[Any]]\"; expected \"Iterable[tuple[Any, ...]]\"  [arg-type]\nFound 1 error in 1 file (checked 6 source files)\n"
+    },
+    {
+      "name": "pg-collection",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_mission_revision_migration.py api/tests/test_contract_method_migration.py --collect-only -k test_pg -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-pg-collection.log",
+      "sha256": "c24b3e81be8eff01fcc80131476f24c75a18f26f00de179d09d26fd5b78e21f9",
+      "summary": "ddl[ddl-15]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-16]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-17]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-20]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-21]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-22]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-23]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-24]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-25]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-26]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-27]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-28]\ntests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-29]\ntests/test_mission_revision_migration.py::test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back\ntests/test_mission_revision_migration.py::test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string\ntests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]\ntests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]\ntests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints\n\n38/40 tests collected (2 deselected) in 0.21s\n"
+    },
+    {
+      "name": "source-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-ms-fixed-source-final api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_managed_contract.py -k \"not test_pg\" -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-source-final.log",
+      "sha256": "83db4673d32a6ab9ee715ac33b3b0b9bc8eb39adda4ebc01d6150f0dc550746a",
+      "summary": "........................................................................ [ 26%]\n........................................................................ [ 52%]\n........................................................................ [ 78%]\n...........................................................              [100%]\n275 passed, 38 deselected in 14.53s\n"
+    },
+    {
+      "name": "quality-make",
+      "command": "env -u PYTHONPATH -u MYPYPATH PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch RUFF_CACHE_DIR=/home/kali/.hermes/cache/scratch/p2-ms-fixes-ruff-cache MYPY_CACHE_DIR=/home/kali/.hermes/cache/scratch/p2-ms-fixes-make-mypy make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 API_PY=\"api/.venv/bin/python -B\"",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-quality-make.log",
+      "sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+      "summary": "[][]\n"
+    },
+    {
+      "name": "api-wheel-build",
+      "command": "env -u PYTHONPATH -u PYTHONHOME TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/.local/share/omnis-toolchains/uv-0.12.19 build --no-config --offline --no-python-downloads --cache-dir /home/kali/.hermes/cache/scratch/p2-ms-fixes-uv-cache --wheel --python /home/kali/OmnisAI/api/.venv/bin/python api --out-dir /home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-api-wheel-build.log",
+      "sha256": "5986785ebc859dad02c87b91dc40514afcff15c270e48591137a99fe573e4da3",
+      "summary": "Building wheel...\nSuccessfully built /home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel/omnis_api-0.1.0-py3-none-any.whl\n"
+    },
+    {
+      "name": "ruff-final",
+      "command": "env RUFF_CACHE_DIR=/home/kali/.hermes/cache/scratch/p2-ms-fixes-ruff-cache /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed!\n"
+    },
+    {
+      "name": "format-final",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-format-final.log",
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "summary": "6 files already formatted\n"
+    },
+    {
+      "name": "mypy-six-final",
+      "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-ms-fixes-mypy-final api/src/omnis/migrations/versions/0013_mission_revisions.py api/src/omnis/core/managed_schema.py api/src/omnis/core/schema.py api/tests/test_mission_revision_schema.py api/tests/test_mission_revision_migration.py api/tests/test_stop_schema.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-mypy-six-final.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff",
+      "summary": "Success: no issues found in 6 source files\n"
+    },
+    {
+      "name": "api-wheel-factory",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u OMNIS_DATABASE_URL -u OMNIS_WEB_ROOT -u OMNIS_CONTROL_DIR /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from importlib import import_module; sys.path.insert(0,'\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel/omnis_api-0.1.0-py3-none-any.whl'\"'\"'); import omnis; from omnis.api import create_app; from omnis.core.db import SCHEMA_REVISION; assert str(omnis.__file__).startswith('\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel/omnis_api-0.1.0-py3-none-any.whl'\"'\"'); assert SCHEMA_REVISION==\"0013_mission_revisions\"; assert create_app().routes; m=import_module(\"omnis.migrations.versions.0013_mission_revisions\"); assert m.down_revision==\"0012_contract_methods\"; print(\"API ZIP-wheel factory/head/new migration imports PASS; no service started\")'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-api-wheel-factory.log",
+      "sha256": "3294883c9ae42c3bee69e62544e78226224da294e5f86b213cd8c3fd7749272b",
+      "summary": "API ZIP-wheel factory/head/new migration imports PASS; no service started\n"
+    },
+    {
+      "name": "bundle-build",
+      "command": "env -u PYTHONPATH -u PYTHONHOME PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,runpy; from pathlib import Path; sys.path.insert(0,\"/home/kali/OmnisAI/cli/src\"); r=runpy.run_path(\"/home/kali/OmnisAI/ops/build_control_bundle.py\"); r[\"build_bundle\"](*map(Path,['\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel/omnis_api-0.1.0-py3-none-any.whl'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-requirements.txt'\"'\"', '\"'\"'/home/kali/OmnisAI/web/dist'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-ms-fixed-control-bundle'\"'\"'])); print(\"BUNDLE_READY\")'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-bundle-build.log",
+      "sha256": "9e7b883a6d08d13bfa6f4ac1a536fe3ae19626cdfec027a61b56270c8e4fe924",
+      "summary": "BUNDLE_READY\n"
+    },
+    {
+      "name": "patch-scope",
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-prefixed-delta.patch && git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-full-fromHEAD.patch && git diff --check && test -z \"$(git diff --cached --name-only)\"",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-patch-scope.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    }
+  ],
+  "source_result": {
+    "passed": 275,
+    "PG_deselected": 38,
+    "exit": 0,
+    "seconds": 14.53,
+    "original_affected_source_selection": 255,
+    "added_source_cases": 20,
+    "status": "PASS_SOURCE_DRIVER_DOUBLES_ONLY",
+    "verification_after_last_source_edit": true,
+    "quality": "Real make lint-api/typecheck-api exit0 plus six-path Ruff/format/mypy exit0. No ignore/cast or weakened gate."
+  },
+  "before23": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14288,
+      "sha256": "b41d1728c28f73c305ebdcdb1853bae70432e571217899a0de4628bb1a5380d8"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 19643,
+      "sha256": "ae5ce8a55e81e728fba29c9ecaf74ea8a1c29d44f41af81d8453bb1ce4c888d4"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4412,
+      "sha256": "db6b52fde84f880261bf35d177e9fb2237bdbbd79a5920e93d1df68927a795ad"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 16977,
+      "sha256": "462c43bd3bdb0090bbdecc6bf4ec1cad08835194c930e6aff11f068c1d5859cc"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 11555,
+      "sha256": "7bbdfdfa2927a6e1dc6a07b6b33826120bdf974ad67b5f2a353700f43f366e17"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 5163,
+      "sha256": "e23a5e6e5d4575883b90696c7c2756168e88a6a4a8a9d448d24f52bb3056e48b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "after23": {
+    "api/src/omnis/core/db.py": {
+      "bytes": 6715,
+      "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+    },
+    "api/src/omnis/core/managed_schema.py": {
+      "bytes": 14304,
+      "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+    },
+    "api/src/omnis/core/schema.py": {
+      "bytes": 21740,
+      "sha256": "de1b9aa6d15f3b5cbcc773cc48bac0a73b7f026f8a62e54c1a1f442eb223e2b6"
+    },
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py": {
+      "bytes": 4540,
+      "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22504,
+      "sha256": "5be3831d0068b7846d8a6e87bbd41dcbbf9f06e293b79a0b82861c0ee5cf9542"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4146,
+      "sha256": "0d4461544c4398ff5f9927ff7e3cd98518f7a79a1b64e12bdddae17bf503981a"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2504,
+      "sha256": "fbace431a09b53c52b660ed7ae49101f1f24676ca2621e90cc3ef900f4700f62"
+    },
+    "api/tests/test_mission_revision_migration.py": {
+      "bytes": 24710,
+      "sha256": "dffc8c9440f9d645e43a52a09be2cae275434ddf1f80ace81248d3a4168f7e41"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 18536,
+      "sha256": "f56649f6973fd9db53fcbdc4d47926911c36bfe2228930f62b082ab1a9c32f5c"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2718,
+      "sha256": "38bd61807c38b08b3c9cd7d81132565c746d7e474cc8039378a321a03131fd2b"
+    },
+    "cli/integration/control_topology.py": {
+      "bytes": 39786,
+      "sha256": "8a018daf8c334e135c3b0e2c2d820ad72e6687066dcf00c56c0c03e5a34cbf43"
+    },
+    "cli/integration/installed_start.py": {
+      "bytes": 42008,
+      "sha256": "69e06848d0e3ca5880245fc417ca0e81f5e9e6bbc8202547192774cc8b110e20"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3698,
+      "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 10841,
+      "sha256": "0b6a9974134aed04f001031e5304b18d308af93ee2102befbac060debdf2040a"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 53631,
+      "sha256": "b3fc58161ac57dead933a0a1842516a8373a918059549f2b4058d0344dd7022d"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 15396,
+      "sha256": "37b7b436685261ab93743bf5f4879b783606ee571b3d56a6068fc961310dfaec"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 8497,
+      "sha256": "8c0c10d94605fe63dc299a39ce4d2ec37c6279bc8a65949fa7eee453c865797f"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12213,
+      "sha256": "840eeb67623a0821a4dc478b1ec16c996e0bdc7e8c70a0f57fd5f62212a478d0"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4144,
+      "sha256": "512ea51ebd7b411dd6580923e5351cdbc9a124531ca3d9b5f2f570a879896e25"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 2880,
+      "sha256": "4969f79c6e867f2cbccee06eef762298297008c2e4b34e1bd7a5bc679327cf9f"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17915,
+      "sha256": "227ad22d19535c845de6baf6669a470ab630b527572e5120a9b3400d98dcbcc8"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58372,
+      "sha256": "1d6783301e919c0c760d7c3cbd32ef30d5a2b68dc860567417ef4ba1000f741c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 6151,
+      "sha256": "472c65485d34924e0a86b75466c7ee9a98d592efa1e50e9d4b0adb8f99af7e50"
+    }
+  },
+  "exact_delta_paths": [
+    "api/src/omnis/core/managed_schema.py",
+    "api/src/omnis/core/schema.py",
+    "api/src/omnis/migrations/versions/0013_mission_revisions.py",
+    "api/tests/test_mission_revision_migration.py",
+    "api/tests/test_mission_revision_schema.py",
+    "api/tests/test_stop_schema.py"
+  ],
+  "delta_count": 6,
+  "unchanged17_paths": [
+    "api/src/omnis/core/db.py",
+    "api/tests/fixtures/b06a_durable/releases.py",
+    "api/tests/test_cli_status.py",
+    "api/tests/test_contract_method_migration.py",
+    "cli/integration/control_topology.py",
+    "cli/integration/installed_start.py",
+    "cli/src/omnis_cli/instance.py",
+    "cli/src/omnis_cli/release.py",
+    "cli/src/omnis_cli/start.py",
+    "cli/tests/stop_owner_fixture.py",
+    "cli/tests/test_install.py",
+    "cli/tests/test_installed_pointer_schema.py",
+    "cli/tests/test_ready_journal.py",
+    "cli/tests/test_schema_compatibility.py",
+    "cli/tests/test_status.py",
+    "cli/tests/test_stop.py",
+    "ops/build_control_bundle.py"
+  ],
+  "unchanged_count": 17,
+  "freeze_handles": {
+    "before": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-before23.json",
+      "bytes": 3382,
+      "sha256": "7e779ecc26a994fdafb671151f8117dc2ccbc5193ca84ad2a97a1e79a69a542f"
+    },
+    "after": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-after23.json",
+      "bytes": 3382,
+      "sha256": "ea61cde7645e37d820e6a7736de41250dbddc1442f3d2892d89dcc77fb2ef39d"
+    },
+    "original_six_bytes_root": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-prefixed"
+  },
+  "patch_handles": {
+    "pre_fix_delta": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-prefixed-delta.patch",
+      "bytes": 37043,
+      "sha256": "7788bec925459dcfb6c2c2fcf4f55d36d6ab2ddd71eb52f13bec33b9383ae9ea"
+    },
+    "full_from_HEAD": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-parent-fixes-full-fromHEAD.patch",
+      "bytes": 82034,
+      "sha256": "8d27addd8f4f7316df6c4d94c36abcd6ff60b13716bb57e4ff46abb41f96cde9"
+    },
+    "reverse_apply_check": "Both git apply --reverse --check exit0; git diff --check exit0; index empty. Full patch includes20 tracked+3 new candidate paths only, no protected document."
+  },
+  "observer_adaptation": {
+    "path": "api/tests/test_stop_schema.py",
+    "inseparable": "Original positional catalog observer refused7 genuine positive controls after the new identity seam. It now delegates full rows to the existing complete source observer and changes only field9 for the selected legacy trigger.",
+    "positive_negative_retained": "All14 original positive/conditional negative controls pass, plus quote/head controls; no always-refuse observer and no arbitrary field stripping. New physical identity extra-field refusal included.",
+    "actual_red": "7 failed/9passed",
+    "actual_green": "16passed"
+  },
+  "wheels": {
+    "api": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-fixed-api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "971498e8a8d75decd0976d550a843bd6e2c737ce8eef94da1849063199873472",
+      "source_exact_module_count": 84,
+      "status": "BUILT_NOT_INSTALLED_NOT_LAUNCHED"
+    },
+    "cli": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "7a42c204404f378a16f5caa47a2ab330138c7ae5f453f51cdc258760c87359ce",
+      "source_exact_module_count": 21,
+      "status": "BUILT_NOT_INSTALLED_NOT_LAUNCHED"
+    }
+  },
+  "bundle": {
+    "root": "/home/kali/.hermes/cache/scratch/p2-ms-fixed-control-bundle",
+    "manifest_sha256": "17b2e1683c040a0cf148c0f3d4e2c2902affca3e46a65360f11ddea15758560c",
+    "schema": "0013_mission_revisions",
+    "payload_count": 10,
+    "all_payload_sha_match": true,
+    "status": "BUILT_EXACT_READBACK_NOT_INSTALLED_NOT_LAUNCHED",
+    "cli_wheel_unchanged": true,
+    "requirements_unchanged": true,
+    "web": "Existing web/dist rechecked, no web build or visual approval"
+  },
+  "artifact_readback": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-artifact-readback.json",
+    "bytes": 1106,
+    "sha256": "25e0e994db5cea57825d07da615a98c0ed6b1d757df38576413ce4cebf4ef6f0"
+  },
+  "old_artifact_retention": {
+    "original33_log_SHA_verified": 33,
+    "old_API_wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "29474508934cee98e08d9b82a4bce700397a1a91f33d163abbf129155e39fa25",
+      "source_exact_module_count": 84,
+      "status": "PRESERVED_OBSOLETE_FOR_CURRENT_API_BYTES"
+    },
+    "old_CLI_wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "7a42c204404f378a16f5caa47a2ab330138c7ae5f453f51cdc258760c87359ce",
+      "source_exact_module_count": 21,
+      "status": "PRESERVED_AND_STILL_BYTE_EXACT_CURRENT_CLI"
+    },
+    "old_bundle": {
+      "root": "/home/kali/.hermes/cache/scratch/p2-ms-control-bundle",
+      "manifest_sha256": "fb32e334c50b180721a13a0920e01687e1888781580d9a18d22d337f2546555b",
+      "schema": "0013_mission_revisions",
+      "status": "PRESERVED_OBSOLETE_FOR_CURRENT_API_BYTES",
+      "payload_count": 10,
+      "web": "Existing local web/dist checksum-checked; no new web build or visual acceptance claimed.",
+      "logs": [
+        "p2-mission-bundle-final.log",
+        "p2-mission-bundle-readback.log"
+      ]
+    },
+    "original_reports_and_patch": "Preserved; not overwritten",
+    "private_PG_FAIL_logs": "Not opened/edited/deleted; no PG launched"
+  },
+  "PG": {
+    "status": "NOT_RUN",
+    "PGNOT_RUN": true,
+    "census": {
+      "status": "COLLECT_ONLY_PG_NOT_RUN",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_mission_revision_migration.py api/tests/test_contract_method_migration.py --collect-only -k test_pg -q --tb=line",
+      "selected": 38,
+      "collected": 40,
+      "deselected": 2,
+      "selected_nodes": [
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[empty0013]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen[populated0012_to0013]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_denials_are_atomic_before_valid_insert",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-0]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-1]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-2]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-3]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-4]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-5]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-6]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-7]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-8]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-9]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-10]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-11]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-12]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-13]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-14]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-15]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-16]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-17]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-18]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-19]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-20]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-21]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-22]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-23]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-24]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-25]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-26]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-27]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-28]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-29]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]",
+        "api/tests/test_contract_method_migration.py::test_pg_method_upgrade_preserves_history_and_exact_constraints"
+      ],
+      "all_original29_retained": true,
+      "new_selected_nodes": [
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_guard_ignores_temp_root_on_first_call_and_rolls_back",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_id_refuses_numeric_uuid_alias_before_canonical_string",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[absent_public]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_readiness_refuses_moved_public_relation_and_rolls_back[public_like_alias]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-25]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-26]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-27]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-28]",
+        "api/tests/test_mission_revision_migration.py::test_pg_mission_revision_exact_readiness_refuses_mutated_ddl[ddl-29]"
+      ]
+    },
+    "census_handle": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-ms-fixes-pg-census.json",
+      "bytes": 6368,
+      "sha256": "e19adec31af6721953d90f12e755659c2b172467c7d5057c67ad3b79bbcd9c6c"
+    },
+    "new_controls": "Fresh first-call same-session temp-root negative then actual public-root positive and transaction rollback; all-digit numeric/string UUID aliases denied before canonical-string positive with root/history rollback; moved-public absent/LIKE alias readiness negatives, harmless alias namespace positive and exact OID rollback; exact proconfig absent/reordered/extraGUC negatives; unlogged and temp-only extension readiness denials. Existing29 nodes retained.",
+    "selection_wrapper": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "bytes": 2606,
+      "sha256": "7439d86b06e028f89ff1a928d6223b17a0c4fd1dd50213e72084847a3aa79d22"
+    },
+    "wrapper_unchanged": true,
+    "prerequisites": [
+      "Two complementary focused re-reviews on current23SHA, explicit disposition of F01/F02/F03, and parent adjudication before any PG.",
+      "Existing unchanged selection wrapper mission-revision -> actual run_gate/prove_private_fixture(test-contract-method-pg,pinned uv,240), current38 PG nodes/40total. No new target/owner/runner/framework.",
+      "Parent uses a fresh owned PG18.6 UDS/no-network fixture with existing attestor and connected cluster identity; exact final committed snapshot only. No old fixture adoption.",
+      "Keep finite deadlines, private log modes/--tb=line and exact family cleanup/retained data receipts. No DSN or secrets exposed."
+    ],
+    "measurement_limit": "No PostgreSQL DDL/deparser/proconfig/trigger/enforcement/rollback/durable reopen execution. Collection+SOURCE doubles are not runtime evidence."
+  },
+  "preservation": {
+    "old0011_0012_SHA_verified_unchanged": true,
+    "six_original_consumer_SHA_verified_unchanged": true,
+    "rest17_author_SHA_verified_unchanged": true,
+    "strict_NULL_revision1_revision2_predecessor_immutability_current_pins": "Existing SOURCE controls pass; original29 actual PG definitions retained, not yet measured. Logical mission root UUID remains stable."
+  },
+  "issues_encountered": [
+    "First F01 GREEN attempt failed3 positives because two nonunique patch replacements were refused. Corrected the exact two expected proconfig rows; real58GREEN retained separately; failure log preserved.",
+    "F03 test insertion initially failed a nonunique ending match; resulting pytest exit5/no tests is NOT RED evidence. Premature F03 edits were withdrawn, durable test inserted, then genuine1FAIL RED and71PASS GREEN run. Both failed/inapplicable original logs preserved, never relabeled.",
+    "First six-path mypy failed on set[Row] versus inferred set[tuple]. Explicit full tuple conversion preserves every old constraint field; no cast/ignore; final mypy and make quality pass.",
+    "API interpreter has no uv_build Python module; pinned uv0.12.19 built the matching uv backend through its real offline build path with a new scratch cache/output, no package installation."
+  ],
+  "limits": {
+    "M2_API_consumer": "NOT_IMPLEMENTED",
+    "ResultQualification": "NOT_IMPLEMENTED",
+    "new_work_focused_budget_ledger_freshness_auth_coverage": "NOT_IMPLEMENTED_BY_THIS_SLICE",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "canonical_final": "NOT_RUN_NOT_RERUN",
+    "PG_native_installed_Docker": "NOT_RUN",
+    "operator_r1_accounts_models_providers_targets_global": "NO_OPERATIONS",
+    "protected_document": "documents/Omnis_Notite_Originale.html not read/edited/deleted",
+    "docs_skills_Makefile_sourcechecker_method_currentpins_CLI_bundler": "Not changed by this author",
+    "staging_commits_push": "NONE_PARENT_OWNS_INTEGRATION"
+  },
+  "rollback": "Reversible source patches only. Migration downgrade still refuses; future actual/operator rollback needs explicitly authorized compatible full backup/verified restore. Never drop M2, disable immutable guards or restamp old head to manufacture readiness."
+}

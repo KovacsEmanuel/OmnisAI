@@ -47,6 +47,29 @@ Definim o acceptance row, seam producer/consumer, control pozitiv și negativ pe
 
 După două cicluri review/remediere numai harness fără progres pe aceeași acceptance row, păstrăm WIP/BLOCKED și restrângem reproducerul/frontiera probei. Numărul și dispozițiile se păstrează între sesiuni; o sesiune nouă sau redenumirea oracle-ului nu resetează contorul. Findings noi de securitate rămân blockers explicite, nu excepții de buget. Lipsa unei probe păstrează `BLOCKED/NOT_RUN`, nu un PASS prin numărul agenților.
 
+## Execuție orientată spre produs
+
+Acest contract elimină munca auxiliară fără rezultat, nu probele obligatorii. Se aplică autorului, reviewerului și părintelui; nu schimbă porțile planului, autorizațiile, reviewurile complementare sau raportarea FAIL/BLOCKED. Instrucțiunile nu sunt enforcement automat al comportamentului agentului.
+
+### Admiterea verificării
+
+- Înaintea unui test, review, build sau verificări auxiliare, numește scurt **cerință → consumer → risc → decizie**: obligația canonică/defectul concret, callerul real, ce eroare poate detecta și ce acțiune schimbă PASS/FAIL. Folosește contractul existent/mesajul commitului, nu un raport nou pentru fiecare comandă. Dacă niciuna dintre decizii nu se schimbă și nu este o verificare obligatorie de integritate/cleanup, nu executa lucrarea.
+- Livrează o felie verticală prin callerul existent până la persistență/readback/sink. Helpers, SOURCE și doubles sunt prerechizite, nu finalizarea consumerului. După minimum SOURCE și reviewurile obligatorii, execută prima probă reală bounded a feliei înainte să acumulezi alte componente sau breadth de fixture-uri. Codul, testele și documentația inseparabilă pot fi același commit coerent; remediile independente rămân separate.
+- Nu porni un verifier pentru verifier, audit general, wrapper/owner/harness nou sau rescriere a probei fără defect concret și legătură cu acceptance row. Validarea JSON/hash și citirea resurselor proprii necesare predării rămân obligatorii; execută-le direct, fără strat auxiliar recursiv. Reviewerii păstrează findings reale, nu cer completitudine universală sau un inventar nou de scenarii fără obligație canonică.
+- Pe bytes/call-sites neafectate reutilizează dovada scoped. După editare rulează affected checks și re-review delta; după fix admiterea unei probe fresh cere cauza identificată și controlul care o verifică, nu retry până verde. Canonicalul complet este la frontiera finală de integrare/fază; un FAIL concret permite remediu și rerun afectat, nu un PASS transferat sau un gate slăbit. Browser numai pentru UI/call path afectat. Reminderul repetat ori notificarea întârziată nu deschide muncă nouă.
+
+### Preflight fără efecte
+
+- Înainte de o tentativă PG/native/browser: verifică **comanda/argv** și choices/opt-in ale runnerului existent, collect-only dacă este disponibil, source/library/pin și accesul UID/căile/mounturile necesare. Verifică schema/oracle-ul pe producerul real: **pozitiv și negativ** pe același canal, reason/exit exacte, census al tuturor tabelelor modificate și ordinea tranzacțiilor. Label SOURCE/synthetic rămâne explicit; nu prewarm și nu provider/network/DB effects ca substitut pentru preflight.
+- Pregătește înaintea lansării deadline-ul bounded, ownerul/fixture-ul fresh, settlementul/cleanupul exact și lista mică de câmpuri nesensibile care pot fi citite la eșec. Nu inventa expected fields, targeturi CLI, DSN-uri sau cauza unui FAIL neobservat. Pe un preflight FAIL nu lansa consumerul; repară numai prerechizitul demonstrat, apoi consemnează o tentativă distinctă.
+- După primul eșec de harness, localizează mecanismul și restrânge proba înainte de încă un efect. După două cicluri numai harness fără progres pe aceeași acceptance row, oprește acea frontieră ca BLOCKED/NOT_RUN; fără al treilea verifier, buget resetat prin sesiune nouă sau abandonarea findingului. Nu trece cu felii dependente peste un blocker de siguranță.
+
+### Continuitate și dovezi
+
+- Un commit coerent nu încheie mandatul. Continuă următoarea felie admisă fără reaprobări cosmetice; predare numai la rezultatul cerut, blocker real, limita de autorizație, cererea utilizatorului ori imposibilitatea sigură de a continua în buget/context. Nu transforma fiecare fix/review/raport în checkpoint separat al conversației.
+- Actualizează **în loc** CURRENT și rândurile afectate, nu încă un paragraf CURRENT repetând întreg istoricul. Păstrează snapshotul, findingurile, probele și limitele într-un singur registru existent al feliei; rapoartele originale obligatorii se transferă byte-exact o singură dată și se citează, nu se reconstruiesc sau se multiplică. Nu introduce raport ori serviciu pentru a valida alt raport. Git/context recovery rezolvă informația lipsă; nu relua acceptări doar pentru că s-a compactat conversația.
+- Citirile/delegările sunt limitate la CURRENT, contractul activ și definițiile/usages afectate. Trimite copiilor fișierele/criteriul/prerechizitele și bugetul, nu istoricul integral. La predare: starea produsului, probe/review, commit, blocker și următoarea acțiune concretă; matricea globală rămâne compactă, nu este repetată după fiecare apel sau mesaj async duplicat.
+
 ## Status global la orientare și predare
 
 Încarcă [omnis-project-status](.hermes/skills/omnis-project-status/SKILL.md) la început pentru **ORIENT/read-only** și la finalul fiecărei felii, subfaze, faze ori prompt de review pentru **CLOSE/predare**. [Harta globală MVP/post-MVP](documents/verification/implementation-status.md) păstrează toate SL-urile și E1–E4, fundațiile, milestone-urile și capabilitățile execution-unscheduled, ca proiecție a planului, nu backlog concurent.

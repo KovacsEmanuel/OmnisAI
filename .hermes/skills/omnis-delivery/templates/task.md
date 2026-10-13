@@ -2,6 +2,7 @@
 
 Goal / observable behavior:
 Plan ticket and acceptance gate:
+Work admission: requirement → actual product consumer → concrete risk → decision changed by PASS/FAIL (or mandatory integrity/cleanup):
 Base commit:
 Global status orientation: active SL/B, predecessor gate and relevant row in documents/verification/implementation-status.md:
 Inputs and authoritative files:
@@ -10,11 +11,14 @@ Non-goals and prohibited side effects:
 Synthetic fixture and expected negative control:
 RED command and expected failure:
 GREEN / regression commands:
+No-effect preflight before real QA: existing argv/choices/opt-in, collect-only, source/library/pin/access, producer schema and same-channel positive/negative oracle:
+Real-consumer journey and its earliest admitted execution after minimum SOURCE/reviews; exact owned resource cleanup and sanitized failure fields:
 Time/tool-call budget and escalation threshold:
 Expected output: changed paths, commands/exit codes, evidence paths, limitations.
 Commit owner: parent for shared checkout; otherwise explicit branch owner.
 Rollback and external state limitations:
-Handoff: use omnis-project-status; proposed map delta, scoped review state and next canonical slice. Read-only work makes no map edit or empty commit.
+Continuity: a commit is not a handoff; continue admitted work until requested deliverable, real blocker/authorization boundary, user stop or unsafe budget/context exhaustion. Apply CONTRIBUTING.md §„Execuție orientată spre produs”; no report/verifier work without an acceptance decision.
+Handoff: use omnis-project-status; update CURRENT/map delta in place, cite original evidence once, scoped review state and next canonical slice. Read-only work makes no map edit or empty commit.
 
 ## Reviewer assignment (read-only)
 

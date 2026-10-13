@@ -132,5 +132,39 @@ class ProjectStatusSkillTests(unittest.TestCase):
                 self.assertIn("omnis-project-status", (ROOT / relative).read_text(encoding="utf-8"))
 
 
+class ProductDeliveryFocusTests(unittest.TestCase):
+    """Instruction drift checks, not enforcement of future agent behavior."""
+
+    def test_work_admission_and_preflight_are_explicit(self):
+        text = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        for marker in ("## Execuție orientată spre produs",
+                       "cerință → consumer → risc → decizie",
+                       "### Preflight fără efecte",
+                       "Nu porni un verifier pentru verifier",
+                       "comanda/argv", "pozitiv și negativ",
+                       "### Continuitate și dovezi"):
+            with self.subTest(marker=marker):
+                self.assertTrue(marker in text, "Missing execution rule: " + marker)
+
+    def test_existing_skills_use_the_same_execution_contract(self):
+        for name in ("omnis-delivery", "omnis-review-qa", "omnis-project-status"):
+            text = (ROOT / ".hermes/skills" / name / "SKILL.md").read_text(encoding="utf-8")
+            with self.subTest(skill=name):
+                self.assertTrue("CONTRIBUTING.md" in text, "Missing execution contract link: " + name)
+                self.assertTrue("Execuție orientată spre produs" in text, "Missing execution contract: " + name)
+
+    def test_active_p2_prompt_starts_at_the_blocker_and_has_finite_exit(self):
+        path = ROOT / "documents/verification/p2-c10-session-handoff-20261012.md"
+        text = path.read_text(encoding="utf-8")
+        prompt = text.split("### Prompt scurt actual pentru sesiunea nouă", 1)[1]
+        prompt = prompt.split("```text\n", 1)[1].split("```", 1)[0]
+        for marker in ("INPUT-M2-F01", "cerință → consumer → risc → decizie",
+                       "preflight fără efecte", "Nu porni un verifier pentru verifier",
+                       "Nu preda după fiecare fix", "BLOCKED/NOT_RUN",
+                       "P2-inert", "P4a-minim", "P2-live"):
+            with self.subTest(marker=marker):
+                self.assertTrue(marker in prompt, "Missing active P2 instruction: " + marker)
+
+
 if __name__ == "__main__":
     unittest.main()

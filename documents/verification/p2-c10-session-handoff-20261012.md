@@ -18,12 +18,12 @@
 
 1. **Închide consumerul M2 de mai sus**, nu îl reimplementează. Actualul checkpoint are SOURCE regresii green, dar F01 SOURCE RED și review CHANGES_REQUESTED. Remediu owner-locked pe intenturile persistente + teste stage/release/QA gaps → re-review delta → numai apoi QA fresh. Nu relansa schema0013/PARTIAL/invalidation/evidence ori launch audit neschimbate.
 2. **ResultQualification separat**, pe aceeași stocare/owner: rezultat/assignment/evidence/precondiții exacte → record append-only conform arhitectură §6.3 → readback/replay. Căutarea curentă în `api/src` nu găsește `ResultQualification`, `result-qualification`, `evaluated_against_mission_ref` sau `precondition_state_refs`; sunt cerințe, nu API-uri existente. Citește întâi producătorii reali ai refs/evidence. Nu inventa `evidence_manifest_ref` sau stare auth pentru a umple schema. Lipsa compatibilității/freshness produce REVALIDATION_REQUIRED, nu ELIGIBLE din M2 aditiv ori COMPLETE; invalidarea probată rămâne distinctă de material indisponibil. Fără verdict funcțional, coverage/wake nou sau framework de replan. Dacă este necesară o schimbare de schemă, justifică dependența concretă înainte, nu migrare preventivă.
-3. **Restul B06b**, numai delta celor8criterii din tabel: formele obligatorii ale metodei selectate, binding/inventar real și history/restart. Tracează consumerii existenți (`ManagedAdmission.ingest_result/_check/_result_check/_verify_graph/readback`, `NativeTaskOwner`/Host/adaptor). Completează testele/guardiile ori seamul minim care lipsește, nu încă un seed/demo/catalog. Receive-only/reconcilere cu un proces nou și restart al runtime-ului sunt probe diferite; fără final autentic nu fabrica rezultat pentru oracle. H03–H05 pot admite lineage autentic ori refuz fără acces; compresia care cere LLM rămâne live separat.
+3. **Restul B06b**, numai delta celor8criterii din tabel: formele obligatorii ale metodei selectate, binding/inventar real și history/restart. Înlocuiește în tabel fiecare rest generic cu cerința canonică exactă, callerul existent, dovada reutilizabilă și singurul defect/consumer/probă încă lipsă; nu inventa un catalog paralel sau o listă extensibilă de scenarii. Tracează `ManagedAdmission.ingest_result/_check/_result_check/_verify_graph/readback`, `NativeTaskOwner`/Host/adaptor și livrează acea lipsă prin caller, nu încă un helper sau demo. Receive-only cu proces nou și restart runtime sunt probe diferite; fără final autentic nu fabrica rezultat. H03–H05 admit lineage autentic ori refuz fără acces; compresia care cere LLM este live separat. Lipsa unei probe inerte obligatorii rămâne BLOCKED, nu se redenumește live pentru a închide faza.
 4. **B06c/B06m pe același caller**, în ordine: proiecție calificată/decizie DATA → DTO final immutable/guard post-transform direct-worker → reserve tranzacțional **COMIS** → SENT **durabil înainte send** → transport inert declarat → receipt/UNKNOWN. Se refolosesc `ModelDispatch.prepare/read`, `ModelProjections`, `policy/budgets.py` și `NativeTaskOwner`; metodele `_model_preflight/_model_configuration/_model_initialization` nu sunt send. `policy/admission.py` nu există. Ledger helpers nu închid callerul. Probează caps/VALIDATION, Stop între reserve/send și overlap PG observat; UNKNOWN după SENT păstrează rezerva, RELEASED cere no-send demonstrat. Cost necunoscut nu devine zero; retry/fallback/auxiliary neadmis se refuză. Fără grant nativ/turn/provider fabricat.
 5. **Acceptare P2-inert:** reconciliază exact8rânduri §7.1 cu cerință→cod→consumer→dovadă/review și fiecare rest inert/live; apoi canonicalul real pe bytes finali și cleanup/readback. Un rest inert neprobat blochează acceptarea. Nu procent/test count/badge și nu make check pentru fiecare fix.
 6. **P4a-minim numai după P2-inert:** Settings pe API/DB/build proprii, catalog read-only/pachete immutable, selecție/save→readback/reload, readiness și requested/effective/fallback; REQUIRED nesuportat blochează. Fără editor general/al doilea provider preventiv sau hot-swap. Browser real pentru acțiuni/stări/focus/reload. Apoi STOP pentru acord separat cont/provider/model/date/buget și run nou P2-live.
 
-**Disciplină anti-buclă:** o singură schimbare observabilă, un autor, fără refactor independent, dependențe noi, registry/evaluator general sau supervisor/harness concurent. Rezolvă simbolurile/consumatorii reali înainte de cod; folosește validatorii comuni existenți, capuri explicite și erori sanitizate. Două reviewuri numai unde autoritatea/cross-runtime o cere; re-review pe delta blocantă. După două cicluri numai harness fără avans la aceeași acceptance row, restrânge frontiera și păstrează BLOCKED, nu încă un verifier sau retry. Nu relansa teste neschimbate pentru remindere. Git păstrează fiecare felie/remediu/decizie separat, fără amend/squash/push.
+**Contract de execuție actualizat:** aplică [CONTRIBUTING — Execuție orientată spre produs](../../CONTRIBUTING.md#execuție-orientată-spre-produs). Verificare numai cu cerință→consumer→risc→decizie, preflight fără efecte înainte de probe și prima QA reală bounded după minimum SOURCE/reviewuri; nu acumula helpers. Re-review numai delta și checks afectate; integritate/cleanup, findings concrete și toate porțile obligatorii rămân. Continuă mandatul după commit/fix, fără predări repetitive, noi CURRENT cumulative ori verificatori ai rapoartelor. AGENTS.md rămâne nemodificat: încercarea de a adăuga o trimitere la contract a fost refuzată prin expirarea aprobării fișierului protejat; nu se reîncearcă/ocolește. Modificarea procedurii nu este remediu F01 sau acceptare P2 și nu garantează automat comportamentul viitoarelor modele.
 
 **NOT_RUN explicit:** consumer M2 PG/native, ResultQualification, installed historical-reader, runtime restart, restul B06b și callerul B06c/m, canonical final, P4a-minim și P2-live. Fundațiile acceptate din paragrafele următoare se reutilizează la scope-ul lor, nu sunt redeschise de handoff. Nu s-a creat un fixture PG/nativ nou; jobul părintelui SOURCE `proc_b4ea58c5b6fe` este exited0, reproducerul F01 exited1 intenționat. **Zero subagenți live** la readbackul final; nu există rezultat necesar de așteptat. Notificările async întârziate pentru batchul de review nu autorizează continuarea implementării după cererea de handoff.
 
@@ -92,47 +92,52 @@ B06j/Jev păstrează alocarea §8: typed questions/DecisionReceipt și sentinel 
 ### Prompt scurt actual pentru sesiunea nouă
 
 ```text
-Continuă implementarea OmnisAI în /home/kali/OmnisAI, cu cod minimal,
-până la acceptarea P2-inert și livrarea P4a-minim, în ordinea canonică.
-Citește CURRENT din documents/verification/p2-c10-session-handoff-20261012.md,
-p2-bound-predicates.md și implementation-status.md; Git real, AGENTS,
-CONTRIBUTING, README, plan §7.1/§8 și arhitectura relevantă feliei.
-Baza produsului curent este checkpointul M2 227cfd6; HEAD real poate include
-numai handoff/reviewuri ulterioare. Verifică manifestul9SHA și Git. Păstrează toate
-schimbările preexistente și documents/Omnis_Notite_Originale.html neatins.
-Partial return, applicability/UNKNOWN finite și preconditions finite sunt
-acceptate scoped: nu relua auditul launch sau probele lor neschimbate.
-Invalidation și evidence/optional au avansat și sunt acceptate scoped;
-Prima acțiune: remediază minimal INPUT-M2-F01 confirmat SOURCE (1FAIL1.79s)
-din reviewul input CHANGES_REQUESTED; normativul approved este numai scoped.
-Sub același owner lock refuză append M2 peste intent stage/release in-flight
-sau unsettled, păstrând M1 terminal/never-dispatched și replay read-only.
-Derivă condiția din schema persistentă reală; nu alt owner sau recheck TOCTOU.
-Checkpointul are473SOURCE PASS, dar NU este acceptat. Nu îl rescrie integral.
-Testează stage/release orderings și închide cele3QA gaps din CURRENT: denials
-CLI exact, row2/envelope census și overlap PG observat. Fără launch peste F01.
-GREEN/quality/commit fix și re-review delta complementar; numai apoi
-admite o tentativă fresh mission-consumer prin ownerul PG/native original.
-După acceptare: ResultQualification finit pe owner/store existente, fără
-ELIGIBLE/freshness/evidence refs inventate; apoi restB06b (forme, binding,
-inventar/lineage, installed history și restart runtime), B06c și
-callerul B06m reserve COMIS→SENT durabil→protocol inert→receipt/UNKNOWN.
-Folosește delta celor8criterii și toate limitele/probele din CURRENT.
-Nu presupune policy/admission.py existent; verifică definiții/usages,
-runner choices/opt-in și source/library prerequisites înainte de efecte.
-RED→fix minimal→GREEN; reviews independente exact-snapshot, două la
-authority/Stop/concurrency/effects/secrets/cross-runtime; QA consumer real,
-cleanup exact/date păstrate, commituri mici și re-review findings concrete.
-Continuă următoarea felie inertă admisă fără aprobare cosmetică; nu alt audit,
-verifier, owner, demo sau framework. După două cicluri numai harness,
-restrânge frontiera, fără weakening/retry orb/prewarm/deadline widening.
-După toate remedierile și QA afectată rulează canonicalul real pe bytes finali,
-nu transforma SOURCE/synthetic/installed/native/SDK sau SKIP în PASS global.
-P4a-minim numai după P2-inert, cu browser pe build/API/DB proprii.
-După Settings oprește și cere acordul separat cont/provider/model/date/buget
-și run/selection/manifest noi pentru P2-live; fără cont/inferență/target/P3/r1/
-global/push implicit. Predare română scurtă: commituri, probe, blockers și
-matricea globală. Nu te opri la diagnostic/helper când consumerul este disponibil.
+Finalizează mandatul OmnisAI: rest B06b → B06c/B06m → acceptare P2-inert →
+P4a-minim. Lucrează în /home/kali/OmnisAI din HEAD local verificat, cu cod
+minimal prin consumerii existenți. Nu relua auditul launch/feliile acceptate.
+Citește AGENTS/README, CURRENT din acest handoff și rândurile afectate din
+implementation-status; contractul CONTRIBUTING.md „Execuție orientată spre
+produs”, plan §7.1/§8 și numai arhitectura/definițiile/usages active.
+Nu încărca istoria/catalogul integral. Păstrează fișierele preexistente și
+documents/Omnis_Notite_Originale.html protejat/necitit/needitat/neșters.
+
+PRIMA ACȚIUNE: INPUT-M2-F01 pe checkpoint227cfd6, CHANGES_REQUESTED.
+RED SOURCE1FAIL1.79s este păstrat; normativ approved numai scoped.
+Sub același owner lock refuză append M2 peste intent persistent stage/release
+in-flight/unsettled, păstrând M1 terminal/never-dispatched și replay read-only.
+Derivă condiția din schema/receipturile reale; nu recheck TOCTOU sau owner nou.
+Teste stage/release orderings și cele3QA gaps: CLI denials exacte,
+row2/envelope census și overlap PG observat. Nu lansa PG/native peste F01.
+Fix GREEN/quality/commit + re-review complementar pe delta; apoi o tentativă
+fresh mission-consumer prin ownerul original, cu cleanup/readback exact.
+
+Pentru fiecare verificare/delegare: cerință → consumer → risc → decizie,
+scurt în contractul existent, nu raport nou. Fără decizie sau integritate/
+cleanup obligatoriu, omite lucrarea. Nu porni un verifier pentru verifier.
+Înainte de probe: preflight fără efecte al argv/choices/collect/source-library/
+pin/access și oracle pe producerul real, pozitiv/refuz pe același canal.
+După minimum SOURCE/reviewuri probează consumerul real, nu acumula helpers.
+După editare: checks afectate și re-review delta; nu full gate pentru fiecare
+fix/reminder/Markdown. Fără retry orb, prewarm ori mărirea granturilor.
+După două cicluri numai harness fără progres: restrânge și BLOCKED/NOT_RUN,
+nu al treilea audit. Findings reale și porțile de siguranță nu se slăbesc.
+
+După M2: ResultQualification finit (istoric≠calificare curentă≠lucru nou;
+fără freshness/ELIGIBLE/evidence inventate). Concretizează în tabelul existent
+restB06b pe cerință/caller/dovadă/lipsă, nu alt backlog; livrează numai lipsa
+obligatorie prin consumer. Apoi B06c/m: DATA final→reserve COMIS→SENT durabil
+înainte send→protocol inert→receipt/UNKNOWN; caps/VALIDATION/Stop/concurență.
+policy/admission.py nu există; reutilizează caller/store/ledger existente.
+Reconciliază toate8criterii §7.1; canonical real pe bytes finali după remedii/
+QA afectată, cu cleanup/date păstrate. Nicio probă inertă lipsă nu devine live.
+P4a-minim apoi: Settings API/DB/build proprii, save/readback/reload/browser;
+fără editor general. După Settings STOP pentru acord separat P2-live.
+
+Nu preda după fiecare fix/commit/raport: continuă următoarea felie admisă.
+Predare numai la livrabil, blocker real/autorizație/buget/context sau cererea
+utilizatorului. Actualizează CURRENT în loc, citează originalele o dată.
+Fără cont/provider/model/target/P3/r1/global/push; nu trece peste blocker,
+nu inventa probe și nu declara faza2 completă fără P2-live separat.
 ```
 
 ## Istoric — acceptare C10 integrată înainte de extensiile ulterioare

@@ -1,7 +1,7 @@
 ---
 name: omnis-project-status
 description: "Use when orienting or closing an Omnis work slice."
-version: 0.1.2
+version: 0.1.3
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -36,6 +36,7 @@ Resolve the actual git root. Read AGENTS.md and CONTRIBUTING.md, then
 `documents/verification/implementation-status.md` and the relevant evidence it links.
 Architecture decides behavior; plan §4/§4.2/§4.3/§15/§19 decides order, gates and MVP/post-MVP scope.
 The map is a derived projection; do not create another backlog or global-memory copy.
+Apply `CONTRIBUTING.md` §„Execuție orientată spre produs”: status/evidence supports the product decision, not a parallel report-verification workstream. Read CURRENT and affected rows; consult history only for a missing fact, conflict or concrete finding. A compaction or duplicate async notice is not a reason to rerun accepted work.
 A stale/contradictory source is a discrepancy to adjudicate, not permission to choose the most optimistic status.
 
 ## How to Run
@@ -64,7 +65,7 @@ merging, resetting, stashing, adopting or crediting it to the active branch.
 2. **Orient:** read the map's summary, the active SL/B row and its dependency gate; inspect the relevant canonical plan/architecture sections and verification entry. Inspect code/tests when the claim is not established. Reconcile all SL IDs, E waves, foundational P0, milestones and execution-unscheduled breadth when the plan changes. Completion: no missing/remapped row or invented phase/progress percentage.
 3. **Separate axes:** code IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED; proof PASS_LOCAL_RECORDED/PARTIAL/FAIL/BLOCKED/NOT_RUN; review NOT_REVIEWED/IN_REVIEW/APPROVED_SCOPED/CHANGES_REQUESTED. Never turn documentation, harness, static review, a commit message or a test count into live product PASS. Require revision, command/exit, boundary and limitations for each proof promoted.
 4. **Adjudicate review:** bind report ID, reviewed snapshot (commit or blob/diff), files, scenario and verdict. A subagent proposes findings; the **părinte** reproduces/adjudicates relevant findings and accepts integration. A report arriving **întârziat** is compared with the fixes and later review before changing current status. Do not discard a genuinely new reproducer merely because its issue ID is old. No approval inferred from silence, dispatch or a passing unrelated test.
-5. **Reconcile CLOSE:** update affected rows and summary in the existing map; put detailed decisions/failures in the slice's verification register and link it. Update README/plan §19 only when their current status actually changed, retaining historical failures. If an authorized plan adjustment is needed, amend the canonical source first and then its projection; otherwise record a proposal/blocker. Do not edit protected files through a bypass or copy secrets/raw private logs into the map.
+5. **Reconcile CLOSE:** replace CURRENT/affected rows in place, not another repeated headline. Keep detailed decisions/failures in one existing slice register; transfer required original reports byte-exact once and cite them, without a verifier for their verifier. Update README/plan §19 only when their status actually changed, retaining historical failures. Do not end a continuing mandate after each fix/report; hand off at a genuine deliverable/blocker, authorization/budget boundary or user request. An authorized plan adjustment changes the canonical source first; otherwise record a proposal/blocker. Never bypass protected files or copy secrets/raw private logs into the map.
 6. **Verify:** use `terminal` for `python -m unittest discover -s tests/documentation -v`, `python scripts/render_docs.py --check` and `git diff --check`. Regenerate HTML only for changed normative Markdown. Run the affected product checks when code changed; documentation checks do not rerun or transfer old product gates. A reviewer operating read-only returns the proposed delta to the parent rather than writing the shared map.
 7. **Commit/readback:** commit only intended coherent changes, including the map/evidence delta, under AGENTS rules. Read back `git show --stat --oneline HEAD` and status before reporting. Store the tested/reviewed revision, not an impossible self-reference to the commit containing the status edit. If HEAD changed during review, compare the affected scope before accepting it; an uncommitted intended change prevents a DONE claim.
 8. **Report:** finish with the compact Romanian **matrix directly in chat** from `templates/handoff.md`, normally 6–8 rows with code, proof, review and next step in separate columns; mark the current slice **AICI**. Cover delivered foundations, current/next slice, open gate, remaining MVP and post-MVP. Put the short task result, Git and cleanup before the table. Documents are persistent support for agents/implementation: a link never replaces the visible matrix, and a chat-only orientation does not force a documentation edit. Completion: the operator sees where Omnis stands without opening a file.

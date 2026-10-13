@@ -1,0 +1,464 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-NORMATIVE-REREVIEW",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Re-review independent normativ read-only: doar doua delte tracked, callerul public prepare-method/CLI, selectorul scratch prefix si frontiera reutilizarii cazului full. Cele noua fisiere neschimbate pastreaza aprobarea SOURCE originala; nu re-auditez cele 18 cerinte ori istoricul.",
+  "repository": "/home/kali/OmnisAI",
+  "acceptance": "NOT_ACCEPTED_PRODUCT; SOURCE-only finding disposition. Parent owns adjudication, integration, commit and fresh real prefix QA.",
+  "finding_dispositions": [
+    {
+      "id": "QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01",
+      "original_severity": "HIGH_BLOCKER",
+      "disposition": "RESOLVED_SOURCE_ONLY_FRESH_PREFIX_QA_PENDING",
+      "location": "api/src/omnis/modules/runs/managed_admission.py:47-61,327-329",
+      "reason": "Parserul public admite acum exact aceleasi trei chei trusted ca build_records, inclusiv preserve-input-context. Nu accepta cod, chei straine, tipuri nescalare ori alte versiuni/operatii; gateway-ul real este exercitat cu numai _prepare substituit.",
+      "red": "Parent RED 1FAIL/2PASS, exact BOUND_PREDICATE_UNAVAILABLE; raportul si SHA logului sunt pastrate.",
+      "green": "Independent current-byte SOURCE: 3PASS/184deselected/0.58s, exit0. Final normalized composition_version=4; invalid inputs invoke no additional _prepare calls.",
+      "product_qa_status": "Affected actual prefix remains NOT_RUN after fix; original failed attempt remains FAIL. No authority/pin/receipt engine defect inferred."
+    }
+  ],
+  "blocking_source_findings": [],
+  "normative_checks": [
+    {
+      "requirement": "Trusted finite BoundPredicateRef selector, not expression/package lookup (architecture 9.10 lines 741,754).",
+      "code": "managed_admission.py:40-74; managed_contract.py:26-39,1629-1631",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Exact str/finite key normalization before trusted dict membership; only prepare-method schema_version3 when return_predicate_id is supplied; exact request fields and all existing checks retained."
+    },
+    {
+      "requirement": "Parser must not replace qualification or grant authority.",
+      "code": "managed_admission.py:298-314,327-329; managed_contract.py:247-305,524-575",
+      "result": "APPROVED_SCOPED_STATIC",
+      "evidence": "Selection reaches existing _prepare/build_records; method_execution/context/case_input and resolved requirement/step/schema closure checks unchanged. No new SDK/provider, owner, epoch, state, hot grant, dispatch or bypass."
+    },
+    {
+      "requirement": "Actual public method caller regression after last edit.",
+      "code": "api/tests/test_c10_bound_predicates.py:1172-1232",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "All three keys positive through validate_request and ManagedAdmission.prepare_method. Only DB/build _prepare seam is substituted. None/bool/int/list/dict/unknown/foreign/expression, versions1/2 and prepare-composed refused, final _prepare call list remains exactly one positive per parameter."
+    },
+    {
+      "requirement": "CLI public caller uses same validator and method, not a bypass.",
+      "code": "managed_admission.py:1292-1343",
+      "result": "TRACED_STATIC",
+      "evidence": "main validates loaded public request at1309 before engine creation and dispatches prepare_method at1326-1327. CLI invocation unchanged. This is caller trace, not full engine audit or executed CLI/DB proof."
+    },
+    {
+      "requirement": "Unselected full-case proof reuse must be scoped, not a new global gate.",
+      "code": "api/tests/test_contract_method_pg.py:489-490,845-859; managed_admission.py:47-61,298-314",
+      "result": "RETAIN_ORIGINAL_FULL_ACTUAL_SCOPED",
+      "evidence": "full has early_return=False and supplies no return_predicate_id. Changed membership block is not reached. Admission file is byte-exact original plus this one allowlist replacement; all nine prior approved method/composer/checker/producer/PG files unchanged. Original read1/PURE2/3DONE/COMPLETE/four CLI readers/post-Stop cached read remains evidence for the original full case, not fresh whole-wheel acceptance."
+    },
+    {
+      "requirement": "Prepared QA uses existing owner, budgets, fixture and only affected prefix.",
+      "code": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py:19-20,30-53",
+      "result": "APPROVED_SCOPED_STATIC_ONLY",
+      "evidence": "Removing the exact newly added prefix mapping reproduces original wrapper SHA. Main was not called. Existing prove_private_fixture owner, 240s budget, 4.5s product grant/family/fixture unchanged; finite selector expression only partial-requirement-prefix."
+    }
+  ],
+  "actual_qa_needed": {
+    "status": "NOT_RUN_AFTER_FIX",
+    "selection": "partial-requirement-prefix",
+    "entrypoint": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "partial-requirement-prefix"
+    ],
+    "fresh_owned_fixture_required": true,
+    "unchanged_full_not_rerun": true,
+    "expected_not_observed": "Authentic prefix read1/PURE1 -> PARTIAL/NOT_RUN/DONE -> raw result persisted before independent INCOMPLETE check; exact obligations/proofs/gaps retained, outcomes BLOCKED without oracle, public cached post-Stop/CLI readers/replay/no-reexecution/single consumption and cleanup.",
+    "limit": "No PG/UDS/native/network/inference/provider/target launch authorized or executed by this reviewer."
+  },
+  "verification": {
+    "manifest_sha256": "96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e",
+    "initial_snapshot": {
+      "manifest_sha256": "96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e",
+      "head": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+      "files": [
+        {
+          "path": "api/src/omnis/modules/tasks/managed_composition.py",
+          "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+          "expected_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+          "original_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/managed_contract.py",
+          "sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+          "expected_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+          "original_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+          "expected_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+          "original_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checks.py",
+          "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+          "expected_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+          "original_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+        },
+        {
+          "path": "api/tests/test_c10_bound_predicates.py",
+          "sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+          "expected_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+          "original_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284"
+        },
+        {
+          "path": "api/tests/test_contract_method_checks.py",
+          "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+          "expected_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+          "original_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+        },
+        {
+          "path": "api/tests/test_contract_method_pg.py",
+          "sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+          "expected_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+          "original_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+        },
+        {
+          "path": "api/tests/test_contract_method_producer.py",
+          "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+          "expected_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+          "original_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+          "expected_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+          "original_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+          "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+          "expected_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+          "original_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/managed_admission.py",
+          "sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+          "expected_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+          "original_sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf"
+        }
+      ],
+      "file_count": 11,
+      "unchanged_count": 9,
+      "matching_count": 11
+    },
+    "final_snapshot": {
+      "head": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+      "file_count": 11,
+      "files": [
+        {
+          "path": "api/src/omnis/modules/tasks/managed_composition.py",
+          "before_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+          "final_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+          "original_frozen_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/managed_contract.py",
+          "before_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+          "final_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+          "original_frozen_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "before_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+          "final_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+          "original_frozen_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checks.py",
+          "before_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+          "final_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+          "original_frozen_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/tests/test_c10_bound_predicates.py",
+          "before_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+          "final_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+          "original_frozen_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": false
+        },
+        {
+          "path": "api/tests/test_contract_method_checks.py",
+          "before_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+          "final_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+          "original_frozen_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/tests/test_contract_method_pg.py",
+          "before_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+          "final_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+          "original_frozen_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/tests/test_contract_method_producer.py",
+          "before_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+          "final_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+          "original_frozen_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "before_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+          "final_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+          "original_frozen_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+          "before_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+          "final_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+          "original_frozen_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": true
+        },
+        {
+          "path": "api/src/omnis/modules/runs/managed_admission.py",
+          "before_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+          "final_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+          "original_frozen_sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+          "unchanged_since_before": true,
+          "unchanged_original_approval": false
+        }
+      ],
+      "unchanged_original_count": 9,
+      "delta_count": 2,
+      "all_11_equal_before_and_frozen": true
+    },
+    "git": {
+      "head": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+      "product_commit": "3a2ffb72089e0ed9aeb4e4bc42f22fb5efc2d03b",
+      "status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_c10_bound_predicates.py\n?? documents/Omnis_Notite_Originale.html\n",
+      "tracked_delta_paths": [
+        "api/src/omnis/modules/runs/managed_admission.py",
+        "api/tests/test_c10_bound_predicates.py"
+      ],
+      "index_empty": true,
+      "diff_check_exit": 0
+    },
+    "retained_reviews": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-review.json",
+        "sha256": "226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb",
+        "verdict": "APPROVED_SCOPED",
+        "retained_unchanged_files": [
+          "api/src/omnis/modules/tasks/managed_composition.py",
+          "api/src/omnis/modules/tasks/managed_contract.py",
+          "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "api/src/omnis/modules/tasks/method_checks.py",
+          "api/tests/test_contract_method_checks.py",
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/test_contract_method_producer.py",
+          "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+        ],
+        "retained_count": 9,
+        "limit": "Original SOURCE scope retained only; changed c10 regression and newly included admission parser reviewed here."
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review.json",
+        "sha256": "7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786",
+        "verdict": "APPROVED_SCOPED",
+        "retained_unchanged_files": [
+          "api/src/omnis/modules/tasks/managed_composition.py",
+          "api/src/omnis/modules/tasks/managed_contract.py",
+          "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "api/src/omnis/modules/tasks/method_checks.py",
+          "api/tests/test_contract_method_checks.py",
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/test_contract_method_producer.py",
+          "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+        ],
+        "retained_count": 9,
+        "limit": "Original SOURCE scope retained only; changed c10 regression and newly included admission parser reviewed here."
+      }
+    ],
+    "original_qa": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-independent-qa.json",
+      "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+      "original_verdict": "NOT_PASS_PRODUCT_PREFIX_BLOCKER",
+      "attempt": {
+        "count": 1,
+        "passed": 1,
+        "failed": 1,
+        "deselected": 25,
+        "pytest_seconds": 50.19,
+        "owner_exit": 1,
+        "family_drained": true,
+        "retry_count": 0
+      },
+      "full": {
+        "node": "test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full]",
+        "retained_verdict": "PASS_SOURCE_NATIVE_PRIVATE_UDS_FULL_SCOPED",
+        "read_input": 1,
+        "pure_actions": 2,
+        "method_states": [
+          "DONE",
+          "DONE",
+          "DONE"
+        ],
+        "check_status": "COMPLETE",
+        "reader_count": 4,
+        "post_stop_cached_read": "PASS",
+        "scope": "Original actual full evidence retained; not freshly rerun or expanded."
+      },
+      "prefix": {
+        "node": "test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-prefix]",
+        "original_verdict": "FAIL_PRODUCT_PREPARE_METHOD_SELECTOR",
+        "reason": "BOUND_PREDICATE_UNAVAILABLE",
+        "native_launches": 0,
+        "after_fix_actual": "NOT_RUN"
+      }
+    },
+    "source_gateway_verification": {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py",
+        "-k",
+        "explicit_return_selection",
+        "-q",
+        "--tb=line"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "environment": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; Python/Pytest overrides and DB/native PG variables removed; -I -B; no cacheprovider",
+      "exit": 0,
+      "wall_seconds": 1.3420963819953613,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-test.log",
+      "sha256": "484c318eb0383c0a2ec8c4650cbc117b3018383fc9b53c131a6d5657ea2a4e85",
+      "output": "...                                                                      [100%]\n3 passed, 184 deselected in 0.58s\n"
+    },
+    "static_checks": {
+      "retained_reviews": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-review.json",
+          "sha256": "226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb",
+          "verdict": "APPROVED_SCOPED",
+          "current_unchanged_matches": 9,
+          "scope": "Retained original10 SOURCE review; changed c10 regression and new admission parser independently reviewed"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review.json",
+          "sha256": "7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786",
+          "verdict": "APPROVED_SCOPED",
+          "current_unchanged_matches": 9,
+          "schema_correction": "Input review stores files[].final_sha256, not final_snapshot.files[].sha256; independently validated nine unchanged files. Initial schema inspection KeyError retained as report-only issue.",
+          "scope": "Retained original10 SOURCE review; changed c10 regression and new admission parser independently reviewed"
+        }
+      ],
+      "wrapper": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+        "sha256": "8425ccd092cae0f741990a6383c7757d515dda0d4ed2fb39e95bdae52ec142c6",
+        "without_new_line_sha256": "eb002d64e7dd87760ff37962c601af45cf23538fa0a8721c293f902102715282",
+        "only_change": "one finite prefix selection mapping; runner/family/240s/deadlines/grants unchanged",
+        "prefix_expression": "partial-requirement-prefix",
+        "main_not_called": true
+      },
+      "admission_delta_exact_single_allowlist_replacement": true,
+      "default_unselected_return_branch": "UNCHANGED_BYTES; selected_return is False without return_predicate_id, membership block skipped",
+      "wheel": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-selector-fix-wheel/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "f5793943b337384c41c4fb2a95ac5f123b1f9bcc121eb46a58b7f62b63a1fe6d",
+        "exact_source_inventory_count": 83,
+        "all_bytes_equal": true
+      },
+      "exit": 0
+    },
+    "static_checks_artifact": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-static.json",
+      "sha256": "7abacf7a810b4ffb337e1e6836dc80e9f358e6820f9a469dd53be956cf730645",
+      "exit": 0
+    },
+    "retained_parent_red": {
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-red.log",
+      "sha256": "8fa3176f196e3be6c057e96d51ee86315fc825bfaadd9288a15d629daf1d1fce",
+      "failed": 1,
+      "passed": 2,
+      "seconds": 0.72,
+      "exit": 1
+    },
+    "retained_parent_green": {
+      "affected_suites_passed": 396,
+      "seconds": 37.23,
+      "exit": 0,
+      "after_last_typing_edit": {
+        "caller_controls_passed": 3,
+        "deselected": 184,
+        "seconds": 0.62,
+        "exit": 0
+      },
+      "quality": "mypy2/Ruff/format2/diff-check PASS",
+      "limits": "SOURCE prepare_method actual gateway with _prepare explicitly substituted, not DB/native proof"
+    },
+    "retained_parent_typing_attempt": [
+      "Initial mypy failed var-annotated for heterogeneous tuple; explicit tuple[object,...] correction, final affected real3/quality PASS"
+    ]
+  },
+  "final_identity_check": {
+    "command": "python3 -I -B -c '\nimport json, pathlib, hashlib, subprocess, re\nroot=pathlib.Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nscratch=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch'\"'\"')\nsha=lambda b: hashlib.sha256(b).hexdigest()\nload=lambda name: json.loads((scratch/name).read_bytes())\nmanifest_bytes=(scratch/'\"'\"'p2-partial-requirement-public-selector-fix.json'\"'\"').read_bytes()\nmanifest=json.loads(manifest_bytes)\nassert sha(manifest_bytes)=='\"'\"'96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e'\"'\"'\nbefore=load('\"'\"'p2-partial-requirement-public-selector-normative-rereview-before.json'\"'\"')\ninitial={r['\"'\"'path'\"'\"']:r['\"'\"'sha256'\"'\"'] for r in before['\"'\"'files'\"'\"']}\nhead=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],text=True).strip()\nassert head==before['\"'\"'head'\"'\"']==manifest['\"'\"'base_head'\"'\"']\nfinal_files=[]\nfor r in manifest['\"'\"'files'\"'\"']:\n    h=sha((root/r['\"'\"'path'\"'\"']).read_bytes())\n    assert h==r['\"'\"'sha256'\"'\"']==initial[r['\"'\"'path'\"'\"']]\n    final_files.append({'\"'\"'path'\"'\"':r['\"'\"'path'\"'\"'],'\"'\"'before_sha256'\"'\"':initial[r['\"'\"'path'\"'\"']],'\"'\"'final_sha256'\"'\"':h,'\"'\"'original_frozen_sha256'\"'\"':r['\"'\"'original_frozen_sha256'\"'\"'],'\"'\"'unchanged_since_before'\"'\"':True,'\"'\"'unchanged_original_approval'\"'\"':h==r['\"'\"'original_frozen_sha256'\"'\"']})\nassert len(final_files)==11\nassert sum(r['\"'\"'unchanged_original_approval'\"'\"'] for r in final_files)==9\ntracked=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--name-only'\"'\"'],text=True).splitlines()\nassert sorted(tracked)==sorted(manifest['\"'\"'delta_paths'\"'\"'])\nassert not subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--cached'\"'\"','\"'\"'--name-only'\"'\"'],text=True).strip()\ndiffcheck=subprocess.run(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--check'\"'\"'],capture_output=True)\nassert diffcheck.returncode==0\noldreviews=[]\nfor name,expected in [('\"'\"'p2-partial-requirement-normative-review.json'\"'\"','\"'\"'226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb'\"'\"'),('\"'\"'p2-partial-requirement-input-review.json'\"'\"','\"'\"'7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786'\"'\"')]:\n    b=(scratch/name).read_bytes(); d=json.loads(b); assert sha(b)==expected\n    if '\"'\"'final_snapshot'\"'\"' in d:\n        old={r['\"'\"'path'\"'\"']:r['\"'\"'sha256'\"'\"'] for r in d['\"'\"'final_snapshot'\"'\"']['\"'\"'files'\"'\"']}\n    else:\n        old={r['\"'\"'path'\"'\"']:r['\"'\"'final_sha256'\"'\"'] for r in d['\"'\"'files'\"'\"']}\n    match=[r['\"'\"'path'\"'\"'] for r in final_files if old.get(r['\"'\"'path'\"'\"'])==r['\"'\"'final_sha256'\"'\"']]\n    assert len(old)==10 and len(match)==9\n    assert d.get('\"'\"'verdict'\"'\"',d.get('\"'\"'review_verdict'\"'\"'))=='\"'\"'APPROVED_SCOPED'\"'\"'\n    oldreviews.append({'\"'\"'path'\"'\"':str(scratch/name),'\"'\"'sha256'\"'\"':sha(b),'\"'\"'verdict'\"'\"':'\"'\"'APPROVED_SCOPED'\"'\"','\"'\"'retained_unchanged_files'\"'\"':match,'\"'\"'retained_count'\"'\"':len(match),'\"'\"'limit'\"'\"':'\"'\"'Original SOURCE scope retained only; changed c10 regression and newly included admission parser reviewed here.'\"'\"'})\nqa_bytes=(scratch/'\"'\"'p2-partial-requirement-independent-qa.json'\"'\"').read_bytes()\nassert sha(qa_bytes)=='\"'\"'68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79'\"'\"'\nqa=json.loads(qa_bytes)\nfull=next(c for c in qa['\"'\"'cases'\"'\"'] if c['\"'\"'node'\"'\"'].endswith('\"'\"'[partial-requirement-full]'\"'\"'))\nprefix=next(c for c in qa['\"'\"'cases'\"'\"'] if c['\"'\"'node'\"'\"'].endswith('\"'\"'[partial-requirement-prefix]'\"'\"'))\nassert full['\"'\"'verdict'\"'\"']=='\"'\"'PASS_SOURCE_NATIVE_PRIVATE_UDS_FULL_SCOPED'\"'\"'\nassert full['\"'\"'read_input'\"'\"']==1 and full['\"'\"'pure_actions'\"'\"']==2 and full['\"'\"'reader_count'\"'\"']==4\nassert prefix['\"'\"'failure'\"'\"']['\"'\"'reason'\"'\"']=='\"'\"'BOUND_PREDICATE_UNAVAILABLE'\"'\"' and prefix['\"'\"'native_launches'\"'\"']==0\nassert qa['\"'\"'attempt'\"'\"']['\"'\"'passed'\"'\"']==1 and qa['\"'\"'attempt'\"'\"']['\"'\"'failed'\"'\"']==1 and qa['\"'\"'attempt'\"'\"']['\"'\"'owner_exit'\"'\"']==1 and qa['\"'\"'attempt'\"'\"']['\"'\"'family_drained'\"'\"'] is True\nstatic=load('\"'\"'p2-partial-requirement-public-selector-normative-rereview-static.json'\"'\"')\nassert all(r['\"'\"'current_unchanged_matches'\"'\"']==9 for r in static['\"'\"'retained_reviews'\"'\"'])\nassert sha((scratch/'\"'\"'p2-partial-return-pg-selection.py'\"'\"').read_bytes())==static['\"'\"'wrapper'\"'\"']['\"'\"'sha256'\"'\"']\nassert sha(pathlib.Path(static['\"'\"'wheel'\"'\"']['\"'\"'path'\"'\"']).read_bytes())==static['\"'\"'wheel'\"'\"']['\"'\"'sha256'\"'\"']\ngateway=load('\"'\"'p2-partial-requirement-public-selector-normative-rereview-test.json'\"'\"')\nassert gateway['\"'\"'exit'\"'\"']==0 and '\"'\"'3 passed, 184 deselected'\"'\"' in gateway['\"'\"'output'\"'\"']\nassert sha(pathlib.Path(gateway['\"'\"'log'\"'\"']).read_bytes())==gateway['\"'\"'sha256'\"'\"']\nred=(scratch/'\"'\"'p2-partial-requirement-public-selector-red.log'\"'\"').read_bytes()\nassert sha(red)==manifest['\"'\"'red'\"'\"']['\"'\"'sha256'\"'\"']\nprint(json.dumps({'\"'\"'manifest_sha256'\"'\"':sha(manifest_bytes),'\"'\"'initial_snapshot'\"'\"':before,'\"'\"'final_snapshot'\"'\"':{'\"'\"'head'\"'\"':head,'\"'\"'file_count'\"'\"':len(final_files),'\"'\"'files'\"'\"':final_files,'\"'\"'unchanged_original_count'\"'\"':9,'\"'\"'delta_count'\"'\"':2,'\"'\"'all_11_equal_before_and_frozen'\"'\"':True},'\"'\"'git'\"'\"':{'\"'\"'head'\"'\"':head,'\"'\"'product_commit'\"'\"':manifest['\"'\"'product_commit'\"'\"'],'\"'\"'status'\"'\"':subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'status'\"'\"','\"'\"'--short'\"'\"','\"'\"'--branch'\"'\"'],text=True),'\"'\"'tracked_delta_paths'\"'\"':tracked,'\"'\"'index_empty'\"'\"':True,'\"'\"'diff_check_exit'\"'\"':diffcheck.returncode},'\"'\"'retained_reviews'\"'\"':oldreviews,'\"'\"'original_qa'\"'\"':{'\"'\"'path'\"'\"':str(scratch/'\"'\"'p2-partial-requirement-independent-qa.json'\"'\"'),'\"'\"'sha256'\"'\"':sha(qa_bytes),'\"'\"'original_verdict'\"'\"':qa['\"'\"'verdict'\"'\"'],'\"'\"'attempt'\"'\"':{k:qa['\"'\"'attempt'\"'\"'][k] for k in ['\"'\"'count'\"'\"','\"'\"'passed'\"'\"','\"'\"'failed'\"'\"','\"'\"'deselected'\"'\"','\"'\"'pytest_seconds'\"'\"','\"'\"'owner_exit'\"'\"','\"'\"'family_drained'\"'\"','\"'\"'retry_count'\"'\"']},'\"'\"'full'\"'\"':{'\"'\"'node'\"'\"':full['\"'\"'node'\"'\"'],'\"'\"'retained_verdict'\"'\"':full['\"'\"'verdict'\"'\"'],'\"'\"'read_input'\"'\"':full['\"'\"'read_input'\"'\"'],'\"'\"'pure_actions'\"'\"':full['\"'\"'pure_actions'\"'\"'],'\"'\"'method_states'\"'\"':[r['\"'\"'state'\"'\"'] for r in full['\"'\"'method_results'\"'\"']],'\"'\"'check_status'\"'\"':full['\"'\"'method_check'\"'\"']['\"'\"'payload'\"'\"']['\"'\"'status'\"'\"'],'\"'\"'reader_count'\"'\"':full['\"'\"'reader_count'\"'\"'],'\"'\"'post_stop_cached_read'\"'\"':full['\"'\"'public_consumer'\"'\"']['\"'\"'public_post_stop_cached_read'\"'\"'],'\"'\"'scope'\"'\"':'\"'\"'Original actual full evidence retained; not freshly rerun or expanded.'\"'\"'},'\"'\"'prefix'\"'\"':{'\"'\"'node'\"'\"':prefix['\"'\"'node'\"'\"'],'\"'\"'original_verdict'\"'\"':prefix['\"'\"'verdict'\"'\"'],'\"'\"'reason'\"'\"':prefix['\"'\"'failure'\"'\"']['\"'\"'reason'\"'\"'],'\"'\"'native_launches'\"'\"':prefix['\"'\"'native_launches'\"'\"'],'\"'\"'after_fix_actual'\"'\"':'\"'\"'NOT_RUN'\"'\"'}},'\"'\"'source_gateway_verification'\"'\"':gateway,'\"'\"'static_checks'\"'\"':static,'\"'\"'static_checks_artifact'\"'\"':{'\"'\"'path'\"'\"':str(scratch/'\"'\"'p2-partial-requirement-public-selector-normative-rereview-static.json'\"'\"'),'\"'\"'sha256'\"'\"':sha((scratch/'\"'\"'p2-partial-requirement-public-selector-normative-rereview-static.json'\"'\"').read_bytes()),'\"'\"'exit'\"'\"':0},'\"'\"'retained_parent_red'\"'\"':manifest['\"'\"'red'\"'\"'],'\"'\"'retained_parent_green'\"'\"':manifest['\"'\"'green'\"'\"'],'\"'\"'retained_parent_typing_attempt'\"'\"':manifest['\"'\"'retained_fix_attempts'\"'\"']},indent=2))\n'",
+    "cwd": "/home/kali/OmnisAI",
+    "exit": 0,
+    "scope": "Hash/read-only exact11 before/final, two original report schemas, retained sanitized QA summary, source test log, wrapper/wheel hashes, Git/index/diff check. No imported helper main or external effects."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-before.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-test.log",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-test.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview-static.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview.json"
+  ],
+  "repository_files_modified": [],
+  "commits_created": [],
+  "issues_encountered": [
+    {
+      "classification": "READ_ONLY_DISCOVERY_TOOL_ERROR",
+      "detail": "Bounded scratch filename search tool failed; names recovered via filtered pathlib directory metadata, no private runtime files read."
+    },
+    {
+      "classification": "REPORT_ONLY_SCHEMA_INSPECTION_ERROR",
+      "exit": 1,
+      "detail": "Old input review uses files[].final_sha256, unlike normative final_snapshot.files[].sha256. Initial lookup defaulted to zero and then raised KeyError. Correct schema independently yields9; only own scratch static report corrected. No product/QA effects or rerun required."
+    },
+    {
+      "classification": "READ_ONLY_PATH_DISCOVERY",
+      "detail": "api/conftest.py absent; actual api/tests/conftest.py inspected before focused SOURCE execution, no autouse DB fixtures."
+    }
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "remaining": "Fresh affected prefix real QA and parent integration/commit still pending. Earlier full and original SOURCE approvals retained only in declared scope. Canonical final NOT_RUN; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim not delivered. No global product acceptance, installed historical-reader/runtime restart or full engine audit.",
+  "proposed_parent_status_delta": "SOURCE selector remedy normative APPROVED_SCOPED; mark named finding resolved only SOURCE, acceptance awaiting one fresh prefix. Preserve failed original1PASS1FAIL and earlier actual full evidence."
+}

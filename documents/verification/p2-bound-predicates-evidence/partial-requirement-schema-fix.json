@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_SCHEMA_FIX_PENDING_FOCUSED_REVIEWS_AND_ACTUAL_QA",
+  "head": "a2cf4e0032ca39e42436f705b1cb9498b3e87ed1",
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "prior_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "prior_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "prior_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "prior_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "b391dcacdce341ead58a14b823057ef59eca8b376f7541eda719424e16914a43",
+      "prior_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234"
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+      "prior_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "prior_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+      "prior_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+      "prior_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+      "prior_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "prior_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9"
+    }
+  ],
+  "file_count": 11,
+  "unchanged_count": 7,
+  "delta_paths": [
+    "api/src/omnis/modules/tasks/managed_contract.py",
+    "api/src/omnis/modules/tasks/method_checker_identity.py",
+    "api/tests/test_c10_bound_predicates.py",
+    "api/tests/test_contract_method_pg.py"
+  ],
+  "prior_qa": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-prefix-independent-qa.json",
+    "sha256": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+    "passed": 0,
+    "failed": 1,
+    "seconds": 20.46,
+    "exit": 1,
+    "family_drained": true,
+    "actual_boundary": "AIAgent/read1/PURE1/native4recordsINCONCLUSIVE; publicTASK_REJECTED at LocalControl-normalized reply; inner runtime reason NOT_OBSERVED"
+  },
+  "confirmed_source_defect": "Generated result_json_schema both shared m enum and exact prefixItem enum excluded authentic PARTIAL. Owner._verify_graph enforces it as RESULT_SCHEMA_MISMATCH; LocalControl maps that reason to TASK_REJECTED. This is a confirmed SOURCE defect, not a fabricated runtime inner reason.",
+  "red": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-result-schema-red.log",
+      "sha256": "53a286185153524dbc43fa6d6790a913338a2c3a7a8742681be3fb525358cd91",
+      "failed": 2,
+      "passed": 2,
+      "seconds": 1.99,
+      "exit": 1
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-history-red.log",
+      "sha256": "84279f47a0fdb10c44262ac91305f08285386f2c2d4fe60cf073885d5df2a982",
+      "failed": 1,
+      "passed": 0,
+      "seconds": 0.5,
+      "exit": 1
+    }
+  ],
+  "green": {
+    "affected_source_passed": 398,
+    "seconds": 35.37,
+    "exit": 0,
+    "quality": "mypy4/Ruff/format4/diff-check PASS"
+  },
+  "identity": {
+    "checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_unchanged": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "new_api_wheel": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-fix-wheel/omnis_api-0.1.0-py3-none-any.whl",
+    "new_api_wheel_sha256": "933a17e8a6c588f0cfe5a69aff1a2164967277066fc460e4e2f3716db7f515d2",
+    "api_modules_byteexact": 83,
+    "adapter_modules_unchanged": 15,
+    "old_schema_pair": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8+1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338 receive-only; immutable recorded schema not rewritten"
+  },
+  "diagnostic_delta": "Prefix-only existing NativeTaskOwner.handle callback wrapper records only exact ten safe reason codes or UNCLASSIFIED_CATALOG_ERROR and re-raises; no raw exception/response/secrets, no response emitter/owner/fence/guard replacement. Actual future failure reason not yet observed.",
+  "qa_selection": "Existing partial-requirement full+prefix 2/27 collector25deselected0.46s. Shared generated schema changed, so fresh full AND prefix needed on final11 bytes; earlier full PASS remains historical scoped only.",
+  "retained_failures": [
+    "Initial patch ambiguity refused atomically/no source write; unique-context patch applied after reread.",
+    "NOT_APPLICABLE test first targeted APPLIES row0 and failed one of7; inspected actual helper, moved unchanged negative to actual conditioned row1 and asserted NOT_APPLICABLE; final398PASS.",
+    "Compatibility whitelist was withdrawn before explicit historical RED, then restored after1FAIL. No commit of mixed/deliberateRED checkpoint."
+  ],
+  "global": "NOT_ACCEPTED; B06b/G02/P2 PARTIAL, canonicalNOT_RUN, P4a/liveNOT_RUN. No launch/model/provider/target/PG retry in parent."
+}

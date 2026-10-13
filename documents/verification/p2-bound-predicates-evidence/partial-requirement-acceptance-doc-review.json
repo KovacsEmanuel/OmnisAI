@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-PARTIAL-REQUIREMENT-ACCEPTANCE-DOC-REVIEW",
+  "language": "ro",
+  "repository": "/home/kali/OmnisAI",
+  "product_head": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "DOCUMENTATION_ONLY_EXACT_4_MARKDOWN_13_JSON; nu review nou de cod, runtime PASS sau acceptare globală",
+  "findings": [],
+  "blocking_findings_count": 0,
+  "summary": "Nu am identificat claim nou nesusținut, promovare de SOURCE la installed/live, ștergere a FAIL-urilor ori închidere nejustificată a porților în delta documentară examinată.",
+  "scope": {
+    "files": [
+      "README.md",
+      "documents/verification/implementation-status.md",
+      "documents/verification/p2-bound-predicates.md",
+      "documents/verification/p2-c10-session-handoff-20261012.md",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-author.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-first-independent-qa-fail.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-input-review.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-normative-review.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-parent-acceptance.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-prefix-independent-qa-fail.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-fix.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-input-rereview.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-normative-rereview.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-fix.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-independent-qa.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-input-rereview.json",
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-normative-rereview.json"
+    ],
+    "markdown_count": 4,
+    "json_count": 13,
+    "total_file_count": 17,
+    "base_head": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+    "reviewed_content": "Cele patru delte Markdown și contextul de status relevant; toate13JSON parseate, câmpurile semantice/manifestele/findings/limitele confruntate între rapoartele originale și adjudecarea derivată.",
+    "non_goals": [
+      "Nu redeschide codul ori auditul launch",
+      "Nu relansa produs/PG/nativ/canonical/browser",
+      "Nu servicii/rețea/credentiale/model/provider/target/r1/global",
+      "Nu index/commit/push/istoric",
+      "Nu citi sau modifica documents/Omnis_Notite_Originale.html",
+      "Nu citi loguri QA brute"
+    ]
+  },
+  "before_snapshot": {
+    "files": {
+      "README.md": {
+        "sha256": "17e40ee30ec81f4a4d4e3257d7ca4264da9844827439b30976ac6c07dae5acad",
+        "bytes": 37000
+      },
+      "documents/verification/implementation-status.md": {
+        "sha256": "eed2b72fb69d5d7edca32ff62f3d5d55f2e0adcb3e6f27b90deda8c8ba8d22ae",
+        "bytes": 61394
+      },
+      "documents/verification/p2-bound-predicates.md": {
+        "sha256": "a129c3ba8ca2bee37c2c3416e38f33771b247097e97f30d86e644e9f1828ce27",
+        "bytes": 54348
+      },
+      "documents/verification/p2-c10-session-handoff-20261012.md": {
+        "sha256": "f45f05a6fa653ba2bc2ca2a9dfc221c7e7986220f60f8c73f9f3743080acfe54",
+        "bytes": 51331
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-author.json": {
+        "sha256": "4e49ebb26aea926144fc353c0aa1a13ac7cf8f7d5bb2d3ebf3f915e675403842",
+        "bytes": 38973
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-first-independent-qa-fail.json": {
+        "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+        "bytes": 110682
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-input-review.json": {
+        "sha256": "7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786",
+        "bytes": 29342
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-normative-review.json": {
+        "sha256": "226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb",
+        "bytes": 28619
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-parent-acceptance.json": {
+        "sha256": "49a9d251aeb090985f46a16d41db1b2aadbcb4351fda544b56e95bc472713dab",
+        "bytes": 27336
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-prefix-independent-qa-fail.json": {
+        "sha256": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+        "bytes": 58423
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-fix.json": {
+        "sha256": "96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e",
+        "bytes": 4868
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-input-rereview.json": {
+        "sha256": "0d6aa835beb222c785731019b65eab54af297a3c2cc93be833312b0b3e5148c3",
+        "bytes": 21995
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-normative-rereview.json": {
+        "sha256": "6a6264582a77473330aae1b806b98fae4fefd74340df0ba61ebd02919cb82bd3",
+        "bytes": 34538
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-fix.json": {
+        "sha256": "fac6ef57eaa25d99356d7f3c48c730a37e3fbcd2c5caeebcc2029711b638be90",
+        "bytes": 6697
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-independent-qa.json": {
+        "sha256": "59177110bde11bae4692b9b167e5f0841bfda158e75976c217477bc986731b2d",
+        "bytes": 232546
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-input-rereview.json": {
+        "sha256": "3879ede0b8484b789ee31be62b4401da3caefb9046c0280eeae4203ec7187f4d",
+        "bytes": 27622
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-normative-rereview.json": {
+        "sha256": "f74f29bdcfb4036aa10f8c6d8f5fa5b4aa3273c92e0c195d4b2d94325781dd5e",
+        "bytes": 21954
+      }
+    },
+    "markdown_count": 4,
+    "json_count": 13,
+    "head": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a"
+  },
+  "final_snapshot": {
+    "files": {
+      "README.md": {
+        "sha256": "17e40ee30ec81f4a4d4e3257d7ca4264da9844827439b30976ac6c07dae5acad",
+        "bytes": 37000
+      },
+      "documents/verification/implementation-status.md": {
+        "sha256": "eed2b72fb69d5d7edca32ff62f3d5d55f2e0adcb3e6f27b90deda8c8ba8d22ae",
+        "bytes": 61394
+      },
+      "documents/verification/p2-bound-predicates.md": {
+        "sha256": "a129c3ba8ca2bee37c2c3416e38f33771b247097e97f30d86e644e9f1828ce27",
+        "bytes": 54348
+      },
+      "documents/verification/p2-c10-session-handoff-20261012.md": {
+        "sha256": "f45f05a6fa653ba2bc2ca2a9dfc221c7e7986220f60f8c73f9f3743080acfe54",
+        "bytes": 51331
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-author.json": {
+        "sha256": "4e49ebb26aea926144fc353c0aa1a13ac7cf8f7d5bb2d3ebf3f915e675403842",
+        "bytes": 38973
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-first-independent-qa-fail.json": {
+        "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+        "bytes": 110682
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-input-review.json": {
+        "sha256": "7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786",
+        "bytes": 29342
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-normative-review.json": {
+        "sha256": "226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb",
+        "bytes": 28619
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-parent-acceptance.json": {
+        "sha256": "49a9d251aeb090985f46a16d41db1b2aadbcb4351fda544b56e95bc472713dab",
+        "bytes": 27336
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-prefix-independent-qa-fail.json": {
+        "sha256": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+        "bytes": 58423
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-fix.json": {
+        "sha256": "96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e",
+        "bytes": 4868
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-input-rereview.json": {
+        "sha256": "0d6aa835beb222c785731019b65eab54af297a3c2cc93be833312b0b3e5148c3",
+        "bytes": 21995
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-normative-rereview.json": {
+        "sha256": "6a6264582a77473330aae1b806b98fae4fefd74340df0ba61ebd02919cb82bd3",
+        "bytes": 34538
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-fix.json": {
+        "sha256": "fac6ef57eaa25d99356d7f3c48c730a37e3fbcd2c5caeebcc2029711b638be90",
+        "bytes": 6697
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-independent-qa.json": {
+        "sha256": "59177110bde11bae4692b9b167e5f0841bfda158e75976c217477bc986731b2d",
+        "bytes": 232546
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-input-rereview.json": {
+        "sha256": "3879ede0b8484b789ee31be62b4401da3caefb9046c0280eeae4203ec7187f4d",
+        "bytes": 27622
+      },
+      "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-normative-rereview.json": {
+        "sha256": "f74f29bdcfb4036aa10f8c6d8f5fa5b4aa3273c92e0c195d4b2d94325781dd5e",
+        "bytes": 21954
+      }
+    },
+    "markdown_count": 4,
+    "json_count": 13,
+    "head": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+    "status": "## checkpoint/p2-vm-restart-20261011\n M README.md\n M documents/verification/implementation-status.md\n M documents/verification/p2-bound-predicates.md\n M documents/verification/p2-c10-session-handoff-20261012.md\n?? documents/Omnis_Notite_Originale.html\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-author.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-first-independent-qa-fail.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-input-review.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-normative-review.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-parent-acceptance.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-prefix-independent-qa-fail.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-fix.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-input-rereview.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-public-selector-normative-rereview.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-fix.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-independent-qa.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-input-rereview.json\n?? documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-normative-rereview.json\n",
+    "staged_diff_empty": true,
+    "diff_check_exit": 0
+  },
+  "snapshot_verification": {
+    "all17_before_final_SHA256_equal": true,
+    "head_unchanged": true,
+    "json_inventory_exact13": true,
+    "staged_diff_empty": true,
+    "repository_files_modified_by_reviewer": []
+  },
+  "performed_checks": [
+    {
+      "check": "Reguli și orientare read-only",
+      "performed": true,
+      "evidence": "AGENTS.md, CONTRIBUTING.md, omnis-review-qa, omnis-project-status; git status --short --branch, rev-parse HEAD, diff --stat/--name-only, show --stat --oneline HEAD. Modificările și untracked existente păstrate."
+    },
+    {
+      "check": "SHA256 before/final și inventar exact",
+      "performed": true,
+      "command": "python3 -I -B inline pathlib/hashlib pe cele4Markdown+13partial-requirementJSON",
+      "exit": 0,
+      "result": "17/17 identice, HEAD exact cerut, index gol."
+    },
+    {
+      "check": "Conformitatea proiecției documentare",
+      "performed": true,
+      "evidence": [
+        "README.md:3",
+        "documents/verification/implementation-status.md:13,112-115",
+        "documents/verification/p2-bound-predicates.md:11-21",
+        "documents/verification/p2-c10-session-handoff-20261012.md:3-30"
+      ],
+      "result": "SOURCE tests și review focalizat distincte de QA reală SOURCE-host/private-native/public-UDS; SOURCE_HOST_NOT_INSTALLED și prerequisite double păstrate. Nicio promovare installed/history/restart/inferență/funcțională."
+    },
+    {
+      "check": "Parsare13JSON fără chei duplicate și confruntare sursă/adjudecare",
+      "performed": true,
+      "exit": 0,
+      "result": {
+        "json_count": 13,
+        "duplicate_json_keys": [],
+        "head_matches": true,
+        "qa_report_sha_bound": true,
+        "attempt_equal": true,
+        "files_equal": true,
+        "file_count": 11,
+        "prior_failures_equal": true,
+        "limits_equal": true,
+        "global_gates_equal": true,
+        "source_affected_count": true,
+        "qa_inventory_declared_count": 150,
+        "qa_inventory_item_count": 150,
+        "reviews": [
+          {
+            "name": "partial-requirement-schema-normative-rereview.json",
+            "versioned_sha_equals_binding": true,
+            "verdict": "APPROVED_SCOPED"
+          },
+          {
+            "name": "partial-requirement-schema-input-rereview.json",
+            "versioned_sha_equals_binding": true,
+            "verdict": "APPROVED_SCOPED_SOURCE"
+          }
+        ],
+        "cases": [
+          {
+            "label": "partial-requirement-full",
+            "label_equal": true,
+            "states_equal": true,
+            "raw_equal": true,
+            "backend_equal": true,
+            "check_equal": true,
+            "schema_equal": true,
+            "gaps_equal": true,
+            "actual_refs_equal": true,
+            "outcomes_equal": true,
+            "raw_before_check_equal": true,
+            "reader_count_equal": true,
+            "post_stop_equal": true,
+            "reader_exit0_noexecution": true,
+            "consumed_once": true
+          },
+          {
+            "label": "partial-requirement-prefix",
+            "label_equal": true,
+            "states_equal": true,
+            "raw_equal": true,
+            "backend_equal": true,
+            "check_equal": true,
+            "schema_equal": true,
+            "gaps_equal": true,
+            "actual_refs_equal": true,
+            "outcomes_equal": true,
+            "raw_before_check_equal": true,
+            "reader_count_equal": true,
+            "post_stop_equal": true,
+            "reader_exit0_noexecution": true,
+            "consumed_once": true
+          }
+        ],
+        "original12_transfer": [
+          {
+            "versioned_name": "partial-requirement-author.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-author.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-first-independent-qa-fail.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-independent-qa.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-input-review.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-normative-review.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-review.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-prefix-independent-qa-fail.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-prefix-independent-qa.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-public-selector-fix.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-fix.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-public-selector-input-rereview.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-public-selector-normative-rereview.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-normative-rereview.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-schema-fix.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-fix.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-schema-independent-qa.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-independent-qa.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-schema-input-rereview.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-input-rereview.json",
+            "exists": true,
+            "sha_equal": true
+          },
+          {
+            "versioned_name": "partial-requirement-schema-normative-rereview.json",
+            "original_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-normative-rereview.json",
+            "exists": true,
+            "sha_equal": true
+          }
+        ]
+      }
+    },
+    {
+      "check": "Cele12rapoarte originale copiate byte-exact",
+      "performed": true,
+      "exit": 0,
+      "result": "12/12SHA ale copiilor documentare egale cu originalele JSON din scratch; incluzând ambele FAIL-uri. Adjudecarea părintelui este al13-lea JSON derivat, nu raport copil rescris."
+    },
+    {
+      "check": "Linkuri ale noii dovezi",
+      "performed": true,
+      "exit": 0,
+      "scoped_json_link_count": 21,
+      "missing_scoped_links": []
+    },
+    {
+      "check": "Ordinea fazelor și porțile",
+      "performed": true,
+      "evidence": "Omnis_Implementation_Plan.md:85-94,112,132-138; harta SL09-SL12 și handofful existent. RestB06b→B06c/m→acceptareP2-inert→P4a-minim→P2-live cu acord separat."
+    },
+    {
+      "check": "git diff --check",
+      "performed": true,
+      "exit": 0,
+      "limit": "Formatare diff, nu runtime sau corectitudine de produs."
+    }
+  ],
+  "claim_checks": [
+    {
+      "claim": "QA fresh2PASS/25deselected59.63s exit0/drained",
+      "status": "SUPPORTED_BY_ORIGINAL_JSON",
+      "source": "partial-requirement-schema-independent-qa.json:attempt",
+      "limit": "Invocare comună celor două nodes, nu două procese sau durate pytest per caz."
+    },
+    {
+      "claim": "Full versus prefix fără promovare MethodResult/funcțională",
+      "status": "SUPPORTED_BY_ORIGINAL_JSON",
+      "observed_report_fields": {
+        "full": "DONE/DONE/DONE; raw/backend SUCCEEDED; schema VALID; check COMPLETE",
+        "prefix": "PARTIAL/NOT_RUN/DONE; raw INCONCLUSIVE; schema VALID; check INCOMPLETE; backend BLOCKED; exact2gaps",
+        "outcomes": "4CriterionOutcome BLOCKED fără oracle/controls"
+      }
+    },
+    {
+      "claim": "Persistare înainte check",
+      "status": "CORRECTLY_BOUNDED",
+      "limit": "Prefix are raw_before_method_check PASS și checks empty. Full declară SOURCE_ORDERING_ONLY_NO_DEDICATED_FULL_CHECKPOINT; documentul nu pretinde checkpoint temporal separat."
+    },
+    {
+      "claim": "Public cached release/receive AFTER_STOP/no-rerun/consum1",
+      "status": "SUPPORTED_BY_ORIGINAL_JSON",
+      "limit": "Public control_task→LocalControl→NativeTaskOwner și InstanceService.shutdown autentice conform sursei JSON;4reader CLI per caz/8total și delivered1/admitted0/turn_completed0 distincte. Nu installed historical-reader sau restart runtime."
+    },
+    {
+      "claim": "398SOURCE și două focused reviews pe11SHA",
+      "status": "SUPPORTED_BY_SOURCE_REPORT_FIELDS",
+      "limit": "SOURCE controls, inclusiv17diagnostic controls, nu17teste pytest noi și nu QA runtime. QA leagă exact SHA-urile celor două re-reviewuri finale."
+    },
+    {
+      "claim": "11sourceSHA/150artefacte/cleanup exact/date păstrate",
+      "status": "CORRECTLY_ATTRIBUTED_PARENT_READBACK",
+      "limit": "Inventarul original are150items și count150, source manifest11 concordă între QA/adjudecare. Efectele cleanup și hashurile celor150artefacte au fost readback de părinte; nu au fost reverificate live de acest reviewer."
+    },
+    {
+      "claim": "Ambele FAIL-uri și cauzele istorice păstrate",
+      "status": "SUPPORTED_BY_IMMUTABLE_ORIGINAL_REPORTS",
+      "limit": "Prima1PASS1FAIL50.19s/exit1/drained, selector refuzat prelaunch; a doua0PASS1FAIL20.46s/exit1/drained, native read1/PURE1/final4INCONCLUSIVE apoi TASK_REJECTED. Inner cause și rawDB writes NOT_OBSERVED, exporturile pytest-389 absente; fără cauză dedusă din noul PASS, fără zero-write/rollback inventat."
+    }
+  ],
+  "finding_dispositions_review": {
+    "QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01": "Closure SOURCE/native curent justificată de RED→GREEN, re-reviewuri complementare și fresh prefix actual; FAIL original și dispoziția originală OPEN rămân neschimbate în raportul istoric.",
+    "GENERATED-PARTIAL-SCHEMA-SOURCE-DEFECT": "Closure curentă scoped justificată de două enums remediate, SOURCE RED2FAIL2PASS→GREEN398PASS, re-reviewuri și schema VALID în ambele cazuri fresh. Nu dovedește retrospectiv motivul vechiului TASK_REJECTED.",
+    "QA-PARTIAL-REQUIREMENT-PUBLIC-RELEASE-02": "CLOSED_CURRENT_SCOPED_QA_ACCEPTANCE în adjudecarea derivată; raportul copil original rămâne OPEN_PENDING_PARENT_ADJUDICATION și FAIL-ul anterior nemodificat. Distincție corectă, nu contradicție care șterge istoricul.",
+    "EXACT-HISTORICAL-IDENTITY-CUTOVER": "CLOSED_SOURCE_SCOPED_ONLY; pereche exactă receive-only și fără rescriere schema veche. Installed historical-reader NOT_RUN.",
+    "SOURCE-PR-01_02_03": "Autorul păstrează FIXED_SOURCE_SCOPED și limitele originale; noile QA01/QA02 nu sunt șterse de reviewurile inițiale fără findings.",
+    "inherited_LOW_N01": "Păstrat neblocant/deferred la scope-ul istoric în registru; noua felie nu pretinde că l-a remediat."
+  },
+  "global_gates": {
+    "B06b": "PARTIAL/NOT_CLOSED",
+    "G02": "PARTIAL/NOT_CLOSED",
+    "P2": "NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "P2_live": "NOT_RUN",
+    "M1_M2": "OPEN/NOT_RUN in this QA",
+    "installed_historical_reader": "NOT_RUN",
+    "runtime_restart": "NOT_RUN",
+    "remaining_forms_binding_inventory_qualification": "INCOMPLETE; continuarea canonică, fără alt audit launch"
+  },
+  "limitations": [
+    "Aprobarea se referă numai la documentarea exactă hash-bound, nu la corectitudinea codului sau certificarea produsului.",
+    "Nu am relansat QA produs/PG/nativ, Docker/UDS/proc/lock readback, canonical, browser sau serviciu. Cleanup/external-state rămâne dovadă originală și adjudecare a părintelui, nu observație live a reviewerului.",
+    "Nu am rehash-uit cele11fișiere de produs ori cele150artefacte externe; am comparat manifestele și câmpurile efective ale JSON-urilor și hashurile celor17fișiere documentare/12originaleJSON.",
+    "Nu am citit raw QA logs, bootstrap/capability, parole ori fișierul HTML protejat; numai rapoarte JSON redacted și documente relevante.",
+    "Render --check și72unittest sunt raportate drept executate recent de părinte în contract; nu sunt revendicate drept rerulate independent în acest review. git diff --check a fost executat aici exit0.",
+    "Istoricul mai vechi și întregul baseline nu au fost recertificate; contextul relevant de status/phase gates a fost inspectat, fără promovarea vechilor PASS-uri pe noul produs.",
+    "Full fără checkpoint temporal dedicat; Python observer attempts0 nu este OS confinement; native exit-9 nu dovedește Stop graceful sau restart; lipsa checkpointului istoric nu este zero-write proof.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Fără aprobare estetică, cost/model/provider/target sau autorizație nouă.",
+    "Snapshotul documentar este necomis la HEAD cerut; părintele deține integrarea, stage-ul și commitul."
+  ],
+  "reviewer_inspection_issues": [
+    {
+      "issue": "Prima extragere JSON semantică a depășit capture window terminal; json_parse a refuzat outputul truncat.",
+      "disposition": "Sursă originală neschimbată; ekstracție mai compactă și confruntare structurată ulterior exit0. Nu date reconstruite/false-green."
+    },
+    {
+      "issue": "Comparatorul a încercat inițial basename scratch p2- în directorul cu rapoarte fără acel prefix.",
+      "disposition": "FileNotFoundError numai al inspecției; maparea explicită scratch→copie reparată în comanda read-only; apoi12/12SHA și toate comparațiile PASS. Fără modificare produs sau rerun QA."
+    }
+  ],
+  "write_boundary": {
+    "created": [
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-acceptance-doc-review.json"
+    ],
+    "repository_files_created_or_modified": [],
+    "index_changes": 0,
+    "commits": 0,
+    "services_or_network": false,
+    "raw_qa_logs_read": false,
+    "protected_html_read_or_modified": false
+  },
+  "parent_action": "Adjudecă acest verdict doar pentru snapshotul documentar17fișiere; păstrează FAIL-urile/limitele și comite delta documentară scoped. Nu redeschide produsul/launch și nu închide porțile globale."
+}

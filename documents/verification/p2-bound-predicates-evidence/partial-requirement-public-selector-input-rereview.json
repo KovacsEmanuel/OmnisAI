@@ -1,0 +1,356 @@
+{
+  "blocking_findings_count": 0,
+  "finding_dispositions": [
+    {
+      "classification": "CONFIRMED_PRODUCT_CALLER_DEFECT_NOT_FIXTURE",
+      "current_source_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "disposition": "RESOLVED_SOURCE_ONLY_PENDING_AFFECTED_REAL_QA",
+      "id": "QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01",
+      "not_closed": "Authentic prefix read1/PURE1 -> PARTIAL/NOT_RUN/DONE -> persisted raw result -> INCOMPLETE/check/readers/post-Stop/single-consume remains NOT_RUN after fix; product acceptance blocker is not closed by SOURCE review.",
+      "original_reproducer": "Real PG consumer assignment schema_version=3 / prepare-method / return_predicate_id=preserve-input-context; refused BOUND_PREDICATE_UNAVAILABLE before _prepare/native launch.",
+      "original_severity": "HIGH_BLOCKER",
+      "original_source_sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+      "path_line": "api/src/omnis/modules/runs/managed_admission.py:59-61",
+      "red": {
+        "exit": 1,
+        "failed": 1,
+        "passed": 2,
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-red.log",
+        "provenance": "Parent frozen fix manifest; retained, not rerun here",
+        "seconds": 0.72,
+        "sha256": "8fa3176f196e3be6c057e96d51ee86315fc825bfaadd9288a15d629daf1d1fce"
+      },
+      "source_resolution": "Exact existing three installed record predicate keys now pass actual prepare_method gateway; type/syntax guard runs before membership; negative controls never reach the substituted _prepare boundary."
+    }
+  ],
+  "findings": [],
+  "identity": {
+    "adapter_wheel": {
+      "byte_equal_product_and_previous_wheel": true,
+      "installed_execution": "NOT_RUN",
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-adapter-wheel/omnis_hermes-0.1.0-py3-none-any.whl",
+      "python_module_count": 15,
+      "sha256": "0623ac914248dcd7f50ce5eae1b4208839ae7e368d4461c4fabac7d4c4062a17"
+    },
+    "api_wheel": {
+      "byte_equal_current_source": true,
+      "installed_execution": "NOT_RUN",
+      "module_delta_vs_prior_wheel": [
+        "omnis/modules/runs/managed_admission.py"
+      ],
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-selector-fix-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "python_module_count": 83,
+      "sha256": "f5793943b337384c41c4fb2a95ac5f123b1f9bcc121eb46a58b7f62b63a1fe6d"
+    },
+    "changed_api_caller_not_in_checker_closure": true,
+    "checker_all_sources_byte_equal_product": true,
+    "checker_code_digest": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+    "checker_digest_equal_previous_real_qa": true,
+    "checker_source_count": 13,
+    "composer_revision": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "no_pin_reseal_or_authority_change": true
+  },
+  "limits": [
+    "SOURCE_GATEWAY_ONLY: _prepare DB seam replaced explicitly. No PG, runtime, UDS, network, model/account/target effects; main/engine/constructor guard ordering is static, not end-to-end execution.",
+    "No broader re-audit, prior14probe/364/all-source rerun, new harness/fuzzer/emitter/inventory implementation, installs or launch.",
+    "No fresh affected prefix QA; no product acceptance until separately authorized original real consumer passes on current bytes and exact owned cleanup/readback.",
+    "Full prior actual proof preserved within original scope by static guard equivalence; no claimed fresh full PASS or installed wheel/native runtime proof.",
+    "SOURCE_HOST_NOT_INSTALLED/preparation double remains; installed historical-reader/runtime restart remains NOT_RUN.",
+    "Canonical final NOT_RUN; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim not delivered; no live/global acceptance.",
+    "No index/commit/push/shared repository edit; other profiles/r1/credentials/protected HTML untouched.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no tools launched for either."
+  ],
+  "observed_head_final": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+  "observed_head_initial": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+  "prefix_selection_review": {
+    "collection_evidence": "Parent reported1selected/26deselected/27total0.76s and help PASS; not rerun by this reviewer, static one-case mapping independently checked.",
+    "exact_one_added_line": "    'partial-requirement-prefix': 'partial-requirement-prefix',",
+    "fixture_timeout_seconds_unchanged": 240,
+    "fresh_real_prefix_execution": "NOT_RUN",
+    "native_grant_seconds_retained": 4.5,
+    "original_qa_wrapper_sha256": "eb002d64e7dd87760ff37962c601af45cf23538fa0a8721c293f902102715282",
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "path_line": "p2-partial-return-pg-selection.py:20,30-34,46-53",
+    "previous_combined_expression_unchanged": "partial-requirement-full or partial-requirement-prefix",
+    "removing_line_recovers_original_qa_wrapper_hash": true,
+    "selected_expression": "partial-requirement-prefix",
+    "selection_effect_only": "Existing private fixture owner/no-network/lifecycle/family-drain runner remains; no alternate fixture, emitter or bypass.",
+    "sha256": "8425ccd092cae0f741990a6383c7757d515dda0d4ed2fb39e95bdae52ec142c6",
+    "static_matching_existing_case": "api/tests/test_contract_method_pg.py:490,509; exactly one existing parameter ID; early_return=True reaches public prepare_method with preserve-input-context at845-859,932"
+  },
+  "product_acceptance": "NOT_ACCEPTED_PENDING_AFFECTED_REAL_PREFIX_QA",
+  "product_commit": "3a2ffb72089e0ed9aeb4e4bc42f22fb5efc2d03b",
+  "proposed_parent_delta": "Accept this complementary focused SOURCE re-review on exact11; retain nine original scoped approvals. QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01 source defect resolved but acceptance pending one fresh affected-prefix original real consumer QA after both focused reviews. Do not re-run unaffected full branch or promote broader gates.",
+  "report_id": "P2-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-INPUT-REREVIEW",
+  "repository_effects": {
+    "commits_created": 0,
+    "files_created": [
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-initial.json",
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-source.log",
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-source.json",
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-final.json",
+      "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview.json"
+    ],
+    "git_status_initial_final": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_c10_bound_predicates.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "protected_untracked_html": "documents/Omnis_Notite_Originale.html preserved untouched",
+    "repository_files_modified_by_reviewer": [],
+    "staged_changes": false,
+    "wrapper_modified_by_reviewer": false
+  },
+  "schema_version": 1,
+  "scope": {
+    "additional_static_scope": [
+      "Public main -> validate_request -> ManagedAdmission.prepare_method and existing DB/build call sites",
+      "One-line prefix-only command selection wrapper; unchanged full-branch reuse",
+      "Identity readback of already declared checker closure and rebuilt API wheel"
+    ],
+    "changed_paths": [
+      "api/tests/test_c10_bound_predicates.py",
+      "api/src/omnis/modules/runs/managed_admission.py"
+    ],
+    "no_broader_reaudit": true,
+    "no_launch": true,
+    "retained_unchanged_source_approvals": "Only nine byte-identical original paths retain their previous scope; no transfer of prior approval onto the two changed paths, changed distribution, whole B06b/P2, or live.",
+    "role": "Complementary independent input/type/version/operation/before-effect focused re-review; read-only repository"
+  },
+  "snapshot": {
+    "all_initial_final_expected_hashes_equal": true,
+    "delta_count": 2,
+    "file_count": 11,
+    "files": [
+      {
+        "expected_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "final_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "initial_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "original_frozen_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "path": "api/src/omnis/modules/tasks/managed_composition.py"
+      },
+      {
+        "expected_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+        "final_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+        "initial_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+        "original_frozen_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+        "path": "api/src/omnis/modules/tasks/managed_contract.py"
+      },
+      {
+        "expected_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+        "final_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+        "initial_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+        "original_frozen_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py"
+      },
+      {
+        "expected_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "final_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "initial_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "original_frozen_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "path": "api/src/omnis/modules/tasks/method_checks.py"
+      },
+      {
+        "expected_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+        "final_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+        "initial_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+        "original_frozen_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284",
+        "path": "api/tests/test_c10_bound_predicates.py"
+      },
+      {
+        "expected_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+        "final_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+        "initial_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+        "original_frozen_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+        "path": "api/tests/test_contract_method_checks.py"
+      },
+      {
+        "expected_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+        "final_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+        "initial_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+        "original_frozen_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+        "path": "api/tests/test_contract_method_pg.py"
+      },
+      {
+        "expected_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+        "final_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+        "initial_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+        "original_frozen_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+        "path": "api/tests/test_contract_method_producer.py"
+      },
+      {
+        "expected_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+        "final_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+        "initial_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+        "original_frozen_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py"
+      },
+      {
+        "expected_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "final_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "initial_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "original_frozen_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+      },
+      {
+        "expected_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+        "final_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+        "initial_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+        "original_frozen_sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+        "path": "api/src/omnis/modules/runs/managed_admission.py"
+      }
+    ],
+    "final_record": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-final.json",
+      "sha256": "6006c240a5c8bcc9452087cbe1e97681147a7e2275dddca9248f97587df92787"
+    },
+    "initial_record": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-initial.json",
+    "manifest": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-fix.json",
+      "sha256": "96e56da7e426846d66a326eaa27a548733e0291bc50648231ad772cc3fab563e"
+    },
+    "prior_reviews": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-review.json",
+        "scope": "Prior exact10 SOURCE; only the nine unchanged paths retained, no inheritance on two current deltas",
+        "sha256": "226b7aeff0706967363ac49c7d855adf936201e36071e880259fabc37bd34efb",
+        "verdict": "APPROVED_SCOPED"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review.json",
+        "scope": "Prior exact10 SOURCE; only the nine unchanged paths retained, no inheritance on two current deltas",
+        "sha256": "7a8a7874728bad2f8d3fb20f3aabb9d231de95b104cea7cf6072e3e7e2144786",
+        "verdict": "APPROVED_SCOPED"
+      }
+    ],
+    "unchanged_original_count": 9
+  },
+  "strict_boundary_trace": [
+    {
+      "evidence_kind": "STATIC_UNCHANGED",
+      "path_line": "api/src/omnis/modules/tasks/managed_contract.py:1617-1650",
+      "property": "Exact dict/string keys, exact int version (bool/float/null/container rejected), exact field set; no scalar coercion or arbitrary request extensions."
+    },
+    {
+      "evidence_kind": "STATIC_PLUS_FOCUSED_SOURCE_CONTROLS",
+      "path_line": "api/src/omnis/modules/runs/managed_admission.py:40-74",
+      "property": "Selected return permitted only on prepare-method/schema_version=3. Exact owner/command UUID, execution-selection/context kind, one task, records slot/exact one Ref remain unchanged. Unsupported schema versions are still refused by integer range/selection guard."
+    },
+    {
+      "evidence_kind": "STATIC_PLUS_FOCUSED_SOURCE_CONTROLS",
+      "path_line": "api/src/omnis/modules/tasks/managed_contract.py:26-39,1629-1639",
+      "property": "predicate_key requires exact string length/syntax before dictionary membership; fixed three keys only. Foreign/unknown syntactically valid IDs refuse; expression is not evaluated. No new registry or arbitrary callable."
+    },
+    {
+      "evidence_kind": "STATIC_ONLY_MAIN_NOT_EXECUTED",
+      "path_line": "api/src/omnis/modules/runs/managed_admission.py:1292-1343",
+      "property": "main parser operation choices are fixed strings. Request validation occurs at1309 before DB URL lookup/engine creation1317. Valid request is revalidated through prepare_method328 before _prepare. CatalogError(ValueError) is caught first1336 preserving sanitized reason/exit2, not swallowed by broad ValueError catch1340."
+    },
+    {
+      "evidence_kind": "STATIC_UNCHANGED_SERVICE_GATEWAY_EXERCISED_WITH_DB_SEAM_DOUBLE",
+      "path_line": "api/src/omnis/modules/runs/managed_admission.py:244-317,327-399",
+      "property": "prepare_method injects fixed composition_version4 only after validation; _prepare transaction/replay/build/writes unchanged. Existing owner/context/selection/preparation/schema/slot verification is retained. Well-typed foreign identities require unchanged DB ownership checks; not claimed zero-DB effects from lexical validation."
+    },
+    {
+      "evidence_kind": "STATIC_UNCHANGED",
+      "path_line": "api/src/omnis/modules/tasks/managed_contract.py:524-552,247-305,426-443",
+      "property": "Builder already accepts the same three keys under method/input-only restrictions; closure still resolves exact bound requirement, step and schema. No widening of slots, UUIDs, task counts, selection, operation, input type or authority."
+    },
+    {
+      "evidence_kind": "STATIC_UNCHANGED_NO_NATIVE_RUN",
+      "path_line": "integrations/hermes/src/omnis_hermes/contract_method.py:151-191; integrations/hermes/src/omnis_hermes/prompt_bundle.py:403-407,554-766; integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-101,104-115",
+      "property": "Existing composition/predicate/closure validation remains before native identity allocation; same no-model tools and guard-before-input path. Constructor/engine/owner authority not modified by this fix."
+    }
+  ],
+  "unchanged_full_reuse": {
+    "fresh_full_execution": "NOT_RUN_INTENTIONALLY_UNAFFECTED",
+    "full": "Prior actual SOURCE/native/PG full PASS retained in original scope: read1/PURE2, three DONE/COMPLETE, four fresh readers, original public cached release/receive AFTER_STOP. Not a new PASS on current distribution.",
+    "prefix_failure_retained": "Previous real prefix refused BOUND_PREDICATE_UNAVAILABLE before native launch; expected states are not observed evidence. No blind retry.",
+    "previous_qa": {
+      "deselected": 25,
+      "exit": 1,
+      "failed": 1,
+      "family_drained": true,
+      "passed": 1,
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-independent-qa.json",
+      "retry_count": 0,
+      "seconds": 50.19,
+      "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79"
+    },
+    "static_equivalence": "Full case early_return=False at api/tests/test_contract_method_pg.py:489; assignment has no return_predicate_id at845-859, so selected_return=False skips the sole changed condition. main/service/_prepare ASTs and downstream builder/checker/native code/pins remain byte-equivalent; API wheel has only changed caller module."
+  },
+  "verdict": "APPROVED_SCOPED_SOURCE",
+  "verification": [
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "/home/kali/OmnisAI/api/tests/test_c10_bound_predicates.py::test_explicit_return_selection_is_bounded_existing_prepare_request",
+        "-q",
+        "--tb=line"
+      ],
+      "controls": {
+        "asserted_before_effect_seam": "prepared remains [expected] through every denial; only _prepare substituted, actual validation and public service gateway used",
+        "expected_normalization": "composition_version=4; exactly one _prepare observation per positive key",
+        "positive_exact_keys": [
+          "normalize-records",
+          "build-surface-map",
+          "preserve-input-context"
+        ],
+        "selector_negatives": [
+          null,
+          true,
+          0,
+          [],
+          {},
+          "unknown",
+          "foreign.normalize-records",
+          "lambda: True"
+        ],
+        "version_negatives_exercised": [
+          1,
+          2
+        ],
+        "wrong_operation_exercised": "prepare-composed"
+      },
+      "cwd": "/home/kali/OmnisAI",
+      "environment": "Minimal PATH/HOME/TMPDIR/PYTEST_DISABLE_PLUGIN_AUTOLOAD; no copied credential/PG/runtime environment",
+      "exit": 0,
+      "failed": 0,
+      "independently_executed": true,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-input-rereview-source.log",
+      "log_sha256": "ee0a008709f8a80aecfa3f91058fc60aa69c529a65b603a54069f5a0d38f8d84",
+      "passed": 3,
+      "pytest_seconds": 0.7,
+      "scope": "SOURCE actual ManagedAdmission.prepare_method gateway; _prepare DB seam substituted explicitly; no real PG/native/UDS/model effects",
+      "test_path_line": "api/tests/test_c10_bound_predicates.py:1172-1232",
+      "wall_seconds": 1.851
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "scope": "Diff whitespace only"
+    },
+    {
+      "checks": [
+        "11 frozen initial/final hashes identical; 9 original unchanged/2 deltas",
+        "Only selector condition replaced in managed_admission.py",
+        "main, prepare_method, prepare_composed, _prepare ASTs unchanged",
+        "Exact13 checker closure byte-equal product commit and prior QA code_digest",
+        "API83 modules byte-exact rebuilt wheel; old/new wheel source module delta exactly managed_admission.py",
+        "Adapter15 modules byte-equal product and previous wheel",
+        "Removing one prefix selector line yields previous attested wrapper SHA"
+      ],
+      "command": "python3 -I -B -c <read-only snapshot/AST/hash/ZIP comparisons recorded in tool output>",
+      "exit": 0,
+      "scope": "Static readback only; no product execution"
+    }
+  ],
+  "workspace": "/home/kali/OmnisAI"
+}

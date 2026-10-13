@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-PARTIAL-REQUIREMENT-SCHEMA-NORMATIVE-REREVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Read-only normative SOURCE review of the generated TaskResult PARTIAL syntax fix, exact historical checker/composer receive-only cutover, and bounded diagnostic around the original NativeTaskOwner.handle in the existing prefix case. Not full prior-scope recertification, persistent consumer QA, installed/runtime acceptance, or global closure.",
+  "language": "ro",
+  "summary": "Defectul SOURCE este confirmat și cele două enum-uri corectate admit rezultatul PARTIAL autentic fără promovare de stare și fără relaxarea rândului NOT_APPLICABLE. Identitatea istorică este perechea exactă a HEAD-ului anterior, acceptată numai receive-only. Diagnosticul păstrează ownerul original, refuzul și frontierele publice. Nu am găsit un defect nou în delta focalizată. QA-PARTIAL-REQUIREMENT-PUBLIC-RELEASE-02 rămâne neacceptat; motivul runtime intern al FAIL-ului anterior este NOT_OBSERVED.",
+  "findings": [],
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_before": "a2cf4e0032ca39e42436f705b1cb9498b3e87ed1",
+    "head_final": "a2cf4e0032ca39e42436f705b1cb9498b3e87ed1",
+    "manifest_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-fix.json",
+    "manifest_sha256": "fac6ef57eaa25d99356d7f3c48c730a37e3fbcd2c5caeebcc2029711b638be90",
+    "file_count": 11,
+    "unchanged_count": 7,
+    "delta_count": 4,
+    "all_11_match_before": true,
+    "all_11_match_final": true,
+    "all_prior_hashes_match_HEAD": true,
+    "diff_command": "git diff -- api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checker_identity.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+    "diff_sha256_before": "3c294964dd4da09b182168f8a776480b99329a77646cb74fa702c30b09dfd43e",
+    "diff_sha256_final": "3c294964dd4da09b182168f8a776480b99329a77646cb74fa702c30b09dfd43e",
+    "diff_bytes": 8391,
+    "diff_insertions": 103,
+    "diff_deletions": 3,
+    "staged_diff_empty": true,
+    "preexisting_untracked_untouched": ["documents/Omnis_Notite_Originale.html"],
+    "files": [
+      {"path": "api/src/omnis/modules/tasks/managed_composition.py", "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8", "prior_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8", "unchanged": true, "match_before_and_final": true},
+      {"path": "api/src/omnis/modules/tasks/managed_contract.py", "sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff", "prior_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b", "unchanged": false, "match_before_and_final": true},
+      {"path": "api/src/omnis/modules/tasks/method_checker_identity.py", "sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4", "prior_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622", "unchanged": false, "match_before_and_final": true},
+      {"path": "api/src/omnis/modules/tasks/method_checks.py", "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1", "prior_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1", "unchanged": true, "match_before_and_final": true},
+      {"path": "api/tests/test_c10_bound_predicates.py", "sha256": "b391dcacdce341ead58a14b823057ef59eca8b376f7541eda719424e16914a43", "prior_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234", "unchanged": false, "match_before_and_final": true},
+      {"path": "api/tests/test_contract_method_checks.py", "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472", "prior_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472", "unchanged": true, "match_before_and_final": true},
+      {"path": "api/tests/test_contract_method_pg.py", "sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f", "prior_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698", "unchanged": false, "match_before_and_final": true},
+      {"path": "api/tests/test_contract_method_producer.py", "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e", "prior_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e", "unchanged": true, "match_before_and_final": true},
+      {"path": "integrations/hermes/src/omnis_hermes/contract_method.py", "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee", "prior_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee", "unchanged": true, "match_before_and_final": true},
+      {"path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py", "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338", "prior_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338", "unchanged": true, "match_before_and_final": true},
+      {"path": "api/src/omnis/modules/runs/managed_admission.py", "sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9", "prior_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9", "unchanged": true, "match_before_and_final": true}
+    ]
+  },
+  "normative_chain": [
+    {
+      "requirement": "Declaration and all obligations remain exact; PARTIAL is a MethodResult state, not COMPLETE/SUCCEEDED/PASS authority.",
+      "authority": ["documents/Omnis_MVP_Architecture.md:739-754", "documents/Omnis_Implementation_Plan.md:276-283"],
+      "source": ["api/tests/test_contract_method_pg.py:556-565", "api/src/omnis/modules/tasks/managed_contract.py:916-949", "api/src/omnis/modules/runs/managed_admission.py:113-145"],
+      "analysis": "Existing two-step declaration binds normalize-records to normalize-operations and build-map plus both exact artifact schemas. BuildSource.build delegates to the actual build_records. That function compiles the MethodPlan, creates the local schema RecordEnvelope from result_json_schema(header, requirements, method_execution, criterion_bindings), and only then puts its exact ref into the TaskBrief header. This is the generated handoff schema, distinct from the procedure input/output/handoff artifact schemas.",
+      "disposition": "CONFORMANT_SOURCE"
+    },
+    {
+      "requirement": "The actual SOURCE method producer's partial result must satisfy the generated syntax at both intersecting state constraints.",
+      "source": ["integrations/hermes/upstream/managed-source/agent/contract_execution.py:229-295", "integrations/hermes/src/omnis_hermes/contract_method.py:331-410", "api/src/omnis/modules/tasks/managed_contract.py:1189-1221", "api/tests/test_c10_bound_predicates.py:14-102"],
+      "analysis": "The real run_contract implementation performs the bound read and PURE prefix, then the real task_result producer yields PARTIAL/NOT_RUN/DONE and INCONCLUSIVE with original receipts/artifacts and exact gaps. The fix adds PARTIAL to shared $defs.m.state and to the APPLIES prefixItem state enum; adding it at only one site would still reject. Four executed inline/compact x full/prefix controls validate the actual emitted payload with Draft202012Validator against the actual result_json_schema function, not merely MethodCheck or the wire envelope.",
+      "disposition": "FIX_VERIFIED_SOURCE",
+      "limit": "native_case uses synthetic root/child state holders and guard authority; no real AIAgent construction, PG, UDS, native process launch or installed consumer was exercised in this review."
+    },
+    {
+      "requirement": "Keep exact applicability, headers, requirement identities, fields and cardinality; no new BLOCKED/UNKNOWN/general method forms.",
+      "source": ["api/src/omnis/modules/tasks/managed_contract.py:1131-1169", "api/src/omnis/modules/tasks/managed_contract.py:1198-1283", "api/tests/test_c10_bound_predicates.py:125-145", "api/tests/test_contract_method_producer.py:395-454"],
+      "analysis": "NOT_APPLICABLE remains a prefixItem const; actual conditioned row 1 validates and refuses PARTIAL, DONE, BLOCKED and UNKNOWN. Shared strict fields, bound-procedure const, exact requirement_key, exact row count/order, header consts, Ref rules and array/text limits are untouched. The preexisting cold NO_MODEL constant NOT_RUN result remains outside method_execution and unchanged. The existing shared-schema test also denies foreign header/schema-kind/bound, duplicate/reordered/extra rows, missing/unknown fields, false N/A, unexpected criterion results and method review.",
+      "disposition": "CONFORMANT_SOURCE"
+    },
+    {
+      "requirement": "Persistent readers enforce the original retained schema before checker/readback acceptance, not a regenerated permissive replacement.",
+      "source": ["api/src/omnis/modules/runs/managed_admission.py:595-640", "api/src/omnis/modules/runs/managed_admission.py:672-677", "api/src/omnis/modules/runs/managed_admission.py:898-1020", "api/src/omnis/modules/runs/managed_admission.py:1064-1097", "api/src/omnis/modules/runs/managed_admission.py:1183-1203", "api/src/omnis/modules/tasks/managed_store.py:16-54", "api/src/omnis/supervisor/native_tasks.py:325-335", "api/src/omnis/transport/local_control.py:148-158"],
+      "analysis": "The real reader loads managed_record envelopes, validates envelopes/refs, matches the exact brief header, and resolves result_schema_ref from the retained graph. _verify_graph validates result.payload with that stored schema at 1076 and maps ValidationError to RESULT_SCHEMA_MISMATCH; LocalControl maps this reason to public TASK_REJECTED. No call regenerates or rewrites the retained schema. The ordinary SOURCE fixture has synthetic result_schema_ref, not this durable graph/schema consumer; the new explicit generated-schema check closes the missing SOURCE syntax assertion, not persistence proof. The actual schema error is downstream of raw-result storage in source: ingest_result commits raw records/inbox then calls readback. Missing runtime checkpoint/readback bytes does NOT establish that raw DB writes were absent.",
+      "disposition": "READER_FRONTIER_CONFIRMED_BY_SOURCE_ONLY",
+      "runtime_inner_reason": "NOT_OBSERVED",
+      "runtime_persistence": "NOT_OBSERVED_IN_PRIOR_PUBLIC_FAIL; no zero-write or rollback claim"
+    },
+    {
+      "requirement": "The checker independently derives PARTIAL from retained receipts/schema context; syntax acceptance cannot promote incomplete obligations.",
+      "source": ["api/src/omnis/modules/tasks/method_checks.py:336-386", "api/src/omnis/modules/tasks/method_checks.py:550-581", "api/src/omnis/modules/tasks/method_checks.py:683-747", "api/src/omnis/modules/runs/managed_admission.py:756-817"],
+      "analysis": "Unchanged _results derives PARTIAL only when some required step/output evidence exists but the obligation is not done; result claim must equal that state. COMPLETE remains dependent on qualified predicates, required DONE rows and evidence minimum. Required PARTIAL yields INCOMPLETE and exact gaps, while allocated criterion proposals remain BLOCKED without oracle/controls. Prior stored check payloads are independently regenerated/equal and UNKNOWN causes remain immutable.",
+      "disposition": "UNCHANGED_FRONTIER; relevant full/prefix SOURCE controls PASS, not wider recertification"
+    }
+  ],
+  "identity_review": {
+    "verdict": "CONFORMANT_SOURCE_SCOPED",
+    "source": ["api/src/omnis/modules/tasks/method_checker_identity.py:14-28", "api/src/omnis/modules/tasks/method_checker_identity.py:74-88", "api/src/omnis/modules/tasks/method_checker_identity.py:91-133", "api/tests/test_c10_bound_predicates.py:105-122"],
+    "closure_count": 13,
+    "closure_members_unchanged": true,
+    "closure": ["tasks/method_checker_identity.py", "tasks/method_checks.py", "tasks/managed_contract.py", "tasks/managed_composition.py", "tasks/criterion_checks.py", "tasks/contract_case_input.py", "settings/candidate_catalog.py", "settings/candidate_store.py", "settings/candidate_material.py", "settings/catalog_models.py", "settings/catalog_schema.py", "settings/publication_models.py", "settings/skill_catalog.py"],
+    "recomputed_current_checker_digest": "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+    "recomputed_HEAD_historical_checker_digest": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+    "composer_digest_unchanged": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "computation": "Current descriptor() was executed with API Python -I -B and explicit source path. Independently read all 13 HEAD blobs using git show HEAD:api/src/omnis/modules/<path>, SHA256 each blob, then SHA256(canonical(ordered closure)). Both exact digests matched the manifest; command exit 0.",
+    "analysis": "The only identity policy addition is one exact old checker/composer pair, under receive_only is True, zero_predicates is False, exact key and semantics. Non-receive and wrong composer are denied in the executed test. No wildcard historical approval, pin rewrite, closure deletion or qualification transfer. Actual Pydantic catalog DTOs and shared lexical/schema/publication validators are already in the unchanged closure, so their source bytes remain bound rather than treated as unrelated merely because imported elsewhere. The two enum edits and whitelist entry do not add imports, invoke descriptor at module import, or widen ordinary provider/API startup. descriptor is called at explicit checker creation/verification; existing broader import coupling was not modified or recertified.",
+    "immutable_historical_schema": "Old exact schema is not rewritten. Receive-only compatibility cannot make an old schema with no PARTIAL enum accept a PARTIAL result; _verify_graph still enforces that retained schema. Retained full-result compatibility is scoped, and persistent historical-reader proof was not run here.",
+    "distribution_limit": "No wheel rebuild, extraction, startup or artifact acceptance performed by this reviewer. Parent manifest's wheel/83-module claims remain separately attributed, not new independent evidence."
+  },
+  "diagnostic_review": {
+    "verdict": "CONFORMANT_SOURCE_SCOPED",
+    "source": ["api/tests/test_contract_method_pg.py:619-622", "api/tests/test_contract_method_pg.py:1082-1138", "api/src/omnis/modules/instance/schemas.py:75-90", "api/src/omnis/transport/local_control.py:148-158"],
+    "analysis": "Existing NativeTaskOwner instance is constructed unchanged; wrapper awaits that same owner.handle(command), returns its successful response unchanged, catches only CatalogError, checkpoints a fixed action plus safe reason, and bare-raises. It is selected only for partial-requirement-prefix. Other cases retain owner.handle. LocalControl, private capability/peer checks, service/epoch, native runtime and all launch/effect fences remain real and unchanged. No response emitter, result stub, second owner, alternate framework, guard bypass or request redirect.",
+    "safe_reason_count": 10,
+    "safe_reasons": ["RESULT_SCHEMA_MISMATCH", "RESULT_CONFLICT", "METHOD_RECEIPT_MISMATCH", "METHOD_SCHEMA_MISMATCH", "METHOD_SCHEMA_INVALID", "COMPOSITION_REJECTED", "ASSIGNMENT_MISMATCH", "LINEAGE_MISMATCH", "MANAGED_REJECTED", "TASK_REJECTED"],
+    "unknown_reason_projection": "UNCLASSIFIED_CATALOG_ERROR",
+    "safe_projection": "Exact built-in str type is checked before allowlist membership. command.action is the existing Pydantic Literal. No str(error), repr(error), arbitrary error.reason, response bytes, capability or raw native output is retained by this delta.",
+    "execution_limit": "Reviewed statically on exact changed PG-test source; no PG/native/UDS test was launched, so no future actual reason or successful diagnostic checkpoint is asserted."
+  },
+  "executed_verification": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml --rootdir=api -q --tb=line api/tests/test_c10_bound_predicates.py::test_two_step_requirement_real_source_full_and_partial api/tests/test_c10_bound_predicates.py::test_pre_schema_partial_checker_is_exact_receive_only api/tests/test_c10_bound_predicates.py::test_generated_schema_keeps_non_applicable_state_exact api/tests/test_contract_method_producer.py::test_shared_result_schema_retains_exact_header_and_requirement_constraints",
+      "workdir": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 7,
+      "failed": 0,
+      "seconds": 1.15,
+      "output": "....... [100%]\n7 passed in 1.15s",
+      "scope": "Four real SOURCE producer full/prefix x inline/compact controls; one historical exact receive-only positive plus denial controls; one actual row-1 N/A positive plus forbidden-state controls; one shared generated-schema/header/identity/cardinality negative matrix. Not PG/installed/native process proof."
+    },
+    {"command": "git diff --check", "workdir": "/home/kali/OmnisAI", "exit": 0},
+    {"check": "Before/final all 11 SHA256, manifest SHA256, 7 unchanged/4 delta and exact diff SHA256; prior blob SHA256 compared to HEAD", "exit": 0, "result": "MATCH"},
+    {"check": "Current and HEAD checker identities computed over exact 13-member ordered source closure", "exit": 0, "result": "MATCH"}
+  ],
+  "retained_evidence_and_dispositions": [
+    {
+      "id": "GENERATED-PARTIAL-SCHEMA-SOURCE-DEFECT",
+      "severity": "HIGH",
+      "location": "api/src/omnis/modules/tasks/managed_contract.py:1192,1221",
+      "status": "SOURCE_FIX_APPROVED_SCOPED; actual consumer acceptance pending",
+      "minimal_fix": "Add PARTIAL only to the shared m enum and applicable prefixItem enum; preserve all other constraints.",
+      "red_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-result-schema-red.log",
+      "red_sha256_verified": "53a286185153524dbc43fa6d6790a913338a2c3a7a8742681be3fb525358cd91",
+      "red_summary_verified": "2 failed, 2 passed, 183 deselected in 1.99s",
+      "red_exit_from_parent_manifest": 1,
+      "green": "Reviewer targeted 7 PASS / 1.15s / exit 0; author 398 affected SOURCE PASS / 35.37s is retained parent evidence, not rerun or transferred to runtime by this reviewer."
+    },
+    {
+      "id": "EXACT-HISTORICAL-IDENTITY-CUTOVER",
+      "status": "SOURCE_FIX_APPROVED_SCOPED; persistent historical consumer NOT_RUN",
+      "red_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-history-red.log",
+      "red_sha256_verified": "84279f47a0fdb10c44262ac91305f08285386f2c2d4fe60cf073885d5df2a982",
+      "red_summary_verified": "1 failed, 187 deselected in 0.50s",
+      "red_exit_from_parent_manifest": 1,
+      "green": "Exact historical digest recomputed from HEAD; reviewer same-channel receive-only positive/nonreceive and wrong-pin denials PASS."
+    },
+    {
+      "id": "QA-PARTIAL-REQUIREMENT-PUBLIC-RELEASE-02",
+      "severity": "HIGH_BLOCKER",
+      "status": "OPEN_NOT_ACCEPTED",
+      "qa_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-prefix-independent-qa.json",
+      "qa_sha256_verified": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+      "prior_outcome_from_parent_context": {"passed": 0, "failed": 1, "deselected": 26, "seconds": 20.46, "exit": 1, "family_drained": true},
+      "retained_boundary": "Real AIAgent/read1/PURE1/four native records INCONCLUSIVE observed; public TASK_REJECTED before persistent proof checkpoint, no successful readback bytes. Inner CatalogError reason NOT_OBSERVED.",
+      "disposition": "The SOURCE schema mismatch is independently confirmed, not retrospective runtime-cause proof. This review does not close QA02 or assert durable state from the missing checkpoint."
+    },
+    {
+      "id": "INITIAL-NONAPPLICABLE-TEST-ROW-INCIDENT",
+      "status": "RETAINED_PARENT_INCIDENT; corrected source inspected and current test PASS",
+      "detail": "Initial test targeted APPLIES row 0, causing 1 FAIL / 6 PASS. After tracing actual native_case compilation, the same negative was applied to conditioned row 1 and actual NOT_APPLICABLE asserted. No original FAIL erased or promoted."
+    }
+  ],
+  "acceptance_limits": {
+    "unchanged_approval": "Prior SOURCE approvals retain only their original unchanged seven-file scope; this focused approval applies to the exact four-path delta and relevant caller frontier, not a new full old-scope review.",
+    "required_next_consumer": "Fresh existing TWO-case actual full + prefix QA on final bytes, with a fresh qualified schema/header and new checker digest. Shared generated schema changes the full artifact/header too even though DONE syntax is unchanged. Old full PASS is historical only.",
+    "no_new_launch_authorization": true,
+    "actual_QA_here": "NOT_RUN",
+    "PG_UDS_native_inference_network_account_target": "NOT_RUN",
+    "canonical": "NOT_RUN; not repeated for this focused review",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "P4a_live": "NOT_RUN_NOT_DELIVERED",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "parent_adjudication_required": true
+  },
+  "write_boundary": {
+    "repository_changes_by_reviewer": [],
+    "commits_by_reviewer": [],
+    "profile_skill_protected_html_index_shared_runtime_changes": [],
+    "created": ["/home/kali/.hermes/cache/scratch/p2-partial-requirement-schema-normative-rereview.json"],
+    "temporary_verifier_or_parallel_harness_created": false
+  },
+  "inspection_issues": [
+    {"issue": "Initial read-only guessed PIN file lookups under integrations/hermes/upstream and managed-source returned file not found; bounded filename search also found no matching pin basename.", "effect": "No prerequisite restoration, installation, native launch or substitution attempted. Actual existing managed-source implementation was readable and exercised by the focused SOURCE tests. Installed/source-pin consumer attestation is explicitly outside this review."}
+  ]
+}

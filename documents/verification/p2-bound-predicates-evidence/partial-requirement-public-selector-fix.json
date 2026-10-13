@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_FIXED_PENDING_FOCUSED_REREVIEW_AND_FRESH_PREFIX_QA",
+  "base_head": "ebebee6d2c6b98fb6d4d8ead67496af6ee1666b9",
+  "product_commit": "3a2ffb72089e0ed9aeb4e4bc42f22fb5efc2d03b",
+  "file_count": 11,
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "original_frozen_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+      "original_frozen_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+      "original_frozen_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "original_frozen_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234",
+      "original_frozen_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284"
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+      "original_frozen_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+      "original_frozen_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+      "original_frozen_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+      "original_frozen_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+      "original_frozen_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "original_frozen_sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf"
+    }
+  ],
+  "delta_paths": [
+    "api/src/omnis/modules/runs/managed_admission.py",
+    "api/tests/test_c10_bound_predicates.py"
+  ],
+  "unchanged_original_count": 9,
+  "finding": "QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01",
+  "failed_native_qa": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-independent-qa.json",
+    "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+    "passed": 1,
+    "failed": 1,
+    "seconds": 50.19,
+    "exit": 1,
+    "family_drained": true,
+    "full": "PASS_SCOPED_ACTUAL",
+    "prefix": "REFUSED_PRE_LAUNCH_BOUND_PREDICATE_UNAVAILABLE; actual method NOT_RUN"
+  },
+  "red": {
+    "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-public-selector-red.log",
+    "sha256": "8fa3176f196e3be6c057e96d51ee86315fc825bfaadd9288a15d629daf1d1fce",
+    "failed": 1,
+    "passed": 2,
+    "seconds": 0.72,
+    "exit": 1
+  },
+  "green": {
+    "affected_suites_passed": 396,
+    "seconds": 37.23,
+    "exit": 0,
+    "after_last_typing_edit": {
+      "caller_controls_passed": 3,
+      "deselected": 184,
+      "seconds": 0.62,
+      "exit": 0
+    },
+    "quality": "mypy2/Ruff/format2/diff-check PASS",
+    "limits": "SOURCE prepare_method actual gateway with _prepare explicitly substituted, not DB/native proof"
+  },
+  "retained_fix_attempts": [
+    "Initial mypy failed var-annotated for heterogeneous tuple; explicit tuple[object,...] correction, final affected real3/quality PASS"
+  ],
+  "identity": "No composer/checker/source13 closure change; new API wheel required because managed_admission.py changed",
+  "acceptance": "NOT_ACCEPTED; focused reviews and fresh actual prefix still pending; full actual unchanged-method proof not discarded; no canonical or global claim"
+}

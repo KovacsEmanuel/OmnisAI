@@ -1,0 +1,640 @@
+{
+  "affected_caller_trace": [
+    {
+      "boundary": "Publication and qualification",
+      "bounds": "Generic exact MethodRequirement step/schema resolution already supports two references; evidence declaration remains finite. No publication registry/evaluator change.",
+      "paths": [
+        "api/src/omnis/modules/settings/skill_catalog.py:499-523"
+      ]
+    },
+    {
+      "boundary": "Qualified source/input material",
+      "bounds": "Same publication/preparation receipt/selection/input context/schema/slot reader; owner/catalog authority separate; dependency-bearing replay unsupported explicitly. No alternative input.",
+      "paths": [
+        "api/src/omnis/modules/runs/managed_admission.py:156-245,247-320"
+      ]
+    },
+    {
+      "boundary": "Prepare and pre-reserve",
+      "bounds": "Build and graph/composer validation precede durable reservation/task writes. Dispatch reserve revalidates retained material and DB-clock deadline. Newly produced checker descriptor remains current, not old identity.",
+      "paths": [
+        "api/src/omnis/modules/runs/managed_admission.py:334-479",
+        "api/src/omnis/modules/tasks/managed_contract.py:524-575,685-697"
+      ]
+    },
+    {
+      "boundary": "Composer/native constructor preflight",
+      "bounds": "Inline/compact expansion and exact frozen material before native identity/access; no weakened ref/record/header datatype, no new execution selection/authority.",
+      "paths": [
+        "api/src/omnis/modules/tasks/managed_composition.py:446-592",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:554-675,678-837,1187-1416",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:151-191"
+      ]
+    },
+    {
+      "boundary": "Actual source read/PURE/result producer",
+      "bounds": "Unchanged constructor-owned runner/source state and bound tools; actual PURE source execution observed, not authenticated AIAgent evidence. Predicate values use actual receipts/artifacts; no new upstream changes.",
+      "paths": [
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-295",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:207-428"
+      ]
+    },
+    {
+      "boundary": "Same owner and wire receipt",
+      "bounds": "Existing exact manifest/binding/child/session and raw result grammar; four-record prefix/six-record records-method full. Single v4 dispatch retains Stop/epoch/owner fence.",
+      "paths": [
+        "api/src/omnis/supervisor/native_tasks.py:193-335",
+        "api/src/omnis/modules/tasks/managed_contract.py:1820-1882",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:191-342"
+      ]
+    },
+    {
+      "boundary": "Raw result persist before independent check",
+      "bounds": "Native-authenticated owner final precedes immutable raw envelopes/inbox commit, then separate check/outcome publication. Prefix maps backend BLOCKED via INCOMPLETE; SOURCE/static only here, no PG proof.",
+      "paths": [
+        "api/src/omnis/modules/runs/managed_admission.py:537-714,716-821"
+      ]
+    },
+    {
+      "boundary": "Historical/readback no-rerun",
+      "bounds": "Read qualified retained schemas; no compiler/evaluator regeneration. Existing raw/prior check payload equality and immutable UNKNOWN cause retained; no rewrite of historical records. Duplicate/conflicting prior checks remain refusals.",
+      "paths": [
+        "api/src/omnis/modules/runs/managed_admission.py:823-899,901-1108,1110-1288"
+      ]
+    },
+    {
+      "boundary": "Original public reader",
+      "bounds": "Same original public listener/kernel peer/capability -> control_task -> same owner. Cached original result/check readback requires no runtime exchange after Stop. New two nodes reviewed/collected only.",
+      "paths": [
+        "api/src/omnis/transport/local_control.py:137-158",
+        "api/src/omnis/supervisor/native_tasks.py:193-232,338-390",
+        "api/tests/test_contract_method_pg.py:1082-1119,1890-1938"
+      ]
+    }
+  ],
+  "author_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-author.json",
+    "sha256": "4e49ebb26aea926144fc353c0aa1a13ac7cf8f7d5bb2d3ebf3f915e675403842"
+  },
+  "blocking_findings_count": 0,
+  "commits_created": 0,
+  "coverage_limitations": [
+    "Real PG/native owner/new partial-requirement full/prefix consumer QA NOT_RUN; required before product acceptance.",
+    "SOURCE_HOST_NOT_INSTALLED and preparation prerequisite double limits retained.",
+    "Authentic installed AIAgent/turn/native authentication not credited from SimpleNamespace or SourceAgent initialization.",
+    "No physical Stop race/concurrency/crash/new first-final AFTER_STOP run in this review; same existing caller guards inspected only.",
+    "No installed historical-reader or runtime restart proof; exact historical source pair/unit readback only.",
+    "Canonical final NOT_RUN; B06b/G02/P2 remain PARTIAL/NOT_CLOSED and P4a-minim remains not delivered.",
+    "Current official Hermes docs not fetched under no-network mandate; review binds to committed local pinned source/contracts.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "exported_patch": {
+    "current_git_diff_byte_equal": true,
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch",
+    "sha256": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e"
+  },
+  "feature_base": "788962969bb22bceed940ab9ac4334be3aa9f1d2",
+  "file_count": 10,
+  "files": [
+    {
+      "base_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+      "before_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "final_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+      "before_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+      "final_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+      "before_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+      "final_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+      "before_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "final_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+      "before_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284",
+      "final_sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+      "before_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+      "final_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/tests/test_contract_method_checks.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8",
+      "before_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+      "final_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/tests/test_contract_method_pg.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+      "before_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+      "final_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "api/tests/test_contract_method_producer.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+      "before_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+      "final_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "unchanged": true
+    },
+    {
+      "base_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+      "before_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+      "final_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+      "matches_base": true,
+      "matches_frozen": true,
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "unchanged": true
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review-before.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.log",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-review.json"
+  ],
+  "findings": [],
+  "git_final_snapshot": "8dea53322372001956eef83fcc174f4a0dfa0809\n## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html",
+  "head": "8dea53322372001956eef83fcc174f4a0dfa0809",
+  "issues_encountered": [
+    "Scratch probe Pyright diagnostics reflect dynamic source-path imports/synthetic SourceAgent fields; real Python execution exit0. No product failure or new blocker encountered."
+  ],
+  "non_goals": [
+    "No PG/native launch or canonical gate",
+    "No model/account/provider/target/r1 effects",
+    "No network, credentials, protected HTML, profile or shared source/index edits",
+    "No commit/push",
+    "No registry/evaluator changes, second owner, fanout or alternative input/demo",
+    "No upstream/deadline/grant/Stop lifecycle changes",
+    "No broad reopening of previously accepted finite forms",
+    "No skill/shared map edits; parent owns adjudication"
+  ],
+  "parent_lesson_proposal": null,
+  "pg_wrapper": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "review": "Only the partial-requirement selection added; existing runner ownership/240s budget/old scenarios retained; NOT_LAUNCHED",
+    "sha256": "eb002d64e7dd87760ff37962c601af45cf23538fa0a8721c293f902102715282"
+  },
+  "probe": {
+    "log_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.log",
+    "log_sha256": "9ea30d45f604119d2e0e9e9bab841fdff8b102bee4194e667d20dbdfbe6a7551",
+    "observation_count": 38,
+    "observations": [
+      {
+        "current_checker": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+        "current_composer": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "name": "pins",
+        "old_closure_count": 13,
+        "old_pair_recomputed": true
+      },
+      {
+        "check": "COMPLETE",
+        "compact": false,
+        "name": "real-source-positive",
+        "prefix": false,
+        "record_count": 6,
+        "states": [
+          "DONE",
+          "DONE",
+          "DONE"
+        ]
+      },
+      {
+        "check": "INCOMPLETE",
+        "compact": false,
+        "name": "real-source-positive",
+        "prefix": true,
+        "record_count": 4,
+        "states": [
+          "PARTIAL",
+          "NOT_RUN",
+          "DONE"
+        ]
+      },
+      {
+        "check": "COMPLETE",
+        "compact": true,
+        "name": "real-source-positive",
+        "prefix": false,
+        "record_count": 6,
+        "states": [
+          "DONE",
+          "DONE",
+          "DONE"
+        ]
+      },
+      {
+        "check": "INCOMPLETE",
+        "compact": true,
+        "name": "real-source-positive",
+        "prefix": true,
+        "record_count": 4,
+        "states": [
+          "PARTIAL",
+          "NOT_RUN",
+          "DONE"
+        ]
+      },
+      {
+        "attack": "duplicate-row",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "duplicate-row",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "reverse-rows",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "reverse-rows",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "input-as-proof",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "input-as-proof",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "foreign-session",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": false
+      },
+      {
+        "attack": "foreign-session",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": true
+      },
+      {
+        "attack": "bool-output-revision",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "bool-output-revision",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "foreign-header-object",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": false
+      },
+      {
+        "attack": "foreign-header-object",
+        "name": "forgery-with-missing-schemas",
+        "prefix": false,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": true
+      },
+      {
+        "gaps": 3,
+        "name": "missing-qualification",
+        "prefix": false,
+        "status": "UNKNOWN"
+      },
+      {
+        "attack": "duplicate-row",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "duplicate-row",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "reverse-rows",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "reverse-rows",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "input-as-proof",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "input-as-proof",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "foreign-session",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": false
+      },
+      {
+        "attack": "foreign-session",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": true
+      },
+      {
+        "attack": "bool-output-revision",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": false
+      },
+      {
+        "attack": "bool-output-revision",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "RESULT_CONFLICT",
+        "receive_only": true
+      },
+      {
+        "attack": "foreign-header-object",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": false
+      },
+      {
+        "attack": "foreign-header-object",
+        "name": "forgery-with-missing-schemas",
+        "prefix": true,
+        "reason": "METHOD_RECEIPT_MISMATCH",
+        "receive_only": true
+      },
+      {
+        "gaps": 3,
+        "name": "missing-qualification",
+        "prefix": true,
+        "status": "UNKNOWN"
+      },
+      {
+        "attempts": [],
+        "name": "checker-no-rerun"
+      },
+      {
+        "name": "old-identity-denial",
+        "pin": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "receive_only": false
+      },
+      {
+        "name": "old-identity-denial",
+        "pin": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "reason": "METHOD_CHECKER_UNAVAILABLE",
+        "receive_only": true
+      },
+      {
+        "calls": [
+          "READ",
+          "contract.normalize-operations",
+          "contract.build-map"
+        ],
+        "name": "constructor-source-run-and-rerun-refusal",
+        "prefix": false,
+        "record_count": 6,
+        "terminal": "SUCCEEDED"
+      },
+      {
+        "calls": [
+          "READ",
+          "contract.normalize-operations"
+        ],
+        "name": "constructor-source-run-and-rerun-refusal",
+        "prefix": true,
+        "record_count": 4,
+        "terminal": "INCONCLUSIVE"
+      },
+      {
+        "calls": [
+          "contract.normalize-operations"
+        ],
+        "name": "source-revocation-after-first-pure",
+        "physical_stop_test": false,
+        "replay_refused": true,
+        "terminal": "UNKNOWN"
+      },
+      {
+        "allocation_or_access": [],
+        "name": "resealed-second-schema-bool-preallocation",
+        "representation": "expanded-inline-from-compact"
+      }
+    ],
+    "source_path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.py",
+    "source_sha256": "a63d16cc96d82d2385a437eb7c0fa53c6ab1d23d9b40f9fcc6497b54378be50d"
+  },
+  "repository_files_modified_by_reviewer": [],
+  "requirement_bounds": [
+    {
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:247-305",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:493-551"
+      ],
+      "id": "FINITE-CLOSURE",
+      "observation": "Only normalize-records additionally accepts exactly ordered normalize-operations/build-map and exactly their distinct output schema refs. Other keys/steps/schema shapes are not broadened; finite evidence guard is unchanged and rejects a multi-step evidence-bearing requirement.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:207-428",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:104-295",
+        "api/src/omnis/modules/tasks/method_checks.py:201-418"
+      ],
+      "id": "GENUINE-FULL-PREFIX",
+      "observation": "Actual source run_contract uses one READ and two/one genuine PURE calls. Full has six wire records, three DONE and COMPLETE; prefix selected by preserve-input-context has four records, PARTIAL/NOT_RUN/DONE, one normalize basis/output, original input preservation, two exact required gaps, INCONCLUSIVE and INCOMPLETE. No substituted method output or handler recomputation.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "api/src/omnis/modules/tasks/method_checks.py:47-197",
+        "api/src/omnis/modules/tasks/method_checks.py:201-418",
+        "api/src/omnis/modules/tasks/method_checks.py:438-753"
+      ],
+      "id": "FORGERY-AND-MISSING-MATERIAL",
+      "observation": "Forged state, missing/duplicated/reordered result rows, substituted original input proof, foreign session/header, bool revisions, bad outputs and truncated receipt chains refuse. My bounded probe repeats six forgery controls on full/prefix with schemas={} and both receive modes: exact RESULT_CONFLICT/METHOD_RECEIPT_MISMATCH, no sentinel leakage. Mere missing qualified schemas on otherwise valid records remains UNKNOWN with all gaps; it is not claimed to be malformed evidence.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:151-191",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-101"
+      ],
+      "id": "STRICT-PREALLOCATION",
+      "observation": "Current compact and inline native assignment validation exercises exact refs/record pools/schema/header/source material before constructor identity. My real initialize_contract probe denies resealed bool revision in the second output schema before UUID/input/handler attempts; its hostile representation is explicitly expanded-inline-from-compact, not claimed to be malformed compact-wire coverage. Existing source tests independently validate complete resealed assignments.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:68-125",
+        "api/src/omnis/modules/tasks/managed_contract.py:308-443",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:554-675"
+      ],
+      "id": "CODE-PINS-HISTORICAL",
+      "observation": "Recomputed current composer SHA1042abaf... and checker6f15b3ab... plus exact old evidence13-file closure f84c523e.../composer c16e5e4c.... Old checker identity fails non-receive verify and wrong-current-pin verify with METHOD_CHECKER_UNAVAILABLE. Exact receive-only old full/optional-prefix preserves its semantics; historical two-step admission is refused. This identity rule is not represented as a blanket ban on every old composer at structural preflight.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_contract_method_checks.py",
+        "api/tests/test_contract_method_producer.py"
+      ],
+      "id": "SCOPED-REGRESSIONS",
+      "observation": "Ordinary original single-step full/prefix, optional/evidence, false applicability/N/A, unavailable checker/schema and retained UNKNOWN owner seam regressions pass. Unsupported multi-step evidence remains explicit. No broad old accepted owner/epoch/Stop behavior was reopened.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "code": [
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:124-144,229-295",
+        "api/src/omnis/supervisor/native_tasks.py:193-335",
+        "api/src/omnis/modules/runs/managed_admission.py:716-899"
+      ],
+      "id": "NO-RERUN-STOP",
+      "observation": "Checks/rechecks under forbidden API/native handler/evaluator sinks make zero execution attempts and preserve source records. Actual source initialize/run full and prefix each latch completed state and refuse another run. Synthetic guard revocation after first PURE latches UNKNOWN and also refuses replay. This is not physical Stop, installed AIAgent or native owner proof. Existing unchanged owner dispatch fences/instance locks/boot checks and cached-result branch remain before execution.",
+      "status": "PASS_SOURCE_AND_STATIC_CALLER_SCOPED; PHYSICAL_NEW_SLICE_NOT_RUN"
+    },
+    {
+      "code": [
+        "api/tests/test_contract_method_pg.py:1082-1119",
+        "api/tests/test_contract_method_pg.py:1486-1588",
+        "api/tests/test_contract_method_pg.py:1749-1938",
+        "api/src/omnis/transport/local_control.py:137-158",
+        "api/src/omnis/supervisor/native_tasks.py:338-390"
+      ],
+      "id": "SAME-PUBLIC-QA-PATH",
+      "observation": "Both new PG nodes join the existing LocalControl/control_task/same NativeTaskOwner path for ACTIVE stage/release and cached release/receive AFTER_STOP. Fixture checks real schema-linked basis/artifact refs, exact states/gaps/checks, two allocated BLOCKED outcomes with METHOD_INCOMPLETE where required, canonical immutability, consumed=1 and evaluator/IPC refusal. Full two-PURE vs prefix one-PURE expectations are distinct. Collector confirms2/27 nodes,25deselected; no execution claim.",
+      "status": "APPROVED_SCOPED_STATIC_FIXTURE; QA_NOT_RUN"
+    }
+  ],
+  "review_verdict": "APPROVED_SCOPED",
+  "reviewer_role": "Complementary input/trust/identity/code-pin/historical isolation review, read-only",
+  "schema_version": 1,
+  "scope_status": "SOURCE_DELTA_AND_AFFECTED_CALLERS_ONLY; real PG/native/public-UDS execution NOT_RUN",
+  "verdict_bounds": "No concrete defect reproduced in this exact finite delta and inspected caller trace. This is not an exhaustive audit, global P2 acceptance, native authentication or integration PASS. Parent adjudicates and commits.",
+  "verification": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py -q --tb=line",
+      "evidence": "Actual terminal result in this review; SOURCE deterministic tests only",
+      "exit": 0,
+      "passed": 364,
+      "seconds": 29.7
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"integrations/hermes/tests/test_contract_method.py\",\"-q\",\"--tb=line\"]))'",
+      "evidence": "Actual terminal result; source adapter/assignment contracts, not installed consumer",
+      "exit": 0,
+      "passed": 61,
+      "seconds": 0.95
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.py > /home/kali/.hermes/cache/scratch/p2-partial-requirement-input-probe.log 2>&1",
+      "evidence": "Bounded independent real-function probe;38 observations, NOT38 pytest tests",
+      "exit": 0,
+      "observation_count": 38,
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "collected": 2,
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'partial-requirement-full or partial-requirement-prefix' --collect-only -q --tb=line",
+      "deselected": 25,
+      "evidence": "COLLECT_ONLY; zero native/PG launches",
+      "exit": 0,
+      "file_total": 27,
+      "seconds": 0.44
+    },
+    {
+      "all10_unchanged": true,
+      "command": "git diff --check; compare all10 final hashes and current git diff --binary feature-base to exported patch",
+      "diff_matches_export": true,
+      "exit": 0
+    }
+  ],
+  "workspace": "/home/kali/OmnisAI"
+}

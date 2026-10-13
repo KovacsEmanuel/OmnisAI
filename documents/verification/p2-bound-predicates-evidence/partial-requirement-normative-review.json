@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-PARTIAL-REQUIREMENT-NORMATIVE-FROZEN10",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent normative read-only review of exact frozen10 MethodResult PARTIAL source/test slice; prepared real QA reviewed statically only. Parent owns adjudication, integration, commit and acceptance.",
+  "language": "ro",
+  "repository": "/home/kali/OmnisAI",
+  "observed_head": "8dea53322372001956eef83fcc174f4a0dfa0809",
+  "feature_base": "788962969bb22bceed940ab9ac4334be3aa9f1d2",
+  "initial_snapshot": {
+    "head": "8dea53322372001956eef83fcc174f4a0dfa0809",
+    "manifest_sha256": "4e49ebb26aea926144fc353c0aa1a13ac7cf8f7d5bb2d3ebf3f915e675403842",
+    "file_count": 10,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "expected": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b",
+        "expected": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622",
+        "expected": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "expected": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284",
+        "expected": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+        "expected": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698",
+        "expected": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+        "expected": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+        "expected": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "expected": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+      }
+    ],
+    "all_equal": true,
+    "export_sha256": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e",
+    "diff_equal": true
+  },
+  "final_snapshot": {
+    "head": "8dea53322372001956eef83fcc174f4a0dfa0809",
+    "file_count": 10,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+      }
+    ],
+    "equals_initial": true,
+    "unchanged_callers": [
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf",
+        "unchanged_from_feature_base": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "unchanged_from_feature_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "unchanged_from_feature_base": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+        "unchanged_from_feature_base": true
+      }
+    ],
+    "status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "index_empty": true,
+    "probe_sha256": "2cd33c49222a2dafbb8dee01009efe4e60c87cc1fd2605dd8b7758c0e0f91a64"
+  },
+  "identity_attestation": {
+    "historical_base": "788962969bb22bceed940ab9ac4334be3aa9f1d2",
+    "historical_closure_count": 13,
+    "historical_closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      }
+    ],
+    "historical_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+    "current_descriptor": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "composer_revision": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "wheels": {
+      "adapter": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-adapter-wheel/omnis_hermes-0.1.0-py3-none-any.whl",
+        "sha256": "0623ac914248dcd7f50ce5eae1b4208839ae7e368d4461c4fabac7d4c4062a17",
+        "file_count": 15,
+        "byteexact": true
+      },
+      "api": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "c40294068b1b9a67ce660e568f12809f425494507ab16e54dcc8f1f784f228fc",
+        "file_count": 83,
+        "byteexact": true
+      }
+    }
+  },
+  "requirements_matrix": [
+    {
+      "id": "FINITE-DECLARATION",
+      "requirement": "Numai normalize-records din map-records poate declara exact ordered [normalize-operations, build-map] cu cele două outputSchemaRefs distincte și ordonate; celelalte keys/slots/actions/StepOutput/caps rămân neschimbate.",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:247-305,386-396",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:493-551,616-628",
+        "api/src/omnis/modules/settings/skill_catalog.py:499-523"
+      ],
+      "evidence": "83 SOURCE: inline/compact positives, missing/duplicate/reversed/foreign-schema/foreign-step/other-key declarations resealed into actual complete assignments; static unchanged producer/caller inventory.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "PLAIN-NOT-EVIDENCE-BROADENING",
+      "requirement": "Noua formă plain nu extinde evidence_declaration pentru multi-step.",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:164-195",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:410-441"
+      ],
+      "evidence": "Independent SOURCE refusal in test_plain_two_step_does_not_admit_multistep_evidence_declaration; unchanged finite evidence guards.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "ACTUAL-PRODUCER-CLOSURE",
+      "requirement": "Producerul calificat și selectorul explicit ajung prin compact expansion la run_contract real, fără handler reexecution la checker.",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:116-149",
+        "api/src/omnis/modules/tasks/managed_contract.py:544-575,895-918",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:114-120,229-295",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:151-191,207-268"
+      ],
+      "evidence": "Published-template compilation/build_records producer cases in 83 selected tests; real SOURCE run_contract/BoundContractTools on synthetic state holders, inline/compact. Caller/upstream hashes unchanged from feature base.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "FULL-AND-PARTIAL",
+      "requirement": "Full read1/PURE2 → DONE/DONE/DONE, COMPLETE/SUCCEEDED. Prefix preserve-input-context după read1/PURE1 → PARTIAL/NOT_RUN/DONE, două reason/gaps exacte, INCONCLUSIVE/INCOMPLETE.",
+      "code": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:271-428",
+        "api/src/omnis/modules/tasks/method_checks.py:274-418,482-534"
+      ],
+      "evidence": "83 selected SOURCE full/prefix with exact refs/cardinality/status/gaps; independent current-owner check/readback seam with PARTIAL and complete rows.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "INDEPENDENT-RECEIPT-VALIDATION",
+      "requirement": "Receipt chain, identity/header, scalar types, exact steps/schema/outputs and independent value validation precede completion; claims cannot replace actual receipts.",
+      "code": [
+        "api/src/omnis/modules/tasks/method_checks.py:47-271,438-479,537-701",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:294-330"
+      ],
+      "evidence": "83 SOURCE negative controls: forged PARTIAL/DONE, row omission, empty basis/artifacts, truncation, swapped outputs, wrong step, duplicate receipt, malformed values; current two-step available-invalid/missing-schema independent negatives deny METHOD_SCHEMA_INVALID.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "ALL-OBLIGATIONS-CAPS",
+      "requirement": "MethodPlan conserve toate obligațiile, maximum128 fără omit/truncation; exact un MethodResult per requirement.",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:125-161,571,1390-1409,1523-1539",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:252-287",
+        "api/src/omnis/modules/tasks/method_checks.py:323-327,648-652"
+      ],
+      "evidence": "New executable form retains exact3. Independent generic metadata compiler control preserves all128 in API/native;129 denied COUNT_LIMIT on API and ValueError on native, not truncated. This generic compiler control is not admission of a new128-requirement executable form.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "UNKNOWN-NO-PROMOTION",
+      "requirement": "UNKNOWN cauză și toate gaps istorice rămân immutable după available-schema revalidation; available-invalid nu devine UNKNOWN.",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:759-820",
+        "api/src/omnis/modules/tasks/method_checks.py:438-479,563-575,714-747"
+      ],
+      "evidence": "Original owner UNKNOWN/tamper controls in83 SOURCE; 4 independent real _result_check current two-step full/prefix x checker/schema-unavailable with restored schemas, exact reason/gaps equality and no sinks. 2 independent malformed-available-schema denials. DB/schema reader are declared SOURCE doubles.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "PERSIST-CHECK-READBACK",
+      "requirement": "Raw result committed before MethodCheck; same caller check/readback/reconcile regenerate exact payload, single consumption; incomplete backend BLOCKED, no wake.",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:537-643,653-714,716-821,1067-1108,1186-1222",
+        "api/src/omnis/supervisor/native_tasks.py:230-232,326-335"
+      ],
+      "evidence": "Static end-to-end transaction trace on unchanged caller; independent _result_check first/repeated checks on real SOURCE execution and synthetic retained graph. Prepared PG prefix explicitly reads committed raw with zero checks before actual domain.check. No new PG durability execution by this reviewer.",
+      "status": "APPROVED_STATIC_AND_SOURCE; REAL_PG_NOT_RUN"
+    },
+    {
+      "id": "HISTORICAL-EXACT-RECEIVE-ONLY",
+      "requirement": "Exact f84c523e... + c16e5e4c... old pair only receive-only; current non-receive yields UNKNOWN. Old full/optional/required-prefix semantics retained; no new two-step authority on old composers.",
+      "code": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:14-28,68-125",
+        "api/src/omnis/modules/tasks/managed_contract.py:323-440",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:577-676",
+        "api/src/omnis/modules/tasks/method_checks.py:660-668"
+      ],
+      "evidence": "Independently recomputed old13 source closure from feature-base Git and exact old composer hash.83 SOURCE old evidence pair + new-form refusal.6 independent inline/compact old full/optional-prefix/required-prefix controls: nonreceive UNKNOWN; receive COMPLETE/COMPLETE/INCOMPLETE, status and gaps exact, no handler/evaluator calls. These are SOURCE synthetic historical graphs, not installed immutable historical-reader proof.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "id": "NO-FUNCTIONAL-PASS",
+      "requirement": "MethodCheck COMPLETE nu acordă PASS funcțional; both allocated outcomes BLOCKED fără oracle/controls, METHOD_INCOMPLETE când lipsesc required.",
+      "code": [
+        "integrations/hermes/src/omnis_hermes/contract_method.py:417-427",
+        "api/src/omnis/modules/tasks/criterion_checks.py",
+        "api/tests/test_contract_method_pg.py:1438-1472,1625-1651,1943-1965"
+      ],
+      "evidence": "SOURCE cases allocate two criteria and retain BLOCKED proposals; prepared real PG test demands exactly2 BLOCKED outcomes + exact gaps and rejects appended forged PASS at readback/reconcile.",
+      "status": "PASS_SOURCE_AND_STATIC_PREPARATION"
+    },
+    {
+      "id": "QA-PREPARED-SAME-OWNER",
+      "requirement": "Exact new full/prefix nodes inherit existing owner/LocalControl/control_task, same boot/root ownership, actual AFTER_STOP cached reads and no rerun; applicability strings are selectors, not AppPolicy authority.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:478-516,553-596,852-861,1081-1117,1408-1437,1544-1588,1812-1938,1997-2025",
+        "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py:19,29-52"
+      ],
+      "evidence": "Independent collect-only:2/27 collected25deselected; inspected exact producer mutation, source native observation read1/PURE1or2,6/4records, actual receipt/artifact refs, reason/gaps, check/outcomes/backend expectations, no-oracle negatives, single consume,4fresh readers per case and post-Stop public release/receive. Native release oracle keeps native SUCCEEDED separate from backend UNKNOWN. No result emitter, new owner, or deadline/grant change.",
+      "status": "APPROVED_PREPARED_STATIC; REAL_QA_NOT_RUN"
+    },
+    {
+      "id": "ARTIFACT-IDENTITY",
+      "requirement": "Current composer/checker pinned to actual bytes; exact patch and wheel inventories, no transfer of old proof to changed bytes.",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_composition.py:44-52",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:74-81"
+      ],
+      "evidence": "All10 initial/final hashes equal frozen manifest; patch exact digest and reverse-apply --check exit0. Independently byte-compared83 API/15 adapter wheel members to source with exact unique inventory; actual old/current13 closure and composer identity recomputed.",
+      "status": "PASS_READONLY_ARTIFACT_ATTESTATION"
+    }
+  ],
+  "findings": [],
+  "confirmed_blockers": 0,
+  "verification": [
+    {
+      "role": "FOCUSED_SOURCE_REGRESSION",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py -k 'two_step or evidence_historical_pair or partial-requirement or method_plan or unknown or schema_unavailable or unavailable_checker' -q --tb=line",
+      "exit": 0,
+      "passed": 83,
+      "deselected": 281,
+      "pytest_seconds": 7.12,
+      "actual_output": "83 passed, 281 deselected in 7.12s",
+      "boundary": "real SOURCE producer/run_contract/check_execution; synthetic native state and graph, no native process or DB"
+    },
+    {
+      "role": "INDEPENDENT_SOURCE_CONTROLS_FINAL",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c /home/kali/OmnisAI/api/pyproject.toml /home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py -q --tb=line",
+      "exit": 0,
+      "passed": 14,
+      "pytest_seconds": 2.6,
+      "actual_output": "14 passed in 2.60s",
+      "source_probe": "/home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py",
+      "source_probe_sha256": "2cd33c49222a2dafbb8dee01009efe4e60c87cc1fd2605dd8b7758c0e0f91a64",
+      "boundary": "4 current two-step owner UNKNOWN replay;6 exact old full/optional/required-prefix receive controls;2 available-invalid schema refusals;128/129 generic plan compiler;unsupported multi-step evidence guard"
+    },
+    {
+      "role": "QA_COLLECT_ONLY",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'partial-requirement-full or partial-requirement-prefix' --collect-only -q --tb=line",
+      "exit": 0,
+      "collected": 2,
+      "total": 27,
+      "deselected": 25,
+      "pytest_seconds": 0.41,
+      "actual_output": "2/27 tests collected (25 deselected) in 0.41s",
+      "nodes": [
+        "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full]",
+        "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-prefix]"
+      ],
+      "boundary": "collection only; all fixtures/test bodies unexecuted"
+    },
+    {
+      "role": "DIFF_AND_EXPORTED_PATCH",
+      "command": "git diff --cached --stat && git diff --check && git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch",
+      "exit": 0,
+      "index_empty": true,
+      "patch_sha256": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e",
+      "bytes_equal_git_diff": true
+    },
+    {
+      "role": "IDENTITY_FROM_GIT_AND_WHEELS",
+      "exit": 0,
+      "artifact": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-identity.json",
+      "detail": "Direct Python hashlib/ZipFile reads; Git show feature_base:api/src/omnis/modules/<each13Source>; canonical closure SHA; exact unique wheel member inventory and every member byte comparison. No build/install/import of a native owner."
+    }
+  ],
+  "reviewer_probe_incidents": [
+    {
+      "classification": "SCRATCH_ORACLE_ERROR_NOT_PRODUCT_FINDING",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c /home/kali/OmnisAI/api/pyproject.toml /home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py -q --tb=line",
+      "exit": 1,
+      "passed": 13,
+      "failed": 1,
+      "pytest_seconds": 2.88,
+      "reason": "Native 128-control reused bulky original requirement metadata and legitimately exceeded unchanged32768-byte envelope cap; ValueError Invalid managed envelope.",
+      "minimal_fix": "Only scratch generic compiler-control description/schema-list metadata narrowed to fit existing cap; nonempty step_ids and all requirement fields retained. No product cap widened.",
+      "disposition": "CORRECTED"
+    },
+    {
+      "classification": "SCRATCH_ORACLE_ERROR_NOT_PRODUCT_FINDING",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c /home/kali/OmnisAI/api/pyproject.toml /home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py -q --tb=line",
+      "exit": 1,
+      "passed": 13,
+      "failed": 1,
+      "pytest_seconds": 2.83,
+      "reason": "129-control assumed API plan compiler would return129; actual record boundary correctly refused COUNT_LIMIT before the later brief validator.",
+      "minimal_fix": "Expect exact COUNT_LIMIT at real API compile/brief boundaries, while preserving128 positive and native129 refusal. No product changes.",
+      "disposition": "CORRECTED"
+    },
+    {
+      "classification": "BOUNDED_REASON_LOCALIZATION",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c /home/kali/OmnisAI/api/pyproject.toml /home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py -k 'all_128' -q --tb=short",
+      "exit": 1,
+      "passed": 0,
+      "failed": 1,
+      "deselected": 13,
+      "pytest_seconds": 1.23,
+      "reason": "Localized COUNT_LIMIT to compile_method_plan -> record -> bounded at scratch line140; no private data/DSN.",
+      "disposition": "RETAINED_FAILURE; final14SOURCE pass is separate execution"
+    }
+  ],
+  "non_goals": [
+    "No source/test/shared-doc/skill/protected-HTML edits; no index/commit/push.",
+    "No native launch, PostgreSQL fixture/connection, inference, network/target/account/provider, credential or personal-profile/r1 operation.",
+    "No canonical make check or broad ALL suite; no ceremonial verifier/observer/QA-emitter/owner/harness framework.",
+    "No generalized predicate registry/evaluator, new procedure/key/input breadth, actions/dtypes/caps/epochs/retry/Stop changes.",
+    "No re-audit of accepted launch/old forms or unrelated owner; only affected end-to-end caller trace and bounded compatibility controls.",
+    "No power-loss/MVP/global/G02/P2 acceptance, installed historical reader, runtime restart, M1/M2 ResultQualification or live turn proof."
+  ],
+  "limitations": [
+    "APPROVED_SCOPED covers SOURCE normative behavior and static prepared QA only, not product acceptance. Real new2 PG/native nodes remain NOT_RUN until parent adjudicates complementary reviews and authorizes existing runner.",
+    "Actual native authentication/constructor/root lineage and PostgreSQL durability were not executed; SOURCE holders, retained graph and schema-reader seams explicitly synthetic. Independent probes use real run_contract, check_execution and ManagedAdmission._result_check.",
+    "Generic128 metadata compiler control is not new executable128 requirement authority; finite map-records closure still exactly3 requirements and caps can refuse/split larger material.",
+    "Wheel byte identity verified read-only against existing author-produced artifacts; no new build or installed wheel/runtime execution by reviewer.",
+    "Historical controls are fresh SOURCE records with exact historical pin/checker identities, not installed immutable historical-reader or restarted native runtime.",
+    "Canonical final NOT_RUN; B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED. Existing accepted evidence/optional/invalidation slices are not reopened.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "created_scratch_files": [
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-initial.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-identity.json",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-final.json",
+    "/home/kali/.hermes/cache/scratch/test_p2_partial_requirement_normative.py",
+    "/home/kali/.hermes/cache/scratch/p2-partial-requirement-normative-review.json"
+  ],
+  "repository_files_modified": [],
+  "commits_created": 0,
+  "parent_next_step": "Adjudecă ambele reviews pe aceleași10SHA; apoi QA afectată strict prin runnerul existent, nodes full/prefix, fără lărgirea deadline/grant. Integrare/commit/acceptare scoped aparțin părintelui.",
+  "skill_lesson_proposal": "La un control128, separă numărul de rânduri de capul wire al întregului envelope; la129 măsoară întâi exact refusalul record/bounded (COUNT_LIMIT) înainte să presupui un motiv al validatorului ulterior. Lecție propusă, nu editare de skill în checkoutul read-only."
+}

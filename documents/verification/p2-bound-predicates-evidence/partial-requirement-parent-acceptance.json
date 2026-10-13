@@ -1,0 +1,609 @@
+{
+  "schema_version": 1,
+  "decision": "ACCEPTED_SOURCE_NATIVE_PRIVATE_PUBLIC_UDS_SCOPED",
+  "product_head": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+  "feature_commit": "3a2ffb72089e0ed9aeb4e4bc42f22fb5efc2d03b",
+  "public_selector_fix": "a2cf4e0032ca39e42436f705b1cb9498b3e87ed1",
+  "schema_fix": "9c6c4e9",
+  "diagnostic_commit": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+  "files": [
+    {
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "prior_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "9fb9300991b95ddff694ded93f8532f40e64fbbfd22936f4270eae6164d5bcff",
+      "prior_sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "0262909541ac4e035a8e108493bee0cb7064075f63dbab5b57c5bc7e07cb5ee4",
+      "prior_sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "prior_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "b391dcacdce341ead58a14b823057ef59eca8b376f7541eda719424e16914a43",
+      "prior_sha256": "39d7c6b5cea9ef783c57f3687a7c6725777928d3ff97f404b3eddd8527c97234"
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472",
+      "prior_sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "prior_sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e",
+      "prior_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+      "prior_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+      "prior_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9",
+      "prior_sha256": "97eebb2e7907a7329fbed2dda4059985b2cb8be509f77e8c3c59f52723bc25d9"
+    }
+  ],
+  "file_count": 11,
+  "qa_report": "documents/verification/p2-bound-predicates-evidence/partial-requirement-schema-independent-qa.json",
+  "qa_report_sha256": "59177110bde11bae4692b9b167e5f0841bfda158e75976c217477bc986731b2d",
+  "finding_dispositions": {
+    "QA-PARTIAL-REQUIREMENT-PUBLIC-SELECTOR-01": "CLOSED_SOURCE_NATIVE_SCOPED: exact public parser RED1FAIL2PASS, minimal finite allowlist repair, two focused reviews and actual new prefix admission PASS. Original prelaunch FAIL retained.",
+    "GENERATED-PARTIAL-SCHEMA-SOURCE-DEFECT": "CLOSED_SOURCE_NATIVE_SCOPED: generated handoff schema RED2FAIL2PASS, both intersecting enums repaired without relaxing NA/header/identity/cardinality. Fresh full/prefix actual schema VALID.",
+    "QA-PARTIAL-REQUIREMENT-PUBLIC-RELEASE-02": "CLOSED_CURRENT_SCOPED_QA_ACCEPTANCE: fresh full+prefix actual PASS on final11 snapshot. Historical TASK_REJECTED inner cause and prior raw DB writes remain NOT_OBSERVED, not attributed retrospectively to SOURCE schema defect.",
+    "EXACT-HISTORICAL-IDENTITY-CUTOVER": "CLOSED_SOURCE_SCOPED_ONLY: explicit receive-only RED/GREEN, exact old pair, no historical schema rewrite; installed historical-reader remains NOT_RUN"
+  },
+  "source_verification": {
+    "affected_passed": 398,
+    "seconds": 35.37,
+    "exit": 0,
+    "quality": "mypy4/Ruff/format4/diff PASS",
+    "independent_scoped": "Original complementary reviews and two focused rounds; schema normative7SOURCE PASS/input59SOURCE+17callback controls, exact11SHA. SOURCE doubles remain labeled."
+  },
+  "actual_qa": {
+    "count": 1,
+    "passed": 2,
+    "failed": 0,
+    "deselected": 25,
+    "pytest_seconds": 59.63,
+    "owner_exit": 0,
+    "pytest_exit": 0,
+    "family_drained": true,
+    "fresh_boot_count": 2,
+    "fresh_pg_fixture_count": 1,
+    "fresh_reader_count": 8,
+    "native_launch_count": 2,
+    "retry_count": 0,
+    "invocation": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py partial-requirement"
+  },
+  "cases": [
+    {
+      "label": "partial-requirement-full",
+      "states": [
+        "DONE",
+        "DONE",
+        "DONE"
+      ],
+      "raw_status": "SUCCEEDED",
+      "backend_status": "SUCCEEDED",
+      "check_status": "COMPLETE",
+      "generated_schema_status": "VALID",
+      "gaps": [],
+      "actual_refs": {
+        "artifacts": [
+          {
+            "digest": "5e52de9a7caa55f18354c19dd24d5e298e835fef99e939a88d045e2629abc438",
+            "id": "0b21b2cd-f1f7-4f96-9523-7c41b96e5e87",
+            "kind": "contract-artifact",
+            "revision": 1
+          },
+          {
+            "digest": "71aabff67704a51d437ea8c201a017c43985c3da7603c842889642539e5b341f",
+            "id": "d4d121c9-e14c-40c7-aa30-6de70e6192e6",
+            "kind": "contract-artifact",
+            "revision": 1
+          }
+        ],
+        "binding": {
+          "digest": "d491754a3792d7fb4371441837c5bfede21a67678e7e72478140f4f7dd1cf9cb",
+          "id": "8e215029-53b6-42fb-b653-79fd1e94d609",
+          "kind": "runtime-binding",
+          "revision": 1
+        },
+        "brief": {
+          "digest": "4c0f796dd4a6eabc0849747bae4c9c26a78cbff2b6490eb0931f22da798ebc18",
+          "id": "fc8259d5-e6ea-4e17-89d5-5d3cfbeb4bf3",
+          "kind": "task-brief",
+          "revision": 1
+        },
+        "criterion_outcomes": [
+          {
+            "digest": "bd712d0a4c94e64a58e35d44c04d9b7ac50966a003642e60bf42e8ce9d0bbb5b",
+            "id": "2061726b-63da-4c65-936f-67bd6d49a6f1",
+            "kind": "criterion-outcome",
+            "revision": 1
+          },
+          {
+            "digest": "5e6d7c3e7b5582ad29ac0e537c947f6ee7e50a7f05522c16d651f4464a929341",
+            "id": "8322af72-9f3c-46cb-86a9-c5c3257d0670",
+            "kind": "criterion-outcome",
+            "revision": 1
+          }
+        ],
+        "generated_result_schema": {
+          "digest": "3952315d3c3e2913afa5fa7444fd00626d1f5ccbf8373cb03ee4502099e7ed5e",
+          "id": "18eaf897-28a1-4e54-b7c1-d96c9a903837",
+          "kind": "schema",
+          "revision": 1
+        },
+        "manifest": {
+          "digest": "80e6755ff0868ff5ff47a571e1612b0de3084841d8151717902341b8073f92e9",
+          "id": "7a4cde17-198b-4113-9142-7a64efab9958",
+          "kind": "launch-manifest",
+          "revision": 1
+        },
+        "method_check": {
+          "digest": "ad777c71c8be4cb54c99227f1d9f53a286f9d27e96fadd6adf10b3e868962100",
+          "id": "e844bdc6-a3c2-45ba-b8d6-74a2212c4621",
+          "kind": "method-check",
+          "revision": 1
+        },
+        "native_final": {
+          "digest": "ff4d02f5171017100f490a3c6890b93d1f179b3d4351f46df36773587e25fcca",
+          "id": "13db05ea-3234-4f8a-9f05-f995374a4bf3",
+          "kind": "native-task-receipt",
+          "revision": 1
+        },
+        "original_input": {
+          "digest": "1a102d55ea5086e2b3c68e9c275270a319bcbd096c5a6a33677765411ce24fa9",
+          "id": "7c2edd68-cc6a-4e74-a34e-f84a61921733",
+          "kind": "contract-case-records",
+          "revision": 1
+        },
+        "task_result": {
+          "digest": "d0b8273939dc8f6f53a92cf829b183eb7745d4ece579e9479146e20c0a219713",
+          "id": "67397e2e-c5e8-4850-8140-8735d6c4775b",
+          "kind": "task-result",
+          "revision": 1
+        },
+        "tool_receipts": [
+          {
+            "digest": "a660b67e3002f22934c41a2edfa0ffc9f4b8367e8a665a42a2dba6b94c451a13",
+            "id": "21d6e145-b4fe-4b40-87a2-b203f61f0d7c",
+            "kind": "contract-tool-receipt",
+            "revision": 1
+          },
+          {
+            "digest": "47899a65a86c4f8970a8bcf66aa5941aeb2cd1922620446e7b9ffddaaaff5781",
+            "id": "3e0aeb90-6cbb-40f6-bd53-ed87bb33d306",
+            "kind": "contract-tool-receipt",
+            "revision": 1
+          },
+          {
+            "digest": "11e5be17a0a35dcf0045830df9e0d23500eaad8f34ece0ddef525957f7fa05ea",
+            "id": "be0814f5-e08f-40b8-bf09-720e0a0cc880",
+            "kind": "contract-tool-receipt",
+            "revision": 1
+          }
+        ]
+      },
+      "public_after_actual_stop": "PASS",
+      "readers": 4,
+      "raw_before_check": {
+        "full_limit": "Same real owner ingest(commit)->schema-verified readback->check order; full case has no dedicated pre-check temporal checkpoint.",
+        "prefix_actual_checks_empty": false,
+        "status": "SOURCE_ORDERING_ONLY_NO_DEDICATED_FULL_CHECKPOINT"
+      },
+      "functional_outcomes": [
+        {
+          "bound_procedure_ref": {
+            "digest": "c92b0df9d0b0af6a9f0514ef3e628fddb043c6a074047b70e0f8b27f2e0199c3",
+            "id": "d5db47da-9c3b-4c81-97b0-5109293943e7",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "4c0f796dd4a6eabc0849747bae4c9c26a78cbff2b6490eb0931f22da798ebc18",
+            "id": "fc8259d5-e6ea-4e17-89d5-5d3cfbeb4bf3",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "c16642e6-f9ff-4cf2-b1ce-a373c957d711",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE"
+          ],
+          "method_check_ref": {
+            "digest": "ad777c71c8be4cb54c99227f1d9f53a286f9d27e96fadd6adf10b3e868962100",
+            "id": "e844bdc6-a3c2-45ba-b8d6-74a2212c4621",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "a09e594369d90861bce6a57ed8c54ee45c1dd205c1b96504a6ac2c1b98b7cc4c",
+            "id": "7a3e78aa-2946-4820-93a4-e726ced931cd",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "70203e17548b50a52f90ead1e0f0637ef8dfe59a4a1c86e595ad253204e6c69a",
+            "id": "4372ce20-301d-43ad-b0b1-6f327f6749e3",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "d0b8273939dc8f6f53a92cf829b183eb7745d4ece579e9479146e20c0a219713",
+            "id": "67397e2e-c5e8-4850-8140-8735d6c4775b",
+            "kind": "task-result",
+            "revision": 1
+          }
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "c92b0df9d0b0af6a9f0514ef3e628fddb043c6a074047b70e0f8b27f2e0199c3",
+            "id": "d5db47da-9c3b-4c81-97b0-5109293943e7",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "4c0f796dd4a6eabc0849747bae4c9c26a78cbff2b6490eb0931f22da798ebc18",
+            "id": "fc8259d5-e6ea-4e17-89d5-5d3cfbeb4bf3",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "ac4d7364-79df-4e03-86ec-b03a3fd80ebe",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE"
+          ],
+          "method_check_ref": {
+            "digest": "ad777c71c8be4cb54c99227f1d9f53a286f9d27e96fadd6adf10b3e868962100",
+            "id": "e844bdc6-a3c2-45ba-b8d6-74a2212c4621",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "a09e594369d90861bce6a57ed8c54ee45c1dd205c1b96504a6ac2c1b98b7cc4c",
+            "id": "7a3e78aa-2946-4820-93a4-e726ced931cd",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "70203e17548b50a52f90ead1e0f0637ef8dfe59a4a1c86e595ad253204e6c69a",
+            "id": "4372ce20-301d-43ad-b0b1-6f327f6749e3",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "d0b8273939dc8f6f53a92cf829b183eb7745d4ece579e9479146e20c0a219713",
+            "id": "67397e2e-c5e8-4850-8140-8735d6c4775b",
+            "kind": "task-result",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    {
+      "label": "partial-requirement-prefix",
+      "states": [
+        "PARTIAL",
+        "NOT_RUN",
+        "DONE"
+      ],
+      "raw_status": "INCONCLUSIVE",
+      "backend_status": "BLOCKED",
+      "check_status": "INCOMPLETE",
+      "generated_schema_status": "VALID",
+      "gaps": [
+        "PARTIAL: normalize-records (qualified early return).",
+        "NOT_RUN: build-surface-map (qualified early return)."
+      ],
+      "actual_refs": {
+        "artifacts": [
+          {
+            "digest": "b31f9080031c31470e8abcec26f69d8111c447db57b0a8c8332e1c12fffe1985",
+            "id": "4c98ba7a-b7bf-4840-a169-7942550b1c3d",
+            "kind": "contract-artifact",
+            "revision": 1
+          }
+        ],
+        "binding": {
+          "digest": "ffaa56396dc3ea482297d979e3349786b2e099883358af4d12c8ce65b848bf11",
+          "id": "f08087ba-ccae-463d-81dc-ff58d44ff77c",
+          "kind": "runtime-binding",
+          "revision": 1
+        },
+        "brief": {
+          "digest": "77d6c2149c5cf80235d79763e76636b17fc241e84f08b03155e8a7b37e1aba0b",
+          "id": "2c3cb0e5-5c45-4721-b8f9-fb5e1d41a62f",
+          "kind": "task-brief",
+          "revision": 1
+        },
+        "criterion_outcomes": [
+          {
+            "digest": "10305a2bab76f76dbaf72d405c8beaeaabaf4c03f6d048750079b2dbbcea750c",
+            "id": "ba0f5dfe-d34d-4619-9121-3b22bdcbcae0",
+            "kind": "criterion-outcome",
+            "revision": 1
+          },
+          {
+            "digest": "e543c28b4dac12e375d20db23e9214fb1e0c1a3d261ae550065fb927e11ac858",
+            "id": "d8f1cc06-2a6a-469a-b752-c3fc9026042e",
+            "kind": "criterion-outcome",
+            "revision": 1
+          }
+        ],
+        "generated_result_schema": {
+          "digest": "ebb753b6638b0e5a2fc9612df674f048ce99a78e2d3fa4b65ab0d3c2c0636eba",
+          "id": "718b1f25-21f1-4998-ae40-7572bbf5c197",
+          "kind": "schema",
+          "revision": 1
+        },
+        "manifest": {
+          "digest": "2f387fca82ef9d77acf23c56a1bfc91ec24809bc77c452498d4f26a7358031d8",
+          "id": "d844956b-d148-41e8-88ae-481a220a7298",
+          "kind": "launch-manifest",
+          "revision": 1
+        },
+        "method_check": {
+          "digest": "808b078cf542d3dfafde6d9f69875c85a40d0c639b38c5ce162a093ca9b0ef45",
+          "id": "02f66e60-f390-4321-9ec1-3222b03d768f",
+          "kind": "method-check",
+          "revision": 1
+        },
+        "native_final": {
+          "digest": "28114aac0e9ed597a8987b1327de5fad6cbf984c8e7e25b2b1235c6bf097d2f9",
+          "id": "eedfce67-a8c0-45ab-b8fd-7c311b46cab3",
+          "kind": "native-task-receipt",
+          "revision": 1
+        },
+        "original_input": {
+          "digest": "5a7cff9c706e25da64f80b91873690318309681ee4db6eccc0a245309786ba02",
+          "id": "b239fcbf-de5c-4c51-a6dd-e7420a24f7e9",
+          "kind": "contract-case-records",
+          "revision": 1
+        },
+        "task_result": {
+          "digest": "091243a5f4b4c4e995eecb4fed6d2271713a4af21bcb6d0fb52a2de63f743fc8",
+          "id": "2d74c703-44a7-4db7-9a67-59ae3c5a5e3c",
+          "kind": "task-result",
+          "revision": 1
+        },
+        "tool_receipts": [
+          {
+            "digest": "e65126afba6dffb007d8008b852e93c41aff9a8a91a2fdcb6d35e670c91a8c32",
+            "id": "5c0f8f59-5b35-451d-9627-f39ab50f89ee",
+            "kind": "contract-tool-receipt",
+            "revision": 1
+          },
+          {
+            "digest": "c13016cff566eebd63564aa47644f3e660e48ad64ad3f444357a798bddef7e05",
+            "id": "9ee9c133-c12d-4452-879d-49085b8f7956",
+            "kind": "contract-tool-receipt",
+            "revision": 1
+          }
+        ]
+      },
+      "public_after_actual_stop": "PASS",
+      "readers": 4,
+      "raw_before_check": {
+        "full_limit": null,
+        "prefix_actual_checks_empty": true,
+        "status": "PASS"
+      },
+      "functional_outcomes": [
+        {
+          "bound_procedure_ref": {
+            "digest": "1844004e7849f00dfabd49a73e30c2a6c4283b338c0292abe6955ecfac15c860",
+            "id": "ce121ab3-3f5b-4d7e-b46c-6a7a93868a48",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "77d6c2149c5cf80235d79763e76636b17fc241e84f08b03155e8a7b37e1aba0b",
+            "id": "2c3cb0e5-5c45-4721-b8f9-fb5e1d41a62f",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "2cb270d3-fdac-4545-8b7c-e0154bc16cd1",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ],
+          "method_check_ref": {
+            "digest": "808b078cf542d3dfafde6d9f69875c85a40d0c639b38c5ce162a093ca9b0ef45",
+            "id": "02f66e60-f390-4321-9ec1-3222b03d768f",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "ca33b99e280899b30ca89289a2cd36e305b8b0346a66f64ab0a613fdf8228b8c",
+            "id": "c3dae7dd-4c72-4941-bc3b-c7acb2fb9085",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "37c037d83f84ec3be47602feada38576cb78552e4c919826d410de64dffcc8a3",
+            "id": "9539ba03-7b79-4e8c-be58-7f06a8083177",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "091243a5f4b4c4e995eecb4fed6d2271713a4af21bcb6d0fb52a2de63f743fc8",
+            "id": "2d74c703-44a7-4db7-9a67-59ae3c5a5e3c",
+            "kind": "task-result",
+            "revision": 1
+          }
+        },
+        {
+          "bound_procedure_ref": {
+            "digest": "1844004e7849f00dfabd49a73e30c2a6c4283b338c0292abe6955ecfac15c860",
+            "id": "ce121ab3-3f5b-4d7e-b46c-6a7a93868a48",
+            "kind": "bound-procedure",
+            "revision": 1
+          },
+          "brief_ref": {
+            "digest": "77d6c2149c5cf80235d79763e76636b17fc241e84f08b03155e8a7b37e1aba0b",
+            "id": "2c3cb0e5-5c45-4721-b8f9-fb5e1d41a62f",
+            "kind": "task-brief",
+            "revision": 1
+          },
+          "control_step_ids": [],
+          "criterion_id": "79f30ccf-8a07-4d57-88e6-788e1c76a9e6",
+          "evidence_refs": [],
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ],
+          "method_check_ref": {
+            "digest": "808b078cf542d3dfafde6d9f69875c85a40d0c639b38c5ce162a093ca9b0ef45",
+            "id": "02f66e60-f390-4321-9ec1-3222b03d768f",
+            "kind": "method-check",
+            "revision": 1
+          },
+          "mission_ref": {
+            "digest": "ca33b99e280899b30ca89289a2cd36e305b8b0346a66f64ab0a613fdf8228b8c",
+            "id": "c3dae7dd-4c72-4941-bc3b-c7acb2fb9085",
+            "kind": "mission",
+            "revision": 1
+          },
+          "outcome": "BLOCKED",
+          "outcome_rule_ref": {
+            "digest": "37c037d83f84ec3be47602feada38576cb78552e4c919826d410de64dffcc8a3",
+            "id": "9539ba03-7b79-4e8c-be58-7f06a8083177",
+            "kind": "criterion-outcome-rule",
+            "revision": 1
+          },
+          "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict.",
+          "task_result_ref": {
+            "digest": "091243a5f4b4c4e995eecb4fed6d2271713a4af21bcb6d0fb52a2de63f743fc8",
+            "id": "2d74c703-44a7-4db7-9a67-59ae3c5a5e3c",
+            "kind": "task-result",
+            "revision": 1
+          }
+        }
+      ]
+    }
+  ],
+  "parent_readback": {
+    "all11_source_SHA_match": true,
+    "physical_artifact_SHA_verified": 150,
+    "same_daemon_exact_CID_project_network_UDS_absent": true,
+    "owned_locks_reacquired": 4,
+    "readers_absent": 8,
+    "outer_PID_absent": true,
+    "PG18_data_image_logs_retained": true,
+    "gate_receipt": {
+      "code": 0,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "fixture": {
+      "container_id": "18167020b12be9df7e53d64481de52ba6e0b6918984cefa5fde85868dd1fde88",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-98530929fcf646f3a93b5320ec243ee8",
+      "root": "/home/kali/.hermes/cache/scratch/db-fb765597a81e4ad5",
+      "schema_version": 1,
+      "system_identifier": "7696189537426731038"
+    },
+    "original12reports_transferred_byteexact": true
+  },
+  "prior_failures": [
+    {
+      "attempt": {
+        "failed": 1,
+        "family_drained": true,
+        "passed": 1,
+        "pytest_exit": 1,
+        "pytest_seconds": 50.19
+      },
+      "cause_disposition": "Historical selector prelaunch refusal is retained; SOURCE publicselector repair reviewed. No transfer of historical full PASS to new generated-schema bytes.",
+      "expected_sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-independent-qa.json",
+      "raw_DB_write_status": "NOT_OBSERVED; may have committed before failed readback, not zero-write proof",
+      "runtime_inner_cause": "NOT_OBSERVED",
+      "sha256": "68820beab9a005d492e606a69a93f46070262661a27580d22641f34d04ee6e79",
+      "unchanged": true,
+      "verdict": "NOT_PASS_PRODUCT_PREFIX_BLOCKER"
+    },
+    {
+      "attempt": {
+        "failed": 1,
+        "family_drained": true,
+        "passed": 0,
+        "pytest_exit": 1,
+        "pytest_seconds": 20.46
+      },
+      "cause_disposition": "Authentic AIAgent/read1/PURE1/native4 INCONCLUSIVE reached public TASK_REJECTED. Inner reason and raw DB write status remain NOT_OBSERVED, even after new two-enum SOURCE repair and PASS.",
+      "expected_sha256": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-prefix-independent-qa.json",
+      "raw_DB_write_status": "NOT_OBSERVED; may have committed before failed readback, not zero-write proof",
+      "runtime_inner_cause": "NOT_OBSERVED",
+      "sha256": "3954dd032c2438fbb8b1a5faf5b1dd138bf3b2a103a8997699e80429acba230f",
+      "unchanged": true,
+      "verdict": "FAIL_SOURCE_NATIVE_PUBLIC_RELEASE"
+    }
+  ],
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED and original PreparationPrerequisite document-preparation double unchanged; RuntimeHost/RuntimeClient/NativePeer/AIAgent/native method/public owner real.",
+    "Full/PREFIX two new public boundaries only; no automatic functional PASS, qualification upgrade, product acceptance or global gate.",
+    "Both genuine final records and generated schema independently validated after actual owner persistence/check/readback; prefix has explicit real raw-persist-before-check observer. Full same-owner order verified by source chain, without separate temporal checkpoint.",
+    "Two criterion outcomes per case BLOCKED without oracle/controls; METHOD_INCOMPLETE only prefix. Delivered1/admitted0/turn_completed0/consumed1 are distinct.",
+    "Native_exit=-9 with existing owned drain/receipt/family settled. Not evidence of graceful Stop, runtime restart or an older inner failure reason. Real InstanceService.shutdown fenced AFTER_STOP cached public release/receive proved separately.",
+    "Finite Python observer attempts=0 is not OS confinement or exhaustive loaded inventory. Current-owned lifecycle/family/locks verified; unreadable unrelated same-UID /proc FD entries retained, not universal system cleanup.",
+    "Per-node exact pytest durations/process exits are not emitted by original -q invocation. Both node outcomes PASS and shared pytest exit0 are real; per-case artifact windows are explicitly not pytest durations.",
+    "Both old FAIL JSONs unchanged. Historical pytest-389 exports unavailable now; old schemaRef retained from original report, no restore/reconstruction/adoption. Raw DB write status and original internal reason remain NOT_OBSERVED.",
+    "All source/PIN/library overlays were preflighted without environment/grant adoption, provider/account/model inference, target traffic, source edits, pin restore, prewarm or timeout growth.",
+    "Reticle NOT_APPLICABLE CLI/process-only; Chisel BLOCKED_NO_GO. No UI approval."
+  ],
+  "global_gates": {
+    "B06b": "PARTIAL/NOT_CLOSED",
+    "G02": "PARTIAL/NOT_CLOSED",
+    "M1_M2": "OPEN/NOT_RUN in this QA",
+    "P2": "NOT_CLOSED",
+    "P2_live": "NOT_RUN",
+    "P4a_minim": "NOT_IMPLEMENTED",
+    "canonical_final": "NOT_RUN",
+    "functional_security_verdict": "NONE",
+    "installed_historical_reader": "NOT_RUN",
+    "next": "Parent adjudicates only current fresh full/prefix boundary, persists report before scratch expiry; restB06b -> B06c/m -> P2-inert -> P4a-minim.",
+    "runtime_data_policy_config": "Original inert consumer only; no new config/store/grant adoption. Distinct fully configured runtimeDataPolicy consumer not exercised.",
+    "runtime_restart": "NOT_RUN"
+  },
+  "next": "RestB06b remaining forms/binding/inventory/lineage, M1M2 current qualification, installed history/runtime restart on existing consumers; then B06c/m, all8 P2-inert criteria/canonical, P4a-minim. No unchanged accepted-slice/launch-audit replay."
+}

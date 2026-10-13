@@ -1,0 +1,565 @@
+{
+  "call_trace": [
+    {
+      "boundary": "publication/source compilation",
+      "effect": "read-only tracing; existing generic method ref/schema validation already supports two steps; evidence guard intentionally unchanged",
+      "path": "api/src/omnis/modules/settings/skill_catalog.py"
+    },
+    {
+      "boundary": "pre-reserve producer",
+      "effect": "existing caller preserved; producer tests compile and build the plain two-step published-template form, exact full/prefix selectors and schema refs; no PG authority claimed",
+      "path": "api/src/omnis/modules/runs/managed_admission.py:BuildSource.build -> tasks/managed_contract.py:build_records -> managed_composition.compose/stage_payload"
+    },
+    {
+      "boundary": "native compact and inline preflight",
+      "effect": "finite closure parity and malformed complete independently resealed assignment refusals; no native constructor authority inferred",
+      "path": "omnis_hermes.managed_admission_contract.validate_stage -> prompt_bundle.validate_composition -> contract_method.assignment"
+    },
+    {
+      "boundary": "actual source producer",
+      "effect": "upstream unchanged; existing strict expansion and real receipt chain retained; declared step predicates depend on each true receipt/output, never handler recomputation",
+      "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py:run_contract -> contract_method.predicate_values/task_result"
+    },
+    {
+      "boundary": "wire final/cardinality",
+      "effect": "unchanged existing four-record prefix/six-record full grammar, identities and limits",
+      "path": "managed_contract.validate_final and omnis_hermes.managed_admission_contract.validate_response"
+    },
+    {
+      "boundary": "persistent result/check/readback",
+      "effect": "read-only tracing; same owner persists raw before checking, regenerates receive-only check and compares retained payload; new QA full/prefix extends existing test and same LocalControl/control_task path, not launched",
+      "path": "api/src/omnis/modules/runs/managed_admission.py:ingest_result/_result_check/check/readback/reconcile -> tasks/method_checks.py:check_execution"
+    }
+  ],
+  "commits_created": 0,
+  "exported_patch": {
+    "bytes": 54655,
+    "diff_sha256": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e",
+    "exact_export_recomputed_equal": true,
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch",
+    "reverse_apply_check_exit": 0,
+    "sha256": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e"
+  },
+  "feature_base": "788962969bb22bceed940ab9ac4334be3aa9f1d2",
+  "file_count": 10,
+  "files": [
+    {
+      "base_sha256": "5091cbeb8d8ad23a15fb7d4b4b31447e86dabb5efd4aaba783856f4f16fa7d93",
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+    },
+    {
+      "base_sha256": "98e7798d987354e7a48fad2e7c73cfd63f69964c51be02d9151fe18719363ac4",
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "a50c3ffcf3c10973065de3110809c1e0964359ee6d93ee5a92ba2d808906681b"
+    },
+    {
+      "base_sha256": "d2fbef5ec1c87ea7d42f8cc6280a094984c1649a53a30b6afcaedc94a5d9deef",
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "2f64b2836bce0ed1f91f59f12fbbb2f1daf7745747c749207c3f9e501e114622"
+    },
+    {
+      "base_sha256": "9e0b786ce56239a96bb43c54c04569171fcd297ca1dedb610ffd23c4ea700f19",
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+    },
+    {
+      "base_sha256": "e3a5eead4643eb7609023bb4d31e2432ea1534639737a0836e41546273c27108",
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "1a5137548237da3858434ea1c833ef06fbc2bee1e767d91d7593435bf8138284"
+    },
+    {
+      "base_sha256": "a0b82f6d5f491f74d04869f405dcc90628fd37cdff4729c7388c79343b6e5841",
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "e6cf62fe580943e8abb4e947770c9a7ce21b4440458adf49651b1e45dc50f472"
+    },
+    {
+      "base_sha256": "1bd5e8e027c9d2ad03fb2daecb7debd3cc93785636bbf94b0ff0bfd6a97dc6a8",
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "e57f4207dc59109335580268aeb4fa6baac26c0f5fc551455012de78234c6698"
+    },
+    {
+      "base_sha256": "edaf52db325aebf0397c147591a8808d5f93969dedc30f1ca6d308a63c19147b",
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+    },
+    {
+      "base_sha256": "32ac927dfe442647955ecc8ca6ddd890ff0725abb95d5455986bec0485cda58a",
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+    },
+    {
+      "base_sha256": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    }
+  ],
+  "findings": [
+    {
+      "disposition": "FIXED_SOURCE_SCOPED",
+      "finding": "Both closures required one step/schema, native predicate builder hardcoded the first step and checker emitted only DONE/NOT_RUN; unsupported form reproduced RED, implemented finite variant and actual-receipt PARTIAL derivation.",
+      "id": "SOURCE-PR-01"
+    },
+    {
+      "disposition": "FIXED_SOURCE_SCOPED",
+      "finding": "build_records selector omitted preserve-input-context despite existing bound predicate; RED producer prefix refusal, finite registry-key admission now passes.",
+      "id": "SOURCE-PR-02"
+    },
+    {
+      "disposition": "FIXED_SOURCE_SCOPED",
+      "finding": "Source change invalidates old evidence/checker pair. Exact old 13-file digest independently reproduced from base Git; receive-only old full/optional-prefix semantics retained without new two-step authority.",
+      "id": "SOURCE-PR-03"
+    },
+    {
+      "disposition": "CORRECTED_BEFORE_PRODUCTION",
+      "finding": "API mapping returns a copy; authored mutation initially missed the intended source. Explicit reassignment fixed this, then repeated schema-ref objects generated forbidden YAML aliases. Deepcopy avoids aliases. Original failures preserved, intended source RED confirmed afterward.",
+      "id": "TEST-FIXTURE-PR-01"
+    },
+    {
+      "disposition": "CORRECTED",
+      "finding": "/usr/bin/time absent (exit127, no tests). Subsequent logs use actual terminal exits, pytest timings and separately labeled monotonic tool-wall duration.",
+      "id": "TOOL-PR-01"
+    },
+    {
+      "disposition": "CORRECTED",
+      "finding": "One local import separator triggered I001. Minimal formatting-only correction; final Ruff PASS.",
+      "id": "LINT-PR-01"
+    }
+  ],
+  "git_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+  "head_delta": "8dea533 changes only parent-owned review-qa skill; excluded from feature patch",
+  "identity": {
+    "base_checker_digest_recomputed_from_git": true,
+    "checker": {
+      "code_digest": "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8",
+      "key": "managed.contract-pure.v2",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "checker_source_closure_count": 13,
+    "composer_revision": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "old_evidence_pair": {
+      "checker_digest": "f84c523e56493e4f8cf86b9f49f8b72c7381f9a10a95ad67e14da4e46143cab7",
+      "composer_revision": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+      "semantics": "exact receive-only compatibility; historical non-receive checks remain UNKNOWN; new two-step/PARTIAL forms denied on every historical composer; old records not rewritten"
+    }
+  },
+  "non_goals": [
+    "No commit/index/push",
+    "No docs or protected HTML edits",
+    "No parent-owned skill edits",
+    "No native owner/model preflight/native control/upstream changes",
+    "No live/account/provider/target/r1/global effects",
+    "No installed historical-reader or runtime-restart claim",
+    "No B06b/B06c/B06m/P2-inert/P4a close",
+    "No M1/M2, fanout, registry/evaluator/general SECURITY package or alternate input/demo",
+    "No deadline/grant/import-prewarm/socket/provisioning/lifecycle changes",
+    "No fabricated blocked_result, proof records or method outputs"
+  ],
+  "observed_head": "8dea53322372001956eef83fcc174f4a0dfa0809",
+  "parent_lesson_proposal": "API managed_contract.mapping returns a defensive copy. Reassign mutated authored lists before serializing, and deepcopy reused YAML schema refs to avoid forbidden anchors/aliases. Parent owns the disjoint skill update; no personal skill modified.",
+  "qa": {
+    "collect_only_exit": 0,
+    "collected_count": 2,
+    "deselected_count": 25,
+    "driver": "existing private fixture/family/drain runner; no new emitter, owner, harness or command target",
+    "expected_obligations": "Same native owner, LocalControl/control_task, full COMPLETE/SUCCEEDED versus prefix INCOMPLETE/INCONCLUSIVE/backend BLOCKED; raw persisted before MethodCheck; exact methods/refs/gaps, two CriterionOutcomes BLOCKED with gaps, replay/readback/reconcile single consumption, cached release/receive AFTER_STOP with no rerun.",
+    "fresh_native_attempts": 0,
+    "nodes": [
+      "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full]",
+      "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-prefix]"
+    ],
+    "preparation_prerequisite_double": "unchanged",
+    "reason": "Mandated no launch before two independent complementary exact-snapshot reviews are adjudicated",
+    "source_and_library_prerequisites": "Existing pinned run_agent.py and libraries directory present, unchanged by this task. Presence only checked; original pinned source/library full re-attestation remains prerequisite of later launch.",
+    "source_host_installed": false,
+    "status": "NOT_RUN",
+    "total_collected_file_count": 27,
+    "wrapper": {
+      "base_sha256": "8f2dfe9d6e4cae8c7a87d835cad1629b0f2819493083f4060b8f575b260fef47",
+      "delta": "Only partial-requirement selector added for the two nodes",
+      "help_exit": 0,
+      "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+      "selected_argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+        "-k",
+        "partial-requirement-full or partial-requirement-prefix",
+        "-q",
+        "--tb=line"
+      ],
+      "sha256": "eb002d64e7dd87760ff37962c601af45cf23538fa0a8721c293f902102715282"
+    }
+  },
+  "remaining": [
+    "Two complementary exact-snapshot reviews and adjudication pending",
+    "Two-node PG/native QA NOT_RUN; authentic persistent backend BLOCKED and public cached receive require that probe",
+    "Canonical final NOT_RUN; B06b/G02/P2 remain PARTIAL",
+    "Installed historical reader/runtime restart/M1M2 and remaining method forms remain out of this slice"
+  ],
+  "review": "NOT_REVIEWED",
+  "schema_version": 1,
+  "scope": {
+    "declaration": "Only normalize-records may additionally bind exactly ordered [normalize-operations, build-map] with exactly their distinct real output schema refs; other requirements, slots, StepOutput and action definitions remain unchanged.",
+    "full": "READ_INPUT + both PURE actions: three DONE rows; raw SUCCEEDED and MethodCheck COMPLETE. No functional PASS without oracle/controls.",
+    "method": "existing map-records, CONTRACT/PURE, records input, single method execution; no fanout",
+    "plain_method_only": "New two-step form does not add evidence-bearing declaration semantics; existing evidence_declaration remains unchanged and refuses unsupported multi-step evidence forms.",
+    "prefix": "Existing selector now admits the finite preserve-input-context predicate. After READ_INPUT and first PURE: normalize-records PARTIAL with exactly its genuine receipt and operations artifact; build-surface-map NOT_RUN with empty refs; preserve-input-context DONE with genuine normalize receipt and original input ref. Raw INCONCLUSIVE and independent MethodCheck INCOMPLETE; required gaps remain.",
+    "prefix_gaps": [
+      "PARTIAL: normalize-records (qualified early return).",
+      "NOT_RUN: build-surface-map (qualified early return)."
+    ],
+    "truth_boundary": "SOURCE tests exercise actual run_contract/BoundContractTools and check_execution on synthetic native state holders. They do not authenticate an installed AIAgent, a native turn, persistent PG records or native ownership."
+  },
+  "status": "IMPLEMENTED_SOURCE_SCOPED_NOT_REVIEWED",
+  "task": "B06b single inert authentic two-step MethodResult PARTIAL form",
+  "verification": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /usr/bin/time -p api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short > /home/kali/.hermes/cache/scratch/p2-partial-requirement-red.log 2>&1",
+      "exit": 127,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red.log",
+      "log_sha256": "205f1d85eaf9c0d2e8a7fe430f93ed112733a88a51198f2b821012d21158ace3",
+      "reason": "/usr/bin/time missing; pytest did not execute",
+      "role": "PRE_RED_TOOL_FAILURE",
+      "scope": "SOURCE driver failure, not product RED",
+      "test_count": 0
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red-tests.log",
+      "log_sha256": "a8d4757f7f19de23b9adc568f209408388a15ffdfb336f8443f4f650af8f53ba",
+      "pytest_counts": {
+        "deselected": 161,
+        "failed": 6,
+        "passed": 2
+      },
+      "pytest_seconds": 2.52,
+      "role": "RED_SOURCE",
+      "wall_seconds": 3.602520629996434
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red-complete.log",
+      "log_sha256": "8a4c0212a635a9f2bd58c63aac82919220cd005dd72266656f4bcda7637df47a",
+      "pytest_counts": {
+        "deselected": 161,
+        "failed": 24,
+        "passed": 6
+      },
+      "pytest_seconds": 4.63,
+      "role": "RED_SOURCE_COMPLETE",
+      "wall_seconds": 5.613098127010744
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red-final.log",
+      "log_sha256": "e8ccfc83801babe47ee80411e20a4b4c70ea4c2636afde22e85844b4ec6f3372",
+      "pytest_counts": {
+        "deselected": 161,
+        "failed": 24,
+        "passed": 6
+      },
+      "pytest_seconds": 5.52,
+      "role": "RED_SOURCE_FINAL",
+      "wall_seconds": 6.621794592996594
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red-frontier.log",
+      "log_sha256": "cc9c4b7f2245638eb1c9b3c4efd2bff2e42cd68f69bf93d791ebfba24e7154a1",
+      "pytest_counts": {
+        "deselected": 161,
+        "failed": 24,
+        "passed": 6
+      },
+      "pytest_seconds": 5.34,
+      "role": "RED_SOURCE_INTENDED_FRONTIER",
+      "wall_seconds": 6.424463092000224
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'evidence_historical_pair' -q --tb=short",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-red-historical.log",
+      "log_sha256": "5f123afb9b298db9fdc85e40521e4a138f8b9e929c6ec9b0b7ba9ff778317bc0",
+      "pytest_counts": {
+        "deselected": 191,
+        "failed": 4
+      },
+      "pytest_seconds": 1.16,
+      "role": "RED_HISTORICAL_SOURCE",
+      "wall_seconds": 2.1419350299984217
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'two_step_requirement or partial-requirement' -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-green-first.log",
+      "log_sha256": "847b56be7f24e22b7f9e766e52a770fb6bba5f94266d8299e364b42720ad27c5",
+      "pytest_counts": {
+        "deselected": 165,
+        "passed": 30
+      },
+      "pytest_seconds": 4.35,
+      "role": "GREEN_SOURCE_FIRST",
+      "wall_seconds": 5.797763546986971
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'evidence_historical_pair' -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-green-historical.log",
+      "log_sha256": "848d65b0546e7562a10a77282e41ac9cf5e9416d9cf11ec80c739a72ea87af32",
+      "pytest_counts": {
+        "deselected": 191,
+        "passed": 4
+      },
+      "pytest_seconds": 1.07,
+      "role": "GREEN_HISTORICAL_SOURCE",
+      "wall_seconds": 2.1847501459997147
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_assignment_compact.py -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-green_source_api.log",
+      "log_sha256": "776df211a3ebd0997cfbdd71500772fe8477e0daa9598b279863cea7cba6060a",
+      "pytest_counts": {
+        "passed": 394
+      },
+      "pytest_seconds": 32.76,
+      "role": "GREEN_SOURCE_API",
+      "wall_seconds": 33.6353404459951
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"integrations/hermes/tests/test_contract_method.py\",\"-q\",\"--tb=short\"]))'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-green_source_adapter.log",
+      "log_sha256": "48ca3bd2e30ecea0b51889c7424afcc9f0433400a4ca2cfd4830657fc1a31ff6",
+      "pytest_counts": {
+        "passed": 61
+      },
+      "pytest_seconds": 0.9,
+      "role": "GREEN_SOURCE_ADAPTER",
+      "wall_seconds": 35.03147291200003
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-ruff.log",
+      "log_sha256": "2581cea0bdd516f98b668c779125044615b764e4e4ca4e4644bb46ba57b6870a",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "RUFF",
+      "wall_seconds": 35.163889151997864
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-format_check.log",
+      "log_sha256": "bde56de6011cb02edd415b024dd3f5398398dbf65d77ac0b8f3390acfbd6a39a",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "FORMAT_CHECK",
+      "wall_seconds": 1.6571521839941852
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-mypy_strict.log",
+      "log_sha256": "43fdd13a3ed0584df0ac187700a45e1ecebd6b664e64644d6a7bd336a9b3298b",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "MYPY_STRICT",
+      "wall_seconds": 10.275734520022525
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_assignment_compact.py -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-green_source_api_final.log",
+      "log_sha256": "ebf6c1fefea73de94d77680d322cb11994c9b72d542cee2a3cfaca5529c9ba40",
+      "pytest_counts": {
+        "passed": 394
+      },
+      "pytest_seconds": 36.27,
+      "role": "GREEN_SOURCE_API_FINAL",
+      "wall_seconds": 37.4362465320155
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-ruff_final.log",
+      "log_sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "RUFF_FINAL",
+      "wall_seconds": 0.12580824398901314
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-format_check_final.log",
+      "log_sha256": "bde56de6011cb02edd415b024dd3f5398398dbf65d77ac0b8f3390acfbd6a39a",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "FORMAT_CHECK_FINAL",
+      "wall_seconds": 0.12591382500249892
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-mypy_strict_final.log",
+      "log_sha256": "43fdd13a3ed0584df0ac187700a45e1ecebd6b664e64644d6a7bd336a9b3298b",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "MYPY_STRICT_FINAL",
+      "wall_seconds": 12.007292941998458
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"partial-requirement-full or partial-requirement-prefix\" --collect-only -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-qa_collect_only.log",
+      "log_sha256": "d68bf0a9bf7e3e5ee1788263fa72364e1881e8d25d0b561a33005eb6d6ee0ad2",
+      "pytest_counts": {
+        "deselected": 25
+      },
+      "pytest_seconds": 0.4,
+      "role": "QA_COLLECT_ONLY",
+      "wall_seconds": 1.5969366839854047
+    },
+    {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py --help",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-qa_wrapper_help.log",
+      "log_sha256": "208f71cfc5ec326150e9d885b2ed77ef552a1ebe2e81de050fe7e097a466850a",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "QA_WRAPPER_HELP",
+      "wall_seconds": 0.08609302001423202
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel api --out-dir /home/kali/.hermes/cache/scratch/p2-partial-requirement-api-wheel",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-wheel_api_offline.log",
+      "log_sha256": "2cb7dc6201e266721308e1950d56cfeedebcd2ac8ca878ce2b379cf7c9899ab2",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "WHEEL_API_OFFLINE",
+      "wall_seconds": 0.12483774698921479
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel integrations/hermes --out-dir /home/kali/.hermes/cache/scratch/p2-partial-requirement-adapter-wheel",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-wheel_adapter_offline.log",
+      "log_sha256": "3b3fe0a8123ad930e28370144950d2e5106061d044b1876853feeb032c46a6a6",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "WHEEL_ADAPTER_OFFLINE",
+      "wall_seconds": 0.08672120401752181
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c 'import json,zipfile,hashlib\nfrom pathlib import Path\nroot=Path(\"/home/kali/OmnisAI\")\nout={}\nfor key,project,package,filename in [(\"api\",\"api\",\"omnis\",\"omnis_api\"),(\"adapter\",\"integrations/hermes\",\"omnis_hermes\",\"omnis_hermes\")]:\n    wheel=Path(\"/home/kali/.hermes/cache/scratch/p2-partial-requirement-\"+key+\"-wheel\")/(filename+\"-0.1.0-py3-none-any.whl\")\n    source=root/project/\"src\"/package\n    with zipfile.ZipFile(wheel) as archive:\n        names=[n for n in archive.namelist() if n.startswith(package+\"/\") and not n.endswith(\"/\")]\n        files={package+\"/\"+p.relative_to(source).as_posix():p for p in source.rglob(\"*\") if p.is_file() and \"__pycache__\" not in p.parts and p.suffix not in (\".pyc\",\".pyo\")}\n        assert len(names)==len(set(names)),\"DUPLICATE_WHEEL_ENTRY\"\n        assert set(names)==set(files),(\"WHEEL_SOURCE_INVENTORY\",sorted(set(names)-set(files)),sorted(set(files)-set(names)))\n        inventory=[]\n        for name in sorted(names):\n            raw=files[name].read_bytes()\n            assert archive.read(name)==raw, \"WHEEL_SOURCE_BYTES: \"+name\n            inventory.append({\"path\":name,\"sha256\":hashlib.sha256(raw).hexdigest(),\"bytes\":len(raw)})\n    out[key]={\"wheel\":str(wheel),\"wheel_sha256\":hashlib.sha256(wheel.read_bytes()).hexdigest(),\"file_count\":len(inventory),\"python_module_count\":sum(r[\"path\"].endswith(\".py\") for r in inventory),\"inventory\":inventory}\nprint(json.dumps(out,sort_keys=True))\n'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-wheel-byteexact.json",
+      "log_sha256": "43887a6e05befd55cc436dfb16e1aa2f9d2e53869a1385babdb7e2ce7843ed46",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "WHEEL_BYTE_EXACT",
+      "wall_seconds": 0.1395468480186537
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-source_final_strict_assignment_controls.log",
+      "log_sha256": "3b5e4abca831c01a9598e4970a4168b612e245e34298d0c61e8fb4360b83c66c",
+      "pytest_counts": {
+        "passed": 185
+      },
+      "pytest_seconds": 14.09,
+      "role": "SOURCE_FINAL_STRICT_ASSIGNMENT_CONTROLS",
+      "wall_seconds": 14.809277549007675
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-ruff_final_snapshot.log",
+      "log_sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "RUFF_FINAL_SNAPSHOT",
+      "wall_seconds": 0.12650289898738265
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-format_final_snapshot.log",
+      "log_sha256": "bde56de6011cb02edd415b024dd3f5398398dbf65d77ac0b8f3390acfbd6a39a",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "FORMAT_FINAL_SNAPSHOT",
+      "wall_seconds": 0.126900161994854
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-mypy_final_snapshot.log",
+      "log_sha256": "43fdd13a3ed0584df0ac187700a45e1ecebd6b664e64644d6a7bd336a9b3298b",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "MYPY_FINAL_SNAPSHOT",
+      "wall_seconds": 9.403772085002856
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-diff_check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pytest_counts": {},
+      "pytest_seconds": null,
+      "role": "DIFF_CHECK",
+      "wall_seconds": 0.07049512700177729
+    },
+    {
+      "command": "git diff --binary 788962969bb22bceed940ab9ac4334be3aa9f1d2 -- api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_pg.py > /home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch && git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch && sha256sum /home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch",
+      "exit": 0,
+      "output": "0ad75e426474bfb2b47d646a6fce7d433afcb7a3b3584d32decc434375c0bc9e  /home/kali/.hermes/cache/scratch/p2-partial-requirement-exported.patch",
+      "role": "PATCH_EXPORT_REVERSE_CHECK",
+      "wall_seconds": 0.08951002199319191
+    }
+  ],
+  "verification_limits": {
+    "adapter": "61 passed in 0.90s; source only",
+    "api_regression": "394 passed in 36.27s. Last subsequent edit only strengthened six declaration controls in test_c10_bound_predicates; affected final file then 185 passed in 14.09s on final bytes. No production change after 394/61 source gates or wheel builds.",
+    "not_a_canonical_gate": true,
+    "quality": "Ruff check/format and strict mypy PASS on all ten owned Python files after final edit; diff-check PASS",
+    "wheel": "offline uv 0.12.19 builds; exact inventory and bytes compared for all 83 API/15 adapter package files; not an installed consumer proof"
+  },
+  "wheel_inventory": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-wheel-byteexact.json",
+    "sha256": "43887a6e05befd55cc436dfb16e1aa2f9d2e53869a1385babdb7e2ce7843ed46"
+  },
+  "wheels": {
+    "adapter": {
+      "file_count": 15,
+      "python_module_count": 15,
+      "wheel": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-adapter-wheel/omnis_hermes-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "0623ac914248dcd7f50ce5eae1b4208839ae7e368d4461c4fabac7d4c4062a17"
+    },
+    "api": {
+      "file_count": 83,
+      "python_module_count": 83,
+      "wheel": "/home/kali/.hermes/cache/scratch/p2-partial-requirement-api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "c40294068b1b9a67ce660e568f12809f425494507ab16e54dcc8f1f784f228fc"
+    }
+  },
+  "workspace": "/home/kali/OmnisAI"
+}

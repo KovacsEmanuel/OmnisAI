@@ -106,3 +106,42 @@ def test_task_control_refuses_invalid_payload(field: str, value: object) -> None
     command = {**task_command(), field: value}
     with pytest.raises(ValidationError):
         ControlRequest.model_validate({"version": 1, "capability": "a" * 64, "command": command})
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("action", ["release", "receive"])
+@pytest.mark.parametrize("status", ["SUCCEEDED", "BLOCKED"])
+async def test_method_terminal_reply_reaches_public_reader(
+    monkeypatch: pytest.MonkeyPatch, action: str, status: str
+) -> None:
+    """Real owner reply and reader; stream/private-root doubles, not method proof."""
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.modules.settings import candidate_store as records
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from test_model_preflight_control import consume
+
+    command = NativeTaskCommand.model_validate(task_command(action))
+    binding = records.envelope("runtime-binding", {"source_test_only": True})
+    owner = NativeTaskOwner(Mock(), Mock(), uuid4(), 1, Mock())
+    response = {**owner._reply(command, binding, status), "correlation_id": str(uuid4())}
+    assert await consume(monkeypatch, command.model_dump(mode="json"), response) == response
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["SUCCEEDED", "UNKNOWN", None, [], {}])
+async def test_stage_reader_does_not_acquire_method_terminal_success(
+    monkeypatch: pytest.MonkeyPatch, status: object
+) -> None:
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from test_model_preflight_control import consume
+
+    command = NativeTaskCommand.model_validate(task_command("stage"))
+    binding = records.envelope("runtime-binding", {"source_test_only": True})
+    owner = NativeTaskOwner(Mock(), Mock(), uuid4(), 1, Mock())
+    response = {**owner._reply(command, binding, "BOUND"), "correlation_id": str(uuid4())}
+    response["task_status"] = status
+    with pytest.raises(CatalogError, match="^TASK_REJECTED$"):
+        await consume(monkeypatch, command.model_dump(mode="json"), response)

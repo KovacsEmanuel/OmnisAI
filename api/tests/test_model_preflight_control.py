@@ -79,6 +79,7 @@ async def test_valid_receipt_is_accepted(
 @pytest.mark.parametrize(
     "mutation",
     [
+        "terminal-success",
         "false-model-count",
         "fake-turn",
         "extra-field",
@@ -95,7 +96,9 @@ async def test_all_receipt_fields_must_be_strict(
 ) -> None:
     request, response = await fixture_values(tmp_path, monkeypatch)
     admission = mapping(response["model_admission"])
-    if mutation == "false-model-count":
+    if mutation == "terminal-success":
+        response["task_status"] = "SUCCEEDED"
+    elif mutation == "false-model-count":
         admission["model_calls"] = False
     elif mutation == "fake-turn":
         admission["native_turn"] = str(uuid4())

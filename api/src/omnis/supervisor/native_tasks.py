@@ -535,7 +535,10 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
             if ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref:
                 raise CatalogError("TASK_REJECTED")
             ref(reply["binding_ref"], "runtime-binding")
-            if reply["task_status"] not in {"BOUND", "BLOCKED"}:
+            statuses = {"BOUND", "BLOCKED"}
+            if command.action in {"release", "receive"}:
+                statuses.add("SUCCEEDED")
+            if type(reply["task_status"]) is not str or reply["task_status"] not in statuses:
                 raise CatalogError("TASK_REJECTED")
             if command.action == "model_preflight":
                 from omnis.modules.runs.native_preparation_models import sha

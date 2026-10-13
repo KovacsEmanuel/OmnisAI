@@ -14,6 +14,120 @@ from omnis.modules.tasks.managed_contract import mapping, text
 from test_c03_managed_capture import capture_source, material
 
 
+@pytest.mark.parametrize("empty", [False, True])
+def test_first_party_precondition_compiles_binds_and_refuses_before_brief(
+    tmp_path: Path, empty: bool
+) -> None:
+    from uuid import uuid4
+
+    from fixtures.b06a.consumer import write_yaml, yaml_object
+    from fixtures.c03_records import EVALUATION_VALUE, PATHS, records_seed
+    from omnis.modules.runs.managed_admission import BuildSource
+    from omnis.modules.runs.native_preparation_models import prepare_packages
+    from omnis.modules.settings.candidate_material import capture
+    from omnis.modules.settings.catalog_models import CatalogError, Manifest, Procedure
+    from omnis.modules.settings.catalog_schema import dto
+    from omnis.modules.settings.skill_catalog import compile_catalog
+    from test_managed_contract import ref
+
+    seed = records_seed(tmp_path / "precondition")
+    path = seed.package / "templates/procedures/map-records.yaml"
+    authored = yaml_object(path)
+    authored["preconditions"] = [
+        {
+            "predicate_id": "contract.records-nonempty",
+            "input_refs": [{"kind": "CASE_SLOT_REF", "name": "records"}],
+            "expected": True,
+            "on_missing": "BLOCKED",
+        }
+    ]
+    write_yaml(path, authored)
+    compiled = compile_catalog((seed.package,), seed.profile)
+    retained, sources, _ = capture([str(seed.package)], str(seed.profile))
+    pairs = [
+        ({**ref("package"), "digest": s["package_digest"]}, s)
+        for s in sources
+        if s["source_kind"] == "package"
+    ]
+    packages = prepare_packages(retained, pairs)
+    bindings: list[dict[str, object]] = [
+        {
+            "package_key": r.package_key,
+            "entity_kind": r.entity_kind,
+            "key": r.key,
+            "ref": {**ref(r.entity_kind), "digest": pairs[0][0]["digest"]},
+        }
+        for r in compiled.refs
+    ]
+    selection = records.envelope(
+        "execution-selection",
+        {"snapshot_ref": ref("run-snapshot"), "selected_package_refs": [p[0] for p in pairs]},
+    )
+    procedure_ref = mapping(next(b["ref"] for b in bindings if b["entity_kind"] == "procedure"))
+    procedure = dto(path.read_bytes(), Procedure)
+    source = BuildSource(
+        selection,
+        ref("native-preparation-receipt"),
+        procedure_ref,
+        procedure,
+        bindings,
+        "records-mapping-contract",
+        "RECON",
+        procedure.limits,
+        packages,
+        {p: (seed.package / p).read_bytes() for p in PATHS},
+        dto((seed.package / "omnis.yaml").read_bytes(), Manifest),
+    )
+    prefix = source.build(context_only=True, method_execution=True)
+    run = next(r for r in prefix if r["kind"] == "managed-run")
+    body = mapping(run["payload"])
+    schema_ref, raw, schema_path = source.input_schema()
+    context = records.envelope(
+        "contract-input-context",
+        {
+            "version": 2,
+            "namespace": "RUN",
+            "owner_id": str(uuid4()),
+            "basis_ref": records.reference(run),
+            "snapshot_ref": body["snapshot_ref"],
+            "selection_ref": body["selection_ref"],
+            "procedure_ref": procedure_ref,
+            "mission_ref": body["mission_ref"],
+            "focus_ref": body["focus_ref"],
+            "schema_ref": schema_ref,
+        },
+    )
+    item = produce_input(context, {"records": []} if empty else EVALUATION_VALUE, raw, str(uuid4()))
+    section = material_section(context, item, schema_ref, raw, schema_path=schema_path)
+    prefix.extend([context, item])
+    before = canonical(prefix)
+    if empty:
+        with pytest.raises(CatalogError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+            source.build(prefix=prefix, case_input=section, method_execution=True)
+        assert canonical(prefix) == before
+        assert not any(
+            r["kind"] in {"task-brief", "bound-procedure", "launch-manifest", "task-result"}
+            for r in prefix
+        )
+    else:
+        graph = source.build(prefix=prefix, case_input=section, method_execution=True)
+        bound = next(r for r in graph if r["kind"] == "bound-procedure")
+        resolved = mapping(mapping(bound["payload"])["resolved_procedure"])
+        assert mapping(managed_contract.sequence(resolved["preconditions"])[0])["input_refs"] == [
+            records.reference(item)
+        ]
+        brief = next(r for r in graph if r["kind"] == "task-brief")
+        assert (
+            len(
+                managed_contract.sequence(
+                    mapping(mapping(brief["payload"])["method_plan"])["requirements"]
+                )
+            )
+            == 3
+        )
+        assert canonical(graph[: len(prefix)]) == before
+
+
 def method_graph() -> list[dict[str, object]]:
     source = capture_source()
     _, cold_section = material(source, '[{"method":"GET","path":"/synthetic","status":200}]')

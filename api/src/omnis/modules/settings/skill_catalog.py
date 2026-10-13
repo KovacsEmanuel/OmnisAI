@@ -565,8 +565,14 @@ def _compile_catalog(
             else:
                 resolve(key, business_reference, "business_rule")
         if procedure.preconditions:
-            # Predicate registry is not installed in this increment; never treat expected as a fact.
-            raise CatalogError("DEPENDENCY_UNAVAILABLE")
+            from omnis.modules.tasks.managed_contract import requirement_conditions
+
+            requirement_conditions(procedure.model_dump(mode="json"))
+            for condition in procedure.preconditions:
+                for reference in condition.input_refs:
+                    if not isinstance(reference, SlotRef):
+                        raise CatalogError("DEPENDENCY_UNAVAILABLE")
+                    check_slot(reference, "contract-case-records", True)
         input_schema = get_schema(key, procedure.input_schema_ref)
         output_schema = get_schema(key, procedure.output_schema_ref)
         get_schema(key, procedure.handoff_schema_ref)

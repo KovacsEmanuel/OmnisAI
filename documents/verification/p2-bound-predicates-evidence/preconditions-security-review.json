@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "task": "Independent security/input/authority/distribution review: finite Procedure.preconditions",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "Exact frozen 11-file candidate at the SOURCE composed-admission/constructor-owned-material/checker seam. Not integration or live-runtime acceptance.",
+  "head": "16e928f8941eb0dadc0cf2e02c628c616d3e39cd",
+  "snapshot_files": [
+    {
+      "path": "api/src/omnis/modules/settings/skill_catalog.py",
+      "before_sha256": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+      "sha256": "b7bd1097a41b4a600ca3802251a2d3d73d418d45e5d2ece6709243135ac176fd"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_composition.py",
+      "before_sha256": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+      "sha256": "878e0a1428c7c15d5c1a38ac9e635833a5dcb655f9e1f83d69f10b10ae4acf3a"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "before_sha256": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+      "sha256": "cf7edc8432a2bd2191029fa0ea6e2ca2fc01205e0104dbc6328601f87e8e4ecf"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "before_sha256": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+      "sha256": "5e33b5c1a6feeec4056c4a98232f86a27fff01e0fcc7ace9a6d98ca9136b9476"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "before_sha256": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+      "sha256": "bdd74c249b7c187724991580685539bf0604499526d3c4bfd543fe2129cf429e"
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "before_sha256": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+      "sha256": "bce4436242c3f193c6e9f24283a1e4643bfe2766b8fc7211734cce9315330230"
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "before_sha256": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+      "sha256": "48e29290173d9e60c52f98cd0a6ccc1f2333f2f2671385bdf1d7abd595d0dfe1"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "before_sha256": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+      "sha256": "790505f1359af31ec6e6672a3b72cf0f74c7a374d04c3d1aab241b6bc42a4af8"
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "before_sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+      "sha256": "c87b328c3a5d3f4f0e0020cf297255da53af6ad79ddc55eb73fd1f63f7b3396a"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "before_sha256": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+      "sha256": "d5a883d13c499c287d87025faf1f54bef8231f22d94348084f2b6323d3ac0fb9"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "before_sha256": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+      "sha256": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+    }
+  ],
+  "snapshot_file_count": 11,
+  "checker_identity": {
+    "key": "managed.contract-pure.v2",
+    "code_digest": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+    "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+  },
+  "composer_identity": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+  "findings": [],
+  "blocking_findings": [],
+  "scope_checks": [
+    {
+      "requirement": "Strict finite schema/ref/type validation before native constructor identity/access",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "14 resealed same-channel initializer/composition controls: positive allocates exactly two UUIDs; 13 invalid/false/missing/old-pin inputs refuse with zero constructor UUID/read/PURE events. Real initialize_contract body; synthetic same-class root."
+    },
+    {
+      "requirement": "False and UNKNOWN cannot authorize work or become N/A",
+      "result": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:42-86, 639-697",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:171-211, 607-613"
+      ],
+      "evidence": "Actual SOURCE positive and false preconditions; both missing policies, malformed predicates, and false genuine-receipt checker negatives in 88 passing affected API tests. Missing assignment input is a schema refusal, not a fabricated TaskResult."
+    },
+    {
+      "requirement": "Admission/preflight precedes persistence and stage reservation",
+      "result": "REVIEWED_SOURCE_ORDER",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:247-320, 334-399, 413-453",
+        "api/src/omnis/modules/tasks/managed_composition.py:615-670"
+      ],
+      "evidence": "_build returns only after source.build preflight; assignment INSERTs follow. reserve_dispatch invokes stage_payload and retained graph/composition validation before UPDATE stage_started. SOURCE authoring negative leaves prefix unchanged. No actual SQL executed by reviewer."
+    },
+    {
+      "requirement": "Historical pins/checker cannot authorize new conditions at the composed consumer",
+      "result": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_composition.py:552-560",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:607-613",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:66-104"
+      ],
+      "evidence": "Resealed old bcc1 composer plus nonempty preconditions refuses through both backend composition and real initializer body. Former 32b362/bcc1 descriptor is receive-only and fresh checker yields UNKNOWN; exact historical empty-precondition positive/reason controls pass. Owner graph validates compositions before result-check history revalidation."
+    },
+    {
+      "requirement": "History UNKNOWN immutability",
+      "result": "REVIEWED_UNCHANGED_OWNER_CONTROL",
+      "code": [
+        "api/src/omnis/modules/runs/managed_admission.py:759-820, 1059-1104"
+      ],
+      "evidence": "Unchanged owner retains only canonical known UNKNOWN reasons; receive-only does not retroactively qualify missing-checker UNKNOWN, payload equality remains mandatory."
+    },
+    {
+      "requirement": "Trusted registry/compiler closure and artifact identity",
+      "result": "PASS_BYTE_IDENTITY",
+      "code": [
+        "api/src/omnis/modules/settings/skill_catalog.py:517-519, 552-576",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:14-28, 56-63",
+        "api/src/omnis/modules/tasks/managed_contract.py:380-391"
+      ],
+      "evidence": "Compiler invokes trusted finite requirement_conditions; strict Pydantic Precondition type guard retained before serialization. Registry and publication/catalog models already lie in 13-source checker closure. Independently recomputed before/after hashes for all 11 files and descriptor; both existing wheels byte-exact against source for all 83 API and 15 adapter modules."
+    },
+    {
+      "requirement": "Affected no-IO/source controls",
+      "result": "PASS_SOURCE_GUARDS_ONLY",
+      "evidence": "False/missing native cases guard actual READ_INPUT and PURE sinks; reviewer adds constructor UUID census. Changed predicate/parser paths use bounded retained material and no package code/eval/provider/network sink. Positive source execution includes real native read/PURE bodies; synthetic holder is not native authentication. No OS/syscall confinement claim."
+    }
+  ],
+  "execution": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -q --tb=short",
+      "exit_code": 0,
+      "passed": 88,
+      "seconds": 7.0
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"integrations/hermes/src\",\"integrations/hermes/tests\",\"integrations/hermes/upstream/managed-source\"]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"-q\",\"--tb=short\"]))'",
+      "exit_code": 0,
+      "passed": 61,
+      "seconds": 0.83
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-preconditions-security-probe.py",
+      "exit_code": 0,
+      "controls": 14,
+      "positive": 1,
+      "negative": 13,
+      "artifact_identity": true
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "same_channel_controls": [
+    {
+      "case": "positive",
+      "native": "ACCEPT",
+      "backend": "ACCEPT",
+      "constructor_events": [
+        "UUID",
+        "UUID"
+      ]
+    },
+    {
+      "case": "false",
+      "native": "PROCEDURE_PRECONDITION_FALSE",
+      "backend": "PROCEDURE_PRECONDITION_FALSE",
+      "constructor_events": []
+    },
+    {
+      "case": "expected-int",
+      "native": "Invalid prompt composition",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "foreign-id",
+      "native": "Invalid prompt composition",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "foreign-kind",
+      "native": "Invalid native preparation",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "revision-bool",
+      "native": "Invalid native preparation",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "unknown-predicate",
+      "native": "Invalid prompt composition",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "duplicate",
+      "native": "Invalid prompt composition",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "missing-policy",
+      "native": "Invalid native preparation",
+      "backend": "MANAGED_REJECTED",
+      "constructor_events": []
+    },
+    {
+      "case": "invalid-policy",
+      "native": "Invalid prompt composition",
+      "backend": "BOUND_PREDICATE_UNAVAILABLE",
+      "constructor_events": []
+    },
+    {
+      "case": "extra-field",
+      "native": "Invalid native preparation",
+      "backend": "MANAGED_REJECTED",
+      "constructor_events": []
+    },
+    {
+      "case": "missing-input",
+      "native": "Invalid native preparation",
+      "backend": "INVALID_CASE_INPUT",
+      "constructor_events": []
+    },
+    {
+      "case": "preconditions-null",
+      "native": "Invalid prompt composition",
+      "backend": "MANAGED_REJECTED",
+      "constructor_events": []
+    },
+    {
+      "case": "old-pin",
+      "native": "Invalid prompt composition",
+      "backend": "COMPOSITION_REJECTED",
+      "constructor_events": []
+    }
+  ],
+  "wheels": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "056c9ff7ead22a381ae8a057c4c339029fb872e948cfd6ed95fbea67c6a451ed",
+      "module_count": 83,
+      "byte_exact": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+      "sha256": "2f63f0ec6d30da536a75e61bdd7bd2f90426dc53051a80da1542f6387938e901",
+      "module_count": 15,
+      "byte_exact": true
+    }
+  ],
+  "limits": [
+    "Read-only shared repository review; no repo edits, stage, commit, skill/profile/global changes.",
+    "No PostgreSQL, actual AIAgent construction/native process/Host/OCI, installed CLI/history-reader, runtime authentication, persistent SQL or canonical gate executed.",
+    "Initializer body exercised on a synthetic same-class cold root. Negative sinks and UUID counts are SOURCE guard evidence, not OS syscall/network confinement.",
+    "Pure check_execution explicitly relies on caller authentication/qualification/composition validation; approval covers its owning composed consumer, not arbitrary direct helper invocations with invented historical bundles.",
+    "Existing 315 API/61 adapter author results and parent 30-source/wheel claims are not relabeled as this reviewer execution. This reviewer independently ran 88 API/61 adapter tests plus 14 bounded controls.",
+    "No approval for general predicates, other procedure forms, evidence/invalidation/optional breadth, B06b/G02/P2 closure or P4a-minim/model/provider/target work.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Old approvals do not transfer to changed source. Parent owns QA, adjudication, integration and commits."
+  ],
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/p2-preconditions-security-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-preconditions-security-probe-results.json",
+    "/home/kali/.hermes/cache/scratch/p2-preconditions-security-review.json"
+  ],
+  "issues": [
+    "Scratch probe is runtime sys.path-driven; optional editor Pyright reported unresolved dynamic imports/synthetic Holder attributes, not a runtime failure. Probe execution exited 0."
+  ],
+  "proposed_status_delta": {
+    "current_slice": "Procedure.preconditions candidate SOURCE review APPROVED_SCOPED",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED",
+    "next": "Parent exact-byte adjudication and bounded authorized real consumer QA; canonical remains NOT_RUN."
+  }
+}

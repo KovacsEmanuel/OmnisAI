@@ -481,6 +481,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "applies"),
         (False, True, False, False, False, "not-applicable"),
         (False, True, False, False, False, "unknown"),
+        (False, True, False, False, False, "precondition"),
     ],
     ids=[
         "support-zero",
@@ -493,6 +494,7 @@ class PreparationPrerequisite(RuntimeClient):
         "applicability-applies",
         "applicability-not-applicable",
         "applicability-unknown",
+        "procedure-precondition",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -531,7 +533,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             seed = actual_seed(directory)
             path = seed.package / "templates/procedures/map-records.yaml"
             authored = mapping(load_yaml(path.read_bytes()))
-            mapping(sequence(authored["method_requirements"])[1])["applies_if"] = [
+            conditions = [
                 {
                     "predicate_id": "contract.records-nonempty",
                     "input_refs": [{"kind": "CASE_SLOT_REF", "name": "records"}],
@@ -539,6 +541,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "on_missing": "INCONCLUSIVE",
                 }
             ]
+            if applicability == "precondition":
+                authored["preconditions"] = conditions
+            else:
+                mapping(sequence(authored["method_requirements"])[1])["applies_if"] = conditions
             path.write_text(yaml.safe_dump(authored, sort_keys=False))
             return seed
 
@@ -730,6 +736,52 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             )
             original = await inputs.create_input(input_request)
             assert original["input_ref"] != evaluation["input_ref"]
+            if applicability == "precondition":
+                denied_context = await inputs.create_method_context(
+                    seed.write(
+                        schema_version=2,
+                        selection_ref=selected["selection_ref"],
+                        preparation_command_id=preparation.command_id,
+                    )
+                )
+                denied_input = await inputs.create_input(
+                    seed.write(
+                        schema_version=2,
+                        context_ref=denied_context["context_ref"],
+                        input={"records": []},
+                    )
+                )
+                async with engine.connect() as conn:
+                    before_records = (
+                        await conn.execute(sql("SELECT count(*) FROM managed_record"))
+                    ).scalar_one()
+                    before_runs = (
+                        await conn.execute(sql("SELECT count(*) FROM managed_run"))
+                    ).scalar_one()
+                with pytest.raises(CatalogError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+                    await domain.prepare_method(
+                        seed.write(
+                            schema_version=3,
+                            selection_ref=selected["selection_ref"],
+                            preparation_command_id=preparation.command_id,
+                            task_count=1,
+                            context_ref=denied_context["context_ref"],
+                            slot_values=[
+                                {"slot_name": "records", "refs": [denied_input["input_ref"]]}
+                            ],
+                        )
+                    )
+                async with engine.connect() as conn:
+                    assert (
+                        await conn.execute(sql("SELECT count(*) FROM managed_record"))
+                    ).scalar_one() == before_records
+                    assert (
+                        await conn.execute(sql("SELECT count(*) FROM managed_run"))
+                    ).scalar_one() == before_runs
+                checkpoint(
+                    precondition_false="REFUSED_BEFORE_ASSIGNMENT_WRITES",
+                    precondition_native="NOT_RUN_YET",
+                )
             assignment = seed.write(
                 schema_version=3,
                 selection_ref=selected["selection_ref"],
@@ -1373,7 +1425,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     if early_return or applicability == "not-applicable"
                     else "COMPLETE"
                 )
-                if applicability is not None:
+                if applicability in {"applies", "not-applicable", "unknown"}:
                     plan = mapping(mapping(sequence(back["briefs"])[0])["payload"])["method_plan"]
                     planned = [mapping(r) for r in sequence(mapping(plan)["requirements"])]
                     assert [r["required"] for r in planned] == [True, True, False]

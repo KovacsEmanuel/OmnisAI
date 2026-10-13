@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "task": "B06b finite Procedure.preconditions / records-nonempty",
+  "status": "CANDIDATE_SOURCE_VERIFIED_READY_FOR_REVIEW",
+  "ready_for_review": true,
+  "integration_closed": false,
+  "phase2_closed": false,
+  "base": {
+    "base_head": "16e928f8941eb0dadc0cf2e02c628c616d3e39cd",
+    "former_applicability_checker": "32b3621379b10d20415a09ebb3e7cdda4c6754f5135ff943e639711a44de9036",
+    "former_composer": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3"
+      }
+    ]
+  },
+  "snapshot": {
+    "head": "16e928f8941eb0dadc0cf2e02c628c616d3e39cd",
+    "status": " M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "checker_after": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "before_sha256": "94834d5b895267552ab68dd6a85c9feec33ab99b28e83376f008187c16f778f3",
+        "after_sha256": "b7bd1097a41b4a600ca3802251a2d3d73d418d45e5d2ece6709243135ac176fd"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "before_sha256": "6038af068e3d49dae682aa54285a058ca822172233101c91e47b47167e4ab0a4",
+        "after_sha256": "878e0a1428c7c15d5c1a38ac9e635833a5dcb655f9e1f83d69f10b10ae4acf3a"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "before_sha256": "3df4b862532ce22a1bab9ea3e637b0e8041b8b066e1b8761cf67a0afb161ca07",
+        "after_sha256": "cf7edc8432a2bd2191029fa0ea6e2ca2fc01205e0104dbc6328601f87e8e4ecf"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "before_sha256": "b99c36076765019b7278d30094f4b0fa6cfcd888f0c315960d06dfe4a4c4f795",
+        "after_sha256": "5e33b5c1a6feeec4056c4a98232f86a27fff01e0fcc7ace9a6d98ca9136b9476"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "before_sha256": "c34071cc8c07e8e383466ed22d4b1503e132ec9381ebcf0207f8e0d3c6b406be",
+        "after_sha256": "bdd74c249b7c187724991580685539bf0604499526d3c4bfd543fe2129cf429e"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "before_sha256": "9ad43eb896a39ef8c88255360b40a25542d15c8a6f31bd06d7bf1903d265e082",
+        "after_sha256": "bce4436242c3f193c6e9f24283a1e4643bfe2766b8fc7211734cce9315330230"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "before_sha256": "92d42f6adf952b8023ad6fb10c1a6db58176c61e43507455925613a4db885c81",
+        "after_sha256": "48e29290173d9e60c52f98cd0a6ccc1f2333f2f2671385bdf1d7abd595d0dfe1"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "before_sha256": "327220edb6cb015ab21aa1663838fb857a7c2f07f34371904e294d1df863f891",
+        "after_sha256": "790505f1359af31ec6e6672a3b72cf0f74c7a374d04c3d1aab241b6bc42a4af8"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "before_sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+        "after_sha256": "c87b328c3a5d3f4f0e0020cf297255da53af6ad79ddc55eb73fd1f63f7b3396a"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "before_sha256": "e9ba35b1137242d222256869f78f2686fae057773a0067fa706187c1016a51b4",
+        "after_sha256": "d5a883d13c499c287d87025faf1f54bef8231f22d94348084f2b6323d3ac0fb9"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "before_sha256": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+        "after_sha256": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+      }
+    ]
+  },
+  "scope_expansion": {
+    "path": "api/src/omnis/modules/tasks/managed_composition.py",
+    "reported_before_edit": true,
+    "necessity": "Native composer source SHA changes; producer pin plus exact previous applicability composition acceptance must stay in parity. No upstream overlay or global pin reseal."
+  },
+  "contract": {
+    "acceptance": "Existing records producer -> exact slot binding -> constructor-owned finite preflight -> real SOURCE run_contract receipts -> MethodCheck; false and unavailable material refuse before first bound read/PURE.",
+    "allowed_method": "map-records",
+    "predicate": "contract.records-nonempty",
+    "maximum_preconditions": 1,
+    "expected_type": "exact bool",
+    "on_missing": [
+      "BLOCKED",
+      "INCONCLUSIVE"
+    ],
+    "no_arbitrary_code": true,
+    "all_method_requirements_retained": 3,
+    "no_new_service_table_framework": true
+  },
+  "states_and_reasons": {
+    "true": "Proceed with the existing three MethodRequirements; real read1/PURE2, DONE/COMPLETE only with receipts and schemas. COMPLETE is not functional PASS.",
+    "false": "CatalogError/ValueError PROCEDURE_PRECONDITION_FALSE; no Brief/manifest/task/result fabrication, no N/A, no access.",
+    "missing_predicate_input": "Pure preflight original=None -> PROCEDURE_PRECONDITION_UNKNOWN_BLOCKED or PROCEDURE_PRECONDITION_UNKNOWN_INCONCLUSIVE. UNKNOWN is never N/A.",
+    "missing_native_wire_material": "Strict assignment schema/ref refusal before constructor identity allocation/access; malformed missing input section is a contract error, not fabricated native UNKNOWN TaskResult.",
+    "checker_false": "Independent checker refuses genuine receipts under a false procedure precondition; cannot claim COMPLETE from DONE rows.",
+    "unknown_checker_schema": "Existing MethodCheck UNKNOWN causes/gaps unchanged; prior owner UNKNOWN remains immutable through receive-only revalidation."
+  },
+  "owner_call_chain": [
+    "ManagedAdmission._prepare -> _build -> BuildSource.build -> managed_contract.build_records: binds preconditions CaseSlotRef to exact original input Ref and preflights before bound/brief/result schema generation; _prepare DB writes occur only after _build returns.",
+    "ManagedAdmission.reserve_dispatch -> stage_payload -> managed_composition.validate / validate_case_section: deterministic refusal before stage_started reservation/IPC.",
+    "initialize_contract -> contract_method.assignment -> validate_stage / validate_composition -> prompt_bundle._material / _brief -> independent require_preconditions from frozen constructor-owned input before UUID allocation.",
+    "BoundContractTools.__init__ -> assignment revalidation -> read_input -> _read_bound_input; actual SOURCE run_contract and native handler bodies used, synthetic state/identity holders explicitly distinguished.",
+    "Native contract_method.task_result and backend method_checks.check_execution independently revalidate the procedure precondition; no replacement result emitter."
+  ],
+  "proof_boundaries": {
+    "SOURCE": "PASS: 315 API plus 61 adapter tests on final bytes",
+    "synthetic_state": "Existing native_case uses synthetic state/IDs and real native read/PURE/result producer; not authentic constructor/process or owner persistence.",
+    "wheel": "API83 and adapter15 modules byte-exact; builds offline uv0.12.19",
+    "installed_consumer": "NOT_RUN",
+    "actual_PG_native_process": "NOT_RUN_BY_AUTHORING_CONTRACT",
+    "native_QA": "NOT_RUN",
+    "canonical_final": "NOT_RUN",
+    "model_provider_target": "NOT_RUN / NOT_AUTHORIZED"
+  },
+  "commands": [
+    {
+      "name": "source_final",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_c03_records_contract.py api/tests/test_managed_contract.py api/tests/test_managed_composition.py api/tests/test_c03_managed_capture.py -q --tb=short",
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-source_final.log",
+      "output": "exit=0\n........................................................................ [ 22%]\n........................................................................ [ 45%]\n........................................................................ [ 68%]\n........................................................................ [ 91%]\n...........................                                              [100%]\n315 passed in 24.13s",
+      "exit_code": 0,
+      "error": null,
+      "passed": 315
+    },
+    {
+      "name": "quality_final",
+      "command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/settings/skill_catalog.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py && api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/settings/skill_catalog.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py && env -u PYTHONPATH MYPYPATH=api/src api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/settings/skill_catalog.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py && git diff --check",
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-quality_final.log",
+      "output": "All checks passed!\n11 files already formatted\nSuccess: no issues found in 11 source files\nexit=0",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "name": "adapter_final",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"integrations/hermes/src\",\"integrations/hermes/tests\",\"integrations/hermes/upstream/managed-source\"]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"-q\",\"--tb=short\"]))'",
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-adapter_final.log",
+      "output": "exit=0\n.............................................................            [100%]\n61 passed in 0.81s",
+      "exit_code": 0,
+      "error": null,
+      "passed": 61
+    },
+    {
+      "name": "wheel_build",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/uv --version && /home/kali/.local/share/omnis-toolchains/bin/uv build --offline --no-config --wheel api --out-dir /home/kali/.hermes/cache/scratch/p2-preconditions-wheels && /home/kali/.local/share/omnis-toolchains/bin/uv build --offline --no-config --wheel integrations/hermes --out-dir /home/kali/.hermes/cache/scratch/p2-preconditions-wheels",
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-wheel_build.log",
+      "output": "uv 0.12.19 (x86_64-unknown-linux-gnu)\nBuilding wheel...\nSuccessfully built /home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_api-0.1.0-py3-none-any.whl\nexit=0\nBuilding wheel...\nSuccessfully built /home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "name": "pg_collect_only",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k procedure-precondition --collect-only -q",
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-pg_collect_only.log",
+      "output": "exit=0\ntests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[procedure-precondition]\n\n1/21 tests collected (20 deselected) in 0.35s",
+      "exit_code": 0,
+      "error": null
+    }
+  ],
+  "red_green_and_preserved_failures": [
+    {
+      "name": "red1_native_precondition",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k procedure_precondition -q --tb=short",
+      "exit_code": 1,
+      "failed": 4,
+      "deselected": 62,
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-red1.log",
+      "cause": "Existing native _procedure refused nonempty preconditions before the new finite consumer."
+    },
+    {
+      "name": "green1_native_precondition",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k procedure_precondition -q --tb=short",
+      "exit_code": 0,
+      "passed": 4,
+      "deselected": 62,
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-green1.log"
+    },
+    {
+      "name": "red2_accurate_na_reason",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k 'full_not_applicable_check_reason' -q --tb=short",
+      "exit_code": 1,
+      "failed": 1,
+      "deselected": 75,
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-red2.log",
+      "cause": "Old reason falsely described an early return after all two PURE steps actually executed."
+    },
+    {
+      "name": "green2_fixture_failure_preserved",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -q --tb=short",
+      "exit_code": 1,
+      "failed": 2,
+      "passed": 82,
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-green2.log",
+      "cause": "New SOURCE producer fixture omitted BuildSource.files; corrected using existing records seed PATHS, no product relaxation."
+    },
+    {
+      "name": "source_regression_failure_preserved",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_contract_method_checks.py api/tests/test_c10_bound_predicates.py api/tests/test_c03_records_contract.py api/tests/test_managed_contract.py api/tests/test_managed_composition.py api/tests/test_c03_managed_capture.py -q --tb=short",
+      "exit_code": 1,
+      "failed": 1,
+      "passed": 312,
+      "log": "/home/kali/.hermes/cache/scratch/p2-preconditions-source.log",
+      "cause": "Existing malformed model_copy precondition object escaped as PydanticSerializationError; explicit Precondition type guard restored CatalogError before serialization."
+    },
+    {
+      "name": "initial_strict_mypy_failure",
+      "exit_code": 1,
+      "checked_files": 11,
+      "errors": 1,
+      "cause": "New producer fixture inferred list[dict[str, Collection[str]]]; explicit list[dict[str, object]] fixed without cast or ignore. Exact final command is quality_final, initial Ruff passed."
+    }
+  ],
+  "snapshot_command": "api/.venv/bin/python -I -c 'import subprocess,pathlib,hashlib,json,sys; sys.path.insert(0,\"api/src\"); from omnis.modules.tasks.method_checker_identity import descriptor; paths=subprocess.check_output([\"git\",\"diff\",\"--name-only\"]).decode().splitlines(); out={\"head\":subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"]).decode().strip(),\"status\":subprocess.check_output([\"git\",\"status\",\"--short\"]).decode(),\"checker_after\":descriptor(),\"files\":[{\"path\":p,\"before_sha256\":hashlib.sha256(subprocess.check_output([\"git\",\"show\",\"HEAD:\"+p])).hexdigest(),\"after_sha256\":hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()} for p in paths]}; print(json.dumps(out))'",
+  "snapshot_command_exit": 0,
+  "wheels": {
+    "wheels": [
+      {
+        "wheel": "/home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "056c9ff7ead22a381ae8a057c4c339029fb872e948cfd6ed95fbea67c6a451ed",
+        "size": 232149,
+        "module_count": 83,
+        "modules": [
+          {
+            "path": "omnis/__init__.py",
+            "sha256": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a"
+          },
+          {
+            "path": "omnis/api.py",
+            "sha256": "17712598a5271aa82d1bc96f96663b507ec97c0442230cebe90fe40cb2379cbc"
+          },
+          {
+            "path": "omnis/core/db.py",
+            "sha256": "4fd7c9ce59dfb806eec07058ec8067a3f9f6ea8df5b0c7a0bc45a51501405fdb"
+          },
+          {
+            "path": "omnis/core/errors.py",
+            "sha256": "639e5090ce1e8a0045d39fff6e9fbd82540d3b9b7f02a7b9834b0d82e05643b0"
+          },
+          {
+            "path": "omnis/core/managed_schema.py",
+            "sha256": "20e08df042ca512e9c8ee5bdd3e75ccf3db71254d9266916d570edf14a08dcb0"
+          },
+          {
+            "path": "omnis/core/paths.py",
+            "sha256": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb"
+          },
+          {
+            "path": "omnis/core/persistence.py",
+            "sha256": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788"
+          },
+          {
+            "path": "omnis/core/readiness.py",
+            "sha256": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08"
+          },
+          {
+            "path": "omnis/core/schema.py",
+            "sha256": "1259028f027d79367cf7a7880e33c71e24571d1187546a0ba36407f11d765163"
+          },
+          {
+            "path": "omnis/core/web_assets.py",
+            "sha256": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c"
+          },
+          {
+            "path": "omnis/migrate.py",
+            "sha256": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426"
+          },
+          {
+            "path": "omnis/migrations/__init__.py",
+            "sha256": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3"
+          },
+          {
+            "path": "omnis/migrations/env.py",
+            "sha256": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98"
+          },
+          {
+            "path": "omnis/migrations/versions/0001_instance_control.py",
+            "sha256": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673"
+          },
+          {
+            "path": "omnis/migrations/versions/0002_local_sessions.py",
+            "sha256": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5"
+          },
+          {
+            "path": "omnis/migrations/versions/0003_instance_lifecycle.py",
+            "sha256": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30"
+          },
+          {
+            "path": "omnis/migrations/versions/0004_pairing_receipts.py",
+            "sha256": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8"
+          },
+          {
+            "path": "omnis/migrations/versions/0005_stop_fence.py",
+            "sha256": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406"
+          },
+          {
+            "path": "omnis/migrations/versions/0006_stop_reconciliation.py",
+            "sha256": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607"
+          },
+          {
+            "path": "omnis/migrations/versions/0007_engagement_drafts.py",
+            "sha256": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc"
+          },
+          {
+            "path": "omnis/migrations/versions/0008_engagement_edit.py",
+            "sha256": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7"
+          },
+          {
+            "path": "omnis/migrations/versions/0009_catalog_candidates.py",
+            "sha256": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371"
+          },
+          {
+            "path": "omnis/migrations/versions/0010_catalog_publications.py",
+            "sha256": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea"
+          },
+          {
+            "path": "omnis/migrations/versions/0011_managed_tasks.py",
+            "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d"
+          },
+          {
+            "path": "omnis/migrations/versions/0012_contract_methods.py",
+            "sha256": "679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c"
+          },
+          {
+            "path": "omnis/modules/engagements/dashboard.py",
+            "sha256": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb"
+          },
+          {
+            "path": "omnis/modules/engagements/routes.py",
+            "sha256": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0"
+          },
+          {
+            "path": "omnis/modules/engagements/schemas.py",
+            "sha256": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143"
+          },
+          {
+            "path": "omnis/modules/engagements/service.py",
+            "sha256": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd"
+          },
+          {
+            "path": "omnis/modules/instance/domain.py",
+            "sha256": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f"
+          },
+          {
+            "path": "omnis/modules/instance/models.py",
+            "sha256": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc"
+          },
+          {
+            "path": "omnis/modules/instance/records.py",
+            "sha256": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222"
+          },
+          {
+            "path": "omnis/modules/instance/schemas.py",
+            "sha256": "bf9a05291ead51953bab44bf75a8811c71c4ad4bbdc1b0eb2a3352fad80645a0"
+          },
+          {
+            "path": "omnis/modules/instance/service.py",
+            "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218"
+          },
+          {
+            "path": "omnis/modules/instance/stop_contract.py",
+            "sha256": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9"
+          },
+          {
+            "path": "omnis/modules/runs/__init__.py",
+            "sha256": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754"
+          },
+          {
+            "path": "omnis/modules/runs/contract_inputs.py",
+            "sha256": "bcca7c16844df7d2f9fef77979f9cb1127d667d75e5ffbc95af87a11b561beab"
+          },
+          {
+            "path": "omnis/modules/runs/managed_admission.py",
+            "sha256": "e92e00ab7960213a669a458f303935b12b5834d4fc459fcef70b3cd83a62e0bf"
+          },
+          {
+            "path": "omnis/modules/runs/model_dispatch.py",
+            "sha256": "649660fc0827bc540a3b78d70831417606d1bcbe66e052fa3b50d6ca34187b65"
+          },
+          {
+            "path": "omnis/modules/runs/model_projection.py",
+            "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688"
+          },
+          {
+            "path": "omnis/modules/runs/native_preparation.py",
+            "sha256": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2"
+          },
+          {
+            "path": "omnis/modules/runs/native_preparation_models.py",
+            "sha256": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062"
+          },
+          {
+            "path": "omnis/modules/runs/plan_snapshot.py",
+            "sha256": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c"
+          },
+          {
+            "path": "omnis/modules/runs/pure_probe.py",
+            "sha256": "50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4"
+          },
+          {
+            "path": "omnis/modules/settings/candidate_catalog.py",
+            "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+          },
+          {
+            "path": "omnis/modules/settings/candidate_index.py",
+            "sha256": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2"
+          },
+          {
+            "path": "omnis/modules/settings/candidate_material.py",
+            "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+          },
+          {
+            "path": "omnis/modules/settings/candidate_resolution.py",
+            "sha256": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc"
+          },
+          {
+            "path": "omnis/modules/settings/candidate_store.py",
+            "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+          },
+          {
+            "path": "omnis/modules/settings/catalog_models.py",
+            "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+          },
+          {
+            "path": "omnis/modules/settings/catalog_publication.py",
+            "sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c"
+          },
+          {
+            "path": "omnis/modules/settings/catalog_schema.py",
+            "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+          },
+          {
+            "path": "omnis/modules/settings/publication_models.py",
+            "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+          },
+          {
+            "path": "omnis/modules/settings/publication_store.py",
+            "sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9"
+          },
+          {
+            "path": "omnis/modules/settings/skill_catalog.py",
+            "sha256": "b7bd1097a41b4a600ca3802251a2d3d73d418d45e5d2ece6709243135ac176fd"
+          },
+          {
+            "path": "omnis/modules/tasks/contract_case_input.py",
+            "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+          },
+          {
+            "path": "omnis/modules/tasks/criterion_checks.py",
+            "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+          },
+          {
+            "path": "omnis/modules/tasks/execution_selection.py",
+            "sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3"
+          },
+          {
+            "path": "omnis/modules/tasks/managed_composition.py",
+            "sha256": "878e0a1428c7c15d5c1a38ac9e635833a5dcb655f9e1f83d69f10b10ae4acf3a"
+          },
+          {
+            "path": "omnis/modules/tasks/managed_contract.py",
+            "sha256": "cf7edc8432a2bd2191029fa0ea6e2ca2fc01205e0104dbc6328601f87e8e4ecf"
+          },
+          {
+            "path": "omnis/modules/tasks/managed_store.py",
+            "sha256": "ff9e96adfe539379d903c2b5bfb4b9cac8cddfb54319c25bd6b975f7dc54582d"
+          },
+          {
+            "path": "omnis/modules/tasks/method_checker_identity.py",
+            "sha256": "5e33b5c1a6feeec4056c4a98232f86a27fff01e0fcc7ace9a6d98ca9136b9476"
+          },
+          {
+            "path": "omnis/modules/tasks/method_checks.py",
+            "sha256": "bdd74c249b7c187724991580685539bf0604499526d3c4bfd543fe2129cf429e"
+          },
+          {
+            "path": "omnis/modules/tasks/module_registry.py",
+            "sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2"
+          },
+          {
+            "path": "omnis/owner.py",
+            "sha256": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930"
+          },
+          {
+            "path": "omnis/policy/budgets.py",
+            "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1"
+          },
+          {
+            "path": "omnis/policy/model_configuration.py",
+            "sha256": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25"
+          },
+          {
+            "path": "omnis/policy/model_context.py",
+            "sha256": "88b6b694690485503b567cf3b4b3b0798d82a6e9a3c00457432e24b6d6414237"
+          },
+          {
+            "path": "omnis/policy/model_dispatch_contract.py",
+            "sha256": "5f1ce6856e0f39140e94b99dba75ab1db46b12d715b30c574aa3be6b4a4243c0"
+          },
+          {
+            "path": "omnis/policy/model_projection.py",
+            "sha256": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7"
+          },
+          {
+            "path": "omnis/policy/ready_model_configuration.py",
+            "sha256": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2"
+          },
+          {
+            "path": "omnis/security/host_origin.py",
+            "sha256": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551"
+          },
+          {
+            "path": "omnis/security/routes.py",
+            "sha256": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d"
+          },
+          {
+            "path": "omnis/security/sessions.py",
+            "sha256": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc"
+          },
+          {
+            "path": "omnis/serve.py",
+            "sha256": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345"
+          },
+          {
+            "path": "omnis/stop_reconcile.py",
+            "sha256": "d52ca48622c90e2e2acd113de6492a1f7998d555b9d99cbbfa5fb5cf48b804a4"
+          },
+          {
+            "path": "omnis/supervisor/__main__.py",
+            "sha256": "d8c5a599de86a6f74faf3976b9fc5ef2c2352b07dc84cda55a9bb9e913b3c2e6"
+          },
+          {
+            "path": "omnis/supervisor/case_slot.py",
+            "sha256": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba"
+          },
+          {
+            "path": "omnis/supervisor/native_tasks.py",
+            "sha256": "03917e2bd038af106b1b8dc958dc0fd12029561722ea65b79f90b6e759b4df8e"
+          },
+          {
+            "path": "omnis/supervisor/runtime_client.py",
+            "sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366"
+          },
+          {
+            "path": "omnis/transport/control_probe.py",
+            "sha256": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d"
+          },
+          {
+            "path": "omnis/transport/local_control.py",
+            "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a"
+          },
+          {
+            "path": "omnis/worker.py",
+            "sha256": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+          }
+        ]
+      },
+      {
+        "wheel": "/home/kali/.hermes/cache/scratch/p2-preconditions-wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+        "sha256": "2f63f0ec6d30da536a75e61bdd7bd2f90426dc53051a80da1542f6387938e901",
+        "size": 59007,
+        "module_count": 15,
+        "modules": [
+          {
+            "path": "omnis_hermes/__init__.py",
+            "sha256": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59"
+          },
+          {
+            "path": "omnis_hermes/contract_method.py",
+            "sha256": "d5a883d13c499c287d87025faf1f54bef8231f22d94348084f2b6323d3ac0fb9"
+          },
+          {
+            "path": "omnis_hermes/managed_admission_contract.py",
+            "sha256": "a029cdc1ca1331db8b6e458dbd6d76b2ba54022ef465e15a00e579ddf1bdc2f2"
+          },
+          {
+            "path": "omnis_hermes/model_admission.py",
+            "sha256": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9"
+          },
+          {
+            "path": "omnis_hermes/model_configuration.py",
+            "sha256": "dde8ad63db05c52a1085e441d625dd200726bb47e5bd9aa7feff469b056b3910"
+          },
+          {
+            "path": "omnis_hermes/model_context.py",
+            "sha256": "a09bb22c4014e38be141d7f3ccf2840166d7695ca721be5e92eed5d18c211141"
+          },
+          {
+            "path": "omnis_hermes/model_projection.py",
+            "sha256": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9"
+          },
+          {
+            "path": "omnis_hermes/model_request.py",
+            "sha256": "a0bd4d852067e6bf654bc1684512086194e08fbeb2702b272db08a61bb8e3bfd"
+          },
+          {
+            "path": "omnis_hermes/model_terminal.py",
+            "sha256": "8d8b7c533ed7f24574ea58784b5701d387abc2d8b9cdce92489b424993b0079b"
+          },
+          {
+            "path": "omnis_hermes/native_preparation_contract.py",
+            "sha256": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41"
+          },
+          {
+            "path": "omnis_hermes/native_preparation_worker.py",
+            "sha256": "0d62b2f1af5b02d249ee591edd5915f28fa6ce83820c0d7b2de64f0905159ad0"
+          },
+          {
+            "path": "omnis_hermes/private_paths.py",
+            "sha256": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154"
+          },
+          {
+            "path": "omnis_hermes/prompt_bundle.py",
+            "sha256": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+          },
+          {
+            "path": "omnis_hermes/runtime_host.py",
+            "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8"
+          },
+          {
+            "path": "omnis_hermes/runtime_protocol.py",
+            "sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8"
+          }
+        ]
+      }
+    ],
+    "upstream_overlay_changed": false,
+    "pg_bootstrap_unchanged": true
+  },
+  "qa_candidate": {
+    "file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "node": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[procedure-precondition]",
+    "collected": 1,
+    "executed": 0,
+    "reuses": "Existing qualified records seed, owner, private PG runner, native BOOTSTRAP, read/PURE observers, persistence/history/inbox assertions",
+    "additional_denial": "Empty input on another owned context refuses prepare-method with zero managed_run/managed_record assignment write delta, before launching the positive on the same qualified seed."
+  },
+  "before_after_identity": {
+    "checker_before": "32b3621379b10d20415a09ebb3e7cdda4c6754f5135ff943e639711a44de9036",
+    "checker_after": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+    "composer_before": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    "composer_after": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+    "historical_compatibility": "Exact former32b362/bcc1cd receive-only pair. Fresh former checker remains UNKNOWN; receive-only old INCOMPLETE reason bytes preserved; no retrospective eligibility or approved qualification."
+  },
+  "data_fixture_effects": {
+    "existing_data": "NONE",
+    "PG_services": "NONE started/changed",
+    "existing_profiles_accounts": "NONE",
+    "scratch": "Test-created records seed copies, local logs, wheels only",
+    "protected_preexisting_html": "Untouched",
+    "upstream_overlay": "Unchanged",
+    "pg_BOOTSTRAP": "Byte-identical AST literal"
+  },
+  "remaining": [
+    "Two complementary independent reviews of exact 11-file snapshot; parent adjudicates findings and owns commits.",
+    "Parent-approved one bounded actual private-PG/native QA of the added existing test case; do not run author-side launch cycles.",
+    "Installed historical-reader proof and full canonical gate remain NOT_RUN.",
+    "Other Procedure forms, invalidation/evidence/optional/binding-history plus B06c/m and P4a-minim remain open; no B06b/G02/P2 closure."
+  ],
+  "issues": [
+    "Preserved all failing tests/typecheck output described above; no weakenings.",
+    "Missing input policy classified at finite preflight helper; a malformed incomplete native assignment is strictly rejected rather than given a made-up native result.",
+    "No tracked docs/skills/pins outside justified composer source identity touched; uncommitted candidate is intentionally delegated to parent."
+  ]
+}

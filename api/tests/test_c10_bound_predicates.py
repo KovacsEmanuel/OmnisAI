@@ -10,6 +10,23 @@ from test_contract_method_checks import native_case, obj, rebind_mutation, resea
 
 
 @pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("empty,expected", [(False, True), (True, False)])
+def test_procedure_precondition_real_source_producer_keeps_all_obligations(
+    compact: bool, empty: bool, expected: bool
+) -> None:
+    case = native_case(
+        predicates=True, compact=compact, empty=empty, precondition_expected=expected
+    )
+    emitted = [obj(r) for r in rows(case.execution["records"])]
+    assert [
+        obj(r["payload"])["operation"] for r in emitted if r["kind"] == "contract-tool-receipt"
+    ] == ["READ_INPUT", "PURE_ACTION", "PURE_ACTION"]
+    results = rows(obj(emitted[0]["payload"])["method_results"])
+    assert len(results) == 3 and all(obj(r)["state"] == "DONE" for r in results)
+    assert obj(case.check()["payload"])["status"] == "COMPLETE"
+
+
+@pytest.mark.parametrize("compact", [False, True])
 def test_qualified_early_return_is_real_pure_prefix_incomplete(compact: bool) -> None:
     case = native_case(predicates=True, compact=compact, return_predicate="normalize-records")
     emitted = [obj(r) for r in rows(case.execution["records"])]
@@ -104,6 +121,148 @@ def test_current_c10_historical_descriptor_is_receive_only_full_scope() -> None:
     partial.checker = historical
     with pytest.raises(CatalogError, match="METHOD_CHECKER_UNAVAILABLE"):
         partial.check(receive_only=True)
+
+
+@pytest.mark.parametrize("empty", [False, True])
+def test_former_applicability_checker_is_receive_only_and_preserves_reason(empty: bool) -> None:
+    from omnis.modules.settings import candidate_store as records
+    from omnis.modules.tasks.method_checker_identity import KEY, SEMANTICS
+
+    case = native_case(
+        predicates=True,
+        empty=empty,
+        applies_expected=True,
+        composer_pin="bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+    )
+    case.checker = records.envelope(
+        "method-checker",
+        {
+            "key": KEY,
+            "semantics": SEMANTICS,
+            "code_digest": "32b3621379b10d20415a09ebb3e7cdda4c6754f5135ff943e639711a44de9036",
+        },
+    )
+    assert obj(case.check()["payload"])["status"] == "UNKNOWN"
+    received = obj(case.check(receive_only=True)["payload"])
+    assert received["status"] == ("INCOMPLETE" if empty else "COMPLETE")
+    if empty:
+        assert (
+            received["reason"]
+            == "Qualified early return; missing done predicates remain unexecuted."
+        )
+
+
+def test_full_not_applicable_check_reason_does_not_invent_early_return() -> None:
+    case = native_case(predicates=True, empty=True, applies_expected=True)
+    checked = obj(case.check()["payload"])
+    assert checked["status"] == "INCOMPLETE"
+    assert (
+        checked["reason"] == "Bound input predicate is NOT_APPLICABLE; all method steps executed."
+    )
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_procedure_precondition_false_refuses_same_native_channel_before_access(
+    monkeypatch: pytest.MonkeyPatch, compact: bool
+) -> None:
+    import importlib
+
+    native_case(predicates=True)  # Import consumers before patching, no leaked aliases.
+    native = importlib.import_module("agent.contract_execution")
+    method = importlib.import_module("omnis_hermes.contract_method")
+    attempts: list[str] = []
+
+    def forbidden(*args: object, **kwargs: object) -> object:
+        attempts.append("access")
+        raise AssertionError("precondition refused too late")
+
+    monkeypatch.setattr(native.BoundContractTools, "_read_bound_input", forbidden)
+    monkeypatch.setattr(method, "run_handler", forbidden)
+    with pytest.raises(ValueError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+        native_case(predicates=True, compact=compact, empty=True, precondition_expected=True)
+    assert attempts == []
+
+
+@pytest.mark.parametrize("on_missing", ["BLOCKED", "INCONCLUSIVE"])
+def test_procedure_precondition_unknown_has_explicit_missing_policy(on_missing: str) -> None:
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(predicates=True, precondition_expected=True)
+    from omnis_hermes.prompt_bundle import require_preconditions
+
+    p = deepcopy(obj(obj(case.bound["payload"])["resolved_procedure"]))
+    obj(rows(p["preconditions"])[0])["on_missing"] = on_missing
+    reason = "PROCEDURE_PRECONDITION_UNKNOWN_" + on_missing
+    with pytest.raises(CatalogError, match="^" + reason + "$"):
+        managed_contract.require_preconditions(p)
+    with pytest.raises(ValueError, match="^" + reason + "$"):
+        require_preconditions(p)
+
+
+@pytest.mark.parametrize(
+    "attack", ["expected-int", "foreign-ref", "unknown", "duplicate", "missing-policy"]
+)
+def test_procedure_precondition_untrusted_forms_refuse(attack: str) -> None:
+    from omnis.modules.tasks import managed_contract
+
+    case = native_case(predicates=True, precondition_expected=True)
+    from omnis_hermes.prompt_bundle import require_preconditions
+
+    p = deepcopy(obj(obj(case.bound["payload"])["resolved_procedure"]))
+    c = obj(rows(p["preconditions"])[0])
+    if attack == "expected-int":
+        c["expected"] = 1
+    elif attack == "foreign-ref":
+        obj(rows(c["input_refs"])[0])["revision"] = True
+    elif attack == "unknown":
+        c["predicate_id"] = "lambda: True"
+    elif attack == "duplicate":
+        rows(p["preconditions"]).append(deepcopy(c))
+    else:
+        c.pop("on_missing")
+    with pytest.raises(CatalogError):
+        managed_contract.require_preconditions(p, case.original)
+    with pytest.raises(ValueError):
+        require_preconditions(p, case.original)
+
+
+def test_checker_refuses_genuine_receipts_when_procedure_precondition_is_false() -> None:
+    case = native_case(predicates=True, precondition_expected=True)
+    p = obj(obj(case.bound["payload"])["resolved_procedure"])
+    obj(rows(p["preconditions"])[0])["expected"] = False
+    rebind_mutation(case)
+    with pytest.raises(CatalogError, match="^PROCEDURE_PRECONDITION_FALSE$"):
+        case.check()
+
+
+def test_missing_native_precondition_material_refuses_before_access(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib
+    import json
+
+    from omnis.modules.settings.catalog_schema import canonical
+
+    case = native_case(predicates=True, precondition_expected=True)
+    from omnis_hermes.contract_method import assignment
+
+    native = importlib.import_module("agent.contract_execution")
+    method = importlib.import_module("omnis_hermes.contract_method")
+    attempts: list[str] = []
+
+    def forbidden(*args: object, **kwargs: object) -> object:
+        attempts.append("access")
+        raise AssertionError("missing material refused too late")
+
+    monkeypatch.setattr(native.BoundContractTools, "_read_bound_input", forbidden)
+    monkeypatch.setattr(method, "run_handler", forbidden)
+    payload = obj(obj(rows(case.stage["compositions"])[0])["payload"])
+    sections = rows(json.loads(str(payload["text"])))
+    obj(sections[4]).pop("input")
+    reseal_assignment(case.stage, sections, case.prompt_bundle)
+    with pytest.raises(ValueError):
+        assignment(canonical(case.stage))
+    assert attempts == []
 
 
 def test_bound_predicates_real_native_receipts_complete() -> None:

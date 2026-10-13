@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.candidate_catalog import uuid_string, valid_ref
-from omnis.modules.settings.catalog_models import CatalogError, Limits, Procedure
+from omnis.modules.settings.catalog_models import CatalogError, Limits, Precondition, Procedure
 from omnis.modules.settings.catalog_schema import bounded, canonical, load_json
 from omnis.modules.settings.publication_models import clean_text
 from omnis.modules.settings.skill_catalog import HANDLERS, read_file
@@ -47,8 +47,12 @@ def requirement_conditions(procedure: object, input_ref: object = None) -> None:
         if input_ref is None
         else ref(input_ref, "contract-case-records")
     )
-    for raw in sequence(p["method_requirements"]):
-        conditions = sequence(mapping(raw)["applies_if"])
+    condition_groups = [
+        p["preconditions"],
+        *[mapping(r)["applies_if"] for r in sequence(p["method_requirements"])],
+    ]
+    for group in condition_groups:
+        conditions = sequence(group)
         if not conditions:
             continue
         if p["key"] != "map-records" or len(conditions) != 1:
@@ -61,6 +65,25 @@ def requirement_conditions(procedure: object, input_ref: object = None) -> None:
             or canonical(condition["input_refs"]) != canonical([source])
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
+
+
+def require_preconditions(procedure: object, original: object = None) -> None:
+    """Refuse false/UNKNOWN before admission; never turn a precondition into N/A."""
+    p = mapping(procedure)
+    conditions = sequence(p["preconditions"])
+    if not conditions:
+        return
+    source = mapping(sequence(mapping(sequence(p["probe"])[0])["input_bindings"])[0])["source_ref"]
+    requirement_conditions(p, source)
+    condition = mapping(conditions[0])
+    if original is None:
+        raise CatalogError("PROCEDURE_PRECONDITION_UNKNOWN_" + text(condition["on_missing"]))
+    available = record(original, "contract-case-records")
+    if canonical(records.reference(available)) != canonical(source):
+        raise CatalogError("REF_MISMATCH")
+    value = exact(mapping(available["payload"])["value"], {"records"})
+    if (len(sequence(value["records"])) != 0) is not condition["expected"]:
+        raise CatalogError("PROCEDURE_PRECONDITION_FALSE")
 
 
 def compile_method_plan(bound: object, original: object = None) -> list[dict[str, object]]:
@@ -174,6 +197,7 @@ def validate_predicates(
     required = False
     if prompt_bundle is not None:
         from omnis.modules.tasks.managed_composition import (
+            APPLICABILITY_COMPOSER_REVISION,
             CAPTURE_COMPOSER_REVISION,
             COMPACT_COMPOSER_REVISION,
             COMPOSER_REVISION,
@@ -192,6 +216,7 @@ def validate_predicates(
         version = integer(composition_version, 1, 4)
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
+            APPLICABILITY_COMPOSER_REVISION,
             COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
@@ -209,11 +234,14 @@ def validate_predicates(
         procedure = mapping(mapping(r["payload"])["resolved_procedure"])
         required = (
             version == 4
-            and pin in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION}
+            and pin
+            in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
             and procedure["key"] == "map-records"
         )
         if (b["done_when"] or b["return_when"]) and (
-            version != 4 or pin not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION}
+            version != 4
+            or pin
+            not in {COMPOSER_REVISION, PREDICATE_COMPOSER_REVISION, APPLICABILITY_COMPOSER_REVISION}
         ):
             raise CatalogError("BOUND_PREDICATE_GAP")
     if not b["done_when"] and not b["return_when"] and not required:
@@ -352,7 +380,7 @@ def build_records(
         role not in {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
         or procedure.verification_kind != "CONTRACT"
         or (procedure.slots and not context_only and case_input is None)
-        or procedure.preconditions
+        or any(type(condition) is not Precondition for condition in procedure.preconditions)
         or procedure.requested_capabilities
         or procedure.identity_requirements
         or procedure.business_rule_refs
@@ -652,8 +680,13 @@ def build_records(
             }
             for raw_requirement in sequence(authored["method_requirements"])
         ]
+        authored["preconditions"] = [
+            {**mapping(condition), "input_refs": list(input_refs)}
+            for condition in sequence(authored["preconditions"])
+        ]
         authored["slots"] = []
     resolved = mapping(resolve_local(authored, package, local_bindings))
+    require_preconditions(resolved, None if case_input is None else case_input["input"])
     if (
         case_input is not None
         and resolved["input_schema_ref"] != mapping(case_input["schema"])["ref"]

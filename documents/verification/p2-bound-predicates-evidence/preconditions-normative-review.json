@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-PRECONDITIONS-NORMATIVE-REVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "role": "Independent read-only normative/correctness reviewer",
+  "scope": "Exact 11-file finite Procedure.preconditions candidate and directly affected producer/composer/constructor/access/result/checker/history call paths. Not a broad P2 audit or integration acceptance.",
+  "base_head": "16e928f8941eb0dadc0cf2e02c628c616d3e39cd",
+  "candidate_manifest": "/home/kali/.hermes/cache/scratch/p2-preconditions-author.json",
+  "snapshot": {
+    "initial_and_final_hash_match": true,
+    "exact_git_diff_paths_match": true,
+    "file_count": 11,
+    "files": [
+      {"path":"api/src/omnis/modules/settings/skill_catalog.py","sha256":"b7bd1097a41b4a600ca3802251a2d3d73d418d45e5d2ece6709243135ac176fd"},
+      {"path":"api/src/omnis/modules/tasks/managed_composition.py","sha256":"878e0a1428c7c15d5c1a38ac9e635833a5dcb655f9e1f83d69f10b10ae4acf3a"},
+      {"path":"api/src/omnis/modules/tasks/managed_contract.py","sha256":"cf7edc8432a2bd2191029fa0ea6e2ca2fc01205e0104dbc6328601f87e8e4ecf"},
+      {"path":"api/src/omnis/modules/tasks/method_checker_identity.py","sha256":"5e33b5c1a6feeec4056c4a98232f86a27fff01e0fcc7ace9a6d98ca9136b9476"},
+      {"path":"api/src/omnis/modules/tasks/method_checks.py","sha256":"bdd74c249b7c187724991580685539bf0604499526d3c4bfd543fe2129cf429e"},
+      {"path":"api/tests/test_c10_bound_predicates.py","sha256":"bce4436242c3f193c6e9f24283a1e4643bfe2766b8fc7211734cce9315330230"},
+      {"path":"api/tests/test_contract_method_checks.py","sha256":"48e29290173d9e60c52f98cd0a6ccc1f2333f2f2671385bdf1d7abd595d0dfe1"},
+      {"path":"api/tests/test_contract_method_pg.py","sha256":"790505f1359af31ec6e6672a3b72cf0f74c7a374d04c3d1aab241b6bc42a4af8"},
+      {"path":"api/tests/test_contract_method_producer.py","sha256":"c87b328c3a5d3f4f0e0020cf297255da53af6ad79ddc55eb73fd1f63f7b3396a"},
+      {"path":"integrations/hermes/src/omnis_hermes/contract_method.py","sha256":"d5a883d13c499c287d87025faf1f54bef8231f22d94348084f2b6323d3ac0fb9"},
+      {"path":"integrations/hermes/src/omnis_hermes/prompt_bundle.py","sha256":"065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"}
+    ]
+  },
+  "findings": [],
+  "blocking_findings": [],
+  "requirements_to_code_and_evidence": [
+    {
+      "requirement": "Architecture 9.4 finite trusted Precondition, exact bool and explicit missing policy; no arbitrary executable predicate",
+      "code": ["api/src/omnis/modules/tasks/managed_contract.py:42-86", "api/src/omnis/modules/settings/skill_catalog.py:517-519,567-575", "integrations/hermes/src/omnis_hermes/prompt_bundle.py:171-211"],
+      "disposition": "SATISFIED_SCOPED",
+      "evidence": "Only map-records / contract.records-nonempty / one condition / exact original input ref / expected exact bool / BLOCKED or INCONCLUSIVE accepted. Targeted SOURCE controls reject expected-int, foreign-ref, unknown predicate, duplicate and missing policy. No expression evaluation or package code execution."
+    },
+    {
+      "requirement": "Real producer binds preconditions before admission; false must not fabricate Brief/result or assignment writes",
+      "code": ["api/src/omnis/modules/runs/managed_admission.py:247-320,334-400", "api/src/omnis/modules/tasks/managed_contract.py:397,639-689,695-705"],
+      "disposition": "SATISFIED_SOURCE_AND_STATIC_ORDER",
+      "evidence": "build_records validates authored grammar before binding, validates actual case material, binds every precondition input_refs to the selected Ref, calls require_preconditions at 689, then allocates task/attempt and bound/Brief graph. _prepare awaits _build and _verify_graph before store.put/INSERT. SOURCE first-party compile/capture/BuildSource tests pass for positive and empty negative; prefix unchanged, no bound/Brief/manifest/result fabricated. Actual PostgreSQL write delta not executed by this review."
+    },
+    {
+      "requirement": "Pre-reserve denial on retained material, not merely a producer-local check",
+      "code": ["api/src/omnis/modules/runs/managed_admission.py:413-454,457-479", "api/src/omnis/modules/tasks/managed_composition.py:548-559,615-671,674-703"],
+      "disposition": "SATISFIED_SOURCE_AND_STATIC_ORDER",
+      "evidence": "reserve_dispatch calls stage_payload at 430 before UPDATE *_started at 452. stage_payload runs composition.validate and validate_case_section; exact material/context/slots are checked before require_preconditions at 649. Independent SOURCE positive accepted on validate_case_section, same bound/input with expected inverted refused PROCEDURE_PRECONDITION_FALSE. No DB/IPC executed; caller placement independently read."
+    },
+    {
+      "requirement": "Constructor-owned frozen preflight before UUID, first input read or PURE",
+      "code": ["integrations/hermes/src/omnis_hermes/contract_method.py:151-191", "integrations/hermes/src/omnis_hermes/prompt_bundle.py:608-613,1035-1041", "integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-101,107-122,170-180,229-281"],
+      "disposition": "SATISFIED_SOURCE_AND_STATIC_ORDER",
+      "evidence": "initialize_contract calls assignment at 79 before UUID allocations at 82-83; assignment validates immutable bytes/composition. _material obtains validated case material before _brief independently requires preconditions. BoundContractTools revalidates assignment before read_input and PURE. Independent execution of real initialize_contract with a synthetic root/agent and resealed false assignment returned exact PROCEDURE_PRECONDITION_FALSE; patched UUID/read/PURE sinks observed zero attempts and no child state allocated. Existing false/full+compact and missing-material controls passed. This is not an authentic AIAgent process or owner persistence proof."
+    },
+    {
+      "requirement": "False and UNKNOWN deny, never NOT_APPLICABLE or invented native TaskResult",
+      "code": ["api/src/omnis/modules/tasks/managed_contract.py:70-86", "integrations/hermes/src/omnis_hermes/prompt_bundle.py:195-211", "integrations/hermes/src/omnis_hermes/contract_method.py:274-281"],
+      "disposition": "SATISFIED_SCOPED",
+      "evidence": "Both independent preflight implementations refuse false. Missing original gives exact PROCEDURE_PRECONDITION_UNKNOWN_BLOCKED or _INCONCLUSIVE; both policy controls pass. Missing native wire material is strict schema/material denial before access, not a fabricated UNKNOWN result. Unknown helper policy is independently tested; no claim that a malformed wire assignment produces a terminal domain status."
+    },
+    {
+      "requirement": "Retain all MethodRequirements and independent result/checker validation",
+      "code": ["api/src/omnis/modules/tasks/managed_contract.py:89-125,673-685", "api/src/omnis/modules/tasks/method_checks.py:577-595,623-652", "integrations/hermes/src/omnis_hermes/contract_method.py:274-281,324-384"],
+      "disposition": "SATISFIED_SCOPED",
+      "evidence": "Positive preconditions preserve all three original requirements including the optional requirement; SOURCE real run_contract emits READ_INPUT/PURE_ACTION/PURE_ACTION and COMPLETE from actual receipts and schemas. Independent checker false mutation denies despite genuine completed receipts. Independent native task_result call succeeds from genuine SOURCE receipts, then inverted expected refuses before its record emitter (zero attempts). COMPLETE remains method completeness, not automatic functional PASS; criterion result remains BLOCKED without oracle/controls."
+    },
+    {
+      "requirement": "Exact historical checker/composer compatibility, old reason preservation and no recorded UNKNOWN promotion",
+      "code": ["api/src/omnis/modules/tasks/method_checker_identity.py:50-53,66-104", "api/src/omnis/modules/tasks/managed_composition.py:550-559", "api/src/omnis/modules/tasks/method_checks.py:658-689", "api/src/omnis/modules/runs/managed_admission.py:759-820"],
+      "disposition": "SATISFIED_SCOPED",
+      "evidence": "Exact former checker 32b3621379b10d20415a09ebb3e7cdda4c6754f5135ff943e639711a44de9036 paired only with former composer bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99 under explicit receive_only. Fresh former checker becomes UNKNOWN, not current COMPLETE. Old composer supports its former applicability/done/return scope but cannot carry new preconditions. Full-execution N/A reason corrected for current checker; exact old checker retains old reason bytes. Owning caller revalidates existing UNKNOWN then preserves status/reason/gaps and canonical equality; checker-missing UNKNOWN deliberately does not gain receive-only authority. Historical old-wheel/runtime reader was not executed."
+    }
+  ],
+  "executed_evidence": [
+    {
+      "id": "AFFECTED_API_SOURCE",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py -q --tb=short",
+      "exit_code": 0,
+      "passed": 243,
+      "duration_seconds": 15.92,
+      "output": "243 passed in 15.92s"
+    },
+    {
+      "id": "AFFECTED_ADAPTER_SOURCE",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"integrations/hermes/src\",\"integrations/hermes/tests\",\"integrations/hermes/upstream/managed-source\"]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"-q\",\"--tb=short\"]))'",
+      "exit_code": 0,
+      "passed": 61,
+      "duration_seconds": 0.85,
+      "output": "61 passed in 0.85s"
+    },
+    {
+      "id": "INDEPENDENT_BACKEND_AND_CONSTRUCTOR_REPRO",
+      "execution": "Isolated -I -B API interpreter; SOURCE imports; real native_case positive, backend validate_case_section; invert bound precondition expected, rebind records AND reseal stage independently; invoke actual initialize_contract with synthetic ColdState root/Agent while patching UUID/read/PURE sinks to record before raising.",
+      "exit_code": 0,
+      "output": {"backend_positive":"ACCEPTED","backend_case_false":"PROCEDURE_PRECONDITION_FALSE","constructor_false":"PROCEDURE_PRECONDITION_FALSE","identity_read_pure_attempts":[],"synthetic_root":true}
+    },
+    {
+      "id": "INDEPENDENT_NATIVE_RESULT_REPRO_AND_FINAL_HASH",
+      "execution": "Isolated -I -B API interpreter; real SOURCE native_case receipts/artifacts passed to actual native task_result. Positive SUCCEEDED; invert bound precondition expected and patch record emitter before repeat. Hash each of 11 files against frozen author manifest after verification.",
+      "exit_code": 0,
+      "output": {"native_result_positive":"SUCCEEDED_WITH_REAL_SOURCE_RECEIPTS","native_result_false":"PROCEDURE_PRECONDITION_FALSE","result_emitter_attempts":[],"final_snapshot_match":true,"files":11}
+    }
+  ],
+  "review_probe_failures_preserved": [
+    {"exit_code":1,"reason":"Independent inline probe imported agent.contract_execution before helper-added source paths. ModuleNotFoundError, before product repro. Corrected by explicit SOURCE paths; no install or product modification."},
+    {"exit_code":1,"reason":"Second inline probe mutated Case.bound but reused the unchanged valid stage: rebind_mutation intentionally updates receipt/check records, not stage JSON. UUID sentinel fired on valid constructor input. Corrected by replacing bound/brief section records and explicit reseal_assignment; identical false precondition then refused pre-UUID. This failure does not establish a product bypass; the payload initially supplied was the unmodified positive."}
+  ],
+  "not_run_and_limits": [
+    "No PostgreSQL/native process/OCI/service/installed consumer/old-wheel history execution authorized or performed by reviewer.",
+    "Parent owns complementary review adjudication, integration, actual consumer QA, persistence/write-delta observation and canonical final gate.",
+    "SOURCE fixture identity/state synthetic; real read/PURE/result function execution is not native identity authentication or owner persistence.",
+    "No provider/model/target, r1/profile/global/secret reads or modifications.",
+    "No repository edits, staging, commits or git status command. Preexisting protected untracked HTML not accessed or changed.",
+    "No P2/G02/B06b closure; other Procedure forms and invalidation/evidence/optional breadth remain outside this finite review.",
+    "Wheel/module identity already parent-verified; this reviewer did not rebuild or install wheels.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "finite_exit_criterion": {
+    "review": "MET: exact 11 hashes before/after, all affected changed code and direct ordering/history callers read, relevant architecture 9.4/9.10 and plan 7.1 checked, affected SOURCE suites green, independent positive/false constructor/backend/result controls exercised, no reproduced blocking defect in declared scope.",
+    "integration": "NOT_CLOSED: requires parent's same-snapshot complementary adjudication and bounded real consumer QA on final bytes; source approval is not runtime acceptance."
+  },
+  "proposed_status_delta": {
+    "finite_preconditions_code": "CANDIDATE_IMPLEMENTED_SOURCE",
+    "proof": "PASS_SOURCE_SCOPED; REAL_CONSUMER_QA_NOT_RUN",
+    "review": "APPROVED_SCOPED_NORMATIVE",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED"
+  },
+  "artifacts_created": ["/home/kali/.hermes/cache/scratch/p2-preconditions-normative-review.json"],
+  "repository_files_modified": []
+}

@@ -274,6 +274,9 @@ def task_result(
     from .managed_admission_contract import ref
 
     body = mapping(brief["payload"])
+    from .prompt_bundle import require_preconditions
+
+    require_preconditions(mapping(mapping(bound["payload"])["resolved_procedure"]), original)
     values = predicate_values(
         brief, bound, original, receipts, artifacts, prompt_bundle=prompt_bundle
     )

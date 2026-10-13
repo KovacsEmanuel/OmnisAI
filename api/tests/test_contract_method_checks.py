@@ -101,6 +101,7 @@ def native_case(
     compact: bool = False,
     return_predicate: str = "build-surface-map",
     applies_expected: bool | None = None,
+    precondition_expected: bool | None = None,
 ) -> Case:
     """Real native producer on synthetic state; not constructor/owner authority."""
     paths = [
@@ -233,6 +234,15 @@ def native_case(
             obj(brief["payload"])["method_plan"] = {
                 "requirements": managed_contract.compile_method_plan(bound, original)
             }
+        if precondition_expected is not None:
+            procedure["preconditions"] = [
+                {
+                    "predicate_id": "contract.records-nonempty",
+                    "input_refs": [records.reference(original)],
+                    "expected": precondition_expected,
+                    "on_missing": "INCONCLUSIVE",
+                }
+            ]
         if predicates:
             obj(brief["payload"])["done_when"] = [
                 {"bound_procedure_ref": records.reference(bound), "predicate_id": obj(r)["key"]}

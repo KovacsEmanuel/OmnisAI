@@ -107,7 +107,6 @@ def _procedure(bound: Data, original: Data, actions: list[Data]) -> tuple[Data, 
     ):
         raise CatalogError(UNSUPPORTED)
     for key in (
-        "preconditions",
         "applicability_predicate_ids",
         "invalidation_predicate_ids",
         "requested_capabilities",
@@ -579,6 +578,7 @@ def check_execution(
         body = contract.mapping(checked_brief["payload"])
         try:
             _input(original, body, procedure, uuid_string(owner_id))
+            contract.require_preconditions(procedure, original)
             result, receipts, artifacts = _receipts(
                 checked_execution["records"],
                 original,
@@ -588,7 +588,9 @@ def check_execution(
                 steps,
             )
         except CatalogError as error:
-            if error.reason in (CONFLICT, "METHOD_OUTPUT_LIMIT"):
+            if error.reason in (CONFLICT, "METHOD_OUTPUT_LIMIT") or error.reason.startswith(
+                "PROCEDURE_PRECONDITION_"
+            ):
                 raise
             raise CatalogError(RECEIPT) from None
         identities = [
@@ -648,7 +650,10 @@ def check_execution(
             composition_version=composition_version,
         )
         complete = complete and all(contract.mapping(r)["state"] == "DONE" for r in checked_results)
-        from omnis.modules.tasks.method_checker_identity import FULL_PREDICATE_HISTORICAL
+        from omnis.modules.tasks.method_checker_identity import (
+            APPLICABILITY_HISTORICAL,
+            FULL_PREDICATE_HISTORICAL,
+        )
 
         if (
             not complete
@@ -677,6 +682,10 @@ def check_execution(
                 if schema_unavailable
                 else "Exact bound CONTRACT/PURE receipts and published requirements checked."
                 if complete
+                else "Bound input predicate is NOT_APPLICABLE; all method steps executed."
+                if len(artifacts) == len(steps)
+                and contract.mapping(checked_checker["payload"])["code_digest"]
+                not in APPLICABILITY_HISTORICAL
                 else "Qualified early return; missing done predicates remain unexecuted.",
             },
         )

@@ -47,6 +47,12 @@ PARTIAL_PREDICATE_HISTORICAL = {
 }
 
 
+# Exact applicability/UNKNOWN producer at 0aeb328: receive-only.
+APPLICABILITY_HISTORICAL = {
+    "32b3621379b10d20415a09ebb3e7cdda4c6754f5135ff943e639711a44de9036": "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -81,6 +87,7 @@ def verify(
         and (
             FULL_PREDICATE_HISTORICAL.get(digest) == pin
             or PARTIAL_PREDICATE_HISTORICAL.get(digest) == pin
+            or APPLICABILITY_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

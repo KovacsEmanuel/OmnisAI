@@ -10,6 +10,8 @@ import asyncio
 import importlib
 import json
 import os
+import subprocess
+import sys
 import time
 from copy import deepcopy
 from pathlib import Path
@@ -73,6 +75,9 @@ allowed = (source, managed, inert, adapter, libraries, home,
            Path(sys.executable).resolve().parents[1],
            Path("/home/kali/OmnisAI/api/.venv"))
 bootstrap_path = Path(__file__).absolute()
+bootstrap_started_ns = time.monotonic_ns()
+audit_ns = 0
+audit_calls = 0
 
 def audit(event, args):
     denied = event in {"socket.connect", "subprocess.Popen", "os.system"}
@@ -93,7 +98,15 @@ def audit(event, args):
                 emit("denied-credential-file", path.name)
         emit("forbidden-effect", event)
         raise RuntimeError("Forbidden native effect")
-sys.addaudithook(audit)
+def timed_audit(event, args):
+    global audit_ns, audit_calls
+    before = time.monotonic_ns()
+    try:
+        audit(event, args)
+    finally:
+        audit_ns += time.monotonic_ns() - before
+        audit_calls += 1
+sys.addaudithook(timed_audit)
 
 class Overlay(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
@@ -116,7 +129,7 @@ agent.__path__[:0] = [str(managed / "agent"), str(inert / "agent")]
 forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "handle_function_call", "_init_client", "_resolve_runtime",
     "load_credential_pool", "get_api_key", "discover_builtin_tools", "discover_plugins"}
-observed = forbidden | {"run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
+observed = forbidden | {"main", "run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
 entered = {}
 def observe(frame, event, arg):
     if event not in {"call", "return"}:
@@ -128,6 +141,10 @@ def observe(frame, event, arg):
     native = any(str(root) in filename for root in (source, managed, inert, adapter))
     if not native:
         return
+    if event == "call" and name == "main" and filename == str(inert / "tui_gateway/entry.py"):
+        emit("bootstrap-import", "ELAPSED_MS", (time.monotonic_ns() - bootstrap_started_ns) // 1_000_000)
+        emit("bootstrap-audit", "ELAPSED_MS", audit_ns // 1_000_000)
+        emit("bootstrap-audit", "CALLS", audit_calls)
     if name in {"validate_stage", "stage", "initialize_contract"}:
         if event == "call":
             entered[id(frame)] = time.monotonic_ns()
@@ -159,8 +176,25 @@ def observe(frame, event, arg):
                 values = rows[0].get("records", [])
                 for kind in ("task-result", "contract-tool-receipt", "contract-artifact"):
                     emit(kind, "NATIVE", sum(r.get("kind") == kind for r in values))
-sys.setprofile(observe)
-threading.setprofile(observe)
+# Filtering code objects before requesting a frame avoids millions of
+# object.__getattr__(frame, "f_code") audit events during native imports.
+# Monitoring is interpreter-local and covers new native threads as well.
+observer_roots = tuple(str(root) for root in (source, managed, inert, adapter))
+def monitored(code):
+    return code.co_name in observed and any(root in code.co_filename for root in observer_roots)
+def monitor_call(code, offset):
+    if not monitored(code):
+        return sys.monitoring.DISABLE
+    observe(sys._getframe(1), "call", None)
+def monitor_return(code, offset, value):
+    if not monitored(code):
+        return sys.monitoring.DISABLE
+    observe(sys._getframe(1), "return", value)
+observer_id = sys.monitoring.PROFILER_ID
+sys.monitoring.use_tool_id(observer_id, "omnis-contract-observer")
+sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_START, monitor_call)
+sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_RETURN, monitor_return)
+sys.monitoring.set_events(observer_id, sys.monitoring.events.PY_START | sys.monitoring.events.PY_RETURN)
 emit("observer", "READY")
 try:
     runpy.run_module("tui_gateway.entry", run_name="__main__")
@@ -333,6 +367,87 @@ def test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report() -> No
     assert str(refused.value) == "RESTART_CLI_CONTRADICTORY_DIAGNOSTIC"
     for style in ("line", "short"):
         assert marker.decode() not in str(refused.getrepr(style=style))
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ["unrelated", "observed", "forbidden", "foreign", "threaded", "threaded-denied", "returned"],
+)
+def test_bootstrap_observer_filters_before_frame_audit(scenario: str) -> None:
+    """Exercise the actual bootstrap observer in a disposable interpreter only."""
+    observer = BOOTSTRAP.split("forbidden =", 1)[1].split('emit("observer", "READY")', 1)[0]
+    setup = r"""
+import json, sys, threading, time
+from pathlib import Path
+source, managed, inert, adapter = (Path("/synthetic/" + p) for p in
+                                    ("source", "managed", "inert", "adapter"))
+rows = []
+def emit(test, status, count=1):
+    rows.append({"test": test, "status": status, "count": count})
+frame_audits = 0
+def audit(event, args):
+    global frame_audits
+    if event == "object.__getattr__" and args[1] == "f_code":
+        frame_audits += 1
+sys.addaudithook(audit)
+"""
+    exercise = r"""
+scenario = sys.argv[1]
+body_entered = []
+name = {"unrelated": "ordinary", "observed": "run_handler",
+        "forbidden": "init_agent", "foreign": "init_agent",
+        "threaded": "run_handler", "threaded-denied": "init_agent",
+        "returned": "_contract_guard"}[scenario]
+filename = "/foreign/control.py" if scenario == "foreign" else str(source / "control.py")
+exec(compile("def " + name + "():\n    body_entered.append(True)\n    return True\n", filename, "exec"))
+function = globals()[name]
+def invoke():
+    try:
+        function()
+    except RuntimeError as error:
+        if str(error) != "Forbidden native sink":
+            raise
+# Allocate/count outside the measured invocation; no clocks as a pass oracle.
+frame_audits = 0
+if scenario.startswith("threaded"):
+    child = threading.Thread(target=invoke)
+    child.start()
+    child.join(timeout=2)
+    assert not child.is_alive()
+else:
+    for _ in range(200 if scenario == "unrelated" else 1):
+        invoke()
+measured_audits = frame_audits
+sys.setprofile(None)
+threading.setprofile(None)
+if sys.monitoring.get_tool(sys.monitoring.PROFILER_ID) == "omnis-contract-observer":
+    sys.monitoring.set_events(sys.monitoring.PROFILER_ID, 0)
+    sys.monitoring.free_tool_id(sys.monitoring.PROFILER_ID)
+print(json.dumps({"rows": rows, "frame_audits": measured_audits,
+                  "body_count": len(body_entered)}))
+"""
+    result = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", setup + "forbidden =" + observer + exercise, scenario],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    require_empty_stderr(result.stderr)
+    assert result.returncode == 0
+    actual = json.loads(result.stdout)
+    if scenario == "unrelated":
+        assert actual == {"rows": [], "frame_audits": 0, "body_count": 200}
+    elif scenario in {"observed", "threaded"}:
+        assert actual["rows"] == [{"test": "run_handler", "status": "ENTERED", "count": 1}]
+        assert actual["body_count"] == 1
+    elif scenario in {"forbidden", "threaded-denied"}:
+        assert actual["rows"] == [{"test": "forbidden-sink", "status": "init_agent", "count": 1}]
+        assert actual["body_count"] == 0
+    elif scenario == "returned":
+        assert actual["rows"] == [{"test": "contract-guard", "status": "APPROVED", "count": 1}]
+        assert actual["body_count"] == 1
+    else:
+        assert actual == {"rows": [], "frame_audits": 0, "body_count": 1}
 
 
 class PreparationPrerequisite(RuntimeClient):

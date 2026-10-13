@@ -1,0 +1,101 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent security/failure review of test-only sys.monitoring observer substitution and finite SOURCE test guards. No product, native QA, installed, P2 or historical-cause approval.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "base": "d786a578449568aa8739db06c30d00221ea1895f",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa",
+    "author_report_sha256": "df8163ad7ed2eda3ec63ebba74c6c78b0cb7f7523f8f6ca761af3f287efe2966",
+    "final_readback": "Same HEAD/file hash; original modified test and untracked documents/Omnis_Notite_Originale.html preserved."
+  },
+  "blocking_findings": [],
+  "nonblocking_findings": [
+    {
+      "id": "OBSERVER-SEC-N01",
+      "severity": "LOW",
+      "introduced_by_substitution": false,
+      "file_lines": "api/tests/test_contract_method_pg.py:141,184",
+      "title": "Source discrimination is substring-based, not path-component membership",
+      "reproducer": "SOURCE only: compile an init_agent function at /synthetic/source-foreign/control.py, /synthetic/source2/control.py or /elsewhere/synthetic/source/control.py while source=/synthetic/source; invoke and catch RuntimeError.",
+      "observed": "All three unrelated functions produce forbidden-sink/init_agent and no body execution under the replacement. Baseline sys.setprofile also falsely classifies the first such path; after its callback raises it stops profiling, so the two subsequent bodies run. The false-positive path classification is inherited, not a new sink bypass.",
+      "impact": "Potential false refusal if foreign code has a colliding filename. Normal /foreign/control.py is correctly ignored. Approval does not certify exact root-boundary discrimination or hostile co_filename provenance.",
+      "recommendation": "Parent may defer this inherited nonblocking limitation. If repaired separately, use a shared component-bounded source predicate before frame access and retain prefix/nested-foreign negative controls. Do not enlarge this fixture repair into a new verifier project."
+    }
+  ],
+  "requirements": [
+    {
+      "requirement": "Guard records veto before raising, even when caller catches it",
+      "status": "PASS_SOURCE_SCOPED",
+      "file_lines": "155-157;82-109;1646-1648",
+      "evidence": "Each interpreter recorded 120 forbidden sink attempts across 10 original names, 4 roots, two sequential calls and one new-thread call per code object; all body counters remained zero and child exits were zero after catching exceptions. Parent reader independently rejects forbidden-* rows. Direct synthetic calls to the actual timed_audit/audit body recorded all three forbidden effect event tags despite caught exceptions; no socket, subprocess sink or system call was performed.",
+      "limit": "Emitter short-write handling is retained at lines63-68; this was statically inspected, not failure-injected on a real evidence FD. Python observers are not OS confinement."
+    },
+    {
+      "requirement": "Original forbidden function inventory, start/normal return and threads",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "All ten original forbidden names retained. Both interpreters also denied all ten async first-start and all ten generator first-start synthetic functions, with zero body execution. Normal contract-guard and bound-predicates returns and run_handler starts were observed both on main and newly created threads (six expected rows, six body executions per interpreter). A thread created before observer registration was also denied when it later invoked init_agent.",
+      "limit": "First PY_START and normal PY_RETURN semantics only; no claim about prestarted resumable frames, abnormal unwind accounting, native C functions, deliberate observer removal or subinterpreters."
+    },
+    {
+      "requirement": "Early filtering and DISABLE cache safety",
+      "status": "PASS_SOURCE_SCOPED",
+      "file_lines": "182-192;376-450",
+      "evidence": "Current SOURCE pytest unrelated and ordinary foreign cases require exactly zero frame.f_code audit events. Independent cache control interleaved unobserved ordinary code, foreign init_agent and native init_agent twenty times, then repeated after restart_events: 21 recorded denials and 42 allowed bodies on each interpreter. DISABLE is returned only for unobserved code; original matching code stays enabled after guard exceptions.",
+      "reasoning": "The predicate uses immutable code.co_name/co_filename against bootstrap-owned fixed observed/root sets, not frame-local data. Disabling one unobserved code/event does not suppress other observed code or later matching code objects.",
+      "limit": "Assumes bootstrap-owned filter configuration is not deliberately mutated."
+    },
+    {
+      "requirement": "Missing observer API or occupied monitoring tool ID fails closed",
+      "status": "PASS_SOURCE_SCOPED",
+      "file_lines": "193-198;1647",
+      "evidence": "Synthetic removal of sys.monitoring gives AttributeError/exit1 before READY; preoccupying PROFILER_ID gives ValueError/exit1 before READY, on both interpreters. Registration/set_events precede READY and uncaught setup errors precede run_module. Native parent requires READY. No fallback silently runs without observation."
+    },
+    {
+      "requirement": "No new output leakage; finite SOURCE controls",
+      "status": "PASS_SOURCE_SCOPED",
+      "file_lines": "144-147;257-260;429-450",
+      "evidence": "Added bootstrap data are fixed event tags, elapsed integer timings and audit counts. Synthetic private return markers in predicate_values/_contract_guard were absent from emitted rows (GAP/REFUSED projections). All successful probe children had empty stderr. The ten SOURCE pytest controls include sanitized diagnostic/phase/stderr controls. New observer children have 10-second subprocess timeouts and 2-second thread joins; child-only threads cannot outlive the bounded process.",
+      "limit": "Does not extend approval to unchanged arbitrary release status fields, private native logs or deliberate pytest --showlocals/--showargs. No raw logs, runtime.boot, DSNs, capability values or credentials were read or emitted by this review."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "python3 -I -B /home/kali/.hermes/cache/scratch/astra-observer-security-probe.py",
+      "exit": 0,
+      "result": "20 bounded SOURCE scenarios on API Python3.13.15 and system Python3.13.12; 1.491s measured subprocess batch. Expected missing-monitoring/occupied-id children fail with exit1.",
+      "artifact": "/home/kali/.hermes/cache/scratch/astra-observer-security-probe-results.json",
+      "probe_sha256": "5e7977e76997b56636c24776f60e7ffd64813413ba9c52a0a559cac9f0c0c29a"
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'not real_native' -q --tb=line",
+      "exit": 0,
+      "result": "10 passed, 7 deselected in 0.86s; stderr empty. Explicit native gate variable removed for this SOURCE-only invocation.",
+      "artifact": "/home/kali/.hermes/cache/scratch/astra-observer-security-source-check.json"
+    },
+    {
+      "command": "Bounded AST-extracted baseline-prefix and preexisting-thread controls, api/.venv/bin/python -I -B -c, 5-second per-child timeout",
+      "exit": 0,
+      "result": "Inherited prefix collision confirmed; current observer denies a call on a previously created thread. Both child stderr streams empty.",
+      "artifact": "/home/kali/.hermes/cache/scratch/astra-observer-security-extra-controls.json"
+    },
+    {
+      "command": "git diff --check; git status --short --branch; git rev-parse HEAD; sha256sum api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "result": "No whitespace errors; snapshot and preexisting repository changes preserved."
+    }
+  ],
+  "review_probe_issue": "An auxiliary aggregation assertion initially expected three baseline-prefix denials. Real baseline instead recorded one and then executed two bodies because its sys.setprofile callback exception disabled profiling. That scratch-only assertion exited1, was not counted as PASS, and was replaced by an observation-based baseline control; current observer had already recorded all three denials. No repository repair was attempted.",
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/astra-observer-security-probe.py",
+    "/home/kali/.hermes/cache/scratch/astra-observer-security-probe-results.json",
+    "/home/kali/.hermes/cache/scratch/astra-observer-security-source-check.json",
+    "/home/kali/.hermes/cache/scratch/astra-observer-security-extra-controls.json",
+    "/home/kali/.hermes/cache/scratch/astra-observer-security-review.json"
+  ],
+  "repository_files_modified": [],
+  "not_run": ["Native/PG/effects/provider/installed/product/P2/global/r1 QA", "Original historical RuntimeUnavailable causal reproduction"],
+  "status_delta_for_parent": "Observer substitution APPROVED_SCOPED on exact hash with one inherited LOW false-positive limitation; author full/partial native report remains author evidence only. Original pre-stage cause stays UNKNOWN and product/P2 acceptance stays with parent.",
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"}
+}

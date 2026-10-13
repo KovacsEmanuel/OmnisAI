@@ -1,0 +1,234 @@
+{
+  "schema": "omnis-focused-review-v1",
+  "review_role": "independent normative/behavior/proportionality; read-only repository",
+  "completed_at": "2026-10-13T05:40:01.152069+00:00",
+  "verdict": "APPROVED_SCOPED_TEST_FIXTURE",
+  "not_approved": [
+    "P2",
+    "B06b/G02 closure",
+    "historical failure cause",
+    "product/runtime acceptance without new independent real full+partial QA"
+  ],
+  "snapshot": {
+    "repo": "/home/kali/OmnisAI",
+    "base": "d786a578449568aa8739db06c30d00221ea1895f",
+    "head_at_finish": "d786a578449568aa8739db06c30d00221ea1895f",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa",
+    "base_file_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851",
+    "tracked_delta": "119 insertions / 4 deletions, one test file; staged delta empty",
+    "unexpected_preexisting_untracked": "documents/Omnis_Notite_Originale.html present at start and finish; untouched, not reviewed or adopted",
+    "stable": true
+  },
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/omnis-astra-launch-result.json",
+    "sha256": "df8163ad7ed2eda3ec63ebba74c6c78b0cb7f7523f8f6ca761af3f287efe2966",
+    "reviewed_as": "sanitized author-reported evidence, not independent QA",
+    "reported_native_full_partial": "2 PASS in 49.18s, exit0/drained; NOT reexecuted here"
+  },
+  "scope": {
+    "allowed": "exact test diff, surrounding observer/consumer code, relevant normative sections, one SOURCE selection and bounded synthetic controls",
+    "writes": "this requested scratch JSON only; no repository, PG, native runtime, model, target, r1, profile/global writes",
+    "PG_NATIVE": "NOT_RUN by explicit contract",
+    "canonical": "NOT_RUN; not necessary for this fixture review, retained integration/phase gate",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "normative_basis": [
+    "AGENTS.md: independent exact-snapshot review; no weaker tests or invented evidence; parent integrates",
+    "CONTRIBUTING.md:29-48: focused affected tests and real-consumer QA; no suite per fix; preserve findings",
+    "documents/Omnis_Implementation_Plan.md:268-283: finite P2-inert requirements, actual method evidence, independent QA and final canonical; no extra general audit",
+    "documents/Omnis_MVP_Architecture.md:733-770: all requirements retained, persist result before independent MethodCheck, return_when not success, missing done_when remains gap"
+  ],
+  "requirements_to_code_evidence": [
+    {
+      "requirement": "Real native identity/read/PURE remains essential",
+      "code": "test:158-178, 1646-1674; native run test unchanged",
+      "finding": "REAL_AIAgent exact class check remains; read1 and full PURE2/partial PURE1 exact-count assertions unchanged. No replacement emitter/result or bypass inserted.",
+      "evidence": "AST equality for every preexisting top-level function/class; synthetic positive baseline/candidate parity."
+    },
+    {
+      "requirement": "No guard/evidence weakening",
+      "code": "test:63-109,129-197,1646-1648",
+      "finding": "Original emit and audit bodies AST-identical. timed_audit always invokes audit and propagates its exception; counters added in finally. Same forbidden set and source roots, same record-before-raise behavior. monitor filters only codes observe already ignored (except added inert main diagnostics). DISABLE applies only to unobserved code/event, not security audit hook. READY remains after registration; final any forbidden-* rejection unchanged.",
+      "evidence": "10 SOURCE tests PASS; repeated caught denial synthetic control retained20 attempts and entered zero forbidden bodies."
+    },
+    {
+      "requirement": "Return evidence intact",
+      "code": "test:165-178,189-197",
+      "finding": "PY_RETURN passes actual return value to original observer. _contract_guard true/false, predicate true/gap and release record/status extraction unchanged. Changed main branch emits timings only, not pass thresholds. Observed execution/read/PURE/guard/predicate/release call sites inspected are synchronous; no missing resume/yield obligation in this scoped census. Not a claim of universal profile equivalence for arbitrary generators/coroutines.",
+      "evidence": "12 positive synthetic event rows byte-equivalent as parsed JSON on baseline and candidate."
+    },
+    {
+      "requirement": "Partial results retain gaps and persist-before-check",
+      "code": "test:1216-1233,1238-1305",
+      "finding": "Raw INCONCLUSIVE persists before MethodCheck; full COMPLETE/partial INCOMPLETE and DONE/NOT_RUN/DONE, gap_refs, all three method rows, outcomes BLOCKED plus METHOD_INCOMPLETE remain unchanged. No SUCCEEDED/PASS promotion from return_when.",
+      "evidence": "Entire native consumer test AST-identical to HEAD; review static only, new real full+partial independent QA still required."
+    },
+    {
+      "requirement": "Persistence/check/replay remain independent and fail closed",
+      "code": "test:1379-1429,1497-1622, RESTART_READER:217-254",
+      "finding": "Duplicate/conflict/lineage denials, exact record equality, joined native producer, fresh reader processes, defining-module evaluator/BuildSource denial aliases, single consume, and forged-outcome refusal unchanged. No new filtering of observer rows on readback/reconcile.",
+      "evidence": "Preexisting test and RESTART_READER unchanged; no live replay claim from this review."
+    },
+    {
+      "requirement": "Budgets and launch frontier remain genuine",
+      "code": "test:508-511,609-617,886-947",
+      "finding": "Pinned interpreter, actual Host/Peer/Client, heartbeat producer, original handshake call, ready=READY, renew, owner stage/release and existing deadline/grant unchanged. No prewarming, longer timeout, direct-native rescue or pre-stage SKIP inserted.",
+      "evidence": "Diff only test bootstrap instrumentation plus synthetic test; native test AST unchanged."
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_SOURCE_once",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"not real_native\" -q --tb=line",
+      "exit": 0,
+      "result": "10 passed, 7 deselected in 0.61s",
+      "native_cases": "deselected, not skipped or credited as acceptance",
+      "interpreter": "Python3.13.15 pinned api/.venv"
+    },
+    {
+      "name": "AST-preservation",
+      "exit": 0,
+      "result": "All8 preexisting top-level functions/classes AST-identical. Only new parametrized SOURCE function; original bootstrap emit/audit/Overlay unchanged. observe adds only main diagnostics."
+    },
+    {
+      "name": "independent_synthetic_positive_parity",
+      "exit": 0,
+      "result": "12 positive JSON event rows equal: real AIAgent-shaped identity, read1/PURE2, guard approved/refused, satisfied/gap predicates, release INCONCLUSIVE and3 native record counts. Synthetic data only; no product results fabricated."
+    },
+    {
+      "name": "independent_synthetic_caught_refusal",
+      "exit": 0,
+      "result": "Candidate records wrong-type denial then2 attempted calls per each of10 forbidden names;20 forbidden-sink rows, zero forbidden bodies entered, observation remains live. Baseline sys.setprofile becomes disabled after wrong-type callback exception; this is a preexisting limitation, candidate strengthens it.",
+      "initial_probe": "First attempted blanket parity assertion exited1 because baseline admitted later synthetic forbidden bodies after its callback exception. Narrowed to positive parity plus separate denial robustness; retained this actual failure rather than claiming universal equality."
+    },
+    {
+      "name": "diff-check and final identity",
+      "command": "git diff --check; git status --short --branch; sha256sum api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "result": "No whitespace errors; exact requested hash and tracked diff stable; preexisting untracked HTML untouched."
+    }
+  ],
+  "synthetic_probe": {
+    "method": "AST-extract BOOTSTRAP from git HEAD and exact working bytes; execute observer fragment in isolated pinned Python -I -B children, no native import; in-memory emit collector. Compile synthetic functions with /synthetic/source/control.py filenames.",
+    "positive_rows": [
+      {
+        "count": 1,
+        "status": "REAL_AIAgent",
+        "test": "run_contract"
+      },
+      {
+        "count": 1,
+        "status": "ENTERED",
+        "test": "_read_bound_input"
+      },
+      {
+        "count": 1,
+        "status": "ENTERED",
+        "test": "run_handler"
+      },
+      {
+        "count": 1,
+        "status": "ENTERED",
+        "test": "run_handler"
+      },
+      {
+        "count": 1,
+        "status": "APPROVED",
+        "test": "contract-guard"
+      },
+      {
+        "count": 1,
+        "status": "REFUSED",
+        "test": "contract-guard"
+      },
+      {
+        "count": 2,
+        "status": "SATISFIED",
+        "test": "bound-predicates"
+      },
+      {
+        "count": 2,
+        "status": "GAP",
+        "test": "bound-predicates"
+      },
+      {
+        "count": 1,
+        "status": "INCONCLUSIVE",
+        "test": "native-release"
+      },
+      {
+        "count": 1,
+        "status": "NATIVE",
+        "test": "task-result"
+      },
+      {
+        "count": 1,
+        "status": "NATIVE",
+        "test": "contract-tool-receipt"
+      },
+      {
+        "count": 1,
+        "status": "NATIVE",
+        "test": "contract-artifact"
+      }
+    ],
+    "candidate_denial_rows_count": 20,
+    "candidate_body": [
+      "real"
+    ]
+  },
+  "findings": [],
+  "simplification": {
+    "assessment": "Small coherent fixture repair;4 thin added wrappers plus one7-scenario test. No new verifier framework, dependencies or product refactor. Duplicate code-root selection preserves the prior observer and can remain.",
+    "optional_nonblocking": "SOURCE child cleanup still calls sys.setprofile(None)/threading.setprofile(None) although candidate no longer installs them; harmless baseline-compatible residue. Removing it is not necessary for approval and would require a fresh hash/affected test. Do not turn cleanup into another gate."
+  },
+  "historical_UNKNOWN_adjudication": {
+    "verdict": "MAY_REMAIN_HISTORICAL_UNKNOWN_CONDITIONAL_ON_NEW_INDEPENDENT_FULL_PARTIAL_QA",
+    "reason": "Normative acceptance requires demonstrated current correctness and evidence, not an unrecoverable retrospective exception reason. Confirmed current observer fanout RED/fix and synthetic integrity controls are a justified fixture repair, not historical causal attribution.",
+    "retain": "Original QA FAIL, RuntimeUnavailable pre-stage, old unknown cause, original receipts and limits remain historical; no deletion or rewrite and no claim fix explains original failure.",
+    "current_finding": "QA-PARTIAL-RETURN-EXECUTION-01 stays OPEN_PENDING_NEW_INDEPENDENT_QA in this report. Parent may explicitly disposition acceptance blocker after new independent actual full+partial success on frozen exact bytes, comparing the original scenario and preserving historical failed execution.",
+    "required_new_QA": [
+      "full criteria-normal and qualified-early-return on fresh owned fixture/resources with unchanged native grants/deadlines",
+      "actual native AIAgent/read/PURE with native event census",
+      "persistent full/partial result, independent COMPLETE/INCOMPLETE/gaps/check/outcomes, fresh-reader no-rerun/single consume",
+      "normal child-family drain, exact cleanup/readback and data/log retention",
+      "exact test and product/distribution snapshot equality before/after; no launch-only/pre-stage skip"
+    ],
+    "not_sufficient": [
+      "author2PASS alone",
+      "old launch-only1SKIP",
+      "SOURCE test counts/static review",
+      "positive retry used to erase original failure"
+    ],
+    "scope_of_future_parent_decision": "May remove the active QA acceptance blocker only, not certify original cause or close P2. Canonical final integration/phase gate and all other P2 requirements remain separate."
+  },
+  "proportionality": {
+    "necessary": [
+      "focused exact-byte review of observer guard/evidence behavior",
+      "one narrow SOURCE positive/negative selection",
+      "new independent actual full+partial QA before scoped consumer acceptance"
+    ],
+    "unnecessary": [
+      "repeated unchanged canonical suites or full document audit for this test-only fix",
+      "recovering historical cause UNKNOWN as an additional impossible absolute requirement",
+      "new harness/owner/input breadth, model/PG/native activity by this read-only reviewer"
+    ],
+    "next": "Parent adjudicates complementary review and new independent consumer QA; if passes, integrate minimal test fix and continue remaining authorized P2 work, without reopening unchanged gates."
+  },
+  "handoff_status": {
+    "AICI": "observer fixture APPROVED_SCOPED_TEST_FIXTURE; independent SOURCE PASS; real consumer QA pending",
+    "partial_return": "implemented historical scoped review; active QA blocker not closed here",
+    "P2": "NOT_CLOSED; no approval transferred",
+    "repo_files_created_or_modified": [],
+    "created": [
+      "/home/kali/.hermes/cache/scratch/astra-observer-normative-review.json"
+    ],
+    "issues": [
+      "Initial context said uncommitted ONLY test; live status also contains preexisting untracked documents/Omnis_Notite_Originale.html. Preserved, never opened/adopted.",
+      "Synthetic initial whole-sequence equivalence failed on old profiler callback disabling; candidate control passes, not a new regression."
+    ],
+    "procedure_delta_proposal": "Parent can record that a raise from sys.setprofile disables it; contrast caught denials on sys.monitoring and retain event evidence. No skill write allowed under this review contract."
+  }
+}

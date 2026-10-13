@@ -1,0 +1,907 @@
+{
+  "status": "CANDIDATE_FIXTURE_FIX_VERIFIED_AUTHOR_PENDING_PARENT_REVIEW",
+  "started_at": "2026-10-13T08:18:22+03:00",
+  "base": "d786a578449568aa8739db06c30d00221ea1895f",
+  "necessity": {
+    "real_full_partial_consumer": "ESSENTIAL",
+    "launch_only_skip": "INSUFFICIENT",
+    "historical_failure_cause": "UNKNOWN",
+    "retrospective_cause_as_absolute_acceptance_requirement": "ADJUDICATION_REQUIRED if not recoverable; replacement requires demonstrated current defect fix and real consumer QA",
+    "adjudication_proposal": "Plan7.1/architecture9.10 require actual method and independent completeness with no invented results; they do not require recovering an unavailable historic launch exception. Parent may retain original FAIL/causeUNKNOWN while judging the new measured fixture fix, independent review and independent full+partial QA on frozen bytes as replacement acceptance evidence. Do not silently close QA-PARTIAL-RETURN-EXECUTION-01."
+  },
+  "confirmed_mechanism": {
+    "boundary": "test-only bootstrap observer",
+    "cause": "sys.setprofile callback reads frame.f_code for every Python call/return, generating object.__getattr__ audit events even for unrelated imports",
+    "red": "2 failed/2 passed; 400 frame audit events on 200 unrelated function calls, 4 on foreign control; exact same observer",
+    "native_diagnostic1": {
+      "exit": 0,
+      "tests": "1 passed, 9 deselected in 28.48s",
+      "bootstrap_import_ms": 4081,
+      "audit_calls": 2016677,
+      "audit_ms": 488,
+      "handshake_ms": 4145,
+      "grant_remaining_ms": 351,
+      "rpc_span_ms": 13
+    },
+    "historical_failure": "UNKNOWN, not retrospectively attributed",
+    "fix": "Test observer uses interpreter-local sys.monitoring PY_START/PY_RETURN, filters code name/source before retrieving a frame, DISABLE only for unobserved code/event. Original audit and observe function guards retained. No RuntimeClient/Host/Peer/product/pin changes.",
+    "limits": "Measured profiling fanout is a current fixture defect, not proof of the historical FAIL cause. Diagnostic1 was positive, not a native RED. The RED is deterministic SOURCE event-count sensitivity, not elapsed-time threshold."
+  },
+  "files": [
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa",
+      "changed": true,
+      "base_sha256": "aab18f01429570658317a6509f2fdf3d959ab5f5eb326e4fb6f954b44c7b9851"
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+      "changed": false
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "changed": false
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+      "changed": false
+    }
+  ],
+  "checks": [
+    {
+      "name": "SOURCE_RED",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k bootstrap_observer -q --tb=line",
+      "exit": 1,
+      "result": "2 failed, 2 passed, 10 deselected in 0.48s",
+      "log": "/home/kali/.hermes/cache/scratch/astra-observer-red.log",
+      "frontier": "actual observer in subprocess; deterministic frame-audit count; not native RED"
+    },
+    {
+      "name": "SOURCE_GREEN1",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k bootstrap_observer -q --tb=line",
+      "exit": 0,
+      "result": "4 passed, 10 deselected in 0.44s",
+      "log": "/home/kali/.hermes/cache/scratch/astra-observer-green1.log"
+    },
+    {
+      "name": "SOURCE_GREEN2",
+      "exit": 0,
+      "result": "10 passed, 7 deselected in 0.59s",
+      "log": "/home/kali/.hermes/cache/scratch/astra-observer-green2.log",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "-k",
+        "not real_native",
+        "-q",
+        "--tb=line"
+      ],
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      }
+    },
+    {
+      "name": "FINAL_SOURCE",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "-k",
+        "not real_native",
+        "-q",
+        "--tb=line"
+      ],
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "result": "10 passed, 7 deselected in 0.57s",
+      "log": "/home/kali/.hermes/cache/scratch/astra-final-source.log",
+      "snapshot_sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa"
+    },
+    {
+      "name": "RUFF",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "name": "FORMAT",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "result": "1 file already formatted"
+    },
+    {
+      "name": "MYPY",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/astra-mypy-cache api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "result": "Success: no issues found in 1 source file"
+    },
+    {
+      "name": "DIFF",
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "name": "NATIVE_DIAGNOSTIC1",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py red",
+      "exit": 0,
+      "result": "1 passed, 9 deselected in 28.48s",
+      "family_drained": true,
+      "log": "/home/kali/.hermes/cache/scratch/db-e03ae8891b86474d/gate.log",
+      "receipt": "/home/kali/.hermes/cache/scratch/db-e03ae8891b86474d/gate.log.result.json",
+      "meaning": "red is partial selection name, not expected native failure"
+    },
+    {
+      "name": "NATIVE_FULL_PARTIAL_FINAL",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py green",
+      "exit": 0,
+      "result": "2 passed, 15 deselected in 49.18s",
+      "family_drained": true,
+      "log": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa/gate.log",
+      "snapshot_sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa"
+    }
+  ],
+  "consumer_qa": {
+    "status": "PASS_AUTHOR_SOURCE_NATIVE_NOT_INSTALLED",
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py green",
+    "selection": "criteria-normal or qualified-early-return",
+    "boundary": "SOURCE_HOST_NOT_INSTALLED; document preparation prerequisite double only; real pinned native AIAgent/Host/Peer/Client/owner/PG; no launch-only skip plugin",
+    "exit": 0,
+    "tests_passed": 2,
+    "deselected": 15,
+    "seconds": 49.18,
+    "family_drained": true,
+    "private_log": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa/gate.log",
+    "receipt": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa/gate.log.result.json",
+    "cases": [
+      {
+        "label": "qa-full",
+        "proof": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/method-history-proof.json",
+        "launch": {
+          "elapsed_ms": 1996,
+          "host_state": "STARTING",
+          "operation": "launch",
+          "phase": "handshake_complete",
+          "ready_cancelled": false,
+          "ready_done": true,
+          "remaining_ms": 2501,
+          "transport_failed": false
+        },
+        "read_count": 1,
+        "pure_count": 2,
+        "method_check": "COMPLETE",
+        "partial_persist_before_check": null,
+        "criterion_outcomes": [
+          {
+            "status": "BLOCKED",
+            "gaps": [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE"
+            ]
+          },
+          {
+            "status": "BLOCKED",
+            "gaps": [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE"
+            ]
+          }
+        ],
+        "restart_processes": [
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2050801
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2050803
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2050825
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2050827
+          }
+        ],
+        "forbidden_native_attempts": 0,
+        "bootstrap": [
+          {
+            "test": "bootstrap-import",
+            "status": "ELAPSED_MS",
+            "count": 1940
+          },
+          {
+            "test": "bootstrap-audit",
+            "status": "ELAPSED_MS",
+            "count": 137
+          },
+          {
+            "test": "bootstrap-audit",
+            "status": "CALLS",
+            "count": 34602
+          }
+        ],
+        "inbox": {
+          "admitted": 0,
+          "turn_completed": 0,
+          "consumed": 1,
+          "delivered": 1,
+          "inbox": 1
+        }
+      },
+      {
+        "label": "qa-partial",
+        "proof": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/method-history-proof.json",
+        "launch": {
+          "elapsed_ms": 2053,
+          "host_state": "STARTING",
+          "operation": "launch",
+          "phase": "handshake_complete",
+          "ready_cancelled": false,
+          "ready_done": true,
+          "remaining_ms": 2443,
+          "transport_failed": false
+        },
+        "read_count": 1,
+        "pure_count": 1,
+        "method_check": "INCOMPLETE",
+        "partial_persist_before_check": "PASS",
+        "criterion_outcomes": [
+          {
+            "status": "BLOCKED",
+            "gaps": [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_INCOMPLETE"
+            ]
+          },
+          {
+            "status": "BLOCKED",
+            "gaps": [
+              "ORACLE_UNAVAILABLE",
+              "CONTROLS_UNAVAILABLE",
+              "METHOD_INCOMPLETE"
+            ]
+          }
+        ],
+        "restart_processes": [
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2051568
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2051590
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "reconcile",
+            "pid": 2051592
+          },
+          {
+            "execution_attempts": 0,
+            "exit": 0,
+            "operation": "readback",
+            "pid": 2051613
+          }
+        ],
+        "forbidden_native_attempts": 0,
+        "bootstrap": [
+          {
+            "test": "bootstrap-import",
+            "status": "ELAPSED_MS",
+            "count": 1999
+          },
+          {
+            "test": "bootstrap-audit",
+            "status": "ELAPSED_MS",
+            "count": 132
+          },
+          {
+            "test": "bootstrap-audit",
+            "status": "CALLS",
+            "count": 34602
+          }
+        ],
+        "inbox": {
+          "admitted": 0,
+          "turn_completed": 0,
+          "consumed": 1,
+          "delivered": 1,
+          "inbox": 1
+        }
+      }
+    ],
+    "snapshot_stable": true,
+    "independent": false
+  },
+  "open_findings": [
+    {
+      "id": "QA-PARTIAL-RETURN-EXECUTION-01",
+      "status": "OPEN_PENDING_PARENT_ADJUDICATION_AND_INDEPENDENT_QA",
+      "historical_cause": "UNKNOWN",
+      "current_delta": "current observer-overhead defect reproduced and fixed; author native full+partial PASS on frozen fixture"
+    },
+    {
+      "id": "FIXTURE-OBSERVER-FANOUT",
+      "status": "FIXED_TESTED_PENDING_REVIEW",
+      "scope": "fixture only"
+    },
+    {
+      "id": "C10-LEGACY-SEC-N01",
+      "status": "LOW_NONBLOCKING_DEFERRED_UNCHANGED"
+    }
+  ],
+  "resources": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-e03ae8891b86474d",
+      "project": "omnis-p01-3d40a8ff3af74054ad94bf91f761a1ea",
+      "container_id": "9925636e020df4ab107cb15b71cf446b0094536791ea71af544e63fb99a50ef9",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock"
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa",
+      "project": "omnis-p01-79132ba9cd374f41b1d8efe8ef305f3f",
+      "container_id": "cb5dd457fafe8eee27a42a87b039e71d7117d403c90df471a2ca08c663fd7e39",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock"
+    }
+  ],
+  "cleanup": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-e03ae8891b86474d",
+      "checked_at": "2026-10-13T08:31:03.607494+03:00",
+      "checks": {
+        "daemon_matches_before_after": true,
+        "exact_cid_absent": true,
+        "project_containers_absent": true,
+        "project_networks_absent": true,
+        "pg_socket_absent": true,
+        "pgdata_retained": true,
+        "gate_log_retained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa",
+      "checked_at": "2026-10-13T08:31:03.810752+03:00",
+      "checks": {
+        "daemon_matches_before_after": true,
+        "exact_cid_absent": true,
+        "project_containers_absent": true,
+        "project_networks_absent": true,
+        "pg_socket_absent": true,
+        "pgdata_retained": true,
+        "gate_log_retained": true
+      }
+    },
+    {
+      "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-330/test_contract_method_real_nati0/method-history-proof.json",
+      "native_directory": "/home/kali/.hermes/cache/scratch/cm-5f6c485d7c6441e79fbb95323c139a79",
+      "reader_pids": [
+        2047739,
+        2047745,
+        2047814,
+        2047835
+      ],
+      "checks": {
+        "runtime_socket_absent": true,
+        "runtime_boot_absent": true,
+        "lock_reacquired": true,
+        "readers_absent": true,
+        "observer_retained": true,
+        "native_cleanup_at_teardown": true
+      },
+      "checked_at": "2026-10-13T08:31:03.811617+03:00"
+    },
+    {
+      "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-331/test_contract_method_real_nati0/method-history-proof.json",
+      "native_directory": "/home/kali/.hermes/cache/scratch/cm-4f3d3678de0e4ee89a8a8cfe3e784f91",
+      "reader_pids": [
+        2050801,
+        2050803,
+        2050825,
+        2050827
+      ],
+      "checks": {
+        "runtime_socket_absent": true,
+        "runtime_boot_absent": true,
+        "lock_reacquired": true,
+        "readers_absent": true,
+        "observer_retained": true,
+        "native_cleanup_at_teardown": true
+      },
+      "checked_at": "2026-10-13T08:31:03.811968+03:00"
+    },
+    {
+      "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-331/test_contract_method_real_nati1/method-history-proof.json",
+      "native_directory": "/home/kali/.hermes/cache/scratch/cm-15a98d98d7f34a07a2a7c4efc53057c5",
+      "reader_pids": [
+        2051568,
+        2051590,
+        2051592,
+        2051613
+      ],
+      "checks": {
+        "runtime_socket_absent": true,
+        "runtime_boot_absent": true,
+        "lock_reacquired": true,
+        "readers_absent": true,
+        "observer_retained": true,
+        "native_cleanup_at_teardown": true
+      },
+      "checked_at": "2026-10-13T08:31:03.812167+03:00"
+    }
+  ],
+  "limits": [
+    "Delegated author does not commit/stage; parent integrates and reviews",
+    "SOURCE_HOST_NOT_INSTALLED",
+    "No provider/target/r1/global changes"
+  ],
+  "setup_failure": "Initial JSON write NameError null; empty owned report corrected",
+  "frozen_at": "2026-10-13T08:27:45.478731+03:00",
+  "finished_at": "2026-10-13T08:35:13.365520+03:00",
+  "diagnostic_attempts": {
+    "used": 1,
+    "budget": 2,
+    "second_attempt": "NOT_RUN_NOT_NEEDED_AFTER_MEASURED_MECHANISM",
+    "postfix_full_partial_qa": "separate one consumer invocation with two test cases",
+    "case": {
+      "label": "diagnostic1",
+      "proof": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/method-history-proof.json",
+      "launch": {
+        "elapsed_ms": 4145,
+        "events": [
+          {
+            "elapsed_ms": 4144,
+            "phase": "client.capabilities",
+            "ready_done": true,
+            "remaining_ms": 364,
+            "state": "ENTER",
+            "transport_failed": false
+          },
+          {
+            "elapsed_ms": 4148,
+            "phase": "client.capabilities",
+            "ready_done": true,
+            "remaining_ms": 360,
+            "state": "RETURN",
+            "transport_failed": false
+          },
+          {
+            "elapsed_ms": 4148,
+            "phase": "gateway.capabilities",
+            "ready_done": true,
+            "remaining_ms": 360,
+            "state": "ENTER",
+            "transport_failed": false
+          },
+          {
+            "elapsed_ms": 4157,
+            "phase": "gateway.capabilities",
+            "ready_done": true,
+            "remaining_ms": 352,
+            "state": "RETURN",
+            "transport_failed": false
+          },
+          {
+            "elapsed_ms": 4157,
+            "phase": "omnis.inert.probe_unknown",
+            "ready_done": true,
+            "remaining_ms": 352,
+            "state": "ENTER",
+            "transport_failed": false
+          },
+          {
+            "elapsed_ms": 4157,
+            "exceptions": [
+              {
+                "reason": "UNCLASSIFIED",
+                "type": "RPCError"
+              }
+            ],
+            "phase": "omnis.inert.probe_unknown",
+            "ready_done": true,
+            "remaining_ms": 351,
+            "state": "RAISED",
+            "transport_failed": false
+          }
+        ],
+        "host_state": "STARTING",
+        "operation": "launch",
+        "phase": "handshake_complete",
+        "ready_cancelled": false,
+        "ready_done": true,
+        "remaining_ms": 351,
+        "transport_failed": false
+      },
+      "read_count": 1,
+      "pure_count": 1,
+      "method_check": "INCOMPLETE",
+      "partial_persist_before_check": "PASS",
+      "criterion_outcomes": [
+        {
+          "status": "BLOCKED",
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ]
+        },
+        {
+          "status": "BLOCKED",
+          "gaps": [
+            "ORACLE_UNAVAILABLE",
+            "CONTROLS_UNAVAILABLE",
+            "METHOD_INCOMPLETE"
+          ]
+        }
+      ],
+      "restart_processes": [
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2047739
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2047745
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "reconcile",
+          "pid": 2047814
+        },
+        {
+          "execution_attempts": 0,
+          "exit": 0,
+          "operation": "readback",
+          "pid": 2047835
+        }
+      ],
+      "forbidden_native_attempts": 0,
+      "bootstrap": [
+        {
+          "test": "bootstrap-import",
+          "status": "ELAPSED_MS",
+          "count": 4081
+        },
+        {
+          "test": "bootstrap-audit",
+          "status": "ELAPSED_MS",
+          "count": 488
+        },
+        {
+          "test": "bootstrap-audit",
+          "status": "CALLS",
+          "count": 2016677
+        }
+      ],
+      "inbox": {
+        "admitted": 0,
+        "turn_completed": 0,
+        "consumed": 1,
+        "delivered": 1,
+        "inbox": 1
+      }
+    }
+  },
+  "partial_return_inventory": [
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "533f6dcd3db9e68fdda2cd7586096cf404373e31e14d9e117cd4051e4af5f15d",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+      "sha256": "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_contract.py",
+      "sha256": "859bb6b6a8e3c0327bd11cf7c87cfbeb61b501ab4d5e4fcc5dcd78f7910acbd9",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "sha256": "4b73815b6951d9fb79b2ad23f0555f187191010306bfdf473fb8600f28f193cd",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/method_checks.py",
+      "sha256": "e417e48f0f7bc6b0d04e453994c4f106213f68ec5ae18ad941c68a4b46327138",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "sha256": "ac3f634e87720727ed9c573c294a1bbe4806b5d7e170e09613e2cc2a0ffc3697",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/tests/test_contract_method_checks.py",
+      "sha256": "63c5c11cc2e73e7c045a779a7438f4807a3e8190b9e70797f46e77e276a6b6cb",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "2cc1e1b863b587bf14405598ed4e6bda79907492418adb68c49adb603a8abafa",
+      "equals_partial_return_source": false
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "sha256": "dc987924f5346019e416ffa27b64d757c4b85d164a6802cccd8f81a7fd49bb02",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/pin.json",
+      "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "sha256": "da5e19d6222d8e74213b0e05afd45b2dc1207674e73c36d40e138782ae9e66fa",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "sha256": "0a332d5a814567e30e30582a0ae82334092599d740b82155f355dc340d2f4770",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+      "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+      "equals_partial_return_source": true
+    },
+    {
+      "path": "integrations/hermes/upstream/omnis-managed.patch",
+      "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+      "equals_partial_return_source": true
+    }
+  ],
+  "preserved_artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/method-history-proof.json",
+      "sha256": "425edc6ba11e5b0ce33ff224c1e943efd007def602cad081d04c980e00177a06",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/native-observation.jsonl",
+      "sha256": "aaac26e015079367ee232e69db13a1e9eec21f64043b407b4643fa66e1b16e15",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/native_bootstrap.py",
+      "sha256": "8bd2072c724ecaefd17e8e681abd035b1b62916204742f9cd19c3f8faaad9d1a",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/restart-observer-059d9399a7fb40e1beecdf21c122076d.jsonl",
+      "sha256": "9219926828763526ef19905760e20407b265215bd0a0f7305715997e4074d9b7",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/restart-observer-3d77345359654de689e676f7f3d42bb2.jsonl",
+      "sha256": "7aeaebe0368b7801c64815579e2832be83a8729cda69b75bb5a73e3d409158ad",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/restart-observer-5fe6497899164251ad450ba8e384dc1c.jsonl",
+      "sha256": "e73a876ea39c388b875f751de4cddbd34600762e5d2c5d650b2abdd743fdda05",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/diagnostic1/restart-observer-9c867858c3a240e1871b0b5caea85738.jsonl",
+      "sha256": "b266c7ece0e24f2da4e13af3f7db580746eb183054f8c19ed02fd0b966fb638f",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/method-history-proof.json",
+      "sha256": "1409a8b8188a1a9d73a1107382d27b67b9456e9f7326261182ea05ad11217130",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/native-observation.jsonl",
+      "sha256": "7123e74e0a0e18f492c48014d5e005fd22f1757c4aa1d97715c238a7ce10b7a0",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/native_bootstrap.py",
+      "sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/restart-observer-098260849d7943358cb820d791462d3b.jsonl",
+      "sha256": "f430b90c4e0c8651b6f9615e5af52a8d8f7af6f49dbb101d309549ab1ee02cd1",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/restart-observer-4d3c235bbfc64bddaa62c933943dfa07.jsonl",
+      "sha256": "3f9f74443a2e2eba739a12558048eac95b33a3015039594da65e1a91a06febf5",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/restart-observer-e067ea539f8745cfa277a6c5c71c6e3b.jsonl",
+      "sha256": "79c153cf4fe9572bf4b783d0b05590d47161c3e6edb3e33d3039fd1dd34427ca",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-full/restart-observer-e156afc6cc1547e198e8f79ae184500f.jsonl",
+      "sha256": "3df6f8c241558bb2cbfe340dd18b798c3a61cb9c312fc681dafebddc380fe216",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/method-history-proof.json",
+      "sha256": "e15c82d5a120aad8f3cba340ccabcca58bffce85bc42bf3e8f039303c9cd965f",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/native-observation.jsonl",
+      "sha256": "2387f71b4ea78d6dde5c4498cd7ebd686600a7d7c9a770c267763269ae9e8b2f",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/native_bootstrap.py",
+      "sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/restart-observer-21c348e861d24014b5a8607469f475c6.jsonl",
+      "sha256": "87fe8b4851a6c7dcb4df1d8b38ec8fbc5983a1a60b3f37b36e2c63a5eaa5e1d6",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/restart-observer-5e5e476869bd4cee994a1fe2dcc9e65f.jsonl",
+      "sha256": "0e4081f442fe8dbf8ed1f310be4382c0b8daeca08beffc6a076159b720fb2b62",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/restart-observer-7fbda0188ba549bbbc4a684aa27f0e90.jsonl",
+      "sha256": "7a92a38a8ed301a3740bfed68d1c2df4a24fbb32769c3f752ab1589a78267275",
+      "mode": "0600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-evidence/qa-partial/restart-observer-aa6010deb3a44c60999b83b47dff43e0.jsonl",
+      "sha256": "11059f70ccdaf5d0109be448892b5c1ceac7d17ed433fbf593a7ae4e7cdb4d76",
+      "mode": "0600"
+    }
+  ],
+  "review": {
+    "status": "NOT_RUN_TOOL_BLOCKED_PARENT_REQUIRED",
+    "attempt": "delegate_task read-only exact single-file fixture review",
+    "error": "Errno17 File exists /home/kali/.hermes/cache/scratch/omnis-astra-settings-active.json",
+    "disposition": "No settings deletion/modification or alternate agent spawned; parent independently reviews/adjudicates/integrates. No reviewer approval claimed."
+  },
+  "global_status": {
+    "AICI": "launch fixture candidate fixed/tested, not integrated",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "P4a_minim": "NOT_RUN_BY_THIS_AUTHOR",
+    "canonical": "NOT_RUN_BEFORE_PARENT_REVIEW",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "execution_limits": {
+    "grant_seconds": 4.5,
+    "rpc_seconds": 0.8,
+    "managed_seconds": 3.2,
+    "execution_seconds": 3.0,
+    "changed": false
+  },
+  "commits": {
+    "created": [],
+    "staged": false,
+    "push": false,
+    "parent_action_required": true
+  },
+  "retention": "All own DB roots/PGDATA/logs retained, native proof/observer/bootstrap copies privately preserved. Exact CIDs/projects/networks/socket absence and twelve reader PIDs checked; native lock files retained but successfully reacquired. No historical/r1 resources touched.",
+  "deviations": [
+    "Initial report write used Python null and failed; corrected immediately; no product effect.",
+    "Temporary per-RPC first-error instrumentation used only diagnostic1 then removed; diagnostic1 whole transient test hash not captured, executed bootstrap copied/hash-bound and receipt/proof retained. Not a frozen acceptance run.",
+    "First format check requested triple-double-quoted literals, corrected before final checks/QA.",
+    "One synthetic readback printed full criterion-outcome metadata objects rather than just status/gaps; no DSN, capabilities, credential data, runtime.boot or target input were emitted. Subsequent report uses status/gaps projection only."
+  ],
+  "private_logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-consumer-qa.log",
+      "mode": "0o600",
+      "sha256": "207b1f8b5dfbbaceb800cb42f6380405cb2271102e9918123fd09a4549882030"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-final-source.log",
+      "mode": "0o600",
+      "sha256": "90ddce30a1c6b4f3c86141c470e89edf86edbb62c5219aa4bc7cd4d125fbb030"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-launch-diagnostic1.log",
+      "mode": "0o600",
+      "sha256": "dd8a522d2128feb15c38868a8c4e027723020db0c35300485d5912eadda82651"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-observer-green1.log",
+      "mode": "0o600",
+      "sha256": "ce9133381f709675272817bb9710388e512d909344983956c5978a600a9883f0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-observer-green2.log",
+      "mode": "0o600",
+      "sha256": "b20130d60e55153364f4f5db10cdbc38865d21b4a2f3b47e144677fb66b6b10f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/astra-observer-red.log",
+      "mode": "0o600",
+      "sha256": "12ce0c2e52a8729a2f3afd0593e08a4d1783d05edaba73f50545b329810e276b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/db-79e2b94abb4a4afa/gate.log",
+      "mode": "0o600",
+      "sha256": "551de7d3664e0c4a47b47fb86fb93d9f98be10672c4cda0a6108fea6b5104e1f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/db-e03ae8891b86474d/gate.log",
+      "mode": "0o600",
+      "sha256": "8f334fd3cc853fb8f54770b176608d28f80cda90203d7cb8408e93a7bb9b535c"
+    }
+  ],
+  "wrapper": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "sha256": "024ca85e84a0bf276714e88eacaebec81b86c345fa9642f5d5e561914acfd8d9",
+    "changed": false
+  },
+  "completion_boundary": "Development candidate/handoff only: parent must adjudicate historic finding, obtain scoped independent fixture review and independent consumer QA as required, then stage/commit granular. No canonical or P2 closure asserted."
+}

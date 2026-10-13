@@ -257,6 +257,10 @@ class ManagedAdmission:
                 connection, owner, ref(request["context_ref"], "contract-input-context")
             )
             version = contract.integer(mapping(context["payload"])["version"], 1, 2)
+            from omnis.modules.tasks.mission_revisions import require_no_revision
+
+            prefix = await store.graph(connection, owner, run)
+            require_no_revision(prefix)
             if (
                 request["composition_version"] == 4 and request["schema_version"] != version + 1
             ) or (
@@ -270,7 +274,6 @@ class ManagedAdmission:
                 )
             ).scalar_one_or_none() is not None:
                 raise CatalogError("CONTEXT_ALREADY_ASSIGNED")
-            prefix = await store.graph(connection, owner, run)
             source = await ContractInputs(self.engine, self.root).current_source(
                 connection, owner, context, prefix
             )
@@ -348,7 +351,7 @@ class ManagedAdmission:
                 graph = await self._build(conn, owner, value)
                 manifest = contract.validate_manifest(graph[-1])
                 run = uuid_string(mapping(manifest["payload"])["run_id"])
-                await self._verify_graph(conn, owner, run, graph)
+                await self._verify_graph(conn, owner, run, graph, receive_only=False)
                 # The scoped cursor is inserted only after its owning run row.
                 retained = (
                     {text(r["id"]): r for r in await store.graph(conn, owner, run)}
@@ -459,20 +462,24 @@ class ManagedAdmission:
         owner = uuid_string(owner_id)
         manifest = await self.load_manifest(connection, owner, manifest_ref)
         run = uuid_string(mapping(manifest["payload"])["run_id"])
-        rows = (
-            (
-                await connection.execute(
-                    sql(
-                        "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run ORDER BY id"
-                    ),
-                    {"owner": owner, "run": run},
-                )
+        from omnis.modules.tasks.mission_revisions import require_no_revision
+
+        graph = await store.graph(connection, owner, run)
+        require_no_revision(graph)
+        if contract.manifest_protocol(manifest) == "omnis-managed-admission-v4":
+            from omnis.modules.tasks.method_checker_identity import verify
+
+            checkers = [r for r in graph if r["kind"] == "method-checker"]
+            bundles = [r for r in graph if r["kind"] == "prompt-bundle"]
+            if len(checkers) != 1 or len(bundles) != 1:
+                raise CatalogError("METHOD_CHECKER_UNAVAILABLE")
+            verify(
+                checkers[0],
+                pin=text(mapping(bundles[0]["payload"])["composer_revision"]),
+                receive_only=False,
+                zero_predicates=False,
             )
-            .scalars()
-            .all()
-        )
-        graph = [record(r) for r in rows]
-        await self._verify_graph(connection, owner, run, graph)
+        await self._verify_graph(connection, owner, run, graph, receive_only=False)
         return managed_composition.stage_payload(manifest, graph)
 
     async def commit_binding(
@@ -729,7 +736,9 @@ class ManagedAdmission:
             raise CatalogError("METHOD_RECEIPT_MISMATCH")
         if contract.manifest_protocol(manifests[0]) != "omnis-managed-admission-v4":
             return contract.method_check(brief, result, checker_ref)
-        local = {text(r["id"]): r for r in values}
+        from omnis.modules.tasks.mission_revisions import legacy_index
+
+        local = legacy_index(values)
         bindings = [r for r in values if r["kind"] == "runtime-binding"]
         finals = [r for r in values if r["kind"] == "native-task-receipt"]
         if len(manifests) != 1 or len(bindings) != 1 or len(finals) != 1:
@@ -896,8 +905,17 @@ class ManagedAdmission:
         return documents
 
     async def _verify_graph(
-        self, conn: AsyncConnection, owner: str, run: str, graph: list[dict[str, object]]
+        self,
+        conn: AsyncConnection,
+        owner: str,
+        run: str,
+        graph: list[dict[str, object]],
+        *,
+        receive_only: bool = True,
     ) -> None:
+        from omnis.modules.tasks import mission_revisions
+
+        mission_revisions.validate_graph(graph)
         refs: dict[bytes, dict[str, object]] = {}
 
         def collect(value: object) -> None:
@@ -918,9 +936,8 @@ class ManagedAdmission:
         for item in graph:
             record(item)
             collect(item["payload"])
-        local = {text(item["id"]): item for item in graph}
-        if len(local) != len(graph):
-            raise CatalogError("REF_MISMATCH")
+        exact_local = mission_revisions.index(graph)
+        local = mission_revisions.legacy_index(graph)
         for item in graph:
             body = mapping(item["payload"])
             if item["kind"] == "contract-input-context":
@@ -970,7 +987,7 @@ class ManagedAdmission:
         for reference in refs.values():
             identity = uuid_string(reference["id"])
             if identity in local:
-                if canonical(catalog.reference(local[identity])) != canonical(reference):
+                if canonical(reference) not in exact_local:
                     raise CatalogError("REF_MISMATCH")
             elif reference["kind"] in {
                 "contract-case-input",
@@ -1048,10 +1065,10 @@ class ManagedAdmission:
             criterion_checks.validate_assignment(
                 brief,
                 local[uuid_string(bound_ref["id"])],
-                local[uuid_string(ref(header["mission_revision"], "mission")["id"])],
+                mission_revisions.resolve(graph, ref(header["mission_revision"], "mission")),
                 local[run],
                 [r for r in graph if r["kind"] == "criterion-outcome-rule"],
-                receive_only=True,
+                receive_only=receive_only,
             )
         for manifest in (r for r in graph if r["kind"] == "launch-manifest"):
             if contract.manifest_protocol(manifest) != contract.PROTOCOL:
@@ -1114,9 +1131,11 @@ class ManagedAdmission:
     ) -> None:
         from omnis.modules.runs.native_preparation import read_receipt
         from omnis.modules.tasks import managed_composition
+        from omnis.modules.tasks.mission_revisions import legacy_index
 
-        payload = managed_composition.stage_payload(manifest, graph)
-        local = {text(r["id"]): r for r in graph}
+        local = legacy_index(graph)
+        # Reconstruct the immutable assignment composition, not the new mission.
+        payload = managed_composition.stage_payload(manifest, list(local.values()))
         run_body = mapping(local[run]["payload"])
         preparation_ref = ref(run_body["preparation_receipt_ref"], "native-preparation-receipt")
         _, receipt = await catalog.get(conn, owner, preparation_ref)
@@ -1187,21 +1206,11 @@ class ManagedAdmission:
             await store.lock(conn, owner)
             state = await store.state(conn, owner, command=command)
             run = uuid_string(state["run_id"])
-            rows = (
-                (
-                    await conn.execute(
-                        sql(
-                            "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run ORDER BY id"
-                        ),
-                        {"owner": owner, "run": run},
-                    )
-                )
-                .scalars()
-                .all()
-            )
-            graph = [record(r) for r in rows]
+            graph = await store.graph(conn, owner, run)
             await self._verify_graph(conn, owner, run, graph)
-            by_id = {text(r["id"]): r for r in graph}
+            from omnis.modules.tasks.mission_revisions import legacy_index
+
+            by_id = legacy_index(graph)
             manifest = contract.validate_manifest(by_id[uuid_string(state["manifest_id"])])
             binding = (
                 None

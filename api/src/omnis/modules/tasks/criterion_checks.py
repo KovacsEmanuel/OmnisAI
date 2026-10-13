@@ -20,6 +20,11 @@ REASON = (
 # Exact integrated no-oracle implementations, not new-admission identities.
 # Descriptor equality and each implementation's supported states still apply.
 HISTORICAL_RULES = {
+    "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb": {
+        "COMPLETE",
+        "INCOMPLETE",
+        "UNKNOWN",
+    },
     "df2babe1e5c12c19f9abfad75312086e11e4d4485708ed0709d8f438f510dc5b": {"COMPLETE", "INCOMPLETE"},
     "30cf2d058b7ed7c3693592ad68d6cd5b0040c5f65a7b81a4452ecf9e2f05f7a8": {"COMPLETE"},
 }
@@ -219,11 +224,13 @@ def outcome_payloads(
             raise CatalogError("CRITERION_RESULT_MISMATCH")
         return []
     header = contract.validate_result_header(body["header"])
-    local = {contract.text(r["id"]): contract.record(r) for r in graph}
+    from omnis.modules.tasks.mission_revisions import legacy_index, resolve
+
+    local = legacy_index(graph)
     bound = local[
         uuid_string(contract.ref(assigned[0]["bound_procedure_ref"], "bound-procedure")["id"])
     ]
-    mission = local[uuid_string(contract.ref(header["mission_revision"], "mission")["id"])]
+    mission = resolve(graph, contract.ref(header["mission_revision"], "mission"))
     run = local[uuid_string(header["run_id"])]
     validate_assignment(
         brief_record,

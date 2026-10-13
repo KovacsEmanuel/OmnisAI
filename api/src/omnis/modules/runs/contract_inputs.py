@@ -29,7 +29,9 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         fields |= {"selection_ref", "preparation_command_id"}
     elif operation == "create-input":
         fields |= {"context_ref", "input"}
-    elif operation not in {"read-context", "read-method-context", "read-input"}:
+    elif operation == "append-mission":
+        fields |= {"context_ref", "mission_ref", "criterion_id"}
+    elif operation not in {"read-context", "read-method-context", "read-input", "read-mission"}:
         raise CatalogError("INVALID_REQUEST")
     if operation == "create-method-context" and "criterion_ids" in mapping(value):
         fields.add("criterion_ids")
@@ -47,6 +49,11 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
     elif operation == "create-input":
         ref(result["context_ref"], "contract-input-context")
         mapping(result["input"])
+    elif operation == "append-mission":
+        ref(result["context_ref"], "contract-input-context")
+        mission = ref(result["mission_ref"], "mission")
+        contract.integer(mission["revision"], 1, 1)
+        uuid_string(result["criterion_id"])
     return result
 
 
@@ -133,6 +140,9 @@ class ContractInputs:
             if mapping(context["payload"])["version"] != value["schema_version"]:
                 raise CatalogError("REF_MISMATCH")
             graph = await store.graph(conn, owner, run)
+            from omnis.modules.tasks.mission_revisions import require_no_revision
+
+            require_no_revision(graph)
             source = await self.current_source(conn, owner, context, graph)
             schema_ref, raw_schema, _ = source.input_schema()
             if schema_ref != mapping(context["payload"])["schema_ref"]:
@@ -145,6 +155,46 @@ class ContractInputs:
             }
             await store.command_complete(
                 conn, owner, run, command, "create-input", value, result_refs
+            )
+            return {**result_refs, "created": True}
+
+    async def append_mission(self, request: object) -> dict[str, object]:
+        from omnis.modules.tasks import mission_revisions
+
+        value = validate_request("append-mission", request)
+        owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
+        async with asyncio.timeout(15), self.engine.begin() as conn:
+            await store.lock(conn, owner)
+            run, context = await store.owned(conn, owner, value["context_ref"])
+            original = await store.get(conn, owner, run, value["mission_ref"])
+            graph = await store.graph(conn, owner, run)
+            mission_revisions.require_supported(graph, context, original)
+            revised = mission_revisions.append(original, value["criterion_id"])
+            prior = await store.command_replay(conn, owner, command, "append-mission", value)
+            if prior is not None:
+                if prior != {
+                    "context_ref": value["context_ref"],
+                    "predecessor_ref": value["mission_ref"],
+                    "mission_ref": records.reference(revised),
+                }:
+                    raise CatalogError("COMMAND_CONFLICT")
+                return {**prior, "created": False}
+            if any(r["kind"] == "mission" and r["revision"] == 2 for r in graph):
+                raise CatalogError("MISSION_REVISION_CONFLICT")
+            source = await self.current_source(conn, owner, context, graph)
+            if (
+                source.procedure.key != "map-records"
+                or source.procedure.verification_kind != "CONTRACT"
+            ):
+                raise CatalogError("MISSION_REVISION_UNSUPPORTED")
+            await store.put(conn, owner, run, revised)
+            result_refs = {
+                "context_ref": value["context_ref"],
+                "predecessor_ref": value["mission_ref"],
+                "mission_ref": records.reference(revised),
+            }
+            await store.command_complete(
+                conn, owner, run, command, "append-mission", value, result_refs
             )
             return {**result_refs, "created": True}
 
@@ -198,7 +248,12 @@ class ContractInputs:
             await store.lock(conn, owner)
             receipt = await store.command_receipt(conn, owner, command)
             body = mapping(receipt["payload"])
-            if body["operation"] != operation.replace("read-", "create-"):
+            expected_operation = (
+                "append-mission"
+                if operation == "read-mission"
+                else operation.replace("read-", "create-")
+            )
+            if body["operation"] != expected_operation:
                 raise CatalogError("COMMAND_CONFLICT")
             result = mapping(body["result_refs"])
             values = {
@@ -220,9 +275,11 @@ def main(argv: list[str] | None = None) -> int:
             "create-context",
             "create-method-context",
             "create-input",
+            "append-mission",
             "read-context",
             "read-method-context",
             "read-input",
+            "read-mission",
         ),
     )
     parser.add_argument("--request", required=True)
@@ -251,6 +308,8 @@ def main(argv: list[str] | None = None) -> int:
                     return await service.create_method_context(value)
                 if args.operation == "create-input":
                     return await service.create_input(value)
+                if args.operation == "append-mission":
+                    return await service.append_mission(value)
                 return await service.read(args.operation, value)
             finally:
                 await engine.dispose()

@@ -488,6 +488,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, True, "evidence-required-prefix"),
         (False, True, False, False, False, "partial-requirement-full"),
         (False, True, False, False, True, "partial-requirement-prefix"),
+        (False, True, False, False, False, "mission-consumer"),
     ],
     ids=[
         "support-zero",
@@ -507,6 +508,7 @@ class PreparationPrerequisite(RuntimeClient):
         "evidence-required-prefix",
         "partial-requirement-full",
         "partial-requirement-prefix",
+        "mission-consumer",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -533,7 +535,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert python.is_file(), "PINNED_PYTHON_REQUIRED"
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
-    if applicability is not None:
+    if applicability is not None and applicability != "mission-consumer":
         import yaml
 
         from fixtures import c03_records
@@ -1109,8 +1111,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                     raise
 
-            if applicability is not None and applicability.startswith(
-                ("evidence-", "partial-requirement-")
+            if applicability == "mission-consumer" or (
+                applicability is not None
+                and applicability.startswith(("evidence-", "partial-requirement-"))
             ):
                 # Same owner, kernel peer and private capability; no response emitter.
                 # Establish the listener before launch, not inside the native grant.
@@ -1852,6 +1855,188 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             assert host.process is not None and host.process.returncode is not None
             assert not host._owned_pids()
             native_before = observation.read_bytes()
+            if applicability == "mission-consumer":
+                from omnis.modules.settings import candidate_store as stored
+                from omnis.modules.tasks import managed_store
+
+                m1_back = deepcopy(back)
+                m1_graph = [mapping(r) for r in sequence(back["records"])]
+                mission = next(r for r in m1_graph if r["kind"] == "mission")
+                append_request = seed.write(
+                    schema_version=1,
+                    context_ref=context["context_ref"],
+                    mission_ref=stored.reference(mission),
+                    criterion_id=str(uuid4()),
+                )
+
+                async def private_input_cli(
+                    operation: str, value: dict[str, object]
+                ) -> dict[str, object]:
+                    path = tmp_path / ("mission-command-" + uuid4().hex + ".json")
+                    path.write_bytes(canonical(value))
+                    path.chmod(0o600)
+                    child = await asyncio.create_subprocess_exec(
+                        str(python),
+                        "-I",
+                        "-B",
+                        "-c",
+                        "import sys;sys.path.insert(0,sys.argv[1]);from omnis.modules.runs.contract_inputs import main;raise SystemExit(main(sys.argv[2:]))",
+                        str(ROOT / "api/src"),
+                        operation,
+                        "--request",
+                        str(path),
+                        "--catalog-root",
+                        str(seed.root),
+                        cwd=tmp_path,
+                        env=seed.environment(dsn),
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    try:
+                        stdout, stderr = await asyncio.wait_for(child.communicate(), 20)
+                    finally:
+                        if child.returncode is None:
+                            child.kill()
+                            await child.wait()
+                    for suffix, raw in (("stdout", stdout), ("stderr", stderr)):
+                        output = path.with_suffix("." + suffix)
+                        output.write_bytes(raw)
+                        output.chmod(0o600)
+                    assert child.returncode == 0, "PRIVATE_MISSION_COMMAND_FAILED"
+                    require_empty_stderr(stderr)
+                    return mapping(json.loads(stdout))
+
+                rollback_markers = await markers()
+
+                async def fail_receipt(*args: object, **kwargs: object) -> None:
+                    raise CatalogError("TEST_RECEIPT_ROLLBACK")
+
+                with monkeypatch.context() as rollback:
+                    rollback.setattr(managed_store, "command_complete", fail_receipt)
+                    with pytest.raises(CatalogError, match="TEST_RECEIPT_ROLLBACK"):
+                        await inputs.append_mission(append_request)
+                assert await markers() == rollback_markers
+                async with engine.connect() as conn:
+                    assert (
+                        await conn.execute(
+                            sql(
+                                "SELECT count(*) FROM public.managed_mission_revision WHERE run_id=:run"
+                            ),
+                            {"run": back["run_id"]},
+                        )
+                    ).scalar_one() == 0
+                assert canonical(await domain.readback(back_request)) == canonical(m1_back)
+                appended = await private_input_cli("append-mission", append_request)
+                assert appended["created"] is True
+                assert (await private_input_cli("append-mission", append_request))[
+                    "created"
+                ] is False
+                read_request = {
+                    k: append_request[k] for k in ("schema_version", "owner_id", "command_id")
+                }
+                read = await private_input_cli("read-mission", read_request)
+                m2 = mapping(read["mission"])
+                assert read["predecessor"] == mission and m2["id"] == mission["id"]
+                assert m2["revision"] == 2
+                async with engine.begin() as conn:
+                    await managed_store.lock(conn, seed.owner)
+                    # Same-session shadows cannot replace attested public rows.
+                    await conn.execute(
+                        sql(
+                            "CREATE TEMP TABLE managed_record (id uuid,owner_id uuid,run_id uuid,envelope jsonb) ON COMMIT DROP"
+                        )
+                    )
+                    await conn.execute(
+                        sql(
+                            "CREATE TEMP TABLE managed_mission_revision (mission_id uuid,owner_id uuid,run_id uuid,revision bigint,envelope jsonb) ON COMMIT DROP"
+                        )
+                    )
+                    assert (
+                        await managed_store.get(
+                            conn, seed.owner, str(back["run_id"]), stored.reference(mission)
+                        )
+                        == mission
+                    )
+                    assert (
+                        await managed_store.get(
+                            conn, seed.owner, str(back["run_id"]), appended["mission_ref"]
+                        )
+                        == m2
+                    )
+                    assert (
+                        await managed_store.by_id(
+                            conn, seed.owner, str(back["run_id"]), mission["id"]
+                        )
+                        == mission
+                    )
+                    assert (
+                        await conn.execute(
+                            sql(
+                                "SELECT count(*) FROM public.managed_mission_revision WHERE run_id=:run"
+                            ),
+                            {"run": back["run_id"]},
+                        )
+                    ).scalar_one() == 1
+                    for wrong in (
+                        {**mapping(appended["mission_ref"]), "digest": "0" * 64},
+                        {**mapping(appended["mission_ref"]), "revision": True},
+                        {**mapping(appended["mission_ref"]), "kind": "focus"},
+                    ):
+                        with pytest.raises(CatalogError):
+                            await managed_store.get(conn, seed.owner, str(back["run_id"]), wrong)
+                back = await domain.readback(back_request)
+                added = [
+                    mapping(r)
+                    for r in sequence(back["records"])
+                    if mapping(r)["id"] not in {r["id"] for r in m1_graph}
+                ]
+                assert len(added) == 1 and added[0]["kind"] == "contract-input-command"
+                historical_records = [
+                    mapping(r)
+                    for r in sequence(back["records"])
+                    if mapping(r)["revision"] == 1 and mapping(r)["id"] != added[0]["id"]
+                ]
+                assert canonical(historical_records) == canonical(m1_graph)
+                for field in (
+                    "briefs",
+                    "results",
+                    "checks",
+                    "criterion_outcomes",
+                    "tasks",
+                    "inbox",
+                    "binding",
+                    "manifest",
+                ):
+                    assert canonical(back[field]) == canonical(m1_back[field])
+                durable_markers = await markers()
+                for bad in (
+                    {**append_request, "criterion_id": str(uuid4())},
+                    {**append_request, "owner_id": str(uuid4())},
+                    {
+                        **append_request,
+                        "mission_ref": {**stored.reference(mission), "digest": "0" * 64},
+                    },
+                    {**append_request, "criterion_id": True},
+                    {**append_request, "mission_ref": stored.reference(m2)},
+                ):
+                    with pytest.raises(CatalogError):
+                        await inputs.append_mission(bad)
+                    assert await markers() == durable_markers
+                with pytest.raises(CatalogError, match="MISSION_REVISION_NEW_WORK_UNSUPPORTED"):
+                    await domain.prepare_method({**assignment, "command_id": str(uuid4())})
+                async with engine.begin() as conn:
+                    with pytest.raises(CatalogError, match="MISSION_REVISION_NEW_WORK_UNSUPPORTED"):
+                        await domain.stage_payload(conn, seed.owner, prepared["manifest_ref"])
+                assert await markers() == durable_markers
+                assert observation.read_bytes() == native_before
+                checkpoint(
+                    mission_revision_consumer="M1_IMMUTABLE_M2_APPENDED",
+                    mission_refs=[stored.reference(mission), appended["mission_ref"]],
+                    mission_new_work="REFUSED_BEFORE_WRITES_NATIVE",
+                    mission_private_cli="APPEND_REPLAY_READ",
+                    mission_atomic_receipt_rollback="PASS",
+                    mission_same_session_temp_shadow_reads="PUBLIC_EXACT",
+                )
             with monkeypatch.context() as patcher:
                 for module in ("skill_catalog", "candidate_catalog"):
                     patcher.setattr("omnis.modules.settings." + module + ".evaluate_pure", no_rerun)

@@ -15,9 +15,35 @@ async def lock(connection: AsyncConnection, owner: str) -> None:
 
 async def put(connection: AsyncConnection, owner: str, run: str, value: object) -> None:
     item = record(value)
+    if item["revision"] == 2:
+        from omnis.modules.tasks.mission_revisions import validate_pair
+
+        original = await by_id(connection, owner, run, item["id"])
+        validate_pair(original, item)
+        await connection.execute(
+            sql(
+                "INSERT INTO public.managed_mission_revision(mission_id,owner_id,run_id,revision,envelope) VALUES (:id,:owner,:run,:revision,CAST(:body AS jsonb))"
+            ),
+            {
+                "id": item["id"],
+                "owner": owner,
+                "run": run,
+                "revision": 2,
+                "body": canonical(item).decode(),
+            },
+        )
+        return
+    # Preserve the legacy writer seam; the new command receipt is explicitly
+    # public-bound just like its revision2 row and trusted root lookup.
+    table = (
+        "public.managed_record"
+        if item["kind"] == "contract-input-command"
+        and mapping(item["payload"]).get("operation") == "append-mission"
+        else "managed_record"
+    )
     await connection.execute(
         sql(
-            "INSERT INTO managed_record(id,owner_id,run_id,envelope) VALUES (:id,:owner,:run,CAST(:body AS jsonb))"
+            f"INSERT INTO {table}(id,owner_id,run_id,envelope) VALUES (:id,:owner,:run,CAST(:body AS jsonb))"
         ),
         {"id": item["id"], "owner": owner, "run": run, "body": canonical(item).decode()},
     )
@@ -29,7 +55,7 @@ async def by_id(
     row = (
         (
             await connection.execute(
-                sql("SELECT owner_id,run_id,envelope FROM managed_record WHERE id=:id"),
+                sql("SELECT owner_id,run_id,envelope FROM public.managed_record WHERE id=:id"),
                 {"id": identity},
             )
         )
@@ -48,7 +74,29 @@ async def get(
     connection: AsyncConnection, owner: str, run: str, reference: object
 ) -> dict[str, object]:
     checked = ref(reference)
-    item = await by_id(connection, owner, run, checked["id"])
+    if checked["revision"] == 1:
+        item = await by_id(connection, owner, run, checked["id"])
+    else:
+        from omnis.modules.tasks.mission_revisions import validate_pair
+
+        if checked["kind"] != "mission" or checked["revision"] != 2:
+            raise CatalogError("REF_UNAVAILABLE")
+        row = (
+            (
+                await connection.execute(
+                    sql(
+                        "SELECT owner_id,run_id,envelope FROM public.managed_mission_revision WHERE mission_id=:id AND revision=:revision"
+                    ),
+                    {"id": checked["id"], "revision": checked["revision"]},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None or str(row["owner_id"]) != owner or str(row["run_id"]) != run:
+            raise CatalogError("REF_UNAVAILABLE")
+        item = record(row["envelope"], "mission")
+        validate_pair(await by_id(connection, owner, run, checked["id"]), item)
     if canonical(catalog.reference(item)) != canonical(checked):
         raise CatalogError("REF_MISMATCH")
     return item
@@ -103,7 +151,7 @@ async def owned(
     checked = ref(reference)
     row = (
         await connection.execute(
-            sql("SELECT run_id FROM managed_record WHERE owner_id=:owner AND id=:id"),
+            sql("SELECT run_id FROM public.managed_record WHERE owner_id=:owner AND id=:id"),
             {"owner": owner, "id": checked["id"]},
         )
     ).scalar_one_or_none()
@@ -118,7 +166,7 @@ async def graph(connection: AsyncConnection, owner: str, run: str) -> list[dict[
         (
             await connection.execute(
                 sql(
-                    "SELECT envelope FROM managed_record WHERE owner_id=:owner AND run_id=:run ORDER BY id"
+                    "SELECT envelope FROM (SELECT envelope FROM public.managed_record WHERE owner_id=:owner AND run_id=:run UNION ALL SELECT envelope FROM public.managed_mission_revision WHERE owner_id=:owner AND run_id=:run) AS history ORDER BY envelope->>'id', envelope->>'revision'"
                 ),
                 {"owner": owner, "run": run},
             )
@@ -126,7 +174,11 @@ async def graph(connection: AsyncConnection, owner: str, run: str) -> list[dict[
         .scalars()
         .all()
     )
-    return [record(r) for r in rows]
+    from omnis.modules.tasks.mission_revisions import validate_graph
+
+    result = [record(r) for r in rows]
+    validate_graph(result)
+    return result
 
 
 async def command_receipt(
@@ -136,7 +188,7 @@ async def command_receipt(
         (
             await connection.execute(
                 sql(
-                    "SELECT envelope FROM managed_record WHERE owner_id=:owner AND envelope->>'kind'='contract-input-command' AND envelope->'payload'->>'command_id'=:command"
+                    "SELECT envelope FROM public.managed_record WHERE owner_id=:owner AND envelope->>'kind'='contract-input-command' AND envelope->'payload'->>'command_id'=:command"
                 ),
                 {"owner": owner, "command": command},
             )

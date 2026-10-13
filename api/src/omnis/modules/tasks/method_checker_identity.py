@@ -17,6 +17,7 @@ SOURCES = (
     "tasks/managed_contract.py",
     "tasks/managed_composition.py",
     "tasks/criterion_checks.py",
+    "tasks/mission_revisions.py",
     "tasks/contract_case_input.py",
     "settings/candidate_catalog.py",
     "settings/candidate_store.py",
@@ -77,6 +78,11 @@ PARTIAL_SCHEMA_HISTORICAL = {
     "6f15b3ab39cd571a0fd5a682e82a8ca9adad95b2f25fa9eca12b3b6b2622b1e8": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
 }
 
+# Exact producer immediately before M2; receipt/schema-bound receive only.
+MISSION_REVISION_HISTORICAL = {
+    "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+}
+
 
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
@@ -117,6 +123,7 @@ def verify(
             or INVALIDATION_HISTORICAL.get(digest) == pin
             or EVIDENCE_HISTORICAL.get(digest) == pin
             or PARTIAL_SCHEMA_HISTORICAL.get(digest) == pin
+            or MISSION_REVISION_HISTORICAL.get(digest) == pin
         )
         and body["semantics"] == SEMANTICS
     ):

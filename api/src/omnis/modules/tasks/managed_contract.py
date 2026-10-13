@@ -543,6 +543,23 @@ def build_records(
 ) -> list[dict[str, object]]:
     """Backend-only synthetic CONTRACT_PROBE, never an assessment or grant."""
     integer(count, 1, 2)
+    if prefix is not None:
+        from omnis.modules.tasks.mission_revisions import require_no_revision
+
+        require_no_revision(prefix)
+        if method_execution is True:
+            from omnis.modules.tasks.method_checker_identity import verify
+
+            checkers = [r for r in prefix if r["kind"] == "method-checker"]
+            bundles = [r for r in prefix if r["kind"] == "prompt-bundle"]
+            if len(checkers) != 1 or len(bundles) != 1:
+                raise CatalogError("METHOD_CHECKER_UNAVAILABLE")
+            verify(
+                checkers[0],
+                pin=text(mapping(bundles[0]["payload"])["composer_revision"]),
+                receive_only=False,
+                zero_predicates=False,
+            )
     if return_predicate_id is not None and (
         not method_execution
         or context_only
@@ -1660,10 +1677,14 @@ def ref(value: object, kind: str | None = None) -> dict[str, object]:
 def record(value: object, kind: str | None = None) -> dict[str, object]:
     result = records.checked(value)
     integer(result["schema_version"], 1, 1)
-    integer(result["revision"], 1, 1)
+    revision = integer(result["revision"], 1, 2 if result["kind"] == "mission" else 1)
     ref(records.reference(result), kind)
     bounded(result)
     clean_text(result)
+    if revision == 2:
+        from omnis.modules.tasks.mission_revisions import payload
+
+        payload(result["payload"])
     return mapping(load_json(canonical(result)))
 
 

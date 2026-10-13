@@ -1,10 +1,104 @@
 # Handoff C10/B06 — prompt de continuare și checkpoint istoric
 
-## CURRENT — acceptare integrată după reluare
+## CURRENT — predare după acceptarea preconditions, 13 octombrie
+
+**Oprirea sesiunii este cerută de operator, nu un blocker nou al produsului.** Felia curentă este comisă și acceptată scoped. Continuarea în sesiunea nouă este **implementare/remediere cu cod minimal**, până la P2-inert → P4a-minim; P2-live cere acord separat. Nu porni alt audit, plan, verifier sau owner. Acest handoff proiectează planul §7.1/§8 și registrele existente, fără a extinde criteriile.
+
+### Snapshot și ce nu se reia
+
+- Repo `/home/kali/OmnisAI`, branch `checkpoint/p2-vm-restart-20261011`; baza înaintea acestui handoff: **`8fc6c0f1ffb597103ed6445b72679d1a7e3531f3`**. Citește Git real înainte de lucru. Toate schimbările intenționate sunt comise; singurul untracked observat este `documents/Omnis_Notite_Originale.html`, protejat/neatins. Fără push sau rescriere de istorie.
+- **Preconditions finite ACCEPTED_SOURCE_NATIVE_SCOPED:** produs `77d38a1844f0137baa9f654f43892a840ff4c0e8`, acceptare `4a3a1c6`, lecție prerequisite `8fc6c0f`. [Registru CURRENT](p2-bound-predicates.md), [autor](p2-bound-predicates-evidence/preconditions-author.json), [review normativ](p2-bound-predicates-evidence/preconditions-normative-review.json), [security](p2-bound-predicates-evidence/preconditions-security-review.json), [QA independentă](p2-bound-predicates-evidence/preconditions-independent-qa.json). Două APPROVED_SCOPED pe11SHA;315API+61adapter SOURCE/Ruff/mypy/wheels. QA pe `dd82dba4c69dbac409386db766f6abe57947f7ac`: **1PASS/20deselected31.32s, exit0/drained**, refuz real input gol cu delta assignment records/run=0; AIAgent/read1/PURE2 autentic,3receipts/2artifacts, COMPLETE fără PASS funcțional;4readeri/replay/no-rerun/single-consume/post-Stop duplicat receive-only. Parent11SHA+196inputs+78artefacte și cleanup exact/date păstrate.
+- **Applicability/UNKNOWN finite acceptate** pe `0aeb328`/`f8b7fd6`, acceptare `af59462`; QA independentă3PASS79.39s/exit0/drained. **Partial return acceptat** pe produs `c8e84a8`, observer-only fix `146749d`, acceptare `e6e91a6`; QA independentă full+partial2PASS49.34s/exit0/drained. Nu redeschide aceste felii numai pentru că s-a schimbat sesiunea. Revalidează numai bytes/call-sites afectate de implementarea următoare.
+- **QA-PARTIAL-RETURN-EXECUTION-01 este CLOSED_SCOPED pentru acceptarea curentă**; vechiul RuntimeUnavailable și cauza UNKNOWN rămân istorice. Audit-fanout a fost demonstrat/remediat în fixture, nu atribuit retrospectiv produsului. Pozitivul launch-only nu este acceptare. C10-NATIVE-F01 și findings applicability NORM-F01/F02/SEC01–04 au dispoziții scoped în registru; nu relansa reviewurile lor vechi. N01 LOW/neblocante păstrează motivele/scope-ul din registru; o constatare nouă concretă se adjudecă, nu se ignoră.
+- [FAIL-ul preconditions prerequisite](p2-bound-predicates-evidence/preconditions-independent-qa-prerequisite-fail.json) rămâne **1FAIL0.59s/exit1/drained**, SOURCE_PIN_REQUIRED înainte launch. [Restaurarea exact-pin](p2-bound-predicates-evidence/preconditions-source-prerequisite-restored.json) în `dd82dba` și QA distinctă de mai sus închid blocajul curent de prerequisite, nu îl transformă în defect/remediu de produs. Originea dispariției exportului rămâne UNKNOWN.
+- La pregătirea handoffului: **zero subagenți live**; nu există rezultat de review/QA de așteptat. Ultimele două fixtures PG proprii și endpointurile/readeri au readback exact de cleanup; PGDATA/logurile păstrate. Nu revendicăm absența globală a serviciilor VM, nu adoptăm fixtures istorice/r1. Exitul nativ −9 păstrat nu dovedește o cauză de produs, Stop graceful sau restart runtime.
+- **B06b/G02/P2 sunt PARTIAL/NOT_CLOSED; canonical final NOT_RUN; P4a-minim NOT_IMPLEMENTED.** Canonicalul `ff095af` este istoric, nu PASS pe produsul actual. SOURCE_HOST_NOT_INSTALLED și document-preparation prerequisite double rămân limite; readerul istoric installed, restart runtime și inferența sunt dovezi distincte.
+
+### Delta celor opt criterii §7.1 — nu alt backlog
+
+| Criteriu canonic | Ce se reutilizează în scope | Ce trebuie închis în continuare |
+|---|---|---|
+| Transport/izolare B05/H01/H02 | B05/slot/bootstrap și probele H01/H02 acceptate la frontierele lor | Numai lipsurile la consumerul extins: reverse/EOF/timeout/backpressure/unknown method, no personal grants și drain owned; synthetic peer nu este nativ. Nu recertificare B05 neschimbat |
+| Catalog/publicare B06a/b | Seed real calificat/Publish exact/CAS, snapshot pinned NO_MODEL și readback/replay acceptate | Recalifică fixture-ul afectat de compiler/evaluator/pin nou; nu transfera calificări vechi și nu introduce alt demo/editor/catalog larg |
+| Brief/composer/metodă B06b | Read/PURE/receipts reale, full+partial, applicability/preconditions finite, UNKNOWN păstrat, outcomes fără oracle BLOCKED | **Următoarea felie: invalidation**, apoi obligații evidence-bearing și optional versus required; toate cerințele/stările/motivele/gaps, required_evidence și formele refs/slots/StepOutput/predicate contractate încă neacoperite. Refuzul prudent existent nu înseamnă funcție implementată. SOURCE preflight și checker nu substituie consumerul real |
+| Binding/inventar H03–H05 | Mapping și inventar native probate în subseturile documentate | Root/child/batch/attempt distincte, mapping comis pre-access, goaluri identice cu identități distincte, inventar efectiv, wrong-identity/observer failure deny; lineage autentic/atomic sau refuz fără acces. Compresia care cere inferență rămâne live, nu pozitiv simulat |
+| Rezultat/inbox H06/H07 | Persist→check, replay/reconcile/consum o dată, receive-only post-Stop și cache same-Host acceptate scoped | M1 după M2 aditiv rămâne istoric; input/auth/precondiții invalidate nu primesc calificare curentă. Duplicate/conflict/restart/lost reply și HELD fără wake/execuții/consum dublu; markerii delivered/admitted/turn_completed/consumed distincte. **Restart runtime real și installed historical-reader încă NOT_RUN**; Same-Host cache și legacy producer fresh nu le închid |
+| DATA B06c | ModelProjections/decizie DATA, DTO guard final/direct-worker și SDK real NO-IO cu acceptări scoped în registre | Producer/proiecție calificată → decizie DATA exactă → DTO final immutable → guard integral după transform pe consumerul real. Sentinel întreg input/payload/result/error/log; raw/secrete/unknown sensitive/cross-case/bypass refuzate. Refolosește SDK neafectat; probează SDK real NO-IO numai unde schimbarea consumerului o cere. DATA/UUID sintetic nu acordă model; NO_MODEL rămâne pre-client |
+| Admission B06m/H08 | Ledger și helpers reserve/mark_sent/settle cu probe PG de contabilitate | **Același caller de produs** → reserve tranzacțional comis → SENT durabil înainte send → protocol inert declarat → receipt/UNKNOWN. Caps calls/output/deadline/VALIDATION; overlap PG observat; Stop reserve/send și veto sink; UNKNOWN după SENT păstrează rezervă, RELEASED numai no-send demonstrat; retry/fallback/aux readmise+contabilizate sau refuzate; cost necunoscut nu devine zero. Nu atomicitate DB/rețea. Native turn/config/purpose și plafon financiar neimplementat/neprobat blochează live, nu amână obligațiile inerte |
+| Snapshot final | Reviews/probe scoped și FAIL-uri păstrate | După remediile și QA afectată: reconciliază toate8rânduri cu cod/consumer/evidence/review, adjudecă fiecare finding concret și justifică orice rest live/ulterior din canon; apoi canonical real pe bytes finali și cleanup/readback. Fără PASS global din test count, SKIP sau raport SOURCE |
+
+### Fișiere/callers existente — verifică înainte de editare
+
+- B06b: `api/src/omnis/modules/settings/skill_catalog.py` și `candidate_catalog.py`; `modules/tasks/managed_contract.py`, `managed_composition.py`, `method_checks.py`, `method_checker_identity.py`, `criterion_checks.py`; `modules/runs/managed_admission.py` (`reserve_dispatch`, `_result_check`, `_method_schemas`, `reconcile`); `api/src/omnis/supervisor/native_tasks.py`; adaptor `prompt_bundle.py`/`contract_method.py` și upstream `agent/contract_execution.py` (`run_contract`). Actual producer și preflight **încă refuză** invalidation/evidence forms neimplementate; nu elimina guarduri fără semantica și probele lipsă. Nu crea registru/evaluator general ori pachet SECURITY pentru această completare.
+- B06c: `modules/runs/model_projection.py:ModelProjections.prepare/read`; `modules/runs/model_dispatch.py:ModelDispatch.prepare/read` și prepararea/readbackul configurației; `policy/model_context.py`, `model_projection.py`, `ready_model_configuration.py`; adaptor `model_request.py:FinalModelRequest/final_sdk_guard` și `model_admission.py`, plus sinkul direct/worker pin-uit. Trasează definițiile/usages întregului input transformat, nu testa numai helperul.
+- B06m: `policy/budgets.py:reserve/mark_sent/release/settle`; `ModelDispatch` și **`NativeTaskOwner` real**. La acest checkpoint, metodele de model ale ownerului sunt preflight/configuration/initialization; acestea nu sunt send. **`api/src/omnis/policy/admission.py` nu există**, deși apare în plan/note istorice. Nu inventa importul; reutilizează seamul potrivit, introducând cod nou numai când callerul necesar îl consumă.
+- Matricea M1/M2/qualification este în arhitectură §6.3; metoda/evidence/optional în §9.4–9.5/§9.10. Nu declara un `ResultQualification` sau consumer ca existent numai fiindcă documentul îl numește; tracează implementarea reală. M1 istoric, calificarea curentă și admiterea de lucru nou sunt trei frontiere, nu aceeași stare.
+- Pentru DATA/admission citește [registrul integrării](p2-integration-b06cm.md), [guardul final](p2-final-dto-20261011.md), [READY configuration](p2-ready-configuration-20261011.json) și §7.1 CURRENT înainte de a adopta concluzii vechi. Granturile/nonce-urile istorice nu se reutilizează; limita live se separă conform canonului.
+
+### Probe și remedieri — execută doar ce avansează cerința
+
+1. O singură felie: criteriu observabil → producer/caller/sink existent → pozitiv și refuz pe aceeași frontieră. Citește înainte, reproduce RED, fix minimal, GREEN și regresii afectate după ultima editare. Commit mic cu motiv/comenzi/exits/limite/revert; stage paths explicit și `git show/status`. Fără any/ignore global/catch gol/date inventate/dependențe latest.
+2. Source-first: teste existente `api/tests/test_c10_bound_predicates.py`, `test_contract_method_producer.py`, `test_contract_method_checks.py`, `test_managed_composition.py` pentru seamul metodologic; model `test_model_projection*.py`, `test_model_admission*.py`, `test_model_budget*.py` pentru seamul lor. API interpreter `api/.venv/bin/python -I -B`, plugin autoload dezactivat, fără variabile Python/pytest ambientale; Ruff/format/mypy din manifest, pe scope afectat. Nu rula toate familiile pentru fiecare fix sau reminder.
+3. Review independent pe snapshot exact; **două complementare** la authority/concurrency/Stop/effects/secrets/cross-runtime. Findings concrete trebuie reproduse/adjudecate: remediu minimal, affected checks, re-review delta/call-sites; o listă nouă goală nu șterge findingul vechi. QA independentă pe consumerul real nou/afectat după review, cu fixture și cleanup/readback proprii. Copilul nu comite și nu închide integrarea.
+4. PG numai prin `ops/run_test_db_gate.py`/ownerul existent, fixture **nouă**, atestată, UDS/no-network; nu DSN extern/SQLite/r1. Verifică `--help`/choices și wrapperul înainte de efecte. **`test-contract-method-native-pg`, `test-contract-method-pg`, `test-model-projection-pg` NU sunt choices CLI --target la checkpoint**, deși există Make targets. Native folosește ownerul și opt-in explicit; projection cere preflight `installed-origin.json`. Nu inventa un target și nu schimba lifecycle-ul doar pentru selector.
+5. Consumerul PG/native existent este `api/tests/test_contract_method_pg.py`; wrapperul scratch `/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py` selectează red/green/applicability/not-applicable/precondition, **nu invalidation**. Adaptează selecția minimă numai odată cu noul test/cerință și verifică argv/collect-only fără launch. Nu rerula precondition acceptat ca primă acțiune. Accounting-only `test-model-budget-pg` nu închide B06m; exercită callerul și overlapul real, nu helpers secvențiale.
+6. Preflight prerequisite **înainte de PG/native**: source PIN `/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned`, entry `run_agent.py`; libraries exact din consumerul existent. Restaurare numai commit `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`, archive SHA `f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80`. Exportul curent15.208files este atestat în receipt; scratch poate expira. Recuperează exact arhiva/pinul și verifică inventory/original overlay inputs, fără personal runtime substituit, imports prewarmed sau instalare implicită. Logs/fixture/bootstrap/RPC/traceback PG se parsează privat pe allowlist, fără DSN/capability/secrets în tool output ori Git.
+7. Native/distribuție schimbată: pin/patch/manifest coerente, parser/reapply/build și inventar/hashes reale; UID non-root trebuie să poată citi. Refolosește referința locală base atestată, nu `FROM sha256:IMAGE_ID` interpretat ca registry. SOURCE/synthetic/copy-installed/native/SDK/live sunt frontiere separate, nu un verdict unic.
+8. La FAIL, o investigație bounded a frontierei eșuate: fază/first reason sanitizat/timpi/peer/settlement înainte cleanup, apoi remediu conform mecanismului produs versus fixture. Fără retry până verde/prewarm/măriri arbitrare deadline/grant; SIGTERM/SIGKILL cleanup nu explică eșecul. După două cicluri numai harness fără progres, restrânge reproducerul; nu reseta numărătoarea prin sesiune nouă și nu adăuga verifier/supervisor. Păstrează FAIL/UNCERTAIN/date/loguri și refuză felii dependente peste blocker.
+9. Joburile lungi PG/canonical: tracked background cu pinned paths, bounded timeout și exact-session readback; nu foreground timeout care omoară ownerul înainte drain. În final verifică exact daemon/CID/project/network/UDS/host/readeri și receipt family_drained, fără cleanup global/adopție. Documentele: **`/usr/bin/python`**, nu API venv fără markdown; `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`; regenerează HTML la Markdown normativ. În această sesiune72docs/46development PASS, nu canonical de produs.
+10. **Gate final de integrare/fază**, după toate remedierile și QA afectată, pe bytes finali:
+
+```sh
+PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv
+```
+
+Canonicalul standard nu înlocuiește native/projection cu opt-in; înregistrează separat probele cerute. Modificarea produsului după gate cere affected checks și gate final pe snapshotul integrat; Markdown-only/reminder nu cere recertificarea produsului neschimbat. Închide P2-inert numai cu toate obligațiile inerte probate/reviewuite; altfel exact BLOCKED/NOT_RUN și următoarea acțiune, nu „faza2 gata”.
+
+### După P2-inert: P4a-minim și limita live
+
+Settings utilizabil pe build/API/DB proprii: catalog read-only și pachete reviewed/published immutable; selecție explicită/save→readback/reload; runtime/dependency readiness; requested/effective cu fallback reason; REQUIRED nesuportat blochează, fără hot-swap sub copii activi; configured/authenticated/reachable/inference_ready și methodology-only/benchmark-validated distincte. Fără cont, indisponibilitate corectă; fără provider discovery/pricing/refresh/inferență, fără editor complet preventiv. QA browser real: salvare/reload/readback/stări/erori/tastatură/focus; testele tehnice nu aprobă estetica.
+
+B06j/Jev păstrează alocarea §8: typed questions/DecisionReceipt și sentinel inert la consumerul său; shadow/live/advisory nu se simulează. După P4a-minim, **oprește pentru acord cont/provider/model/date/buget și run/selection/manifest noi**. Fără warm NO_MODEL, ținte/P3, profiluri/r1, credentiale personale sau push. Acceptarea P2-inert/Settings nu închide G02-live; „faza2 completă” fără această probă live separată ar fi fals.
+
+### Prompt scurt actual pentru sesiunea nouă
+
+```text
+Continuă implementarea OmnisAI în /home/kali/OmnisAI, cu cod minimal,
+până la acceptarea P2-inert și livrarea P4a-minim, în ordinea canonică.
+Citește CURRENT din documents/verification/p2-c10-session-handoff-20261012.md,
+p2-bound-predicates.md și implementation-status.md; Git real, AGENTS,
+CONTRIBUTING, README, plan §7.1/§8 și arhitectura relevantă feliei.
+Baza înaintea handoffului este 8fc6c0f pe checkpoint/p2-vm-restart-20261011;
+HEAD real poate include commitul documentar al handoffului. Păstrează toate
+schimbările preexistente și documents/Omnis_Notite_Originale.html neatins.
+Partial return, applicability/UNKNOWN finite și preconditions finite sunt
+acceptate scoped: nu relua auditul launch sau probele lor neschimbate.
+Începe cu invalidation pe consumerii existenți, apoi evidence/optional și
+restB06b (forme, binding/inventar/lineage, M1/M2, restart/history), B06c și
+callerul B06m reserve COMIS→SENT durabil→protocol inert→receipt/UNKNOWN.
+Folosește delta celor8criterii și toate limitele/probele din CURRENT.
+Nu presupune policy/admission.py existent; verifică definiții/usages,
+runner choices/opt-in și source/library prerequisites înainte de efecte.
+RED→fix minimal→GREEN; reviews independente exact-snapshot, două la
+authority/Stop/concurrency/effects/secrets/cross-runtime; QA consumer real,
+cleanup exact/date păstrate, commituri mici și re-review findings concrete.
+Continuă următoarea felie inertă admisă fără aprobare cosmetică; nu alt audit,
+verifier, owner, demo sau framework. După două cicluri numai harness,
+restrânge frontiera, fără weakening/retry orb/prewarm/deadline widening.
+După toate remedierile și QA afectată rulează canonicalul real pe bytes finali,
+nu transforma SOURCE/synthetic/installed/native/SDK sau SKIP în PASS global.
+P4a-minim numai după P2-inert, cu browser pe build/API/DB proprii.
+După Settings oprește și cere acordul separat cont/provider/model/date/buget
+și run/selection/manifest noi pentru P2-live; fără cont/inferență/target/P3/r1/
+global/push implicit. Predare română scurtă: commituri, probe, blockers și
+matricea globală. Nu te opri la diagnostic/helper când consumerul este disponibil.
+```
+
+## Istoric — acceptare C10 integrată înainte de extensiile ulterioare
 
 Candidatul8ea28b2 **este integrat** în `25395bd`, după două re-reviewuri complete APPROVED_SCOPED; C10-NATIVE-F01 închis. Remediile quality/cold legacy/fixture sunt comise separat în `9a49d15`/`46589bf`/`d3a176b`. [Registrul actual și toate dispozițiile](p2-bound-predicates.md), [canonical final versionat](p2-bound-predicates-canonical-pass.json) și [harta](implementation-status.md) înlocuiesc punctul de reluare de mai jos. Canonical3 pe `ff095af`: exit0/drained,969hashes stabile, cleanup exact/date păstrate; C10 integral/B06b/G02/P2 rămân deschise. Observația C10-LEGACY-SEC-N01 este LOW/neblocantă/deferred, nu un blocker ignorat. Git real decide HEAD-ul curent, fără SHA auto-referențial inventat.
 
-**Prompt copy-ready actual:**
+**Prompt istoric — înlocuit de CURRENT și promptul scurt de mai sus:**
 
 Promptul de mai jos înlocuiește mandatul îngust de „numai partial return” cu o continuare secvențială a lipsurilor canonice B06/P2-inert, apoi P4a-minim. Nu este un plan nou, nu închide niciun gate și nu pornește implementarea prin simpla versionare a acestei note. Se execută când operatorul îl transmite sesiunii de implementare. P2-live rămâne separat autorizat.
 
@@ -270,6 +364,6 @@ Reviewurile SOURCE complete și hashurile sunt versionate în [normative-source-
 - Runnerul real este `ops/run_test_db_gate.py`/`prove_private_fixture`/`run_gate`, fixture own atestată UDS/no-network, nu DSN extern/r1 sau bootstrap/emitter fals. Logs600; **nu afișa** DSN/capability/runtime.boot brut/traceback PG. Parsează privat numai câmpurile allowlisted. Nu șterge date/credentiale/loguri și nu adopta resurse străine.
 - Docs: `python scripts/render_docs.py --check`, `python -m unittest discover -s tests/documentation -v`, `git diff --check`; Markdown normativ se regenerează cu rendererul existent. Aceste verificări nu sunt canonical de produs.
 
-## Prompt scurt pentru sesiunea următoare
+## Prompt scurt istoric — nu punctul actual de reluare
 
 > Continuă OmnisAI din checkpointul local existent. Citește întâi `documents/verification/p2-c10-session-handoff-20261012.md` și `p2-bound-predicates-checkpoint.json`, apoi Git real/AGENTS/README/harta și numai secțiunile relevante din plan/arhitectură. C10 final este comis în `work/p2-bound-predicates-nativefix` la `8ea28b2`, **neintegrat**, cu2PG/native PASS și review delta încă NOT_RUN. Începe cu re-review focalizat C10-NATIVE-F01 pe cele6 fișiere, nu audit/restart/tests redundante. Păstrează aprobările SOURCE F01–F04 în scope, FAIL-urile și limitele legacy. Integrează exact17paths numai după acceptare, verifică gate-ul real la frontiera integrată, apoi restB06b→B06c/B06m→P4a-minim conform §7.1; live separat. Un singur autor pe worktree, subagenți fresh, TDD și commituri mici. Nu atinge HTML-ul protejat, profiluri/r1/daemon, conturi/model/target/push. Nu inventa breadth sau verdicturi și nu te opri la helper/harness când consumerul de produs este disponibil. Predare scurtă în română cu implementare/probe/review separate și matricea globală.

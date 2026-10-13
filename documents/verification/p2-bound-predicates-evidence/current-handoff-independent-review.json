@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-CURRENT-HANDOFF-INDEPENDENT-REVIEW",
+  "data_classification": "NO-SECRETS",
+  "verdict": "APPROVED_SCOPED",
+  "base": "8fc6c0f1ffb597103ed6445b72679d1a7e3531f3",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "head_after": "8fc6c0f1ffb597103ed6445b72679d1a7e3531f3",
+  "hashes_before": {
+    "documents/verification/p2-c10-session-handoff-20261012.md": "e0eab76ff4408e771b19f5e394cfb9ad7948c2de286858702b51e1f5d67e68c7",
+    "documents/verification/implementation-status.md": "e162c20a30664eae06b81cc055c502ef2af9f59dc6f804664e8906118ca2ed01"
+  },
+  "hashes_after": {
+    "documents/verification/p2-c10-session-handoff-20261012.md": "e0eab76ff4408e771b19f5e394cfb9ad7948c2de286858702b51e1f5d67e68c7",
+    "documents/verification/implementation-status.md": "e162c20a30664eae06b81cc055c502ef2af9f59dc6f804664e8906118ca2ed01"
+  },
+  "scope": {
+    "mode": "READ_ONLY_SHARED_CHECKOUT",
+    "approval": "Exact two-file documentary diff and CURRENT continuation instructions only; not implementation acceptance, final integration, installed/runtime restart evidence, or phase closure.",
+    "diff": "99 insertions and 3 deletions in exactly two tracked files; staged diff empty",
+    "read_sources": [
+      "README.md and CONTRIBUTING.md",
+      "documents/Omnis_Implementation_Plan.md sections 7, 7.1 and 8",
+      "CURRENT and strictly relevant evidence/dispositions in p2-bound-predicates.md",
+      "Public preconditions author/review/QA/prerequisite receipts",
+      "Public applicability and partial-return independent QA reports",
+      "Existing managed_contract rejection definitions, adapter field declarations, NativeTaskOwner and ModelDispatch/ModelProjections method definitions",
+      "ops/run_test_db_gate.py CLI target choices",
+      "Relevant implementation-status summary and SL09-SL13 rows"
+    ],
+    "historical_text": "Exact Git diff retains previous checkpoint bodies, relabels old prompts/history, and puts CURRENT plus a new short continuation prompt first. Historical failures and causes UNKNOWN are not erased."
+  },
+  "findings": [
+    {
+      "id": "HANDOFF-N01",
+      "severity": "LOW",
+      "blocking": false,
+      "introduced_by_diff": false,
+      "location": "documents/verification/implementation-status.md:106",
+      "requirement": "Status projection should distinguish current accepted work from historical next steps without inviting replay of accepted slices.",
+      "observation": "The preexisting SL09 table row still names applicability/partial return as AICI and says Next preconditions, although CURRENT lines 13-15 and the new handoff correctly record preconditions acceptance and start invalidation. The new CURRENT explicitly overrides historical continuation instructions, so this does not block the reviewed handoff.",
+      "reproducer": "Compare the literal SL09 row at line 106 with CURRENT lines 13-15 and handoff CURRENT snapshot/short prompt. No suite or runtime is needed.",
+      "proposed_remedy": "Parent may minimally reconcile the existing SL09 row to preconditions accepted / next invalidation, retaining older proof at its original scope. This is an inherited projection inconsistency, not a request for another audit or for reopening accepted product slices."
+    }
+  ],
+  "blocking_findings": [],
+  "criteria": [
+    {
+      "canonical_row": "Transport/izolare B05, H01/H02",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Reuses unaffected accepted B05 evidence; remaining reverse/EOF/timeout/backpressure/unknown-method/personal-grants/drain checks are restricted to extended consumers and synthetic/native boundaries stay distinct."
+    },
+    {
+      "canonical_row": "Catalog/publicare B06a/b",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Qualified seed, exact Publish/CAS, pinned NO_MODEL and replay/readback reused; only qualification affected by new compiler/evaluator/pin is revalidated. No broad catalog/editor/third demo."
+    },
+    {
+      "canonical_row": "Brief/composer/metoda B06b",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Accepted partial-return, finite applicability/UNKNOWN and finite preconditions remain scoped. Next invalidation, evidence-bearing/optional-required and remaining refs/slots/StepOutput/contracts are explicit missing functionality. Current rejection guards must not be removed without semantics and evidence."
+    },
+    {
+      "canonical_row": "Binding/inventar H03-H05",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Distinct root/child/batch/attempt, pre-access committed mapping, identical-goal identity controls, inventory and authentic lineage-or-denial remain explicit. LLM-dependent compression is not an inert prerequisite or simulated positive."
+    },
+    {
+      "canonical_row": "Rezultat/inbox H06/H07",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "M1 historical versus M2/current qualification, duplicate/conflict/restart/lost reply, HELD/post-Stop and distinct delivered/admitted/turn_completed/consumed markers are covered. Same-Host cache and fresh legacy production are not promoted to runtime restart or installed historical-reader evidence."
+    },
+    {
+      "canonical_row": "DATA B06c",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Qualified projection/decision to immutable final DTO and post-transform real-consumer guard, full input/payload/result/error/log sentinels, raw/unknown-sensitive/cross-case/bypass denial, affected real SDK NO-IO checks and pre-client NO_MODEL remain explicit; synthetic DATA identities never grant model authority."
+    },
+    {
+      "canonical_row": "Admission B06m/H08",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Same product caller commits reserve then durable SENT before declared inert protocol and receipt/UNKNOWN; caps, VALIDATION, observed PG overlap, Stop/veto, no-send-only RELEASED and retry/fallback/aux readmission or denial are explicit. Native turn/config/purpose and financial limitations block live without deferring inert obligations. No claim of DB/network atomicity."
+    },
+    {
+      "canonical_row": "Acceptare snapshot final",
+      "status": "COVERED_IN_HANDOFF_NOT_PRODUCT_PASS",
+      "assessment": "Concrete findings RED/GREEN/disposition, exact-snapshot complementary reviews where required, affected real-consumer QA, final integrated canonical gate and owned cleanup/readback/data retention remain future requirements, not completed probes. Documentation-only work does not rerun unchanged product gates."
+    }
+  ],
+  "execution_evidence": {
+    "read_only_commands_exit_code": 0,
+    "git_diff_check_exit_code": 0,
+    "current_criteria_rows_counted_programmatically": 8,
+    "current_local_link_missing_count": 0,
+    "public_preconditions_review_snapshot_count": 11,
+    "public_preconditions_complementary_snapshots_equal": true,
+    "current_source_hash_mismatch_count": 0,
+    "named_source_tests_missing_count": 0,
+    "runner_choices": "The three named native/contract/projection Make targets are absent from the CLI choices, confirmed by source inspection, without executing the runner.",
+    "policy_admission": "No admission.py file under api/src/omnis/policy, matching the explicit handoff warning.",
+    "native_owner": "AST methods are __init__, _instance, _reply, _model_preflight, handle, _model_configuration, _model_initialization and _handle; model-facing definitions are preflight/configuration/initialization, not an implemented model send caller.",
+    "preconditions_qa_recorded": "Public report: dd82dba / product 77d38a1, one invocation, 1 PASS / 20 deselected / 31.32s, exit0/family_drained; empty input before assignment writes, real AIAgent read1/PURE2, complete without functional PASS, four fresh readers and receive-only post-Stop duplicate.",
+    "prerequisite_failure_recorded": "Public report: 1 FAIL / 20 deselected / 0.59s, exit1/drained, SOURCE_PIN_REQUIRED before native launch; restored prerequisite is a separate record, not product repair or inferred cause.",
+    "restoration_recorded": "Public receipt attests 15208 originals, zero symlinks, all archive hashes equal, commit ee5ee84a345204a3b1d6ef6ba1ab747e602867b9 and archive SHA f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80. No scratch export/archive was reread or rehashed by this review.",
+    "applicability_qa_recorded": "Public report: 3 PASS / 79.39s / exit0/drained, three real AIAgent calls and twelve fresh readers; not installed historical-reader or inference.",
+    "partial_return_qa_recorded": "Public report: 2 PASS / 49.34s / exit0, full+partial source/native; historic UNKNOWN is retained and not retrospectively attributed.",
+    "phase_order": "invalidation -> evidence/optional and rest B06b -> B06c/B06m -> P2-inert -> P4a-minim -> separately authorized P2-live",
+    "p4a": "Settings save/readback/reload, requested/effective/fallback/REQUIRED, no hot-swap, readiness states, owned-browser QA and no automatic provider discovery/pricing/refresh/inference match section 8. B06j inert/live allocation is referenced rather than recast as a new plan.",
+    "parent_only_context_not_reexecuted": "Parent reported render_docs --check, 72 documentation tests PASS and diff-check; no pending child/QA and prior exact cleanup/196inputs/78artifacts verification. This reviewer does not independently claim those resources are live or globally absent."
+  },
+  "limits": [
+    "Documentary approval only on the exact base and two before/after SHA256 values; parent owns adjudication, commit and final integration verification.",
+    "No suite, native child, PostgreSQL, browser, service, provider, model, target, SDK or canonical gate executed.",
+    "No repository edit, stage, commit, push or global/profile/r1 mutation. Protected untracked documents/Omnis_Notite_Originale.html was only visible as a Git path; not opened, hashed or modified.",
+    "No private credentials, fixture manifests, raw logs, bootstrap/RPC receipts, or scratch source/library contents read; public report metadata does not certify current scratch recoverability or service state.",
+    "No parallel implementation plan, broad fault catalog, exhaustive audit, rerun of accepted unchanged slices or inferred P2/P4a/live completion.",
+    "Current B06b/B06c/B06m/G02/P2 remain PARTIAL/NOT_CLOSED, final canonical NOT_RUN and P4a-minim NOT_IMPLEMENTED.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "The inherited SL09 projection note is nonblocking; all other approval applies only to the reviewed new CURRENT instructions and diff, not global consistency certification."
+  ],
+  "repository_files_created_or_modified": [],
+  "artifacts_created": ["/home/kali/.hermes/cache/scratch/p2-current-handoff-independent-review.json"],
+  "commits_created": [],
+  "cleanup": "N/A: no resources launched or adopted"
+}

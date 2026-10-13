@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-M2-F01-NORMATIVE-REVIEW",
+  "language": "ro",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "verdict_reason": "Remediul serializează prima append M2 cu intentul persistent de dispatch sub același managed-owner lock. Nu am identificat un defect blocant în delta SOURCE examinată. Terminalul nu este dedus numai din flags: se cer final/binding/result/check/inbox și validarea receive-only a grafului. Definițiile celor trei oracle-uri QA au fost completate în consumerul existent. Aprobarea nu este PASS PG/native, dovadă de persistență fizică sau integrare/qualification.",
+  "repository": "/home/kali/OmnisAI",
+  "base": "2901a2b3865a72cf87b0eee106428a069432c7aa",
+  "head_before": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+  "head_after": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "scope": {
+    "mode": "INDEPENDENT_READ_ONLY_SOURCE_REVIEW",
+    "changed_paths": [
+      "api/src/omnis/modules/runs/contract_inputs.py",
+      "api/tests/test_mission_revisions.py",
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "review_axes": ["normative compliance", "append/reserve/send ordering", "terminal receipt authority", "transaction/persistence topology", "historical readback/replay", "three existing QA definition gaps"],
+    "supporting_reads": [
+      "README.md",
+      "CONTRIBUTING.md:50-71",
+      "documents/verification/implementation-status.md:11-25",
+      "documents/verification/p2-c10-session-handoff-20261012.md:12-15",
+      "documents/Omnis_Implementation_Plan.md:268-283",
+      "documents/Omnis_MVP_Architecture.md:405-432",
+      "documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-input-review.json",
+      "api/src/omnis/modules/runs/managed_admission.py:413-483,485-827,907-1298",
+      "api/src/omnis/modules/tasks/managed_store.py:12-252",
+      "api/src/omnis/modules/tasks/managed_contract.py:1823-1903",
+      "api/src/omnis/modules/tasks/mission_revisions.py:1-197",
+      "api/src/omnis/modules/instance/service.py:131-180",
+      "api/src/omnis/supervisor/native_tasks.py:193-335",
+      "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+      "api/src/omnis/migrations/versions/0012_contract_methods.py",
+      "api/tests/conftest.py:1-95"
+    ],
+    "excluded": ["general audit", "new fault inventory", "new runner/owner/verifier", "PostgreSQL execution", "native/UDS execution", "provider/model/network/target", "r1/operator/global/profile/credentials", "repo edits/caches", "stage/commit/push", "ResultQualification", "canonical/full suites"],
+    "approval_boundary": "SOURCE implementation and QA definitions on the exact three frozen files only; parent adjudication and complementary review remain separate."
+  },
+  "requirements_consumer_risk_decision": [
+    {
+      "requirement": "CURRENT handoff lines12-13: reservation-before-append refuses append until settlement; append-before-reservation refuses new stage/release; no DB/network atomicity claim.",
+      "consumer": "ContractInputs.append_mission -> _require_settled; ManagedAdmission.reserve_dispatch/stage_payload; NativeTaskOwner stage/release sinks.",
+      "risk": "A transaction advisory lock ends before native send, allowing M2 to commit after dispatch reservation but before the sink.",
+      "decision": "Approve the SOURCE fix only if committed intent blocks first append under the same lock, while a committed M2 remains visible to reserve/stage validation before writes/send. A recheck-only fix would remain blocking."
+    },
+    {
+      "requirement": "CURRENT handoff line13 and architecture6.3: retain never-dispatched context, authentic terminal M1, immutable historical result and duplicate/read-only behavior.",
+      "consumer": "_require_settled; managed_run/task/inbox schema; ingest_result/check/_result_check/_verify_graph; append replay and read-mission.",
+      "risk": "An invented settlement flag, incomplete result/check publication or mutable latest-mission readback could authorize cutover or erase historical authority.",
+      "decision": "Inspect actual schema, producers and retained receipt validators; exercise affected SOURCE no-dispatch/replay/order controls. Keep authentic terminal persistence/readback as PG/native NOT_RUN, not a fabricated terminal positive."
+    },
+    {
+      "requirement": "CURRENT handoff line15 and original QA-CHANNEL/CENSUS/CONCURRENCY gaps.",
+      "consumer": "Existing test_contract_method_real_native_pg_owner_receipts_check_inbox mission-consumer branch.",
+      "risk": "Any CatalogError, two-table markers or sequential calls could falsely certify exact CLI refusal, unchanged lifecycle history or transaction overlap.",
+      "decision": "Review same-channel exact tuples, five-table full-row/envelope snapshots and actual blocker/waiter PostgreSQL PID observation. Approve definitions only; runtime evidence remains NOT_RUN."
+    }
+  ],
+  "files_count": 3,
+  "files": [
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "expected_sha256": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+      "before_sha256": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+      "after_sha256": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+      "matches_frozen": true,
+      "unchanged_during_review": true
+    },
+    {
+      "path": "api/tests/test_mission_revisions.py",
+      "expected_sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+      "before_sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+      "after_sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+      "matches_frozen": true,
+      "unchanged_during_review": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "expected_sha256": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+      "before_sha256": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+      "after_sha256": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+      "matches_frozen": true,
+      "unchanged_during_review": true
+    }
+  ],
+  "findings": [],
+  "findings_limit": "No new confirmed concrete SOURCE defect in the focused delta; this is not an assertion of universal absence of defects. No PG/native result is inferred.",
+  "dispositions": [
+    {
+      "id": "INPUT-M2-F01",
+      "original_severity": "HIGH",
+      "status": "RESOLVED_SOURCE_SCOPED_PG_NATIVE_NOT_RUN",
+      "path_line": "api/src/omnis/modules/runs/contract_inputs.py:167-200,203-327",
+      "original_mechanism": "reserve_dispatch transaction commit -> M2 append commit -> native stage/release sink",
+      "remedy_reviewed": "First append calls _require_settled after owner lock and replay/conflict handling but before qualification and either M2/receipt write. Committed stage_started/release_started, staged binding or incomplete/uncertain settlement refuses NEEDS_RECONCILIATION. Intent is not reset. Both append and reserve use managed_store.lock -> managed-owner:<owner>.",
+      "ordering_trace": [
+        "Reservation first: managed_admission.py:421 takes owner lock; :430 revalidates retained stage material; :452 persists operation_started. native_tasks.py:238-256 and :288-310 commit reservation before the later sink. The append guard sees persistent intent and refuses until genuine terminal settlement; it does not try to extend DB locking into network atomicity.",
+        "Append first: owner lock spans graph/settlement/qualification and M2+command receipt commit. A later reserve takes the same lock and re-reads the graph through stage_payload (:465-482); require_no_revision refuses before updating intent or reaching native send.",
+        "Release on a never-staged assignment has no authentic binding. reserve_dispatch:425-426 refuses BINDING_REQUIRED first; there is no supported route to manufacture a binding after M2. The PG oracle explicitly preserves that actual denial rather than claiming a bound release reached the M2 predicate."
+      ],
+      "reproducer_and_checks": {
+        "source_tests": "api/tests/test_mission_revisions.py::test_append_refuses_committed_dispatch_intent_before_m2_write (stage/release), ::test_owner_dispatch_cutover_orderings_at_same_sink (stage/release x no-cutover/reservation-first/append-first)",
+        "observed_result": "Selected controls passed in this independent review. Reservation-first expected dispatch-reserved -> append-denied -> native-sink; append-first expected zero native-sink; same-source positive sink remains reachable.",
+        "doubles": "The handle and append method are real product methods; domain material/reservation, transaction/service, qualification, SQL state and sink are explicit SOURCE doubles. Release binding in the SOURCE owner seam is nonterminal test material, not authentic final/authority evidence.",
+        "original_historical_reproducer": "Not rerun in this review: original SQLDouble did not model persisted dispatch intent. Its historical RED is retained in Git and parent-provided context, not overwritten by this result."
+      },
+      "requirement": "CURRENT handoff12-13; plan7.1 result/inbox and final-snapshot rows; architecture6.3 historical vs new-work separation.",
+      "remaining_remedy": "No further SOURCE product change requested by this reviewer. Parent adjudication/complementary review, then separately admitted bounded real mission-consumer PG/native evidence and cleanup are still required."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-CHANNEL",
+      "status": "QA_DEFINITION_COMPLETED_SOURCE_SCOPED_RUNTIME_NOT_RUN",
+      "path_line": "api/tests/test_contract_method_pg.py:1981-2022,2058-2069,2233-2251",
+      "evidence": "Positive append/replay/read and seven negatives use the same private_input_cli subprocess entrypoint. Every denial compares the exact (exit=2, stdout empty, stderr canonical BLOCKED/reason plus newline) tuple, without printing private bytes in assertion operands. The seven reasons are COMMAND_CONFLICT, REF_UNAVAILABLE, REF_MISMATCH, INVALID_REQUEST, MANAGED_REJECTED, MISSION_REVISION_CONFLICT and INVALID_JSON.",
+      "independent_source_control": "api/tests/test_mission_revisions.py::test_private_cli_denial_tuples_and_never_dispatched_replay passed through real main/service on a SQL/qualification double; it includes a valid positive, all seven exact negatives, replay and read with mutable dispatch state present.",
+      "limits": "The in-process SOURCE CLI control does not prove the PostgreSQL-backed subprocess tuples. Those authored consumer cases were inspected, not launched."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-ROLLBACK-CENSUS",
+      "status": "QA_DEFINITION_COMPLETED_SOURCE_SCOPED_RUNTIME_NOT_RUN",
+      "path_line": "api/tests/test_contract_method_pg.py:1034-1053,1189-1234,2024-2057,2070-2118,2219-2259",
+      "evidence": "mission_snapshot snapshots full to_jsonb rows, not counts/subsets, from public.managed_record, public.managed_mission_revision, public.managed_run, public.managed_task and public.managed_inbox, deterministically ordered and canonicalized. It includes immutable envelopes and revision2 history. Equality is checked after receipt failure rollback, terminal shadow control, shadow ref denials, each CLI denial, prepare/stage denial and both dispatch-cutover ordering denials. Reservation-first compares to the dispatch transaction's post-reservation snapshot, so it does not mistake the intended reservation update for an append write.",
+      "fault_boundary": "Existing command_complete failure after M2 INSERT remains an application exception in a real DB transaction when admitted; it is not a physical crash/ACK-loss probe.",
+      "limits": "No real rollback, commit durability or five-table readback was executed by this review. SOURCE SQLDouble unchanged-state assertions are not PostgreSQL rollback evidence."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-CONCURRENCY",
+      "status": "QA_DEFINITION_COMPLETED_SOURCE_SCOPED_RUNTIME_NOT_RUN",
+      "path_line": "api/tests/test_contract_method_pg.py:1151-1237,2143-2229,2421-2427",
+      "evidence": "Reservation-first pauses after original reserve_dispatch has taken the actual owner lock and persisted intent; the append waiter records its exact pg_backend_pid before entering the real owner lock. A separate observer requires the blocking dispatch backend in pg_blocking_pids(waiter), then allows reservation commit and requires exact NEEDS_RECONCILIATION plus unchanged census before original native exchange. The required operations list is stage,release. Append-first pauses qualification while append holds the real owner lock and observes both real stage/release reserve waiters blocked by that backend; after M2 commit they must refuse with exact reasons. Fixed 0.75s observer/join bounds and finally cancellation/gather cover owned waiter tasks.",
+      "same_consumer_boundary": "Reservation-first instruments the existing NativeTaskOwner/domain/runtime exchange; no new Host, owner, grant or product deadline is introduced. Append-first uses the original reserve_dispatch API on a fresh never-dispatched assignment, not a second native execution or forged binding.",
+      "limits": "No observed overlapping PostgreSQL transactions in this review. Code that would call pg_blocking_pids is an oracle definition, not execution evidence. Fresh release refuses BINDING_REQUIRED; it does not certify a bound release reaching the M2 predicate. The selected SOURCE owner controls use doubles, not PG lock waits."
+    },
+    {
+      "id": "INPUT-M2-LIMIT-QA-CLEANUP",
+      "status": "UNCHANGED_NOT_RUN_OUTSIDE_THREE_REQUESTED_GAPS",
+      "evidence": "Existing CLI direct-child kill/wait and newly owned asyncio waiter cancellation are present; no native family/fixture cleanup receipt was produced in this review.",
+      "remaining": "Require exact parent-owned real fixture/native cleanup readback after any separately admitted QA. No drained/runtime-cleanup claim is made here."
+    }
+  ],
+  "requirement_code_evidence_matrix": [
+    {
+      "requirement": "Persisted intent fences cutover, not merely pre-send recheck.",
+      "code": "contract_inputs.py:168,185,215-279; managed_admission.py:421-454; managed_store.py:12-13; native_tasks.py:238-310",
+      "evidence": "8 selected ordering/intent SOURCE controls passed; lock/transaction/sink trace inspected.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Context-only or prepared but never-dispatched remains eligible for first append.",
+      "code": "contract_inputs.py:244-271",
+      "evidence": "Selected real CLI/service positive with absent managed_run plus existing prepared QUEUED task state positive passed on SQLDouble. The guard rejects inbox/work records or task state/result/native identity indicating work.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Authentic terminal M1 is allowed; incomplete/uncertain settlement is not invented.",
+      "code": "contract_inputs.py:272-327; migrations0011:26-58 and0012:13-17; managed_admission.py:541-645,657-718,741-757,907-1122; managed_contract.py:1823-1903",
+      "evidence": "Actual schema gives persistent dispatch, binding/final pointers, unique batch/task/inbox rows and result/check authority. First append requires both intents, real retained manifest/binding/final validation, all task terminal states/checks and delivered non-admitted/non-turn inbox entries. _verify_graph revalidates result schema, exact authenticated final emitted records via _result_check:756-757, checks and outcomes. Final/result ingestion and check publication use separate committed phases; absence of check keeps append denied. UNKNOWN/INCOMPLETE checks retain BLOCKED, COMPLETE maps to SUCCEEDED; neither is a functional PASS grant. Receipt authenticity comes from the existing supervisor ingress/binding lineage, not a client settlement boolean.",
+      "status": "REVIEWED_SOURCE_AUTHENTIC_PG_NATIVE_POSITIVE_NOT_RUN",
+      "limit": "The existing mission-consumer appends only after its authentic M1 native run and checks, then asserts M1 bytes/refs/results/checks/outcomes unchanged. This terminal positive was not executed here; no substitute authentic final or runtime authority was fabricated."
+    },
+    {
+      "requirement": "Replay and read-only do not require current settlement or requalification.",
+      "code": "contract_inputs.py:174-185,372-391; managed_store.py:184-226",
+      "evidence": "Selected CLI regression sets uncertain dispatch flags after initial append and replaces qualification with forbidden callback. Exact replay returns created=false and read-mission succeeds; lifecycle_reads remains one and graph/write count unchanged on SQLDouble. Replay branch precedes the new guard; read never calls it.",
+      "status": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Immutable M1 refs/header/history survive M2; readback is not latest-mission reinterpretation.",
+      "code": "mission_revisions.py:56-142; managed_store.py:52-101,164-181; managed_admission.py:1063-1072,1136-1138,1202-1298; test_contract_method_pg.py:2057-2142,2230",
+      "evidence": "Legacy index is explicitly revision1, exactRef index retains M1/M2, assignment validation resolves its stored header mission Ref. Receive-only composition reconstruction uses retained revision1 graph. New delta neither edits these records nor changes pins/graph resolver. Authored consumer compares all original revision1 graph rows plus briefs/results/checks/outcomes/tasks/inbox/binding/manifest byte-exact after M2.",
+      "status": "REVIEWED_SOURCE_REAL_PG_READBACK_NOT_RUN"
+    },
+    {
+      "requirement": "M2 and its command receipt are one owner-locked transaction with bounded failure.",
+      "code": "contract_inputs.py:167-200; managed_store.py:16-49,229-255; contract_inputs.py:447-454",
+      "evidence": "The new guard performs reads only; both existing writes remain inside one engine.begin and asyncio.timeout(15), after the guard. Read timeout remains4. New authority reads and M2/append receipt writes are public-qualified; no instance lock, IPC or native effect is added by append. Driver/timeouts normalize through existing CLI diagnostics.",
+      "status": "REVIEWED_SOURCE_PERSISTENCE_TOPOLOGY_ONLY",
+      "limit": "This is not an observed DB commit/rollback/ACK/crash/power-loss result and not an atomic DB/network protocol."
+    }
+  ],
+  "executions": [
+    {
+      "id": "SNAPSHOT_BEFORE",
+      "command": "git status --short --branch && git rev-parse HEAD && git show --stat --oneline HEAD && git diff --stat && git diff --cached --stat && sha256sum api/src/omnis/modules/runs/contract_inputs.py api/tests/test_mission_revisions.py api/tests/test_contract_method_pg.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Exact requested full HEAD; all three hashes match frozen; tracked/index clean, only protected untracked HTML present."
+    },
+    {
+      "id": "DIFF_REVIEW",
+      "command": "git diff 2901a2b3865a72cf87b0eee106428a069432c7aa b4964e7f459cbee4ba7960e500e26233f0570d25 -- api/src/omnis/modules/runs/contract_inputs.py api/tests/test_contract_method_pg.py api/tests/test_mission_revisions.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Reviewed complete three-path commit delta and supporting definitions/usages."
+    },
+    {
+      "id": "FOCUSED_SOURCE",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_DATABASE_URL -u OMNIS_TEST_DATABASE_URL -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml --basetemp=/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review-tests api/tests/test_mission_revisions.py -k 'test_append_refuses_committed_dispatch_intent_before_m2_write or test_owner_dispatch_cutover_orderings_at_same_sink or test_private_cli_denial_tuples_and_never_dispatched_replay or test_owner_command_store_read_graph_replay_and_new_work_denial' -q --tb=short",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 10,
+      "deselected": 23,
+      "seconds": 2.73,
+      "actual_stdout": "..........                                                               [100%]\n10 passed, 23 deselected in 2.73s\n",
+      "scope": "Only four focused test names including parametrized controls on frozen bytes. Real main/append/owner with explicit SQL/qualification/domain/transaction/sink doubles; no PG/native/provider/network effects. No broad suite rerun."
+    },
+    {
+      "id": "DIFF_CHECK",
+      "command": "git diff --check 2901a2b3865a72cf87b0eee106428a069432c7aa b4964e7f459cbee4ba7960e500e26233f0570d25 -- api/src/omnis/modules/runs/contract_inputs.py api/tests/test_mission_revisions.py api/tests/test_contract_method_pg.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "scope": "Executed after successful SOURCE command through &&; whitespace only, no product proof."
+    },
+    {
+      "id": "AUTHOR_PATCH_IDENTITY",
+      "command": "sha256sum /home/kali/.hermes/cache/scratch/p2-m2-f01-author.json /home/kali/.hermes/cache/scratch/p2-m2-f01-author/candidate.patch && git diff --name-only 2901a2b3865a72cf87b0eee106428a069432c7aa b4964e7f459cbee4ba7960e500e26233f0570d25 && git status --short --branch",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Author report and patch handles hashed; exact changed paths remain the requested three. No reapply/integration performed."
+    },
+    {
+      "id": "SNAPSHOT_AFTER",
+      "command": "git rev-parse HEAD && git status --short --branch && git diff --stat && git diff --cached --stat && sha256sum api/src/omnis/modules/runs/contract_inputs.py api/tests/test_mission_revisions.py api/tests/test_contract_method_pg.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "HEAD, three hashes and repo/index status identical to before; protected HTML never read or modified."
+    }
+  ],
+  "prior_evidence_considered_not_rerun": {
+    "author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-author.json",
+      "sha256": "13d94850d5c5e15d969f950d7bf227769d5210ac0593a2aec5b210ed3db7b9b9",
+      "claimed_evidence": "2 SOURCE RED ->96 SOURCE GREEN; quality final exit0; mission-consumer collect-only1/28; failed selection/mypy and incidental Ruff cache writes disclosed.",
+      "treatment": "Read as prior evidence/limits, not a requested verdict or PG/native proof; not replayed as broad suites."
+    },
+    "candidate_patch": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-author/candidate.patch",
+      "sha256": "ce240fd5e3da99d657125c2c7a2616cdc4636850e405a125a1c60be50b9863a5",
+      "reapply": "NOT_RUN"
+    },
+    "parent_context": "Parent-provided original reproducer1FAIL before change and33 SOURCE green were not independently rerun or relabeled as this review's executions.",
+    "quality": "Author final lint/type/format evidence retained as prior scoped checks. This reviewer did not run Ruff, mypy or a build; no quality/cache mutation performed."
+  },
+  "not_run": {
+    "PG": "NOT_RUN",
+    "native": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "qualification": "NOT_RUN",
+    "observed_PG_overlap": "NOT_RUN",
+    "real_PG_rollback_commit_durability": "NOT_RUN",
+    "authentic_terminal_M1_PG_native_positive": "NOT_RUN",
+    "Post_Stop_public_UDS_and_CLI_DB_readers": "NOT_RUN",
+    "installed_historical_reader": "NOT_RUN",
+    "runtime_restart": "NOT_RUN",
+    "provider_model_target_network": "NOT_RUN_NOT_AUTHORIZED",
+    "wheel_build_patch_reapply_full_quality": "NOT_RUN_NOT_NEEDED_FOR_THIS_READ_ONLY_DELTA"
+  },
+  "non_effects": {
+    "repo_files_created_modified_deleted": [],
+    "git_stage": false,
+    "commits": 0,
+    "push": false,
+    "repo_cache_writes": "NONE_BY_THIS_REVIEW; Python -I -B, pytest cacheprovider disabled, no Ruff invocation",
+    "PG_connections_DDL_native_UDS_provider_network_calls": 0,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_MODIFIED_NOT_DELETED",
+    "global_profile_skill_credentials_access_or_edits": false,
+    "resources_cleanup_claim": "No PG/native/Host/resource fixture launched; no family_drained claim.",
+    "skill_edits": "Not authorized in read-only scope. Existing review/API skills already cover the relevant reservation fence and observed-overlap pitfalls."
+  },
+  "scratch_artifacts": [
+    "/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review.json",
+    "/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review-tests"
+  ],
+  "issues_encountered": [],
+  "status_delta_proposed_to_parent": {
+    "current_slice_AICI": "F01 fix on b4964e7: IMPLEMENTED_SOURCE; normative review APPROVED_SOURCE_SCOPED; three QA definitions completed SOURCE-scoped; real consumer evidence NOT_RUN.",
+    "old_INPUT_M2_F01": "Close only the original SOURCE mechanism after parent adjudication on these exact hashes; do not close PG/native acceptance from this review.",
+    "schema0013_and_prior_scoped_acceptances": "Unchanged; not rerun or reopened.",
+    "B06b_G02_P2": "PARTIAL/NOT_CLOSED; final canonical and ResultQualification remain NOT_RUN.",
+    "P4a_minim_and_P2_live": "Unchanged; no new authorization or implementation.",
+    "next": "Parent compares both complementary snapshot-bound reviews and adjudicates, then separately admits bounded existing mission-consumer QA with exact cleanup/readback; do not promote SOURCE oracle definitions to executed PG/native proof."
+  },
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_CLI_SOURCE_REVIEW",
+    "Chisel": "BLOCKED_NO_GO"
+  }
+}

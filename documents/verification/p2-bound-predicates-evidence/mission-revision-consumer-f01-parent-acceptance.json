@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-M2-F01-PARENT-ACCEPTANCE",
+  "status": "ACCEPTED_SOURCE_NATIVE_PRIVATE_PUBLIC_UDS_SCOPED",
+  "product_commit": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+  "prior_checkpoint": "227cfd60c58c585199c1d5536631f9705f104325",
+  "finding": "INPUT-M2-F01 CLOSED_CURRENT_SCOPED",
+  "requirements_consumer_risk_decision": "Persisted owner-locked dispatch intent must fence M2 until authentic terminal settlement. Real mission-consumer proves both transaction orderings, same-channel refusals, immutable historical readback and no duplicate execution/accounting; PASS admits next ResultQualification slice, not P2 acceptance.",
+  "evidence": [
+    "mission-revision-consumer-f01-author.json",
+    "mission-revision-consumer-f01-normative-review.json",
+    "mission-revision-consumer-f01-input-review.json",
+    "mission-revision-consumer-f01-independent-qa.json"
+  ],
+  "parent_actual_checks": {
+    "original_source_red": {
+      "exit": 1,
+      "failed": 1,
+      "deselected": 9,
+      "seconds": 1.55
+    },
+    "promoted_author_red": {
+      "exit": 1,
+      "failed": 2,
+      "deselected": 24
+    },
+    "author_affected_source": {
+      "exit": 0,
+      "passed": 96,
+      "deselected": 1,
+      "seconds": 12.26
+    },
+    "parent_mission_source": {
+      "exit": 0,
+      "passed": 33,
+      "seconds": 7.23
+    },
+    "quality": "Ruff check/format and strict mypy three files exit0; hashes/log outputs checked, no broad rerun",
+    "real_consumer": {
+      "attempts": 1,
+      "exit": 0,
+      "passed": 1,
+      "deselected": 27,
+      "seconds": 50.37,
+      "process_session_id": "proc_91875a037b7e",
+      "process_readback": "exited0",
+      "family_drained": true
+    },
+    "integrity": {
+      "source_count": 9,
+      "mismatches": 0,
+      "unique_artifact_count": 52,
+      "artifact_mismatches": 0,
+      "original_reports_transferred_byte_exact": 4
+    },
+    "external_exact_readback": {
+      "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "container_id": "75b967288aa0ad1ce5504e68881efc1b70c811d351492bf27b4cc2c7c5dc87cc",
+      "project": "omnis-p01-11b20b0f400b4a2fbfe2b398679396c8",
+      "container_project_network_absent": true,
+      "five_private_endpoints_absent": true,
+      "four_reader_pids_absent": true,
+      "launcher_pid_absent": true,
+      "data_retained": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/data"
+    }
+  },
+  "dispositions": {
+    "INPUT-M2-F01": "CLOSED_CURRENT_SCOPED: durable intent fences append; authentic terminal/never-dispatched/replay retained",
+    "INPUT-M2-LIMIT-QA-CHANNEL": "CLOSED_CURRENT_SCOPED: seven exact private CLI denial tuples",
+    "INPUT-M2-LIMIT-QA-ROLLBACK-CENSUS": "CLOSED_CURRENT_SCOPED: five-table full rows/envelopes compared in real PG after faults/denials",
+    "INPUT-M2-LIMIT-QA-CONCURRENCY": "CLOSED_CURRENT_SCOPED: real pg_blocking_pids overlaps in both orderings stage/release; fresh unbound release is BINDING_REQUIRED, not fabricated postbinding M2 guard",
+    "INPUT-M2-LIMIT-QA-CLEANUP": "CLOSED_CURRENT_SCOPED: exact owned family/session/resource readback; no universal cleanup claim"
+  },
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED and explicit document-preparation prerequisite double",
+    "The runtime-native method is real; this is not OCI/installed Host or historical installed checker",
+    "Native teardown exit -9 does not prove universal graceful Stop/runtime restart",
+    "No ResultQualification/current freshness/ELIGIBLE/functional oracle/coverage or new work admitted",
+    "Physical crash/power-loss/ACK-loss not run; logical temporary DB dropped by original fixture teardown, PGDATA/logs retained",
+    "Input reviewer corrected an initial SOURCE fixture-version failure in scratch; prior RED/FAILs retained",
+    "Final canonical/B06b/G02/P2 acceptance and P4a-minim remain NOT_RUN/NOT_CLOSED"
+  ],
+  "next": "Finite ResultQualification through existing owner/storage with authentic refs/evidence and conservative missing-current-proof decision; then remaining canonical B06b and B06c/m. No live/r1/global/push."
+}

@@ -1,0 +1,1684 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-m2-f01-independent-qa",
+  "language": "ro",
+  "status": "PASS",
+  "verdict": "PASS_SOURCE_NATIVE_PRIVATE_PUBLIC_UDS_SCOPED",
+  "repository": "/home/kali/OmnisAI",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "base": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+  "head_after": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+  "review_delta_base": "2901a2b3865a72cf87b0eee106428a069432c7aa",
+  "scope": "O singură tentativă fresh a consumerului mission-consumer existent, PostgreSQL18 privat/no-network/UDS → owner original → pinned AIAgent CONTRACT/PURE → M1 terminal → append/replay/read M2 → M1 byte-exact → public cached post-Stop și patru CLI/readback/reconcile fresh fără rerun/single-consume. SOURCE_HOST_NOT_INSTALLED; nu OCI sau Host instalat.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "INPUT-M2-F01: append M2 nu traversează un dispatch intent in-flight/unsettled; preservează terminal M1 și replay/readback immutable.",
+    "consumer": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[mission-consumer] prin wrapperul și prove_private_fixture existente.",
+    "risk": "Cutover după reservation commit înainte sink; false-green din secvențialitate, refuz greșit, scrieri parțiale sau reexecuție/dublu consum.",
+    "decision": "Dovada fresh scoped poate fi adjudecată de părinte numai pe aceste bytes și resurse; un FAIL nu autorizează retry, iar settlement lipsă ar fi UNCERTAIN."
+  },
+  "snapshot": {
+    "frozen_changed3": [
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+        "expected": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+        "matched": true,
+        "classification": "changed3"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/tests/test_mission_revisions.py",
+        "sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+        "expected": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+        "matched": true,
+        "classification": "changed3"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+        "sha256": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+        "expected": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+        "matched": true,
+        "classification": "changed3"
+      }
+    ],
+    "unchanged6": [
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "expected": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "matched": true,
+        "classification": "unchanged6"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "expected": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "matched": true,
+        "classification": "unchanged6"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "expected": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "matched": true,
+        "classification": "unchanged6"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "expected": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "matched": true,
+        "classification": "unchanged6"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "expected": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "matched": true,
+        "classification": "unchanged6"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+        "expected": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+        "matched": true,
+        "classification": "unchanged6"
+      }
+    ],
+    "identity_count": 9,
+    "final_identity_readback": [
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "b56f9cc834d897b130dac1585cb2ca47284beb0000ad74410f4d5cb803388a3f",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "1e8b8732d3c28ea72002591d5e9410af87c0402f92d381585227dd5c987ccf88",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/tests/test_mission_revisions.py",
+        "sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+        "sha256": "54f30f5ab3b7ec33bcf70d84b96ceed87c3c6fd11d8796cbbaf7a63ef914cbe7",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review.json",
+        "sha256": "35312e33b282ca38160dd33a24433f79d641bc73aae7f4460e16d2f2439bb113",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-input-review.json",
+        "sha256": "e28a181b7a41fc623d1c22b76c6a48fd77378722e7450e86348da7f68cf79507",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py",
+        "sha256": "798cc243ee99c1f7b48b554335c1a857d874a00ded8c416e11162c8bc45f7c84",
+        "unchanged": true
+      }
+    ],
+    "all_checked_identities_unchanged": true,
+    "checker_closure": [
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+        "matched": true
+      },
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+        "matched": true
+      }
+    ],
+    "existing_source_identities": [
+      {
+        "path": "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+        "sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-author.json",
+        "sha256": "84e31b7c7f99b23cf91c22881d482831f8c9f52fc768b084fb901b2fef978e07"
+      }
+    ],
+    "compiler_closure": "Parent-confirmed unchanged; no compiler/checker closure edit by QA. All 14 declared checker source hashes matched original author manifest.",
+    "compiler_identity_parent_confirmed": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "protected_untracked_original": "documents/Omnis_Notite_Originale.html NOT_READ/NOT_EDITED/NOT_DELETED"
+  },
+  "reviews": {
+    "parent_adjudication": "APPROVED_SOURCE_SCOPED, supplied delegation authorization; no blocking findings. Not a QA verdict.",
+    "bindings": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review.json",
+        "verdict": "APPROVED_SOURCE_SCOPED",
+        "base": "2901a2b3865a72cf87b0eee106428a069432c7aa",
+        "head_before": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+        "head_after": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+        "blocking_findings_count": 0,
+        "nonblocking_findings_count": 0,
+        "files_count": 3
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-input-review.json",
+        "verdict": "APPROVED_SOURCE_SCOPED",
+        "base": "2901a2b3865a72cf87b0eee106428a069432c7aa",
+        "head_before": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+        "head_after": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+        "blocking_findings_count": 0,
+        "nonblocking_findings_count": 0,
+        "files_count": 3
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-normative-review.json",
+        "sha256": "35312e33b282ca38160dd33a24433f79d641bc73aae7f4460e16d2f2439bb113",
+        "matched": true,
+        "top_level_keys": [
+          "base",
+          "branch",
+          "dispositions",
+          "executions",
+          "files",
+          "files_count",
+          "findings",
+          "findings_limit",
+          "head_after",
+          "head_before",
+          "issues_encountered",
+          "language",
+          "non_effects",
+          "not_run",
+          "prior_evidence_considered_not_rerun",
+          "report_id",
+          "repository",
+          "requirement_code_evidence_matrix",
+          "requirements_consumer_risk_decision",
+          "schema_version",
+          "scope",
+          "scratch_artifacts",
+          "status_delta_proposed_to_parent",
+          "tool_applicability",
+          "verdict",
+          "verdict_reason"
+        ],
+        "verdict": "APPROVED_SOURCE_SCOPED",
+        "findings_count": 0
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-input-review.json",
+        "sha256": "e28a181b7a41fc623d1c22b76c6a48fd77378722e7450e86348da7f68cf79507",
+        "matched": true,
+        "top_level_keys": [
+          "base",
+          "blocking_findings",
+          "dispositions",
+          "executions",
+          "files",
+          "head_after",
+          "head_before",
+          "inputs_read",
+          "integrity",
+          "language",
+          "next_parent_only",
+          "nonblocking_findings",
+          "proof_limits",
+          "report_id",
+          "repository",
+          "requirement_consumer_risk_decision",
+          "schema_version",
+          "scope",
+          "scratch_artifacts",
+          "terminal_authority_review",
+          "tool_applicability",
+          "verdict"
+        ],
+        "verdict": "APPROVED_SOURCE_SCOPED",
+        "findings_count": 0
+      }
+    ]
+  },
+  "preflight": {
+    "status": "PASS",
+    "effects": false,
+    "uid": 1000,
+    "identity_and_access_checks": [
+      {
+        "path": "/home/kali/OmnisAI",
+        "exists": true,
+        "readable": true,
+        "searchable": true
+      },
+      {
+        "path": "/home/kali/OmnisAI/api/.venv/bin/python",
+        "exists": true,
+        "readable": true,
+        "searchable": null
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+        "exists": true,
+        "readable": true,
+        "searchable": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/run_agent.py",
+        "exists": true,
+        "readable": true,
+        "searchable": null
+      },
+      {
+        "path": "/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages",
+        "exists": true,
+        "readable": true,
+        "searchable": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch",
+        "exists": true,
+        "readable": true,
+        "searchable": true
+      },
+      {
+        "path": "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "exists": true,
+        "readable": true,
+        "searchable": null
+      }
+    ],
+    "toolchain_and_docker_checks": [
+      {
+        "argv": [
+          "/home/kali/.local/share/omnis-toolchains/bin/uv",
+          "--version"
+        ],
+        "exit": 0,
+        "value": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "--version"
+        ],
+        "exit": 0,
+        "value": "Python 3.13.15"
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/cli/.venv/bin/python",
+          "-I",
+          "-B",
+          "--version"
+        ],
+        "exit": 0,
+        "value": "Python 3.13.15"
+      },
+      {
+        "argv": [
+          "node",
+          "--version"
+        ],
+        "exit": 0,
+        "value": "v24.21.0"
+      },
+      {
+        "argv": [
+          "npm",
+          "--version"
+        ],
+        "exit": 0,
+        "value": "11.19.0"
+      },
+      {
+        "argv": [
+          "docker",
+          "context",
+          "show"
+        ],
+        "exit": 0,
+        "value": "default"
+      },
+      {
+        "argv": [
+          "docker",
+          "info",
+          "--format",
+          "{{.ID}}"
+        ],
+        "exit": 0,
+        "value": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc"
+      },
+      {
+        "argv": [
+          "docker",
+          "image",
+          "inspect",
+          "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+          "--format",
+          "{{.Id}} {{.Architecture}}"
+        ],
+        "exit": 0,
+        "value": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64"
+      }
+    ],
+    "wrapper": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py",
+      "sha256": "798cc243ee99c1f7b48b554335c1a857d874a00ded8c416e11162c8bc45f7c84",
+      "matched": true
+    },
+    "versioned_recovery_path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/mission-revision-consumer-pg-selection.py",
+    "versioned_recovery_sha256": "798cc243ee99c1f7b48b554335c1a857d874a00ded8c416e11162c8bc45f7c84",
+    "argv_choices_preflight_reused": {
+      "actor": "parent, completed before delegation",
+      "wrapper_help": "exit0 supplied",
+      "original_runner_help": "exact choices supplied; test-contract-method-native-pg is NOT an outer CLI choice",
+      "correct_entrypoint": "wrapper imports original ops/run_test_db_gate.py and invokes prove_private_fixture(\"test-contract-method-native-pg\", UV, 240); selection-only run_gate override, no new owner."
+    },
+    "collect_only_reused": {
+      "actor": "author final collect-only verified by parent",
+      "selected": 1,
+      "total": 28,
+      "deselected": 27,
+      "exit": 0,
+      "rerun_by_independent_qa": false
+    },
+    "native_source": {
+      "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+      "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "run_agent_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
+      "archive_sha256_parent_verified": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "original_files_byte_exact_parent_verified": 15208,
+      "archive_rechecked_or_restored_by_qa": false,
+      "source_pin": "parent inventory verification reused; current run_agent hash and source access rechecked"
+    },
+    "libraries_path": "/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages",
+    "prewarm_or_install": false
+  },
+  "execution": {
+    "attempts": 1,
+    "retry": false,
+    "deadline_seconds": 240,
+    "command": "umask 077; set -o noclobber; exec env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py --review-adjudicated > /home/kali/.hermes/cache/scratch/p2-m2-f01-independent-qa-owner.log 2>&1",
+    "selected_pytest_argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "-k",
+      "mission-consumer",
+      "-q",
+      "--tb=line"
+    ],
+    "workdir": "/home/kali/OmnisAI",
+    "environment_policy": "env -i; only HOME, pinned PATH and owned TMPDIR reach wrapper. No ambient Python/Pytest/DB/Docker/Compose/PG configuration. Original runner constructs private fixture environment; wrapper adds only plugin-autoload refusal and native-PG opt-in. Secret environment values are not retained in this report.",
+    "process_session_id": "proc_91875a037b7e",
+    "launcher_pid": 2276528,
+    "background_tracked": true,
+    "notify_requested": true,
+    "session_joined_before_handoff": true,
+    "session_exit": 0,
+    "session_completion_reason": "exited",
+    "exact_session_readback_actions": [
+      "wait",
+      "poll"
+    ],
+    "gate_exit": 0,
+    "gate_family_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "test_nodeid": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[mission-consumer]",
+    "selected": 1,
+    "passed": 1,
+    "failed": 0,
+    "deselected": 27,
+    "collected": 28,
+    "pytest_seconds": 50.37,
+    "timings": {
+      "readback_utc": "2026-10-13T21:20:24.277045+00:00",
+      "gate_log_last_write_utc": "2026-10-13T21:17:58.092011+00:00",
+      "proof_last_write_utc": "2026-10-13T21:17:57.485920+00:00",
+      "owner_log_last_write_utc": "2026-10-13T21:17:59.024012+00:00",
+      "owner_log_created_utc": "2026-10-13T21:17:02+00:00",
+      "owner_lifecycle_elapsed_seconds_file_window": 57.024,
+      "start_timestamp_resolution_seconds": 1
+    },
+    "native_exit_observed": -9,
+    "native_exit_limit": "-9 is the observed already-retired native producer; real finite native result was persisted before cleanup. Do not relabel this as a provider/inference result or runtime restart."
+  },
+  "checkpoint_allowlist": {
+    "status": "PASS_SOURCE_NOT_INSTALLED",
+    "first_final_after_stop": false,
+    "bound_predicate_producer": "QUALIFIED_NONEMPTY",
+    "done_predicates": 2,
+    "return_predicates": 1,
+    "bound_predicate_persistent_check": "COMPLETE",
+    "criterion_count": 2,
+    "criterion_outcomes": [
+      {
+        "criterion_id": "0cee92fc-84f2-47c2-9cb0-2c1ec793cb71",
+        "outcome": "BLOCKED",
+        "gaps": [
+          "ORACLE_UNAVAILABLE",
+          "CONTROLS_UNAVAILABLE"
+        ],
+        "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict."
+      },
+      {
+        "criterion_id": "2e2e5be7-cc60-4deb-a8a0-9cb121a99504",
+        "outcome": "BLOCKED",
+        "gaps": [
+          "ORACLE_UNAVAILABLE",
+          "CONTROLS_UNAVAILABLE"
+        ],
+        "reason": "No trusted oracle or control receipts are available; PURE method completion is not a functional verdict."
+      }
+    ],
+    "no_oracle_no_pass": "PASS",
+    "native_run_contract": 1,
+    "native_reads": 1,
+    "native_handlers": 2,
+    "forbidden_native_attempts": 0,
+    "native_bound_predicate_count": 3,
+    "native_bound_predicate_evaluation": "SATISFIED",
+    "mission_revision_consumer": "M1_IMMUTABLE_M2_APPENDED",
+    "mission_new_work": "REFUSED_BEFORE_WRITES_NATIVE",
+    "mission_private_cli": "APPEND_REPLAY_READ_AND_SEVEN_EXACT_DENIAL_TUPLES",
+    "mission_overlap": "RESERVATION_FIRST_STAGE_RELEASE_AND_APPEND_FIRST_STAGE_RELEASE",
+    "mission_append_first_release": "BINDING_REQUIRED_NO_FABRICATED_BINDING",
+    "mission_census": "ALL_FIVE_TABLE_ROWS_AND_ENVELOPES_EXACT_AFTER_EACH_FAULT_DENIAL",
+    "mission_atomic_receipt_rollback": "PASS",
+    "mission_same_session_temp_shadow_reads": "PUBLIC_EXACT",
+    "execution_attempts": [],
+    "restart_reconcile": "PASS",
+    "post_stop_duplicate": "PASS",
+    "public_post_stop_cached_read": "PASS",
+    "native_cleanup": "PASS",
+    "native_directory": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5",
+    "native_exit": -9,
+    "native_owned_pids": [],
+    "public_control_cleanup": "PASS",
+    "forged_outcome_readback": "PASS",
+    "adversarial_append_count": 1,
+    "durable_markers": {
+      "inbox": 1,
+      "delivered": 1,
+      "admitted": 0,
+      "turn_completed": 0,
+      "consumed": 0,
+      "records": {
+        "bound-procedure": 1,
+        "contract-artifact": 2,
+        "contract-case-records": 1,
+        "contract-input-command": 2,
+        "contract-input-context": 1,
+        "contract-tool-receipt": 3,
+        "criterion-outcome": 2,
+        "criterion-outcome-rule": 1,
+        "focus": 1,
+        "focus-selection-rule": 1,
+        "launch-manifest": 1,
+        "managed-cursor": 1,
+        "managed-run": 1,
+        "method-check": 1,
+        "method-checker": 1,
+        "mission": 1,
+        "native-task-receipt": 1,
+        "probe-policy": 1,
+        "probe-scope": 1,
+        "prompt-bundle": 1,
+        "prompt-composition": 1,
+        "prompt-content": 2,
+        "runtime-binding": 1,
+        "schema": 1,
+        "task-brief": 1,
+        "task-result": 1
+      }
+    },
+    "consumed_markers": {
+      "inbox": 1,
+      "delivered": 1,
+      "admitted": 0,
+      "turn_completed": 0,
+      "consumed": 1,
+      "records": {
+        "bound-procedure": 1,
+        "contract-artifact": 2,
+        "contract-case-records": 1,
+        "contract-input-command": 3,
+        "contract-input-context": 1,
+        "contract-tool-receipt": 3,
+        "criterion-outcome": 2,
+        "criterion-outcome-rule": 1,
+        "focus": 1,
+        "focus-selection-rule": 1,
+        "launch-manifest": 1,
+        "managed-cursor": 1,
+        "managed-run": 1,
+        "method-check": 1,
+        "method-checker": 1,
+        "mission": 1,
+        "native-task-receipt": 1,
+        "probe-policy": 1,
+        "probe-scope": 1,
+        "prompt-bundle": 1,
+        "prompt-composition": 1,
+        "prompt-content": 2,
+        "runtime-binding": 1,
+        "schema": 1,
+        "task-brief": 1,
+        "task-result": 1
+      }
+    },
+    "final_markers": {
+      "inbox": 1,
+      "delivered": 1,
+      "admitted": 0,
+      "turn_completed": 0,
+      "consumed": 1,
+      "records": {
+        "bound-procedure": 1,
+        "contract-artifact": 2,
+        "contract-case-records": 1,
+        "contract-input-command": 3,
+        "contract-input-context": 1,
+        "contract-tool-receipt": 3,
+        "criterion-outcome": 2,
+        "criterion-outcome-rule": 1,
+        "focus": 1,
+        "focus-selection-rule": 1,
+        "launch-manifest": 1,
+        "managed-cursor": 1,
+        "managed-run": 1,
+        "method-check": 1,
+        "method-checker": 1,
+        "mission": 1,
+        "native-task-receipt": 1,
+        "probe-policy": 1,
+        "probe-scope": 1,
+        "prompt-bundle": 1,
+        "prompt-composition": 1,
+        "prompt-content": 2,
+        "runtime-binding": 1,
+        "schema": 1,
+        "task-brief": 1,
+        "task-result": 1
+      }
+    },
+    "post_adversarial_markers": {
+      "inbox": 1,
+      "delivered": 1,
+      "admitted": 0,
+      "turn_completed": 0,
+      "consumed": 1,
+      "records": {
+        "bound-procedure": 1,
+        "contract-artifact": 2,
+        "contract-case-records": 1,
+        "contract-input-command": 3,
+        "contract-input-context": 1,
+        "contract-tool-receipt": 3,
+        "criterion-outcome": 3,
+        "criterion-outcome-rule": 1,
+        "focus": 1,
+        "focus-selection-rule": 1,
+        "launch-manifest": 1,
+        "managed-cursor": 1,
+        "managed-run": 1,
+        "method-check": 1,
+        "method-checker": 1,
+        "mission": 1,
+        "native-task-receipt": 1,
+        "probe-policy": 1,
+        "probe-scope": 1,
+        "prompt-bundle": 1,
+        "prompt-composition": 1,
+        "prompt-content": 2,
+        "runtime-binding": 1,
+        "schema": 1,
+        "task-brief": 1,
+        "task-result": 1
+      }
+    },
+    "restart_processes": [
+      {
+        "operation": "readback",
+        "pid": 2278124,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "reconcile",
+        "pid": 2278145,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "reconcile",
+        "pid": 2278168,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "readback",
+        "pid": 2278170,
+        "exit": 0,
+        "execution_attempts": 0
+      }
+    ],
+    "public_control_actions": [
+      {
+        "action": "stage",
+        "phase": "ACTIVE",
+        "task_status": "BOUND"
+      },
+      {
+        "action": "release",
+        "phase": "ACTIVE",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "release",
+        "phase": "ACTIVE",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "receive",
+        "phase": "ACTIVE",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "release",
+        "phase": "AFTER_STOP",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "receive",
+        "phase": "AFTER_STOP",
+        "task_status": "SUCCEEDED"
+      }
+    ],
+    "launch_diagnostic": {
+      "operation": "launch",
+      "phase": "handshake_complete",
+      "elapsed_ms": 2863,
+      "remaining_ms": 1633,
+      "host_state": "STARTING",
+      "ready_done": true,
+      "ready_cancelled": false,
+      "transport_failed": false
+    },
+    "mission_refs": [
+      {
+        "kind": "mission",
+        "id": "e06be21d-a74a-4d02-946b-bb30b03cf663",
+        "revision": 1,
+        "digest": "2ea033f7d4a6d87021f831a5539706eb3fa48c381097c6611ed355b01b226ce8"
+      },
+      {
+        "kind": "mission",
+        "id": "e06be21d-a74a-4d02-946b-bb30b03cf663",
+        "revision": 2,
+        "digest": "f92f431d7979c5c23113cfb770c636314df4e123970818b35846a67835172f0a"
+      }
+    ]
+  },
+  "native_observer_allowlist": [
+    {
+      "test": "observer",
+      "status": "READY",
+      "count": 1
+    },
+    {
+      "test": "run_contract",
+      "status": "REAL_AIAgent",
+      "count": 1
+    },
+    {
+      "test": "_read_bound_input",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "run_handler",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "run_handler",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "bound-predicates",
+      "status": "SATISFIED",
+      "count": 3
+    },
+    {
+      "test": "native-release",
+      "status": "SUCCEEDED",
+      "count": 1
+    },
+    {
+      "test": "observer",
+      "status": "EXIT",
+      "count": 1
+    }
+  ],
+  "persisted_reader_allowlist": {
+    "artifact": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-cfda0a2854c14167a7b51949fecaedb5.stdout",
+    "status": "SUCCEEDED",
+    "task_count": 1,
+    "result_count": 1,
+    "check_count": 1,
+    "inbox_count": 1,
+    "results": [
+      {
+        "status": "SUCCEEDED",
+        "method_states": [
+          "DONE",
+          "DONE",
+          "DONE"
+        ],
+        "usage": {
+          "state": "KNOWN",
+          "model_calls": 0,
+          "target_actions": 0,
+          "cost": "0"
+        },
+        "consumed_input_ref_count": 1
+      }
+    ],
+    "checks": [
+      {
+        "status": "COMPLETE",
+        "gap_ref_count": 0
+      }
+    ]
+  },
+  "private_cli": {
+    "count": 10,
+    "positive_count": 3,
+    "denial_count": 7,
+    "observations": [
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.stdout",
+        "status": "SUCCESS",
+        "stderr_empty": true,
+        "tuple_exit_asserted_in_passing_test": 0,
+        "created": false,
+        "mission_revision": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.stdout",
+        "status": "BLOCKED",
+        "reason": "MISSION_REVISION_CONFLICT",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.stdout",
+        "status": "BLOCKED",
+        "reason": "REF_UNAVAILABLE",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.stdout",
+        "status": "SUCCESS",
+        "stderr_empty": true,
+        "tuple_exit_asserted_in_passing_test": 0,
+        "mission_revision": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.stdout",
+        "status": "BLOCKED",
+        "reason": "COMMAND_CONFLICT",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.stdout",
+        "status": "SUCCESS",
+        "stderr_empty": true,
+        "tuple_exit_asserted_in_passing_test": 0,
+        "created": true,
+        "mission_revision": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.stdout",
+        "status": "BLOCKED",
+        "reason": "MANAGED_REJECTED",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.stdout",
+        "status": "BLOCKED",
+        "reason": "INVALID_REQUEST",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.stdout",
+        "status": "BLOCKED",
+        "reason": "INVALID_JSON",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      },
+      {
+        "request_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.json",
+        "stderr_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.stderr",
+        "stdout_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.stdout",
+        "status": "BLOCKED",
+        "reason": "REF_MISMATCH",
+        "stdout_empty": true,
+        "tuple_exit_asserted_in_passing_test": 2
+      }
+    ],
+    "exit_provenance": "Actual subprocess returncode tuple assertions in the passing frozen test; exit codes were not separately serialized by its producer. Retained stdout/stderr bytes independently parsed privately; negative canonical BLOCKED reason/stdout-empty verified."
+  },
+  "fresh_readers": {
+    "count": 4,
+    "observed_processes": [
+      {
+        "operation": "readback",
+        "pid": 2278124,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "reconcile",
+        "pid": 2278145,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "reconcile",
+        "pid": 2278168,
+        "exit": 0,
+        "execution_attempts": 0
+      },
+      {
+        "operation": "readback",
+        "pid": 2278170,
+        "exit": 0,
+        "execution_attempts": 0
+      }
+    ],
+    "observer_ready_and_exit_rows": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-2bbb427c3ab34c9ca6f1abca6bf20aa0.jsonl",
+        "rows": [
+          {
+            "status": "READY",
+            "name": "managed-cli",
+            "pid": 2278168
+          },
+          {
+            "status": "EXIT",
+            "name": "0",
+            "pid": 2278168
+          }
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-4d2daeae3751441d80b2e8dcac1e74c1.jsonl",
+        "rows": [
+          {
+            "status": "READY",
+            "name": "managed-cli",
+            "pid": 2278170
+          },
+          {
+            "status": "EXIT",
+            "name": "0",
+            "pid": 2278170
+          }
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-cfda0a2854c14167a7b51949fecaedb5.jsonl",
+        "rows": [
+          {
+            "status": "READY",
+            "name": "managed-cli",
+            "pid": 2278124
+          },
+          {
+            "status": "EXIT",
+            "name": "0",
+            "pid": 2278124
+          }
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-d47bfd834c7644fd9807cbaf2d3311af.jsonl",
+        "rows": [
+          {
+            "status": "READY",
+            "name": "managed-cli",
+            "pid": 2278145
+          },
+          {
+            "status": "EXIT",
+            "name": "0",
+            "pid": 2278145
+          }
+        ]
+      }
+    ],
+    "runtime_restart": false
+  },
+  "acceptance_matrix": [
+    {
+      "criterion": "Authentic M1 native finite completion/persistence",
+      "status": "PASS",
+      "evidence": "REAL_AIAgent=1, read=1, PURE handlers=2, three method states DONE, TaskResult SUCCEEDED, MethodCheck COMPLETE, model_calls=0/target_actions=0. Two CriterionOutcomes BLOCKED with ORACLE_UNAVAILABLE/CONTROLS_UNAVAILABLE; no functional PASS."
+    },
+    {
+      "criterion": "M2 private CLI append/replay/read and immutable M1",
+      "status": "PASS",
+      "evidence": "created true then false, revision2 with same mission UUID; read predecessor M1; real test compares entire historical graph and briefs/results/checks/outcomes/tasks/inbox/binding/manifest byte-exact."
+    },
+    {
+      "criterion": "Reservation-first overlap, stage and release",
+      "status": "PASS",
+      "evidence": "Real product reserve_dispatch under owner lock; two append waiters observed blocked using pg_blocking_pids before transaction release. Both settle NEEDS_RECONCILIATION before native exchange; exact five-table snapshot unchanged."
+    },
+    {
+      "criterion": "Append-first overlap, stage and release",
+      "status": "PASS",
+      "evidence": "Fresh never-dispatched assignment; append holds actual owner lock; both reserve waiters observed through pg_blocking_pids. Stage MISSION_REVISION_NEW_WORK_UNSUPPORTED; release BINDING_REQUIRED, no fabricated binding. Exact five-table snapshot unchanged."
+    },
+    {
+      "criterion": "Atomic rollback, table-shadow and seven exact CLI denials",
+      "status": "PASS",
+      "evidence": "Full to_jsonb rows and envelopes across public.managed_record/managed_mission_revision/managed_run/managed_task/managed_inbox compared after each fault/denial. Receipt failure rollback and public-table shadow positives; prepare/stage unsupported before further writes/native."
+    },
+    {
+      "criterion": "Public cached post-Stop and fresh persistent read/reconcile",
+      "status": "PASS",
+      "evidence": "Public UDS stage→release→cached release/receive→real shutdown generation/fence transition→post-Stop cached release/receive; four fresh managed CLI readers; execution attempts0; consumed exactly1. No native runtime restart."
+    },
+    {
+      "criterion": "Exact settlement/cleanup, evidence retained, frozen source unchanged",
+      "status": "PASS",
+      "evidence": "Joined exact process session exit0/family_drained true; original owner cleanup and independent same-daemon exact CID/project/network/socket/readers/owned-path readback; data/logs retained; 9 source identities + reports/wrapper unchanged; no pyc writes observed in relevant roots during attempt."
+    }
+  ],
+  "oracle_provenance_limits": {
+    "overlap_and_five_table_comparison": "Observed during the original real PG test, attested by its PASS checkpoint and exact frozen executable assertions. The producer did not retain backend PID values or per-census plaintext/digests; no fabricated post-retirement PG query/readback is claimed.",
+    "logical_test_database": "The existing conftest creates/drops one attested UUID-named test database. Name not retained in its receipt; joined passing pytest teardown plus retired exact container/socket settles its owner. PGDATA directory retained, not a promise that the temporary logical test DB remains queryable.",
+    "public_channel": "Real LocalControl/private UDS/kernel peer/capability through existing owner, not installed CLI/OCI distribution.",
+    "document_preparation": "Existing explicit qualification/document-preparation prerequisite double only; native result/RuntimeHost/NativePeer/RuntimeClient not substituted.",
+    "adversarial_tail": "After successful positive readback/reconcile, original test appends one deliberately forged CriterionOutcome and requires CRITERION_OUTCOME_MISMATCH on readback/reconcile. Retained artifact is not a qualification record or a final clean positive DB snapshot.",
+    "native_pid": "Existing proof retains native_directory/exit/owned_pids, not native PID. Settlement is original pinned host join/family check + gate owner family_drained + independent absence of exact owned-path processes; no invented PID or adopted process."
+  },
+  "owned_resources": {
+    "fixture": {
+      "schema_version": 1,
+      "root": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577",
+      "project": "omnis-p01-11b20b0f400b4a2fbfe2b398679396c8",
+      "container_id": "75b967288aa0ad1ce5504e68881efc1b70c811d351492bf27b4cc2c7c5dc87cc",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "system_identifier": "7696264532500979742"
+    },
+    "db_image_ref": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+    "db_network_mode": "none",
+    "no_published_ports": "verified by existing original owner/manifest attestor before admission",
+    "db_socket_directory": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/socket",
+    "native_public_control_directory": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5",
+    "pytest_owned_test_directory": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0",
+    "fresh_reader_pids": [
+      2278124,
+      2278145,
+      2278168,
+      2278170
+    ],
+    "private_cli_request_paths": [
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.json",
+      "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.json"
+    ],
+    "cleanup_authority": "Original prove_private_fixture/cleanup_owned only; independent QA performed read-only readback, no additional stop/rm/cleanup, foreign adoption or global effects."
+  },
+  "cleanup": {
+    "status": "PASS",
+    "original_owner_readback": {
+      "container_absent": true,
+      "networks_absent": true,
+      "pg_socket_absent": true,
+      "uncertain": false
+    },
+    "independent_exact_readback": {
+      "docker_readbacks": [
+        {
+          "argv": [
+            "docker",
+            "--host",
+            "unix:///run/docker.sock",
+            "info",
+            "--format",
+            "{{.ID}}"
+          ],
+          "exit": 0,
+          "verified": true,
+          "value": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc"
+        },
+        {
+          "argv": [
+            "docker",
+            "--host",
+            "unix:///run/docker.sock",
+            "inspect",
+            "75b967288aa0ad1ce5504e68881efc1b70c811d351492bf27b4cc2c7c5dc87cc",
+            "--format",
+            "{{.Id}}"
+          ],
+          "exit": 1,
+          "verified": true,
+          "value": "ABSENT"
+        },
+        {
+          "argv": [
+            "docker",
+            "--host",
+            "unix:///run/docker.sock",
+            "ps",
+            "-a",
+            "--no-trunc",
+            "--filter",
+            "id=75b967288aa0ad1ce5504e68881efc1b70c811d351492bf27b4cc2c7c5dc87cc",
+            "--format",
+            "{{.ID}}"
+          ],
+          "exit": 0,
+          "verified": true,
+          "value": "ABSENT"
+        },
+        {
+          "argv": [
+            "docker",
+            "--host",
+            "unix:///run/docker.sock",
+            "ps",
+            "-a",
+            "--no-trunc",
+            "--filter",
+            "label=com.docker.compose.project=omnis-p01-11b20b0f400b4a2fbfe2b398679396c8",
+            "--format",
+            "{{.ID}}"
+          ],
+          "exit": 0,
+          "verified": true,
+          "value": "ABSENT"
+        },
+        {
+          "argv": [
+            "docker",
+            "--host",
+            "unix:///run/docker.sock",
+            "network",
+            "ls",
+            "--no-trunc",
+            "--filter",
+            "label=com.docker.compose.project=omnis-p01-11b20b0f400b4a2fbfe2b398679396c8",
+            "--format",
+            "{{.ID}}"
+          ],
+          "exit": 0,
+          "verified": true,
+          "value": "ABSENT"
+        }
+      ],
+      "path_readbacks": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/socket/.s.PGSQL.5432",
+          "absent": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5/runtime.sock",
+          "absent": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5/runtime.boot",
+          "absent": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5/control.sock",
+          "absent": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/cm-031e5072357645ce89c67b8aafa2bea5/control.cap",
+          "absent": true
+        }
+      ],
+      "reader_readbacks": [
+        {
+          "pid": 2278124,
+          "proc_absent": true,
+          "reported_exit": 0,
+          "execution_attempts": 0
+        },
+        {
+          "pid": 2278145,
+          "proc_absent": true,
+          "reported_exit": 0,
+          "execution_attempts": 0
+        },
+        {
+          "pid": 2278168,
+          "proc_absent": true,
+          "reported_exit": 0,
+          "execution_attempts": 0
+        },
+        {
+          "pid": 2278170,
+          "proc_absent": true,
+          "reported_exit": 0,
+          "execution_attempts": 0
+        }
+      ],
+      "owned_path_active_processes": [],
+      "same_uid_proc_permission_denials": [],
+      "retained": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577",
+          "exists": true,
+          "mode": "0o700"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/data",
+          "exists": true,
+          "mode": "0o700"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/fixture.json",
+          "exists": true,
+          "mode": "0o600"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/gate.log",
+          "exists": true,
+          "mode": "0o600"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/gate.log.result.json",
+          "exists": true,
+          "mode": "0o600"
+        }
+      ],
+      "timings": {
+        "readback_utc": "2026-10-13T21:20:24.277045+00:00",
+        "gate_log_last_write_utc": "2026-10-13T21:17:58.092011+00:00",
+        "proof_last_write_utc": "2026-10-13T21:17:57.485920+00:00",
+        "owner_log_last_write_utc": "2026-10-13T21:17:59.024012+00:00"
+      },
+      "repository": {
+        "status": "## checkpoint/p2-vm-restart-20261011\n?? documents/Omnis_Notite_Originale.html",
+        "status_exit": 0,
+        "head": "b4964e7f459cbee4ba7960e500e26233f0570d25",
+        "head_exit": 0
+      },
+      "cleanup_verified": true
+    },
+    "native_public_test_checkpoint": {
+      "native_cleanup": "PASS",
+      "native_exit": -9,
+      "native_owned_pids": [],
+      "public_control_cleanup": "PASS"
+    },
+    "settlement_uncertain": false
+  },
+  "artifacts": {
+    "owner_log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-m2-f01-independent-qa-owner.log",
+      "sha256": "3e03590c37bfe68f86b66edde144d72d593cbd31f1cfa2c2164ee46e37c59cf1",
+      "mode": "0o600"
+    },
+    "gate_log": {
+      "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/gate.log",
+      "sha256": "9ed78b3b8601809c3665015087c6de51fdd2e516e5e1f445d3ff9e7b8c063728",
+      "mode": "0o600"
+    },
+    "gate_family_receipt": {
+      "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    },
+    "fixture_manifest": {
+      "path": "/home/kali/.hermes/cache/scratch/db-d906b1a004204577/fixture.json",
+      "sha256": "3c485876f30ee6a619bdd2b4b518ac937b0304f6a96d0d74c94b19176df87365",
+      "mode": "0o600"
+    },
+    "proof": {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "16db0e4b67d4613dfe8bb57ab3cb5fa467a72589e3b2c5f0ec91d035d5c0266c",
+      "mode": "0o600"
+    },
+    "native_observation": {
+      "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/native-observation.jsonl",
+      "sha256": "1ce2579c5754255a33e772ac6019daa2b3238898ca03abc533ab62084621bbd6",
+      "mode": "0o600"
+    },
+    "private_cli": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.json",
+        "sha256": "05fce133449176af793efef5366d33a3ab4ccf68b1baf3fb46e775023a49566c",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-23d2d8bc039249238dfab7062c425841.stdout",
+        "sha256": "7a78d047dce1c6fcacc93cb3d61fb653f0f80f4bf15a03744d9fe1bc8e3f899d",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.json",
+        "sha256": "8489217db460bdf92b471738cd23da927bd8532b60a4d142bbc229ccd29e62de",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.stderr",
+        "sha256": "26dc88ed95bf865af8959077d74bf3b81cf6cc3b1ac56bd5573260d7c73e36ce",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-2b4a327de3ba42cfbecffa82fec83074.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.json",
+        "sha256": "6f176f93454b8396ccabfb6294b348416185934775b870dd5e92aa6bc432a7a2",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.stderr",
+        "sha256": "b67a8ce11462fa3e052a7e2c36ffd2e507a69f11e30e8b618090b5ad62a7adf5",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3271d791866c496580a0f75edf75a1b2.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.json",
+        "sha256": "2682728d211a729aa9d213f0d05479100aa31aa0820afd7509a77255c7440434",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-3baa904ae7304562b148275b13a9ea08.stdout",
+        "sha256": "497d6c4fc5f228719d83616493539415e0257985453994efbceccaf4615696f6",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.json",
+        "sha256": "5d9c28b37b05a44dcd5a63e4988487991578a1abe0b236dc4599e3f15dc9032c",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.stderr",
+        "sha256": "097263b068bf001cba845d69e9a27b6b7cd38df92fe258a4995c3f99e2ce269c",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-63ac81c283d34115bf8f0e474198608b.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.json",
+        "sha256": "05fce133449176af793efef5366d33a3ab4ccf68b1baf3fb46e775023a49566c",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-673313bc23ea420e86c479d96e9c0ccd.stdout",
+        "sha256": "41d2fae284e46d5e87baad0ecc1bae457603b9bd7150a827d5fa99af48020a95",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.json",
+        "sha256": "9ac16911f08d3ae219bacc318fb040592a62f51e683e7809a7e7757a93bbb108",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.stderr",
+        "sha256": "e92a60484c69180b87f4afd378202bb9cc42e6bf4aa1592a9bc747cb473c8aa6",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-6f3c2bd7810c464aaa03337b51f95403.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.json",
+        "sha256": "b3bda848caf9151363cfbbecdf0509f856cff653b06d1e60f10c8bbc527110d6",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.stderr",
+        "sha256": "8f4abf54d50772a66e2292737a503d4af81222dab2e45445fe10d32e8bdcddbc",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-a871e609558d43ff90b99462ff57659f.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.json",
+        "sha256": "53023dbc2063bf27c084646672d34b6ae92126ce6a6ebf4f47ff1d8fdf55adbd",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.stderr",
+        "sha256": "27dacca091bd3e89e7b621c2647ad5b79bd1a3006596cebc429a58187b64fcda",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-b49ebce263fc4461a0826b6f4f50b7f3.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.json",
+        "sha256": "aec0de5937bb8a9e557a691880c455a5bee51f1fee11c4ff594d15c81485fc98",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.stderr",
+        "sha256": "7cbae855491d6a06ab68d778de8f4d411fb43bcdf50d3e34a08a3d5b56a61850",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/mission-command-d4ead469925d4cbebee4bb64eafbfa1c.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      }
+    ],
+    "fresh_readers": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-2bbb427c3ab34c9ca6f1abca6bf20aa0.jsonl",
+        "sha256": "fb00544003b2ce561648b5a07a9e157664d9e837fc0641f4de03e103fa640830",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-2bbb427c3ab34c9ca6f1abca6bf20aa0.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-2bbb427c3ab34c9ca6f1abca6bf20aa0.stdout",
+        "sha256": "426ee6cbdf21dc2c6f5d9564d71f472e4dda081c4be4e3b4a58ca6bafbc833b3",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-4d2daeae3751441d80b2e8dcac1e74c1.jsonl",
+        "sha256": "c4e403b11e3165834bec0ddedd6b0cc0c083f67f77536ef947a327df9542c415",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-4d2daeae3751441d80b2e8dcac1e74c1.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-4d2daeae3751441d80b2e8dcac1e74c1.stdout",
+        "sha256": "426ee6cbdf21dc2c6f5d9564d71f472e4dda081c4be4e3b4a58ca6bafbc833b3",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-cfda0a2854c14167a7b51949fecaedb5.jsonl",
+        "sha256": "74e7be10cd9a4d5b528376222875be3bd116d7d23c78dd988704859aa2f1f73f",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-cfda0a2854c14167a7b51949fecaedb5.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-cfda0a2854c14167a7b51949fecaedb5.stdout",
+        "sha256": "4ea4c331e5aaacaef694636ea3443c51aad5efbc6c95c68d06fa4c2cca349c5d",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-d47bfd834c7644fd9807cbaf2d3311af.jsonl",
+        "sha256": "d88e4ae96b6d9525521afae0f6956eaf5dfd3ce88cefbabd7ff6698272d11ab6",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-d47bfd834c7644fd9807cbaf2d3311af.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-observer-d47bfd834c7644fd9807cbaf2d3311af.stdout",
+        "sha256": "426ee6cbdf21dc2c6f5d9564d71f472e4dda081c4be4e3b4a58ca6bafbc833b3",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-request-7c0465ffaccd45c8aa74df733bdba757.json",
+        "sha256": "7a4f808e5c20fddebea0ff750c38470ed8eede6c79a82ebedd818508a46ceb21",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-request-9837c4d17f1f47ecaeda0f1afff16400.json",
+        "sha256": "7a4f808e5c20fddebea0ff750c38470ed8eede6c79a82ebedd818508a46ceb21",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-request-b095e173bf67445db1690275b5cc1f38.json",
+        "sha256": "7a4f808e5c20fddebea0ff750c38470ed8eede6c79a82ebedd818508a46ceb21",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-394/test_contract_method_real_nati0/restart-request-bf9299669d8b416f8392546e19b341cb.json",
+        "sha256": "7a4f808e5c20fddebea0ff750c38470ed8eede6c79a82ebedd818508a46ceb21",
+        "mode": "0o600"
+      }
+    ],
+    "raw_private_evidence_retained": true,
+    "secret_policy": "Raw DB/DSN/password/bootstrap/RPC/private stdout/stderr and pytest tracebacks were never dumped. Private parsing emitted only fixed checkpoint/test/status/reason/count/timing and nonsensitive resource identity allowlists. Owner/gate/proof/private outputs mode0600."
+  },
+  "repository_effects": {
+    "status_after": "## checkpoint/p2-vm-restart-20261011\n?? documents/Omnis_Notite_Originale.html",
+    "tracked_clean": true,
+    "head_unchanged": true,
+    "product_edits": [],
+    "commits": [],
+    "stage": false,
+    "protected_original_touched": false,
+    "python_cache_readback": {
+      "searched_roots": [
+        "/home/kali/OmnisAI/api",
+        "/home/kali/OmnisAI/ops",
+        "/home/kali/OmnisAI/integrations/hermes",
+        "/home/kali/OmnisAI/cli"
+      ],
+      "window_start": 1791926222.0,
+      "window_end": 1791926279.024012,
+      "cache_files_written_during_attempt": [],
+      "count": 0,
+      "limits": "mtime/ctime observed after run; excludes dependency venv, no deletion or modification"
+    },
+    "artifact_creation_boundary": "Original runner-owned scratch fixture/native/test/log files plus sanitized final JSON only; no new runner/harness/owner."
+  },
+  "failures": [],
+  "issues_encountered": [
+    {
+      "classification": "NONBLOCKING_TOOL_SHELL_DIAGNOSTIC",
+      "reason": "Terminal shell emitted two zle option warnings; wrapper exit0 and exact gate receipt/process readback succeeded."
+    },
+    {
+      "classification": "NONBLOCKING_POSTRUN_DISCOVERY",
+      "reason": "search_files exact modified order/bounded traversal unavailable; initial proof glob used an untruncated pytest node name and matched0. Read-only pathlib discovery with truncated actual node directory and physical symlink dedup resolved exactly one fresh proof. No rerun, product edit, effect or fabricated receipt."
+    }
+  ],
+  "not_run": [
+    "OCI/installed Host/installed historical reader",
+    "native runtime restart or history qualification",
+    "ResultQualification/ELIGIBLE/freshness/coverage/replan",
+    "new model/provider/inference/network/target traffic",
+    "r1/operator profile/global install or resource adoption",
+    "general/canonical/P2 final gate",
+    "physical crash/power-loss/ACK-loss or additional consumer cases"
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_CLI_PROCESS_ONLY",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "handoff": {
+    "parent_must_read_exact_report_and_external_resource_targets_before_acceptance": true,
+    "P2_closure_claimed": false,
+    "global_status": "No closure claim for B06b/G02/P2; unchanged limits remain."
+  }
+}

@@ -57,10 +57,7 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         raise CatalogError("INVALID_REQUEST")
     result = contract.exact(value, fields)
     if selected_return:
-        if contract.predicate_key(result["return_predicate_id"]) not in {
-            "normalize-records",
-            "build-surface-map",
-        }:
+        if contract.predicate_key(result["return_predicate_id"]) not in contract.RECORD_PREDICATES:
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     contract.integer(result["schema_version"], version, version)
     uuid_string(result["owner_id"])

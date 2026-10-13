@@ -1169,15 +1169,21 @@ def test_partial_final_wire_and_backend_accept_same_authentic_prefix() -> None:
             managed_contract.validate_final(bad, case.stage["manifest"], case.binding)
 
 
-def test_explicit_return_selection_is_bounded_existing_prepare_request() -> None:
-    from omnis.modules.runs.managed_admission import validate_request
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "return_predicate_id", ["normalize-records", "build-surface-map", "preserve-input-context"]
+)
+async def test_explicit_return_selection_is_bounded_existing_prepare_request(
+    monkeypatch: pytest.MonkeyPatch, return_predicate_id: str
+) -> None:
+    from omnis.modules.runs.managed_admission import ManagedAdmission, validate_request
     from test_c03_managed_capture import request
 
     case = native_case(predicates=True)
     value = request()
     value.update(
         schema_version=3,
-        return_predicate_id="normalize-records",
+        return_predicate_id=return_predicate_id,
         slot_values=[
             {
                 "slot_name": "records",
@@ -1186,11 +1192,44 @@ def test_explicit_return_selection_is_bounded_existing_prepare_request() -> None
         ],
     )
     assert validate_request("prepare-method", value) == value
-    for invalid in (None, True, "unknown", "foreign.normalize-records", "lambda: True"):
+
+    prepared: list[dict[str, object]] = []
+
+    async def observe_prepare(
+        self: ManagedAdmission, request: dict[str, object]
+    ) -> dict[str, object]:
+        # SOURCE gateway only; real DB/build/native behavior belongs to PG QA.
+        prepared.append(request)
+        return {"request": request}
+
+    monkeypatch.setattr(ManagedAdmission, "_prepare", observe_prepare)
+    consumer = object.__new__(ManagedAdmission)
+    expected = {**value, "composition_version": 4}
+    assert await consumer.prepare_method(value) == {"request": expected}
+    assert prepared == [expected]
+    invalid_values: tuple[object, ...] = (
+        None,
+        True,
+        0,
+        [],
+        {},
+        "unknown",
+        "foreign.normalize-records",
+        "lambda: True",
+    )
+    for invalid in invalid_values:
         with pytest.raises(CatalogError):
             validate_request("prepare-method", {**value, "return_predicate_id": invalid})
+        with pytest.raises(CatalogError):
+            await consumer.prepare_method({**value, "return_predicate_id": invalid})
+    for version in (1, 2):
+        with pytest.raises(CatalogError, match="^INVALID_REQUEST$"):
+            await consumer.prepare_method({**value, "schema_version": version})
     with pytest.raises(CatalogError):
         validate_request("prepare-composed", value)
+    with pytest.raises(CatalogError):
+        await consumer.prepare_composed(value)
+    assert prepared == [expected]
 
 
 @pytest.mark.parametrize("attack", ["unknown", "foreign", "collision", "missing", "bool-ref"])

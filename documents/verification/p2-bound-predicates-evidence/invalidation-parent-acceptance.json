@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "product_commit": "879efe633383457c45236f6e68622ce56619e96c",
+  "decision": "ACCEPTED_SOURCE_NATIVE_SCOPED",
+  "scope": "Finite records-empty invalidation only on the exact immutable bound records input; not external mutable-state/current ResultQualification.",
+  "reviews": [
+    {
+      "role": "normative",
+      "verdict": "APPROVED_SCOPED",
+      "report": "invalidation-normative-review.json",
+      "sha256": "a27186e3bb6b720cc836709c1185884242a9ff26a191b73eda5f8d392a786335"
+    },
+    {
+      "role": "input/version/failure",
+      "verdict": "APPROVED_SCOPED",
+      "report": "invalidation-input-review.json",
+      "sha256": "673c9cc7b3b048ea10c9593353ead9d2c22188503f84e284ad678d36b607a38f"
+    }
+  ],
+  "earlier_review_attempt": {
+    "delegation": "deleg_bb257364",
+    "task": 2,
+    "status": "NOT_RUN_PROVIDER_CONTENT_POLICY_BLOCKED",
+    "findings": "NO_USABLE_VERDICT",
+    "replacement_review": "invalidation-input-review.json"
+  },
+  "parent_source_check": {
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_assignment_compact.py -q --tb=line",
+    "exit": 0,
+    "passed": 293,
+    "seconds": 23.06
+  },
+  "qa": {
+    "report": "invalidation-independent-qa.json",
+    "sha256": "6d1248741fa46c8967a6f2da12f19d78dfd734224fa9b099d5c6a1d306981e80",
+    "attempts": 1,
+    "passed": 1,
+    "deselected": 21,
+    "seconds": 39.02,
+    "exit": 0,
+    "family_drained": true,
+    "negative": "PROCEDURE_INVALIDATED before assignment; managed_record/run deltas0",
+    "positive": "Actual AIAgent/read1/PURE2/3receipts/2artifacts;3MethodResultsDONE/COMPLETE;2CriterionOutcomesBLOCKED",
+    "readers": 4,
+    "no_rerun": true,
+    "consume_once": true,
+    "post_stop_duplicate_receive_only": true
+  },
+  "parent_readback": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,json,hashlib,subprocess,os,stat,fcntl\nroot=pathlib.Path('\"'\"'/home/kali/OmnisAI'\"'\"');p=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-invalidation-independent-qa.json'\"'\"');d=json.loads(p.read_bytes())\nfor key in ('\"'\"'fixture'\"'\"','\"'\"'findings'\"'\"','\"'\"'findings_count'\"'\"','\"'\"'acceptance_matrix'\"'\"','\"'\"'prerequisite'\"'\"','\"'\"'native_observation'\"'\"','\"'\"'persistent_markers'\"'\"','\"'\"'original_consumer_evidence'\"'\"','\"'\"'nonsecret_limits'\"'\"','\"'\"'private_artifacts'\"'\"'):\n print(key,json.dumps(d[key],indent=2))\nfiles=d['\"'\"'snapshot'\"'\"']['\"'\"'files'\"'\"'];assert len(files)==11 and all(hashlib.sha256((root/f['\"'\"'path'\"'\"']).read_bytes()).hexdigest()==f['\"'\"'sha256'\"'\"'] for f in files)\nlocators=[]\ndef visit(v):\n if type(v) is dict:\n  if type(v.get('\"'\"'path'\"'\"')) is str and type(v.get('\"'\"'sha256'\"'\"')) is str and v['\"'\"'path'\"'\"'].startswith('\"'\"'/home/kali/.hermes/cache/scratch/'\"'\"'):\n   locators.append((v['\"'\"'path'\"'\"'],v['\"'\"'sha256'\"'\"']))\n  for child in v.values():visit(child)\n elif type(v) is list:\n  for child in v:visit(child)\nvisit(d)\nunique=dict(locators);mismatch=[path for path,h in unique.items() if not pathlib.Path(path).is_file() or hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()!=h]\nassert not mismatch,'\"'\"'EVIDENCE_HASH_MISMATCH'\"'\"'\nc=d['\"'\"'cleanup'\"'\"']['\"'\"'independent_readback'\"'\"'];endpoint='\"'\"'unix:///var/run/docker.sock'\"'\"'\ncontext=subprocess.run(['\"'\"'docker'\"'\"','\"'\"'context'\"'\"','\"'\"'show'\"'\"'],capture_output=True,text=True,check=True,timeout=10).stdout.strip()\nactual=subprocess.run(['\"'\"'docker'\"'\"','\"'\"'context'\"'\"','\"'\"'inspect'\"'\"',context,'\"'\"'--format'\"'\"','\"'\"'{{(index .Endpoints \"docker\").Host}}'\"'\"'],capture_output=True,text=True,check=True,timeout=10).stdout.strip()\nassert actual.startswith('\"'\"'unix://'\"'\"');docker=['\"'\"'docker'\"'\"','\"'\"'--host'\"'\"',actual]\ndaemon=json.loads(subprocess.run([*docker,'\"'\"'info'\"'\"','\"'\"'--format'\"'\"','\"'\"'{{json .}}'\"'\"'],capture_output=True,text=True,check=True,timeout=15).stdout)\nassert daemon['\"'\"'ID'\"'\"']==c['\"'\"'daemon_id'\"'\"']\nassert subprocess.run([*docker,'\"'\"'inspect'\"'\"',c['\"'\"'container_id'\"'\"']],capture_output=True,timeout=10).returncode!=0\nfor command in (['\"'\"'ps'\"'\"','\"'\"'-aq'\"'\"','\"'\"'--filter'\"'\"','\"'\"'label=com.docker.compose.project='\"'\"'+c['\"'\"'project'\"'\"']],['\"'\"'network'\"'\"','\"'\"'ls'\"'\"','\"'\"'-q'\"'\"','\"'\"'--filter'\"'\"','\"'\"'label=com.docker.compose.project='\"'\"'+c['\"'\"'project'\"'\"']]):\n result=subprocess.run([*docker,*command],capture_output=True,check=True,timeout=10);assert not result.stdout.strip()\nassert all(not pathlib.Path(row['\"'\"'path'\"'\"']).exists() for row in c['\"'\"'paths'\"'\"'])\nassert all(not pathlib.Path('\"'\"'/proc/'\"'\"'+str(row['\"'\"'pid'\"'\"'])).exists() for row in c['\"'\"'reader_processes'\"'\"'])\nassert (pathlib.Path(c['\"'\"'pgdata'\"'\"']['\"'\"'path'\"'\"'])/'\"'\"'PG_VERSION'\"'\"').read_text().strip()=='\"'\"'18'\"'\"'\nassert len(list(pathlib.Path(c['\"'\"'pgdata'\"'\"']['\"'\"'path'\"'\"']).rglob('\"'\"'*'\"'\"')))>0\nprint('\"'\"'PARENT_READBACK'\"'\"',json.dumps({'\"'\"'checked_source'\"'\"':len(files),'\"'\"'artifact_locator_hashes'\"'\"':len(unique),'\"'\"'mismatches'\"'\"':len(mismatch),'\"'\"'same_daemon'\"'\"':True,'\"'\"'exact_CID_project_network_absent'\"'\"':True,'\"'\"'exact_endpoints_readers_absent'\"'\"':True,'\"'\"'pg18_retained'\"'\"':True}))\n'",
+    "exit": 0,
+    "source_hashes_verified": 11,
+    "artifact_locator_hashes_verified": 85,
+    "mismatches": 0,
+    "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "exact_cid_absent": "1d4582a284329d40bf256f19f1409c0545f53b5a563998de84d276ec036d3271",
+    "project_containers_networks_absent": "omnis-p01-eb5056ede1e44002a62ad481b2a64a2c",
+    "endpoints_readers_absent": true,
+    "pg18_data_logs_retained": true,
+    "global_cleanup": false
+  },
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED",
+    "PreparationPrerequisite document-loading double",
+    "Native exit-9 is bounded teardown, not graceful Stop or runtime-restart proof",
+    "Installed historical-reader and runtime restart NOT_RUN",
+    "External auth/input invalidation and ResultQualification current/history OPEN",
+    "Evidence-bearing/optional and remaining B06b/B06c/B06m OPEN",
+    "Canonical final NOT_RUN; P2-inert/G02/P2 NOT_CLOSED; P4a-minim NOT_IMPLEMENTED",
+    "No account/provider/model/target/r1/global/push"
+  ],
+  "next": "Evidence-bearing obligations and optional-versus-required semantics on the same existing consumers, then remaining B06b and B06c/m per CURRENT handoff."
+}

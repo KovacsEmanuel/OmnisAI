@@ -1,0 +1,744 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-INVALIDATION-INPUT-REPLACEMENT-OFFLINE",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "summary": "Nicio constatare blocantă confirmată în schimbarea finitǎ de validare a inputului map-records pe snapshotul exact. Aprobarea este numai pentru cod/SOURCE și compatibilitatea declarată, nu integrare PG/native instalată sau închiderea fazei.",
+  "repository": "/home/kali/OmnisAI",
+  "base_head": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+  "head_after": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "snapshot": {
+    "file_count": 11,
+    "before_matches_author_inventory": true,
+    "after_matches_author_inventory": true,
+    "before_after_unchanged": true,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256_before": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+        "sha256_after": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+        "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256_before": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+        "sha256_after": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+        "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256_before": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+        "sha256_after": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+        "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256_before": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+        "sha256_after": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+        "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256_before": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+        "sha256_after": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+        "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256_before": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "sha256_after": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256_before": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+        "sha256_after": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+        "sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5"
+      },
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256_before": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+        "sha256_after": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+        "sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9"
+      },
+      {
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256_before": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+        "sha256_after": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+        "sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "sha256_before": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+        "sha256_after": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+        "sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256_before": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+        "sha256_after": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+        "sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a"
+      }
+    ],
+    "author_inventory": "/home/kali/.hermes/cache/scratch/p2-invalidation-author.json#snapshot.files",
+    "diff_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-author.patch",
+    "diff_sha256": "4902c69a08ac12c3004a7b09d92d8594d1ae9d8a84113826ac7ca47903692d7f",
+    "live_diff_byte_exact_before": true,
+    "live_diff_byte_exact_after": true,
+    "closure_identity": {
+      "closure_count": 13,
+      "current_closure": [
+        {
+          "path": "tasks/method_checker_identity.py",
+          "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+        },
+        {
+          "path": "tasks/method_checks.py",
+          "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+        },
+        {
+          "path": "tasks/managed_contract.py",
+          "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+        },
+        {
+          "path": "tasks/managed_composition.py",
+          "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+        },
+        {
+          "path": "tasks/criterion_checks.py",
+          "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+        },
+        {
+          "path": "tasks/contract_case_input.py",
+          "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+        },
+        {
+          "path": "settings/candidate_catalog.py",
+          "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+        },
+        {
+          "path": "settings/candidate_store.py",
+          "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+        },
+        {
+          "path": "settings/candidate_material.py",
+          "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+        },
+        {
+          "path": "settings/catalog_models.py",
+          "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+        },
+        {
+          "path": "settings/catalog_schema.py",
+          "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+        },
+        {
+          "path": "settings/publication_models.py",
+          "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+        },
+        {
+          "path": "settings/skill_catalog.py",
+          "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+        }
+      ],
+      "current_checker": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+      "baseline_checker": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+      "current_composer": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+      "baseline_composer": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+    }
+  },
+  "findings": [],
+  "finding_count": 0,
+  "acceptance_matrix": [
+    {
+      "requirement": "Declarație finită unică, tipuri exacte, numai map-records",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:70-81",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:196-206",
+        "api/src/omnis/modules/settings/skill_catalog.py:517-535"
+      ],
+      "evidence": "[] sau [\"contract.records-empty\"]; valori unknown/duplicate/foreign/null/bool/int/dict/list și str/list subclasses sunt refuzate; compilerul real este acoperit de testele first_party."
+    },
+    {
+      "requirement": "Input absent produce eșec indeterminat explicit; invalidation TRUE refuză",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:84-103",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:209-228"
+      ],
+      "evidence": "Ambii guards emit PROCEDURE_INVALIDATION_UNKNOWN pentru original=None și PROCEDURE_INVALIDATED pentru inputul records=[] exact legat. Omisiunea materialului obligatoriu dintr-un wire malformed este refuzată structural, nu N/A ori succes."
+    },
+    {
+      "requirement": "Predicatele folosesc exact bound input și schema acestuia",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:92-103",
+        "api/src/omnis/modules/tasks/managed_contract.py:1374-1380",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:217-228",
+        "api/src/omnis/modules/tasks/managed_composition.py:634-676"
+      ],
+      "evidence": "Ref kind/id/revision/digest și schema_ref sunt comparate canonical după validare. Probe independente schimbă fiecare componentă și schema unui input corect re-sealed cu source_ref actualizat: toate refuzate."
+    },
+    {
+      "requirement": "Validarea precede identitățile de assignment/native și procesarea",
+      "status": "PASS_SOURCE_AND_STATIC_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:689-757",
+        "api/src/omnis/modules/runs/managed_admission.py:351-398",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:79-89",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:657-670"
+      ],
+      "evidence": "build validează material/pin/preconditions/invalidation înainte de task_id/attempt_id; callerul construiește/validează înainte de persistare/reservare. Testul empty constructor instrumentează UUID/read/PURE și observă zero apeluri/child fără stare. Context prefix poate avea propriile identități anterioare: nu sunt identități de assignment."
+    },
+    {
+      "requirement": "Același limbaj în compiler/build, preflight nativ, producer TaskResult și checker independent",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/settings/skill_catalog.py:522-523",
+        "api/src/omnis/modules/tasks/managed_contract.py:446-447",
+        "api/src/omnis/modules/tasks/managed_contract.py:739-749",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:665-670",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:277-283",
+        "api/src/omnis/modules/tasks/method_checks.py:551-595"
+      ],
+      "evidence": "Testele pozitive inline+compact execută algoritmii reali SOURCE read1/PURE2 și păstrează 3 MethodResults DONE/COMPLETE; controalele empty genuine receipts sunt refuzate de TaskResult și checker. Probe pe API-composition/native-assignment confirmă aceeași acceptare/refuz; mesajele generice de parser diferă legitim între implementări."
+    },
+    {
+      "requirement": "Perechea istorică de preconditions rămâne exactă receive-only, fără invalidation nouă",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/tasks/method_checker_identity.py:56-59",
+        "api/src/omnis/modules/tasks/method_checker_identity.py:89-111",
+        "api/src/omnis/modules/tasks/managed_contract.py:253-274",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:491-510",
+        "api/src/omnis/modules/tasks/managed_contract.py:739-747"
+      ],
+      "evidence": "Perechea 073980.../065fda... este recalculată din baseline și validată exact. receive_only=False sau pin necorespunzător refuză METHOD_CHECKER_UNAVAILABLE; pair pozitiv inline+compact trece receive-only. Invalidation pe 4 pins istorice este refuzată de checker/TaskResult, iar old pin la build refuză pre-UUID pe input gol și nonempty."
+    },
+    {
+      "requirement": "Nu introduce calificare current/history de stare externă mutabilă",
+      "status": "CONFIRMED_SCOPE_LIMIT",
+      "code": [
+        "api/src/omnis/modules/tasks/managed_contract.py:85",
+        "integrations/hermes/src/omnis_hermes/prompt_bundle.py:210"
+      ],
+      "evidence": "Guardul verifică numai inputul immutable records; nu e evaluator general, auth freshness, oracle sau ResultQualification."
+    }
+  ],
+  "verification_commands": [
+    {
+      "label": "focused-source-pytest",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_producer.py -k 'invalidation or prior_precondition_pair or first_party' -q --tb=short",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "counts": {
+        "passed": 22,
+        "deselected": 86,
+        "failed": 0
+      },
+      "duration_seconds": 2.56,
+      "actual_output": "22 passed, 86 deselected in 2.56s",
+      "scope": "SOURCE only; native holders sintetici, compiler real; nu AIAgent/owner autentificat/PG."
+    },
+    {
+      "label": "independent-finite-guards",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,json,copy\nfrom hashlib import sha256\nfrom pathlib import Path\nroot=Path(\"/home/kali/OmnisAI\")\nsys.path[:0]=[str(root/\"api/src\"),str(root/\"api/tests\"),str(root/\"integrations/hermes/src\"),str(root/\"integrations/hermes/tests\"),str(root/\"integrations/hermes/upstream/managed-source\")]\nfrom test_contract_method_checks import native_case\nfrom omnis.modules.tasks import managed_contract as api\nfrom omnis_hermes import prompt_bundle as native\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\ncase=native_case(predicates=True,invalidation=True)\np=copy.deepcopy(case.bound[\"payload\"][\"resolved_procedure\"])\nchecks=[]\ndef observe(label,fn,args,expected):\n    try:\n        fn(*args)\n        outcome=\"ACCEPT\"\n    except (CatalogError,ValueError) as error:\n        outcome=getattr(error,\"reason\",str(error))\n    checks.append(dict(case=label,outcome=outcome,expected=expected))\n    if expected==\"REFUSE\":\n        assert outcome!=\"ACCEPT\",label\n    else:\n        assert outcome==expected,(label,outcome)\nclass StringSubclass(str): pass\nclass ListSubclass(list): pass\nfor language,m in [(\"api\",api),(\"native\",native)]:\n    for ids in [[],[\"contract.records-empty\"]]:\n        q=copy.deepcopy(p);q[\"invalidation_predicate_ids\"]=ids\n        observe(language+\"-valid-declaration-\"+str(len(ids)),m.invalidation_declaration,[q],\"ACCEPT\")\n    for label,ids in [(\"null\",None),(\"bool\",False),(\"integer\",1),(\"string\",\"contract.records-empty\"),(\"tuple\",(\"contract.records-empty\",)),(\"object\",{}),(\"list-subclass\",ListSubclass([\"contract.records-empty\"])),(\"element-null\",[None]),(\"element-bool\",[True]),(\"element-integer\",[1]),(\"element-object\",[{}]),(\"element-list\",[[]]),(\"element-bytes\",[b\"contract.records-empty\"]),(\"element-str-subclass\",[StringSubclass(\"contract.records-empty\")]),(\"duplicate\",[\"contract.records-empty\"]*2),(\"unknown\",[\"contract.records-nonempty\"]),(\"casing\",[\"CONTRACT.records-empty\"]),(\"whitespace\",[\"contract.records-empty \"])]:\n        q=copy.deepcopy(p);q[\"invalidation_predicate_ids\"]=ids\n        observe(language+\"-declaration-\"+label,m.invalidation_declaration,[q],\"REFUSE\")\n    for label,key in [(\"foreign\",\"map-capture\"),(\"null\",None),(\"integer\",1),(\"object\",{}),(\"list\",[]),(\"subclass\",StringSubclass(\"map-records\"))]:\n        q=copy.deepcopy(p);q[\"key\"]=key\n        observe(language+\"-procedure-key-\"+label,m.invalidation_declaration,[q],\"REFUSE\")\n    observe(language+\"-nonempty\",m.require_not_invalidated,[p,case.original],\"ACCEPT\")\n    observe(language+\"-absent\",m.require_not_invalidated,[p],\"PROCEDURE_INVALIDATION_UNKNOWN\")\n    q=copy.deepcopy(p);q[\"invalidation_predicate_ids\"]=[]\n    observe(language+\"-undeclared-absent\",m.require_not_invalidated,[q],\"ACCEPT\")\n    for label,field,value in [(\"id\",\"id\",\"00000000-0000-0000-0000-000000000001\"),(\"revision\",\"revision\",2),(\"bool-revision\",\"revision\",True),(\"digest\",\"digest\",\"0\"*64),(\"kind\",\"kind\",\"contract-case-input\")]:\n        q=copy.deepcopy(p);q[\"probe\"][0][\"input_bindings\"][0][\"source_ref\"][field]=value\n        observe(language+\"-source-\"+label,m.require_not_invalidated,[q,case.original],\"REFUSE\")\n    for label,field,value in [(\"id\",\"id\",\"00000000-0000-0000-0000-000000000001\"),(\"revision\",\"revision\",2),(\"bool-revision\",\"revision\",True),(\"digest\",\"digest\",\"0\"*64),(\"kind\",\"kind\",\"contract-case-records\")]:\n        q=copy.deepcopy(p);q[\"input_schema_ref\"][field]=value\n        observe(language+\"-schema-\"+label,m.require_not_invalidated,[q,case.original],\"REFUSE\")\n    for label,value in [(\"empty\",[]),(\"null\",None),(\"bool\",False),(\"integer\",0),(\"string\",\"\"),(\"object\",{}),(\"tuple\",())]:\n        original=copy.deepcopy(case.original);original[\"payload\"][\"value\"]={\"records\":value}\n        try:\n            original[\"digest\"]=sha256(api.canonical({k:v for k,v in original.items() if k!=\"digest\"})).hexdigest()\n        except (TypeError,ValueError):\n            raise AssertionError(\"invalid test fixture\")\n        q=copy.deepcopy(p);q[\"probe\"][0][\"input_bindings\"][0][\"source_ref\"]=records.reference(original)\n        observe(language+\"-records-\"+label,m.require_not_invalidated,[q,original],\"PROCEDURE_INVALIDATED\" if label==\"empty\" else \"REFUSE\")\n    original=copy.deepcopy(case.original);original[\"payload\"][\"schema_ref\"][\"id\"]=\"00000000-0000-0000-0000-000000000001\"\n    original[\"digest\"]=sha256(api.canonical({k:v for k,v in original.items() if k!=\"digest\"})).hexdigest()\n    q=copy.deepcopy(p);q[\"probe\"][0][\"input_bindings\"][0][\"source_ref\"]=records.reference(original)\n    observe(language+\"-input-schema-wrong-exact-source\",m.require_not_invalidated,[q,original],\"REFUSE\")\nprint(json.dumps(dict(status=\"PASS_SOURCE_FINITE_GUARDS\",checks=len(checks),results=checks),indent=2))\n'",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "counts": {
+        "checks_passed": 94,
+        "checks_failed": 0
+      },
+      "actual_output_summary": "PASS_SOURCE_FINITE_GUARDS, checks=94",
+      "scope": "Probe directe pe ambele declarations/guards, inputs sintetice. Nu sunt 94 teste pytest și nu certifică schema completă numai din guardul de prezență."
+    },
+    {
+      "label": "independent-composed-consumers-and-pair",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,json,copy\nfrom pathlib import Path\nroot=Path(\"/home/kali/OmnisAI\")\nsys.path[:0]=[str(root/\"api/src\"),str(root/\"api/tests\"),str(root/\"integrations/hermes/src\"),str(root/\"integrations/hermes/tests\"),str(root/\"integrations/hermes/upstream/managed-source\")]\nfrom test_contract_method_checks import native_case,reseal_assignment\nfrom omnis.modules.tasks import managed_composition as api\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis_hermes.managed_admission_contract import canonical\nfrom omnis_hermes.native_preparation_contract import digest\nfrom omnis_hermes import contract_method as method\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.tasks.method_checker_identity import verify,KEY,SEMANTICS\ncase=native_case(predicates=True,invalidation=True)\nresults=[]\ndef seal(r):\n    r[\"digest\"]=digest(canonical({k:v for k,v in r.items() if k!=\"digest\"}))\nfor label,mutation in [(\"positive\",None),(\"null\",None),(\"bool\",False),(\"object\",{}),(\"string\",\"contract.records-empty\"),(\"element-bool\",[True]),(\"element-int\",[1]),(\"element-object\",[{}]),(\"element-list\",[[]]),(\"unknown\",[\"contract.records-nonempty\"]),(\"duplicate\",[\"contract.records-empty\"]*2),(\"foreign-procedure\",None),(\"wrong-source\",None),(\"wrong-schema\",None),(\"old-pin\",None),(\"input-empty\",None),(\"input-status-bool\",None),(\"input-status-float\",None),(\"input-records-object\",None),(\"empty-probe\",None)]:\n    stage=copy.deepcopy(case.stage)\n    composition=stage[\"compositions\"][0]\n    payload=composition[\"payload\"]\n    bundle=payload[\"prompt_bundle\"]\n    sections=json.loads(payload[\"text\"])\n    p=sections[3][\"record\"][\"payload\"][\"resolved_procedure\"]\n    if label==\"foreign-procedure\": p[\"key\"]=\"map-capture\"\n    elif label==\"wrong-source\": p[\"probe\"][0][\"input_bindings\"][0][\"source_ref\"][\"digest\"]=\"0\"*64\n    elif label==\"wrong-schema\": p[\"input_schema_ref\"][\"id\"]=\"00000000-0000-0000-0000-000000000001\"\n    elif label==\"old-pin\": bundle[\"payload\"][\"composer_revision\"]=\"065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8\"\n    elif label==\"empty-probe\": p[\"probe\"]=[]\n    elif label.startswith(\"input-\"):\n        original=sections[4][\"input\"]\n        old=records.reference(original)\n        if label==\"input-empty\": original[\"payload\"][\"value\"][\"records\"]=[]\n        elif label==\"input-records-object\": original[\"payload\"][\"value\"][\"records\"]={}\n        else: original[\"payload\"][\"value\"][\"records\"][0][\"status\"]=True if label.endswith(\"bool\") else 200.0\n        seal(original)\n        new=records.reference(original)\n        def replace(value):\n            if type(value) is dict:\n                if value==old: return new\n                return {k:replace(v) for k,v in value.items()}\n            if type(value) is list: return [replace(v) for v in value]\n            return value\n        sections=replace(sections)\n    elif label!=\"positive\": p[\"invalidation_predicate_ids\"]=mutation\n    reseal_assignment(stage,sections,bundle)\n    for language in (\"api-composition\",\"native-assignment\"):\n        try:\n            if language==\"api-composition\": api.validate(composition,stage[\"manifest\"][\"payload\"][\"entries\"][0],stage[\"manifest\"],version=4)\n            else: method.assignment(canonical(stage))\n            actual=\"ACCEPT\"\n        except (CatalogError,ValueError) as e:\n            actual=getattr(e,\"reason\",str(e))\n        expected=\"ACCEPT\" if label==\"positive\" else \"PROCEDURE_INVALIDATED\" if label==\"input-empty\" else \"REFUSE\"\n        if expected==\"REFUSE\": assert actual!=\"ACCEPT\",(language,label)\n        else: assert actual==expected,(language,label,actual)\n        results.append(dict(consumer=language,input=label,actual=actual,expected=expected))\nchecker=records.envelope(\"method-checker\",{\"key\":KEY,\"semantics\":SEMANTICS,\"code_digest\":\"07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161\"})\nfor label,pin,receive,expected in [(\"exact-receive\",\"065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8\",True,\"ACCEPT\"),(\"new-admission\",\"065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8\",False,\"METHOD_CHECKER_UNAVAILABLE\"),(\"wrong-pair\",api.COMPOSER_REVISION,True,\"METHOD_CHECKER_UNAVAILABLE\"),(\"unsupported-pair\",\"0\"*64,True,\"METHOD_CHECKER_UNAVAILABLE\")]:\n    try:\n        verify(checker,pin=pin,receive_only=receive,zero_predicates=False)\n        actual=\"ACCEPT\"\n    except CatalogError as e: actual=e.reason\n    assert actual==expected,(label,actual)\n    results.append(dict(consumer=\"checker-identity\",input=label,actual=actual,expected=expected))\nprint(json.dumps({\"status\":\"PASS_SOURCE_CONSUMERS\",\"checks\":len(results),\"results\":results},indent=2))\n'",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "counts": {
+        "checks_passed": 44,
+        "checks_failed": 0
+      },
+      "actual_results": {
+        "status": "PASS_SOURCE_CONSUMERS",
+        "checks": 44,
+        "results": [
+          {
+            "consumer": "api-composition",
+            "input": "positive",
+            "actual": "ACCEPT",
+            "expected": "ACCEPT"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "positive",
+            "actual": "ACCEPT",
+            "expected": "ACCEPT"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "null",
+            "actual": "MANAGED_REJECTED",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "null",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "bool",
+            "actual": "MANAGED_REJECTED",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "bool",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "object",
+            "actual": "MANAGED_REJECTED",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "object",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "string",
+            "actual": "MANAGED_REJECTED",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "string",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "element-bool",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "element-bool",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "element-int",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "element-int",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "element-object",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "element-object",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "element-list",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "element-list",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "unknown",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "unknown",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "duplicate",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "duplicate",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "foreign-procedure",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "foreign-procedure",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "wrong-source",
+            "actual": "UNSUPPORTED_PROCEDURE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "wrong-source",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "wrong-schema",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "wrong-schema",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "old-pin",
+            "actual": "BOUND_PREDICATE_UNAVAILABLE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "old-pin",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "input-empty",
+            "actual": "PROCEDURE_INVALIDATED",
+            "expected": "PROCEDURE_INVALIDATED"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "input-empty",
+            "actual": "PROCEDURE_INVALIDATED",
+            "expected": "PROCEDURE_INVALIDATED"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "input-status-bool",
+            "actual": "INVALID_CASE_INPUT",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "input-status-bool",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "input-status-float",
+            "actual": "INVALID_JSON",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "input-status-float",
+            "actual": "Invalid native preparation",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "input-records-object",
+            "actual": "INVALID_CASE_INPUT",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "input-records-object",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "api-composition",
+            "input": "empty-probe",
+            "actual": "UNSUPPORTED_PROCEDURE",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "native-assignment",
+            "input": "empty-probe",
+            "actual": "Invalid prompt composition",
+            "expected": "REFUSE"
+          },
+          {
+            "consumer": "checker-identity",
+            "input": "exact-receive",
+            "actual": "ACCEPT",
+            "expected": "ACCEPT"
+          },
+          {
+            "consumer": "checker-identity",
+            "input": "new-admission",
+            "actual": "METHOD_CHECKER_UNAVAILABLE",
+            "expected": "METHOD_CHECKER_UNAVAILABLE"
+          },
+          {
+            "consumer": "checker-identity",
+            "input": "wrong-pair",
+            "actual": "METHOD_CHECKER_UNAVAILABLE",
+            "expected": "METHOD_CHECKER_UNAVAILABLE"
+          },
+          {
+            "consumer": "checker-identity",
+            "input": "unsupported-pair",
+            "actual": "METHOD_CHECKER_UNAVAILABLE",
+            "expected": "METHOD_CHECKER_UNAVAILABLE"
+          }
+        ]
+      },
+      "scope": "40 controale pe cei doi consumatori compuși SOURCE și 4 controale pe perechea checker; mutation fixtures re-sealed, fără runtime launch."
+    },
+    {
+      "label": "snapshot-final",
+      "command": "api/.venv/bin/python -I -B -c 'import hashlib,json,subprocess;from pathlib import Path;r=Path(\"/home/kali/OmnisAI\");a=json.loads(Path(\"/home/kali/.hermes/cache/scratch/p2-invalidation-author.json\").read_text());f=a[\"snapshot\"][\"files\"];h=[dict(path=x[\"path\"],sha256=hashlib.sha256((r/x[\"path\"]).read_bytes()).hexdigest(),expected=x[\"sha256\"]) for x in f];p=Path(a[\"diff_artifact\"][\"path\"]);raw=subprocess.check_output([\"git\",\"diff\",\"--binary\",a[\"base_head\"],\"--\",*[x[\"path\"] for x in f]],cwd=r);print(json.dumps(dict(head=subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=r,text=True).strip(),count=len(h),files=h,all_match=all(x[\"sha256\"]==x[\"expected\"] for x in h),diff_sha256=hashlib.sha256(raw).hexdigest(),patch_byte_exact=raw==p.read_bytes())))'",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "counts": {
+        "files": 11
+      },
+      "actual_output": {
+        "head": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+        "count": 11,
+        "files": [
+          {
+            "path": "api/src/omnis/modules/settings/skill_catalog.py",
+            "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73",
+            "expected": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+          },
+          {
+            "path": "api/src/omnis/modules/tasks/managed_contract.py",
+            "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b",
+            "expected": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+          },
+          {
+            "path": "api/src/omnis/modules/tasks/managed_composition.py",
+            "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210",
+            "expected": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+          },
+          {
+            "path": "api/src/omnis/modules/tasks/method_checks.py",
+            "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c",
+            "expected": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+          },
+          {
+            "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+            "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a",
+            "expected": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+          },
+          {
+            "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+            "sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+            "expected": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+          },
+          {
+            "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+            "sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5",
+            "expected": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5"
+          },
+          {
+            "path": "api/tests/test_c10_bound_predicates.py",
+            "sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9",
+            "expected": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9"
+          },
+          {
+            "path": "api/tests/test_contract_method_checks.py",
+            "sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5",
+            "expected": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5"
+          },
+          {
+            "path": "api/tests/test_contract_method_producer.py",
+            "sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964",
+            "expected": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964"
+          },
+          {
+            "path": "api/tests/test_contract_method_pg.py",
+            "sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a",
+            "expected": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a"
+          }
+        ],
+        "all_match": true,
+        "diff_sha256": "4902c69a08ac12c3004a7b09d92d8594d1ae9d8a84113826ac7ca47903692d7f",
+        "patch_byte_exact": true
+      }
+    },
+    {
+      "label": "checker-composer-identities",
+      "command": "api/.venv/bin/python -I -B -c 'import ast,json,hashlib,subprocess\nfrom pathlib import Path\nr=Path(\"/home/kali/OmnisAI\")\na=json.loads(Path(\"/home/kali/.hermes/cache/scratch/p2-invalidation-author.json\").read_text())\nbase=a[\"base_head\"]\ndef h(raw): return hashlib.sha256(raw).hexdigest()\nsource=ast.parse((r/\"api/src/omnis/modules/tasks/method_checker_identity.py\").read_text())\nnames={t.id:ast.literal_eval(n.value) for n in source.body if isinstance(n,ast.Assign) for t in n.targets if isinstance(t,ast.Name) and t.id==\"SOURCES\"}\nrows=[{\"path\":p,\"sha256\":h((r/\"api/src/omnis/modules\"/p).read_bytes())} for p in names[\"SOURCES\"]]\nold=[{\"path\":p,\"sha256\":h(subprocess.check_output([\"git\",\"show\",base+\":api/src/omnis/modules/\"+p],cwd=r))} for p in names[\"SOURCES\"]]\ncanon=lambda x:json.dumps(x,sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False).encode()\nresult=dict(closure_count=len(rows),current_closure=rows,current_checker=h(canon(rows)),baseline_checker=h(canon(old)),current_composer=h((r/\"integrations/hermes/src/omnis_hermes/prompt_bundle.py\").read_bytes()),baseline_composer=h(subprocess.check_output([\"git\",\"show\",base+\":integrations/hermes/src/omnis_hermes/prompt_bundle.py\"],cwd=r)))\nassert rows==a[\"snapshot\"][\"checker_closure\"]\nassert result[\"current_checker\"]==a[\"snapshot\"][\"checker_digest\"]\nassert result[\"baseline_checker\"]==\"07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161\"\nassert result[\"baseline_composer\"]==\"065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8\"\nprint(json.dumps(result))\n'",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "counts": {
+        "closure_files": 13
+      },
+      "actual_output": {
+        "closure_count": 13,
+        "current_closure": [
+          {
+            "path": "tasks/method_checker_identity.py",
+            "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+          },
+          {
+            "path": "tasks/method_checks.py",
+            "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+          },
+          {
+            "path": "tasks/managed_contract.py",
+            "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+          },
+          {
+            "path": "tasks/managed_composition.py",
+            "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+          },
+          {
+            "path": "tasks/criterion_checks.py",
+            "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+          },
+          {
+            "path": "tasks/contract_case_input.py",
+            "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+          },
+          {
+            "path": "settings/candidate_catalog.py",
+            "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+          },
+          {
+            "path": "settings/candidate_store.py",
+            "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+          },
+          {
+            "path": "settings/candidate_material.py",
+            "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+          },
+          {
+            "path": "settings/catalog_models.py",
+            "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+          },
+          {
+            "path": "settings/catalog_schema.py",
+            "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+          },
+          {
+            "path": "settings/publication_models.py",
+            "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+          },
+          {
+            "path": "settings/skill_catalog.py",
+            "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+          }
+        ],
+        "current_checker": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+        "baseline_checker": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+        "current_composer": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+        "baseline_composer": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
+      }
+    },
+    {
+      "label": "scope-status-and-diff-check",
+      "command": "git status --short --branch && git diff --check",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "actual_output": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/settings/skill_catalog.py\n M api/src/omnis/modules/tasks/managed_composition.py\n M api/src/omnis/modules/tasks/managed_contract.py\n M api/src/omnis/modules/tasks/method_checker_identity.py\n M api/src/omnis/modules/tasks/method_checks.py\n M api/tests/test_c10_bound_predicates.py\n M api/tests/test_contract_method_checks.py\n M api/tests/test_contract_method_pg.py\n M api/tests/test_contract_method_producer.py\n M integrations/hermes/src/omnis_hermes/contract_method.py\n M integrations/hermes/src/omnis_hermes/prompt_bundle.py\n?? documents/Omnis_Notite_Originale.html"
+    }
+  ],
+  "test_totals": {
+    "pytest_passed": 22,
+    "pytest_deselected": 86,
+    "additional_in_memory_checks": 138,
+    "pg_executed": 0,
+    "runtime_launches": 0
+  },
+  "surrounding_callers_reviewed": [
+    "api/src/omnis/modules/runs/managed_admission.py:116-149,247-320,334-398,716-821",
+    "api/src/omnis/modules/tasks/contract_case_input.py:153-210,302-363",
+    "integrations/hermes/src/omnis_hermes/contract_method.py:151-205,265-283",
+    "integrations/hermes/upstream/managed-source/agent/contract_execution.py:61-101,107-120,229-295",
+    "api/tests/conftest.py; api/pyproject.toml; integrations/hermes/tests/test_prompt_bundle.py:121-142"
+  ],
+  "pg_test_static_review": "api/tests/test_contract_method_pg.py modificat numai pentru noul selector și controalele empty/3DONE ale scenariului existent; review static, nici colectare PG nici execuție PG efectuate de acest reviewer.",
+  "scope_and_limitations": [
+    "Review independent read-only pe exact 11 fișiere și diff-ul 4902c69a08ac12c3004a7b09d92d8594d1ae9d8a84113826ac7ca47903692d7f. Bytes înainte/după și HEAD neschimbate.",
+    "Dovezile autorului au fost tratate ca indicii și inventar, nu ca probe independente sau verdict dorit. Cele 436 SOURCE revendicate de autor nu sunt totalul acestui review.",
+    "Doar probe offline locale SOURCE, fără network, PG, browser, provider, ținte, infrastructură ori lansare runtime. Confinare OS, autentificarea native/owner, efectele durabile SQL, replay/restart installed și historical-reader installed sunt NOT_RUN.",
+    "Guardul necesită o procedură structurată validă la call-sites; validarea completă a materialului/schema/closure aparține boundary-urilor existente, nu numai testului records nonempty.",
+    "Pentru tuple în payload Python programmatic, API record canonicalization poate normaliza în array înainte de guard; acest control este creditat numai ca refusal al tuple-ului gol, nu ca exact-type parity înainte de serializare. Limbajul wire și tipurile declaration au controale distincte stricte.",
+    "Nu aprobă external mutable-state freshness/current ResultQualification, oracle/functional PASS, M1/M2 complet, integrarea finală sau B06b/G02/P2. COMPLETE rămâne numai completitudine metodă în scope.",
+    "Nu am relansat gates canonice, source install/build, servicii ori probe istorice acceptate. Real-consumer QA și adjudecarea/comitul aparțin părintelui."
+  ],
+  "safety": {
+    "repository_edits": false,
+    "commits": false,
+    "staging": false,
+    "network": false,
+    "pg": false,
+    "runtime_launch": false,
+    "browser": false,
+    "provider_or_target_calls": false,
+    "credential_or_private_profile_reads": false,
+    "protected_document_read": false,
+    "protected_document_modified": false,
+    "protected_document": "documents/Omnis_Notite_Originale.html",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "skills_modified": false
+  },
+  "files_created_or_modified": {
+    "repository": [],
+    "report": "/home/kali/.hermes/cache/scratch/p2-invalidation-input-review.json",
+    "test_fixture_note": "pytest tmp_path poate crea exclusiv fixturi SOURCE în TMPDIR scratch; -I -B și no:cacheprovider împiedică bytecode și pytest cache în repository."
+  },
+  "issues_encountered": [],
+  "next_parent_action": "Adjudecă acest review împreună cu reviewul complementar pe aceleași 11SHA; apoi QA reală afectată autorizată separat. Fără transfer al acestui verdict la bytes ulteriori și fără închiderea fazei din SOURCE.",
+  "status_delta_proposal": {
+    "current_slice": "AICI — invalidation finit implementat necomis",
+    "implementation": "IMPLEMENTED_SOURCE_SCOPED",
+    "proof": "PASS_SOURCE_SCOPED; PG/native instalat NOT_RUN",
+    "review": "APPROVED_SCOPED pentru această analiză input/failure",
+    "global": "B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim NOT_IMPLEMENTED"
+  }
+}

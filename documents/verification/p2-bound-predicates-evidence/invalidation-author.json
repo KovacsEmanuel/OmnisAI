@@ -1,0 +1,887 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_SCOPED_PENDING_PARENT_REVIEW_AND_PG_QA",
+  "language": "ro",
+  "base_head": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "committed": false,
+  "pushed": false,
+  "independent_review": "NOT_REVIEWED_PARENT_OWNS_TWO_COMPLEMENTARY_REVIEWS",
+  "acceptance_scope": {
+    "criterion": "B06b prima felie Procedure.invalidation_predicate_ids pentru map-records existent.",
+    "predicate": "contract.records-empty",
+    "declaration": "[] sau exact un string nativ contract.records-empty, numai pe map-records; alte ids, duplicate și tipuri spoofed refuzate.",
+    "semantics": "Predicate TRUE iff records=[] în exact contract-case-records legat de primul probe/input_schema_ref. TRUE refuză PROCEDURE_INVALIDATED; material absent refuză PROCEDURE_INVALIDATION_UNKNOWN.",
+    "producer_consumer_seam": [
+      "skill_catalog.compile_catalog",
+      "BuildSource.build -> managed_contract.build_records înainte de task/attempt UUID și rezervarea assignment",
+      "managed_composition.validate -> require_not_invalidated",
+      "native prompt_bundle._brief/contract_method.assignment -> initialize_contract înainte de UUID",
+      "contract_method.task_result",
+      "method_checks.check_execution după persistare (caller existent neschimbat)"
+    ],
+    "positive": "SOURCE producer real run_contract/BoundContractTools read1/PURE2 pe holders SOURCE sintetici; 3 MethodResults DONE și MethodCheck COMPLETE. Nu AIAgent/PG autentic și nu PASS funcțional.",
+    "negative": "Guard declarat cu input gol refuză; preconstructor SOURCE observă zero UUID/read/PURE; build input gol păstrează prefixul fără assignment; vechi pin refuzat pre-UUID; checker/task_result refuză genuine empty SOURCE receipts cu declarație invalidation adăugată.",
+    "non_goals": [
+      "evaluator/registry general",
+      "external auth/input changes after execution",
+      "ResultQualification current/history or M1/M2 completion",
+      "evidence-bearing obligations / optional-vs-required expansion",
+      "live LLM, account, provider, target, r1, global services, new owner/runner",
+      "schema/migration/docs/status/skills edits"
+    ]
+  },
+  "acceptance_matrix": [
+    {
+      "requirement": "Catalog finit pe seed records existent",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE compile/capture/build; requalification+Publish pe PG real NOT_RUN",
+      "tests": [
+        "red-producer",
+        "green-build-pin",
+        "green-catalog-final"
+      ]
+    },
+    {
+      "requirement": "Refuz input gol înainte de assignment/native UUID/read/PURE",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE; PG durable zero-write assertion pregătit, NOT_RUN",
+      "tests": [
+        "red-native",
+        "green-native",
+        "red-build-pin",
+        "green-build-pin"
+      ]
+    },
+    {
+      "requirement": "Input nonempty read1/PURE2 fără omiterea obligațiilor",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE inline+compact; PG authentic pending",
+      "tests": [
+        "green-source-final"
+      ]
+    },
+    {
+      "requirement": "Missing material UNKNOWN failclosed și declaration exact",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE finite helper; malformed wire rămâne refusal, nu N/A",
+      "tests": [
+        "red-exact-key",
+        "green-exact-key",
+        "green-source-final"
+      ]
+    },
+    {
+      "requirement": "task_result și checker nu promovează invalidat",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE; persistence/real owner QA NOT_RUN",
+      "tests": [
+        "red-native",
+        "green-source-final"
+      ]
+    },
+    {
+      "requirement": "Pereche precondition istorică strict receive-only, fără invalidation pe pin vechi",
+      "code": "IMPLEMENTED",
+      "proof": "PASS_SOURCE exact pair; installed historical-reader NOT_RUN",
+      "tests": [
+        "red-history",
+        "red-old-pin-guard",
+        "green-history-pin",
+        "green-source-final"
+      ]
+    },
+    {
+      "requirement": "PG consumer și selector existente",
+      "code": "PARAMETER_EXTENDED_MINIMALLY",
+      "proof": "collect 1/22 (21 deselected), parser6/6 și prerequisite15208/5; execution NOT_RUN_PARENT_HOLD",
+      "tests": [
+        "collect-pg-final",
+        "preflight-selector",
+        "preflight-source",
+        "preflight-inventory"
+      ]
+    }
+  ],
+  "tdd_cycles": [
+    {
+      "behavior": "Qualified finite catalog/build input predicate",
+      "red": "red-producer",
+      "green": "green-producer",
+      "red_reason": "2 eșecuri UNSUPPORTED_FEATURE la compilerul real înainte de implementare."
+    },
+    {
+      "behavior": "Native/source method frontier + checker refusal",
+      "red": "red-native",
+      "green": "green-native",
+      "red_reason": "4 failures: native Invalid prompt composition în locul metodei/refuzului exact și checker METHOD_UNSUPPORTED în loc PROCEDURE_INVALIDATED. Testul grouped checker/task_result ajunge la task_result numai în GREEN; RED nu pretinde că acea a doua aserțiune s-a executat."
+    },
+    {
+      "behavior": "Retained precondition identity preservation",
+      "red": "red-history",
+      "green": "green-history-pin",
+      "red_reason": "2 failures old composer native/API; 4 negative controls de atunci nu sunt evidence pentru pin guard: bundle mutation era nere-sealed; corectate înaintea RED următor."
+    },
+    {
+      "behavior": "Older pin cannot acquire invalidation at checker or result",
+      "red": "red-old-pin-guard",
+      "green": "green-history-pin",
+      "red_reason": "4 DID NOT RAISE CatalogError la checker pe genuine older-pin assignments; 2 retained-pair positives treceau."
+    },
+    {
+      "behavior": "Old pin denial precedes backend task/attempt UUID",
+      "red": "red-build-pin",
+      "green": "green-build-pin",
+      "red_reason": "nonempty reached forbidden_uuid; empty hit PROCEDURE_INVALIDATED rather than pin-unavailable. Pin validation mutată pre-UUID/pre-invalidation."
+    },
+    {
+      "behavior": "Exact literal key types, no equality spoof",
+      "red": "red-exact-key",
+      "green": "green-exact-key",
+      "red_reason": "spoofed-string DID NOT RAISE CatalogError; len/exact str type guards added independently API/native. Missing/unknown/duplicate/foreign/nonstring controls were already regression positives."
+    }
+  ],
+  "verification_commands": [
+    {
+      "label": "red-producer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k invalidation -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-producer.log",
+      "log_sha256": "a87cb3847a4c893ab0b4dc2cb8c6cf59966a914b9928e85aac7869b25810ee54",
+      "summary": "2 failed, 8 deselected in 0.89s",
+      "counts": {
+        "failed": 2,
+        "deselected": 8
+      },
+      "duration_seconds": 0.89
+    },
+    {
+      "label": "green-producer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k first_party -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-producer.log",
+      "log_sha256": "a305933aa5294cc27c049aecdd370ab727f86489a8875ecaa9ae1d98cf104003",
+      "summary": "4 passed, 6 deselected in 0.87s",
+      "counts": {
+        "passed": 4,
+        "deselected": 6
+      },
+      "duration_seconds": 0.87
+    },
+    {
+      "label": "red-native",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k invalidation -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-native.log",
+      "log_sha256": "f4847aef357e98ba6930d725300cda12a39493b885debabbbb6330dd1faaaad5",
+      "summary": "4 failed, 80 deselected in 0.90s",
+      "counts": {
+        "failed": 4,
+        "deselected": 80
+      },
+      "duration_seconds": 0.9
+    },
+    {
+      "label": "green-native",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k invalidation -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-native.log",
+      "log_sha256": "091211dcdbb34b316ef165f61feb0218917cea2fed5295cea68b0de0bc41176d",
+      "summary": "4 passed, 80 deselected in 0.68s",
+      "counts": {
+        "passed": 4,
+        "deselected": 80
+      },
+      "duration_seconds": 0.68
+    },
+    {
+      "label": "red-history",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"prior_precondition_pair or retained_older_pin\" -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-history.log",
+      "log_sha256": "0b53b25ac5b2a69789cf34726246de6afa33c0b6ca075ed09200e5575c944665",
+      "summary": "2 failed, 4 passed, 84 deselected in 0.76s",
+      "counts": {
+        "failed": 2,
+        "passed": 4,
+        "deselected": 84
+      },
+      "duration_seconds": 0.76
+    },
+    {
+      "label": "red-old-pin-guard",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"prior_precondition_pair or retained_older_pin\" -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-old-pin-guard.log",
+      "log_sha256": "0c1026eb19b191b9bcb6bfce216cf09dafe314c8afced5d61289a8d80edc50ec",
+      "summary": "4 failed, 2 passed, 84 deselected in 0.92s",
+      "counts": {
+        "failed": 4,
+        "passed": 2,
+        "deselected": 84
+      },
+      "duration_seconds": 0.92
+    },
+    {
+      "label": "green-history-pin",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"prior_precondition_pair or retained_older_pin or invalidation\" -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-history-pin.log",
+      "log_sha256": "d850c682cc9bbf8b1bcdfe560afc9288fce2fca510614b3acf31c0b13d500cfb",
+      "summary": "10 passed, 80 deselected in 1.15s",
+      "counts": {
+        "passed": 10,
+        "deselected": 80
+      },
+      "duration_seconds": 1.15
+    },
+    {
+      "label": "red-build-pin",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k invalidation-old-pin -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-build-pin.log",
+      "log_sha256": "5c0d9e409c25c8604e687f0216db55b237294016bba8598d24a6ab9839187a5a",
+      "summary": "2 failed, 10 deselected in 0.63s",
+      "counts": {
+        "failed": 2,
+        "deselected": 10
+      },
+      "duration_seconds": 0.63
+    },
+    {
+      "label": "green-build-pin",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k first_party -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-build-pin.log",
+      "log_sha256": "ed85e3b2fca57e39c0093cd3df5243f865b2ea9237725be225cf0a2e6fa2bfab",
+      "summary": "6 passed, 6 deselected in 1.12s",
+      "counts": {
+        "passed": 6,
+        "deselected": 6
+      },
+      "duration_seconds": 1.12
+    },
+    {
+      "label": "red-exact-key",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"invalidation_declaration or invalidation_missing_input\" -q --tb=short",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-red-exact-key.log",
+      "log_sha256": "12e90e610ee2d411504be9b51618298cccdeccfe7594942729b156268a2dd056",
+      "summary": "1 failed, 5 passed, 90 deselected in 0.63s",
+      "counts": {
+        "failed": 1,
+        "passed": 5,
+        "deselected": 90
+      },
+      "duration_seconds": 0.63
+    },
+    {
+      "label": "green-exact-key",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py -k \"invalidation_declaration or invalidation_missing_input\" -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-exact-key.log",
+      "log_sha256": "6bf188b4515e7066bf407ac502de489b6a40cff628f3b69983afb4e5ff05f8ed",
+      "summary": "6 passed, 90 deselected in 0.60s",
+      "counts": {
+        "passed": 6,
+        "deselected": 90
+      },
+      "duration_seconds": 0.6
+    },
+    {
+      "label": "quality-preformat",
+      "command": "api/.venv/bin/python -I -B -m ruff format --check --diff --config api/pyproject.toml api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-preformat.log",
+      "log_sha256": "c1ab76171018092e78304f56dcfa1b9f88f79c5b6d211e0e1a4d1113b054912a",
+      "summary": "8 files would be reformatted, 3 files already formatted",
+      "counts": {}
+    },
+    {
+      "label": "quality-lint-initial",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-lint-initial.log",
+      "log_sha256": "28df0c2cfe641093bf4a67d82e7ece712089c5d4236c1b9a4eb9eef007e9fd5f",
+      "summary": "[*] 1 fixable with the `--fix` option.",
+      "counts": {}
+    },
+    {
+      "label": "quality-format",
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-format.log",
+      "log_sha256": "5182113e26e6367749d405580bae988b249d8cd36abfb70bd436bfeca198c3a7",
+      "summary": "11 files already formatted",
+      "counts": {}
+    },
+    {
+      "label": "quality-mypy-initial",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/p2-invalidation-mypy api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-mypy-initial.log",
+      "log_sha256": "c22d9c4a8de3e3b98e4d96c848c1b8a154f22e712b2e55b402ecfe29a486cd0b",
+      "summary": "Success: no issues found in 11 source files",
+      "counts": {}
+    },
+    {
+      "label": "green-source-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_assignment_compact.py -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-source-final.log",
+      "log_sha256": "0110f58d9a6c148a6a6528aac900c53a2cffba9522cc47995e6b961f4eb950ea",
+      "summary": "293 passed in 23.34s",
+      "counts": {
+        "passed": 293
+      },
+      "duration_seconds": 23.34
+    },
+    {
+      "label": "green-adapter-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"integrations/hermes/tests/test_managed_composition.py\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_managed_build.py\",\"-q\",\"--tb=short\"]))'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-adapter-final.log",
+      "log_sha256": "8ba3d30f81f7d6348d130f49388fdcb6dcbbc65bb9c1d1c48e22cab88aedf6f4",
+      "summary": "70 passed in 1.01s",
+      "counts": {
+        "passed": 70
+      },
+      "duration_seconds": 1.01
+    },
+    {
+      "label": "green-catalog-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_b06a_catalog.py api/tests/test_c03_catalog_validation.py api/tests/test_c03_catalog_capture.py -q --tb=short",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-green-catalog-final.log",
+      "log_sha256": "80727fafae4b4a70fb6bedbf74d3dec294e403807f9a1bd8a883e913527ec1d4",
+      "summary": "73 passed in 38.50s",
+      "counts": {
+        "passed": 73
+      },
+      "duration_seconds": 38.5
+    },
+    {
+      "label": "quality-lint-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-lint-final.log",
+      "log_sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645",
+      "summary": "All checks passed!",
+      "counts": {}
+    },
+    {
+      "label": "quality-format-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-format-final.log",
+      "log_sha256": "5182113e26e6367749d405580bae988b249d8cd36abfb70bd436bfeca198c3a7",
+      "summary": "11 files already formatted",
+      "counts": {}
+    },
+    {
+      "label": "quality-mypy-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/p2-invalidation-mypy api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-quality-mypy-final.log",
+      "log_sha256": "c22d9c4a8de3e3b98e4d96c848c1b8a154f22e712b2e55b402ecfe29a486cd0b",
+      "summary": "Success: no issues found in 11 source files",
+      "counts": {}
+    },
+    {
+      "label": "preflight-source",
+      "command": "api/.venv/bin/python -I -B -c 'import ast,hashlib,json,tarfile\nfrom pathlib import Path\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\ntree=ast.parse((root/'\"'\"'api/tests/test_contract_method_pg.py'\"'\"').read_text())\nspace={'\"'\"'Path'\"'\"':Path}\nfor n in tree.body:\n    if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'\"'\"'PIN'\"'\"','\"'\"'LIBRARIES'\"'\"'} for t in n.targets):\n        exec(compile(ast.Module(body=[n],type_ignores=[]),'\"'\"'consumer-prerequisites'\"'\"','\"'\"'exec'\"'\"'),space)\nsource=space['\"'\"'PIN'\"'\"']; libs=space['\"'\"'LIBRARIES'\"'\"']\nassert source.is_dir() and (source/'\"'\"'run_agent.py'\"'\"').is_file(),'\"'\"'SOURCE_PIN_REQUIRED'\"'\"'\nassert libs.is_dir(),'\"'\"'SOURCE_LIBRARIES_REQUIRED'\"'\"'\nassert (root/'\"'\"'api/.venv/bin/python'\"'\"').is_file(),'\"'\"'PINNED_PYTHON_REQUIRED'\"'\"'\npin=json.loads((root/'\"'\"'integrations/hermes/pin.json'\"'\"').read_text())\nassert pin['\"'\"'commit'\"'\"']=='\"'\"'ee5ee84a345204a3b1d6ef6ba1ab747e602867b9'\"'\"'\narchive=Path('\"'\"'/home/kali/.hermes/cache/scratch/preconditions-source-prerequisite-c0bmp9wp/source.tar'\"'\"')\nassert archive.is_file(),'\"'\"'ARCHIVE_REQUIRED_FOR_CURRENT_PROVENANCE'\"'\"'\narchive_hash=hashlib.file_digest(archive.open('\"'\"'rb'\"'\"'),'\"'\"'sha256'\"'\"').hexdigest()\nassert archive_hash==pin['\"'\"'source_archive_sha256'\"'\"']=='\"'\"'f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80'\"'\"'\nfiles=0\nwith tarfile.open(archive,'\"'\"'r:'\"'\"') as tar:\n    for item in tar:\n        if not item.isfile():\n            assert item.isdir(),'\"'\"'SOURCE_ARCHIVE_NONREGULAR'\"'\"'\n            continue\n        path=source/item.name\n        assert path.is_relative_to(source) and path.is_file() and not path.is_symlink(),'\"'\"'SOURCE_FILE_REQUIRED'\"'\"'\n        stream=tar.extractfile(item)\n        assert stream is not None\n        assert hashlib.file_digest(stream,'\"'\"'sha256'\"'\"').hexdigest()==hashlib.file_digest(path.open('\"'\"'rb'\"'\"'),'\"'\"'sha256'\"'\"').hexdigest(),'\"'\"'SOURCE_BYTES_MISMATCH'\"'\"'\n        files+=1\nassert files==15208,'\"'\"'SOURCE_INVENTORY_MISMATCH'\"'\"'\nmanifest=json.loads((root/'\"'\"'integrations/hermes/upstream/patch-manifest.json'\"'\"').read_text())\nassert all(hashlib.file_digest((source/p).open('\"'\"'rb'\"'\"'),'\"'\"'sha256'\"'\"').hexdigest()==v['\"'\"'original_sha256'\"'\"'] for p,v in manifest['\"'\"'files'\"'\"'].items())\nprint(json.dumps({'\"'\"'status'\"'\"':'\"'\"'PASS_PREREQUISITE_ONLY'\"'\"','\"'\"'source'\"'\"':str(source),'\"'\"'entry'\"'\"':'\"'\"'run_agent.py'\"'\"','\"'\"'libraries'\"'\"':str(libs),'\"'\"'archive_sha256'\"'\"':archive_hash,'\"'\"'original_files_verified'\"'\"':files,'\"'\"'original_inert_inputs_verified'\"'\"':len(manifest['\"'\"'files'\"'\"']),'\"'\"'native_launched'\"'\"':False,'\"'\"'personal_runtime_adopted'\"'\"':False},sort_keys=True))\n'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-preflight-source.log",
+      "log_sha256": "ff4d0db000dd6e14fa678860e5d8217a539891c52976af26728f1bd590f0dd69",
+      "summary": "{\"archive_sha256\": \"f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80\", \"entry\": \"run_agent.py\", \"libraries\": \"/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages\", \"native_launched\": false, \"original_files_verified\": 15208, \"original_inert_inputs_verified\": 5, \"personal_runtime_adopted\": false, \"source\": \"/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned\", \"status\": \"PASS_PREREQUISITE_ONLY\"}",
+      "counts": {}
+    },
+    {
+      "label": "preflight-selector",
+      "command": "api/.venv/bin/python -I -B -c 'import contextlib,io,json,runpy\np='\"'\"'/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py'\"'\"'\nns=runpy.run_path(p,run_name='\"'\"'selection_preflight_only'\"'\"')\nexpected={'\"'\"'red'\"'\"':'\"'\"'qualified-early-return'\"'\"','\"'\"'green'\"'\"':'\"'\"'qualified-early-return or criteria-normal'\"'\"','\"'\"'applicability'\"'\"':'\"'\"'applicability'\"'\"','\"'\"'not-applicable'\"'\"':'\"'\"'applicability-not-applicable'\"'\"','\"'\"'precondition'\"'\"':'\"'\"'procedure-precondition'\"'\"','\"'\"'invalidation'\"'\"':'\"'\"'procedure-invalidation'\"'\"'}\nfor key,value in expected.items():\n    assert ns['\"'\"'parser'\"'\"']().parse_args([key]).selection==key\n    argv=ns['\"'\"'selected_argv'\"'\"'](key)\n    assert argv[argv.index('\"'\"'-k'\"'\"')+1]==value\nwith contextlib.redirect_stderr(io.StringIO()):\n    try:\n        ns['\"'\"'parser'\"'\"']().parse_args(['\"'\"'unsupported'\"'\"'])\n    except SystemExit as e:\n        assert e.code==2\n    else:\n        raise AssertionError('\"'\"'parser accepted unknown selector'\"'\"')\nprint(json.dumps({'\"'\"'status'\"'\"':'\"'\"'PASS_SELECTION_ONLY'\"'\"','\"'\"'selectors_verified'\"'\"':len(expected),'\"'\"'unknown_exit'\"'\"':2,'\"'\"'argv'\"'\"':ns['\"'\"'selected_argv'\"'\"']('\"'\"'invalidation'\"'\"'),'\"'\"'native_launched'\"'\"':False,'\"'\"'owner_invoked'\"'\"':False},sort_keys=True))\n'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-preflight-selector.log",
+      "log_sha256": "5e4c1f2f61514d42e3a3948bda0b31fad74a1eddd27fc9f61002baad2c3ba3bc",
+      "summary": "{\"argv\": [\"/home/kali/OmnisAI/api/.venv/bin/python\", \"-I\", \"-B\", \"-m\", \"pytest\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"-c\", \"/home/kali/OmnisAI/api/pyproject.toml\", \"/home/kali/OmnisAI/api/tests/test_contract_method_pg.py\", \"-k\", \"procedure-invalidation\", \"-q\", \"--tb=line\"], \"native_launched\": false, \"owner_invoked\": false, \"selectors_verified\": 6, \"status\": \"PASS_SELECTION_ONLY\", \"unknown_exit\": 2}",
+      "counts": {}
+    },
+    {
+      "label": "preflight-help",
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py --help",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-preflight-help.log",
+      "log_sha256": "23c9cc312c7de1c6b44988422d5736f049e4bff53f76a1debde5f12095f91bc3",
+      "summary": "  -h, --help            show this help message and exit",
+      "counts": {}
+    },
+    {
+      "label": "collect-pg-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k procedure-invalidation --collect-only -q --tb=line",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-collect-pg-final.log",
+      "log_sha256": "b56cc55a3790f3013d71b3467df3734f6af84d6488c9bf9b72cb5061e7f29db3",
+      "summary": "1/22 tests collected (21 deselected) in 0.34s",
+      "counts": {
+        "deselected": 21
+      },
+      "duration_seconds": 0.34
+    },
+    {
+      "label": "build-api",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel api --out-dir /home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-build-api.log",
+      "log_sha256": "d494e9f4906916ecf3a7456b60e903d1d8d78c50fd4563af0dd81b2fe81a614c",
+      "summary": "Successfully built /home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_api-0.1.0-py3-none-any.whl",
+      "counts": {}
+    },
+    {
+      "label": "build-adapter",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/uv build --no-config --offline --wheel integrations/hermes --out-dir /home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-build-adapter.log",
+      "log_sha256": "d2cdb2f2777bb2eb1d435bb8f3181f80314564e45c41f14386e700705f32938a",
+      "summary": "Successfully built /home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_hermes-0.1.0-py3-none-any.whl",
+      "counts": {}
+    },
+    {
+      "label": "verify-wheels",
+      "command": "api/.venv/bin/python -I -B -c 'import hashlib,json,zipfile\nfrom pathlib import Path\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nout=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90'\"'\"')\nresult=[]\nfor package,src in [('\"'\"'omnis_api'\"'\"',root/'\"'\"'api/src/omnis'\"'\"'),('\"'\"'omnis_hermes'\"'\"',root/'\"'\"'integrations/hermes/src/omnis_hermes'\"'\"')]:\n    path=out/(package+'\"'\"'-0.1.0-py3-none-any.whl'\"'\"')\n    with zipfile.ZipFile(path) as z:\n        modules={n for n in z.namelist() if n.endswith('\"'\"'.py'\"'\"')}\n        originals={src.name+'\"'\"'/'\"'\"'+p.relative_to(src).as_posix():p for p in src.rglob('\"'\"'*.py'\"'\"')}\n        assert modules==set(originals),'\"'\"'WHEEL_MODULE_INVENTORY_MISMATCH'\"'\"'\n        assert all(z.read(n)==p.read_bytes() for n,p in originals.items()),'\"'\"'WHEEL_SOURCE_BYTES_MISMATCH'\"'\"'\n    result.append({'\"'\"'path'\"'\"':str(path),'\"'\"'sha256'\"'\"':hashlib.file_digest(path.open('\"'\"'rb'\"'\"'),'\"'\"'sha256'\"'\"').hexdigest(),'\"'\"'module_count'\"'\"':len(modules),'\"'\"'all_modules_byte_exact'\"'\"':True})\nprint(json.dumps({'\"'\"'status'\"'\"':'\"'\"'PASS_BUILD_ONLY'\"'\"','\"'\"'wheels'\"'\"':result},sort_keys=True))\n'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-verify-wheels.log",
+      "log_sha256": "cda7d44db56cda12a241f622092e048e75527a023d5fc9725eeda9dc77813324",
+      "summary": "{\"status\": \"PASS_BUILD_ONLY\", \"wheels\": [{\"all_modules_byte_exact\": true, \"module_count\": 83, \"path\": \"/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_api-0.1.0-py3-none-any.whl\", \"sha256\": \"4ae2bfd30ee477f319e0fb3c122fb46bf8cf68c4811dfd6c85e34fdb119de7b9\"}, {\"all_modules_byte_exact\": true, \"module_count\": 15, \"path\": \"/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_hermes-0.1.0-py3-none-any.whl\", \"sha256\": \"baeba1db483d3ab7be48f238b66d198782b9624605aa764371da22e1b4fdfbf1\"}]}",
+      "counts": {}
+    },
+    {
+      "label": "snapshot-final",
+      "command": "api/.venv/bin/python -I -B -c 'import ast,hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nbase='\"'\"'b901be0035c066b136d74bf4e1f2dad186dbbdd9'\"'\"'\nassert subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],cwd=root,text=True).strip()==base,'\"'\"'HEAD_CHANGED'\"'\"'\nowned=['\"'\"'api/src/omnis/modules/settings/skill_catalog.py'\"'\"', '\"'\"'api/src/omnis/modules/tasks/managed_contract.py'\"'\"', '\"'\"'api/src/omnis/modules/tasks/managed_composition.py'\"'\"', '\"'\"'api/src/omnis/modules/tasks/method_checks.py'\"'\"', '\"'\"'api/src/omnis/modules/tasks/method_checker_identity.py'\"'\"', '\"'\"'integrations/hermes/src/omnis_hermes/prompt_bundle.py'\"'\"', '\"'\"'integrations/hermes/src/omnis_hermes/contract_method.py'\"'\"', '\"'\"'api/tests/test_c10_bound_predicates.py'\"'\"', '\"'\"'api/tests/test_contract_method_checks.py'\"'\"', '\"'\"'api/tests/test_contract_method_producer.py'\"'\"', '\"'\"'api/tests/test_contract_method_pg.py'\"'\"']\nchanged=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--name-only'\"'\"',base],cwd=root,text=True).splitlines()\nassert set(changed)==set(owned),'\"'\"'CHANGED_SCOPE_MISMATCH'\"'\"'\nidentity=root/'\"'\"'api/src/omnis/modules/tasks/method_checker_identity.py'\"'\"'\ntree=ast.parse(identity.read_text())\nvalues={}\nfor n in tree.body:\n    if isinstance(n,ast.Assign):\n        for name in n.targets:\n            if isinstance(name,ast.Name) and name.id in {'\"'\"'SOURCES'\"'\"','\"'\"'KEY'\"'\"','\"'\"'SEMANTICS'\"'\"','\"'\"'PRECONDITION_HISTORICAL'\"'\"'}:\n                values[name.id]=ast.literal_eval(n.value)\ndef sha(raw): return hashlib.sha256(raw).hexdigest()\ndef digest(rows): return sha(json.dumps(rows,sort_keys=True,separators=('\"'\"','\"'\"','\"'\"':'\"'\"'),ensure_ascii=False).encode())\nfiles=[]\nfor name in owned:\n    raw=(root/name).read_bytes(); old=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+name],cwd=root)\n    files.append({'\"'\"'path'\"'\"':name,'\"'\"'base_sha256'\"'\"':sha(old),'\"'\"'sha256'\"'\"':sha(raw)})\nclosure=[];old_closure=[]\nfor p in values['\"'\"'SOURCES'\"'\"']:\n    name='\"'\"'api/src/omnis/modules/'\"'\"'+p\n    closure.append({'\"'\"'path'\"'\"':p,'\"'\"'sha256'\"'\"':sha((root/name).read_bytes())})\n    old_closure.append({'\"'\"'path'\"'\"':p,'\"'\"'sha256'\"'\"':sha(subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+name],cwd=root))})\nassert digest(old_closure)=='\"'\"'07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161'\"'\"','\"'\"'BASE_CHECKER_MISMATCH'\"'\"'\ncomposer_sha=sha((root/'\"'\"'integrations/hermes/src/omnis_hermes/prompt_bundle.py'\"'\"').read_bytes())\napi_tree=ast.parse((root/'\"'\"'api/src/omnis/modules/tasks/managed_composition.py'\"'\"').read_text())\napi_values={t.id:ast.literal_eval(n.value) for n in api_tree.body if isinstance(n,ast.Assign) for t in n.targets if isinstance(t,ast.Name) and t.id in {'\"'\"'COMPOSER_REVISION'\"'\"','\"'\"'PRECONDITION_COMPOSER_REVISION'\"'\"'}}\nassert api_values['\"'\"'COMPOSER_REVISION'\"'\"']==composer_sha,'\"'\"'COMPOSER_PIN_MISMATCH'\"'\"'\nbase_composer=sha(subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':integrations/hermes/src/omnis_hermes/prompt_bundle.py'\"'\"'],cwd=root))\nassert base_composer==api_values['\"'\"'PRECONDITION_COMPOSER_REVISION'\"'\"']\npin_files=['\"'\"'integrations/hermes/pin.json'\"'\"','\"'\"'integrations/hermes/upstream/omnis-managed.patch'\"'\"','\"'\"'integrations/hermes/upstream/managed-patch-manifest.json'\"'\"','\"'\"'integrations/hermes/upstream/managed-source/agent/contract_execution.py'\"'\"']\nunchanged=[]\nfor name in pin_files:\n    old=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+name],cwd=root)\n    assert old==(root/name).read_bytes(),'\"'\"'UNCHANGED_NATIVE_SOURCE_MISMATCH'\"'\"'\n    unchanged.append({'\"'\"'path'\"'\"':name,'\"'\"'sha256'\"'\"':sha(old),'\"'\"'unchanged'\"'\"':True})\nprint(json.dumps({'\"'\"'head'\"'\"':base,'\"'\"'changed_paths'\"'\"':changed,'\"'\"'files'\"'\"':files,'\"'\"'composer_revision'\"'\"':composer_sha,'\"'\"'baseline_composer_revision'\"'\"':base_composer,'\"'\"'baseline_checker_digest'\"'\"':digest(old_closure),'\"'\"'checker_digest'\"'\"':digest(closure),'\"'\"'checker_closure'\"'\"':closure,'\"'\"'checker_closure_count'\"'\"':len(closure),'\"'\"'unchanged_native'\"'\"':unchanged},sort_keys=True))\n'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-snapshot-final.log",
+      "log_sha256": "68081d4317eca071aacef852e7e102ae79dde0c02f52417fb1c6577615a2700b",
+      "summary": "Exact11changed-path hashes; baseline/current composer and13source checker closure verified.",
+      "counts": {}
+    },
+    {
+      "label": "diff-check-final",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-diff-check-final.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": "",
+      "counts": {}
+    },
+    {
+      "label": "preflight-inventory",
+      "command": "api/.venv/bin/python -I -B -c 'import json,tarfile\nfrom pathlib import Path\nsource=Path('\"'\"'/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned'\"'\"')\narchive=Path('\"'\"'/home/kali/.hermes/cache/scratch/preconditions-source-prerequisite-c0bmp9wp/source.tar'\"'\"')\nwith tarfile.open(archive,'\"'\"'r:'\"'\"') as tar:\n    expected={m.name for m in tar if m.isfile()}\npaths=list(source.rglob('\"'\"'*'\"'\"'))\nsymlinks=[p for p in paths if p.is_symlink()]\nactual={p.relative_to(source).as_posix() for p in paths if p.is_file()}\nassert not symlinks,'\"'\"'SOURCE_SYMLINK_REQUIRED_REFUSAL'\"'\"'\nassert actual==expected,'\"'\"'SOURCE_FILE_INVENTORY_MISMATCH'\"'\"'\nprint(json.dumps({'\"'\"'status'\"'\"':'\"'\"'PASS_PREREQUISITE_INVENTORY_ONLY'\"'\"','\"'\"'regular_files'\"'\"':len(actual),'\"'\"'symlinks'\"'\"':len(symlinks),'\"'\"'extra_files'\"'\"':len(actual-expected),'\"'\"'missing_files'\"'\"':len(expected-actual)},sort_keys=True))\n'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-preflight-inventory.log",
+      "log_sha256": "bdc9f63a060d67ffcfeda8aa0d90f0edd53d3ebf38548858c5515eda57732019",
+      "summary": "{\"extra_files\": 0, \"missing_files\": 0, \"regular_files\": 15208, \"status\": \"PASS_PREREQUISITE_INVENTORY_ONLY\", \"symlinks\": 0}",
+      "counts": {}
+    },
+    {
+      "label": "toolchain-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -c 'import json,sys;from importlib.metadata import version; actual={\"python\":\".\".join(map(str,sys.version_info[:3])),**{n:version(n) for n in (\"pytest\",\"pytest-asyncio\",\"ruff\",\"mypy\",\"uv_build\")}};assert actual=={\"python\":\"3.13.15\",\"pytest\":\"9.1.1\",\"pytest-asyncio\":\"1.4.0\",\"ruff\":\"0.16.9\",\"mypy\":\"2.3.1\",\"uv_build\":\"0.12.19\"};print(json.dumps(actual,sort_keys=True))'",
+      "exit_code": 1,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-toolchain-final.log",
+      "log_sha256": "569890a4e3bb6dd37e9c0cf72c8c31f10471c4244c985a3328bea84d38f9d64d",
+      "summary": "importlib.metadata.PackageNotFoundError: No package metadata was found for uv_build",
+      "counts": {}
+    },
+    {
+      "label": "uv-version",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/uv --version",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-uv-version.log",
+      "log_sha256": "26ee91e608ad718cec490ea1553eabb5182b4f9d79c0d7c426cbdcee379c7935",
+      "summary": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "counts": {}
+    },
+    {
+      "label": "toolchain-runtime-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME api/.venv/bin/python -I -B -c 'import json,sys;from importlib.metadata import version; actual={\"python\":\".\".join(map(str,sys.version_info[:3])),**{n:version(n) for n in (\"pytest\",\"pytest-asyncio\",\"ruff\",\"mypy\")}};assert actual=={\"python\":\"3.13.15\",\"pytest\":\"9.1.1\",\"pytest-asyncio\":\"1.4.0\",\"ruff\":\"0.16.9\",\"mypy\":\"2.3.1\"};print(json.dumps(actual,sort_keys=True))'",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-toolchain-runtime-final.log",
+      "log_sha256": "4d9c305250b6af5895bfe105cac423bf2221211f0d2a48b4b7bf1a732dc37686",
+      "summary": "{\"mypy\": \"2.3.1\", \"pytest\": \"9.1.1\", \"pytest-asyncio\": \"1.4.0\", \"python\": \"3.13.15\", \"ruff\": \"0.16.9\"}",
+      "counts": {}
+    },
+    {
+      "label": "export-exact-diff",
+      "command": "git diff --binary b901be0035c066b136d74bf4e1f2dad186dbbdd9 -- api/src/omnis/modules/settings/skill_catalog.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/contract_method.py api/tests/test_c10_bound_predicates.py api/tests/test_contract_method_checks.py api/tests/test_contract_method_producer.py api/tests/test_contract_method_pg.py > /home/kali/.hermes/cache/scratch/p2-invalidation-author.patch && sha256sum /home/kali/.hermes/cache/scratch/p2-invalidation-author.patch",
+      "exit_code": 0,
+      "log_path": "/home/kali/.hermes/cache/scratch/p2-invalidation-export-exact-diff.log",
+      "log_sha256": "c9c4ef9d8a766c38335925e757e83564ca56b5168334b6786e286e83bc8946b8",
+      "summary": "4902c69a08ac12c3004a7b09d92d8594d1ae9d8a84113826ac7ca47903692d7f  /home/kali/.hermes/cache/scratch/p2-invalidation-author.patch",
+      "counts": {}
+    }
+  ],
+  "final_tests": {
+    "api_source_unique_passed": 366,
+    "adapter_source_passed": 70,
+    "combined_source_passed": 436,
+    "api_batches": [
+      293,
+      73
+    ],
+    "adapter_batches": [
+      70
+    ],
+    "pg_executed": 0,
+    "pg_collected_selected": 1,
+    "pg_collected_total": 22,
+    "pg_collected_deselected": 21,
+    "canonical": "NOT_RUN_INTEGRATION_BOUNDARY_PARENT"
+  },
+  "snapshot": {
+    "baseline_checker_digest": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+    "baseline_composer_revision": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+    "changed_paths": [
+      "api/src/omnis/modules/settings/skill_catalog.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "api/src/omnis/modules/tasks/method_checks.py",
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_contract_method_producer.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+    ],
+    "checker_closure": [
+      {
+        "path": "tasks/method_checker_identity.py",
+        "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+      },
+      {
+        "path": "tasks/method_checks.py",
+        "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+      },
+      {
+        "path": "tasks/managed_contract.py",
+        "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+      },
+      {
+        "path": "tasks/managed_composition.py",
+        "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+      },
+      {
+        "path": "tasks/criterion_checks.py",
+        "sha256": "9de1b7a9741df5ce97b44079ac0c1843583a8e1fd1c76b6096e37dc2e2870efb"
+      },
+      {
+        "path": "tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "settings/skill_catalog.py",
+        "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+      }
+    ],
+    "checker_closure_count": 13,
+    "checker_digest": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+    "composer_revision": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+    "files": [
+      {
+        "base_sha256": "b7bd1097a41b4a600ca3802251a2d3d73d418d45e5d2ece6709243135ac176fd",
+        "path": "api/src/omnis/modules/settings/skill_catalog.py",
+        "sha256": "51885f5f223c8e9d218f7f6d15d46b2047980b1f859a5679a954103a2dcb1b73"
+      },
+      {
+        "base_sha256": "cf7edc8432a2bd2191029fa0ea6e2ca2fc01205e0104dbc6328601f87e8e4ecf",
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "bc33c9bc977fbd7d7a91443a215e5229ebf0c0b19556cd811a13d78085e2be7b"
+      },
+      {
+        "base_sha256": "878e0a1428c7c15d5c1a38ac9e635833a5dcb655f9e1f83d69f10b10ae4acf3a",
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "sha256": "b514588dc983167a5094ca076b937216c7d2b0792ec3b8b92ee1650e91de4210"
+      },
+      {
+        "base_sha256": "bdd74c249b7c187724991580685539bf0604499526d3c4bfd543fe2129cf429e",
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "a302c45c3094b0ba4604612acd67973aca1abfbd46f7c872e16f03073aba5d3c"
+      },
+      {
+        "base_sha256": "5e33b5c1a6feeec4056c4a98232f86a27fff01e0fcc7ace9a6d98ca9136b9476",
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "5916cfd03ae4e089fc8428965b3eefceda2d1ff5fd47ba557d810859bf77392a"
+      },
+      {
+        "base_sha256": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "sha256": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+      },
+      {
+        "base_sha256": "d5a883d13c499c287d87025faf1f54bef8231f22d94348084f2b6323d3ac0fb9",
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "sha256": "032686f99f576eaac49b151d406d7555a1886542bdbad92af97c21275330cad5"
+      },
+      {
+        "base_sha256": "bce4436242c3f193c6e9f24283a1e4643bfe2766b8fc7211734cce9315330230",
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256": "0c514e29e0836448bbf4248caf63a8c844288cc17ae123d2f28a936b466bcec9"
+      },
+      {
+        "base_sha256": "48e29290173d9e60c52f98cd0a6ccc1f2333f2f2671385bdf1d7abd595d0dfe1",
+        "path": "api/tests/test_contract_method_checks.py",
+        "sha256": "e8e677919ef1e489c52a1bc86b06c94cd3fe650cf39f6eaaf42a68a56faa7cf5"
+      },
+      {
+        "base_sha256": "c87b328c3a5d3f4f0e0020cf297255da53af6ad79ddc55eb73fd1f63f7b3396a",
+        "path": "api/tests/test_contract_method_producer.py",
+        "sha256": "acab736ca6b7dd18e1de6bdc9a46f56c9f659b42772228676855f58ef7bce964"
+      },
+      {
+        "base_sha256": "790505f1359af31ec6e6672a3b72cf0f74c7a374d04c3d1aab241b6bc42a4af8",
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "2096bdb47a9377a8272c809b59cdb1293569645b36fc99e17993557f3766348a"
+      }
+    ],
+    "head": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+    "unchanged_native": [
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+        "unchanged": true
+      }
+    ]
+  },
+  "diff_artifact": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-invalidation-author.patch",
+    "sha256": "4902c69a08ac12c3004a7b09d92d8594d1ae9d8a84113826ac7ca47903692d7f",
+    "base": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+    "paths": [
+      "api/src/omnis/modules/settings/skill_catalog.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "api/src/omnis/modules/tasks/method_checks.py",
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_contract_method_producer.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+    ],
+    "tracked_files_count": 11
+  },
+  "historical_pins": {
+    "precondition_composer": "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8",
+    "precondition_checker": "07398019425249c39defc8908b68b5768ff292fc9f1c449bc0a3fe8d65bb2161",
+    "receive_only": true,
+    "new_invalidation_on_old_pin": false,
+    "closure_count_preserved": 13,
+    "current_composer": "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f",
+    "current_checker": "25e785b7ffc51b7cea8f73b7abf56deb18576aa8b1442c57af4ec36a7c1d9a5c",
+    "upstream_pin_patch_overlay_unchanged": [
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-managed.patch",
+        "sha256": "0595a0e2fd34e12655303e929a90867f5443b916675c34e0d9a4fb6ecab3ebca",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-patch-manifest.json",
+        "sha256": "c2d370c0f69ab08d3770c984e61fbc11f14418952ad1af319434c3b2b081ce77",
+        "unchanged": true
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+        "unchanged": true
+      }
+    ]
+  },
+  "pg": {
+    "status": "NOT_RUN_EXPLICIT_PARENT_HOLD",
+    "test_node": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[procedure-invalidation]",
+    "wrapper": "/home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py",
+    "wrapper_changed": "selector invalidation + guarded main/parser only; 5 prior selectors conserved; no runner/owner replaced",
+    "wrapper_base_hash": "NOT_RECORDED_BEFORE_EDIT",
+    "proposed_parent_command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-partial-return-pg-selection.py invalidation",
+    "owner": "ops/run_test_db_gate.py -> prove_private_fixture/test-contract-method-native-pg -> run_gate",
+    "owner_timeout_seconds_unchanged": 240,
+    "env_explicit": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "OMNIS_CONTRACT_METHOD_NATIVE_PG": "1"
+    },
+    "prerequisite": "PASS read-only original hash-locked15208files, zero symlinks/extras/missing;5 inert originals. PIN/run_agent.py and exact LIBRARIES from actual consumer present. No import prewarm or source restoration/adoption required.",
+    "required_when_parent_runs": [
+      "fresh qualify_records seed altered only invalidation declaration + publish_capture exact snapshot",
+      "genuine empty input denial with unchanged managed_record and managed_run counts",
+      "positive real AIAgent read1/PURE2/3receipts/2artifacts/3 MethodResults/COMPLETE",
+      "criteria outcomes BLOCKED + reason/gaps no functional PASS",
+      "existing replay/readback/reconcile/single-consume/post-Stop duplicate receive-only",
+      "four fresh CLI reader subprocesses and evaluator/alias no-rerun census",
+      "existing bounded native/PG family cleanup/readback data/log retention"
+    ],
+    "pytest_argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "-k",
+      "procedure-invalidation",
+      "-q",
+      "--tb=line"
+    ],
+    "source_prerequisite": {
+      "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "entry": "run_agent.py",
+      "libraries": "/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages",
+      "native_launched": false,
+      "original_files_verified": 15208,
+      "original_inert_inputs_verified": 5,
+      "personal_runtime_adopted": false,
+      "source": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+      "status": "PASS_PREREQUISITE_ONLY"
+    },
+    "source_inventory": {
+      "extra_files": 0,
+      "missing_files": 0,
+      "regular_files": 15208,
+      "status": "PASS_PREREQUISITE_INVENTORY_ONLY",
+      "symlinks": 0
+    },
+    "wrapper_sha256": "fcb6cde782272a209f06e397ec487911ad94fd70fad67f700e34f9c883a41c71"
+  },
+  "build": {
+    "status": "PASS_BUILD_ONLY",
+    "wheel_directory": "/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90",
+    "module_counts": {
+      "api": 83,
+      "adapter": 15
+    },
+    "module_bytes": "all source .py names and bytes exactly matched wheel inventories",
+    "installation": "NOT_RUN",
+    "native_oci": "NOT_RUN",
+    "wheels": [
+      {
+        "all_modules_byte_exact": true,
+        "module_count": 83,
+        "path": "/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "4ae2bfd30ee477f319e0fb3c122fb46bf8cf68c4811dfd6c85e34fdb119de7b9"
+      },
+      {
+        "all_modules_byte_exact": true,
+        "module_count": 15,
+        "path": "/home/kali/.hermes/cache/scratch/p2-invalidation-wheels-4uypyx90/omnis_hermes-0.1.0-py3-none-any.whl",
+        "sha256": "baeba1db483d3ab7be48f238b66d198782b9624605aa764371da22e1b4fdfbf1"
+      }
+    ]
+  },
+  "issues_encountered": [
+    "Catalogul/native/checker refuzau integral invalidation la baseline; comportamentul finit a fost implementat minimal.",
+    "După adăugarea compatibilității istorice, checkerul admitea inițial invalidation pe4pins vechi; RED real și remediu.",
+    "Verificarea pinului în build se făcea inițial după UUID; RED real și remediu pre-UUID.",
+    "Un str-subclass cu egalitate falsificată admitea o cheie străină la helperul programmatic; RED real și fix exact-type în API/native.",
+    "Ruff inițial:8files format +1import ordering; corectate prin patch. Gate-urile finale sunt GREEN.",
+    "Citirea read_file a JSON snapshot cu linie lungă a fost trunchiată înainte de json.loads; eroare de metadata fără efect produs/PG, corectată prin parse al fișierului real via terminal.",
+    "Probe toolchain inițial a cerut uv_build în API venv și a refuzat PackageNotFoundError; backendul este din mediul build izolat, nu runtime API. Corectat probe strict Python/pytest/asyncio/Ruff/mypy; ambele builduri offline reale sunt trecute.",
+    "Artefactul diff inițial din output terminal era trunchiat: verificarea reală byte equality a refuzat DIFF_ARTIFACT_NOT_BYTE_EXACT. Artefactul .diff rămâne păstrat ca FAIL; export Git direct în .patch, fără reconstrucția surselor, pentru readback exact."
+  ],
+  "limits_and_gaps": [
+    "Ce guard vérifie uniquement input immutable records existant; auth/input externe après exec et ResultQualification current/history appartiennent à une felie distincte du parent.",
+    "PG/native real owner, actual publication requalification and installed historical reader NOT_RUN; SOURCE holders/helpers ne certifient ni authenticité native, ni persistence, ni sandbox.",
+    "No functional PASS/oracle qualification; COMPLETE signifie seulement MethodCheck au scope courant.",
+    "Two complementary independent reviews are pending on these exact hashes; no final acceptance, no commit/push.",
+    "P2-inert/B06b/G02 PARTIAL_NOT_CLOSED; P4a-minim remains NOT_IMPLEMENTED; canonical final parent-owned NOT_RUN."
+  ],
+  "safety": {
+    "live_llm_calls": 0,
+    "native_runtime_launches": 0,
+    "pg_fixture_launches": 0,
+    "targets": false,
+    "account_or_provider_adoption": false,
+    "r1_global_changes": false,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html remained unmodified/untracked; not read/staged",
+    "docs_schema_migrations_status_skills_writes": false,
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "next_action": "Parent freeze11file snapshot -> two independent complementary reviews -> remediate findings only if present -> existing private PG/native QA selector invalidation; then adjudicate/commit scoped. Do not relaunch accepted slices or infer final P2 acceptance.",
+  "toolchain": {
+    "mypy": "2.3.1",
+    "pytest": "9.1.1",
+    "pytest-asyncio": "1.4.0",
+    "python": "3.13.15",
+    "ruff": "0.16.9",
+    "uv": "0.12.19 (x86_64-unknown-linux-gnu)",
+    "build_backend": "uv_build==0.12.19 in pinned pyproject build-system; successful uv offline isolated builds. Not an API runtime dependency."
+  },
+  "initial_diff_artifact": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-invalidation-author.diff",
+    "sha256": "368299daee52ea4f0e8498d31846baea88c6d0d54a997d0c2ebc8df0a0a4dcab",
+    "base": "b901be0035c066b136d74bf4e1f2dad186dbbdd9",
+    "paths": [
+      "api/src/omnis/modules/settings/skill_catalog.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "api/src/omnis/modules/tasks/method_checks.py",
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_contract_method_checks.py",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_contract_method_producer.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+    ],
+    "tracked_files_count": 11,
+    "status": "FAILED_BYTE_EQUALITY_TOOL_OUTPUT_TRUNCATED_PRESERVED",
+    "acceptance": false
+  }
+}

@@ -1,6 +1,8 @@
 # Handoff C10/B06 — prompt de continuare și checkpoint istoric
 
-## CURRENT — consumer M2 acceptat; continuă ResultQualification
+## CURRENT — consumer M2 acceptat; ResultQualification BLOCKED pe numitor
+
+**Limită de continuare:** [ResultQualification](p2-result-qualification-schema-decision.md#blocaj-curent--producerul-obligatoriu-denominator_revision) cere `denominator_revision` produs de coverage, încă absent; §11/B10/B12 materializează numitorul mai târziu. Clarificarea operatorului a expirat fără răspuns, deci nu este autorizat automat un prerechizit coverage în P2 ori o realocare a cerinței. Nu fabrica `1`, mission.revision, număr de criterii sau câmp nullable. Următoarea acțiune este decizia explicită asupra producerului finit CONTRACT/NO_MODEL versus realocarea în canon; contractul condiționat read-only nu este implementare. M2/F01 rămâne acceptat și nu se relansează; zero subagenți live și QA joined/exited0/cleanup exact la checkpoint. P2-inert/P4a-minim rămân nelivrate.
 
 **AICI — consumer M2 ACCEPTED_SOURCE_NATIVE_PRIVATE_PUBLIC_UDS_SCOPED pe `b4964e7`; INPUT-M2-F01 CLOSED_CURRENT_SCOPED.** [Registrul](p2-result-qualification-schema-decision.md) păstrează [autorul/remediul](p2-bound-predicates-evidence/mission-revision-consumer-f01-author.json), ambele reviewuri complementare aprobate, [QA independentă](p2-bound-predicates-evidence/mission-revision-consumer-f01-independent-qa.json) și [adjudecarea părintelui](p2-bound-predicates-evidence/mission-revision-consumer-f01-parent-acceptance.json), byte-exact.96SOURCE/33părinte PASS/quality0; **1PG-native PASS/27deselected50.37s/exit0/drained**, o singură tentativă fresh: M1 autentic→M2 CLI/replay/read,7denials exacte, census5tabele și overlap PostgreSQL în ambele ordini stage/release, public cached după Stop/4readeri/no-rerun/consum1. Parent9SHA/52artefacte/cleanup exact/date păstrate. SOURCE_HOST_NOT_INSTALLED/preparation double, nu installed history/restart runtime/freshness. **Prima felie acum: ResultQualification finit din §6.3 pe owner/storage existente**, după trasarea producerilor refs/evidence; lipsa compatibilității/freshness cere REVALIDATION_REQUIRED, nu ELIGIBLE din M2 aditiv ori COMPLETE. Apoi numai restB06b→B06c/m→P2-inert→P4a-minim, fără predare după fiecare fix și fără live/r1/global/push. Nu relansa M2/F01 sau acceptările neafectate; detaliile următoare ale checkpointului227cfd6 sunt istorice.
 
@@ -102,6 +104,10 @@ Nu încărca istoria/catalogul integral. Păstrează fișierele preexistente și
 documents/Omnis_Notite_Originale.html protejat/necitit/needitat/neșters.
 
 PRIMA FELIE: ResultQualification finit pe consumer/owner/storage existente.
+BLOCKED: producerul denominator_revision lipsește; este alocat coverage/B10/B12.
+Cere decizia explicită: prerechizit finit CONTRACT/NO_MODEL în P2 sau realocare
+în canon. Clarificarea expirată fără răspuns nu autorizează niciuna. Nu fabrica
+un număr/schema nullable și nu trece peste această dependență la acceptare P2.
 M2/INPUT-M2-F01 este acceptat scoped pe b4964e7: două reviews aprobate, o singură QA
 PG/native1PASS50.37s/exit0/drained, parent9SHA/52artefacte/cleanup exact.
 Nu relansa M2, schema0013 ori acceptările neafectate. Tracează refs/evidence/

@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.32
+version: 0.1.33
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -104,6 +104,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 
 - Check the existing consumer's exact source/library prerequisites before spending a fresh PG/native attempt. A scratch source export can disappear between accepted slices; missing PIN/run_agent.py is a prerequisite FAIL, not a launch or product defect. Restore only the declared commit from a hash-matching archive, verify the original file inventory and overlay inputs without launch, preserve the failed attempt, and use a separately recorded fresh fixture. Do not substitute an unpinned installed/personal tree, prewarm imports or change product deadlines.
 - Budget cold CLI startup and intermediate readbacks against immutable brief/stage deadlines. Run the positive admission promptly; put optional identity/input denials on a separate never-launched assignment rather than lengthening product grants or letting QA bookkeeping expire the positive.
+- Fence a dynamic DB fixture's destructive finalizer before launching a nested effectful child. Reuse the existing family owner and require its strict drain receipt plus authentic typed handoff before clearance; timeout, signal, unknown exit or exit0 alone retain uncertainty and the DB. Exercise the actual pytest finalizer order, since eventual outer drain cannot justify an earlier DROP.
 - For a cold launch/READY failure, emit bounded phase-entry markers and elapsed/audit counters in the existing observer before the suspected import/main boundary. Metrics emitted only after entry.main leave pre-main failures unobserved; reproduce that gap with code-object controls before another native attempt. Preserve last-entered versus completed phases, exact code/root filtering and incomplete evidence; keep fields sanitized without raw stderr, prewarm or wider grants. A marker localizes a boundary, not its cause.
 - Serialize a threaded observer's cumulative limit check, real write and counter update together; a bounded record does not enforce the cumulative bound when `os.write` releases the GIL. Refuse same-thread reentrancy before acquiring a non-reentrant lock, and challenge the last slot with observed overlap and actual owned pipe writes.
 - Require all finite pre-READY ENTERs and short-operation ENDs at the real consumer. Permit missing END only for explicitly named frames that span the RPC loop, retaining `INCOMPLETE`; a blanket missing-completion exemption can accept lost import evidence. Classify exact normal `SystemExit(0)`/`None` at the producer without copying arbitrary traceback categories, while preserving failure exits and unknown-input refusal.

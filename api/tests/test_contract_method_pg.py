@@ -20,6 +20,7 @@ from collections.abc import Callable, Coroutine, Generator, Iterator
 from contextlib import nullcontext
 from copy import deepcopy
 from pathlib import Path
+from types import CodeType
 from typing import TYPE_CHECKING, cast
 from uuid import uuid4
 
@@ -3520,6 +3521,405 @@ def h03_prerequisites() -> tuple[dict[str, object], Path]:
         raise AssertionError("H03_INSTALLED_PREREQUISITE_REFUSED") from None
 
 
+class H03ExchangeObservation:
+    """One SOURCE-owned exchange; exact code RAISE, no frames/locals/wire capture."""
+
+    def __init__(
+        self,
+        original: Callable[
+            [str, RuntimeAuthority | None, dict[str, object] | None],
+            Coroutine[object, object, dict[str, object]],
+        ],
+        checkpoint: Callable[[dict[str, object]], None],
+    ) -> None:
+        import dis
+
+        from omnis.supervisor import runtime_client as source
+
+        if getattr(original, "__func__", None) is not RuntimeClient._exchange:
+            raise AssertionError("H03_EXACT_CLIENT_REQUIRED")
+        self.original, self.checkpoint = original, checkpoint
+        self.used = False
+        self.events: list[dict[str, object]] = []
+        self.complete = True
+        self.sites: dict[CodeType, dict[int, tuple[int | None, str]]] = {}
+        self.names: dict[CodeType, str] = {}
+        self.task: asyncio.Task[object] | None = None
+        self.tool: int | None = None
+        # Only fixed reasons from trusted source raise sites, never error.args/str.
+        reasons = {
+            "Runtime refused": "HOST_DENIED_CAUSE_UNKNOWN",
+            "Runtime exchange unavailable": "EXCHANGE_NORMALIZED",
+            "Expired runtime authority": "AUTHORITY_EXPIRED",
+            "Runtime authority mismatch": "AUTHORITY_MISMATCH",
+            "Runtime authority missing": "AUTHORITY_MISSING",
+            "Runtime disconnected": "DISCONNECTED",
+            "Runtime managed-task limit": "MANAGED_FRAME_LIMIT",
+            "Runtime correlation mismatch": "CORRELATION_MISMATCH",
+            "Runtime managed-task fence": "MANAGED_FENCE",
+            "Invalid runtime state": "INVALID_STATE",
+            "Invalid runtime readiness": "INVALID_READINESS",
+            "Invalid runtime fence": "INVALID_FENCE",
+            "Runtime stale fence": "STALE_FENCE",
+            "Invalid runtime drain": "INVALID_DRAIN",
+            "Missing bootstrap inventory": "MISSING_INVENTORY",
+            "Missing ready bootstrap inventory": "MISSING_READY_INVENTORY",
+            "Changed bootstrap inventory": "CHANGED_INVENTORY",
+            "Invalid bootstrap inventory": "INVALID_INVENTORY",
+            "Bootstrap inventory limit": "INVENTORY_LIMIT",
+            "Invalid runtime message": "INVALID_MESSAGE",
+            "Runtime message limit": "MESSAGE_LIMIT",
+        }
+        for fn in (
+            RuntimeClient._exchange,
+            source._object,
+            source._unique,
+            source.validate_bootstrap_inventory,
+            source._inventory_name,
+        ):
+            self.names[fn.__code__] = fn.__qualname__
+            sites: dict[int, tuple[int | None, str]] = {}
+            literal = ""
+            for instruction in dis.get_instructions(fn):
+                if instruction.opname == "LOAD_CONST" and type(instruction.argval) is str:
+                    literal = instruction.argval
+                sites[instruction.offset] = (
+                    instruction.positions.lineno if instruction.positions is not None else None,
+                    reasons.get(literal, "UNCLASSIFIED")
+                    if instruction.opname == "RAISE_VARARGS"
+                    else "UNCLASSIFIED",
+                )
+            self.sites[fn.__code__] = sites
+
+    def raised(self, code: object, offset: int, error: BaseException) -> object:
+        from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+        try:
+            if type(code) is not CodeType or not any(code is target for target in self.sites):
+                return None
+            if asyncio.current_task() is not self.task:
+                return None
+            if len(self.events) >= 31:  # Reserve END; total <=32 / <=8KiB.
+                self.complete = False
+                if self.tool is not None:
+                    sys.monitoring.set_events(self.tool, 0)
+                return None
+            line, reason = self.sites[code].get(offset, (None, "UNCLASSIFIED"))
+            classes = (
+                RuntimeUnavailable,
+                ValueError,
+                OSError,
+                TimeoutError,
+                asyncio.IncompleteReadError,
+                asyncio.LimitOverrunError,
+                ConnectionResetError,
+                BrokenPipeError,
+                PermissionError,
+                asyncio.CancelledError,
+            )
+            self.events.append(
+                {
+                    "phase": "RAISE",
+                    "code": self.names[code],
+                    "offset": offset,
+                    "line": line,
+                    "exception": type(error).__name__ if type(error) in classes else "UNCLASSIFIED",
+                    "reason": reason if type(error) is RuntimeUnavailable else "UNCLASSIFIED",
+                }
+            )
+        except BaseException:
+            self.complete = False  # Callback never changes the original exception.
+            return None
+        return None
+
+    async def exchange(
+        self,
+        op: str,
+        authority: RuntimeAuthority | None = None,
+        payload: dict[str, object] | None = None,
+    ) -> dict[str, object]:
+        if op != "task_release" or self.used:
+            return await self.original(op, authority, payload)
+        self.used = True
+        tool: int | None = None
+        failed = False
+        started = time.monotonic_ns()
+        reply: dict[str, object] | None = None
+        try:
+            tool = next((i for i in range(6) if sys.monitoring.get_tool(i) is None), None)
+            if tool is None:
+                raise AssertionError("H03_MONITORING_UNAVAILABLE")
+            sys.monitoring.use_tool_id(tool, "h03-release")
+            self.tool = tool
+            callback = self.raised
+            sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, callback)
+            if (
+                sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, callback)
+                is not callback
+            ):
+                raise AssertionError("H03_MONITORING_UNAVAILABLE")
+            # RAISE is interpreter-wide (not a supported local event in 3.13).
+            # Exact CodeType identity + original Task filter precede all capture.
+            self.task = asyncio.current_task()
+            sys.monitoring.set_events(tool, sys.monitoring.events.RAISE)
+            # Timestamp at the ORIGINAL request boundary, after registration.
+            started = time.monotonic_ns()
+            self.events.append(
+                {
+                    "phase": "ENTER",
+                    "elapsed_ms": 0,
+                    "grant_remaining_ms": None
+                    if authority is None
+                    else (authority.deadline_ns - started) // 1_000_000,
+                }
+            )
+            try:
+                reply = await self.original(op, authority, payload)
+            except BaseException:
+                failed = True
+                if not any(
+                    row.get("phase") == "RAISE" and row.get("reason") != "EXCHANGE_NORMALIZED"
+                    for row in self.events
+                ):
+                    self.complete = False
+                raise
+        except BaseException:
+            if not self.events:
+                self.complete = False
+                raise AssertionError("H03_MONITORING_UNAVAILABLE") from None
+            raise
+        finally:
+            try:
+                if tool is not None and sys.monitoring.get_tool(tool) == "h03-release":
+                    sys.monitoring.set_events(tool, 0)
+                    sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, None)
+                    sys.monitoring.free_tool_id(tool)
+            except BaseException:
+                self.complete = False
+            ended = time.monotonic_ns()
+            self.events.append(
+                {
+                    "phase": "END",
+                    "elapsed_ms": (ended - started) // 1_000_000,
+                    "grant_remaining_ms": None
+                    if authority is None
+                    else (authority.deadline_ns - ended) // 1_000_000,
+                    "returned": reply is not None,
+                    "correlation_valid": True
+                    if reply is not None
+                    or any(row.get("reason") == "HOST_DENIED_CAUSE_UNKNOWN" for row in self.events)
+                    else None,
+                    "ok": reply.get("ok") is True if reply is not None else None,
+                    "writer_drained": True
+                    if reply is not None
+                    or any(row.get("reason") == "HOST_DENIED_CAUSE_UNKNOWN" for row in self.events)
+                    else None,
+                    "read_complete": True
+                    if reply is not None
+                    or any(row.get("reason") == "HOST_DENIED_CAUSE_UNKNOWN" for row in self.events)
+                    else None,
+                }
+            )
+            diagnostic: dict[str, object] = {
+                "status": "COMPLETE" if self.complete else "INCOMPLETE",
+                "events": self.events,
+                "host_internal_cause": "UNKNOWN",
+            }
+            if len(canonical(diagnostic)) > 8192:
+                self.complete = False
+                diagnostic = {"status": "INCOMPLETE", "reason": "OBSERVER_LIMIT"}
+            try:
+                self.checkpoint(diagnostic)
+            except BaseException:
+                self.complete = False
+                if not failed:
+                    raise AssertionError("H03_DIAGNOSTIC_UNAVAILABLE") from None
+        if not self.complete:
+            raise AssertionError("H03_OBSERVATION_INCOMPLETE")
+        assert reply is not None
+        return reply
+
+
+@pytest.mark.parametrize("mode", ["ready", "host-denied", "private-error", "expired"])
+def test_h03_exchange_observation_actual_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str
+) -> None:
+    """SOURCE: actual client/caller, fake IPC only; no PG/socket/native effects."""
+    import ast
+
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    observer = globals().get("H03ExchangeObservation")
+    assert callable(observer), "H03_PRE_NORMALIZATION_OBSERVER_MISSING"
+    client = RuntimeClient(tmp_path, generation=1, epoch=1)
+    writes: list[bytes] = []
+    records: list[dict[str, object]] = []
+
+    class Writer:
+        def write(self, raw: bytes) -> None:
+            writes.append(raw)
+
+        async def drain(self) -> None:
+            if mode == "private-error":
+                raise ValueError("PRIVATE_H03_MARKER")
+
+        def close(self) -> None:
+            pass
+
+        async def wait_closed(self) -> None:
+            pass
+
+    class Reader:
+        async def readuntil(self, separator: bytes) -> bytes:
+            request = mapping(json.loads(writes[-1]))
+            return canonical(
+                {
+                    "id": request["id"],
+                    "boot": client.boot,
+                    "ok": mode != "host-denied",
+                    "state": "READY",
+                    "assessment_ready": False,
+                    "drained": False,
+                    "generation": 1,
+                    "epoch": 1,
+                    "managed": {},
+                    "bootstrap_inventory": {
+                        "schema_version": 1,
+                        "observation": "NATIVE_BOOTSTRAP",
+                        "scope": "/state/active",
+                        "registry": {
+                            "status": "NOT_INITIALIZED",
+                            "generation": None,
+                            "count": None,
+                            "entries": None,
+                        },
+                        "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+                    },
+                }
+            )
+
+    client.writer = cast(asyncio.StreamWriter, Writer())
+    client.reader = cast(asyncio.StreamReader, Reader())
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    branch = next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Name)
+        and node.test.id == "h03"
+        and any(isinstance(n, ast.Name) and n.id == "release_observer" for n in ast.walk(node))
+    )
+    namespace: dict[str, object] = {
+        "h03": True,
+        "runtime": client,
+        "monkeypatch": monkeypatch,
+        "H03ExchangeObservation": observer,
+        "checkpoint": lambda **fields: records.append(fields),
+    }
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[branch], type_ignores=[])),
+            "<actual-h03-exchange-caller>",
+            "exec",
+        ),
+        namespace,
+    )
+    authority = RuntimeAuthority(
+        1, 1, time.monotonic_ns() + (0 if mode == "expired" else 4_000_000_000)
+    )
+    caught: BaseException | None = None
+    try:
+        reply = asyncio.run(client._exchange("task_release", authority, {}))
+    except RuntimeUnavailable as error:
+        caught = error
+    else:
+        assert mode == "ready" and reply["managed"] == {}
+    assert len(writes) == (0 if mode == "expired" else 1), "H03_SEND_COUNT_CHANGED"
+    assert (caught is None) == (mode == "ready")
+    diagnostic = mapping(records[-1]["h03_release_exchange"])
+    rows = sequence(diagnostic["events"])
+    assert mapping(rows[0])["phase"] == "ENTER" and mapping(rows[-1])["phase"] == "END"
+    assert diagnostic["status"] == "COMPLETE"
+    reasons = {mapping(row).get("reason") for row in rows}
+    expected = {
+        "host-denied": "HOST_DENIED_CAUSE_UNKNOWN",
+        "private-error": "UNCLASSIFIED",
+        "expired": "AUTHORITY_EXPIRED",
+    }
+    if mode in expected:
+        assert expected[mode] in reasons, "H03_ORIGINAL_FAILURE_NOT_OBSERVED"
+    assert b"PRIVATE_H03_MARKER" not in canonical(diagnostic), "H03_PRIVATE_DIAGNOSTIC_LEAK"
+    assert len(rows) <= 32 and len(canonical(diagnostic)) <= 8192
+    assert all(sys.monitoring.get_tool(tool) != "h03-release" for tool in range(6))
+
+
+@pytest.mark.parametrize("control", ["registration", "missing", "budget", "callback"])
+def test_h03_exchange_observation_refuses_incomplete(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, control: str
+) -> None:
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    client = RuntimeClient(tmp_path, generation=1, epoch=1)
+    records: list[dict[str, object]] = []
+    measured = H03ExchangeObservation(
+        client._exchange, lambda diagnostic: records.append({"h03_release_exchange": diagnostic})
+    )
+    register = sys.monitoring.register_callback
+    originals: list[BaseException] = []
+    previous_callback: object = None
+    # Structurally equal code clones must not pass an identity filter.
+    assert (
+        measured.raised(
+            RuntimeClient._exchange.__code__.replace(), 0, RuntimeUnavailable("PRIVATE_H03_MARKER")
+        )
+        is None
+    )
+    assert measured.events == []
+
+    def registration(tool: int, event: int, callback: object) -> object:
+        nonlocal previous_callback
+        if callback is None:
+            return register(tool, event, None)
+        if control == "registration":
+            raise ValueError("PRIVATE_H03_MARKER")
+        if control == "missing":
+            return None
+        actual = cast(Callable[[object, int, BaseException], object], callback)
+
+        def inject(code: object, offset: int, error: BaseException) -> object:
+            originals.append(error)
+            if control == "budget":
+                for _ in range(34):
+                    actual(code, offset, error)
+            else:
+                # A callback-local decode failure, not a product exception.
+                measured.names.clear()
+                actual(code, offset, error)
+            return None
+
+        previous = register(tool, event, inject)
+        result = previous_callback if previous is not None else None
+        previous_callback = callback
+        return result
+
+    monkeypatch.setattr(sys.monitoring, "register_callback", registration)
+    with pytest.raises((AssertionError, RuntimeUnavailable)) as caught:
+        asyncio.run(measured.exchange("task_release", None, {}))
+    if originals:
+        assert caught.value is originals[0], "H03_CALLBACK_MASKED_ORIGINAL"
+    diagnostic = mapping(records[-1]["h03_release_exchange"])
+    assert diagnostic["status"] == "INCOMPLETE", "H03_MISSING_EVIDENCE_ACCEPTED"
+    if control in {"registration", "missing"}:
+        assert len(sequence(diagnostic["events"])) == 1, "H03_UNREGISTERED_BODY_ENTERED"
+    assert len(sequence(diagnostic.get("events", []))) <= 32
+    assert len(canonical(diagnostic)) <= 8192
+    assert b"PRIVATE_H03_MARKER" not in canonical(diagnostic)
+    assert all(sys.monitoring.get_tool(tool) != "h03-release" for tool in range(6))
+
+
 class PreparationPrerequisite(RuntimeClient):
     """Only a document-loading prerequisite double; real transport otherwise."""
 
@@ -4735,6 +5135,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     return await original_exchange(op, authority, payload)
 
                 monkeypatch.setattr(runtime, "_exchange", settle_append_before_send)
+
+            if h03:
+                release_observer = H03ExchangeObservation(
+                    runtime._exchange,
+                    lambda diagnostic: checkpoint(h03_release_exchange=diagnostic),
+                )
+                monkeypatch.setattr(runtime, "_exchange", release_observer.exchange)
 
             async def submit_task(action: str, *, phase: str = "ACTIVE") -> dict[str, object]:
                 command = NativeTaskCommand.model_validate({**lifecycle, "action": action})

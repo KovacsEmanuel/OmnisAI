@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "report_id": "H03-FINAL-NORMATIVE-NONINTERFERENCE-04ed5150256b",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused independent normative/noninterference review of the new finite API exchange observer and inherited exact-LF Docker absence fix only. Approval binds the exact consumer bytes and affected callers. Previously accepted restart orchestration and unchanged distribution are reused within their original scope, not requalified. This is not real H03 acceptance or an integration approval.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_before_after": "836970f77db32dfcf711fbfa7ade76648c1f023a",
+    "comparison_base": "e457790",
+    "consumer": "api/tests/test_contract_method_pg.py",
+    "consumer_sha256_before_after": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+    "pending_diff_sha256": "36fa264dec887dd1fbe6659f4323a968554f676c243344ada685302c4a48270d",
+    "pending_diff_numstat": {"insertions": 407, "deletions": 0, "files": 1},
+    "consumer_delta_from_e457790": {"insertions": 423, "deletions": 3, "files": 1},
+    "staged_changes": false,
+    "preexisting_protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_HASHED_NOT_MODIFIED"
+  },
+  "findings": [],
+  "surviving_blockers_in_reviewed_delta": [],
+  "requirement_consumer_risk_decision": {
+    "requirement": "Observe the first original H03 task_release failure before normalization without granting, resending, replacing the transport, broadening deadlines or falsely clearing the DB fence; preserve strict owned absence semantics.",
+    "consumer": "Existing H03 test installs H03ExchangeObservation on the same bound RuntimeClient._exchange before the public owner release; existing actual-finalizer AST supplies the LF controls.",
+    "risk": "Normalized RuntimeUnavailable/CatalogError can hide the original refusal frontier; an observer can perturb the exchange or publish false completeness; broad stdout stripping can falsely credit absence.",
+    "decision": "SOURCE approval of exact delta permits parent adjudication with the complementary exact-SHA review. Real H03 remains BLOCKED until the separately authorized fresh diagnostic positive. No effects admitted by this review."
+  },
+  "requirement_code_evidence": [
+    {
+      "requirement": "Same client/body/authority/payload and one original await/send, without retries",
+      "code": ["api/tests/test_contract_method_pg.py:3535-3539", "api/tests/test_contract_method_pg.py:3635-3695", "api/tests/test_contract_method_pg.py:5139-5144", "api/src/omnis/supervisor/native_tasks.py:300-320", "api/src/omnis/supervisor/runtime_client.py:297-343"],
+      "trace": "Constructor requires the original bound function to be exactly RuntimeClient._exchange. The actual H03 caller passes runtime._exchange and patches only that same instance. The first task_release branch awaits self.original(op, authority, payload) once, without copying/replacing arguments, new grant, reconnect, retry or task creation. Non-release and later operations delegate once. NativeTaskOwner retains its existing preobtained v4 grant and release-intent ordering; RuntimeClient retains original timeout and single write/drain/read.",
+      "evidence": "Existing actual-client SOURCE ready/host-denied/private-error controls assert one write; expired authority asserts zero writes. No real transport was opened.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Capture exact first task_release RAISE before client/owner normalization",
+      "code": ["api/tests/test_contract_method_pg.py:3573-3633", "api/tests/test_contract_method_pg.py:3657-3697", "api/src/omnis/supervisor/runtime_client.py:339-347", "api/src/omnis/supervisor/runtime_client.py:417-425", "api/src/omnis/supervisor/native_tasks.py:100-105"],
+      "trace": "Supported Python 3.13 interpreter-wide RAISE monitoring is registered around one original exchange. Exact CodeType identity and the same original asyncio Task filter precede capture. Trusted bytecode raise offsets distinguish the original correlated Host refusal from EXCHANGE_NORMALIZED. Checkpoint occurs in the wrapper finally before RuntimeUnavailable reaches NativeTaskOwner.handle's TASK_INDETERMINATE normalization and outer teardown. No frame, locals, traceback, error text/args/repr, authority, request or reply serialization is added.",
+      "evidence": "Existing actual-code host-denied and private-error controls observe the pre-normalization reason/category; the private marker is absent from diagnostic bytes. Structurally equal code clones are explicitly excluded.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Truthful bounded classification and completeness, without inventing Host cause",
+      "code": ["api/tests/test_contract_method_pg.py:3549-3596", "api/tests/test_contract_method_pg.py:3605-3633", "api/tests/test_contract_method_pg.py:3680-3740"],
+      "trace": "Allowlisted static trusted reasons and exact exception classes produce UNCLASSIFIED for unknowns. HOST_DENIED_CAUSE_UNKNOWN identifies only the correlated client refusal frontier, not a Host internal diagnosis. ENTER/END record original-boundary elapsed and grant-remaining milliseconds without modifying the grant. END correlation_valid/writer_drained/read_complete are path-inferred, not independent wire samples or daemon/native settlement. Failure without an observed pre-normalized event and callback/registration/limit/cleanup failure remain INCOMPLETE. Capture reserves END within 32 events and replaces oversized serialized diagnostics with bounded INCOMPLETE/OBSERVER_LIMIT; success cannot return through incomplete observation. Callback errors cannot mask the original product exception.",
+      "evidence": "Existing registration, missing callback readback, budget and callback controls pass strict INCOMPLETE/event/byte/no-marker/exception-identity assertions. Both actual-code controls and failure controls verify monitoring tool release.",
+      "disposition": "APPROVED_SOURCE_SCOPED_WITH_EXPLICIT_LIMITS"
+    },
+    {
+      "requirement": "Scoped caller installation, monitoring restoration and conservative body-error settlement",
+      "code": ["api/tests/test_contract_method_pg.py:3643-3680", "api/tests/test_contract_method_pg.py:3699-3738", "api/tests/test_contract_method_pg.py:5031-5049", "api/tests/test_contract_method_pg.py:5057-5137", "api/tests/test_contract_method_pg.py:5139-5144", "api/tests/test_contract_method_pg.py:6988-6992", "api/tests/test_contract_method_pg.py:7064-7078"],
+      "trace": "The H03-only caller retains the original bound client method; the mission-consumer wrapper is a distinct scenario and is not used by H03. Monitoring uses a previously unallocated tool, verifies callback registration by identity readback, then disables events, clears callback and frees that owned tool in finally. The instance patch is owned by the existing pytest monkeypatch fixture and its teardown restoration, not a global product edit. Any body exception still latches cleanup_failed plus the existing DB fence, preventing diagnostic success or current exact absence from closing the failed H03 run.",
+      "evidence": "Actual H03 caller AST executes in the four existing actual-client SOURCE controls. Monitoring restoration is asserted in all eight observer cases. Body fence ordering and fixture-managed instance restoration are static caller evidence, not a new physical finalizer or runtime test.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Inherited absence fix accepts only empty/exact LF and preserves owned exit/stderr/daemon guards",
+      "code": ["api/tests/test_contract_method_pg.py:2906-2911", "api/tests/test_contract_method_pg.py:3103-3111", "api/tests/test_contract_method_pg.py:3201-3215", "api/tests/test_contract_method_pg.py:4268-4324", "api/tests/test_contract_method_pg.py:7035-7043"],
+      "trace": "The finalizer now accepts only b'' or b'\\n' from the original exact-CID formatted inspect. The unchanged docker helper requires expected exit 1, exact No such object stderr for that CID, and stable daemon identity. No strip/rstrip or arbitrary whitespace acceptance is introduced. Resource absence cannot clear earlier body/owner uncertainty.",
+      "evidence": "Actual lifecycle/finalizer AST controls normal and normal-absence-lf accept; absence-extra-whitespace and absence-unexpected-output retain the fence and UNCERTAIN. Docker/Host/DB seams are substituted explicitly.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    }
+  ],
+  "executed_verification": [
+    {
+      "name": "existing_eight_SOURCE_observer_and_four_LF_controls",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/h03-final-normative-04ed515-review TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03_exchange_observation or (h03_actual_lifecycle_source_seams and (normal or absence))' --basetemp=/home/kali/.hermes/cache/scratch/h03-final-normative-04ed515-review/source-fixtures -vv --tb=no",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "python": "3.13.15",
+      "pytest": "9.1.1",
+      "counts": {"collected": 170, "selected": 12, "passed": 12, "deselected": 158, "skipped": 0, "failed": 0},
+      "elapsed_seconds_reported": 1.02,
+      "sanitized_summary": "12 passed, 158 deselected in 1.02s",
+      "cases": [
+        {"node": "test_h03_actual_lifecycle_source_seams[normal]", "result": "PASS", "category": "LF_CONTROL"},
+        {"node": "test_h03_actual_lifecycle_source_seams[normal-absence-lf]", "result": "PASS", "category": "LF_CONTROL"},
+        {"node": "test_h03_actual_lifecycle_source_seams[absence-extra-whitespace]", "result": "PASS", "category": "LF_CONTROL"},
+        {"node": "test_h03_actual_lifecycle_source_seams[absence-unexpected-output]", "result": "PASS", "category": "LF_CONTROL"},
+        {"node": "test_h03_exchange_observation_actual_code[ready]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_actual_code[host-denied]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_actual_code[private-error]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_actual_code[expired]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_refuses_incomplete[registration]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_refuses_incomplete[missing]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_refuses_incomplete[budget]", "result": "PASS", "category": "SOURCE_OBSERVER"},
+        {"node": "test_h03_exchange_observation_refuses_incomplete[callback]", "result": "PASS", "category": "SOURCE_OBSERVER"}
+      ],
+      "limit": "Existing SOURCE tests only: actual client plus actual caller/finalizer AST, explicitly fake IPC/resource seams. No PG/socket/native/OCI/network/install/browser/model or real fixture effects. This is not real H03 PASS."
+    },
+    {"name": "whitespace", "command": "git diff --check", "exit": 0},
+    {"name": "exact_snapshot_before_after", "command": "sha256sum api/tests/test_contract_method_pg.py; git rev-parse HEAD; git status --short --branch; git diff --cached --stat; git diff --numstat; git diff -- api/tests/test_contract_method_pg.py | sha256sum", "exit": 0, "result": "Exact requested consumer and diff SHA unchanged; HEAD unchanged; only original consumer modification plus protected untracked HTML; no staged changes."}
+  ],
+  "reused_evidence": {
+    "author_report": "/home/kali/.hermes/cache/scratch/h03-exchange-source-report.json",
+    "prior_normative_acceptance": "documents/verification/p2-bound-predicates-evidence/h03-normative-rereview.json",
+    "prior_complementary_acceptance": "documents/verification/p2-bound-predicates-evidence/h03-input-rereview.json",
+    "prior_exact_consumer": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+    "unchanged_scope": "Original restart orchestration/distribution acceptance only. Current image 129ad748, 34/39 layers and API88 supplied evidence reused without metadata calls, rebuild, installation or reenactment.",
+    "retained_real_failure": "Parent context: first real positive 1 FAIL / 1 ERROR / 22.48s, stage BOUND and installed Host/native READY but public release TASK_INDETERMINATE, cause UNKNOWN. Parent preserved failure and exact owned cleanup at 90648d7. Not rerun here or retroactively promoted."
+  },
+  "limits_and_remaining_gates": {
+    "host_internal_cause": "UNKNOWN; HOST_DENIED_CAUSE_UNKNOWN does not identify an internal cause or demonstrate a fix",
+    "timing_noninterference": "No added await/task/grant/deadline change; monitoring and disassembly still have ordinary CPU overhead. No zero-overhead, unchanged scheduling or real timing guarantee claimed.",
+    "diagnostic_completeness": "Finite selected trusted Python frames in one Task only; COMPLETE means scoped observer completeness, not all Host/native frames, root-cause certainty or runtime settlement. Other frames/classes/reasons remain unobserved/UNCLASSIFIED.",
+    "derived_booleans": "END booleans are inferred from the validated return/correlated-refusal path, not independent writer/read/Host/native measurements.",
+    "source_quality": "Author reports Ruff/mypy/format exit0; not independently rerun outside the requested SOURCE/LF scope.",
+    "real_H03": "BLOCKED_NOT_PASS",
+    "real_diagnostic_positive": "NOT_RUN_BY_REVIEWER; parent may admit at most one fresh positive through the original 240s runner only after two complementary exact-SHA approvals",
+    "original_runtime_fixture_adoption": "NONE",
+    "parent_integration": "NOT_DONE_BY_REVIEWER",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "P4a_minimum": "NOT_IMPLEMENTED"
+  },
+  "effects_and_files": {
+    "shared_repository_edits": [],
+    "stage_or_commit": false,
+    "protected_html_read_hash_edit": false,
+    "credentials_capabilities_environment_values_raw_PG_tracebacks_emitted": false,
+    "PG_native_OCI_network_install_browser_model_image_realfixture_effects": "NONE",
+    "scratch_created": ["/home/kali/.hermes/cache/scratch/h03-final-normative-04ed515-review/report.json", "/home/kali/.hermes/cache/scratch/h03-final-normative-04ed515-review/source-fixtures/ (existing tests' synthetic private files only)"],
+    "new_harness_or_fault_matrix": false,
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "issues_encountered": ["One read-only lookup used api/omnis/supervisor/runtime_client.py, which does not exist; the actual api/src/omnis/supervisor/runtime_client.py was resolved and read. No effects or edits resulted."],
+  "proposed_parent_status_delta": [
+    {"slice": "H03 finite observer + inherited LF AICI", "code": "SOURCE_IMPLEMENTED_PENDING_PARENT_INTEGRATION", "proof": "12_SOURCE_PASS_EXIT0", "review": "NORMATIVE_NONINTERFERENCE_APPROVED_SCOPED_04ed515", "next": "Adjudicate complementary exact-SHA review before the single fresh diagnostic positive."},
+    {"slice": "Real H03 restart", "code": "EXISTING_ORCHESTRATION_UNCHANGED", "proof": "BLOCKED_NOT_PASS_CAUSE_UNKNOWN", "review": "NO_RUNTIME_APPROVAL", "next": "Preserve historical failure; no cause/fix inference from a correlated refusal."},
+    {"slice": "B06b/G02/P2; canonical; P4a minimum", "code": "PARTIAL_OR_NOT_IMPLEMENTED", "proof": "NOT_CLOSED_NOT_RUN", "review": "NO_GLOBAL_APPROVAL", "next": "No closure transferred from this SOURCE review."}
+  ]
+}

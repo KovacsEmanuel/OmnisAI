@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED_SOURCE_ADMIT_AT_MOST_ONE_FRESH_DIAGNOSTIC_POSITIVE",
+  "consumer_sha256": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+  "source_parent": "57PASS113deselected2.75s; Ruff/format/mypy/diff0",
+  "review": "Both exact complementaryfinalreviewsAPPROVED_SCOPED incl inheritedexactLFfix;8observer+4LFnormative12PASS; safety38PASS+19controls.",
+  "previous_fail": "90648d7 and readonlycause report remainUNKNOWN; no retroactivecredit/fixtureadoption",
+  "admitted": "OriginalprivateDB/familyrunner240, currentimmutableimage129ad748, originalSourceowner/sameRuntimeClient/token/grant/one send, firsttask_releasepre-normalizationmeasurement. Freshownedbasetempdeclarednonexistent preventspytestretentionremovingnewproof.",
+  "scope": "SOURCE monitoring exactCodeType/sameTask32events8KiB; derivedbooleansonly, notinternalHostorphysicalsettlementproof",
+  "decision": "If only correlatedHostdeniallocalizes, retainUNKNOWN/BLOCKED and stop. No anotherharness/faultmatrix, no image/product/deadlinechanges.",
+  "P2": "NOT_CLOSED",
+  "runtime_diagnostic": "NOT_RUN_AT_COMMIT"
+}

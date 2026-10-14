@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_GREEN_TWO_FINAL_REVIEWS_PENDING_RUNTIME_NOT_RUN",
+  "base_head": "836970f77db32dfcf711fbfa7ade76648c1f023a",
+  "consumer_sha256": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+  "diff_sha256": "36fa264dec887dd1fbe6659f4323a968554f676c243344ada685302c4a48270d",
+  "diff_numstat": "407 insertions / 0 deletions / one owned repo file",
+  "allowed_repo_file": "api/tests/test_contract_method_pg.py",
+  "measurement": {
+    "boundary": "first original H03 task_release RuntimeClient._exchange",
+    "transport": "same bound RuntimeClient, authority, payload and one original await/send; no retries",
+    "mechanism": "Python 3.13 sys.monitoring RAISE interpreter-wide subscription, exact CodeType identity + same original asyncio Task filter; RAISE is not a supported local event",
+    "targets": [
+      "RuntimeClient._exchange",
+      "_object",
+      "_unique",
+      "validate_bootstrap_inventory",
+      "_inventory_name"
+    ],
+    "lifetime": "register around one original exchange; restore/free in finally",
+    "limits": {
+      "events": 32,
+      "serialized_bytes": 8192
+    },
+    "fields": "ENTER/END elapsed/grant_remaining milliseconds; RAISE exact trusted code/offset/line and exact allowlisted exception class/reason; only inferred public booleans",
+    "not_captured": [
+      "frames",
+      "locals",
+      "environment",
+      "exception text/args/repr",
+      "full authority/grant",
+      "request/reply bytes"
+    ],
+    "checkpoint": "existing private proof h03_release_exchange before NativeTaskOwner normalization and teardown",
+    "host_denial": "HOST_DENIED_CAUSE_UNKNOWN proves correlated refusal only; Host internal cause remains UNKNOWN"
+  },
+  "red": [
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py -k h03_exchange_observation --tb=line -q -p no:cacheprovider",
+      "result": "4 failed / 162 deselected / 0.57s",
+      "exit": 1,
+      "reason": "H03_PRE_NORMALIZATION_OBSERVER_MISSING"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py -k h03_exchange_observation_refuses_incomplete --tb=line -q -p no:cacheprovider",
+      "result": "1 failed / 3 passed / 166 deselected / 0.65s",
+      "exit": 1,
+      "reason": "registration error not sanitized"
+    }
+  ],
+  "green": {
+    "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"h03_exchange_observation or h03_actual_lifecycle_source_seams or h03_actual_cidfile_recovery_is_strict or h03_reader_actual_launch_latches_family_unknown\" --tb=line -q -p no:cacheprovider",
+    "result": "38 passed / 132 deselected / 2.30s",
+    "exit": 0,
+    "new_observer_cases": 8,
+    "limit": "Actual caller AST + actual client source, fake IPC streams explicitly; no PG/socket/native/container execution"
+  },
+  "quality": [
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py",
+      "exit": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/h03-exchange-mypy api/tests/test_contract_method_pg.py",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "controls": [
+    "original actual code: READY/Host refusal/private marker/expired authority",
+    "same original send count one (expired zero)",
+    "same original exception identity with callback failure/budget overflow",
+    "exact code identity excludes structurally equal clone",
+    "registration failure/missing readback deny before original body",
+    "event/byte caps and finally monitoring restoration",
+    "finite sanitized pre-normalized original reason plus normalized event retained"
+  ],
+  "issues": [
+    "Initial local RAISE setup refused by Python 3.13 (4 failures); corrected to supported exact-filtered interpreter subscription, no effects launched.",
+    "Ruff format and mypy typing refusals fixed; final checks run after last edit.",
+    "Historical scratch proof path no longer exists; original attempt fail/cleanup/root-cause reports read from versioned evidence, not reconstructed or rerun."
+  ],
+  "unchanged": [
+    "RuntimeClient/product/source/image/native metadata",
+    "existing absence LF oracle 836970f",
+    "token/authority/timing contracts",
+    "protected HTML (not read/hashed)",
+    "other profiles/global state"
+  ],
+  "effects": {
+    "PG": false,
+    "native": false,
+    "OCI": false,
+    "network": false,
+    "install": false,
+    "provider": false,
+    "commit_or_stage": false,
+    "skills_or_docs": false
+  },
+  "review": "PARENT MUST obtain two complementary focused reviews on this exact SHA, including inherited LF fix pending review; this author cannot approve integration.",
+  "next": "Only parent may after reviews run at most one distinct diagnostic positive via original 240s runner/fresh fixture; if only Host denial localized, retain UNKNOWN and BLOCKED, stop.",
+  "global": {
+    "H03": "BLOCKED_NOT_PASS",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "canonical": "NOT_RUN",
+    "P4a_minimum": "NOT_IMPLEMENTED"
+  }
+}

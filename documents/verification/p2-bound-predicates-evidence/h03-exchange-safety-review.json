@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "review_id": "H03-FINAL-SAFETY-COMPLETENESS-SANITIZATION-04ed5150",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused independent SOURCE review of the finite first-original-task_release API exchange observer and inherited exact-LF absence predicate. Not runtime acceptance, Host causality, physical settlement, or global phase closure.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "836970f77db32dfcf711fbfa7ade76648c1f023a",
+    "consumer": "api/tests/test_contract_method_pg.py",
+    "consumer_sha256_before_after": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+    "diff_sha256_expected_author": "36fa264dec887dd1fbe6659f4323a968554f676c243344ada685302c4a48270d",
+    "pending_diff": "407 insertions, zero deletions, one tracked file",
+    "preexisting_untracked_protected_html": "documents/Omnis_Notite_Originale.html",
+    "protected_html_read_or_hashed": false
+  },
+  "findings": [],
+  "blocking_reproducer": null,
+  "original_finding_dispositions": [
+    {
+      "ids": ["H03-INPUT-F01", "H03-INPUT-F02", "H03-INPUT-F03", "H03-INPUT-F04"],
+      "disposition": "REUSE_CLOSED_SOURCE_SCOPED",
+      "evidence": "documents/verification/p2-bound-predicates-evidence/h03-input-rereview.json and h03-parent-source-adjudication.json",
+      "basis": "Current delta changes only the finite exchange observer/tests/caller; HEAD contributes the separately reviewed LF predicate/test additions. Original acquisition, ownership, containment, reader, and unknown-fence mechanisms are unchanged. Current actual acquisition/finalizer SOURCE regression controls also pass; no transfer to physical/runtime proof."
+    },
+    {
+      "id": "H03_CLEANUP_ABSENCE_FORMATTER_LF",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "locations": ["api/tests/test_contract_method_pg.py:4301-4306", "api/tests/test_contract_method_pg.py:7035-7043"],
+      "basis": "Actual finalizer AST accepts only empty stdout or exactly one LF. Source Docker producer still requires exit1 and exact CID-specific No-such-object stderr. Actual AST controls reject space/tab/CRLF/repeated-LF/unexpected marker and divergent/empty/extra-LF stderr. No strip or broad whitespace acceptance."
+    }
+  ],
+  "requirements": [
+    {
+      "name": "exact_original_code_task_and_single_send",
+      "status": "PASS_SOURCE_SCOPED",
+      "locations": ["api/tests/test_contract_method_pg.py:3539-3540", "api/tests/test_contract_method_pg.py:3598-3601", "api/tests/test_contract_method_pg.py:5140-5145"],
+      "evidence": "Actual caller AST installs observer on the bound original RuntimeClient method. Exact CodeType identity rejects structurally equal clones. A separately scheduled Task running the actual decoder is excluded while the same-task actual decoder failure is observed. Original exchange sends once, expired/no-observer-admission sends zero; no reconnect/retry/deadline/authority mutation."
+    },
+    {
+      "name": "monitoring_lifetime_and_bounds",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Supported Python3.13 interpreter-wide RAISE subscription with exact filters. Existing registration/missing/callback/event-budget controls pass. Additional controls verify all six tool ownership/event masks restore, a preexisting unrelated RAISE callback is preserved, full tool exhaustion refuses before body, and a synthetic oversized trusted code label yields the bounded INCOMPLETE fallback. At most32 records/8192 serialized bytes."
+    },
+    {
+      "name": "sanitization_and_original_failure_preservation",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Fixed trusted source-site reasons and exact exception-type allowlist only. Unknown type becomes UNCLASSIFIED; original unknown exception identity survives checkpoint failure and byte-budget refusal. Synthetic exception __str__/__repr__ traps are never invoked. No exception args/text, frames/locals/environment, capability/grant/request/reply contents are copied into diagnostics. Synthetic private markers remain absent.",
+      "interpretation": "COMPLETE describes observation completeness, not successful operation or known cause. UNCLASSIFIED remains unknown and the original exception propagates; host_internal_cause always remains UNKNOWN."
+    },
+    {
+      "name": "incomplete_refusal_and_pre_normalization_checkpoint",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Missing registration/readback and callback/budget failures emit INCOMPLETE. A successful original exchange with a callback-local decode failure is refused as H03_OBSERVATION_INCOMPLETE instead of returning apparent success. Original failing exchange is re-raised unchanged. Diagnostic checkpoint executes before return/unwind to NativeTaskOwner.handle, whose RuntimeUnavailable normalization is confirmed at api/src/omnis/supervisor/native_tasks.py:99-105."
+    },
+    {
+      "name": "cleanup_fence",
+      "status": "PASS_SOURCE_SCOPED_REUSED_OWNERSHIP_LIMITS",
+      "locations": ["api/tests/test_contract_method_pg.py:990-1011", "api/tests/test_contract_method_pg.py:4268-4329", "api/tests/test_contract_method_pg.py:6993-7078"],
+      "evidence": "Actual producer/finalizer AST controls preserve unknown Docker/reader latches and DB retention after cancellation, missing settlement, public-owner/engine failure or bad absence output. Exact resource absence alone does not clear historical uncertainty; public owner and engine cleanup precede fence release. New observer has no fence/resource mutation."
+    }
+  ],
+  "verification": [
+    {
+      "name": "affected_existing_source_cases",
+      "command": "api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03_exchange_observation or h03_actual_lifecycle_source_seams or h03_actual_cidfile_recovery_is_strict or h03_reader_actual_launch_latches_family_unknown' --basetemp=/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-source-fixtures --tb=line -q",
+      "environment": "Ambient OMNIS/PG/PYTEST/PYTHON variables removed; plugin autoload disabled; owned scratch TMPDIR; explicit existing pytest-asyncio plugin; no native opt-in.",
+      "exit": 0,
+      "result": "38 passed, 132 deselected in 2.40s",
+      "limit": "Actual SOURCE code/caller/finalizer with fake IPC/daemon/Host/reader seams and synthetic private files; not PG/native/OCI execution."
+    },
+    {
+      "name": "additional_bounded_synthetic_controls",
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h03-final-safety-04ed-probe.py",
+      "exit": 0,
+      "result": "19 controls PASS; count emitted programmatically",
+      "artifact": "/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-probe-results.json",
+      "control_groups": "Seven observer controls; eight exact actual-LF predicate controls; four actual absence-stderr predicate controls.",
+      "limit": "Compiles unchanged observer and predicates from actual consumer AST, imports actual client/decoder/canonical encoder; substitutes streams only. Byte-cap control mutates a synthetic code label, not trusted product source. No new owner/framework."
+    },
+    {
+      "name": "snapshot_write_boundary",
+      "commands": ["sha256sum api/tests/test_contract_method_pg.py", "git diff --check", "git diff --numstat", "git status --short --branch", "git diff --cached --stat"],
+      "exit": 0,
+      "result": "Exact requested SHA unchanged; original status and407-line delta preserved; no staged changes; no whitespace errors."
+    }
+  ],
+  "issues_encountered": [
+    "Scratch AST probe received editor-only Pyright unresolved-import/dynamic-namespace diagnostics. Python syntax checks and actual execution passed; no change to repository typing policy or author quality gates."
+  ],
+  "files": {
+    "repository_created_or_modified": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-probe.py",
+      "/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-probe-results.json",
+      "/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-full-report.json"
+    ],
+    "scratch_fixture_root": "/home/kali/.hermes/cache/scratch/h03-final-safety-04ed-source-fixtures"
+  },
+  "effects": {
+    "postgresql": false,
+    "native_runtime": false,
+    "oci_or_docker_calls": false,
+    "network": false,
+    "install_or_image_change": false,
+    "shared_edits_commits_stage": false,
+    "protected_html_profiles_credentials_read": false,
+    "raw_private_pg_logs_or_capability_receipts_emitted": false
+  },
+  "limits_and_parent_decision": {
+    "runtime_acceptance": "NOT_RUN_THIS_REVIEW; FIRST_REAL_H03_FAILURE_REMAINS_BLOCKED",
+    "primary_cause": "UNKNOWN",
+    "host_denial": "A correlated Host refusal can localize a boundary only; it does not establish an internal causal Host fix.",
+    "writer_read_booleans": "Inferred client transport completion only, not Host/native resource settlement or the response drained flag.",
+    "historical_unknown_and_db_fence": "MUST_NOT_CLEAR_BY_OBSERVATION_OR_ABSENCE",
+    "global": "B06b/G02/P2 NOT_CLOSED; canonical NOT_RUN; P4a minimum NOT_IMPLEMENTED",
+    "parent_next": "Adjudicate complementary review on this exact SHA. Only parent may admit at most one distinct fresh diagnostic positive under original runner/fixture scope after both reviews; no identical unobserved retry, broader grants, new owner/framework or product/image change.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED",
+    "lesson_for_parent": "Preserve original unknown exceptions and inherited uncertainty while treating finite observation completeness separately from product success. Read-only delegation forbids skill/profile edits."
+  }
+}

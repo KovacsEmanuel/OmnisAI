@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_NO_INTEGRABLE_FINITE2_POSITIVE_CANDIDATE_ROLLED_BACK",
+  "product_base_sha": "e037cf16f505bb74e2f52e92d7075705825d7a7b",
+  "parent_head_readback": "b72c97f90652caffe7705d7a94e4310fab090e3f",
+  "scope": "One author, SOURCE only; existing prepare-method/v4 compact/indexed CONTRACT/PURE/whole final/checker paths. No native, PG, Docker, network, provider, install, migration, profile, owner/framework, staging, commit or push.",
+  "result": "Attempted finite2 vertical candidate; stopped at bounded full existing records-source stage overflow before a SOURCE lifecycle positive. Preserved exact candidate, restored all 11 owned files to original base bytes. NO implemented/source GREEN/native acceptance claim.",
+  "candidate": {
+    "diff": "/home/kali/.hermes/cache/scratch/finite2-source/candidate.diff",
+    "diff_sha256": "d110e627e94b8fb0f7eb280907bfa805d849e9d6fb4ff99db000e9a1d180e03f",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "candidate_sha256": "27ce80c66db6489add6f69d8491741b3aa59d650c159fa3ba5992c1a0d0d0b6e",
+        "base_sha256": "6afbff66f80ad4157c282e3583025e849db50c3b4fb440bc2e981ed6e63d7bbd"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "candidate_sha256": "cfb0fe4bbbd76ff1f7872776cab2bd2aa2d0f32c9e908034685d7a0019655c66",
+        "base_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_composition.py",
+        "candidate_sha256": "c23b59b666f68d0435364e599feddf0c9b792540178b6d5590829f3f3ffe9fb2",
+        "base_sha256": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "candidate_sha256": "c63fac4acc5b33cb2a99d025f96da209bb0dbcde212eeb736f10d24dc5ccb3bf",
+        "base_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+        "candidate_sha256": "7e81c24f2fce8e95e770c8355c87049f5ac5cf7ce2b0ad8c52ec8e94d81b11cd",
+        "base_sha256": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06"
+      },
+      {
+        "path": "api/tests/test_contract_method_producer.py",
+        "candidate_sha256": "8931949d6491d77f761a5e3a902fa423f01e06559f707ea3061605e628e1c173",
+        "base_sha256": "a55d3802db753a2b5cae22937d55f7de3907980cfc36f4072a38a023bf8fa05e"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+        "candidate_sha256": "729d6b8f00ee33e81929346dbe3efcc18ab91fa3fbf238fe218b15738b2aede7",
+        "base_sha256": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "candidate_sha256": "86a34f2fec7ab0945459a815dcfdc52f18563f91daa9c19a6e60c447b06138fe",
+        "base_sha256": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+        "candidate_sha256": "cf983ef5bf3ce649416ac76e8db55a001d4bdbbd3383b5761b160d7ca54df4ff",
+        "base_sha256": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+        "candidate_sha256": "224ced6c5ac0ea3b15215091fa6e2b9bbdc73b6133a78118c2ce301c941a42f7",
+        "base_sha256": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f"
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+        "candidate_sha256": "e1e6a86fef94e3e4bb9e6900245c6bf74f9e027ff9df944883bf753c85dae12b",
+        "base_sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2"
+      }
+    ],
+    "location": "/home/kali/.hermes/cache/scratch/finite2-source/candidate",
+    "review": "NOT_REVIEWED_DO_NOT_APPLY",
+    "distribution": "UNSEALED_NOT_FOR_NATIVE_USE"
+  },
+  "blocker": {
+    "id": "FINITE2_EXISTING_RECORDS_STAGE_AGGREGATE_OVERFLOW",
+    "producer": "Existing first-party records-mapping-contract source copied by records_seed, real compile_catalog/BuildSource/build_records/compact stage assembly. SOURCE synthetic catalog identities, NOT qualified or native.",
+    "wire_limit_bytes": 32768,
+    "actual_stage_bytes": 41495,
+    "record_pool_count": 9,
+    "pool_record_bytes": [
+      {
+        "kind": "prompt-bundle",
+        "bytes": 1582
+      },
+      {
+        "kind": "prompt-content",
+        "bytes": 328
+      },
+      {
+        "kind": "prompt-content",
+        "bytes": 274
+      },
+      {
+        "kind": "task-brief",
+        "bytes": 6072
+      },
+      {
+        "kind": "bound-procedure",
+        "bytes": 5102
+      },
+      {
+        "kind": "contract-input-context",
+        "bytes": 1459
+      },
+      {
+        "kind": "contract-case-records",
+        "bytes": 854
+      },
+      {
+        "kind": "task-brief",
+        "bytes": 6072
+      },
+      {
+        "kind": "bound-procedure",
+        "bytes": 5102
+      }
+    ],
+    "measurement_limit": "Stdlib AST-cloned stage_payload omitted only final size refusal for measurement; authentic assembly/record validation retained. This is NOT a valid admission, positive final, or bypass installed in product. Stock candidate correctly refused CONTEXT_OVERFLOW.",
+    "needed_decision": "Establish a genuinely qualified smaller bounded records fixture retaining the complete published obligations, or explicitly review a lossless compact-wire change. Do NOT widen 32768, truncate requirements/material, fabricate results or assume the original full seed fits.",
+    "measurement_command": "api/.venv/bin/python -I -B -c 'import sys,ast,json; from pathlib import Path; from tempfile import TemporaryDirectory; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import test_contract_method_producer as t; from omnis.modules.tasks import managed_composition as m; original=m.stage_payload; tree=ast.parse(Path(m.__file__).read_text()); f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==\"stage_payload\"); f.body=[n for n in f.body if not (isinstance(n,ast.If) and \"32768\" in ast.unparse(n.test))]; ns=dict(vars(m));exec(compile(ast.fix_missing_locations(ast.Module(body=[f],type_ignores=[])),\"measurement-only-no-admission\",\"exec\"),ns); m.stage_payload=ns[\"stage_payload\"];\nwith TemporaryDirectory(dir=\"/home/kali/.hermes/cache/scratch\",prefix=\"finite2-size-\") as d:\n g=t.records_method_graph(Path(d)); s=m.stage_payload(g[-1],g); print(json.dumps({\"measurement_only\":True,\"actual_stage_bytes\":len(t.canonical(s)),\"pool\":[{\"kind\":r[\"kind\"],\"bytes\":len(t.canonical(r))} for r in s[\"record_pool\"]]},indent=2))'"
+  },
+  "checks": [
+    {
+      "name": "RED count2 producer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k finite2 -q --tb=line",
+      "exit": 1,
+      "result": "1 failed,24 deselected,0.42s; expected MANAGED_REJECTED at singleton bound",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-red.log"
+    },
+    {
+      "name": "Candidate first positive attempt",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py -k finite2 -q --tb=line",
+      "exit": 1,
+      "result": "1 failed,24 deselected,0.50s; CONTEXT_OVERFLOW",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-green.log"
+    },
+    {
+      "name": "Candidate affected suite",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_managed_requests.py api/tests/test_managed_contract.py api/tests/test_managed_composition.py api/tests/test_managed_wire_parity.py api/tests/test_composition_native_parity.py api/tests/test_native_task_owner.py api/tests/test_contract_method_checks.py -q --tb=line",
+      "exit": 1,
+      "result": "308 passed,2 failed,5 errors,18.06s; two added positives refused at unchanged aggregate cap. Five existing PG parametrizations lacked OMNIS_TEST_DATABASE_URL; no provisioning/launch occurred. Capture negative was initially scoped after source.build, which itself validates stage and raised earlier. Candidate tests are unfinished, NOT GREEN.",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-source-regressions.log"
+    },
+    {
+      "name": "Candidate parser",
+      "command": "ast.parse exact owned candidate bytes (snapshot.json)",
+      "exit": 0,
+      "result": "11 files parse; zero parser errors"
+    },
+    {
+      "name": "Candidate Ruff",
+      "command": "api/.venv/bin/ruff check --config api/pyproject.toml api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/method_checks.py api/src/omnis/modules/tasks/method_checker_identity.py api/tests/test_contract_method_producer.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/src/omnis_hermes/managed_admission_contract.py integrations/hermes/src/omnis_hermes/contract_method.py",
+      "exit": 1,
+      "result": "3 errors: duplicate/unformatted FINITE1 import and unused rows",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-source/candidate-ruff.log"
+    },
+    {
+      "name": "Candidate mypy diagnostic",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/finite2-source/mypy-cache /home/kali/.hermes/cache/scratch/finite2-source/candidate/api/src/omnis/modules/runs/managed_admission.py /home/kali/.hermes/cache/scratch/finite2-source/candidate/api/src/omnis/modules/tasks/managed_contract.py /home/kali/.hermes/cache/scratch/finite2-source/candidate/api/src/omnis/modules/tasks/managed_composition.py /home/kali/.hermes/cache/scratch/finite2-source/candidate/api/src/omnis/modules/tasks/method_checks.py /home/kali/.hermes/cache/scratch/finite2-source/candidate/api/src/omnis/modules/tasks/method_checker_identity.py",
+      "exit": 1,
+      "result": "3 errors; mixed import-tree invocation ran in parallel with restoration, so two import identity/attribute errors are verifier-boundary artifacts, NOT a valid coherent-snapshot type gate. A local pool/item assignment type error was also reported. NO mypy PASS.",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-source/candidate-mypy.log"
+    },
+    {
+      "name": "Diff whitespace",
+      "command": "git diff --check",
+      "exit": 0,
+      "result": "Candidate whitespace clean before rollback"
+    },
+    {
+      "name": "Owned rollback",
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/finite2-source/candidate.diff && git apply --reverse /home/kali/.hermes/cache/scratch/finite2-source/candidate.diff",
+      "exit": 0,
+      "result": "All 11 owned paths exact base SHA readback; parent docs/skill changes preserved",
+      "evidence": "/home/kali/.hermes/cache/scratch/finite2-source/rollback-verification.json"
+    },
+    {
+      "name": "Restored original SOURCE controls",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_managed_requests.py api/tests/test_managed_contract.py api/tests/test_managed_composition.py api/tests/test_managed_wire_parity.py api/tests/test_composition_native_parity.py api/tests/test_native_task_owner.py api/tests/test_contract_method_checks.py -k 'not test_pg_qualified_goal_prepare_before_reservation' -q --tb=line",
+      "exit": 0,
+      "result": "308 passed,5 deselected,17.66s. BASE regression only, NOT finite2 GREEN.",
+      "log": "/home/kali/.hermes/cache/scratch/finite2-source/restored-source-controls.log"
+    },
+    {
+      "name": "Managed patch reseal/reapply",
+      "status": "NOT_RUN",
+      "reason": "No integrable SOURCE positive; candidate executable source unsealed and reverted. Managed/inert patches and pin files were not edited."
+    },
+    {
+      "name": "Native/PG/Docker/installed consumer",
+      "status": "NOT_RUN",
+      "reason": "Explicit review/authorization boundary; no actual AIAgent, NativePeer, runtime, PG or Docker launch."
+    }
+  ],
+  "rollback": {
+    "all_owned_files_restored": true,
+    "owned_count": 11,
+    "product_worktree_changes": 0,
+    "remaining_untracked": "Only preexisting protected documents/Omnis_Notite_Originale.html; not read, hashed or edited."
+  },
+  "remaining_real_consumer_need": "After bounded-positive design, source RED/GREEN, coherent quality gates, minimal overlay reseal/parser/exact reapply inventory and two complementary exact-snapshot reviews: parent separately admits affected existing PG/native consumer on fresh qualification. Prove one RUN/task_count2, identical goals/two actual identities, both BOUND COMMIT-visible pre-first read/PURE, real handler thread overlap, indexed wrong-sibling/ref/attempt/session/root/observer denials, homogeneous ordered whole final, two existing result/check/inbox chains once, receive-only singleton/cold/history controls, immutable deadlines and actual owned family settlement. API PG test was untouched.",
+  "limits": [
+    "No finite2 implementation accepted or left in product.",
+    "B03 candidate concurrency and cleanup are unexercised and incomplete; preserving source does not approve them.",
+    "No clean-diff/review/phase-complete/source==native claim.",
+    "No report/docs or skills modified by child; parent owns status integration."
+  ]
+}

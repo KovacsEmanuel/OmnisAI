@@ -1,0 +1,354 @@
+{
+  "scope": "SOURCE measurement only, candidate not applied or accepted; final size denial omitted only in cloned function",
+  "clone": "/home/kali/.hermes/cache/scratch/finite2-source/material-measure-eqq0bh9r",
+  "total_bytes": 41495,
+  "graph_canonical_bytes": 56613,
+  "graph_records": [
+    {
+      "kind": "action_definition",
+      "bytes": 310
+    },
+    {
+      "kind": "action_definition",
+      "bytes": 317
+    },
+    {
+      "kind": "action_definition",
+      "bytes": 306
+    },
+    {
+      "kind": "probe-policy",
+      "bytes": 277
+    },
+    {
+      "kind": "probe-scope",
+      "bytes": 290
+    },
+    {
+      "kind": "focus-selection-rule",
+      "bytes": 248
+    },
+    {
+      "kind": "mission",
+      "bytes": 1146
+    },
+    {
+      "kind": "focus",
+      "bytes": 1142
+    },
+    {
+      "kind": "method-checker",
+      "bytes": 405
+    },
+    {
+      "kind": "prompt-content",
+      "bytes": 328
+    },
+    {
+      "kind": "prompt-content",
+      "bytes": 274
+    },
+    {
+      "kind": "prompt-bundle",
+      "bytes": 1582
+    },
+    {
+      "kind": "managed-run",
+      "bytes": 1902
+    },
+    {
+      "kind": "managed-cursor",
+      "bytes": 578
+    },
+    {
+      "kind": "contract-input-context",
+      "bytes": 1459
+    },
+    {
+      "kind": "contract-case-records",
+      "bytes": 854
+    },
+    {
+      "kind": "bound-procedure",
+      "bytes": 5102
+    },
+    {
+      "kind": "schema",
+      "bytes": 4134
+    },
+    {
+      "kind": "task-brief",
+      "bytes": 6072
+    },
+    {
+      "kind": "prompt-composition",
+      "bytes": 6510
+    },
+    {
+      "kind": "bound-procedure",
+      "bytes": 5102
+    },
+    {
+      "kind": "schema",
+      "bytes": 4134
+    },
+    {
+      "kind": "task-brief",
+      "bytes": 6072
+    },
+    {
+      "kind": "prompt-composition",
+      "bytes": 6510
+    },
+    {
+      "kind": "launch-manifest",
+      "bytes": 1533
+    }
+  ],
+  "top_fields": {
+    "protocol": 28,
+    "manifest": 1533,
+    "compositions": 13023,
+    "record_pool": 26855
+  },
+  "compositions": [
+    {
+      "total": 6510,
+      "payload_fields": {
+        "byte_count": 5,
+        "format": 16,
+        "preparation_receipt_ref": 170,
+        "prompt_bundle_ref": 157,
+        "sections": 5778,
+        "text_digest": 66,
+        "token_upper_bound": 5
+      },
+      "sections": [
+        {
+          "section": "base",
+          "bytes": 190
+        },
+        {
+          "section": "role",
+          "bytes": 190
+        },
+        {
+          "section": "brief",
+          "bytes": 187
+        },
+        {
+          "section": "method",
+          "bytes": 193
+        },
+        {
+          "section": "case-input",
+          "bytes": 1818
+        },
+        {
+          "section": "skill",
+          "bytes": 3193
+        }
+      ]
+    },
+    {
+      "total": 6510,
+      "payload_fields": {
+        "byte_count": 5,
+        "format": 16,
+        "preparation_receipt_ref": 170,
+        "prompt_bundle_ref": 157,
+        "sections": 5778,
+        "text_digest": 66,
+        "token_upper_bound": 5
+      },
+      "sections": [
+        {
+          "section": "base",
+          "bytes": 190
+        },
+        {
+          "section": "role",
+          "bytes": 190
+        },
+        {
+          "section": "brief",
+          "bytes": 187
+        },
+        {
+          "section": "method",
+          "bytes": 193
+        },
+        {
+          "section": "case-input",
+          "bytes": 1818
+        },
+        {
+          "section": "skill",
+          "bytes": 3193
+        }
+      ]
+    }
+  ],
+  "common_section_positions": [
+    0,
+    1,
+    4,
+    5
+  ],
+  "common_section_bytes": 5391,
+  "pool": [
+    {
+      "kind": "prompt-bundle",
+      "bytes": 1582,
+      "payload_fields": {
+        "base_ref": 158,
+        "brief_schema": 1,
+        "composer_revision": 66,
+        "max_context_bytes": 5,
+        "max_context_tokens": 5,
+        "package_refs": 153,
+        "provenance": 614,
+        "result_schema": 1,
+        "role_refs": 191,
+        "tokenizer_revision": 26
+      }
+    },
+    {
+      "kind": "prompt-content",
+      "bytes": 328,
+      "payload_fields": {
+        "text": 131
+      }
+    },
+    {
+      "kind": "prompt-content",
+      "bytes": 274,
+      "payload_fields": {
+        "role": 7,
+        "text": 62
+      }
+    },
+    {
+      "kind": "task-brief",
+      "bytes": 6072,
+      "payload_fields": {
+        "allowed_capability_ids": 2,
+        "assessment_mode": 17,
+        "context": 854,
+        "contradiction_refs": 2,
+        "criterion_bindings": 2,
+        "deadline": 29,
+        "done_when": 439,
+        "execution_selection_ref": 163,
+        "header": 920,
+        "hypothesis": 60,
+        "identities": 2,
+        "input_artifact_refs": 167,
+        "limits": 97,
+        "method_plan": 930,
+        "non_goals": 60,
+        "objective_summary": 44,
+        "operation_refs": 2,
+        "overlay_refs": 2,
+        "package_refs": 153,
+        "prior_attempt_refs": 2,
+        "priority_reason": 98,
+        "procedure_bindings": 570,
+        "procedure_refs": 155,
+        "prompt_bundle_ref": 157,
+        "required_evidence": 2,
+        "return_when": 220,
+        "review_request": 4,
+        "role": 7,
+        "stop_conditions": 2,
+        "technique_refs": 155,
+        "validation_reserve": 25
+      }
+    },
+    {
+      "kind": "bound-procedure",
+      "bytes": 5102,
+      "payload_fields": {
+        "mission_ref": 151,
+        "procedure_ref": 153,
+        "resolved_procedure": 4339,
+        "slot_values": 200
+      }
+    },
+    {
+      "kind": "contract-input-context",
+      "bytes": 1459,
+      "payload_fields": {
+        "basis_ref": 155,
+        "focus_ref": 149,
+        "mission_ref": 151,
+        "namespace": 5,
+        "owner_id": 38,
+        "procedure_ref": 153,
+        "schema_ref": 150,
+        "selection_ref": 163,
+        "snapshot_ref": 156,
+        "version": 1
+      }
+    },
+    {
+      "kind": "contract-case-records",
+      "bytes": 854,
+      "payload_fields": {
+        "context_ref": 166,
+        "owner_id": 38,
+        "provenance": 165,
+        "schema_ref": 150,
+        "value": 63,
+        "version": 1
+      }
+    },
+    {
+      "kind": "task-brief",
+      "bytes": 6072,
+      "payload_fields": {
+        "allowed_capability_ids": 2,
+        "assessment_mode": 17,
+        "context": 854,
+        "contradiction_refs": 2,
+        "criterion_bindings": 2,
+        "deadline": 29,
+        "done_when": 439,
+        "execution_selection_ref": 163,
+        "header": 920,
+        "hypothesis": 60,
+        "identities": 2,
+        "input_artifact_refs": 167,
+        "limits": 97,
+        "method_plan": 930,
+        "non_goals": 60,
+        "objective_summary": 44,
+        "operation_refs": 2,
+        "overlay_refs": 2,
+        "package_refs": 153,
+        "prior_attempt_refs": 2,
+        "priority_reason": 98,
+        "procedure_bindings": 570,
+        "procedure_refs": 155,
+        "prompt_bundle_ref": 157,
+        "required_evidence": 2,
+        "return_when": 220,
+        "review_request": 4,
+        "role": 7,
+        "stop_conditions": 2,
+        "technique_refs": 155,
+        "validation_reserve": 25
+      }
+    },
+    {
+      "kind": "bound-procedure",
+      "bytes": 5102,
+      "payload_fields": {
+        "mission_ref": 151,
+        "procedure_ref": 153,
+        "resolved_procedure": 4339,
+        "slot_values": 200
+      }
+    }
+  ]
+}

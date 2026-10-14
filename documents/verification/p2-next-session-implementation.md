@@ -54,9 +54,11 @@ Toate căile de mai jos sunt relative la `documents/verification/p2-bound-predic
 
 ## 3. Blocaj activ și delimitarea istoricului
 
-### Activ: finite2 B01–B03; release/restart H03 acceptat scoped
+### Activ: finite2 B01–B03 BLOCKED_CAPACITY; H03 acceptat scoped
 
 H03 este adjudecat la scope-ul CURRENT: instalarea closure-ului lipsă, retirementul IPC deja drenat înaintea readerilor offline și identitatea boot/PID/starttime au controale exacte și probe reale pozitive/negative. Inode-ul namespace poate fi reciclat după retirement; confinarea privată și comparația Host/native în același boot rămân obligatorii. Nu extinde observerii sau modifica deadline/grant pentru cauzele istorice UNKNOWN. Următoarea operație este requestul existent `prepare-method` cu `task_count=2`, un singur RUN/manifest, două assignments și binding integral comis, constructor-owned batch_index, read/PURE concurente și două lanțuri result/check/inbox. §6/B01–B03 fixează limita; nu două RUN-uri, parser/resolver general ori framework nou.
+
+**Blocaj SOURCE demonstrat, înainte de efecte:** [tentativa finită și restaurarea](p2-bound-predicates-evidence/finite2-source-blocked.json), [măsurarea independentă a materialului](p2-bound-predicates-evidence/finite2-source-material-breakdown.json). Uniunea exactă de9records a metodei records complete produce stage **41495bytes**, peste cap32768; graph56613bytes înainte de preparation_bytes. Compozițiile au13023bytes, pool26855 și manifest1533. Secțiunile comune însumează5391bytes: simpla lor deduplicare nu acoperă diferența8727. Candidatul incomplet este păstrat numai în scratch, UNREVIEWED/UNSEALED; toate cele11fișiere au fost restaurate și SHA verificate de părinte. Cele308SOURCE PASS pe baza restaurată **nu sunt finite2 GREEN**. Nicio lansare native/PG/Docker sau reseal. Prima decizie rămasă este fezabilitatea unei reprezentări lossless bounded pentru ACEEAȘI metodă și graph+preparation<=65536, înainte de reluarea implementării. Fără cap mai mare, truncare, eliminarea obligațiilor ori demo mai mic substituit; dacă soluția cere codec/format general nou sau extindere substanțială, cere decizia operatorului în loc de autoaprobare. Nu aplica diff-ul abandonat ca implementare.
 
 ### Istoric păstrat: pre-READY — închis scoped, nu sarcină de reluat
 

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_REAL_H03_BEFORE_DURABLE_FINAL",
+  "consumer_commit": "e457790",
+  "consumer_sha256": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+  "process_session": "proc_3e88baf2afdf",
+  "selected_case": "runtime-restart",
+  "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-h03-pg-selection.py --case runtime-restart --review-adjudicated",
+  "summary": "1 failed / 1 error / 22.48s / exit1",
+  "outer_family_receipt": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "proof_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-453/test_contract_method_real_nati0/method-history-proof.json",
+  "proof_sha256": "f59cca5e2e03e49de7e4cd9e3488f3e7feb717dc3c0631523f7b2b28baf4a948",
+  "public_control_actions": [
+    {
+      "action": "stage",
+      "phase": "ACTIVE",
+      "task_status": "BOUND"
+    }
+  ],
+  "observed_actual_processes": [
+    {
+      "boot": "ae67df04-f0e4-4d29-a8b8-e3f4c28f7b8d",
+      "host": [
+        65213,
+        1436688,
+        4026533201
+      ],
+      "native": [
+        65395,
+        1436946,
+        4026533201
+      ]
+    }
+  ],
+  "primary_public_denial": "TASK_INDETERMINATE",
+  "finalizer_denial": "H03_CLEANUP_NOT_SETTLED",
+  "db_fence": "RETAINED_NOT_OVERRIDDEN",
+  "cause": "UNKNOWN_PRIMARY_RELEASE_FAILURE_UNDER_INVESTIGATION",
+  "concrete_secondary_oracle_defect": "Docker absent formatted inspect returns exactoneLF stdout, not empty; empty-only cleanup oracle must be corrected independently without crediting primary success.",
+  "raw_diagnostics": "Retained private gate.log/state, never copied into Git; original container logs not captured before rm.",
+  "limits": [
+    "ActualHost/nativeREADY andstageBOUND observed",
+    "No durablefinal or replacementboot observed",
+    "No-final negative NOT_RUN",
+    "Stocksupervisor recovery not tested",
+    "P2/B06b/G02/canonical/P4a not closed",
+    "Do not retryidentically or widen product grant/deadline; narrowedcause decision pending"
+  ]
+}

@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_IMPLEMENTED_UNCOMMITTED_PENDING_INDEPENDENT_REVIEWS_AND_QA",
+  "evidence_boundary": "SOURCE, nu acceptare, integrare sau dovadă PG/native instalat",
+  "workspace": "/home/kali/OmnisAI",
+  "base_commit": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "snapshot": {
+    "files": [
+      {
+        "base_sha256": "d5b371e9f7de8e37f7fd3151ee35be938d55a9b0fde2bbd9c37cc3b52766502e",
+        "changed": true,
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "2522f0226d9a5561a93d006003df24d886df7bbed8263939468e50aa74fe1c27",
+        "size_bytes": 28488
+      },
+      {
+        "base_sha256": "8409d0696e2cf5465cd3581bd9b8fd8c1396f2b1881b06584542db7e0c9edfba",
+        "changed": true,
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "2060fc1b836b6dfab68e50ca6b67422670c48a5a55bde98e28aec62e8ab1547a",
+        "size_bytes": 62069
+      },
+      {
+        "base_sha256": null,
+        "changed": true,
+        "path": "api/src/omnis/modules/tasks/result_qualification.py",
+        "sha256": "0e02e1056e1fda7dc043ca2509aaaa887c7d35a9ced9d7f722f8da816bc3cb57",
+        "size_bytes": 15809
+      },
+      {
+        "base_sha256": null,
+        "changed": true,
+        "path": "api/tests/test_result_qualification.py",
+        "sha256": "648d4674886233b4692e63d03015acfd9e4160de9d87f5ac9b0bb794dbe16cc5",
+        "size_bytes": 24031
+      },
+      {
+        "base_sha256": "4a116f7afbe8da22df7f59919bc694edeb59d6ae4b0c150157f7484c420b79ed",
+        "changed": true,
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "21353a5c6dc8f85b9cd88b3c2746a4e290dffa395eaa58eea94a289d615cfed7",
+        "size_bytes": 143873
+      },
+      {
+        "base_sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e",
+        "changed": false,
+        "path": "api/src/omnis/modules/coverage/denominator.py",
+        "sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e",
+        "size_bytes": 13553
+      },
+      {
+        "base_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "changed": false,
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "size_bytes": 8547
+      },
+      {
+        "base_sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "changed": false,
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "size_bytes": 79324
+      },
+      {
+        "base_sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "changed": false,
+        "path": "api/src/omnis/modules/tasks/method_checks.py",
+        "sha256": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+        "size_bytes": 29737
+      },
+      {
+        "base_sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "changed": false,
+        "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "size_bytes": 8063
+      },
+      {
+        "base_sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+        "changed": false,
+        "path": "api/src/omnis/modules/settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+        "size_bytes": 8758
+      },
+      {
+        "base_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "changed": false,
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+        "size_bytes": 30040
+      },
+      {
+        "base_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "changed": false,
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "size_bytes": 1453
+      }
+    ],
+    "head": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "snapshot_sha256": "facc6e76047619457e02be793d095f49c59f58af95010aa2ef26d8d892faeac4",
+    "status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "tracked_diff_sha256": "3b044e0c438bf18aedcd66bc353a97eb6f4d4a2d4519d809846657fc3a258a80",
+    "versions": {
+      "SQLAlchemy": "2.0.54",
+      "mypy": "2.3.1",
+      "psycopg": "3.3.6",
+      "pytest": "9.1.1",
+      "pytest-asyncio": "1.4.0",
+      "ruff": "0.16.9"
+    }
+  },
+  "contract": {
+    "requirement": "Arhitectură §6.3 / plan §7.1: calificare separată de istoricul M1 și admiterea lucrului nou.",
+    "product_consumer": "ContractInputs CLI create-qualification / read-qualification; ManagedAdmission._verify_graph este readerul semantic comun, inclusiv readback records.",
+    "observable_result": "Manifest backend semantic + ResultQualification append-only + receipt create/read/replay prin managed owner și managed_record existente.",
+    "input_fields": [
+      "schema_version=1",
+      "owner_id",
+      "command_id",
+      "context_ref",
+      "result_ref",
+      "assignment_ref",
+      "mission_ref",
+      "denominator_ref"
+    ],
+    "mandatory_qualification_fields": [
+      "result_ref",
+      "assignment_ref",
+      "evaluated_against_mission_ref",
+      "denominator_revision",
+      "precondition_state_refs",
+      "evidence_manifest_ref",
+      "decision",
+      "reason_codes"
+    ],
+    "additional_bound_fields": [
+      "version",
+      "namespace",
+      "owner_id",
+      "run_ref",
+      "context_ref",
+      "denominator_ref",
+      "provenance"
+    ],
+    "decision": "REVALIDATION_REQUIRED",
+    "reason_codes": [
+      "COMPATIBILITY_PROOF_UNAVAILABLE",
+      "CURRENT_PRECONDITION_PROOF_UNAVAILABLE"
+    ],
+    "precondition_state_refs": [],
+    "denominator": "Revizia consumată din coverage-denominator produs/persistat independent, demonstrată SOURCE ca 1 sub misiune revision2.",
+    "no_effects": [
+      "Fără wake/replan/dispatch/model/target effects.",
+      "Rezultatul, assignmentul, MethodCheck, outcomes, usage și istoricul nu se rescriu.",
+      "Fără alt owner, tabel/migrare, runtime grant, pin/composer/compiler identity sau framework."
+    ],
+    "new_command_semantics": "Un command_id distinct produce propria calificare append-only și manifest cu proveniență proprie; numai replayul exact al aceluiași command_id este deduplicat. Nu se revendică semantic dedup între comenzi diferite.",
+    "rollback": "Cele două envelopes și receiptul se scriu în aceeași tranzacție owner-locked. SOURCE rollback double verificat; atomicitatea PG reală este numai pregătită, NOT_RUN."
+  },
+  "producer_trace": [
+    {
+      "producer": "omnis.supervisor.native_tasks.NativeTaskOwner._handle",
+      "file": "api/src/omnis/supervisor/native_tasks.py",
+      "output": "Final primit pe owner/runtime/binding existente; ManagedAdmission.ingest_result autentifică boot/authority, mapping manifest/binding/final și persistă o singură dată receiptul/emitted records."
+    },
+    {
+      "producer": "ManagedAdmission.ingest_result / _result_check / _verify_graph",
+      "file": "api/src/omnis/modules/runs/managed_admission.py",
+      "output": "TaskResult + contract-tool-receipt + contract-artifact păstrate exact; headers, assignment, schema TaskResult, receipts/schemele disponibile și MethodCheck/outcomes revalidate determinist fără handler/evaluator."
+    },
+    {
+      "producer": "mission_revisions.append + managed_store",
+      "file": "api/src/omnis/modules/tasks/mission_revisions.py",
+      "output": "M1/M2 immutable, exact Ref/revision, UUID mission stabil; consumerul M2 existent nu a fost reimplementat."
+    },
+    {
+      "producer": "coverage.denominator.derive / ContractInputs.create_denominator",
+      "file": "api/src/omnis/modules/coverage/denominator.py",
+      "output": "coverage-denominator cu revizie proprie. Readerul existent manifest.procedures/Procedure.key și namespace public este reutilizat, nu schimbat."
+    },
+    {
+      "producer": "result_qualification.derive",
+      "file": "api/src/omnis/modules/tasks/result_qualification.py",
+      "output": "Manifest derivat din finalul validat, emitted records păstrate identic, binding/check/bound/input refs și digest semantic al fiecărei valori artifact; ancorat în public.managed_run final/manifest/binding IDs și public.managed_task result/check IDs."
+    },
+    {
+      "producer": "ContractInputs.create_qualification / managed_store.put / command_complete",
+      "file": "api/src/omnis/modules/runs/contract_inputs.py",
+      "output": "result-evidence-manifest + result-qualification + contract-input-command în aceeași tranzacție; read/replay rederivează semantic și revalidează proveniența/receipt/request_digest."
+    }
+  ],
+  "decisions": [
+    "TaskBrief este assignment_ref autentic existent; nu s-a introdus alt assignment producer.",
+    "MethodCheck COMPLETE și relația M1→M2 aditivă sunt dovezi istorice limitate, nu oracle/freshness și nu acordă ELIGIBLE.",
+    "Manifestul semantic nu este alias pentru native-task-receipt: conține final/binding/check/bound/input/receipt refs, toate output artifact refs + schema_ref + value_digest și evidence_refs autentice.",
+    "Scope/namespace/owner și fiecare Ref local exact sunt validate înainte de lookup extern la seamul ManagedAdmission; SET LOCAL search_path fixează pg_catalog,public,pg_temp atât la comandă cât și la reader.",
+    "Compatibilitatea/freshness externă nu are producer autentic în felia disponibilă: precondition_state_refs=[] și reason_codes UNAVAILABLE explicite. Nu s-a fabricat invalidare, auth epoch curent sau current-state ref.",
+    "Invalidarea demonstrată nu este echivalată cu unavailable. Această felie nu implementează producer/event extern de invalidare ori INELIGIBLE; guards istorice existente rămân neschimbate.",
+    "Nu există modificare a closure-urilor checker/compiler/native; fișierele closure relevante rămân byte-identice la bază.",
+    "test_contract_inputs.py nu exista la discovery; testul SOURCE nou este test_result_qualification.py, fără crearea unui harness paralel."
+  ],
+  "tdd": {
+    "cycles": [
+      {
+        "red": "red1-fixture-qualified",
+        "failure": "CLI create-qualification lipsește: exit2 INVALID_ARGUMENTS, assertion code==0 eșuat. Observat înainte de orice cod de produs pentru qualification.",
+        "green": "green1-attempt",
+        "result": "1 passed / exit0"
+      },
+      {
+        "red": "red2-owner-order",
+        "failure": "Foreign qualification ajungea la lookup extern înainte de guardul owner: FOREIGN_QUALIFICATION_LOOKUP.",
+        "green": "green2-owner-order",
+        "result": "23 passed / exit0; validate_scope mutat înainte de lookup."
+      },
+      {
+        "red": "red3-exact-ref-order",
+        "failure": "Run Ref cu digest fals ajungea la lookup extern înainte de refuz exact: FOREIGN_QUALIFICATION_LOOKUP.",
+        "green": "source-final",
+        "result": "54 passed / exit0 pe ultima editare; exact local Ref validation înainte de lookup."
+      }
+    ],
+    "inherited_controls": "Refuzurile owner/ref/type/schema/digest/replay/tamper/rollback sunt exercitate pe același CLI; unele guards provin din contract/storage deja existente și au trecut de la primul lor test. Nu se pretinde RED nou individual pentru fiecare guard moștenit.",
+    "failed_attempts_preserved": [
+      "red1",
+      "red1-fixture-fixed",
+      "green3-exact-ref-order",
+      "ruff-initial",
+      "mypy-initial",
+      "quality-mypy",
+      "quality-mypy-repair"
+    ],
+    "attempt_dispositions": [
+      "Primele două tentative RED au eșuat în fixture (selection/preparation diferite, apoi local schema bindings lipsă), nu sunt creditate ca RED de produs. Fixture-ul a fost corectat să folosească aceeași sursă și bindings din compilerul real înainte de RED valid.",
+      "Prima remediere a ref order a refuzat înainte de lookup, dar cu REF_UNAVAILABLE în loc de REF_MISMATCH pentru ID prezent/digest fals; oracle-ul exact nu a fost slăbit, guardul a fost corectat.",
+      "Ruff import order/unused imports și mypy static imports agent/AsyncConnection/names reused în consumer PG au fost corectate; checks finale au exit0."
+    ]
+  },
+  "verification": {
+    "source": {
+      "status": "PASS_SOURCE_SCOPED",
+      "count": 54,
+      "command_label": "source-final",
+      "output": "54 passed in 28.68s",
+      "exit_code": 0,
+      "includes": [
+        "api/tests/test_result_qualification.py",
+        "api/tests/test_c03_managed_capture.py"
+      ]
+    },
+    "source_double_limits": [
+      "Storage/transactions, external catalog ownership/retained preparation and selected schema lookup seams sunt SOURCE doubles.",
+      "Fixture-ul produce graph/assignments reale și rulează in-process run_contract/BoundContractTools pe stateholders sintetici; nu există Host/process/transport auth real și nu este native integration.",
+      "Fixture preparation poate compila și rula PURE sintetic. În intervalul create/read/replay calificare, build/compiler/evaluator/handler spies refuză orice execuție; zero attempts în pozitiv."
+    ],
+    "quality": {
+      "ruff": "PASS exit0, 0.16.9 pinned",
+      "format": "PASS exit0, 5 files already formatted",
+      "mypy": "PASS exit0, strict pinned 2.3.1, 5 source files",
+      "diff_check": "PASS exit0"
+    },
+    "protected_path": "documents/Omnis_Notite_Originale.html preexistent, protejat: necitit, needitat, neșters și nestage-uit. Inventarul Git este singura observație, nu se pretinde hash de conținut.",
+    "not_run": [
+      "PG/native launch",
+      "browser",
+      "full canonical gate",
+      "independent reviews",
+      "installed history/runtime restart",
+      "provider/model/target traffic"
+    ],
+    "commands": [
+      {
+        "label": "red1",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_cli_qualification_create_read_replay_keeps_history_no_execution _____\napi/tests/test_result_qualification.py:179: in test_cli_qualification_create_read_replay_keeps_history_no_execution\n    conn, request = source_fixture(monkeypatch)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/tests/test_result_qualification.py:88: in source_fixture\n    graph = source.build(prefix=prefix, case_input=section, method_execution=True)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/managed_admission.py:128: in build\n    return contract.build_records(\napi/src/omnis/modules/tasks/managed_contract.py:807: in build_records\n    raise CatalogError(\"REF_MISMATCH\")\nE   omnis.modules.settings.catalog_models.CatalogError: REF_MISMATCH\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution\n1 failed in 2.38s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "red1-fixture-fixed",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_cli_qualification_create_read_replay_keeps_history_no_execution _____\napi/tests/test_result_qualification.py:191: in test_cli_qualification_create_read_replay_keeps_history_no_execution\n    conn, request = source_fixture(monkeypatch)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/tests/test_result_qualification.py:100: in source_fixture\n    graph = source.build(prefix=prefix, case_input=section, method_execution=True)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/managed_admission.py:128: in build\n    return contract.build_records(\napi/src/omnis/modules/tasks/managed_contract.py:885: in build_records\n    resolved = mapping(resolve_local(authored, package, local_bindings))\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/tasks/managed_contract.py:518: in resolve_local\n    return {k: resolve_local(v, package, bindings) for k, v in value.items()}\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/tasks/managed_contract.py:514: in resolve_local\n    raise CatalogError(\"UNRESOLVED_PROCEDURE_REF\")\nE   omnis.modules.settings.catalog_models.CatalogError: UNRESOLVED_PROCEDURE_REF\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution\n1 failed in 3.20s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "red1-fixture-qualified",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_cli_qualification_create_read_replay_keeps_history_no_execution _____\napi/tests/test_result_qualification.py:221: in test_cli_qualification_create_read_replay_keeps_history_no_execution\n    created = cli(\"create-qualification\", request, path, capsys)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/tests/test_result_qualification.py:201: in cli\n    assert code == 0, output.err\nE   AssertionError: {\"reason\":\"INVALID_ARGUMENTS\",\"status\":\"BLOCKED\"}\nE     \nE   assert 2 == 0\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution\n1 failed in 3.82s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "green1-attempt",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": ".                                                                        [100%]\n1 passed in 3.65s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "red2-owner-order",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": ".....................F.                                                  [100%]\n=================================== FAILURES ===================================\n_______ test_qualification_foreign_owner_refuses_before_external_lookup ________\napi/tests/test_result_qualification.py:395: in test_qualification_foreign_owner_refuses_before_external_lookup\n    cli(\"read-qualification\", {k: request[k] for k in (\"schema_version\", \"owner_id\", \"command_id\")}, path, capsys, \"REF_UNAVAILABLE\")\napi/tests/test_result_qualification.py:198: in cli\n    code = contract_inputs.main([operation, \"--request\", str(path)])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:585: in main\n    print(canonical(asyncio.run(run())).decode())\n                    ^^^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/runners.py:196: in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/runners.py:119: in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/base_events.py:726: in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:581: in run\n    return await service.read(args.operation, value)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:515: in read\n    await ManagedAdmission(self.engine, self.root)._verify_graph(\napi/src/omnis/modules/runs/managed_admission.py:1047: in _verify_graph\n    await catalog.get(conn, owner, reference)\napi/tests/test_result_qualification.py:392: in forbidden\n    raise AssertionError(\"FOREIGN_QUALIFICATION_LOOKUP\")\nE   AssertionError: FOREIGN_QUALIFICATION_LOOKUP\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup\n1 failed, 22 passed in 26.97s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "green2-owner-order",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": ".......................                                                  [100%]\n23 passed in 24.25s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "ruff-initial",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "I001 [*] Import block is un-sorted or un-formatted\n  --> api/tests/test_result_qualification.py:3:1\n   |\n 1 |   \"\"\"SOURCE CLI/storage doubles; real graph/receipt producers, not native/PG authority.\"\"\"\n 2 |\n 3 | / import asyncio\n 4 | | import json\n 5 | | import sys\n 6 | | from copy import deepcopy\n 7 | | from hashlib import sha256\n 8 | | from pathlib import Path\n 9 | | from types import SimpleNamespace, TracebackType\n10 | | from typing import cast\n11 | | from uuid import uuid4\n12 | |\n13 | | import pytest\n14 | | from sqlalchemy.ext.asyncio import AsyncEngine\n15 | |\n16 | | from omnis.modules.coverage import denominator\n17 | | from omnis.modules.runs import contract_inputs\n18 | | from omnis.modules.runs.managed_admission import BuildSource, ManagedAdmission\n19 | | from omnis.modules.settings import candidate_store as records\n20 | | from omnis.modules.settings.catalog_models import Manifest, Procedure\n21 | | from omnis.modules.settings.catalog_schema import canonical, dto, load_json\n22 | | from omnis.modules.tasks import managed_composition\n23 | | from omnis.modules.tasks import managed_contract as contract\n24 | | from omnis.modules.tasks.contract_case_input import material_section\n25 | | from test_c03_managed_capture import capture_source\n26 | | from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n27 | | from test_mission_revisions import Result\n   | |_________________________________________^\n28 |\n29 |   Data = dict[str, object]\n   |\nhelp: Organize imports\n   |\n25 | from test_c03_managed_capture import capture_source\n   - from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n26 + from test_contract_denominator import DenominatorSQLDouble\n27 + from test_contract_denominator import fixture as denominator_fixture\n28 | from test_mission_revisions import Result\n   |\n\nF401 [*] `test_c03_managed_capture.capture_source` imported but unused\n  --> api/tests/test_result_qualification.py:25:38\n   |\n23 | from omnis.modules.tasks import managed_contract as contract\n24 | from omnis.modules.tasks.contract_case_input import material_section\n25 | from test_c03_managed_capture import capture_source\n   |                                      ^^^^^^^^^^^^^^\n26 | from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n27 | from test_mission_revisions import Result\n   |\nhelp: Remove unused import: `test_c03_managed_capture.capture_source`\n   |\n24 | from omnis.modules.tasks.contract_case_input import material_section\n   - from test_c03_managed_capture import capture_source\n25 | from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n   |\n\nF401 [*] `test_contract_denominator.fixture` imported but unused\n  --> api/tests/test_result_qualification.py:26:72\n   |\n24 | from omnis.modules.tasks.contract_case_input import material_section\n25 | from test_c03_managed_capture import capture_source\n26 | from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n   |                                                                        ^^^^^^^^^^^^^^^^^^^\n27 | from test_mission_revisions import Result\n   |\nhelp: Remove unused import: `test_contract_denominator.fixture`\n   |\n25 | from test_c03_managed_capture import capture_source\n   - from test_contract_denominator import DenominatorSQLDouble, fixture as denominator_fixture\n26 + from test_contract_denominator import DenominatorSQLDouble\n27 | from test_mission_revisions import Result\n   |\n\nI001 [*] Import block is un-sorted or un-formatted\n  --> api/tests/test_result_qualification.py:62:5\n   |\n60 |   def source_fixture(monkeypatch: pytest.MonkeyPatch) -> tuple[QualificationSQLDouble, Data]:\n61 |       \"\"\"No Host/process/DB. Real assignment, run_contract and checker on synthetic state.\"\"\"\n62 | /     from fixtures.c03_records import PATHS, ROOT as SEED_ROOT\n63 | |     from omnis.modules.tasks import mission_revisions\n   | |_____________________________________________________^\n64 |\n65 |       template = SEED_ROOT / \"skills/records-mapping-contract\"\n   |\nhelp: Organize imports\n   |\n61 |     \"\"\"No Host/process/DB. Real assignment, run_contract and checker on synthetic state.\"\"\"\n   -     from fixtures.c03_records import PATHS, ROOT as SEED_ROOT\n62 +     from fixtures.c03_records import PATHS\n63 +     from fixtures.c03_records import ROOT as SEED_ROOT\n64 |     from omnis.modules.tasks import mission_revisions\n   |\n\nI001 [*] Import block is un-sorted or un-formatted\n  --> api/tests/test_result_qualification.py:67:5\n   |\n65 |       template = SEED_ROOT / \"skills/records-mapping-contract\"\n66 |       procedure = dto((template / \"templates/procedures/map-records.yaml\").read_bytes(), Procedure)\n67 | /     from tempfile import TemporaryDirectory\n68 | |     from fixtures.c03_records import records_seed\n69 | |     from omnis.modules.settings.skill_catalog import compile_catalog\n70 | |     from omnis.modules.settings.candidate_material import capture\n71 | |     from omnis.modules.runs.native_preparation_models import prepare_packages\n72 | |     from test_managed_contract import ref\n   | |_________________________________________^\n73 |\n74 |       with TemporaryDirectory(dir=str(Path.home() / \".hermes/cache/scratch\")) as directory:\n   |\nhelp: Organize imports\n   |\n67 |     from tempfile import TemporaryDirectory\n68 +\n69 |     from fixtures.c03_records import records_seed\n   -     from omnis.modules.settings.skill_catalog import compile_catalog\n   -     from omnis.modules.settings.candidate_material import capture\n70 |     from omnis.modules.runs.native_preparation_models import prepare_packages\n71 +     from omnis.modules.settings.candidate_material import capture\n72 +     from omnis.modules.settings.skill_catalog import compile_catalog\n73 |     from test_managed_contract import ref\n   |\n\nI001 [*] Import block is un-sorted or un-formatted\n   --> api/tests/test_result_qualification.py:402:5\n    |\n400 |       monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]\n401 |   ) -> None:\n402 | /     from omnis.modules.tasks import managed_store\n403 | |     from omnis.modules.settings.catalog_models import CatalogError\n    | |__________________________________________________________________^\n404 |\n405 |       conn, request = source_fixture(monkeypatch)\n    |\nhelp: Organize imports\n    |\n401 | ) -> None:\n402 +     from omnis.modules.settings.catalog_models import CatalogError\n403 |     from omnis.modules.tasks import managed_store\n    -     from omnis.modules.settings.catalog_models import CatalogError\n404 |\n    |\n\nFound 6 errors.\n[*] 6 fixable with the `--fix` option.",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "mypy-initial",
+        "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "api/tests/test_result_qualification.py:132: error: Cannot find implementation or library stub for module named \"agent.cold_admission\"  [import-not-found]\napi/tests/test_result_qualification.py:132: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports\napi/tests/test_result_qualification.py:133: error: Cannot find implementation or library stub for module named \"agent.contract_execution\"  [import-not-found]\napi/tests/test_result_qualification.py:177: error: Argument 1 to \"_result_check\" of \"ManagedAdmission\" has incompatible type \"object\"; expected \"AsyncConnection\"  [arg-type]\nFound 3 errors in 1 file (checked 5 source files)",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "format-refactor",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --select I --fix api/tests/test_result_qualification.py && /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "Found 3 errors (3 fixed, 0 remaining).\n4 files reformatted, 1 file left unchanged",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "source-green-refactor",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": ".......................                                                  [100%]\n23 passed in 22.26s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "quality-mypy",
+        "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "api/tests/test_contract_method_pg.py:1976: error: Incompatible types in assignment (expression has type \"dict[str, object]\", variable has type \"MonkeyPatch\")  [assignment]\napi/tests/test_contract_method_pg.py:2053: error: Incompatible types in assignment (expression has type \"bytes\", variable has type \"dict[str, object]\")  [assignment]\napi/tests/test_contract_method_pg.py:2062: error: Non-overlapping equality check (left operand type: \"bytes\", right operand type: \"dict[str, object]\")  [comparison-overlap]\napi/tests/test_contract_method_pg.py:2064: error: Statement is unreachable  [unreachable]\napi/tests/test_contract_method_pg.py:2444: error: Incompatible types in assignment (expression has type \"bytes\", variable has type \"dict[str, object]\")  [assignment]\nFound 5 errors in 1 file (checked 5 source files)",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "collect-native-only-no-effects",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification -q --tb=line --collect-only",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n\n1/29 tests collected (28 deselected) in 1.24s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "red3-exact-ref-order",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k refuses_before_external_lookup -q --tb=short",
+        "output": "..F                                                                      [100%]\n=================================== FAILURES ===================================\n_ test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH] _\napi/tests/test_result_qualification.py:576: in test_qualification_foreign_owner_refuses_before_external_lookup\n    cli(\napi/tests/test_result_qualification.py:303: in cli\n    code = contract_inputs.main([operation, \"--request\", str(path)])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:595: in main\n    print(canonical(asyncio.run(run())).decode())\n                    ^^^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/runners.py:196: in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/runners.py:119: in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/base_events.py:726: in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:591: in run\n    return await service.read(args.operation, value)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi/src/omnis/modules/runs/contract_inputs.py:525: in read\n    await ManagedAdmission(self.engine, self.root)._verify_graph(\napi/src/omnis/modules/runs/managed_admission.py:1050: in _verify_graph\n    await catalog.get(conn, owner, reference)\napi/tests/test_result_qualification.py:573: in forbidden\n    raise AssertionError(\"FOREIGN_QUALIFICATION_LOOKUP\")\nE   AssertionError: FOREIGN_QUALIFICATION_LOOKUP\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]\n1 failed, 2 passed, 22 deselected in 3.94s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "green3-exact-ref-order",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=short",
+        "output": ".......................F.                                                [100%]\n=================================== FAILURES ===================================\n_ test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH] _\napi/tests/test_result_qualification.py:576: in test_qualification_foreign_owner_refuses_before_external_lookup\n    cli(\napi/tests/test_result_qualification.py:306: in cli\n    assert (code, output.out, output.err) == (\nE   assert (2, '', '{\"re...\"BLOCKED\"}\\n') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 2 diff: '{\"reason\":\"REF_UNAVAILABLE\",\"status\":\"BLOCKED\"}\\n' != '{\"reason\":\"REF_MISMATCH\",\"status\":\"BLOCKED\"}\\n'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]\n1 failed, 24 passed in 28.02s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "quality-mypy-repair",
+        "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "api/tests/test_contract_method_pg.py:2444: error: Incompatible types in assignment (expression has type \"bytes\", variable has type \"dict[str, object]\")  [assignment]\nFound 1 error in 1 file (checked 5 source files)",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "format-final",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "1 file reformatted, 4 files left unchanged",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "source-final",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py api/tests/test_c03_managed_capture.py -q --tb=short",
+        "output": "......................................................                   [100%]\n54 passed in 28.68s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "quality-ruff-final",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "All checks passed!",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "quality-format-final",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "5 files already formatted",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "quality-mypy-final",
+        "command": "env -u PYTHONPATH -u MYPYPATH /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "Success: no issues found in 5 source files",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "collect-final-no-effects",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification -q --tb=line --collect-only",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n\n1/29 tests collected (28 deselected) in 1.04s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "diff-check-final",
+        "command": "git diff --check && git status --short --branch",
+        "output": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html",
+        "exit_code": 0,
+        "error": null
+      }
+    ]
+  },
+  "pg_native_prepared": {
+    "status": "COLLECTED_ONLY_NOT_RUN",
+    "test_node": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]",
+    "collected_count": 1,
+    "deselected_count": 28,
+    "collect_exit_code": 0,
+    "original_consumer": "Fixture/owner/runtime/public UDS/census original; niciun runner sau owner nou.",
+    "prepared_journey": "Un rezultat M1 autentic pe consumerul existent → un append M2 + un create denominator ca prerechizite fără relaunch denials/overlap M2/numitor → qualification create/read/replay, 8 tuple CLI exacte, receipt rollback/census5tabele, istorice/results/check/outcomes/inbox/usage nemodificate, domain.readback semantic, observer no native rerun, post-Stop public cached reader existent.",
+    "child_no_execution_controls": "Subprocessul qualification CLI instalează guards compile/build/evaluate/handler care refuză cu CatalogError QUALIFICATION_EXECUTED; este callerul CLI real, nu un emitter/sursă de rezultat.",
+    "runner_constraint": "ops --target nu admite test-contract-method-native-pg. Wrapperul original mission-revision-consumer-pg-selection.py delegă prove_private_fixture cu target intern, dar selected_argv este hardcoded mission-consumer. Nu a fost modificat/lansat. Părintele trebuie să adapteze explicit selecția în runnerul existent după review, nu să inventeze filename/target public nou.",
+    "preconditions_before_real_qa": [
+      "Două reviewuri complementare exact-snapshot și adjudecare părinte.",
+      "Recompare cele5hashuri modificate și dependency hashes înainte de QA.",
+      "Folosește numai fixture fresh originală, target intern/selector original corectat pentru result-qualification și deadline/cleanup existente.",
+      "Source PIN și LIBRARIES au preflight read-only raportat de părinte; nu se transferă drept launch PASS."
+    ],
+    "next_argv_preflight": [
+      "env",
+      "-u",
+      "PYTHONPATH",
+      "-u",
+      "PYTHONHOME",
+      "-u",
+      "MYPYPATH",
+      "-u",
+      "PYTEST_ADDOPTS",
+      "-u",
+      "PYTEST_PLUGINS",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+      "OMNIS_CONTRACT_METHOD_NATIVE_PG=1",
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "api/pyproject.toml",
+      "api/tests/test_contract_method_pg.py",
+      "-k",
+      "result-qualification",
+      "-q",
+      "--tb=line",
+      "--collect-only"
+    ],
+    "next_argv_preflight_cwd": "/home/kali/OmnisAI",
+    "next_argv_launch": null,
+    "next_argv_launch_reason": "Selecția wrapperului original trebuie fixată/admisă de părinte după review; nu se furnizează un argv care ar relansa mission-consumer accidental."
+  },
+  "files": {
+    "created": [
+      "api/src/omnis/modules/tasks/result_qualification.py",
+      "api/tests/test_result_qualification.py"
+    ],
+    "modified": [
+      "api/src/omnis/modules/runs/contract_inputs.py",
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "scope_expanded": false,
+    "report": "/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json"
+  },
+  "remaining": {
+    "reviews": "NOT_RUN_PENDING_PARENT_TWO_COMPLEMENTARY_EXACT_SNAPSHOT_REVIEWS",
+    "qa": "NOT_RUN_BY_EXPLICIT_INSTRUCTION",
+    "integration_acceptance": "AUTHOR_CANNOT_ADJUDICATE",
+    "external_current_state_producer": "NOT_IMPLEMENTED_OUTSIDE_FINITE_CONSERVATIVE_SLICE",
+    "phase": "B06b/G02/P2/P4a-minim rămân neînchise; raportul nu schimbă statusul acceptărilor scoped precedente."
+  },
+  "commit": {
+    "created": false,
+    "reason": "Autor copil în checkout comun: NU commit/stage cerut explicit."
+  },
+  "rollback": {
+    "repository": "Părintele păstrează/integrează sau elimină numai cele5fișiere intenționate după inspectarea snapshotului; protected/unrelated files nu se ating.",
+    "external_effects": "Nicio DB/service/cont/credentială modificată de acest autor; PG/native/browser nu au fost lansate."
+  },
+  "prior_scratch_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-schema-blocked-f6b6c93.json",
+    "status": "BLOCKED_SCHEMA_EXPANSION_REQUIRED_BEFORE_IMPLEMENTATION",
+    "base_commit": "7615a338f8c3069ee4661a25b98b0746758de06a",
+    "final_commit": "f6b6c93b97eb36dafb546d869999871d17779b29",
+    "preservation": "Date JSON istorice păstrate într-o copie separată; formatare JSON normalizată, nu se pretinde transfer byte-exact. Nu reprezintă statusul curent."
+  },
+  "report_write_issue": "Prima scriere a fost refuzată deoarece destinația conținea un raport istoric necitit. Raportul anterior a fost citit integral și păstrat în scratch înainte de înlocuirea explicit cerută. Un reread deduplicat nu a returnat content în kernel; JSON-ul a fost recuperat cu parser local."
+}

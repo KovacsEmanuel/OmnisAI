@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-RESULT-QUALIFICATION-NORMATIVE-SOURCE",
+  "review_type": "independent_read_only_normative_order_persistence_readback",
+  "language": "ro",
+  "verdict": "CHANGES_REQUESTED",
+  "summary": "Contractul finit, schema completă, manifestul semantic, decizia conservatoare și tranzacția append/read/replay sunt implementate la nivel SOURCE. Un defect de ordine confirmat cu două controale permite lookup înaintea verificării semantice locale a manifestului și receiptului. Refuzul final funcționează, dar nu satisface bariera pre-lookup cerută. Nu este acceptare PG/native sau integrare.",
+  "acceptance_boundary": "Exact cinci fișiere SOURCE; fără acceptare PG/native/installed, canonical, runtime restart, coverage ASSESSMENT sau freshness/ELIGIBLE.",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "base_commit": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "head_before": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "author_report": "/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json",
+    "files": [
+      {"path": "api/src/omnis/modules/runs/contract_inputs.py", "sha256": "2522f0226d9a5561a93d006003df24d886df7bbed8263939468e50aa74fe1c27"},
+      {"path": "api/src/omnis/modules/runs/managed_admission.py", "sha256": "2060fc1b836b6dfab68e50ca6b67422670c48a5a55bde98e28aec62e8ab1547a"},
+      {"path": "api/src/omnis/modules/tasks/result_qualification.py", "sha256": "0e02e1056e1fda7dc043ca2509aaaa887c7d35a9ced9d7f722f8da816bc3cb57"},
+      {"path": "api/tests/test_result_qualification.py", "sha256": "648d4674886233b4692e63d03015acfd9e4160de9d87f5ac9b0bb794dbe16cc5"},
+      {"path": "api/tests/test_contract_method_pg.py", "sha256": "21353a5c6dc8f85b9cd88b3c2746a4e290dffa395eaa58eea94a289d615cfed7"}
+    ],
+    "hashes_match_requested_before_and_after_review": true,
+    "preexisting_dirty_files": [
+      "api/src/omnis/modules/runs/contract_inputs.py",
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/tests/test_contract_method_pg.py",
+      "api/src/omnis/modules/tasks/result_qualification.py",
+      "api/tests/test_result_qualification.py"
+    ],
+    "protected_untracked_path": "documents/Omnis_Notite_Originale.html",
+    "protected_path_handling": "Observat numai numele în git status; conținut necitit, needitat, neșters, fără hash sau stage.",
+    "staged_diff": "EMPTY",
+    "product_snapshot_modified_by_reviewer": false
+  },
+  "authority": [
+    "AGENTS.md:12-30: snapshot exact, reviewer read-only, constatări concrete reproduse și adjudecare părinte.",
+    "CONTRIBUTING.md:50-71: cerință → consumer → risc → decizie, probe bounded, SOURCE nu înlocuiește consumerul real, fără audit/harness paralel.",
+    "documents/Omnis_MVP_Architecture.md:405-418 §6.3: istoric, calificare curentă și admitere separate; RecordEnvelope complet; lipsa compatibilității cere revalidare.",
+    "documents/Omnis_Implementation_Plan.md:268-285 §7.1: numitor CONTRACT/NO_MODEL cu revizie proprie, unknown fără ELIGIBLE, reutilizarea owner/storage/receipts.",
+    "documents/verification/p2-result-qualification-schema-decision.md:17-33: manifest semantic derivat din final/receipts/artifacts, numitor acceptat scoped, freshness externă neimplementată.",
+    "Contractul delegat explicit: owner/ref/provenance/replay/readback semantic înainte de lookup/sinks; fără efecte și fără redeschiderea generală a M2/numitorului."
+  ],
+  "admission": {
+    "requirement": "Calificare append-only a unui TaskResult istoric autentic sub M2 folosind numitorul CONTRACT independent și manifest semantic, fără execuție nouă.",
+    "consumer": "ContractInputs.create_qualification / read-qualification CLI și ManagedAdmission._verify_graph / readback existente.",
+    "risk": "Promovare falsă de eligibilitate, asociere incorectă a dovezilor, replay sau readback fără proveniență verificată și lookup prematur pe material invalid.",
+    "decision": "APPROVED_SOURCE_SCOPED numai dacă perimetrul finit și bariera de validare sunt satisfăcute; findingul pre-lookup confirmat determină CHANGES_REQUESTED.",
+    "execution_budget": "O suită SOURCE pe fișierul nou, un reproducer bounded cu o singură fixture sintetică și două mutații locale, o colectare PG fără setup/launch."
+  },
+  "reviewed_criteria": [
+    {
+      "id": "RQ-C01",
+      "criterion": "Conformitate cu felia finită CONTRACT/NO_MODEL și păstrarea acceptărilor scoped M2/numitor.",
+      "status": "CONFORM_SOURCE_SCOPED",
+      "code": ["result_qualification.py:114-180", "managed_contract.py:1700-1717", "coverage/denominator.py:138-240"],
+      "evidence": "Derivarea cere context RUN, inventarul exact din brief, procedura corespunzătoare numitorului și protocol v4. Validatorii existenți fixează manifestul NO_MODEL și numitorul CONTRACT_PROBE. Nicio modificare a producerului M2/numitor, ownerului sau migrațiilor.",
+      "limit": "Nu aprobă coverage ASSESSMENT, compatibilitate completă sau capabilități live."
+    },
+    {
+      "id": "RQ-C02",
+      "criterion": "RecordEnvelope complet și tipuri/câmpuri stricte.",
+      "status": "CONFORM_SOURCE_SCOPED",
+      "code": ["result_qualification.py:33-103", "contract_inputs.py:27-80", "contract_inputs.py:309-315", "managed_contract.py:1677-1688"],
+      "evidence": "Toate cele opt câmpuri obligatorii sunt prezente: result_ref, assignment_ref, evaluated_against_mission_ref, denominator_revision, precondition_state_refs, evidence_manifest_ref, decision, reason_codes. Sunt adăugate legături owner/run/context/denominator/provenance, fără câmpuri de decizie controlate de client. Records sunt envelopes canonice rev1. Ref și integer resping bool; câmpuri necunoscute sunt refuzate."
+    },
+    {
+      "id": "RQ-C03",
+      "criterion": "Manifest semantic din finalul și dovezile autentice, nu alias de transport.",
+      "status": "CONFORM_SOURCE_FINAL_VALIDATION_WITH_ORDER_FINDING",
+      "code": ["result_qualification.py:166-260", "result_qualification.py:333-370", "managed_admission.py:1094-1139"],
+      "evidence": "Manifest distinct cu native_final_ref, binding_ref, method_check_ref, bound_procedure_ref, inputs, receipts, artifacts/schema_ref/value_digest și evidence_refs. Finalul este validat, materialul emitted este egal cu graph-ul păstrat, iar managed_run/managed_task ancorează manifest/binding/final/result/check. Readback rederivează și compară materialul, nu doar selfdigest.",
+      "limit": "Autentificarea native ingest este reutilizată, nu executată în acest review. Verificarea semantică finală există, însă comparația unor legături și receiptului survine prea târziu pentru contractul pre-lookup: RQ-NORM-F01."
+    },
+    {
+      "id": "RQ-C04",
+      "criterion": "Revizia numitorului independentă de M2 și decizie conservatoare fără freshness inventată.",
+      "status": "CONFORM_SOURCE_SCOPED",
+      "code": ["result_qualification.py:77-86", "result_qualification.py:261-269", "test_result_qualification.py:338-350"],
+      "evidence": "denominator_revision este citită din recordul coverage-denominator, nu din mission.revision sau caller. Pozitivul SOURCE arată numitor1 sub M2revision2. precondition_state_refs=[]; decizia este exclusiv REVALIDATION_REQUIRED cu COMPATIBILITY_PROOF_UNAVAILABLE și CURRENT_PRECONDITION_PROOF_UNAVAILABLE, chiar dacă MethodCheck este COMPLETE.",
+      "limit": "Producer extern actual-state/invalidation și INELIGIBLE sunt neimplementate și explicit excluse; unavailable nu este prezentat drept invalidare demonstrată."
+    },
+    {
+      "id": "RQ-C05",
+      "criterion": "Owner transaction append și rollback, create/read/replay immutable.",
+      "status": "CONFORM_SOURCE_SCOPED_PG_NOT_RUN",
+      "code": ["contract_inputs.py:281-318", "contract_inputs.py:491-533", "tasks/managed_store.py:12-49", "tasks/managed_store.py:184-255", "result_qualification.py:273-305", "result_qualification.py:333-370"],
+      "evidence": "Validarea requestului precede tranzacția; owner lock și toate refs locale owner/run sunt verificate înaintea _verify_graph. Cele două envelopes și receiptul se inserează în aceeași engine.begin transaction. Replayul exact returnează refs existente/created=false după verificarea graph-ului. Read comandă exact receiptul și materialul calificării. SOURCE rollback după command_complete failure păstrează graph/writes.",
+      "limit": "Nu certifică lock-wait, atomicitate/constraints sau durabilitate PG reale. Deducerea source a ordinii tranzacției nu este probă live."
+    },
+    {
+      "id": "RQ-C06",
+      "criterion": "Owner/ref/provenance/replay/readback semantic înainte de lookup/sinks.",
+      "status": "FAIL_CONFIRMED_SOURCE",
+      "code": ["managed_admission.py:918-928", "managed_admission.py:1039-1050", "managed_admission.py:1136-1139", "result_qualification.py:308-330", "contract_inputs.py:522-528"],
+      "evidence": "Owner, namespace, exact local Ref și forma producerului sunt verificate devreme. Dar schema_ref din fiecare artifact este numai validată ca tip, nu legată devreme de artifactul autentic; validarea receipt/request_digest și comparația manifestului se fac după lookup. Reproducerul confirmă două lookup attempts înaintea refuzului final.",
+      "finding": "RQ-NORM-F01"
+    },
+    {
+      "id": "RQ-C07",
+      "criterion": "Istoric/check/outcomes/inbox/usage păstrate, zero wake/model/tool/reexec.",
+      "status": "CONFORM_SOURCE_SCOPED_NATIVE_NOT_RUN",
+      "code": ["contract_inputs.py:281-318", "result_qualification.py:114-270", "test_result_qualification.py:317-366", "test_contract_method_pg.py:2077-2197", "test_contract_method_pg.py:2633-2751"],
+      "evidence": "Calea de produs nouă numai citește graph/catalog/state și adaugă cele două records plus receipt; nu rescrie istoricul sau inboxul și nu solicită runtime/evaluator/handler. Pozitivul SOURCE create/read/replay păstrează istoricul și observă zero execuții la spies. Consumerul PG pregătit compară briefs/results/checks/outcomes/tasks/inbox/binding/manifest, census și observerul nativ.",
+      "limit": "Fixture-ul SOURCE compilează și execută PURE sintetic pentru producerea datelor înaintea intervalului calificării; transportul/autentificarea nativă sunt doubles. Nu este zero-execution atestat OS-wide sau PG/native PASS."
+    },
+    {
+      "id": "RQ-C08",
+      "criterion": "Dovadă pregătită în consumerul PG original, fără acceptare de integrare.",
+      "status": "PREPARED_COLLECTED_ONLY",
+      "code": ["test_contract_method_pg.py:492-513", "test_contract_method_pg.py:1972-2211", "test_contract_method_pg.py:2633-2751"],
+      "evidence": "Varianta result-qualification reutilizează producerul real M1, append M2 și denominator create ca prerechizite. Pregătește CLI create/read/replay, opt denial tuples exacte, rollback prin receipt failure și census integral pe cinci tabele, readback semantic și public cached după Stop/no-rerun. Colectarea independentă identifică un node exact fără fixture setup.",
+      "limit": "PG/native NU au fost lansate. Selectorul wrapperului original este încă mission-consumer conform raportului autorului; părintele trebuie să-l adapteze/admită explicit, să refacă preflightul snapshot/prerechizite și să nu relanseze accidental M2. Nici fișierul de test, nici collect-only nu sunt dovadă de efecte/cleanup."
+    }
+  ],
+  "findings": [
+    {
+      "id": "RQ-NORM-F01",
+      "severity": "MEDIUM",
+      "blocking_for_source_approval": true,
+      "status": "CONFIRMED_SOURCE_REPRODUCED",
+      "title": "Validarea semantică locală a manifestului și receiptului rămâne după lookup extern",
+      "primary_location": {"file": "api/src/omnis/modules/runs/managed_admission.py", "line": 922},
+      "related_locations": [
+        {"file": "api/src/omnis/modules/tasks/result_qualification.py", "lines": "318-324", "detail": "Preflightul include ref-ul artifactului, dar nu leagă schema_ref de schema_ref autentic din payloadul artifactului."},
+        {"file": "api/src/omnis/modules/runs/managed_admission.py", "lines": "1039-1050", "detail": "Catalog reservation/get sunt accesate înaintea comparației manifestului/receiptului."},
+        {"file": "api/src/omnis/modules/runs/managed_admission.py", "lines": "1136-1139", "detail": "validate_graph cu rederivare și validate_receipt se execută numai după lookup și validarea întregului graph."},
+        {"file": "api/src/omnis/modules/runs/contract_inputs.py", "lines": "525-528", "detail": "read-qualification invocă _verify_graph înaintea validării explicite a receiptului comenzii."},
+        {"file": "api/src/omnis/modules/tasks/result_qualification.py", "lines": "351-364", "detail": "Comparația semantică/proveniența comună și request_digest sunt corecte, dar târzii."}
+      ],
+      "violated_requirement": "Contractul acestei felii cere owner/ref/provenance/replay/readback semantic înainte de lookup/sinks. Un Ref valid ca formă sau un envelope resemnat nu validează legătura lui semantică ori receiptul comenzii.",
+      "mechanism": "_verify_graph cheamă devreme numai validate_scope, apoi validarea numitorului și bucla de refs/catalog. validate_scope verifică forma payloadului și existența ref-urilor locale, dar nu coerența artifacts.schema_ref cu artifactul păstrat și nu receipt/request_digest. validate_graph face aceste refuzuri numai la sfârșit.",
+      "impact": "Material invalid care poate fi refuzat din graph-ul local provoacă lookup în catalog sau get extern înainte de refuz. Poate trimite schema_ref fals către lookup și poate face diagnosticul dependent de disponibilitatea catalogului în locul defectului local. Nu s-a demonstrat acces cross-owner reușit, write, efect runtime, ELIGIBLE fals sau exploatare PG; problema confirmată este ordinea cerută.",
+      "reproducer": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-rq-normative-order-repro.py",
+        "sha256": "7ea12b419281e35528debee0a63d8092642ad8af5bd874f900e557a4b605fd18",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-rq-normative-order-repro.py",
+        "exit_code": 0,
+        "positive_control": {"created": true, "decision": "REVALIDATION_REQUIRED"},
+        "variants": [
+          {
+            "mutation": "După create/read valid, schimbă numai artifacts[0].schema_ref.id în manifest la UUID nou și resemnează manifestul și refs dependente prin reseal_graph.",
+            "normal_final_denial": "QUALIFICATION_INVALID",
+            "observer": "Observează conn.execute numai pentru SELECT i.entity_kind cu id-ul fals; înregistrează înainte de a ridica CatalogError.",
+            "observed_reason": "OBSERVED_UNTRUSTED_SCHEMA_LOOKUP",
+            "lookup_attempts": ["CATALOG_LOOKUP_OF_FORGED_MANIFEST_SCHEMA"],
+            "writes_unchanged": true
+          },
+          {
+            "mutation": "Restaurează graph-ul pozitiv; schimbă request_digest la 64 zerouri în receiptul exact create-qualification și recalculează digestul envelope-ului.",
+            "normal_final_denial": "COMMAND_CONFLICT",
+            "observer": "Observează candidate_store.get; înregistrează tentativa înainte de a ridica CatalogError.",
+            "observed_reason": "OBSERVED_LOOKUP_BEFORE_RECEIPT_DENIAL",
+            "lookup_attempts": ["EXTERNAL_GET_BEFORE_RECEIPT_DIGEST_DENIAL"],
+            "writes_unchanged": true
+          }
+        ],
+        "boundary": "Un singur fixture SOURCE cu storage, retained catalog/preparation/schema seams doubled. Se folosesc callerul ContractInputs.read și _verify_graph reale; nicio DB, Host, proces native sau rețea. Exit0 înseamnă că afirmațiile reproducerului asupra defectului au fost confirmate, nu PASS de produs."
+      },
+      "remedy": "Adaugă preflight local la seamul qualification înaintea validării numitorului/buclei catalog: leagă manifestul de artifactele/emitted records păstrate, compară schema_ref și value_digest și legăturile locale, validează pairing/provenance și receiptul exact/request_digest/result_refs. Păstrează ulterior verificările autentice de catalog/receipts/state, fără a pretinde că validarea locală înlocuiește autenticitatea. În read, validează receiptul comenzii înainte de _verify_graph; în create/replay și readerul comun aplică aceeași barieră pentru calificările existente. Refolosește funcțiile existente, fără owner/harness/coverage framework nou și fără mutarea sau slăbirea acceptării M2/numitorului.",
+      "required_regression": "Păstrează un create/read/replay valid pe același caller; cele două mutații resemnate trebuie să refuze cu reason-ul local exact și zero tentative de lookup extern. Rerulează affected SOURCE după ultima editare și cere re-review focalizat pe bytes/call-sites afectate înainte de QA reală bounded."
+    }
+  ],
+  "verification": [
+    {
+      "label": "independent-source-qualification",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-normative-source-tests",
+      "exit_code": 0,
+      "output": "25 passed in 25.47s",
+      "status": "PASS_SOURCE_SCOPED",
+      "limit": "Suită nouă SOURCE cu doubles; nu atestă PG/native. Cele 54 teste din raportul autorului nu au fost rerulate integral și nu sunt creditate ca execuție independentă."
+    },
+    {
+      "label": "bounded-semantic-order-reproducer",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-rq-normative-order-repro.py",
+      "exit_code": 0,
+      "status": "DEFECT_CONFIRMED",
+      "result": "Pozitiv valid; două refuzuri finale corecte, dar câte o tentativă de lookup înaintea fiecărui refuz; graph/writes nemodificate."
+    },
+    {
+      "label": "independent-pg-consumer-collect-only",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification -q --tb=line --collect-only",
+      "exit_code": 0,
+      "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n1/29 tests collected (28 deselected) in 1.16s",
+      "status": "COLLECTED_ONLY_NOT_RUN",
+      "collected_count": 1,
+      "deselected_count": 28,
+      "limit": "Fără setup de fixture/DSN/provisioning/launch."
+    },
+    {
+      "label": "snapshot-and-diff",
+      "commands": ["git status --short --branch", "git rev-parse HEAD", "git diff --stat", "git diff -- exact tracked scope", "git diff --check", "git diff --cached --stat", "Python hashlib.sha256 pentru cele cinci căi exacte, înainte/după probe"],
+      "exit_code": 0,
+      "status": "UNCHANGED_EXACT_FIVE_HASHES",
+      "limit": "Untracked product/test citite integral separat; git diff nu le include. Numele HTML protejat a fost observat fără citirea conținutului."
+    }
+  ],
+  "files_created_by_reviewer": [
+    "/home/kali/.hermes/cache/scratch/p2-rq-normative-order-repro.py",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-review.json"
+  ],
+  "scratch_test_artifacts": "/home/kali/.hermes/cache/scratch/p2-rq-normative-source-tests",
+  "repository_files_modified_by_reviewer": [],
+  "limits": [
+    "Nu acceptare de integrare. Părintele reproduce/adjudecă findingul, integrează și comite; reviewerul nu stage/commit/push.",
+    "PG/native/browser/provider/network/model/target/service/secret reads nu au fost executate. Niciun traceback PG sau receipt privat nu a fost citit.",
+    "SOURCE compile/run_contract pe stateholders sintetici pentru fixture nu este native authenticated ingestion sau transport auth proof.",
+    "Nu audit general, fault inventory universal, harness/verifier suplimentar sau recertificare a M2/numitorului neafectate.",
+    "Nu producer autentic de current external state/invalidation și nu INELIGIBLE/ELIGIBLE implementat; conservatorul unavailable rămâne separat de invalidarea demonstrată.",
+    "Nu canonical complet, installed historical-reader/runtime restart, freeze global sau acceptare vizuală.",
+    "Ruff/mypy PASS sunt raportate de autor, nu rerulate de reviewer. Aprobarea lor nu închide findingul de ordine.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, fără încărcare sau execuție ceremonială.",
+    "Scriptul scratch a primit diagnostice Pyright de import resolution din mediul editorului, dar execuția cu interpreterul API și sys.path explicit a trecut exit0; nu s-au modificat dependențele sau gate-urile.",
+    "Nu editări produs/tests/docs/status/skills. Raportul păstrează findingul concret și limitele; lipsa textului din outputuri istorice trunchiate nu a fost interpretată ca findings goale."
+  ],
+  "handoff": {
+    "current_slice": "AICI — ResultQualification finit: SOURCE implementat necomis, independent normative CHANGES_REQUESTED pentru RQ-NORM-F01.",
+    "evidence": "25 SOURCE PASS, reproducer cu două mecanisme de lookup prematur confirmate, un node PG colectat; PG/native NOT_RUN.",
+    "unaffected_acceptances": "M2 și numitor CONTRACT rămân acceptate scoped la snapshoturile lor; nu sunt redeschise de findingul noului seam qualification.",
+    "next_action": "Remediu minimal pre-lookup pe qualification, RED→GREEN/affected tests și re-review exact focalizat; apoi părintele admite selectorul runnerului original și QA fresh bounded.",
+    "global_gates": "B06b/G02/P2 rămân PARTIAL/NOT_CLOSED; canonical final și P4a-minim neînchise, live separat. Nici reviewul, nici SOURCE test count nu le promovează.",
+    "status_docs_change": "Doar delta propusă părintelui; registrul/status/docs nu au fost editate."
+  }
+}

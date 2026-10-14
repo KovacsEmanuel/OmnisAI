@@ -1,0 +1,99 @@
+{
+  "status": "COMPLETED_SOURCE_ONLY",
+  "cases": [
+    {
+      "scenario": "positive-full-rows",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "release-int-refused",
+      "outcome": "REFUSED",
+      "reason": "METHOD_RECEIPT_MISMATCH",
+      "graph_unchanged": true
+    },
+    {
+      "scenario": "result-id-refused",
+      "outcome": "REFUSED",
+      "reason": "METHOD_RECEIPT_MISMATCH",
+      "graph_unchanged": true
+    },
+    {
+      "scenario": "task-id-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "attempt-id-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "task-runtime-boot-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "task-native-child-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "run-runtime-boot-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "run-ticket-foreign",
+      "outcome": "ACCEPTED",
+      "decision": "REVALIDATION_REQUIRED",
+      "created": true,
+      "replayed": true
+    },
+    {
+      "scenario": "positive-retained-read",
+      "outcome": "ACCEPTED",
+      "external_lookups": 3,
+      "graph_unchanged": true
+    },
+    {
+      "scenario": "foreign-owner",
+      "outcome": "REFUSED",
+      "reason": "REF_UNAVAILABLE",
+      "external_lookups_before_refusal": 0,
+      "graph_unchanged": true
+    },
+    {
+      "scenario": "orphan-command-provenance",
+      "outcome": "REFUSED",
+      "reason": "QUALIFICATION_INVALID",
+      "external_lookups_before_refusal": 3,
+      "graph_unchanged": true
+    },
+    {
+      "scenario": "manifest-value-tamper",
+      "outcome": "REFUSED",
+      "reason": "QUALIFICATION_INVALID",
+      "external_lookups_before_refusal": 3,
+      "graph_unchanged": true
+    }
+  ],
+  "count": 13,
+  "limits": [
+    "SQL/transaction/catalog/material/composition doubles reused from source_fixture",
+    "No PostgreSQL, Host launch, runtime RPC, provider or network",
+    "Foreign-row mutations are SOURCE integrity controls, not demonstrated reachable writes through ordinary public commands"
+  ]
+}

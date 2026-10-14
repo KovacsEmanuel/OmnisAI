@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-input-review",
+  "role": "independent-read-only-input-auth-concurrency-failure-no-rerun",
+  "language": "ro",
+  "verdict": "CHANGES_REQUESTED",
+  "evidence_boundary": "Review SOURCE pe snapshot exact; nu acceptare PG/native/installed, integrare sau închidere P2.",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "files": [
+      {"path": "api/src/omnis/modules/runs/contract_inputs.py", "sha256": "2522f0226d9a5561a93d006003df24d886df7bbed8263939468e50aa74fe1c27"},
+      {"path": "api/src/omnis/modules/runs/managed_admission.py", "sha256": "2060fc1b836b6dfab68e50ca6b67422670c48a5a55bde98e28aec62e8ab1547a"},
+      {"path": "api/src/omnis/modules/tasks/result_qualification.py", "sha256": "0e02e1056e1fda7dc043ca2509aaaa887c7d35a9ced9d7f722f8da816bc3cb57"},
+      {"path": "api/tests/test_result_qualification.py", "sha256": "648d4674886233b4692e63d03015acfd9e4160de9d87f5ac9b0bb794dbe16cc5"},
+      {"path": "api/tests/test_contract_method_pg.py", "sha256": "21353a5c6dc8f85b9cd88b3c2746a4e290dffa395eaa58eea94a289d615cfed7"}
+    ],
+    "hashes_match_requested_snapshot_before_and_after": true,
+    "head_unchanged": true,
+    "index_diff_empty": true,
+    "git_diff_check_exit_code": 0,
+    "preexisting_changes": [
+      "M api/src/omnis/modules/runs/contract_inputs.py",
+      "M api/src/omnis/modules/runs/managed_admission.py",
+      "M api/tests/test_contract_method_pg.py",
+      "?? api/src/omnis/modules/tasks/result_qualification.py",
+      "?? api/tests/test_result_qualification.py",
+      "?? documents/Omnis_Notite_Originale.html"
+    ],
+    "author_report": "/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json",
+    "author_report_used_as_context_not_independent_proof": true
+  },
+  "contract": {
+    "requirement": "Arhitectură documents/Omnis_MVP_Architecture.md:405-418 §6.3 și plan documents/Omnis_Implementation_Plan.md:268-285 §7.1; TaskResult/assignment/M1/M2 și numitor autentice, manifest semantic backend, ResultQualification immutable complet, create/read/replay prin ownerul existent fără efecte/reexecuție.",
+    "consumer": "ContractInputs.create_qualification/read și ManagedAdmission._verify_graph compus",
+    "risk": "Asociere cu rânduri DB de lineage necorelate, proveniență/tamper validate prea târziu, replay/readback fără autentificare semantică integrală.",
+    "decision_changed_by_review": "Două defecte concrete SOURCE trebuie reproduse/adjudecate de părinte și remediate minimal înaintea acceptării; probele PG/native sunt NOT_RUN în acest mandat.",
+    "non_goals": ["Nu redeschid M2/numitorul acceptate pe bytes neafectați.", "Nu implementez producer extern current-state, invalidation event ori INELIGIBLE.", "Nu audit general/harness verifier/browser/provider/network/native/PG."]
+  },
+  "criteria": [
+    {
+      "id": "INPUT-EXACT-TYPES-OWNER-RUN-REFS",
+      "status": "PASS_SOURCE_SCOPED_WITH_ROW_BINDING_FINDING",
+      "code": ["contract_inputs.py:27-80,278-295", "result_qualification.py:44-103,114-177,308-330", "managed_store.py:73-102,146-161"],
+      "evidence": "25 teste SOURCE existente: owner străin, foreign/mismatched Ref, bool revision/schema, kind greșit, câmpuri injectate, command conflict și wrong reader sunt refuzate fără scrieri. Guardul validate_scope refuză owner/namespace/run digest înaintea catalog.get. Reproducerul independent confirmă release_started=1 refuzat exact METHOD_RECEIPT_MISMATCH.",
+      "exception": "INPUT-RQ-F01: ancora DB nu verifică identitățile native/task/attempt."
+    },
+    {
+      "id": "AUTHENTIC-ROWS-SEMANTIC-MANIFEST",
+      "status": "CHANGES_REQUESTED",
+      "code": ["result_qualification.py:178-270", "managed_admission.py:720-827,1094-1139"],
+      "evidence": "Finalul este validat cu binding/manifest, emitted records trebuie să coincidă cu graph, manifestul listează receipts și artifacts cu schema_ref/value_digest; nu este alias al receiptului de transport. Numitorul1 sub M2rev2 și REVALIDATION_REQUIRED sunt probate. Legăturile ID manifest/binding/final/brief/result/check sunt citite din DB, însă lineage-ul suplimentar nu este corelat.",
+      "exception": "INPUT-RQ-F01"
+    },
+    {
+      "id": "PROVENANCE-SEMANTICS-BEFORE-LOOKUP",
+      "status": "CHANGES_REQUESTED",
+      "code": ["result_qualification.py:71-76,308-330,333-369", "managed_admission.py:918-928,997-1050,1136-1139"],
+      "evidence": "Schema/producătorul lexical și refs locale sunt verificate devreme; corelația command_id/receipt și materialul semantic sunt verificate abia după lookupurile externe. Reproducerul pozitiv face3 catalog.get, ownerul străin0, proveniența orfană și tamper value_digest3 înaintea refuzului QUALIFICATION_INVALID.",
+      "exception": "INPUT-RQ-F02"
+    },
+    {
+      "id": "IMMUTABLE-REPLAY-READBACK-FAILURE-ROLLBACK",
+      "status": "PASS_SOURCE_SCOPED_WITH_FINDINGS",
+      "code": ["contract_inputs.py:283-318,491-533", "result_qualification.py:285-305,333-369", "test_result_qualification.py:488-609", "test_contract_method_pg.py:2059-2073"],
+      "evidence": "Create scrie manifest+qualification+command receipt într-un singur engine.begin owner-locked. Exact replay verifică graph înainte de command_replay și nu scrie. Read verifică graph înaintea returnării. Testul SOURCE de eșec command_complete demonstrează rollback-ul double pentru ambele records; testul PG pregătit are census5tabele before/after rollback. Nu există efect runtime în noua cale.",
+      "limit": "Atomicitate/crash/cancellation/overlap reale PG NOT_RUN. Read/replay reproduc aceleași gap-uri F01/F02; schema immutable DB este moștenită, nu probată live aici."
+    },
+    {
+      "id": "CONCURRENCY-LOCK-ORDER",
+      "status": "SOURCE_INSPECTED_PG_NOT_RUN",
+      "code": ["contract_inputs.py:283-287,494-498", "managed_store.py:12-13", "candidate_store.py:29-32"],
+      "evidence": "Create/read folosesc aceeași tranzacție și lock advisory managed-owner înainte de refs/graph/replay/writes; lockul este pg_advisory_xact_lock(hashtextextended(...)). Noile comenzi nu introduc inversare de lock order către control/supervisor și nu admit lucru nou. Comenzi distincte produc calificări distincte append-only, nu semantic dedup pretins.",
+      "limit": "Double-ul SOURCE nu serializează tranzacții. Nu am observat overlap/pg_blocking_pids. Oracle-ul qualification pregătit nu adaugă un overlap qualification; probele M2 existente nu se transferă automat la această comandă. Aceasta este limită de probă, nu o cursă demonstrată."
+    },
+    {
+      "id": "NO-COMPILER-PURE-NATIVE-REEXEC-COMPOSED",
+      "status": "NO_SOURCE_DEFECT_FOUND_WITH_EXECUTION_LIMIT",
+      "code": ["managed_admission.py:829-907,1086-1088,1141-1208", "denominator.py:41-135", "native_preparation.py:114-202", "skill_catalog.py:122-175"],
+      "evidence": "Am urmărit definițiile reale: _verify_compositions, _method_schemas și denominator.retained_material folosesc native_preparation.read_receipt/retained și validare de bytes/schema/pins; nu apelul compilerului. retained refuză snapshot.dependency_artifact_refs != [] la native_preparation.py:142 înaintea oricărui compiler/evaluator. Ramura generală compile_catalog poate evalua PURE la skill_catalog.py:169, dar nu este pe acest composed retained path. SOURCE pozitiv are spies pe build/compiler/evaluator/handler și zero attempts în intervalul qualification; testul real-consumer pregătit blochează build/_build/compile_catalog/evaluate_pure/run_handler în CLI child.",
+      "limit": "source_fixture substituie _verify_compositions, _method_schemas, material și catalog. Nu credităm25PASS ca execuție a întregului composed reader autentic cu published dependencies. Oracle-ul PG/native a fost numai colectat/inspectat, nu executat. Nu afirmăm absența universală a tuturor sinkurilor/aliasurilor."
+    },
+    {
+      "id": "NO-ELIGIBLE-NO-HISTORICAL-REWRITE",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": ["result_qualification.py:77-86,261-269", "test_result_qualification.py:317-366", "test_contract_method_pg.py:2105-2119,2163-2176"],
+      "evidence": "Singura decizie produsă/acceptată este REVALIDATION_REQUIRED cu COMPATIBILITY_PROOF_UNAVAILABLE și CURRENT_PRECONDITION_PROOF_UNAVAILABLE, precondition_state_refs=[]. COMPLETE și M2 aditiv nu acordă ELIGIBLE. Numitorul are revizie proprie. Qualification nu rescrie istoric/check/outcomes/tasks/inbox/usage; testul SOURCE păstrează graph-ul istoric, oracle-ul pregătit compară câmpurile istorice și census. Nu se fabrică INELIGIBLE/current-state/invalidation."
+    },
+    {
+      "id": "PREPARED-REAL-CONSUMER-ORACLE",
+      "status": "COLLECTED_SOURCE_INSPECTED_NOT_RUN",
+      "code": ["test_contract_method_pg.py:468-539,1039-1057,1972-2188"],
+      "evidence": "Exact1node qualification colectat,28deselected; preflight metadata PIN directory/run_agent.py și LIBRARIES directory prezente. Opt-in OMNIS_CONTRACT_METHOD_NATIVE_PG=1 necesar. Testul produce final nativ autentic pe consumerul existent, apoi o singură append M2 și create denominator prerequisite, qualification CLI create/read/replay și8refuzuri cu tuple exacte. Failure receipts sunt sanitize; stdout/stderr private0600, fără raw traceback în acest review. Census include managed_record/managed_mission_revision/managed_run/managed_task/managed_inbox.",
+      "limit": "Nu certifică încă behavior live; no launch permis. Controalele pentru F01/F02 nu există în oracle-ul actual și sunt recomandate focalizat, fără alt harness."
+    }
+  ],
+  "findings": [
+    {
+      "id": "INPUT-RQ-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "category": "AUTHENTIC-STORED-LINEAGE-READBACK",
+      "file": "api/src/omnis/modules/tasks/result_qualification.py",
+      "line": 202,
+      "line_range": "182-218",
+      "title": "Qualification corelează doar IDs de records, nu identitățile assignmentului/bindingului din rândurile managed_run/managed_task.",
+      "description": "SELECT-urile citesc toate câmpurile, dar matches selectează doar brief_id și guardul compară numai release_started, manifest_id/binding_id/final_id și result_id/check_id. Nu compară task_id/attempt_id cu result/brief header și manifest, nici runtime_boot/ticket/native_root_id din managed_run ori runtime_boot/native_child_id/native_session_id din managed_task cu runtime-binding. Pe rows SOURCE complete și altfel corecte, schimbarea separată a attempt_id, runtime_boot, native_child_id sau ticket lasă create/read/replay reușite, deși dovada nu mai este ancorată în aceeași asignare/lineage durabilă.",
+      "violated_requirement": "Mandatul cere authentic stored TaskResult/assignment și verificarea DB rows/semantic readback; §6.3 refuză asocierea attempt/issuer/context străin. REVALIDATION_REQUIRED nu scutește autentificarea manifestului semantic backend.",
+      "reproducer": {
+        "source": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.py",
+        "result": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.json",
+        "cases": ["positive-full-rows", "task-id-foreign", "attempt-id-foreign", "task-runtime-boot-foreign", "task-native-child-foreign", "run-runtime-boot-foreign", "run-ticket-foreign"],
+        "positive_control": "Rows complete și corelate: create=True; read decision=REVALIDATION_REQUIRED; exact replay created=False.",
+        "negative_controls_observed": "Toate6mutațiile sunt ACCEPTED pe create/read/replay. result_id străin și release_started=1 sunt REFUSED/METHOD_RECEIPT_MISMATCH, graph unchanged.",
+        "boundary": "SOURCE SQL/material/catalog/composition doubles; nu exploit public/PG/native. Mutarea task_id ar putea fi împiedicată de FK inbox într-un PG populated; attempt_id/runtime_boot/ticket/native_child_id nu au aceeași protecție de corelație. Nu afirmăm reachability prin comenzile normale."
+      },
+      "remedy": "Corelează strict rândurile durabile cu headerul assignment/result, intrarea exactă din manifest și runtime-binding: task_id, attempt_id, run_id, batch_index și identitățile native/boot/ticket/root relevante. Refuz sanitized METHOD_RECEIPT_MISMATCH înainte de manifest/receipt sinks și pe read/replay. Nu folosi authority curentă drept substitut pentru istoricul autentic și nu acorda granturi. Extinde pozitivul SOURCE cu rows complete și negative focalizate, apoi reproduce pe consumerul PG admis de părinte fără schimbare de scope către producer extern."
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "BEFORE-LOOKUP-PROVENANCE-SEMANTICS",
+      "file": "api/src/omnis/modules/runs/managed_admission.py",
+      "line": 1139,
+      "related_locations": ["api/src/omnis/modules/runs/managed_admission.py:918-928,997-1050", "api/src/omnis/modules/tasks/result_qualification.py:308-330,347-364"],
+      "title": "Proveniența corelată și tamperul semantic local sunt validate după lookupuri externe, nu înainte.",
+      "description": "validate_scope verifică schema/key/revision lexicale, owner/run și prezența refs locale exacte, dar nu leagă command_id-ul qualification/manifest la receiptul command și nu compară manifestul cu finalul/artifacts locale. validate_graph face aceste comparații abia la sfârșitul _verify_graph. Un command_id nou sintactic valid în provenance sau un value_digest fals cu întregul graph resealed trece de scope și provoacă3 catalog.get înainte să fie refuzat QUALIFICATION_INVALID.",
+      "violated_requirement": "Mandatul cere owner/ref/provenance/replay/readback semantic înainte lookup/sinks. Guardul owner/ref remediat nu îndeplinește singur ordinea pentru proveniență și material semantic.",
+      "reproducer": {
+        "source": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.py",
+        "result": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.json",
+        "cases": ["positive-retained-read", "foreign-owner", "orphan-command-provenance", "manifest-value-tamper"],
+        "positive_control": "Retained read normal ACCEPTED,3catalog.get; graph unchanged.",
+        "negative_controls_observed": "Foreign owner REF_UNAVAILABLE și0lookups. Orphan command provenance și manifest value_digest tamper: QUALIFICATION_INVALID după3lookups, graph unchanged.",
+        "boundary": "catalog.get seam SOURCE numărat; sunt lookupuri în ownerul existent, nu trafic demonstrat către alt owner/target și nu disclosure demonstrat. Tamperul este refuzat înaintea returnării, dar după lookup."
+      },
+      "remedy": "Adaugă o etapă locală fără IO la începutul _verify_graph care corelează qualification+manifest provenance cu command receipt exact (operation/owner/command/request_digest/result_refs) și materialul disponibil din final/emitted receipts/artifacts, inclusiv value_digest/inventare. Păstrează retained schemas/catalog și ancorele DB în faza ulterioară, după această autorizare semantică. Nu trebuie mutate validări ce necesită bytes externi înainte de lookupul lor legitim. Probează pozitivul normal și aceste negative pe același read/replay, cu census lookup independent; nu slăbi reason-ul/guardul moștenit și nu introduce harness generic."
+    }
+  ],
+  "verification": {
+    "source_tests": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys;sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/p2-result-qualification-input-pytest",
+      "exit_code": 0,
+      "count": 25,
+      "observed_summary": "25 passed in 24.28s",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-source.log"
+    },
+    "bounded_reproducer": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.py",
+      "exit_code": 0,
+      "status": "COMPLETED_SOURCE_ONLY",
+      "count": 13,
+      "positive_and_negative_controls": true,
+      "result": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.json"
+    },
+    "collect_only": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys;sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification --collect-only -q --tb=no",
+      "exit_code": 0,
+      "observed_summary": "1/29 tests collected (28 deselected) in 1.21s",
+      "node": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]",
+      "fixtures_not_executed": true,
+      "metadata_preflight": {"pin_directory": true, "pin_run_agent_file": true, "libraries_directory": true},
+      "status": "NOT_RUN_REAL_CONSUMER"
+    },
+    "final_integrity": {
+      "commands": ["git status --short --branch", "git rev-parse HEAD", "git diff --cached --stat", "git diff --check", "sha256sum <exact5snapshotpaths>"],
+      "exit_code": 0,
+      "snapshot_unchanged": true
+    }
+  },
+  "prior_findings_disposition": {
+    "author_red_owner_and_exact_ref_order": "Guards curente inspectate/testate; owner/namespace/run-digest sunt înainte lookup conform testelor existente. Acest rezultat nu închide F02, care privește alt mecanism: corelație provenance/material semantic local.",
+    "external_prior_reports": "Nu am fost mandatat să adjudec toate reporturile istorice. Nicio listă nouă de findings, aprobare parțială ori PASS de teste nu închide constatările altui raport fără reproducer/dispoziție pe bytes curenți.",
+    "new_findings": "INPUT-RQ-F01 și INPUT-RQ-F02 OPEN; părintele reproduce/adjudecă."
+  },
+  "limits": [
+    "Read-only pe repo: zero editări produs/tests/docs/status/skills, zero stage/commit/push.",
+    "HTML documents/Omnis_Notite_Originale.html protejat: observat exclusiv ca nume în inventarul Git; necitit, needitat, neșters, fără hash de conținut.",
+    "SOURCE fixture pregătește graph/assignment/method/check prin cod real și in-process contract executor pe stateholders sintetici; aceasta nu este Host/native authentication live.",
+    "SQL/transaction/catalog/retained material/composition seams sunt doubles. F01/F02 sunt defecte SOURCE reproduse pe metodele consumerului, nu proof PG/native sau exploit public.",
+    "Nu PG/native/browser/provider/network/secret reads. Nu raw secret receipts/tracebacks. Nu runtime wake/model/tool/reexecution real în acest review; in-process executarea sintetică din setup-ul SOURCE este declarată și precede operațiile qualification.",
+    "Transaction rollback SOURCE observat; rollback/locking/overlap/ACK-loss/crash/cancellation reale nu sunt exercitate. Nu se deduce concurență din replayuri secvențiale.",
+    "No-rerun compus urmărit static prin definiții reale; spies SOURCE sunt limitați de seams substitute. Nu certificează dependencies published live/installed historical-reader/runtime restart.",
+    "Real-consumer oracle pregătit are collect-only și metadata preflight; full source/library pin inventory, acces UID/mounturi/cleanup și PG/native launch rămân în mandatul QA separat.",
+    "Nu producer extern current-state/INELIGIBLE și nu echivalare invalidation demonstrată cu unavailable. Calificarea unavailable-only finit scoped nu închide coverage complet.",
+    "Nu rerulare M2/denominator acceptate neafectate, nu audit general ori verifier al harnessului, nu full canonical.",
+    "Skill-urile au fost doar citite conform mandatului; nu au fost actualizate, deoarece orice editare de skills era interzisă."
+  ],
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-review.json",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.py",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-reproducer.json",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-source.log",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-pytest/ (pytest basetemp SOURCE)"
+  ],
+  "handoff": {
+    "current_slice": "ResultQualification AICI: source implementat necomis; review CHANGES_REQUESTED; PG/native/canonical NOT_RUN.",
+    "accepted_dependencies": "M2 și coverage denominator rămân acceptate numai la scope-ul lor, neafectate.",
+    "global_gate": "B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim/restB06c/B06m/live nu sunt promovate.",
+    "next_action": "Părintele reproduce/adjudecă F01/F02, remedii minimale RED→GREEN pe același consumer, re-review focalizat pe noul snapshot; apoi QA real-consumer autorizată și canonical la frontiera de integrare."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "decision": "NEEDS_OPERATOR_DECISION",
+  "feasibility": "NOT_PROVEN_UNDER_UNCHANGED_PRODUCT_CONTRACTS",
+  "scope": "Private SOURCE only, existing complete records seed/compiler/candidate graph; no qualification, native, PG, provider, network, installs, product edits, stage or commit. Candidate remains UNREVIEWED/UNSEALED; size refusal omitted only in cloned measurement function.",
+  "source_graph": {
+    "records": 25,
+    "canonical_bytes": 56613,
+    "sha256": "6e7f4595ab0341c514b8ce2d7489ba64a04702cb67f11eaaeff8553128be3392",
+    "stage_bytes": 41495,
+    "stage_cap": 32768,
+    "stage_overflow": 8727,
+    "one_run": true,
+    "task_ids_distinct": true,
+    "attempt_ids_distinct": true
+  },
+  "preparation": {
+    "producer": "ManagedAdmission._source: len(canonical(prepared[\"bundle\"])); native_preparation.py lines295-314 bundle includes unchanged prepare_packages material",
+    "fixture_default_preparation_bytes": 0,
+    "fixture_default_is_not_real_preparation": true,
+    "exact_packages_canonical_bytes": 13309,
+    "real_bundle_bytes": null,
+    "real_bundle_measurement": "NOT_PROVEN: retained bundle/selection/publication metadata not available in this SOURCE fixture; no fake zero or invented identities",
+    "original_graph_plus_package_lower_bound": 69922,
+    "cap": 65536,
+    "original_graph_fails_even_before_bundle_metadata": true
+  },
+  "literal_pair_experiment": {
+    "description": "Fixed pair payload factoring for four named record kinds only, preserving every original envelope/ID/digest/ref after reconstruction. Not current wire format and not a product implementation. No generic patch language. Minimality is NOT claimed.",
+    "stage_bytes": 33647,
+    "stage_fits": false,
+    "factored_graph_bytes": 48430,
+    "factored_graph_plus_package_lower_bound": 61739,
+    "graph_cap_test_actual_product_uses_reconstructed_graph_bytes": 56613,
+    "stage_exact_canonical_roundtrip": true,
+    "graph_exact_canonical_roundtrip": true,
+    "all_records_exact_bytes": true,
+    "all_record_refs_exact_bytes": true,
+    "stage_sha256_after": "182e79f53740b25a83b169ff6101ccae02c7bcfeec6c9567c43f170b742bb52e",
+    "stage_sha256_before": "182e79f53740b25a83b169ff6101ccae02c7bcfeec6c9567c43f170b742bb52e"
+  },
+  "fixed_section_pair_experiment": {
+    "description": "Same fixed-kind payload factoring plus literal equality pooling of six existing section positions; no semantic record sharing and no ref rewrite. New representation requires authorization.",
+    "stage_bytes": 28310,
+    "stage_fits": true,
+    "stage_headroom": 4458,
+    "exact_stage_canonical_roundtrip": true,
+    "exact_original_graph_and_refs_roundtrip": true,
+    "decoded_graph_plus_minimum_preparation": 69922,
+    "both_unchanged_caps_fit": false,
+    "minimality": "Smallest measured candidate in this bounded probe, not global minimum"
+  },
+  "blockers": [
+    "Existing record-refs-v1 expands exactly seven refs per composition; current product compact stage additionally permits only one entry. Existing finite2 union candidate still exceeds stage32768.",
+    "Lossless factoring changes representation only: unchanged ManagedAdmission._build budgets canonical(expanded graph)+real preparation, not factored_graph bytes. Restored graph56613 plus unchanged package material must be checked; compressed sizing is not product acceptance.",
+    "Using pair factoring at stage requires explicit versioned API/native codec design and strict bounded expansion/complete pool/ref validation; using it for graph budget requires a separately authorized graph storage/budget contract, never an implicit decoded-cap increase.",
+    "Architecture605 does not encode task/attempt in BoundProcedure payload and may allow immutable same-mission/procedure/slots reuse, but changing two existing envelopes to one rewrites graph refs/digests and is not byte-lossless. Any reuse decision must preserve distinct task/attempt/Brief, task-scoped execution receipts and atomic indexed binding; not silently assumed."
+  ],
+  "smallest_admitted_representation": "NONE_ESTABLISHED: current caps/contracts reject; absolute mathematical minimum not asserted",
+  "authorization_needed": "Operator decision on narrowly versioned lossless wire factoring and/or canonical shared immutable BoundProcedure/schema production semantics, with real preparation bundle measurement before implementation. Do not widen caps, change seed, truncate obligations, create two RUNs or treat roundtrip as finite2 execution.",
+  "artifacts": {
+    "probe": "/home/kali/.hermes/cache/scratch/finite2-source/bounded-design-probe.py",
+    "report": "/home/kali/.hermes/cache/scratch/finite2-source/bounded-design-ir4cvjgb/report.json"
+  }
+}

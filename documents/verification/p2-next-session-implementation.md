@@ -6,16 +6,37 @@ Acesta este promptul de execuție cerut de operator, nu un plan paralel sau o ac
 
 ## 1. Mandat și rezultat cerut
 
-Continuă implementarea în `/home/kali/OmnisAI` din HEAD-ul local real. Închide blocajul rece pre-READY, acceptă ResultQualification prin consumerul real, apoi restul B06b → B06c/B06m → P2-inert → Settings P4a-minim. Nu încheia mandatul după un fix/commit/review dacă următoarea felie este admisă. Oprește numai la un blocker real demonstrat, limita de autorizație, buget/context nesigur sau cererea operatorului. După Settings, STOP pentru acord separat cont/provider/model/date/buget și run nou P2-live.
+Continuă implementarea în `/home/kali/OmnisAI` din HEAD-ul local real și **CURRENT**, nu de la prima sarcină istorică din document. Qualification și history sunt acceptate scoped: nu relua D01–D03 sau probele lor neafectate. Rezolvă release-ul Host/native instalat, apoi restul B06b → B06c/B06m → P2-inert → Settings P4a-minim. Include browser real și polish finit **numai pentru UI creată/modificată sau afectată direct de aceste felii**. Nu încheia mandatul după un fix/commit/review dacă următoarea felie este admisă. Oprește numai la un blocker real demonstrat, limita de autorizație, buget/context nesigur sau cererea operatorului. După Settings, STOP pentru acord separat cont/provider/model/date/buget și run nou P2-live.
 
 Nu promite terminarea fazei din numărul de teste. Livrează comportamentul prin callerul real; helperul, SOURCE, collect-only și pornirea izolată nu sunt consumer acceptat. Nu impune întregii gramatici generale sau catalogului SECURITY o implementare preventivă pentru metoda records selectată; nominalizează orice obligație inertă concretă încă lipsă înainte de acceptare.
+
+### 1.1. Controlul execuției — lecțiile derapajelor, nu încă un framework
+
+- Ține un singur rezultat de produs activ: acum **release-ul prin Hostul instalat produce final autentic persistat**, nu „îmbunătățește verificarea H03”. Apoi urmează rândul dependent din §6. Leagă orice test/review/build de cerință → consumer → risc → decizie în contractul/commitul existent, fără un nou raport de admitere.
+- Execută minimul SOURCE și reviewurile obligatorii, apoi consumerul real afectat; nu acumula helpers, fault matrices sau inventare înaintea comportamentului. Refolosește dovezile neafectate. Regresii după ultima editare relevantă, re-review doar pe delta/call-sites, canonical complet la integrarea finală. Fără browser global, performance/fuzzing sau recertificare P0/P1 fără defect/call path afectat.
+- Contorul celor două cicluri numai-harness la H03 este deja consumat; nu îl reseta prin sesiune, nume nou ori eticheta „diagnostic minim”. Nu extinde observerul API care a localizat deja refuzul Host. Admiterea de acum este restrângerea la frontiera originală Host/native, nu un owner/runner/profiler alternativ. Dacă necesită o extindere substanțială neadmisă, consemnează blocajul și cere decizia operatorului, nu autoaproba extinderea.
+- Păstrează siguranța, refuzurile și findings reale, dar nu inventa completitudine universală. Un defect al probei se remediază minimal, nu devine feature Omnis ori justificare pentru un harness mai mare. Un refuz Host corelat nu demonstrează cauza internă; nu modifica produsul, imaginea sau deadline-ul ca ipoteză de remediere. Un diagnostic necesar trebuie finit, privat/sanitizat și la codul original înainte de normalizare, cu review înainte de efecte.
+- Raportează progresul prin operația reală și starea persistentă, nu prin numărul de teste/agenți/commituri. Continuă feliile admise după commit; nu transforma fiecare rezultat delegat în predare. Instrucțiunile nu garantează automat conformitatea viitoare și nu justifică promisiunea „niciodată”.
+
+### 1.2. Browser și polish UI — perimetru autorizat explicit
+
+Construiește lista de ecrane/call paths din **diff-ul UI al feliei**, nu din tot site-ul. La checkpointul `e5a0f42`, lucrul continuării de la `9518755` nu a modificat `web/`; nu există motiv pentru un audit/redesign retroactiv Dashboard/Engagement/wizard. `Settings.tsx` are încă placeholder pentru Providers/Skills; noul Settings din §6/S01–S05 este perimetrul UI anticipat, nu funcție deja livrată.
+
+Pentru fiecare suprafață efectiv livrată sau afectată direct:
+
+1. Folosește buildul/API/PG proprii și runnerul/journey/browserul existente, cu preflight, auth locală și cleanup owned. Rulează traseul real prin navigare: acțiune → receipt → GET exact → reload și, pentru persistența nouă, restart backend pe aceeași DB. Dovada CLI/componentă nu înlocuiește browserul; un screenshot de loading nu dovedește ecranul.
+2. Verifică pozitivul și refuzurile relevante ecranului: loading/error/empty/unavailable/unknown/stale/fallback, Save/disabled/replay/conflict și lipsa succesului optimist când readbackul eșuează. Păstrează identitatea/scopul și Stop existent; fără activarea run/model/provider ca efect al navigării sau Save.
+3. Inspectează efectiv capturile la un viewport desktop și unul îngust relevante, plus tastatură/focus/nume accesibile și conținut lung. Repară local doar probleme observate: overflow/ocluziune, ierarhie, spacing/aliniere, contrast, lizibilitate, stări/action feedback. Refolosește tokens/primitives existente; fără framework nou, rebrand, animații decorative sau redesign al componentelor neatinse. Inspecția vizuală reală și automatizarea sunt probe diferite; aprobarea estetică a utilizatorului nu se deduce din teste.
+4. Corectează blockers funcționali/de acces/safety înainte de acceptare. Polishul neblocant este finit, în aceeași suprafață, fără perfecționare fără sfârșit. După editare, rerulează numai checks/journey afectate și reviewul delta; integrarea finală păstrează canonicalul. UI neafectată reutilizează dovezile existente, nu primește o campanie nouă.
+
+Reticle numai dacă suprafața este deja instrumentată și utilă criteriului; altfel NOT_INTEGRATED, nu instalare preventivă. Browserul pentru consumerul CLI-only rămâne NOT_APPLICABLE până apare UI afectată. Nu inventa ecrane ca să „avem ce verifica în browser”.
 
 ## 2. Intrare scurtă și stare de păstrat
 
 1. Execută `git status --short --branch`, `git rev-parse HEAD`, diff/staged și ultimul commit. Baza investigată aici este `422bb36bc57546faea11ac5428090f0c282f6521`; commitul acestui prompt este ulterior și se citește din Git. Nu checkout remote și nu fetch/push implicit.
 2. Singurul untracked preexistent este `documents/Omnis_Notite_Originale.html`: **nu citi, hash-ui, edita, șterge sau stage**. Nu adopta r1, profilul personal, fixtures/procese/servicii străine.
 3. Citește AGENTS, CONTRIBUTING „Execuție orientată spre produs”, CURRENT din handoff/registrul qualification, rândul SL09 al hărții și acest prompt. Citește apoi numai plan §7.1/§8 și definițiile/usages/manifestele feliei active; nu încărca din nou toată istoria.
-4. Încarcă skill-urile relevante feliei: delivery/review/status, API/TDD/debug și runtime/Hermes pentru seamul nativ; frontend/accessibility numai când ajungi la Settings. Nu catalogul integral în fiecare copil.
+4. Încarcă skill-urile relevante feliei: delivery/review/status, API/TDD/debug și runtime/Hermes pentru seamul nativ; frontend/accessibility când există UI afectată în perimetrul §1.2, anticipat Settings. Nu catalogul integral în fiecare copil.
 5. ResultQualification este produsul **`8cec478`**, comis și APPROVED_SOURCE_SCOPED pe cele5SHA din `result-qualification-parent-gate-fix.json`. Manifest semantic + schema completă + create/read/replay există. Patru findings SOURCE sunt închise explicit; nu le repara din nou.
 6. M2/INPUT-M2-F01 `b4964e7`, numitor CONTRACT `dafa0d5`, schema0013 și metodele records acceptate rămân în scope-ul lor. Nu relansa acceptările lor exhaustive neafectate. Prima revizie a numitorului este proprie, nu mission.revision.
 7. Qualification este unavailable-only: `precondition_state_refs=[]`, `REVALIDATION_REQUIRED`. Nu fabrica auth/current-state/manifest sau ELIGIBLE/INELIGIBLE. COMPLETE nu înseamnă verdict funcțional PASS.
@@ -31,7 +52,13 @@ Toate căile de mai jos sunt relative la `documents/verification/p2-bound-predic
 - `next-session-consumer-change-map.json`: cele8rânduri canonice, definițiile existente și propunerile marcate explicit.
 - `result-qualification-pg-selection.py`: selecție minimă peste ownerul original, nu un runner nou.
 
-## 3. Ce știm despre blocker — nu relua aceeași întrebare
+## 3. Blocaj activ și delimitarea istoricului
+
+### Frontiera activă: release Host/native, nu startupul API
+
+Proba `96fa34f`/SHA04ed515 a observat clientul original: `RuntimeClient._exchange:347` → HOST_DENIED_CAUSE_UNKNOWN, apoi normalizarea la425;32ms, grant client4496→4464ms. Host/native READY și stage=BOUND reale, fără final durabil sau restart acceptat. Frontiera de investigat este `RuntimeHost._validate`, `_managed/_managed_connected`, `_handle` înaintea catch-ului care produce RUNTIME_DENIED și `NativePeer.call`/RPC-ul nativ original. Caută mai întâi mismatch determinist în sursele/distribuția deja atestate. Dacă dovada lipsește, păstrează numai motivul/RPC code finit allowlisted la acea frontieră originală, fără args/locals/wire/credentiale/stderr brut, policy bypass sau QA autoload; artefactul schimbat cere review/distribution și consumer real. Refuzul generic nu autorizează un patch funcțional speculativ.
+
+### Istoric păstrat: pre-READY — închis scoped, nu sarcină de reluat
 
 Tentativa `proc_4315828ebf25`: **1FAIL/28deselected56.77s/exit1/family_drained=true**, înainte de `gateway.ready`. Diagnosticul are elapsed4476ms/remaining−4ms, Host STARTING, ready_done=false, ready_cancelled=false, transport_failed=false și CancelledError. Observer READY numai; zero AIAgent/read/PURE/final/qualification/readeri. SIGTERM−15 este cleanup, nu cauza.
 
@@ -46,9 +73,9 @@ Confirmat prin sursa actuală:
 
 Cauza internă rămâne UNKNOWN. Nu spune că este rezolvată doar pentru că un nou run trece. Nu mări TTL/deadline, nu prewarm/import cache, nu dezactiva audit/monitoring, nu înlocui entrypointul cu un emitter fake.
 
-## 4. Prima schimbare exactă: observație pre-main în consumerul existent
+## 4. Istoric livrat D01–D03: observație pre-main — nu reimplementa
 
-Numerele de linie sunt ancore la HEAD-ul investigat; după restart caută definiția și compară bytes înainte de patch. Tabelul descrie modificări de implementat, nu cod deja aplicat.
+Numerele de linie sunt ancore la HEAD-ul investigat istoric. Tabelul păstrează cerința/dovada D01–D03 deja livrată și acceptată scoped prin `191b901`; nu este lista curentă de implementat. Compară bytes numai dacă un defect nou concret afectează aceste funcții.
 
 | Pas | Fișier / linii / simbol existent | Modificarea cerută | RED → GREEN și decizia |
 |---|---|---|---|
@@ -87,9 +114,9 @@ Dacă bytes native se schimbă, păstrează overlayul original, apoi reseal mini
 
 Pentru acest blocker: o tentativă reală originală, zero retry; diagnoza read-only și această pregătire nu sunt probe native suplimentare. Nu reseta prin restart contorul de repair numai-harness. După două astfel de cicluri fără avans la consumer, restrânge/frontiera sau raportează blockerul precis; nu al treilea observer/verifier. Un PASS ulterior nu explică retroactiv FAIL-ul.
 
-## 5. Acceptă qualification, apoi continuă fără predare intermediară
+## 5. Qualification acceptată scoped — criterii istorice de păstrat
 
-Consumer: `api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]`.
+Consumer acceptat prin `191b901`, fără rerun neafectat: `api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]`.
 
 Criteriile pregătite deja sunt M1 autentic read1/PURE2 → un append M2 și create numitor ca prerechizite → CLI qualification create/read/exact replay →8refuzuri exacte → rollback/census5tabele →7mutații durable PG și2refuzuri locale prelookup → istoric/check/outcomes/inbox/usage păstrate → public UDS după Stop și4readeri CLI/noexec/consum unic. Nu mai adăuga breadth fără defect concret. Diagnostic nou mascat/orfan rămâne SOURCE; nu îl inventa ca exploit SQL.
 
@@ -100,6 +127,8 @@ Parentul verifică raportul complet, snapshotul, receiptul strict și resursele 
 Aceasta proiectează aceleași8rânduri §7.1; nu creează tickets/gates noi. Numele noi de mai jos sunt **PROPUNERI, nu simboluri existente**. Alege extensia minimă a callerului real; nu implementa un set de helpers neconsumați înaintea primei probe verticale.
 
 ### B06b: history instalat, restart și binding/inventar
+
+H01/H02 sunt deja livrate și acceptate prin `c2fdf7d`/`11ee5c5`; primele două rânduri păstrează contractul istoric, nu o nouă căutare/build/migrare de executat. Rândul activ este H03, apoi B01–B03.
 
 | Pas | Definiția actuală / linii | Modificarea minimă și proba obligatorie |
 |---|---|---|
@@ -185,4 +214,4 @@ Rulează-l la frontiera finală P2-inert și pe produsul final afectat de Settin
 
 ## Mesajul scurt de trimis după restart
 
-> Execută promptul actual din `/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md`, din HEAD local verificat și CURRENT. Prima schimbare este observația pre-main în consumerul existent, nu un nou audit sau retry identic. Nu reimplementa qualification/M2/numitor ori acceptările neafectate. Închide cauza măsurată și QA qualification, apoi continuă consumerii nominalizați B06b→B06c/m→P2-inert→P4a-minim fără predări după fiecare fix. Păstrează limitele originale, reviewurile și probele reale; oprește numai la blocker demonstrat/autorizație/buget/context, iar după Settings cere acord live separat.
+> Execută promptul actual din `/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md`, din HEAD local verificat și CURRENT. Rezultatul activ este finalul autentic persistat prin release-ul Host/native instalat; motivul refuzului trebuie obținut la frontiera originală înainte de normalizare, nu prin alt observer API sau retry identic. D01–D03/qualification/history sunt acceptări scoped neafectate, nu sarcini de reluat. Continuă B06b→B06c/m→P2-inert→P4a-minim prin consumerii existenți, fără owner/framework sau harness suplimentar. Browser real și polish finit numai pentru ecranele create/modificate/afectate direct în aceste felii, nu alte componente. Păstrează safety, reviewurile exacte și canonicalul final; nu raporta progres din test count și nu reseta contorul harness. Oprește numai la blocker/autorizație/buget/context real, iar după Settings cere acord live separat.

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "review_id": "H03-INDEPENDENT-INPUT-FAILURE-9b4329f0",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent SOURCE safety/input/failure review of H03; static read-only installed image inspection. Not runtime acceptance or stock-supervisor recovery certification.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_head": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "test_file": "api/tests/test_contract_method_pg.py",
+    "test_sha256_before_after": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+    "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+    "static_artifact": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+    "static_artifact_sha256": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+    "archive_sha256_observed": "79f887d0c5754804a04e5d9e0de44490f8fffb7b1f6eea841140806a8872866a",
+    "preexisting_changes_preserved": ["api/tests/test_contract_method_pg.py", "documents/Omnis_Notite_Originale.html"],
+    "protected_html_read": false
+  },
+  "findings": [
+    {
+      "id": "H03-INPUT-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Created CID is lost at create cancellation or contradictory private stderr, so cleanup skips the owned container",
+      "file_lines": ["api/tests/test_contract_method_pg.py:3324-3355", "api/tests/test_contract_method_pg.py:3498-3514", "api/tests/test_contract_method_pg.py:5913-5927"],
+      "requirement": "Register and retain every possibly-created owned CID; Docker CLI termination is not daemon settlement. Do not abandon a created stopped container when acquisition acknowledgment fails.",
+      "mechanism": "docker() validates exit/stderr before returning create stdout. The caller assigns and checkpoints cid only after that return and regex validation. Its finally cleanup is guarded by h03 and cid. The private --cidfile is never read. Thus a successful create with stderr or cancellation after daemon creation leaves cid empty and skips exact resource cleanup.",
+      "source_reproducer_cases": ["create-warning", "create-cancelled"],
+      "observed": "Both cases retain the private CID file and a seam-created container, but cid_checkpointed=false and daemon_removed_seam=false. Cancellation kills/joins only the substituted direct CLI. The DB fence remains set, which is correct, but the container locator/cleanup is lost. The positive normal case checkpoints and removes the exact CID.",
+      "remedy": "Register provisional nonce/name/cidfile ownership before create; recover and strictly attest the exact CID before raising validation/cancellation failures. Preserve uncertainty on missing/lost acknowledgments, retain recovery locators, and clean an attested stopped container without relying on a Host socket. Do not clear unknown daemon state merely after killing the CLI.",
+      "limit": "Actual unmodified SOURCE helper and create/finally call-site AST; daemon/CLI seams are explicitly substituted. No physical Docker timeout/cancellation was executed."
+    },
+    {
+      "id": "H03-INPUT-F02",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Known created-but-unstarted containers cannot be cleaned because retirement first requires a live Host RPC connection",
+      "file_lines": ["api/tests/test_contract_method_pg.py:3379-3400", "api/tests/test_contract_method_pg.py:3424-3431", "api/tests/test_contract_method_pg.py:5913-5927"],
+      "requirement": "Own cleanup for all acquisition phases, including static containment refusal and pre-boot/start failure; attempt exact stopped-container cleanup independently of native readiness.",
+      "mechanism": "retire_host() always connects and drains before issuing Docker stop or rm. An acquired CID with no runtime.boot/runtime.sock cannot satisfy that connection. The cleanup raises before any Docker retirement/removal, despite having the exact created CID.",
+      "source_reproducer_cases": ["never-started"],
+      "observed": "After create and inspect, an injected pre-boot start failure leaves runtime.writer=None. Actual cleanup calls connect and raises; no stop/rm follows, the known container remains, and DB uncertainty is retained. The normal control reaches exact rm and absence readback.",
+      "remedy": "Separate attested resource-state cleanup from graceful native drain. For a known never-started/stopped owned container, verify identity/state and remove only that exact CID without Host RPC. For an uncertain/running phase, attempt all bounded owned cleanup and preserve unknown outcomes plus locators rather than abandoning subsequent resource steps.",
+      "limit": "SOURCE consumer lifecycle with substituted finite Host and daemon seams; no native or container launched."
+    },
+    {
+      "id": "H03-INPUT-F03",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Pre-boot containment oracle accepts undeclared mounts, host PID namespace, privileged state and environment; daemon identity is not bound",
+      "file_lines": ["api/tests/test_contract_method_pg.py:2938-2965", "api/tests/test_contract_method_pg.py:3515-3530"],
+      "requirement": "Attest the full actual created-container configuration, daemon identity and exact owned mounts before boot; prohibit Docker socket and personal-profile mounts and require private PID namespace/confinement.",
+      "mechanism": "The created-container check reads only selected Config/HostConfig fields. It ignores top-level Mounts, Config.Env/Volumes, HostConfig.PidMode/Privileged and resource limits/tmpfs. No daemon identity receipt is acquired or compared across calls. h03_container_argv checks lexical absolute paths, not physical owned roots, and accepts a scratch symlink resolving outside scratch.",
+      "source_reproducer_cases": ["preboot-normal", "preboot-network-control", "preboot-docker-socket-mount", "preboot-personal-profile-mount", "preboot-host-pidns", "preboot-privileged", "preboot-extra-env", "symlink-mount-source"],
+      "observed": "The actual pre-start if-node rejects the network-mode negative but accepts every other named mutation, including an extra Docker socket or personal-profile mount. The actual argv builder accepts an owned scratch symlink resolving to /home/kali/.hermes. Only symlink metadata was inspected, no credential files. Static image readback independently confirms immutable ID, stock Cmd, null Entrypoint, UID1000:1000 and no image-declared Volumes; that valid image does not supply the missing actual-container/daemon checks.",
+      "remedy": "Before first start, bind read-only daemon identity, compare the complete relevant create configuration to the exact plan and validate the complete canonical mount inventory (sources, destinations, types, RW/options/propagation). Require physical owned non-symlink roots and private PID mode; compare environment, privilege, limits/tmpfs and reject undeclared mounts/configuration. Repeat identity readback where subsequent effects depend on it. Reuse existing attestation logic, not a third framework.",
+      "limit": "These are false-green attestation controls on unmodified SOURCE, not evidence that Docker itself currently added unauthorized mounts or that the installed image is compromised. The current caller creates fresh direct directories; the path negative demonstrates the helper's input boundary."
+    },
+    {
+      "id": "H03-INPUT-F04",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "DB destruction fence is released after later apparent Docker cleanup despite prior unknown daemon work, and before public owner cleanup",
+      "file_lines": ["api/tests/test_contract_method_pg.py:3335-3347", "api/tests/test_contract_method_pg.py:5915-5939", "api/tests/conftest.py:130-134"],
+      "requirement": "Unknown lifecycle outcomes remain latched; the dynamic DB fence must outlive every owned effect/family/public-owner cleanup. A later exact-CID absence is not proof that an earlier effectful Docker request settled.",
+      "mechanism": "docker() kills/joins the direct CLI on cancellation but has no persistent effect-uncertainty latch. Cleanup later assigns db_fence.unsettled=false solely after successful retirement/rm/absence. That assignment also occurs before runtime.close(), public_control.__aexit__ and engine disposal. Failures of those later cleanup steps cannot restore the fence.",
+      "source_reproducer_cases": ["stop-cancelled", "public-exit-failure"],
+      "observed": "The actual retire_host first reaches stop, the substituted communicate producer cancels while daemon work remains in flight, and the direct CLI is killed/joined. A later normal cleanup retry emits the settled claim and clears the fence with daemon_inflight_seam=true. Separately, the complete unmodified run-finally AST reaches an injected public-owner exit failure after exact-CID removal; engine disposal executes, but db_retained=false and the settled resource claim already exists. The normal control clears the fence only with no injected unknown/failure.",
+      "remedy": "Latch uncertainty before every effectful Docker/reader child launch and preserve it for cancellation, timeout, unknown exit or lost acknowledgment until the existing authoritative settlement mechanism resolves that exact request/family. Do not equate a retry or current absence with original request settlement. Move fence release after all resource, runtime, public-control, child-family and engine cleanup readbacks, retaining it on any failure. Reuse H01's existing strict family authority where applicable; do not build a new supervisor.",
+      "limit": "Unmodified SOURCE producer/helper and full finally with substituted daemon/Host/public-owner seams. This proves unsafe fence transitions, not physical daemon settlement. Actual H03 child timeout-family behavior remains unexecuted under this review authority."
+    }
+  ],
+  "verification": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_H03_SOURCE_ARTIFACT=/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json OMNIS_H03_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03 or historical_cli_tuple or restart_stderr' -q --tb=line",
+      "exit": 0,
+      "result": "18 passed, 113 deselected in 0.86s",
+      "limit": "SOURCE/static prerequisites only; existing selected tests do not cover the confirmed lifecycle failures."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/reproduce.py",
+      "exit": 0,
+      "result": "14 SOURCE seam cases; assertions confirm normal/denial controls and four blocking mechanisms",
+      "reproducer_sha256": "0c4942c731ee5648c25d568d2768a0563dfdf412368aa5f7913694e4eba775b5",
+      "result_handle": "/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/reproducer-results.json",
+      "result_sha256": "120655fd6c57ae2c505c91682529c59819c8b20d182e4a61bf1dc24a5b549022"
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0 /usr/bin/docker image inspect --format '{{json .Id}} {{json .Config.Cmd}} {{json .Config.Entrypoint}} {{json .Config.User}} {{json .Config.Volumes}}' sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+      "exit": 0,
+      "result": "Exact immutable image ID; stock Host command; null entrypoint; UID1000:1000; no image-declared volumes. Archive config digest and archive SHA independently match."
+    },
+    {"command": "git diff --check; git status --short --branch; sha256sum api/tests/test_contract_method_pg.py", "exit": 0, "result": "No whitespace errors; exact test SHA and preexisting status unchanged."}
+  ],
+  "reviewed_positive_properties": [
+    "Exact two-review SHA gate precedes dynamic fixture lookup for both H03 nodes.",
+    "Default create argv uses immutable image, read-only rootfs, no network, mapped nonroot UID/GID, cap drop, no-new-privileges, resource limits and private runtime/state bind destinations; no custom entrypoint or observer autoload is added.",
+    "PID identity uses host-visible proc starttime plus PID namespace inode and requires Host inner PID1 and an actual direct native child, not a Python object or fake Root; replacement receipt rejects same boot/Host/native and bool/extra-field mutations.",
+    "Historical noexec guards include defining evaluator aliases, build/dispatch/ingest/runtime authority boundaries, independent installed observer events and exact public denial tuples. Current scoped source controls pass; real restart/readers remain pending.",
+    "Diagnostic conversion stores raw child output privately and emits bounded tags, IDs, counts and digests rather than native capabilities, DSNs or raw stderr; the selected private-output refusal controls pass.",
+    "H01 family/finalizer controls were not modified or reopened; H03 does not yet reuse their settlement authority for all newly introduced child/effect paths."
+  ],
+  "effects_and_files": {
+    "shared_repository_edits": false,
+    "commits_or_staging": false,
+    "new_containers_or_native_or_postgresql": false,
+    "network_install_image_changes": false,
+    "docker_calls": "One read-only immutable image inspect; archive/config/hash reads only.",
+    "owned_scratch_files": ["/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/reproduce.py", "/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/reproducer-results.json", "/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/full-report.json"],
+    "synthetic_private_artifacts": "Per-case directories, empty runtime locks and synthetic CID files inside the owned 0700 review directory; no actual runtime capability or credential content. Scratch alias personal-alias points to an existing directory solely for lexical-versus-physical path validation and no content was read through it.",
+    "owned_live_processes_or_external_resources": "None created; no cleanup effects performed on parent resources.",
+    "initial_reproducer_issue": "First execution failed before any case because mapping/sequence are imported, not defined in the test. Corrected only scratch AST lookup to the actual fixture helper module, then ran the complete reproducer successfully.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "proposed_parent_status_delta": {
+    "H03": {"code": "SOURCE_IMPLEMENTED_UNCOMMITTED", "proof": "STATIC_ARTIFACT_AND_SOURCE_CONTROLS_PASS; REAL_RESTART_NOT_RUN", "review": "CHANGES_REQUESTED", "next": "Reproduce/adjudicate four concrete blockers; minimal fixes and affected exact-snapshot re-review before real QA."},
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED; accepted H01/H02 evidence unchanged; no canonical/live/P4a approval transfer."
+  },
+  "proposed_reusable_lesson_for_parent": "In the existing H03 consumer, acquire provisional CID ownership before any create refusal, separate stopped-container cleanup from Host RPC, attest full daemon/container/mount identity pre-boot, and release the dynamic DB fence only after all cleanup with original unknown effects still latched. No shared skill edit under read-only delegation."
+}

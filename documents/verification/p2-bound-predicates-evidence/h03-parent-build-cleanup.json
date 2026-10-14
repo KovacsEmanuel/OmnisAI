@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "exact_owned_cid": "e9d7d0f05d0233d8d6351dde50b1756c23a9a94da7a016efcc3464edd672a502",
+  "before": "exited1/no-running-family",
+  "inverse": "docker container rm e9d7d0f05d0233d8d6351dde50b1756c23a9a94da7a016efcc3464edd672a502",
+  "after": "ABSENT",
+  "base_image_unchanged": true
+}

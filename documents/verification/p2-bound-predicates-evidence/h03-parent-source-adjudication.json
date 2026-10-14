@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED_SOURCE_ADMIT_REAL_H03_ONLY",
+  "base": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+  "consumer": "api/tests/test_contract_method_pg.py",
+  "consumer_sha256": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+  "parent_source": "46 PASS / 113 deselected / 2.33s; Ruff/format/mypy/diff exit0 on final bytes",
+  "review_reports": [
+    "h03-normative-rereview.json",
+    "h03-input-rereview.json"
+  ],
+  "closed_source_findings": [
+    "H03-INPUT-F01",
+    "H03-INPUT-F02",
+    "H03-INPUT-F03",
+    "H03-INPUT-F04"
+  ],
+  "red": "Parent executed immutable original 14-case reproducer on9b4329f0. Remediation initial16 fixture-frontier failures not independent originalRED; separate reader-latch mutant6FAIL retained.",
+  "unchanged_image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+  "no_effect_preflight": "Current image ID exact; one collect-only node per positive/no-final negative; original runner pinned toolchain _preflight_gate exit0. Initial wrong preflight arity TypeError preserved, corrected to actual one-argument signature without effects.",
+  "next": "Existing private family/DB runner240, positive then no-final negative, each fresh owned fixture; exact OCI stock Host/native launcher, original Source owner/epoch. Do not transfer SOURCE approval to runtime.",
+  "runtime": "NOT_RUN",
+  "scope_limits": [
+    "Not stock-supervisor recovery",
+    "H03 daemon timeout/faults substituted in SOURCE, not physical power cuts",
+    "Qualification and H01/H02 reused unchanged within scope",
+    "B06b/G02/P2-inert/canonical/P4a not closed",
+    "No provider/target/r1/global/push"
+  ],
+  "cleanup": "Exact registered stopped failed buildCID removed and read back ABSENT; base unchanged; current additive image retained."
+}

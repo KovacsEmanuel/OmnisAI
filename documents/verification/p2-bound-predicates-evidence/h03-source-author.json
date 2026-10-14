@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "task": "H03 existing consumer: SOURCE orchestration plus current installed distribution",
+  "verdict": "SOURCE_IMPLEMENTED_STATIC_DISTRIBUTION_ATTESTED_RUNTIME_QA_NOT_RUN",
+  "repository": "/home/kali/OmnisAI",
+  "head": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+  "modified_file": "api/tests/test_contract_method_pg.py",
+  "file_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+  "commits_or_staging": false,
+  "artifact": {
+    "tag": "omnis-h03-owned-371f6e862d9a433bbfa74bc0c631df7d:current",
+    "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+    "base_tag": "omnis-p2-owned-native-qa2-de89892d5920450a9dea878dd180a774:qa2",
+    "base_before_after_id": "sha256:4c7915b50cefb8f8d8abbf42ba68ab22229107c01de69aae157ab33e910c1eb4",
+    "ownership_nonce": "371f6e862d9a433bbfa74bc0c631df7d",
+    "report": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+    "report_sha256": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+    "archive": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/current-image.tar",
+    "archive_sha256": "79f887d0c5754804a04e5d9e0de44490f8fffb7b1f6eea841140806a8872866a",
+    "adapter_wheel_sha256": "0623ac914248dcd7f50ce5eae1b4208839ae7e368d4461c4fabac7d4c4062a17",
+    "public_module_inventory": {"native_overlay_files": 19, "adapter_modules": 15, "exact_current_matches": 34},
+    "base_inventory": {"match": 27, "mismatch": 5, "absent": 2},
+    "effective_uid_access": "Static UID1000 readability and ancestor searchability verified from layer metadata",
+    "cmd": ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"],
+    "entrypoint": [],
+    "startup_pth": "Only stock /opt/hermes/source path; no executable .pth/sitecustomize/usercustomize autoload",
+    "dependencies": "All untouched native and installed dependency files retain base hashes; adapter pyc bytes statically compared to compilation of the exact current .py modules",
+    "build": "Pinned uv0.12.19 offline backend; existing locked inert then managed overlays; local attested base tag; pip --no-index --no-deps --require-hashes; Docker --pull=false --network=none; no downloads",
+    "inverse": "Parent may remove only this fresh derivative tag after QA settles; preserve base/global images, archives and logs. No removal performed."
+  },
+  "consumer": {
+    "nodes": [
+      "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[runtime-restart]",
+      "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[runtime-restart-no-final]"
+    ],
+    "scope": "Original SOURCE NativeTaskOwner/LocalControl/InstanceService owner and epoch + installed stock OCI PID1 Host and stock tui_gateway.entry. NOT stock installed supervisor recovery.",
+    "positive": "Existing authentic finite result/check/outcome/receipt assertions, second-connection durability/census, actual same-CID Host retirement and restart, separately authorized new native READY, PID/starttime/pidns and boot replacement, original public receive plus installed readback/reconcile under execution/grant/dispatch/ingest denial, exact one-bit consumption census and immutable replay.",
+    "negative": "Existing pre-ingest seam records only digest of authentic response and raises before first domain persist; no DB deletion or fake final. Real old/new process restart then public TASK_INDETERMINATE and installed NEEDS_RECONCILIATION with unchanged pending census/no resend.",
+    "containment": "Fresh nonce/CID, immutable image ID, mapped UID1000, network-none, read-only rootfs, cap-drop ALL, no-new-privileges, PIDs/memory/CPU/tmpfs bounds, only fresh owned /runtime and /state bind mounts, no custom command/entrypoint/observer autoload or personal/socket mounts.",
+    "heartbeat": "All finite Docker commands await asynchronous subprocess communication so original real InstanceService heartbeat continues; no product grant/deadline changes.",
+    "cleanup": "Exact CID readback, native drain/Host exit0, old identities absent, matching endpoints absent and runtime lock free, exact CID removal/absence; dynamic DB finalizer retained on uncertainty. Cleanup source is not live-certified.",
+    "native_census_limit": "Authentic method/tool receipts and immutable DB rows, not an injected in-process native observer. No claim of native memory/tool inventory completeness.",
+    "review_fence": "Both OMNIS_H03_NORMATIVE_REVIEWED and OMNIS_H03_INPUT_REVIEWED must equal final test-file SHA before dynamic DB or OCI acquisition. Flags do not themselves confer approval.",
+    "runtime_inputs_after_parent_reviews_only": {
+      "OMNIS_CONTRACT_METHOD_NATIVE_PG": "1",
+      "OMNIS_H03_ARTIFACT": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+      "OMNIS_H03_ARTIFACT_SHA": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+      "OMNIS_H03_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json"
+    }
+  },
+  "verification": {
+    "red": [
+      {"log": "/home/kali/.hermes/cache/scratch/h03-source-red.log", "exit": 1, "result": "8failed/113deselected: missing process-receipt oracle and DB acquisition before exact review"},
+      {"log": "/home/kali/.hermes/cache/scratch/h03-source-red-plan.log", "exit": 1, "result": "missing contained stock container argv oracle"},
+      {"log": "/home/kali/.hermes/cache/scratch/h03-source-red-census.log", "exit": 1, "result": "missing exact consumption census oracle"}
+    ],
+    "source_final": {
+      "log": "/home/kali/.hermes/cache/scratch/h03-source-final-correct-handle.log",
+      "exit": 0,
+      "result": "18passed/113deselected/3.13s",
+      "selection": "h03 or historical_cli_tuple or restart_stderr",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_H03_SOURCE_ARTIFACT=<static-attestation.json> OMNIS_H03_SOURCE_API_ARTIFACT=<prerequisites.json> api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03 or historical_cli_tuple or restart_stderr' -q --tb=line"
+    },
+    "quality": {"python": "3.13.15", "ruff_check": 0, "ruff_format_check": 0, "mypy_strict": "exit0/no issues in1sourcefile", "git_diff_check": 0},
+    "collect_only": {"log": "/home/kali/.hermes/cache/scratch/h03-collect-only.log", "exit": 0, "selection": "The exact two H03 node IDs"},
+    "H03_actual_process_positive": "NOT_RUN_PENDING_TWO_PARENT_REVIEWS",
+    "H03_actual_process_negative": "NOT_RUN_PENDING_TWO_PARENT_REVIEWS",
+    "canonical_gate": "NOT_RUN_NOT_IN_THIS_SOURCE_ONLY_DELEGATION",
+    "H01_H02_qualification_real_consumers": "NOT_RERUN_UNCHANGED_ACCEPTED_EVIDENCE_REUSED"
+  },
+  "preserved_issues": [
+    "First offline uv build lacked explicit Python selection; refused before image build. Corrected only private build argv to pinned API3.13.15 interpreter.",
+    "First Docker build requirements used a wheel filename relative to /build/h03 instead of /build/h03/wheelhouse; pip refused without network. Corrected only owned distribution requirements path; no product changes.",
+    "Initial static layer reader omitted /opt and /opt/hermes directory metadata, then did not recognize wheel-generated adapter bytecode. Existing derivative re-attested without another rebuild: directory searchability and exact compiled code verified.",
+    "First static API SOURCE control pointed at private-artifact-manifest.json (not the existing READY_PREREQUISITES_ONLY handle), giving1failed/17passed. Correct input is prerequisites.json; no product or oracle weakening. Failed log preserved.",
+    "Legacy Docker failed-build intermediate e9d7d0f05d0233d8d6351dde50b1756c23a9a94da7a016efcc3464edd672a502 is owned builder-only, exited1 and preserved. Parent may remove that exact stopped intermediate after review; do not remove global images."
+  ],
+  "failed_artifact_reports": [
+    "/home/kali/.hermes/cache/scratch/h03-current-227ad2ac1b2f4179b735ec4586211ec9/artifact-report.json",
+    "/home/kali/.hermes/cache/scratch/h03-current-72dfc16e08674d91a08f0415fe727f07/artifact-report.json",
+    "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/artifact-report.json"
+  ],
+  "scratch_scripts": [
+    "/home/kali/.hermes/cache/scratch/h03-build-current.py",
+    "/home/kali/.hermes/cache/scratch/h03-attest-existing-current.py"
+  ],
+  "scope_limits": {
+    "runtime_containers_launched": false,
+    "postgresql_or_native_launched": false,
+    "provider_model_target_browser": false,
+    "product_api_native_pin_deadline_changes": false,
+    "original_html_read_hashed_modified": false,
+    "notes_and_status_edits": "Parent only; none performed",
+    "independent_reviews": "Parent must obtain two complementary exact-snapshot reviews before real QA",
+    "Reticle": "NOT_APPLICABLE_CLI_PROCESS_SCOPE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "proposed_parent_skill_lesson": "For offline additive OCI distribution, select the explicit pinned interpreter for uv build and use the wheel's container-absolute requirements path; include ancestor directory metadata and wheel-generated pyc parity in static UID/source attestation. Static artifact success is not launch or process-restart evidence. No skill edited because delegated shared-write scope is the existing test file only."
+}

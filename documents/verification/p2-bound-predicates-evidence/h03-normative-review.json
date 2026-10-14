@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "report_id": "H03-NORMATIVE-ORDER-PERSISTENCE-DISTRIBUTION-9b4329f",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "Independent normative/order/persistence/readback review of exact H03 SOURCE orchestration and exact statically attested installed distribution. This is not actual-process QA or stock-supervisor recovery approval.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_commit": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "head_observed": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "changed_consumer": "api/tests/test_contract_method_pg.py",
+    "changed_consumer_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+    "diff_stat": "704 insertions, 42 deletions; only tracked modification is the declared consumer",
+    "staged_changes": false,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_HASHED_NOT_MODIFIED",
+    "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+    "base_image_id": "sha256:4c7915b50cefb8f8d8abbf42ba68ab22229107c01de69aae157ab33e910c1eb4",
+    "static_artifact": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+    "static_artifact_sha256": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+    "image_archive_sha256": "79f887d0c5754804a04e5d9e0de44490f8fffb7b1f6eea841140806a8872866a",
+    "adapter_wheel_sha256": "0623ac914248dcd7f50ce5eae1b4208839ae7e368d4461c4fabac7d4c4062a17"
+  },
+  "findings": [],
+  "blocking_findings": [],
+  "normative_contract": [
+    "documents/verification/p2-next-session-implementation.md section 6 H03, line 108",
+    "documents/Omnis_Implementation_Plan.md section 7.1, result/inbox H06/H07 and final-snapshot acceptance",
+    "CONTRIBUTING.md product-oriented execution and exact-snapshot complementary review rules"
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Exact complementary review and current installed prerequisites precede dynamic DB and OCI acquisition",
+      "consumer_lines": "2969-3037; 3119-3142",
+      "trace": "h03_prerequisites verifies both review flags against the actual consumer SHA, static handle SHA/private metadata/current inventory, and the unchanged current API wheel. historical_database_fence is acquired before migrated_database_url. Docker acquisition is later in the same existing consumer.",
+      "evidence": "Independent 18-test SOURCE selection includes both pre-review acquisition denials and static-origin positive/inventory/UID negatives.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Real installed Host/native replacement rather than RuntimeHost object substitution",
+      "consumer_lines": "3309-3455; 3477-3552; 4096-4112",
+      "trace": "H03 never constructs a RuntimeHost object. Creates one nonce-owned CID from immutable image ID, checks stock CMD/empty entrypoint/containment, starts installed Host as namespace PID1, hashes mounted public files through its /proc root and connects the original RuntimeClient. Pins Host/native host-visible PID/starttime/pid namespace plus runtime boot. Drains/retires old Host, reads exit0/endpoints/process absence/lock freedom, starts that same owned CID afresh, obtains an ordinary real grant and observes replacement native READY and a distinct boot/process namespace. Replacement native is drained before historical readers.",
+      "evidence": "Actual replacement producer statically traced; six SOURCE process-receipt controls passed. Archive and exact local image ID independently verified. Actual old/new process readback NOT_RUN.",
+      "disposition": "APPROVED_SOURCE_AND_STATIC_DISTRIBUTION_SCOPED"
+    },
+    {
+      "requirement": "Authentic final durable before positive restart; no new execution to read it",
+      "consumer_lines": "4209-4215; 4542-4551; 4592-4613; 4766-4809; 4073-4185",
+      "product_lines": "api/src/omnis/supervisor/native_tasks.py:193-232,277-335; api/src/omnis/modules/runs/managed_admission.py:649-718,1230-1312",
+      "trace": "Original NativeTaskOwner stage commits mapping before release. Existing authentic native final ingestion/check/outcomes/receipt assertions remain; markers and mission census read through separate engine connections. Positive restarts only after final/check and an unconsumed inbox are durable. Original public LocalControl routes receive to original owner/epoch; persisted results take the check-only branch before runtime-boot mismatch and do not call runtime.receive. Parent-side effect/evaluator/build/dispatch/ingest/grant aliases are denied independently during receive/readback.",
+      "evidence": "Source call-order review and retained five-table census/receipt assertions, not a newly executed PG/native positive.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    },
+    {
+      "requirement": "No-durable-final negative must preserve original authentic pre-ingest cut and refuse without resend",
+      "consumer_lines": "4241-4277; 4322-4331; 4081-4087; 4135-4156",
+      "product_lines": "api/src/omnis/supervisor/native_tasks.py:277-279; api/src/omnis/modules/runs/managed_admission.py:660-665",
+      "trace": "Negative uses the existing after-authentic-response/before-first-domain-persist seam. Records digest only, asserts original binding/authority and empty final/check/inbox/receipt, then raises TASK_INDETERMINATE. No DB deletion, invented result or stale-final injection. After actual planned restart, changed boot makes original public receive refuse before transport; installed readback remains byte exact and reconcile refuses NEEDS_RECONCILIATION. Census and markers remain unchanged.",
+      "evidence": "Concrete producer/caller source trace; actual original authentic cut and process negative NOT_RUN.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    },
+    {
+      "requirement": "Installed reader, immutable original lineage/usage and exactly one consumption",
+      "consumer_lines": "329-405,797-861; 3239-3300; 3814-3867; 4161-4185; 2899-2906",
+      "trace": "Current installed interpreter receives INSTALLED, -I -B, separate cwd/HOME and no API source-path insertion. Real module origins are checked against its prefix. Defining evaluator skill_catalog and imported candidate_catalog/pure_probe aliases, module runner, builders and runtime constructors/operations are denied on the independent child channel. Installed readback matches the original durable graph/final/check/outcomes/binding. Installed reconcile permits only one false-to-true domain_result_consumed bit across five full-row tables; duplicate reconcile/readback and later public receive preserve the resulting census and original usage.",
+      "evidence": "Independent SOURCE exact-census positive and three negatives passed; current wheel and all 88 actual installed API package members byte-match current repository source. Child real reader operations against PG NOT_RUN.",
+      "disposition": "APPROVED_SOURCE_AND_INSTALLED_BYTES_SCOPED"
+    },
+    {
+      "requirement": "Distribution bound to exact current artifact and unchanged attested base/dependencies",
+      "trace": "Independently hashed exact static handle/archive/config. Config hash equals requested image ID and all 39 archived layer diff IDs match rootfs. First 34 rootfs layers exactly equal the attested base. Current 19 native overlay files and 15 adapter modules exactly match repository source/manifests; UID1000 access, stock CMD/empty entrypoint/user/workdir/owner label match. All 11020 retained base opt/hermes regular files remain present; 14 changed retained files are confined to allowed current source/adapter bytecode/wheel metadata. All 15 adapter pyc bodies equal compilation of exact current source with pinned Python3.13. API wheel/source/actual installed 88-member parity separately verified.",
+      "evidence_handle": "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f/static-result.json",
+      "disposition": "APPROVED_STATIC_DISTRIBUTION_SCOPED_NOT_LAUNCH"
+    }
+  ],
+  "executed_verification": [
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_H03_SOURCE_ARTIFACT=/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json OMNIS_H03_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03 or historical_cli_tuple or restart_stderr' --basetemp=/home/kali/.hermes/cache/scratch/h03-normative-source-9b4329f -q --tb=line",
+      "exit": 0,
+      "observed_stdout": "18 passed, 113 deselected in 0.93s",
+      "scope": "SOURCE only; no native/OCI/PG acquisition"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f-static.py",
+      "exit": 0,
+      "script_sha256": "d0e7c273b1862cbb3e44e315d9b5a4395705bda5e67617fefb386d948725f238",
+      "scope": "Read-only archive/wheel/installed-file inspection, no runtime import or launch"
+    },
+    {
+      "command": "docker image inspect --format='{{.Id}}' sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+      "exit": 0,
+      "observed_image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0"
+    },
+    {"command": "git diff --check", "exit": 0},
+    {"command": "sha256sum api/tests/test_contract_method_pg.py", "exit": 0, "observed_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456"}
+  ],
+  "issues_encountered": [
+    {
+      "kind": "REVIEWER_STATIC_READER_ONLY",
+      "attempt_exit": 1,
+      "reason": "BASE_WHITEOUT_REQUIRES_REVIEW",
+      "resolution": "Bounded base-archive comparison initially explicitly refused whiteouts. Added correct OCI whiteout application to the same owned static inspection script, then all exact checks passed. No product/image/source edits or launch and no product-defect inference."
+    }
+  ],
+  "remaining_gates": {
+    "actual_H03_positive": "NOT_RUN",
+    "actual_H03_negative": "NOT_RUN",
+    "second_complementary_review": "Parent must adjudicate separately on identical consumer SHA and artifact",
+    "installed_stock_supervisor_recovery": "OUT_OF_DECLARED_SCOPE",
+    "native_in_process_observer_inventory": "NOT_CLAIMED; authentic method receipts/domain census only",
+    "canonical_final": "NOT_RUN_NOT_IN_REVIEW_SCOPE",
+    "global_P2_inert_G02": "NOT_CLOSED",
+    "P4a_minimal": "NOT_IMPLEMENTED_BY_THIS_SLICE"
+  },
+  "status_delta_for_parent": [
+    {"slice": "qualification + H01/H02", "code": "UNCHANGED", "proof": "REUSE_EXISTING_ACCEPTED_SCOPED", "review": "NOT_REOPENED"},
+    {"slice": "H03 AICI", "code": "SOURCE_ORCHESTRATION_IMPLEMENTED", "proof": "SOURCE_AND_STATIC_PASS; ACTUAL_PROCESS_NOT_RUN", "review": "NORMATIVE_APPROVED_SCOPED"},
+    {"slice": "B06b / G02 / P2-inert", "code": "PARTIAL", "proof": "NOT_CLOSED", "review": "NO_GLOBAL_APPROVAL"}
+  ],
+  "ownership_and_changes": {
+    "shared_repository_edits": [],
+    "commits_or_staging": false,
+    "runtime_container_native_pg_network_install": "NONE",
+    "profile_or_secret_files_accessed": false,
+    "created_files": [
+      "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f-static.py",
+      "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f/static-result.json",
+      "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f/report.json"
+    ],
+    "source_test_owned_temp_root": "/home/kali/.hermes/cache/scratch/h03-normative-source-9b4329f",
+    "resource_cleanup": "No runtime/DB resources acquired; owned inspection and SOURCE files retained",
+    "skill_update": "No shared skill writes permitted; proposed parent lesson only: compare actual installed package bytes as well as wheel bytes and handle OCI whiteouts when comparing a retained base.",
+    "Reticle": "NOT_APPLICABLE_CLI_PROCESS_SCOPE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  }
+}

@@ -11,13 +11,16 @@ import importlib
 import inspect
 import json
 import os
+import re
+import stat
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Generator, Iterator
+from collections.abc import Callable, Coroutine, Generator, Iterator
+from contextlib import nullcontext
 from copy import deepcopy
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from uuid import uuid4
 
 import pytest
@@ -40,6 +43,9 @@ from omnis.modules.tasks.managed_contract import integer, manifest_protocol
 from omnis.supervisor.native_tasks import NativeTaskOwner
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_native_preparation import command, worker_fixture
+
+if TYPE_CHECKING:
+    from omnis_hermes.runtime_host import RuntimeHost
 
 ROOT = Path(__file__).resolve().parents[2]
 PIN = Path("/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned")
@@ -2770,6 +2776,742 @@ runpy = SimpleNamespace(run_module=invoke)
         assert "UNKNOWN_EVENT" in sequence(launch_bootstrap_checkpoint(evidence)["issues"])
 
 
+@pytest.mark.parametrize("scenario", ["runtime-restart", "runtime-restart-no-final"])
+def test_h03_review_gate_precedes_database_and_container(
+    request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scenario: str
+) -> None:
+    monkeypatch.delenv("OMNIS_H03_NORMATIVE_REVIEWED", raising=False)
+    monkeypatch.delenv("OMNIS_H03_INPUT_REVIEWED", raising=False)
+
+    def forbidden_fixture(name: str) -> object:
+        raise AssertionError("H03_EFFECT_BEFORE_REVIEW")
+
+    monkeypatch.setattr(request, "getfixturevalue", forbidden_fixture)
+    with pytest.raises(AssertionError, match="^H03_EXACT_TWO_REVIEWS_REQUIRED$"):
+        test_contract_method_real_native_pg_owner_receipts_check_inbox(
+            request, tmp_path, monkeypatch, False, True, False, False, False, scenario
+        )
+
+
+@pytest.mark.parametrize(
+    "mutation", [None, "same-host", "same-native", "same-boot", "bool", "extra"]
+)
+def test_h03_process_receipt_requires_actual_replacement(mutation: str | None) -> None:
+    compare = globals().get("h03_replaced_processes")
+    assert callable(compare), "H03_PROCESS_RECEIPT_MISSING"
+    old: dict[str, object] = {
+        "boot": str(uuid4()),
+        "host": [501, 2000, 701],
+        "native": [502, 2001, 701],
+    }
+    new: dict[str, object] = {
+        "boot": str(uuid4()),
+        "host": [601, 3000, 801],
+        "native": [602, 3001, 801],
+    }
+    if mutation == "same-host":
+        new["host"] = old["host"]
+    elif mutation == "same-native":
+        new["native"] = old["native"]
+    elif mutation == "same-boot":
+        new["boot"] = old["boot"]
+    elif mutation == "bool":
+        new["host"] = [True, 3000, 801]
+    elif mutation == "extra":
+        new["capability"] = "PRIVATE_SENTINEL"
+    if mutation is None:
+        compare(old, new)
+    else:
+        with pytest.raises(AssertionError, match="^H03_PROCESS_REPLACEMENT_REFUSED$"):
+            compare(old, new)
+
+
+def test_h03_stock_container_plan_is_owned_and_contained(tmp_path: Path) -> None:
+    build = globals().get("h03_container_argv")
+    assert callable(build), "H03_CONTAINER_PLAN_MISSING"
+    image = "sha256:" + "a" * 64
+    for name in ("runtime", "state"):
+        (tmp_path / name).mkdir(mode=0o700)
+    argv = build(image, "b" * 32, tmp_path / "runtime", tmp_path / "state")
+    assert argv[:3] == ["docker", "create", "--read-only"]
+    assert argv[-1] == image
+    for flag in ("--network=none", "--cap-drop=ALL", "--security-opt=no-new-privileges"):
+        assert flag in argv
+    assert "--entrypoint" not in argv and "/var/run/docker.sock" not in " ".join(argv)
+    with pytest.raises(AssertionError, match="^H03_CONTAINER_PLAN_REFUSED$"):
+        build(image, "b" * 32, Path("/home/kali/.hermes"), tmp_path / "state")
+
+
+@pytest.mark.parametrize("mutation", [None, "task", "inbox-other", "no-consumption"])
+def test_h03_census_allows_only_one_consumption(mutation: str | None) -> None:
+    check = globals().get("h03_consumed_census")
+    assert callable(check), "H03_CENSUS_CONTROL_MISSING"
+    original: dict[str, object] = {
+        "records": [{"id": "retained"}],
+        "revision2": [],
+        "runs": [{"id": "same"}],
+        "tasks": [{"state": "SUCCEEDED"}],
+        "inbox": [{"domain_result_consumed": False, "delivered": True}],
+    }
+    after = deepcopy(original)
+    mapping(sequence(after["inbox"])[0])["domain_result_consumed"] = True
+    if mutation == "task":
+        mapping(sequence(after["tasks"])[0])["state"] = "BOUND"
+    elif mutation == "inbox-other":
+        mapping(sequence(after["inbox"])[0])["delivered"] = False
+    elif mutation == "no-consumption":
+        after = deepcopy(original)
+    if mutation is None:
+        check(canonical(original), canonical(after))
+    else:
+        with pytest.raises(AssertionError, match="^H03_CONSUMPTION_CENSUS_REFUSED$"):
+            check(canonical(original), canonical(after))
+
+
+@pytest.mark.parametrize("mutation", [None, "inventory", "uid"])
+def test_h03_static_installed_origin_preflight(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str | None
+) -> None:
+    handle = os.environ.get("OMNIS_H03_SOURCE_ARTIFACT")
+    api_handle = os.environ.get("OMNIS_H03_SOURCE_API_ARTIFACT")
+    if not handle or not api_handle:
+        pytest.skip("Owned static artifacts not selected; no runtime effect")
+    plan = mapping(json.loads(Path(handle).read_bytes()))
+    if mutation == "inventory":
+        mapping(sequence(plan["public_inventory"])[0])["sha256"] = "0" * 64
+    elif mutation == "uid":
+        plan["effective_uid_access"] = 1
+    path = tmp_path / "static-plan.json"
+    path.write_bytes(canonical(plan))
+    path.chmod(0o600)
+    # SOURCE-only fence controls, not review approvals or a launcher invocation.
+    for key in ("OMNIS_H03_NORMATIVE_REVIEWED", "OMNIS_H03_INPUT_REVIEWED"):
+        monkeypatch.setenv(key, sha(Path(__file__).read_bytes()))
+    monkeypatch.setenv("OMNIS_H03_ARTIFACT", str(path))
+    monkeypatch.setenv("OMNIS_H03_ARTIFACT_SHA", sha(path.read_bytes()))
+    monkeypatch.setenv("OMNIS_H03_API_PREREQUISITES", api_handle)
+    if mutation is None:
+        actual, interpreter = h03_prerequisites()
+        assert actual["image_id"] == plan["image_id"] and interpreter.is_file()
+    else:
+        with pytest.raises(AssertionError, match="^H03_INSTALLED_PREREQUISITE_REFUSED$"):
+            h03_prerequisites()
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "normal",
+        "create-warning",
+        "create-cancelled",
+        "never-started",
+        "drain-failed",
+        "stop-cancelled",
+        "public-exit-failure",
+        "engine-failure",
+        "reader-unknown",
+        "extra-mount",
+        "host-pidns",
+        "privileged",
+        "extra-env",
+        "network",
+        "daemon-changed",
+    ],
+)
+def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
+    """Actual producer/acquisition/finalizer AST; substituted daemon/Host, not QA."""
+    import ast
+    from types import SimpleNamespace
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    test = cast(ast.FunctionDef, tree.body[0])
+    run = next(n for n in test.body if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    body = next(n for n in run.body if isinstance(n, ast.Try))
+    branch = next(
+        n
+        for n in body.body
+        if isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == "h03"
+    )
+    # Keep all real acquisition statements, substituting only actual resource seams.
+    helpers = [
+        n
+        for n in run.body
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and n.name in {"docker", "recover_cid", "inspect_owned", "retire_host"}
+    ]
+    directory, state_dir = tmp_path / "runtime", tmp_path / "h03-state"
+    directory.mkdir(mode=0o700)
+    (directory / "runtime.lock").touch(mode=0o600)
+    cid_value, nonce = "c" * 64, "b" * 32
+    image = "sha256:" + "a" * 64
+    plan: dict[str, object] = {
+        "image_id": image,
+        "stock_cmd": ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"],
+    }
+    config: dict[str, object] = {
+        "Labels": {"org.omnis.h03.owner": nonce},
+        "Cmd": plan["stock_cmd"],
+        "Entrypoint": None,
+        "User": str(os.getuid()) + ":" + str(os.getgid()),
+        "Env": ["PUBLIC=stock"],
+        "Volumes": None,
+    }
+    containment: dict[str, object] = {
+        "ReadonlyRootfs": True,
+        "NetworkMode": "none",
+        "CapDrop": ["ALL"],
+        "CapAdd": None,
+        "SecurityOpt": ["no-new-privileges"],
+        "PidMode": "",
+        "Privileged": False,
+        "PidsLimit": 64,
+        "Memory": 805306368,
+        "NanoCpus": 1000000000,
+        "Tmpfs": {"/tmp": "rw,noexec,nosuid,nodev,size=32m,mode=1777"},
+        "PortBindings": {},
+        "Devices": [],
+        "VolumesFrom": None,
+        "IpcMode": "private",
+        "UTSMode": "",
+        "UsernsMode": "",
+        "CgroupnsMode": "private",
+    }
+    info: dict[str, object] = {
+        "Id": cid_value,
+        "Name": "/omnis-h03-" + nonce,
+        "Image": image,
+        "Config": config,
+        "HostConfig": containment,
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": str(path),
+                "Destination": dst,
+                "RW": True,
+                "Mode": "",
+                "Propagation": "rprivate",
+            }
+            for path, dst in ((directory, "/runtime"), (state_dir, "/state"))
+        ],
+        "State": {"Running": False, "ExitCode": 0, "Status": "created"},
+    }
+    if mode == "extra-mount":
+        sequence(info["Mounts"]).append(
+            {
+                "Type": "bind",
+                "Source": "/var/run/docker.sock",
+                "Destination": "/var/run/docker.sock",
+                "RW": True,
+                "Mode": "",
+                "Propagation": "rprivate",
+            }
+        )
+    elif mode == "host-pidns":
+        containment["PidMode"] = "host"
+    elif mode == "privileged":
+        containment["Privileged"] = True
+    elif mode == "extra-env":
+        config["Env"] = ["PUBLIC=stock", "HERMES_HOME=/operator"]
+    elif mode == "network":
+        containment["NetworkMode"] = "host"
+    calls: list[str] = []
+    proof: dict[str, object] = {}
+    fence: dict[str, object] = {"unsettled": False}
+    state: dict[str, object] = {
+        "docker_unknown": False,
+        "reader_unknown": mode == "reader-unknown",
+        "cleanup_failed": False,
+    }
+    daemon = {"created": False, "removed": False, "inflight": False}
+    namespace: dict[str, object] = dict(globals())
+
+    class Runtime:
+        writer: object = None
+
+        async def connect(self) -> None:
+            calls.append("connect")
+            if mode == "never-started":
+                raise RuntimeError("SYNTHETIC_NOT_READY")
+            self.writer = object()
+
+        async def drain(self) -> bool:
+            calls.append("drain")
+            return mode != "drain-failed"
+
+        async def close(self) -> None:
+            calls.append("close")
+            self.writer = None
+
+    runtime = Runtime()
+
+    async def start_host() -> None:
+        calls.append("start_host")
+        if mode == "never-started":
+            raise RuntimeError("SYNTHETIC_PRE_BOOT_FAILURE")
+        mapping(info["State"]).update(Running=True, Status="running")
+        runtime.writer = object()
+
+    class Child:
+        pid = 101
+        returncode: int | None = None
+
+        def __init__(self, argv: tuple[str, ...]) -> None:
+            self.argv = argv
+
+        async def communicate(self) -> tuple[bytes, bytes]:
+            op = self.argv[1]
+            calls.append(op)
+            if op == "info":
+                self.returncode = 0
+                value = (
+                    "changed-daemon"
+                    if mode == "daemon-changed" and daemon["created"]
+                    else "owned-daemon"
+                )
+                return (value + "\n").encode(), b""
+            if op == "image":
+                self.returncode = 0
+                return json.dumps(
+                    [{"Id": image, "Config": {**config, "Env": ["PUBLIC=stock"]}}]
+                ).encode(), b""
+            if op == "create":
+                daemon["created"] = True
+                path = tmp_path / ("h03-" + nonce + ".cid")
+                path.write_text(cid_value + "\n")
+                path.chmod(0o600)
+                if mode == "create-cancelled":
+                    daemon["inflight"] = True
+                    raise asyncio.CancelledError
+                self.returncode = 0
+                return (
+                    cid_value + "\n"
+                ).encode(), b"PRIVATE_SYNTHETIC_WARNING" if mode == "create-warning" else b""
+            if op == "stop":
+                if mode == "stop-cancelled" and not daemon["inflight"]:
+                    daemon["inflight"] = True
+                    raise asyncio.CancelledError
+                mapping(info["State"]).update(Running=False, Status="exited")
+            if op == "rm":
+                daemon["removed"] = True
+            self.returncode = 0
+            if op == "inspect":
+                if daemon["removed"]:
+                    self.returncode = 1
+                    return b"", ("Error: No such object: " + cid_value + "\n").encode()
+                return json.dumps([info]).encode(), b""
+            return (cid_value + "\n").encode(), b""
+
+        def kill(self) -> None:
+            calls.append("direct-child-kill")
+            self.returncode = -9
+
+        async def wait(self) -> int | None:
+            calls.append("direct-child-join")
+            return self.returncode
+
+    async def spawn(*args: str, **kwargs: object) -> Child:
+        return Child(args)
+
+    class PublicControl:
+        lock_fd = None
+        directory = tmp_path
+
+        async def __aexit__(self, *args: object) -> None:
+            calls.append("public-owner-exit")
+            assert fence["unsettled"] is True, "H03_FENCE_RELEASED_BEFORE_PUBLIC_OWNER"
+            if mode == "public-exit-failure":
+                raise RuntimeError("SYNTHETIC_PUBLIC_OWNER_FAILURE")
+
+    class Engine:
+        async def dispose(self) -> None:
+            calls.append("engine-dispose")
+            assert fence["unsettled"] is True, "H03_FENCE_RELEASED_BEFORE_ENGINE"
+            if mode == "engine-failure":
+                raise RuntimeError("SYNTHETIC_ENGINE_FAILURE")
+
+    namespace.update(
+        asyncio=SimpleNamespace(
+            create_subprocess_exec=spawn,
+            subprocess=asyncio.subprocess,
+            timeout=asyncio.timeout,
+            wait_for=asyncio.wait_for,
+            gather=asyncio.gather,
+        ),
+        cid="",
+        nonce=nonce,
+        directory=directory,
+        state_dir=state_dir,
+        tmp_path=tmp_path,
+        h03=True,
+        runtime=runtime,
+        process_receipts=[],
+        db_fence=fence,
+        h03_plan=plan,
+        h03_state=state,
+        daemon_id="",
+        image_config={},
+        h03_deadline=time.monotonic() + 60,
+        checkpoint=lambda **fields: proof.update(fields),
+        start_host=start_host,
+        done=asyncio.Event(),
+        dispatch_waiters=[],
+        heartbeat=None,
+        public_control=PublicControl(),
+        engine=Engine(),
+        host=None,
+        proof=proof,
+    )
+    unit = ast.AsyncFunctionDef(
+        name="consumer",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        decorator_list=[],
+        body=[
+            *ast.parse("cid = ''\ndaemon_id = ''\nimage_config = {}\n").body,
+            *helpers,
+            ast.Try(body=branch.body, handlers=body.handlers, orelse=[], finalbody=body.finalbody),
+        ],
+    )
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[unit], type_ignores=[])),
+            "<actual-h03-consumer-seams>",
+            "exec",
+        ),
+        namespace,
+    )
+    error: BaseException | None = None
+    try:
+        asyncio.run(cast(Callable[[], Coroutine[object, object, None]], namespace["consumer"])())
+    except BaseException as exc:
+        error = exc
+    assert "engine-dispose" in calls, "H03_LATE_CLEANUP_SKIPPED"
+    assert proof.get("h03_name") == "omnis-h03-" + nonce
+    assert proof.get("h03_cidfile") == str(tmp_path / ("h03-" + nonce + ".cid"))
+    negative = mode != "normal"
+    assert fence["unsettled"] is negative, "H03_UNSAFE_FENCE_TRANSITION"
+    if mode not in {"daemon-changed"}:
+        assert daemon["removed"], "H03_EXACT_RESOURCE_CLEANUP_SKIPPED"
+        assert proof.get("h03_cid") == cid_value, "H03_EXACT_CID_NOT_RETAINED"
+    if mode in {"extra-mount", "host-pidns", "privileged", "extra-env", "network"}:
+        assert "start_host" not in calls, "H03_CONTAINMENT_FALSE_GREEN"
+    if mode in {"create-warning", "create-cancelled", "never-started"}:
+        assert "connect" not in calls, "H03_STOPPED_CLEANUP_REQUIRES_HOST"
+    if mode in {"create-cancelled", "stop-cancelled"}:
+        assert state["docker_unknown"] is True, "H03_ORIGINAL_UNKNOWN_NOT_LATCHED"
+    if negative:
+        assert proof.get("status") == "UNCERTAIN", "H03_UNCERTAINTY_NOT_CHECKPOINTED"
+    else:
+        assert error is None, "H03_NORMAL_SOURCE_CLEANUP_FAILED"
+
+
+def test_h03_mount_roots_refuse_physical_alias(tmp_path: Path) -> None:
+    runtime, state = tmp_path / "runtime", tmp_path / "state"
+    runtime.mkdir(mode=0o700)
+    state.mkdir(mode=0o700)
+    alias = tmp_path / "alias"
+    alias.symlink_to(runtime, target_is_directory=True)
+    with pytest.raises(AssertionError, match="^H03_CONTAINER_PLAN_REFUSED$"):
+        h03_container_argv("sha256:" + "a" * 64, "b" * 32, alias, state)
+
+
+@pytest.mark.parametrize(
+    "mode", ["normal", "denial", "timeout", "cancelled", "unknown", "bad-receipt"]
+)
+def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: str) -> None:
+    """Real nested reader producer; family/installed/DB seams are substituted."""
+    import ast
+    from types import SimpleNamespace
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    fn = next(
+        n
+        for n in cast(ast.FunctionDef, tree.body[0]).body
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "restarted_cli"
+    )
+    fence: dict[str, object] = {"unsettled": False}
+    state = {"reader_unknown": False, "docker_unknown": False, "cleanup_failed": False}
+    proof: dict[str, object] = {}
+    reached: list[str] = []
+
+    async def family(
+        fn: object, argv: list[str], env: object, log: Path, timeout: int, **kwargs: object
+    ) -> int:
+        assert state["reader_unknown"] and fence["unsettled"], "H03_READER_PRELAUNCH_FENCE_MISSING"
+        reached.append("family")
+        if mode == "cancelled":
+            raise asyncio.CancelledError
+        if mode == "timeout":
+            raise TimeoutError
+        code = 2 if mode == "denial" else 99 if mode == "unknown" else 0
+        audit = log.with_name(log.name.removesuffix(".gate.log") + ".jsonl")
+        rows = [
+            {"status": "ORIGIN", "name": "INSTALLED", "pid": 101},
+            {"status": "READY", "name": "managed-cli", "pid": 101},
+            {"status": "EXIT", "name": str(code), "pid": 101},
+        ]
+        if mode == "bad-receipt":
+            rows[-1]["name"] = "99"
+        audit.write_text("\n".join(json.dumps(row) for row in rows))
+        audit.with_suffix(".stdout").write_bytes(b"{}" if code == 0 else b"")
+        audit.with_suffix(".stderr").write_bytes(
+            b'{"status":"BLOCKED","reason":"NEEDS_RECONCILIATION"}' if code == 2 else b""
+        )
+        return code
+
+    namespace: dict[str, object] = dict(globals())
+    namespace.update(
+        tmp_path=tmp_path,
+        h03=True,
+        h03_state=state,
+        db_fence=fence,
+        reader_python=Path(sys.executable),
+        python=Path(sys.executable),
+        dsn="SYNTHETIC_PRIVATE_DSN",
+        seed=SimpleNamespace(root=tmp_path, environment=lambda dsn: {}),
+        proof=proof,
+        checkpoint=lambda **fields: proof.update(fields),
+        asyncio=SimpleNamespace(to_thread=family),
+    )
+    wrapper = ast.parse(
+        "async def consumer():\n"
+        "    return await restarted_cli('readback', {}, reason=reader_reason)\n"
+    ).body[0]
+    namespace["reader_reason"] = "NEEDS_RECONCILIATION" if mode == "denial" else None
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[fn, wrapper], type_ignores=[])),
+            "<actual-h03-reader-source>",
+            "exec",
+        ),
+        namespace,
+    )
+    failed = False
+    try:
+        call = cast(Callable[[], Coroutine[object, object, object]], namespace["consumer"])
+        asyncio.run(call())
+    except AssertionError:
+        failed = True
+    uncertain = mode not in {"normal", "denial"}
+    assert reached == ["family"]
+    assert failed is uncertain
+    assert state["reader_unknown"] is uncertain
+    assert fence["unsettled"] is True  # Only complete run finalizer may clear it.
+
+
+@pytest.mark.parametrize("mode", ["normal", "newline", "mode", "symlink", "hardlink", "content"])
+def test_h03_actual_cidfile_recovery_is_strict(tmp_path: Path, mode: str) -> None:
+    import ast
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    test = cast(ast.FunctionDef, tree.body[0])
+    run = next(n for n in test.body if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    recover = next(
+        n for n in run.body if isinstance(n, ast.AsyncFunctionDef) and n.name == "recover_cid"
+    )
+    nonce, value = "b" * 32, "c" * 64
+    path = tmp_path / ("h03-" + nonce + ".cid")
+    path.write_text(value + ("\n" if mode == "newline" else "") if mode != "content" else "INVALID")
+    path.chmod(0o644 if mode == "mode" else 0o600)
+    if mode == "symlink":
+        target = tmp_path / "target"
+        path.rename(target)
+        path.symlink_to(target)
+    elif mode == "hardlink":
+        os.link(path, tmp_path / "alias")
+    proof: dict[str, object] = {}
+    attested: list[bool] = []
+
+    async def inspect_owned() -> dict[str, object]:
+        attested.append(True)
+        return {}
+
+    namespace: dict[str, object] = dict(globals())
+    namespace.update(
+        state_dir=tmp_path / "state",
+        nonce=nonce,
+        checkpoint=lambda **fields: proof.update(fields),
+        inspect_owned=inspect_owned,
+    )
+    wrapper = ast.AsyncFunctionDef(
+        name="consumer",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        decorator_list=[],
+        body=[*ast.parse("cid = ''").body, recover, *ast.parse("await recover_cid()").body],
+    )
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[wrapper], type_ignores=[])),
+            "<actual-h03-cid-source>",
+            "exec",
+        ),
+        namespace,
+    )
+    failed = False
+    try:
+        asyncio.run(cast(Callable[[], Coroutine[object, object, None]], namespace["consumer"])())
+    except (AssertionError, OSError):
+        failed = True
+    assert failed is (mode not in {"normal", "newline"})
+    assert bool(attested) is (not failed)
+    if not failed:
+        assert proof["h03_cid"] == value
+
+
+def h03_consumed_census(before: bytes, after: bytes) -> None:
+    expected = mapping(json.loads(before))
+    inboxes = sequence(expected["inbox"])
+    if len(inboxes) != 1 or mapping(inboxes[0])["domain_result_consumed"] is not False:
+        raise AssertionError("H03_CONSUMPTION_CENSUS_REFUSED")
+    mapping(inboxes[0])["domain_result_consumed"] = True
+    if canonical(expected) != after:
+        raise AssertionError("H03_CONSUMPTION_CENSUS_REFUSED")
+
+
+def h03_replaced_processes(old: dict[str, object], new: dict[str, object]) -> None:
+    """Host-visible PID/starttime/pidns, not namespace PID1 or Python identity."""
+    from uuid import UUID
+
+    for row in (old, new):
+        if set(row) != {"boot", "host", "native"} or type(row["boot"]) is not str:
+            raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
+        try:
+            if str(UUID(str(row["boot"]))) != row["boot"]:
+                raise ValueError
+        except ValueError:
+            raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED") from None
+        for name in ("host", "native"):
+            values = row[name]
+            if (
+                type(values) is not list
+                or len(values) != 3
+                or any(type(v) is not int or v <= 0 for v in values)
+            ):
+                raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
+        host, native = sequence(row["host"]), sequence(row["native"])
+        if host[0] == native[0] or host[2] != native[2]:
+            raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
+    if any(old[k] == new[k] for k in ("boot", "host", "native")):
+        raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
+    if sequence(old["host"])[2] == sequence(new["host"])[2]:
+        raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
+
+
+def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> list[str]:
+    scratch = Path("/home/kali/.hermes/cache/scratch")
+    if (
+        re.fullmatch(r"sha256:[a-f0-9]{64}", image) is None
+        or re.fullmatch(r"[a-f0-9]{32}", nonce) is None
+        or os.getuid() <= 0
+        or any(
+            not p.is_absolute()
+            or p.resolve(strict=True) != p
+            or not p.is_relative_to(scratch)
+            or not stat.S_ISDIR(p.lstat().st_mode)
+            or p.lstat().st_uid != os.getuid()
+            or stat.S_IMODE(p.lstat().st_mode) != 0o700
+            for p in (runtime, state)
+        )
+        or runtime.absolute() == state.absolute()
+    ):
+        raise AssertionError("H03_CONTAINER_PLAN_REFUSED")
+    return [
+        "docker",
+        "create",
+        "--read-only",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=64",
+        "--memory=768m",
+        "--cpus=1",
+        "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777",
+        "--user=" + str(os.getuid()) + ":" + str(os.getgid()),
+        "--name=omnis-h03-" + nonce,
+        "--label=org.omnis.h03.owner=" + nonce,
+        "--cidfile=" + str(state.parent / ("h03-" + nonce + ".cid")),
+        "--mount=type=bind,src=" + str(runtime) + ",dst=/runtime",
+        "--mount=type=bind,src=" + str(state) + ",dst=/state",
+        image,
+    ]
+
+
+def h03_prerequisites() -> tuple[dict[str, object], Path]:
+    """Static installed origin before acquiring the existing DB or OCI fixture."""
+    digest = sha(Path(__file__).read_bytes())
+    if any(
+        os.environ.get(key) != digest
+        for key in ("OMNIS_H03_NORMATIVE_REVIEWED", "OMNIS_H03_INPUT_REVIEWED")
+    ):
+        raise AssertionError("H03_EXACT_TWO_REVIEWS_REQUIRED")
+    try:
+        artifact = Path(os.environ["OMNIS_H03_ARTIFACT"])
+        info = artifact.lstat()
+        if (
+            not stat.S_ISREG(info.st_mode)
+            or stat.S_IMODE(info.st_mode) != 0o600
+            or info.st_uid != os.getuid()
+            or info.st_nlink != 1
+        ):
+            raise ValueError
+        raw = artifact.read_bytes()
+        if sha(raw) != os.environ["OMNIS_H03_ARTIFACT_SHA"]:
+            raise ValueError
+        plan = mapping(json.loads(raw))
+        root = Path(str(plan["root"])).resolve(strict=True)
+        if not root.is_relative_to(Path("/home/kali/.hermes/cache/scratch")):
+            raise ValueError
+        if (
+            plan["status"] != "PASS_STATIC_CURRENT_DISTRIBUTION"
+            or plan["effective_uid_access"] is not True
+            or plan["unchanged_native_dependencies"] is not True
+            or plan["runtime_started"] is not False
+            or plan["startup_autoload"] != "NONE"
+            or type(plan["image_id"]) is not str
+            or re.fullmatch(r"sha256:[a-f0-9]{64}", str(plan["image_id"])) is None
+            or plan["stock_cmd"]
+            != ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]
+            or os.getuid() != 1000
+            or os.getgid() != 1000
+        ):
+            raise ValueError
+        upstream = ROOT / "integrations/hermes/upstream"
+        expected: dict[str, str] = {}
+        for manifest, source in (
+            ("patch-manifest.json", "inert-source"),
+            ("managed-patch-manifest.json", "managed-source"),
+        ):
+            for name in mapping(mapping(json.loads((upstream / manifest).read_bytes()))["files"]):
+                expected["opt/hermes/source/" + name] = sha((upstream / source / name).read_bytes())
+        for path in (ROOT / "integrations/hermes/src/omnis_hermes").glob("*.py"):
+            expected["opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/" + path.name] = (
+                sha(path.read_bytes())
+            )
+        rows = [mapping(row) for row in sequence(plan["public_inventory"])]
+        if len(rows) != len(expected) or len(expected) != 34:
+            raise ValueError
+        if {str(row["path"]): row["sha256"] for row in rows} != expected or any(
+            row["match"] is not True for row in rows
+        ):
+            raise ValueError
+        _, current = historical_installed_plan(Path(os.environ["OMNIS_H03_API_PREREQUISITES"]))
+        import zipfile
+
+        with zipfile.ZipFile(str(current["wheel"])) as wheel:
+            for name in wheel.namelist():
+                if name.startswith("omnis/") and not name.endswith("/"):
+                    if wheel.read(name) != (ROOT / "api/src" / name).read_bytes():
+                        raise ValueError
+        return plan, Path(str(current["python"]))
+    except (OSError, ValueError, KeyError, AssertionError):
+        raise AssertionError("H03_INSTALLED_PREREQUISITE_REFUSED") from None
+
+
 class PreparationPrerequisite(RuntimeClient):
     """Only a document-loading prerequisite double; real transport otherwise."""
 
@@ -2810,6 +3552,8 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "mission-consumer"),
         (False, True, False, False, False, "result-qualification"),
         (False, True, False, False, False, "historical-installed"),
+        (False, True, False, False, False, "runtime-restart"),
+        (False, True, False, False, False, "runtime-restart-no-final"),
     ],
     ids=[
         "support-zero",
@@ -2832,6 +3576,8 @@ class PreparationPrerequisite(RuntimeClient):
         "mission-consumer",
         "result-qualification",
         "historical-installed",
+        "runtime-restart",
+        "runtime-restart-no-final",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -2850,8 +3596,16 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         Path("/home/kali/.hermes/cache/scratch")
     )
     assert tmp_path.resolve().is_relative_to(scratch)
-    assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
-    assert LIBRARIES.is_dir(), "SOURCE_LIBRARIES_REQUIRED"
+    h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
+    h03_plan: dict[str, object] = {}
+    reader_python: Path | None = None
+    db_fence: dict[str, object] = {}
+    if h03:
+        h03_plan, reader_python = h03_prerequisites()
+        db_fence = mapping(request.getfixturevalue("historical_database_fence"))
+    else:
+        assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
+        assert LIBRARIES.is_dir(), "SOURCE_LIBRARIES_REQUIRED"
     if applicability == "historical-installed":
         historical_installed_journey(request, tmp_path)
         return
@@ -2861,10 +3615,15 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert python.is_file(), "PINNED_PYTHON_REQUIRED"
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
-    if applicability is not None and applicability not in {
-        "mission-consumer",
-        "result-qualification",
-    }:
+    if (
+        applicability is not None
+        and not h03
+        and applicability
+        not in {
+            "mission-consumer",
+            "result-qualification",
+        }
+    ):
         import yaml
 
         from fixtures import c03_records
@@ -2952,61 +3711,129 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         proof_path.write_bytes(canonical(proof))
         proof_path.chmod(0o600)
 
-    async def restarted_cli(operation: str, back_request: dict[str, object]) -> dict[str, object]:
+    h03_state: dict[str, bool] = {
+        "docker_unknown": False,
+        "reader_unknown": False,
+        "cleanup_failed": False,
+    }
+
+    async def restarted_cli(
+        operation: str, back_request: dict[str, object], *, reason: str | None = None
+    ) -> dict[str, object]:
         path = tmp_path / ("restart-request-" + uuid4().hex + ".json")
         path.write_bytes(canonical(back_request))
         path.chmod(0o600)
         audit = tmp_path / ("restart-observer-" + uuid4().hex + ".jsonl")
         audit.touch(mode=0o600)
-        child = await asyncio.create_subprocess_exec(
-            str(python),
+        argv = [
+            str(reader_python if h03 else python),
             "-I",
             "-B",
             "-c",
             RESTART_READER,
-            str(ROOT / "api/src"),
+            "INSTALLED" if h03 else str(ROOT / "api/src"),
             str(audit),
             operation,
             "--request",
             str(path),
             "--catalog-root",
             str(seed.root),
-            cwd=tmp_path,
-            env=seed.environment(dsn),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        try:
-            stdout, stderr = await asyncio.wait_for(child.communicate(), 15)
-        finally:
+        ]
+        if h03:
+            prior_unknown = h03_state["reader_unknown"]
+            h03_state["reader_unknown"] = True
+            db_fence["unsettled"] = True
+            output_paths = [audit.with_suffix("." + suffix) for suffix in ("stdout", "stderr")]
+            # Exec in the SAME managed family; only redirect private diagnostics.
+            redirect = (
+                "import os,sys; "
+                "fds=[os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600) for p in sys.argv[1:3]]; "
+                "os.dup2(fds[0],1); os.dup2(fds[1],2); "
+                "[os.close(fd) for fd in fds]; os.execv(sys.argv[3],sys.argv[3:])"
+            )
+            try:
+                reader_exit = await asyncio.to_thread(
+                    historical_run_gate,
+                    [
+                        str(reader_python),
+                        "-I",
+                        "-B",
+                        "-c",
+                        redirect,
+                        *map(str, output_paths),
+                        *argv,
+                    ],
+                    seed.environment(dsn),
+                    audit.with_suffix(".gate.log"),
+                    15,
+                    cwd=tmp_path,
+                )
+                # run_gate supplies the strict family receipt, not PID-only credit.
+                events = [mapping(json.loads(line)) for line in audit.read_text().splitlines()]
+                reader_pid = integer(events[0]["pid"], 1) if events else 0
+                if reader_exit not in (0, 2) or events != [
+                    {"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid},
+                    {"status": "READY", "name": "managed-cli", "pid": reader_pid},
+                    {"status": "EXIT", "name": str(reader_exit), "pid": reader_pid},
+                ]:
+                    raise AssertionError("H03_READER_FAMILY_OR_EXIT_UNCERTAIN")
+                stdout, stderr = (p.read_bytes() for p in output_paths)
+                h03_state["reader_unknown"] = prior_unknown
+            except BaseException:
+                checkpoint(status="UNCERTAIN", h03_reader_cleanup="NOT_SETTLED_DB_RETAINED")
+                raise AssertionError("H03_READER_NOT_SETTLED") from None
+        else:
+            child = await asyncio.create_subprocess_exec(
+                *argv,
+                cwd=tmp_path,
+                env=seed.environment(dsn),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            try:
+                stdout, stderr = await asyncio.wait_for(child.communicate(), 15)
+            finally:
+                if child.returncode is None:
+                    child.kill()
+                    await child.wait()
+            reader_pid = child.pid
             if child.returncode is None:
-                child.kill()
-                await child.wait()
+                raise AssertionError("RESTART_CLI_NOT_JOINED")
+            reader_exit = child.returncode
         # Diagnostic bytes stay private, including if the CLI unexpectedly fails.
         for suffix, raw in (("stdout", stdout), ("stderr", stderr)):
             output = audit.with_suffix("." + suffix)
             output.write_bytes(raw)
             output.chmod(0o600)
         events = [json.loads(line) for line in audit.read_text().splitlines()]
-        assert events == [
-            {"status": "READY", "name": "managed-cli", "pid": child.pid},
-            {"status": "EXIT", "name": "0", "pid": child.pid},
-        ], "RESTART_EXECUTION_OR_OBSERVER_FAILURE"
-        assert child.pid != os.getpid()
-        assert child.returncode == 0, "RESTART_CLI_FAILED"
-        require_empty_stderr(stderr)
+        expected_exit = 0 if reason is None else 2
+        if events != [
+            *([{"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid}] if h03 else []),
+            {"status": "READY", "name": "managed-cli", "pid": reader_pid},
+            {"status": "EXIT", "name": str(expected_exit), "pid": reader_pid},
+        ]:
+            raise AssertionError("RESTART_EXECUTION_OR_OBSERVER_FAILURE")
+        assert reader_pid != os.getpid()
+        assert reader_exit == expected_exit, "RESTART_CLI_FAILED"
+        if reason is None:
+            require_empty_stderr(stderr)
+        else:
+            assert historical_cli_result(expected_exit, stdout, stderr) == {
+                "status": "BLOCKED",
+                "reason": reason,
+            }
         checkpoint(
             restart_processes=[
                 *sequence(proof.get("restart_processes", [])),
                 {
                     "operation": operation,
-                    "pid": child.pid,
-                    "exit": child.returncode,
+                    "pid": reader_pid,
+                    "exit": reader_exit,
                     "execution_attempts": 0,
                 },
             ]
         )
-        return mapping(json.loads(stdout))
+        return historical_cli_result(expected_exit, stdout, stderr)
 
     async def run() -> None:
         from omnis.supervisor.native_tasks import control_task
@@ -3015,12 +3842,287 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         engine = database_engine(dsn)
         service, supervisor = InstanceService(engine), uuid4()
         domain, inputs = ManagedAdmission(engine, seed.root), ContractInputs(engine, seed.root)
-        runtime = None
-        host = None
+        runtime: PreparationPrerequisite | None = None
+        host: RuntimeHost | None = None
         done = asyncio.Event()
         heartbeat: asyncio.Task[None] | None = None
         public_control: LocalControl | None = None
         dispatch_waiters: list[asyncio.Task[dict[str, object]]] = []
+        cid = ""
+        nonce = uuid4().hex
+        host_pid = 0
+        process_receipts: list[dict[str, object]] = []
+        h03_deadline = time.monotonic() + 240
+
+        daemon_id = ""
+        image_config: dict[str, object] = {}
+
+        async def docker(*args: str, expected_exit: int = 0) -> bytes:
+            # A joined CLI/absence cannot settle an earlier unknown daemon request.
+            mutation = args[0] in {"create", "start", "stop", "rm"}
+            prior_unknown = h03_state["docker_unknown"]
+            if mutation:
+                h03_state["docker_unknown"] = True
+                db_fence["unsettled"] = True
+            label = "h03-docker-" + uuid4().hex
+            try:
+                if args[0] != "info" and daemon_id:
+                    if (await docker("info", "--format={{.ID}}")).decode().strip() != daemon_id:
+                        raise AssertionError("H03_DAEMON_IDENTITY_REFUSED")
+                child = await asyncio.create_subprocess_exec(
+                    "docker",
+                    *args,
+                    cwd=tmp_path,
+                    env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    umask=0o077,
+                )
+                stdout = stderr = b""
+                try:
+                    async with asyncio.timeout(min(20, max(0.01, h03_deadline - time.monotonic()))):
+                        stdout, stderr = await child.communicate()
+                finally:
+                    if child.returncode is None:
+                        child.kill()
+                        await asyncio.wait_for(child.wait(), 5)
+                    for suffix, raw in (("stdout", stdout), ("stderr", stderr)):
+                        path = tmp_path / (label + "." + suffix)
+                        path.write_bytes(raw)
+                        path.chmod(0o600)
+                if child.returncode != expected_exit:
+                    raise AssertionError("H03_DOCKER_OPERATION_UNCERTAIN")
+                if expected_exit == 0:
+                    require_empty_stderr(stderr)
+                elif stderr != ("Error: No such object: " + cid + "\n").encode():
+                    raise AssertionError("H03_CONTAINER_ABSENCE_UNCERTAIN")
+                if mutation and (
+                    re.fullmatch(rb"[a-f0-9]{64}\n", stdout) is None
+                    or (args[0] != "create" and stdout != (cid + "\n").encode())
+                ):
+                    raise AssertionError("H03_DOCKER_ACK_UNCERTAIN")
+                if args[0] != "info" and daemon_id:
+                    if (await docker("info", "--format={{.ID}}")).decode().strip() != daemon_id:
+                        raise AssertionError("H03_DAEMON_IDENTITY_REFUSED")
+                checkpoint(
+                    h03_last_docker={
+                        "operation": args[0],
+                        "pid": child.pid,
+                        "exit": child.returncode,
+                    }
+                )
+                if mutation:
+                    h03_state["docker_unknown"] = prior_unknown
+                return stdout
+            except BaseException:
+                h03_state["docker_unknown"] = True
+                db_fence["unsettled"] = True
+                checkpoint(status="UNCERTAIN", h03_docker_effect="NOT_SETTLED")
+                raise
+
+        async def inspect_owned(*, full: bool = False) -> dict[str, object]:
+            rows = sequence(json.loads(await docker("inspect", cid)))
+            if len(rows) != 1:
+                raise AssertionError("H03_CONTAINER_OWNERSHIP_REFUSED")
+            created = mapping(rows[0])
+            config, containment = mapping(created["Config"]), mapping(created["HostConfig"])
+            if (
+                created["Id"] != cid
+                or created["Image"] != h03_plan["image_id"]
+                or created["Name"] != "/omnis-h03-" + nonce
+                or mapping(config["Labels"]).get("org.omnis.h03.owner") != nonce
+            ):
+                raise AssertionError("H03_CONTAINER_OWNERSHIP_REFUSED")
+            if full:
+                h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)
+                mounts = [mapping(row) for row in sequence(created["Mounts"])]
+                expected = {(str(directory), "/runtime"), (str(state_dir), "/state")}
+                if (
+                    config["Cmd"] != h03_plan["stock_cmd"]
+                    or config["Entrypoint"] not in (None, [])
+                    or config["User"] != str(os.getuid()) + ":" + str(os.getgid())
+                    or config["Env"] != image_config["Env"]
+                    or config["Volumes"] not in (None, {})
+                    or containment["ReadonlyRootfs"] is not True
+                    or containment["NetworkMode"] != "none"
+                    or containment["PidMode"] != ""
+                    or containment["Privileged"] is not False
+                    or containment["CapDrop"] != ["ALL"]
+                    or containment["CapAdd"] not in (None, [])
+                    or containment["SecurityOpt"]
+                    not in (["no-new-privileges"], ["no-new-privileges:true"])
+                    or type(containment["PidsLimit"]) is not int
+                    or containment["PidsLimit"] != 64
+                    or type(containment["Memory"]) is not int
+                    or containment["Memory"] != 805306368
+                    or type(containment["NanoCpus"]) is not int
+                    or containment["NanoCpus"] != 1000000000
+                    or containment["Tmpfs"] != {"/tmp": "rw,noexec,nosuid,nodev,size=32m,mode=1777"}
+                    or containment["PortBindings"] not in (None, {})
+                    or containment["Devices"] not in (None, [])
+                    or containment["VolumesFrom"] not in (None, [])
+                    or containment["IpcMode"] != "private"
+                    or containment["UTSMode"] != ""
+                    or containment["UsernsMode"] != ""
+                    or containment["CgroupnsMode"] != "private"
+                    or len(mounts) != 2
+                    or {(m["Source"], m["Destination"]) for m in mounts} != expected
+                    or any(
+                        m["Type"] != "bind"
+                        or m["RW"] is not True
+                        or m["Mode"] != ""
+                        or m["Propagation"] != "rprivate"
+                        for m in mounts
+                    )
+                ):
+                    raise AssertionError("H03_CONTAINER_CONTAINMENT_REFUSED")
+            return created
+
+        async def recover_cid() -> None:
+            nonlocal cid
+            path = state_dir.parent / ("h03-" + nonce + ".cid")
+            if os.path.lexists(path):
+                fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                try:
+                    info = os.fstat(fd)
+                    if (
+                        not stat.S_ISREG(info.st_mode)
+                        or stat.S_IMODE(info.st_mode) != 0o600
+                        or info.st_uid != os.getuid()
+                        or info.st_nlink != 1
+                    ):
+                        raise AssertionError("H03_CIDFILE_OWNERSHIP_REFUSED")
+                    raw = os.read(fd, 66)
+                    if re.fullmatch(rb"[a-f0-9]{64}\n?", raw) is None:
+                        raise AssertionError("H03_CIDFILE_CONTENT_REFUSED")
+                    cid = raw.decode().strip()
+                finally:
+                    os.close(fd)
+            else:
+                # Registered exact name is a locator, not ownership authority.
+                rows = sequence(json.loads(await docker("inspect", "omnis-h03-" + nonce)))
+                if len(rows) != 1:
+                    raise AssertionError("H03_CREATED_CID_UNCERTAIN")
+                value = mapping(rows[0]).get("Id")
+                if type(value) is not str or re.fullmatch(r"[a-f0-9]{64}", value) is None:
+                    raise AssertionError("H03_CREATED_CID_UNCERTAIN")
+                cid = value
+            checkpoint(h03_cid=cid)
+            await inspect_owned()
+
+        def process_identity(pid: int, *, module: str, inner_pid: int | None = None) -> list[int]:
+            proc = Path("/proc") / str(pid)
+            before = (proc / "stat").read_bytes()
+            command = (proc / "cmdline").read_bytes().split(b"\0")
+            expected = [b"/opt/hermes/venv/bin/python", b"-I", b"-m", module.encode(), b""]
+            if command != expected:
+                raise AssertionError("H03_STOCK_PROCESS_ORIGIN_REFUSED")
+            fields = before.rsplit(b")", 1)[1].split()
+            start = int(fields[19])
+            pidns = (proc / "ns/pid").stat().st_ino
+            if inner_pid is not None:
+                nspid = next(
+                    line.split()[1:]
+                    for line in (proc / "status").read_text().splitlines()
+                    if line.startswith("NSpid:")
+                )
+                if int(nspid[-1]) != inner_pid:
+                    raise AssertionError("H03_HOST_NOT_NAMESPACE_PID1")
+            if (proc / "stat").read_bytes().rsplit(b")", 1)[1].split()[19] != fields[19]:
+                raise AssertionError("H03_PROCESS_IDENTITY_CHANGED")
+            return [pid, start, pidns]
+
+        async def start_host() -> None:
+            nonlocal host_pid
+            assert cid and runtime is not None
+            if any(os.path.lexists(directory / n) for n in ("runtime.boot", "runtime.sock")):
+                raise AssertionError("H03_ENDPOINT_LEFTOVERS_REFUSED")
+            await inspect_owned(full=True)
+            await docker("start", cid)
+            async with asyncio.timeout(10):
+                while (
+                    not (directory / "runtime.boot").is_file()
+                    or not (directory / "runtime.sock").exists()
+                ):
+                    await asyncio.sleep(0.01)
+            info = mapping(sequence(json.loads(await docker("inspect", cid)))[0])
+            host_pid = integer(mapping(info["State"])["Pid"], 1)
+            process_identity(host_pid, module="omnis_hermes.runtime_host", inner_pid=1)
+            # Actual mounted installed bytes, not just the Docker archive.
+            for raw in sequence(h03_plan["public_inventory"]):
+                row = mapping(raw)
+                path = Path("/proc") / str(host_pid) / "root" / str(row["path"])
+                if sha(path.read_bytes()) != row["sha256"]:
+                    raise AssertionError("H03_LIVE_INSTALLED_BYTES_REFUSED")
+            await runtime.connect()
+
+        def native_process_receipt() -> dict[str, object]:
+            assert runtime is not None
+            host_identity = process_identity(
+                host_pid, module="omnis_hermes.runtime_host", inner_pid=1
+            )
+            children = (
+                (Path("/proc") / str(host_pid) / "task" / str(host_pid) / "children")
+                .read_text()
+                .split()
+            )
+            if len(children) != 1:
+                raise AssertionError("H03_NATIVE_FAMILY_UNOBSERVED")
+            native_identity = process_identity(int(children[0]), module="tui_gateway.entry")
+            receipt: dict[str, object] = {
+                "boot": runtime.boot,
+                "host": host_identity,
+                "native": native_identity,
+            }
+            process_receipts.append(receipt)
+            checkpoint(h03_processes=process_receipts)
+            return receipt
+
+        async def retire_host() -> None:
+            assert runtime is not None and cid
+            current = await inspect_owned()
+            state = mapping(current["State"])
+            if state["Running"] is True:
+                try:
+                    if runtime.writer is None:
+                        await asyncio.wait_for(runtime.connect(), 5)
+                    if not await asyncio.wait_for(runtime.drain(), 5):
+                        raise AssertionError("H03_NATIVE_DRAIN_UNCERTAIN")
+                except BaseException:
+                    h03_state["cleanup_failed"] = True
+                try:
+                    await runtime.close()
+                except BaseException:
+                    h03_state["cleanup_failed"] = True
+                await inspect_owned()
+                await docker("stop", "--time=5", cid)
+                state = mapping((await inspect_owned())["State"])
+            if (
+                state["Running"] is not False
+                or type(state["ExitCode"]) is not int
+                or state["ExitCode"] != 0
+            ):
+                raise AssertionError("H03_HOST_EXIT_UNCERTAIN")
+            if any(os.path.lexists(directory / n) for n in ("runtime.boot", "runtime.sock")):
+                raise AssertionError("H03_ENDPOINT_CLEANUP_UNCERTAIN")
+            for row in process_receipts:
+                for name in ("host", "native"):
+                    identity = sequence(row[name])
+                    p = Path("/proc") / str(identity[0]) / "stat"
+                    if (
+                        p.exists()
+                        and int(p.read_bytes().rsplit(b")", 1)[1].split()[19]) == identity[1]
+                    ):
+                        raise AssertionError("H03_OLD_PROCESS_STILL_LIVE")
+            import fcntl
+
+            with (directory / "runtime.lock").open("rb") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(lock, fcntl.LOCK_UN)
+            if h03_state["docker_unknown"] or h03_state["cleanup_failed"]:
+                raise AssertionError("H03_RETIREMENT_NOT_SETTLED")
+            checkpoint(h03_last_retirement="HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE")
+
         try:
             epoch = await service.acquire(supervisor)
             status = await service.owned_status(supervisor, epoch)
@@ -3042,28 +4144,83 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             assert len(os.fsencode(directory / "runtime.sock")) < 108
             directory.mkdir(mode=0o700)
             runtime = PreparationPrerequisite(directory, generation=status.generation, epoch=epoch)
-            host = host_module.RuntimeHost(
-                directory,
-                _test_launch=host_module.TestLaunch(
-                    (
-                        str(python),
-                        "-I",
-                        "-B",
-                        str(bootstrap),
-                        str(PIN),
-                        str(ROOT / "integrations/hermes/upstream/managed-source"),
-                        str(ROOT / "integrations/hermes/upstream/inert-source"),
-                        str(adapter),
-                        str(LIBRARIES),
-                        str(home),
-                        str(observation),
+            if h03:
+                state_dir = tmp_path / "h03-state"
+                state_dir.mkdir(mode=0o700)
+                for name in (
+                    "work",
+                    "os-home",
+                    "active",
+                    "codex",
+                    "tmp",
+                    "managed-empty",
+                    "xdg/config",
+                    "xdg/cache",
+                    "xdg/state",
+                    "xdg/data",
+                ):
+                    (state_dir / name).mkdir(mode=0o700, parents=True, exist_ok=True)
+                daemon_id = (await docker("info", "--format={{.ID}}")).decode().strip()
+                if re.fullmatch(r"[A-Za-z0-9:-]{8,128}", daemon_id) is None:
+                    raise AssertionError("H03_DAEMON_IDENTITY_REFUSED")
+                image_rows = sequence(
+                    json.loads(await docker("image", "inspect", str(h03_plan["image_id"])))
+                )
+                if len(image_rows) != 1 or mapping(image_rows[0])["Id"] != h03_plan["image_id"]:
+                    raise AssertionError("H03_INSTALLED_IMAGE_ID_REFUSED")
+                image_config = mapping(mapping(image_rows[0])["Config"])
+                if (
+                    image_config["Cmd"] != h03_plan["stock_cmd"]
+                    or image_config["Entrypoint"] not in (None, [])
+                    or image_config["Volumes"] not in (None, {})
+                ):
+                    raise AssertionError("H03_INSTALLED_IMAGE_CONFIGURATION_REFUSED")
+                db_fence["unsettled"] = True
+                checkpoint(
+                    h03_scope="SOURCE_ORIGINAL_OWNER_INSTALLED_HOST_NATIVE_NOT_STOCK_SUPERVISOR_RECOVERY",
+                    h03_nonce=nonce,
+                    h03_state=str(state_dir),
+                    h03_runtime=str(directory),
+                    h03_name="omnis-h03-" + nonce,
+                    h03_cidfile=str(state_dir.parent / ("h03-" + nonce + ".cid")),
+                    h03_daemon=daemon_id,
+                    h03_inverse="Attest registered exact CID/name; drain if ready, stop/rm exact owned CID. Retain unknown effects, state/logs/image.",
+                )
+                try:
+                    cid_raw = await docker(
+                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[
+                            1:
+                        ]
+                    )
+                finally:
+                    await recover_cid()
+                if cid_raw != (cid + "\n").encode():
+                    h03_state["docker_unknown"] = True
+                    raise AssertionError("H03_CREATED_CID_UNCERTAIN")
+                await inspect_owned(full=True)
+                await start_host()
+            else:
+                host = host_module.RuntimeHost(
+                    directory,
+                    _test_launch=host_module.TestLaunch(
+                        (
+                            str(python),
+                            "-I",
+                            "-B",
+                            str(bootstrap),
+                            str(PIN),
+                            str(ROOT / "integrations/hermes/upstream/managed-source"),
+                            str(ROOT / "integrations/hermes/upstream/inert-source"),
+                            str(adapter),
+                            str(LIBRARIES),
+                            str(home),
+                            str(observation),
+                        ),
+                        home,
                     ),
-                    home,
-                ),
-            )
-            # Preparation needs the actual fresh host's boot identity, even
-            # though its document worker is the explicit prerequisite double.
-            runtime.boot = host.boot
+                )
+                runtime.boot = host.boot
+            # Preparation double only; Host/native stock launch is never replaced.
             preparation = NativePrepareCommand.model_validate(
                 {
                     **command(),
@@ -3391,6 +4548,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             async def observed_handshake(
                 peer: NativePeer, *, ready_timeout: float | None = None
             ) -> dict[str, object]:
+                assert host is not None
                 before = time.monotonic_ns()
                 try:
                     result = await original_handshake(peer, ready_timeout=ready_timeout)
@@ -3462,9 +4620,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                     raise
 
-            if applicability in {"mission-consumer", "result-qualification"} or (
-                applicability is not None
-                and applicability.startswith(("evidence-", "partial-requirement-"))
+            if (
+                h03
+                or applicability in {"mission-consumer", "result-qualification"}
+                or (
+                    applicability is not None
+                    and applicability.startswith(("evidence-", "partial-requirement-"))
+                )
             ):
                 # Same owner, kernel peer and private capability; no response emitter.
                 # Establish the listener before launch, not inside the native grant.
@@ -3579,9 +4741,134 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 return answer
 
-            async with host:
+            async def h03_restart_readers(
+                back_request: dict[str, object], back: dict[str, object]
+            ) -> None:
+                assert h03 and runtime is not None and public_control is not None
+                negative = applicability == "runtime-restart-no-final"
+                original_boot = runtime.boot
+                before_census = await mission_census()
+                before_markers = await markers()
+                if negative:
+                    assert back["release_started"] is True
+                    assert back["results"] == back["checks"] == back["inbox"] == []
+                    assert not any(
+                        mapping(row)["kind"] == "native-task-receipt"
+                        for row in sequence(back["records"])
+                    )
+                else:
+                    assert len(sequence(back["results"])) == len(sequence(back["checks"])) == 1
+                    assert before_markers["consumed"] == 0
+                checkpoint(
+                    h03_durable_before_restart=sha(canonical(back)),
+                    h03_census_before_restart=sha(before_census),
+                    h03_original_boot=original_boot,
+                )
+                # Host resource Stop is not Instance SHUTDOWN: the same owner
+                # and epoch remain live for separately authorized fresh startup.
+                await retire_host()
+                await start_host()
+                fresh = await runtime.launch_inert(service, supervisor)
+                if fresh["state"] != "READY":
+                    raise AssertionError("H03_NEW_NATIVE_NOT_READY")
+                await runtime.renew(service, supervisor)
+                replacement = native_process_receipt()
+                h03_replaced_processes(process_receipts[0], replacement)
+                assert runtime.boot != original_boot
+                if not await runtime.drain():
+                    raise AssertionError("H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN")
+                # No staged task exists in the replacement boot. Join it before
+                # historical readers; original binding/manifest are untouched.
+                if await mission_census() != before_census:
+                    raise AssertionError("H03_RESTART_CHANGED_DOMAIN_CENSUS")
+                attempts: list[str] = []
+
+                def deny(*args: object, **kwargs: object) -> object:
+                    attempts.append("FORBIDDEN_EXECUTION")
+                    checkpoint(h03_execution_attempts=attempts)
+                    raise AssertionError("H03_HISTORICAL_READER_ATTEMPTED_EXECUTION")
+
+                with monkeypatch.context() as receive_only:
+                    for name in ("skill_catalog", "candidate_catalog"):
+                        mod = importlib.import_module("omnis.modules.settings." + name)
+                        defining = importlib.import_module(mod.evaluate_pure.__module__)
+                        receive_only.setattr(defining, "evaluate_pure", deny)
+                        receive_only.setattr(mod, "evaluate_pure", deny)
+                    receive_only.setattr("omnis.modules.runs.pure_probe.evaluate_pure", deny)
+                    receive_only.setattr("omnis.modules.tasks.module_registry.run_handler", deny)
+                    receive_only.setattr(BuildSource, "build", deny)
+                    receive_only.setattr(ManagedAdmission, "_build", deny)
+                    receive_only.setattr(domain, "ingest_result", deny)
+                    receive_only.setattr(domain, "reserve_dispatch", deny)
+                    receive_only.setattr(service, "runtime_authority", deny)
+                    for name in ("_exchange", "launch_inert", "renew", "managed", "receive"):
+                        receive_only.setattr(runtime, name, deny)
+                    if negative:
+                        with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                            await submit_task("receive", phase="AFTER_PROCESS_RESTART")
+                        assert canonical(
+                            await restarted_cli("readback", back_request)
+                        ) == canonical(back)
+                        await restarted_cli(
+                            "reconcile", back_request, reason="NEEDS_RECONCILIATION"
+                        )
+                        with pytest.raises(CatalogError, match="^NEEDS_RECONCILIATION$"):
+                            await domain.reconcile(back_request)
+                        assert canonical(await domain.readback(back_request)) == canonical(back)
+                        if (
+                            await mission_census() != before_census
+                            or await markers() != before_markers
+                        ):
+                            raise AssertionError("H03_PENDING_RESTART_DENIAL_WROTE_STATE")
+                        checkpoint(
+                            h03_public_denial="TASK_INDETERMINATE",
+                            h03_installed_denial="NEEDS_RECONCILIATION",
+                            h03_pending_census="UNCHANGED",
+                        )
+                    else:
+                        assert (await submit_task("receive", phase="AFTER_PROCESS_RESTART"))[
+                            "task_status"
+                        ] == "SUCCEEDED"
+                        assert canonical(
+                            await restarted_cli("readback", back_request)
+                        ) == canonical(back)
+                        assert await markers() == before_markers
+                        reconciled = await restarted_cli("reconcile", back_request)
+                        expected = deepcopy(back)
+                        mapping(sequence(expected["inbox"])[0])["domain_result_consumed"] = True
+                        assert canonical(reconciled) == canonical(expected)
+                        consumed_census = await mission_census()
+                        h03_consumed_census(before_census, consumed_census)
+                        for operation in ("reconcile", "readback"):
+                            assert canonical(
+                                await restarted_cli(operation, back_request)
+                            ) == canonical(reconciled)
+                            if await mission_census() != consumed_census:
+                                raise AssertionError("H03_READER_REPLAY_CHANGED_CENSUS")
+                        assert (await submit_task("receive", phase="AFTER_CONSUMPTION"))[
+                            "task_status"
+                        ] == "SUCCEEDED"
+                        assert await markers() == {**before_markers, "consumed": 1}
+                        checkpoint(
+                            h03_single_consumption="EXACT_ONE_BIT_FIVE_TABLE_CENSUS",
+                            h03_retained_refs="BYTE_EXACT_GRAPH_FINAL_CHECK_OUTCOMES_USAGE",
+                        )
+                    assert attempts == []
+                done.set()
+                assert heartbeat is not None
+                await heartbeat
+                await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                checkpoint(
+                    h03_execution_attempts=attempts,
+                    h03_process_restart="READERS_COMPLETE_CLEANUP_PENDING",
+                    status="H03_CLEANUP_PENDING",
+                    h03_native_census="AUTHENTIC_RECEIPTS_NOT_IN_PROCESS_OBSERVER",
+                )
+
+            async with host if host is not None else nullcontext():
                 await service.heartbeat(supervisor, epoch)
-                await runtime.connect()
+                if runtime.writer is None:
+                    await runtime.connect()
                 try:
                     ready = await runtime.launch_inert(service, supervisor)
                 except BaseException as error:
@@ -3592,6 +4879,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise
                 assert ready["state"] == "READY"
                 await runtime.renew(service, supervisor)
+                if h03:
+                    native_process_receipt()
                 checkpoint(launch_diagnostic=diagnostic)
                 staged = await submit_task("stage")
                 assert staged["task_status"] == "BOUND"
@@ -3651,6 +4940,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     original_binding = mapping(mapping(before["binding"])["payload"])
                     assert original_binding["runtime_boot"] == runtime_boot
                     assert canonical(original_binding["authority"]) == canonical(authority)
+                    if applicability == "runtime-restart-no-final":
+                        checkpoint(
+                            h03_final_cut="AUTHENTIC_RESPONSE_BEFORE_DOMAIN_PERSIST",
+                            h03_unpersisted_final_sha256=sha(canonical(final)),
+                        )
+                        raise CatalogError("TASK_INDETERMINATE")
                     native_before_stop = observation.read_bytes()
                     done.set()
                     await heartbeat
@@ -3696,7 +4991,17 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     return received
 
                 with monkeypatch.context() as pause:
+                    if applicability == "runtime-restart-no-final":
+                        pause.setattr(domain, "ingest_result", stop_before_first_persist)
+                        with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                            await submit_task("release")
+                        assert seam_calls == 1
+                        negative_request = seed.request(command_id=assignment["command_id"])
+                        negative_back = await domain.readback(negative_request)
+                        await h03_restart_readers(negative_request, negative_back)
+                        return
                     if lost_reply:
+                        assert host is not None
                         # Physical reply loss at the Host's UDS writer frontier,
                         # AFTER the real native final passed Host validation.
                         # No substituted result, prompt resend or provider.
@@ -4171,6 +5476,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "contract-tool-receipt": 2 if early_return else 3,
                     "contract-artifact": 1 if early_return else 2,
                 }
+                if h03:
+                    await h03_restart_readers(back_request, back)
+                    return
                 duplicate = await domain.ingest_result(
                     seed.owner, prepared["manifest_ref"], final, runtime.boot, fence, held=False
                 )
@@ -4294,6 +5602,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             # a live/renewed native grant. Keep the byte-exact observer oracle
             # on the fully joined producer, without filtering any event.
             await runtime.close()
+            assert host is not None
             assert host.process is not None and host.process.returncode is not None
             assert not host._owned_pids()
             native_before = observation.read_bytes()
@@ -5261,29 +6570,94 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     adversarial_append_count=1,
                     post_adversarial_markers=await markers(),
                 )
+        except BaseException:
+            if h03:
+                h03_state["cleanup_failed"] = True
+                db_fence["unsettled"] = True
+            raise
         finally:
+            cleanup_failed = False
+            resource_absent = False
             for waiter in dispatch_waiters:
                 if not waiter.done():
+                    if h03:
+                        cleanup_failed = True
                     waiter.cancel()
-            await asyncio.gather(*dispatch_waiters, return_exceptions=True)
+            try:
+                joined = await asyncio.gather(*dispatch_waiters, return_exceptions=True)
+                if any(
+                    isinstance(result, BaseException)
+                    and not isinstance(result, asyncio.CancelledError)
+                    for result in joined
+                ):
+                    cleanup_failed = True
+            except BaseException:
+                cleanup_failed = True
             done.set()
             try:
                 if heartbeat is not None:
                     await heartbeat
-            finally:
-                try:
-                    if runtime is not None:
-                        await runtime.close()
-                finally:
+            except BaseException:
+                cleanup_failed = True
+            if h03 and proof.get("h03_name"):
+                if not cid:
                     try:
-                        if public_control is not None:
-                            await public_control.__aexit__(None, None, None)
-                            assert public_control.lock_fd is None
-                            assert not (public_control.directory / "control.sock").exists()
-                            assert not (public_control.directory / "control.cap").exists()
-                            checkpoint(public_control_cleanup="PASS")
-                    finally:
-                        await engine.dispose()
+                        await recover_cid()
+                    except BaseException:
+                        cleanup_failed = True
+                if cid:
+                    try:
+                        await retire_host()
+                    except BaseException:
+                        cleanup_failed = True
+                    try:
+                        owned = await inspect_owned()
+                        if mapping(owned["State"])["Running"] is True:
+                            await docker("stop", "--time=5", cid)
+                            owned = await inspect_owned()
+                        if mapping(owned["State"])["Running"] is not False:
+                            raise AssertionError("H03_HOST_EXIT_UNCERTAIN")
+                        await docker("rm", cid)
+                        if await docker("inspect", "--format={{.Id}}", cid, expected_exit=1):
+                            raise AssertionError("H03_CONTAINER_ABSENCE_UNCERTAIN")
+                        resource_absent = True
+                    except BaseException:
+                        cleanup_failed = True
+            try:
+                if runtime is not None:
+                    await runtime.close()
+            except BaseException:
+                cleanup_failed = True
+            try:
+                if public_control is not None:
+                    await public_control.__aexit__(None, None, None)
+                    assert public_control.lock_fd is None
+                    assert not (public_control.directory / "control.sock").exists()
+                    assert not (public_control.directory / "control.cap").exists()
+                    checkpoint(public_control_cleanup="PASS")
+            except BaseException:
+                cleanup_failed = True
+            try:
+                await engine.dispose()
+            except BaseException:
+                cleanup_failed = True
+            if h03:
+                h03_state["cleanup_failed"] |= cleanup_failed
+                if resource_absent and not any(h03_state.values()):
+                    db_fence["unsettled"] = False
+                    checkpoint(
+                        h03_resource_cleanup="EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED"
+                    )
+                    if proof.get("status") == "H03_CLEANUP_PENDING":
+                        checkpoint(
+                            status="PASS_SOURCE_OWNER_INSTALLED_HOST_NATIVE_SCOPED",
+                            h03_process_restart="PASS_SCOPED_NOT_STOCK_SUPERVISOR_RECOVERY",
+                        )
+                elif db_fence.get("unsettled"):
+                    checkpoint(status="UNCERTAIN", h03_resource_cleanup="NOT_SETTLED_DB_RETAINED")
+                    raise AssertionError("H03_CLEANUP_NOT_SETTLED")
+            elif cleanup_failed:
+                raise AssertionError("NATIVE_CLEANUP_UNCERTAIN")
             if host is not None and host.process is not None:
                 assert host.process.returncode is not None, "NATIVE_CLEANUP_UNCERTAIN"
                 assert not host._owned_pids(), "NATIVE_FAMILY_UNCERTAIN"

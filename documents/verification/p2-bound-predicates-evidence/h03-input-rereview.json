@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "review_id": "H03-INPUT-SAFETY-REREVIEW-8a0d39d3",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused independent safety/input/failure re-review of the first H03 harness remediation: actual SOURCE acquisition, Docker and reader producers, affected callers and full finalizer. Approval closes the four original SOURCE mechanisms only. It is not live H03 acceptance, stock-supervisor recovery certification or global phase closure.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "test_file": "api/tests/test_contract_method_pg.py",
+    "test_sha256_before_after": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+    "original_test_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+    "original_report": "/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/full-report.json",
+    "author_report": "/home/kali/.hermes/cache/scratch/h03-remediation-1/complete-report.json",
+    "preexisting_changes_preserved": ["api/tests/test_contract_method_pg.py", "documents/Omnis_Notite_Originale.html"],
+    "protected_html_read_or_hashed": false
+  },
+  "finding_dispositions": [
+    {
+      "id": "H03-INPUT-F01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking": false,
+      "current_lines": ["api/tests/test_contract_method_pg.py:3860-3921", "api/tests/test_contract_method_pg.py:3981-4011", "api/tests/test_contract_method_pg.py:4178-4200", "api/tests/test_contract_method_pg.py:6602-6625"],
+      "producer_caller_finalizer": "The caller checkpoints nonce, exact name, CID-file path, roots and daemon before create. Create's finally always runs recover_cid, even when docker refuses stderr or communicate cancels. Recovery opens a non-following private file and requires regular type, exact 0600, current UID, single link and canonical lowercase 64-hex CID, or resolves the registered exact name. inspect_owned then binds CID/image/name/owner nonce before any stop/rm. Finalizer can retry locator recovery when cid is empty and attempts exact owned cleanup independently of the original create return.",
+      "observed_source_controls": ["normal", "create-warning", "create-cancelled", "CID normal", "CID newline", "CID wrong mode", "CID symlink", "CID hardlink", "CID malformed content"],
+      "adjudication": "The original lost-CID/cleanup-skipped mechanisms no longer reproduce. Warning/cancellation retain locators and cleanup the attested stopped resource through the seam. Missing or delayed daemon ACK is not claimed settled: original unknown remains latched and the DB remains fenced.",
+      "limit": "CID-file filesystem controls use real private files; daemon creation/cancellation is substituted, not a physical Docker cancellation. A late unknown create is contained by retained nonce/name/daemon/CID locators and permanent uncertainty, not certified absent."
+    },
+    {
+      "id": "H03-INPUT-F02",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking": false,
+      "current_lines": ["api/tests/test_contract_method_pg.py:4081-4124", "api/tests/test_contract_method_pg.py:6602-6643"],
+      "producer_caller_finalizer": "retire_host first attests current resource ownership/state. Host connect/drain is conditional on Running=true; a stopped/unstarted resource does not require RPC. Running graceful errors latch cleanup_failed but still reach bounded Docker stop. The outer finalizer independently re-attests and attempts stop/rm/absence even when retire_host refuses, then attempts runtime, public-owner and engine cleanup.",
+      "observed_source_controls": ["normal", "never-started", "create-warning", "create-cancelled", "drain-failed"],
+      "adjudication": "Known created-but-unstarted cleanup now reaches exact removal without connect. A graceful drain failure no longer abandons resource or later-owner cleanup. Failed readbacks still refuse settlement and retain the DB rather than emitting a clean result.",
+      "limit": "Host and daemon seams are substituted. This verifies SOURCE cleanup ordering and ownership predicates, not a physical stock Host failure/reap."
+    },
+    {
+      "id": "H03-INPUT-F03",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking": false,
+      "current_lines": ["api/tests/test_contract_method_pg.py:3405-3441", "api/tests/test_contract_method_pg.py:3869-3871", "api/tests/test_contract_method_pg.py:3904-3906", "api/tests/test_contract_method_pg.py:3923-3979", "api/tests/test_contract_method_pg.py:4035-4041", "api/tests/test_contract_method_pg.py:4163-4201"],
+      "producer_caller_finalizer": "The caller reads daemon ID and exact immutable image configuration before create. Dependent Docker operations compare daemon ID before and after. The actual container oracle checks image/name/nonce, stock ordered Cmd/entrypoint/user, exact image Env and no declared Volumes; read-only/no-network/private PID and relevant namespaces; privilege/caps/security; typed PID/memory/CPU limits, tmpfs, device/port/volumes-from refusal; exactly two complete bind mount entries with exact physical roots/destinations, RW/type/mode/propagation. h03_container_argv requires physically canonical non-symlink same-UID 0700 scratch directories. Full oracle runs both after create and before start.",
+      "observed_source_controls": ["normal", "extra-mount", "host-pidns", "privileged", "extra-env", "network", "daemon-changed", "physical mount alias"],
+      "adjudication": "The original undeclared mount/namespace/privilege/environment/physical-alias false greens are closed at the actual pre-start consumer. The exact-two-mount inventory denies both original Docker-socket and personal-profile extra mounts; no personal content was read. Actual daemon readback supplies its benign SecurityOpt spelling and nullable Devices variant, and the same SOURCE positive accepts them while the corresponding containment negatives still refuse.",
+      "limit": "Read-only existing Docker samples establish field compatibility, not an exact H03 created-container positive. No new container was created. Actual H03 tmpfs/resource-limit serialization and complete live pre-start positive remain part of the parent's real QA, not certified by a fixture projection."
+    },
+    {
+      "id": "H03-INPUT-F04",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking": false,
+      "current_lines": ["api/tests/test_contract_method_pg.py:990-1010", "api/tests/test_contract_method_pg.py:1013-1044", "api/tests/test_contract_method_pg.py:3742-3784", "api/tests/test_contract_method_pg.py:3860-3921", "api/tests/test_contract_method_pg.py:6573-6658", "ops/run_test_db_gate.py:759-818"],
+      "producer_caller_finalizer": "Docker mutations set docker_unknown and the dynamic DB fence before child admission, restoring only the prior latch after recognized exact ACK plus unchanged daemon identity. Exceptions retain unknown; successful later stop/rm/absence cannot clear an earlier unknown. Reader admission likewise fences first and uses historical_run_gate, whose existing owner validates exact receipt keys/types, child code and family_drained=true. The H03 caller additionally requires the exact installed ORIGIN/READY/EXIT tuple and normal exit 0 or 2. Finalizer drains task/heartbeat ownership, retires/rechecks resources, closes runtime/public owner and disposes the engine before releasing the DB fence; any failure or prior unknown refuses release.",
+      "observed_source_controls": ["normal", "stop-cancelled", "public-exit-failure", "engine-failure", "reader-unknown", "actual reader normal", "actual reader denial", "actual reader timeout", "actual reader cancellation", "actual reader unknown exit", "actual reader bad receipt"],
+      "adjudication": "The original false settlement after cancelled stop and premature fence release before public-owner cleanup no longer reproduce. Recognized installed denial can settle its managed family without becoming product success. Timeout/cancellation/unknown exit/bad audit remain uncertain; retry/absence do not forgive the original Docker request. The existing destructive DB-fixture guard observes the same retained fence.",
+      "limit": "Reader family/installed/DB seams are substituted in the six new producer controls. The strict existing family owner is traced, not freshly physically requalified. No native/PostgreSQL/OCI launch occurred; unchanged H01 ownership evidence is reused within its original scope."
+    }
+  ],
+  "surviving_blockers": [],
+  "new_blockers": [],
+  "verification": [
+    {
+      "name": "affected_source_execution",
+      "command": "api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'h03 and not real_native_pg' --basetemp=/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/source-fixtures -q --tb=no",
+      "environment": "Ambient OMNIS/PG/PYTEST variables removed; plugin autoload disabled; exact existing SOURCE static/API artifacts supplied; TMPDIR fixed to owned scratch; no native opt-in.",
+      "exit": 0,
+      "result": "44 passed, 115 deselected in 2.09s",
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/source.log",
+      "regression_inventory": "/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/regression-inventory.json",
+      "count_verified_programmatically": {"new_lifecycle_cases": 15, "new_mount_alias_cases": 1, "new_actual_reader_cases": 6, "new_cidfile_cases": 6, "new_total": 28, "other_h03_cases": 16, "executed_total": 44},
+      "positive_controls": ["Lifecycle normal clears fence only after all cleanup", "Reader normal and recognized denial", "CID normal and trailing newline"]
+    },
+    {
+      "name": "current_dockerd_compatibility_and_no_false_green_control",
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/compat-controls.py",
+      "exit": 0,
+      "result": "6 SOURCE controls PASS: actual current-daemon SecurityOpt=[no-new-privileges:true] and Devices=null projected into the existing regression fixture; normal accepts; extra mount/privileged/host PID/extra Env/network controls refuse before start and retain fence.",
+      "artifact": "/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/compat-control-results.json",
+      "limit": "Only benign fixture fields are changed; actual acquisition/finalizer remains compiled from exact shared SOURCE. All resource producers are substituted. No new owner/framework or physical launch."
+    },
+    {
+      "name": "readonly_current_engine_and_image",
+      "commands": ["docker info --format daemon ID", "docker version --format Server.Version Server.APIVersion", "docker ps -aq; docker inspect existing exact CIDs with output reduced to safe configuration fields", "docker image inspect sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0 with safe output projection"],
+      "exit": 0,
+      "server": "27.5.1+dfsg4",
+      "server_api": "1.47",
+      "current_daemon_id_matches_consumer_regex": true,
+      "existing_samples_count": 12,
+      "compatible_field_readbacks": ["SecurityOpt=[no-new-privileges:true]", "private IPC/cgroup namespaces and empty PID/UTS/Userns fields", "CapAdd=null, Devices=null or [], VolumesFrom=null, PortBindings={}", "direct mount inventory includes Mode='' and Propagation=rprivate"],
+      "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+      "image_result": "Exact immutable ID, stock ordered Host Cmd, null Entrypoint, User1000:1000, null Volumes; Env values suppressed.",
+      "artifacts": ["/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/dockerd-readonly.json", "/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety/daemon-compatibility.json"],
+      "limit": "Existing samples are not H03 fixtures and are not passed off as exact H03 positives. No container/data ownership was adopted. Raw Env/credentials were not emitted."
+    },
+    {
+      "name": "snapshot_and_write_scope",
+      "command": "sha256sum api/tests/test_contract_method_pg.py; git diff --check; git status --short --branch; git diff --cached --stat",
+      "exit": 0,
+      "result": "Exact requested SHA unchanged; no whitespace errors; original tracked/untracked status preserved; no staging."
+    }
+  ],
+  "unchanged_evidence": {
+    "distribution": "Reuse original/normative unchanged immutable-image/archive and 34-member/39-layer/API88 evidence; no requalification, image change, rebuild or inventory replay.",
+    "original_red": "Original exact9b43 14-case reproducer and report retained untouched; parent-confirmed reproduction provided in context. Author's initial 16-fixture failures are not credited as new independent original-RED evidence.",
+    "full_source_quality": "Author's135PASS/2SKIP/22deselected and quality0 evidence remains attributed to the author; this reviewer independently executed only the44affectedSOURCE cases and6current-field controls."
+  },
+  "issues_encountered": [
+    "The initial read-only docker-version formatting request used invalid Server.ApiVersion (exit1). Retried with actual Server.APIVersion, exit0/version27.5.1+dfsg4/API1.47. This is a review-command typo, not an H03 product finding."
+  ],
+  "effects_and_files": {
+    "shared_repository_edits": false,
+    "commits_or_staging": false,
+    "native_postgresql_container_launches": false,
+    "network_install_image_changes": false,
+    "protected_html_profiles_or_credentials_read": false,
+    "scratch_root": "/home/kali/.hermes/cache/scratch/h03-input-rereview-8a0d-safety",
+    "created_files": ["full-report.json", "source.log", "regression-inventory.json", "dockerd-readonly.json", "daemon-compatibility.json", "compat-controls.py", "compat-control-results.json"],
+    "created_fixture_directories": "Owned pytest source-fixtures and six private compat-* directories, synthetic CID/lock/request/audit/output files only; no live external resources to retire.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "remaining_and_parent_decision": {
+    "H03_code": "SOURCE_IMPLEMENTED_UNCOMMITTED",
+    "H03_review": "THIS_COMPLEMENTARY_SAFETY_REVIEW_APPROVED_SCOPED_ON_EXACT_SHA",
+    "H03_proof": "AFFECTED_SOURCE_PASS; ROOT_PROOF_AND_REAL_POSITIVE_NO_FINAL_QA_NOT_RUN",
+    "next": "Parent adjudicates both complementary exact-SHA reports, then performs the authorized existing real H03 positive/no-final consumer QA with its own resource/cleanup readbacks. Do not add another harness repair cycle absent a demonstrated blocker.",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED; H01/H02 accepted scopes remain unchanged; no canonical/live/P4a approval transfer.",
+    "reusable_lesson_for_parent": "Bind provisional locators before acquisition, separate stopped-resource cleanup from native readiness, and keep original unknown daemon/family work latched through every finalizer. No skill/profile writes performed under this read-only delegation."
+  }
+}

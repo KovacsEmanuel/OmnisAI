@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "report_id": "H03-INPUT-REMEDIATION-CYCLE-1",
+  "status": "SOURCE_GREEN_RE_REVIEW_REQUIRED_REAL_QA_NOT_RUN",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "prior_test_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+    "test_file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "test_sha256": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca"
+  },
+  "findings": [
+    {
+      "id": "H03-INPUT-F01",
+      "disposition": "FIXED_SOURCE_REGRESSION_GREEN_PENDING_TWO_RE_REVIEWS",
+      "change": "Nonce/name/cidfile/daemon registered before create; private 0600 regular single-link same-UID CID file recovered in create finally, or exact registered-name readback; ownership attested before cleanup; unknown ACK remains latched.",
+      "cases": [
+        "normal",
+        "create-warning",
+        "create-cancelled",
+        "CID normal/newline/mode/symlink/hardlink/content"
+      ]
+    },
+    {
+      "id": "H03-INPUT-F02",
+      "disposition": "FIXED_SOURCE_REGRESSION_GREEN_PENDING_TWO_RE_REVIEWS",
+      "change": "Attested stopped/unstarted CID removed independently of Host RPC. Running resource stop/rm still attempted after bounded graceful failure; all later owners attempted; failure never claims clean settlement.",
+      "cases": [
+        "never-started",
+        "drain-failed",
+        "normal"
+      ]
+    },
+    {
+      "id": "H03-INPUT-F03",
+      "disposition": "FIXED_SOURCE_REGRESSION_GREEN_PENDING_TWO_RE_REVIEWS",
+      "change": "Bind daemon before create and compare before/after dependent calls. Full actual container oracle before start: exact nonce/image/name/stock CMD/UID/Env from exact image/Volumes, private PID and namespaces, unprivileged/read-only/no-network/caps/security/resource limits/tmpfs, exact two canonical physical owned non-symlink bind roots and mount type/RW/mode/propagation.",
+      "cases": [
+        "extra-mount",
+        "host-pidns",
+        "privileged",
+        "extra-env",
+        "network",
+        "daemon-changed",
+        "physical alias",
+        "normal"
+      ]
+    },
+    {
+      "id": "H03-INPUT-F04",
+      "disposition": "FIXED_SOURCE_REGRESSION_GREEN_PENDING_TWO_RE_REVIEWS",
+      "change": "Latch before Docker mutations and reader admission; timeout/cancel/lost ACK/unknown remain latched despite retry/absence. Reader reuses existing historical_run_gate strict family receipt and exact installed audit normal exit0/2. All task/heartbeat/resource/runtime/public/engine cleanup precedes fence release. Failure retains DB and locators, sanitized UNCERTAIN/NOT_SETTLED.",
+      "cases": [
+        "stop-cancelled",
+        "public-exit-failure",
+        "engine-failure",
+        "reader-unknown",
+        "actual reader normal/denial/timeout/cancelled/unknown/bad-receipt",
+        "normal"
+      ]
+    }
+  ],
+  "verification": [
+    {
+      "name": "source",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'not real_native_pg' --basetemp=/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-source-fixtures -q --tb=line",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-source.log",
+      "counts": {
+        "passed": 135,
+        "skipped": 2,
+        "deselected": 22
+      }
+    },
+    {
+      "name": "ruff",
+      "command": "api/.venv/bin/ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-ruff.log"
+    },
+    {
+      "name": "format",
+      "command": "api/.venv/bin/ruff format --check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-format.log"
+    },
+    {
+      "name": "mypy",
+      "command": "api/.venv/bin/mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/h03-remediation-1/mypy-cache api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-mypy.log"
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/sealed-diff_check.log"
+    }
+  ],
+  "red": {
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"h03_actual_lifecycle_source_seams or h03_mount_roots_refuse\" --basetemp=/home/kali/.hermes/cache/scratch/h03-remediation-1/red2-fixtures -q --tb=line",
+    "exit": 1,
+    "counts": {
+      "failed": 16,
+      "deselected": 131
+    },
+    "private_log": "/home/kali/.hermes/cache/scratch/h03-remediation-1/red2.log",
+    "classification": "INITIAL_REGRESSION_RED_NOT_ACCEPTANCE_EVIDENCE",
+    "scope": "Before repairs, actual SOURCE AST. The newly added image-inspect seam returned full JSON to the old formatted-ID caller, so this initial run can stop before intended acquisition; do not count these 16 failures as independent F01-F04 reproduction. Original exact-SHA 14-case reproducer already reproduced by parent is the retained RED boundary; final source controls and separate reader producer mutation are GREEN/guard evidence."
+  },
+  "reader_producer_mutation_control": {
+    "command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/.hermes/cache/scratch/h03-remediation-1/test_reader_latch_mutant.py",
+      "-k",
+      "h03_reader_actual_launch",
+      "--basetemp=/home/kali/.hermes/cache/scratch/h03-remediation-1/reader-mutant-fixtures",
+      "-q",
+      "--tb=line"
+    ],
+    "exit": 1,
+    "source_sha256": "86e1fc0ed012775b3a7316ffc84ce551fc139aeea9003d794552bd3a41035f4c",
+    "boundary": "SOURCE actual call-site with intentionally withheld prelaunch flag; no native/Docker/DB launch"
+  },
+  "affected_functions_lines": {
+    "h03_container_argv": 3405,
+    "restarted_cli": 3720,
+    "docker": 3860,
+    "inspect_owned": 3923,
+    "recover_cid": 3981,
+    "start_host": 4035,
+    "retire_host": 4081
+  },
+  "regressions_added": {
+    "actual_lifecycle_source_cases": 15,
+    "physical_mount_alias_cases": 1,
+    "actual_reader_producer_cases": 6,
+    "actual_cidfile_cases": 6,
+    "total": 28
+  },
+  "unchanged_distribution": {
+    "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+    "static_artifact": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+    "static_artifact_sha256": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+    "archive_sha256_reused": "79f887d0c5754804a04e5d9e0de44490f8fffb7b1f6eea841140806a8872866a",
+    "inventory": "UNCHANGED:34 source/adapter members;129ad748 image;39 layers/34 base;API88. Reuse exact parent/normative archive evidence; no inventory replay.",
+    "read_only_image_inspect": "exit0 exact ID/Cmd/null Entrypoint/1000:1000/null Volumes",
+    "artifact_rebuild": "NOT_REQUIRED_NOT_RUN"
+  },
+  "limits": [
+    "All new lifecycle tests compile actual SOURCE call-site/helper/finalizer AST; Docker/Host/PG/installed-reader seams explicitly substituted, not fake physical results.",
+    "Real H03 positive and no-final negative QA NOT_RUN. Stock Python entrypoint and two admitted H03 variants unchanged; SOURCE owner is not stock supervisor recovery.",
+    "Two complementary exact-SHA focused re-reviews REQUIRED, not performed by this author. Findings not independently closed.",
+    "Product/API/native/pins/immutable image/product deadlines unchanged; no PG/container/native/provider/network/install effects.",
+    "Original reviewer report/reproducer immutable and untouched; protected documents/Omnis_Notite_Originale.html never read or hashed.",
+    "No staging/commit/profile/skill modifications; only allowed test consumer and owned scratch changed.",
+    "Docker direct CLI abnormal family/daemon outcome is permanently retained as UNKNOWN; no retry/absence settlement authority invented.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO_NOT_USED; canonical final NOT_RUN."
+  ],
+  "issues_encountered": [
+    "Initial post-fix six SOURCE cases still cleared fence on body refusal; corrected real outer except latch and reran.",
+    "Initial mypy inferred optional exit then explicit-Any Callable; corrected strict typed wrapper/exit guard, final quality zero.",
+    "Added reader producer mutation control separately: withholding actual prelaunch latch causes six SOURCE failures; not original snapshot proof."
+  ],
+  "skill_lesson_for_parent": "Acquire provisional owned locators before effects; distinguish current exact absence from original unknown ACK, and release DB fence only after all owner/family cleanup. No shared skill writes permitted in this delegation."
+}

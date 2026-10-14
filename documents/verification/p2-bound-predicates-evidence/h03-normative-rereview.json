@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "report_id": "H03-NORMATIVE-FOCUSED-REREVIEW-8a0d39d",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "Independent focused normative/order/persistence/readback re-review of the corrected H03 SOURCE consumer and affected lifecycle/installed-reader callers on the exact named SHA. Original unchanged distribution acceptance is reused, not reopened. This does not certify actual Host/native restart, PostgreSQL behavior, daemon settlement, stock-supervisor recovery, or integration.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_commit": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "head_observed": "5d4f05fe95a718828d4562192ae01980c22a2f09",
+    "changed_consumer": "api/tests/test_contract_method_pg.py",
+    "changed_consumer_sha256_before_after": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+    "previous_reviewed_consumer_sha256": "9b4329f0c117cfbc5646d95c6b47396003a59eeb928b9b63870c6b6904f56456",
+    "tracked_changes": ["api/tests/test_contract_method_pg.py"],
+    "preexisting_protected_untracked": "documents/Omnis_Notite_Originale.html NOT_READ_NOT_HASHED_NOT_MODIFIED",
+    "staging_or_commits": false,
+    "diff_stat_from_base": "1448 insertions, 74 deletions in the single declared test consumer"
+  },
+  "findings": [],
+  "blocking_findings": [],
+  "concrete_new_blocking_reproducer": null,
+  "original_reports_consulted": {
+    "normative": "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f/report.json",
+    "input_failure": "/home/kali/.hermes/cache/scratch/h03-input-review-9b4329f0/full-report.json",
+    "remediation": "/home/kali/.hermes/cache/scratch/h03-remediation-1/complete-report.json",
+    "red_boundary": "Original four findings and 14-case SOURCE reproducer retained; parent reproduction is supplied context. This reviewer did not rerun the old reproducer or count the remediation's initial 16 fixture-frontier failures as independent original RED evidence."
+  },
+  "normative_contract": [
+    "documents/verification/p2-next-session-implementation.md:108 H03",
+    "CONTRIBUTING.md:45-71 exact-snapshot focused review and product-oriented execution",
+    "Original APPROVED_SCOPED normative requirement/code/evidence matrix, retained only within its unchanged scope"
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Current exact complementary reviews and installed prerequisites precede DB/container acquisition",
+      "current_lines": "3444-3512; 3599-3617; 4147-4201",
+      "trace": "h03_prerequisites checks both exact consumer SHA flags before the existing historical_database_fence and migrated_database_url dynamic fixtures. Static image/API origin checks remain before create. The existing two SOURCE review-gate negatives execute the actual consumer entrypoint and prohibit every dynamic fixture call.",
+      "disposition": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Preserve a real owned Host/native process restart, not object replacement",
+      "current_lines": "4013-4124; 4147-4201; 4744-4783; 4882-4883",
+      "trace": "H03 creates the stock image CID without constructing a RuntimeHost object; start_host reattests actual containment before Docker start, then reads actual installed bytes and Host PID1 identity. Original and replacement native receipts bind host-visible PID/starttime/pid namespace plus boot. h03_restart_readers still retires the old Host, starts the same owned CID afresh, obtains a normal launch/renew, observes distinct Host/native/boot and private namespace, and drains the replacement before readers. New conservative cleanup latches do not substitute any restart producer or weaken replacement assertions.",
+      "evidence": "Six process-replacement SOURCE positive/mutation controls ran in the fresh selection. Actual old/new process production was NOT_RUN.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    },
+    {
+      "requirement": "Positive final/check/inbox must already be durable before restart; historical receive cannot resend or execute",
+      "current_lines": "4485-4538; 4744-4783; 4791-4805; 4828-4856; 5440-5481",
+      "product_lines": "api/src/omnis/supervisor/native_tasks.py:193-232,277-335",
+      "trace": "The positive caller remains after authentic final/check/outcome/receipt/inbox readback and separate-connection durable markers. Original owner/epoch/binding remain. NativeTaskOwner returns the persisted checked result before runtime-boot comparison or receive transport. Both defining evaluator and imported aliases, module runner, builders, ingest/reserve/grant and runtime operations are denied on the reader phase. Exact graph and usage readback and full five-table census remain; reconciliation permits exactly the one false-to-true consumption bit, with duplicate readers/public receive preserving state and accounting.",
+      "evidence": "Existing census positive and task/inbox/no-consumption negatives all ran in the fresh SOURCE selection. Actual durable PG and installed reader operations were NOT_RUN.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    },
+    {
+      "requirement": "No-final negative preserves authentic pre-ingest cut and refuses after restart without reconstruction or writes",
+      "current_lines": "4752-4758; 4806-4827; 4912-4948; 4993-5002",
+      "trace": "The negative still intercepts only after the actual authentic response and before the first domain persist. It checks original binding/authority, release intent and empty result/check/inbox/native receipt, saves only a digest and raises TASK_INDETERMINATE. After the planned real restart, original public receive refuses at boot mismatch before transport; installed reconcile and domain reconcile refuse NEEDS_RECONCILIATION. Exact readback, markers and census must remain unchanged. There is no fabricated final, DB deletion, new release, evaluator invocation or manifest rebinding.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    },
+    {
+      "requirement": "Installed reader uses the original authoritative family owner, preserves no-execution observation, and does not free DB on unknown outcomes",
+      "current_lines": "1013-1044; 3720-3836; 6573-6658",
+      "existing_authority_lines": "ops/run_test_db_gate.py:759-818",
+      "trace": "Changed restarted_cli latches reader_unknown and the existing DB fence before admission, redirects only private output, and execs in the SAME family via historical_run_gate. The original run_gate reads an exact typed schema/code/family_drained receipt before returning. H03 additionally requires exact INSTALLED origin/managed-cli READY/EXIT events and documented normal exits 0 or 2 before restoring only the prior reader_unknown value. Timeout/cancel/unknown/bad receipt retain uncertainty. The outer body-exception latch catches later CLI tuple/readback assertions; only full finalizer completion can release the fence.",
+      "evidence": "Six actual nested-reader producer SOURCE controls (normal, denial, timeout, cancelled, unknown, bad-receipt) ran; resource/installed/DB seams are explicitly substituted.",
+      "disposition": "APPROVED_SOURCE_SCOPED_RUNTIME_NOT_RUN"
+    }
+  ],
+  "original_finding_dispositions": [
+    {
+      "id": "H03-INPUT-F01",
+      "disposition": "CORRECTED_SOURCE_NORMATIVE_APPROVED_SCOPED",
+      "current_lines": "3981-4011; 4178-4201; 6602-6607",
+      "trace": "Nonce/name/cidfile/runtime/state/daemon locators are checkpointed before create. A create finally recovers the private exact CID before refusal escapes, or inspects only the pre-registered exact name, then attests nonce/image/name/CID ownership. CID files require same UID, regular non-symlink single-link mode0600 and strict CID bytes. The unknown create outcome stays latched even if recovery/removal succeeds.",
+      "fresh_source_controls": ["normal", "create-warning", "create-cancelled", "CID normal/newline/mode/symlink/hardlink/content"],
+      "physical_limit": "Docker creation/ACK-loss/cancellation NOT_RUN; original 14-case RED retained and parent-adjudicated separately."
+    },
+    {
+      "id": "H03-INPUT-F02",
+      "disposition": "CORRECTED_SOURCE_NORMATIVE_APPROVED_SCOPED",
+      "current_lines": "4081-4124; 6608-6625",
+      "trace": "retire_host asks Host RPC only if the attested CID is running. The complete finalizer independently attempts exact stopped-container rm even after failed drain/retirement and continues later cleanup owners. A pre-boot/never-started CID is not abandoned for lack of a runtime socket. Failed graceful cleanup remains a failure, not clean settlement.",
+      "fresh_source_controls": ["normal", "never-started", "drain-failed", "create-warning", "create-cancelled"],
+      "physical_limit": "Actual stopped/running container cleanup NOT_RUN."
+    },
+    {
+      "id": "H03-INPUT-F03",
+      "disposition": "CORRECTED_SOURCE_NORMATIVE_APPROVED_SCOPED",
+      "current_lines": "3405-3441; 3860-3921; 3923-3979; 4035-4041; 4163-4177; 4200",
+      "trace": "Caller binds daemon identity before create and compares it before/after dependent operations. Full pre-start actual-container checks now include stock image/CMD/entrypoint/UID/Env/Volumes, private namespaces, privilege/network/caps/security/limits/tmpfs and the exact two canonical physical same-UID mode0700 owned bind roots with type/RW/mode/propagation. Both initial and replacement start call the full check. Wrong daemon prevents effects under a new authority and retains locators/DB uncertainty.",
+      "fresh_source_controls": ["normal", "extra-mount", "host-pidns", "privileged", "extra-env", "network", "daemon-changed", "physical alias"],
+      "physical_limit": "These controls compile actual consumer/helper AST but substitute daemon data; physical Engine configurations and effects NOT_RUN. Complementary input/security reviewer adjudicates detailed security closure."
+    },
+    {
+      "id": "H03-INPUT-F04",
+      "disposition": "CORRECTED_SOURCE_NORMATIVE_APPROVED_SCOPED",
+      "current_lines": "3742-3784; 3860-3921; 6573-6658",
+      "trace": "Docker mutations latch uncertainty before launch; only a fully acknowledged normal call restores the previous latch. Failed readbacks also fail closed. A later retry or exact current absence cannot erase original unknown work. Reader admission uses the existing strict family authority rather than a new supervisor. Dispatch joins, heartbeat, exact CID retirement/removal/absence, runtime close, public-owner exit and engine disposal all precede fence release. Any body/cleanup failure or unknown owner retains DB and emits sanitized UNCERTAIN/NOT_SETTLED.",
+      "fresh_source_controls": ["normal", "stop-cancelled", "public-exit-failure", "engine-failure", "reader-unknown", "actual reader normal/denial/timeout/cancelled/unknown/bad-receipt"],
+      "physical_limit": "Actual daemon uncertainty resolution is not invented or certified. Dynamic PG finalization and real H03 reader families NOT_RUN here."
+    }
+  ],
+  "executed_verification": [
+    {
+      "command_argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_contract_method_pg.py", "-k", "not real_native_pg", "--basetemp=/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source-fixtures", "-q", "--tb=no"],
+      "cwd": "/home/kali/OmnisAI",
+      "environment": {"PATH": "/usr/bin:/bin", "HOME": "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d", "TMPDIR": "/home/kali/.hermes/cache/scratch", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+      "exit": 0,
+      "counts": {"passed": 132, "skipped": 5, "deselected": 22},
+      "elapsed_seconds_reported": 10.77,
+      "sanitized_summary": "132 passed, 5 skipped, 22 deselected in 10.77s",
+      "result_handle": "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source-result.json",
+      "private_log": "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source.log",
+      "limit": "Existing SOURCE tests only, including all 28 added actual-AST controls. All real_native_pg nodes deselected. Three static H03 artifact controls and two existing offline-installed prerequisite controls skip because no artifact/prerequisite variables were admitted; these are not passing tests. This explicit no-prerequisite run is distinct from the author's 135PASS/2SKIP result."
+    },
+    {"command": "git diff --check", "exit": 0},
+    {"command": "sha256sum api/tests/test_contract_method_pg.py", "exit": 0, "observed_before_after": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca"},
+    {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --name-only; git diff --cached --stat", "exit": 0, "result": "Declared preexisting consumer modification and protected untracked HTML only; no staged changes; HEAD remains supplied base."}
+  ],
+  "unchanged_acceptances_reused": {
+    "normative_report": "/home/kali/.hermes/cache/scratch/h03-normative-review-9b4329f/report.json",
+    "image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+    "static_artifact": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/static-attestation.json",
+    "static_artifact_sha256_reused": "ec6f603f94e5934c503d3972e516211ec095188c666dd983dada17a8f89ffe8f",
+    "archive_sha256_reused": "79f887d0c5754804a04e5d9e0de44490f8fffb7b1f6eea841140806a8872866a",
+    "inventory_scope": "Unchanged 39 layers / 34 base layers; exact 34 source/adapter members and 15 compiled adapter bodies; API88 parity, stock Host/native entrypoint and effective UID access acceptance reused from original exact report/context.",
+    "distribution_or_API_inventory_reaudit": "NOT_RUN_NOT_REQUIRED_FOR_UNCHANGED_BYTES",
+    "rebuild_install_image_changes": "NOT_RUN_NONE",
+    "qualification_H01_H02": "UNCHANGED_NOT_REOPENED"
+  },
+  "remaining_gates": {
+    "actual_H03_positive": "NOT_RUN",
+    "actual_H03_no_final_negative": "NOT_RUN",
+    "actual_PostgreSQL_durable_census_and_readers": "NOT_RUN",
+    "actual_Docker_Host_native_effects_or_cleanup": "NOT_RUN",
+    "complementary_input_failure_review": "Separate parent-adjudicated report required on the identical current SHA; no approval inferred by this normative reviewer",
+    "parent_integration_commit": "NOT_DONE_BY_REVIEWER",
+    "stock_supervisor_owner_epoch_recovery": "OUT_OF_DECLARED_SCOPE; original SourceNativeTaskOwner remains the consumer",
+    "canonical_final": "NOT_RUN",
+    "B06b_G02_P2_inert": "PARTIAL_NOT_CLOSED",
+    "P4a_minimal": "NOT_IMPLEMENTED_BY_THIS_SLICE"
+  },
+  "effects_and_files": {
+    "shared_repository_edits": [],
+    "staging_commits_profile_skill_changes": false,
+    "protected_HTML_or_secrets_accessed": false,
+    "runtime_containers_PostgreSQL_native_provider_network_install_image_effects": "NONE",
+    "Docker_metadata_calls": "NONE; original distribution acceptance reused",
+    "source_only_processes": "Existing SOURCE tests exercised their bounded synthetic stdlib child/family controls; no new framework or independent runtime owner added.",
+    "owned_scratch_outputs": ["/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/report.json", "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source-result.json", "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source.log", "/home/kali/.hermes/cache/scratch/h03-normative-rereview-8a0d39d/source-fixtures/"],
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO_NOT_USED"
+  },
+  "issues_encountered": ["One read-only lookup used ops/run_gate.py, which does not exist. The actual unchanged authority was resolved through historical_run_gate to ops/run_test_db_gate.py:759-818 and read statically. No execution or changes resulted.", "Five explicit missing-prerequisite skips under the isolated no-artifact environment are retained as SKIP, not promoted to PASS."],
+  "proposed_parent_status_delta": [
+    {"slice": "Qualification/H01/H02", "code": "UNCHANGED", "proof": "REUSE_ACCEPTED_SCOPED", "review": "NOT_REOPENED"},
+    {"slice": "H03 AICI", "code": "CORRECTED_SOURCE_ORCHESTRATION_UNCOMMITTED", "proof": "SOURCE132PASS5SKIP; REAL_RESTART_NOT_RUN", "review": "NORMATIVE_APPROVED_SCOPED_ON_8a0d39d", "next": "Parent adjudicates complementary exact-SHA review, then owns bounded real positive/no-final QA and integration."},
+    {"slice": "B06b/G02/P2-inert", "code": "PARTIAL", "proof": "NOT_CLOSED", "review": "NO_GLOBAL_APPROVAL"}
+  ],
+  "proposed_reusable_lesson_for_parent": "Keep provisional CID/name/daemon ownership before effects; distinguish current exact absence from original unknown ACK, and release the existing DB fence only after all owned cleanup. No shared skill edit allowed under this read-only delegation."
+}

@@ -32,7 +32,15 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         fields |= {"context_ref", "input"}
     elif operation == "append-mission":
         fields |= {"context_ref", "mission_ref", "criterion_id"}
-    elif operation not in {"read-context", "read-method-context", "read-input", "read-mission"}:
+    elif operation == "create-denominator":
+        fields |= {"context_ref", "mission_ref", "input_ref"}
+    elif operation not in {
+        "read-context",
+        "read-method-context",
+        "read-input",
+        "read-mission",
+        "read-denominator",
+    }:
         raise CatalogError("INVALID_REQUEST")
     if operation == "create-method-context" and "criterion_ids" in mapping(value):
         fields.add("criterion_ids")
@@ -55,6 +63,11 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         mission = ref(result["mission_ref"], "mission")
         contract.integer(mission["revision"], 1, 1)
         uuid_string(result["criterion_id"])
+    elif operation == "create-denominator":
+        contract.integer(result["schema_version"], 1, 1)
+        ref(result["context_ref"], "contract-input-context")
+        ref(result["mission_ref"], "mission")
+        ref(result["input_ref"], "contract-case-records")
     return result
 
 
@@ -199,6 +212,62 @@ class ContractInputs:
                 conn, owner, run, command, "append-mission", value, result_refs
             )
             return {**result_refs, "created": True}
+
+    async def create_denominator(self, request: object) -> dict[str, object]:
+        from omnis.modules.coverage import denominator
+
+        value = validate_request("create-denominator", request)
+        owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
+        async with asyncio.timeout(15), self.engine.begin() as conn:
+            # Existing generic writer resolves public ahead of temp shadows.
+            await conn.execute(sql("SET LOCAL search_path = pg_catalog, public, pg_temp"))
+            await store.lock(conn, owner)
+            run, _ = await store.owned(conn, owner, value["context_ref"])
+            await store.get(conn, owner, run, value["mission_ref"])
+            await store.get(conn, owner, run, value["input_ref"])
+            graph = await store.graph(conn, owner, run)
+            await denominator.validate_graph(conn, owner, run, graph)
+            prior = await store.command_replay(conn, owner, command, "create-denominator", value)
+            if prior is not None:
+                item = await store.get(
+                    conn, owner, run, ref(prior.get("denominator_ref"), denominator.KIND)
+                )
+                denominator.validate_receipt(
+                    await store.command_receipt(conn, owner, command), item, command=command
+                )
+                return {**prior, "created": False}
+            body = await denominator.derive(
+                conn, owner, graph, value["context_ref"], value["mission_ref"], value["input_ref"]
+            )
+            retained = [r for r in graph if r["kind"] == denominator.KIND]
+            matches = [
+                r
+                for r in retained
+                if canonical(denominator.material(denominator.payload(r["payload"])))
+                == canonical(body)
+            ]
+            if matches:
+                item = matches[0]
+                created = False
+            else:
+                revision = contract.integer(len(retained) + 1, 1, denominator.REVISION_LIMIT)
+                body.update(
+                    denominator_revision=revision,
+                    provenance={
+                        "producer_key": denominator.KIND,
+                        "producer_revision": denominator.KIND + "-v1",
+                        "command_id": command,
+                    },
+                )
+                denominator.payload(body)
+                item = records.envelope(denominator.KIND, body)
+                await store.put(conn, owner, run, item)
+                created = True
+            result = denominator.result_refs(denominator.payload(item["payload"]), item)
+            await store.command_complete(
+                conn, owner, run, command, "create-denominator", value, result
+            )
+            return {**result, "created": created}
 
     async def _require_settled(
         self, conn: AsyncConnection, owner: str, run: str, graph: list[dict[str, object]]
@@ -373,6 +442,8 @@ class ContractInputs:
         value = validate_request(operation, request)
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
         async with asyncio.timeout(4), self.engine.begin() as conn:
+            if operation == "read-denominator":
+                await conn.execute(sql("SET LOCAL search_path = pg_catalog, public, pg_temp"))
             await store.lock(conn, owner)
             receipt = await store.command_receipt(conn, owner, command)
             body = mapping(receipt["payload"])
@@ -384,6 +455,16 @@ class ContractInputs:
             if body["operation"] != expected_operation:
                 raise CatalogError("COMMAND_CONFLICT")
             result = mapping(body["result_refs"])
+            if operation == "read-denominator":
+                from omnis.modules.coverage import denominator
+
+                run, item = await store.owned(
+                    conn, owner, ref(result.get("denominator_ref"), denominator.KIND)
+                )
+                await denominator.validate_graph(
+                    conn, owner, run, await store.graph(conn, owner, run)
+                )
+                denominator.validate_receipt(receipt, item, command=command)
             values = {
                 key.replace("_ref", ""): (await store.owned(conn, owner, ref(value)))[1]
                 for key, value in result.items()
@@ -404,10 +485,12 @@ def main(argv: list[str] | None = None) -> int:
             "create-method-context",
             "create-input",
             "append-mission",
+            "create-denominator",
             "read-context",
             "read-method-context",
             "read-input",
             "read-mission",
+            "read-denominator",
         ),
     )
     parser.add_argument("--request", required=True)
@@ -438,6 +521,8 @@ def main(argv: list[str] | None = None) -> int:
                     return await service.create_input(value)
                 if args.operation == "append-mission":
                     return await service.append_mission(value)
+                if args.operation == "create-denominator":
+                    return await service.create_denominator(value)
                 return await service.read(args.operation, value)
             finally:
                 await engine.dispose()

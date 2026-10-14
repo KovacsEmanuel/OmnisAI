@@ -2260,6 +2260,144 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise AssertionError("MISSION_STAGE_DENIAL_CENSUS_CHANGED")
                 assert await markers() == durable_markers
                 assert observation.read_bytes() == native_before
+                denominator_request = seed.write(
+                    schema_version=1,
+                    context_ref=context["context_ref"],
+                    mission_ref=stored.reference(m2),
+                    input_ref=original["input_ref"],
+                )
+                denominator_census = await mission_census()
+                with monkeypatch.context() as rollback:
+                    rollback.setattr(managed_store, "command_complete", fail_receipt)
+                    with pytest.raises(CatalogError, match="TEST_RECEIPT_ROLLBACK"):
+                        await inputs.create_denominator(denominator_request)
+                if await mission_census() != denominator_census:
+                    raise AssertionError("DENOMINATOR_RECEIPT_ROLLBACK_CENSUS_CHANGED")
+                denominator_created = await private_input_cli(
+                    "create-denominator", denominator_request
+                )
+                assert denominator_created["created"] is True
+                denominator_read_request = {
+                    k: denominator_request[k] for k in ("schema_version", "owner_id", "command_id")
+                }
+                denominator_read = await private_input_cli(
+                    "read-denominator", denominator_read_request
+                )
+                denominator_record = mapping(denominator_read["denominator"])
+                denominator_body = mapping(denominator_record["payload"])
+                assert denominator_record["revision"] == 1
+                assert denominator_body["denominator_revision"] == 1
+                assert mapping(denominator_body["mission_ref"])["revision"] == 2
+                assert denominator_body["universe"] == "DECLARED_CONTRACT_INPUT"
+                assert all(
+                    denominator_body[k] == "UNKNOWN"
+                    for k in ("identity_state", "applicability_state", "precondition_state")
+                )
+                denominator_after_create = await mission_census()
+                assert (await private_input_cli("create-denominator", denominator_request)) == {
+                    **denominator_created,
+                    "created": False,
+                }
+                if await mission_census() != denominator_after_create:
+                    raise AssertionError("DENOMINATOR_REPLAY_CENSUS_CHANGED")
+                duplicate_request = {**denominator_request, "command_id": str(uuid4())}
+                assert (await private_input_cli("create-denominator", duplicate_request)) == {
+                    **denominator_created,
+                    "created": False,
+                }
+                assert (
+                    await private_input_cli(
+                        "read-denominator",
+                        {
+                            k: duplicate_request[k]
+                            for k in ("schema_version", "owner_id", "command_id")
+                        },
+                    )
+                )["denominator"] == denominator_record
+                denominator_census = await mission_census()
+                for operation, bad, reason in (
+                    (
+                        "create-denominator",
+                        {**denominator_request, "owner_id": str(uuid4())},
+                        "REF_UNAVAILABLE",
+                    ),
+                    (
+                        "create-denominator",
+                        {**denominator_request, "mission_ref": stored.reference(mission)},
+                        "COMMAND_CONFLICT",
+                    ),
+                    (
+                        "create-denominator",
+                        {
+                            **denominator_request,
+                            "input_ref": {**mapping(original["input_ref"]), "digest": "0" * 64},
+                        },
+                        "REF_MISMATCH",
+                    ),
+                    (
+                        "create-denominator",
+                        {
+                            **denominator_request,
+                            "input_ref": {**mapping(original["input_ref"]), "revision": True},
+                        },
+                        "INVALID_REQUEST",
+                    ),
+                    (
+                        "create-denominator",
+                        {**denominator_request, "input_ref": stored.reference(m2)},
+                        "MANAGED_REJECTED",
+                    ),
+                    (
+                        "create-denominator",
+                        {**denominator_request, "purpose": "ASSESSMENT"},
+                        "MANAGED_REJECTED",
+                    ),
+                    (
+                        "create-denominator",
+                        {**denominator_request, "denominator_revision": 2},
+                        "MANAGED_REJECTED",
+                    ),
+                    ("read-mission", denominator_read_request, "COMMAND_CONFLICT"),
+                ):
+                    await private_input_cli(operation, bad, reason=reason)
+                    if await mission_census() != denominator_census:
+                        raise AssertionError("DENOMINATOR_DENIAL_CENSUS_CHANGED")
+                async with engine.begin() as conn:
+                    await conn.execute(
+                        sql(
+                            "CREATE TEMP TABLE managed_record (id uuid,owner_id uuid,run_id uuid,envelope jsonb) ON COMMIT DROP"
+                        )
+                    )
+                    assert (
+                        await managed_store.owned(
+                            conn, seed.owner, denominator_created["denominator_ref"]
+                        )
+                    )[1] == denominator_record
+                if await mission_census() != denominator_census:
+                    raise AssertionError("DENOMINATOR_SHADOW_CENSUS_CHANGED")
+                prior_back = back
+                back = await domain.readback(back_request)
+                for field in (
+                    "briefs",
+                    "results",
+                    "checks",
+                    "criterion_outcomes",
+                    "tasks",
+                    "inbox",
+                    "binding",
+                    "manifest",
+                ):
+                    assert canonical(back[field]) == canonical(prior_back[field])
+                durable_markers = await markers()
+                durable_census = await mission_census()
+                assert observation.read_bytes() == native_before
+                checkpoint(
+                    denominator_consumer="CREATE_READ_REPLAY_EIGHT_DENIAL_TUPLES",
+                    denominator_revision=1,
+                    denominator_mission_revision=2,
+                    denominator_census="FIVE_TABLE_ROLLBACK_REPLAY_DENIALS_PUBLIC_SHADOW_EXACT",
+                    denominator_unknown="IDENTITY_APPLICABILITY_CURRENT_PRECONDITIONS",
+                )
                 checkpoint(
                     mission_revision_consumer="M1_IMMUTABLE_M2_APPENDED",
                     mission_refs=[stored.reference(mission), appended["mission_ref"]],

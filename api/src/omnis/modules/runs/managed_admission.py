@@ -916,6 +916,10 @@ class ManagedAdmission:
         from omnis.modules.tasks import mission_revisions
 
         mission_revisions.validate_graph(graph)
+        if any(r["kind"] == "coverage-denominator" for r in graph):
+            from omnis.modules.coverage import denominator
+
+            await denominator.validate_graph(conn, owner, run, graph)
         refs: dict[bytes, dict[str, object]] = {}
 
         def collect(value: object) -> None:
@@ -993,6 +997,7 @@ class ManagedAdmission:
                 "contract-case-input",
                 "contract-case-records",
                 "contract-input-context",
+                "coverage-denominator",
                 "managed-run",
                 "mission",
                 "focus",

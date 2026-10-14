@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "status": "FUNCTIONAL_H03_PROGRESS_OVERALL_FAIL_CLEANUP_NOT_SETTLED",
+  "consumer_commit": "9937bc5",
+  "consumer_sha256": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d",
+  "image_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+  "process_session": "proc_ff73d7b0a75d",
+  "selected_case": "runtime-restart",
+  "summary": "1 failed / 1 error / 37.64s / exit1",
+  "family_receipt": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "proof_path": "/home/kali/.hermes/cache/scratch/jsonschema-h03-66a-attempt1-runtime-restart/test_contract_method_real_nati0/method-history-proof.json",
+  "proof_sha256": "ef5fbf87a10bda466f3b7f052cb4f142f458806cb5ffb6a64e9c96095c74caa7",
+  "observed": {
+    "h03_release_exchange": {
+      "events": [
+        {
+          "elapsed_ms": 0,
+          "grant_remaining_ms": 4494,
+          "phase": "ENTER"
+        },
+        {
+          "correlation_valid": true,
+          "elapsed_ms": 79,
+          "grant_remaining_ms": 4414,
+          "ok": true,
+          "phase": "END",
+          "read_complete": true,
+          "returned": true,
+          "writer_drained": true
+        }
+      ],
+      "host_internal_cause": "UNKNOWN",
+      "status": "COMPLETE"
+    },
+    "public_control_actions": [
+      {
+        "action": "stage",
+        "phase": "ACTIVE",
+        "task_status": "BOUND"
+      },
+      {
+        "action": "release",
+        "phase": "ACTIVE",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "receive",
+        "phase": "AFTER_PROCESS_RESTART",
+        "task_status": "SUCCEEDED"
+      },
+      {
+        "action": "receive",
+        "phase": "AFTER_CONSUMPTION",
+        "task_status": "SUCCEEDED"
+      }
+    ],
+    "h03_processes": [
+      {
+        "boot": "03a421b3-8f95-4160-8c75-d045064409c8",
+        "host": [
+          103752,
+          3441226,
+          4026533128
+        ],
+        "native": [
+          103917,
+          3441457,
+          4026533128
+        ]
+      },
+      {
+        "boot": "6075c74e-00e4-40f8-aee3-77607c63d2b4",
+        "host": [
+          104494,
+          3442112,
+          4026533127
+        ],
+        "native": [
+          104636,
+          3442164,
+          4026533127
+        ]
+      }
+    ],
+    "h03_original_boot": "03a421b3-8f95-4160-8c75-d045064409c8",
+    "h03_durable_before_restart": "5c02798adc7277d368a16c05c6ef96b377732bbc34493dd4d3cf95fe232d7894",
+    "h03_census_before_restart": "a9ac25694d085bc68c1c42f4c31464c3d334d7dc3267ea906a80134f61a5abd7",
+    "h03_single_consumption": "EXACT_ONE_BIT_FIVE_TABLE_CENSUS",
+    "h03_retained_refs": "BYTE_EXACT_GRAPH_FINAL_CHECK_OUTCOMES_USAGE",
+    "h03_execution_attempts": [],
+    "h03_process_restart": "READERS_COMPLETE_CLEANUP_PENDING",
+    "h03_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+    "public_control_cleanup": "PASS",
+    "restart_processes": [
+      {
+        "execution_attempts": 0,
+        "exit": 0,
+        "operation": "readback",
+        "pid": 104684
+      },
+      {
+        "execution_attempts": 0,
+        "exit": 0,
+        "operation": "reconcile",
+        "pid": 104705
+      },
+      {
+        "execution_attempts": 0,
+        "exit": 0,
+        "operation": "reconcile",
+        "pid": 104730
+      },
+      {
+        "execution_attempts": 0,
+        "exit": 0,
+        "operation": "readback",
+        "pid": 104771
+      }
+    ]
+  },
+  "acceptance": "NOT_ACCEPTED; unchanged strictfence correctlyretained; no retrospectivecausecredit orignorecleanup.",
+  "next": "InvestigateONLYoriginalsettledconnectionlifecycleandfinalizer; possibleidleruntimechannel afterdrain while4installedreaders is hypothesis, notconfirmedhere. No newframework/timeout/grant/functionalpatch."
+}

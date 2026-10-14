@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "exact_cids_absent": [
+    "c3b991a2f3a42bb336fcb5ef20b7184a2b3f53e4d3c85a86ddc05dcc55153295",
+    "4eedf068bbea833bef8698b7f9a2a975008393f4c9257363acd61df16b91fbba"
+  ],
+  "exact_project_containers_networks_absent": true,
+  "endpoints_absent": {
+    "runtime.boot": true,
+    "runtime.sock": true
+  },
+  "original_processes_absent": [
+    {
+      "kind": "host",
+      "pid": 103752,
+      "original_identity_absent": true
+    },
+    {
+      "kind": "native",
+      "pid": 103917,
+      "original_identity_absent": true
+    },
+    {
+      "kind": "host",
+      "pid": 104494,
+      "original_identity_absent": true
+    },
+    {
+      "kind": "native",
+      "pid": 104636,
+      "original_identity_absent": true
+    }
+  ],
+  "runtime_lock_free": true,
+  "data_logs_retained": true,
+  "resource_readback": "ALL_CURRENT_OWNED_RESOURCES_ABSENT",
+  "runtime_result": "REAL_RELEASE_AND_RESTART_READERS_PASSED_BUT_CASE_FAIL_CLEANUP",
+  "db_fence": "RETAINED_NOT_OVERRIDDEN",
+  "note": "Physicalabsenceonly; nooverallacceptanceorfenceoverride. Actualfunctionalproofreusedfordiagnosisnotconvertedtoallgreen."
+}

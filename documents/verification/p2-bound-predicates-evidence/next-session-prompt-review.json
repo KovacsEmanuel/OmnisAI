@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "report_kind": "INDEPENDENT_READ_ONLY_NEXT_SESSION_DOCUMENT_PROMPT_REVIEW",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Livrabilul documentar next-session pe snapshotul exact nominalizat, conform planului §7.1/§8 și call-sites/manifeste care afectează executabilitatea instrucțiunilor. Nu aprobare de implementare, integrare, distribuție, QA nativă, P2-inert, Settings sau P2-live.",
+  "parent_adjudication_required": true,
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "branch_before": "checkpoint/p2-vm-restart-20261011",
+    "branch_after": "checkpoint/p2-vm-restart-20261011",
+    "head_before": "422bb36bc57546faea11ac5428090f0c282f6521",
+    "head_after": "422bb36bc57546faea11ac5428090f0c282f6521",
+    "tracked_dirty_before_after": [
+      "documents/verification/p2-c10-session-handoff-20261012.md",
+      "documents/verification/p2-result-qualification-schema-decision.md"
+    ],
+    "staged_paths_before_after": [],
+    "untracked_paths_before_after": [
+      "documents/Omnis_Notite_Originale.html",
+      "documents/verification/p2-bound-predicates-evidence/next-session-consumer-change-map.json",
+      "documents/verification/p2-bound-predicates-evidence/ready-next-session-independent-investigation.json",
+      "documents/verification/p2-bound-predicates-evidence/ready-next-session-parent-investigation.json",
+      "documents/verification/p2-next-session-implementation.md"
+    ],
+    "document_hash_algorithm": "SHA256",
+    "document_sha_before_after": {
+      "documents/verification/p2-next-session-implementation.md": {
+        "before": "71dd2c94d5e5e600cbaaef66758daf3061493d6cfbd7333db52b713b36ddd75c",
+        "after": "71dd2c94d5e5e600cbaaef66758daf3061493d6cfbd7333db52b713b36ddd75c"
+      },
+      "documents/verification/p2-c10-session-handoff-20261012.md": {
+        "before": "1b49069d7645e4e6ca91886e45a4a31dcb09ced81ee492fda9c5d7a23505f447",
+        "after": "1b49069d7645e4e6ca91886e45a4a31dcb09ced81ee492fda9c5d7a23505f447"
+      },
+      "documents/verification/p2-result-qualification-schema-decision.md": {
+        "before": "3001b1c98c3eb80a002112f4e0001f8c5f593475411173a47b224204aa6d6494",
+        "after": "3001b1c98c3eb80a002112f4e0001f8c5f593475411173a47b224204aa6d6494"
+      },
+      "documents/verification/p2-bound-predicates-evidence/ready-next-session-parent-investigation.json": {
+        "before": "0858dfa7de42af3f4aaedae5edfc3e6e70731caded755643289650116fb29797",
+        "after": "0858dfa7de42af3f4aaedae5edfc3e6e70731caded755643289650116fb29797"
+      },
+      "documents/verification/p2-bound-predicates-evidence/ready-next-session-independent-investigation.json": {
+        "before": "47ba0c6c382db3e7908aac02e694b5b5bc8191449daa982c68c1e4814ab2c09c",
+        "after": "47ba0c6c382db3e7908aac02e694b5b5bc8191449daa982c68c1e4814ab2c09c"
+      },
+      "documents/verification/p2-bound-predicates-evidence/next-session-consumer-change-map.json": {
+        "before": "383a6bd5e5f81b6efa2705f08c95e5d216d89625923d6292fa7e3ca07f4bd1cd",
+        "after": "383a6bd5e5f81b6efa2705f08c95e5d216d89625923d6292fa7e3ca07f4bd1cd"
+      }
+    },
+    "all_document_hashes_match_requested_snapshot": true,
+    "all_document_hashes_stable": true,
+    "source_binding": "Call-sites citite sunt sursa tracked din HEAD indicat; Git înainte/după nu arată niciun diff de produs sau staged. Rapoartele de investigație au fost verificate numai pentru identitatea bytes, nu reaudit de concluzii/probe.",
+    "protected_untracked_content_read_hashed_edited_deleted": false
+  },
+  "findings": [],
+  "blocking_finding_count": 0,
+  "concrete_document_remedy_required": false,
+  "acceptance_review": [
+    {
+      "criterion": "Intrare CURRENT unică și recuperare după restart",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:3,13-19,175-186",
+        "documents/verification/p2-c10-session-handoff-20261012.md:3-13,100-123"
+      ],
+      "observation": "Handoff CURRENT trimite la un singur prompt actual, iar promptul scurt trimite la același fișier. HEAD se citește real, fără self-SHA sau remote implicit. Paragraful M2 și instrucțiunile/checkpointurile ulterioare ale handoffului sunt declarate istorice; nu există un al doilea mandat actual în delta. Registrul păstrează dispozițiile, nu este alt plan."
+    },
+    {
+      "criterion": "Prima editare finită pre-main pe observer/consumer existent",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:47-77",
+        "api/tests/test_contract_method_pg.py:65-69,130-212,373-451,1059-1107,2971-3000",
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:23,439-467",
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36,3363-3378",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:18-60",
+        "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py:5"
+      ],
+      "observation": "D01-D03 modifică bootstrapul, controalele SOURCE și diagnosticul din testul existent, nu un profiler sau runner nou. Inventarul este finit: 10 frontiere nominalizate, completări condiționate de operație, limite events/bytes, filtrare înainte de frame access, allowlist și incompletitudine explicită. Ancorele de import/main/READY sunt reale. D04 păstrează selectorul original.",
+      "independent_static_control": "AST/literal extraction și compile fără execuție: code objects ale celor patru module nominalizate au co_name='<module>', absent din observed; main este nominalizat în observer. SHA bootstrap extras: 639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d. Controlul nu lansează Hermes și nu măsoară costuri."
+    },
+    {
+      "criterion": "UNKNOWN nu este convertit în ipoteză/cauză și safety nu este slăbit",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:32-45,79-86",
+        "api/src/omnis/modules/instance/service.py:153-187",
+        "api/src/omnis/supervisor/runtime_client.py:512-516"
+      ],
+      "observation": "Grantul provine imediat înainte de exchange, cu plafon 4.5s; nu se repară un deadline vechi al qualification. H1 import eager și H2 audit sunt explicit condiționate de măsurători/reproducer. Fără TTL/deadline extins, prewarm, stderr brut, dezactivare audit, emitter fake sau atribuire din SIGTERM. PASS ulterior nu explică retroactiv FAIL. Reseal/build/distribution review sunt cerute când bytes native se schimbă."
+    },
+    {
+      "criterion": "Acceptări scoped păstrate și qualification prin consumerul real",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:17-30,77,88-94",
+        "documents/verification/p2-result-qualification-schema-decision.md:25-53",
+        "documents/Omnis_Implementation_Plan.md:278,285"
+      ],
+      "observation": "ResultQualification 8cec478 este tratată ca IMPLEMENTED_SOURCE/APPROVED_SOURCE_SCOPED, nu PASS nativ. M2/F01 b4964e7, numitor dafa0d5 și schema0013 sunt reutilizate scoped. REVALIDATION_REQUIRED/refs externe goale și numitor cu revizie proprie sunt păstrate. O tentativă fresh după observație/review justificată merge până la qualification/read/replay/refuzuri/Stop/readeri dacă READY reușește, nu launch-only PASS. Cauza internă rămâne UNKNOWN dacă nu este observată."
+    },
+    {
+      "criterion": "B06b history/restart/batch sunt consumers reali, nu helpers sau identități fabricate",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:100-113",
+        "api/tests/test_contract_method_pg.py:218-254,631-685",
+        "api/src/omnis/modules/runs/managed_admission.py:40-74,113-146,485-539,1230-1326",
+        "api/src/omnis/modules/tasks/managed_contract.py:824-903,1700-1744",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:101-151",
+        "integrations/hermes/src/omnis_hermes/contract_method.py:151-191",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:425-487",
+        "api/src/omnis/supervisor/native_tasks.py:213-232,278-279,295-335",
+        "api/src/omnis/supervisor/runtime_client.py:483-507"
+      ],
+      "observation": "Readerul actual injectează ROOT/api/src; H01 cere schimbarea precisă la installed reader pe istoric autentic. H02 nu pretinde locator old disponibil și nu aprobă automat e6ffcf8: fixează producer old instalat separat și upgrade real dacă este necesar. H03 distinge DB durable de RAM Host și refuzul fără final. B01-B03 identifică singleton/count/index0 reale în API/adaptor/lifecycle și cer un singur RUN, două identități, mapping COMMIT pre-access și overlap real. Refurile records/StepOutput livrate nu sunt reimplementate și gramatica generală nu este obligatoriu extinsă arbitrar."
+    },
+    {
+      "criterion": "B06c/B06m pe același caller, reserve COMMIT/SENT durabil/pre-send/UNKNOWN",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:115-127",
+        "api/src/omnis/modules/runs/model_dispatch.py:507-650",
+        "api/src/omnis/modules/runs/model_projection.py:27-193",
+        "api/src/omnis/policy/budgets.py:270-340,413-495",
+        "api/src/omnis/policy/model_dispatch_contract.py:78-112",
+        "api/src/omnis/modules/instance/service.py:131-151,190-199",
+        "api/src/omnis/supervisor/runtime_client.py:448-481",
+        "api/src/omnis/supervisor/native_tasks.py:295-316",
+        "integrations/hermes/src/omnis_hermes/model_request.py:118-145",
+        "documents/Omnis_Implementation_Plan.md:279-280"
+      ],
+      "observation": "Preflight/config/init nu sunt numite send. Inert carrier este propus separat de FinalModelRequest, care cere native-turn; nu se inventează turn. Schema ledger permite hermes=False cu model-dispatch-owner, dar owner/descriptor/sink sunt explicit de construit. Patternul A-fence/B-ledger este propunere de verificat, nu solution PASS: riscul Instance reacquisition din runtime.managed este numit concret și preobtained grant din v4 release este call-site real. Deadline/Stop/lease, overlap PG, readback SENT de altă conexiune, UNKNOWN/reținere rezervă și settlement receive-only sunt păstrate."
+    },
+    {
+      "criterion": "P2-inert/P4a-minim respectă canonul și consumers API/DB/browser",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:129-143",
+        "documents/Omnis_Implementation_Plan.md:270-293",
+        "api/src/omnis/api.py:61-64,94-102,144-149",
+        "api/src/omnis/modules/settings/candidate_store.py:13-138",
+        "api/src/omnis/modules/tasks/execution_selection.py:10-72",
+        "api/src/omnis/security/host_origin.py:113-137,157-223",
+        "api/src/omnis/modules/engagements/routes.py:117-165",
+        "web/src/features/engagement/Settings.tsx:1-10",
+        "web/src/shared/api/client.ts:12-118"
+      ],
+      "observation": "Cele 8 rânduri canonice sunt reconciliante, nu închise din număr de teste. Settings actual este placeholder/SPA; routes/services/DTOs sunt propuneri. Requested-only durable pentru run nou nu relaxează execution-selection NO_MODEL. Root/namespace/owner server-authoritative sunt prerechizite explicite, nu owner browser. Duplicate-JSON detection trebuie extins numai la PUT Settings, fără carveout 1MiB. Save-receipt-GET-reload-restart și browser real sunt obligatorii. Readiness/REQUIRED/fallback/benchmark sunt oneste. Alocarea Jev §8 este menținută explicit, nu revendicată livrată ori transformată în live simulat."
+    },
+    {
+      "criterion": "Comenzi reale, prerechizite și distincția existing/proposed",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:145-173",
+        "documents/verification/p2-bound-predicates-evidence/result-qualification-pg-selection.py:13-47",
+        "documents/verification/p2-bound-predicates-evidence/next-session-consumer-change-map.json:43-151,466-470",
+        "ops/run_test_db_gate.py:759,874,1027-1053",
+        "Makefile:19-24,89-110,125-148,169-176,189-230",
+        "api/src/omnis/migrate.py:12-25",
+        "api/pyproject.toml:12,36-39,53"
+      ],
+      "observation": "SOURCE argv are explicit, -I -B/no autoload/asyncio plugin/no cacheprovider, pe grupul existent; collect verifică noile teste. Selectorul qualification păstrează originalul prove_private_fixture('test-contract-method-native-pg', UV, 240) și flagul nu acordă review. Native/projection nu sunt prezentate drept CLI choices, model-admission-pg și test-e2e sunt choices reale. Make check este canonical real, nu alias targeted. Migrate --initialize numai empty, upgrade fără --initialize; templates installed sunt declarate ca templates. Tool paths API Python/uv/usr-bin-python există și sunt executabile; selectorul scratch există și este invocat prin interpreter, fără nevoie de executable bit. Source/library/archive/access/fresh fixture/log allowlist sunt prerechizite, nu presupuse implicit.",
+      "proposed_absence_checks": {
+        "api/src/omnis/policy/admission.py": "ABSENT_AND_EXPLICITLY_NOT_TO_BE_INVENTED",
+        "api/src/omnis/modules/settings/routes.py": "ABSENT_PROPOSED",
+        "api/src/omnis/modules/settings/schemas.py": "ABSENT_PROPOSED",
+        "api/src/omnis/modules/settings/service.py": "ABSENT_PROPOSED",
+        "ModelDispatch.prepare_inert_request/read_inert_request/prepare_inert_dispatch": "ABSENT_PROPOSED",
+        "NativeTaskOwner._model_dispatch_inert": "ABSENT_PROPOSED",
+        "RuntimeClient.dispatch_inert_protocol": "ABSENT_PROPOSED",
+        "InertProtocolRequest/parse_inert_request/consume_inert_request": "ABSENT_PROPOSED"
+      }
+    },
+    {
+      "criterion": "Continuare fără cercuri și limită live separată",
+      "status": "SATISFIED_DOCUMENT_SCOPE",
+      "references": [
+        "documents/verification/p2-next-session-implementation.md:7-9,77-86,175-186",
+        "documents/Omnis_Implementation_Plan.md:270,283,289-293",
+        "CONTRIBUTING.md:50-71"
+      ],
+      "observation": "Un fix/commit/review nu închide mandatul. Reviews exact-snapshot, două complementare pentru frontiere sensibile, affected checks după ultima editare și canonical la phase/integration boundary sunt cerute, fără reaudits ale acceptărilor scoped. După două cicluri numai harness se restrânge sau BLOCKED, nu alt verifier. Dependențele nu trec peste blocker. După Settings STOP pentru cont/provider/model/date/buget și run/selection/manifest noi, fără NO_MODEL warm, targets/P3/r1/global/push."
+    }
+  ],
+  "canonical_rows_checked": [
+    "Transport/izolare B05/H01/H02",
+    "Catalog/publicare B06a/b",
+    "Brief/composer/metoda B06b",
+    "Binding/inventar H03-H05",
+    "Rezultat/inbox H06/H07",
+    "DATA B06c",
+    "Admission B06m/H08",
+    "Snapshot final"
+  ],
+  "canonical_row_count": 8,
+  "canonical_unique_row_count": 8,
+  "execution_dependencies_not_document_defects": [
+    "Observer pre-main trebuie încă implementat/testat/reviewuit; cauza internă a QA FAIL rămâne UNKNOWN.",
+    "Availability/proveniență exactă old installed producer și schema upgrade pentru history reader trebuie verificate înainte de QA; candidatul nu este acceptare implicită.",
+    "Batch păstrează caps aggregate/deadline și trebuie să demonstreze două identități pe același RUN; lipsa probei nu se închide prin eliminarea singletonului.",
+    "Wire/sink/descriptor inert și lock graph A/B trebuie definite și probate, nu adoptate ca solution PASS din prompt.",
+    "Settings namespace/catalog root și orice obligație concretă Jev din §8 trebuie fixate înainte de false-close, nu inventate ca implementări existente."
+  ],
+  "verification_performed": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat",
+      "exit_code": 0,
+      "result": "Snapshotul exact și preexisting dirty/untracked identificate."
+    },
+    {
+      "command": "git diff -- documents/verification/p2-c10-session-handoff-20261012.md documents/verification/p2-result-qualification-schema-decision.md",
+      "exit_code": 0,
+      "result": "Delta documentară citită; fără diffs de produs."
+    },
+    {
+      "command": "python3 -I -B -c <stdlib AST/JSON/compile-only checks of explicit allowed paths>",
+      "exit_code": 0,
+      "result": "8 rânduri/8 unice; paths și ancore existente; simboluri proposed absente; blindspot module-code demonstrat fără execuție de produs; bootstrap SHA exact; prove_private_fixture target/deadline și tooling path access verificate."
+    },
+    {
+      "command": "git diff --check; git status --short --branch; git rev-parse HEAD; git diff --name-only; git diff --cached --name-only",
+      "exit_code": 0,
+      "result": "Diff whitespace valid și stare/HEAD/staged neschimbate."
+    },
+    {
+      "command": "python3 -I -B -c <SHA256 comparison of the six explicit requested files>",
+      "exit_code": 0,
+      "result": "Toate cele șase SHA before/after identice cu snapshotul cerut."
+    }
+  ],
+  "not_run": [
+    "Document renderer/unit tests: rezultate raportate de părinte nu sunt rerulate sau creditate ca execuție a reviewerului.",
+    "Product SOURCE pytest, imports de produs, build/install sau collect-only efectiv.",
+    "Native/runtime launch, PG, browser, provider sau network.",
+    "Reaudit al produsului, rapoartelor de QA, gate-urilor și acceptărilor scoped.",
+    "Acces la .env, credentials, runtime.boot, control.cap, raw private logs sau traceback PG.",
+    "Read/hash/edit/delete pentru documents/Omnis_Notite_Originale.html.",
+    "Stage/commit/push, repo/skill/config edits."
+  ],
+  "tooling_applicability": {
+    "Reticle": "NOT_APPLICABLE_DOCS_READ_ONLY",
+    "Chisel": "BLOCKED_NO_GO_NOT_LOADED"
+  },
+  "limits": [
+    "Aprobarea este strict documentară și pe SHA-urile prezentate; nu garantează viitoarea conformare a unui model sau terminarea implementării.",
+    "Ancorele sunt liniile HEAD investigat și se redescoperă după restart; noile API-uri/simboluri sunt propuneri care necesită contract și review înainte de efecte.",
+    "Nu s-au măsurat import time/audit cost și nu este demonstrat culpritul nativ.",
+    "Nu s-a executat viitorul pattern de concurență, reader installed istoric, restart Host, batch sau Settings; verificarea lor rămâne gate-ul implementării.",
+    "Nu se cere completitudine universală, un catalog general de faulturi sau extinderea gramaticală preventivă; restul inert obligatoriu neprobat rămâne blocker la acceptarea produsului.",
+    "Părintele adjudecă integrarea și persistă concluzia în registrul existent; scratch nu este backup durabil certificat."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-next-session-prompt-review.json"
+  ],
+  "repository_files_modified": [],
+  "issues_encountered": [],
+  "status_projection": {
+    "current_document_review": "AICI_APPROVED_SCOPED_PENDING_PARENT_ADJUDICATION",
+    "ResultQualification": "IMPLEMENTED_SOURCE_APPROVED_SOURCE_SCOPED_BLOCKED_NATIVE_READY",
+    "M2_and_CONTRACT_denominator": "ACCEPTED_SCOPED_REUSED_NOT_REOPENED",
+    "B06b_B06cm_P2_inert": "PARTIAL_NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED_NOT_RUN",
+    "P2_live": "SEPARATE_AUTHORIZATION_REQUIRED_NOT_RUN"
+  },
+  "report_handle": "/home/kali/.hermes/cache/scratch/p2-next-session-prompt-review.json"
+}

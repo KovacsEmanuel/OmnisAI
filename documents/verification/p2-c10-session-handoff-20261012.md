@@ -2,6 +2,8 @@
 
 ## CURRENT — ResultQualification SOURCE comisă; consumer BLOCKED_NATIVE_READY
 
+**Promptul de implementare actual este [p2-next-session-implementation.md](p2-next-session-implementation.md).** Investigația nouă localizează eșecul pre-entry.main și confirmă punctul orb: metricile import/audit se emit numai după main. Prima schimbare D01–D03 este în observerul/consumerul existent, cu faze finite pre-main; cauza import/audit rămâne condiționată de măsurători. Nu încă o lansare identică, nu refacerea qualification. Promptul nominalizează modificările/fișierele/liniile și probele până la Settings; canonul și limitele live nu se schimbă.
+
 **Checkpoint curent:** branch `checkpoint/p2-vm-restart-20261011`, produs ResultQualification `8cec478`, SOURCE/findings/reviews versionate `6eeb644`/`2cdd11d`; citește HEAD real, fără SHA auto-referențial al handoffului. [Registrul CURRENT](p2-result-qualification-schema-decision.md) păstrează toate dispozițiile și două reviews finale APPROVED_SOURCE_SCOPED pe5SHA,77SOURCE la remediu/5affected finale/quality0. [QA originală](p2-bound-predicates-evidence/result-qualification-independent-qa-fail.json) **1FAIL/28deselected56.77s/exit1/family_drained=true**: gateway.ready4476ms/remaining−4ms, Host STARTING/ready_done=false/transport_failed=false/CancelledError, observer READY numai; zero AIAgent/read/PURE/final/qualification/readeri. Cauza internă UNKNOWN, fără retry/prewarm/grant/deadline mărit. [Părintele](p2-bound-predicates-evidence/result-qualification-parent-qa-blocked.json) confirmă5SHA/54artefacte fizice, exact sesiune `proc_4315828ebf25` exited1, daemon `94260307-c33f-46ac-af7c-8a5ac1a7ffdc`/CID `43f676fb9385702acdf4c2b4f9c0f92361af877e03e6c3a819e099e8079034ea`/proiect `omnis-p01-f08aa828fe834241ac917a168dd14157`/rețele/6endpointuri/launcher2332975/familie proprie absente. PGDATA/loguri private0600 păstrate în `/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58`; native root `cm-160968b430434205b077ac8d423504f0` retras. Nu există job sau resource propriu de adoptat; servicii străine/r1 se lasă neatinse.
 
 **Prima acțiune la reluare:** restrânge cauza rece launch/handshake pre-READY folosind diagnosticul original și primul reason/starea/timpul peerului, înaintea oricărei felii dependente. Nu reimplementa ResultQualification și nu relansa identic QA numai pentru verde; cauza/remediul trebuie probate bounded cu limitele originale, affected checks/re-review, apoi o tentativă fresh distinctă justificată. Preflightul actual a verificat15.208originale/PIN/library/overlay/access fără efecte; dacă scratch expiră se recuperează numai pinul exact. ResultQualification și manifestul semantic sunt implementate prin ContractInputs/managed storage și readerul comun, REVALIDATION_REQUIRED/refs externe goale; lipsa compatibility/current-state producer rămâne explicită, fără ELIGIBLE/INELIGIBLE fabricate. M2/F01 `b4964e7` și numitor `dafa0d5` acceptate scoped; nu le reexecuta neafectate. SOURCE_HOST_NOT_INSTALLED/preparation double, installed history/runtime restart și canonical final rămân limite/probe distincte. Mandatul până la P2-inert/P4a-minim este păstrat, dar acceptarea este blocată de QA-NATIVE-READY-PREREQUISITE; după Settings STOP pentru acord live separat. Pauza actuală este la blocker real, nu acord cosmetic pentru următoarea felie.
@@ -98,67 +100,20 @@ B06j/Jev păstrează alocarea §8: typed questions/DecisionReceipt și sentinel 
 ### Prompt scurt actual pentru sesiunea nouă
 
 ```text
-Finalizează mandatul OmnisAI: rest B06b → B06c/B06m → acceptare P2-inert →
-P4a-minim. Lucrează în /home/kali/OmnisAI din HEAD local verificat, cu cod
-minimal prin consumerii existenți. Nu relua auditul launch/feliile acceptate.
-Citește AGENTS/README, CURRENT din acest handoff și rândurile afectate din
-implementation-status; contractul CONTRIBUTING.md „Execuție orientată spre
-produs”, plan §7.1/§8 și numai arhitectura/definițiile/usages active.
-Nu încărca istoria/catalogul integral. Păstrează fișierele preexistente și
-documents/Omnis_Notite_Originale.html protejat/necitit/needitat/neșters.
-
-PRIMA ACȚIUNE: QA-NATIVE-READY-PREREQUISITE, BLOCKED_NATIVE_READY.
-ResultQualification este comisă8cec478 și aprobată SOURCE pe5SHA:
-ContractInputs create/read/replay + manifest semantic backend, schema completă,
-REVALIDATION_REQUIRED și refs externe goale. Patru findings SOURCE remediate;
-nu reimplementa qualification și nu relansa checkurile neafectate.
-QA originală: proc_4315828ebf25 exited1/drained,1FAIL28deselected56.77s,
-gateway.ready4476ms/remaining−4ms/Host STARTING/CancelledError, observer READY
-numai; zero AIAgent/read/PURE/final/qualification/readeri. Cauza internă UNKNOWN.
-Parent5SHA/54artefacte/cleanup exact/data păstrate; zero joburi/copii proprii pending.
-Citește registrul și QA originală pe allowlist, fără dump traceback/DSN/capability.
-Restrânge frontiera rece launch/handshake la primul reason/stare/timpi peer,
-reproduce cauza concretă cu limitele originale, fix minimal/affected checks/
-re-review, apoi o tentativă fresh justificată. Nu retry orb/prewarm/deadline
-mărit, audit general sau verifier/harness nou. Nu trece cu felii dependente
-peste acest blocker. Preflight PIN15.208/library/overlay/access era valid;
-expirarea scratch cere recuperarea numai a pinului exact, fără profil personal.
-M2/INPUT-M2-F01 b4964e7 și NUMITOR CONTRACT dafa0d5 sunt acceptate scoped,
-revizie proprie1 sub M2revision2/UNKNOWN. Nu le relansa neafectate, nici0013
-ori metodele acceptate. Fără coverage complet/auth/current-state/ELIGIBLE
-fabricate; unavailable și invalidarea probată rămân distincte.
-După acceptarea qualification: installed historical-reader autentic, apoi
-restart runtime distinct; exact1Ref/selector records/predecessor operations
-există deja, nu le reconstrui. Alocarea altor forme și batch/inventar/preaccess
-rămân explicite în delta celor8rânduri; nu un backlog extensibil.
-
-Pentru fiecare verificare/delegare: cerință → consumer → risc → decizie,
-scurt în contractul existent, nu raport nou. Fără decizie sau integritate/
-cleanup obligatoriu, omite lucrarea. Nu porni un verifier pentru verifier.
-Înainte de probe: preflight fără efecte al argv/choices/collect/source-library/
-pin/access și oracle pe producerul real, pozitiv/refuz pe același canal.
-După minimum SOURCE/reviewuri probează consumerul real, nu acumula helpers.
-După editare: checks afectate și re-review delta; nu full gate pentru fiecare
-fix/reminder/Markdown. Fără retry orb, prewarm ori mărirea granturilor.
-După două cicluri numai harness fără progres: restrânge și BLOCKED/NOT_RUN,
-nu al treilea audit. Findings reale și porțile de siguranță nu se slăbesc.
-
-După remedierea READY și acceptarea qualification: folosește delta existentă
-restB06b pe cerință/caller/dovadă/lipsă, nu alt backlog; installed history și
-restart runtime sunt probe distincte, istoric≠calificare curentă≠lucru nou.
-Livrează numai lipsa obligatorie. Apoi B06c/m: DATA final→reserve COMIS→SENT durabil
-înainte send→protocol inert→receipt/UNKNOWN; caps/VALIDATION/Stop/concurență.
-policy/admission.py nu există; reutilizează caller/store/ledger existente.
-Reconciliază toate8criterii §7.1; canonical real pe bytes finali după remedii/
-QA afectată, cu cleanup/date păstrate. Nicio probă inertă lipsă nu devine live.
-P4a-minim apoi: Settings API/DB/build proprii, save/readback/reload/browser;
-fără editor general. După Settings STOP pentru acord separat P2-live.
-
-Nu preda după fiecare fix/commit/raport: continuă următoarea felie admisă.
-Predare numai la livrabil, blocker real/autorizație/buget/context sau cererea
-utilizatorului. Actualizează CURRENT în loc, citează originalele o dată.
-Fără cont/provider/model/target/P3/r1/global/push; nu trece peste blocker,
-nu inventa probe și nu declara faza2 completă fără P2-live separat.
+Execută documents/verification/p2-next-session-implementation.md din HEAD
+local verificat și CURRENT, în /home/kali/OmnisAI. Citește canonul doar pentru
+consumerul activ, nu istoria integrală sau instrucțiunile istorice de mai jos.
+Prima schimbare D01–D03: observație finit instrumentată pre-entry.main în
+observerul existent; o probă reală pe consumer, apoi cauza/remediul măsurate.
+Nu reimplementa ResultQualification8cec478, M2/INPUT-M2-F01b4964e7 ori numitorul
+dafa0d5 și nu relansa acceptările neafectate. Fără retry orb/prewarm/deadline mărit.
+Aplică cerință → consumer → risc → decizie, preflight fără efecte și reviews pe bytes
+exacți. Nu porni un verifier pentru verifier. Nu preda după fiecare fix:
+continuă B06b→B06c/m→P2-inert→P4a-minim pe consumers nominalizați în prompt.
+BLOCKED/NOT_RUN dacă proba lipsește; nu inventa payload/READY/ELIGIBLE/turn.
+Păstrează istoricul/datele/HTML-ul protejat, commituri mici și cleanup exact.
+Fără r1/global/cont/provider/model/target/P3/push. După Settings STOP pentru
+acord live separat P2-live; nu declara faza2 completă fără acea probă.
 ```
 
 ## Istoric — acceptare C10 integrată înainte de extensiile ulterioare

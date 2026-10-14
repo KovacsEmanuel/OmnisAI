@@ -1,0 +1,812 @@
+{
+  "report_kind": "READ_ONLY_NEXT_SESSION_CONSUMER_CHANGE_MAP_NOT_ACCEPTANCE",
+  "language": "ro",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "422bb36bc57546faea11ac5428090f0c282f6521",
+    "tracked_clean": true,
+    "protected_untracked": "documents/Omnis_Notite_Originale.html",
+    "protected_file_read_hashed_edited": false
+  },
+  "scope": {
+    "input_trace": "documents/verification/p2-bound-predicates-evidence/b06b-remaining-consumer-trace.json",
+    "exact_canonical_rows": 8,
+    "method": "Nominalizare consumers/definiții/usages/manifeste actuale, nu reaudit ori review de produs. Liniile sunt ale HEAD citit. Simbolurile PROPOSED nu există în snapshot. Comenzile de mai jos sunt pentru sesiunea de implementare; niciuna nu a fost executată aici.",
+    "effects_executed": [],
+    "repository_writes": [],
+    "skills_writes": [],
+    "no_new_owner_runtime_harness_editor_provider": true
+  },
+  "authority": [
+    "documents/Omnis_Implementation_Plan.md:268-291",
+    "documents/verification/p2-c10-session-handoff-20261012.md:3-11,52-96",
+    "documents/verification/implementation-status.md:13-27",
+    "CONTRIBUTING.md:50-71"
+  ],
+  "first_dependency": {
+    "status": "BLOCKED_NATIVE_READY",
+    "requirement": "Rezolvarea/adjudecarea QA-NATIVE-READY-PREREQUISITE și acceptarea consumerului qualification înaintea feliilor dependente. Parent/alt copil investighează; acest raport nu diagnostichează cauza.",
+    "facts": "8cec478 SOURCE approved; QA originală 1FAIL înainte READY, qualification NOT_RUN; cauza internă UNKNOWN. Nu repetă qualification, M2/F01, numitor, catalog ori metode acceptate neafectate.",
+    "refs": [
+      "README.md:3-9",
+      "documents/verification/p2-c10-session-handoff-20261012.md:3-11"
+    ]
+  },
+  "order_after_dependency": [
+    "installed historical-reader autentic",
+    "restart runtime pe final deja persistat; fără final, deny",
+    "batch v4 două identități/preaccess și inventar/refuz lineage",
+    "B06c/m același caller până la protocol inert și ledger durabil",
+    "adjudecarea celor 8 rânduri și canonical P2-inert final",
+    "Settings P4a-minim API/DB/UI; STOP înainte live"
+  ],
+  "command_catalog": {
+    "source_api": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml <EXPLICIT_AFFECTED_TEST_PATHS> -q --tb=line",
+      "template": true,
+      "refs": [
+        "Makefile:71-110",
+        "documents/verification/p2-c10-session-handoff-20261012.md:76"
+      ],
+      "warning": "Înlocuiește placeholder cu allowlistul feliei; nu include PG/native în SOURCE fără owner/opt-in. Collect-only nu este PASS."
+    },
+    "history_restart_batch_native": {
+      "command": "api/.venv/bin/python -I -B -c 'import runpy,signal,sys; r=runpy.run_path(\"ops/run_test_db_gate.py\"); signal.signal(signal.SIGINT,r[\"_request_stop\"]); signal.signal(signal.SIGTERM,r[\"_request_stop\"]); raise SystemExit(r[\"prove_private_fixture\"](\"test-contract-method-native-pg\",sys.argv[1],240))' /home/kali/.local/share/omnis-toolchains/bin/uv",
+      "existing_programmatic_target": true,
+      "refs": [
+        "ops/run_test_db_gate.py:874-990",
+        "Makefile:89-91",
+        "documents/verification/p2-bound-predicates-evidence/result-qualification-pg-selection.py:13-47"
+      ],
+      "warning": "Full target include acceptări neafectate. Pentru felie folosește selecția minimală în selectorul existent (selected_argv/run_gate), verifică --collect-only, apoi aceeași prove_private_fixture; fără owner nou. targetul NU este choice CLI --target."
+    },
+    "model_admission_pg": {
+      "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+      "refs": [
+        "ops/run_test_db_gate.py:1027-1053",
+        "Makefile:106-110"
+      ],
+      "scope": "Există, consumă test_model_admission.py/test_model_admission_pg.py și ledger tests. Extinde acest consumer pentru noul sink; testele actuale nu dovedesc send."
+    },
+    "projection_pg": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=<FRESH_OWNED_SCRATCH> make test-model-projection-pg UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "template": true,
+      "refs": [
+        "Makefile:125-134",
+        "api/tests/test_model_projection_pg.py:601-689"
+      ],
+      "prerequisite": "$TMPDIR/installed-origin.json + installed/venv/bin/python exact, create offline explicit după review. Nu există CLI --target test-model-projection-pg; runnerul se cheamă programmatic din Make. SOURCE/native identities seeded, nu turn."
+    },
+    "budget_pg_reuse_not_acceptance": {
+      "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-budget-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+      "refs": [
+        "Makefile:112-116",
+        "api/tests/test_model_budget_pg.py:78-261"
+      ],
+      "warning": "Accounting-only, nu închide B06m; nu rerula neschimbat ca substitut pentru caller."
+    },
+    "api_quality": {
+      "commands": [
+        "make lint-api typecheck-api API_CHECK_PATHS=\"<EXPLICIT_AFFECTED_PYTHON_PATHS>\"",
+        "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests",
+        "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check integrations/hermes/src integrations/hermes/tests",
+        "env -u PYTHONPATH MYPYPATH=api/src api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src"
+      ],
+      "template": true,
+      "refs": [
+        "Makefile:146-148,169-176"
+      ]
+    },
+    "runtime_affected_source": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_managed_build.py\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_managed_native_source.py\",\"-q\",\"--tb=line\"]))'",
+      "refs": [
+        "Makefile:141-148"
+      ],
+      "scope": "SOURCE/overlay-provenance. Native probe este SOURCE_HOST_NOT_INSTALLED, nu QA installed."
+    },
+    "contracts_web": {
+      "commands": [
+        "make generate-contracts",
+        "make test-contracts",
+        "npm --prefix web test -- src/app/Shell.test.tsx src/app/ProjectionStates.test.tsx <PROPOSED_SETTINGS_TEST_PATH>",
+        "npm --prefix web run typecheck",
+        "npm --prefix web run lint",
+        "npm --prefix web run build"
+      ],
+      "template": true,
+      "refs": [
+        "Makefile:189-218",
+        "web/package.json:8-18"
+      ],
+      "warning": "generate-contracts scrie contractele explicit allowlisted; pentru UI afectat, componentele nu înlocuiesc browser real."
+    },
+    "settings_real_browser_pg": {
+      "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-e2e --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+      "refs": [
+        "Makefile:228-230",
+        "ops/run_test_db_gate.py:1033",
+        "api/tests/test_web_e2e.py:86-253"
+      ],
+      "scope": "Extinde testul/journey actual pentru Settings și selectează numai noul caz prin run_gate al runnerului existent. Nu folosi test-b04-e2e ca fals Settings PASS."
+    },
+    "canonical_final": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "refs": [
+        "Makefile:19-24",
+        "documents/verification/p2-c10-session-handoff-20261012.md:84-90"
+      ],
+      "scope": "Numai final integrated bytes; native/projection opt-in separat. Gate final P4a după ultima modificare de produs, nu pentru fiecare fix."
+    },
+    "documentation_if_changed": {
+      "commands": [
+        "/usr/bin/python scripts/render_docs.py --check",
+        "/usr/bin/python -m unittest discover -s tests/documentation -v",
+        "git diff --check"
+      ],
+      "refs": [
+        "Makefile:152-154",
+        "documents/verification/p2-c10-session-handoff-20261012.md:83"
+      ],
+      "scope": "Nu rula acum; niciun document normativ editat."
+    }
+  },
+  "rows": [
+    {
+      "canonical_row": "Transport/izolare B05/H01/H02",
+      "status": "REUSE_SCOPED_PLUS_EXTENDED_PROOF_GAPS",
+      "existing": [
+        {
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "symbols": "RuntimeClient._exchange/managed/receive/close",
+          "lines": "266-425/448-481/483-507/536-542"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+          "symbols": "Host managed operation validators/grant/peer call; in-memory finals",
+          "lines": "247-301,340-349"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+          "symbols": "NativePeer handshake/inventory",
+          "lines": "270-368"
+        }
+      ],
+      "smallest_change": "Nu schimba transportul acceptat fără defect. Odată cu history/restart/batch, atașează la consumerul existent numai reverse/EOF/timeout/backpressure/unknown-method obligatoriu neacoperit la extensie; explicit nativ versus peer sintetic.",
+      "negative": "Același canal cu unknown method/EOF/refuz/no personal grants; final bounded family drain și endpointuri proprii absente. Observerul care refuză singur nu dovedește guardul produsului.",
+      "real_acceptance": "Installed Host/NativePeer numai ramura extinsă afectată; SOURCE tests/client peer nu sunt H01 integral. Păstrează H01 breadth PARTIAL dacă ramura nativă nu este exercitată.",
+      "allowlist": {
+        "default_product": [],
+        "tests_if_affected": [
+          "integrations/hermes/tests/test_client.py",
+          "integrations/hermes/tests/test_host.py",
+          "api/tests/test_contract_method_pg.py"
+        ],
+        "conditional_product": [
+          "api/src/omnis/supervisor/runtime_client.py",
+          "integrations/hermes/src/omnis_hermes/runtime_host.py",
+          "integrations/hermes/src/omnis_hermes/runtime_protocol.py"
+        ]
+      },
+      "commands": [
+        "history_restart_batch_native",
+        "runtime_affected_source"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:274",
+        "README.md:25,43"
+      ],
+      "unresolved": "Ramura obligatorie absentă la consumerul extins trebuie aleasă din gapul existent, nu un inventar exhaustiv nou."
+    },
+    {
+      "canonical_row": "Catalog/publicare B06a/b",
+      "status": "ACCEPTED_SCOPED_REUSE",
+      "existing": [
+        {
+          "path": "api/src/omnis/modules/settings/catalog_publication.py",
+          "symbols": "PublicationCatalog._readback/load_probe",
+          "lines": "228-299"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/managed_admission.py",
+          "symbols": "ManagedAdmission._source/_build",
+          "lines": "153-242/244-320"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "symbols": "descriptor SOURCES closure",
+          "lines": "14-29,87-94"
+        }
+      ],
+      "smallest_change": "Niciun nou editor/demo/catalog. Recalifică numai fixture-ul nou afectat de compiler/checker/composer bytes. History reader citește materialul retained; nu reevaluează PURE și nu transferă qualification peste pin nou.",
+      "negative": "Dependency-bearing snapshot neadmis refuzat RELEASE_DEPENDENCY_NOT_SUPPORTED/UNSUPPORTED_DEPENDENCY înainte recompilării care execută qualification, plus pozitiv fără dependency prin același installed reader.",
+      "real_acceptance": "Un seed existing records calificat→Publish exact/CAS→NO_MODEL; păstrează acceptarea veche neschimbată. New qualification doar pentru source/distribution afectată, cu refs originale păstrate.",
+      "allowlist": {
+        "default_product": [],
+        "existing_fixture_tests": [
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/fixtures/c03_records.py",
+          "api/tests/test_candidate_tracer_fingerprints.py"
+        ],
+        "not_automatic": "Nu edita skill_catalog/candidate_store doar pentru UI: intră în fingerprintul checkerului."
+      },
+      "commands": [
+        "history_restart_batch_native"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:275",
+        "documents/verification/p2-c10-session-handoff-20261012.md:57"
+      ],
+      "unresolved": "Compatibilitatea exactă a pinului producerului istoric și schema DB se verifică înainte QA; nu se forțează digesturi."
+    },
+    {
+      "canonical_row": "Brief/composer/metoda B06b",
+      "status": "SELECTED_RECORDS_FORMS_DELIVERED_OTHER_ALLOCATION_UNRESOLVED",
+      "existing": [
+        {
+          "path": "skills/records-mapping-contract/templates/procedures/map-records.yaml",
+          "symbols": "records slot/normalize-operations→build-map",
+          "lines": "65-116"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/managed_contract.py",
+          "symbols": "validate_capture_procedure/resolve_local/build_records",
+          "lines": "460-521/524-1132"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checks.py",
+          "symbols": "_procedure",
+          "lines": "100-152"
+        },
+        {
+          "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+          "symbols": "BoundContractTools._guard/read_input/pure_action/run_contract",
+          "lines": "124-144/170-225/229-295"
+        }
+      ],
+      "smallest_change": "Nicio extensie de gramatică implicită: exact1Ref records, selector records, STEP_OUTPUT operations al predecessorului imediat sunt deja delivered. Păstrează toate MethodRequirements, PARTIAL/UNKNOWN, predicate/evidence/optional acceptate. Extinde numai forma demonstrată alocată contractului selectat, dacă există.",
+      "negative": "Foreign/cross-attempt/overflow/unsupported binding rămân deny; COMPLETE nu devine PASS funcțional. Nu inventa predicate sau rezultat pentru a închide o celulă.",
+      "real_acceptance": "Metoda records autentică prin read/PURE→receipts→MethodCheck rămâne scoped. Pentru batch se reprobează numai paths afectate; nu se relansează toate acceptările metodei.",
+      "allowlist": {
+        "default_product": [],
+        "if_concrete_selected_form_missing": [
+          "api/src/omnis/modules/tasks/managed_contract.py",
+          "api/src/omnis/modules/tasks/method_checks.py",
+          "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "integrations/hermes/upstream/managed-source/agent/contract_execution.py"
+        ],
+        "affected_tests": [
+          "api/tests/test_c10_bound_predicates.py",
+          "api/tests/test_contract_method_producer.py",
+          "api/tests/test_contract_method_checks.py",
+          "integrations/hermes/tests/test_contract_method.py"
+        ]
+      },
+      "commands": [
+        "source_api",
+        "history_restart_batch_native"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:276,283",
+        "documents/verification/p2-c10-session-handoff-20261012.md:58"
+      ],
+      "unresolved": "Alocarea formelor generale la P2 NU este decisă de trace; o lipsă nealocată nu este defect confirmat și nici motiv de false-close. Dacă canonul o cere concret, rândul rămâne BLOCKED până la consumer."
+    },
+    {
+      "canonical_row": "Binding/inventar H03-H05",
+      "status": "BATCH_V4_NOT_IMPLEMENTED_SINGLE_ENTRY_ACCEPTED_SCOPED",
+      "existing": [
+        {
+          "path": "api/src/omnis/modules/runs/managed_admission.py",
+          "symbols": "validate_request/BuildSource.build/prepare_method/commit_binding",
+          "lines": "40-74/113-146/330-332/485-539"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/managed_contract.py",
+          "symbols": "build_records count guard + per-entry allocation; validate_manifest",
+          "lines": "824-903,903-1132/1700-1744"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+          "symbols": "validate_stage",
+          "lines": "101-151"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "symbols": "assignment",
+          "lines": "151-191"
+        },
+        {
+          "path": "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+          "symbols": "ContractAdmission/ContractState/initialize_contract/BoundContractTools/run_contract",
+          "lines": "21-37/61-115/229-295"
+        },
+        {
+          "path": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+          "symbols": "stage/_contract_guard/_release_contract",
+          "lines": "248-306/425-440/442-487"
+        },
+        {
+          "path": "api/src/omnis/supervisor/native_tasks.py",
+          "symbols": "NativeTaskOwner._handle stage→commit_binding→release",
+          "lines": "238-274,288-335"
+        }
+      ],
+      "minimal_modifications": [
+        {
+          "existing": "managed_admission.validate_request:70; managed_contract.build_records:842; validate_manifest:1719",
+          "change": "Admite exact maximum2 records attempts v4 (nu eliminare generală caps). Existing loop903+ creează task/attempt/brief distincte în același RUN/manifest/context. Identitatea shared input nu autorizează receipts/output cross-attempt."
+        },
+        {
+          "existing": "managed_admission_contract.validate_stage:138-139; contract_method.assignment:161-166",
+          "change": "Mirror finite2 doar v4; assignment selectează entry/composition după index constructor-owned strict și Ref exact. Nu folosi goal text, entry0 implicit pentru ambii copii ori mapping post-access."
+        },
+        {
+          "existing": "ContractAdmission:21-23; initialize_contract:79; BoundContractTools:115; run_contract:250-252; lifecycle.stage:277-291",
+          "proposed_symbol": "ContractAdmission.batch_index + ContractState.batch_index (NEW_FIELDS_NOT_EXISTING)",
+          "change": "Propagă indexul original din stage în constructor și în toate assignment calls; run_contract compară numai row-ul exact al copilului dar validează bindingul integral."
+        },
+        {
+          "existing": "lifecycle._contract_guard:431; _release_contract:447-471",
+          "change": "Înlocuiește singleton-unpack cu identitate→row strictă. Validează toți copiii înainte latch; latchează binding întreg înainte oricărui read. Pentru overlap real folosește executorul/registry existente: nu aștepta futures ținând _REGISTRY.lock (guardul trebuie să-l poată lua), deadline finit existent, final aggregation exact2 și cleanup ambii copii pe orice eroare; indeterminate nu permite retry. Fără alt scheduler."
+        },
+        {
+          "existing": "NativeTaskOwner stage238-274 și v4 release295-316; ManagedAdmission.commit_binding485-539",
+          "change": "Păstrează COMMIT DB al mappingului pentru ambii înainte release. Probează census mapping/tasks/attempts înainte primul read/action al fiecărui copil, apoi result/check/inbox per identity. Nu două RUN-uri prezentate ca batch."
+        }
+      ],
+      "negative": "Aceleași două goaluri, identități native distincte și execuții realmente suprapuse; swap row/batch_index/attempt/session/root, observer guard raise/false, lineage root schimbat și output/ref al fratelui refuzate înainte acces. Dacă unul este indeterminate, nu fabrica final autentic pentru celălalt și nu resend batch.",
+      "real_acceptance": "Installed pinned AIAgent/lifecycle cu două entries același manifest, mapping durabil pre-access, read/PURE de ambele identități, receipts/check/inbox/usage distincte. Census inventar callable explicit root=0 inherited stock, child finite BoundContractTools.read_input/pure_action (nu registered bootstrap); lineage autentic ori deny fără acces. UNKNOWN bootstrap nu se umple prin prewarm.",
+      "allowlist": {
+        "product": [
+          "api/src/omnis/modules/runs/managed_admission.py",
+          "api/src/omnis/modules/tasks/managed_contract.py",
+          "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+          "integrations/hermes/src/omnis_hermes/contract_method.py",
+          "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+          "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py"
+        ],
+        "tests": [
+          "api/tests/test_managed_contract.py",
+          "api/tests/test_contract_method_producer.py",
+          "api/tests/test_contract_method_pg.py",
+          "integrations/hermes/tests/test_contract_method.py",
+          "integrations/hermes/tests/contract_method_native_probe.py",
+          "integrations/hermes/tests/test_managed_native_source.py"
+        ],
+        "distribution": [
+          "integrations/hermes/upstream/omnis-managed.patch",
+          "integrations/hermes/upstream/managed-patch-manifest.json",
+          "integrations/hermes/pin.json"
+        ],
+        "conditional_only": "NativeTaskOwner nu se editează dacă invarianta preaccess actuală se păstrează; prompt_bundle nu se editează dacă validate_composition(entry) existent este suficient."
+      },
+      "commands": [
+        "source_api",
+        "runtime_affected_source",
+        "history_restart_batch_native",
+        "api_quality"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:277",
+        "documents/verification/p2-c10-session-handoff-20261012.md:59",
+        "integrations/hermes/tests/test_managed_build.py:16-45"
+      ],
+      "dependencies": "Checker closure include managed_contract; native distribution trebuie resealed/build/installed-attested pe bytes finale și fixture fresh recalificată. Nu revizii forțate, nu hash vechi transferat. Budgetul aggregate32768 și graph65536 rămâne; full required pair trebuie să încapă ori refuzul real rămâne blocker pentru pozitiv."
+    },
+    {
+      "canonical_row": "Rezultat/inbox H06/H07",
+      "status": "QUALIFICATION_BLOCKED_THEN_INSTALLED_HISTORY_AND_RUNTIME_RESTART",
+      "existing": [
+        {
+          "path": "api/src/omnis/modules/runs/managed_admission.py",
+          "symbols": "ingest_result/check/reconcile/_result_check/_method_schemas/_verify_graph/readback",
+          "lines": "541-655/720-827/829-905/907-1150/1230-1326"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "symbols": "MISSION_REVISION_HISTORICAL/verify receive_only",
+          "lines": "81-84/97-140"
+        },
+        {
+          "path": "api/src/omnis/supervisor/native_tasks.py",
+          "symbols": "cached final branch before cross-boot denial; receive",
+          "lines": "213-232/278-279/321-335"
+        },
+        {
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "symbols": "receive",
+          "lines": "483-507"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+          "symbols": "managed_finals memory/cache",
+          "lines": "122,340-349"
+        },
+        {
+          "path": "api/tests/test_contract_method_pg.py",
+          "symbols": "restarted_cli/legacy case",
+          "lines": "631-685/763-779"
+        }
+      ],
+      "history_minimum": {
+        "default_code_change": "Niciun fix receive-only presupus. Schimbă reader invocation în test631-649: installed interpreter/module origins din wheel, cwd/HOME separat, fără ROOT/api/src ori source sys.path injection. Folosește exact același ManagedAdmission readback/reconcile și private CLI.",
+        "authentic_producer_alternative": "Dacă locatorul old persisted graph lipsește, construiește offline artefactul exact al unui producer reviewed anterior (candidat e6ffcf8 înainte M2), instalează-l separat și produce o dată rezultat autentic pe fixture nouă owned. Păstrează DB/material/refs produse; reader installed CURRENT citește ACEEAȘI stare. Candidatul nu este pin aprobat automat: calculează closure old și compară cu allowlistul MISSION_REVISION_HISTORICAL existent înainte launch. Nu monkeypatch composer/checker curent la digest old și nu prezenta legacy717 fresh drept history.",
+        "schema_path": "Old producer poate avea head0012; inițializează doar empty attested fixture cu old installed migrate --initialize, apoi current installed omnis.migrate (FĂRĂ --initialize) pentru upgrade pe aceeași DB dacă schema actuală cere0013. Compară immutable graph/envelopes înainte/după upgrade. Nu adopta date/endpoint/lease old. Comenzile installed au placeholder explicit <OLD_INSTALLED_PY>/<CURRENT_INSTALLED_PY>, nu binare constatate.",
+        "positive": "Origini/hash/commit producer old, final/header/schema/check/outcomes/inbox originale și current installed origins; read/reconcile/replay exacte fără dispatch/evaluator/qualification PURE/native turn. SINGLE_CONSUME, HELD after Stop și delivered/admitted/turn_completed/consumed distincte.",
+        "negative": "Pin/issuer/ref/header foreign sau schema/check payload altered refuzate pe același installed reader; DB envelope/table census neschimbat, zero grants/resend/evaluator, nu generic orice eroare.",
+        "unresolved": "Locator historical graph și old installable artifact/schema prerequisite NU sunt constatate disponibile. Fresh authentic old installed producer este soluție finită condiționată de aceste prerechizite, nu un nou audit al acceptărilor old."
+      },
+      "restart_minimum": {
+        "default_code_change": "Test/runtime fixture existent: persistă final autentic în DB, retrage realmente Host/runtime owned, pornește același artefact pe boot/PID nou și reconectează owner existent. Încearcă public receive/reconcile/readback; branch cached native_tasks230-232 precede boot mismatch și nu cere transport nou.",
+        "positive": "Final deja durabil, check/inbox/usage citibile identic după restart, fără prompt resend/read/PURE/wake/consume dublu; măsoară vechi/new boot/PID, nu numai un nou CLI process.",
+        "negative": "release_started fără final durabil → TASK_INDETERMINATE/NEEDS_RECONCILIATION fără writes/dispatch. Retained final numai în RAM nu se recuperează pozitiv după Host death; managed_finals nu este jurnal durabil.",
+        "scope": "Nu cross-owner takeover arbitrar; owner/epoch/generation trebuie corelate autentic. Dacă restart schimbă authority și guardul refuză, păstrează denial și nominalizează seamul, nu relaxare."
+      },
+      "allowlist": {
+        "tests": [
+          "api/tests/test_contract_method_pg.py"
+        ],
+        "optional_fixture": [
+          "api/tests/fixtures/c03_records.py"
+        ],
+        "conditional_product_only_on_red": [
+          "api/src/omnis/modules/runs/managed_admission.py",
+          "api/src/omnis/modules/tasks/method_checker_identity.py",
+          "api/src/omnis/supervisor/native_tasks.py",
+          "api/src/omnis/supervisor/runtime_client.py"
+        ],
+        "not_automatic": [
+          "integrations/hermes/src/omnis_hermes/runtime_host.py"
+        ],
+        "scratch": "Installed-origin/request/census/observer sanitized sub fixture owned, selector existent adaptat; nu nou owner/runner."
+      },
+      "commands": [
+        "history_restart_batch_native"
+      ],
+      "installed_command_templates": [
+        "<OLD_INSTALLED_PY> -I -B -m omnis.migrate --initialize",
+        "<CURRENT_INSTALLED_PY> -I -B -m omnis.migrate",
+        "<CURRENT_INSTALLED_PY> -I -B -m omnis.modules.runs.managed_admission readback --request <PRIVATE_REQUEST> --catalog-root <OWNED_ROOT>",
+        "<CURRENT_INSTALLED_PY> -I -B -m omnis.modules.runs.managed_admission reconcile --request <PRIVATE_REQUEST> --catalog-root <OWNED_ROOT>"
+      ],
+      "refs": [
+        "api/src/omnis/migrate.py:12-25",
+        "api/tests/test_model_projection_pg.py:617-645",
+        "documents/verification/p2-c10-session-handoff-20261012.md:60,78-81"
+      ],
+      "unresolved_freshness": "Qualification unavailable-only REVALIDATION_REQUIRED rămâne; nu ELIGIBLE/INELIGIBLE sau current auth/precondition producer nou."
+    },
+    {
+      "canonical_row": "DATA B06c",
+      "status": "EXISTING_PROJECTION_AND_FINAL_GUARD_NOT_COMPOSED_WITH_SEND",
+      "existing": [
+        {
+          "path": "api/src/omnis/modules/runs/model_projection.py",
+          "symbols": "ModelProjections._produce/prepare/read",
+          "lines": "27-108/110-148/150-193"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/model_dispatch.py",
+          "symbols": "ModelDispatch.prepare/read/_context",
+          "lines": "507-568/570-603/605-650"
+        },
+        {
+          "path": "api/src/omnis/supervisor/native_tasks.py",
+          "symbols": "NativeTaskOwner._model_preflight/_model_configuration/_model_initialization",
+          "lines": "63-97/107-140/142-191"
+        },
+        {
+          "path": "integrations/hermes/src/omnis_hermes/model_request.py",
+          "symbols": "FinalModelRequest/parse_final_request/consume_final_request/final_sdk_guard",
+          "lines": "75-115/118-158/161-183/223-258"
+        },
+        {
+          "path": "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py",
+          "symbols": "common direct/worker chat-completion sink post bypass",
+          "lines": "751-760"
+        }
+      ],
+      "minimal_modifications": [
+        {
+          "proposed": "ModelDispatch.prepare_inert_request/read_inert_request (NEW_METHODS in existing model_dispatch.py)",
+          "change": "Returnează frozen full projection+DATA decision bytes numai după prepare/read existent, exact refs/owner/run/binding/selection/digest. Producer și readback reale în PG, nu caller UUID ca authority. Conservă NO_MODEL pre-client."
+        },
+        {
+          "proposed": "InertProtocolRequest + parse_inert_request/consume_inert_request (NEW_SYMBOLS in existing integrations/hermes/src/omnis_hermes/model_request.py)",
+          "change": "Carrier separat și discriminator explicit SYNTHETIC_PROTOCOL/NO_MODEL. Folosește full projection validation și caps/byte-equality pe kwargs/body după transform; nu relaxează parse_final_request native-turn obligatoriu și nu fabricatează native-turn ca să treacă DTO-ul nativ. Native FinalModelRequest/SDK acceptări rămân neafectate."
+        },
+        {
+          "proposed": "NativeTaskOwner._model_dispatch_inert (NEW_METHOD in existing native_tasks.py; consumed by proposed NativeTaskCommand action model_dispatch_inert)",
+          "change": "Același caller va consuma carrierul final validat și apoi ledger/sink din rândul B06m. Nu numi model_preflight sau initialization send; acestea sunt existing pre-client DATA only."
+        }
+      ],
+      "negative": "Full payload sentinel în input/sections/result/error/log, raw/secret/unknown-sensitive/cross-case/alias mutation/bypass/extra keys refuzate înainte reserve ori transport. Pe native direct-worker păstrează post-transform guard final751-760 și retries0; nu reface SDK NO-IO neschimbat.",
+      "real_acceptance": "Fresh qualified publication→ModelDispatch prepare/read PG→immutable inert carrier→post-transform full guard→ACELAȘI owner/sink B06m. Independent observer original projection/digest/decision, negative exact pe același canal. Protocol inert nu este SDK/provider/native inference și nu certifică turn.",
+      "allowlist": {
+        "product": [
+          "api/src/omnis/modules/runs/model_dispatch.py",
+          "api/src/omnis/supervisor/native_tasks.py",
+          "api/src/omnis/modules/instance/schemas.py",
+          "integrations/hermes/src/omnis_hermes/model_request.py"
+        ],
+        "tests": [
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py",
+          "api/tests/test_model_projection_pg.py",
+          "api/tests/test_final_model_request.py"
+        ],
+        "conditional_existing_not_default": [
+          "api/src/omnis/modules/runs/model_projection.py",
+          "integrations/hermes/upstream/managed-source/agent/chat_completion_helpers.py"
+        ]
+      },
+      "commands": [
+        "source_api",
+        "model_admission_pg",
+        "projection_pg",
+        "api_quality"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:279-280",
+        "documents/verification/p2-c10-session-handoff-20261012.md:61,68"
+      ],
+      "unresolved": "Wire inert separat este PROPOSED, nu consumat acum. Dacă se alege în schimb protocol nativ warm, producerul trusted native-turn/config/purpose lipsește și live rămâne BLOCKED; nu blocaj circular pentru varianta inertă admisă."
+    },
+    {
+      "canonical_row": "Admission B06m/H08",
+      "status": "LEDGER_IMPLEMENTED_SAME_OWNER_RESERVE_SENT_SEND_CALLER_MISSING",
+      "existing": [
+        {
+          "path": "api/src/omnis/policy/budgets.py",
+          "symbols": "create_budget/reserve/readback/mark_sent/release/settle/reduce_history/require_capacity",
+          "lines": "245-267/270-340/364-369/413-423/455-495/63-164"
+        },
+        {
+          "path": "api/src/omnis/policy/model_dispatch_contract.py",
+          "symbols": "validate_request hermes branch, caps/financial limit",
+          "lines": "64-117"
+        },
+        {
+          "path": "api/src/omnis/modules/instance/service.py",
+          "symbols": "native_preparation_commit/_locked/runtime_authority/shutdown/arm_stop",
+          "lines": "131-151/190-214/153-187/382-446/448-580"
+        },
+        {
+          "path": "api/src/omnis/transport/local_control.py",
+          "symbols": "LocalControl._dispatch native_task/arm_stop/shutdown",
+          "lines": "137-189,204-207"
+        },
+        {
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "symbols": "_exchange/managed",
+          "lines": "266-425/448-481"
+        }
+      ],
+      "minimal_modifications": [
+        {
+          "proposed": "NativeTaskOwner._model_dispatch_inert (NEW), ModelDispatch.prepare_inert_dispatch (NEW)",
+          "change": "Un request inițiat strict pe action nouă, prin LocalControl actual→owner actual. Owner derivă scope/config/selection/projection/purpose/caps/deadline din refs persistente, nu din flaguri untrusted. Durable descriptor model-dispatch-owner pentru protocol inert emis de ACELAȘI supervisor, fără alt runtime/owner și fără fake native-turn; budgets.reserve(...,hermes=False) actual cere acest kind. Native hermes=True rămâne strict."
+        },
+        {
+          "order": "R1 reserve COMMIT",
+          "change": "În existing native_preparation_commit Instance→lease→Stop, validează DATA finală, create/reuse budget, reserve. Ieși cu COMMIT verificat. Nu ține managed-owner lock pe alt conn în această fază."
+        },
+        {
+          "order": "R2 SENT COMMIT înainte sink, fence menținut",
+          "change": "După R1, Stop poate câștiga și bloca. Pentru no-TOCTOU, intră încă o dată în native_preparation_commit pe conexiunea A (Instance/lease/Stop), apoi append SENT pe conexiunea B READ COMMITTED numai managed-owner/budget locks și COMMIT B, în timp ce A menține fence-ul până termină transportul bounded. NU nested native_preparation_commit pe B (ar deadlock pe Instance), NU reserve/mark_sent în A și send înainte COMMIT A. Grant dacă se folosește IPC existent se obține înainte A ca în v4 release; limite/boot revalidate, fără grant mai lung. Soluție PROPOSED de verificat în PG, nu atomicitate DB/rețea."
+        },
+        {
+          "order": "R3 transport protocol inert→receipt/UNKNOWN",
+          "proposed": "RuntimeClient.dispatch_inert_protocol (NEW_METHOD in existing runtime_client.py)",
+          "change": "Transport explicit sintetic declarat, strict caps/deadline/request ID/body digest/no retries. Implementarea protocolului și handshake discriminatorul se fixează în consumerul existent test_model_admission_pg; nu reutiliza task_model_preflight ca send sau un response dict canned drept transport real. Default real native runtime refuză dacă seamul inert nu este declarat. NativePeer/Host nu se extind preventiv fără contract necesar."
+        },
+        {
+          "order": "R4 settlement readback",
+          "change": "budgets.settle după receipt exact; după SENT timeout/EOF/cancel→usage UNKNOWN, state SENT și rezervă păstrate. Nu RELEASED post-SENT. No-send dovedit înainte SENT poate release. Settlement receive-only după Stop are nevoie de owner-locked ledger transaction care nu reautorizează send; nu-l ascunde în fence care refuză orice contabilizare. Nu retry/fallback/aux fără nouă admission+rezervă."
+        }
+      ],
+      "negative": "Cap calls/output/wall deadline/VALIDATION și cost_limit non-null deny; actual financial limit este BLOCKED, cost unknown null nu zero. Stop după reserve înainte SENT→zero bytes, release numai no-send dovedit; SENT DB read de alt conn înainte first byte; Stop care așteaptă A și send care așteaptă Stop în ambele orderings cu pg_blocking_pids real. Caller stale epoch/foreign refs/duplicate dispatch replays nu resend; EOF după bytes→UNKNOWN retenție.",
+      "real_acceptance": "Același NativeTaskOwner prin UDS private public command și PostgreSQL real: reserve durable→SENT durable citibil independent→finite synthetic transport sink cu bytes măsurate→durable receipt/readback/replay sau UNKNOWN. Testul actual NativeProtocolSeed testează preflight și nu satisface acest criteriu. Nu numi caps helper/ledger-only acceptance.",
+      "allowlist": {
+        "product": [
+          "api/src/omnis/supervisor/native_tasks.py",
+          "api/src/omnis/supervisor/runtime_client.py",
+          "api/src/omnis/modules/runs/model_dispatch.py",
+          "api/src/omnis/modules/instance/schemas.py",
+          "integrations/hermes/src/omnis_hermes/model_request.py"
+        ],
+        "tests": [
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py",
+          "api/tests/test_model_budget.py",
+          "api/tests/test_model_budget_pg.py",
+          "api/tests/test_native_task_owner.py",
+          "api/tests/test_native_task_control.py",
+          "api/tests/test_native_task_client.py",
+          "api/tests/test_native_task_schema.py",
+          "api/tests/test_local_control.py"
+        ],
+        "conditional_only": [
+          "api/src/omnis/policy/budgets.py",
+          "api/src/omnis/policy/model_dispatch_contract.py",
+          "api/src/omnis/modules/instance/service.py",
+          "api/src/omnis/transport/local_control.py"
+        ],
+        "forbidden_invention": "api/src/omnis/policy/admission.py nu există și nu se introduce ca nou framework."
+      },
+      "commands": [
+        "model_admission_pg",
+        "source_api",
+        "api_quality"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:280",
+        "documents/verification/p2-c10-session-handoff-20261012.md:62,69",
+        "api/tests/test_model_admission_pg.py:99-134",
+        "api/tests/test_model_budget_pg.py:192-261"
+      ],
+      "unresolved": "Seamul exact protocol inert/sink și descriptorul owner trebuie definite înainte prima QA și reviewuite în aceleași fișiere, nu se constată existente. Dacă este imposibil transport inert în owner fără native turn, păstrează BLOCKED explicit, nu răspuns fabricat/launch demo. Proveniența turn/config/purpose native și plafon financiar rămân live blockers distincte."
+    },
+    {
+      "canonical_row": "Snapshot final",
+      "status": "P2_INERT_NOT_CLOSED_P4A_MINIM_NOT_IMPLEMENTED",
+      "p2_exit": "Adjudecă original8rânduri, findings concrete/reviews exact snapshot și QA consumers affected; orice obligație inertă neprobată rămâne BLOCKED. Apoi canonical final + exact cleanup/readback/family drain/date păstrate; no inherited PASS ff095af. Nu un backlog extensibil.",
+      "p4a_after_p2": {
+        "existing": [
+          {
+            "path": "api/src/omnis/api.py",
+            "symbols": "create_app routers; /settings/* HTML shells only",
+            "lines": "61-64/144-149"
+          },
+          {
+            "path": "web/src/features/engagement/Settings.tsx",
+            "symbols": "Settings placeholder/Bootstrap",
+            "lines": "1-10"
+          },
+          {
+            "path": "web/src/shared/api/client.ts",
+            "symbols": "request/api current session+CSRF transport",
+            "lines": "12-20/41-118"
+          },
+          {
+            "path": "api/src/omnis/modules/settings/catalog_models.py",
+            "symbols": "Recipe/Profile/CompiledCatalog.requested",
+            "lines": "250-300"
+          },
+          {
+            "path": "api/src/omnis/modules/tasks/execution_selection.py",
+            "symbols": "selection_payload finite NO_MODEL",
+            "lines": "10-72"
+          },
+          {
+            "path": "api/src/omnis/modules/settings/candidate_store.py",
+            "symbols": "immutable record/lock/get/replay/complete",
+            "lines": "13-138"
+          },
+          {
+            "path": "api/src/omnis/modules/settings/catalog_publication.py",
+            "symbols": "_readback/load_probe",
+            "lines": "228-299"
+          },
+          {
+            "path": "api/src/omnis/modules/instance/records.py",
+            "symbols": "InstanceRecord stable instance_id",
+            "lines": "13-20"
+          }
+        ],
+        "proposed_api": "NEW api/src/omnis/modules/settings/routes.py: router prefix /api/v1/settings with GET /runtime, GET /catalog (bounded no arbitrary query), GET /execution, PUT /execution; NEW schemas.py strict DTOs, NEW service.py SettingsSelection.read/save/read_catalog/read_runtime. Paths/functions are proposals, not existing. Include router at api.py61-64. /settings/* existing routes remain SPA shells.",
+        "smallest_db_change": "Propunere fără migrare: settings-selection envelopes append-only și command receipts în catalog_record/catalog_command existente, CAS sub catalog.lock și predecessor exact; enumerate finite selected publication refs fără compiler/PURE execution. Namespace server-side bazat pe instance_control.instance_id stabil, NU epoch supervisor efemer ori owner_id din browser. Existing SQL schema generic kinds permite recordul nou; trebuie probate service validation și readback. Nu modifica candidate_store/skill_catalog (checker closure) dacă generic put/get/replay suffices.",
+        "owner_allocation_unresolved": "Legătura namespace instance Settings→catalog owners/root disponibil trebuie fixată concret în service înainte QA. CatalogCLI owner UUID nu este automat identitate de session HTTP. Server poate folosi instance_id pentru Settings și refs/owner ale publicației validate din DB-owned root; nu expune owner arbitrar în body și nu citește profil/operator credentials. Fără root valid arată catalog UNAVAILABLE cu motiv, nu gol fals.",
+        "selection_semantics": "Save only requested provider/model/effort/requirement și exact immutable publication/recipe refs. Returnează requested vs effective=null/resolution BLOCKED sau NO_MODEL și fallback reason exact când compatibilitatea/auth/reachability nu sunt probate. REQUIRED unsupported BLOCKED, fără fallback implicit. Settings-selection este preferință durabilă pentru run NOU, nu rewrite al exec-selection NO_MODEL retained; existing execution_selection10-33 interzice non-null model/effort. Nu relaxa acel guard sau modifica active copii/global runtime. La live un run nou produce ExecutionSelection calificat; acum requested-only nu este native configuration READY.",
+        "readiness_semantics": "Runtime local real din /api/instance/InstanceService.status și dependency/pin/material availability observabilă. configured separat de authenticated/reachable/inference_ready (UNKNOWN/unavailable fără account/observație). Methodology-only/benchmark-validated provin din receipts calificate, CONTRACT seed nu este SECURITY benchmark. Dacă support/model compatibility nu este cunoscut, effective necunoscut și motiv explicit, nu model inventat.",
+        "security": "LocalBoundary existing Host/Origin/session/CSRF și body4096 fără query default păstrate. Settings PUT trebuie adăugat la duplicate JSON member validation bounded (host_origin210-223 este acum engagement-only), NU la body1MiB engagement carveout. Strict values/U+0000/unknown fields/secrets; DTO headers If-Match și X-Command-ID unice ca engagement routes117-165. DB coroutine bounded3s, 409 stale/replay/rollback. Nu token/api_key/password/vault/provider auth inputs, discovery/pricing/refresh/test-inference button.",
+        "web_minimum": "Settings actual5-9 devine trei surfaces reale folosind existing API client/query/router/primitives; Providers select requested și Save→strict GET confirmation; Skills read-only immutable refs/status/dependency reason; Runtime existing Bootstrap plus status calificat. loading/error/stale/unavailable/unknown/fallback vizibile; save ambiguity GET recovery, reload și focus/keyboard. No new editor/provider framework/redesign.",
+        "positive": "Build/API/PG proprii: autentificare locală existentă→catalog actual read-only→requested selection Save→DB receipt→GET exact→browser reload→API restart aceeași DB→identic refs/revision/requested, effective/readiness oneste. Census run/child/native/dispatch/usage neschimbat și zero provider/discovery IO. Empty și unavailable distincte.",
+        "negative": "Same HTTP/browser channel: 401 fără session, CSRF/Origin/Host wrong, secret/duplicate keys/unknown fields/invalid literal→refusal înainte writes; stale CAS409; command replay fără revision dublă; REQUIRED unsupported saved-but-BLOCKED sau explicit refuse, fără hidden fallback; active child selection neschimbată; Save receipt cu GET fail nu arată succes. Catalog corrupted/missing pins dependency reason, nu falso ready.",
+        "allowlist": {
+          "existing_product": [
+            "api/src/omnis/api.py",
+            "api/src/omnis/security/host_origin.py",
+            "web/src/features/engagement/Settings.tsx",
+            "web/src/features/engagement/copy.ts",
+            "web/src/shared/api/client.ts"
+          ],
+          "proposed_new_product": [
+            "api/src/omnis/modules/settings/routes.py",
+            "api/src/omnis/modules/settings/schemas.py",
+            "api/src/omnis/modules/settings/service.py",
+            "web/src/shared/api/settings.ts"
+          ],
+          "generated": [
+            "contracts/omnis.openapi.json",
+            "web/src/shared/api/generated.ts"
+          ],
+          "existing_tests": [
+            "api/tests/test_web_e2e.py",
+            "api/tests/test_openapi.py",
+            "api/tests/test_web_assets.py",
+            "web/src/app/Shell.test.tsx",
+            "web/src/app/ProjectionStates.test.tsx"
+          ],
+          "proposed_new_tests": [
+            "api/tests/test_settings.py",
+            "web/src/features/engagement/Settings.test.tsx"
+          ],
+          "conditional_css": "web/src/features/engagement/Engagement.module.css numai dacă layout existent nu acoperă controls; fără DESIGN/token/prototip edit.",
+          "migration": "NOT_PLANNED. Dacă storage/authority concret cere tabel nou, decide dependența înainte și adaugă NUMAI migration/pins affected; nu scaffold/accept two schema heads."
+        },
+        "commands": [
+          "source_api",
+          "contracts_web",
+          "settings_real_browser_pg",
+          "canonical_final"
+        ],
+        "test_command_new_when_created": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_settings.py -q --tb=line (PROPOSED test path; PG only via same owned run_gate, not ambient DB)",
+        "refs": [
+          "documents/Omnis_Implementation_Plan.md:287-291",
+          "documents/verification/p2-c10-session-handoff-20261012.md:92-96",
+          "api/src/omnis/security/host_origin.py:113-137,161,179-223",
+          "api/src/omnis/migrations/versions/0009_catalog_candidates.py:13-57",
+          "api/src/omnis/modules/engagements/routes.py:117-165",
+          "scripts/export_contracts.py:14-28"
+        ],
+        "jev_allocation": "B06j/Jev typed questions/DecisionReceipt/sentinel inert păstrează alocarea §8; nu este livrat de aceste Settings routes și nu este shadow/live/advisory simulat. Dacă parent stabilește obligație concretă pentru P4a-minim, consumerul ei separat trebuie nominalizat înainte false-close, nu implementare preventivă de SDK/provider."
+      },
+      "commands": [
+        "canonical_final",
+        "documentation_if_changed"
+      ],
+      "refs": [
+        "documents/Omnis_Implementation_Plan.md:281-291"
+      ],
+      "live_stop": "După Settings P4a-minim STOP pentru acord separat cont/provider/model/date/buget și run/selection/manifest noi. G02-live/G04a nu sunt închise; fără target/P3, r1/global/push."
+    }
+  ],
+  "necessary_unresolved": [
+    {
+      "subject": "QA-native-ready",
+      "resolution_owner": "parent/alt copil; first dependency, nu aici"
+    },
+    {
+      "subject": "Historic artifact locator/producer schema pin",
+      "finite_path": "fresh exact reviewed old installed producer→same persisted state→current installed reader; schema upgrade verificat dacă necesar"
+    },
+    {
+      "subject": "Selected general grammar allocation",
+      "finite_path": "exact1+records+immediate STEP_OUTPUT livrate; cere numai forma efectiv contractată, nici întreg grammar implicit nici false close"
+    },
+    {
+      "subject": "Inert protocol wire/transport + DTO versus native turn",
+      "finite_path": "Definește explicit discriminator/schema/sink în same owner existent; native-turn DTO nu se satisface cu ref sintetic; plan280 admite synthetic protocol separat"
+    },
+    {
+      "subject": "Settings durable namespace/catalog root/current owners",
+      "finite_path": "server-authoritative instance namespace și refs/publications în aceeași DB/root owned; fără body owner arbitrar"
+    },
+    {
+      "subject": "Jev P4a concrete allocation",
+      "finite_path": "nu claimed delivered; parent verifică cerința concretă la §8 fără încă un framework"
+    }
+  ],
+  "verification": {
+    "performed": [
+      "git status/diff stat/rev-parse/show",
+      "bounded file reads/search",
+      "Python stdlib AST symbol/line extraction only"
+    ],
+    "not_run": [
+      "tests",
+      "imports product",
+      "build/install",
+      "PG",
+      "native/runtime/browser",
+      "provider/network",
+      "protected HTML read/hash",
+      "git edits/stage/commit"
+    ],
+    "artifact_validation": "JSON parse și exact8canonical rows unice; symbol line spans verificate din sursă/AST. Fișierele propuse sunt marcate absent/new, nu prezentate ca existente. Repository HEAD/stare finale se citesc separat; niciun test de produs executat.",
+    "execution_claims_for_future_commands": false,
+    "approval_or_acceptance": false,
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-next-session-consumer-change-map.json"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "report_kind": "READ_ONLY_NEXT_SESSION_INVESTIGATION_NOT_IMPLEMENTATION",
+  "base_head": "422bb36bc57546faea11ac5428090f0c282f6521",
+  "product": "8cec478",
+  "source_manifest": [
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e"
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366"
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8"
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+      "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c"
+    },
+    {
+      "path": "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+      "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e"
+    },
+    {
+      "path": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py",
+      "sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+    }
+  ],
+  "requirement_consumer_risk_decision": "Native cold READY prerequisite -> existing runtime.launch_inert/RuntimeHost/NativePeer/real qualification case -> avoid blind retries and guessed patches -> require finite pre-main attribution before product change and continue actual case on READY.",
+  "confirmed": [
+    {
+      "fact": "Actual launch obtains a real absolute grant immediately before exchange; grant cap4.5s; outer Host timeout competes with ready handshake within same grant. No old assignment deadline consumed by earlier preparation is shown.",
+      "source": [
+        "api/src/omnis/supervisor/runtime_client.py:512-516",
+        "api/src/omnis/modules/instance/service.py:153-187",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:201-231",
+        "api/tests/test_contract_method_pg.py:1257-1266"
+      ]
+    },
+    {
+      "fact": "Failed attempt had observer READY but no entry.main marker, no AIAgent/read/PURE/final/qualification. No parsed transport failure was observed. Root cause remains UNKNOWN.",
+      "evidence": "result-qualification-independent-qa-fail.json bounded_diagnosis and sanitized_observed_receipts"
+    },
+    {
+      "fact": "Current observer deliberately excludes <module> startup code and emits import/audit timings only upon entry.main. Pure extracted monitored() control returns false for entry/server/conversation_loop modules and true for main. Therefore existing retained diagnostic cannot attribute a stalled import.",
+      "source": [
+        "api/tests/test_contract_method_pg.py:130-148",
+        "api/tests/test_contract_method_pg.py:180-201"
+      ],
+      "execution": "AST-extracted actual forbidden/observed/monitored only; synthetic CodeType paths; no native imports/process/DB; exit0",
+      "observed": {
+        "entry_module": false,
+        "server_module": false,
+        "conversation_loop_module": false,
+        "main": true
+      }
+    },
+    {
+      "fact": "entry imports server before main; server eagerly imports the whole conversation_loop for one prefix used by ordinary prompt-turn renderer, a route denied in inert dispatch. Broad turn helpers are loaded statically. This is a candidate optimization, not established cause of the captured failure.",
+      "source": [
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:23-25",
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:18-60,207",
+        "pinned/tui_gateway/prompt_turn.py:312-331",
+        "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py:22-34"
+      ]
+    },
+    {
+      "fact": "Failure bootstrap is byte-identical to bootstrap at accepted denominator producer dafa0d5 and current HEAD. Qualification feature did not change this bootstrap.",
+      "sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+      "accepted_current_failed_identical": true
+    },
+    {
+      "fact": "Raw native stderr is intentionally drained without retention; preserving this secret boundary is required. Do not fix observability by dumping stderr/tracebacks.",
+      "source": "integrations/hermes/src/omnis_hermes/runtime_protocol.py:313-316"
+    }
+  ],
+  "unknown": [
+    "Exact import/module and self vs dependency time at failure",
+    "Scheduling vs import IO/observer overhead vs blocked import",
+    "Whether conditional conversation_loop import resolves this particular failure"
+  ],
+  "next_change_contract": {
+    "first_required": "Extend existing bootstrap observer and consumer decoder with finite allowlisted pre-main module ENTER/RETURN elapsed/audit counters, plus SOURCE positive/negative/redaction checks. No general profiler/stack/value capture or new runner.",
+    "locations": [
+      "api/tests/test_contract_method_pg.py:130-201 BOOTSTRAP",
+      "api/tests/test_contract_method_pg.py:373-437 observer source controls",
+      "api/tests/test_contract_method_pg.py:1059-1107 observed_handshake checkpoint",
+      "same file existing native-observation assertions/decoder"
+    ],
+    "native_change_conditional": "Only if actual observed import chain implicates unnecessary stock conversational load, guard/lazify server.py:36 for inert mode while preserving non-inert prefix semantics and existing RPC denial. Do not add fake readiness or copy a guessed constant.",
+    "distribution_if_native_changed": [
+      "integrations/hermes/upstream/omnis-inert.patch",
+      "integrations/hermes/upstream/patch-manifest.json",
+      "integrations/hermes/pin.json",
+      "affected native build/AST and nonmanaged controls"
+    ],
+    "must_not_change": [
+      "InstanceService.runtime_authority4.5s",
+      "Host absolute deadline, NativePeer startup/RPC limits",
+      "Raw stderr drain/no secret boundary",
+      "NO_MODEL admission, no personal grants",
+      "accepted ResultQualification/M2/denominator/checker/composer source identities merely to satisfy oracle"
+    ]
+  },
+  "bounded_execution": "After SOURCE/required exact-snapshot reviews and no-effect preflight, one original-owner selected real qualification attempt with new diagnostics. If READY succeeds, continue the actual same consumer to qualification, not a launch-only PASS. On failure preserve evidence, select one observed cause and fix minimally; no identical retry or new observer framework. Carry harness-only cycles across handoff.",
+  "scope": "No native/process/PG/browser/network/provider effects or product edits performed by this investigation."
+}

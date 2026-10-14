@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "language": "ro",
+  "verdict": "READ_ONLY_INVESTIGATION_COMPLETE_ROOT_CAUSE_NOT_PROVEN",
+  "issue_id": "QA-NATIVE-READY-PREREQUISITE",
+  "scope": "Bootstrap rece existent → entry import → entry.main → gateway.ready; nu re-audit qualification și nu execuție nouă.",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "files": [
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e",
+        "lines": 3002
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+        "lines": 542
+      },
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "f1fce5162f4c35fe3d083dce37cab9628db43d0edbf25e3e1328d88155526db0",
+        "lines": 23
+      },
+      {
+        "path": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+        "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c",
+        "lines": 518
+      },
+      {
+        "path": "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+        "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+        "lines": 3397
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py",
+        "sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402",
+        "lines": 1774
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py",
+        "sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027",
+        "lines": 107
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py",
+        "sha256": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be",
+        "lines": 78
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+        "sha256": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+        "lines": 662
+      },
+      {
+        "path": "integrations/hermes/upstream/managed-source/run_agent.py",
+        "sha256": "7a6fdae867c8eb288f92074ee0afd88a059ab274d5833f8bfd229da5ea5ee7c7",
+        "lines": 1697
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+        "lines": 847
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+        "lines": 479
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-independent-qa-fail.json",
+        "sha256": "bbc16c04eaf57e452e8ac01a6de3f92ea6d09d0c049b10d60f7526d5c93e60f7",
+        "lines": 1471
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-parent-qa-blocked.json",
+        "sha256": "fbbb607c3908bf48c62a2d7810a513ca2ae3a874417688c7ff0747e399cef1d0",
+        "lines": 412
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/contract-denominator-independent-qa.json",
+        "sha256": "7eaa4722ce4a690843eefc4eb434d4d52186b777b272febc3f76975caaf3720d",
+        "lines": 1
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/agent/conversation_loop.py",
+        "sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91",
+        "lines": 1763
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/tui_gateway/prompt_turn.py",
+        "sha256": "6a578eff4acc589fafed92198f30ef3e0816389221a0970b457f9dbced3be7ba",
+        "lines": 1126
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/native_bootstrap.py",
+        "sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+        "lines": 163
+      }
+    ],
+    "head": "422bb36bc57546faea11ac5428090f0c282f6521",
+    "status": "## checkpoint/p2-vm-restart-20261011\n?? documents/Omnis_Notite_Originale.html\n",
+    "diff": ""
+  },
+  "source_pin": {
+    "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "directory": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "pin_reference": "integrations/hermes/pin.json:6–9",
+    "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "verification_limit": "Pin/arhiva și inventarul complet original au fost atestate în QA originală. Această investigație verifică hashes pentru fișierele citite și toate materialele nominale ale QA eșuate, nu recalculează arhiva/inventarul întreg."
+  },
+  "effects": {
+    "native_launches": 0,
+    "db_launches": 0,
+    "native_imports": 0,
+    "prewarm": false,
+    "network": false,
+    "provider": false,
+    "repo_edits": [],
+    "skills_edits": [],
+    "stage_commit_push": false,
+    "protected_html_read_hash_edit": false,
+    "scratch_report_only": true
+  },
+  "original_evidence": {
+    "report": "documents/verification/p2-bound-predicates-evidence/result-qualification-independent-qa-fail.json:767–911",
+    "parent": "documents/verification/p2-bound-predicates-evidence/result-qualification-parent-qa-blocked.json:36–65",
+    "observed": {
+      "elapsed_ms": 4476,
+      "remaining_ms": -4,
+      "phase": "gateway.ready",
+      "host_state": "STARTING",
+      "ready_done": false,
+      "ready_cancelled": false,
+      "transport_failed": false,
+      "exception_type": "CancelledError",
+      "native_exit_cleanup": -15,
+      "observer_rows": [
+        {
+          "test": "observer",
+          "status": "READY",
+          "count": 1
+        }
+      ],
+      "real_AIAgent_count": 0,
+      "read_count": 0,
+      "pure_count": 0,
+      "qualification": "NOT_RUN"
+    },
+    "bootstrap_path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/native_bootstrap.py",
+    "bootstrap_sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+    "current_BOOTSTRAP_equals_saved_bytes": true,
+    "snapshot5_match": true,
+    "qa_materials_closure_all_match": true,
+    "secret_policy": "Nu s-au citit/dumpat loguri PG/traceback brut/runtime.boot/control.cap/capability/DSN. Receipts sanitizate și surse nonsecret numai."
+  },
+  "confirmed_facts": [
+    {
+      "id": "F1",
+      "claim": "Expiră grantul unic launch, nu deadline-ul ResultQualification. _launch acceptă deadline-ul, intră STARTING, spawn, apoi handshake în timeout exterior cu același remaining.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:194–231",
+        "api/src/omnis/supervisor/runtime_client.py:512–516",
+        "api/tests/test_contract_method_pg.py:1257–1266"
+      ],
+      "limit": "Caller/buget traced independent de părinte; nu modificăm grantul."
+    },
+    {
+      "id": "F2",
+      "claim": "CancelledError este coerent cu timeout-ul exterior care anulează await-ul handshake înainte de conversia TimeoutError internă. Shield-ul păstrează ready neanulat. Nu dovedește o anulare spontană din native.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:223–225",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:441–452",
+        "api/tests/test_contract_method_pg.py:1067–1096"
+      ]
+    },
+    {
+      "id": "F3",
+      "claim": "Frontiera observată este înainte de intrarea entry.main. Observer READY confirmă înregistrarea monitoringului, nu gata importurile. main ar emite trei metrici înainte de primul său corp; niciuna nu există.",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:145–148",
+        "api/tests/test_contract_method_pg.py:184–203",
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:439–467"
+      ],
+      "limit": "Nu există ultimul modul/cadru/timp CPU la cut. Absența unor faze noi neinstrumentate nu dovedește modulul exact."
+    },
+    {
+      "id": "F4",
+      "claim": "Importul entry execută server înainte de main. server importă conversation_loop numai pentru un prefix textual; importul managed conversation_loop leagă eager graful stock turn la import. Inert main sare MCP/discovery/prewarm, dar aceste condiții nu evită importurile top-level.",
+      "locations": [
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:23",
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:443–478",
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:18–60",
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:3363–3396"
+      ]
+    },
+    {
+      "id": "F5",
+      "claim": "Prefixul are un singur consumator gateway găsit: formatarea rezultatului unui turn întrerupt în prompt_turn. Managed dispatch permite în inert doar extensiile managed și client.capabilities/gateway.capabilities/ping. Cold root este creat abia la stage; copilul CONTRACT este construit în lifecycle, nu la gateway.ready.",
+      "locations": [
+        "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/tui_gateway/prompt_turn.py:321–328",
+        "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py:23–35",
+        "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:69–76",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:274–282",
+        "integrations/hermes/upstream/managed-source/run_agent.py:313–328"
+      ],
+      "limit": "Aceasta justifică un candidat inert-only, nu dovedește costul ori că toate importurile lui conversation_loop ar dispărea; alte import edges pot rămâne."
+    },
+    {
+      "id": "F6",
+      "claim": "Monitoring filtrează code.co_name/co_filename înainte de sys._getframe și întoarce DISABLE pentru cod neobservat. Nu reapare mecanismul vechi sys.setprofile cu frame.f_code pe fiecare apel. Auditul face însă Path.absolute și repetă path.parents per root la open /home/kali; timed_audit cronometrează fiecare eveniment. Costul concret la eșec nu este păstrat.",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:83–110",
+        "api/tests/test_contract_method_pg.py:180–198"
+      ],
+      "limit": "Nu se atribuie retrospectiv cauza unui mecanism vechi doar din skill/history."
+    },
+    {
+      "id": "F7",
+      "claim": "NativePeer citește stderr și îl aruncă intenționat; handshake cere gateway.ready înainte de RPC capabilities. transport_failed=false/ready_done=false nu indică un READY malformat ori EOF deja procesat. Bootstrap except/finally ar emite EXCEPTION/EXIT pentru o excepție Python propagată; ele lipsesc.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:313–316",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:357–385",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:441–467",
+        "api/tests/test_contract_method_pg.py:200–212"
+      ],
+      "limit": "Nu se exclude o execuție nativă blocată, CPU/IO rece ori o excepție prinsă mai jos. -15 aparține cleanupului, nu cauzei originare."
+    }
+  ],
+  "comparison_accepted_denominator": {
+    "report": "documents/verification/p2-bound-predicates-evidence/contract-denominator-independent-qa.json",
+    "accepted_head": "dafa0d59ca718b5a49e6f95314a060268bc8c6c7",
+    "same_source_pin": true,
+    "same_committed_BOOTSTRAP_sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+    "committed_BOOTSTRAP_equals_failed_saved": true,
+    "saved_historical_bootstrap_exists": false,
+    "verification": "git show exact accepted head:api/tests/test_contract_method_pg.py; AST literal BOOTSTRAP; SHA256 and byte comparison. No source import.",
+    "limit": "Istoricul declară native PASS scoped, dar fișierul scratch pytest-395 a dispărut; hashul stringului committed nu este un readback al acelui fișier. Nu afirmăm din aceasta că toate materialele native istorice au fost comparate byte-exact.",
+    "interpretation": "Același bootstrap poate trece; nu există aici un defect determinist nou dovedit al observerului sau qualification. Rămâne posibilă variabilitate de cost pe aceeași sursă.",
+    "secondary_M2": "M2/F01 checkpoint sanitizat arată handshake_complete 2863ms/remaining1633ms la scope-ul acceptat; artifact bootstrap pytest-394 absent. Nu transferăm PASS ori latența la această încercare."
+  },
+  "classification": {
+    "product_bug": "NOT_CONFIRMED; unnecessary-inert eager import este candidat static, nu culprit măsurat.",
+    "harness_deficiency": "CONFIRMED_OBSERVABILITY_GAP: toate metricile bootstrap-import/bootstrap-audit sunt emise numai la entry.main; pe eșecul pre-main dispar exact datele necesare.",
+    "missing_causal_evidence": "Ultima frontieră completată/activă în import și costul audit/monitoring versus wall time. Nicio calificare nativă rulată.",
+    "SOURCE_acceptance": "Cele5SHA ResultQualification rămân identice și acceptarea SOURCE scoped nu este redeschisă de acest blocaj.",
+    "P2_P4a": "NOT_CLOSED; nu native QA PASS și nu promisiune de finalizare."
+  },
+  "hypotheses": [
+    {
+      "rank": 1,
+      "id": "H1_EAGER_INERT_IMPORT_BREADTH",
+      "hypothesis": "Importul rece al stock turn graph via server.py:36 consumă mare parte a grantului înainte de main; importul nu este necesar pentru gateway.ready/dispatch-ul CONTRACT inert.",
+      "locations": [
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:18–60",
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:3363–3396"
+      ],
+      "prediction": "Breadcrumburile arată SERVER_CONVERSATION_IMPORT_BEGIN fără end până aproape de expirare sau interval dominant în conversation_loop/turn imports, în timp ce cumulative audit_ns este mic față de wall. Numai apoi un skip/defer inert-only al acestui edge trebuie să reducă intervalul, fără schimbarea grantului.",
+      "falsifier": "Importul acestui edge se încheie prompt; blocajul este anterior ori în split handlers sau costul audit domină. O nouă încercare care trece fără faze lente nu confirmă cauza vechiului FAIL."
+    },
+    {
+      "rank": 2,
+      "id": "H2_AUDIT_COLD_IMPORT_COST",
+      "hypothesis": "Auditul actual de open/root-check, în combinație cu multele importuri reci, adaugă cost suficient pentru grant expiry; monitoringul este filtrat dar are cost de cold first-event care nu este măsurat.",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:83–110",
+        "api/tests/test_contract_method_pg.py:112–123",
+        "api/tests/test_contract_method_pg.py:184–198"
+      ],
+      "prediction": "În aceleași faze finit instrumentate, audit_ns crește material față de wall și open audit_calls sunt multe. O optimizare doar a root membership (precalcul stringuri canonice/parents o singură dată), cu refuzuri identice, reduce același cost; nu dezactivăm audit/monitoring.",
+      "falsifier": "audit_ns mic și frontieră lentă stabilă într-un modul; atunci H2 audit nu explică blocajul. Costul monitoring nemăsurat rămâne limită, nu motiv să îl scoatem."
+    }
+  ],
+  "single_minimal_next_session_experiment": {
+    "status": "PROPOSED_NOT_EXECUTED",
+    "decision": "Mai întâi localizează costul pre-main, nu patch speculativ de qualification și nu nou owner/harness/scanner.",
+    "change_scope": [
+      "api/tests/test_contract_method_pg.py:145–148",
+      "api/tests/test_contract_method_pg.py:184–201",
+      "api/tests/test_contract_method_pg.py:377–451"
+    ],
+    "implementation": "Extinde observerul existent cu exact10 breadcrumbs source-bound de mai jos și emiterea la aceste faze a elapsed_ns/audit_ns/audit_calls, inclusiv ENTER înainte de corpul importului; nu aștepta entry.main ca să emiți totalurile. Filtrează codul/fișierul exact înainte de frame access; folosește local events numai pe module-code/locurile exacte necesare, nu tracing/profiling global. Înregistrare fail-closed. Păstrează forbidden set, root deny și nou-thread coverage. Păstrează breadcrumbs parțiale dacă native este oprit; lipsa unui END este incompletitudine, nu un stack inventat.",
+    "finite_boundary_count": 10,
+    "boundaries": [
+      {
+        "name": "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+        "source": "api/tests/test_contract_method_pg.py:199–201"
+      },
+      {
+        "name": "ENTRY_MODULE_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:1"
+      },
+      {
+        "name": "ENTRY_SERVER_IMPORT_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:23"
+      },
+      {
+        "name": "SERVER_CONVERSATION_IMPORT_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36"
+      },
+      {
+        "name": "CONVERSATION_MODULE_BEGIN",
+        "source": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:18"
+      },
+      {
+        "name": "CONVERSATION_TURN_API_IMPORT_BEGIN",
+        "source": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:40"
+      },
+      {
+        "name": "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/server.py:3363"
+      },
+      {
+        "name": "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+        "source": "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py:5"
+      },
+      {
+        "name": "ENTRY_MAIN_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:439–441"
+      },
+      {
+        "name": "ENTRY_READY_WRITE_BEGIN",
+        "source": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:464–467"
+      }
+    ],
+    "boundary_encoding": "Fiecare nume este tag finit (BEGIN/END unde există un apel/import delimitabil); nu fullname/path arbitrar, args, frame locals, payload, capabilities ori stderr. Linia precisă este verificată în sursa SHA-pinned de mai sus; dacă line events sunt folosite, limitează-le la acest inventar.",
+    "test_before_native": "Extinde testul existent de observer cu module-code/phase pozitiv și irrelevant negative; păstrează repeated caught denials/main/new-thread și zero forbidden-body entry. Nu folosi threshold de timp drept RED; testează event correctness/type/bounds și emiterea datelor înainte de main.",
+    "one_real_attempt_after_change_review": "Doar după remediul SOURCE și focused review: aceeași selecție result-qualification pe prove_private_fixture/run_gate existente, un singur fresh owned fixture. Fără prewarm, fără deadline/TTL extins, fără alt launch-only harness. Dacă nu reproduce întârzierea, original cause rămâne UNKNOWN; nu declara rezolvat doar fiindcă a trecut o dată.",
+    "interpretation": "Folosește intervalele și audit counters pentru alegerea H1 versus H2; când ultimele faze nu delimitează costul, păstrează BLOCKED și cere doar frontieră mai precisă, nu încă două cicluri de audit."
+  },
+  "conditional_minimal_remedy_locations": [
+    {
+      "condition": "Doar dacă experimentul localizează costul la edge-ul conversation import și îl reproduce",
+      "files": [
+        "integrations/hermes/upstream/inert-source/tui_gateway/server.py:36",
+        "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/tui_gateway/prompt_turn.py:321–328",
+        "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:207"
+      ],
+      "proposal": "Elimină/deferă numai importul stock turn-prefix pe ramura trusted inert, păstrând valoarea/simbolul cerut de prompt_turn și importul/semantica stock nonmanaged. Nu șterge importul global orbește. Preferă cea mai mică ramură inert-only; un helper/relocarea constantului trebuie justificat doar dacă evită duplicarea și nu extinde inventarul fără nevoie.",
+      "tests": "Native inert READY/capabilities/managed cold stage/release CONTRACT; non-inert prompt interrupted prefix/control neschimbate; zero turn/client/credentials/discovery. Verifică și alte edges de conversation_loop pentru a nu afirma că eliminarea unuia închide graful.",
+      "distribution": "Dacă overlayul se schimbă: patch/minimal manifest/pin reseal și git apply check/reapply în copia owned conform procedurii existente; SOURCE approval nu se transferă automat la noua distribuție."
+    },
+    {
+      "condition": "Doar dacă counters/reproducer atribuie cost material auditului",
+      "files": [
+        "api/tests/test_contract_method_pg.py:75–90",
+        "api/tests/test_contract_method_pg.py:102–110",
+        "api/tests/test_contract_method_pg.py:377–451"
+      ],
+      "proposal": "Optimizează root membership exact, fără a relaxa allowed ori credential-denial. Precalculează rădăcinile stable și evită Path/parents repetat în bucla per-root; păstrează recording înainte de raise.",
+      "tests": "Aceleași path positive/negative/outside-home/credential/repeated caught violations; nu transforma simplu string prefix în containment (root-sibling false-positive), nu relaxa symlink/absolute semantics fără contract explicit."
+    }
+  ],
+  "risks_and_non_goals": [
+    "Sparse breadcrumbs pot tot altera costul; măsoară și limitează propriul overhead. Nu generaliza10faze într-un framework.",
+    "Audit_ns reprezintă timpul în hook, nu CPU total ori IO; nesting/emit overhead trebuie explicate. Nu scădea mental și nu inventa costuri din noile counters.",
+    "Cazul este SOURCE_HOST_NOT_INSTALLED cu preparation double; nu installed-history/restart, provider turn ori P4a.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, fără probe noi.",
+    "Niciun raw stderr nou; NativePeer discard rămâne. Diagnostic tags numeric/allowlisted numai.",
+    "Nu se redeschid numitorul CONTRACT/M2 neschimbate sau cele5SHA SOURCE qualification. După prerequisite fix, se cere consumer qualification autentic, nu încă SOURCE-only badge."
+  ],
+  "verification_performed": [
+    "git status --short --branch / git diff --stat / git rev-parse HEAD: tracked clean, HEAD422bb36bc57546faea11ac5428090f0c282f6521; untracked HTML protejat doar în status, neaccesat.",
+    "Citire source/read-only a bootstrapului real salvat, overlayurilor efective și caller/peer; fără imports native.",
+    "SHA256 pe toate5snapshot și41materiale nominale QA originale: toate identice (duplicate snapshot nu recounted ca physical total).",
+    "AST literal current BOOTSTRAP byte-equal saved native_bootstrap și AST literal git show denom-head BOOTSTRAP byte-equal; hashes în report.",
+    "Istorice scratch M2/denom bootstrap lipsesc; nu substitute metadata cu conținut fabricat.",
+    "Există typo în context parent-qa-blocked.json: calea literală nu există; calea README efectivă result-qualification-parent-qa-blocked.json a fost citită, nu reparată."
+  ],
+  "files_created_or_modified": [
+    "/home/kali/.hermes/cache/scratch/p2-ready-next-session-independent-investigation.json"
+  ],
+  "skills_not_updated": "Scope-ul explicit interzice orice edit de skill; observațiile reusable sunt păstrate doar în acest raport."
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "status": "ACCEPTED_SOURCE_NATIVE_PRIVATE_PUBLIC_UDS_SCOPED",
+  "product_commit": "dafa0d59ca718b5a49e6f95314a060268bc8c6c7",
+  "six_file_hashes": {
+    "api/src/omnis/modules/coverage/__init__.py": "466e4c014a42ede84c60051304b1ff6a4e62552c8ee578f78bb28bddaaae353a",
+    "api/src/omnis/modules/coverage/denominator.py": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e",
+    "api/src/omnis/modules/runs/contract_inputs.py": "d5b371e9f7de8e37f7fd3151ee35be938d55a9b0fde2bbd9c37cc3b52766502e",
+    "api/src/omnis/modules/runs/managed_admission.py": "8409d0696e2cf5465cd3581bd9b8fd8c1396f2b1881b06584542db7e0c9edfba",
+    "api/tests/test_contract_denominator.py": "69cf58a08f2d6ae391caf88e7d29052d9e4963975b74a11577b9462a4b9f8450",
+    "api/tests/test_contract_method_pg.py": "4a116f7afbe8da22df7f59919bc694edeb59d6ae4b0c150157f7484c420b79ed"
+  },
+  "source_evidence": {
+    "author_passed": 84,
+    "author_seconds": 13.57,
+    "parent_passed": 19,
+    "parent_seconds": 4.2,
+    "quality": "parent Ruff check/format and strict mypy six paths exit0"
+  },
+  "reviews": {
+    "normative": "APPROVED_SOURCE_SCOPED",
+    "input": "APPROVED_SOURCE_SCOPED",
+    "same_snapshot": true,
+    "blocking_findings": 0
+  },
+  "runtime": {
+    "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-mission-revision-consumer-pg-selection.py --review-adjudicated",
+    "session_id": "proc_7910e55daafd",
+    "actual_process_readback": "exited0",
+    "attempts": 1,
+    "passed": 1,
+    "deselected": 27,
+    "seconds": 61.29,
+    "gate_exit": 0,
+    "family_drained": true
+  },
+  "parent_integrity": {
+    "six_source_hashes_match": true,
+    "named_artifacts_unique": 93,
+    "named_artifact_hash_mismatches": 0,
+    "known_evidence_handles": 9,
+    "known_evidence_hash_mismatches": 0,
+    "original_qa_sha256": "7eaa4722ce4a690843eefc4eb434d4d52186b777b272febc3f76975caaf3720d"
+  },
+  "parent_external_readback": {
+    "endpoint": "unix:///run/docker.sock",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "same_daemon": true,
+    "cid": "76c7c1da05fe341a9a6f56758a2f136f9712638621ea7f340f7d7eba35f5d714",
+    "cid_absent": true,
+    "project": "omnis-p01-f6243a62a86047dfbae3b68cafefce69",
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "six_pg_native_public_endpoints_absent": true,
+    "four_reader_pids_absent": true,
+    "launcher_pid_absent": true,
+    "pgdata_retained": "/home/kali/.hermes/cache/scratch/db-eef707f5f4cd4586/data/18/docker"
+  },
+  "adjudicated_acceptance": [
+    "Coverage-owned denominator revision1 independently persisted against M2 revision2",
+    "Fixed CONTRACT_PROBE/NO_MODEL/DECLARED_CONTRACT_INPUT, authentic retained input/catalog/selection/procedure/schema/focus/mission pins; missing identity/applicability/current-state UNKNOWN",
+    "Private CLI create/read/exact replay and fresh-command identical-material no duplicate denominator",
+    "Eight exact denial tuples; receipt failure rollback and full five-table census/shadow assertions",
+    "Immutable M1 result/check/outcomes/inbox/usage; public cached afterStop and four fresh CLI readers with zero reexec/single consume"
+  ],
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED and explicit document-preparation prerequisite double",
+    "Test assertions are actual evidence channel; full census/backend/Host PID not separately persisted",
+    "Native producer exit -9 is teardown, not universal graceful Stop/runtime restart",
+    "No ResultQualification/ELIGIBLE/current freshness/full targetcoverage/final canonical/P2/P4a/live acceptance",
+    "Logical temporary test DB may be removed by original fixture teardown; retained PGDATA/logs are not a promise that it remains queryable"
+  ],
+  "pause": {
+    "requested_by_user": true,
+    "no_further_implementation_or_QA_admitted": true,
+    "live_subagents": 0,
+    "all_owned_current_jobs_settled": true,
+    "next_after_restart": "ResultQualification finite through existing owner/storage, consuming accepted denominator and a backend-derived authentic evidence manifest; do not rerun M2/denominator unchanged."
+  }
+}

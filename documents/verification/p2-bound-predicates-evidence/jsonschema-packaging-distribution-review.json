@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent read-only exact 8-file distribution/security review; current additive image only, not H03 product acceptance",
+  "base_commit": "6270a0c518a38d4340d9e6fc5687ceca18a2cd20",
+  "files_sha256": {
+    "integrations/hermes/pyproject.toml": "4d6974c32db75bdefb5ac4d2ff8e6ff6fc43e19fccaa958daa7a307d104a87fa",
+    "integrations/hermes/runtime-override/provenance.json": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+    "integrations/hermes/runtime-override/pyproject.toml": "0d90695a45adde31681d8eedd639988fa29f1e1c868f395d547fd78d2383ea66",
+    "integrations/hermes/runtime-override/requirements-native.txt": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b",
+    "integrations/hermes/runtime-override/uv.lock": "a7175536d0ff2637781d4a4900272d9762ab3135325dbaeb9f4361ebdd7e3d10",
+    "ops/Dockerfile.hermes": "6a24f14b89aa20dedce03858ae0b7d518d8a43d62baf01a43383285a1d60938f",
+    "tests/development/test_hermes_runtime_build.py": "43c6ef725ddb00503984aedbd2b7e979bb0c1974573a287a29733c9ba85579a0",
+    "api/tests/test_contract_method_pg.py": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d"
+  },
+  "image_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+  "base_image_id": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+  "image_archive_sha256": "3b5ddf6aa5959761ad706546e707248c67e3fa78c983ce4df691993903581b0c",
+  "h03_artifact_sha256": "2eb29fc2d45210390caf0ba5037d590f2cc9adbcf2e3d80bce7e60bbe5ed32c1",
+  "dependency_provenance_sha256": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+  "findings": [],
+  "checks": {
+    "five_full_original_lock_records_equal": true,
+    "unchanged_raw_registry_records": 62,
+    "five_locked_wheels": [
+      {
+        "name": "attrs",
+        "version": "25.4.0",
+        "sha256": "adcf7e2a1fb3b36ac48d97835bb6d8ade15b8dcce26aba8bf1d14847b57a3373",
+        "bytes": 67615,
+        "url": "https://files.pythonhosted.org/packages/3a/2a/7cc015f5b9f5db42b7d48157e23356022889fc354a2813c15934b7cb5c0e/attrs-25.4.0-py3-none-any.whl",
+        "payload_files": 34,
+        "compiled": [],
+        "private_installed_copy_exact": true
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.26.0",
+        "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+        "bytes": 90630,
+        "url": "https://files.pythonhosted.org/packages/69/90/f63fb5873511e014207a475e2bb4e8b2e570d655b00ac19a9a0ca0a385ee/jsonschema-4.26.0-py3-none-any.whl",
+        "payload_files": 42,
+        "compiled": [],
+        "private_installed_copy_exact": true
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1",
+        "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+        "bytes": 18437,
+        "url": "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8cedb3c1902296743db0bbc66608a0db2814f/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+        "payload_files": 27,
+        "compiled": [],
+        "private_installed_copy_exact": true
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0",
+        "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+        "bytes": 26766,
+        "url": "https://files.pythonhosted.org/packages/2c/58/ca301544e1fa93ed4f80d724bf5b194f6e4b945841c5bfd555878eea9fcb/referencing-0.37.0-py3-none-any.whl",
+        "payload_files": 18,
+        "compiled": [],
+        "private_installed_copy_exact": true
+      },
+      {
+        "name": "rpds-py",
+        "version": "0.30.0",
+        "sha256": "9027da1ce107104c50c81383cae773ef5c24d296dd11c99e2629dbd7967a20c6",
+        "bytes": 394025,
+        "url": "https://files.pythonhosted.org/packages/b7/de/f7192e12b21b9e9a68a6d0f249b4af3fdcdff8418be0767a627564afa1f1/rpds_py-0.30.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+        "payload_files": 7,
+        "compiled": [
+          {
+            "path": "opt/hermes/venv/lib/python3.13/site-packages/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+            "sha256": "ee9c73db7e52323db7b9fd81339a9baac5bac66624cdb51508934ae61d270087",
+            "elf_magic": true
+          }
+        ],
+        "private_installed_copy_exact": true
+      }
+    ],
+    "licenses": {
+      "attrs": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_classifiers": [],
+        "license_files": [
+          "LICENSE"
+        ]
+      },
+      "jsonschema": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_classifiers": [],
+        "license_files": [
+          "COPYING"
+        ]
+      },
+      "jsonschema-specifications": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_classifiers": [],
+        "license_files": [
+          "COPYING"
+        ]
+      },
+      "referencing": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_classifiers": [],
+        "license_files": [
+          "COPYING"
+        ]
+      },
+      "rpds-py": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_classifiers": [],
+        "license_files": [
+          "LICENSE"
+        ]
+      }
+    },
+    "adapter_wheel_sha256": "a161094139d7f18cce9267b20e999d3d19c7e4d093a9c34755433d6c5e89171d",
+    "adapter_source_modules_exact": 15,
+    "adapter_requires_dist": "jsonschema==4.26.0",
+    "public_native_adapter_inventory_exact": 34,
+    "all_five_wheel_payloads_in_private_copy_and_effective_image_exact": true,
+    "payload_paths_checked": 163,
+    "effective_uid1000_paths_and_parents_readable_searchable": true,
+    "image_config_stock_equals_pinned_base": true,
+    "new_layers_add_no_pth_sitecustomize_usercustomize": true,
+    "layers": 45,
+    "layer_headers_scanned": 44210,
+    "manifest_input_seals_match_current_files": true,
+    "h03_preflight_binding": {
+      "exact_provenance_hash_before_installed_api_read": true,
+      "call_order_before_db_fixture": true,
+      "wrong_manifest_control_present": true,
+      "actual_exact_function_ast_executed_exit": 0,
+      "controls": [
+        {"mode": "current-exact", "result": "ACCEPTED", "installed_api_seam_calls": 1},
+        {"mode": "wrong-provenance", "result": "H03_INSTALLED_PREREQUISITE_REFUSED", "installed_api_seam_calls": 0},
+        {"mode": "missing-provenance", "result": "H03_INSTALLED_PREREQUISITE_REFUSED", "installed_api_seam_calls": 0}
+      ],
+      "execution_limit": "Only exact AST-extracted h03_prerequisites executed; unchanged installed API readback seam substituted. No OCI, imports of runtime, native or DB effects."
+    },
+    "parent_current_osv_audit_reused": {
+      "audited_packages": 67,
+      "vulnerabilities": 0,
+      "adverse_statuses": 0
+    }
+  },
+  "limitations": [
+    "Static artifact/config checks are not OS runtime confinement; parent h03_container_argv retains network none/read-only/drop ALL/no-new-privileges and exact imageID binding.",
+    "Retained PURE/build evidence reused, not rerun as native/H03 proof.",
+    "Canonical original OCI recipe not rebuilt; additive derivative only.",
+    "No container/Host/native/PostgreSQL/network/install effects.",
+    "Existing base behavior and unrelated inventory/audits reused; no universal supply-chain assurance.",
+    "Legacy audit text in h03-artifact remains historical; separate exact current parent audit covers67.",
+    "h03-artifact wheel/base fields are inherited historical provenance; current distribution authority is exact image/archive/focused_static_report/current dependency hash, not old adapter wheel metadata.",
+    "Full original wheel archive sizes/hashes cover all bytes; installed payload comparisons exclude installer-generated RECORD and console entrypoint shebangs."
+  ],
+  "changes": {
+    "repo": [],
+    "scratch": [
+      "/home/kali/.hermes/cache/scratch/jsonschema-distribution-review.py",
+      "/home/kali/.hermes/cache/scratch/jsonschema-distribution-review.json",
+      "/home/kali/.hermes/cache/scratch/jsonschema-h03-readonly-gmuponmk/current-exact.json",
+      "/home/kali/.hermes/cache/scratch/jsonschema-h03-readonly-gmuponmk/wrong-provenance.json",
+      "/home/kali/.hermes/cache/scratch/jsonschema-h03-readonly-gmuponmk/missing-provenance.json"
+    ]
+  },
+  "product_status": {
+    "packaging": "APPROVED_SCOPED",
+    "H03": "BLOCKED_NOT_RUN",
+    "B06b_G02_P2": "NOT_CLOSED"
+  },
+  "issues_encountered": [
+    "Expected focused-static-attestation filename absent; actual canonical static-attestation.json used."
+  ]
+}

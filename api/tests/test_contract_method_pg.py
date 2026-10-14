@@ -2869,7 +2869,7 @@ def test_h03_census_allows_only_one_consumption(mutation: str | None) -> None:
             check(canonical(original), canonical(after))
 
 
-@pytest.mark.parametrize("mutation", [None, "inventory", "uid"])
+@pytest.mark.parametrize("mutation", [None, "inventory", "uid", "dependency-manifest"])
 def test_h03_static_installed_origin_preflight(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str | None
 ) -> None:
@@ -2882,6 +2882,8 @@ def test_h03_static_installed_origin_preflight(
         mapping(sequence(plan["public_inventory"])[0])["sha256"] = "0" * 64
     elif mutation == "uid":
         plan["effective_uid_access"] = 1
+    elif mutation == "dependency-manifest":
+        plan["dependency_provenance_sha256"] = "0" * 64
     path = tmp_path / "static-plan.json"
     path.write_bytes(canonical(plan))
     path.chmod(0o600)
@@ -3478,7 +3480,8 @@ def h03_prerequisites() -> tuple[dict[str, object], Path]:
         if (
             plan["status"] != "PASS_STATIC_CURRENT_DISTRIBUTION"
             or plan["effective_uid_access"] is not True
-            or plan["unchanged_native_dependencies"] is not True
+            or plan.get("dependency_provenance_sha256")
+            != sha((ROOT / "integrations/hermes/runtime-override/provenance.json").read_bytes())
             or plan["runtime_started"] is not False
             or plan["startup_autoload"] != "NONE"
             or type(plan["image_id"]) is not str

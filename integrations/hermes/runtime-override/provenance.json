@@ -8,9 +8,9 @@
     "requirements_sha256": "531830225d126600d37826a3599016cd86a47b94ef2218efebb735376d530273"
   },
   "files": {
-    "pyproject.toml": "f38aee5cf9529a550b6be119c00261f4787c8ec0f8f853f0efaf7394029dc335",
-    "uv.lock": "a7b8c05fc3657b305ce9a21421fc891ac1fb3c88ce266d0a187ee338ee3f5b20",
-    "requirements-native.txt": "3576a98dcfd2332c741ae2f8d63f14c461aa3a4f8e69ecd5a7226f1d7e23669d"
+    "pyproject.toml": "0d90695a45adde31681d8eedd639988fa29f1e1c868f395d547fd78d2383ea66",
+    "uv.lock": "a7175536d0ff2637781d4a4900272d9762ab3135325dbaeb9f4361ebdd7e3d10",
+    "requirements-native.txt": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b"
   },
   "versions": {
     "anyio": [
@@ -32,11 +32,26 @@
   "audit": {
     "adverse_statuses": 0,
     "audited_packages": 62,
-    "vulnerabilities": 0
+    "vulnerabilities": 0,
+    "scope": "Historical original 62-package core selection only; does not cover the five added PURE validator packages."
   },
   "limits": [
     "Point-in-time core dependency audit, not proof of absence of every vulnerability",
     "Exact upstream source and original dependency lock preserved",
-    "Installed/native/OCI acceptance remains separate"
-  ]
+    "Installed/native/OCI acceptance remains separate",
+    "The five newly selected PURE validator packages are pinned from the original upstream lock, not covered by the historical 62-package advisory audit."
+  ],
+  "pure_validator_dependency_addition": {
+    "direct_dependency": "jsonschema==4.26.0",
+    "closure": {
+      "attrs": "25.4.0",
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "rpds-py": "0.30.0"
+    },
+    "source": "Exact package records (versions, URLs, sizes and hashes) copied from the unchanged original upstream uv.lock. Existing selected security overrides and other package records preserved.",
+    "lock_validation": "uv 0.12.19 lock --check --offline: 68 packages; frozen offline export.",
+    "audit": "NOT_RUN for added packages; historical audit is not extended."
+  }
 }

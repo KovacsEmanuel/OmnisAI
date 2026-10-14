@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "base": "6270a0c518a38d4340d9e6fc5687ceca18a2cd20",
+  "consumer_sha256": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d",
+  "caller_change": "Bind real H03 prereq to exact current dependency provenance SHA instead of false unchanged-dependency boolean. Plan explicitlyunchanged_native_dependencies=false; source34unchanged, selectednativeclosure5additiondeclared. No wire/owner/grant/timeout changes.",
+  "red": "Newdeclaredartifact positive refused by oldunchangedboolean:1FAIL3PASS167deselected0.71s.",
+  "green": "Currentartifact actualprereq4PASS167deselected0.79s; existingruntimebuild8PASS0.293s; lockcheck68packagesexit0; Ruff/format/mypy/diff0. Wrongprovenancehashdenied.",
+  "h03_artifact": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/h03-artifact.json",
+  "h03_artifact_sha256": "2eb29fc2d45210390caf0ba5037d590f2cc9adbcf2e3d80bce7e60bbe5ed32c1",
+  "image": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+  "advisory_audit": "Parentactualuv0.12.19frozenOSVauditexit0oncurrentselectedruntime; fullJSONretainedprivatepublicdependenciesonly. Historical62auditnotextendedbyassumption.",
+  "audit_file": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/parent-advisory-audit.json",
+  "audit_sha256": "0a9f42d115bcdcdeab1aca74cdee23375a0396312d2c2acc037fd233d6dce405",
+  "runtime": "NOT_RUN_PENDING_TWO_REVIEWS"
+}

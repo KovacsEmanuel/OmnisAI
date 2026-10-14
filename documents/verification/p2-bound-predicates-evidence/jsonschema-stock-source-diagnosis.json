@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "status": "PROVEN_DEPENDENCY_DISTRIBUTION_DEFECT_HISTORICAL_EXCEPTION_UNOBSERVED",
+  "base_commit": "e5a0f42235912e5466436ee011f3c1d27ed4d660",
+  "product_acceptance": "BLOCKED_NOT_PASS",
+  "scope": "Read-only original stock RuntimeHost -> NativePeer -> managed release; no API observer replay, implementation, native import or execution.",
+  "finding": {
+    "id": "H03-STOCK-JSONSCHEMA-MISSING",
+    "classification": "Deterministic undeclared installed native dependency masked by SOURCE harness library routing",
+    "proven": true,
+    "cause_of_recorded_refusal": "NOT_PROVEN: the original Host/native exception was not retained; an earlier release guard could have refused before this defect was reached.",
+    "source": "integrations/hermes/src/omnis_hermes/contract_method.py:91-97 imports jsonschema.Draft202012Validator inside validate_value. run_handler:116-117 invokes it at the first normalize-operations PURE step.",
+    "distribution": "integrations/hermes/pyproject.toml:13 has dependencies=[]; runtime-override/pyproject.toml and runtime-override/uv.lock omit jsonschema and its dependency closure.",
+    "stock_archive": {
+      "image_id_from_existing_record": "sha256:129ad74848a6c393bc54775443bdc39918ff8b5f638b3de1a41609d61c69acd0",
+      "archive": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/current-image.tar",
+      "provenance": "Existing h03-distribution-static.json; no Docker calls or new image hashing. Targeted archive-header/config inspection only.",
+      "layers_scanned": 39,
+      "jsonschema_dependency_members_under_native_site_packages": 0,
+      "jsonschema_module_or_package_init_anywhere_in_archive": 0,
+      "relevant_whiteouts": 0,
+      "include_system_site_packages": false,
+      "native_site_packages_pth": {
+        "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis-native-source.pth",
+        "bytes": 19,
+        "source_path_only": true,
+        "executable_line": false,
+        "mentions_jsonschema": false
+      },
+      "native_site_packages_zip_or_egg_paths": []
+    },
+    "source_harness_mask": {
+      "location": "api/tests/test_contract_method_pg.py:53-55,149-151,4611-4627",
+      "mechanism": "TestLaunch bootstrap appends a separate Hermes Python3.14 site-packages directory to native sys.path. Stock native -I uses the Python3.13 installed venv, not that library overlay.",
+      "appended_library_directory": "/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages",
+      "jsonschema_init_present": true,
+      "jsonschema_validators_present": true,
+      "inspection": "Exact public library file existence only; no imports, metadata execution, profiles or credentials."
+    },
+    "why_bound_is_compatible": "stage constructs ContractState using contract_method.assignment, which validates assignment material without calling validate_value. The lazy jsonschema import is reached on the first PURE handler, after stage/BOUND.",
+    "deterministic_failure_if_reached": "Under the attested stock installed Python3.13 import path, the first validate_value call cannot import jsonschema. ModuleNotFoundError is an Exception handled by native managed dispatch.",
+    "no_fix_applied": true
+  },
+  "original_path": [
+    "RuntimeHost._handle:770 validates request; 773-776 binds authenticated sole owner; 791 awaits _managed_connected.",
+    "RuntimeHost._managed:246 checks previous preparation authority BEFORE accepting a new grant; 257 validates release; 274-278 checks binding boot/fence; 279-283 accepts grant and bounds call; 296-298 calls native and validates response; 299-334 checks readiness/protocol/binding; 335-343 retains canonical final.",
+    "NativePeer.call:390-398 validates release before enqueue; 425-430 sends once and awaits correlated future; _read:332-337 converts native error to RPCError(code), discarding its message; _stderr:313-316 discards native stderr.",
+    "Native tui_gateway/rpc_dispatch.py:23-31 routes managed release and catches EVERY Exception as numeric RPC code4000, fixed message managed admission denied.",
+    "agent/managed_admission_rpc.py:66-78 validates and calls original SubagentLifecycleService.release.",
+    "SubagentLifecycleService.release:384-400 selects original batch/root; _release_contract:452-460 checks child/root/binding/batch and assignment deadlines; 461-468 latches binding and invokes actual child once.",
+    "agent/contract_execution.py:229-263 validates binding and guards input; 265-268 invokes PURE; 183-214 guards and calls contract_method.run_handler; normalize handler calls validate_value:117, whose jsonschema import is missing from stock distribution.",
+    "Native RPCError(4000), if this defect is reached, survives as the original Host exception until RuntimeHost._handle:799-805 replaces it with RUNTIME_DENIED. All native exceptions are already merged into4000 upstream; that code alone will not identify ModuleNotFoundError."
+  ],
+  "recorded_failure_limit": {
+    "source": "documents/verification/p2-bound-predicates-evidence/h03-positive-diagnostic-attempt2-parent-blocked.json",
+    "observed": "Original correlated Host refusal32ms; client grant4496 ->4464ms; stageBOUND.",
+    "host_original_exception": "UNKNOWN",
+    "native_rpc_code": "NOT_RETAINED",
+    "excludes": "Does not prove Host prior-grant validity, live native lineage, batch deadline or arrival at first PURE step. No retrospective sole-cause claim and no deadline-based hypothesis."
+  },
+  "read_only_reproducer": {
+    "executed": true,
+    "kind": "Targeted distribution/source packaging reproducer, not native execution",
+    "operation": "Parse runtime-override/uv.lock with stdlib tomllib; scan manifest.json's39 existing layer tar headers for native jsonschema/jsonschema_specifications/referencing/rpds members and any jsonschema.py or jsonschema/__init__.py; project pyvenv.cfg/.pth into booleans; stat exact harness jsonschema public files.",
+    "command_exit": 0,
+    "actual_result": "override closure absent; stock archive target_member_count=0; jsonschema module/package init anywhere=[]; include_system_site_packages=false; only nonexecutable native-source .pth; no zip/egg; harness jsonschema init and validators both present.",
+    "native_import_or_release_reproducer": "NOT_RUN: forbidden by this read-only contract."
+  },
+  "smallest_host_boundary_if_needed": {
+    "location": "integrations/hermes/src/omnis_hermes/runtime_host.py:799 original except, before response construction800-805",
+    "eligibility": "Only current request validated by _validate and accepted as this sole owner at773-776, with op task_release. Reset an eligibility boolean at every while iteration; sticky authenticated=True alone is insufficient because a later malformed request could reach this catch.",
+    "finite_fields": [
+      "static operation TASK_RELEASE and boundary HOST_PRE_NORMALIZATION",
+      "exact class enum RPCError/ProtocolError/ValueError/OSError/TimeoutError/LimitOverrunError/OTHER",
+      "RPCError.code allowlisted4000/-32601/5035/-32000/OTHER; no error message",
+      "finite source-site enum from trusted original code identity plus allowlisted raise line; no filenames, frames, locals, traceback or exception-chain dumps"
+    ],
+    "existing_mechanism": "Original Host already emits fixed diagnostics to process stderr at main:841, separate from UDS response. A single bounded sanitized stderr record at this catch can use that process channel and the existing exact-owned private Docker diagnostic collection; do not change native stderr discard or wire/policy. No finite per-release record currently exists, so this would be a minimal parent-owned Host change, NOT an already available cause log.",
+    "privacy": "Never str/repr(error), dynamic messages, request/reply/binding, capability, runtime.boot, environment, credentials, core locals, native raw stderr or DB traceback. Fixed bounded record once per selected release; no QA autoload/observer injection/helper matrix/new owner.",
+    "limitation": "RPCError4000 only localizes to native managed refusal; it cannot recover the swallowed native cause. The proven packaging defect should be adjudicated rather than starting another API-only observer or general harness."
+  },
+  "source_sha256": {
+    "api/tests/test_contract_method_pg.py": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+    "integrations/hermes/pyproject.toml": "c1c43dc9efe7387b49593527e2f655edc25f24c5dfcf51b62c6d2b0b808531a9",
+    "integrations/hermes/runtime-override/pyproject.toml": "f38aee5cf9529a550b6be119c00261f4787c8ec0f8f853f0efaf7394029dc335",
+    "integrations/hermes/runtime-override/uv.lock": "a7b8c05fc3657b305ce9a21421fc891ac1fb3c88ce266d0a187ee338ee3f5b20",
+    "integrations/hermes/src/omnis_hermes/contract_method.py": "81b07e7d90d02b70b72e046ae6ee70549d44fd8dc702c1072a6b9e655b04b5ee",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "47ea8639a7a011b3d4b9202465a311c88da6d6b1358e68593ed4a391f7d8c118",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+    "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+  },
+  "source_distribution_identity": "All8 inspected executable source hashes occur in the existing exact34-member stock public inventory; no changed product source or patched native pin discovered.",
+  "effects": {
+    "repo_edits": [],
+    "source_imports_or_execution": false,
+    "native_or_container_calls": false,
+    "network_or_postgres": false,
+    "image_build_install_or_change": false,
+    "protected_html_read_or_hash": false,
+    "credentials_runtime_boot_env_profiles_or_foreign_fixtures": false,
+    "commits_or_staging": false,
+    "created_files": ["/home/kali/.hermes/cache/scratch/p2-h03-stock-release-source-diagnosis-e5a0f42.json"],
+    "git_diff_check_exit": 0,
+    "git_state": "HEAD unchanged. Parent-owned documents/verification/p2-next-session-implementation.md became modified during this read-only review; untouched. Preexisting untracked protected documents/Omnis_Notite_Originale.html untouched."
+  },
+  "issues": ["One attempted module_registry.py read returned NOT_FOUND; actual native implementation is contract_method.py, inspected directly. No finding relies on the nonexistent file."],
+  "next_decision": "Parent adjudicates missing native dependency and existing source-harness mask. Any correction uses the existing locked distribution/build owner and actual stock release acceptance, not a new harness. Historical refusal remains unknown until an original exception is observed; no productPASS or restart acceptance."
+}

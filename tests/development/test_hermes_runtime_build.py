@@ -49,6 +49,43 @@ class RuntimeBuildControls(unittest.TestCase):
         })
         self.assertEqual(selected["original"]["commit"], module.PIN["commit"])
 
+    def test_adapter_declares_lazy_pure_validator_dependency(self):
+        import tomllib
+        project = tomllib.loads((ROOT / "integrations/hermes/pyproject.toml").read_text())
+        self.assertIn("jsonschema==4.26.0", project["project"]["dependencies"])
+
+    def test_selected_runtime_exports_complete_pure_validator_wheel_closure(self):
+        import re
+        import tomllib
+        module = self.prepare_module()
+        module.dependency_inputs()  # Admission must accept the sealed selected inputs.
+        project = module.DEPENDENCY_PROJECT
+        manifest = tomllib.loads((project / "pyproject.toml").read_text())
+        self.assertIn("jsonschema==4.26.0", manifest["project"]["dependencies"])
+        expected = {"attrs": "25.4.0", "jsonschema": "4.26.0",
+                    "jsonschema-specifications": "2025.9.1", "referencing": "0.37.0",
+                    "rpds-py": "0.30.0"}
+        selected = {p["name"]: p for p in tomllib.loads((project / "uv.lock").read_text())["package"]}
+        original = {p["name"]: p for p in tomllib.loads((module.UPSTREAM / "uv.lock").read_text())["package"]}
+        exported = (project / "requirements-native.txt").read_text()
+        for name, version in expected.items():
+            with self.subTest(package=name):
+                self.assertIn(name, selected, "lazy PURE dependency omitted from selected runtime")
+                package = selected[name]
+                self.assertEqual(package["version"], version)
+                self.assertEqual(package["wheels"], original[name]["wheels"])
+                self.assertIn(f"{name}=={version}", manifest["tool"]["uv"]["constraint-dependencies"])
+                block = re.search(r"(?m)^" + re.escape(name + "==" + version) +
+                                  r"[^\n]*(?:\n[ \t]+[^\n]*)*", exported)
+                self.assertIsNotNone(block, "wheel omitted from hash-required offline export")
+                if block is None:
+                    self.fail("missing wheel export")
+                for wheel in package["wheels"]:
+                    self.assertTrue(wheel["url"].startswith("https://files.pythonhosted.org/"))
+                    self.assertIn("--hash=" + wheel["hash"], block.group())
+                for dependency in package.get("dependencies", []):
+                    self.assertIn(dependency["name"], selected)
+
     def test_tampered_override_is_refused_before_prepare_writes(self):
         from unittest.mock import patch
         import shutil

@@ -9,7 +9,8 @@ RUN python -m venv /opt/hermes/venv \
  && /opt/hermes/venv/bin/python -I -m pip install --no-cache-dir --no-index --find-links=/build/wheelhouse --only-binary=:all: --no-deps --require-hashes -r /build/requirements-native.txt \
  && /opt/hermes/venv/bin/python -I -m pip install --no-cache-dir --no-index --find-links=/build/wheelhouse --no-deps --require-hashes -r /build/requirements-artifacts.txt \
  && /opt/hermes/venv/bin/python -I -m pip check \
- && /opt/hermes/venv/bin/python -I -c "from importlib.util import find_spec; assert find_spec('omnis_hermes.runtime_host')"
+ && /opt/hermes/venv/bin/python -I -B -c "from importlib.util import find_spec; assert find_spec('omnis_hermes.runtime_host')" \
+ && /opt/hermes/venv/bin/python -I -B -c "import unittest; from omnis_hermes.contract_method import run_handler; assert run_handler('contract.normalize-operations', {'records': [{'method': 'GET', 'path': '/a', 'status': 200}]}) == {'operations': [{'method': 'GET', 'path': '/a', 'statuses': [200]}]}; unittest.TestCase().assertRaisesRegex(ValueError, '^INVALID_PURE_INPUT$', run_handler, 'contract.normalize-operations', {'records': [{'method': 'GET', 'path': 'bad', 'status': 200}]})"
 
 FROM python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a
 ARG RUNTIME_UID=65532

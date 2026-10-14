@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED_SCOPED_ADMIT_ACTUAL_STOCK_H03_CONSUMER",
+  "base": "6270a0c",
+  "files": {
+    "integrations/hermes/pyproject.toml": "4d6974c32db75bdefb5ac4d2ff8e6ff6fc43e19fccaa958daa7a307d104a87fa",
+    "integrations/hermes/runtime-override/provenance.json": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+    "integrations/hermes/runtime-override/pyproject.toml": "0d90695a45adde31681d8eedd639988fa29f1e1c868f395d547fd78d2383ea66",
+    "integrations/hermes/runtime-override/requirements-native.txt": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b",
+    "integrations/hermes/runtime-override/uv.lock": "a7175536d0ff2637781d4a4900272d9762ab3135325dbaeb9f4361ebdd7e3d10",
+    "ops/Dockerfile.hermes": "6a24f14b89aa20dedce03858ae0b7d518d8a43d62baf01a43383285a1d60938f",
+    "tests/development/test_hermes_runtime_build.py": "43c6ef725ddb00503984aedbd2b7e979bb0c1974573a287a29733c9ba85579a0",
+    "api/tests/test_contract_method_pg.py": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d"
+  },
+  "image_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+  "h03_artifact_sha256": "2eb29fc2d45210390caf0ba5037d590f2cc9adbcf2e3d80bce7e60bbe5ed32c1",
+  "source": "Parent58PASS113deselected3.23s; runtimepackaging8PASS; currentdependency-manifest4PASS; Ruff/format/mypy/diff0; frozenlock/exportexact.",
+  "audit": "Actualcurrent67deps0vulns0adverse; point-in-timeonly, no absoluteassurance.",
+  "review": "Both complementaryexact8file/distributionreviewsAPPROVED_SCOPED; oldsource34unchanged reused;5MITwheelpayloads/compiledrpds verified inprivateimage.",
+  "preflight": "Exactpositiveandno-finalnodescollect1each, originalprivateDBfamilyrunner240 unchanged. BaseIDsandnewIDreadback; no runtime launchedyet.",
+  "scope": "Declared5dependencyadditionnecessaryforactualPURElazyimport, not functionalmethod/grant/owner/TTL/nativechange. InertstockHost/native publiclauncher and originalSourceowner remain.",
+  "historical_cause": "UNKNOWN_NOT_RETROSPECTIVELY_ATTRIBUTED",
+  "next": "Actualpositive release/durablefinal/restart/readers, thenno-finalnegative onfreshownedfixture. No fakefinal/newobserver/framework/identicalretry; ifnewfailure inspectonlyitsconcretefrontier.",
+  "runtime": "NOT_RUN_AT_COMMIT",
+  "phase": "P2/P4a notclosed"
+}

@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent normative packaging/config/provenance and affected H03 prerequisite caller review of exactly eight integrated files. No product runtime acceptance.",
+  "repository": "/home/kali/OmnisAI",
+  "base_commit": "6270a0c518a38d4340d9e6fc5687ceca18a2cd20",
+  "reviewed_files_sha256": {
+    "integrations/hermes/pyproject.toml": "4d6974c32db75bdefb5ac4d2ff8e6ff6fc43e19fccaa958daa7a307d104a87fa",
+    "integrations/hermes/runtime-override/provenance.json": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+    "integrations/hermes/runtime-override/pyproject.toml": "0d90695a45adde31681d8eedd639988fa29f1e1c868f395d547fd78d2383ea66",
+    "integrations/hermes/runtime-override/requirements-native.txt": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b",
+    "integrations/hermes/runtime-override/uv.lock": "a7175536d0ff2637781d4a4900272d9762ab3135325dbaeb9f4361ebdd7e3d10",
+    "ops/Dockerfile.hermes": "6a24f14b89aa20dedce03858ae0b7d518d8a43d62baf01a43383285a1d60938f",
+    "tests/development/test_hermes_runtime_build.py": "43c6ef725ddb00503984aedbd2b7e979bb0c1974573a287a29733c9ba85579a0",
+    "api/tests/test_contract_method_pg.py": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d"
+  },
+  "findings": [],
+  "decision_basis": [
+    {
+      "requirement": "Declared, locked and hash-exported native PURE validator dependencies must agree without unrelated pin changes.",
+      "consumer": "Stock managed agent contract_execution.py:213 calls omnis_hermes.contract_method.run_handler; contract_method.py:117 validates normalize input and :93 lazily imports Draft202012Validator.",
+      "result": "Both adapter and selected native runtime declare jsonschema==4.26.0. Added five complete package records equal the unchanged original upstream lock, including URLs, sizes, hashes and dependency metadata. All 62 existing registry records are structurally identical to base. Existing security overrides anyio4.14.2/PyJWT2.15.0/urllib3 2.8.0, lock environment/options and existing exported pins/hashes are preserved.",
+      "dependency_addition": {"attrs": "25.4.0", "jsonschema": "4.26.0", "jsonschema-specifications": "2025.9.1", "referencing": "0.37.0", "rpds-py": "0.30.0"},
+      "closure_detail": "referencing also requires already selected typing-extensions==4.15.0; this is not a sixth addition. Current lock has 68 nodes / 67 registry packages and export has 67 requirement records. Frozen offline export is byte-identical to requirements-native.txt. Only reverse-dependency comments change in old exported requirement blocks."
+    },
+    {
+      "requirement": "Origin and provenance must bind the changed distribution while reusing unchanged source proof.",
+      "consumer": "api/tests/test_contract_method_pg.py:h03_prerequisites, lines3455-3524.",
+      "result": "Current H03 artifact SHA and dependency provenance SHA match exact parent handles and current repository bytes. Caller replaces false unchanged-dependencies gate with exact provenance hash equality, without changing wire/grants/TTL/owners/stock argv. All 34 public native/adapter source inventory hashes match current repository source and PIN bytes remain unchanged. Added-package provenance explicitly limits historical audit62 rather than inventing audit coverage.",
+      "artifact_handle": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/h03-artifact.json",
+      "artifact_sha256": "2eb29fc2d45210390caf0ba5037d590f2cc9adbcf2e3d80bce7e60bbe5ed32c1",
+      "image_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+      "unchanged_native_dependencies": false,
+      "runtime_started": false
+    },
+    {
+      "requirement": "Minimal regression coverage must exercise the original PURE validator and exact affected admission denial.",
+      "consumer": "Existing RuntimeBuildControls and test_h03_static_installed_origin_preflight.",
+      "result": "Eight existing packaging SOURCE tests pass. Actual existing H03 preflight has four passing controls: genuine current artifact accepted; wrong inventory, integer UID flag, and wrong current-provenance SHA each refused with H03_INSTALLED_PREREQUISITE_REFUSED. Docker recipe adds only finite normalize positive/invalid control and -B; unchanged native/adapter executable behavior proof is retained rather than re-reviewed as new code."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963/review_checks.py",
+      "exit_code": 0,
+      "result": "Exact 8 SHA match; full package-record comparisons; provenance seals; 34 source inventory entries; PIN; existing SOURCE tests8/8; offline lock/export.",
+      "receipt": "/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963/checks.json",
+      "test_scope_note": "Only test-owned tempfile.TemporaryDirectory location redirected from upstream repo to own scratch. Test/product assertions and source bytes unmodified; -I -B prevents bytecode writes."
+    },
+    {
+      "command": "uv0.12.19 lock --check --offline --python /home/kali/OmnisAI/api/.venv/bin/python --project /home/kali/OmnisAI/integrations/hermes/runtime-override",
+      "exit_code": 0,
+      "result": "Resolved68 packages in1ms, Python3.13.15; private HOME/TMPDIR/UV cache and no downloads."
+    },
+    {
+      "command": "uv0.12.19 export --frozen --offline --no-dev --no-emit-project --no-header --format requirements-txt --project /home/kali/OmnisAI/integrations/hermes/runtime-override",
+      "exit_code": 0,
+      "result": "Export byte-identical to exact reviewed requirements-native.txt."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963 TMPDIR=/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_H03_SOURCE_ARTIFACT=/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/h03-artifact.json OMNIS_H03_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k h03_static_installed_origin_preflight -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963/pytest-run",
+      "exit_code": 0,
+      "result": "4 passed,167 deselected in0.81s. No skips; positive and all three denials. Separate collect-only4/171 selected in0.63s,exit0 preceded execution. No DB/native/OCI fixture acquisition."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py; api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py; git diff --check",
+      "exit_code": 0,
+      "result": "All checks passed;1file already formatted;diff clean."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963 TMPDIR=/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963/mypy-cache api/tests/test_contract_method_pg.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in1source file; private cache only."
+    }
+  ],
+  "reused_evidence": {
+    "author_source_report": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/SOURCE-report.json",
+    "parent_integrated_source": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/parent-integration-source.json",
+    "installed_pure_smoke_sha256": "a64776482c0eb8651c5285e067f599e60a7e3247ef89475fd88df3ce8a257dd1",
+    "canonical_recipe_smoke_sha256": "d764ff0427287fe2547c7ce4cf92f4de95eb4b5e9019013499c0f330894f7f52",
+    "installed_pip_check_sha256": "fdabede10d78a7727220b0ec8676f5059760cbcafec3dfa0b4ae8130f661faf5",
+    "reuse_note": "Exact retained receipt SHA verified. Installed positive exact normalize result and INVALID_PURE_INPUT denial with installed Python3.13.15 origins are author evidence, not a fresh reviewer native run. Build UID1000 proof belongs to distribution/parent evidence.",
+    "actual_parent_advisory_audit": {
+      "handle": "/home/kali/.hermes/cache/scratch/jsonschema-packaging-c19198cc5fa9474cb9f0f507d11f84c7/parent-advisory-audit.json",
+      "sha256": "0a9f42d115bcdcdeab1aca74cdee23375a0396312d2c2acc037fd233d6dce405",
+      "audited_packages": 67,
+      "vulnerabilities": 0,
+      "adverse_statuses": 0,
+      "scope": "Parent actual current-selection audit, reused; reviewer did not contact OSV. Historical62 audit was not extended by assumption. Conservative NOT_RUN statements in author/provenance precede this separate parent audit; no false-green claim is introduced."
+    },
+    "consumer_closure_receipt": "/home/kali/.hermes/cache/scratch/normative-packaging-review-64591f55f61e43e783173d0d036d4963/consumer-closure.json"
+  },
+  "issues_encountered": [
+    "Context spelling parentintegrationsource.json did not exist; discovered and read actual parent-integration-source.json in exact assigned reportroot.",
+    "Initial scratch comparison incorrectly required whole lock top-level manifest unchanged, refusing legitimate five added constraints. Bounded inspection identified only expected additions and unchanged overrides; exact delta comparison passed. No product finding or shared edit.",
+    "Broad scratch filename traversal was unsuccessful; narrowed to versioned public H03 evidence and obtained exact existing API prerequisite handle without reading raw PG logs or credentials."
+  ],
+  "boundaries": {
+    "shared_repository_edits": false,
+    "staging_or_commit": false,
+    "protected_html_read_or_hash": false,
+    "profiles_or_credentials_read": false,
+    "raw_pg_logs_read": false,
+    "network": false,
+    "install_or_image_changes": false,
+    "native_or_runtime_launch": false,
+    "postgres_effects": false,
+    "writes": "Own scratch only: review script, structured receipts, pytest fixtures and private tooling caches.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "limitations": [
+    "APPROVED_SCOPED covers normative8-file snapshot only. Complementary changed-distribution review and parent integration decision remain separate.",
+    "No full OCI recipe rebuild, runtime Host/AIAgent, PostgreSQL, release, durable final or restart test performed by reviewer. No product PASS/H03 acceptance.",
+    "Source bootstrap's foreign Python3.14 library route can mask missing installed dependencies; no personal library was read or used as this packaging proof. The installed-original validator requirement is proven from actual lazy import and current selected closure, not inferred from source success.",
+    "Historical original H03 normalized failure internal cause remains UNKNOWN; necessary packaging correction does not retrospectively diagnose that failure.",
+    "Unchanged behavioral approvals remain at their original scopes. No repeated qualification/history/global canonical/re-audit is credited."
+  ],
+  "proposed_status_delta": {
+    "packaging_config_and_h03_caller": {"code": "IMPLEMENTED_UNCOMMITTED_PARENT_SNAPSHOT", "proof": "SOURCE_SCOPED_PASS", "review": "APPROVED_SCOPED"},
+    "h03_product": {"code": "PARTIAL", "proof": "BLOCKED_ORIGINAL_FAILURE_RETAINED", "review": "NOT_PRODUCT_ACCEPTANCE"},
+    "next": "Parent adjudicates complementary same-snapshot distribution review, then original bounded stock private consumer; preserve original failures and unchanged grant/owner/deadline contract."
+  }
+}

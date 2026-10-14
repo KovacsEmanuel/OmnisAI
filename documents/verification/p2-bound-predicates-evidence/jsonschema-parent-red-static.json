@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "PARENT_REPRODUCED_MISSING_STOCK_JSONSCHEMA_CLOSURE",
+  "archive": "/home/kali/.hermes/cache/scratch/h03-current-371f6e862d9a433bbfa74bc0c631df7d/current-image.tar",
+  "layers": 39,
+  "target_member_counts": {
+    "jsonschema/": 0,
+    "jsonschema_specifications/": 0,
+    "referencing/": 0,
+    "rpds/": 0,
+    "attrs/": 0,
+    "attr/": 0
+  },
+  "historical_release_cause": "NOT_PROVEN",
+  "native_launched": false
+}

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "task": "Next admitted H01/H02 existing caller installed historical consumer",
+  "status": "IMPLEMENTED_SOURCE_GREEN_PREREQUISITES_READY_AWAITING_PARENT_EXACT_REVIEWS",
+  "base": "2891a3ff93c1a04904f375b509e4536248c094a0",
+  "changed_file": {
+    "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "sha256": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66",
+    "diff": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/changed-file.diff",
+    "diff_sha256": "dd48a2eaaa3668d74c8898d73b7302cd67e01c5f03a6f3791b607ad3f932afeb"
+  },
+  "shared_writes": [
+    "api/tests/test_contract_method_pg.py"
+  ],
+  "staging_commits": "NONE",
+  "prerequisite_blockers": [],
+  "private_artifact_manifest": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/private-artifact-manifest.json",
+  "prerequisite_command_manifest": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+  "distribution_artifacts": [
+    {
+      "tag": "old",
+      "commit": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+      "source": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source",
+      "archive_sha256": "54d0acb865dcad448acec15392d9dfd8c088e94f4780ae1b1207bf2e0860d878",
+      "python": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/venv/bin/python",
+      "wheel": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "933a17e8a6c588f0cfe5a69aff1a2164967277066fc460e4e2f3716db7f515d2",
+      "requirements_sha256": "87f2dd368c145fb92d3f5972731e6eaab47affc1328ec540d00d9704d0a08db5",
+      "exported_files_count": 310
+    },
+    {
+      "tag": "current",
+      "commit": "2891a3ff93c1a04904f375b509e4536248c094a0",
+      "source": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/source",
+      "archive_sha256": "c31054a96997ec24d426665a937fb37f112cac048394c442d7e4e1a9c42dbccc",
+      "python": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/venv/bin/python",
+      "wheel": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "7bb9f18e4c1b06b721c6acf21e9ab74ab10006c180a218d438ce9ec1642cd3ba",
+      "requirements_sha256": "017312d7faae7d8b54332394c4a0a3aaa3ee48916f6ddcd856d5866aa1a075c2",
+      "exported_files_count": 320
+    }
+  ],
+  "source_verification": {
+    "final_command": "OMNIS_CONTRACT_METHOD_QA=0 OMNIS_HISTORY_PREREQUISITES=/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json api/.venv/bin/python -I -B -m pytest api/tests/test_contract_method_pg.py -q -k \"not real_native\" -p no:cacheprovider --tb=short",
+    "final_exit": 0,
+    "passed": 74,
+    "deselected": 20,
+    "seconds": 12.57,
+    "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-final.log",
+    "red": [
+      {
+        "boundary": "old caller adaptation / installed migration argv",
+        "exit": 1,
+        "failed": 2,
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-red-orchestration.log"
+      },
+      {
+        "boundary": "installed origin / defining evaluator + aliases / caught guard record / missing or unknown observer",
+        "exit": 1,
+        "failed": 5,
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-red-reader.log"
+      },
+      {
+        "boundary": "private negative copies / strict sanitized CLI tuples",
+        "exit": 1,
+        "failed": 7,
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-red-refusal.log"
+      },
+      {
+        "boundary": "owned exact wheel/Git prerequisites",
+        "exit": 1,
+        "failed": 1,
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-red-plan.log"
+      },
+      {
+        "boundary": "review admission before fixture",
+        "exit": 1,
+        "failed": 1,
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-source-red-review-gate.log"
+      }
+    ],
+    "quality": {
+      "ruff_check": "exit0; zero diagnostics",
+      "ruff_format": "reformatted owned file; final formatted",
+      "mypy_strict": "exit0; zero diagnostics",
+      "git_diff_check": "exit0"
+    },
+    "installed_origin_scope": "Both actual fresh installed wheels equal original Git-export and wheel members. Old descriptor recomputes exact authentic833b569...; PYTHONPATH=ROOT/api/src is ignored by -I. Current defining evaluator/aliases, handler, BuildSource and RuntimeClient._exchange caught violations are recorded before raising; missing/unknown evidence refuses.",
+    "old_installed_collect": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "pythonpath=",
+        "-p",
+        "no:cacheprovider",
+        "--collect-only",
+        "-q",
+        "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full]"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old-installed-collect.log",
+      "adapted": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py",
+      "adapted_sha256": "0e380cc23aa8e31cc3215f7cb3781ecf5dd0c766e043cc8b4937b709e3c892e4",
+      "original_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+      "scope": "COLLECT_ONLY_NO_PG_NATIVE_NETWORK"
+    },
+    "current_installed_case_collect_log": "/home/kali/.hermes/cache/scratch/h01-h02-current-collect.log"
+  },
+  "orchestration": {
+    "selected_node": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[historical-installed]",
+    "required_opt_in": {
+      "OMNIS_CONTRACT_METHOD_QA": "1",
+      "OMNIS_HISTORY_PREREQUISITES": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+      "OMNIS_HISTORY_REVIEWED": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66"
+    },
+    "runner": "Parent selects this ONE new case through the existing prove_private_fixture/run_gate selection mechanism, original owner/family/teardown unchanged; budget240. No runner created or executed by child.",
+    "producer": "Authentic original e6ffcf8 API/native/fixtures/skill/profile export, old installed wheel + venv. Old pytest -I -B -o pythonpath= selects only partial-requirement-full. Module-scoped migrated_database_url is a harness alias to parent empty fixture already initialized by installed old migrator, not a source migration.",
+    "harness_adaptation": "Reviewed current BOOTSTRAP observer only; audit allow-root uses sys.prefix for the owned old venv; installed old interpreter replaces pinned current source-test interpreter. Stop after authentic final/check + native drain; retain original finalizer/native counters. Cut original old restart/reconcile/forged-outcome tail, so current reader owns first consumption. Original old bytes are immutable and SHA checked.",
+    "migration": "Existing empty_database_url -> attested installed OLD -I -B -m omnis.migrate --initialize exactly0012 -> real old producer -> attested CURRENT -I -B -m omnis.migrate NO initialize exactly0013. Exact all-public-table census across migration, only Alembic head + empty new mission extension may differ.",
+    "reader": "Same original DSN/material/catalog/refs, separately owned current installed interpreter, separate HOME/cwd, no ROOT/api/src/sys.path. Same RESTART_READER with INSTALLED mode and guarded actual defining objects/aliases. Exact old readback -> first reconcile toggles only inbox consumed flag -> repeated exact reconcile/readback; native observation/material/full public census unchanged.",
+    "negative_scope": "Six finite controlled private input faults: foreign pin, checker digest, producer provenance, ref digest, result header, native child lineage. Original DB/material/refs/positive final/schema are never rewritten. Fault observer must report actually entered seam; public exit/status/reason is measured and saved before comparing same installed reconcile channel. Positive installed readback after each fault prevents an always-reject observer.",
+    "private_runtime_report_relative_path": "<owned pytest tmp_path>/installed-history-report.json"
+  },
+  "not_run": [
+    "PG/private fixture",
+    "old authentic native producer",
+    "installed old initialize/current upgrade",
+    "historical valid-graph reader/reconcile",
+    "actual graph fault public reason measurement",
+    "Docker/UDS/native/provider/network/browser",
+    "H03",
+    "batch",
+    "Model",
+    "Settings",
+    "full canonical"
+  ],
+  "limits": [
+    "74 SOURCE PASS is not H01/H02 runtime acceptance. Parent exact complementary reviews and explicit hash-bound admission are still required before the bounded fresh PG/native proof.",
+    "Real foreign pin/provenance/ref/header public reasons remain NOT_RUN. No METHOD_CHECKER_UNAVAILABLE oracle assumed; parent must adjudicate measured exact reasons from fresh report.",
+    "Negative fault seams are in-process consumer input observations, not a durable database-corruption/crash proof.",
+    "Migration is the exact installed -m CLI without a separate evaluator census; immutable migration/readback census is implemented but NOT_RUN, and reader noexec observations do not claim migration tracing.",
+    "Source-host native TestLaunch/preparation prerequisite double remain explicitly scoped, not OCI host installation nor runtime restart.",
+    "Original owner/family runner remains authoritative. On nested child timeout code records UNCERTAIN and refuses; parent must inspect original runner family settlement, not credit direct-child join.",
+    "No new skill writes allowed in this delegated slice; proposed lesson for parent: use sys.prefix to fence an installed venv because resolved sys.executable can point outside the owned dependency prefix."
+  ],
+  "next": "Parent reviews changed-file SHA + exact adapted old caller + private prerequisites; then select only historical-installed through original runner and adjudicate full private report/real reasons/cleanup. Canonical only at P2-inert integration boundary."
+}

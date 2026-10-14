@@ -8,13 +8,16 @@ The full source pin must already exist; this test never installs or downloads it
 
 import asyncio
 import importlib
+import inspect
 import json
 import os
 import subprocess
 import sys
 import time
+from collections.abc import Callable, Generator, Iterator
 from copy import deepcopy
 from pathlib import Path
+from typing import cast
 from uuid import uuid4
 
 import pytest
@@ -324,7 +327,9 @@ import os
 import sys
 from pathlib import Path
 source, observer = sys.argv[1:3]
-sys.path.insert(0, source)
+installed = source == "INSTALLED"
+if not installed:
+    sys.path.insert(0, source)
 fd = os.open(observer, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
 def emit(status, name):
     raw = json.dumps({"status": status, "name": name, "pid": os.getpid()}).encode() + b"\n"
@@ -347,14 +352,1548 @@ module.BuildSource.build = deny("BuildSource.build")
 module.ManagedAdmission._build = deny("ManagedAdmission._build")
 client = importlib.import_module("omnis.supervisor.runtime_client")
 client.RuntimeClient.__init__ = deny("RuntimeClient.__init__")
+if installed:
+    # The compiler's defining evaluator and its imported aliases are all
+    # instrumented above. Verify real package origins, not version metadata.
+    prefix = Path(sys.prefix).absolute()
+    modules = [importlib.import_module(name) for name in (
+        "omnis.modules.settings.skill_catalog", "omnis.modules.settings.candidate_catalog",
+        "omnis.modules.runs.pure_probe", "omnis.modules.tasks.module_registry",
+        "omnis.modules.tasks.method_checks", "omnis.modules.tasks.method_checker_identity",
+        "omnis.modules.runs.managed_admission", "omnis.supervisor.runtime_client")]
+    if any(not Path(item.__file__).absolute().is_relative_to(prefix) for item in modules):
+        emit("FORBIDDEN", "non-installed-origin")
+        raise AssertionError("HISTORICAL_READER_ORIGIN_REFUSED")
+    if any(Path(p).absolute().name == "src" or "/api/src" in p for p in sys.path):
+        emit("FORBIDDEN", "source-sys-path")
+        raise AssertionError("HISTORICAL_READER_ORIGIN_REFUSED")
+    for name in ("connect", "_exchange", "prepare", "managed", "receive", "launch_inert", "renew"):
+        setattr(client.RuntimeClient, name, deny("RuntimeClient." + name))
+    emit("ORIGIN", "INSTALLED")
 emit("READY", "managed-cli")
 try:
-    code = module.main(sys.argv[3:])
+    if installed and sys.argv[3] == "--history-control":
+        # SOURCE controls exercise actual patched defining objects. A child
+        # swallowing the exception still records FORBIDDEN independently.
+        if len(sys.argv) == 5:
+            selected = sys.argv[4]
+            guards = {
+                "skill_catalog.evaluate_pure": modules[0].evaluate_pure,
+                "candidate_catalog.evaluate_pure": modules[1].evaluate_pure,
+                "pure_probe.evaluate_pure": modules[2].evaluate_pure,
+                "module_registry.run_handler": modules[3].run_handler,
+                "BuildSource.build": module.BuildSource.build,
+                "RuntimeClient._exchange": client.RuntimeClient._exchange,
+            }
+            try:
+                guards[selected]()
+            except AssertionError:
+                pass
+        code = 0
+    else:
+        code = module.main(sys.argv[3:])
     emit("EXIT", str(code))
     raise SystemExit(code)
 finally:
     os.close(fd)
 """
+
+
+HISTORICAL_COMMIT = "e6ffcf8ede7393332e6a928a00585ff0327a3d6a"
+HISTORICAL_CALLER_SHA = "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f"
+HISTORICAL_CHECKER = "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9"
+HISTORICAL_COMPOSER = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+
+
+def historical_migration_argv(python: Path, *, initialize: bool) -> list[str]:
+    return [
+        str(python),
+        "-I",
+        "-B",
+        "-m",
+        "omnis.migrate",
+        *(["--initialize"] if initialize else []),
+    ]
+
+
+def historical_producer_source(original: bytes) -> str:
+    """Harness adaptation only: old domain/native bytes and original finalizer.
+
+    Stop after the authentic final/check and native drain, before old reader
+    reconciliation and the intentional forged-outcome append. Current installed
+    reader owns the first consumption. BOOTSTRAP is the reviewed observer seam;
+    neither its routing nor these edits substitute domain/compiler/native bytes.
+    """
+    if sha(original) != HISTORICAL_CALLER_SHA:
+        raise AssertionError("HISTORICAL_CALLER_BYTES_MISMATCH")
+    import ast
+
+    value = original.decode()
+    tree = ast.parse(value)
+    bootstrap = next(
+        n
+        for n in tree.body
+        if isinstance(n, ast.Assign)
+        and isinstance(n.targets[0], ast.Name)
+        and n.targets[0].id == "BOOTSTRAP"
+    )
+    lines = value.splitlines(keepends=True)
+    assert bootstrap.end_lineno is not None
+    observer_bootstrap = BOOTSTRAP.replace(
+        'Path("/home/kali/OmnisAI/api/.venv")', "Path(sys.prefix)"
+    )
+    lines[bootstrap.lineno - 1 : bootstrap.end_lineno] = [
+        "BOOTSTRAP = " + repr(observer_bootstrap) + "\n"
+    ]
+    value = "".join(lines)
+    value = value.replace(
+        'python = Path("/home/kali/OmnisAI/api/.venv/bin/python")',
+        "python = Path(sys.executable)",
+        1,
+    )
+    start = value.index(
+        "            with monkeypatch.context() as patcher:",
+        value.index("            native_before = observation.read_bytes()"),
+    )
+    end = value.index("        finally:\n            done.set()", start)
+    value = (
+        value[:start]
+        + """            done.set()
+            await heartbeat
+            await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+            prior = await domain.readback(back_request)
+            assert observation.read_bytes() == native_before
+            handoff = tmp_path / "historical-handoff.json"
+            handoff.write_bytes(canonical({
+                "request": back_request, "catalog_root": str(seed.root),
+                "readback": prior, "final": final,
+                "native_observation": str(observation),
+                "producer_proof": str(proof_path),
+                "consumption_before_reader": (await markers())["consumed"],
+            }))
+            handoff.chmod(0o600)
+            checkpoint(historical_handoff="AUTHENTIC_UNCONSUMED_FINAL_CHECK_STOPPED")
+"""
+        + value[end:]
+    )
+    # Module-scoped fixture wins over exported conftest. No source Alembic,
+    # new database, or initialize here: the parent owns the fresh empty fixture.
+    value += """\n@pytest.fixture
+def migrated_database_url():
+    from sqlalchemy.engine import make_url
+    return make_url(os.environ["OMNIS_HISTORY_DATABASE_URL"])
+
+# Test harness paths are allowed; every domain import must be the old wheel.
+from omnis.modules.tasks.method_checker_identity import descriptor
+assert descriptor()["code_digest"] == "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9", "OLD_INSTALLED_CHECKER_REQUIRED"
+for name in ("omnis.core.db", "omnis.modules.runs.managed_admission", "omnis.modules.tasks.method_checks", "omnis.modules.settings.skill_catalog", "omnis.supervisor.native_tasks"):
+    assert Path(importlib.import_module(name).__file__).absolute().is_relative_to(Path(sys.prefix).absolute()), "OLD_INSTALLED_DOMAIN_ORIGIN_REQUIRED"
+assert not any("/api/src" in item for item in sys.path), "OLD_SOURCE_ALIAS_FORBIDDEN"
+"""
+    return value
+
+
+def test_historical_producer_cut_preserves_authentic_bytes_and_teardown() -> None:
+    """SOURCE: only adapt the historical caller, never execute its producer."""
+    assert callable(globals().get("historical_producer_source")), "HISTORICAL_ORCHESTRATION_MISSING"
+    old = subprocess.run(
+        [
+            "git",
+            "show",
+            "e6ffcf8ede7393332e6a928a00585ff0327a3d6a:api/tests/test_contract_method_pg.py",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout
+    adapted = historical_producer_source(old)
+    assert "forged_outcome_readback" not in adapted
+    assert "adversarial_append_count" not in adapted
+    assert "historical-handoff.json" in adapted
+    assert "await runtime.close()" in adapted
+    assert '"NATIVE_FAMILY_UNCERTAIN"' in adapted
+    assert "final," in adapted and "prior = await domain.readback(back_request)" in adapted
+    assert "python = Path(sys.executable)" in adapted
+    assert "OMNIS_HISTORY_DATABASE_URL" in adapted
+    with pytest.raises(AssertionError, match="HISTORICAL_CALLER_BYTES_MISMATCH"):
+        historical_producer_source(old + b"\n")
+
+
+def test_historical_producer_environment_satisfies_actual_skip_decorator() -> None:
+    """Evaluate the actual call-site environment and unchanged old skip AST only."""
+    import ast
+    from types import SimpleNamespace
+
+    journey = ast.parse(inspect.getsource(historical_installed_journey)).body[0]
+    assert isinstance(journey, ast.FunctionDef)
+    assignment = next(
+        node
+        for node in journey.body
+        if isinstance(node, ast.Assign)
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "producer_env"
+    )
+    environment = eval(
+        compile(ast.Expression(assignment.value), "<producer-env>", "eval"),
+        {"environments": {"old": {}}, "os": os, "dsn": "synthetic", "old": {"python": "owned"}},
+    )
+    old = subprocess.run(
+        ["git", "show", HISTORICAL_COMMIT + ":api/tests/test_contract_method_pg.py"],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout
+    adapted = ast.parse(historical_producer_source(old))
+    selected = next(
+        node
+        for node in adapted.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "test_contract_method_real_native_pg_owner_receipts_check_inbox"
+    )
+    skip = next(
+        node.args[0]
+        for node in selected.decorator_list
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "skipif"
+    )
+    expression = compile(ast.Expression(skip), "<actual-old-skip>", "eval")
+    assert eval(expression, {"os": SimpleNamespace(environ={})}) is True
+    assert eval(expression, {"os": SimpleNamespace(environ=environment)}) is False
+    assert environment["OMNIS_CONTRACT_METHOD_NATIVE_PG"] == "1"
+
+
+def test_historical_checker_fault_changes_key_only_and_reseals_private_copy() -> None:
+    from omnis.modules.settings.candidate_store import envelope
+    from omnis.modules.tasks.method_checker_identity import SEMANTICS, verify
+
+    original = envelope(
+        "method-checker",
+        {
+            "key": "managed.contract-pure.v2",
+            "code_digest": HISTORICAL_CHECKER,
+            "semantics": SEMANTICS,
+        },
+    )
+    before = canonical(original)
+    verify(original, pin=HISTORICAL_COMPOSER, receive_only=True, zero_predicates=False)
+    altered = historical_fault_value("foreign-checker", original)
+    payload = mapping(altered["payload"])
+    assert payload["key"] != mapping(original["payload"])["key"]
+    assert payload["code_digest"] == HISTORICAL_CHECKER
+    assert payload["semantics"] == SEMANTICS
+    assert {k: v for k, v in altered.items() if k not in {"payload", "digest"}} == {
+        k: v for k, v in original.items() if k not in {"payload", "digest"}
+    }
+    assert altered["digest"] == sha(canonical({k: v for k, v in altered.items() if k != "digest"}))
+    with pytest.raises(CatalogError) as denied:
+        verify(altered, pin=HISTORICAL_COMPOSER, receive_only=True, zero_predicates=False)
+    assert denied.value.reason == "METHOD_CHECKER_UNAVAILABLE"  # Library, not public CLI.
+    assert canonical(original) == before
+
+
+def test_historical_migration_argv_is_installed_and_never_reinitializes() -> None:
+    assert callable(globals().get("historical_migration_argv")), "HISTORICAL_ORCHESTRATION_MISSING"
+    python = Path("/owned/venv/bin/python")
+    assert historical_migration_argv(python, initialize=True) == [
+        str(python),
+        "-I",
+        "-B",
+        "-m",
+        "omnis.migrate",
+        "--initialize",
+    ]
+    assert historical_migration_argv(python, initialize=False) == [
+        str(python),
+        "-I",
+        "-B",
+        "-m",
+        "omnis.migrate",
+    ]
+
+
+def historical_reader_observations(
+    events: list[object], pid: int, exit_code: int, *, fault: str | None = None
+) -> int:
+    expected: list[object] = [
+        {"status": "ORIGIN", "name": "INSTALLED", "pid": pid},
+        {"status": "READY", "name": "managed-cli", "pid": pid},
+    ]
+    if fault is not None:
+        expected.append({"status": "FAULT", "name": fault, "pid": pid})
+    expected.append({"status": "EXIT", "name": str(exit_code), "pid": pid})
+    if (
+        any(
+            type(event) is not dict
+            or set(event) != {"status", "name", "pid"}
+            or type(event["pid"]) is not int
+            for event in events
+        )
+        or events != expected
+    ):
+        raise AssertionError("HISTORICAL_READER_OBSERVER_REFUSED") from None
+    return sum(mapping(event)["status"] == "FORBIDDEN" for event in events)
+
+
+@pytest.mark.parametrize("violation", [None, "caught", "missing", "unknown"])
+def test_historical_reader_observer_never_credits_caught_or_missing_evidence(
+    violation: str | None,
+) -> None:
+    assert callable(globals().get("historical_reader_observations")), "INSTALLED_OBSERVER_MISSING"
+    events: list[object] = [
+        {"status": "ORIGIN", "name": "INSTALLED", "pid": 123},
+        {"status": "READY", "name": "managed-cli", "pid": 123},
+        {"status": "EXIT", "name": "0", "pid": 123},
+    ]
+    if violation == "caught":
+        events.insert(2, {"status": "FORBIDDEN", "name": "skill_catalog.evaluate_pure", "pid": 123})
+    elif violation == "missing":
+        events = []
+    elif violation == "unknown":
+        mapping(events[0])["unexpected"] = "PRIVATE_SENTINEL"
+    if violation is None:
+        assert historical_reader_observations(events, 123, 0) == 0
+    else:
+        with pytest.raises(AssertionError, match="HISTORICAL_READER_OBSERVER_REFUSED"):
+            historical_reader_observations(events, 123, 0)
+
+
+def test_historical_installed_reader_origin_and_defining_evaluator_guard(tmp_path: Path) -> None:
+    handle = os.environ.get("OMNIS_HISTORY_PREREQUISITES")
+    if not handle:
+        pytest.skip("Owned offline installed prerequisites not selected")
+    manifest = mapping(json.loads(Path(handle).read_bytes()))
+    artifacts = [mapping(a) for a in sequence(manifest["artifacts"])]
+    for artifact in artifacts:
+        origin = subprocess.run(
+            [
+                str(artifact["python"]),
+                "-I",
+                "-B",
+                "-c",
+                HISTORICAL_ORIGIN,
+                str(artifact["source"]),
+                str(artifact["wheel"]),
+            ],
+            cwd=tmp_path,
+            env={
+                "HOME": str(tmp_path),
+                "TMPDIR": str(tmp_path),
+                "PATH": "/usr/bin:/bin",
+                "PYTHONPATH": str(ROOT / "api/src"),
+            },
+            capture_output=True,
+            timeout=15,
+            check=False,
+        )
+        if origin.returncode != 0 or origin.stderr:
+            raise AssertionError("SOURCE_INSTALLED_ORIGIN_ATTESTATION_FAILED")
+        observed = mapping(json.loads(origin.stdout))
+        assert observed["installed_bytes"] == "EXACT_WHEEL_AND_GIT_EXPORT"
+        if artifact["tag"] == "old":
+            assert mapping(observed["descriptor"])["code_digest"] == HISTORICAL_CHECKER
+    python = Path(str(next(a for a in artifacts if a["tag"] == "current")["python"]))
+    assert "INSTALLED" in RESTART_READER, "INSTALLED_ORIGIN_GUARD_MISSING"
+    for guard in (
+        None,
+        "skill_catalog.evaluate_pure",
+        "candidate_catalog.evaluate_pure",
+        "pure_probe.evaluate_pure",
+        "module_registry.run_handler",
+        "BuildSource.build",
+        "RuntimeClient._exchange",
+    ):
+        audit = tmp_path / (uuid4().hex + ".jsonl")
+        audit.touch(mode=0o600)
+        child = subprocess.run(
+            [
+                str(python),
+                "-I",
+                "-B",
+                "-c",
+                RESTART_READER,
+                "INSTALLED",
+                str(audit),
+                "--history-control",
+                *([] if guard is None else [guard]),
+            ],
+            cwd=tmp_path,
+            env={"HOME": str(tmp_path), "TMPDIR": str(tmp_path), "PATH": "/usr/bin:/bin"},
+            capture_output=True,
+            timeout=15,
+            check=False,
+        )
+        assert child.returncode == 0, "SOURCE_INSTALLED_READER_CONTROL_FAILED"
+        require_empty_stderr(child.stderr)
+        events = [json.loads(line) for line in audit.read_text().splitlines()]
+        assert events[0]["status"] == "ORIGIN"
+        pid = events[0]["pid"]
+        if guard is None:
+            assert historical_reader_observations(events, pid, 0) == 0
+        else:
+            with pytest.raises(AssertionError, match="HISTORICAL_READER_OBSERVER_REFUSED"):
+                historical_reader_observations(events, pid, 0)
+            assert [r["name"] for r in events if r["status"] == "FORBIDDEN"] == [guard]
+
+
+def historical_fault_value(fault: str, original: dict[str, object]) -> dict[str, object]:
+    """Private boundary-input faults, never writes/reseals positive history."""
+    from copy import deepcopy
+    from hashlib import sha256
+    from typing import cast
+
+    def obj(value: object) -> dict[str, object]:
+        if type(value) is not dict:
+            raise ValueError("HISTORICAL_FAULT_INPUT_INVALID")
+        return cast(dict[str, object], value)
+
+    def rows(value: object) -> list[object]:
+        if type(value) is not list:
+            raise ValueError("HISTORICAL_FAULT_INPUT_INVALID")
+        return cast(list[object], value)
+
+    value = deepcopy(original)
+    if fault == "foreign-pin":
+        value["pin"] = "0" * 64
+    elif fault == "foreign-checker":
+        obj(value["payload"])["key"] = "foreign-issuer"
+        value["digest"] = sha256(
+            json.dumps(
+                {k: v for k, v in value.items() if k != "digest"},
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode()
+        ).hexdigest()
+    elif fault == "producer-provenance":
+        # Input has already passed envelope validation at this consumer seam;
+        # preserve its ref so the actual provenance comparison is reached.
+        obj(obj(value["payload"])["provenance"])["producer_key"] = "foreign-producer"
+    elif fault == "foreign-ref":
+        value["digest"] = "0" * 64
+    elif fault == "result-header":
+        obj(obj(value["payload"])["header"])["attempt_id"] = "00000000-0000-0000-0000-000000000002"
+        value["digest"] = sha256(
+            json.dumps(
+                {k: v for k, v in value.items() if k != "digest"},
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode()
+        ).hexdigest()
+    elif fault == "foreign-child":
+        obj(rows(value["executions"])[0])["native_child_id"] = "foreign-child"
+    else:
+        raise ValueError("HISTORICAL_FAULT_UNSUPPORTED")
+    return value
+
+
+HISTORICAL_FAULT_SETUP = r"""
+if installed:
+    native = importlib.import_module("omnis.supervisor.native_tasks")
+    native.NativeTaskOwner.__init__ = deny("NativeTaskOwner.__init__")
+    native.NativeTaskOwner.handle = deny("NativeTaskOwner.handle")
+    fault = os.environ.get("OMNIS_HISTORY_FAULT")
+    fault_entered = False
+    def enter_fault():
+        global fault_entered
+        if not fault_entered:
+            emit("FAULT", fault)
+            fault_entered = True
+    if fault in {"foreign-pin", "foreign-checker"}:
+        identity = importlib.import_module("omnis.modules.tasks.method_checker_identity")
+        actual_verify = identity.verify
+        def verify(checker, **kwargs):
+            enter_fault()
+            if fault == "foreign-pin":
+                kwargs = historical_fault_value(fault, kwargs)
+            else:
+                checker = historical_fault_value(fault, checker)
+            return actual_verify(checker, **kwargs)
+        identity.verify = verify
+    elif fault == "producer-provenance":
+        checks = importlib.import_module("omnis.modules.tasks.method_checks")
+        actual_input = checks._input
+        def input_check(original, *args):
+            enter_fault()
+            return actual_input(historical_fault_value(fault, original), *args)
+        checks._input = input_check
+    elif fault == "foreign-ref":
+        catalog = importlib.import_module("omnis.modules.settings.candidate_store")
+        actual_get = catalog.get
+        async def get(conn, owner, reference):
+            enter_fault()
+            return await actual_get(conn, owner, historical_fault_value(fault, reference))
+        catalog.get = get
+    elif fault == "result-header":
+        from copy import deepcopy
+        checks = importlib.import_module("omnis.modules.tasks.method_checks")
+        actual_receipts = checks._receipts
+        def receipts(records, *args):
+            enter_fault()
+            changed = deepcopy(records)
+            changed[0] = historical_fault_value(fault, changed[0])
+            return actual_receipts(changed, *args)
+        checks._receipts = receipts
+    elif fault == "foreign-child":
+        contract = importlib.import_module("omnis.modules.tasks.managed_contract")
+        actual_final = contract.validate_final
+        def final(value, *args):
+            enter_fault()
+            return actual_final(historical_fault_value(fault, value), *args)
+        contract.validate_final = final
+    elif fault is not None:
+        raise ValueError("HISTORICAL_FAULT_UNSUPPORTED")
+"""
+# The exact same SOURCE-tested input transform executes inside the installed
+# observer, with no source-path import. No product evaluator/native replacement.
+RESTART_READER = RESTART_READER.replace(
+    'emit("READY", "managed-cli")',
+    'emit("READY", "managed-cli")\n'
+    + inspect.getsource(historical_fault_value)
+    + HISTORICAL_FAULT_SETUP,
+)
+
+
+def historical_cli_result(code: int, stdout: bytes, stderr: bytes) -> dict[str, object]:
+    """Retain raw logs privately; expose only an exact public CLI tuple."""
+    import re
+
+    try:
+        if code == 0 and not stderr:
+            return mapping(json.loads(stdout))
+        if code == 2 and not stdout:
+            result = mapping(json.loads(stderr))
+            if (
+                set(result) == {"status", "reason"}
+                and result["status"] == "BLOCKED"
+                and type(result["reason"]) is str
+                and re.fullmatch(r"[A-Z][A-Z0-9_]{0,95}", result["reason"])
+            ):
+                return result
+    except (ValueError, AssertionError):
+        pass
+    raise AssertionError("HISTORICAL_CLI_TUPLE_REFUSED") from None
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "foreign-pin",
+        "foreign-checker",
+        "producer-provenance",
+        "foreign-ref",
+        "result-header",
+        "foreign-child",
+    ],
+)
+def test_historical_faults_change_only_private_negative_input(fault: str) -> None:
+    assert callable(globals().get("historical_fault_value")), "HISTORICAL_FAULT_BOUNDARY_MISSING"
+    original: dict[str, object] = {
+        "payload": {
+            "code_digest": HISTORICAL_CHECKER,
+            "provenance": {"producer_key": "contract-case-records"},
+            "header": {"attempt_id": "00000000-0000-0000-0000-000000000001"},
+        },
+        "digest": "1" * 64,
+        "executions": [{"native_child_id": "original"}],
+    }
+    before = canonical(original)
+    altered = historical_fault_value(fault, original)
+    assert canonical(original) == before
+    assert canonical(altered) != before
+    with pytest.raises(ValueError, match="HISTORICAL_FAULT_UNSUPPORTED"):
+        historical_fault_value("unknown", original)
+
+
+def test_historical_cli_tuple_refusal_preserves_private_output() -> None:
+    assert callable(globals().get("historical_cli_result")), "HISTORICAL_REFUSAL_BOUNDARY_MISSING"
+    assert historical_cli_result(0, b'{"records":[]}', b"") == {"records": []}
+    assert historical_cli_result(2, b"", b'{"status":"BLOCKED","reason":"REF_MISMATCH"}') == {
+        "status": "BLOCKED",
+        "reason": "REF_MISMATCH",
+    }
+    for code, out, err in (
+        (0, b"{}", b"PRIVATE_SENTINEL"),
+        (2, b"PRIVATE_SENTINEL", b"{}"),
+        (99, b"", b""),
+        (2, b"", b'{"status":"BLOCKED","reason":"PRIVATE_SENTINEL","extra":1}'),
+    ):
+        with pytest.raises(AssertionError, match="HISTORICAL_CLI_TUPLE_REFUSED") as denied:
+            historical_cli_result(code, out, err)
+        assert "PRIVATE_SENTINEL" not in str(denied.value)
+
+
+def historical_installed_plan(handle: Path) -> list[dict[str, object]]:
+    """No-effect prerequisite fence before fixture/native acquisition."""
+    try:
+        manifest = mapping(json.loads(handle.read_bytes()))
+        root = Path(str(manifest["root"])).resolve(strict=True)
+        if (
+            not root.is_relative_to(Path("/home/kali/.hermes/cache/scratch"))
+            or manifest["status"] != "READY_PREREQUISITES_ONLY"
+        ):
+            raise ValueError("Owned prerequisites required")
+        artifacts = [mapping(a) for a in sequence(manifest["artifacts"])]
+        if (
+            [a["tag"] for a in artifacts] != ["old", "current"]
+            or artifacts[0]["commit"] != HISTORICAL_COMMIT
+            or artifacts[1]["commit"] != "2891a3ff93c1a04904f375b509e4536248c094a0"
+        ):
+            raise ValueError("Snapshot mismatch")
+        for artifact in artifacts:
+            for field in ("source", "wheel", "python"):
+                path = Path(str(artifact[field])).absolute()
+                if not path.is_relative_to(root) or not path.exists():
+                    raise ValueError("Missing owned prerequisite")
+            if sha(Path(str(artifact["wheel"])).read_bytes()) != artifact["wheel_sha256"]:
+                raise ValueError("Changed wheel")
+            source = Path(str(artifact["source"]))
+            for entry in sequence(artifact["files"]):
+                file = mapping(entry)
+                path = (source / str(file["path"])).resolve(strict=True)
+                if not path.is_relative_to(source) or sha(path.read_bytes()) != file["sha256"]:
+                    raise ValueError("Changed source export")
+        return artifacts
+    except (ValueError, OSError, KeyError, AssertionError):
+        raise AssertionError("HISTORICAL_PREREQUISITE_REFUSED") from None
+
+
+HISTORICAL_ORIGIN = r"""
+import importlib, json, sys, zipfile
+from pathlib import Path
+python_root = Path(sys.prefix).absolute()
+source, wheel = map(Path, sys.argv[1:3])
+from omnis.modules.tasks.method_checker_identity import descriptor
+import omnis
+package = Path(omnis.__file__).absolute().parent
+if not package.is_relative_to(python_root) or any("/api/src" in p for p in sys.path):
+    raise AssertionError("HISTORICAL_ORIGIN_REFUSED")
+with zipfile.ZipFile(wheel) as distribution:
+    for name in distribution.namelist():
+        if name.startswith("omnis/") and not name.endswith("/"):
+            actual = package.parent / name
+            expected = source / "api/src" / name
+            if actual.read_bytes() != distribution.read(name) or actual.read_bytes() != expected.read_bytes():
+                raise AssertionError("HISTORICAL_INSTALLED_BYTES_REFUSED")
+print(json.dumps({"descriptor": descriptor(), "package": str(package), "prefix": str(python_root), "installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT"}))
+"""
+
+
+@pytest.fixture
+def historical_database_fence() -> Iterator[dict[str, bool]]:
+    """Acquire before the dynamic DB fixture; restore only after its finalizer.
+
+    An unresolved family retains the exact DB. The original outer run_gate
+    remains responsible for eventual drain; this fixture never owns processes.
+    """
+    import conftest
+
+    state = {"unsettled": False, "producer_family_drained": False}
+    from sqlalchemy.engine import URL
+
+    actual_verify = conftest.verify_test_database
+
+    def verify(url: URL) -> conftest.FixtureReceipt:
+        if state["unsettled"]:
+            raise AssertionError("HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN")
+        return actual_verify(url)
+
+    with pytest.MonkeyPatch.context() as patcher:
+        patcher.setattr(conftest, "verify_test_database", verify)
+        yield state
+
+
+def historical_run_gate(
+    argv: list[str],
+    environment: dict[str, str],
+    log: Path,
+    timeout: int,
+    *,
+    cwd: Path | None = None,
+) -> int:
+    """Reuse the existing authoritative owner, including its strict readback."""
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    name = "_omnis_historical_existing_gate"
+    if name not in sys.modules:
+        spec = spec_from_file_location(name, ROOT / "ops/run_test_db_gate.py")
+        assert spec is not None and spec.loader is not None
+        module = module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+    gate = cast(Callable[[list[str], dict[str, str], Path, int], int], sys.modules[name].run_gate)
+    if cwd is not None:
+        # Existing run_gate starts at ROOT. Preserve the caller's owned cwd by
+        # exec, in the SAME supervised PID, not another owner or subprocess.
+        argv = [
+            sys.executable,
+            "-I",
+            "-B",
+            "-c",
+            "import os,sys; os.chdir(sys.argv[1]); os.execv(sys.argv[2],sys.argv[2:])",
+            str(cwd),
+            *argv,
+        ]
+    return gate(argv, environment, log, timeout)
+
+
+def historical_producer_settlement(
+    handoff: dict[str, object], proof: dict[str, object], family_drained: object
+) -> None:
+    """No exit0/SKIP/bool-as-counter can release the destructive fixture fence."""
+    if (
+        family_drained is not True
+        or proof.get("native_cleanup") != "PASS"
+        or type(proof.get("native_exit")) is not int
+        or type(proof.get("native_owned_pids")) is not list
+        or proof["native_owned_pids"] != []
+        or proof.get("historical_handoff") != "AUTHENTIC_UNCONSUMED_FINAL_CHECK_STOPPED"
+        or proof.get("status") != "PASS_SOURCE_NOT_INSTALLED"
+        or any(
+            type(proof.get(key)) is not int or proof[key] != expected
+            for key, expected in (
+                ("native_run_contract", 1),
+                ("native_reads", 1),
+                ("native_handlers", 2),
+            )
+        )
+        or type(handoff.get("consumption_before_reader")) is not int
+        or handoff["consumption_before_reader"] != 0
+    ):
+        raise AssertionError("HISTORICAL_PRODUCER_AUTHENTICITY_OR_DRAIN_REFUSED")
+
+
+@pytest.mark.parametrize("mode", ["timeout", "signal", "unknown", "positive", "skip"])
+def test_historical_actual_invoke_fences_actual_fixture_drop(
+    mode: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Actual invoke/fixture generator; fake SQL, held-live owned stdlib child."""
+    import ast
+    import ctypes
+    import signal
+    from types import SimpleNamespace
+
+    import conftest
+
+    events: list[str] = []
+    from sqlalchemy.engine import URL
+
+    class Connection:
+        def __enter__(self) -> "Connection":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            pass
+
+        def execute(self, query: object) -> None:
+            events.append("DROP" if "DROP DATABASE" in str(query) else "CREATE")
+
+    def original_verify(url: URL) -> conftest.FixtureReceipt:
+        return conftest.FixtureReceipt(
+            schema_version=1,
+            project="synthetic",
+            socket_directory="synthetic",
+            system_identifier="1",
+            container_id="0" * 64,
+        )
+
+    monkeypatch.setattr(conftest, "verify_test_database", original_verify)
+    monkeypatch.setattr(conftest, "connect_test_database", lambda *args, **kwargs: Connection())
+    monkeypatch.setenv("OMNIS_TEST_DATABASE_URL", "postgresql+psycopg://synthetic/omnis_test")
+    guard = cast(
+        Callable[[], Generator[dict[str, bool], None, None]],
+        inspect.unwrap(historical_database_fence),
+    )()
+    fence = next(guard)
+    fixture = cast(
+        Callable[[], Generator[object, None, None]], inspect.unwrap(conftest.empty_database_url)
+    )()
+    next(fixture)
+    libc = ctypes.CDLL(None, use_errno=True)
+    prior = ctypes.c_int()
+    assert libc.prctl(37, ctypes.byref(prior), 0, 0, 0) == 0
+    assert libc.prctl(36, 1, 0, 0, 0) == 0
+    release_read, release_write = os.pipe()
+    pidfd: int | None = None
+    child_pid: int | None = None
+    ready = tmp_path / "held-child-ready"
+    report: dict[str, object] = {"calls": [], "status": "IN_PROGRESS"}
+
+    def checkpoint(**fields: object) -> None:
+        report.update(fields)
+        if fence["unsettled"]:
+            report["status"] = "UNCERTAIN"
+
+    journey = ast.parse(inspect.getsource(historical_installed_journey)).body[0]
+    assert isinstance(journey, ast.FunctionDef)
+    invoke = next(n for n in journey.body if isinstance(n, ast.FunctionDef) and n.name == "invoke")
+    namespace: dict[str, object] = {
+        "subprocess": subprocess,
+        "time": time,
+        "deadline": time.monotonic() + 20,
+        "checkpoint": checkpoint,
+        "fence": fence,
+        "report": report,
+        "sequence": sequence,
+        "private": lambda path, raw: path.write_bytes(raw),
+        "tmp_path": tmp_path,
+        "historical_run_gate": historical_run_gate,
+    }
+    tree = ast.Module(
+        body=[
+            ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0),
+            invoke,
+        ],
+        type_ignores=[],
+    )
+    exec(compile(ast.fix_missing_locations(tree), "<actual-invoke>", "exec"), namespace)
+    call = cast(
+        Callable[[str, list[str], Path, dict[str, str], int], subprocess.CompletedProcess[bytes]],
+        namespace["invoke"],
+    )
+    # Held on a parent-owned pipe, not a naturally expiring short sleep. Detached
+    # and TERM-resistant; only exact pidfd rescue is credited below.
+    child_code = (
+        "import os,signal,sys; from pathlib import Path; os.setsid(); "
+        "signal.signal(signal.SIGTERM,signal.SIG_IGN); signal.alarm(30); "
+        "Path(sys.argv[1]).write_text(str(os.getpid())); os.read(int(sys.argv[2]),1)"
+    )
+    leader_code = (
+        "import os,signal,subprocess,sys,time; from pathlib import Path; "
+        "subprocess.Popen([sys.executable,'-I','-B','-c',sys.argv[1],sys.argv[2],sys.argv[3]],"
+        "pass_fds=(int(sys.argv[3]),),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); "
+        "p=Path(sys.argv[2]); "
+        "\nwhile not p.exists(): time.sleep(.01)\n"
+        + (
+            "time.sleep(30)"
+            if mode == "timeout"
+            else "os.kill(os.getpid(),signal.SIGTERM)"
+            if mode == "signal"
+            else "raise SystemExit(99)"
+        )
+    )
+    actual_run = subprocess.run
+
+    def run(
+        argv: list[str],
+        *,
+        cwd: Path,
+        env: dict[str, str],
+        capture_output: bool,
+        timeout: float,
+        check: bool,
+    ) -> subprocess.CompletedProcess[bytes]:
+        # Only add owned pipe inheritance; real subprocess.run drives all exits.
+        return actual_run(
+            argv,
+            cwd=cwd,
+            env=env,
+            capture_output=capture_output,
+            timeout=timeout,
+            check=check,
+            pass_fds=(release_read,),
+        )
+
+    namespace["subprocess"] = SimpleNamespace(
+        run=run,
+        TimeoutExpired=subprocess.TimeoutExpired,
+        CompletedProcess=subprocess.CompletedProcess,
+    )
+    try:
+        if mode in {"positive", "skip"}:
+            result = call(
+                "old-producer",
+                [
+                    sys.executable,
+                    "-I",
+                    "-B",
+                    "-c",
+                    "from pathlib import Path; assert Path.cwd() == Path("
+                    + repr(str(tmp_path))
+                    + ")",
+                ],
+                tmp_path,
+                {"PATH": "/usr/bin:/bin", "TMPDIR": str(tmp_path)},
+                3,
+            )
+            assert result.returncode == 0 and fence["unsettled"]
+            if mode == "positive":
+                historical_producer_settlement(
+                    {"consumption_before_reader": 0},
+                    {
+                        "native_cleanup": "PASS",
+                        "native_owned_pids": [],
+                        "native_exit": 0,
+                        "native_run_contract": 1,
+                        "native_reads": 1,
+                        "native_handlers": 2,
+                        "historical_handoff": "AUTHENTIC_UNCONSUMED_FINAL_CHECK_STOPPED",
+                        "status": "PASS_SOURCE_NOT_INSTALLED",
+                    },
+                    fence["producer_family_drained"],
+                )
+                fence["unsettled"] = False
+        else:
+            try:
+                call(
+                    "other-child",
+                    [
+                        sys.executable,
+                        "-I",
+                        "-B",
+                        "-c",
+                        leader_code,
+                        child_code,
+                        str(ready),
+                        str(release_read),
+                    ],
+                    tmp_path,
+                    {"PATH": "/usr/bin:/bin"},
+                    1,
+                )
+            except AssertionError as error:
+                assert str(error) == "HISTORICAL_CHILD_TIMEOUT_FAMILY_UNCERTAIN"
+            child_pid = int(ready.read_text())
+            pidfd = os.pidfd_open(child_pid)
+            assert os.waitid(os.P_PIDFD, pidfd, os.WEXITED | os.WNOHANG | os.WNOWAIT) is None
+        if mode == "positive":
+            fixture.close()
+            assert events == ["CREATE", "DROP"]
+        else:
+            with pytest.raises(
+                AssertionError, match="HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN"
+            ):
+                fixture.close()
+            assert events == ["CREATE"]
+            assert report["status"] == "UNCERTAIN"
+        assert conftest.verify_test_database is not original_verify
+    finally:
+        try:
+            fixture.close()
+        except AssertionError as error:
+            assert str(error) == "HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN"
+        if pidfd is None and ready.exists():
+            child_pid = int(ready.read_text())
+            pidfd = os.pidfd_open(child_pid)
+        if pidfd is not None:
+            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+            until = time.monotonic() + 3
+            waited = None
+            while waited is None and time.monotonic() < until:
+                waited = os.waitid(os.P_PIDFD, pidfd, os.WEXITED | os.WNOHANG)
+                if waited is None:
+                    time.sleep(0.01)
+            os.close(pidfd)
+            assert waited is not None and waited.si_code == os.CLD_KILLED
+            assert waited.si_status == signal.SIGKILL and waited.si_pid == child_pid
+        os.close(release_read)
+        os.close(release_write)
+        assert libc.prctl(36, prior.value, 0, 0, 0) == 0
+        guard.close()
+    assert conftest.verify_test_database is original_verify
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "native_run_contract",
+        "native_reads",
+        "native_handlers",
+        "native_exit",
+        "consumption_before_reader",
+        "family_drained",
+        "missing",
+    ],
+)
+def test_historical_producer_settlement_refuses_false_green_types(field: str) -> None:
+    proof: dict[str, object] = {
+        "native_cleanup": "PASS",
+        "native_owned_pids": [],
+        "native_exit": 0,
+        "native_run_contract": 1,
+        "native_reads": 1,
+        "native_handlers": 2,
+        "historical_handoff": "AUTHENTIC_UNCONSUMED_FINAL_CHECK_STOPPED",
+        "status": "PASS_SOURCE_NOT_INSTALLED",
+    }
+    handoff: dict[str, object] = {"consumption_before_reader": 0}
+    historical_producer_settlement(handoff, proof, True)
+    drained: object = True
+    if field == "consumption_before_reader":
+        handoff[field] = False
+    elif field == "family_drained":
+        drained = 1
+    elif field == "missing":
+        proof = {}
+    else:
+        proof[field] = True
+    with pytest.raises(AssertionError, match="HISTORICAL_PRODUCER_AUTHENTICITY_OR_DRAIN_REFUSED"):
+        historical_producer_settlement(handoff, proof, drained)
+
+
+@pytest.mark.parametrize("settled", [True, False])
+def test_historical_dynamic_fixture_teardown_order_is_real_pytest(
+    tmp_path: Path, settled: bool
+) -> None:
+    """Actual pytest LIFO teardown, fake SQL; guard must outlive the DB fixture."""
+    test = tmp_path / "test_order.py"
+    test.write_text(
+        "import sys,pytest,json; from pathlib import Path\n"
+        + "settled="
+        + repr(settled)
+        + "\n"
+        + "sys.path[:0] = "
+        + repr([str(ROOT / "api/src"), str(ROOT / "api/tests")])
+        + "\n"
+        + "import conftest as original\n"
+        "from test_contract_method_pg import historical_database_fence\n"
+        "empty_database_url = original.empty_database_url\n"
+        "events=[]\n"
+        "class Connection:\n"
+        " def __enter__(self): return self\n"
+        " def __exit__(self,*args): pass\n"
+        " def execute(self,q): events.append('DROP' if 'DROP DATABASE' in str(q) else 'CREATE')\n"
+        "@pytest.fixture\n"
+        "def seams(monkeypatch,request):\n"
+        " def verify(url): events.append('VERIFY')\n"
+        " monkeypatch.setattr(original,'verify_test_database',verify)\n"
+        " monkeypatch.setattr(original,'connect_test_database',lambda *a,**k:Connection())\n"
+        " monkeypatch.setenv('OMNIS_TEST_DATABASE_URL','postgresql+psycopg://synthetic/omnis_test')\n"
+        " yield\n"
+        " assert original.verify_test_database is verify\n"
+        " assert (events[-2:]==['VERIFY','DROP']) if settled else events[-1:] == ['CREATE']\n"
+        " Path('order-observed.json').write_text(json.dumps({'events':events,'restored':True}))\n"
+        "def test_order(request,seams):\n"
+        " state=request.getfixturevalue('historical_database_fence')\n"
+        " request.getfixturevalue('empty_database_url')\n"
+        " state['unsettled'] = not settled\n"
+    )
+    child = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-B",
+            "-m",
+            "pytest",
+            str(test),
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--tb=line",
+            "--basetemp",
+            str(tmp_path / "order-pytest"),
+        ],
+        cwd=tmp_path,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "HOME": str(tmp_path),
+            "TMPDIR": str(tmp_path),
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        },
+        capture_output=True,
+        timeout=15,
+        check=False,
+    )
+    if child.returncode != (0 if settled else 1):
+        raise AssertionError("HISTORICAL_ACTUAL_PYTEST_TEARDOWN_ORDER_FAILED")
+    assert b"1 passed" in child.stdout
+    observed = mapping(json.loads((tmp_path / "order-observed.json").read_bytes()))
+    assert observed["restored"] is True
+    assert ("DROP" in sequence(observed["events"])) is settled
+    if not settled:
+        assert b"HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN" in child.stdout
+
+
+@pytest.mark.parametrize("mode", ["timeout", "signal", "unknown"])
+def test_historical_existing_run_gate_drains_held_resistant_family(
+    mode: str, tmp_path: Path
+) -> None:
+    """The reused owner, not this test, must kill/reap a held detached child."""
+    import signal
+    import threading
+
+    ready, admitted, release = (tmp_path / name for name in ("ready", "admitted", "release"))
+    pinned: list[int] = []
+    failures: list[str] = []
+
+    def observer() -> None:
+        until = time.monotonic() + 5
+        while not ready.exists() and time.monotonic() < until:
+            time.sleep(0.01)
+        if not ready.exists():
+            failures.append("NO_CHILD")
+            return
+        pinned.append(os.pidfd_open(int(ready.read_text())))
+        admitted.touch()
+
+    held = (
+        "import os,signal,sys,time; from pathlib import Path; os.setsid(); "
+        "signal.signal(signal.SIGTERM,signal.SIG_IGN); signal.alarm(30); "
+        "Path(sys.argv[1]).write_text(str(os.getpid())); p=Path(sys.argv[2]); "
+        "\nwhile not p.exists(): time.sleep(.01)"
+    )
+    leader = (
+        "import os,signal,subprocess,sys,time; from pathlib import Path; "
+        "subprocess.Popen([sys.executable,'-I','-B','-c',sys.argv[1],sys.argv[2],sys.argv[3]],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); "
+        "p=Path(sys.argv[4]); \nwhile not p.exists(): time.sleep(.01)\n"
+        + (
+            "time.sleep(30)"
+            if mode == "timeout"
+            else "os.kill(os.getpid(),signal.SIGTERM)"
+            if mode == "signal"
+            else "raise SystemExit(99)"
+        )
+    )
+    thread = threading.Thread(target=observer)
+    thread.start()
+    try:
+        code = historical_run_gate(
+            [
+                sys.executable,
+                "-I",
+                "-B",
+                "-c",
+                leader,
+                held,
+                str(ready),
+                str(release),
+                str(admitted),
+            ],
+            {"PATH": "/usr/bin:/bin", "TMPDIR": str(tmp_path)},
+            tmp_path / "family.log",
+            2,
+        )
+        thread.join(timeout=6)
+        assert not thread.is_alive() and not failures and len(pinned) == 1
+        import select
+
+        poll = select.poll()
+        poll.register(pinned[0], select.POLLIN)
+        assert poll.poll(1000)  # Exited, not a natural held-child completion.
+        receipt = mapping(json.loads((tmp_path / "family.log.result.json").read_bytes()))
+        assert receipt == {"schema_version": 1, "code": code, "family_drained": True}
+        assert code == (124 if mode == "timeout" else 2)
+        assert not release.exists()
+    finally:
+        release.touch()
+        thread.join(timeout=6)
+        for fd in pinned:
+            try:
+                signal.pidfd_send_signal(fd, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            os.close(fd)
+
+
+def historical_installed_journey(request: pytest.FixtureRequest, tmp_path: Path) -> None:
+    """H01/H02 only; existing runner owns the DB and entire producer family.
+
+    Explicit parent review precedes all PG/native effects. No installation,
+    network fallback, Host restart, schema fabrication, or source reader here.
+    Faults are private in-process consumer-input seams, NOT corrupt durable DBs.
+    Their public reasons are measured before same-channel reconcile comparison.
+    """
+    if os.environ.get("OMNIS_HISTORY_REVIEWED") != sha(Path(__file__).read_bytes()):
+        raise AssertionError("HISTORICAL_EXACT_REVIEW_REQUIRED")
+    handle = os.environ.get("OMNIS_HISTORY_PREREQUISITES")
+    if not handle:
+        raise AssertionError("HISTORICAL_PREREQUISITES_REQUIRED")
+    old, current = historical_installed_plan(Path(handle))
+    # Dynamic fixture finalizers are LIFO: this guard outlives empty_database_url.
+    fence = mapping(request.getfixturevalue("historical_database_fence"))
+    from psycopg import sql as pgsql
+
+    from conftest import connect_test_database, verify_test_database
+
+    deadline = time.monotonic() + 240
+    report: dict[str, object] = {
+        "status": "IN_PROGRESS",
+        "scenario": "H01_H02_INSTALLED_HISTORY",
+        "old_commit": HISTORICAL_COMMIT,
+        "calls": [],
+        "denials": [],
+    }
+    report_path = tmp_path / "installed-history-report.json"
+
+    def private(path: Path, raw: bytes) -> None:
+        path.write_bytes(raw)
+        path.chmod(0o600)
+
+    def checkpoint(**fields: object) -> None:
+        report.update(fields)
+        if fence["unsettled"]:
+            report["status"] = "UNCERTAIN"
+        private(report_path, canonical(report))
+
+    def invoke(
+        label: str, argv: list[str], cwd: Path, environment: dict[str, str], timeout: int = 15
+    ) -> subprocess.CompletedProcess[bytes]:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise AssertionError("HISTORICAL_BUDGET_EXHAUSTED")
+        try:
+            if label == "old-producer":
+                fence["unsettled"] = True
+                checkpoint(uncertain_phase=label)
+                code = historical_run_gate(
+                    argv,
+                    environment,
+                    tmp_path / "old-producer.gate.log",
+                    int(min(timeout, remaining)),
+                    cwd=cwd,
+                )
+                fence["producer_family_drained"] = True
+                child = subprocess.CompletedProcess(argv, code, b"", b"")
+            else:
+                child = subprocess.run(
+                    argv,
+                    cwd=cwd,
+                    env=environment,
+                    capture_output=True,
+                    timeout=min(timeout, remaining),
+                    check=False,
+                )
+        except subprocess.TimeoutExpired:
+            fence["unsettled"] = True
+            checkpoint(status="UNCERTAIN", uncertain_phase=label)
+            raise AssertionError("HISTORICAL_CHILD_TIMEOUT_FAMILY_UNCERTAIN") from None
+        except BaseException:
+            fence["unsettled"] = True
+            checkpoint(status="UNCERTAIN", uncertain_phase=label)
+            raise
+        if child.returncode not in (0, 2):
+            fence["unsettled"] = True
+            checkpoint(status="UNCERTAIN", uncertain_phase=label)
+        private(tmp_path / (label + ".stdout"), child.stdout)
+        private(tmp_path / (label + ".stderr"), child.stderr)
+        checkpoint(calls=[*sequence(report["calls"]), {"label": label, "exit": child.returncode}])
+        return child
+
+    homes = {tag: tmp_path / (tag + "-home") for tag in ("old", "current")}
+    for home in homes.values():
+        home.mkdir(mode=0o700)
+    clean = {"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"}
+    # Attest exact wheel members/import paths before even acquiring the fixture.
+    for artifact in (old, current):
+        tag = str(artifact["tag"])
+        child = invoke(
+            tag + "-origin",
+            [
+                str(artifact["python"]),
+                "-I",
+                "-B",
+                "-c",
+                HISTORICAL_ORIGIN,
+                str(artifact["source"]),
+                str(artifact["wheel"]),
+            ],
+            homes[tag],
+            {**clean, "HOME": str(homes[tag]), "TMPDIR": str(homes[tag])},
+        )
+        if child.returncode != 0 or child.stderr:
+            raise AssertionError("HISTORICAL_INSTALLED_ORIGIN_FAILED") from None
+        origin = mapping(json.loads(child.stdout))
+        checkpoint(**{tag + "_origin": origin})
+        if tag == "old" and mapping(origin["descriptor"])["code_digest"] != HISTORICAL_CHECKER:
+            raise AssertionError("HISTORICAL_INSTALLED_CHECKER_MISMATCH")
+    url = request.getfixturevalue("empty_database_url")
+    dsn = url.render_as_string(hide_password=False)
+    receipt = verify_test_database(url.set(database="omnis_test"))
+    environments = {
+        tag: {**clean, "HOME": str(home), "TMPDIR": str(home), "OMNIS_DATABASE_URL": dsn}
+        for tag, home in homes.items()
+    }
+
+    def snapshot() -> dict[str, object]:
+        with connect_test_database(url) as conn:
+            names = [
+                str(row[0])
+                for row in conn.execute(
+                    "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename"
+                ).fetchall()
+            ]
+            result: dict[str, object] = {}
+            for name in names:
+                query = pgsql.SQL(
+                    "SELECT COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.{} t"
+                ).format(pgsql.Identifier(name))
+                row = conn.execute(query).fetchone()
+                if row is None:
+                    raise AssertionError("HISTORICAL_CENSUS_UNAVAILABLE")
+                result[name] = row[0]
+            return result
+
+    if snapshot():
+        raise AssertionError("HISTORICAL_INITIALIZE_REQUIRES_EMPTY_DATABASE")
+    initialized = invoke(
+        "old-initialize",
+        historical_migration_argv(Path(str(old["python"])), initialize=True),
+        homes["old"],
+        {**environments["old"], "OMNIS_EXPECTED_SYSTEM_ID": receipt.system_identifier},
+        30,
+    )
+    if initialized.returncode != 0:
+        raise AssertionError("HISTORICAL_OLD_INITIALIZE_FAILED")
+    if snapshot()["alembic_version"] != [{"version_num": "0012_contract_methods"}]:
+        raise AssertionError("HISTORICAL_SCHEMA_0012_REQUIRED")
+    old_source = Path(str(old["source"]))
+    adapted = old_source / "api/tests/test_historical_installed_producer.py"
+    private(
+        adapted,
+        historical_producer_source(
+            (old_source / "api/tests/test_contract_method_pg.py").read_bytes()
+        ).encode(),
+    )
+    producer_dir = tmp_path / "producer"
+    # Old installed domain imports + old exported test harness ONLY.
+    producer_env = {
+        **environments["old"],
+        "TMPDIR": os.environ["TMPDIR"],
+        "OMNIS_CONTRACT_METHOD_QA": "1",
+        "OMNIS_CONTRACT_METHOD_NATIVE_PG": "1",
+        "OMNIS_HISTORY_DATABASE_URL": dsn,
+        "OMNIS_B06B_INSTALLED": "1",
+        "OMNIS_B06B_PYTHON": str(old["python"]),
+    }
+    producer = invoke(
+        "old-producer",
+        [
+            str(old["python"]),
+            "-I",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "pythonpath=",
+            "--basetemp",
+            str(producer_dir),
+            str(adapted)
+            + "::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full]",
+            "-q",
+            "--tb=line",
+        ],
+        homes["old"],
+        producer_env,
+        120,
+    )
+    if producer.returncode != 0:
+        raise AssertionError("HISTORICAL_AUTHENTIC_PRODUCER_FAILED") from None
+    handoffs = list(producer_dir.rglob("historical-handoff.json"))
+    if len(handoffs) != 1:
+        raise AssertionError("HISTORICAL_POSITIVE_HANDOFF_MISSING")
+    handoff = mapping(json.loads(handoffs[0].read_bytes()))
+    producer_proof = mapping(json.loads(Path(str(handoff["producer_proof"])).read_bytes()))
+    historical_producer_settlement(handoff, producer_proof, fence["producer_family_drained"])
+    fence["unsettled"] = False
+    checkpoint(status="IN_PROGRESS", producer_settlement="EXISTING_RUN_GATE_AND_AUTHENTIC_PROOF")
+    before = snapshot()
+    private(tmp_path / "positive-before-upgrade.json", canonical(before))
+    observation = Path(str(handoff["native_observation"]))
+    observed_before = observation.read_bytes()
+    verify_test_database(url.set(database="omnis_test"))
+    upgraded = invoke(
+        "current-upgrade",
+        historical_migration_argv(Path(str(current["python"])), initialize=False),
+        homes["current"],
+        environments["current"],
+        30,
+    )
+    if upgraded.returncode != 0:
+        raise AssertionError("HISTORICAL_CURRENT_UPGRADE_FAILED")
+    after = snapshot()
+    if (
+        after.get("alembic_version") != [{"version_num": "0013_mission_revisions"}]
+        or after.get("managed_mission_revision") != []
+        or any(
+            canonical(after[name]) != canonical(rows)
+            for name, rows in before.items()
+            if name != "alembic_version"
+        )
+    ):
+        raise AssertionError("HISTORICAL_UPGRADE_CHANGED_IMMUTABLE_HISTORY")
+    private(tmp_path / "positive-after-upgrade.json", canonical(after))
+    back_request = mapping(handoff["request"])
+    expected = mapping(handoff["readback"])
+    catalog_root = Path(str(handoff["catalog_root"]))
+    retained_material = {
+        str(p.relative_to(catalog_root)): sha(p.read_bytes())
+        for p in catalog_root.rglob("*")
+        if p.is_file()
+    }
+    request_path = tmp_path / "installed-reader-request.json"
+    private(request_path, canonical(back_request))
+
+    def restarted_cli(operation: str, *, fault: str | None = None) -> dict[str, object]:
+        label = "reader-" + str(len(sequence(report["calls"])))
+        audit = tmp_path / (label + ".jsonl")
+        audit.touch(mode=0o600)
+        child = invoke(
+            label,
+            [
+                str(current["python"]),
+                "-I",
+                "-B",
+                "-c",
+                RESTART_READER,
+                "INSTALLED",
+                str(audit),
+                operation,
+                "--request",
+                str(request_path),
+                "--catalog-root",
+                str(catalog_root),
+            ],
+            homes["current"],
+            {**environments["current"], **({"OMNIS_HISTORY_FAULT": fault} if fault else {})},
+        )
+        events = [json.loads(line) for line in audit.read_text().splitlines()]
+        if not events:
+            raise AssertionError("HISTORICAL_READER_OBSERVER_REFUSED")
+        pid = mapping(events[0])["pid"]
+        if type(pid) is not int:
+            raise AssertionError("HISTORICAL_READER_OBSERVER_REFUSED")
+        attempts = historical_reader_observations(events, pid, child.returncode, fault=fault)
+        result = historical_cli_result(child.returncode, child.stdout, child.stderr)
+        checkpoint(
+            reader_observations=[
+                *sequence(report.get("reader_observations", [])),
+                {
+                    "operation": operation,
+                    "fault": fault,
+                    "execution_attempts": attempts,
+                    "exit": child.returncode,
+                },
+            ]
+        )
+        if fault is not None and (
+            child.returncode != 2
+            or result.get("reason")
+            in {"DATABASE_UNAVAILABLE", "INVALID_REQUEST", "INVALID_ARGUMENTS"}
+        ):
+            raise AssertionError("HISTORICAL_FAULT_DID_NOT_REACH_PUBLIC_DOMAIN_DENIAL")
+        return result
+
+    if canonical(restarted_cli("readback")) != canonical(expected) or canonical(
+        snapshot()
+    ) != canonical(after):
+        raise AssertionError("HISTORICAL_INSTALLED_READBACK_CHANGED_HISTORY")
+    reconciled = restarted_cli("reconcile")
+    expected_consumed = deepcopy(expected)
+    for inbox in sequence(expected_consumed["inbox"]):
+        mapping(inbox)["domain_result_consumed"] = True
+    consumed_census = deepcopy(after)
+    for inbox in sequence(consumed_census["managed_inbox"]):
+        mapping(inbox)["domain_result_consumed"] = True
+    if canonical(reconciled) != canonical(expected_consumed) or canonical(snapshot()) != canonical(
+        consumed_census
+    ):
+        raise AssertionError("HISTORICAL_SINGLE_CONSUMPTION_CHANGED_IMMUTABLE_ROWS")
+    if (
+        sum(mapping(i)["domain_result_consumed"] is True for i in sequence(reconciled["inbox"]))
+        != 1
+    ):
+        raise AssertionError("HISTORICAL_EXACT_ONE_CONSUMPTION_REQUIRED")
+    for operation in ("reconcile", "readback"):
+        if canonical(restarted_cli(operation)) != canonical(reconciled) or canonical(
+            snapshot()
+        ) != canonical(consumed_census):
+            raise AssertionError("HISTORICAL_EXACT_REPLAY_CHANGED_HISTORY")
+    for fault in (
+        "foreign-pin",
+        "foreign-checker",
+        "producer-provenance",
+        "foreign-ref",
+        "result-header",
+        "foreign-child",
+    ):
+        measured = restarted_cli("readback", fault=fault)
+        # Preserve measured public reason BEFORE using it as a replay oracle.
+        checkpoint(
+            denials=[
+                *sequence(report["denials"]),
+                {
+                    "fault": fault,
+                    "public_tuple": {"exit": 2, **measured},
+                    "scope": "CONTROLLED_CONSUMER_INPUT_NOT_DURABLE_MUTATION",
+                },
+            ]
+        )
+        if canonical(restarted_cli("reconcile", fault=fault)) != canonical(measured) or canonical(
+            snapshot()
+        ) != canonical(consumed_census):
+            raise AssertionError("HISTORICAL_SAME_CHANNEL_DENIAL_OR_CENSUS_CHANGED")
+        if canonical(restarted_cli("readback")) != canonical(reconciled):
+            raise AssertionError("HISTORICAL_POSITIVE_CONTROL_REFUSED_AFTER_FAULT")
+    if (
+        observation.read_bytes() != observed_before
+        or {
+            str(p.relative_to(catalog_root)): sha(p.read_bytes())
+            for p in catalog_root.rglob("*")
+            if p.is_file()
+        }
+        != retained_material
+        or canonical(snapshot()) != canonical(consumed_census)
+    ):
+        raise AssertionError("HISTORICAL_READER_CHANGED_NATIVE_MATERIAL_OR_ROWS")
+    private(tmp_path / "positive-current-readback.json", canonical(reconciled))
+    checkpoint(
+        status="PASS_INSTALLED_DOMAIN_HISTORY_SCOPED",
+        old_schema="0012_contract_methods",
+        current_schema="0013_mission_revisions",
+        handoff=str(handoffs[0]),
+        retained_refs="EXACT_ORIGINAL",
+        consumed=1,
+        native_observation="UNCHANGED",
+        material="UNCHANGED",
+        limits=[
+            "SOURCE_HOST_NOT_OCI_INSTALLED",
+            "NO_HOST_RESTART_H03",
+            "FAULTS_OBSERVER_INPUT_ONLY",
+            "DENIAL_REASON_SEMANTICS_REQUIRE_PARENT_ADJUDICATION",
+            "DB_AND_FAMILY_CLEANUP_OWNED_BY_EXISTING_RUNNER",
+        ],
+    )
+
+
+def test_historical_installed_plan_refuses_changed_wheel_before_effects(tmp_path: Path) -> None:
+    assert callable(globals().get("historical_installed_plan")), "HISTORICAL_PLAN_MISSING"
+    handle = os.environ.get("OMNIS_HISTORY_PREREQUISITES")
+    if not handle:
+        pytest.skip("Owned offline prerequisites not selected")
+    plan = historical_installed_plan(Path(handle))
+    assert [p["tag"] for p in plan] == ["old", "current"]
+    assert plan[0]["commit"] == HISTORICAL_COMMIT
+    bad = mapping(json.loads(Path(handle).read_bytes()))
+    mapping(sequence(bad["artifacts"])[0])["wheel_sha256"] = "0" * 64
+    bad_path = tmp_path / "changed-prerequisites.json"
+    bad_path.write_bytes(canonical(bad))
+    with pytest.raises(AssertionError, match="HISTORICAL_PREREQUISITE_REFUSED"):
+        historical_installed_plan(bad_path)
+
+
+def test_historical_review_gate_precedes_database_fixture(
+    request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert callable(globals().get("historical_installed_journey")), "HISTORICAL_JOURNEY_MISSING"
+    monkeypatch.delenv("OMNIS_HISTORY_REVIEWED", raising=False)
+
+    def forbidden_fixture(name: str) -> object:
+        raise AssertionError("DATABASE_ACQUIRED_BEFORE_REVIEW")
+
+    monkeypatch.setattr(request, "getfixturevalue", forbidden_fixture)
+    with pytest.raises(AssertionError, match="HISTORICAL_EXACT_REVIEW_REQUIRED"):
+        test_contract_method_real_native_pg_owner_receipts_check_inbox(
+            request,
+            tmp_path,
+            monkeypatch,
+            False,
+            True,
+            False,
+            False,
+            False,
+            "historical-installed",
+        )
 
 
 def require_empty_stderr(stderr: bytes) -> None:
@@ -1270,6 +2809,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, True, "partial-requirement-prefix"),
         (False, True, False, False, False, "mission-consumer"),
         (False, True, False, False, False, "result-qualification"),
+        (False, True, False, False, False, "historical-installed"),
     ],
     ids=[
         "support-zero",
@@ -1291,6 +2831,7 @@ class PreparationPrerequisite(RuntimeClient):
         "partial-requirement-prefix",
         "mission-consumer",
         "result-qualification",
+        "historical-installed",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -1311,6 +2852,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert tmp_path.resolve().is_relative_to(scratch)
     assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
     assert LIBRARIES.is_dir(), "SOURCE_LIBRARIES_REQUIRED"
+    if applicability == "historical-installed":
+        historical_installed_journey(request, tmp_path)
+        return
     # Use the exact pinned interpreter spelling: a worktree .venv alias changes
     # sys.prefix/import paths and is correctly outside the native audit roots.
     python = Path("/home/kali/OmnisAI/api/.venv/bin/python")

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "review_role": "independent safety/input/failure/cleanup",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "H01/H02 installed historical caller orchestration and installed pure/noexec boundaries only",
+  "base_commit": "2891a3ff93c1a04904f375b509e4536248c094a0",
+  "snapshots": {
+    "source": {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sha256": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66",
+      "verified_before_and_after": true
+    },
+    "old_adapted_caller": {
+      "path": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py",
+      "sha256": "0e380cc23aa8e31cc3215f7cb3781ecf5dd0c766e043cc8b4937b709e3c892e4",
+      "verified_before_and_after": true
+    },
+    "prerequisites": {
+      "path": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+      "sha256": "475aeb1896a9dc662bb1e35c319069f41bd8b9013ff3fe98d946eb68f71d9374"
+    }
+  },
+  "findings": [
+    {
+      "id": "HISTORY-SAFETY-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "1044-1072 (producer_env and old-producer invocation)",
+      "related_file": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py:304-307",
+      "title": "Nested old producer is always skipped: wrong opt-in environment key",
+      "mechanism": "producer_env is a fresh allowlisted dictionary containing OMNIS_CONTRACT_METHOD_QA=1, not OMNIS_CONTRACT_METHOD_NATIVE_PG=1. The actual old adapted test has skipif(os.environ.get('OMNIS_CONTRACT_METHOD_NATIVE_PG') != '1'). Parent environment cannot repair this because producer_env replaces it. A skipped pytest node returns zero, so invoke credits the process before later failing HISTORICAL_POSITIVE_HANDOFF_MISSING. Live invocation would already have acquired/initialized the empty DB for no product progress.",
+      "reproducer": {
+        "scope": "SOURCE_SKIP_ONLY; no PG/native fixtures execute",
+        "command": "old/venv/bin/python -I -B -m pytest -o pythonpath= -p no:cacheprovider <exact-old-adapted-caller>::test_contract_method_real_native_pg_owner_receipts_check_inbox[partial-requirement-full] -q --tb=line; fresh environment contains only PATH/HOME/TMPDIR and OMNIS_CONTRACT_METHOD_QA=1",
+        "exit": 0,
+        "actual": "1 skipped in 0.76s",
+        "log": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/old-optin-refusal.log"
+      },
+      "violated_requirement": "No-effect argv/choices/opt-in/schema preflight must admit the actual existing caller before spending a fresh PG/native attempt; authentic old producer must execute rather than be skipped.",
+      "minimal_remedy": "Set the actual exact OMNIS_CONTRACT_METHOD_NATIVE_PG opt-in explicitly in producer_env. Add a SOURCE regression asserting the real old decorator's environment predicate is false under the exact generated producer environment; do not execute the enabled native test during SOURCE review. Retain evidence that a skip is not an executed producer."
+    },
+    {
+      "id": "HISTORY-SAFETY-F02",
+      "severity": "HIGH",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "944-965 (invoke), 1052-1074 (producer invocation/failure)",
+      "related_file": "api/tests/conftest.py:115-134 (owned empty_database_url yield/finalizer)",
+      "title": "Nested child failure unwinds DB fixture before owned descendant settlement",
+      "mechanism": "subprocess.run(timeout=...) kills/waits only its direct pytest leader. The timeout handler checkpoints UNCERTAIN then immediately raises. Producer signal exits and unrecognized positive exits merely checkpoint a returncode then raise without even recording UNCERTAIN. None of these paths positively settles the descendant family or fences the empty_database_url finalizer. That existing generator finalizer immediately attempts DROP DATABASE. The outer run_gate may settle descendants later, but that eventual readback cannot prove that destructive inner teardown was ordered after settlement. A killed old pytest leader cannot run its authentic host/runtime finally blocks.",
+      "reproducer": {
+        "scope": "Exact invoke AST and exact empty_database_url AST; fake SQL connection, real test-owned stdlib subprocess leader plus detached SIGTERM-resistant descendant; NO PG/native/network. This is a failure-ordering SOURCE seam, not a claim of actual native failure.",
+        "script": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/reproduce_cleanup.py",
+        "command": "python3 -I -B /home/kali/.hermes/cache/scratch/h01-h02-safety-review/reproduce_cleanup.py",
+        "exit": 0,
+        "result": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/cleanup-reproducer-result.json",
+        "cases": [
+          {"case": "timeout", "order": "direct leader timeout/join -> checkpoint UNCERTAIN -> assertion -> fixture DROP DATABASE", "descendant_live_at_drop_attempt": true},
+          {"case": "signal-exit -15", "order": "direct leader joined -> checkpoint calls -> producer-failure assertion -> fixture DROP DATABASE", "descendant_live_at_drop_attempt": true, "status_at_teardown": "IN_PROGRESS"},
+          {"case": "unknown-exit 99", "order": "direct leader joined -> checkpoint calls -> producer-failure assertion -> fixture DROP DATABASE", "descendant_live_at_drop_attempt": true, "status_at_teardown": "IN_PROGRESS"}
+        ],
+        "cleanup": "All three exact synthetic descendants were pinned with pidfd, rescued via pidfd SIGKILL, waitpid-reaped by an owned subreaper with observed signal exit; subreaper setting restored. No synthetic process left running."
+      },
+      "violated_requirement": "Original owner/family/teardown remains authoritative; destructive database cleanup must not race an unsettled effectful nested child family. Direct-child join is not family settlement, and uncertainty must be retained for signal/unknown exits.",
+      "minimal_remedy": "Use the existing owner/family settlement mechanism before permitting inner fixture destruction, or explicitly retain the exact owned DB on unresolved nested family uncertainty and delegate cleanup to the original owner after positive settlement. Classify timeout/signal/unknown-exit uncertainty before raising. Do not solve this with another parallel supervisor/framework or weaken the original owner oracle. Add SOURCE controls for timeout, direct-leader early exit and signal/unknown exit with a held-live resistant descendant; verify the DROP fence, not merely eventual outer drain."
+    }
+  ],
+  "verified": [
+    {
+      "boundary": "exact changed historical SOURCE tests",
+      "command": "OMNIS_CONTRACT_METHOD_QA=0 OMNIS_HISTORY_PREREQUISITES=<exact-manifest> api/.venv/bin/python -I -B -m pytest api/tests/test_contract_method_pg.py -q -k 'historical and not real_native' -p no:cacheprovider --tb=short --basetemp <owned-review-scratch>/pytest",
+      "exit": 0,
+      "result": "16 passed, 78 deselected in 12.17s",
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/historical-source-tests.log",
+      "limit": "Targeted SOURCE/installed imports/noexec controls; no runtime acceptance."
+    },
+    {
+      "boundary": "noexec guard defining evaluator and all invoked aliases; independent observer refusal",
+      "result": "Existing actual installed controls exercised skill_catalog.evaluate_pure, candidate_catalog.evaluate_pure, pure_probe.evaluate_pure, module_registry.run_handler, BuildSource.build and RuntimeClient._exchange. Each catches the raised assertion in the child yet leaves FORBIDDEN evidence causing parent rejection; empty installed control accepted. Missing evidence and unknown field controls refuse. Guard emits before raising. Static search confirmed the defining evaluator and the two aliases used in this installed code are covered.",
+      "limit": "Python instrumentation/oracle only, not OS confinement or actual dependency-bearing historical graph execution."
+    },
+    {
+      "boundary": "installed origin and prerequisite fences",
+      "result": "16-test execution read the actual fresh old/current installed wheel/Git export identities, old checker833b569 and source-path isolation under -I; changed-wheel manifest refused before acquisition. Both artifact paths are scratch-owned and declared build/export/install commands are offline/locked/hash-required/copy. Review gate regression refuses before getfixturevalue. Actual no-effect old invocation revealed F01 despite collect-only success.",
+      "limit": "Prerequisite manifest is a trusted owned input; no adversarial replacement of dependency interpreter or signed-manifest security claimed."
+    },
+    {
+      "boundary": "actual installed pure input schema and exact types",
+      "command": "<exact-current-installed-python> -I -B /home/kali/.hermes/cache/scratch/h01-h02-safety-review/input_controls.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/input-controls.log",
+      "results": [
+        "Real identity.verify accepts well-formed historical checker833b569 with composer1042ab and exact receive_only=True/zero_predicates=False.",
+        "Same otherwise-valid real verifier refuses foreign-pin and foreign-checker with METHOD_CHECKER_UNAVAILABLE.",
+        "Real verifier refuses receive_only=1 and zero_predicates=0 despite bool/int equality.",
+        "Actual _input accepts a schema-shaped synthetic original; exact producer-provenance transform reaches METHOD_RECEIPT_MISMATCH and original remains unchanged.",
+        "Actual _input refuses payload.version=True with MANAGED_REJECTED."
+      ],
+      "limit": "Pure verifier/internal input boundary only. Outer CLI reasons may be normalized; these are not the actual historical graph public tuples."
+    },
+    {
+      "boundary": "output privacy and refusal",
+      "result": "CLI rejects contradictory stderr, unexpected exit99, nonempty private stdout on denial, and unknown denial fields with sanitized HISTORICAL_CLI_TUPLE_REFUSED; source tests passed. Changed journey uses explicit sanitized assertion conditions rather than raw-output pytest assertion operands. New raw logs were read back as mode0600; no DSN/capability/private args/raw child output was printed. Runtime report remains private; no private receipt readback in this review.",
+      "limit": "No --showlocals/--showargs secrecy guarantee, no actual PG traceback generated."
+    },
+    {
+      "boundary": "migration and fault-seam source ordering",
+      "result": "Old --initialize is after owned fixture attestation and empty-public-table census; current installed upgrade has no --initialize. Upgrade snapshots compare all preexisting public-table rows before first current read/consume; current checks schema0013 and empty mission extension. Six fault transforms deepcopy consumer inputs only; no positive material/DB reseal. Native-task owner is also instrumented against reader execution.",
+      "limit": "Static SOURCE ordering, not an executed migration/census/historical reconciliation. Result-header, foreign-ref and child-lineage actual public graph denials remain NOT_RUN."
+    }
+  ],
+  "not_run": [
+    "PG or native review attempt",
+    "Old installed initialize and current upgrade",
+    "Actual old authentic producer",
+    "Actual historical graph installed readback/reconcile and all six public refusal tuples",
+    "Actual existing run_gate family/DB cleanup after a live journey",
+    "H03 restart",
+    "Provider/network/browser/Docker",
+    "Full canonical"
+  ],
+  "tooling": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "writes": {
+    "shared_checkout": [],
+    "scratch_directory": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review",
+    "files_created": [
+      "review.json",
+      "historical-source-tests.log",
+      "old-optin-refusal.log",
+      "reproduce_cleanup.py",
+      "cleanup-reproducer-result.json",
+      "input_controls.py",
+      "input-controls.log",
+      "signal-exit.stdout",
+      "signal-exit.stderr",
+      "unknown-exit.stdout",
+      "unknown-exit.stderr"
+    ],
+    "additional_owned_artifacts": "pytest SOURCE basetemp fixtures only",
+    "commits": [],
+    "protected_untracked_html": "Not read, hashed, modified, or removed."
+  },
+  "proposed_parent_disposition": "Keep H01/H02 runtime gate CLOSED/NOT_RUN until F01 and F02 are reproduced/adjudicated and minimally repaired; rerun affected SOURCE controls and request focused same-new-snapshot re-review. No approved bytes transfer or native retry on frozen30ba.",
+  "status_delta": {
+    "H01_H02_current": "IMPLEMENTED_SOURCE / SOURCE targeted PASS / CHANGES_REQUESTED",
+    "H01_H02_runtime": "NOT_RUN",
+    "H03": "NOT_RUN",
+    "B06b_G02_P2": "PARTIAL_NOT_CLOSED unchanged",
+    "parent_integration": "SOLE_OWNER"
+  },
+  "proposed_skill_lesson_for_parent": "Fence nested fixture destruction before outer-owner settlement on timeout/signal/unknown child exit; eventual family_drained cannot certify an earlier DROP. No skill/shared edits were made by reviewer."
+}

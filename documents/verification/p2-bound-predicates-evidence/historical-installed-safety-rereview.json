@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "review_role": "independent focused safety/failure re-review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "HISTORY-SAFETY-F01/F02 corrections only: exact historical producer opt-in, inner fixture destructive teardown fence, reused run_gate producer family settlement, typed authentic handoff/proof before fence clearance",
+  "base_commit": "2891a3ff93c1a04904f375b509e4536248c094a0",
+  "snapshots": {
+    "source": {
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sha256": "54dfc960f32e59197eab64c214b4b56fc455adf5b46d26a8c3c849c773aa050f",
+      "verified_before_and_after": true
+    },
+    "old_adapted_caller": {
+      "path": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py",
+      "sha256": "0e380cc23aa8e31cc3215f7cb3781ecf5dd0c766e043cc8b4937b709e3c892e4",
+      "verified_before_and_after": true
+    },
+    "prerequisites": {
+      "path": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+      "sha256": "475aeb1896a9dc662bb1e35c319069f41bd8b9013ff3fe98d946eb68f71d9374"
+    },
+    "unchanged_existing_run_gate": {
+      "path": "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+      "sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+    },
+    "unchanged_actual_fixture": {
+      "path": "/home/kali/OmnisAI/api/tests/conftest.py",
+      "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b"
+    }
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "HISTORY-SAFETY-F01",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": "api/tests/test_contract_method_pg.py:1650-1658; unchanged old adapted caller:304-307",
+      "evidence": "The actual call-site producer_env explicitly supplies OMNIS_CONTRACT_METHOD_NATIVE_PG=1. Independently extracted that exact assignment AST and evaluated the actual unchanged old adapted file's skipif expression: enabled environment admits, absent opt-in refuses. The focused SOURCE regression also passes. No enabled native node was executed.",
+      "decision": "The previously demonstrated wrong-key skip blocker is repaired. Authentic historical producer execution remains NOT_RUN."
+    },
+    {
+      "id": "HISTORY-SAFETY-F02",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": "api/tests/test_contract_method_pg.py:983-1064,1503-1507,1523-1571,1680-1689; api/tests/conftest.py:129-134; ops/run_test_db_gate.py:759-818,982-1013",
+      "evidence": [
+        "The historical_database_fence fixture owns its own MonkeyPatch context, acquired before dynamic empty_database_url. It intercepts the actual conftest.verify_test_database immediately before the original fixture's DROP. Actual pytest dynamic LIFO teardown controls passed for settled and uncertain states and confirmed restoration after the DB finalizer.",
+        "Old-producer invoke sets unsettled before launch/checkpoint and reuses unchanged run_gate. Its synchronous return has strict family_drained readback; the same supervised PID chdir/exec adapter preserves the producer-owned cwd rather than introducing a different ownership mechanism.",
+        "Independent exact invoke composition through the old-producer label exercised held detached TERM-resistant real stdlib descendants for timeout, signal and exit99. Actual reused owner joined, killed/reaped the exact descendants; pinned pidfds became readable, /proc PID paths were absent, and pidfd fdinfo Pid was -1. Timeout returned124, signal/99 with adopted children returned2. Every case remained UNCERTAIN and the actual fake-SQL fixture generator refused DROP even after family drain.",
+        "Independent exit0 without handoff retained unsettled/UNCERTAIN and refused DROP despite family_drained=true. The same exact invoke and actual fixture generator allowed DROP only after the declared synthetic positive handoff/proof passed historical_producer_settlement and the fence was cleared. Synthetic positive proof is a SOURCE seam, not native attestation.",
+        "Focused SOURCE negative controls also exercise raw direct-leader timeout/-15/99 on the other-child invoke branch with a held-live descendant, refusing the actual fixture DROP before exact pidfd SIGKILL/reap rescue. This is distinct from the independent old-producer existing-owner drain composition.",
+        "Actual unchanged run_gate decoder accepted its valid joined-worker control and refused seven receipt mutations: bool schema version, bool code, integer family_drained, false family_drained, unknown key, duplicate key and missing receipt. Producer proof SOURCE controls refused bool counters/exit/consumption, integer family flag and missing proof.",
+        "Authentic proof source trace: old producer writes handoff before original finally, original finally awaits runtime/control cleanup and asserts native family/socket absence, then emits exact run/read/handler counters and PASS_SOURCE_NOT_INSTALLED. Current caller loads handoff/proof and validates them before the sole fence-clear statement. Native exit is deliberately an exact integer, not necessarily zero: the unchanged historical producer can attest a killed native host after proper cleanup.",
+        "Outer original run_gate authorizes CID cleanup only after its own strict family return; on GateCleanupUncertain it retains the DB. This outer CID path was inspected, not executed against Docker/PG."
+      ],
+      "decision": "The earlier destructive inner teardown race is repaired at the actual fixture boundary without replacing the original owner. Timeout/signal/99/exit0-only do not clear the fence. Parent may adjudicate the repair; this is not a runtime history acceptance."
+    }
+  ],
+  "verification": {
+    "focused_source": {
+      "command": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_contract_method_pg.py", "-k", "not real_native and (historical_producer_environment or historical_actual_invoke or historical_producer_settlement or historical_dynamic_fixture or historical_existing_run_gate)", "-q", "--tb=line", "--basetemp", "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df/pytest"],
+      "exit": 0,
+      "passed": 18,
+      "deselected": 95,
+      "pytest_seconds": 7.09,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df/focused-source.log",
+      "log_sha256": "d912fef5356f3d31baf7dd2e026743d6d901ea4f5a79c4f7f25990b615ad7404",
+      "result": "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df/focused-source-result.json"
+    },
+    "independent_controls": {
+      "command": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df/independent_controls.py"],
+      "exit": 0,
+      "status": "PASS_SOURCE_SCOPED",
+      "producer_cases": 5,
+      "strict_run_gate_decoder_cases": 8,
+      "strict_decoder_refusals": 7,
+      "pinned_descendants_exited_and_reaped": 3,
+      "result": "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df/independent-controls-result.json",
+      "result_sha256": "a1b95afcc65e5ba80e46033d4629bcd5861cacbcaa37e8a900b3e8938ea02f5b",
+      "script_sha256": "70547e6f603aa5263236e30d593fb94528cdf126416b42b5d8f9e8e676a1c397",
+      "scope": "Exact current invoke AST and actual original fixture generator with fake SQL, unchanged existing run_gate, real owned stdlib families; actual old decorator AST; reused decoder with a substituted joined worker. Not an end-to-end native journey."
+    },
+    "diff_check": {"command": ["git", "diff", "--check"], "exit": 0},
+    "cleanup": "No owned synthetic process left running. Three independent descendants had exact pidfd exit plus reaped-identity readback; SOURCE suite also passed its bounded exact rescues. Parent-held releases and independent alarms were armed. No PG/native/Docker cleanup was performed."
+  },
+  "unchanged_prior_approval": {
+    "report": "/home/kali/.hermes/cache/scratch/h01-h02-safety-review/review.json",
+    "scope": "Retain unchanged installed origin/noexec/privacy/distribution evidence only at its original scope; this focused report does not promote those SOURCE controls to runtime acceptance."
+  },
+  "not_run": [
+    "Actual authentic historical old installed producer",
+    "Old initialize/current upgrade against PostgreSQL",
+    "Actual H01/H02 installed historical readback/reconcile and public denial tuples",
+    "Native host/runtime lifecycle or physical DB/CID cleanup",
+    "H03 runtime restart",
+    "Full canonical",
+    "Provider/target/network/browser effects"
+  ],
+  "writes": {
+    "shared_checkout": [],
+    "commits": [],
+    "skills_profiles_credentials": "NOT_MODIFIED",
+    "protected_html": "NOT_READ_NOT_HASHED_NOT_CHANGED",
+    "scratch_directory": "/home/kali/.hermes/cache/scratch/h01-h02-safety-rereview-54df",
+    "created": ["review.json", "independent_controls.py", "independent-controls-result.json", "focused-source.log", "focused-source-result.json"],
+    "additional_artifacts": "Owned pytest basetemp, independent synthetic case private gate logs/receipts/markers, synthetic decoder receipts only."
+  },
+  "issues_encountered": "No surviving F01/F02 blocker and no execution failure. Scratch-only script editor emitted static unresolved-import/type diagnostics for dynamically loaded test modules; real interpreter execution succeeded. Canonical/native evidence intentionally NOT_RUN under this authorization.",
+  "tooling": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "parent_handoff": "Parent alone adjudicates closure/integration and a separately authorized runtime attempt. APPROVED_SCOPED binds exact54df source and unchanged0e380 adapted producer; it is not H01/H02 runtime PASS, global approval or permission to launch.",
+  "proposed_status_delta": {"HISTORY_SAFETY_F01_F02": "CLOSED_SOURCE_SCOPED_PENDING_PARENT_ADJUDICATION", "H01_H02_implementation": "IMPLEMENTED_SOURCE_FIXES", "H01_H02_evidence": "SOURCE_TARGETED_PASS_RUNTIME_NOT_RUN", "H01_H02_focused_review": "APPROVED_SCOPED", "H03": "NOT_RUN", "B06b_G02_P2": "PARTIAL_NOT_CLOSED_UNCHANGED"},
+  "proposed_skill_lesson_for_parent": "Use a test-owned fixture guard acquired before dynamic destructive fixtures; prove actual pytest LIFO teardown restores it only after their finalizer. Set unsettled before effectful producer launch and require both strict existing-owner family receipt and authentic typed producer handoff/proof before clearing; eventual outer drain cannot certify an earlier destructive DROP. No shared skill edit made by read-only reviewer."
+}

@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "report_id": "H01-H02-NORMATIVE-REREVIEW-54dfc960",
+  "review_role": "independent focused normative re-review of H01-H02-NORM-F01/F02",
+  "verdict": "APPROVED_SCOPED",
+  "parent_adjudication_required": true,
+  "decision": "Both original normative blockers are remedied on the exact current SOURCE snapshot. The actual producer environment admits the unchanged historical skip guard, and the existing foreign-checker slot now tests only a foreign key while preserving the authentic historical checker digest, semantics and composer pin. This approves the focused fixes and prerequisite identity continuation, not a PG/native or installed historical public journey PASS.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_head": "2891a3ff93c1a04904f375b509e4536248c094a0",
+    "changed_file": "api/tests/test_contract_method_pg.py",
+    "changed_file_sha256": "54dfc960f32e59197eab64c214b4b56fc455adf5b46d26a8c3c849c773aa050f",
+    "original_review": "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/review.json",
+    "original_reviewed_source_sha256": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66",
+    "old_commit": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+    "old_original_caller_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+    "adapted_old_caller": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py",
+    "adapted_old_caller_sha256": "0e380cc23aa8e31cc3215f7cb3781ecf5dd0c766e043cc8b4937b709e3c892e4",
+    "prerequisites": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+    "prerequisites_sha256": "475aeb1896a9dc662bb1e35c319069f41bd8b9013ff3fe98d946eb68f71d9374",
+    "snapshot_rechecked_at_handoff": true
+  },
+  "findings": [],
+  "original_finding_dispositions": [
+    {
+      "id": "H01-H02-NORM-F01",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "locations": ["api/tests/test_contract_method_pg.py:522-563", "api/tests/test_contract_method_pg.py:1650-1678", "api/tests/test_contract_method_pg.py:2786-2789", "adapted historical caller:304-306"],
+      "change": "The exact clean producer_env assignment now explicitly sets OMNIS_CONTRACT_METHOD_NATIVE_PG=1. The new SOURCE regression evaluates that assignment against the real original-derived historical decorator instead of a renamed declaration.",
+      "independent_controls": {
+        "actual_generated_environment_native_opt_in": "1",
+        "original_old_skip_with_actual_environment": false,
+        "adapted_old_skip_with_actual_environment": false,
+        "current_outer_skip_with_actual_environment": false,
+        "original_old_skip_without_actual_opt_in": true,
+        "adapted_old_skip_without_actual_opt_in": true,
+        "current_outer_skip_without_actual_opt_in": true,
+        "original_and_adapted_old_skip_ast_equal": true
+      },
+      "preserved": "Original historical skip guard, adapted caller SHA, explicit selected partial-requirement-full node, 240-second journey budget, authentic proof and handoff requirements. Exit0/SKIP alone still cannot release producer settlement.",
+      "scope_limit": "No producer test body ran in this re-review. NoSKIP means the actual opt-in makes the real skip expressions false; one genuine executed producer still requires the parent's bounded PG/native receipt."
+    },
+    {
+      "id": "H01-H02-NORM-F02",
+      "disposition": "CLOSED_SOURCE_AND_INSTALLED_LIBRARY_SCOPED",
+      "locations": ["api/tests/test_contract_method_pg.py:566-592", "api/tests/test_contract_method_pg.py:739-767", "api/tests/test_contract_method_pg.py:803-813", "api/tests/test_contract_method_pg.py:1802-1827"],
+      "change": "The existing foreign-checker branch deep-copies its input and changes only payload.key to foreign-issuer, then recomputes the private envelope digest. The installed observer embeds this same SOURCE transform and invokes the unchanged installed identity.verify with the unchanged kwargs.",
+      "independent_controls": {
+        "original_key": "managed.contract-pure.v2",
+        "foreign_key": "foreign-issuer",
+        "authentic_checker_code_digest": "833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9",
+        "composer_pin": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+        "all_non_key_payload_fields_preserved": true,
+        "all_non_payload_non_digest_envelope_fields_preserved": true,
+        "private_envelope_digest_correct": true,
+        "original_unchanged": true,
+        "installed_positive": "ACCEPTED",
+        "installed_key_only_negative": "METHOD_CHECKER_UNAVAILABLE",
+        "installed_post_negative_positive": "ACCEPTED"
+      },
+      "scope_limit": "Synthetic valid envelope on the unchanged current installed identity library, not authentic historical graph/public CLI execution. METHOD_CHECKER_UNAVAILABLE is a measured direct-library reason only. The real public denial tuple, readback/reconcile equality and durable census remain NOT_RUN here. No new fault slot or durable mutation was introduced."
+    }
+  ],
+  "verification": {
+    "independent_focused_pytest": {
+      "command": "env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_historical_producer_environment_satisfies_actual_skip_decorator api/tests/test_contract_method_pg.py::test_historical_checker_fault_changes_key_only_and_reseals_private_copy api/tests/test_contract_method_pg.py::test_historical_producer_cut_preserves_authentic_bytes_and_teardown -q --tb=short --basetemp /home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/pytest",
+      "exit": 0,
+      "actual_summary": "3 passed in 0.55s",
+      "passed": 3,
+      "skipped": 0,
+      "scope": "Affected SOURCE regressions only; no PG/native test selected."
+    },
+    "independent_ast_and_installed_library": {
+      "command": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/focused-controls.py",
+      "exit": 0,
+      "result": "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/focused-controls.json",
+      "installed_identity_origin": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/venv/lib/python3.13/site-packages/omnis/modules/tasks/method_checker_identity.py",
+      "scope": "Exact current AST transform and exact producer-env AST; original/adapted/current skip expressions. Domain imports solely from the declared installed current interpreter; no source-path import."
+    },
+    "author_full_source_and_quality": {
+      "report": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/report.json",
+      "attribution": "Author evidence read, not independently rerun in full",
+      "source_summary": "93 passed, 20 deselected in 19.80s; exit0",
+      "quality": "Ruff check, format check, mypy and diff check exit0"
+    },
+    "independent_git_diff_check": {"command": "git diff --check", "exit": 0}
+  },
+  "distribution_identity_continuation": {
+    "result": "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/distribution-identity.json",
+    "exit": 0,
+    "method": "Reused original scoped Git-archive/build/install approval. Fresh read-only SHA checks against the unchanged prerequisite manifest and comparisons of every installed omnis wheel member to both wheel and exported source; no new archive/build/install/product bytes.",
+    "old": {
+      "declared_and_hash_matched_source_files": 310,
+      "source_manifest_mismatches": [],
+      "wheel_sha256": "933a17e8a6c588f0cfe5a69aff1a2164967277066fc460e4e2f3716db7f515d2",
+      "wheel_sha_matches": true,
+      "requirements_sha_matches": true,
+      "installed_wheel_source_members": 83,
+      "installed_wheel_source_mismatches": []
+    },
+    "current": {
+      "declared_and_hash_matched_source_files": 320,
+      "source_manifest_mismatches": [],
+      "wheel_sha256": "7bb9f18e4c1b06b721c6acf21e9ab74ab10006c180a218d438ce9ec1642cd3ba",
+      "wheel_sha_matches": true,
+      "requirements_sha_matches": true,
+      "installed_wheel_source_members": 88,
+      "installed_wheel_source_mismatches": []
+    }
+  },
+  "retained_prior_scope": [
+    "Original review's authentic historical producer/current installed reader design conclusions retained; no new product/domain/native/pin bytes.",
+    "Unchanged qualification and D01 approvals retained without replay.",
+    "Original review and failed reproducers preserved; this report explicitly closes only the two named normative findings.",
+    "Extra producer run_gate/family-owner, DB fixture fence and typed authentic-proof safety changes are outside this focused normative verdict and require the complementary safety review/adjudication. They were not represented as live runtime PASS here."
+  ],
+  "not_run": [
+    "PG/private fixture or real old native producer",
+    "Installed0012 initialization/current0013 upgrade",
+    "Authentic historical installed public readback/reconcile/replay",
+    "Six graph-fault public CLI denial tuples and durable census",
+    "H03 Host/runtime restart",
+    "Full canonical or global product acceptance"
+  ],
+  "constraints_observed": {
+    "shared_edits": false,
+    "commits": false,
+    "native_or_pg": false,
+    "network_or_install": false,
+    "protected_html_read_hash_or_edit": false,
+    "profiles_or_credentials": false,
+    "python_bytecode_writes_disabled": true,
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "git_handoff": {
+    "head": "2891a3ff93c1a04904f375b509e4536248c094a0",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "preexisting_modified": ["api/tests/test_contract_method_pg.py"],
+    "preexisting_untracked_protected": ["documents/Omnis_Notite_Originale.html"],
+    "snapshot_hashes_and_status_unchanged_at_handoff": true,
+    "staged_paths": [],
+    "reviewer_commits_created": false
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/focused-controls.py",
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/focused-controls.json",
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/distribution-identity.json",
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-rereview-54dfc960/review.json"
+  ],
+  "issues_encountered": [],
+  "proposed_status_delta": [
+    {"scope": "AICI H01/H02 F01/F02", "implementation": "SOURCE_FIXES_PRESENT", "proof": "FOCUSED_SOURCE_AND_INSTALLED_LIBRARY_PASS", "review": "APPROVED_SCOPED", "next": "Parent adjudicate complementary review, then original bounded real installed-history consumer on this exact SHA with actual native opt-in."},
+    {"scope": "Unchanged qualification/D01/distribution", "proof": "PRIOR_SCOPED_ACCEPTANCE_RETAINED_WITH_IDENTITY_CONTINUATION", "next": "No unchanged rerun."},
+    {"scope": "H03", "proof": "NOT_RUN", "next": "Actual runtime restart after admitted H01/H02."},
+    {"scope": "B06b/G02/P2-inert/canonical", "implementation": "PARTIAL", "proof": "NOT_CLOSED", "next": "Remaining canonical consumers/integration, not a harness-only global PASS."},
+    {"scope": "P4a-minim/live", "implementation": "NOT_DELIVERED", "proof": "NOT_RUN", "next": "Canonical ordering and separate live authorization retained."}
+  ]
+}

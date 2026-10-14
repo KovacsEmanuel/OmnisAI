@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "report_id": "H01-H02-NORMATIVE-30ba8b08",
+  "review_role": "independent normative/order/persistence/readback",
+  "verdict": "CHANGES_REQUESTED",
+  "parent_adjudication_required": true,
+  "decision": "The authentic old-installed producer/current-installed reader design is a legitimate finite H01/H02 proof boundary, but this exact snapshot cannot advance it: the nested producer is always skipped, and the declared checker-key/issuer negative is not exercised. Fix only those affected caller/negative seams before the original bounded real-consumer attempt.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_head": "2891a3ff93c1a04904f375b509e4536248c094a0",
+    "changed_file": "api/tests/test_contract_method_pg.py",
+    "changed_file_sha256": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66",
+    "old_commit": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+    "old_original_caller_sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+    "adapted_old_caller": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/old/source/api/tests/test_historical_installed_producer.py",
+    "adapted_old_caller_sha256": "0e380cc23aa8e31cc3215f7cb3781ecf5dd0c766e043cc8b4937b709e3c892e4",
+    "prerequisites": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+    "prerequisites_sha256": "475aeb1896a9dc662bb1e35c319069f41bd8b9013ff3fe98d946eb68f71d9374",
+    "snapshot_rechecked_at_handoff": true
+  },
+  "findings": [
+    {
+      "id": "H01-H02-NORM-F01",
+      "severity": "HIGH",
+      "classification": "confirmed caller admission defect, not a product defect or false runtime PASS",
+      "location": "api/tests/test_contract_method_pg.py:1044-1077; outer skipif:2185-2187; adapted old skipif:304-306",
+      "requirement": "H02 must execute exactly one genuine installed historical producer, not SKIP/exit0; CONTRIBUTING no-effect preflight must inspect actual runner opt-ins before PG/native effects.",
+      "finding": "producer_env is an explicit clean environment and sets OMNIS_CONTRACT_METHOD_QA=1, but the unchanged old @skipif requires OMNIS_CONTRACT_METHOD_NATIVE_PG=1. The actual required variable is absent and cannot be inherited from the parent through this environment. The selected old pytest therefore skips with exit0; the journey later refuses HISTORICAL_POSITIVE_HANDOFF_MISSING after acquiring/initializing the fixture. The declared outer required_opt_in also names QA rather than the actual current skipif variable; an original runner may supply it for the outer node, but that cannot repair the nested child.",
+      "source_reproducer": {
+        "path": "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/source-reproducer.py",
+        "command": "python3 -I -B /home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/source-reproducer.py",
+        "exit": 0,
+        "selected_old_pytest_exit": 0,
+        "selected_old_pytest_stdout": "s                                                                        [100%]\n1 skipped in 0.86s\n",
+        "selected_old_pytest_stderr": "",
+        "ast_controls": {
+          "current_skip_without_actual_opt_in": true,
+          "current_skip_with_actual_opt_in": false,
+          "adapted_old_skip_without_actual_opt_in": true,
+          "adapted_old_skip_with_actual_opt_in": false
+        },
+        "scope": "The executable reproducer evaluates both frozen skip conditions before invoking the selected old test without the real opt-in. It disables plugin autoload, explicitly selects pytest_asyncio and disables cacheprovider. No PG/native/test-body/network execution; corrected opt-in is AST-only, not a live producer run."
+      },
+      "minimal_remedy": "Explicitly set OMNIS_CONTRACT_METHOD_NATIVE_PG=1 in the nested producer environment and document/select the same actual opt-in for the outer node through the existing runner. Keep the skip guard, original budget240 and handoff/authenticity/drain checks. Add a SOURCE assertion at the actual producer-env call site against the real old skip condition; do not merely rename a declaration or change the historical product.",
+      "acceptance_after_fix": "Focused SOURCE and exact-snapshot re-review first, then parent-adjudicated original selection runner with exactly one executed producer. Genuine PG/native history remains NOT_RUN until its real receipt exists."
+    },
+    {
+      "id": "H01-H02-NORM-F02",
+      "severity": "MEDIUM",
+      "classification": "confirmed finite acceptance-coverage gap, not a demonstrated product vulnerability",
+      "location": "api/tests/test_contract_method_pg.py:683-693,1201-1208; method_checker_identity.py:117; p2-next-session-implementation.md:106",
+      "requirement": "The finite H01 negative includes foreign issuer/checker key; the delegated matrix explicitly names foreign pin/key/provenance/ref/header/child.",
+      "finding": "The only checker-identity negative changes payload.code_digest to zeros and reseals the private copy, leaving payload.key=managed.contract-pure.v2 unchanged. producer-provenance changes a different producer_key field. Neither exercises rejection of a foreign method-checker key/issuer paired with the otherwise valid allowlisted old digest and composer pin. A rejection of an unknown digest cannot credit the separate key comparison.",
+      "source_reproducer": {
+        "path": "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/key-source-reproducer.py",
+        "command": "python3 -I -B /home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/key-source-reproducer.py",
+        "exit": 0,
+        "actual_transform": {
+          "original_key": "managed.contract-pure.v2",
+          "altered_key": "managed.contract-pure.v2",
+          "key_fault_exercised": false
+        },
+        "installed_library_control": {
+          "allowlisted_historical_positive": "ACCEPTED",
+          "same_digest_foreign_key": "METHOD_CHECKER_UNAVAILABLE"
+        },
+        "scope": "Frozen SOURCE transform plus current installed identity-library positive/key-only negative. No public CLI, database or native producer; METHOD_CHECKER_UNAVAILABLE here is a direct library result, not an assumed installed history CLI reason."
+      },
+      "minimal_remedy": "Use a key-only foreign issuer mutation in the existing checker fault slot with the original authentic old digest, semantics and pin preserved, resealing only its private observer-input envelope. Alternatively explicitly retain a separate finite key control if needed; do not mutate durable history or introduce a universal harness. Measure/adjudicate the actual public readback/reconcile tuple on the real consumer, without transferring the direct library reason.",
+      "acceptance_after_fix": "A SOURCE transform/control must demonstrate the key changes while digest/pin remain otherwise valid. Exact public refusal and unchanged DB/material census remain NOT_RUN until the bounded real history journey."
+    }
+  ],
+  "scoped_positive_conclusions": [
+    {
+      "area": "Authentic historical producer rather than digest substitution",
+      "result": "SOURCE_DESIGN_ACCEPTABLE",
+      "evidence": "Original e6ffcf8 caller SHA matches Git. Adaptation changes BOOTSTRAP observer/routing, installed interpreter spelling, fixture alias, and cuts the old reader/forged-outcome tail. It does not replace old API/domain/native source or force a checker digest. Old installed package bytes equal its wheel and Git export. The selected partial-requirement-full path uses real old result/check generation; current allowlist explicitly contains old833b5690... paired with1042abaf... ."
+    },
+    {
+      "area": "Stop/drain and first consumption ordering",
+      "result": "SOURCE_DESIGN_ACCEPTABLE_RUNTIME_NOT_RUN",
+      "evidence": "Adapted old lines1684-1737 retain original Host retirement/runtime.close, joined process/no owned PIDs, Stop before handoff, and finalizer cleanup. The authentic final/check is produced earlier. Original old restart/reconcile and forged-outcome append are removed. Handoff records unconsumed state; current caller requires native_cleanup PASS, no owned PIDs, run_contract1/read1/handlers2 and consumption0 before installed current upgrade/read/reconcile. Drain precedes Stop in this retained producer; both precede handoff/current first consumption."
+    },
+    {
+      "area": "Installed migration and same-state persistence",
+      "result": "SOURCE_DESIGN_ACCEPTABLE_RUNTIME_NOT_RUN",
+      "evidence": "Fresh empty fixture is initialized by old installed -I -B -m omnis.migrate --initialize at0012; current installed -m omnis.migrate has no --initialize and upgrades the same DSN to0013. All-public-table snapshots compare every preexisting row, allowing Alembic head change and empty new managed_mission_revision. Same retained catalog root/request/refs are used; current first reconcile may change only domain_result_consumed, exact repeated reconcile/readback and full census/material/native-observation equality are checked."
+    },
+    {
+      "area": "Ordinary installed reader/no execution",
+      "result": "SOURCE_DESIGN_ACCEPTABLE_RUNTIME_NOT_RUN",
+      "evidence": "Current reader is a separate installed interpreter with -I -B, owned HOME/cwd and no ROOT/api/src injection. Observer instruments defining pure_probe.evaluate_pure and compiler aliases, module_registry handler, BuildSource/ManagedAdmission build, RuntimeClient and NativeTaskOwner execution entrypoints; attempts are recorded before raising and missing/unknown events refuse. No dependency-bearing universal proof is required for the finite selected retained graph."
+    },
+    {
+      "area": "Negative scope and public reasons",
+      "result": "HONEST_SCOPE_WITH_F02_GAP",
+      "evidence": "Six supplied faults are explicitly private observer-input seams, never durable corruption. FAULT markers are required on the actual consumer seam; public exit/status/reason is recorded before same-fault reconcile comparison, infrastructure/parser denials excluded, and each negative is followed by a same-installed-reader positive. Actual graph/public reason semantics remain NOT_RUN and require parent adjudication; SOURCE reasons are not promoted."
+    }
+  ],
+  "distribution_verification": {
+    "method": "Read-only Git archive of exactly the declared source paths, comparison of exported files/manifest hashes, wheel hashes and all installed omnis members against both wheel and Git export. No install/build/native effect performed by reviewer.",
+    "exit": 0,
+    "old": {
+      "exported_regular_files": 310,
+      "git_archive_sha_matches": true,
+      "git_export_mismatches": [],
+      "manifest_mismatches": [],
+      "wheel_sha256": "933a17e8a6c588f0cfe5a69aff1a2164967277066fc460e4e2f3716db7f515d2",
+      "wheel_sha_matches": true,
+      "requirements_sha_matches": true,
+      "installed_wheel_git_members": 83,
+      "installed_wheel_git_mismatches": []
+    },
+    "current": {
+      "exported_regular_files": 320,
+      "git_archive_sha_matches": true,
+      "git_export_mismatches": [],
+      "manifest_mismatches": [],
+      "wheel_sha256": "7bb9f18e4c1b06b721c6acf21e9ab74ab10006c180a218d438ce9ec1642cd3ba",
+      "wheel_sha_matches": true,
+      "requirements_sha_matches": true,
+      "installed_wheel_git_members": 88,
+      "installed_wheel_git_mismatches": []
+    },
+    "declared_commands_reviewed": "Fresh separate uv3.13.15 venvs, offline locked export/hash-required copy sync, offline no-deps copy wheel install and dependency check. Commands are recorded exit0 in prerequisites; reviewer independently compared bytes, not a fresh build/install or transitive dependency runtime certification."
+  },
+  "other_evidence": {
+    "parent_source_check": "Parent steering reports74SOURCE PASS14.08s/quality0 on exact30ba bytes; attributed to parent, not rerun or runtime-certified by this reviewer.",
+    "git_diff_check": "exit0",
+    "shared_changes": "Preexisting modified api/tests/test_contract_method_pg.py and protected untracked HTML retained. Reviewer made no shared source edits or commits.",
+    "protected_html": "NOT_READ_NOT_HASHED_NOT_EDITED",
+    "prior_acceptances": "Qualification191b901 and D01 SOURCE approval, e6ffcf8 historical product acceptance, and unchanged API/native/pins remain at their original scopes; not reopened."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/source-reproducer.py",
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/key-source-reproducer.py",
+    "/home/kali/.hermes/cache/scratch/h01-h02-normative-review-30ba8b08/review.json"
+  ],
+  "not_run": [
+    "PG/private fixture",
+    "real old native producer",
+    "installed0012 initialization/current0013 upgrade",
+    "valid historical installed public reader/reconcile/replay",
+    "six graph fault public CLI reasons and durable census",
+    "H03 runtime restart",
+    "full canonical"
+  ],
+  "constraints_observed": {
+    "shared_edits": false,
+    "commits": false,
+    "native_or_pg": false,
+    "network": false,
+    "profiles_or_credentials": false,
+    "protected_html_read_or_hash": false,
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "proposed_status_delta": [
+    {"scope": "AICI H01/H02", "implementation": "SOURCE_CANDIDATE", "proof": "BLOCKED_BEFORE_NATIVE", "review": "CHANGES_REQUESTED", "next": "Parent reproduce/adjudicateF01/F02; minimal affected fix and exact re-review, then original selected runner budget240."},
+    {"scope": "Qualification/D01 unchanged", "proof": "PRIOR_SCOPED_ACCEPTANCE_RETAINED", "next": "No unchanged rerun."},
+    {"scope": "B06b/G02/P2-inert", "implementation": "PARTIAL", "proof": "NOT_CLOSED", "next": "H01/H02 then H03/binding and remaining admitted consumers."},
+    {"scope": "P4a-minim/live", "implementation": "NOT_DELIVERED", "proof": "NOT_RUN", "next": "Canonical only at final integration/phase boundary; separate live authorization."}
+  ]
+}

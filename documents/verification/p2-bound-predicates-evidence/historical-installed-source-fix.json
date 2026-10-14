@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_FIXES_PENDING_TWO_FOCUSED_REVIEWS",
+  "snapshot": {
+    "base_commit": "2891a3ff93c1a04904f375b509e4536248c094a0",
+    "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "source_sha256": "54dfc960f32e59197eab64c214b4b56fc455adf5b46d26a8c3c849c773aa050f",
+    "original_reviewed_sha256": "30ba8b0894771ad55e7c19ff7e7f19624a3e79b93287d6eb4d1a65a6442d6a66",
+    "prerequisites": "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/prerequisites.json",
+    "prerequisites_sha256": "475aeb1896a9dc662bb1e35c319069f41bd8b9013ff3fe98d946eb68f71d9374"
+  },
+  "finding_disposition": [
+    {
+      "ids": [
+        "H01-H02-NORM-F01",
+        "HISTORY-SAFETY-F01"
+      ],
+      "change": "Actual producer_env explicitly sets OMNIS_CONTRACT_METHOD_NATIVE_PG=1; actual unchanged historical decorator AST is evaluated under that exact environment; absent opt-in remains guarded.",
+      "red": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/red-norm.log",
+      "green": "test_historical_producer_environment_satisfies_actual_skip_decorator"
+    },
+    {
+      "ids": [
+        "H01-H02-NORM-F02"
+      ],
+      "change": "Existing foreign-checker slot mutates only key to foreign-issuer; preserves historical code digest, semantics and composer pin; reseals only the private deep copy.",
+      "red": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/red-norm.log",
+      "green": "SOURCE envelope test plus exact transform in unchanged installed verifier. No extra six-fault matrix breadth; actual public reason remains NOT_RUN."
+    },
+    {
+      "ids": [
+        "HISTORY-SAFETY-F02"
+      ],
+      "change": "Test-owned verify_test_database fence acquired before dynamic DB fixture and restored after its finalizer. Producer is unsettled before launch. Existing run_gate is reused for producer family, with its strict family_drained receipt. Only joined positive plus authentic typed handoff/proof releases the fence; timeout/signal/unknown/exit0 alone/SKIP/missing proof retain UNCERTAIN and the exact DB. Other invoke children also flag uncertainty on failure.",
+      "red": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/red-cleanup/cleanup-reproducer-result.json",
+      "green": "Real exact invoke + exact fixture generator under fake SQL with held detached TERM-resistant owned child for timeout,-15,99; each DROP denied while live. Positive settled DROP and exit0-without-handoff retention; exact counter/family scalar type controls. Actual pytest LIFO teardown both settled and uncertain; existing real run_gate drains held synthetic families in timeout/signal/99 orderings. No new process owner/framework."
+    }
+  ],
+  "verification": {
+    "source": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "-k",
+        "not real_native",
+        "-q",
+        "--tb=short",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-source-pytest"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-source.log",
+      "log_sha256": "42ff92071bc59d18728f62f837c3dbfba81c4231d83d1207bb5bba48b86d32e0",
+      "summary": "........................................................................ [ 77%]\n.....................                                                    [100%]\n93 passed, 20 deselected in 19.80s\n",
+      "passed": 93,
+      "deselected": 20
+    },
+    "ruff": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-ruff.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": "All checks passed!\n"
+    },
+    "format": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-format.log",
+      "log_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "summary": "1 file already formatted\n"
+    },
+    "mypy": {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/mypy",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-mypy.log",
+      "log_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "summary": "Success: no issues found in 1 source file\n"
+    },
+    "diff_check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/final-diff_check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    },
+    "installed_key": {
+      "command": [
+        "/home/kali/.hermes/cache/scratch/h01-h02-installed-3913234cdfbd/current/venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/installed-key-control.py"
+      ],
+      "exit": 0,
+      "result": {
+        "positive": "ACCEPTED",
+        "key_only_negative": "METHOD_CHECKER_UNAVAILABLE",
+        "scope": "INSTALLED_LIBRARY_ONLY_NOT_PUBLIC_CLI",
+        "original_unchanged": true,
+        "digest_semantics_pin_preserved": true
+      },
+      "log": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/installed-key.log"
+    }
+  },
+  "gate_adapter": {
+    "cwd": "Same-PID chdir/exec adapter preserves exact producer owned cwd while reusing unchanged run_gate; not another owner.",
+    "red_cwd": "/home/kali/.hermes/cache/scratch/h01-h02-minimal-fix/red-cwd.log",
+    "green": "Actual invoke positive checks Path.cwd() against its owned temporary directory.",
+    "producer_output": "Existing gate retains private combined stdout/stderr; caller consumes actual code and handoff/proof, not the empty CompletedProcess output placeholders."
+  },
+  "source_count": {
+    "previous": 74,
+    "new": 19,
+    "total": 93,
+    "native_nodes_deselected": 20
+  },
+  "red_cleanup": {
+    "scope": "SOURCE_EXACT_INVOKE_EXACT_FIXTURE_FAKE_DB_SYNTHETIC_SUBPROCESS",
+    "results": [
+      {
+        "mode": "timeout",
+        "owned_synthetic_family_live_at_fixture_DROP": [
+          true
+        ],
+        "events": [
+          "fixture_CREATE_DATABASE",
+          "direct_leader_timeout_joined",
+          "checkpoint_UNCERTAIN",
+          "HISTORICAL_CHILD_TIMEOUT_FAMILY_UNCERTAIN",
+          "fixture_DROP_DATABASE"
+        ],
+        "status_at_teardown": "UNCERTAIN",
+        "synthetic_rescue_not_running": true,
+        "synthetic_rescue_reaped_by_owner": true
+      },
+      {
+        "mode": "signal-exit",
+        "owned_synthetic_family_live_at_fixture_DROP": [
+          true
+        ],
+        "events": [
+          "fixture_CREATE_DATABASE",
+          "direct_leader_joined_-15",
+          "checkpoint_calls",
+          "HISTORICAL_AUTHENTIC_PRODUCER_FAILED",
+          "fixture_DROP_DATABASE"
+        ],
+        "status_at_teardown": "IN_PROGRESS",
+        "synthetic_rescue_not_running": true,
+        "synthetic_rescue_reaped_by_owner": true
+      },
+      {
+        "mode": "unknown-exit",
+        "owned_synthetic_family_live_at_fixture_DROP": [
+          true
+        ],
+        "events": [
+          "fixture_CREATE_DATABASE",
+          "direct_leader_joined_99",
+          "checkpoint_calls",
+          "HISTORICAL_AUTHENTIC_PRODUCER_FAILED",
+          "fixture_DROP_DATABASE"
+        ],
+        "status_at_teardown": "IN_PROGRESS",
+        "synthetic_rescue_not_running": true,
+        "synthetic_rescue_reaped_by_owner": true
+      }
+    ]
+  },
+  "scope_limits": [
+    "SOURCE_FAILURE_ORDERING_WITH_FAKE_SQL_AND_REAL_OWNED_STDLIB_PROCESSES",
+    "SYNTHETIC_POSITIVE_PROOF_IS_NOT_NATIVE_RECEIPT",
+    "NO_PG_OR_NATIVE_OR_NETWORK_ATTEMPT",
+    "ACTUAL_H01_H02_HISTORY_AND_PUBLIC_CLI_DENIAL_TUPLES_NOT_RUN",
+    "TWO_PARENT_FOCUSED_RE_REVIEWS_REQUIRED_ON_EXACT_SHA",
+    "NO_H03_BATCH_MODEL_SETTINGS",
+    "NO_FULL_CANONICAL",
+    "OUTER_EXISTING_RUN_GATE_REMAINS_AUTHORITATIVE_EVENTUAL_DRAIN",
+    "Reticle NOT_APPLICABLE",
+    "Chisel BLOCKED_NO_GO"
+  ],
+  "files_modified": [
+    "api/tests/test_contract_method_pg.py"
+  ],
+  "git": {
+    "status": "## checkpoint/p2-vm-restart-20261011\n M api/tests/test_contract_method_pg.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "staged_paths": "",
+    "commits_created": false
+  },
+  "protected_html": "NOT_READ_NOT_HASHED_NOT_CHANGED",
+  "immutable_original_reports_and_probes": "NOT_MODIFIED; RED uses an owned copy with only output path changed",
+  "skill_lesson_proposal": "Fence nested fixture destruction before outer owner settlement. Real pytest teardown order must prove the test-owned guard outlives the dynamic DB finalizer; timeout/signal/unknown exit producers must set uncertainty, and strict existing owner family receipt plus authentic typed handoff is required to release it."
+}
